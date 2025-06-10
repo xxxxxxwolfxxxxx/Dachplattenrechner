@@ -356,26 +356,23 @@
             html += `<p>Basis: ${basisBreite}m | Höhe: ${hoehe}m | Platten: ${aktuelleSchnittliste.length} Stück</p>`;
             html += `</div>`;
             
-            aktuelleSchnittliste.forEach((item, index) => {
+            aktuelleSchnittliste.forEach(item => {
                 const plattenStart = parseFloat(item.positionVonLinks);
                 const plattenEnde = parseFloat(item.positionBis);
                 const plattenBreite = parseFloat(item.plattenbreite);
-                const originalPlattenEnde = plattenStart + plattenBreite; // Das wäre das Ende ohne Abschnitt
+                const originalPlattenEnde = plattenStart + plattenBreite;
                 const istLetztePlatte = originalPlattenEnde > basisBreite;
                 
-                console.log(`Platte ${item.plattenNr}: Start=${plattenStart}, Ende=${plattenEnde}, OriginalEnde=${originalPlattenEnde}, Basis=${basisBreite}, istLetzte=${istLetztePlatte}`);
-                
-                // Berechne tatsächliche Breite und rechten Punkt
+                // Berechne rechten Punkt
                 let rechterPunkt = 280;
                 if (istLetztePlatte) {
                     const tatsaechlicheBreite = basisBreite - plattenStart;
                     const verhaeltnis = tatsaechlicheBreite / plattenBreite;
                     rechterPunkt = Math.max(50, Math.min(280, verhaeltnis * 280));
-                    console.log(`Letzte Platte ${item.plattenNr}: rechterPunkt=${rechterPunkt}, verhaeltnis=${verhaeltnis}`);
                 }
                 
                 // Anreißmaße berechnen
-                const plattenEndeReal = istLetztePlatte ? basisBreite : plattenEnde;
+                const plattenEndeReal = istLetztePlatte ? basisBreite : originalPlattenEnde;
                 const abstandStart = Math.abs(plattenStart - mitte);
                 const abstandEnde = Math.abs(plattenEndeReal - mitte);
                 const hoeheStart = hoehe * Math.max(0, 1 - (abstandStart / mitte));
@@ -398,37 +395,58 @@
                 if (isNaN(startYRel) || startYRel < 0 || startYRel > 150) startYRel = 75;
                 if (isNaN(endYRel) || endYRel < 0 || endYRel > 150) endYRel = 40;
                 
-                // SVG mit korrekter Endposition
+                // SVG mit korrekter Schnittlinie
                 const endX = istLetztePlatte ? (rechterPunkt * 310 / 280) : 310;
                 
                 html += `<svg style="position: absolute; bottom: 20px; left: 20px;" width="310" height="150">
                     <polygon points="0,150 ${endX},150 ${endX},${endYRel} 0,${startYRel}" fill="#007bff" opacity="0.7"/>
                     <text x="${endX/2}" y="120" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Nutzen</text>
                     <polygon points="0,${startYRel} ${endX},${endYRel} ${endX},0 0,0" fill="#dc3545" opacity="0.5"/>
-                    <text x="${endX/2}" y="${Math.min(startYRel, endYRel)/2 + 10}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Abschnitt</text>
-                    <line x1="0" y1="${startYRel}" x2="${endX}" y2="${endYRel}" stroke="#000" stroke-width="4"/>
-                </svg>`;
+                    <text x="${endX/2}" y="${Math.min(startYRel, endYRel)/2 + 10}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Abschnitt</text>`;
                 
-                // Spitze anzeigen wenn Platte die Mitte überdeckt
+                // Schnittlinie: Bei Spitze zwei Linien, sonst eine
                 if (plattenStart <= mitte && originalPlattenEnde >= mitte) {
                     const spitzeVonLinks = mitte - plattenStart;
-                    let spitzePosition = (spitzeVonLinks / plattenBreite) * 310;
+                    const spitzePosition = (spitzeVonLinks / plattenBreite) * 310;
+                    html += `<line x1="0" y1="${startYRel}" x2="${spitzePosition}" y2="0" stroke="#000" stroke-width="4"/>
+                             <line x1="${spitzePosition}" y1="0" x2="${endX}" y2="${endYRel}" stroke="#000" stroke-width="4"/>`;
+                } else {
+                    html += `<line x1="0" y1="${startYRel}" x2="${endX}" y2="${endYRel}" stroke="#000" stroke-width="4"/>`;
+                }
+                
+                html += `</svg>`;
+                
+                // Spitze markieren
+                if (plattenStart <= mitte && originalPlattenEnde >= mitte) {
+                    const spitzeVonLinks = mitte - plattenStart;
+                    const spitzePosition = (spitzeVonLinks / plattenBreite) * 310;
                     
-                    if (isNaN(spitzePosition) || spitzePosition < 0 || spitzePosition > 310) {
-                        spitzePosition = 155;
-                    }
-                    
-                    console.log(`Spitze bei Platte ${item.plattenNr}: Position=${spitzePosition}, spitzeVonLinks=${spitzeVonLinks}`);
-                    
-                    // Gestrichelte Linie an der Spitze
-                    html += `<div style="position: absolute; bottom: 20px; left: ${20 + spitzePosition}px; width: 3px; height: 150px; background: #dc3545; border-left: 3px dashed #dc3545;"></div>`;
+                    html += `<div style="position: absolute; bottom: 20px; left: ${20 + spitzePosition}px; width: 3px; height: 150px; background: #dc3545; opacity: 0.8;"></div>`;
                     html += `<div style="position: absolute; bottom: 175px; left: ${15 + spitzePosition}px; font-size: 12px; font-weight: bold; color: #dc3545;">SPITZE ${hoehe}m</div>`;
                     
-                    // Maßlinie von links zur Spitze
-                    html += `<div style="position: absolute; top: -10px; left: 20px; width: ${spitzePosition}px; height: 2px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: -25px; left: ${20 + spitzePosition/2}px; font-size: 12px; font-weight: bold; color: #666; text-align: center; transform: translateX(-50%);">${spitzeVonLinks.toFixed(1)}m</div>`;
-                    html += `<div style="position: absolute; top: -15px; left: 15px; font-size: 10px; color: #666;">|</div>`;
-                    html += `<div style="position: absolute; top: -15px; left: ${15 + spitzePosition}px; font-size: 10px; color: #666;">|</div>`;
+                    // Maßlinie zur Spitze - ohne Pfeile
+                    html += `<div style="position: absolute; top: 5px; left: 20px; width: ${spitzePosition}px; height: 2px; background: #666;"></div>`;
+                    html += `<div style="position: absolute; top: -10px; left: ${20 + spitzePosition/2}px; font-size: 12px; font-weight: bold; color: #666; transform: translateX(-50%);">${spitzeVonLinks.toFixed(1)}m</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: 15px; font-size: 10px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${15 + spitzePosition}px; font-size: 10px; color: #666;">|</div>`;
+                }
+                
+                // Letzte Platte: Dachkante und Überhang
+                if (istLetztePlatte) {
+                    const ueberhang = originalPlattenEnde - basisBreite;
+                    const restBreite = 310 - endX;
+                    
+                    // Grüne Dachkanten-Linie
+                    html += `<div style="position: absolute; bottom: 20px; left: ${20 + endX}px; width: 3px; height: 180px; background: #00AA00;"></div>`;
+                    html += `<div style="position: absolute; bottom: 80px; left: ${12 + endX}px; font-size: 12px; font-weight: bold; color: #00AA00; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
+                    
+                    // Rote Maßlinie (OHNE Kasten!)
+                    if (restBreite > 5) {
+                        html += `<div style="position: absolute; top: -10px; left: ${20 + endX}px; width: ${restBreite}px; height: 2px; background: #FF0000;"></div>`;
+                        html += `<div style="position: absolute; top: -30px; left: ${20 + endX + restBreite/2}px; font-size: 14px; font-weight: bold; color: #FF0000; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
+                        html += `<div style="position: absolute; top: -15px; left: ${15 + endX}px; font-size: 10px; color: #FF0000;">|</div>`;
+                        html += `<div style="position: absolute; top: -15px; left: ${15 + endX + restBreite}px; font-size: 10px; color: #FF0000;">|</div>`;
+                    }
                 }
                 
                 // Markierungen
@@ -440,34 +458,6 @@
                     html += `<div style="position: absolute; bottom: 20px; left: 326px; width: 4px; height: ${150 - endYRel}px; background: #dc3545;"></div>`;
                 }
                 
-                // WAAGERECHTER MASSPFEIL - nur bei letzter Platte
-                if (istLetztePlatte) {
-                    const ueberhang = plattenEnde - basisBreite;
-                    const restBreite = 310 - endX;
-                    
-                    console.log('Letzte Platte erkannt:', item.plattenNr, 'Überhang:', ueberhang, 'RestBreite:', restBreite);
-                    
-                    if (restBreite > 10) {
-                        // Roter waagerechter Pfeil - SEHR GROß UND AUFFÄLLIG
-                        html += `<div style="position: absolute; bottom: 90px; left: ${20 + endX}px; width: ${restBreite}px; height: 8px; background: #FF0000; box-shadow: 0 0 10px #FF0000;"></div>`;
-                        
-                        // Große Pfeilspitzen
-                        html += `<div style="position: absolute; bottom: 82px; left: ${20 + endX - 12}px; width: 0; height: 0; border-top: 12px solid transparent; border-bottom: 12px solid transparent; border-right: 16px solid #FF0000;"></div>`;
-                        html += `<div style="position: absolute; bottom: 82px; left: ${20 + 310 - 4}px; width: 0; height: 0; border-top: 12px solid transparent; border-bottom: 12px solid transparent; border-left: 16px solid #FF0000;"></div>`;
-                        
-                        // SEHR große rote Beschriftung
-                        html += `<div style="position: absolute; bottom: 110px; left: ${20 + endX + restBreite/2}px; transform: translateX(-50%); background: #FF0000; color: white; padding: 12px 16px; border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; border: 4px solid #800000; box-shadow: 0 0 15px rgba(255,0,0,0.5);">⚠️ ABSCHNEIDEN ⚠️<br><span style="font-size: 24px;">${(ueberhang * 100).toFixed(0)}cm</span></div>`;
-                        
-                        // Grüne Dachkanten-Linie
-                        html += `<div style="position: absolute; bottom: 20px; left: ${20 + endX}px; width: 6px; height: 80px; background: #00AA00; box-shadow: 0 0 5px #00AA00;"></div>`;
-                        html += `<div style="position: absolute; bottom: 105px; left: ${10 + endX}px; color: #00AA00; font-size: 14px; font-weight: bold; transform: rotate(-90deg); transform-origin: left center;">DACHKANTE</div>`;
-                    } else {
-                        // Auch bei kleinem Überhang sichtbar machen
-                        html += `<div style="position: absolute; bottom: 90px; left: ${20 + endX}px; width: 20px; height: 8px; background: #FF0000;"></div>`;
-                        html += `<div style="position: absolute; bottom: 110px; left: ${20 + endX}px; background: #FF0000; color: white; padding: 8px; border-radius: 4px; font-size: 14px; font-weight: bold;">ABSCHNEIDEN ${(ueberhang * 100).toFixed(0)}cm</div>`;
-                    }
-                }
-                
                 // Maße
                 html += `<div style="position: absolute; bottom: 45px; left: -20px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
                 html += `<div style="position: absolute; bottom: 45px; right: -20px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
@@ -476,6 +466,7 @@
                 
                 html += `</div>`;
                 
+                // Anleitung
                 html += `<div style="background: #fff3cd; padding: 15px; border-radius: 8px; font-size: 14px; margin-top: 20px; border-left: 4px solid #ffc107;">`;
                 html += `<strong>📏 Anzeichnen:</strong><br>`;
                 if (istLetztePlatte) {
