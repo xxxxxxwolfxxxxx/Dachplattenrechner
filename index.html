@@ -418,6 +418,39 @@
             border: 1px solid white;
         }
 
+        .cookie-settings {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .cookie-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .cookie-option input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+
+        .save-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .save-button:hover {
+            background: #5a6fd8;
+        }
+
         @media (max-width: 768px) {
             .calculators-grid {
                 grid-template-columns: 1fr;
@@ -692,19 +725,6 @@
             localStorage.setItem('analyticsCookies', 'true');
             localStorage.setItem('marketingCookies', 'true');
             
-    <script>
-        // Cookie Management
-        function showCookieBanner() {
-            if (!localStorage.getItem('cookieConsent')) {
-                document.getElementById('cookieBanner').classList.add('show');
-            }
-        }
-
-        function acceptCookies() {
-            localStorage.setItem('cookieConsent', 'all');
-            localStorage.setItem('analyticsCookies', 'true');
-            localStorage.setItem('marketingCookies', 'true');
-            
             if (typeof gtag !== 'undefined') {
                 gtag('config', 'G-6NSYG8B1T9', {
                     anonymize_ip: true,
@@ -779,18 +799,18 @@
                     <h2>Cookie-Einstellungen</h2>
                     <p>Diese Website verwendet Cookies zur Verbesserung der Nutzererfahrung.</p>
                     
-                    <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                            <input type="checkbox" checked disabled>
-                            <span>Notwendige Cookies</span>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 10px;">
+                    <div class="cookie-settings">
+                        <div class="cookie-option">
+                            <input type="checkbox" id="essentialCookies" checked disabled>
+                            <label for="essentialCookies">Notwendige Cookies</label>
+                        </div>
+                        <div class="cookie-option">
                             <input type="checkbox" id="analyticsCookies">
-                            <span>Analytics-Cookies (Google Analytics)</span>
-                        </label>
+                            <label for="analyticsCookies">Analytics-Cookies (Google Analytics)</label>
+                        </div>
                     </div>
                     
-                    <button onclick="saveCookieSettings()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Einstellungen speichern</button>
+                    <button class="save-button" onclick="saveCookieSettings()">Einstellungen speichern</button>
                 `;
             } else if (type === 'hilfe') {
                 content = `
@@ -815,8 +835,18 @@
             }
             
             modalBody.innerHTML = content;
+            
+            // Load current cookie settings if opening cookie modal
+            if (type === 'cookies') {
+                const analyticsCookies = localStorage.getItem('analyticsCookies') === 'true';
+                document.getElementById('analyticsCookies').checked = analyticsCookies;
+            }
+            
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
+            
+            // Setup email protection after modal content is loaded
+            setupEmailProtection();
         }
 
         function closeModal() {
@@ -827,7 +857,7 @@
         function saveCookieSettings() {
             const analyticsCookies = document.getElementById('analyticsCookies').checked;
             localStorage.setItem('cookieConsent', 'custom');
-            localStorage.setItem('analyticsCookies', analyticsCookies);
+            localStorage.setItem('analyticsCookies', analyticsCookies.toString());
             
             if (analyticsCookies && typeof gtag !== 'undefined') {
                 gtag('config', 'G-6NSYG8B1T9', {
@@ -856,7 +886,10 @@
         }
 
         function revealEmail(elementId, email) {
-            document.getElementById(elementId).innerHTML = `<a href="mailto:${email}">${email}</a>`;
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<a href="mailto:${email}">${email}</a>`;
+            }
         }
 
         // Close modal when clicking outside
@@ -872,7 +905,9 @@
             showCookieBanner();
             setupEmailProtection();
             
-            if (localStorage.getItem('cookieConsent') && window.initializeTracking) {
+            // Initialize tracking if consent was already given
+            const cookieConsent = localStorage.getItem('cookieConsent');
+            if ((cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') && window.initializeTracking) {
                 window.initializeTracking();
             }
         });
