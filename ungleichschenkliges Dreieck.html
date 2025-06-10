@@ -4,6 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ungleichschenkliges Dreieck Trapetzblechrechner</title>
+    <meta name="description" content="Berechnen Sie Trapetzbleche für ungleichschenklige Dreiecksflächen mit variabler Spitzenposition. Flexible Eingabemöglichkeiten.">
+    
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Check if analytics cookies are accepted
+        const analyticsCookies = localStorage.getItem('analyticsCookies');
+        if (analyticsCookies === 'true' || localStorage.getItem('cookieConsent') === 'all') {
+            gtag('config', 'G-6NSYG8B1T9', {
+                anonymize_ip: true,
+                cookie_flags: 'SameSite=None;Secure'
+            });
+        }
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -16,6 +38,51 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+        }
+
+        /* Navigation Header */
+        .nav-header {
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 2px solid #667eea;
+            background: transparent;
+        }
+
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-title {
+            color: #2c3e50;
+            font-size: 1.2em;
+            font-weight: 700;
+            text-align: center;
+            flex: 1;
         }
 
         .container {
@@ -201,9 +268,37 @@
         #kantenlängen-inputs, #position-inputs {
             display: none;
         }
+
+        @media (max-width: 768px) {
+            .nav-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav-title {
+                order: -1;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .parameter-switch {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Navigation Header -->
+    <div class="nav-header">
+        <a href="index.html" class="back-btn">
+            <span>←</span>
+            <span>Zurück zur Übersicht</span>
+        </a>
+        <div class="nav-title">Ungleichschenkliges Dreieck</div>
+    </div>
+
     <div class="container">
         <div style="text-align: center; margin-bottom: 20px;">
             <svg width="250" height="160" viewBox="0 0 250 160" style="margin-bottom: 10px;">
@@ -557,6 +652,14 @@
                 kanteRechts = berechneteKanten.rechts;
             }
 
+            // Track calculation event for analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'calculation', {
+                    'event_category': 'ungleichschenkliges_dreieck',
+                    'event_label': 'form_submitted'
+                });
+            }
+
             const ueberlappung = lieferbreite - deckbreite;
             const dreieckBerechnung = berechneUngleichschenkligesDreieck(basisBreite, hoehe, spitzenPosition, deckbreite);
             const maxLaenge = Math.max(...dreieckBerechnung.schnittliste.map(p => parseFloat(p.benoetigteLaenge)));
@@ -594,6 +697,14 @@
 
         function erstelleAnrissplan() {
             if (aktuelleSchnittliste.length === 0) return;
+            
+            // Track anrissplan generation
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'anrissplan_generated', {
+                    'event_category': 'ungleichschenkliges_dreieck',
+                    'event_label': 'pdf_generated'
+                });
+            }
             
             const basisBreite = parseFloat(document.getElementById('basis-breite').value);
             const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
