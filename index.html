@@ -392,6 +392,66 @@
             border: 1px solid white;
         }
 
+        /* Banner Ad Spaces */
+        .ad-banner {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 30px 0;
+            border: 2px dashed #ddd;
+            color: #666;
+            font-size: 14px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .ad-banner:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .ad-banner-large {
+            min-height: 200px;
+        }
+
+        .ad-banner-sidebar {
+            min-height: 300px;
+            margin: 20px 0;
+        }
+
+        .ad-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            opacity: 0.5;
+        }
+
+        .ad-placeholder span {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        /* Responsive Ad Layout */
+        @media (min-width: 1200px) {
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr 300px;
+                gap: 40px;
+                align-items: start;
+            }
+            
+            .sidebar-ads {
+                position: sticky;
+                top: 20px;
+            }
+        }
+
         @media (max-width: 768px) {
             .calculators-grid {
                 grid-template-columns: 1fr;
@@ -409,6 +469,18 @@
             .cookie-content {
                 flex-direction: column;
                 text-align: center;
+            }
+            
+            .main-content {
+                display: block !important;
+            }
+            
+            .sidebar-ads {
+                display: none;
+            }
+            
+            .ad-banner-large {
+                min-height: 100px;
             }
         }
     </style>
@@ -438,167 +510,246 @@
             </div>
         </header>
 
-        <div class="calculators-grid">
-            <!-- Gleichschenkliges Dreieck -->
-            <a href="gleichschenkliges Dreieck.html" class="calculator-card">
-                <div class="card-icon">
-                    <svg width="120" height="80" viewBox="0 0 120 80">
-                        <polygon points="60,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                        <line x1="30" y1="70" x2="30" y2="58" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="40" y1="70" x2="40" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="50" y1="70" x2="50" y2="34" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="60" y1="70" x2="60" y2="10" stroke="#dc3545" stroke-width="2"/>
-                        <line x1="70" y1="70" x2="70" y2="34" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="80" y1="70" x2="80" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="90" y1="70" x2="90" y2="58" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <circle cx="60" cy="10" r="2" fill="#dc3545"/>
-                    </svg>
-                </div>
-                <h2 class="card-title">Gleichschenkliges Dreieck</h2>
-                <p class="card-description">
-                    Ideal für Pyramidendächer, Satteldachwalmflächen und symmetrische Dreiecksflächen.
-                </p>
-                <ul class="card-features">
-                    <li>Symmetrische Dreiecksberechnung</li>
-                    <li>Automatische Spitzenerkennung</li>
-                    <li>Optimierte Materialverteilung</li>
-                    <li>Detaillierte Schnittliste</li>
-                </ul>
-                <span class="cta-button">Jetzt berechnen →</span>
-            </a>
+        <!-- Top Banner Ad -->
+        <div class="ad-banner ad-banner-large">
+            <div class="ad-placeholder">
+                <span>📢 Banner-Werbung (728x90 oder 970x250)</span>
+                <small>Hier wird später Ihre Bannerwerbung angezeigt</small>
+            </div>
+        </div>
 
-            <!-- Ungleichschenkliges Dreieck -->
-            <a href="ugleichschenkliges Dreieck.html" class="calculator-card">
-                <div class="card-icon">
-                    <svg width="120" height="80" viewBox="0 0 120 80">
-                        <polygon points="75,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                        <line x1="28" y1="70" x2="28" y2="60" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="38" y1="70" x2="38" y2="48" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="48" y1="70" x2="48" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="58" y1="70" x2="58" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="75" y1="70" x2="75" y2="10" stroke="#dc3545" stroke-width="2"/>
-                        <line x1="85" y1="70" x2="85" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="95" y1="70" x2="95" y2="60" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <circle cx="75" cy="10" r="2" fill="#dc3545"/>
-                        <line x1="20" y1="75" x2="75" y2="75" stroke="#ff6b35" stroke-width="2" stroke-dasharray="3,3"/>
-                    </svg>
-                </div>
-                <h2 class="card-title">Ungleichschenkliges Dreieck</h2>
-                <p class="card-description">
-                    Für asymmetrische Dachflächen mit verschobener Spitze. Flexible Eingabemöglichkeiten.
-                </p>
-                <ul class="card-features">
-                    <li>Variable Spitzenposition</li>
-                    <li>Kantenlängen oder Position/Höhe</li>
-                    <li>Geometrische Validierung</li>
-                    <li>Präzise Winkelberechnungen</li>
-                </ul>
-                <span class="cta-button">Jetzt berechnen →</span>
-            </a>
+        <div class="main-content">
+            <div class="content-area">
+                <div class="calculators-grid">
+                    <!-- Gleichschenkliges Dreieck -->
+                    <a href="gleichschenkliges Dreieck.html" class="calculator-card">
+                        <div class="card-icon">
+                            <svg width="120" height="80" viewBox="0 0 120 80">
+                                <polygon points="60,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                                <line x1="30" y1="70" x2="30" y2="58" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="40" y1="70" x2="40" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="50" y1="70" x2="50" y2="34" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="60" y1="70" x2="60" y2="10" stroke="#dc3545" stroke-width="2"/>
+                                <line x1="70" y1="70" x2="70" y2="34" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="80" y1="70" x2="80" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="90" y1="70" x2="90" y2="58" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <circle cx="60" cy="10" r="2" fill="#dc3545"/>
+                            </svg>
+                        </div>
+                        <h2 class="card-title">Gleichschenkliges Dreieck</h2>
+                        <p class="card-description">
+                            Ideal für Pyramidendächer, Satteldachwalmflächen und symmetrische Dreiecksflächen.
+                        </p>
+                        <ul class="card-features">
+                            <li>Symmetrische Dreiecksberechnung</li>
+                            <li>Automatische Spitzenerkennung</li>
+                            <li>Optimierte Materialverteilung</li>
+                            <li>Detaillierte Schnittliste</li>
+                        </ul>
+                        <span class="cta-button">Jetzt berechnen →</span>
+                    </a>
 
-            <!-- Trapez -->
-            <div class="calculator-card coming-soon">
-                <div class="card-icon">
-                    <svg width="120" height="80" viewBox="0 0 120 80">
-                        <polygon points="40,20 80,20 95,60 25,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                        <line x1="35" y1="60" x2="35" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="45" y1="60" x2="45" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="55" y1="60" x2="55" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="65" y1="60" x2="65" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="75" y1="60" x2="75" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="85" y1="60" x2="85" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
-                    </svg>
+                    <!-- Ungleichschenkliges Dreieck -->
+                    <a href="ugleichschenkliges Dreieck.html" class="calculator-card">
+                        <div class="card-icon">
+                            <svg width="120" height="80" viewBox="0 0 120 80">
+                                <polygon points="75,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                                <line x1="28" y1="70" x2="28" y2="60" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="38" y1="70" x2="38" y2="48" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="48" y1="70" x2="48" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="58" y1="70" x2="58" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="75" y1="70" x2="75" y2="10" stroke="#dc3545" stroke-width="2"/>
+                                <line x1="85" y1="70" x2="85" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="95" y1="70" x2="95" y2="60" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <circle cx="75" cy="10" r="2" fill="#dc3545"/>
+                                <line x1="20" y1="75" x2="75" y2="75" stroke="#ff6b35" stroke-width="2" stroke-dasharray="3,3"/>
+                            </svg>
+                        </div>
+                        <h2 class="card-title">Ungleichschenkliges Dreieck</h2>
+                        <p class="card-description">
+                            Für asymmetrische Dachflächen mit verschobener Spitze. Flexible Eingabemöglichkeiten.
+                        </p>
+                        <ul class="card-features">
+                            <li>Variable Spitzenposition</li>
+                            <li>Kantenlängen oder Position/Höhe</li>
+                            <li>Geometrische Validierung</li>
+                            <li>Präzise Winkelberechnungen</li>
+                        </ul>
+                        <span class="cta-button">Jetzt berechnen →</span>
+                    </a>
+
+                    <!-- Middle Banner Ad in Grid -->
+                    <div class="ad-banner">
+                        <div class="ad-placeholder">
+                            <span>📢 Content-Werbung (300x250)</span>
+                            <small>Werbefläche zwischen den Rechnern</small>
+                        </div>
+                    </div>
+
+                    <!-- Trapez -->
+                    <div class="calculator-card coming-soon">
+                        <div class="card-icon">
+                            <svg width="120" height="80" viewBox="0 0 120 80">
+                                <polygon points="40,20 80,20 95,60 25,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                                <line x1="35" y1="60" x2="35" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="45" y1="60" x2="45" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="55" y1="60" x2="55" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="65" y1="60" x2="65" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="75" y1="60" x2="75" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="85" y1="60" x2="85" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            </svg>
+                        </div>
+                        <h2 class="card-title">Trapez</h2>
+                        <p class="card-description">
+                            Für trapezförmige Dachflächen mit parallelen oberen und unteren Kanten.
+                        </p>
+                        <ul class="card-features">
+                            <li>Parallele Oberkanten</li>
+                            <li>Variable Neigungswinkel</li>
+                            <li>Optimierte Schnittführung</li>
+                            <li>Materialersparnis</li>
+                        </ul>
+                        <span class="cta-button">Bald verfügbar</span>
+                    </div>
+
+                    <!-- Parallelogramm -->
+                    <div class="calculator-card coming-soon">
+                        <div class="card-icon">
+                            <svg width="120" height="80" viewBox="0 0 120 80">
+                                <polygon points="25,20 75,20 95,60 45,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                                <line x1="35" y1="60" x2="35" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="45" y1="60" x2="45" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="55" y1="60" x2="55" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="65" y1="60" x2="65" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="75" y1="60" x2="75" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="85" y1="60" x2="85" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            </svg>
+                        </div>
+                        <h2 class="card-title">Parallelogramm</h2>
+                        <p class="card-description">
+                            Für schräge Rechteckflächen mit parallelen gegenüberliegenden Seiten.
+                        </p>
+                        <ul class="card-features">
+                            <li>Parallele Seitenwände</li>
+                            <li>Schräge Rechteckform</li>
+                            <li>Gleichmäßige Plattenaufteilung</li>
+                            <li>Einfache Verlegung</li>
+                        </ul>
+                        <span class="cta-button">Bald verfügbar</span>
+                    </div>
+
+                    <!-- Beliebiges Viereck -->
+                    <div class="calculator-card coming-soon">
+                        <div class="card-icon">
+                            <svg width="120" height="80" viewBox="0 0 120 80">
+                                <polygon points="30,25 80,15 90,55 20,65" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                                <line x1="35" y1="65" x2="35" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="45" y1="60" x2="45" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="55" y1="55" x2="55" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="65" y1="50" x2="65" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="75" y1="47" x2="75" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="85" y1="55" x2="85" y2="18" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            </svg>
+                        </div>
+                        <h2 class="card-title">Beliebiges Viereck</h2>
+                        <p class="card-description">
+                            Für komplexe Dachflächen mit vier unterschiedlichen Seiten.
+                        </p>
+                        <ul class="card-features">
+                            <li>Vier variable Eckpunkte</li>
+                            <li>Komplexe Geometrie</li>
+                            <li>Adaptive Platteneinteilung</li>
+                            <li>Maximale Flexibilität</li>
+                        </ul>
+                        <span class="cta-button">Bald verfügbar</span>
+                    </div>
+
+                    <!-- Kreis/Ellipse -->
+                    <div class="calculator-card coming-soon">
+                        <div class="card-icon">
+                            <svg width="120" height="80" viewBox="0 0 120 80">
+                                <ellipse cx="60" cy="40" rx="35" ry="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                                <line x1="35" y1="50" x2="35" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="45" y1="55" x2="45" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="55" y1="58" x2="55" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="65" y1="58" x2="65" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="75" y1="55" x2="75" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <line x1="85" y1="50" x2="85" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                                <circle cx="60" cy="40" r="2" fill="#dc3545"/>
+                            </svg>
+                        </div>
+                        <h2 class="card-title">Runde Flächen</h2>
+                        <p class="card-description">
+                            Für kreisförmige oder elliptische Dachflächen und Kuppeln.
+                        </p>
+                        <ul class="card-features">
+                            <li>Kreise und Ellipsen</li>
+                            <li>Kuppelberechnungen</li>
+                            <li>Radiale Aufteilung</li>
+                            <li>Minimaler Verschnitt</li>
+                        </ul>
+                        <span class="cta-button">Bald verfügbar</span>
+                    </div>
                 </div>
-                <h2 class="card-title">Trapez</h2>
-                <p class="card-description">
-                    Für trapezförmige Dachflächen mit parallelen oberen und unteren Kanten.
-                </p>
-                <ul class="card-features">
-                    <li>Parallele Oberkanten</li>
-                    <li>Variable Neigungswinkel</li>
-                    <li>Optimierte Schnittführung</li>
-                    <li>Materialersparnis</li>
-                </ul>
-                <span class="cta-button">Bald verfügbar</span>
+
+                <!-- Bottom Banner Ad -->
+                <div class="ad-banner ad-banner-large">
+                    <div class="ad-placeholder">
+                        <span>📢 Footer-Banner (728x90 oder 970x90)</span>
+                        <small>Werbefläche am Ende des Hauptinhalts</small>
+                    </div>
+                </div>
             </div>
 
-            <!-- Parallelogramm -->
-            <div class="calculator-card coming-soon">
-                <div class="card-icon">
-                    <svg width="120" height="80" viewBox="0 0 120 80">
-                        <polygon points="25,20 75,20 95,60 45,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                        <line x1="35" y1="60" x2="35" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="45" y1="60" x2="45" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="55" y1="60" x2="55" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="65" y1="60" x2="65" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="75" y1="60" x2="75" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="85" y1="60" x2="85" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
-                    </svg>
+            <!-- Sidebar Ads (visible on larger screens) -->
+            <div class="sidebar-ads">
+                <div class="ad-banner ad-banner-sidebar">
+                    <div class="ad-placeholder">
+                        <span>📢 Sidebar-Werbung</span>
+                        <small>300x250 oder 300x600</small>
+                        <small>Sticky Sidebar-Banner</small>
+                    </div>
                 </div>
-                <h2 class="card-title">Parallelogramm</h2>
-                <p class="card-description">
-                    Für schräge Rechteckflächen mit parallelen gegenüberliegenden Seiten.
-                </p>
-                <ul class="card-features">
-                    <li>Parallele Seitenwände</li>
-                    <li>Schräge Rechteckform</li>
-                    <li>Gleichmäßige Plattenaufteilung</li>
-                    <li>Einfache Verlegung</li>
-                </ul>
-                <span class="cta-button">Bald verfügbar</span>
+                
+                <div class="ad-banner ad-banner-sidebar">
+                    <div class="ad-placeholder">
+                        <span>📢 Zweiter Sidebar-Banner</span>
+                        <small>300x250</small>
+                        <small>Zusätzliche Werbefläche</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>                        <span class="cta-button">Bald verfügbar</span>
+                    </div>
+                </div>
+
+                <!-- Bottom Banner Ad -->
+                <div class="ad-banner ad-banner-large">
+                    <div class="ad-placeholder">
+                        <span>📢 Footer-Banner (728x90 oder 970x90)</span>
+                        <small>Werbefläche am Ende des Hauptinhalts</small>
+                    </div>
+                </div>
             </div>
 
-            <!-- Beliebiges Viereck -->
-            <div class="calculator-card coming-soon">
-                <div class="card-icon">
-                    <svg width="120" height="80" viewBox="0 0 120 80">
-                        <polygon points="30,25 80,15 90,55 20,65" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                        <line x1="35" y1="65" x2="35" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="45" y1="60" x2="45" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="55" y1="55" x2="55" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="65" y1="50" x2="65" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="75" y1="47" x2="75" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="85" y1="55" x2="85" y2="18" stroke="#666" stroke-width="1" opacity="0.8"/>
-                    </svg>
+            <!-- Sidebar Ads (visible on larger screens) -->
+            <div class="sidebar-ads">
+                <div class="ad-banner ad-banner-sidebar">
+                    <div class="ad-placeholder">
+                        <span>📢 Sidebar-Werbung</span>
+                        <small>300x250 oder 300x600</small>
+                        <small>Sticky Sidebar-Banner</small>
+                    </div>
                 </div>
-                <h2 class="card-title">Beliebiges Viereck</h2>
-                <p class="card-description">
-                    Für komplexe Dachflächen mit vier unterschiedlichen Seiten.
-                </p>
-                <ul class="card-features">
-                    <li>Vier variable Eckpunkte</li>
-                    <li>Komplexe Geometrie</li>
-                    <li>Adaptive Platteneinteilung</li>
-                    <li>Maximale Flexibilität</li>
-                </ul>
-                <span class="cta-button">Bald verfügbar</span>
-            </div>
-
-            <!-- Kreis/Ellipse -->
-            <div class="calculator-card coming-soon">
-                <div class="card-icon">
-                    <svg width="120" height="80" viewBox="0 0 120 80">
-                        <ellipse cx="60" cy="40" rx="35" ry="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                        <line x1="35" y1="50" x2="35" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="45" y1="55" x2="45" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="55" y1="58" x2="55" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="65" y1="58" x2="65" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="75" y1="55" x2="75" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <line x1="85" y1="50" x2="85" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        <circle cx="60" cy="40" r="2" fill="#dc3545"/>
-                    </svg>
+                
+                <div class="ad-banner ad-banner-sidebar">
+                    <div class="ad-placeholder">
+                        <span>📢 Zweiter Sidebar-Banner</span>
+                        <small>300x250</small>
+                        <small>Zusätzliche Werbefläche</small>
+                    </div>
                 </div>
-                <h2 class="card-title">Runde Flächen</h2>
-                <p class="card-description">
-                    Für kreisförmige oder elliptische Dachflächen und Kuppeln.
-                </p>
-                <ul class="card-features">
-                    <li>Kreise und Ellipsen</li>
-                    <li>Kuppelberechnungen</li>
-                    <li>Radiale Aufteilung</li>
-                    <li>Minimaler Verschnitt</li>
-                </ul>
-                <span class="cta-button">Bald verfügbar</span>
             </div>
         </div>
     </div>
@@ -636,7 +787,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2025 Matthias Dührkop - Trapetzblechrechner. Alle Rechte vorbehalten.</p>
+            <p>&copy; 2025 Trapetzblechrechner. Alle Rechte vorbehalten.</p>
         </div>
     </footer>
 
@@ -1065,7 +1216,7 @@
         }
 
         function revealEmail(elementId, email) {
-            document.getElementById(elementId).innerHTML = email;
+            document.getElementById(elementId).innerHTML = `<a href="mailto:${email}">${email}</a>`;
         }
     </script>
 </body>
