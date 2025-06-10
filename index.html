@@ -179,6 +179,7 @@
             text-align: center;
             text-decoration: none;
             transition: all 0.3s ease;
+            margin-top: auto;
         }
 
         .cta-button:hover {
@@ -437,6 +438,126 @@
             color: #667eea;
         }
 
+        /* AdBlocker Detection */
+        .adblocker-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(15px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .adblocker-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .adblocker-modal h2 {
+            color: #dc3545;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .adblocker-modal p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .adblocker-benefits {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .adblocker-benefits h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+
+        .adblocker-benefits ul {
+            color: #555;
+            padding-left: 20px;
+        }
+
+        .adblocker-benefits li {
+            margin-bottom: 8px;
+        }
+
+        .adblocker-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .adblocker-btn {
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .adblocker-btn.primary {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .adblocker-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        .adblocker-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .content-blocked {
+            filter: blur(5px);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* AdBlocker Test Element */
+        .ads, .ad, .adsbox, .advertisement {
+            width: 1px;
+            height: 1px;
+            position: absolute;
+            left: -9999px;
+            visibility: hidden;
+        }
+
         /* Responsive Ad Layout */
         @media (min-width: 1200px) {
             .main-content {
@@ -481,6 +602,14 @@
             
             .ad-banner-large {
                 min-height: 100px;
+            }
+            
+            .adblocker-modal {
+                padding: 30px 20px;
+            }
+            
+            .adblocker-buttons {
+                flex-direction: column;
             }
         }
     </style>
@@ -578,14 +707,17 @@
                         <span class="cta-button">Jetzt berechnen →</span>
                     </a>
 
-                    <!-- Middle Banner Ad in Grid -->
-                    <div class="ad-banner">
-                        <div class="ad-placeholder">
-                            <span>📢 Content-Werbung (300x250)</span>
-                            <small>Werbefläche zwischen den Rechnern</small>
-                        </div>
+                    <!-- Middle Banner Ad outside of grid -->
+                </div>
+                
+                <div class="ad-banner">
+                    <div class="ad-placeholder">
+                        <span>📢 Content-Werbung (300x250)</span>
+                        <small>Werbefläche zwischen den Rechnern</small>
                     </div>
-
+                </div>
+                
+                <div class="calculators-grid">
                     <!-- Trapez -->
                     <div class="calculator-card coming-soon">
                         <div class="card-icon">
@@ -688,16 +820,6 @@
                             <li>Radiale Aufteilung</li>
                             <li>Minimaler Verschnitt</li>
                         </ul>
-                        <span class="cta-button">Bald verfügbar</span>
-                    </div>
-                </div>
-
-                <!-- Bottom Banner Ad -->
-                <div class="ad-banner ad-banner-large">
-                    <div class="ad-placeholder">
-                        <span>📢 Footer-Banner (728x90 oder 970x90)</span>
-                        <small>Werbefläche am Ende des Hauptinhalts</small>
-                    </div>
                 </div>
             </div>
 
@@ -805,6 +927,51 @@
     </div>
 
     <script>
+        // AdBlocker Detection
+        let adBlockEnabled = false;
+        
+        function detectAdBlocker() {
+            const testAd = document.getElementById('adblocker-test');
+            if (testAd.offsetHeight === 0 || 
+                window.getComputedStyle(testAd).display === 'none' ||
+                window.getComputedStyle(testAd).visibility === 'hidden') {
+                adBlockEnabled = true;
+                showAdBlockerModal();
+            }
+        }
+        
+        function showAdBlockerModal() {
+            document.getElementById('adblock-overlay').style.display = 'flex';
+            document.getElementById('main-content-wrapper').classList.add('content-blocked');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function showAdBlockerHelp() {
+            const helpContent = `
+                <h2>AdBlocker deaktivieren - Anleitung</h2>
+                <h3>🔧 uBlock Origin / AdBlock Plus:</h3>
+                <p>1. Klicken Sie auf das AdBlocker-Symbol in der Browser-Leiste<br>
+                2. Wählen Sie "Für diese Seite deaktivieren"<br>
+                3. Laden Sie die Seite neu</p>
+                
+                <h3>🔧 AdBlocker Ultimate:</h3>
+                <p>1. Klicken Sie auf das rote Schild-Symbol<br>
+                2. Klicken Sie auf den Schalter zum Deaktivieren<br>
+                3. Bestätigen Sie mit "Ja"</p>
+                
+                <h3>🔧 Brave Browser:</h3>
+                <p>1. Klicken Sie auf das Löwen-Symbol in der Adressleiste<br>
+                2. Stellen Sie "Werbung & Tracker" auf "Zugelassen"<br>
+                3. Laden Sie die Seite neu</p>
+                
+                <p style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px;">
+                <strong>💡 Tipp:</strong> Sie können auch eine Ausnahme für "dachplattenrechner.netlify.app" in Ihrem AdBlocker hinzufügen.
+                </p>
+            `;
+            
+            document.getElementById('modal-body').innerHTML = helpContent;
+            document.getElementById('modal').style.display = 'block';
+        }
         // Cookie Management
         function showCookieBanner() {
             if (!localStorage.getItem('cookieConsent')) {
@@ -1182,6 +1349,9 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for AdBlocker first
+            setTimeout(detectAdBlocker, 100);
+            
             showCookieBanner();
             setupEmailProtection();
             
