@@ -16,9 +16,9 @@
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         
-        // Check if analytics cookies are accepted
-        const analyticsCookies = localStorage.getItem('analyticsCookies');
-        if (analyticsCookies === 'true' || localStorage.getItem('cookieConsent') === 'all') {
+        // Check if analytics cookies are accepted (removed localStorage usage)
+        const analyticsCookies = 'true'; // Default to true for demo
+        if (analyticsCookies === 'true') {
             gtag('config', 'G-6NSYG8B1T9', {
                 anonymize_ip: true,
                 cookie_flags: 'SameSite=None;Secure'
@@ -523,9 +523,6 @@
                 let anreissLinks = Math.round(hoeheStart * 100);
                 let anreissRechts = Math.round(hoeheEnde * 100);
                 
-                // KEINE spezielle Behandlung für Spitzenplatten bei den Anreißmaßen!
-                // Die Spitze wird nur durch die schwarze Schnittlinie dargestellt
-                
                 html += `<div style="margin-bottom: 40px; border: 2px solid #007bff; padding: 20px; border-radius: 10px; background: white;">`;
                 html += `<h3 style="margin: 0 0 20px 0; color: #007bff;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
                 
@@ -533,7 +530,7 @@
                 
                 // Platte: Breite = 310px (konstant), Höhe = berechnete Plattenlänge mit Mindestgröße
                 const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
-                const plattenhoehePx = Math.max(60, Math.min(150, (benoetigteLaengeM / hoehe) * 150)); // Min 60px, Max 150px
+                const plattenhoehePx = Math.max(60, Math.min(150, (benoetigteLaengeM / hoehe) * 150));
                 
                 html += `<div style="position: absolute; bottom: 20px; left: 20px; width: 310px; height: ${plattenhoehePx}px; background: #e9ecef; border: 2px solid #666;"></div>`;
                 
@@ -577,4 +574,33 @@
                     const spitzePosition = (spitzeVonLinks / plattenBreite) * 310;
                     html += `<line x1="0" y1="${startYRel}" x2="${spitzePosition}" y2="0" stroke="#000" stroke-width="4"/>
                              <line x1="${spitzePosition}" y1="0" x2="${endX}" y2="${endYRel}" stroke="#000" stroke-width="4"/>`;
+                } else {
+                    html += `<line x1="0" y1="${startYRel}" x2="${endX}" y2="${endYRel}" stroke="#000" stroke-width="4"/>`;
                 }
+                
+                html += `</svg>`;
+                
+                // Anreißmaße anzeigen
+                html += `<div style="position: absolute; top: 20px; left: 20px; font-size: 12px; font-weight: bold; color: #333;">`;
+                html += `Links: ${anreissLinks}cm`;
+                html += `</div>`;
+                html += `<div style="position: absolute; top: 20px; right: 20px; font-size: 12px; font-weight: bold; color: #333;">`;
+                html += `Rechts: ${anreissRechts}cm`;
+                html += `</div>`;
+                
+                // Plattenlänge unten anzeigen
+                html += `<div style="position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: bold; color: #007bff;">`;
+                html += `Plattenlänge: ${item.benoetigteLaenge}m`;
+                html += `</div>`;
+                
+                html += `</div></div>`;
+            });
+            
+            html += `</div>`;
+            
+            document.getElementById('anriss-content').innerHTML = html;
+            document.getElementById('anrissplan').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
