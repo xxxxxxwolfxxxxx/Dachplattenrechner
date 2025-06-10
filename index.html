@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trapetzblechrechner - Professionelle Dachdeckung berechnen</title>
+    <meta name="description" content="Professioneller Trapetzblechrechner für verschiedene Dachformen. Berechnen Sie Materialverbrauch und erstellen Sie Anrisspläne für Dreiecksdächer, Pyramiden und mehr.">
+    
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Global tracking initialization function
+        window.initializeTracking = function() {
+            const analyticsCookies = localStorage.getItem('analyticsCookies');
+            if (analyticsCookies === 'true' || localStorage.getItem('cookieConsent') === 'all') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+                console.log('Google Analytics aktiviert');
+            }
+        };
+        
+        // Global opt-out function
+        window.gaOptout = function() {
+            document.cookie = 'ga-disable-G-6NSYG8B1T9=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
+            window['ga-disable-G-6NSYG8B1T9'] = true;
+            localStorage.setItem('analyticsCookies', 'false');
+            alert('Google Analytics wurde deaktiviert');
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .calculators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .calculator-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            border: 2px solid transparent;
+        }
+
+        .calculator-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .card-icon {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .card-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .card-features li {
+            padding: 8px 0;
+            position: relative;
+            padding-left: 25px;
+            color: #555;
+        }
+
+        .card-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .cta-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .footer-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #666;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #667eea;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+            color: #666;
+        }
+
+        .email-protection {
+            cursor: pointer;
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        .email-protection:hover {
+            color: #764ba2;
+        }
+
+        .coming-soon {
+            opacity: 0.6;
+            position: relative;
+            pointer-events: none;
+        }
+
+        .coming-soon::after {
+            content: "Bald verfügbar";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ffc107;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .modal h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .modal p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .modal h3 {
+            color: #667eea;
+            margin: 25px 0 15px 0;
+            font-size: 1.3em;
+        }
+
+        .contact-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(33, 37, 41, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 20px;
+            z-index: 1001;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .cookie-banner.show {
+            transform: translateY(0);
+        }
+
+        .cookie-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cookie-text {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .cookie-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cookie-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .cookie-btn.accept {
+            background: #28a745;
+            color: white;
+        }
+
+        .cookie-btn.decline {
+            background: #6c757d;
+            color: white;
+        }
+
+        .cookie-btn.settings {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+        }
+
+        @media (max-width: 768px) {
+            .calculators-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .features {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .cookie-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Trapetzblechrechner</h1>
+            <p class="subtitle">Professionelle Berechnung für verschiedene Dachformen</p>
+            <div class="features">
+                <div class="feature">
+                    <span>📏</span>
+                    <span>Präzise Berechnungen</span>
+                </div>
+                <div class="feature">
+                    <span>📐</span>
+                    <span>Detaillierte Anrisspläne</span>
+                </div>
+                <div class="feature">
+                    <span>🎯</span>
+                    <span>Materialoptimierung</span>
+                </div>
+                <div class="feature">
+                    <span>🖨️</span>
+                    <span>Druckfertige Pläne</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="calculators-grid">
+            <!-- Gleichschenkliges Dreieck -->
+            <a href="gleichschenkliges Dreieck.html" class="calculator-card">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <polygon points="60,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="30" y1="70" x2="30" y2="58" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="40" y1="70" x2="40" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="50" y1="70" x2="50" y2="34" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="60" y1="70" x2="60" y2="10" stroke="#dc3545" stroke-width="2"/>
+                        <line x1="70" y1="70" x2="70" y2="34" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="80" y1="70" x2="80" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="90" y1="70" x2="90" y2="58" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <circle cx="60" cy="10" r="2" fill="#dc3545"/>
+                    </svg>
+                </div>
+                <h2 class="card-title">Gleichschenkliges Dreieck</h2>
+                <p class="card-description">
+                    Ideal für Pyramidendächer, Satteldachwalmflächen und symmetrische Dreiecksflächen.
+                </p>
+                <ul class="card-features">
+                    <li>Symmetrische Dreiecksberechnung</li>
+                    <li>Automatische Spitzenerkennung</li>
+                    <li>Optimierte Materialverteilung</li>
+                    <li>Detaillierte Schnittliste</li>
+                </ul>
+                <span class="cta-button">Jetzt berechnen →</span>
+            </a>
+
+            <!-- Ungleichschenkliges Dreieck -->
+            <a href="ugleichschenkliges Dreieck.html" class="calculator-card">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <polygon points="75,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="28" y1="70" x2="28" y2="60" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="38" y1="70" x2="38" y2="48" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="48" y1="70" x2="48" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="58" y1="70" x2="58" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="75" y1="70" x2="75" y2="10" stroke="#dc3545" stroke-width="2"/>
+                        <line x1="85" y1="70" x2="85" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="95" y1="70" x2="95" y2="60" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <circle cx="75" cy="10" r="2" fill="#dc3545"/>
+                        <line x1="20" y1="75" x2="75" y2="75" stroke="#ff6b35" stroke-width="2" stroke-dasharray="3,3"/>
+                    </svg>
+                </div>
+                <h2 class="card-title">Ungleichschenkliges Dreieck</h2>
+                <p class="card-description">
+                    Für asymmetrische Dachflächen mit verschobener Spitze. Flexible Eingabemöglichkeiten.
+                </p>
+                <ul class="card-features">
+                    <li>Variable Spitzenposition</li>
+                    <li>Kantenlängen oder Position/Höhe</li>
+                    <li>Geometrische Validierung</li>
+                    <li>Präzise Winkelberechnungen</li>
+                </ul>
+                <span class="cta-button">Jetzt berechnen →</span>
+            </a>
+
+            <!-- Trapez -->
+            <div class="calculator-card coming-soon">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <polygon points="40,20 80,20 95,60 25,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="35" y1="60" x2="35" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="45" y1="60" x2="45" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="55" y1="60" x2="55" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="65" y1="60" x2="65" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="75" y1="60" x2="75" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="85" y1="60" x2="85" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                    </svg>
+                </div>
+                <h2 class="card-title">Trapez</h2>
+                <p class="card-description">
+                    Für trapezförmige Dachflächen mit parallelen oberen und unteren Kanten.
+                </p>
+                <ul class="card-features">
+                    <li>Parallele Oberkanten</li>
+                    <li>Variable Neigungswinkel</li>
+                    <li>Optimierte Schnittführung</li>
+                    <li>Materialersparnis</li>
+                </ul>
+                <span class="cta-button">Bald verfügbar</span>
+            </div>
+
+            <!-- Parallelogramm -->
+            <div class="calculator-card coming-soon">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <polygon points="25,20 75,20 95,60 45,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="35" y1="60" x2="35" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="45" y1="60" x2="45" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="55" y1="60" x2="55" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="65" y1="60" x2="65" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="75" y1="60" x2="75" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="85" y1="60" x2="85" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                    </svg>
+                </div>
+                <h2 class="card-title">Parallelogramm</h2>
+                <p class="card-description">
+                    Für schräge Rechteckflächen mit parallelen gegenüberliegenden Seiten.
+                </p>
+                <ul class="card-features">
+                    <li>Parallele Seitenwände</li>
+                    <li>Schräge Rechteckform</li>
+                    <li>Gleichmäßige Plattenaufteilung</li>
+                    <li>Einfache Verlegung</li>
+                </ul>
+                <span class="cta-button">Bald verfügbar</span>
+            </div>
+
+            <!-- Beliebiges Viereck -->
+            <div class="calculator-card coming-soon">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <polygon points="30,25 80,15 90,55 20,65" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="35" y1="65" x2="35" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="45" y1="60" x2="45" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="55" y1="55" x2="55" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="65" y1="50" x2="65" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="75" y1="47" x2="75" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="85" y1="55" x2="85" y2="18" stroke="#666" stroke-width="1" opacity="0.8"/>
+                    </svg>
+                </div>
+                <h2 class="card-title">Beliebiges Viereck</h2>
+                <p class="card-description">
+                    Für komplexe Dachflächen mit vier unterschiedlichen Seiten.
+                </p>
+                <ul class="card-features">
+                    <li>Vier variable Eckpunkte</li>
+                    <li>Komplexe Geometrie</li>
+                    <li>Adaptive Platteneinteilung</li>
+                    <li>Maximale Flexibilität</li>
+                </ul>
+                <span class="cta-button">Bald verfügbar</span>
+            </div>
+
+            <!-- Kreis/Ellipse -->
+            <div class="calculator-card coming-soon">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <ellipse cx="60" cy="40" rx="35" ry="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="35" y1="50" x2="35" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="45" y1="55" x2="45" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="55" y1="58" x2="55" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="65" y1="58" x2="65" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="75" y1="55" x2="75" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="85" y1="50" x2="85" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <circle cx="60" cy="40" r="2" fill="#dc3545"/>
+                    </svg>
+                </div>
+                <h2 class="card-title">Runde Flächen</h2>
+                <p class="card-description">
+                    Für kreisförmige oder elliptische Dachflächen und Kuppeln.
+                </p>
+                <ul class="card-features">
+                    <li>Kreise und Ellipsen</li>
+                    <li>Kuppelberechnungen</li>
+                    <li>Radiale Aufteilung</li>
+                    <li>Minimaler Verschnitt</li>
+                </ul>
+                <span class="cta-button">Bald verfügbar</span>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Trapetzblechrechner</h3>
+                <p>Professionelle Berechnungstools für die Dachdeckerbranche. Präzise, schnell und benutzerfreundlich.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Rechtliches</h3>
+                <ul class="footer-links">
+                    <li><a href="#" onclick="openModal('impressum')">Impressum</a></li>
+                    <li><a href="#" onclick="openModal('datenschutz')">Datenschutz</a></li>
+                    <li><a href="#" onclick="openModal('agb')">AGB</a></li>
+                    <li><a href="#" onclick="openModal('cookies')">Cookie-Einstellungen</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul class="footer-links">
+                    <li><a href="#" onclick="openModal('hilfe')">Hilfe & FAQ</a></li>
+                    <li><a href="#" onclick="openModal('kontakt')">Kontakt</a></li>
+                    <li><a href="#" onclick="openModal('feedback')">Feedback</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Weitere Tools</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Materialrechner</a></li>
+                    <li><a href="#">Kostenrechner</a></li>
+                    <li><a href="#">Gewichtsrechner</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Matthias Dührkop - Trapetzblechrechner. Alle Rechte vorbehalten.</p>
+        </div>
+    </footer>
+
+    <!-- Cookie Banner -->
+    <div id="cookieBanner" class="cookie-banner">
+                                <div class="cookie-content">
+            <div class="cookie-text">
+                <p><strong>🍪 Cookie-Hinweis:</strong> Diese Website verwendet Cookies und ähnliche Technologien zur Verbesserung der Nutzererfahrung. Mit Google Analytics und Google Ads analysieren wir die Nutzung und optimieren unsere Inhalte. Durch Klick auf "Alle akzeptieren" stimmen Sie der Verwendung aller Cookies zu.</p>
+            </div>
+            <div class="cookie-buttons">
+                <button class="cookie-btn accept" onclick="acceptCookies()">Alle akzeptieren</button>
+                <button class="cookie-btn decline" onclick="declineCookies()">Ablehnen</button>
+                <button class="cookie-btn settings" onclick="openModal('cookies')">Einstellungen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // Cookie Management
+        function showCookieBanner() {
+            if (!localStorage.getItem('cookieConsent')) {
+                document.getElementById('cookieBanner').classList.add('show');
+            }
+        }
+
+        function acceptCookies() {
+            localStorage.setItem('cookieConsent', 'all');
+            localStorage.setItem('analyticsCookies', 'true');
+            localStorage.setItem('marketingCookies', 'true');
+            
+            // Initialize Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+                console.log('Alle Cookies akzeptiert - Analytics aktiviert');
+            }
+            
+            document.getElementById('cookieBanner').classList.remove('show');
+        }
+
+        function declineCookies() {
+            localStorage.setItem('cookieConsent', 'essential');
+            localStorage.setItem('analyticsCookies', 'false');
+            localStorage.setItem('marketingCookies', 'false');
+            
+            // Disable Google Analytics
+            window['ga-disable-G-6NSYG8B1T9'] = true;
+            
+            document.getElementById('cookieBanner').classList.remove('show');
+        }
+
+        // Modal Management
+        function openModal(type) {
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modal-body');
+            
+            let content = '';
+            
+            switch(type) {
+                case 'impressum':
+                    content = `
+                        <h2>Impressum</h2>
+                        <h3>Angaben gemäß § 5 TMG</h3>
+                        <div class="contact-info">
+                            <p><strong>Matthias Dührkop</strong><br>
+                            Rhedewiesen 1<br>
+                            19258 Boizenburg/Elbe<br>
+                            Deutschland</p>
+                            
+                            <p><strong>Kontakt:</strong><br>
+                            E-Mail: <span id="email-contact"></span></p>
+                            
+                            <p><strong>Umsatzsteuer-ID:</strong><br>
+                            DE08721403093</p>
+                        </div>
+                        
+                        <h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
+                        <p>Matthias Dührkop<br>
+                        Rhedewiesen 1<br>
+                        19258 Boizenburg/Elbe</p>
+                        
+                        <h3>EU-Streitschlichtung</h3>
+                        <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank">https://ec.europa.eu/consumers/odr/</a>. Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>
+                        
+                        <h3>Verbraucherstreitbeilegung/Universalschlichtungsstelle</h3>
+                        <p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+                        
+                        <h3>Haftungsausschluss</h3>
+                        <p><strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht unter der verpflichtung, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+                        
+                        <p><strong>Haftung für Links:</strong> Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.</p>
+                        
+                        <p><strong>Urheberrecht:</strong> Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
+                    `;
+                    break;
+                    
+                case 'datenschutz':
+                    content = `
+                        <h2>Datenschutzerklärung</h2>
+                        <p><em>Stand: 10. Juni 2025</em></p>
+                        
+                        <h3>1. Datenschutz auf einen Blick</h3>
+                        <h4>Allgemeine Hinweise</h4>
+                        <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.</p>
+                        
+                        <h4>Datenerfassung auf dieser Website</h4>
+                        <p><strong>Wer ist verantwortlich für die Datenerfassung auf dieser Website?</strong><br>
+                        Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Abschnitt „Hinweis zur Verantwortlichen Stelle" in dieser Datenschutzerklärung entnehmen.</p>
+                        
+                        <p><strong>Wie erfassen wir Ihre Daten?</strong><br>
+                        Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen. Hierbei kann es sich z. B. um Daten handeln, die Sie in ein Kontaktformular eingeben.</p>
+                        
+                        <p>Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Website durch unsere IT-Systeme erfasst. Das sind vor allem technische Daten (z. B. Internetbrowser, Betriebssystem oder Uhrzeit des Seitenaufrufs).</p>
+                        
+                        <h3>2. Hosting</h3>
+                        <p>Wir hosten die Inhalte unserer Website bei folgendem Anbieter:</p>
+                        
+                        <h4>Netlify</h4>
+                        <div class="contact-info">
+                            <p>Netlify, Inc.<br>
+                            2325 3rd Street, Suite 296<br>
+                            San Francisco, CA 94107<br>
+                            USA</p>
+                        </div>
+                        
+                        <p>Diese Website wird über Netlify gehostet. Die personenbezogenen Daten, die auf dieser Website erfasst werden, werden auf den Servern von Netlify gespeichert. Hierbei kann es sich v. a. um IP-Adressen, Kontaktanfragen, Meta- und Kommunikationsdaten, Vertragsdaten, Kontaktdaten, Namen, Websitezugriffe und sonstige Daten, die über eine Website generiert werden, handeln.</p>
+                        
+                        <p>Das externe Hosting erfolgt zum Zwecke der Vertragserfüllung gegenüber unseren potenziellen und bestehenden Kunden (Art. 6 Abs. 1 lit. b DSGVO) und im Interesse einer sicheren, schnellen und effizienten Bereitstellung unseres Online-Angebots durch einen professionellen Anbieter (Art. 6 Abs. 1 lit. f DSGVO).</p>
+                        
+                        <p>Weitere Informationen zu Netlify finden Sie in der Datenschutzerklärung von Netlify: <a href="https://www.netlify.com/privacy/" target="_blank">https://www.netlify.com/privacy/</a></p>
+                        
+                        <h3>3. Allgemeine Hinweise und Pflichtinformationen</h3>
+                        <h4>Datenschutz</h4>
+                        <p>Die Betreiber dieser Seiten nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend den gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.</p>
+                        
+                        <h4>Hinweis zur verantwortlichen Stelle</h4>
+                        <div class="contact-info">
+                            <p>Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:<br>
+                            Matthias Dührkop<br>
+                            Rhedewiesen 1<br>
+                            19258 Boizenburg/Elbe<br>
+                            E-Mail: <span id="email-privacy"></span></p>
+                        </div>
+                        
+                        <h4>Speicherdauer</h4>
+                        <p>Soweit innerhalb dieser Datenschutzerklärung keine speziellere Speicherdauer genannt wurde, verbleiben Ihre personenbezogenen Daten bei uns, bis der Zweck für die Datenverarbeitung entfällt.</p>
+                        
+                        <h3>4. Datenerfassung auf dieser Website</h3>
+                        <h4>Cookies</h4>
+                        <p>Unsere Internetseiten verwenden so genannte „Cookies". Cookies sind kleine Datenpakete und richten auf Ihrem Endgerät keinen Schaden an. Sie werden entweder vorübergehend für die Dauer einer Sitzung (Session-Cookies) oder dauerhaft (permanente Cookies) auf Ihrem Endgerät gespeichert.</p>
+                        
+                        <p>Sie können Ihren Browser so einstellen, dass Sie über das Setzen von Cookies informiert werden und Cookies nur im Einzelfall erlauben, die Annahme von Cookies für bestimmte Fälle oder generell ausschließen sowie das automatische Löschen der Cookies beim Schließen des Browsers aktivieren.</p>
+                        
+                        <h4>Server-Log-Dateien</h4>
+                        <p>Der Provider der Seiten erhebt und speichert automatisch Informationen in so genannten Server-Log-Dateien, die Ihr Browser automatisch an uns übermittelt. Dies sind:</p>
+                        <ul>
+                            <li>Browsertyp und Browserversion</li>
+                            <li>verwendetes Betriebssystem</li>
+                            <li>Referrer URL</li>
+                            <li>Hostname des zugreifenden Rechners</li>
+                            <li>Uhrzeit der Serveranfrage</li>
+                            <li>IP-Adresse</li>
+                        </ul>
+                        
+                        <h3>5. Plugins und Tools</h3>
+                        <h4>Google Analytics</h4>
+                        <p>Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited („Google"), Gordon House, Barrow Street, Dublin 4, Irland.</p>
+                        
+                        <p>Google Analytics ermöglicht es dem Websitebetreiber, das Verhalten der Websitebesucher zu analysieren. Hierbei erhält der Websitebetreiber verschiedene Nutzungsdaten, wie z. B. Seitenaufrufe, Verweildauer, verwendete Betriebssysteme und Herkunft des Nutzers. Diese Daten werden pseudonymisiert an Google übertragen.</p>
+                        
+                        <p><strong>Verwendete Analytics-ID:</strong> G-6NSYG8B1T9</p>
+                        
+                        <p>Die Nutzung von Google Analytics erfolgt auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Der Websitebetreiber hat ein berechtigtes Interesse an der Analyse des Nutzerverhaltens, um sowohl sein Webangebot als auch seine Werbung zu optimieren.</p>
+                        
+                        <p><strong>IP-Anonymisierung:</strong> Wir haben auf dieser Website die Funktion IP-Anonymisierung aktiviert. Dadurch wird Ihre IP-Adresse von Google innerhalb von Mitgliedstaaten der Europäischen Union oder in anderen Vertragsstaaten des Abkommens über den Europäischen Wirtschaftsraum vor der Übermittlung in die USA gekürzt.</p>
+                        
+                        <p><strong>Widerspruch gegen Datenerfassung:</strong> Sie können die Erfassung Ihrer Daten durch Google Analytics verhindern, indem Sie auf folgenden Link klicken. Es wird ein Opt-Out-Cookie gesetzt, der die Erfassung Ihrer Daten bei zukünftigen Besuchen dieser Website verhindert: <a href="#" onclick="if(window.gaOptout) window.gaOptout(); return false;">Google Analytics deaktivieren</a></p>
+                        
+                        <h4>Google AdSense</h4>
+                        <p>Diese Website nutzt Google AdSense, einen Service zum Einbinden von Werbeanzeigen der Google Ireland Limited („Google"), Gordon House, Barrow Street, Dublin 4, Irland.</p>
+                        
+                        <p><strong>Publisher-ID:</strong> ca-pub-8687929894744033</p>
+                        
+                        <p>Google AdSense verwendet „Cookies", das sind Textdateien, die auf Ihrem Computer gespeichert werden und die eine Analyse der Benutzung der Website durch Sie ermöglichen. Google AdSense verwendet auch so genannte Web Beacons (unsichtbare Grafiken).</p>
+                        
+                        <p>Die Nutzung von Google AdSense erfolgt auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Sie können Ihre Einwilligung jederzeit widerrufen.</p>
+                        
+                        <h3>6. Ihre Rechte</h3>
+                        <p>Sie haben jederzeit das Recht:</p>
+                        <ul>
+                            <li>gemäß Art. 15 DSGVO Auskunft über Ihre von uns verarbeiteten personenbezogenen Daten zu verlangen</li>
+                            <li>gemäß Art. 16 DSGVO unverzüglich die Berichtigung unrichtiger oder Vervollständigung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen</li>
+                            <li>gemäß Art. 17 DSGVO die Löschung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen</li>
+                            <li>gemäß Art. 18 DSGVO die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen</li>
+                            <li>gemäß Art. 20 DSGVO Ihre personenbezogenen Daten, die Sie uns bereitgestellt haben, in einem strukturierten, gängigen und maschinenlesbbaren Format zu erhalten</li>
+                            <li>gemäß Art. 7 Abs. 3 DSGVO Ihre einmal erteilte Einwilligung jederzeit gegenüber uns zu widerrufen</li>
+                        </ul>
+                        
+                        <h3>7. Widerspruch gegen Werbe-E-Mails</h3>
+                        <p>Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten zur Übersendung von nicht ausdrücklich angeforderter Werbung und Informationsmaterialien wird hiermit widersprochen.</p>
+                    `;
+                    break;
+                    
+                case 'agb':
+                    content = `
+                        <h2>Allgemeine Geschäftsbedingungen (AGB)</h2>
+                        <h3>1. Geltungsbereich</h3>
+                        <p>Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung des Trapetzblechrechners und aller damit verbundenen Dienstleistungen.</p>
+                        
+                        <h3>2. Nutzung des Rechners</h3>
+                        <p>Der Trapetzblechrechner steht Ihnen kostenfrei zur Verfügung. Die Berechnungen erfolgen nach bestem Wissen und Gewissen, jedoch übernehmen wir keine Haftung für die Richtigkeit der Ergebnisse.</p>
+                        
+                        <h3>3. Haftungsausschluss</h3>
+                        <p>Die Nutzung des Rechners erfolgt auf eigenes Risiko. Wir empfehlen, alle Berechnungen vor der praktischen Umsetzung von einem Fachmann überprüfen zu lassen.</p>
+                        
+                        <h3>4. Urheberrecht</h3>
+                        <p>Alle Inhalte dieser Website, einschließlich der Berechnungsalgorithmen, sind urheberrechtlich geschützt.</p>
+                        
+                        <h3>5. Änderungen</h3>
+                        <p>Wir behalten uns vor, diese AGB jederzeit zu ändern. Die jeweils aktuelle Fassung finden Sie auf dieser Seite.</p>
+                    `;
+                    break;
+                    
+                case 'cookies':
+                    content = `
+                        <h2>Cookie-Einstellungen</h2>
+                        <h3>Was sind Cookies?</h3>
+                        <p>Cookies sind kleine Textdateien, die auf Ihrem Computer gespeichert werden, um die Funktionalität der Website zu verbessern.</p>
+                        
+                        <h3>Verwendete Cookies</h3>
+                        <p><strong>Notwendige Cookies:</strong> Diese sind für die Grundfunktionen der Website erforderlich und können nicht deaktiviert werden.</p>
+                        <p><strong>Analytics-Cookies (Google Analytics):</strong> Helfen uns zu verstehen, wie Besucher mit der Website interagieren. Analytics-ID: G-6NSYG8B1T9</p>
+                        <p><strong>Marketing-Cookies (Google AdSense):</strong> Werden verwendet, um Werbung relevanter für Sie und Ihre Interessen zu machen. Publisher-ID: ca-pub-8687929894744033</p>
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <input type="checkbox" checked disabled>
+                                <span>Notwendige Cookies (immer aktiv)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <input type="checkbox" id="analyticsCookies">
+                                <span>Analytics-Cookies (Google Analytics)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <input type="checkbox" id="marketingCookies">
+                                <span>Marketing-Cookies (Google Ads)</span>
+                            </label>
+                        </div>
+                        
+                        <p style="font-size: 0.9em; color: #666; margin: 15px 0;">
+                        <strong>Rechtsgrundlage:</strong> Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung gem. Art. 6 Abs. 1 lit. a DSGVO. Sie können Ihre Einwilligung jederzeit widerrufen.</p>
+                        
+                        <button onclick="saveCookieSettings()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Einstellungen speichern</button>
+                    `;
+                    break;
+                    
+                case 'hilfe':
+                    content = `
+                        <h2>Hilfe & FAQ</h2>
+                        <h3>Häufig gestellte Fragen</h3>
+                        
+                        <h3>🔧 Wie funktioniert der Rechner?</h3>
+                        <p>Geben Sie die Maße Ihrer Dachfläche ein und der Rechner berechnet automatisch die benötigte Anzahl Trapetzbleche und erstellt eine detaillierte Schnittliste.</p>
+                        
+                        <h3>📏 Welche Maße benötige ich?</h3>
+                        <p>Je nach Dachform benötigen Sie unterschiedliche Maße:</p>
+                        <ul>
+                            <li><strong>Gleichschenkliges Dreieck:</strong> Basis-Breite und Höhe</li>
+                            <li><strong>Ungleichschenkliges Dreieck:</strong> Basis-Breite und entweder Kantenlängen oder Spitzen-Position + Höhe</li>
+                        </ul>
+                        
+                        <h3>🎯 Wie genau sind die Berechnungen?</h3>
+                        <p>Die Berechnungen basieren auf mathematisch präzisen Formeln. Dennoch empfehlen wir, vor der Umsetzung einen Fachmann zu konsultieren.</p>
+                        
+                        <h3>🖨️ Kann ich die Ergebnisse ausdrucken?</h3>
+                        <p>Ja! Jeder Rechner erstellt einen detaillierten Anrissplan, den Sie direkt ausdrucken können.</p>
+                        
+                        <h3>💾 Werden meine Daten gespeichert?</h3>
+                        <p>Nein! Alle Berechnungen erfolgen lokal in Ihrem Browser. Ihre Eingaben werden nicht an unsere Server übertragen.</p>
+                    `;
+                    break;
+                    
+                case 'kontakt':
+                    content = `
+                        <h2>Kontakt</h2>
+                        <div class="contact-info">
+                            <h3>📧 E-Mail</h3>
+                            <p id="email-display"></p>
+                            
+                            <h3>📍 Adresse</h3>
+                            <p>Matthias Dührkop<br>
+                            Rhedewiesen 1<br>
+                            19258 Boizenburg/Elbe<br>
+                            Deutschland</p>
+                        </div>
+                        
+                        <h3>💬 Feedback oder Verbesserungsvorschläge?</h3>
+                        <p>Wir freuen uns über Ihr Feedback! Schreiben Sie uns eine E-Mail oder nutzen Sie unser <a href="#" onclick="openModal('feedback')">Feedback-Formular</a>.</p>
+                        
+                        <h3>🐛 Fehler gefunden?</h3>
+                        <p>Sollten Sie einen Fehler in den Berechnungen oder der Website entdecken, melden Sie diesen bitte umgehend. Wir werden das Problem schnellstmöglich beheben.</p>
+                        
+                        <h3>⚖️ Rechtliche Hinweise</h3>
+                        <p>Diese Website stellt ein kostenloses Berechnungstool zur Verfügung. Alle Berechnungen erfolgen nach bestem Wissen und Gewissen, dennoch übernehmen wir keine Haftung für die Richtigkeit der Ergebnisse. Wir empfehlen, alle Berechnungen vor der praktischen Umsetzung von einem Fachmann überprüfen zu lassen.</p>
+                    `;
+                    break;
+                    
+                case 'feedback':
+                    content = `
+                        <h2>Feedback</h2>
+                        <p>Ihr Feedback hilft uns, den Trapetzblechrechner kontinuierlich zu verbessern.</p>
+                        
+                        <form style="margin: 20px 0;">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Kategorie:</label>
+                                <select style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                    <option>Allgemeines Feedback</option>
+                                    <option>Berechnungsfehler</option>
+                                    <option>Verbesserungsvorschlag</option>
+                                    <option>Neue Dachform vorschlagen</option>
+                                    <option>Technisches Problem</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Ihr Feedback:</label>
+                                <textarea placeholder="Beschreiben Sie Ihr Anliegen..." style="width: 100%; height: 120px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">E-Mail (optional):</label>
+                                <input type="email" placeholder="ihre.email@beispiel.de" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                            
+                            <button type="button" onclick="submitFeedback()" style="background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">Feedback senden</button>
+                        </form>
+                        
+                        <p style="font-size: 0.9em; color: #666; margin-top: 15px;">
+                            <strong>Hinweis:</strong> Das Feedback-Formular ist derzeit nur zu Demonstrationszwecken vorhanden. In der echten Implementierung würde das Feedback an Ihre E-Mail-Adresse gesendet werden.
+                        </p>
+                    `;
+                    break;
+            }
+            
+            modalBody.innerHTML = content;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function saveCookieSettings() {
+            const analyticsCookies = document.getElementById('analyticsCookies').checked;
+            const marketingCookies = document.getElementById('marketingCookies').checked;
+            
+            localStorage.setItem('cookieConsent', 'custom');
+            localStorage.setItem('analyticsCookies', analyticsCookies);
+            localStorage.setItem('marketingCookies', marketingCookies);
+            
+            // Initialize or disable tracking based on settings
+            if (analyticsCookies && typeof gtag !== 'undefined') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+                console.log('Google Analytics aktiviert');
+            } else {
+                window['ga-disable-G-6NSYG8B1T9'] = true;
+                console.log('Google Analytics deaktiviert');
+            }
+            
+            closeModal();
+            alert('Cookie-Einstellungen gespeichert!');
+        }
+
+        function submitFeedback() {
+            alert('Vielen Dank für Ihr Feedback! In einer echten Implementierung würde dies an den Administrator gesendet werden.');
+            closeModal();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showCookieBanner();
+            setupEmailProtection();
+            
+            // Initialize tracking if consent already given
+            if (localStorage.getItem('cookieConsent') && window.initializeTracking) {
+                window.initializeTracking();
+            }
+        });
+
+        // Email protection function
+        function setupEmailProtection() {
+            const emailParts = ['xxxxwolfxxxx', 'me.com'];
+            const email = emailParts[0] + '@' + emailParts[1];
+            
+            // Display email with click-to-reveal
+            const emailElements = ['email-contact', 'email-privacy', 'email-display'];
+            emailElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.innerHTML = `<span class="email-protection" onclick="revealEmail('${id}', '${email}')">E-Mail anzeigen</span>`;
+                }
+            });
+        }
+
+        function revealEmail(elementId, email) {
+            document.getElementById(elementId).innerHTML = email;
+        }
+    </script>
+</body>
+</html>
