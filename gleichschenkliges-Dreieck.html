@@ -504,14 +504,7 @@
                 const originalPlattenEnde = plattenStart + plattenBreite;
                 const istLetztePlatte = originalPlattenEnde > basisBreite;
                 const ueberdecktSpitze = plattenStart <= mitte && originalPlattenEnde >= mitte;
-                
-                // Berechne rechten Punkt
-                let rechterPunkt = 280;
-                if (istLetztePlatte) {
-                    const tatsaechlicheBreite = basisBreite - plattenStart;
-                    const verhaeltnis = tatsaechlicheBreite / plattenBreite;
-                    rechterPunkt = Math.max(50, Math.min(280, verhaeltnis * 280));
-                }
+                const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
                 
                 // Anreißmaße berechnen
                 const plattenEndeReal = istLetztePlatte ? basisBreite : originalPlattenEnde;
@@ -528,104 +521,99 @@
                 
                 html += `<div style="position: relative; height: 200px; width: 350px; background: #f8f9fa; margin: 20px auto;">`;
                 
-                // Platte: Breite = 310px (konstant), Höhe = berechnete Plattenlänge mit Mindestgröße
-                const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
+                // Platte: Breite = 310px (konstant), Höhe = berechnete Plattenlänge
                 const plattenhoehePx = Math.max(60, Math.min(150, (benoetigteLaengeM / hoehe) * 150));
                 
                 html += `<div style="position: absolute; bottom: 20px; left: 20px; width: 310px; height: ${plattenhoehePx}px; background: #e9ecef; border: 2px solid #666;"></div>`;
                 
-                // Y-Positionen basierend auf den Anreißmaßen relativ zur Plattenlänge
-                let startYRel = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
-                let endYRel = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
+                // Y-Positionen für die Schnittlinie - korrekte Berechnung
+                let startY = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
+                let endY = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
                 
-                // Sicherheitsprüfung
-                if (isNaN(startYRel) || startYRel < 0) startYRel = plattenhoehePx;
-                if (isNaN(endYRel) || endYRel < 0) endYRel = plattenhoehePx;
+                // Sicherheitsprüfung für gültige Y-Positionen
+                startY = Math.max(0, Math.min(plattenhoehePx, startY));
+                endY = Math.max(0, Math.min(plattenhoehePx, endY));
                 
-                // SVG mit korrekter Schnittlinie
-                const endX = istLetztePlatte ? (rechterPunkt * 310 / 280) : 310;
+                // SVG mit Schnittlinie
+                const endX = istLetztePlatte ? Math.min(310, (basisBreite - plattenStart) / plattenBreite * 310) : 310;
                 
                 html += `<svg style="position: absolute; bottom: 20px; left: 20px;" width="310" height="${plattenhoehePx}">`;
                 
-                // Polygone: Bei Spitzenplatten andere Berechnung
+                // Bereiche färben
                 if (ueberdecktSpitze) {
                     const spitzeVonLinks = mitte - plattenStart;
-                    const spitzePosition = (spitzeVonLinks / plattenBreite) * 310;
+                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
                     
-                    // Blauer Bereich (Nutzen): Unter der schwarzen Linie
-                    html += `<polygon points="0,${plattenhoehePx} 310,${plattenhoehePx} 310,${endYRel} ${spitzePosition},0 0,${startYRel}" fill="#007bff" opacity="0.7"/>`;
+                    // Nutzen (blau) - unter der Schnittlinie
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${spitzePositionPx},0 0,${startY}" fill="#007bff" opacity="0.7"/>`;
                     html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Nutzen</text>`;
                     
-                    // Roter Bereich (Abschnitt): Über der schwarzen Linie
-                    html += `<polygon points="0,${startYRel} ${spitzePosition},0 310,${endYRel} 310,0 0,0" fill="#dc3545" opacity="0.5"/>`;
+                    // Abschnitt (rot) - über der Schnittlinie
+                    html += `<polygon points="0,${startY} ${spitzePositionPx},0 ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.5"/>`;
                     html += `<text x="155" y="${plattenhoehePx * 0.2}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Abschnitt</text>`;
                 } else {
-                    // Normale Platte: Vollständig ausgemalt
-                    html += `<polygon points="0,${plattenhoehePx} 310,${plattenhoehePx} 310,${endYRel} 0,${startYRel}" fill="#007bff" opacity="0.7"/>`;
+                    // Normale Platte
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#007bff" opacity="0.7"/>`;
                     html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Nutzen</text>`;
                     
-                    html += `<polygon points="0,${startYRel} 310,${endYRel} 310,0 0,0" fill="#dc3545" opacity="0.5"/>`;
-                    html += `<text x="155" y="${Math.min(startYRel, endYRel)/2}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Abschnitt</text>`;
+                    html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.5"/>`;
+                    html += `<text x="155" y="${Math.min(startY, endY)/2}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Abschnitt</text>`;
                 }
                 
-                // Schnittlinie: Bei Spitze zwei Linien zur Spitze (Y=0), sonst eine
+                // Schnittlinie - schwarze dicke Linie
                 if (ueberdecktSpitze) {
                     const spitzeVonLinks = mitte - plattenStart;
-                    const spitzePosition = (spitzeVonLinks / plattenBreite) * 310;
-                    html += `<line x1="0" y1="${startYRel}" x2="${spitzePosition}" y2="0" stroke="#000" stroke-width="4"/>
-                             <line x1="${spitzePosition}" y1="0" x2="${endX}" y2="${endYRel}" stroke="#000" stroke-width="4"/>`;
+                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
+                    html += `<line x1="0" y1="${startY}" x2="${spitzePositionPx}" y2="0" stroke="#000" stroke-width="4"/>`;
+                    html += `<line x1="${spitzePositionPx}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                 } else {
-                    html += `<line x1="0" y1="${startYRel}" x2="${endX}" y2="${endYRel}" stroke="#000" stroke-width="4"/>`;
+                    html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                 }
                 
                 html += `</svg>`;
                 
-                // Rote Anreißlinien von unten zu den Markierungspunkten - KORRIGIERT
-                const linkeAnreissHoehe = (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
-                const rechteAnreissHoehe = (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
-                
-                html += `<div style="position: absolute; bottom: 50px; left: 70px; width: 4px; height: ${linkeAnreissHoehe}px; background: #dc3545;"></div>`;
-                html += `<div style="position: absolute; bottom: 50px; left: ${70 + endX - 2}px; width: 4px; height: ${rechteAnreissHoehe}px; background: #dc3545;"></div>`;
-                
-                // Anrissmaße mit Pfeilen - VERBESSERT
-                html += `<div style="position: absolute; bottom: ${55 + linkeAnreissHoehe}px; left: 45px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: ${55 + rechteAnreissHoehe}px; left: ${85 + endX}px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: 20px; left: 20px; font-size: 16px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissLinks}cm</div>`;
-                html += `<div style="position: absolute; bottom: 20px; right: 20px; font-size: 16px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissRechts}cm</div>`;
-                
-                // Spitze markieren (nur bei gleichschenkligen Dreiecken)
+                // Spitze markieren
                 if (ueberdecktSpitze) {
                     const spitzeVonLinks = mitte - plattenStart;
-                    const spitzePosition = (spitzeVonLinks / plattenBreite) * 310;
+                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
                     
                     // Rote vertikale Linie zur Spitze
-                    html += `<div style="position: absolute; bottom: 50px; left: ${70 + spitzePosition}px; width: 3px; height: ${plattenhoehePx}px; background: #dc3545; opacity: 0.8;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${50 + plattenhoehePx + 5}px; left: ${65 + spitzePosition}px; font-size: 12px; font-weight: bold; color: #dc3545;">SPITZE ${hoehe}m</div>`;
+                    html += `<div style="position: absolute; bottom: 20px; left: ${20 + spitzePositionPx}px; width: 3px; height: ${plattenhoehePx}px; background: #dc3545; opacity: 0.8;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx + 5}px; left: ${15 + spitzePositionPx}px; font-size: 12px; font-weight: bold; color: #dc3545;">SPITZE ${hoehe}m</div>`;
                     
                     // Horizontale Maßlinie zur Spitze (von links)
-                    html += `<div style="position: absolute; top: 20px; left: 70px; width: ${spitzePosition}px; height: 2px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: 5px; left: ${70 + spitzePosition/2}px; font-size: 12px; font-weight: bold; color: #666; transform: translateX(-50%);">${(spitzeVonLinks * 100).toFixed(0)}cm</div>`;
-                    html += `<div style="position: absolute; top: 15px; left: 65px; font-size: 10px; color: #666;">|</div>`;
-                    html += `<div style="position: absolute; top: 15px; left: ${65 + spitzePosition}px; font-size: 10px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: 5px; left: 20px; width: ${spitzePositionPx}px; height: 2px; background: #666;"></div>`;
+                    html += `<div style="position: absolute; top: -10px; left: ${20 + spitzePositionPx/2}px; font-size: 12px; font-weight: bold; color: #666; transform: translateX(-50%);">${(spitzeVonLinks * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: 15px; font-size: 10px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${15 + spitzePositionPx}px; font-size: 10px; color: #666;">|</div>`;
                 }
                 
                 // Letzte Platte: Dachkante und Überhang
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - basisBreite;
                     
-                    html += `<div style="position: absolute; bottom: 50px; left: ${70 + endX}px; width: 3px; height: ${plattenhoehePx}px; background: #00AA00;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${50 + plattenhoehePx/2}px; left: ${62 + endX}px; font-size: 12px; font-weight: bold; color: #00AA00; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
+                    html += `<div style="position: absolute; bottom: 20px; left: ${20 + endX}px; width: 3px; height: ${plattenhoehePx}px; background: #00AA00;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx/2}px; left: ${12 + endX}px; font-size: 12px; font-weight: bold; color: #00AA00; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
                     
                     if (ueberhang > 0) {
                         const restBreite = 310 - endX;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 80}px; left: ${70 + endX}px; width: ${restBreite}px; height: 2px; background: #FF0000;"></div>`;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 60}px; left: ${70 + endX + restBreite/2}px; font-size: 14px; font-weight: bold; color: #FF0000; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 30}px; left: ${20 + endX}px; width: ${restBreite}px; height: 2px; background: #FF0000;"></div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 10}px; left: ${20 + endX + restBreite/2}px; font-size: 14px; font-weight: bold; color: #FF0000; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
                     }
                 }
                 
-                // Plattenlänge unten anzeigen
-                html += `<div style="position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-size: 14px; font-weight: bold; color: #007bff;">`;
-                html += `Plattenlänge: ${item.benoetigteLaenge}m`;
+                // Rote Anrisslinien von unten zu den Markierungspunkten
+                html += `<div style="position: absolute; bottom: 20px; left: 20px; width: 4px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545;"></div>`;
+                html += `<div style="position: absolute; bottom: 20px; left: ${20 + endX - 2}px; width: 4px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545;"></div>`;
+                
+                // Anrissmaße anzeigen
+                html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx}px; left: -20px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx}px; right: -20px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: 5px; left: -40px; font-size: 14px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissLinks}cm</div>`;
+                html += `<div style="position: absolute; bottom: 5px; right: -40px; font-size: 14px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissRechts}cm</div>`;
+                
+                html += `</div>`;
+                
                 // Anleitung
                 html += `<div style="background: #fff3cd; padding: 15px; border-radius: 8px; font-size: 14px; margin-top: 20px; border-left: 4px solid #ffc107;">`;
                 html += `<strong>📏 Anzeichnen:</strong><br>`;
@@ -643,23 +631,6 @@
                 }
                 html += `</div>`;
                 html += `</div>`;
-                
-                html += `</div>`;
-                
-                // Anreißmaße anzeigen
-                html += `<div style="position: absolute; top: 20px; left: 20px; font-size: 12px; font-weight: bold; color: #333;">`;
-                html += `Links: ${anreissLinks}cm`;
-                html += `</div>`;
-                html += `<div style="position: absolute; top: 20px; right: 20px; font-size: 12px; font-weight: bold; color: #333;">`;
-                html += `Rechts: ${anreissRechts}cm`;
-                html += `</div>`;
-                
-                // Plattenlänge unten anzeigen
-                html += `<div style="position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: bold; color: #007bff;">`;
-                html += `Plattenlänge: ${item.benoetigteLaenge}m`;
-                html += `</div>`;
-                
-                html += `</div></div>`;
             });
             
             html += `</div>`;
