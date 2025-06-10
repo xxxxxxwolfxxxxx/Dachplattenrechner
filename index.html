@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pyramiden-Trapetzblechrechner</title>
+    <title>Gleichschenkliges Dreieck Trapetzblechrechner</title>
     <style>
         * {
             margin: 0;
@@ -171,11 +171,45 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏗️ Pyramiden-Trapetzblechrechner</h1>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <svg width="200" height="140" viewBox="0 0 200 140" style="margin-bottom: 10px;">
+                <!-- Dreieck-Grundform -->
+                <polygon points="100,10 20,110 180,110" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                
+                <!-- Trapetzbleche (senkrecht, gleichmäßige Abstände) -->
+                <line x1="40" y1="110" x2="40" y2="85" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="55" y1="110" x2="55" y2="66.25" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="70" y1="110" x2="70" y2="47.5" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="85" y1="110" x2="85" y2="28.75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="100" y1="110" x2="100" y2="10" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
+                <line x1="115" y1="110" x2="115" y2="28.75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="130" y1="110" x2="130" y2="47.5" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="145" y1="110" x2="145" y2="66.25" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="160" y1="110" x2="160" y2="85" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                
+                <!-- Dachspitze markieren -->
+                <circle cx="100" cy="10" r="3" fill="#dc3545"/>
+                <text x="110" y="15" font-size="8" fill="#dc3545" font-weight="bold">Spitze</text>
+                
+                <!-- Basis-Maß -->
+                <line x1="20" y1="125" x2="180" y2="125" stroke="#333" stroke-width="1"/>
+                <line x1="20" y1="122" x2="20" y2="128" stroke="#333" stroke-width="1"/>
+                <line x1="180" y1="122" x2="180" y2="128" stroke="#333" stroke-width="1"/>
+                <text x="100" y="140" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Basis-Breite</text>
+                
+                <!-- Höhen-Maß -->
+                <line x1="5" y1="10" x2="5" y2="110" stroke="#333" stroke-width="1"/>
+                <line x1="2" y1="10" x2="8" y2="10" stroke="#333" stroke-width="1"/>
+                <line x1="2" y1="110" x2="8" y2="110" stroke="#333" stroke-width="1"/>
+                <text x="15" y="60" font-size="11" fill="#333" font-weight="bold">Höhe</text>
+            </svg>
+        </div>
+        
+        <h1>Gleichschenkliges Dreieck Trapetzblechrechner</h1>
 
         <!-- Pyramiden-Maße -->
         <div class="section">
-            <h2>1. Pyramiden-Dachfläche</h2>
+            <h2>1. Dreiecksfläche</h2>
             <div class="input-row">
                 <div class="input-group">
                     <label for="basis-breite">Basis-Breite (m)</label>
@@ -187,8 +221,8 @@
                 </div>
             </div>
             <div style="margin-top: 15px; padding: 10px; background: #e7f1ff; border-radius: 5px; font-size: 14px;">
-                <strong>💡 Hinweis:</strong> Berechnung für eine Dreiecksfläche. 
-                Für komplette Pyramide × 4 rechnen.
+                <strong>💡 Hinweis:</strong> Berechnung für ein gleichschenkliges Dreieck. 
+                Verwendbar für Pyramiden-Dachflächen, Satteldachwalmflächen oder andere dreieckige Flächen.
             </div>
         </div>
 
@@ -352,7 +386,7 @@
             
             let html = `<div style="font-family: Arial;">`;
             html += `<div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">`;
-            html += `<h2>Anrissplan - Pyramiden-Dachfläche</h2>`;
+            html += `<h2>Anrissplan - Gleichschenkliges Dreieck</h2>`;
             html += `<p>Basis: ${basisBreite}m | Höhe: ${hoehe}m | Platten: ${aktuelleSchnittliste.length} Stück</p>`;
             html += `</div>`;
             
@@ -362,6 +396,7 @@
                 const plattenBreite = parseFloat(item.plattenbreite);
                 const originalPlattenEnde = plattenStart + plattenBreite;
                 const istLetztePlatte = originalPlattenEnde > basisBreite;
+                const ueberdecktSpitze = plattenStart <= mitte && originalPlattenEnde >= mitte;
                 
                 // Berechne rechten Punkt
                 let rechterPunkt = 280;
@@ -378,34 +413,59 @@
                 const hoeheStart = hoehe * Math.max(0, 1 - (abstandStart / mitte));
                 const hoeheEnde = hoehe * Math.max(0, 1 - (abstandEnde / mitte));
                 
-                const anreissLinks = Math.round(hoeheStart * 100);
-                const anreissRechts = Math.round(hoeheEnde * 100);
+                let anreissLinks = Math.round(hoeheStart * 100);
+                let anreissRechts = Math.round(hoeheEnde * 100);
+                
+                // KEINE spezielle Behandlung für Spitzenplatten bei den Anreißmaßen!
+                // Die Spitze wird nur durch die schwarze Schnittlinie dargestellt
                 
                 html += `<div style="margin-bottom: 40px; border: 2px solid #007bff; padding: 20px; border-radius: 10px; background: white;">`;
                 html += `<h3 style="margin: 0 0 20px 0; color: #007bff;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
                 
                 html += `<div style="position: relative; height: 200px; width: 350px; background: #f8f9fa; margin: 20px auto;">`;
-                html += `<div style="position: absolute; bottom: 20px; left: 20px; width: 310px; height: 150px; background: #e9ecef; border: 2px solid #666;"></div>`;
                 
-                // Y-Positionen für Schnittlinie
-                const maxAnreisshoehe = Math.max(hoeheStart, hoeheEnde);
-                let startYRel = 150 - (hoeheStart / maxAnreisshoehe) * 150;
-                let endYRel = 150 - (hoeheEnde / maxAnreisshoehe) * 150;
+                // Platte: Breite = 310px (konstant), Höhe = berechnete Plattenlänge mit Mindestgröße
+                const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
+                const plattenhoehePx = Math.max(60, Math.min(150, (benoetigteLaengeM / hoehe) * 150)); // Min 60px, Max 150px
                 
-                if (isNaN(startYRel) || startYRel < 0 || startYRel > 150) startYRel = 75;
-                if (isNaN(endYRel) || endYRel < 0 || endYRel > 150) endYRel = 40;
+                html += `<div style="position: absolute; bottom: 20px; left: 20px; width: 310px; height: ${plattenhoehePx}px; background: #e9ecef; border: 2px solid #666;"></div>`;
+                
+                // Y-Positionen basierend auf den Anreißmaßen relativ zur Plattenlänge
+                let startYRel = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
+                let endYRel = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
+                
+                // Sicherheitsprüfung
+                if (isNaN(startYRel) || startYRel < 0) startYRel = plattenhoehePx;
+                if (isNaN(endYRel) || endYRel < 0) endYRel = plattenhoehePx;
                 
                 // SVG mit korrekter Schnittlinie
                 const endX = istLetztePlatte ? (rechterPunkt * 310 / 280) : 310;
                 
-                html += `<svg style="position: absolute; bottom: 20px; left: 20px;" width="310" height="150">
-                    <polygon points="0,150 ${endX},150 ${endX},${endYRel} 0,${startYRel}" fill="#007bff" opacity="0.7"/>
-                    <text x="${endX/2}" y="120" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Nutzen</text>
-                    <polygon points="0,${startYRel} ${endX},${endYRel} ${endX},0 0,0" fill="#dc3545" opacity="0.5"/>
-                    <text x="${endX/2}" y="${Math.min(startYRel, endYRel)/2 + 10}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Abschnitt</text>`;
+                html += `<svg style="position: absolute; bottom: 20px; left: 20px;" width="310" height="${plattenhoehePx}">`;
                 
-                // Schnittlinie: Bei Spitze zwei Linien, sonst eine
-                if (plattenStart <= mitte && originalPlattenEnde >= mitte) {
+                // Polygone: Bei Spitzenplatten andere Berechnung
+                if (ueberdecktSpitze) {
+                    const spitzeVonLinks = mitte - plattenStart;
+                    const spitzePosition = (spitzeVonLinks / plattenBreite) * 310;
+                    
+                    // Blauer Bereich (Nutzen): Unter der schwarzen Linie
+                    html += `<polygon points="0,${plattenhoehePx} 310,${plattenhoehePx} 310,${endYRel} ${spitzePosition},0 0,${startYRel}" fill="#007bff" opacity="0.7"/>`;
+                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Nutzen</text>`;
+                    
+                    // Roter Bereich (Abschnitt): Über der schwarzen Linie
+                    html += `<polygon points="0,${startYRel} ${spitzePosition},0 310,${endYRel} 310,0 0,0" fill="#dc3545" opacity="0.5"/>`;
+                    html += `<text x="155" y="${plattenhoehePx * 0.2}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Abschnitt</text>`;
+                } else {
+                    // Normale Platte: Vollständig ausgemalt
+                    html += `<polygon points="0,${plattenhoehePx} 310,${plattenhoehePx} 310,${endYRel} 0,${startYRel}" fill="#007bff" opacity="0.7"/>`;
+                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Nutzen</text>`;
+                    
+                    html += `<polygon points="0,${startYRel} 310,${endYRel} 310,0 0,0" fill="#dc3545" opacity="0.5"/>`;
+                    html += `<text x="155" y="${Math.min(startYRel, endYRel)/2}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Abschnitt</text>`;
+                }
+                
+                // Schnittlinie: Bei Spitze zwei Linien zur Spitze (Y=0), sonst eine
+                if (ueberdecktSpitze) {
                     const spitzeVonLinks = mitte - plattenStart;
                     const spitzePosition = (spitzeVonLinks / plattenBreite) * 310;
                     html += `<line x1="0" y1="${startYRel}" x2="${spitzePosition}" y2="0" stroke="#000" stroke-width="4"/>
@@ -417,14 +477,14 @@
                 html += `</svg>`;
                 
                 // Spitze markieren
-                if (plattenStart <= mitte && originalPlattenEnde >= mitte) {
+                if (ueberdecktSpitze) {
                     const spitzeVonLinks = mitte - plattenStart;
                     const spitzePosition = (spitzeVonLinks / plattenBreite) * 310;
                     
-                    html += `<div style="position: absolute; bottom: 20px; left: ${20 + spitzePosition}px; width: 3px; height: 150px; background: #dc3545; opacity: 0.8;"></div>`;
-                    html += `<div style="position: absolute; bottom: 175px; left: ${15 + spitzePosition}px; font-size: 12px; font-weight: bold; color: #dc3545;">SPITZE ${hoehe}m</div>`;
+                    html += `<div style="position: absolute; bottom: 20px; left: ${20 + spitzePosition}px; width: 3px; height: ${plattenhoehePx}px; background: #dc3545; opacity: 0.8;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx + 5}px; left: ${15 + spitzePosition}px; font-size: 12px; font-weight: bold; color: #dc3545;">SPITZE ${hoehe}m</div>`;
                     
-                    // Maßlinie zur Spitze - ohne Pfeile
+                    // Maßlinie zur Spitze
                     html += `<div style="position: absolute; top: 5px; left: 20px; width: ${spitzePosition}px; height: 2px; background: #666;"></div>`;
                     html += `<div style="position: absolute; top: -10px; left: ${20 + spitzePosition/2}px; font-size: 12px; font-weight: bold; color: #666; transform: translateX(-50%);">${spitzeVonLinks.toFixed(1)}m</div>`;
                     html += `<div style="position: absolute; top: -2px; left: 15px; font-size: 10px; color: #666;">|</div>`;
@@ -436,33 +496,33 @@
                     const ueberhang = originalPlattenEnde - basisBreite;
                     const restBreite = 310 - endX;
                     
-                    // Grüne Dachkanten-Linie
-                    html += `<div style="position: absolute; bottom: 20px; left: ${20 + endX}px; width: 3px; height: 180px; background: #00AA00;"></div>`;
-                    html += `<div style="position: absolute; bottom: 80px; left: ${12 + endX}px; font-size: 12px; font-weight: bold; color: #00AA00; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
+                    // Grüne Dachkanten-Linie - angepasst an Plattenhöhe
+                    html += `<div style="position: absolute; bottom: 20px; left: ${20 + endX}px; width: 3px; height: ${plattenhoehePx}px; background: #00AA00;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx/2}px; left: ${12 + endX}px; font-size: 12px; font-weight: bold; color: #00AA00; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
                     
-                    // Rote Maßlinie (OHNE Kasten!)
+                    // Rote Maßlinie - tiefer positioniert
                     if (restBreite > 5) {
-                        html += `<div style="position: absolute; top: -10px; left: ${20 + endX}px; width: ${restBreite}px; height: 2px; background: #FF0000;"></div>`;
-                        html += `<div style="position: absolute; top: -30px; left: ${20 + endX + restBreite/2}px; font-size: 14px; font-weight: bold; color: #FF0000; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
-                        html += `<div style="position: absolute; top: -15px; left: ${15 + endX}px; font-size: 10px; color: #FF0000;">|</div>`;
-                        html += `<div style="position: absolute; top: -15px; left: ${15 + endX + restBreite}px; font-size: 10px; color: #FF0000;">|</div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 30}px; left: ${20 + endX}px; width: ${restBreite}px; height: 2px; background: #FF0000;"></div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 10}px; left: ${20 + endX + restBreite/2}px; font-size: 14px; font-weight: bold; color: #FF0000; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 25}px; left: ${15 + endX}px; font-size: 10px; color: #FF0000;">|</div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 25}px; left: ${15 + endX + restBreite}px; font-size: 10px; color: #FF0000;">|</div>`;
                     }
                 }
                 
-                // Markierungen
-                html += `<div style="position: absolute; bottom: 20px; left: 20px; width: 4px; height: ${150 - startYRel}px; background: #dc3545;"></div>`;
+                // Markierungen - relativ zur Plattenhöhe
+                html += `<div style="position: absolute; bottom: 20px; left: 20px; width: 4px; height: ${plattenhoehePx - startYRel}px; background: #dc3545;"></div>`;
                 
                 if (istLetztePlatte) {
                     html += `<div style="position: absolute; bottom: 20px; left: ${20 + endX - 2}px; width: 8px; height: 8px; background: #dc3545; border-radius: 50%;"></div>`;
                 } else {
-                    html += `<div style="position: absolute; bottom: 20px; left: 326px; width: 4px; height: ${150 - endYRel}px; background: #dc3545;"></div>`;
+                    html += `<div style="position: absolute; bottom: 20px; left: 326px; width: 4px; height: ${plattenhoehePx - endYRel}px; background: #dc3545;"></div>`;
                 }
                 
-                // Maße
-                html += `<div style="position: absolute; bottom: 45px; left: -20px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: 45px; right: -20px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: -15px; left: -40px; font-size: 14px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissLinks}cm</div>`;
-                html += `<div style="position: absolute; bottom: -15px; right: -40px; font-size: 14px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissRechts}cm</div>`;
+                // Maße - angepasst an die Plattenhöhe
+                html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx}px; left: -20px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx}px; right: -20px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: 5px; left: -40px; font-size: 14px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissLinks}cm</div>`;
+                html += `<div style="position: absolute; bottom: 5px; right: -40px; font-size: 14px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissRechts}cm</div>`;
                 
                 html += `</div>`;
                 
