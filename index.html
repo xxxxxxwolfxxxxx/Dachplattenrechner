@@ -118,6 +118,9 @@
             text-decoration: none;
             color: inherit;
             border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            height: 520px;
         }
 
         .calculator-card:hover {
@@ -129,6 +132,10 @@
         .card-icon {
             text-align: center;
             margin-bottom: 20px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .card-title {
@@ -137,6 +144,10 @@
             margin-bottom: 15px;
             color: #2c3e50;
             text-align: center;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .card-description {
@@ -144,11 +155,20 @@
             line-height: 1.6;
             margin-bottom: 20px;
             text-align: center;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
         .card-features {
             list-style: none;
             margin-bottom: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
 
         .card-features li {
@@ -180,6 +200,11 @@
             text-decoration: none;
             transition: all 0.3s ease;
             margin-top: auto;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
         .cta-button:hover {
@@ -393,186 +418,6 @@
             border: 1px solid white;
         }
 
-        /* Banner Ad Spaces */
-        .ad-banner {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            margin: 30px 0;
-            border: 2px dashed #ddd;
-            color: #666;
-            font-size: 14px;
-            min-height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .ad-banner:hover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .ad-banner-large {
-            min-height: 200px;
-        }
-
-        .ad-banner-sidebar {
-            min-height: 300px;
-            margin: 20px 0;
-        }
-
-        .ad-placeholder {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            opacity: 0.5;
-        }
-
-        .ad-placeholder span {
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        /* AdBlocker Detection */
-        .adblocker-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(15px);
-            z-index: 9999;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .adblocker-modal {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 600px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .adblocker-modal h2 {
-            color: #dc3545;
-            margin-bottom: 20px;
-            font-size: 2em;
-        }
-
-        .adblocker-modal p {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .adblocker-benefits {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        .adblocker-benefits h3 {
-            color: #28a745;
-            margin-bottom: 15px;
-        }
-
-        .adblocker-benefits ul {
-            color: #555;
-            padding-left: 20px;
-        }
-
-        .adblocker-benefits li {
-            margin-bottom: 8px;
-        }
-
-        .adblocker-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .adblocker-btn {
-            padding: 15px 25px;
-            border-radius: 10px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .adblocker-btn.primary {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-        }
-
-        .adblocker-btn.primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
-        }
-
-        .adblocker-btn.secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .content-blocked {
-            filter: blur(5px);
-            pointer-events: none;
-            user-select: none;
-        }
-
-        /* AdBlocker Test Element */
-        .ads, .ad, .adsbox, .advertisement {
-            width: 1px;
-            height: 1px;
-            position: absolute;
-            left: -9999px;
-            visibility: hidden;
-        }
-
-        /* Responsive Ad Layout */
-        @media (min-width: 1200px) {
-            .main-content {
-                display: grid;
-                grid-template-columns: 1fr 300px;
-                gap: 40px;
-                align-items: start;
-            }
-            
-            .sidebar-ads {
-                position: sticky;
-                top: 20px;
-            }
-        }
-
         @media (max-width: 768px) {
             .calculators-grid {
                 grid-template-columns: 1fr;
@@ -590,26 +435,6 @@
             .cookie-content {
                 flex-direction: column;
                 text-align: center;
-            }
-            
-            .main-content {
-                display: block !important;
-            }
-            
-            .sidebar-ads {
-                display: none;
-            }
-            
-            .ad-banner-large {
-                min-height: 100px;
-            }
-            
-            .adblocker-modal {
-                padding: 30px 20px;
-            }
-            
-            .adblocker-buttons {
-                flex-direction: column;
             }
         }
     </style>
@@ -639,239 +464,167 @@
             </div>
         </header>
 
-        <!-- Top Banner Ad -->
-        <div class="ad-banner ad-banner-large">
-            <div class="ad-placeholder">
-                <span>📢 Banner-Werbung (728x90 oder 970x250)</span>
-                <small>Hier wird später Ihre Bannerwerbung angezeigt</small>
-            </div>
-        </div>
-
-        <div class="main-content">
-            <div class="content-area">
-                <div class="calculators-grid">
-                    <!-- Gleichschenkliges Dreieck -->
-                    <a href="gleichschenkliges Dreieck.html" class="calculator-card">
-                        <div class="card-icon">
-                            <svg width="120" height="80" viewBox="0 0 120 80">
-                                <polygon points="60,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                                <line x1="30" y1="70" x2="30" y2="58" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="40" y1="70" x2="40" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="50" y1="70" x2="50" y2="34" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="60" y1="70" x2="60" y2="10" stroke="#dc3545" stroke-width="2"/>
-                                <line x1="70" y1="70" x2="70" y2="34" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="80" y1="70" x2="80" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="90" y1="70" x2="90" y2="58" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <circle cx="60" cy="10" r="2" fill="#dc3545"/>
-                            </svg>
-                        </div>
-                        <h2 class="card-title">Gleichschenkliges Dreieck</h2>
-                        <p class="card-description">
-                            Ideal für Pyramidendächer, Satteldachwalmflächen und symmetrische Dreiecksflächen.
-                        </p>
-                        <ul class="card-features">
-                            <li>Symmetrische Dreiecksberechnung</li>
-                            <li>Automatische Spitzenerkennung</li>
-                            <li>Optimierte Materialverteilung</li>
-                            <li>Detaillierte Schnittliste</li>
-                        </ul>
-                        <span class="cta-button">Jetzt berechnen →</span>
-                    </a>
-
-                    <!-- Ungleichschenkliges Dreieck -->
-                    <a href="ugleichschenkliges Dreieck.html" class="calculator-card">
-                        <div class="card-icon">
-                            <svg width="120" height="80" viewBox="0 0 120 80">
-                                <polygon points="75,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                                <line x1="28" y1="70" x2="28" y2="60" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="38" y1="70" x2="38" y2="48" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="48" y1="70" x2="48" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="58" y1="70" x2="58" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="75" y1="70" x2="75" y2="10" stroke="#dc3545" stroke-width="2"/>
-                                <line x1="85" y1="70" x2="85" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="95" y1="70" x2="95" y2="60" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <circle cx="75" cy="10" r="2" fill="#dc3545"/>
-                                <line x1="20" y1="75" x2="75" y2="75" stroke="#ff6b35" stroke-width="2" stroke-dasharray="3,3"/>
-                            </svg>
-                        </div>
-                        <h2 class="card-title">Ungleichschenkliges Dreieck</h2>
-                        <p class="card-description">
-                            Für asymmetrische Dachflächen mit verschobener Spitze. Flexible Eingabemöglichkeiten.
-                        </p>
-                        <ul class="card-features">
-                            <li>Variable Spitzenposition</li>
-                            <li>Kantenlängen oder Position/Höhe</li>
-                            <li>Geometrische Validierung</li>
-                            <li>Präzise Winkelberechnungen</li>
-                        </ul>
-                        <span class="cta-button">Jetzt berechnen →</span>
-                    </a>
-
-                    <!-- Middle Banner Ad outside of grid -->
+        <div class="calculators-grid">
+            <!-- Gleichschenkliges Dreieck -->
+            <a href="gleichschenkliges Dreieck.html" class="calculator-card">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <polygon points="60,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="30" y1="70" x2="30" y2="58" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="40" y1="70" x2="40" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="50" y1="70" x2="50" y2="34" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="60" y1="70" x2="60" y2="10" stroke="#dc3545" stroke-width="2"/>
+                        <line x1="70" y1="70" x2="70" y2="34" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="80" y1="70" x2="80" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="90" y1="70" x2="90" y2="58" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <circle cx="60" cy="10" r="2" fill="#dc3545"/>
+                    </svg>
                 </div>
-                
-                <div class="ad-banner">
-                    <div class="ad-placeholder">
-                        <span>📢 Content-Werbung (300x250)</span>
-                        <small>Werbefläche zwischen den Rechnern</small>
-                    </div>
+                <h2 class="card-title">Gleichschenkliges Dreieck</h2>
+                <p class="card-description">
+                    Ideal für Pyramidendächer, Satteldachwalmflächen und symmetrische Dreiecksflächen.
+                </p>
+                <ul class="card-features">
+                    <li>Symmetrische Dreiecksberechnung</li>
+                    <li>Automatische Spitzenerkennung</li>
+                    <li>Optimierte Materialverteilung</li>
+                    <li>Detaillierte Schnittliste</li>
+                </ul>
+                <span class="cta-button">Jetzt berechnen →</span>
+            </a>
+
+            <!-- Ungleichschenkliges Dreieck -->
+            <a href="ugleichschenkliges Dreieck.html" class="calculator-card">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <polygon points="75,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="28" y1="70" x2="28" y2="60" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="38" y1="70" x2="38" y2="48" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="48" y1="70" x2="48" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="58" y1="70" x2="58" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="75" y1="70" x2="75" y2="10" stroke="#dc3545" stroke-width="2"/>
+                        <line x1="85" y1="70" x2="85" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="95" y1="70" x2="95" y2="60" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <circle cx="75" cy="10" r="2" fill="#dc3545"/>
+                        <line x1="20" y1="75" x2="75" y2="75" stroke="#ff6b35" stroke-width="2" stroke-dasharray="3,3"/>
+                    </svg>
                 </div>
-                
-                <div class="calculators-grid">
-                    <!-- Trapez -->
-                    <div class="calculator-card coming-soon">
-                        <div class="card-icon">
-                            <svg width="120" height="80" viewBox="0 0 120 80">
-                                <polygon points="40,20 80,20 95,60 25,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                                <line x1="35" y1="60" x2="35" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="45" y1="60" x2="45" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="55" y1="60" x2="55" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="65" y1="60" x2="65" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="75" y1="60" x2="75" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="85" y1="60" x2="85" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            </svg>
-                        </div>
-                        <h2 class="card-title">Trapez</h2>
-                        <p class="card-description">
-                            Für trapezförmige Dachflächen mit parallelen oberen und unteren Kanten.
-                        </p>
-                        <ul class="card-features">
-                            <li>Parallele Oberkanten</li>
-                            <li>Variable Neigungswinkel</li>
-                            <li>Optimierte Schnittführung</li>
-                            <li>Materialersparnis</li>
-                        </ul>
-                        <span class="cta-button">Bald verfügbar</span>
-                    </div>
+                <h2 class="card-title">Ungleichschenkliges Dreieck</h2>
+                <p class="card-description">
+                    Für asymmetrische Dachflächen mit verschobener Spitze. Flexible Eingabemöglichkeiten.
+                </p>
+                <ul class="card-features">
+                    <li>Variable Spitzenposition</li>
+                    <li>Kantenlängen oder Position/Höhe</li>
+                    <li>Geometrische Validierung</li>
+                    <li>Präzise Winkelberechnungen</li>
+                </ul>
+                <span class="cta-button">Jetzt berechnen →</span>
+            </a>
 
-                    <!-- Parallelogramm -->
-                    <div class="calculator-card coming-soon">
-                        <div class="card-icon">
-                            <svg width="120" height="80" viewBox="0 0 120 80">
-                                <polygon points="25,20 75,20 95,60 45,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                                <line x1="35" y1="60" x2="35" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="45" y1="60" x2="45" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="55" y1="60" x2="55" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="65" y1="60" x2="65" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="75" y1="60" x2="75" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="85" y1="60" x2="85" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            </svg>
-                        </div>
-                        <h2 class="card-title">Parallelogramm</h2>
-                        <p class="card-description">
-                            Für schräge Rechteckflächen mit parallelen gegenüberliegenden Seiten.
-                        </p>
-                        <ul class="card-features">
-                            <li>Parallele Seitenwände</li>
-                            <li>Schräge Rechteckform</li>
-                            <li>Gleichmäßige Plattenaufteilung</li>
-                            <li>Einfache Verlegung</li>
-                        </ul>
-                        <span class="cta-button">Bald verfügbar</span>
-                    </div>
-
-                    <!-- Beliebiges Viereck -->
-                    <div class="calculator-card coming-soon">
-                        <div class="card-icon">
-                            <svg width="120" height="80" viewBox="0 0 120 80">
-                                <polygon points="30,25 80,15 90,55 20,65" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                                <line x1="35" y1="65" x2="35" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="45" y1="60" x2="45" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="55" y1="55" x2="55" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="65" y1="50" x2="65" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="75" y1="47" x2="75" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="85" y1="55" x2="85" y2="18" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            </svg>
-                        </div>
-                        <h2 class="card-title">Beliebiges Viereck</h2>
-                        <p class="card-description">
-                            Für komplexe Dachflächen mit vier unterschiedlichen Seiten.
-                        </p>
-                        <ul class="card-features">
-                            <li>Vier variable Eckpunkte</li>
-                            <li>Komplexe Geometrie</li>
-                            <li>Adaptive Platteneinteilung</li>
-                            <li>Maximale Flexibilität</li>
-                        </ul>
-                        <span class="cta-button">Bald verfügbar</span>
-                    </div>
-
-                    <!-- Kreis/Ellipse -->
-                    <div class="calculator-card coming-soon">
-                        <div class="card-icon">
-                            <svg width="120" height="80" viewBox="0 0 120 80">
-                                <ellipse cx="60" cy="40" rx="35" ry="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                                <line x1="35" y1="50" x2="35" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="45" y1="55" x2="45" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="55" y1="58" x2="55" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="65" y1="58" x2="65" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="75" y1="55" x2="75" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <line x1="85" y1="50" x2="85" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
-                                <circle cx="60" cy="40" r="2" fill="#dc3545"/>
-                            </svg>
-                        </div>
-                        <h2 class="card-title">Runde Flächen</h2>
-                        <p class="card-description">
-                            Für kreisförmige oder elliptische Dachflächen und Kuppeln.
-                        </p>
-                        <ul class="card-features">
-                            <li>Kreise und Ellipsen</li>
-                            <li>Kuppelberechnungen</li>
-                            <li>Radiale Aufteilung</li>
-                            <li>Minimaler Verschnitt</li>
-                        </ul>
+            <!-- Trapez -->
+            <div class="calculator-card coming-soon">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <polygon points="40,20 80,20 95,60 25,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="35" y1="60" x2="35" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="45" y1="60" x2="45" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="55" y1="60" x2="55" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="65" y1="60" x2="65" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="75" y1="60" x2="75" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="85" y1="60" x2="85" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                    </svg>
                 </div>
+                <h2 class="card-title">Trapez</h2>
+                <p class="card-description">
+                    Für trapezförmige Dachflächen mit parallelen oberen und unteren Kanten.
+                </p>
+                <ul class="card-features">
+                    <li>Parallele Oberkanten</li>
+                    <li>Variable Neigungswinkel</li>
+                    <li>Optimierte Schnittführung</li>
+                    <li>Materialersparnis</li>
+                </ul>
+                <span class="cta-button">Bald verfügbar</span>
             </div>
 
-            <!-- Sidebar Ads (visible on larger screens) -->
-            <div class="sidebar-ads">
-                <div class="ad-banner ad-banner-sidebar">
-                    <div class="ad-placeholder">
-                        <span>📢 Sidebar-Werbung</span>
-                        <small>300x250 oder 300x600</small>
-                        <small>Sticky Sidebar-Banner</small>
-                    </div>
+            <!-- Parallelogramm -->
+            <div class="calculator-card coming-soon">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <polygon points="25,20 75,20 95,60 45,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="35" y1="60" x2="35" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="45" y1="60" x2="45" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="55" y1="60" x2="55" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="65" y1="60" x2="65" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="75" y1="60" x2="75" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="85" y1="60" x2="85" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                    </svg>
                 </div>
-                
-                <div class="ad-banner ad-banner-sidebar">
-                    <div class="ad-placeholder">
-                        <span>📢 Zweiter Sidebar-Banner</span>
-                        <small>300x250</small>
-                        <small>Zusätzliche Werbefläche</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>                        <span class="cta-button">Bald verfügbar</span>
-                    </div>
-                </div>
-
-                <!-- Bottom Banner Ad -->
-                <div class="ad-banner ad-banner-large">
-                    <div class="ad-placeholder">
-                        <span>📢 Footer-Banner (728x90 oder 970x90)</span>
-                        <small>Werbefläche am Ende des Hauptinhalts</small>
-                    </div>
-                </div>
+                <h2 class="card-title">Parallelogramm</h2>
+                <p class="card-description">
+                    Für schräge Rechteckflächen mit parallelen gegenüberliegenden Seiten.
+                </p>
+                <ul class="card-features">
+                    <li>Parallele Seitenwände</li>
+                    <li>Schräge Rechteckform</li>
+                    <li>Gleichmäßige Plattenaufteilung</li>
+                    <li>Einfache Verlegung</li>
+                </ul>
+                <span class="cta-button">Bald verfügbar</span>
             </div>
 
-            <!-- Sidebar Ads (visible on larger screens) -->
-            <div class="sidebar-ads">
-                <div class="ad-banner ad-banner-sidebar">
-                    <div class="ad-placeholder">
-                        <span>📢 Sidebar-Werbung</span>
-                        <small>300x250 oder 300x600</small>
-                        <small>Sticky Sidebar-Banner</small>
-                    </div>
+            <!-- Beliebiges Viereck -->
+            <div class="calculator-card coming-soon">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <polygon points="30,25 80,15 90,55 20,65" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="35" y1="65" x2="35" y2="45" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="45" y1="60" x2="45" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="55" y1="55" x2="55" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="65" y1="50" x2="65" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="75" y1="47" x2="75" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="85" y1="55" x2="85" y2="18" stroke="#666" stroke-width="1" opacity="0.8"/>
+                    </svg>
                 </div>
-                
-                <div class="ad-banner ad-banner-sidebar">
-                    <div class="ad-placeholder">
-                        <span>📢 Zweiter Sidebar-Banner</span>
-                        <small>300x250</small>
-                        <small>Zusätzliche Werbefläche</small>
-                    </div>
+                <h2 class="card-title">Beliebiges Viereck</h2>
+                <p class="card-description">
+                    Für komplexe Dachflächen mit vier unterschiedlichen Seiten.
+                </p>
+                <ul class="card-features">
+                    <li>Vier variable Eckpunkte</li>
+                    <li>Komplexe Geometrie</li>
+                    <li>Adaptive Platteneinteilung</li>
+                    <li>Maximale Flexibilität</li>
+                </ul>
+                <span class="cta-button">Bald verfügbar</span>
+            </div>
+
+            <!-- Kreis/Ellipse -->
+            <div class="calculator-card coming-soon">
+                <div class="card-icon">
+                    <svg width="120" height="80" viewBox="0 0 120 80">
+                        <ellipse cx="60" cy="40" rx="35" ry="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <line x1="35" y1="50" x2="35" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="45" y1="55" x2="45" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="55" y1="58" x2="55" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="65" y1="58" x2="65" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="75" y1="55" x2="75" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <line x1="85" y1="50" x2="85" y2="35" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        <circle cx="60" cy="40" r="2" fill="#dc3545"/>
+                    </svg>
                 </div>
+                <h2 class="card-title">Runde Flächen</h2>
+                <p class="card-description">
+                    Für kreisförmige oder elliptische Dachflächen und Kuppeln.
+                </p>
+                <ul class="card-features">
+                    <li>Kreise und Ellipsen</li>
+                    <li>Kuppelberechnungen</li>
+                    <li>Radiale Aufteilung</li>
+                    <li>Minimaler Verschnitt</li>
+                </ul>
+                <span class="cta-button">Bald verfügbar</span>
             </div>
         </div>
     </div>
@@ -906,7 +659,7 @@
 
     <!-- Cookie Banner -->
     <div id="cookieBanner" class="cookie-banner">
-                                <div class="cookie-content">
+        <div class="cookie-content">
             <div class="cookie-text">
                 <p><strong>🍪 Cookie-Hinweis:</strong> Diese Website verwendet Cookies und ähnliche Technologien zur Verbesserung der Nutzererfahrung. Mit Google Analytics und Google Ads analysieren wir die Nutzung und optimieren unsere Inhalte. Durch Klick auf "Alle akzeptieren" stimmen Sie der Verwendung aller Cookies zu.</p>
             </div>
@@ -927,51 +680,6 @@
     </div>
 
     <script>
-        // AdBlocker Detection
-        let adBlockEnabled = false;
-        
-        function detectAdBlocker() {
-            const testAd = document.getElementById('adblocker-test');
-            if (testAd.offsetHeight === 0 || 
-                window.getComputedStyle(testAd).display === 'none' ||
-                window.getComputedStyle(testAd).visibility === 'hidden') {
-                adBlockEnabled = true;
-                showAdBlockerModal();
-            }
-        }
-        
-        function showAdBlockerModal() {
-            document.getElementById('adblock-overlay').style.display = 'flex';
-            document.getElementById('main-content-wrapper').classList.add('content-blocked');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function showAdBlockerHelp() {
-            const helpContent = `
-                <h2>AdBlocker deaktivieren - Anleitung</h2>
-                <h3>🔧 uBlock Origin / AdBlock Plus:</h3>
-                <p>1. Klicken Sie auf das AdBlocker-Symbol in der Browser-Leiste<br>
-                2. Wählen Sie "Für diese Seite deaktivieren"<br>
-                3. Laden Sie die Seite neu</p>
-                
-                <h3>🔧 AdBlocker Ultimate:</h3>
-                <p>1. Klicken Sie auf das rote Schild-Symbol<br>
-                2. Klicken Sie auf den Schalter zum Deaktivieren<br>
-                3. Bestätigen Sie mit "Ja"</p>
-                
-                <h3>🔧 Brave Browser:</h3>
-                <p>1. Klicken Sie auf das Löwen-Symbol in der Adressleiste<br>
-                2. Stellen Sie "Werbung & Tracker" auf "Zugelassen"<br>
-                3. Laden Sie die Seite neu</p>
-                
-                <p style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px;">
-                <strong>💡 Tipp:</strong> Sie können auch eine Ausnahme für "dachplattenrechner.netlify.app" in Ihrem AdBlocker hinzufügen.
-                </p>
-            `;
-            
-            document.getElementById('modal-body').innerHTML = helpContent;
-            document.getElementById('modal').style.display = 'block';
-        }
         // Cookie Management
         function showCookieBanner() {
             if (!localStorage.getItem('cookieConsent')) {
@@ -984,13 +692,24 @@
             localStorage.setItem('analyticsCookies', 'true');
             localStorage.setItem('marketingCookies', 'true');
             
-            // Initialize Google Analytics
+    <script>
+        // Cookie Management
+        function showCookieBanner() {
+            if (!localStorage.getItem('cookieConsent')) {
+                document.getElementById('cookieBanner').classList.add('show');
+            }
+        }
+
+        function acceptCookies() {
+            localStorage.setItem('cookieConsent', 'all');
+            localStorage.setItem('analyticsCookies', 'true');
+            localStorage.setItem('marketingCookies', 'true');
+            
             if (typeof gtag !== 'undefined') {
                 gtag('config', 'G-6NSYG8B1T9', {
                     anonymize_ip: true,
                     cookie_flags: 'SameSite=None;Secure'
                 });
-                console.log('Alle Cookies akzeptiert - Analytics aktiviert');
             }
             
             document.getElementById('cookieBanner').classList.remove('show');
@@ -1001,9 +720,7 @@
             localStorage.setItem('analyticsCookies', 'false');
             localStorage.setItem('marketingCookies', 'false');
             
-            // Disable Google Analytics
             window['ga-disable-G-6NSYG8B1T9'] = true;
-            
             document.getElementById('cookieBanner').classList.remove('show');
         }
 
@@ -1014,290 +731,87 @@
             
             let content = '';
             
-            switch(type) {
-                case 'impressum':
-                    content = `
-                        <h2>Impressum</h2>
-                        <h3>Angaben gemäß § 5 TMG</h3>
-                        <div class="contact-info">
-                            <p><strong>Matthias Dührkop</strong><br>
-                            Rhedewiesen 1<br>
-                            19258 Boizenburg/Elbe<br>
-                            Deutschland</p>
-                            
-                            <p><strong>Kontakt:</strong><br>
-                            E-Mail: <span id="email-contact"></span></p>
-                            
-                            <p><strong>Umsatzsteuer-ID:</strong><br>
-                            DE08721403093</p>
-                        </div>
+            if (type === 'impressum') {
+                content = `
+                    <h2>Impressum</h2>
+                    <h3>Angaben gemäß § 5 TMG</h3>
+                    <div class="contact-info">
+                        <p><strong>Matthias Dührkop</strong><br>
+                        Rhedewiesen 1<br>
+                        19258 Boizenburg/Elbe<br>
+                        Deutschland</p>
                         
-                        <h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
+                        <p><strong>Kontakt:</strong><br>
+                        E-Mail: <span id="email-contact"></span></p>
+                        
+                        <p><strong>Umsatzsteuer-ID:</strong><br>
+                        DE08721403093</p>
+                    </div>
+                    
+                    <h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
+                    <p>Matthias Dührkop<br>
+                    Rhedewiesen 1<br>
+                    19258 Boizenburg/Elbe</p>
+                    
+                    <h3>Haftungsausschluss</h3>
+                    <p><strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.</p>
+                `;
+            } else if (type === 'datenschutz') {
+                content = `
+                    <h2>Datenschutzerklärung</h2>
+                    <h3>1. Datenschutz auf einen Blick</h3>
+                    <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen.</p>
+                    
+                    <h3>2. Hosting - Netlify</h3>
+                    <p>Diese Website wird über Netlify gehostet. Weitere Informationen finden Sie in der Datenschutzerklärung von Netlify.</p>
+                    
+                    <h3>3. Google Analytics</h3>
+                    <p>Diese Website nutzt Google Analytics (ID: G-6NSYG8B1T9). Die Nutzung erfolgt auf Grundlage Ihrer Einwilligung.</p>
+                `;
+            } else if (type === 'agb') {
+                content = `
+                    <h2>Allgemeine Geschäftsbedingungen</h2>
+                    <h3>1. Nutzung des Rechners</h3>
+                    <p>Der Trapetzblechrechner steht Ihnen kostenfrei zur Verfügung. Wir übernehmen keine Haftung für die Richtigkeit der Ergebnisse.</p>
+                `;
+            } else if (type === 'cookies') {
+                content = `
+                    <h2>Cookie-Einstellungen</h2>
+                    <p>Diese Website verwendet Cookies zur Verbesserung der Nutzererfahrung.</p>
+                    
+                    <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <input type="checkbox" checked disabled>
+                            <span>Notwendige Cookies</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="analyticsCookies">
+                            <span>Analytics-Cookies (Google Analytics)</span>
+                        </label>
+                    </div>
+                    
+                    <button onclick="saveCookieSettings()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Einstellungen speichern</button>
+                `;
+            } else if (type === 'hilfe') {
+                content = `
+                    <h2>Hilfe & FAQ</h2>
+                    <h3>🔧 Wie funktioniert der Rechner?</h3>
+                    <p>Geben Sie die Maße Ihrer Dachfläche ein und der Rechner berechnet automatisch die benötigte Anzahl Trapetzbleche.</p>
+                `;
+            } else if (type === 'kontakt') {
+                content = `
+                    <h2>Kontakt</h2>
+                    <div class="contact-info">
+                        <h3>📧 E-Mail</h3>
+                        <p id="email-display"></p>
+                        
+                        <h3>📍 Adresse</h3>
                         <p>Matthias Dührkop<br>
                         Rhedewiesen 1<br>
-                        19258 Boizenburg/Elbe</p>
-                        
-                        <h3>EU-Streitschlichtung</h3>
-                        <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank">https://ec.europa.eu/consumers/odr/</a>. Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>
-                        
-                        <h3>Verbraucherstreitbeilegung/Universalschlichtungsstelle</h3>
-                        <p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
-                        
-                        <h3>Haftungsausschluss</h3>
-                        <p><strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht unter der verpflichtung, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
-                        
-                        <p><strong>Haftung für Links:</strong> Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.</p>
-                        
-                        <p><strong>Urheberrecht:</strong> Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
-                    `;
-                    break;
-                    
-                case 'datenschutz':
-                    content = `
-                        <h2>Datenschutzerklärung</h2>
-                        <p><em>Stand: 10. Juni 2025</em></p>
-                        
-                        <h3>1. Datenschutz auf einen Blick</h3>
-                        <h4>Allgemeine Hinweise</h4>
-                        <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.</p>
-                        
-                        <h4>Datenerfassung auf dieser Website</h4>
-                        <p><strong>Wer ist verantwortlich für die Datenerfassung auf dieser Website?</strong><br>
-                        Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Abschnitt „Hinweis zur Verantwortlichen Stelle" in dieser Datenschutzerklärung entnehmen.</p>
-                        
-                        <p><strong>Wie erfassen wir Ihre Daten?</strong><br>
-                        Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen. Hierbei kann es sich z. B. um Daten handeln, die Sie in ein Kontaktformular eingeben.</p>
-                        
-                        <p>Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Website durch unsere IT-Systeme erfasst. Das sind vor allem technische Daten (z. B. Internetbrowser, Betriebssystem oder Uhrzeit des Seitenaufrufs).</p>
-                        
-                        <h3>2. Hosting</h3>
-                        <p>Wir hosten die Inhalte unserer Website bei folgendem Anbieter:</p>
-                        
-                        <h4>Netlify</h4>
-                        <div class="contact-info">
-                            <p>Netlify, Inc.<br>
-                            2325 3rd Street, Suite 296<br>
-                            San Francisco, CA 94107<br>
-                            USA</p>
-                        </div>
-                        
-                        <p>Diese Website wird über Netlify gehostet. Die personenbezogenen Daten, die auf dieser Website erfasst werden, werden auf den Servern von Netlify gespeichert. Hierbei kann es sich v. a. um IP-Adressen, Kontaktanfragen, Meta- und Kommunikationsdaten, Vertragsdaten, Kontaktdaten, Namen, Websitezugriffe und sonstige Daten, die über eine Website generiert werden, handeln.</p>
-                        
-                        <p>Das externe Hosting erfolgt zum Zwecke der Vertragserfüllung gegenüber unseren potenziellen und bestehenden Kunden (Art. 6 Abs. 1 lit. b DSGVO) und im Interesse einer sicheren, schnellen und effizienten Bereitstellung unseres Online-Angebots durch einen professionellen Anbieter (Art. 6 Abs. 1 lit. f DSGVO).</p>
-                        
-                        <p>Weitere Informationen zu Netlify finden Sie in der Datenschutzerklärung von Netlify: <a href="https://www.netlify.com/privacy/" target="_blank">https://www.netlify.com/privacy/</a></p>
-                        
-                        <h3>3. Allgemeine Hinweise und Pflichtinformationen</h3>
-                        <h4>Datenschutz</h4>
-                        <p>Die Betreiber dieser Seiten nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend den gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.</p>
-                        
-                        <h4>Hinweis zur verantwortlichen Stelle</h4>
-                        <div class="contact-info">
-                            <p>Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:<br>
-                            Matthias Dührkop<br>
-                            Rhedewiesen 1<br>
-                            19258 Boizenburg/Elbe<br>
-                            E-Mail: <span id="email-privacy"></span></p>
-                        </div>
-                        
-                        <h4>Speicherdauer</h4>
-                        <p>Soweit innerhalb dieser Datenschutzerklärung keine speziellere Speicherdauer genannt wurde, verbleiben Ihre personenbezogenen Daten bei uns, bis der Zweck für die Datenverarbeitung entfällt.</p>
-                        
-                        <h3>4. Datenerfassung auf dieser Website</h3>
-                        <h4>Cookies</h4>
-                        <p>Unsere Internetseiten verwenden so genannte „Cookies". Cookies sind kleine Datenpakete und richten auf Ihrem Endgerät keinen Schaden an. Sie werden entweder vorübergehend für die Dauer einer Sitzung (Session-Cookies) oder dauerhaft (permanente Cookies) auf Ihrem Endgerät gespeichert.</p>
-                        
-                        <p>Sie können Ihren Browser so einstellen, dass Sie über das Setzen von Cookies informiert werden und Cookies nur im Einzelfall erlauben, die Annahme von Cookies für bestimmte Fälle oder generell ausschließen sowie das automatische Löschen der Cookies beim Schließen des Browsers aktivieren.</p>
-                        
-                        <h4>Server-Log-Dateien</h4>
-                        <p>Der Provider der Seiten erhebt und speichert automatisch Informationen in so genannten Server-Log-Dateien, die Ihr Browser automatisch an uns übermittelt. Dies sind:</p>
-                        <ul>
-                            <li>Browsertyp und Browserversion</li>
-                            <li>verwendetes Betriebssystem</li>
-                            <li>Referrer URL</li>
-                            <li>Hostname des zugreifenden Rechners</li>
-                            <li>Uhrzeit der Serveranfrage</li>
-                            <li>IP-Adresse</li>
-                        </ul>
-                        
-                        <h3>5. Plugins und Tools</h3>
-                        <h4>Google Analytics</h4>
-                        <p>Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited („Google"), Gordon House, Barrow Street, Dublin 4, Irland.</p>
-                        
-                        <p>Google Analytics ermöglicht es dem Websitebetreiber, das Verhalten der Websitebesucher zu analysieren. Hierbei erhält der Websitebetreiber verschiedene Nutzungsdaten, wie z. B. Seitenaufrufe, Verweildauer, verwendete Betriebssysteme und Herkunft des Nutzers. Diese Daten werden pseudonymisiert an Google übertragen.</p>
-                        
-                        <p><strong>Verwendete Analytics-ID:</strong> G-6NSYG8B1T9</p>
-                        
-                        <p>Die Nutzung von Google Analytics erfolgt auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Der Websitebetreiber hat ein berechtigtes Interesse an der Analyse des Nutzerverhaltens, um sowohl sein Webangebot als auch seine Werbung zu optimieren.</p>
-                        
-                        <p><strong>IP-Anonymisierung:</strong> Wir haben auf dieser Website die Funktion IP-Anonymisierung aktiviert. Dadurch wird Ihre IP-Adresse von Google innerhalb von Mitgliedstaaten der Europäischen Union oder in anderen Vertragsstaaten des Abkommens über den Europäischen Wirtschaftsraum vor der Übermittlung in die USA gekürzt.</p>
-                        
-                        <p><strong>Widerspruch gegen Datenerfassung:</strong> Sie können die Erfassung Ihrer Daten durch Google Analytics verhindern, indem Sie auf folgenden Link klicken. Es wird ein Opt-Out-Cookie gesetzt, der die Erfassung Ihrer Daten bei zukünftigen Besuchen dieser Website verhindert: <a href="#" onclick="if(window.gaOptout) window.gaOptout(); return false;">Google Analytics deaktivieren</a></p>
-                        
-                        <h4>Google AdSense</h4>
-                        <p>Diese Website nutzt Google AdSense, einen Service zum Einbinden von Werbeanzeigen der Google Ireland Limited („Google"), Gordon House, Barrow Street, Dublin 4, Irland.</p>
-                        
-                        <p><strong>Publisher-ID:</strong> ca-pub-8687929894744033</p>
-                        
-                        <p>Google AdSense verwendet „Cookies", das sind Textdateien, die auf Ihrem Computer gespeichert werden und die eine Analyse der Benutzung der Website durch Sie ermöglichen. Google AdSense verwendet auch so genannte Web Beacons (unsichtbare Grafiken).</p>
-                        
-                        <p>Die Nutzung von Google AdSense erfolgt auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Sie können Ihre Einwilligung jederzeit widerrufen.</p>
-                        
-                        <h3>6. Ihre Rechte</h3>
-                        <p>Sie haben jederzeit das Recht:</p>
-                        <ul>
-                            <li>gemäß Art. 15 DSGVO Auskunft über Ihre von uns verarbeiteten personenbezogenen Daten zu verlangen</li>
-                            <li>gemäß Art. 16 DSGVO unverzüglich die Berichtigung unrichtiger oder Vervollständigung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen</li>
-                            <li>gemäß Art. 17 DSGVO die Löschung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen</li>
-                            <li>gemäß Art. 18 DSGVO die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen</li>
-                            <li>gemäß Art. 20 DSGVO Ihre personenbezogenen Daten, die Sie uns bereitgestellt haben, in einem strukturierten, gängigen und maschinenlesbbaren Format zu erhalten</li>
-                            <li>gemäß Art. 7 Abs. 3 DSGVO Ihre einmal erteilte Einwilligung jederzeit gegenüber uns zu widerrufen</li>
-                        </ul>
-                        
-                        <h3>7. Widerspruch gegen Werbe-E-Mails</h3>
-                        <p>Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten zur Übersendung von nicht ausdrücklich angeforderter Werbung und Informationsmaterialien wird hiermit widersprochen.</p>
-                    `;
-                    break;
-                    
-                case 'agb':
-                    content = `
-                        <h2>Allgemeine Geschäftsbedingungen (AGB)</h2>
-                        <h3>1. Geltungsbereich</h3>
-                        <p>Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung des Trapetzblechrechners und aller damit verbundenen Dienstleistungen.</p>
-                        
-                        <h3>2. Nutzung des Rechners</h3>
-                        <p>Der Trapetzblechrechner steht Ihnen kostenfrei zur Verfügung. Die Berechnungen erfolgen nach bestem Wissen und Gewissen, jedoch übernehmen wir keine Haftung für die Richtigkeit der Ergebnisse.</p>
-                        
-                        <h3>3. Haftungsausschluss</h3>
-                        <p>Die Nutzung des Rechners erfolgt auf eigenes Risiko. Wir empfehlen, alle Berechnungen vor der praktischen Umsetzung von einem Fachmann überprüfen zu lassen.</p>
-                        
-                        <h3>4. Urheberrecht</h3>
-                        <p>Alle Inhalte dieser Website, einschließlich der Berechnungsalgorithmen, sind urheberrechtlich geschützt.</p>
-                        
-                        <h3>5. Änderungen</h3>
-                        <p>Wir behalten uns vor, diese AGB jederzeit zu ändern. Die jeweils aktuelle Fassung finden Sie auf dieser Seite.</p>
-                    `;
-                    break;
-                    
-                case 'cookies':
-                    content = `
-                        <h2>Cookie-Einstellungen</h2>
-                        <h3>Was sind Cookies?</h3>
-                        <p>Cookies sind kleine Textdateien, die auf Ihrem Computer gespeichert werden, um die Funktionalität der Website zu verbessern.</p>
-                        
-                        <h3>Verwendete Cookies</h3>
-                        <p><strong>Notwendige Cookies:</strong> Diese sind für die Grundfunktionen der Website erforderlich und können nicht deaktiviert werden.</p>
-                        <p><strong>Analytics-Cookies (Google Analytics):</strong> Helfen uns zu verstehen, wie Besucher mit der Website interagieren. Analytics-ID: G-6NSYG8B1T9</p>
-                        <p><strong>Marketing-Cookies (Google AdSense):</strong> Werden verwendet, um Werbung relevanter für Sie und Ihre Interessen zu machen. Publisher-ID: ca-pub-8687929894744033</p>
-                        
-                        <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                <input type="checkbox" checked disabled>
-                                <span>Notwendige Cookies (immer aktiv)</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                <input type="checkbox" id="analyticsCookies">
-                                <span>Analytics-Cookies (Google Analytics)</span>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                <input type="checkbox" id="marketingCookies">
-                                <span>Marketing-Cookies (Google Ads)</span>
-                            </label>
-                        </div>
-                        
-                        <p style="font-size: 0.9em; color: #666; margin: 15px 0;">
-                        <strong>Rechtsgrundlage:</strong> Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung gem. Art. 6 Abs. 1 lit. a DSGVO. Sie können Ihre Einwilligung jederzeit widerrufen.</p>
-                        
-                        <button onclick="saveCookieSettings()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Einstellungen speichern</button>
-                    `;
-                    break;
-                    
-                case 'hilfe':
-                    content = `
-                        <h2>Hilfe & FAQ</h2>
-                        <h3>Häufig gestellte Fragen</h3>
-                        
-                        <h3>🔧 Wie funktioniert der Rechner?</h3>
-                        <p>Geben Sie die Maße Ihrer Dachfläche ein und der Rechner berechnet automatisch die benötigte Anzahl Trapetzbleche und erstellt eine detaillierte Schnittliste.</p>
-                        
-                        <h3>📏 Welche Maße benötige ich?</h3>
-                        <p>Je nach Dachform benötigen Sie unterschiedliche Maße:</p>
-                        <ul>
-                            <li><strong>Gleichschenkliges Dreieck:</strong> Basis-Breite und Höhe</li>
-                            <li><strong>Ungleichschenkliges Dreieck:</strong> Basis-Breite und entweder Kantenlängen oder Spitzen-Position + Höhe</li>
-                        </ul>
-                        
-                        <h3>🎯 Wie genau sind die Berechnungen?</h3>
-                        <p>Die Berechnungen basieren auf mathematisch präzisen Formeln. Dennoch empfehlen wir, vor der Umsetzung einen Fachmann zu konsultieren.</p>
-                        
-                        <h3>🖨️ Kann ich die Ergebnisse ausdrucken?</h3>
-                        <p>Ja! Jeder Rechner erstellt einen detaillierten Anrissplan, den Sie direkt ausdrucken können.</p>
-                        
-                        <h3>💾 Werden meine Daten gespeichert?</h3>
-                        <p>Nein! Alle Berechnungen erfolgen lokal in Ihrem Browser. Ihre Eingaben werden nicht an unsere Server übertragen.</p>
-                    `;
-                    break;
-                    
-                case 'kontakt':
-                    content = `
-                        <h2>Kontakt</h2>
-                        <div class="contact-info">
-                            <h3>📧 E-Mail</h3>
-                            <p id="email-display"></p>
-                            
-                            <h3>📍 Adresse</h3>
-                            <p>Matthias Dührkop<br>
-                            Rhedewiesen 1<br>
-                            19258 Boizenburg/Elbe<br>
-                            Deutschland</p>
-                        </div>
-                        
-                        <h3>💬 Feedback oder Verbesserungsvorschläge?</h3>
-                        <p>Wir freuen uns über Ihr Feedback! Schreiben Sie uns eine E-Mail.</p>
-                        
-                        <h3>🐛 Fehler gefunden?</h3>
-                        <p>Sollten Sie einen Fehler in den Berechnungen oder der Website entdecken, melden Sie diesen bitte umgehend. Wir werden das Problem schnellstmöglich beheben.</p>
-                        
-                        <h3>⚖️ Rechtliche Hinweise</h3>
-                        <p>Diese Website stellt ein kostenloses Berechnungstool zur Verfügung. Alle Berechnungen erfolgen nach bestem Wissen und Gewissen, dennoch übernehmen wir keine Haftung für die Richtigkeit der Ergebnisse. Wir empfehlen, alle Berechnungen vor der praktischen Umsetzung von einem Fachmann überprüfen zu lassen.</p>
-                    `;
-                    break;
-                    
-                case 'feedback':
-                    content = `
-                        <h2>Feedback</h2>
-                        <p>Ihr Feedback hilft uns, den Trapetzblechrechner kontinuierlich zu verbessern.</p>
-                        
-                        <form style="margin: 20px 0;">
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Kategorie:</label>
-                                <select style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                    <option>Allgemeines Feedback</option>
-                                    <option>Berechnungsfehler</option>
-                                    <option>Verbesserungsvorschlag</option>
-                                    <option>Neue Dachform vorschlagen</option>
-                                    <option>Technisches Problem</option>
-                                </select>
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Ihr Feedback:</label>
-                                <textarea placeholder="Beschreiben Sie Ihr Anliegen..." style="width: 100%; height: 120px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">E-Mail (optional):</label>
-                                <input type="email" placeholder="ihre.email@beispiel.de" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            </div>
-                            
-                            <button type="button" onclick="submitFeedback()" style="background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">Feedback senden</button>
-                        </form>
-                        
-                        <p style="font-size: 0.9em; color: #666; margin-top: 15px;">
-                            <strong>Hinweis:</strong> Das Feedback-Formular ist derzeit nur zu Demonstrationszwecken vorhanden. In der echten Implementierung würde das Feedback an Ihre E-Mail-Adresse gesendet werden.
-                        </p>
-                    `;
-                    break;
+                        19258 Boizenburg/Elbe<br>
+                        Deutschland</p>
+                    </div>
+                `;
             }
             
             modalBody.innerHTML = content;
@@ -1312,31 +826,37 @@
 
         function saveCookieSettings() {
             const analyticsCookies = document.getElementById('analyticsCookies').checked;
-            const marketingCookies = document.getElementById('marketingCookies').checked;
-            
             localStorage.setItem('cookieConsent', 'custom');
             localStorage.setItem('analyticsCookies', analyticsCookies);
-            localStorage.setItem('marketingCookies', marketingCookies);
             
-            // Initialize or disable tracking based on settings
             if (analyticsCookies && typeof gtag !== 'undefined') {
                 gtag('config', 'G-6NSYG8B1T9', {
                     anonymize_ip: true,
                     cookie_flags: 'SameSite=None;Secure'
                 });
-                console.log('Google Analytics aktiviert');
             } else {
                 window['ga-disable-G-6NSYG8B1T9'] = true;
-                console.log('Google Analytics deaktiviert');
             }
             
             closeModal();
             alert('Cookie-Einstellungen gespeichert!');
         }
 
-        function submitFeedback() {
-            alert('Vielen Dank für Ihr Feedback! In einer echten Implementierung würde dies an den Administrator gesendet werden.');
-            closeModal();
+        // Email protection
+        function setupEmailProtection() {
+            const email = 'xxxxwolfxxxx@me.com';
+            const emailElements = ['email-contact', 'email-privacy', 'email-display'];
+            
+            emailElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.innerHTML = `<span class="email-protection" onclick="revealEmail('${id}', '${email}')">E-Mail anzeigen</span>`;
+                }
+            });
+        }
+
+        function revealEmail(elementId, email) {
+            document.getElementById(elementId).innerHTML = `<a href="mailto:${email}">${email}</a>`;
         }
 
         // Close modal when clicking outside
@@ -1349,36 +869,13 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            // Check for AdBlocker first
-            setTimeout(detectAdBlocker, 100);
-            
             showCookieBanner();
             setupEmailProtection();
             
-            // Initialize tracking if consent already given
             if (localStorage.getItem('cookieConsent') && window.initializeTracking) {
                 window.initializeTracking();
             }
         });
-
-        // Email protection function
-        function setupEmailProtection() {
-            const emailParts = ['xxxxwolfxxxx', 'me.com'];
-            const email = emailParts[0] + '@' + emailParts[1];
-            
-            // Display email with click-to-reveal
-            const emailElements = ['email-contact', 'email-privacy', 'email-display'];
-            emailElements.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.innerHTML = `<span class="email-protection" onclick="revealEmail('${id}', '${email}')">E-Mail anzeigen</span>`;
-                }
-            });
-        }
-
-        function revealEmail(elementId, email) {
-            document.getElementById(elementId).innerHTML = `<a href="mailto:${email}">${email}</a>`;
-        }
     </script>
 </body>
 </html>
