@@ -545,7 +545,7 @@
                 // SVG mit korrekter Schnittlinie
                 const endX = istLetztePlatte ? (rechterPunkt * 310 / 280) : 310;
                 
-                html += `<svg style="position: absolute; bottom: 20px; left: 20px;" width="310" height="${plattenhoehePx}">`;
+                html += `<svg style="position: absolute; bottom: 50px; left: 70px;" width="310" height="${plattenhoehePx}">`;
                 
                 // Polygone: Bei Spitzenplatten andere Berechnung
                 if (ueberdecktSpitze) {
@@ -579,6 +579,72 @@
                 }
                 
                 html += `</svg>`;
+                
+                // Rote Anreißlinien von unten zu den Markierungspunkten - KORRIGIERT
+                const linkeAnreissHoehe = (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
+                const rechteAnreissHoehe = (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
+                
+                html += `<div style="position: absolute; bottom: 50px; left: 70px; width: 4px; height: ${linkeAnreissHoehe}px; background: #dc3545;"></div>`;
+                html += `<div style="position: absolute; bottom: 50px; left: ${70 + endX - 2}px; width: 4px; height: ${rechteAnreissHoehe}px; background: #dc3545;"></div>`;
+                
+                // Anrissmaße mit Pfeilen - VERBESSERT
+                html += `<div style="position: absolute; bottom: ${55 + linkeAnreissHoehe}px; left: 45px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: ${55 + rechteAnreissHoehe}px; left: ${85 + endX}px; font-size: 14px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: 20px; left: 20px; font-size: 16px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissLinks}cm</div>`;
+                html += `<div style="position: absolute; bottom: 20px; right: 20px; font-size: 16px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissRechts}cm</div>`;
+                
+                // Spitze markieren (nur bei gleichschenkligen Dreiecken)
+                if (ueberdecktSpitze) {
+                    const spitzeVonLinks = mitte - plattenStart;
+                    const spitzePosition = (spitzeVonLinks / plattenBreite) * 310;
+                    
+                    // Rote vertikale Linie zur Spitze
+                    html += `<div style="position: absolute; bottom: 50px; left: ${70 + spitzePosition}px; width: 3px; height: ${plattenhoehePx}px; background: #dc3545; opacity: 0.8;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${50 + plattenhoehePx + 5}px; left: ${65 + spitzePosition}px; font-size: 12px; font-weight: bold; color: #dc3545;">SPITZE ${hoehe}m</div>`;
+                    
+                    // Horizontale Maßlinie zur Spitze (von links)
+                    html += `<div style="position: absolute; top: 20px; left: 70px; width: ${spitzePosition}px; height: 2px; background: #666;"></div>`;
+                    html += `<div style="position: absolute; top: 5px; left: ${70 + spitzePosition/2}px; font-size: 12px; font-weight: bold; color: #666; transform: translateX(-50%);">${(spitzeVonLinks * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: 15px; left: 65px; font-size: 10px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: 15px; left: ${65 + spitzePosition}px; font-size: 10px; color: #666;">|</div>`;
+                }
+                
+                // Letzte Platte: Dachkante und Überhang
+                if (istLetztePlatte) {
+                    const ueberhang = originalPlattenEnde - basisBreite;
+                    
+                    html += `<div style="position: absolute; bottom: 50px; left: ${70 + endX}px; width: 3px; height: ${plattenhoehePx}px; background: #00AA00;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${50 + plattenhoehePx/2}px; left: ${62 + endX}px; font-size: 12px; font-weight: bold; color: #00AA00; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
+                    
+                    if (ueberhang > 0) {
+                        const restBreite = 310 - endX;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 80}px; left: ${70 + endX}px; width: ${restBreite}px; height: 2px; background: #FF0000;"></div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 60}px; left: ${70 + endX + restBreite/2}px; font-size: 14px; font-weight: bold; color: #FF0000; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
+                    }
+                }
+                
+                // Plattenlänge unten anzeigen
+                html += `<div style="position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-size: 14px; font-weight: bold; color: #007bff;">`;
+                html += `Plattenlänge: ${item.benoetigteLaenge}m`;
+                // Anleitung
+                html += `<div style="background: #fff3cd; padding: 15px; border-radius: 8px; font-size: 14px; margin-top: 20px; border-left: 4px solid #ffc107;">`;
+                html += `<strong>📏 Anzeichnen:</strong><br>`;
+                if (istLetztePlatte) {
+                    const ueberhang = originalPlattenEnde - basisBreite;
+                    if (ueberhang > 0) {
+                        html += `• <strong style="color: #FF0000;">⚠️ ZUERST: Rechts ${(ueberhang * 100).toFixed(0)}cm abschneiden!</strong><br>`;
+                    }
+                }
+                html += `• Von der Unterkante: Links bei ${anreissLinks}cm und rechts bei ${anreissRechts}cm markieren<br>`;
+                html += `• Diagonale Schnittlinie anzeichnen und oberen Teil absägen<br>`;
+                if (ueberdecktSpitze) {
+                    const spitzeVonLinks = mitte - plattenStart;
+                    html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält die Dachspitze bei ${(spitzeVonLinks * 100).toFixed(0)}cm von links!</strong><br>`;
+                }
+                html += `</div>`;
+                html += `</div>`;
+                
+                html += `</div>`;
                 
                 // Anreißmaße anzeigen
                 html += `<div style="position: absolute; top: 20px; left: 20px; font-size: 12px; font-weight: bold; color: #333;">`;
