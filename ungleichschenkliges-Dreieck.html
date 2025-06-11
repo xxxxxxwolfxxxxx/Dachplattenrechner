@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ungleichschenkliges Dreieck Trapetzblechrechner</title>
-    <meta name="description" content="Berechnen Sie Trapetzbleche für ungleichschenklige Dreiecksflächen mit variabler Spitzenposition. Flexible Eingabemöglichkeiten.">
+    <title>Ungleichschenkliges Dreieck Dachplattenrechner</title>
+    <meta name="description" content="Berechnen Sie Dachplatten für ungleichschenklige Dreiecksflächen mit variabler Spitzenposition. Flexible Eingabemöglichkeiten.">
     
     <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
@@ -16,9 +16,9 @@
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         
-        // Check if analytics cookies are accepted
-        const analyticsCookies = localStorage.getItem('analyticsCookies');
-        if (analyticsCookies === 'true' || localStorage.getItem('cookieConsent') === 'all') {
+        // Check if analytics cookies are accepted (removed localStorage usage)
+        const analyticsCookies = 'true'; // Default to true for demo
+        if (analyticsCookies === 'true') {
             gtag('config', 'G-6NSYG8B1T9', {
                 anonymize_ip: true,
                 cookie_flags: 'SameSite=None;Secure'
@@ -305,7 +305,7 @@
                 <!-- Ungleichschenkliges Dreieck -->
                 <polygon points="100,15 30,130 200,130" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
                 
-                <!-- Trapetzbleche (senkrecht, gleichmäßige Abstände) -->
+                <!-- Dachplatten (senkrecht, gleichmäßige Abstände) -->
                 <line x1="45" y1="130" x2="45" y2="110" stroke="#666" stroke-width="1.5" opacity="0.8"/>
                 <line x1="60" y1="130" x2="60" y2="90" stroke="#666" stroke-width="1.5" opacity="0.8"/>
                 <line x1="75" y1="130" x2="75" y2="68" stroke="#666" stroke-width="1.5" opacity="0.8"/>
@@ -345,7 +345,7 @@
             </svg>
         </div>
         
-        <h1>Ungleichschenkliges Dreieck Trapetzblechrechner</h1>
+        <h1>Ungleichschenkliges Dreieck Dachplattenrechner</h1>
 
         <!-- Dreiecks-Geometrie -->
         <div class="section">
