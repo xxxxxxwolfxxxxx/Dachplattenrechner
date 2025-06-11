@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gleichschenkliges Dreieck Trapetzblechrechner</title>
-    <meta name="description" content="Berechnen Sie Trapetzbleche für gleichschenklige Dreiecksflächen. Ideal für Pyramidendächer und Satteldachwalmflächen.">
+    <title>Gleichschenkliges Dreieck Dachplattenrechner</title>
+    <meta name="description" content="Berechnen Sie Dachplatten für gleichschenklige Dreiecksflächen. Ideal für Pyramidendächer und Satteldachwalmflächen.">
     
     <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
@@ -267,7 +267,7 @@
                 <!-- Dreieck-Grundform -->
                 <polygon points="100,10 20,110 180,110" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
                 
-                <!-- Trapetzbleche (senkrecht, gleichmäßige Abstände) -->
+                <!-- Dachplatten (senkrecht, gleichmäßige Abstände) -->
                 <line x1="40" y1="110" x2="40" y2="85" stroke="#666" stroke-width="1.5" opacity="0.8"/>
                 <line x1="55" y1="110" x2="55" y2="66.25" stroke="#666" stroke-width="1.5" opacity="0.8"/>
                 <line x1="70" y1="110" x2="70" y2="47.5" stroke="#666" stroke-width="1.5" opacity="0.8"/>
@@ -296,7 +296,7 @@
             </svg>
         </div>
         
-        <h1>Gleichschenkliges Dreieck Trapetzblechrechner</h1>
+        <h1>Gleichschenkliges Dreieck Dachplattenrechner</h1>
 
         <!-- Pyramiden-Maße -->
         <div class="section">
@@ -578,7 +578,6 @@
                     const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
                     
                     // Rote vertikale Linie zur Spitze
-                    html += `<div style="position: absolute; bottom: 20px; left: ${20 + spitzePositionPx}px; width: 3px; height: ${plattenhoehePx}px; background: #dc3545; opacity: 0.8;"></div>`;
                     html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx + 5}px; left: ${15 + spitzePositionPx}px; font-size: 12px; font-weight: bold; color: #dc3545;">SPITZE ${hoehe}m</div>`;
                     
                     // Horizontale Maßlinie zur Spitze (von links)
@@ -640,4 +639,5 @@
         }
     </script>
 </body>
-</html>
+</html>; bottom: 20px; left: ${20 + spitzePositionPx}px; width: 3px; height: ${plattenhoehePx}px; background: #dc3545; opacity: 0.8;"></div>`;
+                    html += `<div style="position: absolute
