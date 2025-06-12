@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dachplattenrechner</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -102,15 +102,27 @@
             }
         }
 
-        // Lokale Speicherung der Projektdaten
+        // Sichere Speicherung der Projektdaten
         function saveProjectData() {
-            localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            try {
+                localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            } catch (e) {
+                console.log('localStorage nicht verfügbar, verwende Session-Speicher');
+                sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            }
         }
 
         function loadProjectData() {
-            const savedData = localStorage.getItem('dachplattenrechner_data');
-            if (savedData) {
-                projectData = JSON.parse(savedData);
+            try {
+                let savedData = localStorage.getItem('dachplattenrechner_data');
+                if (!savedData) {
+                    savedData = sessionStorage.getItem('dachplattenrechner_data');
+                }
+                if (savedData) {
+                    projectData = JSON.parse(savedData);
+                }
+            } catch (e) {
+                console.log('Keine gespeicherten Daten verfügbar');
             }
         }
 
