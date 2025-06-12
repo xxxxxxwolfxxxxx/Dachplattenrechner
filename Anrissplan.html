@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anrissplan - Dachplattenrechner</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -210,21 +210,42 @@
 
     <script>
         // Globale Variablen
-        let projectData = JSON.parse(localStorage.getItem('dachplattenrechner_data')) || {
-            profile: {},
-            roofShape: {},
-            calculations: {},
-            drawingPlan: {}
-        };
-
+        let projectData = {};
         let planCanvas = null;
         let planCtx = null;
         let planScale = 100; // Pixel pro Meter (entspricht 1:100)
         let planOffsetX = 0;
         let planOffsetY = 0;
 
+        // Sichere Storage-Funktionen
+        function saveData() {
+            try {
+                localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                return true;
+            } catch (e) {
+                console.log('localStorage nicht verfügbar, verwende Session-Speicher');
+                sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                return true;
+            }
+        }
+
+        function loadData() {
+            try {
+                let saved = localStorage.getItem('dachplattenrechner_data');
+                if (!saved) {
+                    saved = sessionStorage.getItem('dachplattenrechner_data');
+                }
+                return saved ? JSON.parse(saved) : {};
+            } catch (e) {
+                console.log('Fehler beim Laden der Daten');
+                return {};
+            }
+        }
+
         // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
+            projectData = loadData();
+            
             planCanvas = document.getElementById('plan-canvas');
             planCtx = planCanvas.getContext('2d');
             
@@ -374,7 +395,7 @@
 
         function drawPlateLayout(roofPoints, calc, profile) {
             const deckbreite = profile.deckbreite / 1000; // in Meter
-            const nutzbreite = (profile.deckbreite - profile.seitenueberlappung) / 1000;
+            const nutzbreite = (profile.deckbreite - (profile.seitenueberlappung || 50)) / 1000;
             
             // Bounding Box der Dachform
             const minX = Math.min(...roofPoints.map(p => p.x));
@@ -446,7 +467,6 @@
                 const y2 = planOffsetY - p2.y * planScale;
 
                 // Maßlinie zeichnen
-                const offset = 20;
                 const midX = (x1 + x2) / 2;
                 const midY = (y1 + y2) / 2;
                 
@@ -461,8 +481,8 @@
         function drawOverlaps(calc, profile) {
             if (calc.richtung !== 'laengs') return;
             
-            const overlap = profile.seitenueberlappung / 1000; // in Meter
-            const nutzbreite = (profile.deckbreite - profile.seitenueberlappung) / 1000;
+            const overlap = (profile.seitenueberlappung || 50) / 1000; // in Meter
+            const nutzbreite = (profile.deckbreite - (profile.seitenueberlappung || 50)) / 1000;
             
             planCtx.strokeStyle = '#dc3545';
             planCtx.lineWidth = 2;
@@ -503,15 +523,17 @@
             tbody.innerHTML = '';
 
             // Dachplatten
-            calc.bestellliste.forEach(item => {
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>Dachplatte ${profile.profilname || 'Standard'}</td>
-                    <td>Länge: ${item.length}mm</td>
-                    <td>${item.quantity}</td>
-                    <td>Stück</td>
-                `;
-            });
+            if (calc.bestellliste) {
+                calc.bestellliste.forEach(item => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>Dachplatte ${profile.profilname || 'Standard'}</td>
+                        <td>Länge: ${item.length}mm</td>
+                        <td>${item.quantity}</td>
+                        <td>Stück</td>
+                    `;
+                });
+            }
 
             // Zusätzliche Materialien
             const additionalMaterials = [
@@ -546,8 +568,8 @@
                 <h4>4. Projekt-spezifische Hinweise</h4>
                 <ul>
                     <li>Verlegerichtung: ${calc.richtung === 'laengs' ? 'Längs' : 'Quer'} zur Hauptrichtung</li>
-                    <li>Seitenüberlappung: ${profile.seitenueberlappung}mm einhalten</li>
-                    <li>Traufüberstand: ${profile.ueberstand}mm</li>
+                    <li>Seitenüberlappung: ${profile.seitenueberlappung || 50}mm einhalten</li>
+                    <li>Traufüberstand: ${profile.ueberstand || 50}mm</li>
                     <li>Anzahl Bahnen: ${calc.bahnenAnzahl}</li>
                     <li>Erwarteter Verschnitt: ${calc.verschnitt.toFixed(1)}%</li>
                 </ul>
@@ -598,10 +620,15 @@
                 }
             };
 
-            localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            saveData();
 
             if (confirm('Projekt erfolgreich abgeschlossen!\n\nMöchten Sie ein neues Projekt starten?')) {
-                localStorage.removeItem('dachplattenrechner_data');
+                try {
+                    localStorage.removeItem('dachplattenrechner_data');
+                    sessionStorage.removeItem('dachplattenrechner_data');
+                } catch (e) {
+                    console.log('Daten konnten nicht gelöscht werden');
+                }
                 window.location.href = 'index.html';
             }
         }
