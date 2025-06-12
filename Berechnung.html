@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berechnung - Dachplattenrechner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dachplattenrechner</h1>
+            <nav class="progress-nav">
+                <div class="step completed" data-step="1">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Profil</span>
+                </div>
+                <div class="step completed" data-step="2">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Dachform</span>
+                </div>
+                <div class="step active" data-step="3">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Berechnung</span>
+                </div>
+                <div class="step" data-step="4">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Anrissplan</span>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="calculation-section">
+                <h2>Schritt 3: Bestelllängen berechnen</h2>
+                <p>Optimale Bestelllängen werden basierend auf Ihrer Dachform und dem gewählten Profil ermittelt:</p>
+
+                <div class="calculation-container">
+                    <!-- Projekt-Übersicht -->
+                    <div class="card project-summary">
+                        <h3>Projekt-Übersicht</h3>
+                        <div id="project-overview"></div>
+                    </div>
+
+                    <!-- Berechnungseinstellungen -->
+                    <div class="card calculation-settings">
+                        <h3>Berechnungseinstellungen</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="verlegerichtung">Verlegerichtung:</label>
+                                <select id="verlegerichtung" class="form-control">
+                                    <option value="laengs">Längs (parallel zur längsten Seite)</option>
+                                    <option value="quer">Quer (parallel zur kürzesten Seite)</option>
+                                    <option value="optimal">Automatisch optimieren</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="verschnitt-toleranz">Verschnitt-Toleranz (%):</label>
+                                <input type="number" id="verschnitt-toleranz" class="form-control" value="5" min="0" max="20" step="0.5">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="min-stuecklength">Min. Stücklänge (mm):</label>
+                                <input type="number" id="min-stuecklength" class="form-control" value="500" min="100" step="50">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="optimize-waste" checked> 
+                                    Verschnitt minimieren
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" onclick="calculateLengths()">
+                            Berechnung starten
+                        </button>
+                    </div>
+
+                    <!-- Berechnungsergebnisse -->
+                    <div class="card calculation-results" id="results-section" style="display: none;">
+                        <h3>Berechnungsergebnisse</h3>
+                        
+                        <div class="results-summary">
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <span class="summary-label">Benötigte Dachfläche:</span>
+                                    <span class="summary-value" id="total-area">0 m²</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Anzahl Bahnen:</span>
+                                    <span class="summary-value" id="total-rows">0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Gesamtlänge Platten:</span>
+                                    <span class="summary-value" id="total-length">0 m</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Verschnitt:</span>
+                                    <span class="summary-value" id="total-waste">0 %</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="results-details">
+                            <h4>Detaillierte Bestellliste
