@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil definieren - Dachplattenrechner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dachplattenrechner</h1>
+            <nav class="progress-nav">
+                <div class="step active" data-step="1">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Profil</span>
+                </div>
+                <div class="step" data-step="2">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Dachform</span>
+                </div>
+                <div class="step" data-step="3">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Berechnung</span>
+                </div>
+                <div class="step" data-step="4">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Anrissplan</span>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="profile-section">
+                <h2>Schritt 1: Profil definieren</h2>
+                <p>Geben Sie die Grunddaten für Ihr Dachplattenprofil ein:</p>
+
+                <form id="profileForm" class="profile-form">
+                    <div class="card">
+                        <h3>Profilabmessungen</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="deckbreite">Deckbreite (mm):</label>
+                                <input type="number" id="deckbreite" name="deckbreite" class="form-control" 
+                                       placeholder="z.B. 1035" min="100" max="2000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lieferbreite">Lieferbreite (mm):</label>
+                                <input type="number" id="lieferbreite" name="lieferbreite" class="form-control" 
+                                       placeholder="z.B. 1100" min="100" max="2000" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profilname">Profilname (optional):</label>
+                            <input type="text" id="profilname" name="profilname" class="form-control" 
+                                   placeholder="z.B. Trapezblech T40/183">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Verfügbare Längen</h3>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="laengentyp" value="lager" checked> 
+                                Lagerlängen eingeben
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="laengentyp" value="bereich"> 
+                                Bestellbereich (Von-Bis)
+                            </label>
+                        </div>
+
+                        <!-- Lagerlängen Eingabe -->
+                        <div id="lagerlaengen-section" class="length-section">
+                            <div class="form-group">
+                                <label for="lagerlaengen">Verfügbare Lagerlängen (mm, durch Komma getrennt):</label>
+                                <input type="text" id="lagerlaengen" name="lagerlaengen" class="form-control" 
+                                       placeholder="z.B. 2000, 3000, 4000, 5000, 6000">
+                            </div>
+                        </div>
+
+                        <!-- Bestellbereich Eingabe -->
+                        <div id="bestellbereich-section" class="length-section" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="min-laenge">Minimale Länge (mm):</label>
+                                    <input type="number" id="min-laenge" name="min-laenge" class="form-control" 
+                                           placeholder="z.B. 1000" min="500">
+                                </div>
+                                <div class="form-group">
+                                    <label for="max-laenge">Maximale Länge (mm):</label>
+                                    <input type="number" id="max-laenge" name="max-laenge" class="form-control" 
+                                           placeholder="z.B. 12000" min="1000">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="schnitt-raster">Schnittraster (mm):</label>
+                                <input type="number" id="schnitt-raster" name="schnitt-raster" class="form-control" 
+                                       placeholder="z.B. 100" min="1" value="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Zusätzliche Einstellungen</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ueberstand">Überstand Traufe (mm):</label>
+                                <input type="number" id="ueberstand" name="ueberstand" class="form-control" 
+                                       placeholder="z.B. 50" min="0" value="50">
+                            </div>
+                            <div class="form-group">
+                                <label for="seitenueberlappung">Seitenüberlappung (mm):</label>
+                                <input type="number" id="seitenueberlappung" name="seitenueberlappung" class="form-control" 
+                                       placeholder="z.B. 65" min="0" value="65">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vorschau der eingegebenen Daten -->
+                    <div id="preview-section" class="card" style="display: none;">
+                        <h3>Vorschau</h3>
+                        <div id="preview-content"></div>
+                    </div>
+                </form>
+
+                <div class="navigation-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="goBack()">
+                        ← Zurück zur Startseite
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="saveAndContinue()" id="continue-btn" disabled>
+                        Weiter zur Dachform →
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Dachplattenrechner</p>
+        </footer>
+    </div>
+
+    <script>
+        // Projektdaten aus localStorage laden
+        let projectData = JSON.parse(localStorage.getItem('dachplattenrechner_data')) || {
+            profile: {},
+            roofShape: {},
+            calculations: {},
+            drawingPlan: {}
+        };
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Radio Button Listener für Längentyp
+            const lengthTypeRadios = document.querySelectorAll('input[name="laengentyp"]');
+            lengthTypeRadios.forEach(radio => {
+                radio.addEventListener('change', toggleLengthSections);
+            });
+
+            // Form Validation
+            const form = document.getElementById('profileForm');
+            const inputs = form.querySelectorAll('input[required]');
+            inputs.forEach(input => {
+                input.addEventListener('input', validateForm);
+            });
+
+            // Preview Update
+            const allInputs = form.querySelectorAll('input, select');
+            allInputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+
+            // Gespeicherte Daten wiederherstellen
+            loadSavedData();
+        });
+
+        function toggleLengthSections() {
+            const lagerSection = document.getElementById('lagerlaengen-section');
+            const bestellSection = document.getElementById('bestellbereich-section');
+            const selectedType = document.querySelector('input[name="laengentyp"]:checked').value;
+
+            if (selectedType === 'lager') {
+                lagerSection.style.display = 'block';
+                bestellSection.style.display = 'none';
+            } else {
+                lagerSection.style.display = 'none';
+                bestellSection.style.display = 'block';
+            }
+            
+            validateForm();
+        }
+
+        function validateForm() {
+            const deckbreite = document.getElementById('deckbreite').value;
+            const lieferbreite = document.getElementById('lieferbreite').value;
+            const lengthType = document.querySelector('input[name="laengentyp"]:checked').value;
+            
+            let isValid = deckbreite && lieferbreite;
+
+            if (lengthType === 'lager') {
+                const lagerlaengen = document.getElementById('lagerlaengen').value;
+                isValid = isValid && lagerlaengen;
+            } else {
+                const minLaenge = document.getElementById('min-laenge').value;
+                const maxLaenge = document.getElementById('max-laenge').value;
+                isValid = isValid && minLaenge && maxLaenge;
+            }
+
+            document.getElementById('continue-btn').disabled = !isValid;
+            
+            if (isValid) {
+                updatePreview();
+            }
+        }
+
+        function updatePreview() {
+            const form = document.getElementById('profileForm');
+            const formData = new FormData(form);
+            const previewSection = document.getElementById('preview-section');
+            const previewContent = document.getElementById('preview-content');
+
+            const deckbreite = formData.get('deckbreite');
+            const lieferbreite = formData.get('lieferbreite');
+            
+            if (!deckbreite || !lieferbreite) {
+                previewSection.style.display = 'none';
+                return;
+            }
+
+            const lengthType = formData.get('laengentyp');
+            let lengthInfo = '';
+
+            if (lengthType === 'lager') {
+                const lagerlaengen = formData.get('lagerlaengen');
+                if (lagerlaengen) {
+                    lengthInfo = `<strong>Lagerlängen:</strong> ${lagerlaengen} mm`;
+                }
+            } else {
+                const minLaenge = formData.get('min-laenge');
+                const maxLaenge = formData.get('max-laenge');
+                const schnittRaster = formData.get('schnitt-raster') || '100';
+                if (minLaenge && maxLaenge) {
+                    lengthInfo = `<strong>Bestellbereich:</strong> ${minLaenge} - ${maxLaenge} mm (Raster: ${schnittRaster} mm)`;
+                }
+            }
+
+            previewContent.innerHTML = `
+                <div class="preview-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <p><strong>Profilname:</strong> ${formData.get('profilname') || 'Nicht angegeben'}</p>
+                        <p><strong>Deckbreite:</strong> ${deckbreite} mm</p>
+                        <p><strong>Lieferbreite:</strong> ${lieferbreite} mm</p>
+                    </div>
+                    <div>
+                        <p>${lengthInfo}</p>
+                        <p><strong>Überstand Traufe:</strong> ${formData.get('ueberstand') || '50'} mm</p>
+                        <p><strong>Seitenüberlappung:</strong> ${formData.get('seitenueberlappung') || '65'} mm</p>
+                    </div>
+                </div>
+            `;
+
+            previewSection.style.display = 'block';
+        }
+
+        function saveAndContinue() {
+            // Formulardaten sammeln
+            const formData = new FormData(document.getElementById('profileForm'));
+            
+            projectData.profile = {
+                deckbreite: parseInt(formData.get('deckbreite')),
+                lieferbreite: parseInt(formData.get('lieferbreite')),
+                profilname: formData.get('profilname') || '',
+                laengentyp: formData.get('laengentyp'),
+                ueberstand: parseInt(formData.get('ueberstand')) || 50,
+                seitenueberlappung: parseInt(formData.get('seitenueberlappung')) || 65
+            };
+
+            if (projectData.profile.laengentyp === 'lager') {
+                const lagerlaengenStr = formData.get('lagerlaengen');
+                projectData.profile.lagerlaengen = lagerlaengenStr.split(',').map(l => parseInt(l.trim())).filter(l => !isNaN(l));
+            } else {
+                projectData.profile.minLaenge = parseInt(formData.get('min-laenge'));
+                projectData.profile.maxLaenge = parseInt(formData.get('max-laenge'));
+                projectData.profile.schnittRaster = parseInt(formData.get('schnitt-raster')) || 100;
+            }
+
+            // Daten speichern
+            localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            
+            // Zur nächsten Seite weiterleiten
+            window.location.href = 'dachform.html';
+        }
+
+        function loadSavedData() {
+            if (projectData.profile && Object.keys(projectData.profile).length > 0) {
+                const profile = projectData.profile;
+                
+                // Grunddaten
+                if (profile.deckbreite) document.getElementById('deckbreite').value = profile.deckbreite;
+                if (profile.lieferbreite) document.getElementById('lieferbreite').value = profile.lieferbreite;
+                if (profile.profilname) document.getElementById('profilname').value = profile.profilname;
+                if (profile.ueberstand) document.getElementById('ueberstand').value = profile.ueberstand;
+                if (profile.seitenueberlappung) document.getElementById('seitenueberlappung').value = profile.seitenueberlappung;
+
+                // Längentyp
+                if (profile.laengentyp) {
+                    document.querySelector(`input[name="laengentyp"][value="${profile.laengentyp}"]`).checked = true;
+                    toggleLengthSections();
+
+                    if (profile.laengentyp === 'lager' && profile.lagerlaengen) {
+                        document.getElementById('lagerlaengen').value = profile.lagerlaengen.join(', ');
+                    } else if (profile.laengentyp === 'bereich') {
+                        if (profile.minLaenge) document.getElementById('min-laenge').value = profile.minLaenge;
+                        if (profile.maxLaenge) document.getElementById('max-laenge').value = profile.maxLaenge;
+                        if (profile.schnittRaster) document.getElementById('schnitt-raster').value = profile.schnittRaster;
+                    }
+                }
+
+                validateForm();
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
