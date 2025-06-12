@@ -2,9 +2,9 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-device, initial-scale=1.0">
     <title>Dachform Editor - Dachplattenrechner</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -150,13 +150,7 @@
 
     <script>
         // Globale Variablen
-        let projectData = JSON.parse(localStorage.getItem('dachplattenrechner_data')) || {
-            profile: {},
-            roofShape: {},
-            calculations: {},
-            drawingPlan: {}
-        };
-
+        let projectData = {};
         let roofPoints = [];
         let canvas = null;
         let ctx = null;
@@ -166,8 +160,35 @@
         let isDragging = false;
         let lastMousePos = { x: 0, y: 0 };
 
+        // Sichere Storage-Funktionen
+        function saveData() {
+            try {
+                localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                return true;
+            } catch (e) {
+                console.log('localStorage nicht verfügbar, verwende Session-Speicher');
+                sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                return true;
+            }
+        }
+
+        function loadData() {
+            try {
+                let saved = localStorage.getItem('dachplattenrechner_data');
+                if (!saved) {
+                    saved = sessionStorage.getItem('dachplattenrechner_data');
+                }
+                return saved ? JSON.parse(saved) : {};
+            } catch (e) {
+                console.log('Fehler beim Laden der Daten');
+                return {};
+            }
+        }
+
         // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
+            projectData = loadData();
+            
             canvas = document.getElementById('roof-canvas');
             ctx = canvas.getContext('2d');
             
@@ -213,7 +234,6 @@
             const typ = document.getElementById('dach-typ').value;
             const breite = parseFloat(document.getElementById('dach-breite').value);
             const laenge = parseFloat(document.getElementById('dach-laenge').value);
-            const neigung = parseFloat(document.getElementById('dach-neigung').value);
 
             if (!breite || !laenge) {
                 alert('Bitte geben Sie Breite und Länge ein.');
@@ -242,7 +262,6 @@
                         { x: halbBreite, y: laenge },
                         { x: 0, y: laenge }
                     ];
-                    // Zweite Dachhälfte wird später als separater Bereich behandelt
                     break;
                     
                 case 'walmdach':
@@ -515,14 +534,6 @@
 
         function handleCanvasDoubleClick(event) {
             if (roofPoints.length >= 3) {
-                // Form automatisch schließen (ersten Punkt duplizieren falls nötig)
-                const firstPoint = roofPoints[0];
-                const lastPoint = roofPoints[roofPoints.length - 1];
-                
-                if (firstPoint.x !== lastPoint.x || firstPoint.y !== lastPoint.y) {
-                    // Form ist noch nicht geschlossen, aber das ist OK für die Berechnung
-                }
-                
                 calculateRoofInfo();
                 validateForm();
             }
@@ -614,7 +625,7 @@
                 dachNeigung: parseFloat(document.getElementById('dach-neigung').value) || 15
             };
 
-            localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            saveData();
             window.location.href = 'berechnung.html';
         }
 
@@ -646,5 +657,59 @@
             setTimeout(setupCanvas, 100);
         });
     </script>
+
+    <style>
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .drawing-area {
+            grid-column: 1 / -1;
+        }
+
+        .canvas-container {
+            position: relative;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .canvas-info {
+            padding: 10px;
+            background: #e9ecef;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .drawing-tools {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .drawing-tools button {
+            margin: 0 5px;
+        }
+
+        .quick-setup, .manual-points {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .point-buttons {
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </body>
 </html>
