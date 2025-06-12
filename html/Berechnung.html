@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berechnung - Dachplattenrechner</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dachplattenrechner</h1>
+            <nav class="progress-nav">
+                <div class="step completed" data-step="1">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Profil</span>
+                </div>
+                <div class="step completed" data-step="2">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Dachform</span>
+                </div>
+                <div class="step active" data-step="3">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Berechnung</span>
+                </div>
+                <div class="step" data-step="4">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Anrissplan</span>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="calculation-section">
+                <h2>Schritt 3: Bestelllängen berechnen</h2>
+                <p>Optimale Bestelllängen werden basierend auf Ihrer Dachform und dem gewählten Profil ermittelt:</p>
+
+                <div class="calculation-container">
+                    <!-- Projekt-Übersicht -->
+                    <div class="card project-summary">
+                        <h3>Projekt-Übersicht</h3>
+                        <div id="project-overview"></div>
+                    </div>
+
+                    <!-- Berechnungseinstellungen -->
+                    <div class="card calculation-settings">
+                        <h3>Berechnungseinstellungen</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="verlegerichtung">Verlegerichtung:</label>
+                                <select id="verlegerichtung" class="form-control">
+                                    <option value="laengs">Längs (parallel zur längsten Seite)</option>
+                                    <option value="quer">Quer (parallel zur kürzesten Seite)</option>
+                                    <option value="optimal">Automatisch optimieren</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="verschnitt-toleranz">Verschnitt-Toleranz (%):</label>
+                                <input type="number" id="verschnitt-toleranz" class="form-control" value="5" min="0" max="20" step="0.5">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="min-stuecklength">Min. Stücklänge (mm):</label>
+                                <input type="number" id="min-stuecklength" class="form-control" value="500" min="100" step="50">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="optimize-waste" checked> 
+                                    Verschnitt minimieren
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" onclick="calculateLengths()">
+                            Berechnung starten
+                        </button>
+                    </div>
+
+                    <!-- Berechnungsergebnisse -->
+                    <div class="card calculation-results" id="results-section" style="display: none;">
+                        <h3>Berechnungsergebnisse</h3>
+                        
+                        <div class="results-summary">
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <span class="summary-label">Benötigte Dachfläche:</span>
+                                    <span class="summary-value" id="total-area">0 m²</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Anzahl Bahnen:</span>
+                                    <span class="summary-value" id="total-rows">0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Gesamtlänge Platten:</span>
+                                    <span class="summary-value" id="total-length">0 m</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Verschnitt:</span>
+                                    <span class="summary-value" id="total-waste">0 %</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="results-details">
+                            <h4>Detaillierte Bestellliste</h4>
+                            <div class="table-container">
+                                <table class="table" id="order-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Länge (mm)</th>
+                                            <th>Anzahl</th>
+                                            <th>Gesamtlänge (m)</th>
+                                            <th>Verwendung</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="order-tbody">
+                                        <!-- Bestellliste wird hier eingefügt -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="cutting-plan">
+                            <h4>Schnittplan</h4>
+                            <div id="cutting-visualization">
+                                <!-- Schnittplan-Visualisierung wird hier eingefügt -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alternative Berechnungen -->
+                    <div class="card alternatives" id="alternatives-section" style="display: none;">
+                        <h3>Alternative Berechnungen</h3>
+                        <div class="alternatives-grid" id="alternatives-grid">
+                            <!-- Alternative Lösungen werden hier angezeigt -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="navigation-buttons">
+                <button type="button" class="btn btn-secondary" onclick="goBack()">
+                    ← Zurück zur Dachform
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveAndContinue()" id="continue-btn" disabled>
+                    Weiter zum Anrissplan →
+                </button>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Dachplattenrechner</p>
+        </footer>
+    </div>
+
+    <script>
+        // Globale Variablen
+        let projectData = JSON.parse(localStorage.getItem('dachplattenrechner_data')) || {
+            profile: {},
+            roofShape: {},
+            calculations: {},
+            drawingPlan: {}
+        };
+
+        let calculationResults = null;
+
+        // Initialisierung
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProjectOverview();
+            
+            // Event Listeners
+            document.getElementById('verlegerichtung').addEventListener('change', updateCalculationHint);
+        });
+
+        function loadProjectOverview() {
+            const overview = document.getElementById('project-overview');
+            const profile = projectData.profile;
+            const roof = projectData.roofShape;
+
+            if (!profile || !roof) {
+                overview.innerHTML = '<div class="alert alert-warning">Unvollständige Projektdaten. Bitte kehren Sie zu den vorherigen Schritten zurück.</div>';
+                return;
+            }
+
+            // Dachfläche berechnen
+            const roofArea = calculateRoofArea(roof.points);
+            
+            overview.innerHTML = `
+                <div class="overview-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4>Profil</h4>
+                        <p><strong>Name:</strong> ${profile.profilname || 'Nicht angegeben'}</p>
+                        <p><strong>Deckbreite:</strong> ${profile.deckbreite} mm</p>
+                        <p><strong>Lieferbreite:</strong> ${profile.lieferbreite} mm</p>
+                        <p><strong>Seitenüberlappung:</strong> ${profile.seitenueberlappung} mm</p>
+                    </div>
+                    <div>
+                        <h4>Dachform</h4>
+                        <p><strong>Typ:</strong> ${roof.dachTyp}</p>
+                        <p><strong>Neigung:</strong> ${roof.dachNeigung}°</p>
+                        <p><strong>Dachfläche:</strong> ${roofArea.toFixed(2)} m²</p>
+                        <p><strong>Eckpunkte:</strong> ${roof.points.length}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculateRoofArea(points) {
+            if (points.length < 3) return 0;
+            
+            let area = 0;
+            for (let i = 0; i < points.length; i++) {
+                const j = (i + 1) % points.length;
+                area += points[i].x * points[j].y;
+                area -= points[j].x * points[i].y;
+            }
+            return Math.abs(area) / 2;
+        }
+
+        function updateCalculationHint() {
+            // Hier könnte eine Vorschau der gewählten Verlegerichtung angezeigt werden
+        }
+
+        function calculateLengths() {
+            const profile = projectData.profile;
+            const roof = projectData.roofShape;
+            
+            if (!profile || !roof) {
+                alert('Projektdaten unvollständig!');
+                return;
+            }
+
+            // Berechnungsparameter
+            const verlegerichtung = document.getElementById('verlegerichtung').value;
+            const verschnittToleranz = parseFloat(document.getElementById('verschnitt-toleranz').value) / 100;
+            const minStuecklaenge = parseInt(document.getElementById('min-stuecklength').value);
+            const optimizeWaste = document.getElementById('optimize-waste').checked;
+
+            // Dachgeometrie analysieren
+            const analysis = analyzeRoofGeometry(roof.points);
+            
+            // Berechnung je nach Verlegerichtung
+            let calculations = [];
+            
+            if (verlegerichtung === 'optimal') {
+                // Beide Richtungen berechnen und beste wählen
+                const laengsCalc = calculateForDirection(analysis, 'laengs', profile, verschnittToleranz, minStuecklaenge, optimizeWaste);
+                const querCalc = calculateForDirection(analysis, 'quer', profile, verschnittToleranz, minStuecklaenge, optimizeWaste);
+                
+                calculations = [laengsCalc, querCalc];
+                calculationResults = laengsCalc.verschnitt <= querCalc.verschnitt ? laengsCalc : querCalc;
+            } else {
+                calculationResults = calculateForDirection(analysis, verlegerichtung, profile, verschnittToleranz, minStuecklaenge, optimizeWaste);
+                calculations = [calculationResults];
+            }
+
+            displayResults(calculationResults);
+            displayAlternatives(calculations);
+            
+            document.getElementById('continue-btn').disabled = false;
+        }
+
+        function analyzeRoofGeometry(points) {
+            // Bounding Box berechnen
+            const minX = Math.min(...points.map(p => p.x));
+            const maxX = Math.max(...points.map(p => p.x));
+            const minY = Math.min(...points.map(p => p.y));
+            const maxY = Math.max(...points.map(p => p.y));
+            
+            const width = maxX - minX;
+            const height = maxY - minY;
+            const area = calculateRoofArea(points);
+            
+            return {
+                minX, maxX, minY, maxY,
+                width, height, area,
+                points: points
+            };
+        }
+
+        function calculateForDirection(analysis, richtung, profile, verschnittToleranz, minStuecklaenge, optimizeWaste) {
+            const deckbreite = profile.deckbreite;
+            const lieferbreite = profile.lieferbreite;
+            const seitenueberlappung = profile.seitenueberlappung;
+            const ueberstand = profile.ueberstand;
+            
+            let bahnenAnzahl, bahnenLaenge;
+            
+            if (richtung === 'laengs') {
+                // Verlegerichtung längs (parallel zur längsten Seite)
+                const nutzbreite = deckbreite - seitenueberlappung;
+                bahnenAnzahl = Math.ceil(analysis.width * 1000 / nutzbreite);
+                bahnenLaenge = (analysis.height * 1000) + (2 * ueberstand);
+            } else {
+                // Verlegerichtung quer (parallel zur kürzesten Seite)
+                const nutzbreite = deckbreite - seitenueberlappung;
+                bahnenAnzahl = Math.ceil(analysis.height * 1000 / nutzbreite);
+                bahnenLaenge = (analysis.width * 1000) + (2 * ueberstand);
+            }
+
+            // Verfügbare Längen ermitteln
+            let verfuegbareLaengen = [];
+            if (profile.laengentyp === 'lager') {
+                verfuegbareLaengen = [...profile.lagerlaengen];
+            } else {
+                // Bestellbereich in verfügbare Längen umwandeln
+                for (let l = profile.minLaenge; l <= profile.maxLaenge; l += profile.schnittRaster) {
+                    verfuegbareLaengen.push(l);
+                }
+            }
+
+            // Optimale Längenaufteilung finden
+            const lengthOptimization = optimizeLengths(bahnenLaenge, verfuegbareLaengen, bahnenAnzahl, minStuecklaenge, optimizeWaste);
+            
+            // Ergebnisse zusammenfassen
+            const totalLength = lengthOptimization.totalLength;
+            const totalWaste = lengthOptimization.totalWaste;
+            const verschnittProzent = totalLength > 0 ? (totalWaste / totalLength) * 100 : 0;
+            
+            return {
+                richtung: richtung,
+                bahnenAnzahl: bahnenAnzahl,
+                bahnenLaenge: bahnenLaenge,
+                bestellliste: lengthOptimization.orderList,
+                schnittplan: lengthOptimization.cuttingPlan,
+                totalLength: totalLength / 1000, // in Meter
+                totalWaste: totalWaste / 1000, // in Meter
+                verschnitt: verschnittProzent,
+                dachflaeche: analysis.area
+            };
+        }
+
+        function optimizeLengths(benoetigteLaenge, verfuegbareLaengen, anzahlBahnen, minStuecklaenge, optimizeWaste) {
+            // Sortiere verfügbare Längen absteigend
+            const sortedLengths = verfuegbareLaengen.sort((a, b) => b - a);
+            
+            let bestSolution = null;
+            let minWaste = Infinity;
+
+            // Verschiedene Kombinationen testen
+            for (let hauptLaenge of sortedLengths) {
+                if (hauptLaenge >= benoetigteLaenge) {
+                    // Eine Länge reicht aus
+                    const waste = hauptLaenge - benoetigteLaenge;
+                    const solution = {
+                        orderList: [{ length: hauptLaenge, quantity: anzahlBahnen, usage: 'Vollbahn' }],
+                        cuttingPlan: [{
+                            sourceLength: hauptLaenge,
+                            cuts: [{ length: benoetigteLaenge, quantity: anzahlBahnen, usage: 'Vollbahn' }],
+                            waste: waste
+                        }],
+                        totalLength: hauptLaenge * anzahlBahnen,
+                        totalWaste: waste * anzahlBahnen
+                    };
+                    
+                    if (waste < minWaste) {
+                        minWaste = waste;
+                        bestSolution = solution;
+                    }
+                } else {
+                    // Kombination aus mehreren Längen
+                    const kombinationResult = findBestCombination(benoetigteLaenge, sortedLengths, minStuecklaenge);
+                    if (kombinationResult && kombinationResult.waste < minWaste) {
+                        minWaste = kombinationResult.waste;
+                        
+                        // Bestellliste erstellen
+                        const orderList = [];
+                        const cuttingPlan = [];
+                        
+                        kombinationResult.combination.forEach(item => {
+                            const existingOrder = orderList.find(o => o.length === item.length);
+                            if (existingOrder) {
+                                existingOrder.quantity += anzahlBahnen;
+                            } else {
+                                orderList.push({
+                                    length: item.length,
+                                    quantity: anzahlBahnen,
+                                    usage: item.usage || 'Standard'
+                                });
+                            }
+                        });
+
+                        bestSolution = {
+                            orderList: orderList,
+                            cuttingPlan: kombinationResult.cuttingPlan,
+                            totalLength: kombinationResult.totalLength * anzahlBahnen,
+                            totalWaste: kombinationResult.waste * anzahlBahnen
+                        };
+                    }
+                }
+            }
+
+            return bestSolution || {
+                orderList: [],
+                cuttingPlan: [],
+                totalLength: 0,
+                totalWaste: 0
+            };
+        }
+
+        function findBestCombination(benoetigteLaenge, verfuegbareLaengen, minStuecklaenge) {
+            // Einfache Heuristik: Größte Länge + Rest
+            let bestCombination = null;
+            let minWaste = Infinity;
+
+            for (let hauptLaenge of verfuegbareLaengen) {
+                if (hauptLaenge >= benoetigteLaenge * 0.6) { // Mindestens 60% abdecken
+                    const rest = benoetigteLaenge - hauptLaenge;
+                    
+                    if (rest <= 0) continue;
+                    
+                    // Suche passende Ergänzung
+                    for (let ergaenzung of verfuegbareLaengen) {
+                        if (ergaenzung >= rest) {
+                            const totalWaste = (hauptLaenge - hauptLaenge) + (ergaenzung - rest);
+                            const totalLength = hauptLaenge + ergaenzung;
+                            
+                            if (totalWaste < minWaste && (ergaenzung - rest) >= 0) {
+                                minWaste = totalWaste;
+                                bestCombination = {
+                                    combination: [
+                                        { length: hauptLaenge, usage: 'Hauptstück' },
+                                        { length: ergaenzung, usage: 'Ergänzung' }
+                                    ],
+                                    waste: totalWaste,
+                                    totalLength: totalLength,
+                                    cuttingPlan: [{
+                                        sourceLength: hauptLaenge,
+                                        cuts: [{ length: hauptLaenge, quantity: 1, usage: 'Hauptstück' }],
+                                        waste: 0
+                                    }, {
+                                        sourceLength: ergaenzung,
+                                        cuts: [{ length: rest, quantity: 1, usage: 'Ergänzung' }],
+                                        waste: ergaenzung - rest
+                                    }]
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+
+            return bestCombination;
+        }
+
+        function displayResults(results) {
+            document.getElementById('total-area').textContent = results.dachflaeche.toFixed(2) + ' m²';
+            document.getElementById('total-rows').textContent = results.bahnenAnzahl;
+            document.getElementById('total-length').textContent = results.totalLength.toFixed(1) + ' m';
+            document.getElementById('total-waste').textContent = results.verschnitt.toFixed(1) + ' %';
+
+            // Bestelltabelle füllen
+            const tbody = document.getElementById('order-tbody');
+            tbody.innerHTML = '';
+
+            results.bestellliste.forEach(item => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${item.length}</td>
+                    <td>${item.quantity}</td>
+                    <td>${(item.length * item.quantity / 1000).toFixed(1)}</td>
+                    <td>${item.usage}</td>
+                `;
+            });
+
+            // Schnittplan anzeigen
+            displayCuttingPlan(results.schnittplan);
+
+            document.getElementById('results-section').style.display = 'block';
+        }
+
+        function displayCuttingPlan(cuttingPlan) {
+            const container = document.getElementById('cutting-visualization');
+            container.innerHTML = '';
+
+            cuttingPlan.forEach((plan, index) => {
+                const planDiv = document.createElement('div');
+                planDiv.className = 'cutting-item';
+                planDiv.style.cssText = 'margin: 10px 0; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #007bff;';
+                
+                let cutsHtml = plan.cuts.map(cut => 
+                    `<span style="background: #e7f3ff; padding: 2px 6px; border-radius: 3px; margin-right: 5px;">
+                        ${cut.length}mm (${cut.quantity}x)
+                    </span>`
+                ).join('');
+
+                planDiv.innerHTML = `
+                    <strong>Platte ${plan.sourceLength}mm:</strong><br>
+                    <div style="margin: 8px 0;">${cutsHtml}</div>
+                    <small style="color: #666;">Verschnitt: ${plan.waste}mm</small>
+                `;
+
+                container.appendChild(planDiv);
+            });
+        }
+
+        function displayAlternatives(calculations) {
+            if (calculations.length <= 1) return;
+
+            const container = document.getElementById('alternatives-grid');
+            container.innerHTML = '';
+
+            calculations.forEach((calc, index) => {
+                const altDiv = document.createElement('div');
+                altDiv.className = 'alternative-item';
+                altDiv.style.cssText = 'padding: 15px; background: white; border: 2px solid #e9ecef; border-radius: 6px; cursor: pointer; transition: all 0.3s ease;';
+                
+                if (calc === calculationResults) {
+                    altDiv.style.borderColor = '#007bff';
+                    altDiv.style.backgroundColor = '#f8f9fa';
+                }
+
+                altDiv.innerHTML = `
+                    <h5>Verlegerichtung: ${calc.richtung === 'laengs' ? 'Längs' : 'Quer'}</h5>
+                    <p><strong>Bahnen:</strong> ${calc.bahnenAnzahl}</p>
+                    <p><strong>Verschnitt:</strong> ${calc.verschnitt.toFixed(1)}%</p>
+                    <p><strong>Gesamtlänge:</strong> ${calc.totalLength.toFixed(1)}m</p>
+                `;
+
+                altDiv.addEventListener('click', () => {
+                    calculationResults = calc;
+                    displayResults(calc);
+                    displayAlternatives(calculations);
+                });
+
+                container.appendChild(altDiv);
+            });
+
+            document.getElementById('alternatives-section').style.display = 'block';
+        }
+
+        function saveAndContinue() {
+            if (!calculationResults) {
+                alert('Bitte führen Sie zuerst eine Berechnung durch!');
+                return;
+            }
+
+            projectData.calculations = calculationResults;
+            localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            window.location.href = 'anrissplan.html';
+        }
+
+        function goBack() {
+            window.location.href = 'dachform.html';
+        }
+
+        // Initialer Check der Projektdaten
+        if (!projectData.profile || !projectData.roofShape) {
+            setTimeout(() => {
+                if (confirm('Unvollständige Projektdaten gefunden. Möchten Sie zum Anfang zurückkehren?')) {
+                    window.location.href = 'index.html';
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
