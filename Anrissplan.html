@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anrissplan - Dachplattenrechner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dachplattenrechner</h1>
+            <nav class="progress-nav">
+                <div class="step completed" data-step="1">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Profil</span>
+                </div>
+                <div class="step completed" data-step="2">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Dachform</span>
+                </div>
+                <div class="step completed" data-step="3">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Berechnung</span>
+                </div>
+                <div class="step active" data-step="4">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Anrissplan</span>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="anrissplan-section">
+                <h2>Schritt 4: Anrissplan erstellen</h2>
+                <p>Detaillierte Verlegepläne und Schnittzeichnungen für die Montage:</p>
+
+                <div class="anrissplan-container">
+                    <!-- Plan-Optionen -->
+                    <div class="card plan-options">
+                        <h3>Plan-Einstellungen</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="plan-massstab">Maßstab:</label>
+                                <select id="plan-massstab" class="form-control">
+                                    <option value="50">1:50</option>
+                                    <option value="100" selected>1:100</option>
+                                    <option value="200">1:200</option>
+                                    <option value="500">1:500</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="plan-format">Format:</label>
+                                <select id="plan-format" class="form-control">
+                                    <option value="A4">A4</option>
+                                    <option value="A3" selected>A3</option>
+                                    <option value="A2">A2</option>
+                                    <option value="A1">A1</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="show-dimensions" checked> 
+                                    Bemaßung anzeigen
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="show-grid" checked> 
+                                    Raster anzeigen
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="show-overlap" checked> 
+                                    Überlappungen markieren
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="show-cutting-marks" checked> 
+                                    Schnittmarkierungen
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" onclick="generatePlan()">
+                            Plan generieren
+                        </button>
+                    </div>
+
+                    <!-- Hauptzeichnung -->
+                    <div class="card main-drawing">
+                        <h3>Verlegeplan <span id="current-scale">(1:100)</span></h3>
+                        <div class="drawing-container">
+                            <canvas id="plan-canvas" width="800" height="600"></canvas>
+                            <div class="drawing-controls">
+                                <button type="button" class="btn btn-secondary" onclick="zoomPlanIn()">+</button>
+                                <button type="button" class="btn btn-secondary" onclick="zoomPlanOut()">-</button>
+                                <button type="button" class="btn btn-secondary" onclick="resetPlanView()">Reset</button>
+                                <button type="button" class="btn btn-success" onclick="exportPlan()">Exportieren</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legende und Details -->
+                    <div class="card plan-legend">
+                        <h3>Legende</h3>
+                        <div class="legend-content">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #007bff;"></div>
+                                <span>Dachfläche</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #28a745;"></div>
+                                <span>Dachplatte</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #dc3545;"></div>
+                                <span>Überlappung</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #ffc107;"></div>
+                                <span>Verschnitt</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-line"></div>
+                                <span>Schnittlinie</span>
+                            </div>
+                        </div>
+
+                        <div class="plan-info" id="plan-info">
+                            <!-- Plan-Informationen werden hier eingefügt -->
+                        </div>
+                    </div>
+
+                    <!-- Materialliste -->
+                    <div class="card material-list">
+                        <h3>Materialliste</h3>
+                        <div class="table-container">
+                            <table class="table" id="material-table">
+                                <thead>
+                                    <tr>
+                                        <th>Material</th>
+                                        <th>Beschreibung</th>
+                                        <th>Menge</th>
+                                        <th>Einheit</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="material-tbody">
+                                    <!-- Materialliste wird hier eingefügt -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Montageanweisungen -->
+                    <div class="card assembly-instructions">
+                        <h3>Montageanweisungen</h3>
+                        <div class="instructions-content" id="instructions-content">
+                            <div class="instruction-step">
+                                <h4>1. Vorbereitung</h4>
+                                <ul>
+                                    <li>Untergrund prüfen und vorbereiten</li>
+                                    <li>Werkzeuge und Material bereitstellen</li>
+                                    <li>Sicherheitsmaßnahmen beachten</li>
+                                </ul>
+                            </div>
+                            <div class="instruction-step">
+                                <h4>2. Erste Bahn verlegen</h4>
+                                <ul>
+                                    <li>Mit der untersten Bahn beginnen</li>
+                                    <li>Ausrichtung zur Traufe prüfen</li>
+                                    <li>Überstand gemäß Plan einhalten</li>
+                                </ul>
+                            </div>
+                            <div class="instruction-step">
+                                <h4>3. Weitere Bahnen</h4>
+                                <ul>
+                                    <li>Seitenüberlappung beachten</li>
+                                    <li>Befestigung nach Herstellervorgabe</li>
+                                    <li>Dichtigkeitsstreifen verwenden</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="navigation-buttons">
+                <button type="button" class="btn btn-secondary" onclick="goBack()">
+                    ← Zurück zur Berechnung
+                </button>
+                <button type="button" class="btn btn-success" onclick="completePlan()">
+                    Projekt abschließen ✓
+                </button>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Dachplattenrechner</p>
+        </footer>
+    </div>
+
+    <script>
+        // Globale Variablen
+        let projectData = JSON.parse(localStorage.getItem('dachplattenrechner_data')) || {
+            profile: {},
+            roofShape: {},
+            calculations: {},
+            drawingPlan: {}
+        };
+
+        let planCanvas = null;
+        let planCtx = null;
+        let planScale = 100; // Pixel pro Meter (entspricht 1:100)
+        let planOffsetX = 0;
+        let planOffsetY = 0;
+
+        // Initialisierung
+        document.addEventListener('DOMContentLoaded', function() {
+            planCanvas = document.getElementById('plan-canvas');
+            planCtx = planCanvas.getContext('2d');
+            
+            setupPlanCanvas();
+            loadPlanData();
+            generatePlan();
+            generateMaterialList();
+            updateInstructions();
+            
+            // Event Listeners
+            document.getElementById('plan-massstab').addEventListener('change', updateScale);
+            document.getElementById('show-dimensions').addEventListener('change', generatePlan);
+            document.getElementById('show-grid').addEventListener('change', generatePlan);
+            document.getElementById('show-overlap').addEventListener('change', generatePlan);
+            document.getElementById('show-cutting-marks').addEventListener('change', generatePlan);
+        });
+
+        function setupPlanCanvas() {
+            const container = planCanvas.parentElement;
+            planCanvas.width = container.clientWidth - 40;
+            planCanvas.height = 600;
+            
+            planOffsetX = planCanvas.width / 2;
+            planOffsetY = planCanvas.height / 2;
+        }
+
+        function loadPlanData() {
+            const profile = projectData.profile;
+            const roof = projectData.roofShape;
+            const calc = projectData.calculations;
+
+            if (!profile || !roof || !calc) {
+                document.getElementById('plan-info').innerHTML = 
+                    '<div class="alert alert-warning">Unvollständige Projektdaten. Bitte kehren Sie zu den vorherigen Schritten zurück.</div>';
+                return;
+            }
+
+            // Plan-Informationen anzeigen
+            document.getElementById('plan-info').innerHTML = `
+                <h4>Projekt-Details</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <p><strong>Profil:</strong> ${profile.profilname || 'Standard'}</p>
+                        <p><strong>Deckbreite:</strong> ${profile.deckbreite} mm</p>
+                        <p><strong>Dachfläche:</strong> ${calc.dachflaeche.toFixed(2)} m²</p>
+                    </div>
+                    <div>
+                        <p><strong>Verlegerichtung:</strong> ${calc.richtung === 'laengs' ? 'Längs' : 'Quer'}</p>
+                        <p><strong>Anzahl Bahnen:</strong> ${calc.bahnenAnzahl}</p>
+                        <p><strong>Verschnitt:</strong> ${calc.verschnitt.toFixed(1)} %</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateScale() {
+            const newScale = parseInt(document.getElementById('plan-massstab').value);
+            planScale = 1000 / newScale; // Umrechnung von Maßstab zu Pixel/Meter
+            document.getElementById('current-scale').textContent = `(1:${newScale})`;
+            generatePlan();
+        }
+
+        function generatePlan() {
+            const roof = projectData.roofShape;
+            const calc = projectData.calculations;
+            const profile = projectData.profile;
+
+            if (!roof || !calc || !profile) return;
+
+            // Canvas löschen
+            planCtx.clearRect(0, 0, planCanvas.width, planCanvas.height);
+
+            // Hintergrund
+            planCtx.fillStyle = '#ffffff';
+            planCtx.fillRect(0, 0, planCanvas.width, planCanvas.height);
+
+            // Raster zeichnen (falls aktiviert)
+            if (document.getElementById('show-grid').checked) {
+                drawPlanGrid();
+            }
+
+            // Dachform zeichnen
+            drawRoofShape(roof.points);
+
+            // Dachplatten-Layout zeichnen
+            drawPlateLayout(roof.points, calc, profile);
+
+            // Bemaßung (falls aktiviert)
+            if (document.getElementById('show-dimensions').checked) {
+                drawDimensions(roof.points);
+            }
+
+            // Überlappungen markieren (falls aktiviert)
+            if (document.getElementById('show-overlap').checked) {
+                drawOverlaps(calc, profile);
+            }
+
+            // Schnittmarkierungen (falls aktiviert)
+            if (document.getElementById('show-cutting-marks').checked) {
+                drawCuttingMarks(calc);
+            }
+        }
+
+        function drawPlanGrid() {
+            planCtx.strokeStyle = '#e9ecef';
+            planCtx.lineWidth = 0.5;
+
+            const gridSize = planScale; // 1 Meter Raster
+            
+            // Vertikale Linien
+            for (let x = planOffsetX % gridSize; x < planCanvas.width; x += gridSize) {
+                planCtx.beginPath();
+                planCtx.moveTo(x, 0);
+                planCtx.lineTo(x, planCanvas.height);
+                planCtx.stroke();
+            }
+            
+            // Horizontale Linien
+            for (let y = planOffsetY % gridSize; y < planCanvas.height; y += gridSize) {
+                planCtx.beginPath();
+                planCtx.moveTo(0, y);
+                planCtx.lineTo(planCanvas.width, y);
+                planCtx.stroke();
+            }
+        }
+
+        function drawRoofShape(points) {
+            planCtx.strokeStyle = '#007bff';
+            planCtx.fillStyle = 'rgba(0, 123, 255, 0.1)';
+            planCtx.lineWidth = 3;
+
+            planCtx.beginPath();
+            points.forEach((point, index) => {
+                const x = planOffsetX + point.x * planScale;
+                const y = planOffsetY - point.y * planScale;
+                
+                if (index === 0) {
+                    planCtx.moveTo(x, y);
+                } else {
+                    planCtx.lineTo(x, y);
+                }
+            });
+            planCtx.closePath();
+            planCtx.fill();
+            planCtx.stroke();
+        }
+
+        function drawPlateLayout(roofPoints, calc, profile) {
+            const deckbreite = profile.deckbreite / 1000; // in Meter
+            const nutzbreite = (profile.deckbreite - profile.seitenueberlappung) / 1000;
+            
+            // Bounding Box der Dachform
+            const minX = Math.min(...roofPoints.map(p => p.x));
+            const maxX = Math.max(...roofPoints.map(p => p.x));
+            const minY = Math.min(...roofPoints.map(p => p.y));
+            const maxY = Math.max(...roofPoints.map(p => p.y));
+
+            planCtx.strokeStyle = '#28a745';
+            planCtx.fillStyle = 'rgba(40, 167, 69, 0.3)';
+            planCtx.lineWidth = 2;
+
+            // Bahnen zeichnen basierend auf Verlegerichtung
+            if (calc.richtung === 'laengs') {
+                // Bahnen parallel zur Y-Achse (längs)
+                for (let i = 0; i < calc.bahnenAnzahl; i++) {
+                    const bahnX = minX + (i * nutzbreite);
+                    const x1 = planOffsetX + bahnX * planScale;
+                    const x2 = planOffsetX + (bahnX + deckbreite) * planScale;
+                    const y1 = planOffsetY - minY * planScale;
+                    const y2 = planOffsetY - maxY * planScale;
+
+                    planCtx.fillRect(x1, y2, x2 - x1, y1 - y2);
+                    planCtx.strokeRect(x1, y2, x2 - x1, y1 - y2);
+
+                    // Bahnnummer
+                    planCtx.fillStyle = '#000';
+                    planCtx.font = '12px Arial';
+                    planCtx.textAlign = 'center';
+                    planCtx.fillText(i + 1, (x1 + x2) / 2, (y1 + y2) / 2);
+                    planCtx.fillStyle = 'rgba(40, 167, 69, 0.3)';
+                }
+            } else {
+                // Bahnen parallel zur X-Achse (quer)
+                for (let i = 0; i < calc.bahnenAnzahl; i++) {
+                    const bahnY = minY + (i * nutzbreite);
+                    const x1 = planOffsetX + minX * planScale;
+                    const x2 = planOffsetX + maxX * planScale;
+                    const y1 = planOffsetY - bahnY * planScale;
+                    const y2 = planOffsetY - (bahnY + deckbreite) * planScale;
+
+                    planCtx.fillRect(x1, y2, x2 - x1, y1 - y2);
+                    planCtx.strokeRect(x1, y2, x2 - x1, y1 - y2);
+
+                    // Bahnnummer
+                    planCtx.fillStyle = '#000';
+                    planCtx.font = '12px Arial';
+                    planCtx.textAlign = 'center';
+                    planCtx.fillText(i + 1, (x1 + x2) / 2, (y1 + y2) / 2);
+                    planCtx.fillStyle = 'rgba(40, 167, 69, 0.3)';
+                }
+            }
+        }
+
+        function drawDimensions(points) {
+            planCtx.strokeStyle = '#666';
+            planCtx.fillStyle = '#000';
+            planCtx.lineWidth = 1;
+            planCtx.font = '10px Arial';
+            planCtx.textAlign = 'center';
+
+            // Außenmaße zeichnen
+            for (let i = 0; i < points.length; i++) {
+                const p1 = points[i];
+                const p2 = points[(i + 1) % points.length];
+                
+                const x1 = planOffsetX + p1.x * planScale;
+                const y1 = planOffsetY - p1.y * planScale;
+                const x2 = planOffsetX + p2.x * planScale;
+                const y2 = planOffsetY - p2.y * planScale;
+
+                // Maßlinie zeichnen
+                const offset = 20;
+                const midX = (x1 + x2) / 2;
+                const midY = (y1 + y2) / 2;
+                
+                // Länge berechnen
+                const length = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+                
+                // Maßtext
+                planCtx.fillText(length.toFixed(2) + 'm', midX, midY - 5);
+            }
+        }
+
+        function drawOverlaps(calc, profile) {
+            if (calc.richtung !== 'laengs') return;
+            
+            const overlap = profile.seitenueberlappung / 1000; // in Meter
+            const nutzbreite = (profile.deckbreite - profile.seitenueberlappung) / 1000;
+            
+            planCtx.strokeStyle = '#dc3545';
+            planCtx.lineWidth = 2;
+            planCtx.setLineDash([5, 5]);
+
+            // Überlappungslinien zeichnen
+            for (let i = 1; i < calc.bahnenAnzahl; i++) {
+                const overlapX = i * nutzbreite;
+                const x = planOffsetX + overlapX * planScale;
+                
+                planCtx.beginPath();
+                planCtx.moveTo(x, 0);
+                planCtx.lineTo(x, planCanvas.height);
+                planCtx.stroke();
+            }
+            
+            planCtx.setLineDash([]);
+        }
+
+        function drawCuttingMarks(calc) {
+            planCtx.strokeStyle = '#ffc107';
+            planCtx.lineWidth = 3;
+            planCtx.setLineDash([10, 5]);
+
+            // Vereinfachte Schnittmarkierungen
+            // Hier könnten spezifische Schnittlinien basierend auf dem Schnittplan gezeichnet werden
+            
+            planCtx.setLineDash([]);
+        }
+
+        function generateMaterialList() {
+            const profile = projectData.profile;
+            const calc = projectData.calculations;
+
+            if (!profile || !calc) return;
+
+            const tbody = document.getElementById('material-tbody');
+            tbody.innerHTML = '';
+
+            // Dachplatten
+            calc.bestellliste.forEach(item => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>Dachplatte ${profile.profilname || 'Standard'}</td>
+                    <td>Länge: ${item.length}mm</td>
+                    <td>${item.quantity}</td>
+                    <td>Stück</td>
+                `;
+            });
+
+            // Zusätzliche Materialien
+            const additionalMaterials = [
+                { name: 'Schrauben', desc: 'Befestigung 6,3x35mm', quantity: Math.ceil(calc.bahnenAnzahl * 8), unit: 'Stück' },
+                { name: 'Dichtigkeitsstreifen', desc: 'Seitliche Abdichtung', quantity: calc.bahnenAnzahl - 1, unit: 'lfm' },
+                { name: 'Kalotten', desc: 'Schraubenabdeckung', quantity: Math.ceil(calc.bahnenAnzahl * 8), unit: 'Stück' }
+            ];
+
+            additionalMaterials.forEach(item => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.desc}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.unit}</td>
+                `;
+            });
+        }
+
+        function updateInstructions() {
+            const calc = projectData.calculations;
+            const profile = projectData.profile;
+
+            if (!calc || !profile) return;
+
+            const instructionsContainer = document.getElementById('instructions-content');
+            
+            // Spezifische Anweisungen basierend auf der Berechnung hinzufügen
+            const specificInstructions = document.createElement('div');
+            specificInstructions.className = 'instruction-step';
+            specificInstructions.innerHTML = `
+                <h4>4. Projekt-spezifische Hinweise</h4>
+                <ul>
+                    <li>Verlegerichtung: ${calc.richtung === 'laengs' ? 'Längs' : 'Quer'} zur Hauptrichtung</li>
+                    <li>Seitenüberlappung: ${profile.seitenueberlappung}mm einhalten</li>
+                    <li>Traufüberstand: ${profile.ueberstand}mm</li>
+                    <li>Anzahl Bahnen: ${calc.bahnenAnzahl}</li>
+                    <li>Erwarteter Verschnitt: ${calc.verschnitt.toFixed(1)}%</li>
+                </ul>
+            `;
+            
+            instructionsContainer.appendChild(specificInstructions);
+        }
+
+        function zoomPlanIn() {
+            planScale *= 1.2;
+            generatePlan();
+        }
+
+        function zoomPlanOut() {
+            planScale /= 1.2;
+            generatePlan();
+        }
+
+        function resetPlanView() {
+            planScale = 100;
+            planOffsetX = planCanvas.width / 2;
+            planOffsetY = planCanvas.height / 2;
+            document.getElementById('plan-massstab').value = '100';
+            document.getElementById('current-scale').textContent = '(1:100)';
+            generatePlan();
+        }
+
+        function exportPlan() {
+            // Canvas als Bild exportieren
+            const link = document.createElement('a');
+            link.download = 'anrissplan_' + new Date().toISOString().split('T')[0] + '.png';
+            link.href = planCanvas.toDataURL();
+            link.click();
+        }
+
+        function completePlan() {
+            // Projekt als abgeschlossen markieren
+            projectData.drawingPlan = {
+                completed: true,
+                completedDate: new Date().toISOString(),
+                settings: {
+                    scale: document.getElementById('plan-massstab').value,
+                    format: document.getElementById('plan-format').value,
+                    showDimensions: document.getElementById('show-dimensions').checked,
+                    showGrid: document.getElementById('show-grid').checked,
+                    showOverlap: document.getElementById('show-overlap').checked,
+                    showCuttingMarks: document.getElementById('show-cutting-marks').checked
+                }
+            };
+
+            localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+
+            if (confirm('Projekt erfolgreich abgeschlossen!\n\nMöchten Sie ein neues Projekt starten?')) {
+                localStorage.removeItem('dachplattenrechner_data');
+                window.location.href = 'index.html';
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'berechnung.html';
+        }
+
+        // Canvas-Größe bei Fenster-Resize anpassen
+        window.addEventListener('resize', function() {
+            setTimeout(setupPlanCanvas, 100);
+            setTimeout(generatePlan, 200);
+        });
+
+        // Initialer Check der Projektdaten
+        if (!projectData.profile || !projectData.roofShape || !projectData.calculations) {
+            setTimeout(() => {
+                if (confirm('Unvollständige Projektdaten gefunden. Möchten Sie zum Anfang zurückkehren?')) {
+                    window.location.href = 'index.html';
+                }
+            }, 1000);
+        }
+    </script>
+
+    <style>
+        /* Zusätzliche Styles für den Anrissplan */
+        .anrissplan-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .main-drawing {
+            grid-column: 1 / -1;
+        }
+
+        .drawing-container {
+            position: relative;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .drawing-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .drawing-controls button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .legend-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .legend-line {
+            width: 20px;
+            height: 2px;
+            background: #333;
+            border: 1px dashed #333;
+        }
+
+        .instruction-step {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .instruction-step h4 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .instruction-step ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .anrissplan-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .drawing-controls {
+                position: static;
+                margin-top: 10px;
+                justify-content: center;
+            }
+        }
+    </style>
+</body>
+</html>
