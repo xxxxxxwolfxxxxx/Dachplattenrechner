@@ -296,11 +296,11 @@
                         <div class="tool-group" id="roof-orientation-tools">
                             <h4>Dach-Ausrichtung</h4>
                             <div class="button-group">
-                                <button class="btn btn-success" id="btn-traufe" onclick="setOrientationMode('traufe')">
-                                    📐 Seite nach unten (Traufe)
-                                </button>
                                 <button class="btn btn-success" id="btn-first" onclick="setOrientationMode('first')">
-                                    🏠 Seite nach oben (First)
+                                    Seite nach oben (First)
+                                </button>
+                                <button class="btn btn-success" id="btn-traufe" onclick="setOrientationMode('traufe')">
+                                    Seite nach unten (Traufe)
                                 </button>
                             </div>
                             <small style="color: #666; font-size: 11px; margin-top: 5px; display: block;" id="orientation-hint">
@@ -1579,6 +1579,7 @@
                 setDefaultValues();
                 generateInputFields();
                 updateGeometry();
+                resetOrientationMode(); // Orientierungs-Modus auch zurücksetzen
             }
         }
 
