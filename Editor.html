@@ -22,6 +22,7 @@
             border-radius: 6px;
             background: white;
             position: relative;
+            margin: 0 80px;
         }
 
         .orientation-labels {
@@ -62,47 +63,59 @@
 
         .water-flow-left {
             position: absolute;
-            left: -80px;
+            left: -70px;
             top: 50%;
             transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 10px;
+            border-radius: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: #17a2b8;
+            border: 2px solid #17a2b8;
+            min-height: 120px;
+            justify-content: center;
         }
 
         .water-flow-right {
             position: absolute;
-            right: -80px;
+            right: -70px;
             top: 50%;
             transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 10px;
+            border-radius: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: #17a2b8;
-        }
-
-        .flow-arrow {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 8px 12px;
-            border-radius: 15px;
-            font-weight: bold;
-            border: 1px solid #17a2b8;
-            font-size: 24px;
-            line-height: 1;
-            margin-bottom: 10px;
+            border: 2px solid #17a2b8;
+            min-height: 120px;
+            justify-content: center;
         }
 
         .flow-text {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-weight: bold;
-            border: 1px solid #17a2b8;
             writing-mode: vertical-rl;
             text-orientation: mixed;
             font-size: 11px;
+            font-weight: bold;
             white-space: nowrap;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .flow-arrows {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .flow-arrow {
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 0.8;
+            color: #17a2b8;
         }
 
         .tool-group {
@@ -159,6 +172,18 @@
         @media (max-width: 768px) {
             .editor-container {
                 grid-template-columns: 1fr;
+            }
+            
+            .canvas-wrapper {
+                margin: 0 20px;
+            }
+            
+            .water-flow-left {
+                left: -50px;
+            }
+            
+            .water-flow-right {
+                right: -50px;
             }
         }
     </style>
@@ -241,12 +266,24 @@
                             <div class="orientation-labels">
                                 <div class="label-top">Oben (Firstbereich)</div>
                                 <div class="water-flow-left">
-                                    <div class="flow-arrow">↓</div>
                                     <div class="flow-text">Wasserlaufrichtung</div>
+                                    <div class="flow-arrows">
+                                        <div class="flow-arrow">↓</div>
+                                        <div class="flow-arrow">↓</div>
+                                        <div class="flow-arrow">↓</div>
+                                        <div class="flow-arrow">↓</div>
+                                        <div class="flow-arrow">↓</div>
+                                    </div>
                                 </div>
                                 <div class="water-flow-right">
-                                    <div class="flow-arrow">↓</div>
                                     <div class="flow-text">Wasserlaufrichtung</div>
+                                    <div class="flow-arrows">
+                                        <div class="flow-arrow">↓</div>
+                                        <div class="flow-arrow">↓</div>
+                                        <div class="flow-arrow">↓</div>
+                                        <div class="flow-arrow">↓</div>
+                                        <div class="flow-arrow">↓</div>
+                                    </div>
                                 </div>
                                 <div class="label-bottom">Unten (Traufbereich)</div>
                             </div>
@@ -375,6 +412,7 @@
         function resetShape() {
             currentPoints = JSON.parse(JSON.stringify(originalPoints));
             updateShape();
+            updateDimensionInputs();
         }
 
         function updateShape() {
@@ -385,7 +423,7 @@
             
             if (currentPoints.length === 0) return;
             
-            // Bounding Box berechnen für Zentrierung
+            // Bounding Box berechnen für bessere Zentrierung
             var bounds = getBounds(currentPoints);
             var scale = Math.min(250 / Math.max(bounds.width, 1), 200 / Math.max(bounds.height, 1));
             var centerX = 400;
@@ -487,8 +525,38 @@
         }
 
         function updateDimension() {
-            // Einfache Maß-Anpassung ohne Pythagoras
+            // Bei Maß-Änderung Punkte proportional skalieren
+            var newA = parseFloat(document.getElementById('dim-a').value) || 1;
+            var newB = parseFloat(document.getElementById('dim-b').value) || 1;
+            
+            var bounds = getBounds(originalPoints);
+            var scaleX = newA / Math.max(bounds.width, 0.1);
+            var scaleY = newB / Math.max(bounds.height, 0.1);
+            
+            currentPoints = originalPoints.map(p => ({
+                x: p.x * scaleX,
+                y: p.y * scaleY
+            }));
+            
             updateShape();
+        }
+
+        function updateDimensionInputs() {
+            var bounds = getBounds(currentPoints);
+            
+            // Eingabefelder mit tatsächlichen Kantenlängen füllen
+            for (var i = 0; i < Math.min(4, currentPoints.length); i++) {
+                var j = (i + 1) % currentPoints.length;
+                var p1 = currentPoints[i];
+                var p2 = currentPoints[j];
+                var edgeLength = Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
+                
+                var fieldId = String.fromCharCode(97 + i); // a, b, c, d
+                var field = document.getElementById('dim-' + fieldId);
+                if (field) {
+                    field.value = edgeLength.toFixed(1);
+                }
+            }
         }
 
         function saveAndContinue() {
@@ -501,51 +569,51 @@
             window.location.href = 'dachform.html';
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            projectData = loadData();
-            
-            if (!projectData.roofShape || !projectData.roofShape.points) {
-                alert('Keine Dachform gefunden. Bitte kehren Sie zum vorherigen Schritt zurück.');
-                window.location.href = 'dachform.html';
-                return;
-            }
-            
-            originalPoints = JSON.parse(JSON.stringify(projectData.roofShape.points));
-            currentPoints = JSON.parse(JSON.stringify(originalPoints));
-            
-            document.getElementById('shape-title').textContent = 
-                (projectData.roofShape.variant || projectData.roofShape.baseShape || 'Unbekannte Form');
-            document.getElementById('shape-type').textContent = projectData.roofShape.baseShape || 'Unbekannt';
-            
-            var bounds = getBounds(originalPoints);
-            
-            // Eingabefelder mit tatsächlichen Kantenlängen füllen
-            for (var i = 0; i < Math.min(4, originalPoints.length); i++) {
-                var j = (i + 1) % originalPoints.length;
-                var p1 = originalPoints[i];
-                var p2 = originalPoints[j];
-                var edgeLength = Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
-                
-                var fieldId = String.fromCharCode(97 + i); // a, b, c, d
-                var field = document.getElementById('dim-' + fieldId);
-                if (field) {
-                    field.value = edgeLength.toFixed(1);
-                }
-            }
-            
-            updateShape();
-        });
-
         function getBounds(points) {
-            if (points.length === 0) return { width: 0, height: 0 };
+            if (points.length === 0) return { width: 0, height: 0, minX: 0, maxX: 0, minY: 0, maxY: 0 };
             
             var minX = Math.min.apply(Math, points.map(p => p.x));
             var maxX = Math.max.apply(Math, points.map(p => p.x));
             var minY = Math.min.apply(Math, points.map(p => p.y));
             var maxY = Math.max.apply(Math, points.map(p => p.y));
             
-            return { width: maxX - minX, height: maxY - minY };
+            return { 
+                width: maxX - minX, 
+                height: maxY - minY,
+                minX: minX,
+                maxX: maxX, 
+                minY: minY,
+                maxY: maxY
+            };
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            projectData = loadData();
+            
+            if (!projectData.roofShape || !projectData.roofShape.points) {
+                // Fallback: Einfaches Rechteck erstellen
+                projectData.roofShape = {
+                    baseShape: 'viereck',
+                    variant: 'rechteck',
+                    points: [
+                        { x: 0, y: 0 },
+                        { x: 10, y: 0 },
+                        { x: 10, y: 8 },
+                        { x: 0, y: 8 }
+                    ]
+                };
+            }
+            
+            originalPoints = JSON.parse(JSON.stringify(projectData.roofShape.points));
+            currentPoints = JSON.parse(JSON.stringify(originalPoints));
+            
+            document.getElementById('shape-title').textContent = 
+                (projectData.roofShape.variant || projectData.roofShape.baseShape || 'Rechteck');
+            document.getElementById('shape-type').textContent = projectData.roofShape.baseShape || 'Viereck';
+            
+            updateDimensionInputs();
+            updateShape();
+        });
     </script>
 </body>
 </html>
