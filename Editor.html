@@ -4,8 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Geometry Editor - Dachplattenrechner</title>
-    <link rel="stylesheet" href="style.css">
     <style>
+        /* CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .progress-nav {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .step.active {
+            color: #007bff;
+        }
+
+        .step.completed {
+            color: #28a745;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-number {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .step-title {
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        /* Main */
+        main {
+            flex: 1;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        /* Editor Layout */
         .editor-container {
             display: grid;
             grid-template-columns: 250px 1fr;
@@ -27,8 +141,25 @@
 
         .shape-display {
             grid-column: 1 / -1;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+            text-align: center;
         }
 
+        .current-shape {
+            font-size: 16px;
+            font-weight: bold;
+            color: #007bff;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #007bff;
+        }
+
+        /* Canvas */
         .canvas-wrapper {
             border: 2px solid #e9ecef;
             border-radius: 6px;
@@ -90,12 +221,6 @@
             text-align: center;
         }
 
-        .flow-arrows {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
         .flow-arrow {
             font-size: 48px;
             font-weight: bold;
@@ -103,6 +228,7 @@
             color: #17a2b8;
         }
 
+        /* Tools */
         .tool-group {
             margin-bottom: 20px;
             padding-bottom: 15px;
@@ -121,12 +247,66 @@
             gap: 8px;
         }
 
-        .button-group .btn {
+        .btn {
             padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
             font-size: 13px;
-            text-align: left;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin: 2px;
         }
 
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #1e7e34;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        /* Inputs */
         .dimension-input {
             display: flex;
             align-items: center;
@@ -197,12 +377,6 @@
             margin-top: 15px;
         }
 
-        .geometry-info h5 {
-            color: #007bff;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
         .info-row {
             display: flex;
             justify-content: space-between;
@@ -210,25 +384,25 @@
             font-size: 13px;
         }
 
-        .shape-display {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 15px;
+        /* Navigation */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 30px;
+            padding: 20px 0;
             text-align: center;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
         }
 
-        .current-shape {
-            font-size: 16px;
-            font-weight: bold;
-            color: #007bff;
-            padding: 8px;
-            background: white;
-            border-radius: 4px;
-            border: 1px solid #007bff;
-        }
-
+        /* Responsive */
         @media (max-width: 768px) {
             .editor-container {
                 grid-template-columns: 1fr;
@@ -341,20 +515,16 @@
                                 <div class="label-top">Oben (Firstbereich)</div>
                                 <div class="water-flow-left">
                                     <div class="flow-text">Wasserlaufrichtung</div>
-                                    <div class="flow-arrows">
-                                        <div class="flow-arrow">⬇</div>
-                                    </div>
+                                    <div class="flow-arrow">⬇</div>
                                 </div>
                                 <div class="water-flow-right">
                                     <div class="flow-text">Wasserlaufrichtung</div>
-                                    <div class="flow-arrows">
-                                        <div class="flow-arrow">⬇</div>
-                                    </div>
+                                    <div class="flow-arrow">⬇</div>
                                 </div>
                                 <div class="label-bottom">Unten (Traufbereich)</div>
                             </div>
                             
-                            <svg id="main-svg" width="800" height="600" viewBox="0 0 800 600">
+                            <svg id="main-svg" width="800" height="600" viewBox="0 0 800 600" onclick="handleSVGClick(event)">
                                 <defs>
                                     <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
                                         <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
@@ -367,6 +537,7 @@
                                 
                                 <g id="roof-shape"></g>
                                 <g id="dimensions"></g>
+                                <g id="edge-highlights"></g>
                             </svg>
                         </div>
                     </div>
@@ -444,98 +615,53 @@
                         { id: 'width', label: 'Breite', required: true, min: 0.1 },
                         { id: 'diagonal', label: 'Diagonale', calculated: true }
                     ],
-                    validate: (values) => {
+                    validate: function(values) {
                         if (values.length && values.width && values.diagonal) {
-                            const calcDiagonal = Math.sqrt(values.length ** 2 + values.width ** 2);
+                            const calcDiagonal = Math.sqrt(values.length * values.length + values.width * values.width);
                             return Math.abs(calcDiagonal - values.diagonal) < 0.01;
                         }
                         return true;
                     },
-                    calculate: (values, changed) => {
+                    calculate: function(values) {
                         if (values.length && values.width) {
-                            values.diagonal = Math.sqrt(values.length ** 2 + values.width ** 2);
+                            values.diagonal = Math.sqrt(values.length * values.length + values.width * values.width);
                         } else if (values.length && values.diagonal) {
-                            values.width = Math.sqrt(values.diagonal ** 2 - values.length ** 2);
+                            values.width = Math.sqrt(values.diagonal * values.diagonal - values.length * values.length);
                         } else if (values.width && values.diagonal) {
-                            values.length = Math.sqrt(values.diagonal ** 2 - values.width ** 2);
+                            values.length = Math.sqrt(values.diagonal * values.diagonal - values.width * values.width);
                         }
                         return values;
                     },
-                    generatePoints: (values) => [
-                        { x: 0, y: 0 },
-                        { x: values.length || 10, y: 0 },
-                        { x: values.length || 10, y: values.width || 8 },
-                        { x: 0, y: values.width || 8 }
-                    ]
-                },
-                
-                rechteck_schraeg: {
-                    name: 'Schräg-Rechteck',
-                    inputs: [
-                        { id: 'length', label: 'Länge', required: true, min: 0.1 },
-                        { id: 'width', label: 'Breite', required: true, min: 0.1 },
-                        { id: 'cut_length', label: 'Abschnitt', required: true, min: 0.1 },
-                        { id: 'diagonal', label: 'Schräge', calculated: true },
-                        { id: 'area_lost', label: 'Verlust', calculated: true, unit: 'm²' }
-                    ],
-                    validate: (values) => {
-                        return !values.cut_length || 
-                               (values.cut_length <= (values.length || 999) && 
-                                values.cut_length <= (values.width || 999));
-                    },
-                    calculate: (values) => {
-                        if (values.cut_length && values.width) {
-                            values.diagonal = Math.sqrt(values.cut_length ** 2 + values.width ** 2);
-                            values.area_lost = (values.cut_length * values.width) / 2;
-                        }
-                        return values;
-                    },
-                    generatePoints: (values) => {
-                        const length = values.length || 10;
-                        const width = values.width || 8;
-                        const cut = values.cut_length || 2;
-                        
+                    generatePoints: function(values) {
                         return [
                             { x: 0, y: 0 },
-                            { x: length, y: 0 },
-                            { x: length - cut, y: width },
-                            { x: 0, y: width }
+                            { x: values.length || 10, y: 0 },
+                            { x: values.length || 10, y: values.width || 8 },
+                            { x: 0, y: values.width || 8 }
                         ];
                     }
                 },
                 
-                parallelogramm: {
-                    name: 'Parallelogramm',
+                dreieck: {
+                    name: 'Dreieck',
                     inputs: [
-                        { id: 'length', label: 'Länge', required: true, min: 0.1 },
-                        { id: 'width', label: 'Breite', required: true, min: 0.1 },
-                        { id: 'angle', label: 'Winkel', required: true, min: 1, max: 179, unit: '°' },
-                        { id: 'height', label: 'Höhe', calculated: true },
-                        { id: 'diagonal1', label: 'Diagonale 1', calculated: true },
-                        { id: 'diagonal2', label: 'Diagonale 2', calculated: true }
+                        { id: 'side1', label: 'Seite A', required: true, min: 0.1 },
+                        { id: 'side2', label: 'Seite B', required: true, min: 0.1 },
+                        { id: 'side3', label: 'Seite C', calculated: true },
+                        { id: 'height', label: 'Höhe', calculated: true }
                     ],
-                    calculate: (values) => {
-                        if (values.width && values.angle) {
-                            values.height = values.width * Math.sin(values.angle * Math.PI / 180);
-                        }
-                        if (values.length && values.width && values.angle) {
-                            const rad = values.angle * Math.PI / 180;
-                            values.diagonal1 = Math.sqrt(values.length ** 2 + values.width ** 2 - 2 * values.length * values.width * Math.cos(rad));
-                            values.diagonal2 = Math.sqrt(values.length ** 2 + values.width ** 2 - 2 * values.length * values.width * Math.cos((180 - values.angle) * Math.PI / 180));
+                    calculate: function(values) {
+                        if (values.side1 && values.side2) {
+                            values.side3 = Math.sqrt(values.side1 * values.side1 + values.side2 * values.side2);
+                            values.height = (values.side1 * values.side2) / values.side3;
                         }
                         return values;
                     },
-                    generatePoints: (values) => {
-                        const length = values.length || 10;
-                        const width = values.width || 8;
-                        const angle = (values.angle || 90) * Math.PI / 180;
-                        const offsetX = width * Math.cos(angle);
-                        
+                    generatePoints: function(values) {
                         return [
                             { x: 0, y: 0 },
-                            { x: length, y: 0 },
-                            { x: length + offsetX, y: width * Math.sin(angle) },
-                            { x: offsetX, y: width * Math.sin(angle) }
+                            { x: values.side1 || 10, y: 0 },
+                            { x: 0, y: values.side2 || 8 }
                         ];
                     }
                 },
@@ -549,15 +675,15 @@
                         { id: 'side1', label: 'Seite 1', calculated: true },
                         { id: 'side2', label: 'Seite 2', calculated: true }
                     ],
-                    calculate: (values) => {
+                    calculate: function(values) {
                         if (values.base1 && values.base2 && values.height) {
                             const diff = Math.abs(values.base1 - values.base2) / 2;
-                            values.side1 = Math.sqrt(values.height ** 2 + diff ** 2);
+                            values.side1 = Math.sqrt(values.height * values.height + diff * diff);
                             values.side2 = values.side1;
                         }
                         return values;
                     },
-                    generatePoints: (values) => {
+                    generatePoints: function(values) {
                         const base1 = values.base1 || 10;
                         const base2 = values.base2 || 6;
                         const height = values.height || 8;
@@ -575,42 +701,6 @@
                             { x: 0, y: height }
                         ];
                     }
-                },
-                
-                dreieck: {
-                    name: 'Dreieck',
-                    inputs: [
-                        { id: 'side1', label: 'Seite A', required: true, min: 0.1 },
-                        { id: 'side2', label: 'Seite B', required: true, min: 0.1 },
-                        { id: 'side3', label: 'Seite C', calculated: true },
-                        { id: 'height', label: 'Höhe', calculated: true },
-                        { id: 'angle1', label: 'Winkel A', calculated: true, unit: '°' },
-                        { id: 'angle2', label: 'Winkel B', calculated: true, unit: '°' },
-                        { id: 'angle3', label: 'Winkel C', calculated: true, unit: '°' }
-                    ],
-                    validate: (values) => {
-                        if (values.side1 && values.side2 && values.side3) {
-                            return (values.side1 + values.side2 > values.side3) &&
-                                   (values.side1 + values.side3 > values.side2) &&
-                                   (values.side2 + values.side3 > values.side1);
-                        }
-                        return true;
-                    },
-                    calculate: (values) => {
-                        if (values.side1 && values.side2) {
-                            values.side3 = Math.sqrt(values.side1 ** 2 + values.side2 ** 2);
-                            values.height = (values.side1 * values.side2) / values.side3;
-                            values.angle1 = Math.atan(values.side2 / values.side1) * 180 / Math.PI;
-                            values.angle2 = Math.atan(values.side1 / values.side2) * 180 / Math.PI;
-                            values.angle3 = 90;
-                        }
-                        return values;
-                    },
-                    generatePoints: (values) => [
-                        { x: 0, y: 0 },
-                        { x: values.side1 || 10, y: 0 },
-                        { x: 0, y: values.side2 || 8 }
-                    ]
                 }
             };
             
@@ -644,13 +734,12 @@
         let currentShapeType = 'rechteck';
         let currentValues = {};
         let isUpdating = false;
-        let orientationMode = null; // 'traufe' oder 'water'
+        let orientationMode = null;
         let selectedEdge = null;
 
         // Storage-Funktionen
         function saveData() {
             try {
-                // Vermeide localStorage in Artifacts - nutze Variablen
                 console.log('Daten gespeichert:', projectData);
                 return true;
             } catch (e) {
@@ -661,7 +750,6 @@
 
         function loadData() {
             try {
-                // Versuche echte Daten zu laden, fallback auf Demo-Daten
                 let saved = null;
                 try {
                     saved = localStorage.getItem('dachplattenrechner_data');
@@ -674,7 +762,6 @@
                     return JSON.parse(saved);
                 }
                 
-                // Demo-Daten wenn nichts gefunden
                 return {
                     profile: {
                         profilname: 'TP20 (20/100)',
@@ -706,9 +793,9 @@
             const shapeMapping = {
                 'rechteck': 'rechteck',
                 'quadrat': 'rechteck',
-                'parallelogramm': 'parallelogramm',
+                'parallelogramm': 'rechteck',
                 'trapez': 'trapez',
-                'rhombus': 'rechteck_schraeg',
+                'rhombus': 'rechteck',
                 'gleichseitig': 'dreieck',
                 'rechtwinklig': 'dreieck',
                 'ungleichschenklig': 'dreieck',
@@ -733,7 +820,7 @@
             console.log('Ermittelter ShapeType:', currentShapeType);
             
             const shape = SmartGeometry.shapes[currentShapeType];
-            const shapeName = shape?.name || 'Unbekannte Form';
+            const shapeName = shape ? shape.name : 'Unbekannte Form';
             console.log('Shape Name:', shapeName);
             
             const nameElement = document.getElementById('current-shape-name');
@@ -749,10 +836,9 @@
             // Vorhandene Punkte aus Dachform übernehmen oder Standardwerte setzen
             if (projectData.roofShape && projectData.roofShape.points && projectData.roofShape.points.length > 0) {
                 console.log('Übernehme vorhandene Punkte:', projectData.roofShape.points);
-                currentPoints = [...projectData.roofShape.points];
-                originalPoints = [...projectData.roofShape.points];
+                currentPoints = JSON.parse(JSON.stringify(projectData.roofShape.points));
+                originalPoints = JSON.parse(JSON.stringify(projectData.roofShape.points));
                 
-                // Werte aus Punkten ableiten
                 deriveValuesFromPoints();
             } else {
                 console.log('Setze Standardwerte für:', currentShapeType);
@@ -771,623 +857,3 @@
             if (currentPoints.length < 3) return setDefaultValues();
             
             if (currentShapeType === 'rechteck' && currentPoints.length === 4) {
-                // Für Rechteck: Länge und Breite aus Punkten ableiten
-                const dx1 = Math.abs(currentPoints[1].x - currentPoints[0].x);
-                const dy1 = Math.abs(currentPoints[1].y - currentPoints[0].y);
-                const dx2 = Math.abs(currentPoints[2].x - currentPoints[1].x);
-                const dy2 = Math.abs(currentPoints[2].y - currentPoints[1].y);
-                
-                currentValues = {
-                    length: Math.max(dx1, dy1, dx2, dy2),
-                    width: Math.min(dx1, dy1, dx2, dy2) || Math.max(dx1, dy1, dx2, dy2) * 0.8
-                };
-            } else if (currentShapeType === 'dreieck' && currentPoints.length === 3) {
-                // Für Dreieck: Seitenlängen berechnen
-                const side1 = Math.sqrt(Math.pow(currentPoints[1].x - currentPoints[0].x, 2) + 
-                                      Math.pow(currentPoints[1].y - currentPoints[0].y, 2));
-                const side2 = Math.sqrt(Math.pow(currentPoints[2].x - currentPoints[1].x, 2) + 
-                                      Math.pow(currentPoints[2].y - currentPoints[1].y, 2));
-                
-                currentValues = { side1: side1, side2: side2 };
-            } else if (currentShapeType === 'trapez' && currentPoints.length === 4) {
-                // Für Trapez: Basen und Höhe ableiten
-                const base1 = Math.abs(currentPoints[1].x - currentPoints[0].x);
-                const base2 = Math.abs(currentPoints[2].x - currentPoints[3].x);
-                const height = Math.abs(currentPoints[3].y - currentPoints[0].y);
-                
-                currentValues = { base1: base1, base2: base2, height: height };
-            } else {
-                setDefaultValues();
-            }
-        }
-
-        function setDefaultValues() {
-            if (currentShapeType === 'rechteck') {
-                currentValues = { length: 10, width: 8 };
-            } else if (currentShapeType === 'trapez') {
-                currentValues = { base1: 10, base2: 6, height: 8 };
-            } else if (currentShapeType === 'dreieck') {
-                currentValues = { side1: 10, side2: 8 };
-            } else if (currentShapeType === 'parallelogramm') {
-                currentValues = { length: 10, width: 8, angle: 90 };
-            } else {
-                currentValues = { length: 10, width: 8 };
-            }
-        }
-
-        // Eingabefelder generieren
-        function generateInputFields() {
-            console.log('=== GENERATE INPUT FIELDS START ===');
-            const container = document.getElementById('geometry-inputs');
-            
-            if (!container) {
-                console.error('Container geometry-inputs nicht gefunden!');
-                return;
-            }
-            
-            const shape = SmartGeometry.shapes[currentShapeType];
-            
-            if (!shape) {
-                console.error('Shape nicht gefunden für:', currentShapeType);
-                console.log('Verfügbare Shapes:', Object.keys(SmartGeometry.shapes));
-                return;
-            }
-            
-            console.log('Shape gefunden:', shape.name);
-            console.log('Shape inputs:', shape.inputs);
-            
-            // Container leeren
-            container.innerHTML = '';
-            
-            // Für jedes Input-Feld
-            shape.inputs.forEach((input, index) => {
-                console.log(`Erstelle Input ${index + 1}/${shape.inputs.length}:`, input);
-                
-                const div = document.createElement('div');
-                div.className = 'dimension-input';
-                
-                const isCalculated = !!input.calculated;
-                const value = currentValues[input.id] || '';
-                
-                console.log(`- Field: ${input.id}, Value: ${value}, Calculated: ${isCalculated}`);
-                
-                const html = `
-                    <label for="dim-${input.id}">${input.label}:</label>
-                    <input type="number" 
-                           id="dim-${input.id}" 
-                           step="0.1" 
-                           min="${input.min || 0.1}" 
-                           max="${input.max || 999}"
-                           value="${value}"
-                           ${isCalculated ? 'readonly' : ''}
-                           onchange="updateValue('${input.id}', this.value)"
-                           oninput="validateInput('${input.id}', this.value)"
-                           placeholder="${isCalculated ? 'Berechnet' : 'Eingabe'}">
-                    <span>${input.unit || 'm'}</span>
-                    ${isCalculated ? '<span class="calc-indicator">⚡</span>' : ''}
-                    <div class="validation-message" id="error-${input.id}"></div>
-                `;
-                
-                div.innerHTML = html;
-                container.appendChild(div);
-                
-                console.log(`✓ Input ${input.id} erstellt und hinzugefügt`);
-            });
-            
-            console.log('✓ Alle Inputs erstellt');
-            console.log('Container HTML:', container.innerHTML.substring(0, 200) + '...');
-            
-            // Sofort Werte in die Felder einsetzen
-            setTimeout(() => {
-                shape.inputs.forEach(input => {
-                    const field = document.getElementById(`dim-${input.id}`);
-                    if (field && currentValues[input.id] !== undefined) {
-                        field.value = currentValues[input.id];
-                        console.log(`✓ Wert gesetzt für ${input.id}: ${currentValues[input.id]}`);
-                    }
-                });
-            }, 50);
-            
-            console.log('=== GENERATE INPUT FIELDS ENDE ===');
-        }
-
-        // Wert aktualisieren
-        function updateValue(fieldId, value) {
-            if (isUpdating) return;
-            
-            currentValues[fieldId] = parseFloat(value) || 0;
-            updateGeometry();
-        }
-
-        // Eingabe validieren
-        function validateInput(fieldId, value) {
-            const input = document.getElementById(`dim-${fieldId}`);
-            const errorDiv = document.getElementById(`error-${fieldId}`);
-            const numValue = parseFloat(value);
-            const shape = SmartGeometry.shapes[currentShapeType];
-            const inputConfig = shape.inputs.find(inp => inp.id === fieldId);
-            
-            input.classList.remove('validation-error');
-            errorDiv.textContent = '';
-            
-            if (value && inputConfig) {
-                if (numValue < inputConfig.min) {
-                    input.classList.add('validation-error');
-                    errorDiv.textContent = `Min: ${inputConfig.min}`;
-                    return false;
-                }
-                if (inputConfig.max && numValue > inputConfig.max) {
-                    input.classList.add('validation-error');
-                    errorDiv.textContent = `Max: ${inputConfig.max}`;
-                    return false;
-                }
-            }
-            
-            return true;
-        }
-
-        // Geometrie berechnen und aktualisieren
-        function updateGeometry() {
-            if (isUpdating) return;
-            isUpdating = true;
-            
-            console.log('🔄 updateGeometry gestartet');
-            console.log('  - currentShapeType:', currentShapeType);
-            console.log('  - currentValues vor Berechnung:', currentValues);
-            
-            const shape = SmartGeometry.shapes[currentShapeType];
-            
-            if (!shape) {
-                console.error('❌ Shape nicht gefunden:', currentShapeType);
-                isUpdating = false;
-                return;
-            }
-            
-            // Werte berechnen
-            if (shape.calculate) {
-                const oldValues = {...currentValues};
-                currentValues = shape.calculate({ ...currentValues });
-                console.log('  - currentValues nach Berechnung:', currentValues);
-                console.log('  - Änderungen:', JSON.stringify(oldValues) !== JSON.stringify(currentValues));
-            }
-            
-            // Validierung
-            const isValid = !shape.validate || shape.validate(currentValues);
-            console.log('  - Validierung:', isValid ? '✓ gültig' : '❌ ungültig');
-            
-            if (!isValid) {
-                console.warn('⚠️ Ungültige Geometrie-Konfiguration');
-            }
-            
-            // Berechnete Felder aktualisieren
-            shape.inputs.forEach(input => {
-                if (input.calculated && currentValues[input.id] !== undefined) {
-                    const field = document.getElementById(`dim-${input.id}`);
-                    if (field) {
-                        field.value = currentValues[input.id].toFixed(2);
-                        console.log(`  - Feld ${input.id} aktualisiert: ${currentValues[input.id].toFixed(2)}`);
-                    } else {
-                        console.warn(`  - Feld dim-${input.id} nicht gefunden`);
-                    }
-                }
-            });
-            
-            // Punkte generieren
-            if (shape.generatePoints) {
-                const oldPoints = [...currentPoints];
-                currentPoints = shape.generatePoints(currentValues);
-                console.log('  - Punkte generiert:', currentPoints);
-                console.log('  - Punkte geändert:', JSON.stringify(oldPoints) !== JSON.stringify(currentPoints));
-                
-                if (originalPoints.length === 0) {
-                    originalPoints = [...currentPoints];
-                    console.log('  - Original-Punkte gesetzt:', originalPoints);
-                }
-            } else {
-                console.warn('  - generatePoints Funktion fehlt');
-            }
-            
-            // Form zeichnen
-            updateShape();
-            
-            // Info-Panel aktualisieren
-            updateInfoPanel();
-            
-            isUpdating = false;
-            console.log('✅ updateGeometry beendet');
-        }
-
-        // Form zeichnen
-        function updateShape() {
-            console.log('🎨 updateShape gestartet');
-            console.log('  - currentPoints:', currentPoints);
-            
-            const roofGroup = document.getElementById('roof-shape');
-            const dimensionsGroup = document.getElementById('dimensions');
-            
-            if (!roofGroup || !dimensionsGroup) {
-                console.error('❌ SVG Gruppen nicht gefunden:', {roofGroup, dimensionsGroup});
-                return;
-            }
-            
-            roofGroup.innerHTML = '';
-            dimensionsGroup.innerHTML = '';
-            
-            if (currentPoints.length === 0) {
-                console.warn('⚠️ Keine Punkte zum Zeichnen');
-                return;
-            }
-            
-            console.log('  - Zeichne Form mit', currentPoints.length, 'Punkten');
-            
-            // Bounding Box und Skalierung
-            const bounds = getBounds(currentPoints);
-            console.log('  - Bounds:', bounds);
-            
-            const scale = Math.min(250 / Math.max(bounds.width, 1), 200 / Math.max(bounds.height, 1));
-            const centerX = 400;
-            const centerY = 300;
-            
-            console.log('  - Scale:', scale, 'Center:', centerX, centerY);
-            
-            // Polygon zeichnen
-            const svgPoints = currentPoints.map(p => {
-                const x = centerX + (p.x - (bounds.minX + bounds.maxX) / 2) * scale;
-                const y = centerY - (p.y - (bounds.minY + bounds.maxY) / 2) * scale;
-                return `${x},${y}`;
-            }).join(' ');
-            
-            console.log('  - SVG Points:', svgPoints);
-            
-            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            polygon.setAttribute('points', svgPoints);
-            polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-            polygon.setAttribute('stroke', '#007bff');
-            polygon.setAttribute('stroke-width', '2');
-            roofGroup.appendChild(polygon);
-            
-            console.log('  - Polygon erstellt und hinzugefügt');
-            
-            // Eckpunkte markieren
-            currentPoints.forEach((point, index) => {
-                const x = centerX + (point.x - (bounds.minX + bounds.maxX) / 2) * scale;
-                const y = centerY - (point.y - (bounds.minY + bounds.maxY) / 2) * scale;
-                
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', x);
-                circle.setAttribute('cy', y);
-                circle.setAttribute('r', '4');
-                circle.setAttribute('fill', '#dc3545');
-                circle.setAttribute('stroke', 'white');
-                circle.setAttribute('stroke-width', '2');
-                roofGroup.appendChild(circle);
-                
-                // Punktnummer
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', x);
-                text.setAttribute('y', y - 8);
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('font-size', '12');
-                text.setAttribute('font-weight', 'bold');
-                text.setAttribute('fill', '#2c3e50');
-                text.textContent = index + 1;
-                roofGroup.appendChild(text);
-            });
-            
-            console.log('  - Eckpunkte gezeichnet');
-            
-            // Kantenlängen anzeigen
-            drawEdgeLabels(currentPoints, scale, centerX, centerY, bounds);
-            
-            console.log('✅ updateShape beendet');
-        }
-
-        function drawEdgeLabels(points, scale, centerX, centerY, bounds) {
-            const dimensionsGroup = document.getElementById('dimensions');
-            
-            for (let i = 0; i < points.length; i++) {
-                const p1 = points[i];
-                const p2 = points[(i + 1) % points.length];
-                
-                const x1 = centerX + (p1.x - (bounds.minX + bounds.maxX) / 2) * scale;
-                const y1 = centerY - (p1.y - (bounds.minY + bounds.maxY) / 2) * scale;
-                const x2 = centerX + (p2.x - (bounds.minX + bounds.maxX) / 2) * scale;
-                const y2 = centerY - (p2.y - (bounds.minY + bounds.maxY) / 2) * scale;
-                
-                const midX = (x1 + x2) / 2;
-                const midY = (y1 + y2) / 2;
-                
-                // Kantenlänge berechnen
-                const dx = p2.x - p1.x;
-                const dy = p2.y - p1.y;
-                const length = Math.sqrt(dx * dx + dy * dy);
-                
-                // Hintergrund für bessere Lesbarkeit
-                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('x', midX - 25);
-                rect.setAttribute('y', midY - 10);
-                rect.setAttribute('width', 50);
-                rect.setAttribute('height', 20);
-                rect.setAttribute('fill', 'rgba(255, 255, 255, 0.9)');
-                rect.setAttribute('stroke', '#28a745');
-                rect.setAttribute('stroke-width', '1');
-                rect.setAttribute('rx', '3');
-                rect.setAttribute('pointer-events', 'none');
-                
-                // Label für Kantenlänge
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', midX);
-                text.setAttribute('y', midY + 4);
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('font-size', '11');
-                text.setAttribute('font-weight', 'bold');
-                text.setAttribute('fill', '#28a745');
-                text.setAttribute('pointer-events', 'none');
-                text.textContent = length.toFixed(2) + 'm';
-                
-                dimensionsGroup.appendChild(rect);
-                dimensionsGroup.appendChild(text);
-            }
-        }
-
-        function getBounds(points) {
-            if (points.length === 0) return { minX: 0, maxX: 10, minY: 0, maxY: 8, width: 10, height: 8 };
-            
-            const xs = points.map(p => p.x);
-            const ys = points.map(p => p.y);
-            
-            const minX = Math.min(...xs);
-            const maxX = Math.max(...xs);
-            const minY = Math.min(...ys);
-            const maxY = Math.max(...ys);
-            
-            return {
-                minX, maxX, minY, maxY,
-                width: maxX - minX,
-                height: maxY - minY
-            };
-        }
-
-        // Info-Panel aktualisieren
-        function updateInfoPanel() {
-            const area = SmartGeometry.calculateArea(currentPoints);
-            const perimeter = SmartGeometry.calculatePerimeter(currentPoints);
-            
-            document.getElementById('calc-area').textContent = area.toFixed(2) + ' m²';
-            document.getElementById('calc-perimeter').textContent = perimeter.toFixed(2) + ' m';
-            
-            // Diagonale anzeigen für Rechtecke
-            if (currentShapeType === 'rechteck' && currentValues.diagonal) {
-                document.getElementById('diagonal-row').style.display = 'block';
-                document.getElementById('calc-diagonal').textContent = currentValues.diagonal.toFixed(2) + ' m';
-            } else {
-                document.getElementById('diagonal-row').style.display = 'none';
-            }
-            
-            // Winkel anzeigen für entsprechende Formen
-            if (currentShapeType === 'dreieck' && currentValues.angle1) {
-                document.getElementById('angles-row').style.display = 'block';
-                document.getElementById('calc-angles').textContent = 
-                    `${currentValues.angle1.toFixed(1)}°, ${currentValues.angle2.toFixed(1)}°, ${currentValues.angle3.toFixed(1)}°`;
-            } else if (currentShapeType === 'parallelogramm' && currentValues.angle) {
-                document.getElementById('angles-row').style.display = 'block';
-                document.getElementById('calc-angles').textContent = `${currentValues.angle}°`;
-            } else {
-                document.getElementById('angles-row').style.display = 'none';
-            }
-        }
-
-        // Transformationsfunktionen
-        function mirrorHorizontal() {
-            currentPoints = currentPoints.map(p => ({ x: -p.x, y: p.y }));
-            updateShape();
-            updateInfoPanel();
-        }
-
-        function mirrorVertical() {
-            currentPoints = currentPoints.map(p => ({ x: p.x, y: -p.y }));
-            updateShape();
-            updateInfoPanel();
-        }
-
-        function rotateLeft() {
-            rotatePoints(45); // Rechts drehen (im Uhrzeigersinn)
-        }
-
-        function rotateRight() {
-            rotatePoints(-45); // Links drehen (gegen Uhrzeigersinn)
-        }
-
-        function rotatePoints(degrees) {
-            const rad = degrees * Math.PI / 180;
-            const cos = Math.cos(rad);
-            const sin = Math.sin(rad);
-            
-            // Zentrum der Form berechnen
-            const bounds = getBounds(currentPoints);
-            const centerX = (bounds.minX + bounds.maxX) / 2;
-            const centerY = (bounds.minY + bounds.maxY) / 2;
-            
-            currentPoints = currentPoints.map(p => {
-                // Punkt zum Ursprung verschieben
-                const x = p.x - centerX;
-                const y = p.y - centerY;
-                
-                // Rotation anwenden
-                const newX = x * cos - y * sin;
-                const newY = x * sin + y * cos;
-                
-                // Zurück verschieben
-                return {
-                    x: newX + centerX,
-                    y: newY + centerY
-                };
-            });
-            
-            updateShape();
-            updateInfoPanel();
-        }
-
-        function resetShape() {
-            currentPoints = [...originalPoints];
-            updateShape();
-            updateInfoPanel();
-        }
-
-        // Orientierungs-Funktionen
-        function setTraufeDirection() {
-            orientationMode = 'traufe';
-            selectedEdge = null;
-            
-            // Button-Status aktualisieren
-            document.getElementById('traufe-btn').style.backgroundColor = '#28a745';
-            document.getElementById('traufe-btn').style.color = 'white';
-            document.getElementById('water-btn').style.backgroundColor = '';
-            document.getElementById('water-btn').style.color = '';
-            
-            highlightEdgesForSelection();
-            alert('Klicken Sie jetzt auf die Kante, die als TRAUFE (Dachrinne) dienen soll.');
-        }
-
-        function setWaterDirection() {
-            orientationMode = 'water';
-            selectedEdge = null;
-            
-            // Button-Status aktualisieren
-            document.getElementById('water-btn').style.backgroundColor = '#17a2b8';
-            document.getElementById('water-btn').style.color = 'white';
-            document.getElementById('traufe-btn').style.backgroundColor = '';
-            document.getElementById('traufe-btn').style.color = '';
-            
-            highlightEdgesForSelection();
-            alert('Klicken Sie jetzt auf die Kante, in deren Richtung das WASSER fließen soll.');
-        }
-
-        function highlightEdgesForSelection() {
-            const highlightGroup = document.getElementById('edge-highlights');
-            highlightGroup.innerHTML = '';
-            
-            if (!orientationMode) return;
-            
-            const bounds = getBounds(currentPoints);
-            const scale = Math.min(250 / Math.max(bounds.width, 1), 200 / Math.max(bounds.height, 1));
-            const centerX = 400;
-            const centerY = 300;
-            
-            // Alle Kanten hervorheben
-            for (let i = 0; i < currentPoints.length; i++) {
-                const p1 = currentPoints[i];
-                const p2 = currentPoints[(i + 1) % currentPoints.length];
-                
-                const x1 = centerX + (p1.x - (bounds.minX + bounds.maxX) / 2) * scale;
-                const y1 = centerY - (p1.y - (bounds.minY + bounds.maxY) / 2) * scale;
-                const x2 = centerX + (p2.x - (bounds.minX + bounds.maxX) / 2) * scale;
-                const y2 = centerY - (p2.y - (bounds.minY + bounds.maxY) / 2) * scale;
-                
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', x1);
-                line.setAttribute('y1', y1);
-                line.setAttribute('x2', x2);
-                line.setAttribute('y2', y2);
-                line.setAttribute('stroke', orientationMode === 'traufe' ? '#28a745' : '#17a2b8');
-                line.setAttribute('stroke-width', '6');
-                line.setAttribute('opacity', '0.7');
-                line.setAttribute('data-edge-index', i);
-                line.style.cursor = 'pointer';
-                
-                highlightGroup.appendChild(line);
-            }
-        }
-
-        function handleSVGClick(event) {
-            if (!orientationMode) return;
-            
-            const clickedElement = event.target;
-            const edgeIndex = clickedElement.getAttribute('data-edge-index');
-            
-            if (edgeIndex !== null) {
-                selectedEdge = parseInt(edgeIndex);
-                
-                // Orientierung setzen
-                if (orientationMode === 'traufe') {
-                    projectData.orientation = { ...projectData.orientation, traufeEdge: selectedEdge };
-                    alert(`Traufe festgelegt: Kante ${selectedEdge + 1}`);
-                } else if (orientationMode === 'water') {
-                    projectData.orientation = { ...projectData.orientation, waterDirection: selectedEdge };
-                    alert(`Wasserlaufrichtung festgelegt: Richtung Kante ${selectedEdge + 1}`);
-                }
-                
-                // Modus beenden
-                orientationMode = null;
-                updateOrientationLabels();
-                clearEdgeHighlights();
-                resetButtonStyles();
-            }
-        }
-
-        function clearEdgeHighlights() {
-            const highlightGroup = document.getElementById('edge-highlights');
-            highlightGroup.innerHTML = '';
-        }
-
-        function resetButtonStyles() {
-            document.getElementById('traufe-btn').style.backgroundColor = '';
-            document.getElementById('traufe-btn').style.color = '';
-            document.getElementById('water-btn').style.backgroundColor = '';
-            document.getElementById('water-btn').style.color = '';
-        }
-
-        function updateOrientationLabels() {
-            // Hier könnten die Wasserlauf-Pfeile und Traufe-Labels aktualisiert werden
-            const orientation = projectData.orientation || {};
-            console.log('Orientierung aktualisiert:', orientation);
-        }
-            // Aktualisierte Punkte in Projektdaten speichern
-            projectData.roofShape = {
-                ...projectData.roofShape,
-                points: currentPoints,
-                editorValues: currentValues,
-                shapeType: currentShapeType
-            };
-            
-            saveData();
-            alert('Dachform gespeichert! Weiter zur Berechnung...');
-            // In einer echten Anwendung: window.location.href = 'berechnung.html';
-        }
-
-        function goBack() {
-            alert('Zurück zur Dachform-Auswahl...');
-            // In einer echten Anwendung: window.location.href = 'dachform.html';
-        }
-
-        // Initialisierung
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 DOM Content Loaded - Editor wird initialisiert');
-            
-            projectData = loadData();
-            console.log('📦 Projektdaten geladen:', projectData);
-            
-            // Debug: Alle wichtigen Elemente prüfen
-            const elements = {
-                'geometry-inputs': document.getElementById('geometry-inputs'),
-                'current-shape-name': document.getElementById('current-shape-name'),
-                'shape-title': document.getElementById('shape-title'),
-                'main-svg': document.getElementById('main-svg')
-            };
-            
-            console.log('🔍 Element-Check:');
-            Object.entries(elements).forEach(([name, el]) => {
-                console.log(`  ${name}: ${el ? '✓ gefunden' : '❌ FEHLT'}`);
-            });
-            
-            initializeShapeType();
-            
-            console.log('✅ Editor-Initialisierung abgeschlossen');
-            console.log('📊 Finaler Zustand:');
-            console.log('  - currentShapeType:', currentShapeType);
-            console.log('  - currentValues:', currentValues);
-            console.log('  - currentPoints:', currentPoints);
-        });
-    </script>
-</body>
-</html>
