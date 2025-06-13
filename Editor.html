@@ -1337,13 +1337,13 @@
             // Bestimme Zielposition
             let targetY;
             if (orientationMode === 'first') {
-                // Seite nach OBEN (zur obersten Position der Form)
-                targetY = maxY;
-                console.log('First-Modus: Verschiebe Seite zur obersten Position', targetY);
-            } else {
-                // Seite nach UNTEN (zur untersten Position der Form)
+                // Seite nach OBEN (First) - zur UNTERSTEN Y-Position (da Y nach unten wächst)
                 targetY = minY;
-                console.log('Traufe-Modus: Verschiebe Seite zur untersten Position', targetY);
+                console.log('First-Modus: Verschiebe Seite nach OBEN zur Position', targetY);
+            } else {
+                // Seite nach UNTEN (Traufe) - zur OBERSTEN Y-Position (da Y nach unten wächst)
+                targetY = maxY;
+                console.log('Traufe-Modus: Verschiebe Seite nach UNTEN zur Position', targetY);
             }
             
             // Verschiebe alle Punkte so dass die gewählte Seite an der Zielposition liegt
