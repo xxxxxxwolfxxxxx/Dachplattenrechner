@@ -924,6 +924,8 @@
             } else {
                 roofOrientationTools.style.display = 'none';
             }
+            
+            console.log('Eingabefelder generiert für', currentShapeType, '- berechnete Felder:', shape.inputs.filter(i => i.calculated).map(i => i.id));
         }
 
         // Wert aktualisieren
@@ -1210,9 +1212,11 @@
         }
 
         function rotateLeft() {
-            // 45° nach links drehen
-            console.log('Rotiere 45° nach links');
-            const angle = -Math.PI / 4; // -45 Grad in Radiant
+            // 45° nach links drehen (mathematisch positiv = gegen Uhrzeigersinn)
+            console.log('=== ROTATION 45° LINKS ===');
+            const angle = Math.PI / 4; // +45 Grad = gegen Uhrzeigersinn
+            console.log('Winkel:', angle, 'Radiant =', angle * 180 / Math.PI, 'Grad');
+            
             const cos_a = Math.cos(angle);
             const sin_a = Math.sin(angle);
             
@@ -1221,8 +1225,8 @@
             const centerX = (bounds.minX + bounds.maxX) / 2;
             const centerY = (bounds.minY + bounds.maxY) / 2;
             
-            console.log('Rotiere um Mittelpunkt:', centerX, centerY);
-            console.log('Vorher:', [...currentPoints]);
+            console.log('Zentrum:', centerX, centerY);
+            console.log('Punkte vorher:', JSON.stringify(currentPoints));
             
             currentPoints = currentPoints.map(p => {
                 const dx = p.x - centerX;
@@ -1233,18 +1237,19 @@
                 };
             });
             
-            console.log('Nachher:', [...currentPoints]);
+            console.log('Punkte nachher:', JSON.stringify(currentPoints));
             
-            // NUR Darstellung aktualisieren, KEINE Geometrie-Neuberechnung
+            // NUR Darstellung aktualisieren
             updateShape();
             updateInfoPanel();
-            // updateValuesFromCurrentPoints(); // Das könnte problematisch sein
         }
 
         function rotateRight() {
-            // 45° nach rechts drehen
-            console.log('Rotiere 45° nach rechts');
-            const angle = Math.PI / 4; // 45 Grad in Radiant
+            // 45° nach rechts drehen (mathematisch negativ = im Uhrzeigersinn)
+            console.log('=== ROTATION 45° RECHTS ===');
+            const angle = -Math.PI / 4; // -45 Grad = im Uhrzeigersinn
+            console.log('Winkel:', angle, 'Radiant =', angle * 180 / Math.PI, 'Grad');
+            
             const cos_a = Math.cos(angle);
             const sin_a = Math.sin(angle);
             
@@ -1253,8 +1258,8 @@
             const centerX = (bounds.minX + bounds.maxX) / 2;
             const centerY = (bounds.minY + bounds.maxY) / 2;
             
-            console.log('Rotiere um Mittelpunkt:', centerX, centerY);
-            console.log('Vorher:', [...currentPoints]);
+            console.log('Zentrum:', centerX, centerY);
+            console.log('Punkte vorher:', JSON.stringify(currentPoints));
             
             currentPoints = currentPoints.map(p => {
                 const dx = p.x - centerX;
@@ -1265,12 +1270,11 @@
                 };
             });
             
-            console.log('Nachher:', [...currentPoints]);
+            console.log('Punkte nachher:', JSON.stringify(currentPoints));
             
-            // NUR Darstellung aktualisieren, KEINE Geometrie-Neuberechnung
+            // NUR Darstellung aktualisieren
             updateShape();
             updateInfoPanel();
-            // updateValuesFromCurrentPoints(); // Das könnte problematisch sein
         }
 
         // Hilfsfunktion: Werte aus Punkten ableiten (für Dreiecke)
