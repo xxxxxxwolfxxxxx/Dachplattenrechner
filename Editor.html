@@ -17,30 +17,9 @@
             min-height: 500px;
         }
 
-        .editor-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .editor-info {
-            display: flex;
-            gap: 15px;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .separator {
-            color: #ccc;
-        }
-
         .canvas-wrapper {
             border: 2px solid #e9ecef;
             border-radius: 6px;
-            overflow: hidden;
             background: white;
             position: relative;
         }
@@ -124,11 +103,6 @@
             border-bottom: 1px solid #e9ecef;
         }
 
-        .tool-group:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
         .tool-group h4 {
             margin-bottom: 10px;
             color: #2c3e50;
@@ -145,29 +119,6 @@
             padding: 8px 12px;
             font-size: 13px;
             text-align: left;
-        }
-
-        .property-group {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .property-group:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .property-group h4 {
-            margin-bottom: 10px;
-            color: #2c3e50;
-            font-size: 14px;
-        }
-
-        .property-group p {
-            margin: 5px 0;
-            font-size: 13px;
-            color: #666;
         }
 
         .dimension-input {
@@ -192,42 +143,14 @@
             font-size: 14px;
         }
 
-        .dimension-input input:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
         .dimension-input span {
             color: #666;
             font-size: 14px;
         }
 
-        .pythagoras-info {
-            background: #e7f3ff;
-            padding: 10px;
-            border-radius: 6px;
-            border-left: 4px solid #17a2b8;
-            margin-top: 10px;
-        }
-
         @media (max-width: 768px) {
             .editor-container {
                 grid-template-columns: 1fr;
-            }
-            
-            .editor-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-            .orientation-labels {
-                font-size: 12px;
-            }
-
-            .label-top, .label-bottom {
-                padding: 3px 10px;
-                font-size: 12px;
             }
         }
     </style>
@@ -273,10 +196,10 @@
                         <div class="tool-group">
                             <h4>Spiegeln</h4>
                             <div class="button-group">
-                                <button class="btn btn-secondary" onclick="mirrorHorizontal()" title="Horizontal spiegeln">
+                                <button class="btn btn-secondary" onclick="mirrorHorizontal()">
                                     ⟷ Horizontal
                                 </button>
-                                <button class="btn btn-secondary" onclick="mirrorVertical()" title="Vertikal spiegeln">
+                                <button class="btn btn-secondary" onclick="mirrorVertical()">
                                     ↕ Vertikal
                                 </button>
                             </div>
@@ -285,10 +208,10 @@
                         <div class="tool-group">
                             <h4>Drehen</h4>
                             <div class="button-group">
-                                <button class="btn btn-secondary" onclick="rotateLeft()" title="45° links drehen">
+                                <button class="btn btn-secondary" onclick="rotateLeft()">
                                     ↺ 45° Links
                                 </button>
-                                <button class="btn btn-secondary" onclick="rotateRight()" title="45° rechts drehen">
+                                <button class="btn btn-secondary" onclick="rotateRight()">
                                     ↻ 45° Rechts
                                 </button>
                             </div>
@@ -296,7 +219,7 @@
 
                         <div class="tool-group">
                             <h4>Zurücksetzen</h4>
-                            <button class="btn btn-warning" onclick="resetShape()" title="Zur ursprünglichen Form zurück">
+                            <button class="btn btn-warning" onclick="resetShape()">
                                 🔄 Zurücksetzen
                             </button>
                         </div>
@@ -304,14 +227,7 @@
 
                     <!-- Hauptzeichnung -->
                     <div class="card editor-main">
-                        <div class="editor-header">
-                            <h3>Dachform: <span id="shape-title">Wird geladen...</span></h3>
-                            <div class="editor-info">
-                                <span>Fläche: <span id="area-display">0 m²</span></span>
-                                <span class="separator">|</span>
-                                <span>Umfang: <span id="perimeter-display">0 m</span></span>
-                            </div>
-                        </div>
+                        <h3>Dachform: <span id="shape-title">Wird geladen...</span></h3>
                         
                         <div class="canvas-wrapper">
                             <div class="orientation-labels">
@@ -328,7 +244,6 @@
                             </div>
                             
                             <svg id="main-svg" width="800" height="600" viewBox="0 0 800 600">
-                                <!-- Raster -->
                                 <defs>
                                     <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
                                         <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
@@ -336,76 +251,34 @@
                                 </defs>
                                 <rect width="100%" height="100%" fill="url(#grid)" />
                                 
-                                <!-- Koordinatenachsen -->
                                 <line x1="400" y1="0" x2="400" y2="600" stroke="#c0c0c0" stroke-width="2"/>
                                 <line x1="0" y1="300" x2="800" y2="300" stroke="#c0c0c0" stroke-width="2"/>
                                 
-                                <!-- Dachform wird hier gezeichnet -->
-                                <g id="roof-shape">
-                                    <!-- Form wird hier eingefügt -->
-                                </g>
-                                
-                                <!-- Bemaßung wird hier eingefügt -->
-                                <g id="dimensions">
-                                    <!-- Maße mit Buchstaben -->
-                                </g>
+                                <g id="roof-shape"></g>
+                                <g id="dimensions"></g>
                             </svg>
                         </div>
                     </div>
 
-                    <!-- Maße bearbeiten -->
+                    <!-- Einfache Maße -->
                     <div class="card shape-properties">
                         <h3>Maße bearbeiten</h3>
                         
-                        <div class="property-group">
-                            <h4>Maße bearbeiten</h4>
-                            <div class="dimension-input">
-                                <label for="dim-a">A - Länge:</label>
-                                <input type="number" id="dim-a" class="form-control" step="0.1" min="0.1" onchange="updateDimension('a')" oninput="calculateMissingValues()">
-                                <span>m</span>
-                            </div>
-                            <div class="dimension-input">
-                                <label for="dim-b">B - Breite:</label>
-                                <input type="number" id="dim-b" class="form-control" step="0.1" min="0.1" onchange="updateDimension('b')" oninput="calculateMissingValues()">
-                                <span>m</span>
-                            </div>
-                            <div class="dimension-input" id="dim-c-group" style="display: none;">
-                                <label for="dim-c">C - Höhe:</label>
-                                <input type="number" id="dim-c" class="form-control" step="0.1" min="0.1" onchange="updateDimension('c')" oninput="calculateMissingValues()">
-                                <span>m</span>
-                            </div>
-                            <div class="dimension-input" id="dim-d-group" style="display: none;">
-                                <label for="dim-d">D - Seite:</label>
-                                <input type="number" id="dim-d" class="form-control" step="0.1" min="0.1" onchange="updateDimension('d')" oninput="calculateMissingValues()">
-                                <span>m</span>
-                            </div>
-                            <div class="dimension-input" id="dim-e-group" style="display: none;">
-                                <label for="dim-e">E - Seite:</label>
-                                <input type="number" id="dim-e" class="form-control" step="0.1" min="0.1" onchange="updateDimension('e')" oninput="calculateMissingValues()">
-                                <span>m</span>
-                            </div>
-                            <div class="dimension-input" id="dim-f-group" style="display: none;">
-                                <label for="dim-f">F - Seite:</label>
-                                <input type="number" id="dim-f" class="form-control" step="0.1" min="0.1" onchange="updateDimension('f')" oninput="calculateMissingValues()">
-                                <span>m</span>
-                            </div>
-                            
-                            <div class="pythagoras-info" id="pythagoras-info" style="display: none;">
-                                <small class="text-info">💡 Fehlende Werte werden automatisch nach dem Satz des Pythagoras berechnet</small>
-                            </div>
+                        <div class="dimension-input">
+                            <label for="dim-a">A - Länge:</label>
+                            <input type="number" id="dim-a" step="0.1" min="0.1" onchange="updateDimension()">
+                            <span>m</span>
+                        </div>
+                        <div class="dimension-input">
+                            <label for="dim-b">B - Breite:</label>
+                            <input type="number" id="dim-b" step="0.1" min="0.1" onchange="updateDimension()">
+                            <span>m</span>
                         </div>
 
-                        <div class="property-group">
+                        <div class="tool-group">
                             <h4>Form-Info</h4>
                             <p><strong>Typ:</strong> <span id="shape-type">-</span></p>
-                            <p><strong>Variante:</strong> <span id="shape-variant">-</span></p>
                             <p><strong>Fläche:</strong> <span id="shape-area">0 m²</span></p>
-                        </div>
-
-                        <div class="property-group">
-                            <h4>Transformationen</h4>
-                            <p><strong>Drehung:</strong> <span id="rotation-display">0°</span></p>
-                            <p><strong>Gespiegelt:</strong> <span id="mirror-display">Nein</span></p>
                         </div>
                     </div>
                 </div>
@@ -427,17 +300,10 @@
     </div>
 
     <script>
-        // Globale Variablen
         var projectData = {};
         var currentPoints = [];
         var originalPoints = [];
-        var currentRotation = 0;
-        var isHorizontalMirrored = false;
-        var isVerticalMirrored = false;
-        var currentDimensions = { a: 10, b: 8, c: 5, d: 3, e: 4, f: 6 };
-        var isCalculating = false;
 
-        // Storage-Funktionen
         function saveData() {
             try {
                 localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
@@ -457,65 +323,23 @@
             }
         }
 
-        // Geometrie-Berechnungen
-        function calculateArea(points) {
-            if (points.length < 3) return 0;
-            var area = 0;
-            for (var i = 0; i < points.length; i++) {
-                var j = (i + 1) % points.length;
-                area += points[i].x * points[j].y - points[j].x * points[i].y;
-            }
-            return Math.abs(area) / 2;
-        }
-
-        function calculatePerimeter(points) {
-            if (points.length < 2) return 0;
-            var perimeter = 0;
-            for (var i = 0; i < points.length; i++) {
-                var j = (i + 1) % points.length;
-                var dx = points[j].x - points[i].x;
-                var dy = points[j].y - points[i].y;
-                perimeter += Math.sqrt(dx * dx + dy * dy);
-            }
-            return perimeter;
-        }
-
-        function getBounds(points) {
-            if (points.length === 0) return { minX: 0, maxX: 0, minY: 0, maxY: 0, width: 0, height: 0 };
-            
-            var minX = Math.min.apply(Math, points.map(p => p.x));
-            var maxX = Math.max.apply(Math, points.map(p => p.x));
-            var minY = Math.min.apply(Math, points.map(p => p.y));
-            var maxY = Math.max.apply(Math, points.map(p => p.y));
-            
-            return {
-                minX: minX, maxX: maxX, minY: minY, maxY: maxY,
-                width: maxX - minX, height: maxY - minY
-            };
-        }
-
-        // Transformationen
         function mirrorHorizontal() {
             currentPoints = currentPoints.map(p => ({ x: -p.x, y: p.y }));
-            isHorizontalMirrored = !isHorizontalMirrored;
             updateShape();
         }
 
         function mirrorVertical() {
             currentPoints = currentPoints.map(p => ({ x: p.x, y: -p.y }));
-            isVerticalMirrored = !isVerticalMirrored;
             updateShape();
         }
 
         function rotateLeft() {
             rotatePoints(-45);
-            currentRotation = (currentRotation - 45 + 360) % 360;
             updateShape();
         }
 
         function rotateRight() {
             rotatePoints(45);
-            currentRotation = (currentRotation + 45) % 360;
             updateShape();
         }
 
@@ -532,34 +356,18 @@
 
         function resetShape() {
             currentPoints = JSON.parse(JSON.stringify(originalPoints));
-            currentRotation = 0;
-            isHorizontalMirrored = false;
-            isVerticalMirrored = false;
             updateShape();
         }
 
-        // Darstellung
         function updateShape() {
-            drawShape();
-            drawDimensions();
-            updateStats();
-            updatePropertyDisplay();
-        }
-
-        function drawShape() {
             var roofGroup = document.getElementById('roof-shape');
             roofGroup.innerHTML = '';
             
             if (currentPoints.length === 0) return;
             
-            var bounds = getBounds(currentPoints);
-            var scale = Math.min(300 / Math.max(bounds.width, 1), 250 / Math.max(bounds.height, 1));
-            var centerX = 400;
-            var centerY = 300;
-            
             var svgPoints = currentPoints.map(p => {
-                var x = centerX + (p.x - (bounds.minX + bounds.maxX) / 2) * scale;
-                var y = centerY - (p.y - (bounds.minY + bounds.maxY) / 2) * scale;
+                var x = 400 + p.x * 30;
+                var y = 300 - p.y * 30;
                 return x + ',' + y;
             }).join(' ');
             
@@ -570,138 +378,68 @@
             polygon.setAttribute('stroke-width', '3');
             roofGroup.appendChild(polygon);
             
-            currentPoints.forEach((point, index) => {
-                var x = centerX + (point.x - (bounds.minX + bounds.maxX) / 2) * scale;
-                var y = centerY - (point.y - (bounds.minY + bounds.maxY) / 2) * scale;
-                
-                var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', x);
-                circle.setAttribute('cy', y);
-                circle.setAttribute('r', '6');
-                circle.setAttribute('fill', '#dc3545');
-                circle.setAttribute('stroke', '#fff');
-                circle.setAttribute('stroke-width', '2');
-                roofGroup.appendChild(circle);
-                
-                var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', x);
-                text.setAttribute('y', y + 4);
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', '11');
-                text.setAttribute('font-weight', 'bold');
-                text.textContent = index + 1;
-                roofGroup.appendChild(text);
-            });
+            var area = calculateArea(currentPoints);
+            document.getElementById('shape-area').textContent = area.toFixed(2) + ' m²';
         }
 
-        function drawDimensions() {
-            var dimensionsGroup = document.getElementById('dimensions');
-            dimensionsGroup.innerHTML = '';
-            
-            if (currentPoints.length === 0) return;
-            
-            var bounds = getBounds(currentPoints);
-            var scale = Math.min(300 / Math.max(bounds.width, 1), 250 / Math.max(bounds.height, 1));
-            var centerX = 400;
-            var centerY = 300;
-            
-            var shapeType = projectData.roofShape.baseShape;
-            
-            if (shapeType === 'viereck') {
-                drawRectangleDimensions(dimensionsGroup, bounds, scale, centerX, centerY);
-            } else if (shapeType === 'dreieck') {
-                drawTriangleDimensions(dimensionsGroup, bounds, scale, centerX, centerY);
-            } else if (shapeType === 'kreis') {
-                drawCircleDimensions(dimensionsGroup, bounds, scale, centerX, centerY);
-            } else if (shapeType === 'vieleck') {
-                drawPolygonDimensions(dimensionsGroup, bounds, scale, centerX, centerY);
+        function calculateArea(points) {
+            if (points.length < 3) return 0;
+            var area = 0;
+            for (var i = 0; i < points.length; i++) {
+                var j = (i + 1) % points.length;
+                area += points[i].x * points[j].y - points[j].x * points[i].y;
             }
+            return Math.abs(area) / 2;
         }
 
-        function drawRectangleDimensions(group, bounds, scale, centerX, centerY) {
-            var width = bounds.width * scale;
-            var height = bounds.height * scale;
-            var x = centerX - width / 2;
-            var y = centerY - height / 2;
-            
-            drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
-            drawDimensionLine(group, x + width + 30, y, x + width + 30, y + height, 'B', currentDimensions.b.toFixed(1) + 'm');
+        function updateDimension() {
+            // Einfache Maß-Anpassung ohne Pythagoras
+            updateShape();
         }
 
-        function drawTriangleDimensions(group, bounds, scale, centerX, centerY) {
-            var width = bounds.width * scale;
-            var height = bounds.height * scale;
-            var x = centerX - width / 2;
-            var y = centerY - height / 2;
+        function saveAndContinue() {
+            projectData.roofShape.points = currentPoints;
+            saveData();
+            window.location.href = 'berechnung.html';
+        }
+
+        function goBack() {
+            window.location.href = 'dachform.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            projectData = loadData();
             
-            var variant = projectData.roofShape.variant;
-            
-            if (variant === 'rechtwinklig') {
-                drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
-                drawDimensionLine(group, x - 30, y, x - 30, y + height, 'B', currentDimensions.b.toFixed(1) + 'm');
-                
-                var hypX = x + width * 0.7;
-                var hypY = y + height * 0.3;
-                var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', hypX);
-                text.setAttribute('y', hypY);
-                text.setAttribute('fill', '#dc3545');
-                text.setAttribute('font-size', '14');
-                text.setAttribute('font-weight', 'bold');
-                text.textContent = 'C: ' + currentDimensions.c.toFixed(1) + 'm';
-                group.appendChild(text);
-                
-            } else if (variant === 'ungleichschenklig') {
-                drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
-                
-                var leftText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                leftText.setAttribute('x', x - 20);
-                leftText.setAttribute('y', y + height * 0.5);
-                leftText.setAttribute('fill', '#dc3545');
-                leftText.setAttribute('font-size', '14');
-                leftText.setAttribute('font-weight', 'bold');
-                leftText.textContent = 'B: ' + currentDimensions.b.toFixed(1) + 'm';
-                group.appendChild(leftText);
-                
-                var rightText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                rightText.setAttribute('x', x + width + 10);
-                rightText.setAttribute('y', y + height * 0.5);
-                rightText.setAttribute('fill', '#dc3545');
-                rightText.setAttribute('font-size', '14');
-                rightText.setAttribute('font-weight', 'bold');
-                rightText.textContent = 'C: ' + currentDimensions.c.toFixed(1) + 'm';
-                group.appendChild(rightText);
-                
-                drawDimensionLine(group, x + width/2 - 15, y, x + width/2 - 15, y + height, 'D', currentDimensions.d.toFixed(1) + 'm');
-                
-            } else {
-                drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
-                drawDimensionLine(group, x + width/2 + 20, y, x + width/2 + 20, y + height, 'B', currentDimensions.b.toFixed(1) + 'm');
+            if (!projectData.roofShape || !projectData.roofShape.points) {
+                alert('Keine Dachform gefunden. Bitte kehren Sie zum vorherigen Schritt zurück.');
+                window.location.href = 'dachform.html';
+                return;
             }
-        }
+            
+            originalPoints = JSON.parse(JSON.stringify(projectData.roofShape.points));
+            currentPoints = JSON.parse(JSON.stringify(originalPoints));
+            
+            document.getElementById('shape-title').textContent = 
+                (projectData.roofShape.variant || projectData.roofShape.baseShape || 'Unbekannte Form');
+            document.getElementById('shape-type').textContent = projectData.roofShape.baseShape || 'Unbekannt';
+            
+            var bounds = getBounds(originalPoints);
+            document.getElementById('dim-a').value = Math.max(bounds.width, 1).toFixed(1);
+            document.getElementById('dim-b').value = Math.max(bounds.height, 1).toFixed(1);
+            
+            updateShape();
+        });
 
-        function drawCircleDimensions(group, bounds, scale, centerX, centerY) {
-            var radius = Math.min(bounds.width, bounds.height) * scale / 2;
+        function getBounds(points) {
+            if (points.length === 0) return { width: 0, height: 0 };
             
-            drawDimensionLine(group, centerX - radius, centerY + radius + 40, centerX + radius, centerY + radius + 40, 'A', (currentDimensions.a * 2).toFixed(1) + 'm');
+            var minX = Math.min.apply(Math, points.map(p => p.x));
+            var maxX = Math.max.apply(Math, points.map(p => p.x));
+            var minY = Math.min.apply(Math, points.map(p => p.y));
+            var maxY = Math.max.apply(Math, points.map(p => p.y));
             
-            var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('x', centerX + radius * 0.7);
-            text.setAttribute('y', centerY - radius * 0.7);
-            text.setAttribute('fill', '#dc3545');
-            text.setAttribute('font-size', '14');
-            text.setAttribute('font-weight', 'bold');
-            text.textContent = 'D: ' + currentDimensions.d.toFixed(1) + 'm';
-            group.appendChild(text);
+            return { width: maxX - minX, height: maxY - minY };
         }
-
-        function drawPolygonDimensions(group, bounds, scale, centerX, centerY) {
-            var width = bounds.width * scale;
-            var height = bounds.height * scale;
-            var x = centerX - width / 2;
-            var y = centerY - height / 2;
-            
-            drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
-            drawDimensionLine(group, x - 30, y, x - 30, y + height, 'B', currentDimensions.b.toFixed(1) + 'm');
-        }
+    </script>
+</body>
+</html>
