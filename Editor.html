@@ -930,8 +930,37 @@
         function updateValue(fieldId, value) {
             if (isUpdating) return;
             
+            console.log('Ändere Wert:', fieldId, '=', value);
             currentValues[fieldId] = parseFloat(value) || 0;
-            updateGeometry();
+            
+            // Erzeuge neue Punkte basierend auf den Eingabewerten
+            const shape = SmartGeometry.shapes[currentShapeType];
+            if (shape && shape.generatePoints) {
+                console.log('Generiere neue Punkte aus Eingabewerten');
+                
+                // Berechne erst die abhängigen Werte
+                if (shape.calculate) {
+                    currentValues = shape.calculate({ ...currentValues });
+                }
+                
+                // Dann erzeuge neue Punkte
+                currentPoints = shape.generatePoints(currentValues);
+                console.log('Neue Punkte:', currentPoints);
+                
+                // Aktualisiere die Darstellung
+                updateShape();
+                updateInfoPanel();
+                
+                // Aktualisiere auch berechnete Felder
+                shape.inputs.forEach(input => {
+                    if (input.calculated && currentValues[input.id] !== undefined) {
+                        const field = document.getElementById(`dim-${input.id}`);
+                        if (field) {
+                            field.value = currentValues[input.id].toFixed(2);
+                        }
+                    }
+                });
+            }
         }
 
         // Eingabe validieren
@@ -1193,7 +1222,7 @@
             const centerY = (bounds.minY + bounds.maxY) / 2;
             
             console.log('Rotiere um Mittelpunkt:', centerX, centerY);
-            console.log('Vorher:', currentPoints);
+            console.log('Vorher:', [...currentPoints]);
             
             currentPoints = currentPoints.map(p => {
                 const dx = p.x - centerX;
@@ -1204,11 +1233,12 @@
                 };
             });
             
-            console.log('Nachher:', currentPoints);
+            console.log('Nachher:', [...currentPoints]);
             
-            updateValuesFromCurrentPoints();
-            updateShape(); // Nur Darstellung, NICHT updateGeometry()
+            // NUR Darstellung aktualisieren, KEINE Geometrie-Neuberechnung
+            updateShape();
             updateInfoPanel();
+            // updateValuesFromCurrentPoints(); // Das könnte problematisch sein
         }
 
         function rotateRight() {
@@ -1224,7 +1254,7 @@
             const centerY = (bounds.minY + bounds.maxY) / 2;
             
             console.log('Rotiere um Mittelpunkt:', centerX, centerY);
-            console.log('Vorher:', currentPoints);
+            console.log('Vorher:', [...currentPoints]);
             
             currentPoints = currentPoints.map(p => {
                 const dx = p.x - centerX;
@@ -1235,11 +1265,12 @@
                 };
             });
             
-            console.log('Nachher:', currentPoints);
+            console.log('Nachher:', [...currentPoints]);
             
-            updateValuesFromCurrentPoints();
-            updateShape(); // Nur Darstellung, NICHT updateGeometry()
+            // NUR Darstellung aktualisieren, KEINE Geometrie-Neuberechnung
+            updateShape();
             updateInfoPanel();
+            // updateValuesFromCurrentPoints(); // Das könnte problematisch sein
         }
 
         // Hilfsfunktion: Werte aus Punkten ableiten (für Dreiecke)
