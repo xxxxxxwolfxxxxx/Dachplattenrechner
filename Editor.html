@@ -62,7 +62,7 @@
 
         .water-flow-left {
             position: absolute;
-            left: -60px;
+            left: -80px;
             top: 50%;
             transform: translateY(-50%);
             display: flex;
@@ -73,7 +73,7 @@
 
         .water-flow-right {
             position: absolute;
-            right: -60px;
+            right: -80px;
             top: 50%;
             transform: translateY(-50%);
             display: flex;
@@ -83,17 +83,25 @@
         }
 
         .flow-arrow {
-            font-size: 48px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 15px;
             font-weight: bold;
+            border: 1px solid #17a2b8;
+            font-size: 24px;
             line-height: 1;
             margin-bottom: 10px;
         }
 
         .flow-text {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            border: 1px solid #17a2b8;
             writing-mode: vertical-rl;
             text-orientation: mixed;
-            font-size: 12px;
-            font-weight: bold;
+            font-size: 11px;
             white-space: nowrap;
         }
 
@@ -265,13 +273,23 @@
                         <h3>Maße bearbeiten</h3>
                         
                         <div class="dimension-input">
-                            <label for="dim-a">A - Länge:</label>
+                            <label for="dim-a">A - Seite 1:</label>
                             <input type="number" id="dim-a" step="0.1" min="0.1" onchange="updateDimension()">
                             <span>m</span>
                         </div>
                         <div class="dimension-input">
-                            <label for="dim-b">B - Breite:</label>
+                            <label for="dim-b">B - Seite 2:</label>
                             <input type="number" id="dim-b" step="0.1" min="0.1" onchange="updateDimension()">
+                            <span>m</span>
+                        </div>
+                        <div class="dimension-input">
+                            <label for="dim-c">C - Seite 3:</label>
+                            <input type="number" id="dim-c" step="0.1" min="0.1" onchange="updateDimension()">
+                            <span>m</span>
+                        </div>
+                        <div class="dimension-input">
+                            <label for="dim-d">D - Seite 4:</label>
+                            <input type="number" id="dim-d" step="0.1" min="0.1" onchange="updateDimension()">
                             <span>m</span>
                         </div>
 
@@ -361,22 +379,98 @@
 
         function updateShape() {
             var roofGroup = document.getElementById('roof-shape');
+            var dimensionsGroup = document.getElementById('dimensions');
             roofGroup.innerHTML = '';
+            dimensionsGroup.innerHTML = '';
             
             if (currentPoints.length === 0) return;
             
+            // Bounding Box berechnen für Zentrierung
+            var bounds = getBounds(currentPoints);
+            var scale = Math.min(250 / Math.max(bounds.width, 1), 200 / Math.max(bounds.height, 1));
+            var centerX = 400;
+            var centerY = 300;
+            
+            // Punkte zentriert skalieren
             var svgPoints = currentPoints.map(p => {
-                var x = 400 + p.x * 30;
-                var y = 300 - p.y * 30;
+                var x = centerX + (p.x - (bounds.minX + bounds.maxX) / 2) * scale;
+                var y = centerY - (p.y - (bounds.minY + bounds.maxY) / 2) * scale;
                 return x + ',' + y;
             }).join(' ');
             
+            // Dachform zeichnen
             var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
             polygon.setAttribute('points', svgPoints);
             polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
             polygon.setAttribute('stroke', '#007bff');
             polygon.setAttribute('stroke-width', '3');
             roofGroup.appendChild(polygon);
+            
+            // Eckpunkte markieren
+            currentPoints.forEach((point, index) => {
+                var x = centerX + (point.x - (bounds.minX + bounds.maxX) / 2) * scale;
+                var y = centerY - (point.y - (bounds.minY + bounds.maxY) / 2) * scale;
+                
+                var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', x);
+                circle.setAttribute('cy', y);
+                circle.setAttribute('r', '6');
+                circle.setAttribute('fill', '#dc3545');
+                circle.setAttribute('stroke', '#fff');
+                circle.setAttribute('stroke-width', '2');
+                roofGroup.appendChild(circle);
+                
+                var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', x);
+                text.setAttribute('y', y + 4);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#fff');
+                text.setAttribute('font-size', '11');
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = index + 1;
+                roofGroup.appendChild(text);
+            });
+            
+            // Kantenlängen zeichnen
+            for (var i = 0; i < currentPoints.length; i++) {
+                var j = (i + 1) % currentPoints.length;
+                var p1 = currentPoints[i];
+                var p2 = currentPoints[j];
+                
+                var x1 = centerX + (p1.x - (bounds.minX + bounds.maxX) / 2) * scale;
+                var y1 = centerY - (p1.y - (bounds.minY + bounds.maxY) / 2) * scale;
+                var x2 = centerX + (p2.x - (bounds.minX + bounds.maxX) / 2) * scale;
+                var y2 = centerY - (p2.y - (bounds.minY + bounds.maxY) / 2) * scale;
+                
+                // Kantenlänge berechnen
+                var edgeLength = Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
+                
+                // Mittelpunkt der Kante
+                var midX = (x1 + x2) / 2;
+                var midY = (y1 + y2) / 2;
+                
+                // Normale zur Kante für Textpositionierung
+                var dx = x2 - x1;
+                var dy = y2 - y1;
+                var length = Math.sqrt(dx * dx + dy * dy);
+                if (length > 0) {
+                    var nx = -dy / length * 20; // Normale 20px nach außen
+                    var ny = dx / length * 20;
+                    
+                    // Buchstabe für Kante
+                    var letter = String.fromCharCode(65 + i); // A, B, C, D...
+                    
+                    var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', midX + nx);
+                    text.setAttribute('y', midY + ny);
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('fill', '#dc3545');
+                    text.setAttribute('font-size', '14');
+                    text.setAttribute('font-weight', 'bold');
+                    text.textContent = letter + ': ' + edgeLength.toFixed(1) + 'm';
+                    dimensionsGroup.appendChild(text);
+                }
+            }
             
             var area = calculateArea(currentPoints);
             document.getElementById('shape-area').textContent = area.toFixed(2) + ' m²';
@@ -424,8 +518,20 @@
             document.getElementById('shape-type').textContent = projectData.roofShape.baseShape || 'Unbekannt';
             
             var bounds = getBounds(originalPoints);
-            document.getElementById('dim-a').value = Math.max(bounds.width, 1).toFixed(1);
-            document.getElementById('dim-b').value = Math.max(bounds.height, 1).toFixed(1);
+            
+            // Eingabefelder mit tatsächlichen Kantenlängen füllen
+            for (var i = 0; i < Math.min(4, originalPoints.length); i++) {
+                var j = (i + 1) % originalPoints.length;
+                var p1 = originalPoints[i];
+                var p2 = originalPoints[j];
+                var edgeLength = Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
+                
+                var fieldId = String.fromCharCode(97 + i); // a, b, c, d
+                var field = document.getElementById('dim-' + fieldId);
+                if (field) {
+                    field.value = edgeLength.toFixed(1);
+                }
+            }
             
             updateShape();
         });
