@@ -1321,40 +1321,44 @@
                 };
             });
             
-            // Bestimme Zielposition basierend auf gewähltem Modus
-            const minY = Math.min(...rotatedPoints.map(p => p.y));
-            const maxY = Math.max(...rotatedPoints.map(p => p.y));
-            
-            // Aktuelle Position der gewählten Seite
+            // Bestimme die neue Position der rotierten Seite
             const rotatedP1 = rotatedPoints[sideIndex];
             const rotatedP2 = rotatedPoints[nextIndex];
-            const currentSideY = (rotatedP1.y + rotatedP2.y) / 2;
+            const rotatedSideY = (rotatedP1.y + rotatedP2.y) / 2;
             
+            // Bestimme Zielposition basierend auf gewähltem Modus
+            const rotatedBounds = getBounds(rotatedPoints);
             let targetY;
+            
             if (orientationMode === 'first') {
-                // Seite nach oben (First)
-                targetY = maxY;
+                // Seite nach OBEN (First) - zur obersten Position
+                targetY = rotatedBounds.maxY;
+                console.log('First-Modus: Seite nach OBEN zur Position', targetY);
             } else {
-                // Seite nach unten (Traufe)
-                targetY = minY;
+                // Seite nach UNTEN (Traufe) - zur untersten Position  
+                targetY = rotatedBounds.minY;
+                console.log('Traufe-Modus: Seite nach UNTEN zur Position', targetY);
             }
             
             // Verschiebe vertikal
-            const offsetY = targetY - currentSideY;
+            const offsetY = targetY - rotatedSideY;
+            console.log('Verschiebe um', offsetY, 'in Y-Richtung');
+            
             currentPoints = rotatedPoints.map(p => ({
                 x: p.x,
                 y: p.y + offsetY
             }));
             
             // Stelle sicher, dass die Seite von links nach rechts verläuft
-            const newP1 = currentPoints[sideIndex];
-            const newP2 = currentPoints[nextIndex];
-            if (newP2.x < newP1.x) {
+            const finalP1 = currentPoints[sideIndex];
+            const finalP2 = currentPoints[nextIndex];
+            if (finalP2.x < finalP1.x) {
+                console.log('Spiegle horizontal da Seite verkehrt herum');
                 // Horizontal spiegeln
-                const newBounds = getBounds(currentPoints);
-                const newCenterX = (newBounds.minX + newBounds.maxX) / 2;
+                const finalBounds = getBounds(currentPoints);
+                const finalCenterX = (finalBounds.minX + finalBounds.maxX) / 2;
                 currentPoints = currentPoints.map(p => ({
-                    x: 2 * newCenterX - p.x,
+                    x: 2 * finalCenterX - p.x,
                     y: p.y
                 }));
             }
@@ -1363,14 +1367,12 @@
             updateValuesFromCurrentPoints();
             updateGeometry();
             
-            // Reset des Orientierungs-Modus
-            resetOrientationMode();
-            
-            // Zeige Erfolgs-Feedback
+            // Zeige Erfolgs-Feedback BEVOR Reset
             const orientationDisplay = document.getElementById('current-orientation');
             if (orientationDisplay) {
-                orientationDisplay.textContent = `Seite ${sideIndex + 1} ist jetzt ${orientationMode === 'first' ? 'oben (First)' : 'unten (Traufe)'}`;
-                orientationDisplay.style.backgroundColor = orientationMode === 'first' ? 
+                const currentMode = orientationMode; // Speichere vor Reset
+                orientationDisplay.textContent = `Seite ${sideIndex + 1} ist jetzt ${currentMode === 'first' ? 'oben (First)' : 'unten (Traufe)'}`;
+                orientationDisplay.style.backgroundColor = currentMode === 'first' ? 
                     'rgba(220, 53, 69, 0.9)' : 'rgba(40, 167, 69, 0.9)';
                 
                 // Ausblenden nach 3 Sekunden
@@ -1378,6 +1380,9 @@
                     orientationDisplay.style.display = 'none';
                 }, 3000);
             }
+            
+            // Reset des Orientierungs-Modus
+            resetOrientationMode();
             
             console.log(`Seite ${sideIndex + 1} wurde als ${orientationMode === 'first' ? 'First (oben)' : 'Traufe (unten)'} ausgerichtet`);
         }
