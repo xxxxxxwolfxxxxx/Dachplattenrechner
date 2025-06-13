@@ -638,30 +638,51 @@
         function loadShapeFromProject() {
             if (!projectData.roofShape) return 'rechteck';
             
+            console.log('Geladene Dachform:', projectData.roofShape); // Debug
+            
             // Mapping von Dachform-Varianten zu Editor-Typen
             const shapeMapping = {
+                // Viereck-Varianten
                 'rechteck': 'rechteck',
                 'quadrat': 'rechteck',
                 'parallelogramm': 'rechteck_schraeg',
                 'trapez': 'trapez',
                 'rhombus': 'rechteck_schraeg',
+                
+                // Dreieck-Varianten
                 'gleichseitig': 'dreieck',
                 'rechtwinklig': 'dreieck',
-                'ungleichschenklig': 'dreieck'
+                'ungleichschenklig': 'dreieck',
+                
+                // Fallbacks nach baseShape
+                'viereck': 'rechteck',
+                'dreieck': 'dreieck',
+                'kreis': 'rechteck', // Kreis als Rechteck approximieren
+                'vieleck': 'rechteck'
             };
             
+            // Erst variant prüfen, dann baseShape
             const variant = projectData.roofShape.variant;
-            return shapeMapping[variant] || 'rechteck';
+            const baseShape = projectData.roofShape.baseShape;
+            
+            console.log('Variant:', variant, 'BaseShape:', baseShape); // Debug
+            
+            return shapeMapping[variant] || shapeMapping[baseShape] || 'rechteck';
         }
 
         // Shape-Typ setzen (aus Projektdaten)
         function initializeShapeType() {
             currentShapeType = loadShapeFromProject();
-            const shapeName = SmartGeometry.shapes[currentShapeType]?.name || 'Rechteck';
+            
+            console.log('Ermittelter ShapeType:', currentShapeType); // Debug
+            
+            const shapeName = SmartGeometry.shapes[currentShapeType]?.name || 'Unbekannte Form';
+            
+            console.log('Shape Name:', shapeName); // Debug
+            
             document.getElementById('current-shape-name').textContent = shapeName;
             
             generateInputFields();
-            updateGeometry();
         }
 
         // Eingabefelder generieren
