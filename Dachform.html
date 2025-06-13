@@ -33,152 +33,92 @@
         <main>
             <section class="roof-editor-section">
                 <h2>Schritt 2: Dachform definieren</h2>
-                <p>Wählen Sie eine vordefinierte Dachform oder erstellen Sie eine individuelle Form:</p>
+                <p>Wählen Sie zuerst eine Grundform, dann eine spezifische Variante:</p>
 
-                <!-- Vordefinierte Dachformen -->
+                <!-- Grundformen -->
                 <div class="card predefined-shapes">
-                    <h3>Dachformen (Draufsicht)</h3>
+                    <h3>1. Grundform wählen</h3>
                     <div class="shapes-grid">
-                        <div class="shape-tile" data-shape="kreis" onclick="selectShape('kreis')">
+                        <div class="shape-tile" data-shape="kreis">
                             <canvas class="shape-preview" width="120" height="120"></canvas>
                             <div class="shape-info">
-                                <h4>Rundform</h4>
-                                <p>Kreisförmige Dachfläche</p>
+                                <h4>Kreis</h4>
+                                <p>Runde Grundformen</p>
                             </div>
                         </div>
 
-                        <div class="shape-tile" data-shape="dreieck" onclick="selectShape('dreieck')">
+                        <div class="shape-tile" data-shape="dreieck">
                             <canvas class="shape-preview" width="120" height="120"></canvas>
                             <div class="shape-info">
-                                <h4>Dreieckform</h4>
+                                <h4>Dreieck</h4>
                                 <p>Dreieckige Dachfläche</p>
                             </div>
                         </div>
 
-                        <div class="shape-tile" data-shape="rechteck" onclick="selectShape('rechteck')">
+                        <div class="shape-tile" data-shape="viereck">
                             <canvas class="shape-preview" width="120" height="120"></canvas>
                             <div class="shape-info">
-                                <h4>Rechteckform</h4>
-                                <p>Rechteckige Dachfläche</p>
+                                <h4>Viereck</h4>
+                                <p>Viereckige Grundformen</p>
                             </div>
                         </div>
 
-                        <div class="shape-tile" data-shape="mehreck" onclick="selectShape('mehreck')">
+                        <div class="shape-tile" data-shape="vieleck">
                             <canvas class="shape-preview" width="120" height="120"></canvas>
                             <div class="shape-info">
-                                <h4>Mehreckform</h4>
-                                <p>Vieleckige Dachfläche</p>
+                                <h4>Vieleck</h4>
+                                <p>Mehreckige Formen</p>
                             </div>
                         </div>
 
-                        <div class="shape-tile" data-shape="custom" onclick="selectShape('custom')">
+                        <div class="shape-tile" data-shape="custom">
                             <canvas class="shape-preview" width="120" height="120"></canvas>
                             <div class="shape-info">
                                 <h4>Individuelle Form</h4>
-                                <p>Eigene Punkte definieren</p>
+                                <p>Selbst zeichnen</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Parameter-Eingabe für gewählte Form -->
+                <!-- Spezifische Varianten -->
+                <div class="card shape-variants" id="shape-variants" style="display: none;">
+                    <h3>2. <span id="variant-title">Variante wählen</span></h3>
+                    <div class="variants-grid" id="variants-grid"></div>
+                </div>
+
+                <!-- Parameter-Eingabe -->
                 <div class="card shape-parameters" id="shape-parameters" style="display: none;">
-                    <h3>Parameter für <span id="selected-shape-name">gewählte Form</span></h3>
-                    <div id="parameter-inputs">
-                        <!-- Parameter werden hier dynamisch eingefügt -->
-                    </div>
+                    <h3>2. Parameter für <span id="selected-shape-name">gewählte Form</span></h3>
+                    <div id="parameter-inputs"></div>
                     <div class="parameter-actions">
-                        <button type="button" class="btn btn-primary" onclick="applyParameters()">
-                            Form generieren
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="resetSelection()">
-                            Auswahl zurücksetzen
-                        </button>
+                        <button type="button" class="btn btn-primary" id="generate-btn">Zum Editor</button>
+                        <button type="button" class="btn btn-secondary" id="reset-btn">Neue Grundform</button>
                     </div>
                 </div>
 
-                <!-- Zeichenbereich -->
-                <div class="card drawing-area">
-                    <div class="drawing-header">
-                        <h3>Dachplan <span id="scale-info">(Maßstab: 1:100)</span></h3>
-                        <div class="drawing-actions">
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="zoomIn()">+</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="zoomOut()">-</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="resetZoom()">Reset</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="centerView()">Zentrieren</button>
-                        </div>
-                    </div>
-                    
+                <!-- Zeichenbereich für Custom -->
+                <div class="card drawing-canvas" id="drawing-canvas" style="display: none;">
+                    <h3>2. Form zeichnen</h3>
                     <div class="canvas-container">
-                        <canvas id="roof-canvas" width="700" height="500"></canvas>
-                        <div class="canvas-instructions" id="canvas-instructions">
-                            <p>Wählen Sie eine Dachform aus den Kacheln oben aus</p>
+                        <canvas id="draw-canvas" width="600" height="400"></canvas>
+                        <div class="canvas-instructions">
+                            <p><strong>Zeichnen Sie Ihre Form:</strong></p>
+                            <p>• Klicken Sie, um Punkte zu setzen</p>
+                            <p>• Rechtsklick: Punkt löschen</p>
+                            <p>• Doppelklick: Form abschließen</p>
                         </div>
                     </div>
-                </div>
-
-                <!-- Manuelle Punkteingabe für Custom-Form -->
-                <div class="card manual-editor" id="manual-editor" style="display: none;">
-                    <h3>Manuelle Punkteingabe</h3>
-                    <div class="manual-controls">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="point-x">X-Koordinate (m):</label>
-                                <input type="number" id="point-x" class="form-control" step="0.1" placeholder="0.0">
-                            </div>
-                            <div class="form-group">
-                                <label for="point-y">Y-Koordinate (m):</label>
-                                <input type="number" id="point-y" class="form-control" step="0.1" placeholder="0.0">
-                            </div>
-                        </div>
-                        <div class="manual-actions">
-                            <button type="button" class="btn btn-success" onclick="addPoint()">Punkt hinzufügen</button>
-                            <button type="button" class="btn btn-danger" onclick="clearPoints()">Alle löschen</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Punkteliste und Infos -->
-                <div class="card roof-details">
-                    <div class="details-grid">
-                        <div class="points-section">
-                            <h4>Eckpunkte der Dachform</h4>
-                            <div class="table-container">
-                                <table class="table" id="points-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Nr.</th>
-                                            <th>X (m)</th>
-                                            <th>Y (m)</th>
-                                            <th>Aktionen</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="points-tbody">
-                                        <tr>
-                                            <td colspan="4" class="text-center text-muted">Keine Punkte definiert</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="info-section">
-                            <h4>Dachinformationen</h4>
-                            <div id="roof-stats">
-                                <p class="text-muted">Wählen Sie eine Dachform aus</p>
-                            </div>
-                        </div>
+                    <div class="drawing-tools">
+                        <button type="button" class="btn btn-secondary" id="clear-btn">Löschen</button>
+                        <button type="button" class="btn btn-secondary" id="undo-btn">Rückgängig</button>
+                        <button type="button" class="btn btn-success" id="finish-drawing-btn" disabled>Zum Editor</button>
                     </div>
                 </div>
             </section>
 
             <div class="navigation-buttons">
-                <button type="button" class="btn btn-secondary" onclick="goBack()">
-                    ← Zurück zum Profil
-                </button>
-                <button type="button" class="btn btn-primary" onclick="saveAndContinue()" id="continue-btn" disabled>
-                    Weiter zur Berechnung →
-                </button>
+                <button type="button" class="btn btn-secondary" id="back-btn">← Zurück zum Profil</button>
             </div>
         </main>
 
@@ -189,881 +129,392 @@
 
     <script>
         // Globale Variablen
-        let projectData = {};
-        let roofPoints = [];
-        let canvas = null;
-        let ctx = null;
-        let scale = 80; // Pixel pro Meter
-        let offsetX = 0;
-        let offsetY = 0;
-        let isDragging = false;
-        let lastMousePos = { x: 0, y: 0 };
-        let selectedShapeType = null;
+        var projectData = {};
+        var roofPoints = [];
+        var selectedBaseShape = null;
+        var selectedVariant = null;
+        var drawingPoints = [];
 
-        // Vordefinierte Dachformen - vereinfacht auf Grundformen
-        const predefinedShapes = {
+        // Dachformen-Definition
+        var shapeHierarchy = {
             kreis: {
-                name: 'Rundform',
-                parameters: [
-                    { name: 'radius', label: 'Radius (m)', type: 'number', default: 5, step: 0.5 },
-                    { name: 'segmente', label: 'Anzahl Segmente', type: 'number', default: 16, step: 1, min: 8, max: 32 }
-                ],
-                generate: (params) => {
-                    const points = [];
-                    const segments = Math.max(8, Math.min(32, params.segmente));
-                    for (let i = 0; i < segments; i++) {
-                        const angle = (i / segments) * 2 * Math.PI;
-                        const x = params.radius * Math.cos(angle);
-                        const y = params.radius * Math.sin(angle);
-                        points.push({ x: x, y: y });
-                    }
-                    return points;
+                name: 'Kreis',
+                variants: {
+                    kreis: { name: 'Kreis', parameters: [{ name: 'radius', label: 'Radius (m)', type: 'number', default: 5, step: 0.5 }] },
+                    oval: { name: 'Oval', parameters: [{ name: 'breite', label: 'Breite (m)', type: 'number', default: 8, step: 0.5 }, { name: 'hoehe', label: 'Höhe (m)', type: 'number', default: 5, step: 0.5 }] },
+                    langloch: { name: 'Langlochform', parameters: [{ name: 'laenge', label: 'Länge (m)', type: 'number', default: 10, step: 0.5 }, { name: 'breite', label: 'Breite (m)', type: 'number', default: 4, step: 0.5 }] }
                 }
             },
             dreieck: {
-                name: 'Dreieckform',
-                parameters: [
-                    { name: 'breite', label: 'Basis-Breite (m)', type: 'number', default: 10, step: 0.5 },
-                    { name: 'hoehe', label: 'Höhe (m)', type: 'number', default: 8, step: 0.5 },
-                    { name: 'versatz', label: 'Spitzen-Versatz (m)', type: 'number', default: 0, step: 0.25 }
-                ],
-                generate: (params) => [
-                    { x: params.breite / 2 + params.versatz, y: 0 }, // Spitze oben
-                    { x: 0, y: params.hoehe }, // Links unten
-                    { x: params.breite, y: params.hoehe } // Rechts unten
-                ]
-            },
-            rechteck: {
-                name: 'Rechteckform',
-                parameters: [
-                    { name: 'breite', label: 'Breite (m)', type: 'number', default: 10, step: 0.5 },
-                    { name: 'laenge', label: 'Länge (m)', type: 'number', default: 8, step: 0.5 }
-                ],
-                generate: (params) => [
-                    { x: 0, y: 0 },
-                    { x: params.breite, y: 0 },
-                    { x: params.breite, y: params.laenge },
-                    { x: 0, y: params.laenge }
-                ]
-            },
-            mehreck: {
-                name: 'Mehreckform',
-                parameters: [
-                    { name: 'radius', label: 'Radius (m)', type: 'number', default: 6, step: 0.5 },
-                    { name: 'ecken', label: 'Anzahl Ecken', type: 'number', default: 6, step: 1, min: 5, max: 12 }
-                ],
-                generate: (params) => {
-                    const points = [];
-                    const corners = Math.max(5, Math.min(12, params.ecken));
-                    for (let i = 0; i < corners; i++) {
-                        const angle = (i / corners) * 2 * Math.PI - Math.PI / 2; // Start oben
-                        const x = params.radius * Math.cos(angle);
-                        const y = params.radius * Math.sin(angle);
-                        points.push({ x: x, y: y });
-                    }
-                    return points;
+                name: 'Dreieck',
+                variants: {
+                    dreieck: { name: 'Dreieck', parameters: [{ name: 'breite', label: 'Basis-Breite (m)', type: 'number', default: 10, step: 0.5 }, { name: 'hoehe', label: 'Höhe (m)', type: 'number', default: 8, step: 0.5 }] }
                 }
             },
-            custom: {
-                name: 'Individuelle Form',
-                parameters: [],
-                generate: () => []
-            }
+            viereck: {
+                name: 'Viereck',
+                variants: {
+                    rechteck: { name: 'Rechteck', parameters: [{ name: 'breite', label: 'Breite (m)', type: 'number', default: 10, step: 0.5 }, { name: 'laenge', label: 'Länge (m)', type: 'number', default: 8, step: 0.5 }] },
+                    parallelogramm: { name: 'Parallelogramm', parameters: [{ name: 'breite', label: 'Breite (m)', type: 'number', default: 10, step: 0.5 }, { name: 'laenge', label: 'Länge (m)', type: 'number', default: 8, step: 0.5 }, { name: 'versatz', label: 'Versatz (m)', type: 'number', default: 2, step: 0.25 }] },
+                    trapez: { name: 'Trapezform', parameters: [{ name: 'untenbreite', label: 'Untere Breite (m)', type: 'number', default: 12, step: 0.5 }, { name: 'obenbreite', label: 'Obere Breite (m)', type: 'number', default: 8, step: 0.5 }, { name: 'laenge', label: 'Länge (m)', type: 'number', default: 10, step: 0.5 }] }
+                }
+            },
+            vieleck: {
+                name: 'Vieleck',
+                variants: {
+                    vieleck: { name: 'Regelmäßiges Vieleck', parameters: [{ name: 'radius', label: 'Radius (m)', type: 'number', default: 6, step: 0.5 }, { name: 'ecken', label: 'Anzahl Ecken', type: 'number', default: 6, step: 1, min: 5, max: 12 }] }
+                }
+            },
+            custom: { name: 'Individuelle Form', variants: {} }
         };
 
-        // Sichere Storage-Funktionen
+        // Hilfsfunktionen
         function saveData() {
             try {
                 localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
                 return true;
             } catch (e) {
-                console.log('localStorage nicht verfügbar, verwende Session-Speicher');
-                sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-                return true;
+                try {
+                    sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                    return true;
+                } catch (e2) {
+                    return false;
+                }
             }
         }
 
         function loadData() {
             try {
-                let saved = localStorage.getItem('dachplattenrechner_data');
-                if (!saved) {
-                    saved = sessionStorage.getItem('dachplattenrechner_data');
-                }
+                var saved = localStorage.getItem('dachplattenrechner_data');
+                if (!saved) saved = sessionStorage.getItem('dachplattenrechner_data');
                 return saved ? JSON.parse(saved) : {};
             } catch (e) {
-                console.log('Fehler beim Laden der Daten');
                 return {};
             }
         }
 
-        // Initialisierung
-        document.addEventListener('DOMContentLoaded', function() {
-            projectData = loadData();
-            
-            canvas = document.getElementById('roof-canvas');
-            ctx = canvas.getContext('2d');
-            
-            setupCanvas();
-            drawShapePreviews();
-            loadSavedData();
-            
-            // Event Listeners für Canvas
-            canvas.addEventListener('click', handleCanvasClick);
-            canvas.addEventListener('contextmenu', handleCanvasRightClick);
-            canvas.addEventListener('mousedown', handleMouseDown);
-            canvas.addEventListener('mousemove', handleMouseMove);
-            canvas.addEventListener('mouseup', handleMouseUp);
-        });
-
-        function setupCanvas() {
-            const container = canvas.parentElement;
-            canvas.width = container.clientWidth - 40;
-            canvas.height = 500;
-            
-            offsetX = canvas.width / 2;
-            offsetY = canvas.height / 2;
-            
-            drawGrid();
+        function generatePoints(baseShape, variant, params) {
+            if (baseShape === 'kreis') {
+                var points = [];
+                var segments = 24;
+                if (variant === 'kreis') {
+                    for (var i = 0; i < segments; i++) {
+                        var angle = (i / segments) * 2 * Math.PI;
+                        points.push({ x: params.radius * Math.cos(angle), y: params.radius * Math.sin(angle) });
+                    }
+                } else if (variant === 'oval') {
+                    var radiusX = params.breite / 2, radiusY = params.hoehe / 2;
+                    for (var i = 0; i < segments; i++) {
+                        var angle = (i / segments) * 2 * Math.PI;
+                        points.push({ x: radiusX * Math.cos(angle), y: radiusY * Math.sin(angle) });
+                    }
+                } else if (variant === 'langloch') {
+                    var radius = params.breite / 2, straightLength = params.laenge - params.breite, segments = 12;
+                    for (var i = 0; i <= segments/2; i++) {
+                        var angle = (i / (segments/2)) * Math.PI - Math.PI/2;
+                        points.push({ x: straightLength/2 + radius * Math.cos(angle), y: radius * Math.sin(angle) });
+                    }
+                    for (var i = 0; i <= segments/2; i++) {
+                        var angle = (i / (segments/2)) * Math.PI + Math.PI/2;
+                        points.push({ x: -straightLength/2 + radius * Math.cos(angle), y: radius * Math.sin(angle) });
+                    }
+                }
+                return points;
+            } else if (baseShape === 'dreieck') {
+                return [{ x: params.breite / 2, y: 0 }, { x: 0, y: params.hoehe }, { x: params.breite, y: params.hoehe }];
+            } else if (baseShape === 'viereck') {
+                if (variant === 'rechteck') {
+                    return [{ x: 0, y: 0 }, { x: params.breite, y: 0 }, { x: params.breite, y: params.laenge }, { x: 0, y: params.laenge }];
+                } else if (variant === 'parallelogramm') {
+                    return [{ x: 0, y: 0 }, { x: params.breite, y: 0 }, { x: params.breite + params.versatz, y: params.laenge }, { x: params.versatz, y: params.laenge }];
+                } else if (variant === 'trapez') {
+                    var versatz = (params.untenbreite - params.obenbreite) / 2;
+                    return [{ x: versatz, y: 0 }, { x: params.untenbreite - versatz, y: 0 }, { x: params.untenbreite, y: params.laenge }, { x: 0, y: params.laenge }];
+                }
+            } else if (baseShape === 'vieleck') {
+                var points = [], corners = Math.max(5, Math.min(12, params.ecken));
+                for (var i = 0; i < corners; i++) {
+                    var angle = (i / corners) * 2 * Math.PI - Math.PI / 2;
+                    points.push({ x: params.radius * Math.cos(angle), y: params.radius * Math.sin(angle) });
+                }
+                return points;
+            }
+            return [];
         }
 
-        function drawShapePreviews() {
-            document.querySelectorAll('.shape-preview').forEach((canvas, index) => {
-                const shapes = Object.keys(predefinedShapes);
-                const shapeKey = shapes[index];
-                if (!shapeKey) return;
-                
-                const ctx = canvas.getContext('2d');
-                const shape = predefinedShapes[shapeKey];
-                
-                // Canvas vorbereiten mit Gradient-Hintergrund
+        function drawShapePreview(ctx, points, canvas) {
+            if (!points || points.length === 0) return;
+            var minX = Math.min.apply(Math, points.map(function(p) { return p.x; }));
+            var maxX = Math.max.apply(Math, points.map(function(p) { return p.x; }));
+            var minY = Math.min.apply(Math, points.map(function(p) { return p.y; }));
+            var maxY = Math.max.apply(Math, points.map(function(p) { return p.y; }));
+            var width = maxX - minX || 1, height = maxY - minY || 1;
+            var centerX = (minX + maxX) / 2, centerY = (minY + maxY) / 2;
+            var padding = 20, scale = Math.min((canvas.width - 2 * padding) / width, (canvas.height - 2 * padding) / height) * 0.8;
+            var offsetX = canvas.width / 2 - centerX * scale, offsetY = canvas.height / 2 - centerY * scale;
+            
+            ctx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (var i = 0; i < points.length; i++) {
+                var x = offsetX + points[i].x * scale, y = offsetY + points[i].y * scale;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawBasePreviews() {
+            var canvases = document.querySelectorAll('.shape-preview');
+            var baseShapes = Object.keys(shapeHierarchy);
+            for (var i = 0; i < canvases.length && i < baseShapes.length; i++) {
+                var canvas = canvases[i], shapeKey = baseShapes[i], ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Schöner Gradient-Hintergrund
-                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                gradient.addColorStop(0, '#f8f9fa');
-                gradient.addColorStop(1, '#e9ecef');
-                ctx.fillStyle = gradient;
+                ctx.fillStyle = '#f8f9fa';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Subtiles Raster im Hintergrund
-                ctx.strokeStyle = 'rgba(0,0,0,0.05)';
-                ctx.lineWidth = 1;
-                const gridSize = 20;
-                for (let x = 0; x <= canvas.width; x += gridSize) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, canvas.height);
-                    ctx.stroke();
-                }
-                for (let y = 0; y <= canvas.height; y += gridSize) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(canvas.width, y);
-                    ctx.stroke();
-                }
-                
                 if (shapeKey === 'custom') {
-                    // Elegantes Icon für Custom mit Schatten
-                    ctx.fillStyle = 'rgba(0,0,0,0.1)';
-                    ctx.fillRect(22, 22, canvas.width - 42, canvas.height - 42);
-                    
-                    ctx.strokeStyle = '#6c757d';
-                    ctx.lineWidth = 3;
-                    ctx.setLineDash([8, 8]);
-                    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
-                    
-                    // Schönes Fragezeichen-Icon
                     ctx.fillStyle = '#6c757d';
                     ctx.font = 'bold 32px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText('✏', canvas.width / 2, canvas.height / 2);
-                    ctx.setLineDash([]);
-                    return;
+                } else {
+                    var baseShape = shapeHierarchy[shapeKey], firstVariantKey = Object.keys(baseShape.variants)[0];
+                    if (firstVariantKey) {
+                        var variant = baseShape.variants[firstVariantKey], exampleParams = {};
+                        for (var j = 0; j < variant.parameters.length; j++) {
+                            exampleParams[variant.parameters[j].name] = variant.parameters[j].default;
+                        }
+                        var points = generatePoints(shapeKey, firstVariantKey, exampleParams);
+                        if (points.length > 0) drawShapePreview(ctx, points, canvas);
+                    }
                 }
-                
-                // Beispiel-Parameter für Vorschau
-                const exampleParams = {};
-                shape.parameters.forEach(param => {
-                    exampleParams[param.name] = param.default;
-                });
-                
-                // Form generieren und für Draufsicht orientieren
-                let points = shape.generate(exampleParams);
-                if (points.length === 0) return;
-                
-                // Punkte so drehen, dass eine Seite nach unten zeigt
-                points = orientateShape(points, shapeKey);
-                
-                // Skalierung für Vorschau berechnen
-                const bounds = getBounds(points);
-                const padding = 20;
-                const scale = Math.min(
-                    (canvas.width - 2 * padding) / bounds.width,
-                    (canvas.height - 2 * padding) / bounds.height
-                ) * 0.8; // Etwas kleiner für bessere Optik
-                
-                const offsetX = canvas.width / 2 - (bounds.centerX * scale);
-                const offsetY = canvas.height / 2 - (bounds.centerY * scale);
-                
-                // Schatten zeichnen
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-                ctx.beginPath();
-                points.forEach((point, index) => {
-                    const x = offsetX + point.x * scale + 3;
-                    const y = offsetY + point.y * scale + 3;
-                    
-                    if (index === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                });
-                ctx.closePath();
-                ctx.fill();
-                
-                // Hauptform mit Gradient
-                const shapeGradient = ctx.createLinearGradient(
-                    offsetX + bounds.minX * scale, 
-                    offsetY + bounds.minY * scale,
-                    offsetX + bounds.maxX * scale, 
-                    offsetY + bounds.maxY * scale
-                );
-                shapeGradient.addColorStop(0, 'rgba(0, 123, 255, 0.6)');
-                shapeGradient.addColorStop(1, 'rgba(0, 123, 255, 0.3)');
-                ctx.fillStyle = shapeGradient;
-                
-                ctx.strokeStyle = '#0056b3';
-                ctx.lineWidth = 3;
-                ctx.setLineDash([]);
-                
-                ctx.beginPath();
-                points.forEach((point, index) => {
-                    const x = offsetX + point.x * scale;
-                    const y = offsetY + point.y * scale;
-                    
-                    if (index === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                });
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-                
-                // Spezielle Visualisierungen je nach Form
-                drawShapeDetails(ctx, shapeKey, points, offsetX, offsetY, scale, canvas);
-            });
-        }
-
-        function orientateShape(points, shapeKey) {
-            if (points.length === 0) return points;
-            
-            switch (shapeKey) {
-                case 'dreieck':
-                    // Dreieck so drehen, dass die Basis unten ist
-                    // Basis bereits unten durch generate-Funktion
-                    return points;
-                    
-                case 'rechteck':
-                    // Rechteck so drehen, dass die längere Seite unten ist
-                    const bounds = getBounds(points);
-                    if (bounds.height > bounds.width) {
-                        // Rotiere um 90 Grad wenn höher als breit
-                        return points.map(p => ({ x: -p.y, y: p.x }));
-                    }
-                    return points;
-                    
-                case 'kreis':
-                case 'mehreck':
-                    // Für Kreis und Mehreck: oberste Seite nach unten drehen
-                    if (shapeKey === 'mehreck') {
-                        // Mehreck um 180 Grad drehen, so dass eine Seite unten ist
-                        const angle = Math.PI / points.length; // Halber Winkel zwischen Ecken
-                        return points.map(p => ({
-                            x: p.x * Math.cos(angle) - p.y * Math.sin(angle),
-                            y: p.x * Math.sin(angle) + p.y * Math.cos(angle)
-                        }));
-                    }
-                    return points;
-                    
-                default:
-                    return points;
             }
         }
 
-        function drawShapeDetails(ctx, shapeKey, points, offsetX, offsetY, scale, canvas) {
-            const bounds = getBounds(points);
+        // Hauptfunktionen
+        function selectBaseShape(baseShape) {
+            selectedBaseShape = baseShape;
+            selectedVariant = null;
+            var tiles = document.querySelectorAll('.shape-tile');
+            for (var i = 0; i < tiles.length; i++) tiles[i].classList.remove('selected');
+            var selectedTile = document.querySelector('[data-shape="' + baseShape + '"]');
+            if (selectedTile) selectedTile.classList.add('selected');
             
-            if (shapeKey === 'kreis') {
-                // Mittelpunkt mit Glow-Effekt
-                ctx.shadowColor = '#dc3545';
-                ctx.shadowBlur = 8;
-                ctx.fillStyle = '#dc3545';
-                ctx.beginPath();
-                ctx.arc(canvas.width / 2, canvas.height / 2, 4, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                
-                // Radius-Linie mit Pfeil
-                ctx.strokeStyle = '#dc3545';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([4, 4]);
-                ctx.beginPath();
-                ctx.moveTo(canvas.width / 2, canvas.height / 2);
-                const firstPoint = points[0];
-                const endX = offsetX + firstPoint.x * scale;
-                const endY = offsetY + firstPoint.y * scale;
-                ctx.lineTo(endX, endY);
-                ctx.stroke();
-                
-                // Pfeilspitze
-                ctx.setLineDash([]);
-                ctx.fillStyle = '#dc3545';
-                ctx.beginPath();
-                ctx.arc(endX, endY, 3, 0, 2 * Math.PI);
-                ctx.fill();
-            }
-            
-            if (shapeKey === 'dreieck') {
-                // Eckpunkte mit Glow
-                ctx.shadowColor = '#28a745';
-                ctx.shadowBlur = 6;
-                ctx.fillStyle = '#28a745';
-                points.forEach(point => {
-                    const x = offsetX + point.x * scale;
-                    const y = offsetY + point.y * scale;
-                    ctx.beginPath();
-                    ctx.arc(x, y, 4, 0, 2 * Math.PI);
-                    ctx.fill();
-                });
-                ctx.shadowBlur = 0;
-            }
-            
-            if (shapeKey === 'rechteck') {
-                // Elegante Maßlinien mit Pfeilen
-                ctx.strokeStyle = '#6c757d';
-                ctx.lineWidth = 1.5;
-                ctx.setLineDash([]);
-                
-                const p1 = points[0];
-                const p2 = points[1];
-                const p3 = points[2];
-                
-                // Breite (unten)
-                const x1 = offsetX + p1.x * scale;
-                const x2 = offsetX + p2.x * scale;
-                const y1 = offsetY + p1.y * scale;
-                
-                ctx.beginPath();
-                ctx.moveTo(x1, y1 + 12);
-                ctx.lineTo(x2, y1 + 12);
-                ctx.stroke();
-                
-                // Pfeilspitzen für Breite
-                drawArrowHead(ctx, x1 + 8, y1 + 12, 0);
-                drawArrowHead(ctx, x2 - 8, y1 + 12, Math.PI);
-                
-                // Länge (rechts)
-                const y3 = offsetY + p3.y * scale;
-                ctx.beginPath();
-                ctx.moveTo(x2 + 12, y1);
-                ctx.lineTo(x2 + 12, y3);
-                ctx.stroke();
-                
-                // Pfeilspitzen für Länge
-                drawArrowHead(ctx, x2 + 12, y1 + 8, Math.PI / 2);
-                drawArrowHead(ctx, x2 + 12, y3 - 8, -Math.PI / 2);
-            }
-            
-            if (shapeKey === 'mehreck') {
-                // Mittelpunkt mit elegantem Design
-                ctx.shadowColor = '#ffc107';
-                ctx.shadowBlur = 8;
-                ctx.fillStyle = '#ffc107';
-                ctx.beginPath();
-                ctx.arc(canvas.width / 2, canvas.height / 2, 3, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                
-                // Radius zu einer Ecke
-                ctx.strokeStyle = '#ffc107';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([3, 3]);
-                ctx.beginPath();
-                ctx.moveTo(canvas.width / 2, canvas.height / 2);
-                const firstPoint = points[0];
-                ctx.lineTo(offsetX + firstPoint.x * scale, offsetY + firstPoint.y * scale);
-                ctx.stroke();
-                ctx.setLineDash([]);
-                
-                // Alle Eckpunkte markieren
-                ctx.fillStyle = '#ffc107';
-                points.forEach(point => {
-                    const x = offsetX + point.x * scale;
-                    const y = offsetY + point.y * scale;
-                    ctx.beginPath();
-                    ctx.arc(x, y, 2, 0, 2 * Math.PI);
-                    ctx.fill();
-                });
-            }
-        }
-
-        function drawArrowHead(ctx, x, y, angle) {
-            const headSize = 4;
-            ctx.fillStyle = '#6c757d';
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineTo(
-                x + headSize * Math.cos(angle - Math.PI / 6),
-                y + headSize * Math.sin(angle - Math.PI / 6)
-            );
-            ctx.lineTo(
-                x + headSize * Math.cos(angle + Math.PI / 6),
-                y + headSize * Math.sin(angle + Math.PI / 6)
-            );
-            ctx.closePath();
-            ctx.fill();
-        }
-
-        function getBounds(points) {
-            if (points.length === 0) return { width: 1, height: 1, centerX: 0, centerY: 0, minX: 0, maxX: 1, minY: 0, maxY: 1 };
-            
-            const minX = Math.min(...points.map(p => p.x));
-            const maxX = Math.max(...points.map(p => p.x));
-            const minY = Math.min(...points.map(p => p.y));
-            const maxY = Math.max(...points.map(p => p.y));
-            
-            return {
-                width: maxX - minX || 1,
-                height: maxY - minY || 1,
-                centerX: (minX + maxX) / 2,
-                centerY: (minY + maxY) / 2,
-                minX, maxX, minY, maxY
-            };
-        }
-
-        function selectShape(shapeType) {
-            selectedShapeType = shapeType;
-            
-            // Alle Kacheln deselektieren
-            document.querySelectorAll('.shape-tile').forEach(tile => {
-                tile.classList.remove('selected');
-            });
-            
-            // Gewählte Kachel hervorheben
-            document.querySelector(`[data-shape="${shapeType}"]`).classList.add('selected');
-            
-            // Parameter-Sektion anzeigen
-            const shape = predefinedShapes[shapeType];
-            const parametersSection = document.getElementById('shape-parameters');
-            const shapeName = document.getElementById('selected-shape-name');
-            const parameterInputs = document.getElementById('parameter-inputs');
-            
-            shapeName.textContent = shape.name;
-            
-            if (shape.parameters.length > 0) {
-                // Parameter-Eingabefelder generieren
-                parameterInputs.innerHTML = '';
-                const formRow = document.createElement('div');
-                formRow.className = 'form-row';
-                
-                shape.parameters.forEach(param => {
-                    const formGroup = document.createElement('div');
-                    formGroup.className = 'form-group';
-                    formGroup.innerHTML = `
-                        <label for="param-${param.name}">${param.label}:</label>
-                        <input type="${param.type}" 
-                               id="param-${param.name}" 
-                               class="form-control" 
-                               value="${param.default}" 
-                               step="${param.step || 1}">
-                    `;
-                    formRow.appendChild(formGroup);
-                });
-                
-                parameterInputs.appendChild(formRow);
-                parametersSection.style.display = 'block';
-            } else if (shapeType === 'custom') {
-                // Für Custom-Form die manuelle Eingabe aktivieren
-                parameterInputs.innerHTML = '<p>Verwenden Sie die manuelle Punkteingabe oder klicken Sie in den Zeichenbereich.</p>';
-                parametersSection.style.display = 'block';
-                document.getElementById('manual-editor').style.display = 'block';
-                document.getElementById('canvas-instructions').innerHTML = `
-                    <p><strong>Individuelle Form:</strong> Klicken Sie in den Zeichenbereich, um Punkte zu setzen</p>
-                    <p><small>Rechtsklick: Punkt löschen | Mindestens 3 Punkte erforderlich</small>
-                `;
+            if (baseShape === 'custom') {
+                showDrawingCanvas();
+            } else if (baseShape === 'dreieck' || baseShape === 'vieleck') {
+                selectedVariant = baseShape;
+                showParameters();
             } else {
-                parametersSection.style.display = 'none';
-            }
-            
-            // Custom-Editor nur für custom anzeigen
-            if (shapeType !== 'custom') {
-                document.getElementById('manual-editor').style.display = 'none';
+                showVariants();
             }
         }
 
-        function applyParameters() {
-            if (!selectedShapeType) return;
+        function showVariants() {
+            var baseShape = shapeHierarchy[selectedBaseShape];
+            if (!baseShape) return;
             
-            const shape = predefinedShapes[selectedShapeType];
-            const params = {};
+            var variantsSection = document.getElementById('shape-variants');
+            var variantTitle = document.getElementById('variant-title');
+            var variantsGrid = document.getElementById('variants-grid');
             
-            // Parameter aus Eingabefeldern lesen
-            shape.parameters.forEach(param => {
-                const input = document.getElementById(`param-${param.name}`);
-                params[param.name] = parseFloat(input.value) || param.default;
-            });
+            variantTitle.textContent = baseShape.name + '-Varianten wählen';
+            variantsGrid.innerHTML = '';
             
-            // Form generieren
-            roofPoints = shape.generate(params);
-            
-            // Zeichnen und Details aktualisieren
-            updateDisplay();
-            
-            document.getElementById('canvas-instructions').innerHTML = `
-                <p><strong>${shape.name}</strong> wurde generiert</p>
-                <p><small>Sie können die Form jetzt verwenden oder eine andere auswählen</small>
-            `;
-        }
-
-        function resetSelection() {
-            selectedShapeType = null;
-            roofPoints = [];
-            
-            document.querySelectorAll('.shape-tile').forEach(tile => {
-                tile.classList.remove('selected');
-            });
-            
-            document.getElementById('shape-parameters').style.display = 'none';
-            document.getElementById('manual-editor').style.display = 'none';
-            
-            updateDisplay();
-            
-            document.getElementById('canvas-instructions').innerHTML = `
-                <p>Wählen Sie eine Dachform aus den Kacheln oben aus</p>
-            `;
-        }
-
-        function updateDisplay() {
-            updatePointsList();
-            drawRoof();
-            calculateRoofInfo();
-            validateForm();
-            if (roofPoints.length > 0) {
-                centerView();
+            var variantKeys = Object.keys(baseShape.variants);
+            for (var i = 0; i < variantKeys.length; i++) {
+                var variantKey = variantKeys[i];
+                var variant = baseShape.variants[variantKey];
+                
+                // Varianten-Kachel erstellen
+                var variantTile = document.createElement('div');
+                variantTile.className = 'variant-tile';
+                variantTile.setAttribute('data-variant', variantKey);
+                
+                // Canvas für Varianten-Vorschau
+                var canvas = document.createElement('canvas');
+                canvas.width = 100;
+                canvas.height = 100;
+                canvas.className = 'variant-preview';
+                
+                // Info-Bereich
+                var info = document.createElement('div');
+                info.className = 'variant-info';
+                info.innerHTML = '<h4>' + variant.name + '</h4>';
+                
+                variantTile.appendChild(canvas);
+                variantTile.appendChild(info);
+                variantsGrid.appendChild(variantTile);
+                
+                // Varianten-Vorschau zeichnen
+                drawVariantPreview(canvas, variantKey, variant);
             }
-        }
-
-        function addPoint() {
-            const x = parseFloat(document.getElementById('point-x').value);
-            const y = parseFloat(document.getElementById('point-y').value);
-
-            if (isNaN(x) || isNaN(y)) {
-                alert('Bitte geben Sie gültige Koordinaten ein.');
-                return;
-            }
-
-            roofPoints.push({ x: x, y: y });
             
-            document.getElementById('point-x').value = '';
-            document.getElementById('point-y').value = '';
-
-            updateDisplay();
+            variantsSection.style.display = 'block';
+            hideOtherSections(['shape-variants']);
         }
 
-        function deletePoint(index) {
-            roofPoints.splice(index, 1);
-            updateDisplay();
-        }
-
-        function clearPoints() {
-            roofPoints = [];
-            updateDisplay();
-        }
-
-        function updatePointsList() {
-            const tbody = document.getElementById('points-tbody');
-            tbody.innerHTML = '';
-
-            if (roofPoints.length === 0) {
-                const row = tbody.insertRow();
-                row.innerHTML = '<td colspan="4" class="text-center text-muted">Keine Punkte definiert</td>';
-                return;
-            }
-
-            roofPoints.forEach((point, index) => {
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${point.x.toFixed(2)}</td>
-                    <td>${point.y.toFixed(2)}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm" onclick="deletePoint(${index})">
-                            Löschen
-                        </button>
-                    </td>
-                `;
-            });
-        }
-
-        function drawGrid() {
+        function drawVariantPreview(canvas, variantKey, variant) {
+            var ctx = canvas.getContext('2d');
+            
+            // Hintergrund
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.fillStyle = '#ffffff';
+            var gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#f8f9fa');
+            gradient.addColorStop(1, '#e9ecef');
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            ctx.strokeStyle = '#f0f0f0';
-            ctx.lineWidth = 1;
-            
-            const gridSize = scale;
-            
-            for (let x = offsetX % gridSize; x < canvas.width; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
-                ctx.stroke();
+            // Beispiel-Parameter generieren
+            var exampleParams = {};
+            for (var i = 0; i < variant.parameters.length; i++) {
+                var param = variant.parameters[i];
+                exampleParams[param.name] = param.default;
             }
             
-            for (let y = offsetY % gridSize; y < canvas.height; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-            }
-            
-            // Achsen hervorheben
-            ctx.strokeStyle = '#d0d0d0';
-            ctx.lineWidth = 2;
-            
-            if (offsetY >= 0 && offsetY <= canvas.height) {
-                ctx.beginPath();
-                ctx.moveTo(0, offsetY);
-                ctx.lineTo(canvas.width, offsetY);
-                ctx.stroke();
-            }
-            
-            if (offsetX >= 0 && offsetX <= canvas.width) {
-                ctx.beginPath();
-                ctx.moveTo(offsetX, 0);
-                ctx.lineTo(offsetX, canvas.height);
-                ctx.stroke();
+            // Form generieren und zeichnen
+            var points = generatePoints(selectedBaseShape, variantKey, exampleParams);
+            if (points.length > 0) {
+                drawShapePreview(ctx, points, canvas);
             }
         }
 
-        function drawRoof() {
-            drawGrid();
-            
-            if (roofPoints.length === 0) return;
-            
-            // Dachfläche zeichnen
-            ctx.fillStyle = 'rgba(0, 123, 255, 0.2)';
-            ctx.strokeStyle = '#007bff';
-            ctx.lineWidth = 3;
-            
-            ctx.beginPath();
-            
-            roofPoints.forEach((point, index) => {
-                const x = offsetX + point.x * scale;
-                const y = offsetY - point.y * scale;
-                
-                if (index === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
+        function showParameters() {
+            var variant = shapeHierarchy[selectedBaseShape].variants[selectedVariant];
+            if (!variant) return;
+            var parametersSection = document.getElementById('shape-parameters');
+            var shapeName = document.getElementById('selected-shape-name');
+            var parameterInputs = document.getElementById('parameter-inputs');
+            shapeName.textContent = variant.name;
+            parameterInputs.innerHTML = '';
+            var formRow = document.createElement('div');
+            formRow.className = 'form-row';
+            for (var i = 0; i < variant.parameters.length; i++) {
+                var param = variant.parameters[i];
+                var formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                formGroup.innerHTML = '<label for="param-' + param.name + '">' + param.label + ':</label><input type="' + param.type + '" id="param-' + param.name + '" class="form-control" value="' + param.default + '" step="' + (param.step || 1) + '">';
+                formRow.appendChild(formGroup);
+            }
+            parameterInputs.appendChild(formRow);
+            parametersSection.style.display = 'block';
+            hideOtherSections(['shape-parameters']);
+        }
+
+        function showDrawingCanvas() {
+            document.getElementById('drawing-canvas').style.display = 'block';
+            hideOtherSections(['drawing-canvas']);
+            drawingPoints = [];
+            clearDrawingCanvas();
+        }
+
+        function clearDrawingCanvas() {
+            var canvas = document.getElementById('draw-canvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function hideOtherSections(except) {
+            var sections = ['shape-variants', 'shape-parameters', 'drawing-canvas', 'roof-preview'];
+            for (var i = 0; i < sections.length; i++) {
+                if (except.indexOf(sections[i]) === -1) {
+                    var section = document.getElementById(sections[i]);
+                    if (section) section.style.display = 'none';
                 }
-            });
-            
-            if (roofPoints.length >= 3) {
-                ctx.closePath();
-                ctx.fill();
             }
-            ctx.stroke();
-            
-            // Punkte zeichnen
-            ctx.fillStyle = '#dc3545';
-            roofPoints.forEach((point, index) => {
-                const x = offsetX + point.x * scale;
-                const y = offsetY - point.y * scale;
-                
-                ctx.beginPath();
-                ctx.arc(x, y, 6, 0, 2 * Math.PI);
-                ctx.fill();
-                
-                // Punktnummer
-                ctx.fillStyle = '#fff';
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(index + 1, x, y + 4);
-                ctx.fillStyle = '#dc3545';
-            });
         }
 
-        function calculateRoofInfo() {
-            const statsDiv = document.getElementById('roof-stats');
+        function generateShape() {
+            if (!selectedBaseShape || !selectedVariant) return;
+            var variant = shapeHierarchy[selectedBaseShape].variants[selectedVariant];
+            if (!variant) return;
+            var params = {};
+            for (var i = 0; i < variant.parameters.length; i++) {
+                var param = variant.parameters[i];
+                var input = document.getElementById('param-' + param.name);
+                if (input) params[param.name] = parseFloat(input.value) || param.default;
+            }
+            roofPoints = generatePoints(selectedBaseShape, selectedVariant, params);
             
+            // Direkt zum Editor weiterleiten
+            saveAndGoToEditor();
+        }
+
+        function saveAndGoToEditor() {
             if (roofPoints.length < 3) {
-                statsDiv.innerHTML = '<p class="text-muted">Mindestens 3 Punkte erforderlich</p>';
+                alert('Fehler beim Generieren der Form!');
                 return;
             }
-
-            // Flächenberechnung mit Shoelace-Formel
-            let area = 0;
-            for (let i = 0; i < roofPoints.length; i++) {
-                const j = (i + 1) % roofPoints.length;
-                area += roofPoints[i].x * roofPoints[j].y;
-                area -= roofPoints[j].x * roofPoints[i].y;
+            
+            projectData.roofShape = {
+                points: roofPoints.slice(),
+                baseShape: selectedBaseShape,
+                variant: selectedVariant,
+                dachNeigung: 15
+            };
+            
+            if (saveData()) {
+                window.location.href = 'editor.html';
+            } else {
+                alert('Speichern fehlgeschlagen.');
             }
-            area = Math.abs(area) / 2;
+        }
 
-            // Umfang berechnen
-            let perimeter = 0;
-            for (let i = 0; i < roofPoints.length; i++) {
-                const j = (i + 1) % roofPoints.length;
-                const dx = roofPoints[j].x - roofPoints[i].x;
-                const dy = roofPoints[j].y - roofPoints[i].y;
+        function finishDrawing() {
+            if (drawingPoints.length < 3) {
+                alert('Mindestens 3 Punkte erforderlich!');
+                return;
+            }
+            
+            roofPoints = drawingPoints.slice();
+            selectedBaseShape = 'custom';
+            selectedVariant = 'custom';
+            saveAndGoToEditor();
+        }
+
+        function calculateArea(points) {
+            if (points.length < 3) return 0;
+            var area = 0;
+            for (var i = 0; i < points.length; i++) {
+                var j = (i + 1) % points.length;
+                area += points[i].x * points[j].y - points[j].x * points[i].y;
+            }
+            return Math.abs(area) / 2;
+        }
+
+        function calculatePerimeter(points) {
+            if (points.length < 2) return 0;
+            var perimeter = 0;
+            for (var i = 0; i < points.length; i++) {
+                var j = (i + 1) % points.length;
+                var dx = points[j].x - points[i].x, dy = points[j].y - points[i].y;
                 perimeter += Math.sqrt(dx * dx + dy * dy);
             }
-
-            // Bounding Box
-            const minX = Math.min(...roofPoints.map(p => p.x));
-            const maxX = Math.max(...roofPoints.map(p => p.x));
-            const minY = Math.min(...roofPoints.map(p => p.y));
-            const maxY = Math.max(...roofPoints.map(p => p.y));
-
-            statsDiv.innerHTML = `
-                <div class="roof-stats-grid">
-                    <div class="stat-item">
-                        <strong>Dachfläche:</strong><br>
-                        <span class="stat-value">${area.toFixed(2)} m²</span>
-                    </div>
-                    <div class="stat-item">
-                        <strong>Umfang:</strong><br>
-                        <span class="stat-value">${perimeter.toFixed(2)} m</span>
-                    </div>
-                    <div class="stat-item">
-                        <strong>Breite:</strong><br>
-                        <span class="stat-value">${(maxX - minX).toFixed(2)} m</span>
-                    </div>
-                    <div class="stat-item">
-                        <strong>Länge:</strong><br>
-                        <span class="stat-value">${(maxY - minY).toFixed(2)} m</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        function handleCanvasClick(event) {
-            if (selectedShapeType !== 'custom' || isDragging) return;
-            
-            const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-            
-            const worldX = (x - offsetX) / scale;
-            const worldY = -(y - offsetY) / scale;
-            
-            roofPoints.push({ x: parseFloat(worldX.toFixed(2)), y: parseFloat(worldY.toFixed(2)) });
-            updateDisplay();
-        }
-
-        function handleCanvasRightClick(event) {
-            if (selectedShapeType !== 'custom') return;
-            
-            event.preventDefault();
-            
-            const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-            
-            let closestIndex = -1;
-            let closestDistance = Infinity;
-            
-            roofPoints.forEach((point, index) => {
-                const px = offsetX + point.x * scale;
-                const py = offsetY - point.y * scale;
-                const distance = Math.sqrt((x - px) ** 2 + (y - py) ** 2);
-                
-                if (distance < closestDistance && distance < 25) {
-                    closestDistance = distance;
-                    closestIndex = index;
-                }
-            });
-            
-            if (closestIndex !== -1) {
-                deletePoint(closestIndex);
-            }
-        }
-
-        function handleMouseDown(event) {
-            if (event.button === 1 || event.ctrlKey) {
-                isDragging = true;
-                lastMousePos = { x: event.clientX, y: event.clientY };
-                canvas.style.cursor = 'move';
-                event.preventDefault();
-            }
-        }
-
-        function handleMouseMove(event) {
-            if (isDragging) {
-                const dx = event.clientX - lastMousePos.x;
-                const dy = event.clientY - lastMousePos.y;
-                
-                offsetX += dx;
-                offsetY += dy;
-                
-                lastMousePos = { x: event.clientX, y: event.clientY };
-                drawRoof();
-                event.preventDefault();
-            }
-        }
-
-        function handleMouseUp(event) {
-            if (isDragging) {
-                isDragging = false;
-                canvas.style.cursor = 'default';
-            }
-        }
-
-        function zoomIn() {
-            scale *= 1.2;
-            updateScaleInfo();
-            drawRoof();
-        }
-
-        function zoomOut() {
-            scale /= 1.2;
-            updateScaleInfo();
-            drawRoof();
-        }
-
-        function resetZoom() {
-            scale = 80;
-            updateScaleInfo();
-            drawRoof();
-        }
-
-        function centerView() {
-            if (roofPoints.length === 0) {
-                offsetX = canvas.width / 2;
-                offsetY = canvas.height / 2;
-            } else {
-                const bounds = getBounds(roofPoints);
-                offsetX = canvas.width / 2 - bounds.centerX * scale;
-                offsetY = canvas.height / 2 + bounds.centerY * scale;
-            }
-            drawRoof();
-        }
-
-        function updateScaleInfo() {
-            const scaleRatio = Math.round(100 / scale * 80);
-            document.getElementById('scale-info').textContent = `(Maßstab: 1:${scaleRatio})`;
+            return perimeter;
         }
 
         function validateForm() {
-            const isValid = roofPoints.length >= 3;
-            document.getElementById('continue-btn').disabled = !isValid;
+            var isValid = roofPoints.length >= 3;
+            var continueBtn = document.getElementById('continue-btn');
+            if (continueBtn) continueBtn.disabled = !isValid;
+        }
+
+        function resetToBase() {
+            selectedBaseShape = null;
+            selectedVariant = null;
+            roofPoints = [];
+            drawingPoints = [];
+            var tiles = document.querySelectorAll('.shape-tile');
+            for (var i = 0; i < tiles.length; i++) tiles[i].classList.remove('selected');
+            hideOtherSections([]);
+            validateForm();
         }
 
         function saveAndContinue() {
@@ -1071,34 +522,16 @@
                 alert('Mindestens 3 Punkte erforderlich!');
                 return;
             }
-
             projectData.roofShape = {
-                points: [...roofPoints],
-                dachTyp: selectedShapeType || 'custom',
-                dachNeigung: 15 // Standard-Neigung
+                points: roofPoints.slice(),
+                baseShape: selectedBaseShape,
+                variant: selectedVariant,
+                dachNeigung: 15
             };
-
-            saveData();
-            window.location.href = 'berechnung.html';
-        }
-
-        function loadSavedData() {
-            if (projectData.roofShape && projectData.roofShape.points) {
-                roofPoints = [...projectData.roofShape.points];
-                selectedShapeType = projectData.roofShape.dachTyp || 'custom';
-                
-                updateDisplay();
-                
-                // Entsprechende Kachel auswählen
-                if (selectedShapeType) {
-                    const tile = document.querySelector(`[data-shape="${selectedShapeType}"]`);
-                    if (tile) {
-                        tile.classList.add('selected');
-                        if (selectedShapeType === 'custom') {
-                            document.getElementById('manual-editor').style.display = 'block';
-                        }
-                    }
-                }
+            if (saveData()) {
+                window.location.href = 'berechnung.html';
+            } else {
+                alert('Speichern fehlgeschlagen.');
             }
         }
 
@@ -1106,15 +539,46 @@
             window.location.href = 'profil.html';
         }
 
-        // Fenstergröße-Änderung
-        window.addEventListener('resize', function() {
-            setTimeout(setupCanvas, 100);
-            setTimeout(drawRoof, 200);
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                projectData = loadData();
+                drawBasePreviews();
+                
+                var shapeTiles = document.querySelectorAll('.shape-tile');
+                for (var i = 0; i < shapeTiles.length; i++) {
+                    shapeTiles[i].addEventListener('click', function(e) {
+                        var shape = this.getAttribute('data-shape');
+                        selectBaseShape(shape);
+                    });
+                }
+                
+                document.getElementById('variants-grid').addEventListener('click', function(e) {
+                    var variantTile = e.target.closest('.variant-tile');
+                    if (variantTile) {
+                        var variant = variantTile.getAttribute('data-variant');
+                        selectedVariant = variant;
+                        var tiles = document.querySelectorAll('.variant-tile');
+                        for (var i = 0; i < tiles.length; i++) {
+                            tiles[i].classList.remove('selected');
+                        }
+                        variantTile.classList.add('selected');
+                        showParameters();
+                    }
+                });
+                
+                document.getElementById('generate-btn').addEventListener('click', generateShape);
+                document.getElementById('reset-btn').addEventListener('click', resetToBase);
+                document.getElementById('finish-drawing-btn').addEventListener('click', finishDrawing);
+                document.getElementById('back-btn').addEventListener('click', goBack);
+                
+            } catch (error) {
+                console.error('Fehler bei Initialisierung:', error);
+            }
         });
     </script>
 
     <style>
-        /* Zusätzliche Styles für die verbesserte Dachform-Seite */
         .predefined-shapes {
             margin-bottom: 30px;
         }
@@ -1194,8 +658,55 @@
             color: #0056b3;
         }
 
-        .shape-parameters {
-            margin-bottom: 30px;
+        .variants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .variant-tile {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .variant-tile:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,123,255,0.1);
+        }
+
+        .variant-tile.selected {
+            border-color: #007bff;
+            background-color: #f8f9ff;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.2);
+        }
+
+        .variant-preview {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+        }
+
+        .variant-tile:hover .variant-preview {
+            border-color: #007bff;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.2);
+        }
+
+        .variant-info h4 {
+            font-size: 14px;
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .variant-tile.selected .variant-info h4 {
+            color: #007bff;
         }
 
         .parameter-actions {
@@ -1204,131 +715,69 @@
             gap: 10px;
         }
 
-        .drawing-area {
-            margin-bottom: 30px;
-        }
-
-        .drawing-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .drawing-actions {
-            display: flex;
-            gap: 5px;
-        }
-
-        .canvas-container {
+        .drawing-canvas .canvas-container {
             position: relative;
             border: 2px solid #e9ecef;
             border-radius: 6px;
-            overflow: hidden;
-            background: #ffffff;
+            background: white;
+            margin-bottom: 15px;
         }
 
         .canvas-instructions {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            line-height: 1.3;
             pointer-events: none;
         }
 
-        .manual-editor {
-            margin-bottom: 20px;
-        }
-
-        .manual-controls {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 6px;
-        }
-
-        .manual-actions {
-            margin-top: 15px;
+        .drawing-tools {
             display: flex;
             gap: 10px;
+            justify-content: center;
         }
 
-        .roof-details {
-            margin-bottom: 30px;
+        .preview-container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
         }
 
-        .details-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
+        .preview-info {
+            flex: 1;
+            min-width: 200px;
         }
 
-        .roof-stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .stat-item {
+        #preview-canvas {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
             background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            text-align: center;
         }
 
-        .stat-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .text-muted {
-            color: #6c757d;
-        }
-
-        .table-container {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        /* Responsive Design */
         @media (max-width: 768px) {
             .shapes-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
             }
             
-            .details-grid {
+            .variants-grid {
                 grid-template-columns: 1fr;
-            }
-            
-            .drawing-actions {
-                flex-wrap: wrap;
             }
             
             .parameter-actions {
                 flex-direction: column;
             }
             
-            .manual-actions {
+            .preview-container {
                 flex-direction: column;
             }
         }
 
         @media (max-width: 480px) {
-            .roof-stats-grid {
+            .shapes-grid {
                 grid-template-columns: 1fr;
             }
         }
