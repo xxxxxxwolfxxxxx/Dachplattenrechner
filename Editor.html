@@ -1334,41 +1334,16 @@
             
             console.log('Form Y-Bereich nach Rotation:', minY, 'bis', maxY);
             
-            // Bestimme Zielposition - UMGEKEHRTE Logik
+            // EINFACHE und KLARE Logik:
             let targetY;
             if (orientationMode === 'first') {
-                // Seite nach OBEN (First) - wir wollen dass die Seite oben liegt
-                // Also: Verschiebe die Form so, dass die Seite bei minY liegt
+                // FIRST = Seite soll OBEN sein = kleinste Y-Koordinate
                 targetY = minY;
-                console.log('First-Modus: Bringe Seite nach OBEN (minY)', targetY);
+                console.log('First-Modus: Seite soll OBEN sein, Ziel-Y:', targetY);
             } else {
-                // Seite nach UNTEN (Traufe) - wir wollen dass die Seite unten liegt  
-                // Also: Verschiebe die Form so, dass die Seite bei maxY liegt
+                // TRAUFE = Seite soll UNTEN sein = größte Y-Koordinate  
                 targetY = maxY;
-                console.log('Traufe-Modus: Bringe Seite nach UNTEN (maxY)', targetY);
-            }
-            
-            // ABER: Das ist falsch! Wir müssen anders denken:
-            // Wenn orientationMode === 'first', wollen wir die Seite OBEN sehen
-            // Das bedeutet: Die Seite soll zur KLEINSTEN Y-Position
-            
-            // KORRIGIERTE Logik:
-            if (orientationMode === 'first') {
-                // Die gewählte Seite soll ganz OBEN sein (visuell)
-                // Das bedeutet: Alle anderen Punkte müssen UNTER der Seite liegen
-                // Also: Verschiebe so dass die Seite bei der obersten Position (minY) der neuen Anordnung liegt
-                const otherY = rotatedPoints.filter((_, i) => i !== sideIndex && i !== nextIndex).map(p => p.y);
-                const minOtherY = otherY.length > 0 ? Math.min(...otherY) : rotatedSideY;
-                targetY = Math.min(minOtherY, rotatedSideY) - 1; // Seite ÜBER alle anderen
-                console.log('First-Modus KORRIGIERT: Setze Seite ÜBER alle anderen bei', targetY);
-            } else {
-                // Die gewählte Seite soll ganz UNTEN sein (visuell)  
-                // Das bedeutet: Alle anderen Punkte müssen ÜBER der Seite liegen
-                // Also: Verschiebe so dass die Seite bei der untersten Position (maxY) der neuen Anordnung liegt
-                const otherY = rotatedPoints.filter((_, i) => i !== sideIndex && i !== nextIndex).map(p => p.y);
-                const maxOtherY = otherY.length > 0 ? Math.max(...otherY) : rotatedSideY;
-                targetY = Math.max(maxOtherY, rotatedSideY) + 1; // Seite UNTER alle anderen
-                console.log('Traufe-Modus KORRIGIERT: Setze Seite UNTER alle anderen bei', targetY);
+                console.log('Traufe-Modus: Seite soll UNTEN sein, Ziel-Y:', targetY);
             }
             
             // Verschiebe alle Punkte so dass die gewählte Seite an der Zielposition liegt
