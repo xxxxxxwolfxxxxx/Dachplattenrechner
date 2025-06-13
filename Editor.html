@@ -1,4 +1,99 @@
-<!DOCTYPE html>
+.canvas-wrapper {
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            background: white;
+            position: relative;
+        }
+
+        .orientation-labels {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .label-top {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 14px;
+            border: 1px solid #007bff;
+        }
+
+        .label-bottom {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 14px;
+            border: 1px solid #007bff;
+        }
+
+        .dimension-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .dimension-input label {
+            min-width: 80px;
+            font-weight: bold;
+            color: #dc3545;
+            font-size: 14px;
+        }
+
+        .dimension-input input {
+            width: 80px;
+            padding: 5px 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .dimension-input input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .dimension-input span {
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .editor-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .orientation-labels {
+                font-size: 12px;
+            }
+
+            .label-top, .label-bottom {
+                padding: 3px 10px;
+                font-size: 12px;
+            }
+        }<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -88,41 +183,69 @@
                         </div>
                         
                         <div class="canvas-wrapper">
-                            <svg id="main-svg" width="600" height="400" viewBox="0 0 600 400">
+                            <div class="orientation-labels">
+                                <div class="label-top">Oben (Firstbereich)</div>
+                                <div class="label-bottom">Unten (Traufbereich)</div>
+                            </div>
+                            
+                            <svg id="main-svg" width="800" height="600" viewBox="0 0 800 600">
                                 <!-- Raster -->
                                 <defs>
-                                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                    <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
+                                        <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
                                     </pattern>
                                 </defs>
                                 <rect width="100%" height="100%" fill="url(#grid)" />
                                 
                                 <!-- Koordinatenachsen -->
-                                <line x1="300" y1="0" x2="300" y2="400" stroke="#c0c0c0" stroke-width="2"/>
-                                <line x1="0" y1="200" x2="600" y2="200" stroke="#c0c0c0" stroke-width="2"/>
+                                <line x1="400" y1="0" x2="400" y2="600" stroke="#c0c0c0" stroke-width="2"/>
+                                <line x1="0" y1="300" x2="800" y2="300" stroke="#c0c0c0" stroke-width="2"/>
                                 
                                 <!-- Dachform wird hier gezeichnet -->
                                 <g id="roof-shape">
                                     <!-- Form wird hier eingefügt -->
                                 </g>
+                                
+                                <!-- Bemaßung wird hier eingefügt -->
+                                <g id="dimensions">
+                                    <!-- Maße mit Buchstaben -->
+                                </g>
                             </svg>
                         </div>
                     </div>
 
-                    <!-- Eigenschaften -->
+                    <!-- Maße bearbeiten -->
                     <div class="card shape-properties">
-                        <h3>Eigenschaften</h3>
+                        <h3>Maße bearbeiten</h3>
                         
                         <div class="property-group">
-                            <h4>Gewählte Form</h4>
-                            <p><strong>Typ:</strong> <span id="shape-type">-</span></p>
-                            <p><strong>Variante:</strong> <span id="shape-variant">-</span></p>
+                            <h4>Abmessungen</h4>
+                            <div class="dimension-input">
+                                <label for="dim-a">A - Länge:</label>
+                                <input type="number" id="dim-a" class="form-control" step="0.1" min="0.1" onchange="updateDimension('a')">
+                                <span>m</span>
+                            </div>
+                            <div class="dimension-input">
+                                <label for="dim-b">B - Breite:</label>
+                                <input type="number" id="dim-b" class="form-control" step="0.1" min="0.1" onchange="updateDimension('b')">
+                                <span>m</span>
+                            </div>
+                            <div class="dimension-input" id="dim-c-group" style="display: none;">
+                                <label for="dim-c">C - Höhe:</label>
+                                <input type="number" id="dim-c" class="form-control" step="0.1" min="0.1" onchange="updateDimension('c')">
+                                <span>m</span>
+                            </div>
+                            <div class="dimension-input" id="dim-d-group" style="display: none;">
+                                <label for="dim-d">D - Radius:</label>
+                                <input type="number" id="dim-d" class="form-control" step="0.1" min="0.1" onchange="updateDimension('d')">
+                                <span>m</span>
+                            </div>
                         </div>
 
                         <div class="property-group">
-                            <h4>Abmessungen</h4>
-                            <p><strong>Breite:</strong> <span id="shape-width">0 m</span></p>
-                            <p><strong>Höhe:</strong> <span id="shape-height">0 m</span></p>
+                            <h4>Form-Info</h4>
+                            <p><strong>Typ:</strong> <span id="shape-type">-</span></p>
+                            <p><strong>Variante:</strong> <span id="shape-variant">-</span></p>
                             <p><strong>Fläche:</strong> <span id="shape-area">0 m²</span></p>
                         </div>
 
@@ -158,6 +281,7 @@
         var currentRotation = 0;
         var isHorizontalMirrored = false;
         var isVerticalMirrored = false;
+        var currentDimensions = { a: 10, b: 8, c: 5, d: 3 };
 
         // Storage-Funktionen
         function saveData() {
@@ -263,6 +387,7 @@
         // Darstellung
         function updateShape() {
             drawShape();
+            drawDimensions();
             updateStats();
             updatePropertyDisplay();
         }
@@ -275,9 +400,9 @@
             
             // Punkte für SVG-Darstellung skalieren und zentrieren
             var bounds = getBounds(currentPoints);
-            var scale = Math.min(200 / Math.max(bounds.width, 1), 150 / Math.max(bounds.height, 1));
-            var centerX = 300; // Mitte des SVG
-            var centerY = 200;
+            var scale = Math.min(300 / Math.max(bounds.width, 1), 250 / Math.max(bounds.height, 1));
+            var centerX = 400; // Mitte des SVG
+            var centerY = 300;
             
             var svgPoints = currentPoints.map(p => {
                 var x = centerX + (p.x - (bounds.minX + bounds.maxX) / 2) * scale;
@@ -301,7 +426,7 @@
                 var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', x);
                 circle.setAttribute('cy', y);
-                circle.setAttribute('r', '5');
+                circle.setAttribute('r', '6');
                 circle.setAttribute('fill', '#dc3545');
                 circle.setAttribute('stroke', '#fff');
                 circle.setAttribute('stroke-width', '2');
@@ -313,11 +438,181 @@
                 text.setAttribute('y', y + 4);
                 text.setAttribute('text-anchor', 'middle');
                 text.setAttribute('fill', '#fff');
-                text.setAttribute('font-size', '10');
+                text.setAttribute('font-size', '11');
                 text.setAttribute('font-weight', 'bold');
                 text.textContent = index + 1;
                 roofGroup.appendChild(text);
             });
+        }
+
+        function drawDimensions() {
+            var dimensionsGroup = document.getElementById('dimensions');
+            dimensionsGroup.innerHTML = '';
+            
+            if (currentPoints.length === 0) return;
+            
+            var bounds = getBounds(currentPoints);
+            var scale = Math.min(300 / Math.max(bounds.width, 1), 250 / Math.max(bounds.height, 1));
+            var centerX = 400;
+            var centerY = 300;
+            
+            // Bemaßungslinien und -buchstaben zeichnen
+            var shapeType = projectData.roofShape.baseShape;
+            
+            if (shapeType === 'viereck') {
+                drawRectangleDimensions(dimensionsGroup, bounds, scale, centerX, centerY);
+            } else if (shapeType === 'dreieck') {
+                drawTriangleDimensions(dimensionsGroup, bounds, scale, centerX, centerY);
+            } else if (shapeType === 'kreis') {
+                drawCircleDimensions(dimensionsGroup, bounds, scale, centerX, centerY);
+            } else if (shapeType === 'vieleck') {
+                drawPolygonDimensions(dimensionsGroup, bounds, scale, centerX, centerY);
+            }
+        }
+
+        function drawRectangleDimensions(group, bounds, scale, centerX, centerY) {
+            var width = bounds.width * scale;
+            var height = bounds.height * scale;
+            var x = centerX - width / 2;
+            var y = centerY - height / 2;
+            
+            // A - Länge (unten)
+            drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
+            
+            // B - Breite (rechts)
+            drawDimensionLine(group, x + width + 30, y, x + width + 30, y + height, 'B', currentDimensions.b.toFixed(1) + 'm');
+        }
+
+        function drawTriangleDimensions(group, bounds, scale, centerX, centerY) {
+            var width = bounds.width * scale;
+            var height = bounds.height * scale;
+            var x = centerX - width / 2;
+            var y = centerY - height / 2;
+            
+            // A - Basis (unten)
+            drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
+            
+            // B - Höhe (links)
+            drawDimensionLine(group, x - 30, y, x - 30, y + height, 'B', currentDimensions.b.toFixed(1) + 'm');
+        }
+
+        function drawCircleDimensions(group, bounds, scale, centerX, centerY) {
+            var radius = Math.min(bounds.width, bounds.height) * scale / 2;
+            
+            // A - Durchmesser (horizontal)
+            drawDimensionLine(group, centerX - radius, centerY + radius + 40, centerX + radius, centerY + radius + 40, 'A', (currentDimensions.a * 2).toFixed(1) + 'm');
+            
+            // D - Radius
+            var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', centerX + radius * 0.7);
+            text.setAttribute('y', centerY - radius * 0.7);
+            text.setAttribute('fill', '#dc3545');
+            text.setAttribute('font-size', '14');
+            text.setAttribute('font-weight', 'bold');
+            text.textContent = 'D: ' + currentDimensions.d.toFixed(1) + 'm';
+            group.appendChild(text);
+        }
+
+        function drawPolygonDimensions(group, bounds, scale, centerX, centerY) {
+            var width = bounds.width * scale;
+            var height = bounds.height * scale;
+            var x = centerX - width / 2;
+            var y = centerY - height / 2;
+            
+            // A - Gesamtbreite
+            drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
+            
+            // B - Gesamthöhe
+            drawDimensionLine(group, x - 30, y, x - 30, y + height, 'B', currentDimensions.b.toFixed(1) + 'm');
+        }
+
+        function drawDimensionLine(group, x1, y1, x2, y2, letter, value) {
+            // Bemaßungslinie
+            var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            line.setAttribute('stroke', '#666');
+            line.setAttribute('stroke-width', '2');
+            group.appendChild(line);
+            
+            // Endmarkierungen
+            var marker1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            marker1.setAttribute('x1', x1);
+            marker1.setAttribute('y1', y1 - 5);
+            marker1.setAttribute('x2', x1);
+            marker1.setAttribute('y2', y1 + 5);
+            marker1.setAttribute('stroke', '#666');
+            marker1.setAttribute('stroke-width', '2');
+            group.appendChild(marker1);
+            
+            var marker2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            marker2.setAttribute('x1', x2);
+            marker2.setAttribute('y1', y2 - 5);
+            marker2.setAttribute('x2', x2);
+            marker2.setAttribute('y2', y2 + 5);
+            marker2.setAttribute('stroke', '#666');
+            marker2.setAttribute('stroke-width', '2');
+            group.appendChild(marker2);
+            
+            // Buchstabe und Wert
+            var midX = (x1 + x2) / 2;
+            var midY = (y1 + y2) / 2;
+            
+            var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', midX);
+            text.setAttribute('y', midY - 8);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('fill', '#dc3545');
+            text.setAttribute('font-size', '14');
+            text.setAttribute('font-weight', 'bold');
+            text.textContent = letter + ': ' + value;
+            group.appendChild(text);
+        }
+
+        // Maß-Updates
+        function updateDimension(dimension) {
+            var value = parseFloat(document.getElementById('dim-' + dimension).value);
+            if (value > 0) {
+                currentDimensions[dimension] = value;
+                regenerateShape();
+                updateShape();
+            }
+        }
+
+        function regenerateShape() {
+            var shapeType = projectData.roofShape.baseShape;
+            var variant = projectData.roofShape.variant;
+            
+            if (shapeType === 'viereck') {
+                if (variant === 'rechteck' || variant === 'quadrat') {
+                    currentPoints = [
+                        { x: -currentDimensions.a/2, y: -currentDimensions.b/2 },
+                        { x: currentDimensions.a/2, y: -currentDimensions.b/2 },
+                        { x: currentDimensions.a/2, y: currentDimensions.b/2 },
+                        { x: -currentDimensions.a/2, y: currentDimensions.b/2 }
+                    ];
+                }
+            } else if (shapeType === 'dreieck') {
+                currentPoints = [
+                    { x: 0, y: -currentDimensions.b/2 },
+                    { x: -currentDimensions.a/2, y: currentDimensions.b/2 },
+                    { x: currentDimensions.a/2, y: currentDimensions.b/2 }
+                ];
+            } else if (shapeType === 'kreis') {
+                var radius = currentDimensions.d;
+                var segments = 16;
+                currentPoints = [];
+                for (var i = 0; i < segments; i++) {
+                    var angle = (i / segments) * 2 * Math.PI;
+                    currentPoints.push({
+                        x: radius * Math.cos(angle),
+                        y: radius * Math.sin(angle)
+                    });
+                }
+            }
+            // Weitere Formen können hier hinzugefügt werden
         }
 
         function updateStats() {
@@ -331,14 +626,43 @@
 
         function updatePropertyDisplay() {
             var bounds = getBounds(currentPoints);
-            document.getElementById('shape-width').textContent = bounds.width.toFixed(2) + ' m';
-            document.getElementById('shape-height').textContent = bounds.height.toFixed(2) + ' m';
             document.getElementById('rotation-display').textContent = currentRotation + '°';
             
             var mirrorStatus = [];
             if (isHorizontalMirrored) mirrorStatus.push('Horizontal');
             if (isVerticalMirrored) mirrorStatus.push('Vertikal');
             document.getElementById('mirror-display').textContent = mirrorStatus.length > 0 ? mirrorStatus.join(', ') : 'Nein';
+        }
+
+        function initializeDimensionInputs() {
+            var shapeType = projectData.roofShape.baseShape;
+            
+            // Alle Dimension-Groups verstecken
+            document.getElementById('dim-c-group').style.display = 'none';
+            document.getElementById('dim-d-group').style.display = 'none';
+            
+            if (shapeType === 'viereck') {
+                document.getElementById('dim-a').value = currentDimensions.a;
+                document.getElementById('dim-b').value = currentDimensions.b;
+                document.querySelector('label[for="dim-a"]').textContent = 'A - Länge:';
+                document.querySelector('label[for="dim-b"]').textContent = 'B - Breite:';
+            } else if (shapeType === 'dreieck') {
+                document.getElementById('dim-a').value = currentDimensions.a;
+                document.getElementById('dim-b').value = currentDimensions.b;
+                document.querySelector('label[for="dim-a"]').textContent = 'A - Basis:';
+                document.querySelector('label[for="dim-b"]').textContent = 'B - Höhe:';
+            } else if (shapeType === 'kreis') {
+                document.getElementById('dim-d-group').style.display = 'block';
+                document.getElementById('dim-a').value = currentDimensions.d * 2;
+                document.getElementById('dim-d').value = currentDimensions.d;
+                document.querySelector('label[for="dim-a"]').textContent = 'A - Durchmesser:';
+                document.querySelector('label[for="dim-d"]').textContent = 'D - Radius:';
+            } else if (shapeType === 'vieleck') {
+                document.getElementById('dim-a').value = currentDimensions.a;
+                document.getElementById('dim-b').value = currentDimensions.b;
+                document.querySelector('label[for="dim-a"]').textContent = 'A - Breite:';
+                document.querySelector('label[for="dim-b"]').textContent = 'B - Höhe:';
+            }
         }
 
         // Navigation
@@ -379,6 +703,13 @@
             document.getElementById('shape-type').textContent = projectData.roofShape.baseShape || 'Unbekannt';
             document.getElementById('shape-variant').textContent = projectData.roofShape.variant || 'Standard';
             
+            // Dimensionen aus bestehender Form ableiten
+            var bounds = getBounds(originalPoints);
+            currentDimensions.a = Math.max(bounds.width, 1);
+            currentDimensions.b = Math.max(bounds.height, 1);
+            currentDimensions.c = Math.max(bounds.height * 0.6, 1);
+            currentDimensions.d = Math.max(bounds.width, bounds.height) / 2;
+            
             // Transformationen anwenden falls vorhanden
             if (projectData.roofShape.transformations) {
                 var t = projectData.roofShape.transformations;
@@ -387,6 +718,7 @@
                 isVerticalMirrored = t.verticalMirrored || false;
             }
             
+            initializeDimensionInputs();
             updateShape();
         });
     </script>
