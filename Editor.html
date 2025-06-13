@@ -1330,11 +1330,11 @@
                 const rotatedP2 = rotatedPoints[nextIndex];
                 currentValue = (rotatedP1.x + rotatedP2.x) / 2;
                 
-                // Ziel: Seite soll ganz links sein
+                // Ziel: Seite soll ganz links sein (bei der kleinsten X-Koordinate)
                 targetValue = minX;
                 offsetX = targetValue - currentValue;
                 
-                console.log('Verschiebe Seite nach links um', offsetX);
+                console.log('Seite ist bei X =', currentValue, ', soll zu X =', targetValue, ', Offset =', offsetX);
                 
             } else {
                 // TRAUFE-Orientierung: Seite soll horizontal und unten sein
