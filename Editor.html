@@ -293,33 +293,18 @@
                             </div>
                         </div>
 
-                        <div class="tool-group" id="orientation-tools" style="display: none;">
-                            <h4>Dreieck-Ausrichtung</h4>
-                            <div class="button-group">
-                                <button class="btn btn-info" onclick="setBaseSide(0)">
-                                    Seite A nach unten
-                                </button>
-                                <button class="btn btn-info" onclick="setBaseSide(1)">
-                                    Seite B nach unten
-                                </button>
-                                <button class="btn btn-info" onclick="setBaseSide(2)">
-                                    Seite C nach unten
-                                </button>
-                            </div>
-                        </div>
-
                         <div class="tool-group" id="roof-orientation-tools">
                             <h4>Dach-Ausrichtung</h4>
                             <div class="button-group">
-                                <button class="btn btn-success" onclick="setRoofOrientation('traufe')">
-                                    📐 Längste Seite = Traufe (unten)
+                                <button class="btn btn-success" id="btn-traufe" onclick="setOrientationMode('traufe')">
+                                    📐 Seite nach unten (Traufe)
                                 </button>
-                                <button class="btn btn-success" onclick="setRoofOrientation('first')">
-                                    🏠 Längste Seite = First (oben)
+                                <button class="btn btn-success" id="btn-first" onclick="setOrientationMode('first')">
+                                    🏠 Seite nach oben (First)
                                 </button>
                             </div>
-                            <small style="color: #666; font-size: 11px; margin-top: 5px; display: block;">
-                                Bestimmt, ob die längste Seite oben (First) oder unten (Traufe) liegt
+                            <small style="color: #666; font-size: 11px; margin-top: 5px; display: block;" id="orientation-hint">
+                                Klicken Sie einen Button, dann auf eine Seite im Diagramm
                             </small>
                         </div>
 
@@ -654,7 +639,8 @@
         let currentShapeType = 'rechteck';
         let currentValues = {};
         let isUpdating = false;
-        let currentRoofOrientation = 'traufe'; // 'traufe' oder 'first'
+        let orientationMode = null; // 'traufe', 'first' oder null
+        let isWaitingForSideClick = false;
 
         // Storage-Funktionen mit erweiterten Debug-Infos
         function saveData() {
@@ -931,15 +917,7 @@
                 container.appendChild(div);
             });
             
-            // Orientierungs-Tools für Dreiecke anzeigen/verstecken
-            const orientationTools = document.getElementById('orientation-tools');
-            if (currentShapeType === 'dreieck') {
-                orientationTools.style.display = 'block';
-            } else {
-                orientationTools.style.display = 'none';
-            }
-            
-            // Dach-Orientierungs-Tools für alle komplexeren Formen anzeigen
+            // Orientierungs-Tools für alle Formen außer einfachen Rechtecken anzeigen
             const roofOrientationTools = document.getElementById('roof-orientation-tools');
             if (!['rechteck'].includes(currentShapeType)) {
                 roofOrientationTools.style.display = 'block';
@@ -1101,28 +1079,17 @@
                 sideText.setAttribute('x', midX);
                 sideText.setAttribute('y', midY - 15);
                 sideText.setAttribute('font-size', isLongestSide ? '16' : '12');
-                sideText.setAttribute('fill', isLongestSide ? '#dc3545' : '#28a745');
+                sideText.setAttribute('fill', isWaitingForSideClick ? '#ffc107' : (isLongestSide ? '#dc3545' : '#28a745'));
                 sideText.setAttribute('font-weight', 'bold');
                 sideText.setAttribute('text-anchor', 'middle');
                 sideText.setAttribute('dominant-baseline', 'middle');
                 sideText.setAttribute('style', 'cursor: pointer;');
                 
-                // Label-Text
-                if (currentShapeType === 'dreieck') {
-                    const sideLabels = ['A', 'B', 'C'];
-                    sideText.textContent = sideLabels[index] + (isLongestSide ? ' ★' : '');
-                } else {
-                    sideText.textContent = `S${index + 1}${isLongestSide ? ' ★' : ''}`;
-                }
+                // Label-Text - vereinfacht für alle Formen
+                sideText.textContent = `S${index + 1}${isLongestSide ? ' ★' : ''}`;
                 
-                // Click-Handler für First/Traufe-Ausrichtung
-                sideText.onclick = () => {
-                    if (currentShapeType === 'dreieck') {
-                        setBaseSide(index);
-                    } else {
-                        setSideOrientation(index);
-                    }
-                };
+                // Click-Handler nur für Orientierung
+                sideText.onclick = () => setSideOrientation(index);
                 
                 dimensionsGroup.appendChild(sideText);
                 
@@ -1142,16 +1109,12 @@
                 clickArea.setAttribute('y1', y);
                 clickArea.setAttribute('x2', nextX);
                 clickArea.setAttribute('y2', nextY);
-                clickArea.setAttribute('stroke', 'transparent');
+                clickArea.setAttribute('stroke', isWaitingForSideClick ? 'rgba(255, 193, 7, 0.3)' : 'transparent');
                 clickArea.setAttribute('stroke-width', '15');
                 clickArea.setAttribute('style', 'cursor: pointer;');
                 
-                // Click-Handler
-                if (currentShapeType === 'dreieck') {
-                    clickArea.onclick = () => setBaseSide(index);
-                } else {
-                    clickArea.onclick = () => setSideOrientation(index);
-                }
+                // Einheitlicher Click-Handler
+                clickArea.onclick = () => setSideOrientation(index);
                 
                 roofGroup.appendChild(clickArea);
             });
