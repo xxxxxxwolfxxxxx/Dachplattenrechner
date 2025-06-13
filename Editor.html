@@ -614,12 +614,14 @@
         let currentValues = {};
         let isUpdating = false;
 
-        // Storage-Funktionen
+        // Storage-Funktionen mit erweiterten Debug-Infos
         function saveData() {
             try {
                 localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                console.log('Daten gespeichert:', projectData);
                 return true;
             } catch (e) {
+                console.log('localStorage nicht verfügbar, verwende Session-Speicher');
                 sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
                 return true;
             }
@@ -627,9 +629,24 @@
 
         function loadData() {
             try {
-                const saved = localStorage.getItem('dachplattenrechner_data') || sessionStorage.getItem('dachplattenrechner_data');
-                return saved ? JSON.parse(saved) : {};
+                let saved = localStorage.getItem('dachplattenrechner_data');
+                if (!saved) {
+                    saved = sessionStorage.getItem('dachplattenrechner_data');
+                    console.log('Lade aus sessionStorage:', saved);
+                } else {
+                    console.log('Lade aus localStorage:', saved);
+                }
+                
+                if (!saved) {
+                    console.log('Keine gespeicherten Daten gefunden');
+                    return {};
+                }
+                
+                const parsed = JSON.parse(saved);
+                console.log('Geparste Daten:', parsed);
+                return parsed;
             } catch (e) {
+                console.log('Fehler beim Laden der Daten:', e);
                 return {};
             }
         }
@@ -670,19 +687,31 @@
             return shapeMapping[variant] || shapeMapping[baseShape] || 'rechteck';
         }
 
-        // Shape-Typ setzen (aus Projektdaten)
+        // Shape-Typ setzen (aus Projektdaten) - mit mehr Debug
         function initializeShapeType() {
+            console.log('--- initializeShapeType gestartet ---');
+            
             currentShapeType = loadShapeFromProject();
             
-            console.log('Ermittelter ShapeType:', currentShapeType); // Debug
+            console.log('Aktueller ShapeType:', currentShapeType);
             
-            const shapeName = SmartGeometry.shapes[currentShapeType]?.name || 'Unbekannte Form';
+            const shape = SmartGeometry.shapes[currentShapeType];
+            console.log('Gefundene Shape-Definition:', shape);
             
-            console.log('Shape Name:', shapeName); // Debug
+            const shapeName = shape?.name || 'Unbekannte Form';
             
-            document.getElementById('current-shape-name').textContent = shapeName;
+            console.log('Shape Name:', shapeName);
+            
+            const nameElement = document.getElementById('current-shape-name');
+            if (nameElement) {
+                nameElement.textContent = shapeName;
+                console.log('Shape Name gesetzt in Element');
+            } else {
+                console.log('FEHLER: Element current-shape-name nicht gefunden!');
+            }
             
             generateInputFields();
+            console.log('--- initializeShapeType beendet ---');
         }
 
         // Eingabefelder generieren
