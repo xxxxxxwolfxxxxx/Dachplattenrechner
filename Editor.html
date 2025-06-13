@@ -16,7 +16,7 @@
 
         .label-top {
             position: absolute;
-            top: 10px;
+            top: -40px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.9);
@@ -30,7 +30,7 @@
 
         .label-bottom {
             position: absolute;
-            bottom: 10px;
+            bottom: -40px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.9);
@@ -40,6 +40,51 @@
             color: #2c3e50;
             font-size: 14px;
             border: 1px solid #007bff;
+        }
+
+        .water-flow-left {
+            position: absolute;
+            left: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #17a2b8;
+        }
+
+        .water-flow-right {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #17a2b8;
+        }
+
+        .flow-arrow {
+            font-size: 48px;
+            font-weight: bold;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .flow-text {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .pythagoras-info {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #17a2b8;
+            margin-top: 10px;
         }
 
         .dimension-input {
@@ -185,6 +230,14 @@
                         <div class="canvas-wrapper">
                             <div class="orientation-labels">
                                 <div class="label-top">Oben (Firstbereich)</div>
+                                <div class="water-flow-left">
+                                    <div class="flow-arrow">↓</div>
+                                    <div class="flow-text">Wasserlaufrichtung</div>
+                                </div>
+                                <div class="water-flow-right">
+                                    <div class="flow-arrow">↓</div>
+                                    <div class="flow-text">Wasserlaufrichtung</div>
+                                </div>
                                 <div class="label-bottom">Unten (Traufbereich)</div>
                             </div>
                             
@@ -219,26 +272,40 @@
                         <h3>Maße bearbeiten</h3>
                         
                         <div class="property-group">
-                            <h4>Abmessungen</h4>
+                            <h4>Maße bearbeiten</h4>
                             <div class="dimension-input">
                                 <label for="dim-a">A - Länge:</label>
-                                <input type="number" id="dim-a" class="form-control" step="0.1" min="0.1" onchange="updateDimension('a')">
+                                <input type="number" id="dim-a" class="form-control" step="0.1" min="0.1" onchange="updateDimension('a')" oninput="calculateMissingValues()">
                                 <span>m</span>
                             </div>
                             <div class="dimension-input">
                                 <label for="dim-b">B - Breite:</label>
-                                <input type="number" id="dim-b" class="form-control" step="0.1" min="0.1" onchange="updateDimension('b')">
+                                <input type="number" id="dim-b" class="form-control" step="0.1" min="0.1" onchange="updateDimension('b')" oninput="calculateMissingValues()">
                                 <span>m</span>
                             </div>
                             <div class="dimension-input" id="dim-c-group" style="display: none;">
                                 <label for="dim-c">C - Höhe:</label>
-                                <input type="number" id="dim-c" class="form-control" step="0.1" min="0.1" onchange="updateDimension('c')">
+                                <input type="number" id="dim-c" class="form-control" step="0.1" min="0.1" onchange="updateDimension('c')" oninput="calculateMissingValues()">
                                 <span>m</span>
                             </div>
                             <div class="dimension-input" id="dim-d-group" style="display: none;">
-                                <label for="dim-d">D - Radius:</label>
-                                <input type="number" id="dim-d" class="form-control" step="0.1" min="0.1" onchange="updateDimension('d')">
+                                <label for="dim-d">D - Seite:</label>
+                                <input type="number" id="dim-d" class="form-control" step="0.1" min="0.1" onchange="updateDimension('d')" oninput="calculateMissingValues()">
                                 <span>m</span>
+                            </div>
+                            <div class="dimension-input" id="dim-e-group" style="display: none;">
+                                <label for="dim-e">E - Seite:</label>
+                                <input type="number" id="dim-e" class="form-control" step="0.1" min="0.1" onchange="updateDimension('e')" oninput="calculateMissingValues()">
+                                <span>m</span>
+                            </div>
+                            <div class="dimension-input" id="dim-f-group" style="display: none;">
+                                <label for="dim-f">F - Seite:</label>
+                                <input type="number" id="dim-f" class="form-control" step="0.1" min="0.1" onchange="updateDimension('f')" oninput="calculateMissingValues()">
+                                <span>m</span>
+                            </div>
+                            
+                            <div class="pythagoras-info" id="pythagoras-info" style="display: none;">
+                                <small class="text-info">💡 Fehlende Werte werden automatisch nach dem Satz des Pythagoras berechnet</small>
                             </div>
                         </div>
 
@@ -281,7 +348,8 @@
         var currentRotation = 0;
         var isHorizontalMirrored = false;
         var isVerticalMirrored = false;
-        var currentDimensions = { a: 10, b: 8, c: 5, d: 3 };
+        var currentDimensions = { a: 10, b: 8, c: 5, d: 3, e: 4, f: 6 };
+        var isCalculating = false; // Verhindert Endlosschleifen bei automatischen Berechnungen
 
         // Storage-Funktionen
         function saveData() {
@@ -489,11 +557,62 @@
             var x = centerX - width / 2;
             var y = centerY - height / 2;
             
-            // A - Basis (unten)
-            drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
+            var variant = projectData.roofShape.variant;
             
-            // B - Höhe (links)
-            drawDimensionLine(group, x - 30, y, x - 30, y + height, 'B', currentDimensions.b.toFixed(1) + 'm');
+            if (variant === 'rechtwinklig') {
+                // A - Basis (unten)
+                drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
+                
+                // B - Höhe (links)
+                drawDimensionLine(group, x - 30, y, x - 30, y + height, 'B', currentDimensions.b.toFixed(1) + 'm');
+                
+                // C - Hypotenuse (schräg)
+                var hypX = x + width * 0.7;
+                var hypY = y + height * 0.3;
+                var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', hypX);
+                text.setAttribute('y', hypY);
+                text.setAttribute('fill', '#dc3545');
+                text.setAttribute('font-size', '14');
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = 'C: ' + currentDimensions.c.toFixed(1) + 'm';
+                group.appendChild(text);
+                
+            } else if (variant === 'ungleichschenklig') {
+                // A - Basis (unten)
+                drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
+                
+                // B - Linke Seite
+                var leftText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                leftText.setAttribute('x', x - 20);
+                leftText.setAttribute('y', y + height * 0.5);
+                leftText.setAttribute('fill', '#dc3545');
+                leftText.setAttribute('font-size', '14');
+                leftText.setAttribute('font-weight', 'bold');
+                leftText.textContent = 'B: ' + currentDimensions.b.toFixed(1) + 'm';
+                group.appendChild(leftText);
+                
+                // C - Rechte Seite
+                var rightText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                rightText.setAttribute('x', x + width + 10);
+                rightText.setAttribute('y', y + height * 0.5);
+                rightText.setAttribute('fill', '#dc3545');
+                rightText.setAttribute('font-size', '14');
+                rightText.setAttribute('font-weight', 'bold');
+                rightText.textContent = 'C: ' + currentDimensions.c.toFixed(1) + 'm';
+                group.appendChild(rightText);
+                
+                // D - Höhe (senkrecht)
+                drawDimensionLine(group, x + width/2 - 15, y, x + width/2 - 15, y + height, 'D', currentDimensions.d.toFixed(1) + 'm');
+                
+            } else {
+                // Gleichseitiges Dreieck - alle Seiten gleich
+                // A - Basis (unten)
+                drawDimensionLine(group, x, y + height + 30, x + width, y + height + 30, 'A', currentDimensions.a.toFixed(1) + 'm');
+                
+                // B - Höhe
+                drawDimensionLine(group, x + width/2 + 20, y, x + width/2 + 20, y + height, 'B', currentDimensions.b.toFixed(1) + 'm');
+            }
         }
 
         function drawCircleDimensions(group, bounds, scale, centerX, centerY) {
@@ -571,14 +690,81 @@
             group.appendChild(text);
         }
 
-        // Maß-Updates
+        // Maß-Updates und Pythagoras-Berechnungen
         function updateDimension(dimension) {
+            if (isCalculating) return; // Verhindert Endlosschleifen
+            
             var value = parseFloat(document.getElementById('dim-' + dimension).value);
             if (value > 0) {
                 currentDimensions[dimension] = value;
+                calculateMissingValues();
                 regenerateShape();
                 updateShape();
             }
+        }
+
+        function calculateMissingValues() {
+            if (isCalculating) return;
+            isCalculating = true;
+            
+            var shapeType = projectData.roofShape.baseShape;
+            var variant = projectData.roofShape.variant;
+            
+            if (shapeType === 'dreieck') {
+                if (variant === 'rechtwinklig') {
+                    // Satz des Pythagoras: c² = a² + b²
+                    var a = currentDimensions.a;
+                    var b = currentDimensions.b;
+                    var c = currentDimensions.c;
+                    
+                    if (a > 0 && b > 0 && (!c || c === 0)) {
+                        // Berechne Hypotenuse
+                        currentDimensions.c = Math.sqrt(a * a + b * b);
+                        document.getElementById('dim-c').value = currentDimensions.c.toFixed(2);
+                    } else if (a > 0 && c > 0 && (!b || b === 0)) {
+                        // Berechne Kathete b
+                        if (c > a) {
+                            currentDimensions.b = Math.sqrt(c * c - a * a);
+                            document.getElementById('dim-b').value = currentDimensions.b.toFixed(2);
+                        }
+                    } else if (b > 0 && c > 0 && (!a || a === 0)) {
+                        // Berechne Kathete a
+                        if (c > b) {
+                            currentDimensions.a = Math.sqrt(c * c - b * b);
+                            document.getElementById('dim-a').value = currentDimensions.a.toFixed(2);
+                        }
+                    }
+                } else if (variant === 'gleichseitig') {
+                    // Gleichseitiges Dreieck: Höhe = (√3/2) * Seitenlänge
+                    var a = currentDimensions.a;
+                    var b = currentDimensions.b;
+                    
+                    if (a > 0 && (!b || b === 0)) {
+                        currentDimensions.b = (Math.sqrt(3) / 2) * a;
+                        document.getElementById('dim-b').value = currentDimensions.b.toFixed(2);
+                    } else if (b > 0 && (!a || a === 0)) {
+                        currentDimensions.a = (2 / Math.sqrt(3)) * b;
+                        document.getElementById('dim-a').value = currentDimensions.a.toFixed(2);
+                    }
+                }
+            } else if (shapeType === 'kreis') {
+                // Radius und Durchmesser
+                var d = currentDimensions.d; // Radius
+                var a = currentDimensions.a; // Durchmesser
+                
+                if (d > 0 && (!a || a === 0)) {
+                    currentDimensions.a = d * 2;
+                    document.getElementById('dim-a').value = currentDimensions.a.toFixed(2);
+                } else if (a > 0 && (!d || d === 0)) {
+                    currentDimensions.d = a / 2;
+                    document.getElementById('dim-d').value = currentDimensions.d.toFixed(2);
+                }
+            } else if (shapeType === 'viereck' && variant === 'parallelogramm') {
+                // Für Parallelogramm könnten hier Winkelberechnungen stehen
+                // Vorerst nur Grundmaße
+            }
+            
+            isCalculating = false;
         }
 
         function regenerateShape() {
@@ -636,27 +822,59 @@
 
         function initializeDimensionInputs() {
             var shapeType = projectData.roofShape.baseShape;
+            var variant = projectData.roofShape.variant;
             
             // Alle Dimension-Groups verstecken
             document.getElementById('dim-c-group').style.display = 'none';
             document.getElementById('dim-d-group').style.display = 'none';
+            document.getElementById('dim-e-group').style.display = 'none';
+            document.getElementById('dim-f-group').style.display = 'none';
+            document.getElementById('pythagoras-info').style.display = 'none';
             
             if (shapeType === 'viereck') {
                 document.getElementById('dim-a').value = currentDimensions.a;
                 document.getElementById('dim-b').value = currentDimensions.b;
                 document.querySelector('label[for="dim-a"]').textContent = 'A - Länge:';
                 document.querySelector('label[for="dim-b"]').textContent = 'B - Breite:';
+                
             } else if (shapeType === 'dreieck') {
-                document.getElementById('dim-a').value = currentDimensions.a;
-                document.getElementById('dim-b').value = currentDimensions.b;
-                document.querySelector('label[for="dim-a"]').textContent = 'A - Basis:';
-                document.querySelector('label[for="dim-b"]').textContent = 'B - Höhe:';
+                document.getElementById('pythagoras-info').style.display = 'block';
+                
+                if (variant === 'rechtwinklig') {
+                    document.getElementById('dim-c-group').style.display = 'block';
+                    document.getElementById('dim-a').value = currentDimensions.a;
+                    document.getElementById('dim-b').value = currentDimensions.b;
+                    document.getElementById('dim-c').value = currentDimensions.c;
+                    document.querySelector('label[for="dim-a"]').textContent = 'A - Kathete:';
+                    document.querySelector('label[for="dim-b"]').textContent = 'B - Kathete:';
+                    document.querySelector('label[for="dim-c"]').textContent = 'C - Hypotenuse:';
+                    
+                } else if (variant === 'ungleichschenklig') {
+                    document.getElementById('dim-c-group').style.display = 'block';
+                    document.getElementById('dim-d-group').style.display = 'block';
+                    document.getElementById('dim-a').value = currentDimensions.a;
+                    document.getElementById('dim-b').value = currentDimensions.b;
+                    document.getElementById('dim-c').value = currentDimensions.c;
+                    document.getElementById('dim-d').value = currentDimensions.d;
+                    document.querySelector('label[for="dim-a"]').textContent = 'A - Basis:';
+                    document.querySelector('label[for="dim-b"]').textContent = 'B - Seite links:';
+                    document.querySelector('label[for="dim-c"]').textContent = 'C - Seite rechts:';
+                    document.querySelector('label[for="dim-d"]').textContent = 'D - Höhe:';
+                    
+                } else { // gleichseitig
+                    document.getElementById('dim-a').value = currentDimensions.a;
+                    document.getElementById('dim-b').value = currentDimensions.b;
+                    document.querySelector('label[for="dim-a"]').textContent = 'A - Seitenlänge:';
+                    document.querySelector('label[for="dim-b"]').textContent = 'B - Höhe:';
+                }
+                
             } else if (shapeType === 'kreis') {
                 document.getElementById('dim-d-group').style.display = 'block';
                 document.getElementById('dim-a').value = currentDimensions.d * 2;
                 document.getElementById('dim-d').value = currentDimensions.d;
                 document.querySelector('label[for="dim-a"]').textContent = 'A - Durchmesser:';
                 document.querySelector('label[for="dim-d"]').textContent = 'D - Radius:';
+                
             } else if (shapeType === 'vieleck') {
                 document.getElementById('dim-a').value = currentDimensions.a;
                 document.getElementById('dim-b').value = currentDimensions.b;
