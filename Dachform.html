@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dachform Editor - Dachplattenrechner</title>
+    <title>Dachform auswählen - Dachplattenrechner</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,10 +21,14 @@
                 </div>
                 <div class="step" data-step="3">
                     <span class="step-number">3</span>
-                    <span class="step-title">Berechnung</span>
+                    <span class="step-title">Editor</span>
                 </div>
                 <div class="step" data-step="4">
                     <span class="step-number">4</span>
+                    <span class="step-title">Berechnung</span>
+                </div>
+                <div class="step" data-step="5">
+                    <span class="step-number">5</span>
                     <span class="step-title">Anrissplan</span>
                 </div>
             </nav>
@@ -32,18 +36,18 @@
 
         <main>
             <section class="roof-editor-section">
-                <h2>Schritt 2: Dachform definieren</h2>
-                <p>Wählen Sie zuerst eine Grundform, dann eine spezifische Variante:</p>
+                <h2>Schritt 2: Dachform auswählen</h2>
+                <p>Wählen Sie eine Grundform für Ihr Dach. Die genauen Maße können Sie im nächsten Schritt (Editor) anpassen:</p>
 
                 <!-- Grundformen -->
                 <div class="card predefined-shapes">
-                    <h3>1. Grundform wählen</h3>
+                    <h3>Grundform wählen</h3>
                     <div class="shapes-grid">
-                        <div class="shape-tile" data-shape="kreis">
+                        <div class="shape-tile" data-shape="rechteck">
                             <canvas class="shape-preview" width="120" height="120"></canvas>
                             <div class="shape-info">
-                                <h4>Kreis</h4>
-                                <p>Runde Grundformen</p>
+                                <h4>Rechteck</h4>
+                                <p>Einfache rechteckige Dachfläche</p>
                             </div>
                         </div>
 
@@ -55,11 +59,11 @@
                             </div>
                         </div>
 
-                        <div class="shape-tile" data-shape="viereck">
+                        <div class="shape-tile" data-shape="trapez">
                             <canvas class="shape-preview" width="120" height="120"></canvas>
                             <div class="shape-info">
-                                <h4>Viereck</h4>
-                                <p>Viereckige Grundformen</p>
+                                <h4>Trapez</h4>
+                                <p>Trapezförmige Dachfläche</p>
                             </div>
                         </div>
 
@@ -67,7 +71,15 @@
                             <canvas class="shape-preview" width="120" height="120"></canvas>
                             <div class="shape-info">
                                 <h4>Vieleck</h4>
-                                <p>Mehreckige Formen</p>
+                                <p>Mehreckige Dachfläche</p>
+                            </div>
+                        </div>
+
+                        <div class="shape-tile" data-shape="lform">
+                            <canvas class="shape-preview" width="120" height="120"></canvas>
+                            <div class="shape-info">
+                                <h4>L-Form</h4>
+                                <p>L-förmige Dachfläche</p>
                             </div>
                         </div>
 
@@ -75,50 +87,48 @@
                             <canvas class="shape-preview" width="120" height="120"></canvas>
                             <div class="shape-info">
                                 <h4>Individuelle Form</h4>
-                                <p>Selbst zeichnen</p>
+                                <p>Eigene Form zeichnen</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Spezifische Varianten -->
-                <div class="card shape-variants" id="shape-variants" style="display: none;">
-                    <h3>2. <span id="variant-title">Variante wählen</span></h3>
-                    <div class="variants-grid" id="variants-grid"></div>
-                </div>
-
-                <!-- Parameter-Eingabe -->
-                <div class="card shape-parameters" id="shape-parameters" style="display: none;">
-                    <h3>2. Parameter für <span id="selected-shape-name">gewählte Form</span></h3>
-                    <div id="parameter-inputs"></div>
-                    <div class="parameter-actions">
-                        <button type="button" class="btn btn-primary" id="generate-btn">Zum Editor</button>
-                        <button type="button" class="btn btn-secondary" id="reset-btn">Neue Grundform</button>
+                <!-- Ausgewählte Form anzeigen -->
+                <div class="card selected-shape" id="selected-shape" style="display: none;">
+                    <h3>Ausgewählte Form: <span id="selected-shape-name">-</span></h3>
+                    <div class="shape-preview-large">
+                        <canvas id="preview-canvas" width="400" height="300"></canvas>
                     </div>
+                    <p class="shape-description">
+                        <strong>Hinweis:</strong> Dies ist eine Beispiel-Vorschau. Im nächsten Schritt können Sie alle Maße präzise anpassen und die Form nach Ihren Wünschen bearbeiten.
+                    </p>
                 </div>
 
                 <!-- Zeichenbereich für Custom -->
                 <div class="card drawing-canvas" id="drawing-canvas" style="display: none;">
-                    <h3>2. Form zeichnen</h3>
+                    <h3>Eigene Form zeichnen</h3>
+                    <p>Zeichnen Sie eine grobe Skizze Ihrer Dachform. Genaue Maße werden im Editor angepasst.</p>
                     <div class="canvas-container">
                         <canvas id="draw-canvas" width="600" height="400"></canvas>
                         <div class="canvas-instructions">
-                            <p><strong>Zeichnen Sie Ihre Form:</strong></p>
-                            <p>• Klicken Sie, um Punkte zu setzen</p>
-                            <p>• Rechtsklick: Punkt löschen</p>
+                            <p><strong>Zeichenanleitung:</strong></p>
+                            <p>• Klicken Sie, um Eckpunkte zu setzen</p>
+                            <p>• Mindestens 3 Punkte erforderlich</p>
+                            <p>• Rechtsklick: Letzten Punkt löschen</p>
                             <p>• Doppelklick: Form abschließen</p>
                         </div>
                     </div>
                     <div class="drawing-tools">
-                        <button type="button" class="btn btn-secondary" id="clear-btn">Löschen</button>
+                        <button type="button" class="btn btn-secondary" id="clear-btn">Alles löschen</button>
                         <button type="button" class="btn btn-secondary" id="undo-btn">Rückgängig</button>
-                        <button type="button" class="btn btn-success" id="finish-drawing-btn" disabled>Zum Editor</button>
+                        <button type="button" class="btn btn-primary" id="finish-drawing-btn" disabled>Form übernehmen</button>
                     </div>
                 </div>
             </section>
 
             <div class="navigation-buttons">
                 <button type="button" class="btn btn-secondary" id="back-btn">← Zurück zum Profil</button>
+                <button type="button" class="btn btn-primary" id="continue-btn" disabled>Weiter zum Editor →</button>
             </div>
         </main>
 
@@ -130,45 +140,48 @@
     <script>
         // Globale Variablen
         var projectData = {};
-        var roofPoints = [];
         var selectedBaseShape = null;
-        var selectedVariant = null;
+        var roofPoints = [];
         var drawingPoints = [];
 
-        // Dachformen-Definition
-        var shapeHierarchy = {
-            kreis: {
-                name: 'Kreis',
-                variants: {
-                    kreis: { name: 'Kreis', parameters: [{ name: 'radius', label: 'Radius (m)', type: 'number', default: 5, step: 0.5 }] },
-                    oval: { name: 'Oval', parameters: [{ name: 'breite', label: 'Breite (m)', type: 'number', default: 8, step: 0.5 }, { name: 'hoehe', label: 'Höhe (m)', type: 'number', default: 5, step: 0.5 }] },
-                    langloch: { name: 'Langlochform', parameters: [{ name: 'laenge', label: 'Länge (m)', type: 'number', default: 10, step: 0.5 }, { name: 'breite', label: 'Breite (m)', type: 'number', default: 4, step: 0.5 }] }
-                }
-            },
-            dreieck: {
-                name: 'Dreieck',
-                variants: {
-                    dreieck: { name: 'Dreieck', parameters: [{ name: 'breite', label: 'Basis-Breite (m)', type: 'number', default: 10, step: 0.5 }, { name: 'hoehe', label: 'Höhe (m)', type: 'number', default: 8, step: 0.5 }] }
-                }
-            },
-            viereck: {
-                name: 'Viereck',
-                variants: {
-                    rechteck: { name: 'Rechteck', parameters: [{ name: 'breite', label: 'Breite (m)', type: 'number', default: 10, step: 0.5 }, { name: 'laenge', label: 'Länge (m)', type: 'number', default: 8, step: 0.5 }] },
-                    parallelogramm: { name: 'Parallelogramm', parameters: [{ name: 'breite', label: 'Breite (m)', type: 'number', default: 10, step: 0.5 }, { name: 'laenge', label: 'Länge (m)', type: 'number', default: 8, step: 0.5 }, { name: 'versatz', label: 'Versatz (m)', type: 'number', default: 2, step: 0.25 }] },
-                    trapez: { name: 'Trapezform', parameters: [{ name: 'untenbreite', label: 'Untere Breite (m)', type: 'number', default: 12, step: 0.5 }, { name: 'obenbreite', label: 'Obere Breite (m)', type: 'number', default: 8, step: 0.5 }, { name: 'laenge', label: 'Länge (m)', type: 'number', default: 10, step: 0.5 }] }
-                }
-            },
-            vieleck: {
-                name: 'Vieleck',
-                variants: {
-                    vieleck: { name: 'Regelmäßiges Vieleck', parameters: [{ name: 'radius', label: 'Radius (m)', type: 'number', default: 6, step: 0.5 }, { name: 'ecken', label: 'Anzahl Ecken', type: 'number', default: 6, step: 1, min: 5, max: 12 }] }
-                }
-            },
-            custom: { name: 'Individuelle Form', variants: {} }
+        // Vordefinierte Grundformen (Beispielwerte)
+        var shapeTemplates = {
+            rechteck: [
+                { x: 0, y: 0 },
+                { x: 10, y: 0 },
+                { x: 10, y: 8 },
+                { x: 0, y: 8 }
+            ],
+            dreieck: [
+                { x: 5, y: 0 },
+                { x: 0, y: 8 },
+                { x: 10, y: 8 }
+            ],
+            trapez: [
+                { x: 2, y: 0 },
+                { x: 8, y: 0 },
+                { x: 10, y: 8 },
+                { x: 0, y: 8 }
+            ],
+            vieleck: [
+                { x: 5, y: 0 },
+                { x: 8, y: 2 },
+                { x: 8, y: 6 },
+                { x: 5, y: 8 },
+                { x: 2, y: 6 },
+                { x: 2, y: 2 }
+            ],
+            lform: [
+                { x: 0, y: 0 },
+                { x: 6, y: 0 },
+                { x: 6, y: 4 },
+                { x: 10, y: 4 },
+                { x: 10, y: 8 },
+                { x: 0, y: 8 }
+            ]
         };
 
-        // Hilfsfunktionen
+        // Sichere Storage-Funktionen
         function saveData() {
             try {
                 localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
@@ -193,74 +206,39 @@
             }
         }
 
-        function generatePoints(baseShape, variant, params) {
-            if (baseShape === 'kreis') {
-                var points = [];
-                var segments = 24;
-                if (variant === 'kreis') {
-                    for (var i = 0; i < segments; i++) {
-                        var angle = (i / segments) * 2 * Math.PI;
-                        points.push({ x: params.radius * Math.cos(angle), y: params.radius * Math.sin(angle) });
-                    }
-                } else if (variant === 'oval') {
-                    var radiusX = params.breite / 2, radiusY = params.hoehe / 2;
-                    for (var i = 0; i < segments; i++) {
-                        var angle = (i / segments) * 2 * Math.PI;
-                        points.push({ x: radiusX * Math.cos(angle), y: radiusY * Math.sin(angle) });
-                    }
-                } else if (variant === 'langloch') {
-                    var radius = params.breite / 2, straightLength = params.laenge - params.breite, segments = 12;
-                    for (var i = 0; i <= segments/2; i++) {
-                        var angle = (i / (segments/2)) * Math.PI - Math.PI/2;
-                        points.push({ x: straightLength/2 + radius * Math.cos(angle), y: radius * Math.sin(angle) });
-                    }
-                    for (var i = 0; i <= segments/2; i++) {
-                        var angle = (i / (segments/2)) * Math.PI + Math.PI/2;
-                        points.push({ x: -straightLength/2 + radius * Math.cos(angle), y: radius * Math.sin(angle) });
-                    }
-                }
-                return points;
-            } else if (baseShape === 'dreieck') {
-                return [{ x: params.breite / 2, y: 0 }, { x: 0, y: params.hoehe }, { x: params.breite, y: params.hoehe }];
-            } else if (baseShape === 'viereck') {
-                if (variant === 'rechteck') {
-                    return [{ x: 0, y: 0 }, { x: params.breite, y: 0 }, { x: params.breite, y: params.laenge }, { x: 0, y: params.laenge }];
-                } else if (variant === 'parallelogramm') {
-                    return [{ x: 0, y: 0 }, { x: params.breite, y: 0 }, { x: params.breite + params.versatz, y: params.laenge }, { x: params.versatz, y: params.laenge }];
-                } else if (variant === 'trapez') {
-                    var versatz = (params.untenbreite - params.obenbreite) / 2;
-                    return [{ x: versatz, y: 0 }, { x: params.untenbreite - versatz, y: 0 }, { x: params.untenbreite, y: params.laenge }, { x: 0, y: params.laenge }];
-                }
-            } else if (baseShape === 'vieleck') {
-                var points = [], corners = Math.max(5, Math.min(12, params.ecken));
-                for (var i = 0; i < corners; i++) {
-                    var angle = (i / corners) * 2 * Math.PI - Math.PI / 2;
-                    points.push({ x: params.radius * Math.cos(angle), y: params.radius * Math.sin(angle) });
-                }
-                return points;
-            }
-            return [];
-        }
-
         function drawShapePreview(ctx, points, canvas) {
             if (!points || points.length === 0) return;
+            
+            // Bounding Box berechnen
             var minX = Math.min.apply(Math, points.map(function(p) { return p.x; }));
             var maxX = Math.max.apply(Math, points.map(function(p) { return p.x; }));
             var minY = Math.min.apply(Math, points.map(function(p) { return p.y; }));
             var maxY = Math.max.apply(Math, points.map(function(p) { return p.y; }));
-            var width = maxX - minX || 1, height = maxY - minY || 1;
-            var centerX = (minX + maxX) / 2, centerY = (minY + maxY) / 2;
-            var padding = 20, scale = Math.min((canvas.width - 2 * padding) / width, (canvas.height - 2 * padding) / height) * 0.8;
-            var offsetX = canvas.width / 2 - centerX * scale, offsetY = canvas.height / 2 - centerY * scale;
+            var width = maxX - minX || 1;
+            var height = maxY - minY || 1;
+            var centerX = (minX + maxX) / 2;
+            var centerY = (minY + maxY) / 2;
             
+            // Skalierung berechnen
+            var padding = 20;
+            var scale = Math.min((canvas.width - 2 * padding) / width, (canvas.height - 2 * padding) / height) * 0.8;
+            var offsetX = canvas.width / 2 - centerX * scale;
+            var offsetY = canvas.height / 2 - centerY * scale;
+            
+            // Form zeichnen
             ctx.fillStyle = 'rgba(0, 123, 255, 0.3)';
             ctx.strokeStyle = '#007bff';
             ctx.lineWidth = 2;
             ctx.beginPath();
+            
             for (var i = 0; i < points.length; i++) {
-                var x = offsetX + points[i].x * scale, y = offsetY + points[i].y * scale;
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
+                var x = offsetX + points[i].x * scale;
+                var y = offsetY + points[i].y * scale;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
             }
             ctx.closePath();
             ctx.fill();
@@ -269,201 +247,204 @@
 
         function drawBasePreviews() {
             var canvases = document.querySelectorAll('.shape-preview');
-            var baseShapes = Object.keys(shapeHierarchy);
-            for (var i = 0; i < canvases.length && i < baseShapes.length; i++) {
-                var canvas = canvases[i], shapeKey = baseShapes[i], ctx = canvas.getContext('2d');
+            var shapeKeys = Object.keys(shapeTemplates);
+            
+            for (var i = 0; i < canvases.length && i < shapeKeys.length; i++) {
+                var canvas = canvases[i];
+                var shapeKey = shapeKeys[i];
+                var ctx = canvas.getContext('2d');
+                
+                // Hintergrund
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#f8f9fa';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                if (shapeKey === 'custom') {
-                    ctx.fillStyle = '#6c757d';
-                    ctx.font = 'bold 32px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('✏', canvas.width / 2, canvas.height / 2);
-                } else {
-                    var baseShape = shapeHierarchy[shapeKey], firstVariantKey = Object.keys(baseShape.variants)[0];
-                    if (firstVariantKey) {
-                        var variant = baseShape.variants[firstVariantKey], exampleParams = {};
-                        for (var j = 0; j < variant.parameters.length; j++) {
-                            exampleParams[variant.parameters[j].name] = variant.parameters[j].default;
-                        }
-                        var points = generatePoints(shapeKey, firstVariantKey, exampleParams);
-                        if (points.length > 0) drawShapePreview(ctx, points, canvas);
-                    }
+                
+                // Form zeichnen
+                var points = shapeTemplates[shapeKey];
+                if (points) {
+                    drawShapePreview(ctx, points, canvas);
                 }
+            }
+            
+            // Custom-Form (Stift-Symbol)
+            var customCanvas = document.querySelector('[data-shape="custom"] .shape-preview');
+            if (customCanvas) {
+                var ctx = customCanvas.getContext('2d');
+                ctx.clearRect(0, 0, customCanvas.width, customCanvas.height);
+                ctx.fillStyle = '#f8f9fa';
+                ctx.fillRect(0, 0, customCanvas.width, customCanvas.height);
+                
+                ctx.fillStyle = '#6c757d';
+                ctx.font = 'bold 32px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('✏', customCanvas.width / 2, customCanvas.height / 2);
             }
         }
 
-        // Hauptfunktionen
         function selectBaseShape(baseShape) {
             selectedBaseShape = baseShape;
-            selectedVariant = null;
+            
+            // Alle Tiles deselektieren
             var tiles = document.querySelectorAll('.shape-tile');
-            for (var i = 0; i < tiles.length; i++) tiles[i].classList.remove('selected');
+            for (var i = 0; i < tiles.length; i++) {
+                tiles[i].classList.remove('selected');
+            }
+            
+            // Gewähltes Tile markieren
             var selectedTile = document.querySelector('[data-shape="' + baseShape + '"]');
-            if (selectedTile) selectedTile.classList.add('selected');
+            if (selectedTile) {
+                selectedTile.classList.add('selected');
+            }
             
             if (baseShape === 'custom') {
                 showDrawingCanvas();
-            } else if (baseShape === 'dreieck' || baseShape === 'vieleck') {
-                selectedVariant = baseShape;
-                showParameters();
             } else {
-                showVariants();
+                showSelectedShape(baseShape);
             }
         }
 
-        function showVariants() {
-            var baseShape = shapeHierarchy[selectedBaseShape];
-            if (!baseShape) return;
+        function showSelectedShape(shapeKey) {
+            var points = shapeTemplates[shapeKey];
+            if (!points) return;
             
-            var variantsSection = document.getElementById('shape-variants');
-            var variantTitle = document.getElementById('variant-title');
-            var variantsGrid = document.getElementById('variants-grid');
+            roofPoints = points.slice(); // Kopie erstellen
             
-            variantTitle.textContent = baseShape.name + '-Varianten wählen';
-            variantsGrid.innerHTML = '';
+            // Ausgewählte Form anzeigen
+            document.getElementById('selected-shape-name').textContent = getShapeName(shapeKey);
             
-            var variantKeys = Object.keys(baseShape.variants);
-            for (var i = 0; i < variantKeys.length; i++) {
-                var variantKey = variantKeys[i];
-                var variant = baseShape.variants[variantKey];
-                
-                // Varianten-Kachel erstellen
-                var variantTile = document.createElement('div');
-                variantTile.className = 'variant-tile';
-                variantTile.setAttribute('data-variant', variantKey);
-                
-                // Canvas für Varianten-Vorschau
-                var canvas = document.createElement('canvas');
-                canvas.width = 100;
-                canvas.height = 100;
-                canvas.className = 'variant-preview';
-                
-                // Info-Bereich
-                var info = document.createElement('div');
-                info.className = 'variant-info';
-                info.innerHTML = '<h4>' + variant.name + '</h4>';
-                
-                variantTile.appendChild(canvas);
-                variantTile.appendChild(info);
-                variantsGrid.appendChild(variantTile);
-                
-                // Varianten-Vorschau zeichnen
-                drawVariantPreview(canvas, variantKey, variant);
-            }
-            
-            variantsSection.style.display = 'block';
-            hideOtherSections(['shape-variants']);
-        }
-
-        function drawVariantPreview(canvas, variantKey, variant) {
-            var ctx = canvas.getContext('2d');
+            var previewCanvas = document.getElementById('preview-canvas');
+            var ctx = previewCanvas.getContext('2d');
             
             // Hintergrund
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            var gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#f8f9fa');
-            gradient.addColorStop(1, '#e9ecef');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
             
-            // Beispiel-Parameter generieren
-            var exampleParams = {};
-            for (var i = 0; i < variant.parameters.length; i++) {
-                var param = variant.parameters[i];
-                exampleParams[param.name] = param.default;
-            }
+            // Form zeichnen
+            drawShapePreview(ctx, points, previewCanvas);
             
-            // Form generieren und zeichnen
-            var points = generatePoints(selectedBaseShape, variantKey, exampleParams);
-            if (points.length > 0) {
-                drawShapePreview(ctx, points, canvas);
-            }
+            // Abschnitte ein-/ausblenden
+            document.getElementById('selected-shape').style.display = 'block';
+            document.getElementById('drawing-canvas').style.display = 'none';
+            
+            validateForm();
         }
 
-        function showParameters() {
-            var variant = shapeHierarchy[selectedBaseShape].variants[selectedVariant];
-            if (!variant) return;
-            var parametersSection = document.getElementById('shape-parameters');
-            var shapeName = document.getElementById('selected-shape-name');
-            var parameterInputs = document.getElementById('parameter-inputs');
-            shapeName.textContent = variant.name;
-            parameterInputs.innerHTML = '';
-            var formRow = document.createElement('div');
-            formRow.className = 'form-row';
-            for (var i = 0; i < variant.parameters.length; i++) {
-                var param = variant.parameters[i];
-                var formGroup = document.createElement('div');
-                formGroup.className = 'form-group';
-                formGroup.innerHTML = '<label for="param-' + param.name + '">' + param.label + ':</label><input type="' + param.type + '" id="param-' + param.name + '" class="form-control" value="' + param.default + '" step="' + (param.step || 1) + '">';
-                formRow.appendChild(formGroup);
-            }
-            parameterInputs.appendChild(formRow);
-            parametersSection.style.display = 'block';
-            hideOtherSections(['shape-parameters']);
+        function getShapeName(shapeKey) {
+            var names = {
+                rechteck: 'Rechteck',
+                dreieck: 'Dreieck', 
+                trapez: 'Trapez',
+                vieleck: 'Vieleck',
+                lform: 'L-Form'
+            };
+            return names[shapeKey] || shapeKey;
         }
 
         function showDrawingCanvas() {
             document.getElementById('drawing-canvas').style.display = 'block';
-            hideOtherSections(['drawing-canvas']);
+            document.getElementById('selected-shape').style.display = 'none';
+            
             drawingPoints = [];
             clearDrawingCanvas();
+            validateForm();
         }
 
         function clearDrawingCanvas() {
             var canvas = document.getElementById('draw-canvas');
             if (!canvas) return;
+            
             var ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Rahmen zeichnen
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
         }
 
-        function hideOtherSections(except) {
-            var sections = ['shape-variants', 'shape-parameters', 'drawing-canvas', 'roof-preview'];
-            for (var i = 0; i < sections.length; i++) {
-                if (except.indexOf(sections[i]) === -1) {
-                    var section = document.getElementById(sections[i]);
-                    if (section) section.style.display = 'none';
+        function setupDrawingCanvas() {
+            var canvas = document.getElementById('draw-canvas');
+            if (!canvas) return;
+            
+            canvas.addEventListener('click', function(e) {
+                if (e.detail === 2) { // Doppelklick
+                    finishDrawing();
+                    return;
                 }
-            }
+                
+                var rect = canvas.getBoundingClientRect();
+                var x = (e.clientX - rect.left - 50) / 10; // Grobe Umrechnung zu Metern
+                var y = (e.clientY - rect.top - 50) / 10;
+                
+                drawingPoints.push({ x: x, y: y });
+                redrawCanvas();
+                validateForm();
+            });
+            
+            canvas.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                if (drawingPoints.length > 0) {
+                    drawingPoints.pop();
+                    redrawCanvas();
+                    validateForm();
+                }
+            });
         }
 
-        function generateShape() {
-            if (!selectedBaseShape || !selectedVariant) return;
-            var variant = shapeHierarchy[selectedBaseShape].variants[selectedVariant];
-            if (!variant) return;
-            var params = {};
-            for (var i = 0; i < variant.parameters.length; i++) {
-                var param = variant.parameters[i];
-                var input = document.getElementById('param-' + param.name);
-                if (input) params[param.name] = parseFloat(input.value) || param.default;
+        function redrawCanvas() {
+            var canvas = document.getElementById('draw-canvas');
+            var ctx = canvas.getContext('2d');
+            
+            clearDrawingCanvas();
+            
+            if (drawingPoints.length === 0) return;
+            
+            // Punkte und Linien zeichnen
+            ctx.strokeStyle = '#007bff';
+            ctx.fillStyle = '#007bff';
+            ctx.lineWidth = 2;
+            
+            // Linien zwischen Punkten
+            if (drawingPoints.length > 1) {
+                ctx.beginPath();
+                for (var i = 0; i < drawingPoints.length; i++) {
+                    var x = 50 + drawingPoints[i].x * 10;
+                    var y = 50 + drawingPoints[i].y * 10;
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                // Bei mehr als 2 Punkten: Linie zum ersten Punkt (Vorschau)
+                if (drawingPoints.length > 2) {
+                    ctx.lineTo(50 + drawingPoints[0].x * 10, 50 + drawingPoints[0].y * 10);
+                }
+                
+                ctx.stroke();
             }
-            roofPoints = generatePoints(selectedBaseShape, selectedVariant, params);
             
-            // Direkt zum Editor weiterleiten
-            saveAndGoToEditor();
-        }
-
-        function saveAndGoToEditor() {
-            if (roofPoints.length < 3) {
-                alert('Fehler beim Generieren der Form!');
-                return;
-            }
-            
-            projectData.roofShape = {
-                points: roofPoints.slice(),
-                baseShape: selectedBaseShape,
-                variant: selectedVariant,
-                dachNeigung: 15
-            };
-            
-            if (saveData()) {
-                window.location.href = 'editor.html';
-            } else {
-                alert('Speichern fehlgeschlagen.');
+            // Punkte zeichnen
+            for (var i = 0; i < drawingPoints.length; i++) {
+                var x = 50 + drawingPoints[i].x * 10;
+                var y = 50 + drawingPoints[i].y * 10;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Punkt-Nummer
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(i + 1, x, y);
+                ctx.fillStyle = '#007bff';
             }
         }
 
@@ -475,61 +456,54 @@
             
             roofPoints = drawingPoints.slice();
             selectedBaseShape = 'custom';
-            selectedVariant = 'custom';
-            saveAndGoToEditor();
-        }
-
-        function calculateArea(points) {
-            if (points.length < 3) return 0;
-            var area = 0;
-            for (var i = 0; i < points.length; i++) {
-                var j = (i + 1) % points.length;
-                area += points[i].x * points[j].y - points[j].x * points[i].y;
-            }
-            return Math.abs(area) / 2;
-        }
-
-        function calculatePerimeter(points) {
-            if (points.length < 2) return 0;
-            var perimeter = 0;
-            for (var i = 0; i < points.length; i++) {
-                var j = (i + 1) % points.length;
-                var dx = points[j].x - points[i].x, dy = points[j].y - points[i].y;
-                perimeter += Math.sqrt(dx * dx + dy * dy);
-            }
-            return perimeter;
-        }
-
-        function validateForm() {
-            var isValid = roofPoints.length >= 3;
-            var continueBtn = document.getElementById('continue-btn');
-            if (continueBtn) continueBtn.disabled = !isValid;
-        }
-
-        function resetToBase() {
-            selectedBaseShape = null;
-            selectedVariant = null;
-            roofPoints = [];
-            drawingPoints = [];
-            var tiles = document.querySelectorAll('.shape-tile');
-            for (var i = 0; i < tiles.length; i++) tiles[i].classList.remove('selected');
-            hideOtherSections([]);
+            
+            document.getElementById('finish-drawing-btn').disabled = false;
             validateForm();
         }
 
+        function clearDrawing() {
+            drawingPoints = [];
+            clearDrawingCanvas();
+            validateForm();
+        }
+
+        function undoLastPoint() {
+            if (drawingPoints.length > 0) {
+                drawingPoints.pop();
+                redrawCanvas();
+                validateForm();
+            }
+        }
+
+        function validateForm() {
+            var isValid = false;
+            
+            if (selectedBaseShape === 'custom') {
+                isValid = drawingPoints.length >= 3;
+                document.getElementById('finish-drawing-btn').disabled = !isValid;
+            } else if (selectedBaseShape && shapeTemplates[selectedBaseShape]) {
+                isValid = true;
+            }
+            
+            document.getElementById('continue-btn').disabled = !isValid;
+        }
+
         function saveAndContinue() {
-            if (roofPoints.length < 3) {
-                alert('Mindestens 3 Punkte erforderlich!');
+            if (!selectedBaseShape || roofPoints.length < 3) {
+                alert('Bitte wählen Sie eine Dachform aus!');
                 return;
             }
+            
+            // Dachform-Daten speichern
             projectData.roofShape = {
-                points: roofPoints.slice(),
                 baseShape: selectedBaseShape,
-                variant: selectedVariant,
-                dachNeigung: 15
+                points: roofPoints.slice(),
+                dachNeigung: 15, // Standard-Neigung
+                dachTyp: getShapeName(selectedBaseShape)
             };
+            
             if (saveData()) {
-                window.location.href = 'berechnung.html';
+                window.location.href = 'editor.html';
             } else {
                 alert('Speichern fehlgeschlagen.');
             }
@@ -544,7 +518,9 @@
             try {
                 projectData = loadData();
                 drawBasePreviews();
+                setupDrawingCanvas();
                 
+                // Shape-Tiles Event Listener
                 var shapeTiles = document.querySelectorAll('.shape-tile');
                 for (var i = 0; i < shapeTiles.length; i++) {
                     shapeTiles[i].addEventListener('click', function(e) {
@@ -553,24 +529,22 @@
                     });
                 }
                 
-                document.getElementById('variants-grid').addEventListener('click', function(e) {
-                    var variantTile = e.target.closest('.variant-tile');
-                    if (variantTile) {
-                        var variant = variantTile.getAttribute('data-variant');
-                        selectedVariant = variant;
-                        var tiles = document.querySelectorAll('.variant-tile');
-                        for (var i = 0; i < tiles.length; i++) {
-                            tiles[i].classList.remove('selected');
-                        }
-                        variantTile.classList.add('selected');
-                        showParameters();
+                // Drawing Controls
+                document.getElementById('clear-btn').addEventListener('click', clearDrawing);
+                document.getElementById('undo-btn').addEventListener('click', undoLastPoint);
+                document.getElementById('finish-drawing-btn').addEventListener('click', function() {
+                    finishDrawing();
+                    if (drawingPoints.length >= 3) {
+                        roofPoints = drawingPoints.slice();
+                        validateForm();
                     }
                 });
                 
-                document.getElementById('generate-btn').addEventListener('click', generateShape);
-                document.getElementById('reset-btn').addEventListener('click', resetToBase);
-                document.getElementById('finish-drawing-btn').addEventListener('click', finishDrawing);
+                // Navigation
+                document.getElementById('continue-btn').addEventListener('click', saveAndContinue);
                 document.getElementById('back-btn').addEventListener('click', goBack);
+                
+                validateForm();
                 
             } catch (error) {
                 console.error('Fehler bei Initialisierung:', error);
@@ -658,61 +632,25 @@
             color: #0056b3;
         }
 
-        .variants-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+        .selected-shape {
+            margin-bottom: 20px;
         }
 
-        .variant-tile {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .shape-preview-large {
             text-align: center;
+            margin: 20px 0;
         }
 
-        .variant-tile:hover {
-            border-color: #007bff;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,123,255,0.1);
-        }
-
-        .variant-tile.selected {
-            border-color: #007bff;
-            background-color: #f8f9ff;
-            box-shadow: 0 2px 8px rgba(0,123,255,0.2);
-        }
-
-        .variant-preview {
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            margin-bottom: 8px;
+        #preview-canvas {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
             background: #f8f9fa;
         }
 
-        .variant-tile:hover .variant-preview {
-            border-color: #007bff;
-            box-shadow: 0 2px 6px rgba(0,123,255,0.2);
-        }
-
-        .variant-info h4 {
-            font-size: 14px;
-            margin: 0;
-            color: #2c3e50;
-        }
-
-        .variant-tile.selected .variant-info h4 {
-            color: #007bff;
-        }
-
-        .parameter-actions {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
+        .shape-description {
+            color: #6c757d;
+            font-style: italic;
+            text-align: center;
         }
 
         .drawing-canvas .canvas-container {
@@ -721,6 +659,7 @@
             border-radius: 6px;
             background: white;
             margin-bottom: 15px;
+            display: inline-block;
         }
 
         .canvas-instructions {
@@ -733,6 +672,7 @@
             font-size: 12px;
             line-height: 1.3;
             pointer-events: none;
+            max-width: 200px;
         }
 
         .drawing-tools {
@@ -741,37 +681,12 @@
             justify-content: center;
         }
 
-        .preview-container {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-        }
-
-        .preview-info {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        #preview-canvas {
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            background: #f8f9fa;
-        }
-
         @media (max-width: 768px) {
             .shapes-grid {
                 grid-template-columns: 1fr 1fr;
             }
             
-            .variants-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .parameter-actions {
-                flex-direction: column;
-            }
-            
-            .preview-container {
+            .drawing-tools {
                 flex-direction: column;
             }
         }
