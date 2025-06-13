@@ -285,10 +285,10 @@
                             <h4>Drehen</h4>
                             <div class="button-group">
                                 <button class="btn btn-secondary" onclick="rotateLeft()">
-                                    ↺ 45° Links
+                                    ↺ 45° Rechts
                                 </button>
                                 <button class="btn btn-secondary" onclick="rotateRight()">
-                                    ↻ 45° Rechts
+                                    ↻ 45° Links
                                 </button>
                             </div>
                         </div>
@@ -625,7 +625,20 @@
 
         function loadData() {
             try {
-                // Simulierte Projektdaten für Demo
+                // Versuche echte Daten zu laden, fallback auf Demo-Daten
+                let saved = null;
+                try {
+                    saved = localStorage.getItem('dachplattenrechner_data');
+                    if (!saved) saved = sessionStorage.getItem('dachplattenrechner_data');
+                } catch (e) {
+                    console.log('Storage nicht verfügbar');
+                }
+                
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+                
+                // Demo-Daten wenn nichts gefunden
                 return {
                     profile: {
                         profilname: 'TP20 (20/100)',
@@ -677,10 +690,15 @@
 
         // Shape-Typ setzen
         function initializeShapeType() {
+            console.log('=== INITIALISIERUNG START ===');
+            console.log('ProjectData:', projectData);
+            
             currentShapeType = loadShapeFromProject();
+            console.log('Ermittelter ShapeType:', currentShapeType);
             
             const shape = SmartGeometry.shapes[currentShapeType];
             const shapeName = shape?.name || 'Unbekannte Form';
+            console.log('Shape Name:', shapeName);
             
             const nameElement = document.getElementById('current-shape-name');
             if (nameElement) {
@@ -692,7 +710,62 @@
                 titleElement.textContent = shapeName;
             }
             
-            // Standardwerte setzen
+            // Vorhandene Punkte aus Dachform übernehmen oder Standardwerte setzen
+            if (projectData.roofShape && projectData.roofShape.points && projectData.roofShape.points.length > 0) {
+                console.log('Übernehme vorhandene Punkte:', projectData.roofShape.points);
+                currentPoints = [...projectData.roofShape.points];
+                originalPoints = [...projectData.roofShape.points];
+                
+                // Werte aus Punkten ableiten
+                deriveValuesFromPoints();
+            } else {
+                console.log('Setze Standardwerte für:', currentShapeType);
+                setDefaultValues();
+            }
+            
+            console.log('Aktuelle Werte nach Init:', currentValues);
+            
+            generateInputFields();
+            updateGeometry();
+            
+            console.log('=== INITIALISIERUNG ENDE ===');
+        }
+
+        function deriveValuesFromPoints() {
+            if (currentPoints.length < 3) return setDefaultValues();
+            
+            if (currentShapeType === 'rechteck' && currentPoints.length === 4) {
+                // Für Rechteck: Länge und Breite aus Punkten ableiten
+                const dx1 = Math.abs(currentPoints[1].x - currentPoints[0].x);
+                const dy1 = Math.abs(currentPoints[1].y - currentPoints[0].y);
+                const dx2 = Math.abs(currentPoints[2].x - currentPoints[1].x);
+                const dy2 = Math.abs(currentPoints[2].y - currentPoints[1].y);
+                
+                currentValues = {
+                    length: Math.max(dx1, dy1, dx2, dy2),
+                    width: Math.min(dx1, dy1, dx2, dy2) || Math.max(dx1, dy1, dx2, dy2) * 0.8
+                };
+            } else if (currentShapeType === 'dreieck' && currentPoints.length === 3) {
+                // Für Dreieck: Seitenlängen berechnen
+                const side1 = Math.sqrt(Math.pow(currentPoints[1].x - currentPoints[0].x, 2) + 
+                                      Math.pow(currentPoints[1].y - currentPoints[0].y, 2));
+                const side2 = Math.sqrt(Math.pow(currentPoints[2].x - currentPoints[1].x, 2) + 
+                                      Math.pow(currentPoints[2].y - currentPoints[1].y, 2));
+                
+                currentValues = { side1: side1, side2: side2 };
+            } else if (currentShapeType === 'trapez' && currentPoints.length === 4) {
+                // Für Trapez: Basen und Höhe ableiten
+                const base1 = Math.abs(currentPoints[1].x - currentPoints[0].x);
+                const base2 = Math.abs(currentPoints[2].x - currentPoints[3].x);
+                const height = Math.abs(currentPoints[3].y - currentPoints[0].y);
+                
+                currentValues = { base1: base1, base2: base2, height: height };
+            } else {
+                setDefaultValues();
+            }
+        }
+
+        function setDefaultValues() {
             if (currentShapeType === 'rechteck') {
                 currentValues = { length: 10, width: 8 };
             } else if (currentShapeType === 'trapez') {
@@ -701,25 +774,37 @@
                 currentValues = { side1: 10, side2: 8 };
             } else if (currentShapeType === 'parallelogramm') {
                 currentValues = { length: 10, width: 8, angle: 90 };
+            } else {
+                currentValues = { length: 10, width: 8 };
             }
-            
-            generateInputFields();
-            updateGeometry();
         }
 
         // Eingabefelder generieren
         function generateInputFields() {
+            console.log('=== GENERATE INPUT FIELDS ===');
             const container = document.getElementById('geometry-inputs');
             const shape = SmartGeometry.shapes[currentShapeType];
             
+            if (!shape) {
+                console.error('Shape nicht gefunden:', currentShapeType);
+                return;
+            }
+            
+            console.log('Shape gefunden:', shape);
+            console.log('Shape inputs:', shape.inputs);
+            
             container.innerHTML = '';
             
-            shape.inputs.forEach(input => {
+            shape.inputs.forEach((input, index) => {
+                console.log(`Erstelle Input ${index}:`, input);
+                
                 const div = document.createElement('div');
                 div.className = 'dimension-input';
                 
                 const isCalculated = input.calculated;
                 const value = currentValues[input.id] || '';
+                
+                console.log(`Input ${input.id}: value=${value}, calculated=${isCalculated}`);
                 
                 div.innerHTML = `
                     <label for="dim-${input.id}">${input.label}:</label>
@@ -738,7 +823,11 @@
                 `;
                 
                 container.appendChild(div);
+                console.log(`Input ${input.id} hinzugefügt`);
             });
+            
+            console.log('Alle Inputs erstellt, Container Inhalt:', container.innerHTML);
+            console.log('=== GENERATE INPUT FIELDS ENDE ===');
         }
 
         // Wert aktualisieren
@@ -986,11 +1075,11 @@
         }
 
         function rotateLeft() {
-            rotatePoints(-45); // KORREKTUR: 45° statt 90°
+            rotatePoints(45); // Rechts drehen (im Uhrzeigersinn)
         }
 
         function rotateRight() {
-            rotatePoints(45); // KORREKTUR: 45° statt 90°
+            rotatePoints(-45); // Links drehen (gegen Uhrzeigersinn)
         }
 
         function rotatePoints(degrees) {
