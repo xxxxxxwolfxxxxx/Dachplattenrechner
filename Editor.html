@@ -1350,32 +1350,35 @@
             const offsetY = targetY - rotatedSideY;
             console.log('Y-Verschiebung:', offsetY);
             
-            currentPoints = rotatedPoints.map(p => ({
+            let finalPoints = rotatedPoints.map(p => ({
                 x: p.x,
                 y: p.y + offsetY
             }));
             
-            console.log('Finale Punkte:', currentPoints);
-            
             // Prüfe ob Seite von links nach rechts verläuft
-            const finalP1 = currentPoints[sideIndex];
-            const finalP2 = currentPoints[nextIndex];
+            const finalP1 = finalPoints[sideIndex];
+            const finalP2 = finalPoints[nextIndex];
             
             if (finalP2.x < finalP1.x) {
                 console.log('Seite verläuft verkehrt herum, spiegle horizontal');
                 // Horizontal spiegeln um den Mittelpunkt
-                const allX = currentPoints.map(p => p.x);
+                const allX = finalPoints.map(p => p.x);
                 const centerX = (Math.min(...allX) + Math.max(...allX)) / 2;
                 
-                currentPoints = currentPoints.map(p => ({
+                finalPoints = finalPoints.map(p => ({
                     x: 2 * centerX - p.x,
                     y: p.y
                 }));
             }
             
-            // Aktualisiere Werte und Darstellung
+            // WICHTIG: Setze die Punkte und verhindere updateGeometry Überschreibung
+            currentPoints = [...finalPoints];
+            console.log('Finale Punkte gesetzt:', currentPoints);
+            
+            // Aktualisiere nur die Darstellung, NICHT die Geometrie-Berechnung
             updateValuesFromCurrentPoints();
-            updateGeometry();
+            updateShape(); // Nur die Darstellung aktualisieren
+            updateInfoPanel();
             
             // Zeige Erfolgs-Feedback BEVOR Reset
             const orientationDisplay = document.getElementById('current-orientation');
