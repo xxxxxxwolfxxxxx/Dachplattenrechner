@@ -37,98 +37,78 @@
         <main>
             <section class="roof-editor-section">
                 <h2>Schritt 2: Dachform auswählen</h2>
-                <p>Wählen Sie eine Grundform für Ihr Dach. Die genauen Maße können Sie im nächsten Schritt (Editor) anpassen:</p>
+                <p>Wählen Sie eine Grundform für Ihr Dach. Die genauen Maße können Sie im nächsten Schritt anpassen:</p>
 
                 <!-- Grundformen -->
                 <div class="card predefined-shapes">
                     <h3>Grundform wählen</h3>
                     <div class="shapes-grid">
-                        <div class="shape-tile" data-shape="rechteck">
-                            <canvas class="shape-preview" width="120" height="120"></canvas>
+                        <div class="shape-tile" data-shape="kreis">
+                            <div class="shape-preview">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="40" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>
+                                </svg>
+                            </div>
                             <div class="shape-info">
-                                <h4>Rechteck</h4>
-                                <p>Einfache rechteckige Dachfläche</p>
+                                <h4>Kreis</h4>
+                                <p>Runde Dachfläche, Oval, Langloch</p>
                             </div>
                         </div>
 
                         <div class="shape-tile" data-shape="dreieck">
-                            <canvas class="shape-preview" width="120" height="120"></canvas>
+                            <div class="shape-preview">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <polygon points="60,20 20,90 100,90" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>
+                                </svg>
+                            </div>
                             <div class="shape-info">
                                 <h4>Dreieck</h4>
                                 <p>Dreieckige Dachfläche</p>
                             </div>
                         </div>
 
-                        <div class="shape-tile" data-shape="trapez">
-                            <canvas class="shape-preview" width="120" height="120"></canvas>
+                        <div class="shape-tile" data-shape="viereck">
+                            <div class="shape-preview">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <rect x="20" y="30" width="80" height="60" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>
+                                </svg>
+                            </div>
                             <div class="shape-info">
-                                <h4>Trapez</h4>
-                                <p>Trapezförmige Dachfläche</p>
+                                <h4>Viereck</h4>
+                                <p>Rechteck, Parallelogramm, Trapez</p>
                             </div>
                         </div>
 
                         <div class="shape-tile" data-shape="vieleck">
-                            <canvas class="shape-preview" width="120" height="120"></canvas>
+                            <div class="shape-preview">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <polygon points="60,20 85,35 95,60 75,85 45,85 25,60 35,35" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>
+                                </svg>
+                            </div>
                             <div class="shape-info">
                                 <h4>Vieleck</h4>
-                                <p>Mehreckige Dachfläche</p>
-                            </div>
-                        </div>
-
-                        <div class="shape-tile" data-shape="lform">
-                            <canvas class="shape-preview" width="120" height="120"></canvas>
-                            <div class="shape-info">
-                                <h4>L-Form</h4>
-                                <p>L-förmige Dachfläche</p>
-                            </div>
-                        </div>
-
-                        <div class="shape-tile" data-shape="custom">
-                            <canvas class="shape-preview" width="120" height="120"></canvas>
-                            <div class="shape-info">
-                                <h4>Individuelle Form</h4>
-                                <p>Eigene Form zeichnen</p>
+                                <p>5+ Ecken, L-Form, komplexe Formen</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Ausgewählte Form anzeigen -->
+                <!-- Varianten -->
+                <div class="card shape-variants" id="shape-variants" style="display: none;">
+                    <h3>Variante wählen</h3>
+                    <div class="variants-grid" id="variants-grid"></div>
+                </div>
+
+                <!-- Bestätigung -->
                 <div class="card selected-shape" id="selected-shape" style="display: none;">
-                    <h3>Ausgewählte Form: <span id="selected-shape-name">-</span></h3>
-                    <div class="shape-preview-large">
-                        <canvas id="preview-canvas" width="400" height="300"></canvas>
-                    </div>
-                    <p class="shape-description">
-                        <strong>Hinweis:</strong> Dies ist eine Beispiel-Vorschau. Im nächsten Schritt können Sie alle Maße präzise anpassen und die Form nach Ihren Wünschen bearbeiten.
-                    </p>
-                </div>
-
-                <!-- Zeichenbereich für Custom -->
-                <div class="card drawing-canvas" id="drawing-canvas" style="display: none;">
-                    <h3>Eigene Form zeichnen</h3>
-                    <p>Zeichnen Sie eine grobe Skizze Ihrer Dachform. Genaue Maße werden im Editor angepasst.</p>
-                    <div class="canvas-container">
-                        <canvas id="draw-canvas" width="600" height="400"></canvas>
-                        <div class="canvas-instructions">
-                            <p><strong>Zeichenanleitung:</strong></p>
-                            <p>• Klicken Sie, um Eckpunkte zu setzen</p>
-                            <p>• Mindestens 3 Punkte erforderlich</p>
-                            <p>• Rechtsklick: Letzten Punkt löschen</p>
-                            <p>• Doppelklick: Form abschließen</p>
-                        </div>
-                    </div>
-                    <div class="drawing-tools">
-                        <button type="button" class="btn btn-secondary" id="clear-btn">Alles löschen</button>
-                        <button type="button" class="btn btn-secondary" id="undo-btn">Rückgängig</button>
-                        <button type="button" class="btn btn-primary" id="finish-drawing-btn" disabled>Form übernehmen</button>
-                    </div>
+                    <h3>Gewählt: <span id="selected-shape-name">-</span></h3>
+                    <p>Diese Form wird als Grundlage für Ihr Dach verwendet. Im Editor können Sie alle Details anpassen.</p>
                 </div>
             </section>
 
             <div class="navigation-buttons">
-                <button type="button" class="btn btn-secondary" id="back-btn">← Zurück zum Profil</button>
-                <button type="button" class="btn btn-primary" id="continue-btn" disabled>Weiter zum Editor →</button>
+                <button type="button" class="btn btn-secondary" onclick="goBack()">← Zurück</button>
+                <button type="button" class="btn btn-primary" onclick="saveAndContinue()" id="continue-btn" disabled>Weiter →</button>
             </div>
         </main>
 
@@ -138,425 +118,163 @@
     </div>
 
     <script>
-        // Globale Variablen
         var projectData = {};
-        var selectedBaseShape = null;
-        var roofPoints = [];
-        var drawingPoints = [];
+        var selectedShape = null;
+        var selectedVariant = null;
 
-        // Vordefinierte Grundformen (Beispielwerte)
-        var shapeTemplates = {
-            rechteck: [
-                { x: 0, y: 0 },
-                { x: 10, y: 0 },
-                { x: 10, y: 8 },
-                { x: 0, y: 8 }
-            ],
-            dreieck: [
-                { x: 5, y: 0 },
-                { x: 0, y: 8 },
-                { x: 10, y: 8 }
-            ],
-            trapez: [
-                { x: 2, y: 0 },
-                { x: 8, y: 0 },
-                { x: 10, y: 8 },
-                { x: 0, y: 8 }
-            ],
-            vieleck: [
-                { x: 5, y: 0 },
-                { x: 8, y: 2 },
-                { x: 8, y: 6 },
-                { x: 5, y: 8 },
-                { x: 2, y: 6 },
-                { x: 2, y: 2 }
-            ],
-            lform: [
-                { x: 0, y: 0 },
-                { x: 6, y: 0 },
-                { x: 6, y: 4 },
-                { x: 10, y: 4 },
-                { x: 10, y: 8 },
-                { x: 0, y: 8 }
-            ]
+        // Formen-Definitionen mit SVG-Vorschauen
+        var shapes = {
+            kreis: {
+                name: 'Kreis',
+                variants: {
+                    kreis: { name: 'Kreis', svg: '<circle cx="50" cy="50" r="30" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    oval: { name: 'Oval', svg: '<ellipse cx="50" cy="50" rx="35" ry="20" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    halbkreis: { name: 'Halbkreis', svg: '<path d="M 20 50 A 30 30 0 0 1 80 50 Z" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    viertelkreis: { name: 'Viertelkreis', svg: '<path d="M 20 80 A 30 30 0 0 1 50 50 L 20 50 Z" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    langloch: { name: 'Langloch', svg: '<path d="M 35 30 L 65 30 A 20 20 0 0 1 65 70 L 35 70 A 20 20 0 0 1 35 30 Z" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' }
+                }
+            },
+            dreieck: {
+                name: 'Dreieck',
+                variants: {
+                    gleichseitig: { name: 'Gleichseitiges Dreieck', svg: '<polygon points="50,20 25,70 75,70" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    rechtwinklig: { name: 'Rechtwinkliges Dreieck', svg: '<polygon points="25,25 75,25 25,75" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    ungleichschenklig: { name: 'Ungleichschenkliges Dreieck', svg: '<polygon points="40,20 20,75 80,70" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' }
+                }
+            },
+            viereck: {
+                name: 'Viereck',
+                variants: {
+                    rechteck: { name: 'Rechteck', svg: '<rect x="20" y="30" width="60" height="40" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    quadrat: { name: 'Quadrat', svg: '<rect x="25" y="25" width="50" height="50" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    parallelogramm: { name: 'Parallelogramm', svg: '<polygon points="25,30 75,30 85,70 35,70" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    trapez: { name: 'Trapez', svg: '<polygon points="35,30 65,30 75,70 25,70" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    rhombus: { name: 'Rhombus', svg: '<polygon points="50,20 75,50 50,80 25,50" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' }
+                }
+            },
+            vieleck: {
+                name: 'Vieleck',
+                variants: {
+                    fuenfeck: { name: 'Fünfeck', svg: '<polygon points="50,20 70,35 65,60 35,60 30,35" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    sechseck: { name: 'Sechseck', svg: '<polygon points="50,20 70,30 70,50 50,60 30,50 30,30" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    achteck: { name: 'Achteck', svg: '<polygon points="50,20 65,25 75,40 75,60 65,75 50,80 35,75 25,60 25,40 35,25" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    lform: { name: 'L-Form', svg: '<polygon points="25,25 50,25 50,45 75,45 75,75 25,75" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    tform: { name: 'T-Form', svg: '<polygon points="35,25 65,25 65,40 75,40 75,75 25,75 25,40 35,40" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+                    uform: { name: 'U-Form', svg: '<polygon points="25,25 35,25 35,60 65,60 65,25 75,25 75,75 25,75" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' }
+                }
+            }
         };
 
-        // Sichere Storage-Funktionen
+        // Storage
         function saveData() {
             try {
                 localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
                 return true;
             } catch (e) {
-                try {
-                    sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-                    return true;
-                } catch (e2) {
-                    return false;
-                }
+                sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                return true;
             }
         }
 
         function loadData() {
             try {
-                var saved = localStorage.getItem('dachplattenrechner_data');
-                if (!saved) saved = sessionStorage.getItem('dachplattenrechner_data');
+                var saved = localStorage.getItem('dachplattenrechner_data') || sessionStorage.getItem('dachplattenrechner_data');
                 return saved ? JSON.parse(saved) : {};
             } catch (e) {
                 return {};
             }
         }
 
-        function drawShapePreview(ctx, points, canvas) {
-            if (!points || points.length === 0) return;
+        // Shape Selection
+        function selectShape(shape) {
+            selectedShape = shape;
             
-            // Bounding Box berechnen
-            var minX = Math.min.apply(Math, points.map(function(p) { return p.x; }));
-            var maxX = Math.max.apply(Math, points.map(function(p) { return p.x; }));
-            var minY = Math.min.apply(Math, points.map(function(p) { return p.y; }));
-            var maxY = Math.max.apply(Math, points.map(function(p) { return p.y; }));
-            var width = maxX - minX || 1;
-            var height = maxY - minY || 1;
-            var centerX = (minX + maxX) / 2;
-            var centerY = (minY + maxY) / 2;
+            // Visual feedback
+            document.querySelectorAll('.shape-tile').forEach(tile => tile.classList.remove('selected'));
+            document.querySelector(`[data-shape="${shape}"]`).classList.add('selected');
             
-            // Skalierung berechnen
-            var padding = 20;
-            var scale = Math.min((canvas.width - 2 * padding) / width, (canvas.height - 2 * padding) / height) * 0.8;
-            var offsetX = canvas.width / 2 - centerX * scale;
-            var offsetY = canvas.height / 2 - centerY * scale;
-            
-            // Form zeichnen
-            ctx.fillStyle = 'rgba(0, 123, 255, 0.3)';
-            ctx.strokeStyle = '#007bff';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            
-            for (var i = 0; i < points.length; i++) {
-                var x = offsetX + points[i].x * scale;
-                var y = offsetY + points[i].y * scale;
-                if (i === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            }
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
+            showVariants(shape);
         }
 
-        function drawBasePreviews() {
-            var canvases = document.querySelectorAll('.shape-preview');
-            var shapeKeys = Object.keys(shapeTemplates);
+        function showVariants(shape) {
+            var variantsGrid = document.getElementById('variants-grid');
+            variantsGrid.innerHTML = '';
             
-            for (var i = 0; i < canvases.length && i < shapeKeys.length; i++) {
-                var canvas = canvases[i];
-                var shapeKey = shapeKeys[i];
-                var ctx = canvas.getContext('2d');
-                
-                // Hintergrund
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#f8f9fa';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Form zeichnen
-                var points = shapeTemplates[shapeKey];
-                if (points) {
-                    drawShapePreview(ctx, points, canvas);
-                }
-            }
+            Object.entries(shapes[shape].variants).forEach(([key, variant]) => {
+                var tile = document.createElement('div');
+                tile.className = 'variant-tile';
+                tile.onclick = () => selectVariant(key, variant.name);
+                tile.innerHTML = `
+                    <div class="variant-preview">
+                        <svg width="100" height="100" viewBox="0 0 100 100">
+                            ${variant.svg}
+                        </svg>
+                    </div>
+                    <h4>${variant.name}</h4>
+                `;
+                variantsGrid.appendChild(tile);
+            });
             
-            // Custom-Form (Stift-Symbol)
-            var customCanvas = document.querySelector('[data-shape="custom"] .shape-preview');
-            if (customCanvas) {
-                var ctx = customCanvas.getContext('2d');
-                ctx.clearRect(0, 0, customCanvas.width, customCanvas.height);
-                ctx.fillStyle = '#f8f9fa';
-                ctx.fillRect(0, 0, customCanvas.width, customCanvas.height);
-                
-                ctx.fillStyle = '#6c757d';
-                ctx.font = 'bold 32px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('✏', customCanvas.width / 2, customCanvas.height / 2);
-            }
-        }
-
-        function selectBaseShape(baseShape) {
-            selectedBaseShape = baseShape;
-            
-            // Alle Tiles deselektieren
-            var tiles = document.querySelectorAll('.shape-tile');
-            for (var i = 0; i < tiles.length; i++) {
-                tiles[i].classList.remove('selected');
-            }
-            
-            // Gewähltes Tile markieren
-            var selectedTile = document.querySelector('[data-shape="' + baseShape + '"]');
-            if (selectedTile) {
-                selectedTile.classList.add('selected');
-            }
-            
-            if (baseShape === 'custom') {
-                showDrawingCanvas();
-            } else {
-                showSelectedShape(baseShape);
-            }
-        }
-
-        function showSelectedShape(shapeKey) {
-            var points = shapeTemplates[shapeKey];
-            if (!points) return;
-            
-            roofPoints = points.slice(); // Kopie erstellen
-            
-            // Ausgewählte Form anzeigen
-            document.getElementById('selected-shape-name').textContent = getShapeName(shapeKey);
-            
-            var previewCanvas = document.getElementById('preview-canvas');
-            var ctx = previewCanvas.getContext('2d');
-            
-            // Hintergrund
-            ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
-            
-            // Form zeichnen
-            drawShapePreview(ctx, points, previewCanvas);
-            
-            // Abschnitte ein-/ausblenden
-            document.getElementById('selected-shape').style.display = 'block';
-            document.getElementById('drawing-canvas').style.display = 'none';
-            
-            validateForm();
-        }
-
-        function getShapeName(shapeKey) {
-            var names = {
-                rechteck: 'Rechteck',
-                dreieck: 'Dreieck', 
-                trapez: 'Trapez',
-                vieleck: 'Vieleck',
-                lform: 'L-Form'
-            };
-            return names[shapeKey] || shapeKey;
-        }
-
-        function showDrawingCanvas() {
-            document.getElementById('drawing-canvas').style.display = 'block';
+            document.getElementById('shape-variants').style.display = 'block';
             document.getElementById('selected-shape').style.display = 'none';
-            
-            drawingPoints = [];
-            clearDrawingCanvas();
-            validateForm();
         }
 
-        function clearDrawingCanvas() {
-            var canvas = document.getElementById('draw-canvas');
-            if (!canvas) return;
+        function selectVariant(variant, name) {
+            selectedVariant = variant;
             
-            var ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Visual feedback
+            document.querySelectorAll('.variant-tile').forEach(tile => tile.classList.remove('selected'));
+            event.target.closest('.variant-tile').classList.add('selected');
             
-            // Rahmen zeichnen
-            ctx.strokeStyle = '#dee2e6';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('selected-shape-name').textContent = name;
+            document.getElementById('shape-variants').style.display = 'none';
+            document.getElementById('selected-shape').style.display = 'block';
+            document.getElementById('continue-btn').disabled = false;
         }
 
-        function setupDrawingCanvas() {
-            var canvas = document.getElementById('draw-canvas');
-            if (!canvas) return;
-            
-            canvas.addEventListener('click', function(e) {
-                if (e.detail === 2) { // Doppelklick
-                    finishDrawing();
-                    return;
-                }
-                
-                var rect = canvas.getBoundingClientRect();
-                var x = (e.clientX - rect.left - 50) / 10; // Grobe Umrechnung zu Metern
-                var y = (e.clientY - rect.top - 50) / 10;
-                
-                drawingPoints.push({ x: x, y: y });
-                redrawCanvas();
-                validateForm();
-            });
-            
-            canvas.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                if (drawingPoints.length > 0) {
-                    drawingPoints.pop();
-                    redrawCanvas();
-                    validateForm();
-                }
-            });
-        }
-
-        function redrawCanvas() {
-            var canvas = document.getElementById('draw-canvas');
-            var ctx = canvas.getContext('2d');
-            
-            clearDrawingCanvas();
-            
-            if (drawingPoints.length === 0) return;
-            
-            // Punkte und Linien zeichnen
-            ctx.strokeStyle = '#007bff';
-            ctx.fillStyle = '#007bff';
-            ctx.lineWidth = 2;
-            
-            // Linien zwischen Punkten
-            if (drawingPoints.length > 1) {
-                ctx.beginPath();
-                for (var i = 0; i < drawingPoints.length; i++) {
-                    var x = 50 + drawingPoints[i].x * 10;
-                    var y = 50 + drawingPoints[i].y * 10;
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
-                
-                // Bei mehr als 2 Punkten: Linie zum ersten Punkt (Vorschau)
-                if (drawingPoints.length > 2) {
-                    ctx.lineTo(50 + drawingPoints[0].x * 10, 50 + drawingPoints[0].y * 10);
-                }
-                
-                ctx.stroke();
-            }
-            
-            // Punkte zeichnen
-            for (var i = 0; i < drawingPoints.length; i++) {
-                var x = 50 + drawingPoints[i].x * 10;
-                var y = 50 + drawingPoints[i].y * 10;
-                
-                ctx.beginPath();
-                ctx.arc(x, y, 5, 0, 2 * Math.PI);
-                ctx.fill();
-                
-                // Punkt-Nummer
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(i + 1, x, y);
-                ctx.fillStyle = '#007bff';
-            }
-        }
-
-        function finishDrawing() {
-            if (drawingPoints.length < 3) {
-                alert('Mindestens 3 Punkte erforderlich!');
-                return;
-            }
-            
-            roofPoints = drawingPoints.slice();
-            selectedBaseShape = 'custom';
-            
-            document.getElementById('finish-drawing-btn').disabled = false;
-            validateForm();
-        }
-
-        function clearDrawing() {
-            drawingPoints = [];
-            clearDrawingCanvas();
-            validateForm();
-        }
-
-        function undoLastPoint() {
-            if (drawingPoints.length > 0) {
-                drawingPoints.pop();
-                redrawCanvas();
-                validateForm();
-            }
-        }
-
-        function validateForm() {
-            var isValid = false;
-            
-            if (selectedBaseShape === 'custom') {
-                isValid = drawingPoints.length >= 3;
-                document.getElementById('finish-drawing-btn').disabled = !isValid;
-            } else if (selectedBaseShape && shapeTemplates[selectedBaseShape]) {
-                isValid = true;
-            }
-            
-            document.getElementById('continue-btn').disabled = !isValid;
+        function showCustomMessage() {
+            // Erstmal entfernt - kommt später
         }
 
         function saveAndContinue() {
-            if (!selectedBaseShape || roofPoints.length < 3) {
-                alert('Bitte wählen Sie eine Dachform aus!');
-                return;
-            }
-            
-            // Dachform-Daten speichern
             projectData.roofShape = {
-                baseShape: selectedBaseShape,
-                points: roofPoints.slice(),
-                dachNeigung: 15, // Standard-Neigung
-                dachTyp: getShapeName(selectedBaseShape)
+                baseShape: selectedShape,
+                variant: selectedVariant,
+                points: getDefaultPoints()
             };
             
-            if (saveData()) {
-                window.location.href = 'editor.html';
-            } else {
-                alert('Speichern fehlgeschlagen.');
-            }
+            saveData();
+            window.location.href = 'editor.html';
+        }
+
+        function getDefaultPoints() {
+            // Einfache Standard-Punkte für jede Form
+            var defaults = {
+                'kreis': [{ x: 5, y: 0 }, { x: 0, y: 5 }, { x: -5, y: 0 }, { x: 0, y: -5 }],
+                'dreieck': [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 5, y: 8 }],
+                'viereck': [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 8 }, { x: 0, y: 8 }],
+                'vieleck': [{ x: 5, y: 0 }, { x: 8, y: 3 }, { x: 5, y: 8 }, { x: 2, y: 5 }, { x: 2, y: 3 }]
+            };
+            return defaults[selectedShape] || defaults['viereck'];
         }
 
         function goBack() {
             window.location.href = 'profil.html';
         }
 
-        // Event Listeners
+        // Event Setup
         document.addEventListener('DOMContentLoaded', function() {
-            try {
-                projectData = loadData();
-                drawBasePreviews();
-                setupDrawingCanvas();
-                
-                // Shape-Tiles Event Listener
-                var shapeTiles = document.querySelectorAll('.shape-tile');
-                for (var i = 0; i < shapeTiles.length; i++) {
-                    shapeTiles[i].addEventListener('click', function(e) {
-                        var shape = this.getAttribute('data-shape');
-                        selectBaseShape(shape);
-                    });
-                }
-                
-                // Drawing Controls
-                document.getElementById('clear-btn').addEventListener('click', clearDrawing);
-                document.getElementById('undo-btn').addEventListener('click', undoLastPoint);
-                document.getElementById('finish-drawing-btn').addEventListener('click', function() {
-                    finishDrawing();
-                    if (drawingPoints.length >= 3) {
-                        roofPoints = drawingPoints.slice();
-                        validateForm();
-                    }
+            projectData = loadData();
+            
+            document.querySelectorAll('.shape-tile').forEach(tile => {
+                tile.addEventListener('click', () => {
+                    selectShape(tile.dataset.shape);
                 });
-                
-                // Navigation
-                document.getElementById('continue-btn').addEventListener('click', saveAndContinue);
-                document.getElementById('back-btn').addEventListener('click', goBack);
-                
-                validateForm();
-                
-            } catch (error) {
-                console.error('Fehler bei Initialisierung:', error);
-            }
+            });
         });
     </script>
 
     <style>
-        .predefined-shapes {
-            margin-bottom: 30px;
-        }
-
         .shapes-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -571,9 +289,6 @@
             padding: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             text-align: center;
         }
 
@@ -586,115 +301,57 @@
         .shape-tile.selected {
             border-color: #007bff;
             background-color: #f8f9ff;
-            box-shadow: 0 4px 15px rgba(0,123,255,0.2);
         }
 
         .shape-preview {
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
             margin-bottom: 15px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-
-        .shape-tile:hover .shape-preview {
-            border-color: #007bff;
-            box-shadow: 0 4px 12px rgba(0,123,255,0.2);
-            transform: translateY(-2px);
-        }
-
-        .shape-tile.selected .shape-preview {
-            border-color: #007bff;
-            box-shadow: 0 4px 16px rgba(0,123,255,0.3);
-            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
         }
 
         .shape-info h4 {
             color: #2c3e50;
             margin-bottom: 8px;
-            font-size: 16px;
-            font-weight: 600;
         }
 
         .shape-info p {
             color: #6c757d;
-            font-size: 13px;
-            margin: 0;
-            line-height: 1.4;
+            font-size: 14px;
         }
 
-        .shape-tile.selected .shape-info h4 {
-            color: #007bff;
+        .variants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
         }
 
-        .shape-tile.selected .shape-info p {
-            color: #0056b3;
-        }
-
-        .selected-shape {
-            margin-bottom: 20px;
-        }
-
-        .shape-preview-large {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        #preview-canvas {
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            background: #f8f9fa;
-        }
-
-        .shape-description {
-            color: #6c757d;
-            font-style: italic;
-            text-align: center;
-        }
-
-        .drawing-canvas .canvas-container {
-            position: relative;
+        .variant-tile {
+            background: white;
             border: 2px solid #e9ecef;
             border-radius: 6px;
-            background: white;
-            margin-bottom: 15px;
-            display: inline-block;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
         }
 
-        .canvas-instructions {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            line-height: 1.3;
-            pointer-events: none;
-            max-width: 200px;
+        .variant-tile:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
         }
 
-        .drawing-tools {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
+        .variant-tile.selected {
+            border-color: #007bff;
+            background-color: #f8f9ff;
         }
 
-        @media (max-width: 768px) {
-            .shapes-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .drawing-tools {
-                flex-direction: column;
-            }
+        .variant-preview {
+            margin-bottom: 10px;
         }
 
-        @media (max-width: 480px) {
-            .shapes-grid {
-                grid-template-columns: 1fr;
-            }
+        .variant-tile h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 14px;
         }
     </style>
 </body>
