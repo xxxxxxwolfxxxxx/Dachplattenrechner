@@ -316,7 +316,7 @@
 
         /* Canvas Container */
         .canvas-container {
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .canvas-wrapper {
@@ -325,19 +325,31 @@
             background: white;
             position: relative;
             margin: 0 auto;
-            max-width: 1000px;
+            max-width: 100%;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         /* Responsive Anpassungen */
-        @media (max-width: 1024px) {
+        @media (max-width: 1200px) {
             .controls-grid {
-                grid-template-columns: 1fr;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .input-section {
+                min-width: 250px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .controls-grid {
+                flex-direction: column;
                 gap: 12px;
             }
 
-            .controls-grid > div {
-                justify-self: center;
+            .input-section {
+                min-width: auto;
+                width: 100%;
             }
 
             #geometry-inputs-compact {
@@ -347,10 +359,6 @@
             .tool-buttons {
                 justify-content: center;
             }
-
-            .calc-values {
-                text-align: center;
-            }
         }
 
         @media (max-width: 768px) {
@@ -359,7 +367,7 @@
             }
 
             .controls-grid {
-                gap: 8px;
+                gap: 10px;
             }
 
             #geometry-inputs-compact {
@@ -374,12 +382,6 @@
                 width: 50px;
             }
 
-            .tool-buttons {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 3px;
-            }
-
             .btn-compact {
                 min-width: 60px;
                 font-size: 10px;
@@ -388,15 +390,15 @@
 
             .calc-values {
                 font-size: 10px;
-                min-width: 100px;
+                min-width: 80px;
             }
 
             .canvas-wrapper {
-                margin: 0 10px;
+                margin: 0 5px;
             }
 
-            .water-flow-left { left: -40px; }
-            .water-flow-right { right: -40px; }
+            .water-flow-left { left: -35px; }
+            .water-flow-right { right: -35px; }
         }
 
         .orientation-labels {
