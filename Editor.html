@@ -445,7 +445,6 @@
                         { id: 'area_lost', label: 'Verlust', calculated: true, unit: 'm²' }
                     ],
                     validate: (values) => {
-                        // Abschnitt darf nicht größer als Länge oder Breite sein
                         return !values.cut_length || 
                                (values.cut_length <= (values.length || 999) && 
                                 values.cut_length <= (values.width || 999));
@@ -520,7 +519,7 @@
                         if (values.base1 && values.base2 && values.height) {
                             const diff = Math.abs(values.base1 - values.base2) / 2;
                             values.side1 = Math.sqrt(values.height ** 2 + diff ** 2);
-                            values.side2 = values.side1; // Symmetrisches Trapez
+                            values.side2 = values.side1;
                         }
                         return values;
                     },
@@ -557,7 +556,6 @@
                     ],
                     validate: (values) => {
                         if (values.side1 && values.side2 && values.side3) {
-                            // Dreiecksungleichung prüfen
                             return (values.side1 + values.side2 > values.side3) &&
                                    (values.side1 + values.side3 > values.side2) &&
                                    (values.side2 + values.side3 > values.side1);
@@ -566,7 +564,6 @@
                     },
                     calculate: (values) => {
                         if (values.side1 && values.side2) {
-                            // Rechtwinkliges Dreieck annehmen für Vereinfachung
                             values.side3 = Math.sqrt(values.side1 ** 2 + values.side2 ** 2);
                             values.height = (values.side1 * values.side2) / values.side3;
                             values.angle1 = Math.atan(values.side2 / values.side1) * 180 / Math.PI;
@@ -651,18 +648,22 @@
             }
         }
 
-        // Shape-Typ aus Projektdaten laden
+        // Shape-Typ aus Projektdaten laden - KORRIGIERT
         function loadShapeFromProject() {
-            if (!projectData.roofShape) return 'rechteck';
+            console.log('=== loadShapeFromProject ===');
+            console.log('ProjectData.roofShape:', projectData.roofShape);
             
-            console.log('Geladene Dachform:', projectData.roofShape); // Debug
+            if (!projectData.roofShape) {
+                console.log('Keine roofShape gefunden, verwende Default: rechteck');
+                return 'rechteck';
+            }
             
             // Mapping von Dachform-Varianten zu Editor-Typen
             const shapeMapping = {
                 // Viereck-Varianten
                 'rechteck': 'rechteck',
                 'quadrat': 'rechteck',
-                'parallelogramm': 'rechteck_schraeg',
+                'parallelogramm': 'parallelogramm',
                 'trapez': 'trapez',
                 'rhombus': 'rechteck_schraeg',
                 
@@ -671,10 +672,25 @@
                 'rechtwinklig': 'dreieck',
                 'ungleichschenklig': 'dreieck',
                 
+                // Kreis-Varianten (als Rechteck approximieren)
+                'kreis': 'rechteck',
+                'oval': 'rechteck',
+                'halbkreis': 'rechteck',
+                'viertelkreis': 'rechteck',
+                'langloch': 'rechteck',
+                
+                // Vieleck-Varianten
+                'fuenfeck': 'rechteck',
+                'sechseck': 'rechteck',
+                'achteck': 'rechteck',
+                'lform': 'rechteck',
+                'tform': 'rechteck',
+                'uform': 'rechteck',
+                
                 // Fallbacks nach baseShape
                 'viereck': 'rechteck',
                 'dreieck': 'dreieck',
-                'kreis': 'rechteck', // Kreis als Rechteck approximieren
+                'kreis': 'rechteck',
                 'vieleck': 'rechteck'
             };
             
@@ -682,36 +698,159 @@
             const variant = projectData.roofShape.variant;
             const baseShape = projectData.roofShape.baseShape;
             
-            console.log('Variant:', variant, 'BaseShape:', baseShape); // Debug
+            console.log('Variant:', variant, 'BaseShape:', baseShape);
             
-            return shapeMapping[variant] || shapeMapping[baseShape] || 'rechteck';
+            let shapeType = shapeMapping[variant] || shapeMapping[baseShape] || 'rechteck';
+            console.log('Ermittelter ShapeType:', shapeType);
+            
+            return shapeType;
         }
 
-        // Shape-Typ setzen (aus Projektdaten) - mit mehr Debug
+        // Shape-Typ setzen und Titel aktualisieren - KORRIGIERT
         function initializeShapeType() {
             console.log('--- initializeShapeType gestartet ---');
             
             currentShapeType = loadShapeFromProject();
-            
             console.log('Aktueller ShapeType:', currentShapeType);
             
             const shape = SmartGeometry.shapes[currentShapeType];
             console.log('Gefundene Shape-Definition:', shape);
             
             const shapeName = shape?.name || 'Unbekannte Form';
-            
             console.log('Shape Name:', shapeName);
             
+            // Shape-Name in beiden Elementen setzen
             const nameElement = document.getElementById('current-shape-name');
+            const titleElement = document.getElementById('shape-title');
+            
             if (nameElement) {
                 nameElement.textContent = shapeName;
-                console.log('Shape Name gesetzt in Element');
+                console.log('Shape Name gesetzt in current-shape-name');
             } else {
                 console.log('FEHLER: Element current-shape-name nicht gefunden!');
             }
             
+            if (titleElement) {
+                titleElement.textContent = shapeName;
+                console.log('Shape Name gesetzt in shape-title');
+            } else {
+                console.log('FEHLER: Element shape-title nicht gefunden!');
+            }
+            
+            // Standardwerte aus den gespeicherten Punkten ableiten falls vorhanden
+            if (projectData.roofShape && projectData.roofShape.points && projectData.roofShape.points.length > 0) {
+                console.log('Verwende gespeicherte Punkte:', projectData.roofShape.points);
+                deriveValuesFromPoints(projectData.roofShape.points);
+            } else {
+                console.log('Keine gespeicherten Punkte, verwende Standardwerte');
+                setDefaultValues();
+            }
+            
             generateInputFields();
+            updateGeometry();
             console.log('--- initializeShapeType beendet ---');
+        }
+
+        // Werte aus vorhandenen Punkten ableiten
+        function deriveValuesFromPoints(points) {
+            console.log('Leite Werte aus Punkten ab:', points);
+            
+            if (points.length < 3) {
+                setDefaultValues();
+                return;
+            }
+            
+            // Bounding Box berechnen
+            const minX = Math.min(...points.map(p => p.x));
+            const maxX = Math.max(...points.map(p => p.x));
+            const minY = Math.min(...points.map(p => p.y));
+            const maxY = Math.max(...points.map(p => p.y));
+            
+            const width = maxX - minX;
+            const height = maxY - minY;
+            
+            console.log(`Abgeleitete Maße: Breite=${width}, Höhe=${height}`);
+            
+            // Je nach Shape-Typ entsprechende Werte setzen
+            switch (currentShapeType) {
+                case 'rechteck':
+                    currentValues = {
+                        length: width,
+                        width: height
+                    };
+                    break;
+                    
+                case 'trapez':
+                    // Für Trapez: Basis-Längen aus ersten und letzten Punkten ableiten
+                    if (points.length >= 4) {
+                        const base1 = Math.abs(points[1].x - points[0].x);
+                        const base2 = Math.abs(points[2].x - points[3].x);
+                        currentValues = {
+                            base1: base1,
+                            base2: base2,
+                            height: height
+                        };
+                    }
+                    break;
+                    
+                case 'parallelogramm':
+                    currentValues = {
+                        length: width,
+                        width: height,
+                        angle: 90 // Standard-Winkel
+                    };
+                    break;
+                    
+                case 'dreieck':
+                    if (points.length >= 3) {
+                        const side1 = Math.sqrt((points[1].x - points[0].x) ** 2 + (points[1].y - points[0].y) ** 2);
+                        const side2 = Math.sqrt((points[2].x - points[0].x) ** 2 + (points[2].y - points[0].y) ** 2);
+                        currentValues = {
+                            side1: side1,
+                            side2: side2
+                        };
+                    }
+                    break;
+                    
+                case 'rechteck_schraeg':
+                    currentValues = {
+                        length: width,
+                        width: height,
+                        cut_length: Math.min(width, height) * 0.2 // 20% Abschnitt
+                    };
+                    break;
+                    
+                default:
+                    currentValues = {
+                        length: width,
+                        width: height
+                    };
+            }
+            
+            console.log('Abgeleitete Werte:', currentValues);
+        }
+
+        // Standard-Werte setzen
+        function setDefaultValues() {
+            switch (currentShapeType) {
+                case 'rechteck':
+                    currentValues = { length: 10, width: 8 };
+                    break;
+                case 'trapez':
+                    currentValues = { base1: 10, base2: 6, height: 8 };
+                    break;
+                case 'parallelogramm':
+                    currentValues = { length: 10, width: 8, angle: 75 };
+                    break;
+                case 'dreieck':
+                    currentValues = { side1: 10, side2: 8 };
+                    break;
+                case 'rechteck_schraeg':
+                    currentValues = { length: 10, width: 8, cut_length: 2 };
+                    break;
+                default:
+                    currentValues = { length: 10, width: 8 };
+            }
         }
 
         // Eingabefelder generieren
@@ -799,7 +938,6 @@
             const isValid = !shape.validate || shape.validate(currentValues);
             
             if (!isValid) {
-                // Ungültige Konfiguration - Warnung anzeigen
                 console.warn('Ungültige Geometrie-Konfiguration');
             }
             
@@ -843,4 +981,188 @@
             // Polygon zeichnen
             const svgPoints = currentPoints.map(p => {
                 const x = centerX + (p.x - (bounds.minX + bounds.maxX) / 2) * scale;
-                const y = centerY - (p.y - (
+                const y = centerY - (p.y - (bounds.minY + bounds.maxY) / 2) * scale;
+                return `${x},${y}`;
+            }).join(' ');
+            
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', svgPoints);
+            polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+            polygon.setAttribute('stroke', '#007bff');
+            polygon.setAttribute('stroke-width', '2');
+            roofGroup.appendChild(polygon);
+            
+            // Eckpunkte zeichnen
+            currentPoints.forEach((point, index) => {
+                const x = centerX + (point.x - (bounds.minX + bounds.maxX) / 2) * scale;
+                const y = centerY - (point.y - (bounds.minY + bounds.maxY) / 2) * scale;
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', x);
+                circle.setAttribute('cy', y);
+                circle.setAttribute('r', 4);
+                circle.setAttribute('fill', '#dc3545');
+                circle.setAttribute('stroke', 'white');
+                circle.setAttribute('stroke-width', 2);
+                roofGroup.appendChild(circle);
+                
+                // Punkt-Nummern
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', x + 8);
+                text.setAttribute('y', y - 8);
+                text.setAttribute('font-size', '12');
+                text.setAttribute('fill', '#dc3545');
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = index + 1;
+                dimensionsGroup.appendChild(text);
+            });
+        }
+
+        // Bounding Box berechnen
+        function getBounds(points) {
+            if (points.length === 0) return { minX: 0, maxX: 10, minY: 0, maxY: 8, width: 10, height: 8 };
+            
+            const minX = Math.min(...points.map(p => p.x));
+            const maxX = Math.max(...points.map(p => p.x));
+            const minY = Math.min(...points.map(p => p.y));
+            const maxY = Math.max(...points.map(p => p.y));
+            
+            return {
+                minX, maxX, minY, maxY,
+                width: maxX - minX,
+                height: maxY - minY
+            };
+        }
+
+        // Info-Panel aktualisieren
+        function updateInfoPanel() {
+            const area = SmartGeometry.calculateArea(currentPoints);
+            const perimeter = SmartGeometry.calculatePerimeter(currentPoints);
+            
+            document.getElementById('calc-area').textContent = area.toFixed(2) + ' m²';
+            document.getElementById('calc-perimeter').textContent = perimeter.toFixed(2) + ' m';
+            
+            // Diagonale anzeigen falls verfügbar
+            if (currentValues.diagonal) {
+                document.getElementById('calc-diagonal').textContent = currentValues.diagonal.toFixed(2) + ' m';
+                document.getElementById('diagonal-row').style.display = 'flex';
+            } else {
+                document.getElementById('diagonal-row').style.display = 'none';
+            }
+            
+            // Winkel anzeigen falls verfügbar
+            if (currentValues.angle1 || currentValues.angle) {
+                const angles = [];
+                if (currentValues.angle1) angles.push(currentValues.angle1.toFixed(1) + '°');
+                if (currentValues.angle2) angles.push(currentValues.angle2.toFixed(1) + '°');
+                if (currentValues.angle3) angles.push(currentValues.angle3.toFixed(1) + '°');
+                if (currentValues.angle) angles.push(currentValues.angle.toFixed(1) + '°');
+                
+                document.getElementById('calc-angles').textContent = angles.join(', ');
+                document.getElementById('angles-row').style.display = 'flex';
+            } else {
+                document.getElementById('angles-row').style.display = 'none';
+            }
+        }
+
+        // Transformations-Funktionen
+        function mirrorHorizontal() {
+            currentPoints = currentPoints.map(p => ({ x: -p.x, y: p.y }));
+            updateShape();
+            updateInfoPanel();
+        }
+
+        function mirrorVertical() {
+            currentPoints = currentPoints.map(p => ({ x: p.x, y: -p.y }));
+            updateShape();
+            updateInfoPanel();
+        }
+
+        function rotateLeft() {
+            currentPoints = currentPoints.map(p => ({ x: p.y, y: -p.x }));
+            updateShape();
+            updateInfoPanel();
+        }
+
+        function rotateRight() {
+            currentPoints = currentPoints.map(p => ({ x: -p.y, y: p.x }));
+            updateShape();
+            updateInfoPanel();
+        }
+
+        function resetShape() {
+            if (confirm('Möchten Sie alle Änderungen zurücksetzen?')) {
+                setDefaultValues();
+                generateInputFields();
+                updateGeometry();
+            }
+        }
+
+        // Navigation
+        function saveAndContinue() {
+            // Aktuelle Geometrie-Daten in roofShape speichern
+            if (!projectData.roofShape) {
+                projectData.roofShape = {};
+            }
+            
+            // Geometrie-Details hinzufügen
+            projectData.roofShape.editorData = {
+                shapeType: currentShapeType,
+                values: { ...currentValues },
+                points: [...currentPoints]
+            };
+            
+            // Grundlegende Dach-Eigenschaften
+            const area = SmartGeometry.calculateArea(currentPoints);
+            const bounds = getBounds(currentPoints);
+            
+            projectData.roofShape.dachTyp = SmartGeometry.shapes[currentShapeType].name;
+            projectData.roofShape.dachNeigung = 15; // Standard-Neigung
+            projectData.roofShape.points = [...currentPoints]; // Für Berechnung verwenden
+            projectData.roofShape.area = area;
+            projectData.roofShape.dimensions = {
+                width: bounds.width,
+                height: bounds.height,
+                minX: bounds.minX,
+                maxX: bounds.maxX,
+                minY: bounds.minY,
+                maxY: bounds.maxY
+            };
+            
+            console.log('Speichere Dachform-Daten:', projectData.roofShape);
+            
+            saveData();
+            window.location.href = 'berechnung.html';
+        }
+
+        function goBack() {
+            window.location.href = 'dachform.html';
+        }
+
+        // Initialisierung beim Laden der Seite
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== Editor wird initialisiert ===');
+            
+            // Projektdaten laden
+            projectData = loadData();
+            console.log('Geladene Projektdaten:', projectData);
+            
+            // Shape-Typ initialisieren und Form laden
+            initializeShapeType();
+            
+            console.log('=== Editor-Initialisierung abgeschlossen ===');
+        });
+
+        // Prüfung auf vollständige Projektdaten
+        window.addEventListener('load', function() {
+            if (!projectData.profile || !projectData.roofShape) {
+                setTimeout(() => {
+                    if (confirm('Unvollständige Projektdaten gefunden. Möchten Sie zum Anfang zurückkehren?')) {
+                        window.location.href = 'index.html';
+                    }
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
