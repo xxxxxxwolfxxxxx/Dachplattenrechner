@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dachform Editor - Dachplattenrechner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dachplattenrechner</h1>
+            <nav class="progress-nav">
+                <div class="step completed" data-step="1">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Profil</span>
+                </div>
+                <div class="step active" data-step="2">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Dachform</span>
+                </div>
+                <div class="step" data-step="3">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Berechnung</span>
+                </div>
+                <div class="step" data-step="4">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Anrissplan</span>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="editor-section">
+                <h2>Dachform bearbeiten und bemaßen</h2>
+                <p>Klicken Sie auf eine Seite der Form, um sie zu bemaßen oder anzupassen:</p>
+
+                <div class="editor-container">
+                    <!-- Werkzeugleiste -->
+                    <div class="card toolbar">
+                        <h3>Werkzeuge</h3>
+                        <div class="tool-buttons">
+                            <button class="btn tool-btn active" id="select-tool" data-tool="select">
+                                <span class="tool-icon">👆</span>
+                                Auswählen
+                            </button>
+                            <button class="btn tool-btn" id="measure-tool" data-tool="measure">
+                                <span class="tool-icon">📏</span>
+                                Bemaßen
+                            </button>
+                            <button class="btn tool-btn" id="move-tool" data-tool="move">
+                                <span class="tool-icon">✋</span>
+                                Verschieben
+                            </button>
+                            <button class="btn tool-btn" id="edit-tool" data-tool="edit">
+                                <span class="tool-icon">✏️</span>
+                                Bearbeiten
+                            </button>
+                        </div>
+                        
+                        <div class="view-controls">
+                            <h4>Ansicht</h4>
+                            <button class="btn btn-secondary btn-sm" id="zoom-in">+</button>
+                            <button class="btn btn-secondary btn-sm" id="zoom-out">-</button>
+                            <button class="btn btn-secondary btn-sm" id="zoom-fit">Einpassen</button>
+                            <button class="btn btn-secondary btn-sm" id="center-view">Zentrieren</button>
+                        </div>
+
+                        <div class="grid-controls">
+                            <h4>Raster</h4>
+                            <label>
+                                <input type="checkbox" id="show-grid" checked> 
+                                Raster anzeigen
+                            </label>
+                            <label>
+                                <input type="checkbox" id="snap-to-grid"> 
+                                Am Raster einrasten
+                            </label>
+                            <div class="form-group">
+                                <label for="grid-size">Rastergröße (m):</label>
+                                <select id="grid-size" class="form-control">
+                                    <option value="0.5">0.5m</option>
+                                    <option value="1" selected>1m</option>
+                                    <option value="2">2m</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Haupt-Zeichenbereich -->
+                    <div class="card editor-main">
+                        <div class="editor-header">
+                            <h3>Dachform: <span id="shape-title">Wird geladen...</span></h3>
+                            <div class="editor-info">
+                                <span id="cursor-pos">X: 0.00m, Y: 0.00m</span>
+                                <span class="separator">|</span>
+                                <span id="scale-display">Maßstab: 1:100</span>
+                            </div>
+                        </div>
+                        
+                        <div class="canvas-wrapper">
+                            <canvas id="main-canvas" width="800" height="600"></canvas>
+                            <div class="canvas-overlay">
+                                <!-- Hier werden dynamische UI-Elemente eingefügt -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Eigenschaften-Panel -->
+                    <div class="card properties-panel">
+                        <h3>Eigenschaften</h3>
+                        
+                        <div id="no-selection" class="property-content">
+                            <p class="text-muted">Wählen Sie eine Seite oder einen Punkt aus, um Eigenschaften zu bearbeiten.</p>
+                        </div>
+
+                        <div id="edge-properties" class="property-content" style="display: none;">
+                            <h4>Seite <span id="edge-number"></span></h4>
+                            <div class="form-group">
+                                <label for="edge-length">Länge (m):</label>
+                                <input type="number" id="edge-length" class="form-control" step="0.01" min="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="edge-angle">Winkel (°):</label>
+                                <input type="number" id="edge-angle" class="form-control" step="0.1" min="0" max="360">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="edge-fixed"> 
+                                    Länge fixieren
+                                </label>
+                            </div>
+                            <button class="btn btn-primary" id="apply-edge-changes">Übernehmen</button>
+                        </div>
+
+                        <div id="point-properties" class="property-content" style="display: none;">
+                            <h4>Punkt <span id="point-number"></span></h4>
+                            <div class="form-group">
+                                <label for="point-x">X-Koordinate (m):</label>
+                                <input type="number" id="point-x" class="form-control" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="point-y">Y-Koordinate (m):</label>
+                                <input type="number" id="point-y" class="form-control" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="point-fixed"> 
+                                    Position fixieren
+                                </label>
+                            </div>
+                            <button class="btn btn-primary" id="apply-point-changes">Übernehmen</button>
+                        </div>
+
+                        <div id="form-properties" class="property-content">
+                            <h4>Gesamtform</h4>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <span class="stat-label">Fläche:</span>
+                                    <span class="stat-value" id="total-area">0.00 m²</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Umfang:</span>
+                                    <span class="stat-value" id="total-perimeter">0.00 m</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Punkte:</span>
+                                    <span class="stat-value" id="total-points">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Typ:</span>
+                                    <span class="stat-value" id="shape-type">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Punktliste -->
+                <div class="card points-list">
+                    <h3>Eckpunkte</h3>
+                    <div class="table-container">
+                        <table class="table" id="points-table">
+                            <thead>
+                                <tr>
+                                    <th>Nr.</th>
+                                    <th>X (m)</th>
+                                    <th>Y (m)</th>
+                                    <th>Länge zur nächsten (m)</th>
+                                    <th>Winkel (°)</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="points-tbody">
+                                <!-- Punkte werden hier dynamisch eingefügt -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <div class="navigation-buttons">
+                <button type="button" class="btn btn-secondary" id="back-btn">← Zurück zur Auswahl</button>
+                <button type="button" class="btn btn-primary" id="continue-btn">Weiter zur Berechnung →</button>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Dachplattenrechner</p>
+        </footer>
+    </div>
+
+    <script>
+        // Globale Variablen
+        var projectData = {};
+        var roofPoints = [];
+        var scale = 80; // Pixel pro Meter
+        var offsetX = 0;
+        var offsetY = 0;
+        var selectedTool = 'select';
+        var selectedElement = null;
+        var selectedType = null; // 'edge' oder 'point'
+        var selectedIndex = -1;
+        var isDragging = false;
+        var dragStart = { x: 0, y: 0 };
+        var showGrid = true;
+        var snapToGrid = false;
+        var gridSize = 1; // Meter
+
+        // Hilfsfunktionen
+        function saveData() {
+            try {
+                localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                return true;
+            } catch (e) {
+                try {
+                    sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                    return true;
+                } catch (e2) {
+                    return false;
+                }
+            }
+        }
+
+        function loadData() {
+            try {
+                var saved = localStorage.getItem('dachplattenrechner_data');
+                if (!saved) saved = sessionStorage.getItem('dachplattenrechner_data');
+                return saved ? JSON.parse(saved) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function calculateArea(points) {
+            if (points.length < 3) return 0;
+            var area = 0;
+            for (var i = 0; i < points.length; i++) {
+                var j = (i + 1) % points.length;
+                area += points[i].x * points[j].y - points[j].x * points[i].y;
+            }
+            return Math.abs(area) / 2;
+        }
+
+        function calculatePerimeter(points) {
+            if (points.length < 2) return 0;
+            var perimeter = 0;
+            for (var i = 0; i < points.length; i++) {
+                var j = (i + 1) % points.length;
+                var dx = points[j].x - points[i].x;
+                var dy = points[j].y - points[i].y;
+                perimeter += Math.sqrt(dx * dx + dy * dy);
+            }
+            return perimeter;
+        }
+
+        function calculateEdgeLength(p1, p2) {
+            var dx = p2.x - p1.x;
+            var dy = p2.y - p1.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function calculateAngle(p1, p2, p3) {
+            var v1x = p1.x - p2.x;
+            var v1y = p1.y - p2.y;
+            var v2x = p3.x - p2.x;
+            var v2y = p3.y - p2.y;
+            
+            var dot = v1x * v2x + v1y * v2y;
+            var len1 = Math.sqrt(v1x * v1x + v1y * v1y);
+            var len2 = Math.sqrt(v2x * v2x + v2y * v2y);
+            
+            if (len1 === 0 || len2 === 0) return 0;
+            
+            var cosAngle = dot / (len1 * len2);
+            cosAngle = Math.max(-1, Math.min(1, cosAngle)); // Clamp
+            
+            return Math.acos(cosAngle) * 180 / Math.PI;
+        }
+
+        function worldToCanvas(point) {
+            return {
+                x: offsetX + point.x * scale,
+                y: offsetY - point.y * scale
+            };
+        }
+
+        function canvasToWorld(point) {
+            return {
+                x: (point.x - offsetX) / scale,
+                y: -(point.y - offsetY) / scale
+            };
+        }
+
+        function snapToGridValue(value) {
+            if (!snapToGrid) return value;
+            return Math.round(value / gridSize) * gridSize;
+        }
+
+        // Zeichenfunktionen
+        function drawGrid(ctx, canvas) {
+            if (!showGrid) return;
+            
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            
+            var gridPixelSize = gridSize * scale;
+            var startX = offsetX % gridPixelSize;
+            var startY = offsetY % gridPixelSize;
+            
+            // Vertikale Linien
+            for (var x = startX; x < canvas.width; x += gridPixelSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontale Linien
+            for (var y = startY; y < canvas.height; y += gridPixelSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Hauptachsen hervorheben
+            ctx.strokeStyle = '#c0c0c0';
+            ctx.lineWidth = 2;
+            
+            if (offsetY >= 0 && offsetY <= canvas.height) {
+                ctx.beginPath();
+                ctx.moveTo(0, offsetY);
+                ctx.lineTo(canvas.width, offsetY);
+                ctx.stroke();
+            }
+            
+            if (offsetX >= 0 && offsetX <= canvas.width) {
+                ctx.beginPath();
+                ctx.moveTo(offsetX, 0);
+                ctx.lineTo(offsetX, canvas.height);
+                ctx.stroke();
+            }
+        }
+
+        function drawShape(ctx) {
+            if (roofPoints.length === 0) return;
+            
+            // Hauptform zeichnen
+            ctx.fillStyle = 'rgba(0, 123, 255, 0.2)';
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 3;
+            
+            ctx.beginPath();
+            for (var i = 0; i < roofPoints.length; i++) {
+                var canvasPoint = worldToCanvas(roofPoints[i]);
+                if (i === 0) {
+                    ctx.moveTo(canvasPoint.x, canvasPoint.y);
+                } else {
+                    ctx.lineTo(canvasPoint.x, canvasPoint.y);
+                }
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // Kanten hervorheben (bei Hover/Selection)
+            drawEdges(ctx);
+            
+            // Punkte zeichnen
+            drawPoints(ctx);
+            
+            // Bemaßungen zeichnen
+            drawDimensions(ctx);
+        }
+
+        function drawEdges(ctx) {
+            for (var i = 0; i < roofPoints.length; i++) {
+                var j = (i + 1) % roofPoints.length;
+                var p1 = worldToCanvas(roofPoints[i]);
+                var p2 = worldToCanvas(roofPoints[j]);
+                
+                var isSelected = selectedType === 'edge' && selectedIndex === i;
+                var isHovered = false; // TODO: Implement hover detection
+                
+                if (isSelected || isHovered) {
+                    ctx.strokeStyle = isSelected ? '#ff6b6b' : '#ffa500';
+                    ctx.lineWidth = 5;
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawPoints(ctx) {
+            for (var i = 0; i < roofPoints.length; i++) {
+                var canvasPoint = worldToCanvas(roofPoints[i]);
+                var isSelected = selectedType === 'point' && selectedIndex === i;
+                
+                // Punkt-Kreis
+                ctx.fillStyle = isSelected ? '#ff6b6b' : '#007bff';
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                
+                ctx.beginPath();
+                ctx.arc(canvasPoint.x, canvasPoint.y, isSelected ? 8 : 6, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+                
+                // Punkt-Nummer
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(i + 1, canvasPoint.x, canvasPoint.y);
+            }
+        }
+
+        function drawDimensions(ctx) {
+            ctx.strokeStyle = '#666666';
+            ctx.fillStyle = '#666666';
+            ctx.lineWidth = 1;
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            
+            for (var i = 0; i < roofPoints.length; i++) {
+                var j = (i + 1) % roofPoints.length;
+                var p1 = worldToCanvas(roofPoints[i]);
+                var p2 = worldToCanvas(roofPoints[j]);
+                
+                // Mittelpunkt der Kante
+                var midX = (p1.x + p2.x) / 2;
+                var midY = (p1.y + p2.y) / 2;
+                
+                // Kantenvektor und Normalvektor
+                var dx = p2.x - p1.x;
+                var dy = p2.y - p1.y;
+                var length = Math.sqrt(dx * dx + dy * dy);
+                
+                if (length > 0) {
+                    var nx = -dy / length;
+                    var ny = dx / length;
+                    
+                    // Offset für Bemaßung
+                    var offset = 25;
+                    var textX = midX + nx * offset;
+                    var textY = midY + ny * offset;
+                    
+                    // Länge berechnen
+                    var edgeLength = calculateEdgeLength(roofPoints[i], roofPoints[j]);
+                    
+                    // Bemaßungstext
+                    ctx.fillStyle = '#666666';
+                    ctx.fillText(edgeLength.toFixed(2) + 'm', textX, textY);
+                    
+                    // Bemaßungslinie
+                    ctx.strokeStyle = '#999999';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([2, 2]);
+                    ctx.beginPath();
+                    ctx.moveTo(midX, midY);
+                    ctx.lineTo(textX, textY);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            }
+        }
+
+        function redraw() {
+            var canvas = document.getElementById('main-canvas');
+            var ctx = canvas.getContext('2d');
+            
+            // Canvas löschen
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Hintergrund
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Raster zeichnen
+            drawGrid(ctx, canvas);
+            
+            // Form zeichnen
+            drawShape(ctx);
+            
+            // Statistiken aktualisieren
+            updateStats();
+        }
+
+        function updateStats() {
+            var area = calculateArea(roofPoints);
+            var perimeter = calculatePerimeter(roofPoints);
+            
+            document.getElementById('total-area').textContent = area.toFixed(2) + ' m²';
+            document.getElementById('total-perimeter').textContent = perimeter.toFixed(2) + ' m';
+            document.getElementById('total-points').textContent = roofPoints.length;
+            
+            var shapeType = projectData.roofShape ? 
+                (projectData.roofShape.variant || projectData.roofShape.baseShape || 'Custom') : 'Unbekannt';
+            document.getElementById('shape-type').textContent = shapeType;
+        }
+
+        function updatePointsTable() {
+            var tbody = document.getElementById('points-tbody');
+            tbody.innerHTML = '';
+            
+            for (var i = 0; i < roofPoints.length; i++) {
+                var point = roofPoints[i];
+                var nextIndex = (i + 1) % roofPoints.length;
+                var nextPoint = roofPoints[nextIndex];
+                
+                var edgeLength = calculateEdgeLength(point, nextPoint);
+                
+                // Winkel berechnen
+                var prevIndex = (i - 1 + roofPoints.length) % roofPoints.length;
+                var prevPoint = roofPoints[prevIndex];
+                var angle = calculateAngle(prevPoint, point, nextPoint);
+                
+                var row = tbody.insertRow();
+                row.innerHTML = 
+                    '<td>' + (i + 1) + '</td>' +
+                    '<td>' + point.x.toFixed(2) + '</td>' +
+                    '<td>' + point.y.toFixed(2) + '</td>' +
+                    '<td>' + edgeLength.toFixed(2) + '</td>' +
+                    '<td>' + angle.toFixed(1) + '°</td>' +
+                    '<td>' +
+                        '<button class="btn btn-sm btn-secondary" onclick="selectPoint(' + i + ')">Auswählen</button> ' +
+                        '<button class="btn btn-sm btn-danger" onclick="deletePoint(' + i + ')">Löschen</button>' +
+                    '</td>';
+            }
+        }
+
+        // Werkzeug-Management
+        function selectTool(toolName) {
+            selectedTool = toolName;
+            
+            // Alle Tool-Buttons deaktivieren
+            var toolButtons = document.querySelectorAll('.tool-btn');
+            for (var i = 0; i < toolButtons.length; i++) {
+                toolButtons[i].classList.remove('active');
+            }
+            
+            // Aktives Tool markieren
+            document.getElementById(toolName + '-tool').classList.add('active');
+            
+            // Cursor ändern
+            var canvas = document.getElementById('main-canvas');
+            switch (toolName) {
+                case 'select':
+                    canvas.style.cursor = 'default';
+                    break;
+                case 'measure':
+                    canvas.style.cursor = 'crosshair';
+                    break;
+                case 'move':
+                    canvas.style.cursor = 'move';
+                    break;
+                case 'edit':
+                    canvas.style.cursor = 'pointer';
+                    break;
+            }
+        }
+
+        // Auswahl-Management
+        function selectPoint(index) {
+            selectedType = 'point';
+            selectedIndex = index;
+            selectedElement = roofPoints[index];
+            
+            showPointProperties();
+            redraw();
+        }
+
+        function selectEdge(index) {
+            selectedType = 'edge';
+            selectedIndex = index;
+            
+            showEdgeProperties();
+            redraw();
+        }
+
+        function clearSelection() {
+            selectedType = null;
+            selectedIndex = -1;
+            selectedElement = null;
+            
+            showNoSelection();
+            redraw();
+        }
+
+        function showPointProperties() {
+            hideAllProperties();
+            
+            var pointProps = document.getElementById('point-properties');
+            pointProps.style.display = 'block';
+            
+            document.getElementById('point-number').textContent = selectedIndex + 1;
+            document.getElementById('point-x').value = roofPoints[selectedIndex].x.toFixed(2);
+            document.getElementById('point-y').value = roofPoints[selectedIndex].y.toFixed(2);
+        }
+
+        function showEdgeProperties() {
+            hideAllProperties();
+            
+            var edgeProps = document.getElementById('edge-properties');
+            edgeProps.style.display = 'block';
+            
+            var nextIndex = (selectedIndex + 1) % roofPoints.length;
+            var length = calculateEdgeLength(roofPoints[selectedIndex], roofPoints[nextIndex]);
+            
+            document.getElementById('edge-number').textContent = selectedIndex + 1;
+            document.getElementById('edge-length').value = length.toFixed(2);
+        }
+
+        function showNoSelection() {
+            hideAllProperties();
+            document.getElementById('no-selection').style.display = 'block';
+        }
+
+        function hideAllProperties() {
+            document.getElementById('no-selection').style.display = 'none';
+            document.getElementById('point-properties').style.display = 'none';
+            document.getElementById('edge-properties').style.display = 'none';
+        }
+
+        // Event Handlers
+        function handleCanvasClick(event) {
+            var canvas = document.getElementById('main-canvas');
+            var rect = canvas.getBoundingClientRect();
+            var canvasX = event.clientX - rect.left;
+            var canvasY = event.clientY - rect.top;
+            var worldPos = canvasToWorld({ x: canvasX, y: canvasY });
+            
+            if (selectedTool === 'select') {
+                // Punkt-Auswahl testen
+                var pointHit = false;
+                for (var i = 0; i < roofPoints.length; i++) {
+                    var canvasPoint = worldToCanvas(roofPoints[i]);
+                    var distance = Math.sqrt(
+                        Math.pow(canvasX - canvasPoint.x, 2) + 
+                        Math.pow(canvasY - canvasPoint.y, 2)
+                    );
+                    
+                    if (distance <= 10) { // 10 Pixel Toleranz
+                        selectPoint(i);
+                        pointHit = true;
+                        break;
+                    }
+                }
+                
+                // Kanten-Auswahl testen wenn kein Punkt getroffen
+                if (!pointHit) {
+                    for (var i = 0; i < roofPoints.length; i++) {
+                        var j = (i + 1) % roofPoints.length;
+                        var p1 = worldToCanvas(roofPoints[i]);
+                        var p2 = worldToCanvas(roofPoints[j]);
+                        
+                        // Distanz zur Linie berechnen
+                        var lineDistance = distanceToLine(
+                            { x: canvasX, y: canvasY }, p1, p2
+                        );
+                        
+                        if (lineDistance <= 8) { // 8 Pixel Toleranz
+                            selectEdge(i);
+                            break;
+                        }
+                    }
+                }
+                
+                if (!pointHit) {
+                    // Nichts getroffen - Auswahl aufheben
+                    clearSelection();
+                }
+            }
+        }
+
+        function distanceToLine(point, lineStart, lineEnd) {
+            var A = point.x - lineStart.x;
+            var B = point.y - lineStart.y;
+            var C = lineEnd.x - lineStart.x;
+            var D = lineEnd.y - lineStart.y;
+            
+            var dot = A * C + B * D;
+            var lenSq = C * C + D * D;
+            var param = lenSq !== 0 ? dot / lenSq : -1;
+            
+            var xx, yy;
+            
+            if (param < 0) {
+                xx = lineStart.x;
+                yy = lineStart.y;
+            } else if (param > 1) {
+                xx = lineEnd.x;
+                yy = lineEnd.y;
+            } else {
+                xx = lineStart.x + param * C;
+                yy = lineStart.y + param * D;
+            }
+            
+            var dx = point.x - xx;
+            var dy = point.y - yy;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function handleMouseMove(event) {
+            var canvas = document.getElementById('main-canvas');
+            var rect = canvas.getBoundingClientRect();
+            var canvasX = event.clientX - rect.left;
+            var canvasY = event.clientY - rect.top;
+            var worldPos = canvasToWorld({ x: canvasX, y: canvasY });
+            
+            // Cursor-Position anzeigen
+            document.getElementById('cursor-pos').textContent = 
+                'X: ' + worldPos.x.toFixed(2) + 'm, Y: ' + worldPos.y.toFixed(2) + 'm';
+        }
+
+        // Zoom und Pan
+        function zoomIn() {
+            scale *= 1.2;
+            document.getElementById('scale-display').textContent = 'Maßstab: 1:' + Math.round(100 / scale * 80);
+            redraw();
+        }
+
+        function zoomOut() {
+            scale /= 1.2;
+            document.getElementById('scale-display').textContent = 'Maßstab: 1:' + Math.round(100 / scale * 80);
+            redraw();
+        }
+
+        function zoomFit() {
+            if (roofPoints.length ===
