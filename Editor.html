@@ -931,18 +931,32 @@
             if (isUpdating) return;
             isUpdating = true;
             
+            console.log('🔄 updateGeometry gestartet');
+            console.log('  - currentShapeType:', currentShapeType);
+            console.log('  - currentValues vor Berechnung:', currentValues);
+            
             const shape = SmartGeometry.shapes[currentShapeType];
+            
+            if (!shape) {
+                console.error('❌ Shape nicht gefunden:', currentShapeType);
+                isUpdating = false;
+                return;
+            }
             
             // Werte berechnen
             if (shape.calculate) {
+                const oldValues = {...currentValues};
                 currentValues = shape.calculate({ ...currentValues });
+                console.log('  - currentValues nach Berechnung:', currentValues);
+                console.log('  - Änderungen:', JSON.stringify(oldValues) !== JSON.stringify(currentValues));
             }
             
             // Validierung
             const isValid = !shape.validate || shape.validate(currentValues);
+            console.log('  - Validierung:', isValid ? '✓ gültig' : '❌ ungültig');
             
             if (!isValid) {
-                console.warn('Ungültige Geometrie-Konfiguration');
+                console.warn('⚠️ Ungültige Geometrie-Konfiguration');
             }
             
             // Berechnete Felder aktualisieren
@@ -951,13 +965,27 @@
                     const field = document.getElementById(`dim-${input.id}`);
                     if (field) {
                         field.value = currentValues[input.id].toFixed(2);
+                        console.log(`  - Feld ${input.id} aktualisiert: ${currentValues[input.id].toFixed(2)}`);
+                    } else {
+                        console.warn(`  - Feld dim-${input.id} nicht gefunden`);
                     }
                 }
             });
             
             // Punkte generieren
-            currentPoints = shape.generatePoints(currentValues);
-            originalPoints = [...currentPoints];
+            if (shape.generatePoints) {
+                const oldPoints = [...currentPoints];
+                currentPoints = shape.generatePoints(currentValues);
+                console.log('  - Punkte generiert:', currentPoints);
+                console.log('  - Punkte geändert:', JSON.stringify(oldPoints) !== JSON.stringify(currentPoints));
+                
+                if (originalPoints.length === 0) {
+                    originalPoints = [...currentPoints];
+                    console.log('  - Original-Punkte gesetzt:', originalPoints);
+                }
+            } else {
+                console.warn('  - generatePoints Funktion fehlt');
+            }
             
             // Form zeichnen
             updateShape();
@@ -966,22 +994,41 @@
             updateInfoPanel();
             
             isUpdating = false;
+            console.log('✅ updateGeometry beendet');
         }
 
         // Form zeichnen
         function updateShape() {
+            console.log('🎨 updateShape gestartet');
+            console.log('  - currentPoints:', currentPoints);
+            
             const roofGroup = document.getElementById('roof-shape');
             const dimensionsGroup = document.getElementById('dimensions');
+            
+            if (!roofGroup || !dimensionsGroup) {
+                console.error('❌ SVG Gruppen nicht gefunden:', {roofGroup, dimensionsGroup});
+                return;
+            }
+            
             roofGroup.innerHTML = '';
             dimensionsGroup.innerHTML = '';
             
-            if (currentPoints.length === 0) return;
+            if (currentPoints.length === 0) {
+                console.warn('⚠️ Keine Punkte zum Zeichnen');
+                return;
+            }
+            
+            console.log('  - Zeichne Form mit', currentPoints.length, 'Punkten');
             
             // Bounding Box und Skalierung
             const bounds = getBounds(currentPoints);
+            console.log('  - Bounds:', bounds);
+            
             const scale = Math.min(250 / Math.max(bounds.width, 1), 200 / Math.max(bounds.height, 1));
             const centerX = 400;
             const centerY = 300;
+            
+            console.log('  - Scale:', scale, 'Center:', centerX, centerY);
             
             // Polygon zeichnen
             const svgPoints = currentPoints.map(p => {
@@ -990,12 +1037,16 @@
                 return `${x},${y}`;
             }).join(' ');
             
+            console.log('  - SVG Points:', svgPoints);
+            
             const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
             polygon.setAttribute('points', svgPoints);
             polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
             polygon.setAttribute('stroke', '#007bff');
             polygon.setAttribute('stroke-width', '2');
             roofGroup.appendChild(polygon);
+            
+            console.log('  - Polygon erstellt und hinzugefügt');
             
             // Eckpunkte markieren
             currentPoints.forEach((point, index) => {
@@ -1023,8 +1074,12 @@
                 roofGroup.appendChild(text);
             });
             
+            console.log('  - Eckpunkte gezeichnet');
+            
             // Kantenlängen anzeigen
             drawEdgeLabels(currentPoints, scale, centerX, centerY, bounds);
+            
+            console.log('✅ updateShape beendet');
         }
 
         function drawEdgeLabels(points, scale, centerX, centerY, bounds) {
