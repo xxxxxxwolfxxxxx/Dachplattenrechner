@@ -296,11 +296,11 @@
                         <div class="tool-group" id="roof-orientation-tools">
                             <h4>Dach-Ausrichtung</h4>
                             <div class="button-group">
-                                <button class="btn btn-success" id="btn-first" onclick="setOrientationMode('first')">
-                                    Seite nach oben (First)
-                                </button>
                                 <button class="btn btn-success" id="btn-traufe" onclick="setOrientationMode('traufe')">
                                     Seite nach unten (Traufe)
+                                </button>
+                                <button class="btn btn-success" id="btn-links" onclick="setOrientationMode('links')">
+                                    Seite nach links
                                 </button>
                             </div>
                             <small style="color: #666; font-size: 11px; margin-top: 5px; display: block;" id="orientation-hint">
@@ -1262,21 +1262,21 @@
             
             // Button-States aktualisieren
             document.getElementById('btn-traufe').classList.remove('btn-warning');
-            document.getElementById('btn-first').classList.remove('btn-warning');
+            document.getElementById('btn-links').classList.remove('btn-warning');
             
-            if (mode === 'first') {
-                document.getElementById('btn-first').classList.add('btn-warning');
-                document.getElementById('orientation-hint').textContent = 'Klicken Sie auf die Seite, die nach OBEN (First) soll';
-            } else {
+            if (mode === 'traufe') {
                 document.getElementById('btn-traufe').classList.add('btn-warning');
                 document.getElementById('orientation-hint').textContent = 'Klicken Sie auf die Seite, die nach UNTEN (Traufe) soll';
+            } else if (mode === 'links') {
+                document.getElementById('btn-links').classList.add('btn-warning');
+                document.getElementById('orientation-hint').textContent = 'Klicken Sie auf die Seite, die nach LINKS soll';
             }
             
             // Orientierungs-Anzeige aktualisieren
             const orientationDisplay = document.getElementById('current-orientation');
             if (orientationDisplay) {
                 orientationDisplay.style.display = 'block';
-                orientationDisplay.textContent = `Warte auf Seiten-Klick: ${mode === 'first' ? 'First (oben)' : 'Traufe (unten)'}`;
+                orientationDisplay.textContent = `Warte auf Seiten-Klick: ${mode === 'links' ? 'Links' : 'Traufe (unten)'}`;
                 orientationDisplay.style.backgroundColor = 'rgba(255, 193, 7, 0.9)'; // Gelb für "Warten"
             }
         }
@@ -1299,76 +1299,111 @@
             
             console.log('Gewählte Seite:', p1, 'zu', p2);
             
-            // Berechne den aktuellen Winkel der Seite
-            const currentAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-            console.log('Aktueller Winkel der Seite:', currentAngle * 180 / Math.PI, 'Grad');
+            let rotatedPoints, targetValue, currentValue, offsetX = 0, offsetY = 0;
             
-            // Rotiere alle Punkte um den Ursprung, damit die Seite horizontal wird
-            const targetAngle = 0; // horizontal
-            const rotationAngle = -currentAngle; // Negative Rotation um zu horizontalisieren
-            
-            console.log('Rotationswinkel:', rotationAngle * 180 / Math.PI, 'Grad');
-            
-            const cos_a = Math.cos(rotationAngle);
-            const sin_a = Math.sin(rotationAngle);
-            
-            // Rotiere alle Punkte um den Ursprung (0,0)
-            let rotatedPoints = currentPoints.map(p => ({
-                x: p.x * cos_a - p.y * sin_a,
-                y: p.x * sin_a + p.y * cos_a
-            }));
-            
-            console.log('Punkte nach Rotation:', rotatedPoints);
-            
-            // Finde die rotierte Seite
-            const rotatedP1 = rotatedPoints[sideIndex];
-            const rotatedP2 = rotatedPoints[nextIndex];
-            const rotatedSideY = (rotatedP1.y + rotatedP2.y) / 2;
-            
-            console.log('Rotierte Seite Y-Position:', rotatedSideY);
-            
-            // Bestimme alle Y-Positionen für Min/Max
-            const allY = rotatedPoints.map(p => p.y);
-            const minY = Math.min(...allY);
-            const maxY = Math.max(...allY);
-            
-            console.log('Form Y-Bereich nach Rotation:', minY, 'bis', maxY);
-            
-            // EINFACHE und KLARE Logik:
-            let targetY;
-            if (orientationMode === 'first') {
-                // FIRST = Seite soll OBEN sein = kleinste Y-Koordinate
-                targetY = minY;
-                console.log('First-Modus: Seite soll OBEN sein, Ziel-Y:', targetY);
+            if (orientationMode === 'links') {
+                // LINKS-Orientierung: Seite soll vertikal und links sein
+                console.log('=== LINKS-MODUS ===');
+                
+                // Berechne Winkel für vertikale Ausrichtung
+                const currentAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+                const targetAngle = Math.PI / 2; // 90 Grad = vertikal
+                const rotationAngle = targetAngle - currentAngle;
+                
+                console.log('Rotiere um', rotationAngle * 180 / Math.PI, 'Grad für vertikale Ausrichtung');
+                
+                const cos_a = Math.cos(rotationAngle);
+                const sin_a = Math.sin(rotationAngle);
+                
+                // Rotiere alle Punkte
+                rotatedPoints = currentPoints.map(p => ({
+                    x: p.x * cos_a - p.y * sin_a,
+                    y: p.x * sin_a + p.y * cos_a
+                }));
+                
+                // Finde X-Positionen für Links-Positionierung
+                const allX = rotatedPoints.map(p => p.x);
+                const minX = Math.min(...allX);
+                
+                // Aktuelle X-Position der Seite
+                const rotatedP1 = rotatedPoints[sideIndex];
+                const rotatedP2 = rotatedPoints[nextIndex];
+                currentValue = (rotatedP1.x + rotatedP2.x) / 2;
+                
+                // Ziel: Seite soll ganz links sein
+                targetValue = minX;
+                offsetX = targetValue - currentValue;
+                
+                console.log('Verschiebe Seite nach links um', offsetX);
+                
             } else {
-                // TRAUFE = Seite soll UNTEN sein = größte Y-Koordinate  
-                targetY = maxY;
-                console.log('Traufe-Modus: Seite soll UNTEN sein, Ziel-Y:', targetY);
+                // TRAUFE-Orientierung: Seite soll horizontal und unten sein
+                console.log('=== TRAUFE-MODUS ===');
+                
+                // Berechne Winkel für horizontale Ausrichtung
+                const currentAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+                const targetAngle = 0; // 0 Grad = horizontal
+                const rotationAngle = -currentAngle;
+                
+                console.log('Rotiere um', rotationAngle * 180 / Math.PI, 'Grad für horizontale Ausrichtung');
+                
+                const cos_a = Math.cos(rotationAngle);
+                const sin_a = Math.sin(rotationAngle);
+                
+                // Rotiere alle Punkte
+                rotatedPoints = currentPoints.map(p => ({
+                    x: p.x * cos_a - p.y * sin_a,
+                    y: p.x * sin_a + p.y * cos_a
+                }));
+                
+                // Finde Y-Positionen für Unten-Positionierung
+                const allY = rotatedPoints.map(p => p.y);
+                const maxY = Math.max(...allY);
+                
+                // Aktuelle Y-Position der Seite
+                const rotatedP1 = rotatedPoints[sideIndex];
+                const rotatedP2 = rotatedPoints[nextIndex];
+                currentValue = (rotatedP1.y + rotatedP2.y) / 2;
+                
+                // Ziel: Seite soll ganz unten sein
+                targetValue = maxY;
+                offsetY = targetValue - currentValue;
+                
+                console.log('Verschiebe Seite nach unten um', offsetY);
             }
             
-            // Verschiebe alle Punkte so dass die gewählte Seite an der Zielposition liegt
-            const offsetY = targetY - rotatedSideY;
-            console.log('Y-Verschiebung:', offsetY);
-            
+            // Wende Verschiebung an
             let finalPoints = rotatedPoints.map(p => ({
-                x: p.x,
+                x: p.x + offsetX,
                 y: p.y + offsetY
             }));
             
-            // Prüfe ob Seite von links nach rechts verläuft
+            // Prüfe Richtung der Seite und spiegle falls nötig
             const finalP1 = finalPoints[sideIndex];
             const finalP2 = finalPoints[nextIndex];
             
-            if (finalP2.x < finalP1.x) {
-                console.log('Seite verläuft verkehrt herum, spiegle horizontal');
-                // Horizontal spiegeln um den Mittelpunkt
-                const allX = finalPoints.map(p => p.x);
-                const centerX = (Math.min(...allX) + Math.max(...allX)) / 2;
-                
-                finalPoints = finalPoints.map(p => ({
-                    x: 2 * centerX - p.x,
-                    y: p.y
-                }));
+            if (orientationMode === 'links') {
+                // Bei Links: Seite soll von oben nach unten verlaufen
+                if (finalP2.y < finalP1.y) {
+                    console.log('Spiegle vertikal da Seite verkehrt herum');
+                    const allY = finalPoints.map(p => p.y);
+                    const centerY = (Math.min(...allY) + Math.max(...allY)) / 2;
+                    finalPoints = finalPoints.map(p => ({
+                        x: p.x,
+                        y: 2 * centerY - p.y
+                    }));
+                }
+            } else {
+                // Bei Traufe: Seite soll von links nach rechts verlaufen
+                if (finalP2.x < finalP1.x) {
+                    console.log('Spiegle horizontal da Seite verkehrt herum');
+                    const allX = finalPoints.map(p => p.x);
+                    const centerX = (Math.min(...allX) + Math.max(...allX)) / 2;
+                    finalPoints = finalPoints.map(p => ({
+                        x: 2 * centerX - p.x,
+                        y: p.y
+                    }));
+                }
             }
             
             // WICHTIG: Setze die Punkte und verhindere updateGeometry Überschreibung
@@ -1384,9 +1419,9 @@
             const orientationDisplay = document.getElementById('current-orientation');
             if (orientationDisplay) {
                 const currentMode = orientationMode; // Speichere vor Reset
-                orientationDisplay.textContent = `Seite ${sideIndex + 1} ist jetzt ${currentMode === 'first' ? 'oben (First)' : 'unten (Traufe)'}`;
-                orientationDisplay.style.backgroundColor = currentMode === 'first' ? 
-                    'rgba(220, 53, 69, 0.9)' : 'rgba(40, 167, 69, 0.9)';
+                orientationDisplay.textContent = `Seite ${sideIndex + 1} ist jetzt ${currentMode === 'links' ? 'links' : 'unten (Traufe)'}`;
+                orientationDisplay.style.backgroundColor = currentMode === 'links' ? 
+                    'rgba(0, 123, 255, 0.9)' : 'rgba(40, 167, 69, 0.9)';
                 
                 // Ausblenden nach 3 Sekunden
                 setTimeout(() => {
@@ -1407,7 +1442,7 @@
             
             // Button-States zurücksetzen
             document.getElementById('btn-traufe').classList.remove('btn-warning');
-            document.getElementById('btn-first').classList.remove('btn-warning');
+            document.getElementById('btn-links').classList.remove('btn-warning');
             
             // Hint zurücksetzen
             document.getElementById('orientation-hint').textContent = 'Klicken Sie einen Button, dann auf eine Seite im Diagramm';
