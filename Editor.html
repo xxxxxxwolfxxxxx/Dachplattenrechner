@@ -285,12 +285,42 @@
                             <h4>Drehen</h4>
                             <div class="button-group">
                                 <button class="btn btn-secondary" onclick="rotateLeft()">
-                                    ↺ 45° Links
+                                    ↺ 90° Links
                                 </button>
                                 <button class="btn btn-secondary" onclick="rotateRight()">
-                                    ↻ 45° Rechts
+                                    ↻ 90° Rechts
                                 </button>
                             </div>
+                        </div>
+
+                        <div class="tool-group" id="orientation-tools" style="display: none;">
+                            <h4>Dreieck-Ausrichtung</h4>
+                            <div class="button-group">
+                                <button class="btn btn-info" onclick="setBaseSide(0)">
+                                    Seite A nach unten
+                                </button>
+                                <button class="btn btn-info" onclick="setBaseSide(1)">
+                                    Seite B nach unten
+                                </button>
+                                <button class="btn btn-info" onclick="setBaseSide(2)">
+                                    Seite C nach unten
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="tool-group" id="roof-orientation-tools">
+                            <h4>Dach-Ausrichtung</h4>
+                            <div class="button-group">
+                                <button class="btn btn-success" onclick="setRoofOrientation('traufe')">
+                                    📐 Längste Seite = Traufe (unten)
+                                </button>
+                                <button class="btn btn-success" onclick="setRoofOrientation('first')">
+                                    🏠 Längste Seite = First (oben)
+                                </button>
+                            </div>
+                            <small style="color: #666; font-size: 11px; margin-top: 5px; display: block;">
+                                Bestimmt, ob die längste Seite oben (First) oder unten (Traufe) liegt
+                            </small>
                         </div>
 
                         <div class="tool-group">
@@ -321,6 +351,20 @@
                                     </div>
                                 </div>
                                 <div class="label-bottom">Unten (Traufbereich)</div>
+                                <div class="current-orientation" id="current-orientation" style="
+                                    position: absolute;
+                                    top: 10px;
+                                    left: 10px;
+                                    background: rgba(40, 167, 69, 0.9);
+                                    color: white;
+                                    padding: 5px 10px;
+                                    border-radius: 15px;
+                                    font-size: 12px;
+                                    font-weight: bold;
+                                    display: none;
+                                ">
+                                    Längste Seite: Traufe
+                                </div>
                             </div>
                             
                             <svg id="main-svg" width="800" height="600" viewBox="0 0 800 600">
@@ -610,6 +654,7 @@
         let currentShapeType = 'rechteck';
         let currentValues = {};
         let isUpdating = false;
+        let currentRoofOrientation = 'traufe'; // 'traufe' oder 'first'
 
         // Storage-Funktionen mit erweiterten Debug-Infos
         function saveData() {
@@ -885,6 +930,22 @@
                 
                 container.appendChild(div);
             });
+            
+            // Orientierungs-Tools für Dreiecke anzeigen/verstecken
+            const orientationTools = document.getElementById('orientation-tools');
+            if (currentShapeType === 'dreieck') {
+                orientationTools.style.display = 'block';
+            } else {
+                orientationTools.style.display = 'none';
+            }
+            
+            // Dach-Orientierungs-Tools für komplexere Formen anzeigen
+            const roofOrientationTools = document.getElementById('roof-orientation-tools');
+            if (['trapez', 'parallelogramm', 'rechteck_schraeg'].includes(currentShapeType)) {
+                roofOrientationTools.style.display = 'block';
+            } else {
+                roofOrientationTools.style.display = 'none';
+            }
         }
 
         // Wert aktualisieren
@@ -992,11 +1053,12 @@
             polygon.setAttribute('stroke-width', '2');
             roofGroup.appendChild(polygon);
             
-            // Eckpunkte zeichnen
+            // Eckpunkte und Seitenbeschriftungen zeichnen
             currentPoints.forEach((point, index) => {
                 const x = centerX + (point.x - (bounds.minX + bounds.maxX) / 2) * scale;
                 const y = centerY - (point.y - (bounds.minY + bounds.maxY) / 2) * scale;
                 
+                // Eckpunkt
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', x);
                 circle.setAttribute('cy', y);
@@ -1007,14 +1069,54 @@
                 roofGroup.appendChild(circle);
                 
                 // Punkt-Nummern
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', x + 8);
-                text.setAttribute('y', y - 8);
-                text.setAttribute('font-size', '12');
-                text.setAttribute('fill', '#dc3545');
-                text.setAttribute('font-weight', 'bold');
-                text.textContent = index + 1;
-                dimensionsGroup.appendChild(text);
+                const pointText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                pointText.setAttribute('x', x + 8);
+                pointText.setAttribute('y', y - 8);
+                pointText.setAttribute('font-size', '12');
+                pointText.setAttribute('fill', '#dc3545');
+                pointText.setAttribute('font-weight', 'bold');
+                pointText.textContent = index + 1;
+                dimensionsGroup.appendChild(pointText);
+                
+                // Seitenbeschriftungen für Dreiecke
+                if (currentShapeType === 'dreieck' && currentPoints.length === 3) {
+                    const nextIndex = (index + 1) % currentPoints.length;
+                    const nextPoint = currentPoints[nextIndex];
+                    
+                    const nextX = centerX + (nextPoint.x - (bounds.minX + bounds.maxX) / 2) * scale;
+                    const nextY = centerY - (nextPoint.y - (bounds.minY + bounds.maxY) / 2) * scale;
+                    
+                    // Mittelpunkt der Seite
+                    const midX = (x + nextX) / 2;
+                    const midY = (y + nextY) / 2;
+                    
+                    // Seitenlabel
+                    const sideLabels = ['A', 'B', 'C'];
+                    const sideText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    sideText.setAttribute('x', midX);
+                    sideText.setAttribute('y', midY);
+                    sideText.setAttribute('font-size', '14');
+                    sideText.setAttribute('fill', '#28a745');
+                    sideText.setAttribute('font-weight', 'bold');
+                    sideText.setAttribute('text-anchor', 'middle');
+                    sideText.setAttribute('dominant-baseline', 'middle');
+                    sideText.setAttribute('style', 'cursor: pointer;');
+                    sideText.textContent = sideLabels[index];
+                    sideText.onclick = () => setBaseSide(index);
+                    dimensionsGroup.appendChild(sideText);
+                    
+                    // Clickable area für bessere Usability
+                    const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    clickArea.setAttribute('x1', x);
+                    clickArea.setAttribute('y1', y);
+                    clickArea.setAttribute('x2', nextX);
+                    clickArea.setAttribute('y2', nextY);
+                    clickArea.setAttribute('stroke', 'transparent');
+                    clickArea.setAttribute('stroke-width', '10');
+                    clickArea.setAttribute('style', 'cursor: pointer;');
+                    clickArea.onclick = () => setBaseSide(index);
+                    roofGroup.appendChild(clickArea);
+                }
             });
         }
 
@@ -1079,15 +1181,361 @@
         }
 
         function rotateLeft() {
+            // 90° nach links drehen
             currentPoints = currentPoints.map(p => ({ x: p.y, y: -p.x }));
             updateShape();
             updateInfoPanel();
         }
 
         function rotateRight() {
+            // 90° nach rechts drehen
             currentPoints = currentPoints.map(p => ({ x: -p.y, y: p.x }));
             updateShape();
             updateInfoPanel();
+        }
+
+        // Neue Funktion: Spezielle Dreieck-Ausrichtung
+        function setBaseSide(sideIndex) {
+            if (currentShapeType !== 'dreieck' || currentPoints.length !== 3) return;
+            
+            console.log('Setze Seite', sideIndex, 'als Basis');
+            
+            // Punkte so reorganisieren, dass die gewählte Seite horizontal unten liegt
+            let newPoints = [...currentPoints];
+            
+            // Rotiere die Punkte-Reihenfolge so, dass die gewählte Seite die Basis wird
+            const rotatedPoints = [];
+            for (let i = 0; i < 3; i++) {
+                rotatedPoints[i] = currentPoints[(sideIndex + i) % 3];
+            }
+            
+            // Berechne Transformation um die gewählte Seite horizontal zu machen
+            const p1 = rotatedPoints[0];
+            const p2 = rotatedPoints[1];
+            
+            // Winkel der gewählten Seite zur Horizontalen
+            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+            
+            // Alle Punkte um diesen Winkel drehen (um Ursprung)
+            const cos_a = Math.cos(-angle);
+            const sin_a = Math.sin(-angle);
+            
+            const transformedPoints = rotatedPoints.map(p => ({
+                x: p.x * cos_a - p.y * sin_a,
+                y: p.x * sin_a + p.y * cos_a
+            }));
+            
+            // Verschiebe so dass die Basis unten liegt (bei Traufe) oder oben (bei First)
+            if (currentRoofOrientation === 'first') {
+                // Gewählte Seite nach oben
+                const maxY = Math.max(...transformedPoints.map(p => p.y));
+                const sideY = (transformedPoints[0].y + transformedPoints[1].y) / 2;
+                const offset = maxY - sideY;
+                currentPoints = transformedPoints.map(p => ({
+                    x: p.x,
+                    y: p.y + offset
+                }));
+            } else {
+                // Gewählte Seite nach unten (Standard)
+                const minY = Math.min(...transformedPoints.map(p => p.y));
+                const sideY = (transformedPoints[0].y + transformedPoints[1].y) / 2;
+                const offset = minY - sideY;
+                currentPoints = transformedPoints.map(p => ({
+                    x: p.x,
+                    y: p.y + offset
+                }));
+            }
+            
+            // Stelle sicher, dass die Basis von links nach rechts verläuft
+            if (currentPoints[1].x < currentPoints[0].x) {
+                // Spiegle horizontal
+                const centerX = (currentPoints[0].x + currentPoints[1].x) / 2;
+                currentPoints = currentPoints.map(p => ({
+                    x: 2 * centerX - p.x,
+                    y: p.y
+                }));
+            }
+            
+            // Aktualisiere die Werte basierend auf der neuen Ausrichtung
+            updateValuesFromPoints();
+            updateGeometry();
+        }
+
+        // Hilfsfunktion: Werte aus Punkten ableiten (für Dreiecke)
+        function updateValuesFromPoints() {
+            if (currentShapeType === 'dreieck' && currentPoints.length === 3) {
+                const side1 = Math.sqrt(
+                    (currentPoints[1].x - currentPoints[0].x) ** 2 + 
+                    (currentPoints[1].y - currentPoints[0].y) ** 2
+                );
+                const side2 = Math.sqrt(
+                    (currentPoints[2].x - currentPoints[0].x) ** 2 + 
+                    (currentPoints[2].y - currentPoints[0].y) ** 2
+                );
+                
+                currentValues.side1 = side1;
+                currentValues.side2 = side2;
+                
+                // Aktualisiere die Eingabefelder
+                const field1 = document.getElementById('dim-side1');
+                const field2 = document.getElementById('dim-side2');
+                if (field1) field1.value = side1.toFixed(2);
+                if (field2) field2.value = side2.toFixed(2);
+            }
+        }
+        function setRoofOrientation(orientation) {
+            console.log('Setze Dach-Orientierung:', orientation);
+            currentRoofOrientation = orientation;
+            
+            // Orientierungs-Anzeige aktualisieren
+            const orientationDisplay = document.getElementById('current-orientation');
+            if (orientationDisplay) {
+                orientationDisplay.style.display = 'block';
+                orientationDisplay.textContent = orientation === 'first' ? 
+                    'Längste Seite: First (oben)' : 'Längste Seite: Traufe (unten)';
+                orientationDisplay.style.backgroundColor = orientation === 'first' ? 
+                    'rgba(220, 53, 69, 0.9)' : 'rgba(40, 167, 69, 0.9)';
+            }
+            
+            // Automatische Ausrichtung basierend auf der Form
+            autoOrientShape(orientation);
+        }
+
+        // Automatische Form-Ausrichtung
+        function autoOrientShape(orientation) {
+            if (currentPoints.length < 3) return;
+            
+            // Finde die längste Seite/Kante
+            const longestSideInfo = findLongestSide();
+            
+            if (!longestSideInfo) return;
+            
+            console.log('Längste Seite gefunden:', longestSideInfo);
+            
+            // Richte die Form so aus, dass die längste Seite entsprechend positioniert wird
+            const targetY = orientation === 'first' ? 'top' : 'bottom';
+            orientShapeWithSide(longestSideInfo, targetY);
+        }
+
+        // Finde die längste Seite der Form
+        function findLongestSide() {
+            if (currentPoints.length < 2) return null;
+            
+            let longestLength = 0;
+            let longestSideIndex = 0;
+            
+            for (let i = 0; i < currentPoints.length; i++) {
+                const nextIndex = (i + 1) % currentPoints.length;
+                const p1 = currentPoints[i];
+                const p2 = currentPoints[nextIndex];
+                
+                const length = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+                
+                if (length > longestLength) {
+                    longestLength = length;
+                    longestSideIndex = i;
+                }
+            }
+            
+            return {
+                startIndex: longestSideIndex,
+                endIndex: (longestSideIndex + 1) % currentPoints.length,
+                length: longestLength,
+                startPoint: currentPoints[longestSideIndex],
+                endPoint: currentPoints[(longestSideIndex + 1) % currentPoints.length]
+            };
+        }
+
+        // Richte Form aus mit spezifischer Seite an gewünschter Position
+        function orientShapeWithSide(sideInfo, targetPosition) {
+            const p1 = sideInfo.startPoint;
+            const p2 = sideInfo.endPoint;
+            
+            // Berechne den aktuellen Winkel der Seite
+            const currentAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+            
+            // Zielwinkel: horizontal (0) für sowohl oben als auch unten
+            const targetAngle = 0;
+            const rotationAngle = targetAngle - currentAngle;
+            
+            // Rotiere alle Punkte
+            const centerX = (Math.min(...currentPoints.map(p => p.x)) + Math.max(...currentPoints.map(p => p.x))) / 2;
+            const centerY = (Math.min(...currentPoints.map(p => p.y)) + Math.max(...currentPoints.map(p => p.y))) / 2;
+            
+            const cos_a = Math.cos(rotationAngle);
+            const sin_a = Math.sin(rotationAngle);
+            
+            let rotatedPoints = currentPoints.map(p => {
+                const dx = p.x - centerX;
+                const dy = p.y - centerY;
+                return {
+                    x: centerX + dx * cos_a - dy * sin_a,
+                    y: centerY + dx * sin_a + dy * cos_a
+                };
+            });
+            
+            // Verschiebe vertikal je nach gewünschter Position
+            const minY = Math.min(...rotatedPoints.map(p => p.y));
+            const maxY = Math.max(...rotatedPoints.map(p => p.y));
+            
+            if (targetPosition === 'bottom') {
+                // Längste Seite nach unten (Traufe)
+                const targetSideY = minY; // Die längste Seite soll unten sein
+                const actualSideY = (rotatedPoints[sideInfo.startIndex].y + rotatedPoints[sideInfo.endIndex].y) / 2;
+                const offsetY = targetSideY - actualSideY;
+                
+                currentPoints = rotatedPoints.map(p => ({
+                    x: p.x,
+                    y: p.y + offsetY
+                }));
+            } else {
+                // Längste Seite nach oben (First)  
+                const targetSideY = maxY; // Die längste Seite soll oben sein
+                const actualSideY = (rotatedPoints[sideInfo.startIndex].y + rotatedPoints[sideInfo.endIndex].y) / 2;
+                const offsetY = targetSideY - actualSideY;
+                
+                currentPoints = rotatedPoints.map(p => ({
+                    x: p.x,
+                    y: p.y + offsetY
+                }));
+            }
+            
+            // Falls die Seite falsch herum ist, spiegeln
+            const newP1 = currentPoints[sideInfo.startIndex];
+            const newP2 = currentPoints[sideInfo.endIndex];
+            if (newP2.x < newP1.x) {
+                // Horizontal spiegeln
+                const centerX_new = (Math.min(...currentPoints.map(p => p.x)) + Math.max(...currentPoints.map(p => p.x))) / 2;
+                currentPoints = currentPoints.map(p => ({
+                    x: 2 * centerX_new - p.x,
+                    y: p.y
+                }));
+            }
+            
+            // Aktualisiere Werte und Darstellung
+            updateValuesFromCurrentPoints();
+            updateGeometry();
+        }
+
+        // Universelle Funktion um Werte aus aktuellen Punkten zu berechnen
+        function updateValuesFromCurrentPoints() {
+            if (currentShapeType === 'dreieck' && currentPoints.length === 3) {
+                updateValuesFromPoints();
+            } else if (currentShapeType === 'rechteck' && currentPoints.length >= 4) {
+                const bounds = getBounds(currentPoints);
+                currentValues.length = bounds.width;
+                currentValues.width = bounds.height;
+                
+                // Aktualisiere Eingabefelder
+                const lengthField = document.getElementById('dim-length');
+                const widthField = document.getElementById('dim-width');
+                if (lengthField) lengthField.value = bounds.width.toFixed(2);
+                if (widthField) widthField.value = bounds.height.toFixed(2);
+            }
+            // Weitere Shape-Typen können hier hinzugefügt werden
+        }
+        function mirrorHorizontal() {
+            currentPoints = currentPoints.map(p => ({ x: -p.x, y: p.y }));
+            updateShape();
+            updateInfoPanel();
+        }
+
+        function mirrorVertical() {
+            currentPoints = currentPoints.map(p => ({ x: p.x, y: -p.y }));
+            updateShape();
+            updateInfoPanel();
+        }
+
+        function rotateLeft() {
+            // 90° nach links drehen
+            currentPoints = currentPoints.map(p => ({ x: p.y, y: -p.x }));
+            updateShape();
+            updateInfoPanel();
+        }
+
+        function rotateRight() {
+            // 90° nach rechts drehen
+            currentPoints = currentPoints.map(p => ({ x: -p.y, y: p.x }));
+            updateShape();
+            updateInfoPanel();
+        }
+
+        // Neue Funktion: Spezielle Dreieck-Ausrichtung
+        function setBaseSide(sideIndex) {
+            if (currentShapeType !== 'dreieck' || currentPoints.length !== 3) return;
+            
+            console.log('Setze Seite', sideIndex, 'als Basis');
+            
+            // Punkte so reorganisieren, dass die gewählte Seite horizontal unten liegt
+            let newPoints = [...currentPoints];
+            
+            // Rotiere die Punkte-Reihenfolge so, dass die gewählte Seite die Basis wird
+            const rotatedPoints = [];
+            for (let i = 0; i < 3; i++) {
+                rotatedPoints[i] = currentPoints[(sideIndex + i) % 3];
+            }
+            
+            // Berechne Transformation um die gewählte Seite horizontal zu machen
+            const p1 = rotatedPoints[0];
+            const p2 = rotatedPoints[1];
+            
+            // Winkel der gewählten Seite zur Horizontalen
+            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+            
+            // Alle Punkte um diesen Winkel drehen (um Ursprung)
+            const cos_a = Math.cos(-angle);
+            const sin_a = Math.sin(-angle);
+            
+            const transformedPoints = rotatedPoints.map(p => ({
+                x: p.x * cos_a - p.y * sin_a,
+                y: p.x * sin_a + p.y * cos_a
+            }));
+            
+            // Verschiebe so dass die Basis unten liegt
+            const minY = Math.min(...transformedPoints.map(p => p.y));
+            const finalPoints = transformedPoints.map(p => ({
+                x: p.x,
+                y: p.y - minY
+            }));
+            
+            // Stelle sicher, dass die Basis von links nach rechts verläuft
+            if (finalPoints[1].x < finalPoints[0].x) {
+                // Spiegle horizontal
+                const centerX = (finalPoints[0].x + finalPoints[1].x) / 2;
+                currentPoints = finalPoints.map(p => ({
+                    x: 2 * centerX - p.x,
+                    y: p.y
+                }));
+            } else {
+                currentPoints = finalPoints;
+            }
+            
+            // Aktualisiere die Werte basierend auf der neuen Ausrichtung
+            updateValuesFromPoints();
+            updateGeometry();
+        }
+
+        // Hilfsfunktion: Werte aus Punkten ableiten (für Dreiecke)
+        function updateValuesFromPoints() {
+            if (currentShapeType === 'dreieck' && currentPoints.length === 3) {
+                const side1 = Math.sqrt(
+                    (currentPoints[1].x - currentPoints[0].x) ** 2 + 
+                    (currentPoints[1].y - currentPoints[0].y) ** 2
+                );
+                const side2 = Math.sqrt(
+                    (currentPoints[2].x - currentPoints[0].x) ** 2 + 
+                    (currentPoints[2].y - currentPoints[0].y) ** 2
+                );
+                
+                currentValues.side1 = side1;
+                currentValues.side2 = side2;
+                
+                // Aktualisiere die Eingabefelder
+                const field1 = document.getElementById('dim-side1');
+                const field2 = document.getElementById('dim-side2');
+                if (field1) field1.value = side1.toFixed(2);
+                if (field2) field2.value = side2.toFixed(2);
+            }
         }
 
         function resetShape() {
