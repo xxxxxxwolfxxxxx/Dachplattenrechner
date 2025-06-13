@@ -1297,68 +1297,78 @@
             const p1 = currentPoints[sideIndex];
             const p2 = currentPoints[nextIndex];
             
+            console.log('Gewählte Seite:', p1, 'zu', p2);
+            
             // Berechne den aktuellen Winkel der Seite
             const currentAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+            console.log('Aktueller Winkel der Seite:', currentAngle * 180 / Math.PI, 'Grad');
             
-            // Rotiere alle Punkte um die Seite horizontal zu machen
+            // Rotiere alle Punkte um den Ursprung, damit die Seite horizontal wird
             const targetAngle = 0; // horizontal
-            const rotationAngle = targetAngle - currentAngle;
+            const rotationAngle = -currentAngle; // Negative Rotation um zu horizontalisieren
             
-            // Rotiere um den Mittelpunkt der Form
-            const bounds = getBounds(currentPoints);
-            const centerX = (bounds.minX + bounds.maxX) / 2;
-            const centerY = (bounds.minY + bounds.maxY) / 2;
+            console.log('Rotationswinkel:', rotationAngle * 180 / Math.PI, 'Grad');
             
             const cos_a = Math.cos(rotationAngle);
             const sin_a = Math.sin(rotationAngle);
             
-            let rotatedPoints = currentPoints.map(p => {
-                const dx = p.x - centerX;
-                const dy = p.y - centerY;
-                return {
-                    x: centerX + dx * cos_a - dy * sin_a,
-                    y: centerY + dx * sin_a + dy * cos_a
-                };
-            });
+            // Rotiere alle Punkte um den Ursprung (0,0)
+            let rotatedPoints = currentPoints.map(p => ({
+                x: p.x * cos_a - p.y * sin_a,
+                y: p.x * sin_a + p.y * cos_a
+            }));
             
-            // Bestimme die neue Position der rotierten Seite
+            console.log('Punkte nach Rotation:', rotatedPoints);
+            
+            // Finde die rotierte Seite
             const rotatedP1 = rotatedPoints[sideIndex];
             const rotatedP2 = rotatedPoints[nextIndex];
             const rotatedSideY = (rotatedP1.y + rotatedP2.y) / 2;
             
-            // Bestimme Zielposition basierend auf gewähltem Modus
-            const rotatedBounds = getBounds(rotatedPoints);
-            let targetY;
+            console.log('Rotierte Seite Y-Position:', rotatedSideY);
             
+            // Bestimme alle Y-Positionen für Min/Max
+            const allY = rotatedPoints.map(p => p.y);
+            const minY = Math.min(...allY);
+            const maxY = Math.max(...allY);
+            
+            console.log('Form Y-Bereich nach Rotation:', minY, 'bis', maxY);
+            
+            // Bestimme Zielposition
+            let targetY;
             if (orientationMode === 'first') {
-                // Seite nach OBEN (First) - zur obersten Position
-                targetY = rotatedBounds.maxY;
-                console.log('First-Modus: Seite nach OBEN zur Position', targetY);
+                // Seite nach OBEN (zur obersten Position der Form)
+                targetY = maxY;
+                console.log('First-Modus: Verschiebe Seite zur obersten Position', targetY);
             } else {
-                // Seite nach UNTEN (Traufe) - zur untersten Position  
-                targetY = rotatedBounds.minY;
-                console.log('Traufe-Modus: Seite nach UNTEN zur Position', targetY);
+                // Seite nach UNTEN (zur untersten Position der Form)
+                targetY = minY;
+                console.log('Traufe-Modus: Verschiebe Seite zur untersten Position', targetY);
             }
             
-            // Verschiebe vertikal
+            // Verschiebe alle Punkte so dass die gewählte Seite an der Zielposition liegt
             const offsetY = targetY - rotatedSideY;
-            console.log('Verschiebe um', offsetY, 'in Y-Richtung');
+            console.log('Y-Verschiebung:', offsetY);
             
             currentPoints = rotatedPoints.map(p => ({
                 x: p.x,
                 y: p.y + offsetY
             }));
             
-            // Stelle sicher, dass die Seite von links nach rechts verläuft
+            console.log('Finale Punkte:', currentPoints);
+            
+            // Prüfe ob Seite von links nach rechts verläuft
             const finalP1 = currentPoints[sideIndex];
             const finalP2 = currentPoints[nextIndex];
+            
             if (finalP2.x < finalP1.x) {
-                console.log('Spiegle horizontal da Seite verkehrt herum');
-                // Horizontal spiegeln
-                const finalBounds = getBounds(currentPoints);
-                const finalCenterX = (finalBounds.minX + finalBounds.maxX) / 2;
+                console.log('Seite verläuft verkehrt herum, spiegle horizontal');
+                // Horizontal spiegeln um den Mittelpunkt
+                const allX = currentPoints.map(p => p.x);
+                const centerX = (Math.min(...allX) + Math.max(...allX)) / 2;
+                
                 currentPoints = currentPoints.map(p => ({
-                    x: 2 * finalCenterX - p.x,
+                    x: 2 * centerX - p.x,
                     y: p.y
                 }));
             }
@@ -1384,7 +1394,7 @@
             // Reset des Orientierungs-Modus
             resetOrientationMode();
             
-            console.log(`Seite ${sideIndex + 1} wurde als ${orientationMode === 'first' ? 'First (oben)' : 'Traufe (unten)'} ausgerichtet`);
+            console.log('=== Orientierung abgeschlossen ===');
         }
 
         // Orientierungs-Modus zurücksetzen
