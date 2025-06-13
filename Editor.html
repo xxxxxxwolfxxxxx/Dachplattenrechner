@@ -299,8 +299,8 @@
                                 <button class="btn btn-success" id="btn-traufe" onclick="setOrientationMode('traufe')">
                                     Seite nach unten (Traufe)
                                 </button>
-                                <button class="btn btn-success" id="btn-links" onclick="setOrientationMode('links')">
-                                    Seite nach links
+                                <button class="btn btn-success" id="btn-rechts" onclick="setOrientationMode('rechts')">
+                                    Seite nach rechts
                                 </button>
                             </div>
                             <small style="color: #666; font-size: 11px; margin-top: 5px; display: block;" id="orientation-hint">
@@ -1262,21 +1262,21 @@
             
             // Button-States aktualisieren
             document.getElementById('btn-traufe').classList.remove('btn-warning');
-            document.getElementById('btn-links').classList.remove('btn-warning');
+            document.getElementById('btn-rechts').classList.remove('btn-warning');
             
             if (mode === 'traufe') {
                 document.getElementById('btn-traufe').classList.add('btn-warning');
                 document.getElementById('orientation-hint').textContent = 'Klicken Sie auf die Seite, die nach UNTEN (Traufe) soll';
-            } else if (mode === 'links') {
-                document.getElementById('btn-links').classList.add('btn-warning');
-                document.getElementById('orientation-hint').textContent = 'Klicken Sie auf die Seite, die nach LINKS soll';
+            } else if (mode === 'rechts') {
+                document.getElementById('btn-rechts').classList.add('btn-warning');
+                document.getElementById('orientation-hint').textContent = 'Klicken Sie auf die Seite, die nach RECHTS soll';
             }
             
             // Orientierungs-Anzeige aktualisieren
             const orientationDisplay = document.getElementById('current-orientation');
             if (orientationDisplay) {
                 orientationDisplay.style.display = 'block';
-                orientationDisplay.textContent = `Warte auf Seiten-Klick: ${mode === 'links' ? 'Links' : 'Traufe (unten)'}`;
+                orientationDisplay.textContent = `Warte auf Seiten-Klick: ${mode === 'rechts' ? 'Rechts' : 'Traufe (unten)'}`;
                 orientationDisplay.style.backgroundColor = 'rgba(255, 193, 7, 0.9)'; // Gelb für "Warten"
             }
         }
@@ -1301,9 +1301,9 @@
             
             let rotatedPoints, targetValue, currentValue, offsetX = 0, offsetY = 0;
             
-            if (orientationMode === 'links') {
-                // LINKS-Orientierung: Seite soll vertikal und links sein
-                console.log('=== LINKS-MODUS ===');
+            if (orientationMode === 'rechts') {
+                // RECHTS-Orientierung: Seite soll vertikal und rechts sein
+                console.log('=== RECHTS-MODUS ===');
                 
                 // Berechne Winkel für vertikale Ausrichtung
                 const currentAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
@@ -1334,7 +1334,7 @@
                 targetValue = minX;
                 offsetX = targetValue - currentValue;
                 
-                console.log('Seite ist bei X =', currentValue, ', soll zu X =', targetValue, ', Offset =', offsetX);
+                console.log('Verschiebe Seite nach rechts um', offsetX);
                 
             } else {
                 // TRAUFE-Orientierung: Seite soll horizontal und unten sein
@@ -1382,8 +1382,8 @@
             const finalP1 = finalPoints[sideIndex];
             const finalP2 = finalPoints[nextIndex];
             
-            if (orientationMode === 'links') {
-                // Bei Links: Seite soll von oben nach unten verlaufen
+            if (orientationMode === 'rechts') {
+                // Bei Rechts: Seite soll von oben nach unten verlaufen
                 if (finalP2.y < finalP1.y) {
                     console.log('Spiegle vertikal da Seite verkehrt herum');
                     const allY = finalPoints.map(p => p.y);
@@ -1419,8 +1419,8 @@
             const orientationDisplay = document.getElementById('current-orientation');
             if (orientationDisplay) {
                 const currentMode = orientationMode; // Speichere vor Reset
-                orientationDisplay.textContent = `Seite ${sideIndex + 1} ist jetzt ${currentMode === 'links' ? 'links' : 'unten (Traufe)'}`;
-                orientationDisplay.style.backgroundColor = currentMode === 'links' ? 
+                orientationDisplay.textContent = `Seite ${sideIndex + 1} ist jetzt ${currentMode === 'rechts' ? 'rechts' : 'unten (Traufe)'}`;
+                orientationDisplay.style.backgroundColor = currentMode === 'rechts' ? 
                     'rgba(0, 123, 255, 0.9)' : 'rgba(40, 167, 69, 0.9)';
                 
                 // Ausblenden nach 3 Sekunden
