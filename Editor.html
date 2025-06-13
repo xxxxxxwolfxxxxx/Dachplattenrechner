@@ -1252,6 +1252,148 @@
                 if (field2) field2.value = side2.toFixed(2);
             }
         }
+
+        // Vereinfachter Orientierungs-Modus
+        function setOrientationMode(mode) {
+            orientationMode = mode;
+            isWaitingForSideClick = true;
+            
+            console.log('Orientierungs-Modus gesetzt:', mode);
+            
+            // Button-States aktualisieren
+            document.getElementById('btn-traufe').classList.remove('btn-warning');
+            document.getElementById('btn-first').classList.remove('btn-warning');
+            
+            if (mode === 'first') {
+                document.getElementById('btn-first').classList.add('btn-warning');
+                document.getElementById('orientation-hint').textContent = 'Klicken Sie auf die Seite, die nach OBEN (First) soll';
+            } else {
+                document.getElementById('btn-traufe').classList.add('btn-warning');
+                document.getElementById('orientation-hint').textContent = 'Klicken Sie auf die Seite, die nach UNTEN (Traufe) soll';
+            }
+            
+            // Orientierungs-Anzeige aktualisieren
+            const orientationDisplay = document.getElementById('current-orientation');
+            if (orientationDisplay) {
+                orientationDisplay.style.display = 'block';
+                orientationDisplay.textContent = `Warte auf Seiten-Klick: ${mode === 'first' ? 'First (oben)' : 'Traufe (unten)'}`;
+                orientationDisplay.style.backgroundColor = 'rgba(255, 193, 7, 0.9)'; // Gelb für "Warten"
+            }
+        }
+
+        // Vereinfachte Seiten-Orientierung
+        function setSideOrientation(sideIndex) {
+            if (!isWaitingForSideClick || !orientationMode) {
+                console.log('Kein aktiver Orientierungs-Modus');
+                return;
+            }
+            
+            console.log('Setze Seite', sideIndex, 'für', orientationMode, '-Orientierung');
+            
+            if (currentPoints.length < 3) return;
+            
+            // Hole die gewählte Seite
+            const nextIndex = (sideIndex + 1) % currentPoints.length;
+            const p1 = currentPoints[sideIndex];
+            const p2 = currentPoints[nextIndex];
+            
+            // Berechne den aktuellen Winkel der Seite
+            const currentAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+            
+            // Rotiere alle Punkte um die Seite horizontal zu machen
+            const targetAngle = 0; // horizontal
+            const rotationAngle = targetAngle - currentAngle;
+            
+            // Rotiere um den Mittelpunkt der Form
+            const bounds = getBounds(currentPoints);
+            const centerX = (bounds.minX + bounds.maxX) / 2;
+            const centerY = (bounds.minY + bounds.maxY) / 2;
+            
+            const cos_a = Math.cos(rotationAngle);
+            const sin_a = Math.sin(rotationAngle);
+            
+            let rotatedPoints = currentPoints.map(p => {
+                const dx = p.x - centerX;
+                const dy = p.y - centerY;
+                return {
+                    x: centerX + dx * cos_a - dy * sin_a,
+                    y: centerY + dx * sin_a + dy * cos_a
+                };
+            });
+            
+            // Bestimme Zielposition basierend auf gewähltem Modus
+            const minY = Math.min(...rotatedPoints.map(p => p.y));
+            const maxY = Math.max(...rotatedPoints.map(p => p.y));
+            
+            // Aktuelle Position der gewählten Seite
+            const rotatedP1 = rotatedPoints[sideIndex];
+            const rotatedP2 = rotatedPoints[nextIndex];
+            const currentSideY = (rotatedP1.y + rotatedP2.y) / 2;
+            
+            let targetY;
+            if (orientationMode === 'first') {
+                // Seite nach oben (First)
+                targetY = maxY;
+            } else {
+                // Seite nach unten (Traufe)
+                targetY = minY;
+            }
+            
+            // Verschiebe vertikal
+            const offsetY = targetY - currentSideY;
+            currentPoints = rotatedPoints.map(p => ({
+                x: p.x,
+                y: p.y + offsetY
+            }));
+            
+            // Stelle sicher, dass die Seite von links nach rechts verläuft
+            const newP1 = currentPoints[sideIndex];
+            const newP2 = currentPoints[nextIndex];
+            if (newP2.x < newP1.x) {
+                // Horizontal spiegeln
+                const newBounds = getBounds(currentPoints);
+                const newCenterX = (newBounds.minX + newBounds.maxX) / 2;
+                currentPoints = currentPoints.map(p => ({
+                    x: 2 * newCenterX - p.x,
+                    y: p.y
+                }));
+            }
+            
+            // Aktualisiere Werte und Darstellung
+            updateValuesFromCurrentPoints();
+            updateGeometry();
+            
+            // Reset des Orientierungs-Modus
+            resetOrientationMode();
+            
+            // Zeige Erfolgs-Feedback
+            const orientationDisplay = document.getElementById('current-orientation');
+            if (orientationDisplay) {
+                orientationDisplay.textContent = `Seite ${sideIndex + 1} ist jetzt ${orientationMode === 'first' ? 'oben (First)' : 'unten (Traufe)'}`;
+                orientationDisplay.style.backgroundColor = orientationMode === 'first' ? 
+                    'rgba(220, 53, 69, 0.9)' : 'rgba(40, 167, 69, 0.9)';
+                
+                // Ausblenden nach 3 Sekunden
+                setTimeout(() => {
+                    orientationDisplay.style.display = 'none';
+                }, 3000);
+            }
+            
+            console.log(`Seite ${sideIndex + 1} wurde als ${orientationMode === 'first' ? 'First (oben)' : 'Traufe (unten)'} ausgerichtet`);
+        }
+
+        // Orientierungs-Modus zurücksetzen
+        function resetOrientationMode() {
+            orientationMode = null;
+            isWaitingForSideClick = false;
+            
+            // Button-States zurücksetzen
+            document.getElementById('btn-traufe').classList.remove('btn-warning');
+            document.getElementById('btn-first').classList.remove('btn-warning');
+            
+            // Hint zurücksetzen
+            document.getElementById('orientation-hint').textContent = 'Klicken Sie einen Button, dann auf eine Seite im Diagramm';
+        }
         function setRoofOrientation(orientation) {
             console.log('Setze Dach-Orientierung:', orientation);
             currentRoofOrientation = orientation;
