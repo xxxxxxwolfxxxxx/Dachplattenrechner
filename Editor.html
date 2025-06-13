@@ -285,10 +285,10 @@
                             <h4>Drehen</h4>
                             <div class="button-group">
                                 <button class="btn btn-secondary" onclick="rotateLeft()">
-                                    ↺ 90° Links
+                                    ↺ 45° Links
                                 </button>
                                 <button class="btn btn-secondary" onclick="rotateRight()">
-                                    ↻ 90° Rechts
+                                    ↻ 45° Rechts
                                 </button>
                             </div>
                         </div>
@@ -939,9 +939,9 @@
                 orientationTools.style.display = 'none';
             }
             
-            // Dach-Orientierungs-Tools für komplexere Formen anzeigen
+            // Dach-Orientierungs-Tools für alle komplexeren Formen anzeigen
             const roofOrientationTools = document.getElementById('roof-orientation-tools');
-            if (['trapez', 'parallelogramm', 'rechteck_schraeg'].includes(currentShapeType)) {
+            if (!['rechteck'].includes(currentShapeType)) {
                 roofOrientationTools.style.display = 'block';
             } else {
                 roofOrientationTools.style.display = 'none';
@@ -1078,45 +1078,82 @@
                 pointText.textContent = index + 1;
                 dimensionsGroup.appendChild(pointText);
                 
-                // Seitenbeschriftungen für Dreiecke
-                if (currentShapeType === 'dreieck' && currentPoints.length === 3) {
-                    const nextIndex = (index + 1) % currentPoints.length;
-                    const nextPoint = currentPoints[nextIndex];
-                    
-                    const nextX = centerX + (nextPoint.x - (bounds.minX + bounds.maxX) / 2) * scale;
-                    const nextY = centerY - (nextPoint.y - (bounds.minY + bounds.maxY) / 2) * scale;
-                    
-                    // Mittelpunkt der Seite
-                    const midX = (x + nextX) / 2;
-                    const midY = (y + nextY) / 2;
-                    
-                    // Seitenlabel
+                // Seitenbeschriftungen für alle Formen (nicht nur Dreiecke)
+                const nextIndex = (index + 1) % currentPoints.length;
+                const nextPoint = currentPoints[nextIndex];
+                
+                const nextX = centerX + (nextPoint.x - (bounds.minX + bounds.maxX) / 2) * scale;
+                const nextY = centerY - (nextPoint.y - (bounds.minY + bounds.maxY) / 2) * scale;
+                
+                // Mittelpunkt der Seite
+                const midX = (x + nextX) / 2;
+                const midY = (y + nextY) / 2;
+                
+                // Seitenlänge berechnen
+                const sideLength = Math.sqrt((nextPoint.x - point.x) ** 2 + (nextPoint.y - point.y) ** 2);
+                
+                // Finde die längste Seite für Hervorhebung
+                const longestSide = findLongestSide();
+                const isLongestSide = longestSide && longestSide.startIndex === index;
+                
+                // Seitenlabel mit Click-Funktionalität
+                const sideText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                sideText.setAttribute('x', midX);
+                sideText.setAttribute('y', midY - 15);
+                sideText.setAttribute('font-size', isLongestSide ? '16' : '12');
+                sideText.setAttribute('fill', isLongestSide ? '#dc3545' : '#28a745');
+                sideText.setAttribute('font-weight', 'bold');
+                sideText.setAttribute('text-anchor', 'middle');
+                sideText.setAttribute('dominant-baseline', 'middle');
+                sideText.setAttribute('style', 'cursor: pointer;');
+                
+                // Label-Text
+                if (currentShapeType === 'dreieck') {
                     const sideLabels = ['A', 'B', 'C'];
-                    const sideText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    sideText.setAttribute('x', midX);
-                    sideText.setAttribute('y', midY);
-                    sideText.setAttribute('font-size', '14');
-                    sideText.setAttribute('fill', '#28a745');
-                    sideText.setAttribute('font-weight', 'bold');
-                    sideText.setAttribute('text-anchor', 'middle');
-                    sideText.setAttribute('dominant-baseline', 'middle');
-                    sideText.setAttribute('style', 'cursor: pointer;');
-                    sideText.textContent = sideLabels[index];
-                    sideText.onclick = () => setBaseSide(index);
-                    dimensionsGroup.appendChild(sideText);
-                    
-                    // Clickable area für bessere Usability
-                    const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    clickArea.setAttribute('x1', x);
-                    clickArea.setAttribute('y1', y);
-                    clickArea.setAttribute('x2', nextX);
-                    clickArea.setAttribute('y2', nextY);
-                    clickArea.setAttribute('stroke', 'transparent');
-                    clickArea.setAttribute('stroke-width', '10');
-                    clickArea.setAttribute('style', 'cursor: pointer;');
-                    clickArea.onclick = () => setBaseSide(index);
-                    roofGroup.appendChild(clickArea);
+                    sideText.textContent = sideLabels[index] + (isLongestSide ? ' ★' : '');
+                } else {
+                    sideText.textContent = `S${index + 1}${isLongestSide ? ' ★' : ''}`;
                 }
+                
+                // Click-Handler für First/Traufe-Ausrichtung
+                sideText.onclick = () => {
+                    if (currentShapeType === 'dreieck') {
+                        setBaseSide(index);
+                    } else {
+                        setSideOrientation(index);
+                    }
+                };
+                
+                dimensionsGroup.appendChild(sideText);
+                
+                // Längen-Anzeige
+                const lengthText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                lengthText.setAttribute('x', midX);
+                lengthText.setAttribute('y', midY + 5);
+                lengthText.setAttribute('font-size', '10');
+                lengthText.setAttribute('fill', '#666');
+                lengthText.setAttribute('text-anchor', 'middle');
+                lengthText.textContent = sideLength.toFixed(1) + 'm';
+                dimensionsGroup.appendChild(lengthText);
+                
+                // Clickable area für bessere Usability
+                const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                clickArea.setAttribute('x1', x);
+                clickArea.setAttribute('y1', y);
+                clickArea.setAttribute('x2', nextX);
+                clickArea.setAttribute('y2', nextY);
+                clickArea.setAttribute('stroke', 'transparent');
+                clickArea.setAttribute('stroke-width', '15');
+                clickArea.setAttribute('style', 'cursor: pointer;');
+                
+                // Click-Handler
+                if (currentShapeType === 'dreieck') {
+                    clickArea.onclick = () => setBaseSide(index);
+                } else {
+                    clickArea.onclick = () => setSideOrientation(index);
+                }
+                
+                roofGroup.appendChild(clickArea);
             });
         }
 
@@ -1181,15 +1218,51 @@
         }
 
         function rotateLeft() {
-            // 90° nach links drehen
-            currentPoints = currentPoints.map(p => ({ x: p.y, y: -p.x }));
+            // 45° nach links drehen
+            const angle = -Math.PI / 4; // -45 Grad in Radiant
+            const cos_a = Math.cos(angle);
+            const sin_a = Math.sin(angle);
+            
+            // Rotiere um den Mittelpunkt der Form
+            const bounds = getBounds(currentPoints);
+            const centerX = (bounds.minX + bounds.maxX) / 2;
+            const centerY = (bounds.minY + bounds.maxY) / 2;
+            
+            currentPoints = currentPoints.map(p => {
+                const dx = p.x - centerX;
+                const dy = p.y - centerY;
+                return {
+                    x: centerX + dx * cos_a - dy * sin_a,
+                    y: centerY + dx * sin_a + dy * cos_a
+                };
+            });
+            
+            updateValuesFromCurrentPoints();
             updateShape();
             updateInfoPanel();
         }
 
         function rotateRight() {
-            // 90° nach rechts drehen
-            currentPoints = currentPoints.map(p => ({ x: -p.y, y: p.x }));
+            // 45° nach rechts drehen
+            const angle = Math.PI / 4; // 45 Grad in Radiant
+            const cos_a = Math.cos(angle);
+            const sin_a = Math.sin(angle);
+            
+            // Rotiere um den Mittelpunkt der Form
+            const bounds = getBounds(currentPoints);
+            const centerX = (bounds.minX + bounds.maxX) / 2;
+            const centerY = (bounds.minY + bounds.maxY) / 2;
+            
+            currentPoints = currentPoints.map(p => {
+                const dx = p.x - centerX;
+                const dy = p.y - centerY;
+                return {
+                    x: centerX + dx * cos_a - dy * sin_a,
+                    y: centerY + dx * sin_a + dy * cos_a
+                };
+            });
+            
+            updateValuesFromCurrentPoints();
             updateShape();
             updateInfoPanel();
         }
