@@ -859,4 +859,368 @@
                 if (points.length < 3) return 0;
                 let area = 0;
                 for (let i = 0; i < points.length; i++) {
-                    const j = (i + 1
+                    const j = (i + 1) % points.length;
+                    area += points[i].x * points[j].y - points[j].x * points[i].y;
+                }
+                return Math.abs(area) / 2;
+            }
+            
+            static calculatePerimeter(points) {
+                if (points.length < 2) return 0;
+                let perimeter = 0;
+                for (let i = 0; i < points.length; i++) {
+                    const j = (i + 1) % points.length;
+                    const dx = points[j].x - points[i].x;
+                    const dy = points[j].y - points[i].y;
+                    perimeter += Math.sqrt(dx * dx + dy * dy);
+                }
+                return perimeter;
+            }
+        }
+
+        // Globale Variablen
+        let projectData = {};
+        let currentPoints = [];
+        let originalPoints = [];
+        let currentShapeType = 'rechteck';
+        let currentValues = {};
+        let isUpdating = false;
+
+        // Storage-Funktionen
+        function saveData() {
+            try {
+                // Verwende JavaScript-Variablen statt localStorage
+                return true;
+            } catch (e) {
+                return true;
+            }
+        }
+
+        function loadData() {
+            try {
+                // Verwende JavaScript-Variablen statt localStorage
+                return {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        // Shape-Typ aus Projektdaten laden
+        function loadShapeFromProject() {
+            if (!projectData.roofShape) return 'rechteck';
+            
+            const shapeMapping = {
+                'rechteck': 'rechteck',
+                'quadrat': 'rechteck',
+                'parallelogramm': 'rechteck_schraeg',
+                'trapez': 'trapez',
+                'rhombus': 'rechteck_schraeg',
+                'gleichseitig': 'dreieck',
+                'rechtwinklig': 'dreieck',
+                'ungleichschenklig': 'dreieck',
+                'viereck': 'rechteck',
+                'dreieck': 'dreieck',
+                'kreis': 'rechteck',
+                'vieleck': 'rechteck'
+            };
+            
+            const variant = projectData.roofShape.variant;
+            const baseShape = projectData.roofShape.baseShape;
+            
+            return shapeMapping[variant] || shapeMapping[baseShape] || 'rechteck';
+        }
+
+        // Shape-Typ setzen
+        function initializeShapeType() {
+            currentShapeType = loadShapeFromProject();
+            const shape = SmartGeometry.shapes[currentShapeType];
+            const shapeName = shape?.name || 'Unbekannte Form';
+            
+            const nameElement = document.getElementById('current-shape-name');
+            if (nameElement) {
+                nameElement.textContent = shapeName;
+            }
+            
+            generateInputFieldsCompact();
+        }
+
+        // Kompakte Eingabefelder generieren
+        function generateInputFieldsCompact() {
+            const container = document.getElementById('geometry-inputs-compact');
+            const shape = SmartGeometry.shapes[currentShapeType];
+            
+            container.innerHTML = '';
+            
+            shape.inputs.forEach(input => {
+                const div = document.createElement('div');
+                div.className = 'input-compact';
+                
+                const isCalculated = input.calculated;
+                const value = currentValues[input.id] || '';
+                
+                div.innerHTML = `
+                    <label for="dim-${input.id}">${input.label}:</label>
+                    <input type="number" 
+                           id="dim-${input.id}" 
+                           step="0.1" 
+                           min="${input.min || 0.1}" 
+                           max="${input.max || ''}"
+                           value="${value}"
+                           ${isCalculated ? 'readonly' : ''}
+                           onchange="updateValue('${input.id}', this.value)"
+                           oninput="validateInput('${input.id}', this.value)">
+                    <span>${input.unit || 'm'}</span>
+                    ${isCalculated ? '<span class="calc-indicator-compact">⚡</span>' : ''}
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Wert aktualisieren
+        function updateValue(fieldId, value) {
+            if (isUpdating) return;
+            currentValues[fieldId] = parseFloat(value) || 0;
+            updateGeometry();
+        }
+
+        // Eingabe validieren
+        function validateInput(fieldId, value) {
+            const input = document.getElementById(`dim-${fieldId}`);
+            const numValue = parseFloat(value);
+            const shape = SmartGeometry.shapes[currentShapeType];
+            const inputConfig = shape.inputs.find(inp => inp.id === fieldId);
+            
+            input.classList.remove('validation-error');
+            
+            if (value && inputConfig) {
+                if (numValue < inputConfig.min) {
+                    input.classList.add('validation-error');
+                    return false;
+                }
+                if (inputConfig.max && numValue > inputConfig.max) {
+                    input.classList.add('validation-error');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Geometrie berechnen und aktualisieren
+        function updateGeometry() {
+            if (isUpdating) return;
+            isUpdating = true;
+            
+            const shape = SmartGeometry.shapes[currentShapeType];
+            
+            if (shape.calculate) {
+                currentValues = shape.calculate({ ...currentValues });
+            }
+            
+            const isValid = !shape.validate || shape.validate(currentValues);
+            if (!isValid) {
+                console.warn('Ungültige Geometrie-Konfiguration');
+            }
+            
+            shape.inputs.forEach(input => {
+                if (input.calculated && currentValues[input.id] !== undefined) {
+                    const field = document.getElementById(`dim-${input.id}`);
+                    if (field) {
+                        field.value = currentValues[input.id].toFixed(2);
+                    }
+                }
+            });
+            
+            currentPoints = shape.generatePoints(currentValues);
+            originalPoints = [...currentPoints]; // Backup für Reset
+            updateShape();
+            updateInfoPanel();
+            
+            isUpdating = false;
+        }
+
+        // Form zeichnen
+        function updateShape() {
+            const roofGroup = document.getElementById('roof-shape');
+            const dimensionsGroup = document.getElementById('dimensions');
+            roofGroup.innerHTML = '';
+            dimensionsGroup.innerHTML = '';
+            
+            if (currentPoints.length === 0) return;
+            
+            const bounds = getBounds(currentPoints);
+            const scale = Math.min(250 / Math.max(bounds.width, 1), 200 / Math.max(bounds.height, 1));
+            const centerX = 400;
+            const centerY = 300;
+            
+            const svgPoints = currentPoints.map(p => {
+                const x = centerX + (p.x - (bounds.minX + bounds.maxX) / 2) * scale;
+                const y = centerY - (p.y - (bounds.minY + bounds.maxY) / 2) * scale;
+                return `${x},${y}`;
+            }).join(' ');
+            
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', svgPoints);
+            polygon.setAttribute('fill', '#007bff20');
+            polygon.setAttribute('stroke', '#007bff');
+            polygon.setAttribute('stroke-width', '3');
+            
+            roofGroup.appendChild(polygon);
+        }
+
+        function getBounds(points) {
+            const xs = points.map(p => p.x);
+            const ys = points.map(p => p.y);
+            return {
+                minX: Math.min(...xs),
+                maxX: Math.max(...xs),
+                minY: Math.min(...ys),
+                maxY: Math.max(...ys),
+                width: Math.max(...xs) - Math.min(...xs),
+                height: Math.max(...ys) - Math.min(...ys)
+            };
+        }
+
+        function updateInfoPanel() {
+            if (currentPoints.length > 0) {
+                const area = SmartGeometry.calculateArea(currentPoints);
+                const perimeter = SmartGeometry.calculatePerimeter(currentPoints);
+                
+                document.getElementById('calc-area').textContent = `${area.toFixed(2)} m²`;
+                document.getElementById('calc-perimeter').textContent = `${perimeter.toFixed(2)} m`;
+            }
+        }
+
+        // Transformations-Funktionen
+        function mirrorHorizontal() {
+            console.log('Horizontal spiegeln - Vorher:', currentPoints);
+            currentPoints = currentPoints.map(p => ({ x: -p.x, y: p.y }));
+            console.log('Horizontal spiegeln - Nachher:', currentPoints);
+            updateShape();
+        }
+
+        function mirrorVertical() {
+            console.log('Vertikal spiegeln - Vorher:', currentPoints);
+            currentPoints = currentPoints.map(p => ({ x: p.x, y: -p.y }));
+            console.log('Vertikal spiegeln - Nachher:', currentPoints);
+            updateShape();
+        }
+
+        function rotateLeft() {
+            console.log('90° Links drehen - Vorher:', currentPoints);
+            currentPoints = currentPoints.map(p => ({ x: -p.y, y: p.x }));
+            console.log('90° Links drehen - Nachher:', currentPoints);
+            updateShape();
+        }
+
+        function rotateRight() {
+            console.log('90° Rechts drehen - Vorher:', currentPoints);
+            currentPoints = currentPoints.map(p => ({ x: p.y, y: -p.x }));
+            console.log('90° Rechts drehen - Nachher:', currentPoints);
+            updateShape();
+        }
+
+        function resetShape() {
+            console.log('Reset - Zurück zu Originalwerten');
+            currentValues = { length: 10, width: 8 };
+            updateGeometry();
+        }
+
+        function centerShape() {
+            if (currentPoints.length > 0) {
+                const bounds = getBounds(currentPoints);
+                const centerX = (bounds.minX + bounds.maxX) / 2;
+                const centerY = (bounds.minY + bounds.maxY) / 2;
+                
+                currentPoints = currentPoints.map(p => ({
+                    x: p.x - centerX,
+                    y: p.y - centerY
+                }));
+                
+                updateShape();
+                console.log('Form zentriert');
+            }
+        }
+
+        function flipOrientation() {
+            console.log('Dach umdrehen (180°) - Vorher:', currentPoints);
+            currentPoints = currentPoints.map(p => ({ x: -p.x, y: -p.y }));
+            console.log('Dach umdrehen (180°) - Nachher:', currentPoints);
+            updateShape();
+        }
+
+        function toggleWaterFlow() {
+            const leftFlow = document.querySelector('.water-flow-left');
+            const rightFlow = document.querySelector('.water-flow-right');
+            
+            if (leftFlow && rightFlow) {
+                leftFlow.style.display = leftFlow.style.display === 'none' ? 'flex' : 'none';
+                rightFlow.style.display = rightFlow.style.display === 'none' ? 'flex' : 'none';
+            }
+            
+            console.log('Wasserlaufrichtung geändert');
+        }
+
+        function toggleTraufe() {
+            const topLabel = document.querySelector('.label-top');
+            const bottomLabel = document.querySelector('.label-bottom');
+            
+            if (topLabel && bottomLabel) {
+                const tempText = topLabel.textContent;
+                topLabel.textContent = bottomLabel.textContent;
+                bottomLabel.textContent = tempText;
+            }
+            
+            console.log('Traufe/First gewechselt');
+        }
+
+        function goBack() {
+            console.log('Zurück zur Dachform');
+        }
+
+        function saveAndContinue() {
+            projectData.geometry = {
+                shapeType: currentShapeType,
+                values: currentValues,
+                points: currentPoints
+            };
+            console.log('Geometrie gespeichert:', projectData.geometry);
+            console.log('Weiter zur Berechnung');
+        }
+
+        // Event-Handler setup
+        function setupEventHandlers() {
+            // Alle Button-IDs korrekt verknüpfen
+            document.getElementById('btn-mirror-horizontal').addEventListener('click', mirrorHorizontal);
+            document.getElementById('btn-mirror-vertical').addEventListener('click', mirrorVertical);
+            document.getElementById('btn-rotate-left').addEventListener('click', rotateLeft);
+            document.getElementById('btn-rotate-right').addEventListener('click', rotateRight);
+            document.getElementById('btn-water-flow').addEventListener('click', toggleWaterFlow);
+            document.getElementById('btn-traufe').addEventListener('click', toggleTraufe);
+            document.getElementById('btn-flip').addEventListener('click', flipOrientation);
+            document.getElementById('btn-center').addEventListener('click', centerShape);
+            document.getElementById('btn-reset').addEventListener('click', resetShape);
+            document.getElementById('btn-back').addEventListener('click', goBack);
+            document.getElementById('btn-continue').addEventListener('click', saveAndContinue);
+            
+            console.log('Event-Handler eingerichtet');
+        }
+
+        // Initialisierung
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM geladen - Initialisierung startet');
+            
+            projectData = loadData();
+            currentValues = { length: 10, width: 8 };
+            
+            initializeShapeType();
+            updateGeometry();
+            setupEventHandlers();
+            
+            console.log('Initialisierung abgeschlossen');
+            console.log('Aktuelle Form:', currentShapeType);
+            console.log('Aktuelle Punkte:', currentPoints);
+        });
+    </script>
+</body>
+</html>
