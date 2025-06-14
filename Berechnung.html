@@ -710,13 +710,12 @@
             };
         }
 
-        // Neue Funktion für Dreieck-Berechnungen
+        // Korrigierte Funktion für Dreieck-Berechnungen
         function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueberstand) {
             const points = analysis.points;
             if (points.length !== 3) return [];
 
-            // Annahme: Rechtswinkliges Dreieck mit Basis unten
-            // Finde die Basis (längste horizontale Seite)
+            // Finde die Geometrie des Dreiecks
             const xs = points.map(p => p.x);
             const ys = points.map(p => p.y);
             const minX = Math.min(...xs);
@@ -724,34 +723,48 @@
             const minY = Math.min(...ys);
             const maxY = Math.max(...ys);
             
-            const basisBreite = maxX - minX;
-            const dreieckHoehe = maxY - minY;
+            const basisBreite = maxX - minX; // 10m
+            const dreieckHoehe = maxY - minY; // 8m
+
+            console.log('Dreieck-Analyse:', {
+                basisBreite: basisBreite,
+                dreieckHoehe: dreieckHoehe,
+                bahnenAnzahl: bahnenAnzahl,
+                deckbreite: deckbreite
+            });
 
             const plateLengths = [];
             
             for (let i = 0; i < bahnenAnzahl; i++) {
                 // Position der Bahn von links (in Metern)
-                const bahnPosition = (i + 0.5) * (deckbreite / 1000);
+                const bahnPosition = i * (deckbreite / 1000); // Position des linken Randes der Bahn
                 
-                // Relative Position (0 = links, 1 = rechts)
+                // Relative Position entlang der Basis (0 = links, 1 = rechts)
                 const relativePosition = bahnPosition / basisBreite;
                 
-                // Höhe des Dreiecks an dieser Position (linear interpoliert)
+                console.log(`Bahn ${i + 1}: Position=${bahnPosition.toFixed(2)}m, Relativ=${relativePosition.toFixed(3)}`);
+                
+                // Höhe des Dreiecks an dieser Position
                 let aktuelleHoehe;
-                if (relativePosition <= 1) {
-                    // Linearer Verlauf für rechtwinkliges Dreieck
+                if (relativePosition < 1) {
+                    // Für rechtwinkliges Dreieck: Höhe nimmt linear ab von links nach rechts
+                    // Bei Position 0 (links): volle Höhe (8m)
+                    // Bei Position 1 (rechts): Höhe 0
                     aktuelleHoehe = dreieckHoehe * (1 - relativePosition);
                 } else {
                     aktuelleHoehe = 0; // Außerhalb des Dreiecks
                 }
                 
                 // Plattenlänge = Dreieckshöhe + Überstand (nur an der Traufe)
-                const plattenLaenge = Math.max(0, (aktuelleHoehe * 1000) + ueberstand);
+                const plattenLaenge = Math.max(ueberstand, (aktuelleHoehe * 1000) + ueberstand);
+                
+                console.log(`Bahn ${i + 1}: Höhe=${aktuelleHoehe.toFixed(2)}m, Plattenlänge=${plattenLaenge.toFixed(0)}mm`);
                 
                 plateLengths.push({
                     bahnNummer: i + 1,
                     laenge: Math.round(plattenLaenge),
-                    dreieckHoehe: aktuelleHoehe
+                    dreieckHoehe: aktuelleHoehe,
+                    position: bahnPosition
                 });
             }
             
