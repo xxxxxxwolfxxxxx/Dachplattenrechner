@@ -4,39 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Geometry Editor - Dachplattenrechner</title>
-    <link rel="stylesheet" href="style.css">
     <style>
+        /* Reset und Basis-Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
         /* Flacherer Header */
         header {
-            padding: 10px 0; /* Reduziert von Standard */
+            padding: 10px 0;
             background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         header h1 {
-            margin: 0 0 8px 0; /* Reduziert */
-            font-size: 22px; /* Etwas kleiner */
+            margin: 0 0 8px 0;
+            font-size: 22px;
             font-weight: 600;
+            text-align: center;
         }
 
         /* Kompakte Progress-Navigation */
         .progress-nav {
             display: flex;
             justify-content: center;
-            gap: 15px; /* Reduziert */
-            margin-top: 8px; /* Reduziert */
+            gap: 15px;
+            margin-top: 8px;
         }
 
         .step {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 6px 12px; /* Reduziert */
+            padding: 6px 12px;
             border-radius: 8px;
             background: rgba(255,255,255,0.1);
             transition: all 0.3s ease;
-            min-width: 70px; /* Reduziert */
+            min-width: 70px;
         }
 
         .step.active {
@@ -49,16 +72,16 @@
         }
 
         .step-number {
-            width: 24px; /* Reduziert */
-            height: 24px; /* Reduziert */
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 12px; /* Reduziert */
-            margin-bottom: 4px; /* Reduziert */
+            font-size: 12px;
+            margin-bottom: 4px;
         }
 
         .step.completed .step-number {
@@ -71,33 +94,10 @@
         }
 
         .step-title {
-            font-size: 11px; /* Reduziert */
+            font-size: 11px;
             font-weight: 500;
             text-align: center;
             line-height: 1.2;
-        }
-
-        /* Container Anpassungen */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        main {
-            padding: 20px 0; /* Reduziert von Standard */
-        }
-
-        /* Section Header kompakter */
-        .editor-section h2 {
-            margin-bottom: 8px; /* Reduziert */
-            font-size: 24px; /* Etwas kleiner */
-        }
-
-        .editor-section p {
-            margin-bottom: 15px; /* Reduziert */
-            color: #6c757d;
-            font-size: 14px;
         }
 
         /* Kompakte Bedienleiste im Header */
@@ -292,6 +292,17 @@
             transform: scale(1.05);
         }
 
+        .btn-rotate {
+            background: rgba(255,87,34,0.8);
+            color: white;
+            border: 1px solid rgba(255,87,34,0.6);
+        }
+
+        .btn-rotate:hover {
+            background: rgba(255,87,34,1);
+            transform: scale(1.05);
+        }
+
         /* Berechnete Werte */
         .calc-info {
             display: flex;
@@ -314,6 +325,26 @@
             font-weight: bold;
         }
 
+        /* Main Content */
+        main {
+            flex: 1;
+            background: white;
+            padding: 20px 0;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .editor-section h2 {
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+
+        .editor-section p {
+            margin-bottom: 15px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
         /* Canvas Container */
         .canvas-container {
             margin-top: 10px;
@@ -327,6 +358,128 @@
             margin: 0 auto;
             max-width: 100%;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .orientation-labels {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .label-top, .label-bottom {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 14px;
+            border: 1px solid #007bff;
+        }
+        
+        .label-top { top: -40px; }
+        .label-bottom { bottom: -40px; }
+
+        .water-flow-left, .water-flow-right {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 10px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #17a2b8;
+            border: 2px solid #17a2b8;
+            min-height: 120px;
+            justify-content: center;
+        }
+        
+        .water-flow-left { left: -70px; }
+        .water-flow-right { right: -70px; }
+
+        .flow-text {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .flow-arrows {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .flow-arrow {
+            font-size: 48px;
+            font-weight: bold;
+            line-height: 1;
+            color: #17a2b8;
+        }
+
+        /* Button Styling */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        /* Navigation Buttons */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Footer */
+        footer {
+            background: #f8f9fa;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 30px;
+            border-top: 1px solid #e9ecef;
+            font-size: 13px;
+            color: #6c757d;
+        }
+
+        footer p {
+            margin: 0;
         }
 
         /* Responsive Anpassungen */
@@ -399,283 +552,9 @@
 
             .water-flow-left { left: -35px; }
             .water-flow-right { right: -35px; }
-        }
 
-        .orientation-labels {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .label-top, .label-bottom {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-weight: bold;
-            color: #2c3e50;
-            font-size: 14px;
-            border: 1px solid #007bff;
-        }
-        
-        .label-top { top: -40px; }
-        .label-bottom { bottom: -40px; }
-
-        .water-flow-left, .water-flow-right {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px 10px;
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #17a2b8;
-            border: 2px solid #17a2b8;
-            min-height: 120px;
-            justify-content: center;
-        }
-        
-        .water-flow-left { left: -70px; }
-        .water-flow-right { right: -70px; }
-
-        .flow-text {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            font-size: 11px;
-            font-weight: bold;
-            white-space: nowrap;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .flow-arrows {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .flow-arrow {
-            font-size: 48px;
-            font-weight: bold;
-            line-height: 1;
-            color: #17a2b8;
-        }
-
-        .tool-group {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .tool-group h4 {
-            margin-bottom: 10px;
-            color: #2c3e50;
-            font-size: 14px;
-        }
-
-        .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .button-group .btn {
-            padding: 8px 12px;
-            font-size: 13px;
-            text-align: left;
-        }
-
-        .dimension-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            position: relative;
-        }
-
-        .dimension-input label {
-            min-width: 90px;
-            font-weight: bold;
-            color: #dc3545;
-            font-size: 14px;
-        }
-
-        .dimension-input input {
-            width: 80px;
-            padding: 5px 8px;
-            border: 2px solid #e9ecef;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-
-        .dimension-input input:focus {
-            outline: none;
-            border-color: #007bff;
-        }
-
-        .dimension-input input[readonly] {
-            background-color: #f8f9fa;
-            border-color: #28a745;
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        .dimension-input span {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .calc-indicator {
-            position: absolute;
-            right: -25px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #28a745;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .validation-error {
-            border-color: #dc3545 !important;
-            background-color: #fff5f5;
-        }
-
-        .validation-message {
-            font-size: 11px;
-            color: #dc3545;
-            margin-top: 2px;
-            min-height: 16px;
-        }
-
-        .geometry-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 15px;
-        }
-
-        .geometry-info h5 {
-            color: #007bff;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 13px;
-        }
-
-        .shape-display {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .current-shape {
-            font-size: 16px;
-            font-weight: bold;
-            color: #007bff;
-            padding: 8px;
-            background: white;
-            border-radius: 4px;
-            border: 1px solid #007bff;
-        }
-
-        /* Card Styling */
-        .card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 20px;
-        }
-
-        .card h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            color: #2c3e50;
-            font-size: 18px;
-        }
-
-        /* Button Styling */
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-
-        .btn-primary {
-            background: #007bff;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0056b3;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #545b62;
-        }
-
-        .btn-warning {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .btn-warning:hover {
-            background: #e0a800;
-        }
-
-        /* Navigation Buttons */
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        /* Footer */
-        footer {
-            background: #f8f9fa;
-            text-align: center;
-            padding: 15px 0; /* Reduziert */
-            margin-top: 30px;
-            border-top: 1px solid #e9ecef;
-            font-size: 13px; /* Kleiner */
-            color: #6c757d;
-        }
-
-        footer p {
-            margin: 0;
-        }
-
-        @media (max-width: 768px) {
             header {
-                padding: 8px 0; /* Noch kompakter auf Mobile */
+                padding: 8px 0;
             }
 
             header h1 {
@@ -700,17 +579,6 @@
             .progress-nav {
                 gap: 10px;
             }
-
-            .editor-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .canvas-wrapper {
-                margin: 0 20px;
-            }
-            
-            .water-flow-left { left: -50px; }
-            .water-flow-right { right: -50px; }
         }
     </style>
 </head>
@@ -762,17 +630,17 @@
                     <!-- Werkzeuge -->
                     <div class="tools-section">
                         <div class="tool-buttons">
-                            <button class="btn-compact btn-tool" onclick="mirrorHorizontal()" title="Horizontal spiegeln">Horizontal</button>
-                            <button class="btn-compact btn-tool" onclick="mirrorVertical()" title="Vertikal spiegeln">Vertikal</button>
-                            <button class="btn-compact btn-tool" onclick="rotateLeft()" title="45° Links drehen">45° Links</button>
-                            <button class="btn-compact btn-tool" onclick="rotateRight()" title="45° Rechts drehen">45° Rechts</button>
+                            <button class="btn-compact btn-tool" id="btn-mirror-horizontal" title="Horizontal spiegeln">H-Spiegel</button>
+                            <button class="btn-compact btn-tool" id="btn-mirror-vertical" title="Vertikal spiegeln">V-Spiegel</button>
+                            <button class="btn-compact btn-rotate" id="btn-rotate-left" title="90° Links drehen">↺ 90°</button>
+                            <button class="btn-compact btn-rotate" id="btn-rotate-right" title="90° Rechts drehen">↻ 90°</button>
                             <span class="tool-separator">|</span>
-                            <button class="btn-compact btn-water" onclick="toggleWaterFlow()" title="Wasserlaufrichtung umkehren">Wasserlauf</button>
-                            <button class="btn-compact btn-traufe" onclick="toggleTraufe()" title="Traufe wechseln">Traufe</button>
-                            <button class="btn-compact btn-orient" onclick="flipOrientation()" title="Dach umdrehen">Umdrehen</button>
-                            <button class="btn-compact btn-center" onclick="centerShape()" title="Form zentrieren">Zentrieren</button>
+                            <button class="btn-compact btn-water" id="btn-water-flow" title="Wasserlaufrichtung umkehren">Wasserlauf</button>
+                            <button class="btn-compact btn-traufe" id="btn-traufe" title="Traufe wechseln">Traufe</button>
+                            <button class="btn-compact btn-orient" id="btn-flip" title="Dach umdrehen">Umdrehen</button>
+                            <button class="btn-compact btn-center" id="btn-center" title="Form zentrieren">Zentrieren</button>
                             <span class="tool-separator">|</span>
-                            <button class="btn-compact btn-reset" onclick="resetShape()" title="Zurücksetzen">Reset</button>
+                            <button class="btn-compact btn-reset" id="btn-reset" title="Zurücksetzen">Reset</button>
                         </div>
                     </div>
 
@@ -828,10 +696,10 @@
             </section>
 
             <div class="navigation-buttons">
-                <button type="button" class="btn btn-secondary" onclick="goBack()">
+                <button type="button" class="btn btn-secondary" id="btn-back">
                     ← Zurück zur Dachform
                 </button>
-                <button type="button" class="btn btn-primary" onclick="saveAndContinue()">
+                <button type="button" class="btn btn-primary" id="btn-continue">
                     Weiter zur Berechnung →
                 </button>
             </div>
@@ -909,42 +777,6 @@
                             { x: length, y: 0 },
                             { x: length - cut, y: width },
                             { x: 0, y: width }
-                        ];
-                    }
-                },
-                
-                parallelogramm: {
-                    name: 'Parallelogramm',
-                    inputs: [
-                        { id: 'length', label: 'Länge', required: true, min: 0.1 },
-                        { id: 'width', label: 'Breite', required: true, min: 0.1 },
-                        { id: 'angle', label: 'Winkel', required: true, min: 1, max: 179, unit: '°' },
-                        { id: 'height', label: 'Höhe', calculated: true },
-                        { id: 'diagonal1', label: 'Diagonale 1', calculated: true },
-                        { id: 'diagonal2', label: 'Diagonale 2', calculated: true }
-                    ],
-                    calculate: (values) => {
-                        if (values.width && values.angle) {
-                            values.height = values.width * Math.sin(values.angle * Math.PI / 180);
-                        }
-                        if (values.length && values.width && values.angle) {
-                            const rad = values.angle * Math.PI / 180;
-                            values.diagonal1 = Math.sqrt(values.length ** 2 + values.width ** 2 - 2 * values.length * values.width * Math.cos(rad));
-                            values.diagonal2 = Math.sqrt(values.length ** 2 + values.width ** 2 - 2 * values.length * values.width * Math.cos((180 - values.angle) * Math.PI / 180));
-                        }
-                        return values;
-                    },
-                    generatePoints: (values) => {
-                        const length = values.length || 10;
-                        const width = values.width || 8;
-                        const angle = (values.angle || 90) * Math.PI / 180;
-                        const offsetX = width * Math.cos(angle);
-                        
-                        return [
-                            { x: 0, y: 0 },
-                            { x: length, y: 0 },
-                            { x: length + offsetX, y: width * Math.sin(angle) },
-                            { x: offsetX, y: width * Math.sin(angle) }
                         ];
                     }
                 },
@@ -1027,348 +859,4 @@
                 if (points.length < 3) return 0;
                 let area = 0;
                 for (let i = 0; i < points.length; i++) {
-                    const j = (i + 1) % points.length;
-                    area += points[i].x * points[j].y - points[j].x * points[i].y;
-                }
-                return Math.abs(area) / 2;
-            }
-            
-            static calculatePerimeter(points) {
-                if (points.length < 2) return 0;
-                let perimeter = 0;
-                for (let i = 0; i < points.length; i++) {
-                    const j = (i + 1) % points.length;
-                    const dx = points[j].x - points[i].x;
-                    const dy = points[j].y - points[i].y;
-                    perimeter += Math.sqrt(dx * dx + dy * dy);
-                }
-                return perimeter;
-            }
-        }
-
-        // Globale Variablen
-        let projectData = {};
-        let currentPoints = [];
-        let originalPoints = [];
-        let currentShapeType = 'rechteck';
-        let currentValues = {};
-        let isUpdating = false;
-
-        // Storage-Funktionen
-        function saveData() {
-            try {
-                localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-                console.log('Daten gespeichert:', projectData);
-                return true;
-            } catch (e) {
-                console.log('localStorage nicht verfügbar, verwende Session-Speicher');
-                sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-                return true;
-            }
-        }
-
-        function loadData() {
-            try {
-                let saved = localStorage.getItem('dachplattenrechner_data');
-                if (!saved) {
-                    saved = sessionStorage.getItem('dachplattenrechner_data');
-                }
-                return saved ? JSON.parse(saved) : {};
-            } catch (e) {
-                console.log('Fehler beim Laden der Daten:', e);
-                return {};
-            }
-        }
-
-        // Shape-Typ aus Projektdaten laden
-        function loadShapeFromProject() {
-            if (!projectData.roofShape) return 'rechteck';
-            
-            const shapeMapping = {
-                'rechteck': 'rechteck',
-                'quadrat': 'rechteck',
-                'parallelogramm': 'rechteck_schraeg',
-                'trapez': 'trapez',
-                'rhombus': 'rechteck_schraeg',
-                'gleichseitig': 'dreieck',
-                'rechtwinklig': 'dreieck',
-                'ungleichschenklig': 'dreieck',
-                'viereck': 'rechteck',
-                'dreieck': 'dreieck',
-                'kreis': 'rechteck',
-                'vieleck': 'rechteck'
-            };
-            
-            const variant = projectData.roofShape.variant;
-            const baseShape = projectData.roofShape.baseShape;
-            
-            return shapeMapping[variant] || shapeMapping[baseShape] || 'rechteck';
-        }
-
-        // Shape-Typ setzen
-        function initializeShapeType() {
-            currentShapeType = loadShapeFromProject();
-            const shape = SmartGeometry.shapes[currentShapeType];
-            const shapeName = shape?.name || 'Unbekannte Form';
-            
-            const nameElement = document.getElementById('current-shape-name');
-            if (nameElement) {
-                nameElement.textContent = shapeName;
-            }
-            
-            generateInputFieldsCompact();
-        }
-
-        // Kompakte Eingabefelder generieren
-        function generateInputFieldsCompact() {
-            const container = document.getElementById('geometry-inputs-compact');
-            const shape = SmartGeometry.shapes[currentShapeType];
-            
-            container.innerHTML = '';
-            
-            shape.inputs.forEach(input => {
-                const div = document.createElement('div');
-                div.className = 'input-compact';
-                
-                const isCalculated = input.calculated;
-                const value = currentValues[input.id] || '';
-                
-                div.innerHTML = `
-                    <label for="dim-${input.id}">${input.label}:</label>
-                    <input type="number" 
-                           id="dim-${input.id}" 
-                           step="0.1" 
-                           min="${input.min || 0.1}" 
-                           max="${input.max || ''}"
-                           value="${value}"
-                           ${isCalculated ? 'readonly' : ''}
-                           onchange="updateValue('${input.id}', this.value)"
-                           oninput="validateInput('${input.id}', this.value)">
-                    <span>${input.unit || 'm'}</span>
-                    ${isCalculated ? '<span class="calc-indicator-compact">⚡</span>' : ''}
-                `;
-                
-                container.appendChild(div);
-            });
-        }
-
-        // Wert aktualisieren
-        function updateValue(fieldId, value) {
-            if (isUpdating) return;
-            currentValues[fieldId] = parseFloat(value) || 0;
-            updateGeometry();
-        }
-
-        // Eingabe validieren
-        function validateInput(fieldId, value) {
-            const input = document.getElementById(`dim-${fieldId}`);
-            const errorDiv = document.getElementById(`error-${fieldId}`);
-            const numValue = parseFloat(value);
-            const shape = SmartGeometry.shapes[currentShapeType];
-            const inputConfig = shape.inputs.find(inp => inp.id === fieldId);
-            
-            input.classList.remove('validation-error');
-            errorDiv.textContent = '';
-            
-            if (value && inputConfig) {
-                if (numValue < inputConfig.min) {
-                    input.classList.add('validation-error');
-                    errorDiv.textContent = `Min: ${inputConfig.min}`;
-                    return false;
-                }
-                if (inputConfig.max && numValue > inputConfig.max) {
-                    input.classList.add('validation-error');
-                    errorDiv.textContent = `Max: ${inputConfig.max}`;
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        // Geometrie berechnen und aktualisieren
-        function updateGeometry() {
-            if (isUpdating) return;
-            isUpdating = true;
-            
-            const shape = SmartGeometry.shapes[currentShapeType];
-            
-            if (shape.calculate) {
-                currentValues = shape.calculate({ ...currentValues });
-            }
-            
-            const isValid = !shape.validate || shape.validate(currentValues);
-            if (!isValid) {
-                console.warn('Ungültige Geometrie-Konfiguration');
-            }
-            
-            shape.inputs.forEach(input => {
-                if (input.calculated && currentValues[input.id] !== undefined) {
-                    const field = document.getElementById(`dim-${input.id}`);
-                    if (field) {
-                        field.value = currentValues[input.id].toFixed(2);
-                    }
-                }
-            });
-            
-            currentPoints = shape.generatePoints(currentValues);
-            updateShape();
-            updateInfoPanel();
-            
-            isUpdating = false;
-        }
-
-        // Form zeichnen
-        function updateShape() {
-            const roofGroup = document.getElementById('roof-shape');
-            const dimensionsGroup = document.getElementById('dimensions');
-            roofGroup.innerHTML = '';
-            dimensionsGroup.innerHTML = '';
-            
-            if (currentPoints.length === 0) return;
-            
-            const bounds = getBounds(currentPoints);
-            const scale = Math.min(250 / Math.max(bounds.width, 1), 200 / Math.max(bounds.height, 1));
-            const centerX = 400;
-            const centerY = 300;
-            
-            const svgPoints = currentPoints.map(p => {
-                const x = centerX + (p.x - (bounds.minX + bounds.maxX) / 2) * scale;
-                const y = centerY - (p.y - (bounds.minY + bounds.maxY) / 2) * scale;
-                return `${x},${y}`;
-            }).join(' ');
-            
-            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            polygon.setAttribute('points', svgPoints);
-            polygon.setAttribute('fill', '#007bff20');
-            polygon.setAttribute('stroke', '#007bff');
-            polygon.setAttribute('stroke-width', '3');
-            
-            roofGroup.appendChild(polygon);
-        }
-
-        function getBounds(points) {
-            const xs = points.map(p => p.x);
-            const ys = points.map(p => p.y);
-            return {
-                minX: Math.min(...xs),
-                maxX: Math.max(...xs),
-                minY: Math.min(...ys),
-                maxY: Math.max(...ys),
-                width: Math.max(...xs) - Math.min(...xs),
-                height: Math.max(...ys) - Math.min(...ys)
-            };
-        }
-
-        function updateInfoPanel() {
-            if (currentPoints.length > 0) {
-                const area = SmartGeometry.calculateArea(currentPoints);
-                const perimeter = SmartGeometry.calculatePerimeter(currentPoints);
-                
-                document.getElementById('calc-area').textContent = `${area.toFixed(2)} m²`;
-                document.getElementById('calc-perimeter').textContent = `${perimeter.toFixed(2)} m`;
-            }
-        }
-
-        // Funktionen für Werkzeuge
-        function mirrorHorizontal() {
-            currentPoints = currentPoints.map(p => ({ x: -p.x, y: p.y }));
-            updateShape();
-        }
-
-        function mirrorVertical() {
-            currentPoints = currentPoints.map(p => ({ x: p.x, y: -p.y }));
-            updateShape();
-        }
-
-        function rotateLeft() {
-            currentPoints = currentPoints.map(p => ({ x: p.y, y: -p.x }));
-            updateShape();
-        }
-
-        function rotateRight() {
-            currentPoints = currentPoints.map(p => ({ x: -p.y, y: p.x }));
-            updateShape();
-        }
-
-        function resetShape() {
-            currentValues = { length: 10, width: 8 };
-            updateGeometry();
-        }
-
-        function goBack() {
-            window.history.back();
-        }
-
-        function saveAndContinue() {
-            projectData.geometry = {
-                shapeType: currentShapeType,
-                values: currentValues,
-                points: currentPoints
-            };
-            saveData();
-            console.log('Weiter zur Berechnung');
-        }
-
-        // Zusätzliche Funktionen für neue Buttons
-        function toggleWaterFlow() {
-            // Wasserlaufrichtung umkehren - Labels und Pfeile vertauschen
-            const leftFlow = document.querySelector('.water-flow-left');
-            const rightFlow = document.querySelector('.water-flow-right');
-            
-            if (leftFlow && rightFlow) {
-                // Sichtbarkeit der Wasserlauf-Anzeigen umschalten
-                leftFlow.style.display = leftFlow.style.display === 'none' ? 'flex' : 'none';
-                rightFlow.style.display = rightFlow.style.display === 'none' ? 'flex' : 'none';
-            }
-            
-            console.log('Wasserlaufrichtung geändert');
-        }
-
-        function toggleTraufe() {
-            // Traufe und First vertauschen
-            const topLabel = document.querySelector('.label-top');
-            const bottomLabel = document.querySelector('.label-bottom');
-            
-            if (topLabel && bottomLabel) {
-                const tempText = topLabel.textContent;
-                topLabel.textContent = bottomLabel.textContent;
-                bottomLabel.textContent = tempText;
-            }
-            
-            console.log('Traufe/First gewechselt');
-        }
-
-        function flipOrientation() {
-            // Dach komplett umdrehen (180° Rotation)
-            currentPoints = currentPoints.map(p => ({ x: -p.x, y: -p.y }));
-            updateShape();
-            console.log('Dach umgedreht');
-        }
-
-        function centerShape() {
-            // Form in der Mitte des Canvas zentrieren
-            if (currentPoints.length > 0) {
-                const bounds = getBounds(currentPoints);
-                const centerX = (bounds.minX + bounds.maxX) / 2;
-                const centerY = (bounds.minY + bounds.maxY) / 2;
-                
-                currentPoints = currentPoints.map(p => ({
-                    x: p.x - centerX,
-                    y: p.y - centerY
-                }));
-                
-                updateShape();
-                console.log('Form zentriert');
-            }
-        }
-
-        // Initialisierung
-        document.addEventListener('DOMContentLoaded', function() {
-            projectData = loadData();
-            currentValues = { length: 10, width: 8 };
-            initializeShapeType();
-            updateGeometry();
-        });
-    </script>
-</body>
-</html>
+                    const j = (i + 1
