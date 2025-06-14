@@ -859,4 +859,463 @@
                 return 'rechteck';
             }
             
-            const shapeMapping =
+            const shapeMapping = {
+                'rechteck': 'rechteck',
+                'quadrat': 'rechteck',
+                'parallelogramm': 'rechteck_schraeg',
+                'trapez': 'trapez',
+                'rhombus': 'rechteck_schraeg',
+                'gleichseitig': 'dreieck',
+                'rechtwinklig': 'dreieck',
+                'ungleichschenklig': 'dreieck',
+                'viereck': 'rechteck',
+                'dreieck': 'dreieck',
+                'kreis': 'rechteck',
+                'vieleck': 'rechteck',
+                // Spezifische Varianten
+                'fuenfeck': 'rechteck',
+                'sechseck': 'rechteck',
+                'achteck': 'rechteck',
+                'lform': 'rechteck',
+                'tform': 'rechteck',
+                'uform': 'rechteck',
+                'oval': 'rechteck',
+                'halbkreis': 'rechteck',
+                'viertelkreis': 'rechteck',
+                'langloch': 'rechteck'
+            };
+            
+            const variant = projectData.roofShape.variant;
+            const baseShape = projectData.roofShape.baseShape;
+            
+            console.log('BaseShape:', baseShape, 'Variant:', variant);
+            
+            const selectedShape = shapeMapping[variant] || shapeMapping[baseShape] || 'rechteck';
+            console.log('Gewählte Shape:', selectedShape);
+            
+            return selectedShape;
+        }
+
+        // Shape-Typ setzen
+        function initializeShapeType() {
+            currentShapeType = loadShapeFromProject();
+            const shape = SmartGeometry.shapes[currentShapeType];
+            const shapeName = shape?.name || 'Unbekannte Form';
+            
+            console.log('Initialisiere Shape-Typ:', currentShapeType, 'Name:', shapeName);
+            
+            const nameElement = document.getElementById('current-shape-name');
+            if (nameElement) {
+                nameElement.textContent = shapeName;
+            }
+            
+            // Standard-Werte basierend auf der gewählten Form setzen
+            setDefaultValuesForShape();
+            generateInputFields();
+        }
+
+        // Standard-Werte für die gewählte Form setzen
+        function setDefaultValuesForShape() {
+            const defaults = {
+                'rechteck': { length: 10, width: 8 },
+                'rechteck_schraeg': { length: 10, width: 8, cut_length: 2 },
+                'trapez': { base1: 10, base2: 6, height: 8 },
+                'dreieck': { side1: 10, side2: 8 }
+            };
+            
+            currentValues = defaults[currentShapeType] || defaults['rechteck'];
+            console.log('Standard-Werte gesetzt:', currentValues);
+        }
+
+        // Eingabefelder generieren
+        function generateInputFields() {
+            const container = document.getElementById('geometry-inputs-grid');
+            const shape = SmartGeometry.shapes[currentShapeType];
+            
+            container.innerHTML = '';
+            
+            shape.inputs.forEach(input => {
+                const div = document.createElement('div');
+                div.className = 'input-group';
+                
+                const isCalculated = input.calculated;
+                const value = currentValues[input.id] || '';
+                
+                div.innerHTML = `
+                    <label for="dim-${input.id}">${input.label}:</label>
+                    <div class="input-group-wrapper">
+                        <input type="number" 
+                               id="dim-${input.id}" 
+                               step="0.1" 
+                               min="${input.min || 0.1}" 
+                               max="${input.max || ''}"
+                               value="${value}"
+                               ${isCalculated ? 'readonly' : ''}
+                               onchange="updateValue('${input.id}', this.value)"
+                               oninput="validateInput('${input.id}', this.value)">
+                        <span class="input-unit">${input.unit || 'm'}</span>
+                        ${isCalculated ? '<span class="calc-indicator">⚡</span>' : ''}
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        // Wert aktualisieren
+        function updateValue(fieldId, value) {
+            if (isUpdating) return;
+            currentValues[fieldId] = parseFloat(value) || 0;
+            updateGeometry();
+        }
+
+        // Eingabe validieren
+        function validateInput(fieldId, value) {
+            const input = document.getElementById(`dim-${fieldId}`);
+            const numValue = parseFloat(value);
+            const shape = SmartGeometry.shapes[currentShapeType];
+            const inputConfig = shape.inputs.find(inp => inp.id === fieldId);
+            
+            input.classList.remove('validation-error');
+            
+            if (value && inputConfig) {
+                if (numValue < inputConfig.min) {
+                    input.classList.add('validation-error');
+                    return false;
+                }
+                if (inputConfig.max && numValue > inputConfig.max) {
+                    input.classList.add('validation-error');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Geometrie berechnen und aktualisieren
+        function updateGeometry() {
+            if (isUpdating) return;
+            isUpdating = true;
+            
+            const shape = SmartGeometry.shapes[currentShapeType];
+            
+            if (shape.calculate) {
+                currentValues = shape.calculate({ ...currentValues });
+            }
+            
+            const isValid = !shape.validate || shape.validate(currentValues);
+            if (!isValid) {
+                console.warn('Ungültige Geometrie-Konfiguration');
+            }
+            
+            shape.inputs.forEach(input => {
+                if (input.calculated && currentValues[input.id] !== undefined) {
+                    const field = document.getElementById(`dim-${input.id}`);
+                    if (field) {
+                        field.value = currentValues[input.id].toFixed(2);
+                    }
+                }
+            });
+            
+            currentPoints = shape.generatePoints(currentValues);
+            originalPoints = [...currentPoints]; // Backup für Reset
+            updateShape();
+            updateInfoPanel();
+            
+            isUpdating = false;
+        }
+
+        // Form zeichnen
+        function updateShape() {
+            const roofGroup = document.getElementById('roof-shape');
+            const dimensionsGroup = document.getElementById('dimensions');
+            roofGroup.innerHTML = '';
+            dimensionsGroup.innerHTML = '';
+            
+            if (currentPoints.length === 0) return;
+            
+            const bounds = getBounds(currentPoints);
+            // Doppelt so große Skalierung - Form füllt fast das gesamte SVG aus
+            const maxScale = Math.min(440 / Math.max(bounds.width, 1), 360 / Math.max(bounds.height, 1));
+            const scale = maxScale * 0.9; // 90% für etwas Platz um die Form
+            const centerX = 300;
+            const centerY = 200;
+            
+            // Punkte für SVG umrechnen
+            const svgPoints = currentPoints.map(p => {
+                const x = centerX + (p.x - (bounds.minX + bounds.maxX) / 2) * scale;
+                const y = centerY - (p.y - (bounds.minY + bounds.maxY) / 2) * scale;
+                return { x, y, originalX: p.x, originalY: p.y };
+            });
+            
+            // Polygon zeichnen
+            const polygonPoints = svgPoints.map(p => `${p.x},${p.y}`).join(' ');
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', polygonPoints);
+            polygon.setAttribute('fill', '#007bff20');
+            polygon.setAttribute('stroke', '#007bff');
+            polygon.setAttribute('stroke-width', '3');
+            roofGroup.appendChild(polygon);
+            
+            // Seitenlängen einzeichnen
+            drawSideDimensions(svgPoints, dimensionsGroup);
+        }
+
+        function drawSideDimensions(svgPoints, dimensionsGroup) {
+            // Buchstaben für die Seiten definieren
+            const sideLabels = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+            
+            for (let i = 0; i < svgPoints.length; i++) {
+                const current = svgPoints[i];
+                const next = svgPoints[(i + 1) % svgPoints.length];
+                
+                // Seitenlänge berechnen (für Übersprung-Check)
+                const dx = next.originalX - current.originalX;
+                const dy = next.originalY - current.originalY;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                
+                if (length < 0.01) continue; // Sehr kurze Seiten überspringen
+                
+                // Mittelpunkt der Seite
+                const midX = (current.x + next.x) / 2;
+                const midY = (current.y + next.y) / 2;
+                
+                // Normale der Seite für Textplatzierung
+                const sideLength = Math.sqrt((next.x - current.x) ** 2 + (next.y - current.y) ** 2);
+                if (sideLength < 1) continue;
+                
+                const normalX = -(next.y - current.y) / sideLength;
+                const normalY = (next.x - current.x) / sideLength;
+                
+                // Text-Position (nach außen versetzt) - größerer Abstand für sehr große Form
+                const offset = 45;
+                const textX = midX + normalX * offset;
+                const textY = midY + normalY * offset;
+                
+                // Buchstaben-Label für diese Seite
+                const label = sideLabels[i] || `s${i+1}`;
+                
+                // Prüfen ob Text im sichtbaren Bereich ist - angepasst für 600x400 SVG
+                if (textX < 15 || textX > 585 || textY < 15 || textY > 385) {
+                    // Text nach innen versetzen wenn außerhalb
+                    const innerTextX = midX - normalX * 20;
+                    const innerTextY = midY - normalY * 20;
+                    createSideLabel(innerTextX, innerTextY, label, dimensionsGroup, true);
+                } else {
+                    // Kleine Linie zur Seite
+                    const dimLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    dimLine.setAttribute('x1', midX);
+                    dimLine.setAttribute('y1', midY);
+                    dimLine.setAttribute('x2', textX);
+                    dimLine.setAttribute('y2', textY);
+                    dimLine.setAttribute('class', 'dimension-line');
+                    dimensionsGroup.appendChild(dimLine);
+                    
+                    createSideLabel(textX, textY, label, dimensionsGroup, false);
+                }
+            }
+        }
+
+        function createSideLabel(x, y, label, parent, isInside) {
+            // Kreis-Hintergrund für den Buchstaben
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', '12');
+            circle.setAttribute('fill', isInside ? 'rgba(255,255,255,0.9)' : 'rgba(0,123,255,0.9)');
+            circle.setAttribute('stroke', isInside ? '#666' : '#007bff');
+            circle.setAttribute('stroke-width', '2');
+            parent.appendChild(circle);
+            
+            // Buchstaben-Text
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', x);
+            text.setAttribute('y', y);
+            text.setAttribute('fill', isInside ? '#666' : 'white');
+            text.setAttribute('font-family', 'Arial, sans-serif');
+            text.setAttribute('font-size', '12');
+            text.setAttribute('font-weight', 'bold');
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.textContent = label;
+            parent.appendChild(text);
+        }
+
+        function getBounds(points) {
+            const xs = points.map(p => p.x);
+            const ys = points.map(p => p.y);
+            return {
+                minX: Math.min(...xs),
+                maxX: Math.max(...xs),
+                minY: Math.min(...ys),
+                maxY: Math.max(...ys),
+                width: Math.max(...xs) - Math.min(...xs),
+                height: Math.max(...ys) - Math.min(...ys)
+            };
+        }
+
+        function updateInfoPanel() {
+            if (currentPoints.length > 0) {
+                const area = SmartGeometry.calculateArea(currentPoints);
+                const perimeter = SmartGeometry.calculatePerimeter(currentPoints);
+                
+                document.getElementById('calc-area').textContent = `${area.toFixed(2)} m²`;
+                document.getElementById('calc-perimeter').textContent = `${perimeter.toFixed(2)} m`;
+            }
+        }
+
+        // Transformations-Funktionen
+        function mirrorHorizontal() {
+            console.log('Horizontal spiegeln - Vorher:', currentPoints);
+            currentPoints = currentPoints.map(p => ({ x: -p.x, y: p.y }));
+            console.log('Horizontal spiegeln - Nachher:', currentPoints);
+            updateShape();
+        }
+
+        function mirrorVertical() {
+            console.log('Vertikal spiegeln - Vorher:', currentPoints);
+            currentPoints = currentPoints.map(p => ({ x: p.x, y: -p.y }));
+            console.log('Vertikal spiegeln - Nachher:', currentPoints);
+            updateShape();
+        }
+
+        function rotateLeft() {
+            console.log('90° Links drehen - Vorher:', currentPoints);
+            currentPoints = currentPoints.map(p => ({ x: -p.y, y: p.x }));
+            console.log('90° Links drehen - Nachher:', currentPoints);
+            updateShape();
+        }
+
+        function rotateRight() {
+            console.log('90° Rechts drehen - Vorher:', currentPoints);
+            currentPoints = currentPoints.map(p => ({ x: p.y, y: -p.x }));
+            console.log('90° Rechts drehen - Nachher:', currentPoints);
+            updateShape();
+        }
+
+        function resetShape() {
+            console.log('Reset - Zurück zu Originalwerten');
+            currentValues = { length: 10, width: 8 };
+            updateGeometry();
+        }
+
+        function flipOrientation() {
+            console.log('Dach umdrehen (180°) - Vorher:', currentPoints);
+            currentPoints = currentPoints.map(p => ({ x: -p.x, y: -p.y }));
+            console.log('Dach umdrehen (180°) - Nachher:', currentPoints);
+            updateShape();
+        }
+
+        function toggleWaterFlow() {
+            const leftFlow = document.querySelector('.water-flow-left');
+            const rightFlow = document.querySelector('.water-flow-right');
+            
+            if (leftFlow && rightFlow) {
+                leftFlow.style.display = leftFlow.style.display === 'none' ? 'flex' : 'none';
+                rightFlow.style.display = rightFlow.style.display === 'none' ? 'flex' : 'none';
+            }
+            
+            console.log('Wasserlaufrichtung geändert');
+        }
+
+        function toggleTraufe() {
+            const topLabel = document.querySelector('.label-top');
+            const bottomLabel = document.querySelector('.label-bottom');
+            
+            if (topLabel && bottomLabel) {
+                const tempText = topLabel.textContent;
+                topLabel.textContent = bottomLabel.textContent;
+                bottomLabel.textContent = tempText;
+            }
+            
+            console.log('Traufe/First gewechselt');
+        }
+
+        function goBack() {
+            window.location.href = 'dachform.html';
+        }
+
+        function saveAndContinue() {
+            // Geometrie-Daten speichern
+            projectData.geometry = {
+                shapeType: currentShapeType,
+                values: currentValues,
+                points: currentPoints
+            };
+            
+            // Zusätzlich die roofShape-Struktur aktualisieren, die von Berechnung.html erwartet wird
+            if (!projectData.roofShape) {
+                projectData.roofShape = {};
+            }
+            
+            // Die berechneten Punkte in roofShape verfügbar machen
+            projectData.roofShape.points = currentPoints;
+            
+            // Fallback-Werte für fehlende Eigenschaften
+            projectData.roofShape.dachTyp = projectData.roofShape.variant || currentShapeType || 'Rechteck';
+            projectData.roofShape.dachNeigung = projectData.roofShape.dachNeigung || 15; // Standard-Neigung falls nicht vorhanden
+            
+            // Erweiterte Informationen hinzufügen
+            projectData.roofShape.area = SmartGeometry.calculateArea(currentPoints);
+            projectData.roofShape.perimeter = SmartGeometry.calculatePerimeter(currentPoints);
+            
+            saveData();
+            console.log('Vollständige Projektdaten gespeichert:', projectData);
+            window.location.href = 'berechnung.html';
+        }
+
+        // Event-Handler setup
+        function setupEventHandlers() {
+            // Alle Button-IDs korrekt verknüpfen
+            document.getElementById('btn-mirror-horizontal').addEventListener('click', mirrorHorizontal);
+            document.getElementById('btn-mirror-vertical').addEventListener('click', mirrorVertical);
+            document.getElementById('btn-rotate-left').addEventListener('click', rotateLeft);
+            document.getElementById('btn-rotate-right').addEventListener('click', rotateRight);
+            document.getElementById('btn-water-flow').addEventListener('click', toggleWaterFlow);
+            document.getElementById('btn-traufe').addEventListener('click', toggleTraufe);
+            document.getElementById('btn-flip').addEventListener('click', flipOrientation);
+            document.getElementById('btn-reset').addEventListener('click', resetShape);
+            document.getElementById('btn-back').addEventListener('click', goBack);
+            document.getElementById('btn-continue').addEventListener('click', saveAndContinue);
+            
+            console.log('Event-Handler eingerichtet');
+        }
+
+        // Initialisierung
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM geladen - Initialisierung startet');
+            
+            // Projektdaten laden
+            projectData = loadData();
+            console.log('Geladene Projektdaten:', projectData);
+            
+            // Überprüfen ob Daten vorhanden sind
+            if (!projectData.roofShape) {
+                console.warn('Keine Dachform-Daten gefunden!');
+                if (confirm('Keine Dachform-Daten gefunden. Möchten Sie zur Dachform-Auswahl zurückkehren?')) {
+                    window.location.href = 'dachform.html';
+                    return;
+                }
+                // Fallback: Standard-Daten setzen
+                projectData.roofShape = {
+                    baseShape: 'viereck',
+                    variant: 'rechteck'
+                };
+            }
+            
+            // Form-Typ initialisieren
+            initializeShapeType();
+            
+            // Geometrie berechnen
+            updateGeometry();
+            
+            // Event-Handler einrichten
+            setupEventHandlers();
+            
+            console.log('Initialisierung abgeschlossen');
+            console.log('Aktuelle Form:', currentShapeType);
+            console.log('Aktuelle Werte:', currentValues);
+            console.log('Aktuelle Punkte:', currentPoints);
+        });
+    </script>
+</body>
+</html>
