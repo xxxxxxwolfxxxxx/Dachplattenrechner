@@ -727,4 +727,192 @@
         function displayResults(results) {
             document.getElementById('total-rows').textContent = results.bahnenAnzahl;
             document.getElementById('plate-length').textContent = (results.bahnenLaenge / 1000).toFixed(1) + ' m';
-            document.getElementById('total-length').textContent =
+            document.getElementById('total-length').textContent = results.totalLength.toFixed(1) + ' m';
+            document.getElementById('total-waste').textContent = results.verschnitt.toFixed(1) + ' %';
+
+            // Bestelltabelle füllen
+            const tbody = document.getElementById('order-tbody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                results.bestellliste.forEach(item => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${item.length}</td>
+                        <td>${item.quantity}</td>
+                        <td>${(item.length * item.quantity / 1000).toFixed(1)}</td>
+                        <td>${item.usage}</td>
+                    `;
+                });
+            }
+
+            // Berechnungserklärung anzeigen
+            displayCalculationExplanation(results);
+
+            document.getElementById('results-section').style.display = 'block';
+        }
+
+        function displayCalculationExplanation(results) {
+            const container = document.getElementById('calculation-explanation');
+            if (!container) return;
+
+            const verlegerichtungText = results.richtung === 'laengs' ? 'längs (parallel zur Wasserlaufrichtung)' : 'quer (senkrecht zur Wasserlaufrichtung)';
+            
+            container.innerHTML = `
+                <h5>Berechnungsschritte:</h5>
+                <div style="margin: 10px 0;">
+                    <p><strong>1. Verlegerichtung:</strong> ${verlegerichtungText}</p>
+                    <p><strong>2. Bahnenanzahl berechnen:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Dachbreite ${results.richtung === 'laengs' ? 'quer' : 'längs'} zur Verlegung: ${results.richtung === 'laengs' ? results.dachbreite.toFixed(1) : results.dachhoehe.toFixed(1)} m</li>
+                        <li>Deckbreite (nutzbar): ${results.deckbreite} mm</li>
+                        <li>Benötigte Bahnen: ${(results.richtung === 'laengs' ? results.dachbreite * 1000 : results.dachhoehe * 1000).toFixed(0)}mm ÷ ${results.deckbreite}mm = ${results.bahnenAnzahl} Bahnen</li>
+                    </ul>
+                    <p><strong>3. Plattenlänge berechnen:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Dachlänge ${results.richtung === 'laengs' ? 'längs' : 'quer'}: ${results.richtung === 'laengs' ? results.dachhoehe.toFixed(1) : results.dachbreite.toFixed(1)} m</li>
+                        <li>Überstand beidseitig: 2 × ${((results.bahnenLaenge - (results.richtung === 'laengs' ? results.dachhoehe * 1000 : results.dachbreite * 1000)) / 2).toFixed(0)}mm</li>
+                        <li>Benötigte Plattenlänge: ${(results.bahnenLaenge / 1000).toFixed(1)} m</li>
+                    </ul>
+                    <p><strong>Wichtig:</strong> Die Deckbreite (${results.deckbreite}mm) ist die bereits nutzbare Breite pro Platte. Die Seitenüberlappung ist in der Lieferbreite (${results.lieferbreite}mm) bereits berücksichtigt.</p>
+                </div>
+            `;
+        }
+
+        function saveAndContinue() {
+            if (!calculationResults) {
+                alert('Bitte führen Sie zuerst eine Berechnung durch!');
+                return;
+            }
+
+            try {
+                projectData.calculations = calculationResults;
+                const saved = saveData();
+                
+                if (saved) {
+                    window.location.href = 'anrissplan.html';
+                } else {
+                    alert('Speichern fehlgeschlagen, fahre trotzdem fort.');
+                    window.location.href = 'anrissplan.html';
+                }
+            } catch (error) {
+                console.error('Fehler beim Speichern:', error);
+                alert('Fehler beim Speichern: ' + error.message);
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'Editor.html';
+        }
+
+        // Initialisierung
+        function init() {
+            try {
+                console.log('Berechnung wird initialisiert...');
+                
+                // Projektdaten laden
+                projectData = loadData();
+                console.log('Geladene Projektdaten:', projectData);
+                
+                // Canvas initialisieren
+                initCanvas();
+                
+                // Projekt-Info laden
+                const infoLoaded = loadProjectInfo();
+                
+                if (infoLoaded) {
+                    // Erste Visualisierung (nur Dach, ohne Platten)
+                    const roof = projectData.roofShape;
+                    const geometry = projectData.geometry;
+                    let roofPoints = null;
+                    if (roof && roof.points) {
+                        roofPoints = roof.points;
+                    } else if (geometry && geometry.points) {
+                        roofPoints = geometry.points;
+                    }
+                    
+                    if (roofPoints) {
+                        drawRoofVisualization(roofPoints, null);
+                    }
+                }
+                
+                console.log('Berechnung erfolgreich initialisiert');
+                
+            } catch (error) {
+                console.error('Fehler bei der Initialisierung:', error);
+                alert('Fehler beim Laden der Berechnung: ' + error.message);
+            }
+        }
+
+        // Canvas-Größe bei Fenster-Resize anpassen
+        window.addEventListener('resize', function() {
+            if (canvas) {
+                const container = canvas.parentElement;
+                const newWidth = Math.min(600, container.clientWidth - 40);
+                const newHeight = (newWidth / 600) * 400;
+                
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                canvas.style.width = newWidth + 'px';
+                canvas.style.height = newHeight + 'px';
+                
+                // Neu zeichnen
+                if (calculationResults) {
+                    const roof = projectData.roofShape;
+                    const geometry = projectData.geometry;
+                    let roofPoints = null;
+                    if (roof && roof.points) {
+                        roofPoints = roof.points;
+                    } else if (geometry && geometry.points) {
+                        roofPoints = geometry.points;
+                    }
+                    if (roofPoints) {
+                        drawRoofVisualization(roofPoints, calculationResults);
+                    }
+                }
+            }
+        });
+
+        // Warten bis DOM geladen ist
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+        // Überprüfung der Projektdaten nach dem Laden
+        window.addEventListener('load', function() {
+            const profile = projectData.profile;
+            const roof = projectData.roofShape;
+            const geometry = projectData.geometry;
+            
+            console.log('Überprüfe Projektdaten beim Laden:', {
+                profile: !!profile,
+                roof: !!roof,
+                geometry: !!geometry,
+                roofPoints: (roof && roof.points) || (geometry && geometry.points),
+                data: projectData
+            });
+            
+            if (!profile) {
+                setTimeout(function() {
+                    if (confirm('Profil-Daten fehlen. Möchten Sie zu Schritt 1 zurückkehren?')) {
+                        window.location.href = 'profil.html';
+                    }
+                }, 1000);
+            } else if (!roof && !geometry) {
+                setTimeout(function() {
+                    if (confirm('Dachform-Daten fehlen. Möchten Sie zu Schritt 2 zurückkehren?')) {
+                        window.location.href = 'dachform.html';
+                    }
+                }, 1000);
+            } else if ((!roof || !roof.points) && (!geometry || !geometry.points)) {
+                setTimeout(function() {
+                    if (confirm('Geometrie-Daten fehlen. Möchten Sie zum Editor zurückkehren?')) {
+                        window.location.href = 'Editor.html';
+                    }
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
