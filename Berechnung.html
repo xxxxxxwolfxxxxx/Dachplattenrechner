@@ -109,35 +109,17 @@
             border-bottom: none;
         }
 
-        .alternatives-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .alternatives-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-
-        .alternative-card {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
+        .direction-info {
+            background: #e7f3ff;
             padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #007bff;
         }
 
-        .alternative-card:hover {
-            border-color: #007bff;
-            transform: translateY(-2px);
-        }
-
-        .alternative-card.selected {
-            border-color: #007bff;
-            background: #f8f9ff;
+        .direction-info h4 {
+            color: #007bff;
+            margin-bottom: 10px;
         }
 
         @media (max-width: 768px) {
@@ -174,7 +156,7 @@
         <main>
             <section class="calculation-section">
                 <h2>Schritt 3: Berechnung der Dachplattenverlegung</h2>
-                <p>Automatische Berechnung basierend auf Ihren Eingaben aus den vorherigen Schritten:</p>
+                <p>Automatische Berechnung basierend auf Ihrer Dachform und der Wasserlaufrichtung:</p>
 
                 <div class="calculation-container">
                     <!-- Projekt-Info -->
@@ -193,8 +175,8 @@
                                         <strong id="info-deckbreite">-</strong>
                                     </div>
                                     <div class="info-item">
-                                        <span>Überlappung:</span>
-                                        <strong id="info-overlap">-</strong>
+                                        <span>Lieferbreite:</span>
+                                        <strong id="info-lieferbreite">-</strong>
                                     </div>
                                     <div class="info-item">
                                         <span>Überstand:</span>
@@ -216,11 +198,17 @@
                                         <strong id="info-area">-</strong>
                                     </div>
                                     <div class="info-item">
-                                        <span>Verlegerichtung:</span>
-                                        <strong id="info-direction">Automatisch</strong>
+                                        <span>Dachneigung:</span>
+                                        <strong id="info-neigung">-</strong>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="direction-info">
+                            <h4>Verlegerichtung</h4>
+                            <p><strong>Richtung:</strong> <span id="direction-text">Längs (parallel zur Wasserlaufrichtung)</span></p>
+                            <p><strong>Begründung:</strong> Platten müssen parallel zur Wasserlaufrichtung verlegt werden, damit das Wasser korrekt abfließen kann.</p>
                         </div>
 
                         <button type="button" class="btn btn-primary" onclick="calculateLengths()">
@@ -241,7 +229,7 @@
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color" style="background: rgba(40,167,69,0.3); border-color: #28a745;"></div>
-                                <span>Dachplatten</span>
+                                <span>Dachplatten (Deckbreite)</span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-color" style="background: rgba(220,53,69,0.3); border-color: #dc3545;"></div>
@@ -299,12 +287,10 @@
                         </div>
                     </div>
 
-                    <!-- Alternative Verlegerichtungen -->
-                    <div class="alternatives-section" id="alternatives-section" style="display: none;">
-                        <h4>Alternative Verlegerichtungen</h4>
-                        <p>Klicken Sie auf eine Alternative um sie auszuwählen:</p>
-                        <div class="alternatives-grid" id="alternatives-grid">
-                            <!-- Alternative Lösungen werden hier angezeigt -->
+                    <div class="cutting-plan">
+                        <h4>Erläuterung der Berechnung</h4>
+                        <div id="calculation-explanation" style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                            <!-- Berechnungsschritte werden hier angezeigt -->
                         </div>
                     </div>
                 </div>
@@ -412,8 +398,8 @@
 
             // Info-Felder füllen
             document.getElementById('info-profile-name').textContent = profile.profilname || 'Standard';
-            document.getElementById('info-deckbreite').textContent = profile.deckbreite + ' mm';
-            document.getElementById('info-overlap').textContent = (profile.seitenueberlappung || 50) + ' mm';
+            document.getElementById('info-deckbreite').textContent = profile.deckbreite + ' mm (nutzbar)';
+            document.getElementById('info-lieferbreite').textContent = profile.lieferbreite + ' mm (inkl. Überlappung)';
             document.getElementById('info-ueberstand').textContent = (profile.ueberstand || 50) + ' mm';
             
             const dachTyp = (roof && roof.dachTyp) || (roof && roof.variant) || (geometry && geometry.shapeType) || 'Rechteck';
@@ -429,28 +415,16 @@
             const area = calculateRoofArea(roofPoints);
             document.getElementById('info-area').textContent = area.toFixed(2) + ' m²';
 
-            // Verlegerichtung aus Editor-Daten anzeigen
-            let preferredDirection = 'Automatisch optimiert';
-            let waterFlowDirection = 'unbekannt';
-            
-            if (geometry) {
-                if (geometry.preferredDirection) {
-                    preferredDirection = geometry.preferredDirection === 'laengs' ? 'Längs (vertikal)' : 'Quer (horizontal)';
-                }
-                if (geometry.waterFlowDirection) {
-                    waterFlowDirection = geometry.waterFlowDirection === 'down' ? 'nach unten' : 'zur Seite';
-                }
-            } else if (roof) {
-                if (roof.preferredDirection) {
-                    preferredDirection = roof.preferredDirection === 'laengs' ? 'Längs (vertikal)' : 'Quer (horizontal)';
-                }
-                if (roof.waterFlowDirection) {
-                    waterFlowDirection = roof.waterFlowDirection === 'down' ? 'nach unten' : 'zur Seite';
-                }
+            // Dachneigung
+            const dachNeigung = (roof && roof.dachNeigung) || 15;
+            document.getElementById('info-neigung').textContent = dachNeigung + '°';
+
+            // Verlegerichtung bestimmen
+            let verlegerichtung = 'Längs (parallel zur Wasserlaufrichtung)';
+            if (geometry && geometry.preferredDirection === 'quer') {
+                verlegerichtung = 'Quer (senkrecht zur Wasserlaufrichtung)';
             }
-            
-            document.getElementById('info-direction').textContent = 
-                `${preferredDirection} (Wasserlauf: ${waterFlowDirection})`;
+            document.getElementById('direction-text').textContent = verlegerichtung;
 
             return true;
         }
@@ -523,30 +497,29 @@
 
         function drawPlateLayout(layout, transformPoint, scale) {
             const profile = projectData.profile;
-            const deckbreite = (profile.deckbreite / 1000); // in Meter
-            const seitenueberlappung = ((profile.seitenueberlappung || 50) / 1000); // in Meter
-            const nutzbreite = deckbreite - seitenueberlappung;
+            const deckbreite = (profile.deckbreite / 1000); // in Meter - KORREKT: Das ist die nutzbare Breite!
+            const lieferbreite = (profile.lieferbreite / 1000); // in Meter - inkl. Überlappung
 
             ctx.strokeStyle = '#28a745';
             ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
             ctx.lineWidth = 1;
 
-            // Bahnen zeichnen
+            // Bahnen zeichnen - KORRIGIERTE BERECHNUNG
             for (let i = 0; i < layout.bahnenAnzahl; i++) {
                 let plateX, plateY, plateWidth, plateHeight;
                 
                 if (layout.richtung === 'laengs') {
                     // Längs - Bahnen verlaufen vertikal
-                    plateX = i * nutzbreite;
+                    plateX = i * deckbreite; // KORREKT: Deckbreite ist die nutzbare Breite
                     plateY = 0;
-                    plateWidth = deckbreite;
+                    plateWidth = deckbreite; // Sichtbare Breite
                     plateHeight = layout.bahnenLaenge / 1000; // von mm in m
                 } else {
                     // Quer - Bahnen verlaufen horizontal
                     plateX = 0;
-                    plateY = i * nutzbreite;
+                    plateY = i * deckbreite; // KORREKT: Deckbreite ist die nutzbare Breite
                     plateWidth = layout.bahnenLaenge / 1000; // von mm in m
-                    plateHeight = deckbreite;
+                    plateHeight = deckbreite; // Sichtbare Breite
                 }
 
                 // Platte zeichnen
@@ -570,32 +543,6 @@
                     topLeft.y + rectHeight / 2
                 );
                 ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
-
-                // Überlappung markieren (außer bei der ersten Bahn)
-                if (i > 0 && seitenueberlappung > 0) {
-                    ctx.fillStyle = 'rgba(220, 53, 69, 0.5)';
-                    
-                    if (layout.richtung === 'laengs') {
-                        const overlapStart = transformPoint(plateX, plateY);
-                        const overlapEnd = transformPoint(plateX + seitenueberlappung, plateY + plateHeight);
-                        ctx.fillRect(
-                            overlapStart.x, 
-                            overlapStart.y, 
-                            overlapEnd.x - overlapStart.x, 
-                            overlapEnd.y - overlapStart.y
-                        );
-                    } else {
-                        const overlapStart = transformPoint(plateX, plateY);
-                        const overlapEnd = transformPoint(plateX + plateWidth, plateY + seitenueberlappung);
-                        ctx.fillRect(
-                            overlapStart.x, 
-                            overlapStart.y, 
-                            overlapEnd.x - overlapStart.x, 
-                            overlapEnd.y - overlapStart.y
-                        );
-                    }
-                    ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
-                }
             }
         }
 
@@ -650,31 +597,22 @@
                     return;
                 }
 
-                // Bevorzugte Verlegerichtung aus Editor-Daten laden
-                let preferredDirection = 'laengs'; // Standard
-                if (geometry && geometry.preferredDirection) {
-                    preferredDirection = geometry.preferredDirection;
-                } else if (roof && roof.preferredDirection) {
-                    preferredDirection = roof.preferredDirection;
-                }
-
                 // Geometrie analysieren
                 const analysis = analyzeRoofGeometry(roofPoints);
                 
-                // Bevorzugte Richtung zuerst berechnen
-                const preferredCalc = calculateForDirection(analysis, preferredDirection, profile);
-                
-                // Alternative Richtung berechnen
-                const alternativeDirection = preferredDirection === 'laengs' ? 'quer' : 'laengs';
-                const alternativeCalc = calculateForDirection(analysis, alternativeDirection, profile);
-                
-                // Bevorzugte Richtung als Hauptergebnis verwenden
-                const calculations = [preferredCalc, alternativeCalc];
-                calculationResults = preferredCalc;
+                // Verlegerichtung bestimmen (nur eine Richtung möglich!)
+                let verlegerichtung = 'laengs'; // Standard: parallel zur Wasserlaufrichtung
+                if (geometry && geometry.preferredDirection) {
+                    verlegerichtung = geometry.preferredDirection;
+                } else if (roof && roof.preferredDirection) {
+                    verlegerichtung = roof.preferredDirection;
+                }
+
+                // KORRIGIERTE Berechnung
+                calculationResults = calculateForDirection(analysis, verlegerichtung, profile);
 
                 // Ergebnisse anzeigen
                 displayResults(calculationResults);
-                displayAlternatives(calculations);
                 
                 // Visualisierung aktualisieren
                 drawRoofVisualization(roofPoints, calculationResults);
@@ -707,20 +645,18 @@
         }
 
         function calculateForDirection(analysis, richtung, profile) {
-            const deckbreite = profile.deckbreite;
-            const seitenueberlappung = profile.seitenueberlappung || 50;
+            const deckbreite = profile.deckbreite; // Das ist die NUTZBARE Breite!
             const ueberstand = profile.ueberstand || 50;
-            const minStuecklaenge = profile.minStuecklaenge || 500; // Aus Profil-Daten
             
             let bahnenAnzahl, bahnenLaenge;
             
             if (richtung === 'laengs') {
-                const nutzbreite = deckbreite - seitenueberlappung;
-                bahnenAnzahl = Math.ceil(analysis.width * 1000 / nutzbreite);
+                // KORREKT: Deckbreite ist bereits die nutzbare Breite
+                bahnenAnzahl = Math.ceil(analysis.width * 1000 / deckbreite);
                 bahnenLaenge = (analysis.height * 1000) + (2 * ueberstand);
             } else {
-                const nutzbreite = deckbreite - seitenueberlappung;
-                bahnenAnzahl = Math.ceil(analysis.height * 1000 / nutzbreite);
+                // KORREKT: Deckbreite ist bereits die nutzbare Breite  
+                bahnenAnzahl = Math.ceil(analysis.height * 1000 / deckbreite);
                 bahnenLaenge = (analysis.width * 1000) + (2 * ueberstand);
             }
 
@@ -735,7 +671,7 @@
             }
 
             // Optimale Länge finden
-            const optimization = optimizeLengths(bahnenLaenge, verfuegbareLaengen, bahnenAnzahl, minStuecklaenge);
+            const optimization = optimizeLengths(bahnenLaenge, verfuegbareLaengen, bahnenAnzahl);
             
             const totalLength = optimization.totalLength;
             const totalWaste = optimization.totalWaste;
@@ -750,11 +686,16 @@
                 totalLength: totalLength / 1000,
                 totalWaste: totalWaste / 1000,
                 verschnitt: verschnittProzent,
-                dachflaeche: analysis.area
+                dachflaeche: analysis.area,
+                // Zusätzliche Infos für Erklärung
+                dachbreite: analysis.width,
+                dachhoehe: analysis.height,
+                deckbreite: profile.deckbreite,
+                lieferbreite: profile.lieferbreite
             };
         }
 
-        function optimizeLengths(benoetigteLaenge, verfuegbareLaengen, anzahlBahnen, minStuecklaenge) {
+        function optimizeLengths(benoetigteLaenge, verfuegbareLaengen, anzahlBahnen) {
             const sortedLengths = verfuegbareLaengen.sort((a, b) => b - a);
             
             // Beste passende Länge finden
@@ -771,11 +712,11 @@
                 orderList: [{ 
                     length: bestLength, 
                     quantity: anzahlBahnen, 
-                    usage: waste === 0 ? 'Exakt' : 'Standard' 
+                    usage: waste === 0 ? 'Exakt passend' : 'Standard mit Verschnitt' 
                 }],
                 cuttingPlan: [{
                     sourceLength: bestLength,
-                    cuts: [{ length: benoetigteLaenge, quantity: anzahlBahnen, usage: 'Vollbahn' }],
+                    cuts: [{ length: benoetigteLaenge, quantity: anzahlBahnen, usage: 'Nutzlänge' }],
                     waste: waste
                 }],
                 totalLength: bestLength * anzahlBahnen,
@@ -786,236 +727,4 @@
         function displayResults(results) {
             document.getElementById('total-rows').textContent = results.bahnenAnzahl;
             document.getElementById('plate-length').textContent = (results.bahnenLaenge / 1000).toFixed(1) + ' m';
-            document.getElementById('total-length').textContent = results.totalLength.toFixed(1) + ' m';
-            document.getElementById('total-waste').textContent = results.verschnitt.toFixed(1) + ' %';
-
-            // Verlegerichtung anzeigen
-            document.getElementById('info-direction').textContent = 
-                results.richtung === 'laengs' ? 'Längs (vertikal)' : 'Quer (horizontal)';
-
-            // Bestelltabelle füllen
-            const tbody = document.getElementById('order-tbody');
-            if (tbody) {
-                tbody.innerHTML = '';
-                results.bestellliste.forEach(item => {
-                    const row = tbody.insertRow();
-                    row.innerHTML = `
-                        <td>${item.length}</td>
-                        <td>${item.quantity}</td>
-                        <td>${(item.length * item.quantity / 1000).toFixed(1)}</td>
-                        <td>${item.usage}</td>
-                    `;
-                });
-            }
-
-            document.getElementById('results-section').style.display = 'block';
-        }
-
-        function displayAlternatives(calculations) {
-            if (calculations.length <= 1) return;
-
-            const container = document.getElementById('alternatives-grid');
-            if (!container) return;
-
-            container.innerHTML = '';
-
-            calculations.forEach((calc, index) => {
-                const altDiv = document.createElement('div');
-                altDiv.className = 'alternative-card';
-                
-                if (calc === calculationResults) {
-                    altDiv.classList.add('selected');
-                }
-
-                const richtungText = calc.richtung === 'laengs' ? 'Längs (vertikal)' : 'Quer (horizontal)';
-                const effizienzText = calc.verschnitt < 5 ? 'Sehr effizient' : 
-                                   calc.verschnitt < 10 ? 'Effizient' : 'Weniger effizient';
-                
-                const isPreferred = calc === calculations[0]; // Erste Berechnung ist die bevorzugte
-
-                altDiv.innerHTML = `
-                    <h5>${richtungText} ${isPreferred ? '(Empfohlen)' : ''}</h5>
-                    <div style="margin: 10px 0;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>Bahnen:</span>
-                            <strong>${calc.bahnenAnzahl}</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>Plattenlänge:</span>
-                            <strong>${(calc.bahnenLaenge / 1000).toFixed(1)}m</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>Verschnitt:</span>
-                            <strong>${calc.verschnitt.toFixed(1)}%</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>Effizienz:</span>
-                            <strong style="color: ${calc.verschnitt < 5 ? '#28a745' : calc.verschnitt < 10 ? '#ffc107' : '#dc3545'}">${effizienzText}</strong>
-                        </div>
-                        ${isPreferred ? '<div style="color: #007bff; font-weight: bold; text-align: center; margin-top: 10px;">✓ Basierend auf Wasserlaufrichtung</div>' : ''}
-                    </div>
-                `;
-
-                altDiv.addEventListener('click', function() {
-                    calculationResults = calc;
-                    displayResults(calc);
-                    displayAlternatives(calculations);
-                    
-                    // Visualisierung aktualisieren
-                    const roof = projectData.roofShape;
-                    const geometry = projectData.geometry;
-                    let roofPoints = null;
-                    if (roof && roof.points) {
-                        roofPoints = roof.points;
-                    } else if (geometry && geometry.points) {
-                        roofPoints = geometry.points;
-                    }
-                    if (roofPoints) {
-                        drawRoofVisualization(roofPoints, calc);
-                    }
-                });
-
-                container.appendChild(altDiv);
-            });
-
-            document.getElementById('alternatives-section').style.display = 'block';
-        }
-
-        function saveAndContinue() {
-            if (!calculationResults) {
-                alert('Bitte führen Sie zuerst eine Berechnung durch!');
-                return;
-            }
-
-            try {
-                projectData.calculations = calculationResults;
-                const saved = saveData();
-                
-                if (saved) {
-                    window.location.href = 'anrissplan.html';
-                } else {
-                    alert('Speichern fehlgeschlagen, fahre trotzdem fort.');
-                    window.location.href = 'anrissplan.html';
-                }
-            } catch (error) {
-                console.error('Fehler beim Speichern:', error);
-                alert('Fehler beim Speichern: ' + error.message);
-            }
-        }
-
-        function goBack() {
-            window.location.href = 'Editor.html';
-        }
-
-        // Initialisierung
-        function init() {
-            try {
-                console.log('Berechnung wird initialisiert...');
-                
-                // Projektdaten laden
-                projectData = loadData();
-                console.log('Geladene Projektdaten:', projectData);
-                
-                // Canvas initialisieren
-                initCanvas();
-                
-                // Projekt-Info laden
-                const infoLoaded = loadProjectInfo();
-                
-                if (infoLoaded) {
-                    // Erste Visualisierung (nur Dach, ohne Platten)
-                    const roof = projectData.roofShape;
-                    const geometry = projectData.geometry;
-                    let roofPoints = null;
-                    if (roof && roof.points) {
-                        roofPoints = roof.points;
-                    } else if (geometry && geometry.points) {
-                        roofPoints = geometry.points;
-                    }
-                    
-                    if (roofPoints) {
-                        drawRoofVisualization(roofPoints, null);
-                    }
-                }
-                
-                console.log('Berechnung erfolgreich initialisiert');
-                
-            } catch (error) {
-                console.error('Fehler bei der Initialisierung:', error);
-                alert('Fehler beim Laden der Berechnung: ' + error.message);
-            }
-        }
-
-        // Canvas-Größe bei Fenster-Resize anpassen
-        window.addEventListener('resize', function() {
-            if (canvas) {
-                const container = canvas.parentElement;
-                const newWidth = Math.min(600, container.clientWidth - 40);
-                const newHeight = (newWidth / 600) * 400;
-                
-                canvas.width = newWidth;
-                canvas.height = newHeight;
-                canvas.style.width = newWidth + 'px';
-                canvas.style.height = newHeight + 'px';
-                
-                // Neu zeichnen
-                if (calculationResults) {
-                    const roof = projectData.roofShape;
-                    const geometry = projectData.geometry;
-                    let roofPoints = null;
-                    if (roof && roof.points) {
-                        roofPoints = roof.points;
-                    } else if (geometry && geometry.points) {
-                        roofPoints = geometry.points;
-                    }
-                    if (roofPoints) {
-                        drawRoofVisualization(roofPoints, calculationResults);
-                    }
-                }
-            }
-        });
-
-        // Warten bis DOM geladen ist
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-
-        // Überprüfung der Projektdaten nach dem Laden
-        window.addEventListener('load', function() {
-            const profile = projectData.profile;
-            const roof = projectData.roofShape;
-            const geometry = projectData.geometry;
-            
-            console.log('Überprüfe Projektdaten beim Laden:', {
-                profile: !!profile,
-                roof: !!roof,
-                geometry: !!geometry,
-                roofPoints: (roof && roof.points) || (geometry && geometry.points),
-                data: projectData
-            });
-            
-            if (!profile) {
-                setTimeout(function() {
-                    if (confirm('Profil-Daten fehlen. Möchten Sie zu Schritt 1 zurückkehren?')) {
-                        window.location.href = 'profil.html';
-                    }
-                }, 1000);
-            } else if (!roof && !geometry) {
-                setTimeout(function() {
-                    if (confirm('Dachform-Daten fehlen. Möchten Sie zu Schritt 2 zurückkehren?')) {
-                        window.location.href = 'dachform.html';
-                    }
-                }, 1000);
-            } else if ((!roof || !roof.points) && (!geometry || !geometry.points)) {
-                setTimeout(function() {
-                    if (confirm('Geometrie-Daten fehlen. Möchten Sie zum Editor zurückkehren?')) {
-                        window.location.href = 'Editor.html';
-                    }
-                }, 1000);
-            }
-        });
-    </script>
-</body>
-</html>
+            document.getElementById('total-length').textContent =
