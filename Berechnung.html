@@ -130,64 +130,953 @@
     </style>
 </head>
 <body>
-<!-- Der vollständige Body- und Script-Teil folgt, und an passender Stelle wird drawPlateLayout ersetzt -->
-<script>
-// ... anderer JavaScript-Code bleibt erhalten ...
+    <div class="container">
+        <header>
+            <h1>Dachplattenrechner</h1>
+            <nav class="progress-nav">
+                <div class="step completed" data-step="1">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Profil</span>
+                </div>
+                <div class="step completed" data-step="2">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Dachform</span>
+                </div>
+                <div class="step active" data-step="3">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Berechnung</span>
+                </div>
+                <div class="step" data-step="4">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Anrissplan</span>
+                </div>
+            </nav>
+        </header>
 
-function drawPlateLayout(layout, transformPoint, scale) {
-    const profile = projectData.profile;
-    const deckbreite = profile.deckbreite / 1000; // in Meter
+        <main>
+            <section class="calculation-section">
+                <h2>Schritt 3: Berechnung der Dachplattenverlegung</h2>
+                <p>Automatische Berechnung basierend auf Ihrer Dachform und der Wasserlaufrichtung:</p>
 
-    ctx.strokeStyle = '#28a745';
-    ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
-    ctx.lineWidth = 1;
+                <div class="calculation-container">
+                    <!-- Projekt-Info -->
+                    <div class="card project-summary">
+                        <h3>Projekt-Zusammenfassung</h3>
+                        <div class="calculation-info">
+                            <div class="info-grid">
+                                <div>
+                                    <h4>Profil</h4>
+                                    <div class="info-item">
+                                        <span>Name:</span>
+                                        <strong id="info-profile-name">-</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Deckbreite:</span>
+                                        <strong id="info-deckbreite">-</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Lieferbreite:</span>
+                                        <strong id="info-lieferbreite">-</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Überstand:</span>
+                                        <strong id="info-ueberstand">-</strong>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4>Dachform</h4>
+                                    <div class="info-item">
+                                        <span>Typ:</span>
+                                        <strong id="info-roof-type">-</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Abmessungen:</span>
+                                        <strong id="info-dimensions">-</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Fläche:</span>
+                                        <strong id="info-area">-</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Dachneigung:</span>
+                                        <strong id="info-neigung">-</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-    for (let i = 0; i < layout.bahnenAnzahl; i++) {
-        let plateX, plateY, plateWidth, plateHeight;
+                        <div class="direction-info">
+                            <h4>Verlegerichtung</h4>
+                            <p><strong>Richtung:</strong> <span id="direction-text">Längs (parallel zur Wasserlaufrichtung)</span></p>
+                            <p><strong>Begründung:</strong> Platten müssen parallel zur Wasserlaufrichtung verlegt werden, damit das Wasser korrekt abfließen kann.</p>
+                        </div>
 
-        // Individuelle Plattenlänge in Meter
-        let currentPlateLength = layout.bahnenLaenge / 1000; // Standard
+                        <button type="button" class="btn btn-primary" onclick="calculateLengths()">
+                            Berechnung durchführen
+                        </button>
+                    </div>
 
-        if (layout.variableLengths && layout.variableLengths.length > i) {
-            currentPlateLength = layout.variableLengths[i].laenge / 1000;
+                    <!-- Visualisierung -->
+                    <div class="visualization-panel">
+                        <h3>Verlegung-Visualisierung</h3>
+                        <div class="visualization-canvas">
+                            <canvas id="roof-canvas" width="600" height="400"></canvas>
+                        </div>
+                        <div class="plate-legend" id="plate-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: rgba(0,123,255,0.3); border-color: #007bff;"></div>
+                                <span>Dachfläche</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: rgba(40,167,69,0.3); border-color: #28a745;"></div>
+                                <span>Dachplatten (Deckbreite)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: rgba(220,53,69,0.3); border-color: #dc3545;"></div>
+                                <span>Überlappung</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: rgba(255,193,7,0.3); border-color: #ffc107;"></div>
+                                <span>Überstand</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Berechnungsergebnisse -->
+                <div class="card calculation-results" id="results-section" style="display: none;">
+                    <h3>Berechnungsergebnisse</h3>
+                    
+                    <div class="results-summary">
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="summary-label">Anzahl Bahnen:</span>
+                                <span class="summary-value" id="total-rows">0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Plattenlänge:</span>
+                                <span class="summary-value" id="plate-length">0 m</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Gesamtlänge:</span>
+                                <span class="summary-value" id="total-length">0 m</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Verschnitt:</span>
+                                <span class="summary-value" id="total-waste">0 %</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="results-details">
+                        <h4>Bestellliste</h4>
+                        <div class="table-container">
+                            <table class="table" id="order-table">
+                                <thead>
+                                    <tr>
+                                        <th>Länge (mm)</th>
+                                        <th>Anzahl</th>
+                                        <th>Gesamtlänge (m)</th>
+                                        <th>Verwendung</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="order-tbody">
+                                    <!-- Bestellliste wird hier eingefügt -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="cutting-plan">
+                        <h4>Erläuterung der Berechnung</h4>
+                        <div id="calculation-explanation" style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                            <!-- Berechnungsschritte werden hier angezeigt -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="navigation-buttons">
+                <button type="button" class="btn btn-secondary" onclick="goBack()">
+                    ← Zurück zum Editor
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveAndContinue()" id="continue-btn" disabled>
+                    Weiter zum Anrissplan →
+                </button>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Dachplattenrechner</p>
+        </footer>
+    </div>
+
+    <script>
+        // Globale Variablen
+        let projectData = {};
+        let calculationResults = null;
+        let canvas = null;
+        let ctx = null;
+
+        // Storage-Funktionen
+        function saveData() {
+            try {
+                localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                return true;
+            } catch (e) {
+                try {
+                    sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                    return true;
+                } catch (e2) {
+                    console.log('Speichern nicht möglich');
+                    return false;
+                }
+            }
         }
 
-        if (layout.richtung === 'laengs') {
-            plateX = i * deckbreite;
-            plateY = 0;
-            plateWidth = deckbreite;
-            plateHeight = currentPlateLength;
+        function loadData() {
+            try {
+                let saved = localStorage.getItem('dachplattenrechner_data');
+                if (!saved) {
+                    saved = sessionStorage.getItem('dachplattenrechner_data');
+                }
+                return saved ? JSON.parse(saved) : {};
+            } catch (e) {
+                console.log('Laden nicht möglich');
+                return {};
+            }
+        }
+
+        // Canvas initialisieren
+        function initCanvas() {
+            canvas = document.getElementById('roof-canvas');
+            if (canvas) {
+                ctx = canvas.getContext('2d');
+                canvas.width = 600;
+                canvas.height = 400;
+            }
+        }
+
+        // Dachfläche berechnen
+        function calculateRoofArea(points) {
+            if (!points || points.length < 3) return 0;
+            
+            let area = 0;
+            for (let i = 0; i < points.length; i++) {
+                const j = (i + 1) % points.length;
+                area += points[i].x * points[j].y;
+                area -= points[j].x * points[i].y;
+            }
+            return Math.abs(area) / 2;
+        }
+
+        // Projekt-Info laden
+        function loadProjectInfo() {
+            const profile = projectData.profile;
+            const roof = projectData.roofShape;
+            const geometry = projectData.geometry;
+
+            console.log('Lade Projekt-Info:', { profile, roof, geometry });
+
+            if (!profile) {
+                alert('Profil-Daten fehlen!');
+                return false;
+            }
+
+            // Punkte ermitteln
+            let roofPoints = null;
+            if (roof && roof.points) {
+                roofPoints = roof.points;
+            } else if (geometry && geometry.points) {
+                roofPoints = geometry.points;
+            }
+
+            if (!roofPoints || roofPoints.length < 3) {
+                alert('Dachform-Daten fehlen!');
+                return false;
+            }
+
+            // Info-Felder füllen
+            document.getElementById('info-profile-name').textContent = profile.profilname || 'Standard';
+            document.getElementById('info-deckbreite').textContent = profile.deckbreite + ' mm (nutzbar)';
+            document.getElementById('info-lieferbreite').textContent = profile.lieferbreite + ' mm (inkl. Überlappung)';
+            document.getElementById('info-ueberstand').textContent = (profile.ueberstand || 50) + ' mm';
+            
+            const dachTyp = (roof && roof.dachTyp) || (roof && roof.variant) || (geometry && geometry.shapeType) || 'Rechteck';
+            document.getElementById('info-roof-type').textContent = dachTyp;
+            
+            // Abmessungen berechnen
+            const xs = roofPoints.map(p => p.x);
+            const ys = roofPoints.map(p => p.y);
+            const width = Math.max(...xs) - Math.min(...xs);
+            const height = Math.max(...ys) - Math.min(...ys);
+            document.getElementById('info-dimensions').textContent = `${width.toFixed(1)} × ${height.toFixed(1)} m`;
+            
+            const area = calculateRoofArea(roofPoints);
+            document.getElementById('info-area').textContent = area.toFixed(2) + ' m²';
+
+            // Dachneigung
+            const dachNeigung = (roof && roof.dachNeigung) || 15;
+            document.getElementById('info-neigung').textContent = dachNeigung + '°';
+
+            // Verlegerichtung bestimmen
+            let verlegerichtung = 'Längs (parallel zur Wasserlaufrichtung)';
+            if (geometry && geometry.preferredDirection === 'quer') {
+                verlegerichtung = 'Quer (senkrecht zur Wasserlaufrichtung)';
+            }
+            document.getElementById('direction-text').textContent = verlegerichtung;
+
+            return true;
+        }
+
+        // Dach und Platten visualisieren
+        function drawRoofVisualization(roofPoints, plateLayout) {
+            if (!ctx || !roofPoints) return;
+
+            // Canvas leeren
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Hintergrund
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            console.log('drawRoofVisualization aufgerufen mit plateLayout:', plateLayout);
+
+            // Bounding Box berechnen
+            const xs = roofPoints.map(p => p.x);
+            const ys = roofPoints.map(p => p.y);
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+            const roofWidth = maxX - minX;
+            const roofHeight = maxY - minY;
+
+            // Skalierung berechnen
+            const margin = 40;
+            const availableWidth = canvas.width - 2 * margin;
+            const availableHeight = canvas.height - 2 * margin;
+            const scale = Math.min(availableWidth / roofWidth, availableHeight / roofHeight) * 0.8;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const roofCenterX = (minX + maxX) / 2;
+            const roofCenterY = (minY + maxY) / 2;
+
+            // Koordinaten transformieren
+            function transformPoint(x, y) {
+                return {
+                    x: centerX + (x - roofCenterX) * scale,
+                    y: centerY - (y - roofCenterY) * scale
+                };
+            }
+
+            // Dachfläche zeichnen
+            ctx.beginPath();
+            roofPoints.forEach((point, index) => {
+                const transformed = transformPoint(point.x, point.y);
+                if (index === 0) {
+                    ctx.moveTo(transformed.x, transformed.y);
+                } else {
+                    ctx.lineTo(transformed.x, transformed.y);
+                }
+            });
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(0, 123, 255, 0.2)';
+            ctx.fill();
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Platten zeichnen (falls Layout vorhanden)
+            if (plateLayout) {
+                console.log('Zeichne Platten mit Layout:', {
+                    variableLengths: plateLayout.variableLengths,
+                    bahnenAnzahl: plateLayout.bahnenAnzahl
+                });
+                drawPlateLayout(plateLayout, transformPoint, scale);
+            } else {
+                console.log('Kein plateLayout vorhanden');
+            }
+
+            // Bemaßung
+            drawDimensions(roofPoints, transformPoint);
+        }
+
+        function drawPlateLayout(layout, transformPoint, scale) {
+            const profile = projectData.profile;
+            const deckbreite = (profile.deckbreite / 1000); // in Meter - KORREKT: Das ist die nutzbare Breite!
+            const lieferbreite = (profile.lieferbreite / 1000); // in Meter - inkl. Überlappung
+
+            ctx.strokeStyle = '#28a745';
+            ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
+            ctx.lineWidth = 1;
+
+            // Bahnen zeichnen - KORRIGIERTE BERECHNUNG
+            for (let i = 0; i < layout.bahnenAnzahl; i++) {
+                let plateX, plateY, plateWidth, plateHeight;
+                
+                if (layout.richtung === 'laengs') {
+                    // Längs - Bahnen verlaufen vertikal
+                    plateX = i * deckbreite; // KORREKT: Deckbreite ist die nutzbare Breite
+                    plateY = 0;
+                    plateWidth = deckbreite; // Sichtbare Breite
+                    plateHeight = layout.bahnenLaenge / 1000; // von mm in m
+                } else {
+                    // Quer - Bahnen verlaufen horizontal
+                    plateX = 0;
+                    plateY = i * deckbreite; // KORREKT: Deckbreite ist die nutzbare Breite
+                    plateWidth = layout.bahnenLaenge / 1000; // von mm in m
+                    plateHeight = deckbreite; // Sichtbare Breite
+                }
+
+                // Platte zeichnen
+                const topLeft = transformPoint(plateX, plateY);
+                const bottomRight = transformPoint(plateX + plateWidth, plateY + plateHeight);
+                
+                const rectWidth = bottomRight.x - topLeft.x;
+                const rectHeight = bottomRight.y - topLeft.y;
+                
+                ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
+                ctx.strokeRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
+
+                // Bahnnummer
+                ctx.fillStyle = '#000';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(
+                    (i + 1).toString(), 
+                    topLeft.x + rectWidth / 2, 
+                    topLeft.y + rectHeight / 2
+                );
+                ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
+            }
+        }
+
+        function drawDimensions(roofPoints, transformPoint) {
+            ctx.strokeStyle = '#666';
+            ctx.fillStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+
+            // Außenmaße der ersten beiden Seiten
+            for (let i = 0; i < Math.min(2, roofPoints.length); i++) {
+                const p1 = roofPoints[i];
+                const p2 = roofPoints[(i + 1) % roofPoints.length];
+                
+                const start = transformPoint(p1.x, p1.y);
+                const end = transformPoint(p2.x, p2.y);
+                
+                const midX = (start.x + end.x) / 2;
+                const midY = (start.y + end.y) / 2;
+                
+                // Länge berechnen
+                const length = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+                
+                // Maßtext
+                ctx.fillText(length.toFixed(1) + 'm', midX, midY - 5);
+            }
+        }
+
+        function calculateLengths() {
+            try {
+                const profile = projectData.profile;
+                const roof = projectData.roofShape;
+                const geometry = projectData.geometry;
+                
+                if (!profile) {
+                    alert('Profil-Daten unvollständig!');
+                    return;
+                }
+
+                // Punkte laden
+                let roofPoints = null;
+                if (roof && roof.points) {
+                    roofPoints = roof.points;
+                } else if (geometry && geometry.points) {
+                    roofPoints = geometry.points;
+                }
+
+                if (!roofPoints || roofPoints.length < 3) {
+                    alert('Dachform-Daten unvollständig!');
+                    return;
+                }
+
+                // Geometrie analysieren
+                const analysis = analyzeRoofGeometry(roofPoints);
+                
+                // Verlegerichtung bestimmen (nur eine Richtung möglich!)
+                let verlegerichtung = 'laengs'; // Standard: parallel zur Wasserlaufrichtung
+                if (geometry && geometry.preferredDirection) {
+                    verlegerichtung = geometry.preferredDirection;
+                } else if (roof && roof.preferredDirection) {
+                    verlegerichtung = roof.preferredDirection;
+                }
+
+                // KORRIGIERTE Berechnung
+                calculationResults = calculateForDirection(analysis, verlegerichtung, profile);
+
+                // Ergebnisse anzeigen
+                displayResults(calculationResults);
+                
+                // Visualisierung aktualisieren
+                drawRoofVisualization(roofPoints, calculationResults);
+                
+                document.getElementById('continue-btn').disabled = false;
+
+            } catch (error) {
+                console.error('Fehler bei der Berechnung:', error);
+                alert('Fehler bei der Berechnung: ' + error.message);
+            }
+        }
+
+        function analyzeRoofGeometry(points) {
+            const xs = points.map(p => p.x);
+            const ys = points.map(p => p.y);
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+            
+            const width = maxX - minX;
+            const height = maxY - minY;
+            const area = calculateRoofArea(points);
+            
+            return {
+                minX, maxX, minY, maxY,
+                width, height, area,
+                points: points
+            };
+        }
+
+        function calculateForDirection(analysis, richtung, profile) {
+            const deckbreite = profile.deckbreite; // Das ist die NUTZBARE Breite!
+            const ueberstand = profile.ueberstand || 50;
+            
+            let bahnenAnzahl, bahnenLaenge;
+            
+            if (richtung === 'laengs') {
+                // KORREKT: Deckbreite ist bereits die nutzbare Breite
+                bahnenAnzahl = Math.ceil(analysis.width * 1000 / deckbreite);
+                // KORRIGIERT: Nur EIN Überstand (nur an der Traufe, nicht am First)
+                bahnenLaenge = (analysis.height * 1000) + ueberstand;
+            } else {
+                // KORREKT: Deckbreite ist bereits die nutzbare Breite  
+                bahnenAnzahl = Math.ceil(analysis.height * 1000 / deckbreite);
+                // KORRIGIERT: Nur EIN Überstand (nur an der Traufe, nicht am First)
+                bahnenLaenge = (analysis.width * 1000) + ueberstand;
+            }
+
+            // Verfügbare Längen
+            let verfuegbareLaengen = [];
+            if (profile.laengentyp === 'lager') {
+                verfuegbareLaengen = [...profile.lagerlaengen];
+            } else {
+                for (let l = profile.minLaenge; l <= profile.maxLaenge; l += (profile.schnittRaster || 100)) {
+                    verfuegbareLaengen.push(l);
+                }
+            }
+
+            // Für Dreiecke: Variable Plattenlängen berechnen
+            let variableLengths = [];
+            const isTriangle = analysis.points.length === 3;
+            
+            if (isTriangle && richtung === 'laengs') {
+                // Bei Dreiecken werden die Platten zur Spitze hin kürzer
+                variableLengths = calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueberstand);
+            }
+
+            // Optimale Länge finden
+            const optimization = variableLengths.length > 0 ? 
+                optimizeVariableLengths(variableLengths, verfuegbareLaengen) :
+                optimizeLengths(bahnenLaenge, verfuegbareLaengen, bahnenAnzahl);
+            
+            const totalLength = optimization.totalLength;
+            const totalWaste = optimization.totalWaste;
+            const verschnittProzent = totalLength > 0 ? (totalWaste / totalLength) * 100 : 0;
+            
+            return {
+                richtung: richtung,
+                bahnenAnzahl: bahnenAnzahl,
+                bahnenLaenge: bahnenLaenge,
+                variableLengths: variableLengths,
+                bestellliste: optimization.orderList,
+                schnittplan: optimization.cuttingPlan,
+                totalLength: totalLength / 1000,
+                totalWaste: totalWaste / 1000,
+                verschnitt: verschnittProzent,
+                dachflaeche: analysis.area,
+                // Zusätzliche Infos für Erklärung
+                dachbreite: analysis.width,
+                dachhoehe: analysis.height,
+                deckbreite: profile.deckbreite,
+                lieferbreite: profile.lieferbreite,
+                isTriangle: isTriangle
+            };
+        }
+
+        // Korrigierte Funktion für Dreieck-Berechnungen
+        function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueberstand) {
+            const points = analysis.points;
+            if (points.length !== 3) return [];
+
+            // Finde die Geometrie des Dreiecks
+            const xs = points.map(p => p.x);
+            const ys = points.map(p => p.y);
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+            
+            const basisBreite = maxX - minX; // 10m
+            const dreieckHoehe = maxY - minY; // 8m
+
+            console.log('Dreieck-Analyse:', {
+                basisBreite: basisBreite,
+                dreieckHoehe: dreieckHoehe,
+                bahnenAnzahl: bahnenAnzahl,
+                deckbreite: deckbreite
+            });
+
+            const plateLengths = [];
+            
+            for (let i = 0; i < bahnenAnzahl; i++) {
+                // Position der Bahn von links (in Metern)
+                const bahnPosition = i * (deckbreite / 1000); // Position des linken Randes der Bahn
+                
+                // Relative Position entlang der Basis (0 = links, 1 = rechts)
+                const relativePosition = bahnPosition / basisBreite;
+                
+                console.log(`Bahn ${i + 1}: Position=${bahnPosition.toFixed(2)}m, Relativ=${relativePosition.toFixed(3)}`);
+                
+                // Höhe des Dreiecks an dieser Position
+                let aktuelleHoehe;
+                if (relativePosition < 1) {
+                    // Für rechtwinkliges Dreieck: Höhe nimmt linear ab von links nach rechts
+                    // Bei Position 0 (links): volle Höhe (8m)
+                    // Bei Position 1 (rechts): Höhe 0
+                    aktuelleHoehe = dreieckHoehe * (1 - relativePosition);
+                } else {
+                    aktuelleHoehe = 0; // Außerhalb des Dreiecks
+                }
+                
+                // Plattenlänge = Dreieckshöhe + Überstand (nur an der Traufe)
+                const plattenLaenge = Math.max(ueberstand, (aktuelleHoehe * 1000) + ueberstand);
+                
+                console.log(`Bahn ${i + 1}: Höhe=${aktuelleHoehe.toFixed(2)}m, Plattenlänge=${plattenLaenge.toFixed(0)}mm`);
+                
+                plateLengths.push({
+                    bahnNummer: i + 1,
+                    laenge: Math.round(plattenLaenge),
+                    dreieckHoehe: aktuelleHoehe,
+                    position: bahnPosition
+                });
+            }
+            
+            return plateLengths;
+        }
+
+        // Neue Funktion für variable Längen-Optimierung
+        function optimizeVariableLengths(variableLengths, verfuegbareLaengen) {
+            const sortedLengths = verfuegbareLaengen.sort((a, b) => b - a);
+            
+            let totalLength = 0;
+            let totalWaste = 0;
+            const orderList = [];
+            const cuttingPlan = [];
+            
+            // Gruppiere ähnliche Längen
+            const lengthGroups = {};
+            variableLengths.forEach(plate => {
+                if (plate.laenge > 0) {
+                    // Finde beste verfügbare Länge
+                    const bestLength = sortedLengths.find(length => length >= plate.laenge) || sortedLengths[0];
+                    
+                    if (!lengthGroups[bestLength]) {
+                        lengthGroups[bestLength] = {
+                            length: bestLength,
+                            quantity: 0,
+                            plates: []
+                        };
+                    }
+                    
+                    lengthGroups[bestLength].quantity++;
+                    lengthGroups[bestLength].plates.push(plate);
+                }
+            });
+            
+            // Erstelle Bestellliste
+            Object.values(lengthGroups).forEach(group => {
+                const waste = group.plates.reduce((sum, plate) => sum + (group.length - plate.laenge), 0);
+                
+                orderList.push({
+                    length: group.length,
+                    quantity: group.quantity,
+                    usage: group.quantity === 1 ? 'Einzelplatte' : `${group.quantity} Platten`
+                });
+                
+                cuttingPlan.push({
+                    sourceLength: group.length,
+                    cuts: group.plates.map(plate => ({
+                        length: plate.laenge,
+                        quantity: 1,
+                        usage: `Bahn ${plate.bahnNummer}`
+                    })),
+                    waste: waste / group.quantity
+                });
+                
+                totalLength += group.length * group.quantity;
+                totalWaste += waste;
+            });
+            
+            return {
+                orderList: orderList,
+                cuttingPlan: cuttingPlan,
+                totalLength: totalLength,
+                totalWaste: totalWaste
+            };
+        }
+
+        function optimizeLengths(benoetigteLaenge, verfuegbareLaengen, anzahlBahnen) {
+            const sortedLengths = verfuegbareLaengen.sort((a, b) => b - a);
+            
+            // Beste passende Länge finden
+            let bestLength = sortedLengths.find(length => length >= benoetigteLaenge);
+            
+            if (!bestLength) {
+                // Falls keine passende Länge vorhanden, die größte nehmen
+                bestLength = sortedLengths[0] || benoetigteLaenge;
+            }
+
+            const waste = Math.max(0, bestLength - benoetigteLaenge);
+            
+            return {
+                orderList: [{ 
+                    length: bestLength, 
+                    quantity: anzahlBahnen, 
+                    usage: waste === 0 ? 'Exakt passend' : 'Standard mit Verschnitt' 
+                }],
+                cuttingPlan: [{
+                    sourceLength: bestLength,
+                    cuts: [{ length: benoetigteLaenge, quantity: anzahlBahnen, usage: 'Nutzlänge' }],
+                    waste: waste
+                }],
+                totalLength: bestLength * anzahlBahnen,
+                totalWaste: waste * anzahlBahnen
+            };
+        }
+
+        function displayResults(results) {
+            document.getElementById('total-rows').textContent = results.bahnenAnzahl;
+            document.getElementById('plate-length').textContent = (results.bahnenLaenge / 1000).toFixed(1) + ' m';
+            document.getElementById('total-length').textContent = results.totalLength.toFixed(1) + ' m';
+            document.getElementById('total-waste').textContent = results.verschnitt.toFixed(1) + ' %';
+
+            // Bestelltabelle füllen
+            const tbody = document.getElementById('order-tbody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                results.bestellliste.forEach(item => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${item.length}</td>
+                        <td>${item.quantity}</td>
+                        <td>${(item.length * item.quantity / 1000).toFixed(1)}</td>
+                        <td>${item.usage}</td>
+                    `;
+                });
+            }
+
+            // Berechnungserklärung anzeigen
+            displayCalculationExplanation(results);
+
+            document.getElementById('results-section').style.display = 'block';
+        }
+
+        function displayCalculationExplanation(results) {
+            const container = document.getElementById('calculation-explanation');
+            if (!container) return;
+
+            const verlegerichtungText = results.richtung === 'laengs' ? 'längs (parallel zur Wasserlaufrichtung)' : 'quer (senkrecht zur Wasserlaufrichtung)';
+            const ueberstendWert = ((results.bahnenLaenge - (results.richtung === 'laengs' ? results.dachhoehe * 1000 : results.dachbreite * 1000))).toFixed(0);
+            
+            let plattenLaengenText = '';
+            if (results.variableLengths && results.variableLengths.length > 0) {
+                plattenLaengenText = `
+                    <p><strong>Variable Plattenlängen (bei Dreiecken):</strong></p>
+                    <ul style="margin-left: 20px;">
+                        ${results.variableLengths.slice(0, 3).map(plate => 
+                            `<li>Bahn ${plate.bahnNummer}: ${(plate.laenge / 1000).toFixed(2)}m (Dreieckshöhe: ${plate.dreieckHoehe.toFixed(1)}m + ${ueberstendWert}mm Überstand)</li>`
+                        ).join('')}
+                        ${results.variableLengths.length > 3 ? '<li>... weitere Bahnen werden kürzer</li>' : ''}
+                    </ul>
+                `;
+            } else {
+                plattenLaengenText = `
+                    <p><strong>Konstante Plattenlänge:</strong> ${(results.bahnenLaenge / 1000).toFixed(2)} m</p>
+                `;
+            }
+            
+            container.innerHTML = `
+                <h5>Berechnungsschritte:</h5>
+                <div style="margin: 10px 0;">
+                    <p><strong>1. Verlegerichtung:</strong> ${verlegerichtungText}</p>
+                    <p><strong>2. Bahnenanzahl berechnen:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Dachbreite ${results.richtung === 'laengs' ? 'quer' : 'längs'} zur Verlegung: ${results.richtung === 'laengs' ? results.dachbreite.toFixed(1) : results.dachhoehe.toFixed(1)} m</li>
+                        <li>Deckbreite (nutzbar): ${results.deckbreite} mm</li>
+                        <li>Benötigte Bahnen: ${(results.richtung === 'laengs' ? results.dachbreite * 1000 : results.dachhoehe * 1000).toFixed(0)}mm ÷ ${results.deckbreite}mm = ${results.bahnenAnzahl} Bahnen</li>
+                    </ul>
+                    <p><strong>3. Plattenlänge berechnen:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>Dachlänge ${results.richtung === 'laengs' ? 'längs' : 'quer'}: ${results.richtung === 'laengs' ? results.dachhoehe.toFixed(1) : results.dachbreite.toFixed(1)} m</li>
+                        <li>Überstand nur an der Traufe: ${ueberstendWert}mm</li>
+                        ${plattenLaengenText}
+                    </ul>
+                    <p><strong>Wichtig:</strong> Die Deckbreite (${results.deckbreite}mm) ist die bereits nutzbare Breite pro Platte. Die Seitenüberlappung ist in der Lieferbreite (${results.lieferbreite}mm) bereits berücksichtigt.</p>
+                    ${results.isTriangle ? '<p><strong>Dreieck-Besonderheit:</strong> Bei dreieckigen Dächern werden die Platten zur Spitze hin kürzer, um Material zu sparen.</p>' : ''}
+                </div>
+            `;
+        }
+
+        function saveAndContinue() {
+            if (!calculationResults) {
+                alert('Bitte führen Sie zuerst eine Berechnung durch!');
+                return;
+            }
+
+            try {
+                projectData.calculations = calculationResults;
+                const saved = saveData();
+                
+                if (saved) {
+                    window.location.href = 'anrissplan.html';
+                } else {
+                    alert('Speichern fehlgeschlagen, fahre trotzdem fort.');
+                    window.location.href = 'anrissplan.html';
+                }
+            } catch (error) {
+                console.error('Fehler beim Speichern:', error);
+                alert('Fehler beim Speichern: ' + error.message);
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'Editor.html';
+        }
+
+        // Initialisierung
+        function init() {
+            try {
+                console.log('Berechnung wird initialisiert...');
+                
+                // Projektdaten laden
+                projectData = loadData();
+                console.log('Geladene Projektdaten:', projectData);
+                
+                // Canvas initialisieren
+                initCanvas();
+                
+                // Projekt-Info laden
+                const infoLoaded = loadProjectInfo();
+                
+                if (infoLoaded) {
+                    // Erste Visualisierung (nur Dach, ohne Platten)
+                    const roof = projectData.roofShape;
+                    const geometry = projectData.geometry;
+                    let roofPoints = null;
+                    if (roof && roof.points) {
+                        roofPoints = roof.points;
+                    } else if (geometry && geometry.points) {
+                        roofPoints = geometry.points;
+                    }
+                    
+                    if (roofPoints) {
+                        drawRoofVisualization(roofPoints, null);
+                    }
+                }
+                
+                console.log('Berechnung erfolgreich initialisiert');
+                
+            } catch (error) {
+                console.error('Fehler bei der Initialisierung:', error);
+                alert('Fehler beim Laden der Berechnung: ' + error.message);
+            }
+        }
+
+        // Canvas-Größe bei Fenster-Resize anpassen
+        window.addEventListener('resize', function() {
+            if (canvas) {
+                const container = canvas.parentElement;
+                const newWidth = Math.min(600, container.clientWidth - 40);
+                const newHeight = (newWidth / 600) * 400;
+                
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                canvas.style.width = newWidth + 'px';
+                canvas.style.height = newHeight + 'px';
+                
+                // Neu zeichnen
+                if (calculationResults) {
+                    const roof = projectData.roofShape;
+                    const geometry = projectData.geometry;
+                    let roofPoints = null;
+                    if (roof && roof.points) {
+                        roofPoints = roof.points;
+                    } else if (geometry && geometry.points) {
+                        roofPoints = geometry.points;
+                    }
+                    if (roofPoints) {
+                        drawRoofVisualization(roofPoints, calculationResults);
+                    }
+                }
+            }
+        });
+
+        // Warten bis DOM geladen ist
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
         } else {
-            plateX = 0;
-            plateY = i * deckbreite;
-            plateWidth = currentPlateLength;
-            plateHeight = deckbreite;
+            init();
         }
 
-        const topLeft = transformPoint(plateX, plateY);
-        const bottomRight = transformPoint(plateX + plateWidth, plateY + plateHeight);
-
-        const rectWidth = bottomRight.x - topLeft.x;
-        const rectHeight = bottomRight.y - topLeft.y;
-
-        ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
-        ctx.strokeRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
-
-        ctx.fillStyle = '#000';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(
-            (i + 1).toString(),
-            topLeft.x + rectWidth / 2,
-            topLeft.y + rectHeight / 2
-        );
-
-        ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
-    }
-}
-
-// ... restlicher Code folgt ...
-</script>
+        // Überprüfung der Projektdaten nach dem Laden
+        window.addEventListener('load', function() {
+            const profile = projectData.profile;
+            const roof = projectData.roofShape;
+            const geometry = projectData.geometry;
+            
+            console.log('Überprüfe Projektdaten beim Laden:', {
+                profile: !!profile,
+                roof: !!roof,
+                geometry: !!geometry,
+                roofPoints: (roof && roof.points) || (geometry && geometry.points),
+                data: projectData
+            });
+            
+            if (!profile) {
+                setTimeout(function() {
+                    if (confirm('Profil-Daten fehlen. Möchten Sie zu Schritt 1 zurückkehren?')) {
+                        window.location.href = 'profil.html';
+                    }
+                }, 1000);
+            } else if (!roof && !geometry) {
+                setTimeout(function() {
+                    if (confirm('Dachform-Daten fehlen. Möchten Sie zu Schritt 2 zurückkehren?')) {
+                        window.location.href = 'dachform.html';
+                    }
+                }, 1000);
+            } else if ((!roof || !roof.points) && (!geometry || !geometry.points)) {
+                setTimeout(function() {
+                    if (confirm('Geometrie-Daten fehlen. Möchten Sie zum Editor zurückkehren?')) {
+                        window.location.href = 'Editor.html';
+                    }
+                }, 1000);
+            }
+        });
+    </script>
 </body>
 </html>
