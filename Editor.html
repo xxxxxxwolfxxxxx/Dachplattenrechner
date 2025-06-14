@@ -814,25 +814,36 @@
         // Storage-Funktionen
         function saveData() {
             try {
-                // Verwende JavaScript-Variablen statt localStorage
+                localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
                 return true;
             } catch (e) {
+                console.log('localStorage nicht verfügbar, verwende Session-Speicher');
+                sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
                 return true;
             }
         }
 
         function loadData() {
             try {
-                // Verwende JavaScript-Variablen statt localStorage
-                return {};
+                let saved = localStorage.getItem('dachplattenrechner_data');
+                if (!saved) {
+                    saved = sessionStorage.getItem('dachplattenrechner_data');
+                }
+                return saved ? JSON.parse(saved) : {};
             } catch (e) {
+                console.log('Fehler beim Laden der Daten');
                 return {};
             }
         }
 
         // Shape-Typ aus Projektdaten laden
         function loadShapeFromProject() {
-            if (!projectData.roofShape) return 'rechteck';
+            console.log('Lade Shape aus Projektdaten:', projectData);
+            
+            if (!projectData.roofShape) {
+                console.log('Keine roofShape Daten gefunden, verwende Standard');
+                return 'rechteck';
+            }
             
             const shapeMapping = {
                 'rechteck': 'rechteck',
@@ -846,13 +857,29 @@
                 'viereck': 'rechteck',
                 'dreieck': 'dreieck',
                 'kreis': 'rechteck',
-                'vieleck': 'rechteck'
+                'vieleck': 'rechteck',
+                // Spezifische Varianten
+                'fuenfeck': 'rechteck',
+                'sechseck': 'rechteck',
+                'achteck': 'rechteck',
+                'lform': 'rechteck',
+                'tform': 'rechteck',
+                'uform': 'rechteck',
+                'oval': 'rechteck',
+                'halbkreis': 'rechteck',
+                'viertelkreis': 'rechteck',
+                'langloch': 'rechteck'
             };
             
             const variant = projectData.roofShape.variant;
             const baseShape = projectData.roofShape.baseShape;
             
-            return shapeMapping[variant] || shapeMapping[baseShape] || 'rechteck';
+            console.log('BaseShape:', baseShape, 'Variant:', variant);
+            
+            const selectedShape = shapeMapping[variant] || shapeMapping[baseShape] || 'rechteck';
+            console.log('Gewählte Shape:', selectedShape);
+            
+            return selectedShape;
         }
 
         // Shape-Typ setzen
@@ -861,12 +888,29 @@
             const shape = SmartGeometry.shapes[currentShapeType];
             const shapeName = shape?.name || 'Unbekannte Form';
             
+            console.log('Initialisiere Shape-Typ:', currentShapeType, 'Name:', shapeName);
+            
             const nameElement = document.getElementById('current-shape-name');
             if (nameElement) {
                 nameElement.textContent = shapeName;
             }
             
+            // Standard-Werte basierend auf der gewählten Form setzen
+            setDefaultValuesForShape();
             generateInputFields();
+        }
+
+        // Standard-Werte für die gewählte Form setzen
+        function setDefaultValuesForShape() {
+            const defaults = {
+                'rechteck': { length: 10, width: 8 },
+                'rechteck_schraeg': { length: 10, width: 8, cut_length: 2 },
+                'trapez': { base1: 10, base2: 6, height: 8 },
+                'dreieck': { side1: 10, side2: 8 }
+            };
+            
+            currentValues = defaults[currentShapeType] || defaults['rechteck'];
+            console.log('Standard-Werte gesetzt:', currentValues);
         }
 
         // Eingabefelder generieren
@@ -1086,7 +1130,7 @@
         }
 
         function goBack() {
-            console.log('Zurück zur Dachform');
+            window.location.href = 'dachform.html';
         }
 
         function saveAndContinue() {
@@ -1095,8 +1139,10 @@
                 values: currentValues,
                 points: currentPoints
             };
+            
+            saveData();
             console.log('Geometrie gespeichert:', projectData.geometry);
-            console.log('Weiter zur Berechnung');
+            window.location.href = 'berechnung.html';
         }
 
         // Event-Handler setup
@@ -1120,15 +1166,36 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM geladen - Initialisierung startet');
             
+            // Projektdaten laden
             projectData = loadData();
-            currentValues = { length: 10, width: 8 };
+            console.log('Geladene Projektdaten:', projectData);
             
+            // Überprüfen ob Daten vorhanden sind
+            if (!projectData.roofShape) {
+                console.warn('Keine Dachform-Daten gefunden!');
+                if (confirm('Keine Dachform-Daten gefunden. Möchten Sie zur Dachform-Auswahl zurückkehren?')) {
+                    window.location.href = 'dachform.html';
+                    return;
+                }
+                // Fallback: Standard-Daten setzen
+                projectData.roofShape = {
+                    baseShape: 'viereck',
+                    variant: 'rechteck'
+                };
+            }
+            
+            // Form-Typ initialisieren
             initializeShapeType();
+            
+            // Geometrie berechnen
             updateGeometry();
+            
+            // Event-Handler einrichten
             setupEventHandlers();
             
             console.log('Initialisierung abgeschlossen');
             console.log('Aktuelle Form:', currentShapeType);
+            console.log('Aktuelle Werte:', currentValues);
             console.log('Aktuelle Punkte:', currentPoints);
         });
     </script>
