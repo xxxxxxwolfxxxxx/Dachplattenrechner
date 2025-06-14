@@ -100,20 +100,12 @@
             line-height: 1.2;
         }
 
-        /* Professionelle Editor-Bedienleiste */
-        .editor-controls {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-bottom: 1px solid #dee2e6;
-            padding: 15px 0 10px 0;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
         .controls-panel {
             background: white;
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            margin: 15px 0;
         }
 
         .panel-header {
@@ -564,40 +556,38 @@
             </nav>
         </header>
 
-        <!-- Professionelle Bedienleiste -->
-        <div class="editor-controls">
-            <div class="container">
-                <div class="controls-panel">
-                    <!-- Form-Info Header -->
-                    <div class="panel-header">
-                        <h3>Geometrie-Editor: <span id="current-shape-name">Rechteck</span></h3>
-                        <div class="calc-display">
-                            <span>Fläche: <strong id="calc-area">0 m²</strong></span>
-                            <span>Umfang: <strong id="calc-perimeter">0 m</strong></span>
-                        </div>
+        <!-- Direkte Bedienleiste ohne äußere Box -->
+        <div class="container">
+            <div class="controls-panel">
+                <!-- Form-Info Header -->
+                <div class="panel-header">
+                    <h3>Geometrie-Editor: <span id="current-shape-name">Rechteck</span></h3>
+                    <div class="calc-display">
+                        <span>Fläche: <strong id="calc-area">0 m²</strong></span>
+                        <span>Umfang: <strong id="calc-perimeter">0 m</strong></span>
                     </div>
+                </div>
 
-                    <!-- Werkzeug-Buttons in 2 Reihen -->
-                    <div class="tools-grid">
-                        <div class="tools-row">
-                            <button class="btn-tool" id="btn-mirror-horizontal" title="Horizontal spiegeln">H-Spiegel</button>
-                            <button class="btn-tool" id="btn-mirror-vertical" title="Vertikal spiegeln">V-Spiegel</button>
-                            <button class="btn-tool" id="btn-rotate-left" title="90° Links drehen">↺ 90°</button>
-                            <button class="btn-tool" id="btn-rotate-right" title="90° Rechts drehen">↻ 90°</button>
-                        </div>
-                        <div class="tools-row">
-                            <button class="btn-tool" id="btn-water-flow" title="Wasserlaufrichtung umkehren">Wasserlauf</button>
-                            <button class="btn-tool" id="btn-traufe" title="Traufe wechseln">Traufe</button>
-                            <button class="btn-tool" id="btn-flip" title="Dach umdrehen">Umdrehen</button>
-                            <button class="btn-tool" id="btn-reset" title="Zurücksetzen">Reset</button>
-                        </div>
+                <!-- Werkzeug-Buttons in 2 Reihen -->
+                <div class="tools-grid">
+                    <div class="tools-row">
+                        <button class="btn-tool" id="btn-mirror-horizontal" title="Horizontal spiegeln">H-Spiegel</button>
+                        <button class="btn-tool" id="btn-mirror-vertical" title="Vertikal spiegeln">V-Spiegel</button>
+                        <button class="btn-tool" id="btn-rotate-left" title="90° Links drehen">↺ 90°</button>
+                        <button class="btn-tool" id="btn-rotate-right" title="90° Rechts drehen">↻ 90°</button>
                     </div>
+                    <div class="tools-row">
+                        <button class="btn-tool" id="btn-water-flow" title="Wasserlaufrichtung umkehren">Wasserlauf</button>
+                        <button class="btn-tool" id="btn-traufe" title="Traufe wechseln">Traufe</button>
+                        <button class="btn-tool" id="btn-flip" title="Dach umdrehen">Umdrehen</button>
+                        <button class="btn-tool" id="btn-reset" title="Zurücksetzen">Reset</button>
+                    </div>
+                </div>
 
-                    <!-- Eingabefelder in Reihen -->
-                    <div class="inputs-section">
-                        <div id="geometry-inputs-grid">
-                            <!-- Wird dynamisch gefüllt -->
-                        </div>
+                <!-- Eingabefelder in Reihen -->
+                <div class="inputs-section">
+                    <div id="geometry-inputs-grid">
+                        <!-- Wird dynamisch gefüllt -->
                     </div>
                 </div>
             </div>
