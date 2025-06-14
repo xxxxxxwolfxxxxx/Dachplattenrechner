@@ -653,11 +653,13 @@
             if (richtung === 'laengs') {
                 // KORREKT: Deckbreite ist bereits die nutzbare Breite
                 bahnenAnzahl = Math.ceil(analysis.width * 1000 / deckbreite);
-                bahnenLaenge = (analysis.height * 1000) + (2 * ueberstand);
+                // KORRIGIERT: Nur EIN Überstand (nur an der Traufe, nicht am First)
+                bahnenLaenge = (analysis.height * 1000) + ueberstand;
             } else {
                 // KORREKT: Deckbreite ist bereits die nutzbare Breite  
                 bahnenAnzahl = Math.ceil(analysis.height * 1000 / deckbreite);
-                bahnenLaenge = (analysis.width * 1000) + (2 * ueberstand);
+                // KORRIGIERT: Nur EIN Überstand (nur an der Traufe, nicht am First)
+                bahnenLaenge = (analysis.width * 1000) + ueberstand;
             }
 
             // Verfügbare Längen
@@ -670,8 +672,19 @@
                 }
             }
 
+            // Für Dreiecke: Variable Plattenlängen berechnen
+            let variableLengths = [];
+            const isTriangle = analysis.points.length === 3;
+            
+            if (isTriangle && richtung === 'laengs') {
+                // Bei Dreiecken werden die Platten zur Spitze hin kürzer
+                variableLengths = calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueberstand);
+            }
+
             // Optimale Länge finden
-            const optimization = optimizeLengths(bahnenLaenge, verfuegbareLaengen, bahnenAnzahl);
+            const optimization = variableLengths.length > 0 ? 
+                optimizeVariableLengths(variableLengths, verfuegbareLaengen) :
+                optimizeLengths(bahnenLaenge, verfuegbareLaengen, bahnenAnzahl);
             
             const totalLength = optimization.totalLength;
             const totalWaste = optimization.totalWaste;
@@ -681,6 +694,7 @@
                 richtung: richtung,
                 bahnenAnzahl: bahnenAnzahl,
                 bahnenLaenge: bahnenLaenge,
+                variableLengths: variableLengths,
                 bestellliste: optimization.orderList,
                 schnittplan: optimization.cuttingPlan,
                 totalLength: totalLength / 1000,
@@ -691,7 +705,117 @@
                 dachbreite: analysis.width,
                 dachhoehe: analysis.height,
                 deckbreite: profile.deckbreite,
-                lieferbreite: profile.lieferbreite
+                lieferbreite: profile.lieferbreite,
+                isTriangle: isTriangle
+            };
+        }
+
+        // Neue Funktion für Dreieck-Berechnungen
+        function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueberstand) {
+            const points = analysis.points;
+            if (points.length !== 3) return [];
+
+            // Annahme: Rechtswinkliges Dreieck mit Basis unten
+            // Finde die Basis (längste horizontale Seite)
+            const xs = points.map(p => p.x);
+            const ys = points.map(p => p.y);
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+            
+            const basisBreite = maxX - minX;
+            const dreieckHoehe = maxY - minY;
+
+            const plateLengths = [];
+            
+            for (let i = 0; i < bahnenAnzahl; i++) {
+                // Position der Bahn von links (in Metern)
+                const bahnPosition = (i + 0.5) * (deckbreite / 1000);
+                
+                // Relative Position (0 = links, 1 = rechts)
+                const relativePosition = bahnPosition / basisBreite;
+                
+                // Höhe des Dreiecks an dieser Position (linear interpoliert)
+                let aktuelleHoehe;
+                if (relativePosition <= 1) {
+                    // Linearer Verlauf für rechtwinkliges Dreieck
+                    aktuelleHoehe = dreieckHoehe * (1 - relativePosition);
+                } else {
+                    aktuelleHoehe = 0; // Außerhalb des Dreiecks
+                }
+                
+                // Plattenlänge = Dreieckshöhe + Überstand (nur an der Traufe)
+                const plattenLaenge = Math.max(0, (aktuelleHoehe * 1000) + ueberstand);
+                
+                plateLengths.push({
+                    bahnNummer: i + 1,
+                    laenge: Math.round(plattenLaenge),
+                    dreieckHoehe: aktuelleHoehe
+                });
+            }
+            
+            return plateLengths;
+        }
+
+        // Neue Funktion für variable Längen-Optimierung
+        function optimizeVariableLengths(variableLengths, verfuegbareLaengen) {
+            const sortedLengths = verfuegbareLaengen.sort((a, b) => b - a);
+            
+            let totalLength = 0;
+            let totalWaste = 0;
+            const orderList = [];
+            const cuttingPlan = [];
+            
+            // Gruppiere ähnliche Längen
+            const lengthGroups = {};
+            variableLengths.forEach(plate => {
+                if (plate.laenge > 0) {
+                    // Finde beste verfügbare Länge
+                    const bestLength = sortedLengths.find(length => length >= plate.laenge) || sortedLengths[0];
+                    
+                    if (!lengthGroups[bestLength]) {
+                        lengthGroups[bestLength] = {
+                            length: bestLength,
+                            quantity: 0,
+                            plates: []
+                        };
+                    }
+                    
+                    lengthGroups[bestLength].quantity++;
+                    lengthGroups[bestLength].plates.push(plate);
+                }
+            });
+            
+            // Erstelle Bestellliste
+            Object.values(lengthGroups).forEach(group => {
+                const waste = group.plates.reduce((sum, plate) => sum + (group.length - plate.laenge), 0);
+                
+                orderList.push({
+                    length: group.length,
+                    quantity: group.quantity,
+                    usage: group.quantity === 1 ? 'Einzelplatte' : `${group.quantity} Platten`
+                });
+                
+                cuttingPlan.push({
+                    sourceLength: group.length,
+                    cuts: group.plates.map(plate => ({
+                        length: plate.laenge,
+                        quantity: 1,
+                        usage: `Bahn ${plate.bahnNummer}`
+                    })),
+                    waste: waste / group.quantity
+                });
+                
+                totalLength += group.length * group.quantity;
+                totalWaste += waste;
+            });
+            
+            return {
+                orderList: orderList,
+                cuttingPlan: cuttingPlan,
+                totalLength: totalLength,
+                totalWaste: totalWaste
             };
         }
 
@@ -756,6 +880,24 @@
             if (!container) return;
 
             const verlegerichtungText = results.richtung === 'laengs' ? 'längs (parallel zur Wasserlaufrichtung)' : 'quer (senkrecht zur Wasserlaufrichtung)';
+            const ueberstendText = results.isTriangle ? 'Überstand nur an der Traufe' : 'Überstand nur an der Traufe';
+            
+            let plattenLaengenText = '';
+            if (results.variableLengths && results.variableLengths.length > 0) {
+                plattenLaengenText = `
+                    <p><strong>Variable Plattenlängen (bei Dreiecken):</strong></p>
+                    <ul style="margin-left: 20px;">
+                        ${results.variableLengths.slice(0, 3).map(plate => 
+                            `<li>Bahn ${plate.bahnNummer}: ${(plate.laenge / 1000).toFixed(1)}m (Dreieckshöhe: ${plate.dreieckHoehe.toFixed(1)}m)</li>`
+                        ).join('')}
+                        ${results.variableLengths.length > 3 ? '<li>... weitere Bahnen werden kürzer</li>' : ''}
+                    </ul>
+                `;
+            } else {
+                plattenLaengenText = `
+                    <p><strong>Konstante Plattenlänge:</strong> ${(results.bahnenLaenge / 1000).toFixed(1)} m</p>
+                `;
+            }
             
             container.innerHTML = `
                 <h5>Berechnungsschritte:</h5>
@@ -770,10 +912,11 @@
                     <p><strong>3. Plattenlänge berechnen:</strong></p>
                     <ul style="margin-left: 20px;">
                         <li>Dachlänge ${results.richtung === 'laengs' ? 'längs' : 'quer'}: ${results.richtung === 'laengs' ? results.dachhoehe.toFixed(1) : results.dachbreite.toFixed(1)} m</li>
-                        <li>Überstand beidseitig: 2 × ${((results.bahnenLaenge - (results.richtung === 'laengs' ? results.dachhoehe * 1000 : results.dachbreite * 1000)) / 2).toFixed(0)}mm</li>
-                        <li>Benötigte Plattenlänge: ${(results.bahnenLaenge / 1000).toFixed(1)} m</li>
+                        <li>${ueberstendText}: ${((results.bahnenLaenge - (results.richtung === 'laengs' ? results.dachhoehe * 1000 : results.dachbreite * 1000))).toFixed(0)}mm</li>
+                        ${plattenLaengenText}
                     </ul>
                     <p><strong>Wichtig:</strong> Die Deckbreite (${results.deckbreite}mm) ist die bereits nutzbare Breite pro Platte. Die Seitenüberlappung ist in der Lieferbreite (${results.lieferbreite}mm) bereits berücksichtigt.</p>
+                    ${results.isTriangle ? '<p><strong>Dreieck-Besonderheit:</strong> Bei dreieckigen Dächern werden die Platten zur Spitze hin kürzer, um Material zu sparen.</p>' : ''}
                 </div>
             `;
         }
