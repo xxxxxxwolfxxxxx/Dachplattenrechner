@@ -429,6 +429,29 @@
             const area = calculateRoofArea(roofPoints);
             document.getElementById('info-area').textContent = area.toFixed(2) + ' m²';
 
+            // Verlegerichtung aus Editor-Daten anzeigen
+            let preferredDirection = 'Automatisch optimiert';
+            let waterFlowDirection = 'unbekannt';
+            
+            if (geometry) {
+                if (geometry.preferredDirection) {
+                    preferredDirection = geometry.preferredDirection === 'laengs' ? 'Längs (vertikal)' : 'Quer (horizontal)';
+                }
+                if (geometry.waterFlowDirection) {
+                    waterFlowDirection = geometry.waterFlowDirection === 'down' ? 'nach unten' : 'zur Seite';
+                }
+            } else if (roof) {
+                if (roof.preferredDirection) {
+                    preferredDirection = roof.preferredDirection === 'laengs' ? 'Längs (vertikal)' : 'Quer (horizontal)';
+                }
+                if (roof.waterFlowDirection) {
+                    waterFlowDirection = roof.waterFlowDirection === 'down' ? 'nach unten' : 'zur Seite';
+                }
+            }
+            
+            document.getElementById('info-direction').textContent = 
+                `${preferredDirection} (Wasserlauf: ${waterFlowDirection})`;
+
             return true;
         }
 
@@ -627,16 +650,27 @@
                     return;
                 }
 
+                // Bevorzugte Verlegerichtung aus Editor-Daten laden
+                let preferredDirection = 'laengs'; // Standard
+                if (geometry && geometry.preferredDirection) {
+                    preferredDirection = geometry.preferredDirection;
+                } else if (roof && roof.preferredDirection) {
+                    preferredDirection = roof.preferredDirection;
+                }
+
                 // Geometrie analysieren
                 const analysis = analyzeRoofGeometry(roofPoints);
                 
-                // Beide Richtungen berechnen
-                const laengsCalc = calculateForDirection(analysis, 'laengs', profile);
-                const querCalc = calculateForDirection(analysis, 'quer', profile);
+                // Bevorzugte Richtung zuerst berechnen
+                const preferredCalc = calculateForDirection(analysis, preferredDirection, profile);
                 
-                // Beste Lösung wählen (geringster Verschnitt)
-                const calculations = [laengsCalc, querCalc];
-                calculationResults = laengsCalc.verschnitt <= querCalc.verschnitt ? laengsCalc : querCalc;
+                // Alternative Richtung berechnen
+                const alternativeDirection = preferredDirection === 'laengs' ? 'quer' : 'laengs';
+                const alternativeCalc = calculateForDirection(analysis, alternativeDirection, profile);
+                
+                // Bevorzugte Richtung als Hauptergebnis verwenden
+                const calculations = [preferredCalc, alternativeCalc];
+                calculationResults = preferredCalc;
 
                 // Ergebnisse anzeigen
                 displayResults(calculationResults);
@@ -796,9 +830,11 @@
                 const richtungText = calc.richtung === 'laengs' ? 'Längs (vertikal)' : 'Quer (horizontal)';
                 const effizienzText = calc.verschnitt < 5 ? 'Sehr effizient' : 
                                    calc.verschnitt < 10 ? 'Effizient' : 'Weniger effizient';
+                
+                const isPreferred = calc === calculations[0]; // Erste Berechnung ist die bevorzugte
 
                 altDiv.innerHTML = `
-                    <h5>${richtungText}</h5>
+                    <h5>${richtungText} ${isPreferred ? '(Empfohlen)' : ''}</h5>
                     <div style="margin: 10px 0;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                             <span>Bahnen:</span>
@@ -816,6 +852,7 @@
                             <span>Effizienz:</span>
                             <strong style="color: ${calc.verschnitt < 5 ? '#28a745' : calc.verschnitt < 10 ? '#ffc107' : '#dc3545'}">${effizienzText}</strong>
                         </div>
+                        ${isPreferred ? '<div style="color: #007bff; font-weight: bold; text-align: center; margin-top: 10px;">✓ Basierend auf Wasserlaufrichtung</div>' : ''}
                     </div>
                 `;
 
