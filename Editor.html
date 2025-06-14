@@ -100,229 +100,248 @@
             line-height: 1.2;
         }
 
-        /* Kompakte Bedienleiste im Header */
-        .compact-controls {
-            background: rgba(255,255,255,0.1);
-            border-top: 1px solid rgba(255,255,255,0.2);
-            padding: 12px 0;
-            margin-top: 8px;
+        /* Editor Control Panel */
+        .editor-controls {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         }
 
-        .controls-grid {
-            display: grid;
-            grid-template-columns: auto 1fr auto auto;
-            gap: 20px;
+        .controls-header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
         }
 
         .form-info {
             display: flex;
             align-items: center;
-            gap: 8px;
-            white-space: nowrap;
+            gap: 12px;
         }
 
         .form-label {
-            font-size: 13px;
-            opacity: 0.8;
-        }
-
-        .form-info span:last-child {
-            font-weight: bold;
-            background: rgba(255,255,255,0.2);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-
-        /* Kompakte Eingabefelder */
-        .input-section {
-            flex: 1;
-            min-width: 0;
-        }
-
-        #geometry-inputs-compact {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .input-compact {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255,255,255,0.15);
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-        }
-
-        .input-compact label {
+            font-size: 14px;
+            color: #6c757d;
             font-weight: 500;
-            white-space: nowrap;
-            min-width: auto;
         }
 
-        .input-compact input {
-            width: 60px;
-            padding: 3px 6px;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 4px;
-            background: rgba(255,255,255,0.9);
+        .current-shape {
+            font-weight: bold;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .calc-summary {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .calc-item {
+            text-align: center;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            min-width: 80px;
+        }
+
+        .calc-label {
+            font-size: 11px;
+            color: #6c757d;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .calc-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .controls-body {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Eingabefelder Sektion */
+        .inputs-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .inputs-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
             font-size: 12px;
-            color: #333;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 2px;
         }
 
-        .input-compact input[readonly] {
-            background: rgba(40,167,69,0.2);
-            border-color: rgba(40,167,69,0.5);
+        .input-group input {
+            padding: 8px 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .input-group input[readonly] {
+            background: #e8f5e8;
+            border-color: #28a745;
             color: #155724;
             font-weight: bold;
         }
 
-        .input-compact span {
+        .input-unit {
             font-size: 11px;
-            opacity: 0.9;
+            color: #6c757d;
+            align-self: flex-end;
+            margin-top: 2px;
         }
 
-        .calc-indicator-compact {
+        .calc-indicator {
             color: #28a745;
             font-size: 14px;
-            margin-left: 2px;
+            margin-left: 5px;
         }
 
-        /* Werkzeug-Buttons */
+        /* Tools Sektion - Kompakter */
         .tools-section {
-            display: flex;
-            align-items: center;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            min-width: 250px;
+            max-width: 280px;
         }
 
-        .tool-buttons {
+        .tools-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 12px;
             display: flex;
-            gap: 4px;
             align-items: center;
+            gap: 6px;
         }
 
-        .btn-compact {
-            height: 32px;
-            min-width: 70px;
-            padding: 0 8px;
+        .tools-compact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .btn-tool-compact {
+            padding: 6px 8px;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 500;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            gap: 3px;
+            height: 32px;
             white-space: nowrap;
         }
 
-        .btn-tool {
-            background: rgba(255,255,255,0.2);
+        .btn-tool-compact:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-transform {
+            background: #007bff;
             color: white;
-            border: 1px solid rgba(255,255,255,0.3);
         }
 
-        .btn-tool:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.05);
+        .btn-transform:hover {
+            background: #0056b3;
         }
 
-        .btn-reset {
-            background: rgba(255,193,7,0.8);
-            color: #333;
-            border: 1px solid rgba(255,193,7,0.6);
-        }
-
-        .btn-reset:hover {
-            background: rgba(255,193,7,1);
-            transform: scale(1.05);
-        }
-
-        .btn-water {
-            background: rgba(23,162,184,0.8);
+        .btn-orientation {
+            background: #17a2b8;
             color: white;
-            border: 1px solid rgba(23,162,184,0.6);
         }
 
-        .btn-water:hover {
-            background: rgba(23,162,184,1);
-            transform: scale(1.05);
+        .btn-orientation:hover {
+            background: #138496;
         }
 
-        .btn-traufe {
-            background: rgba(108,117,125,0.8);
+        .btn-utility {
+            background: #6c757d;
             color: white;
-            border: 1px solid rgba(108,117,125,0.6);
         }
 
-        .btn-traufe:hover {
-            background: rgba(108,117,125,1);
-            transform: scale(1.05);
+        .btn-utility:hover {
+            background: #545b62;
         }
 
-        .tool-separator {
-            color: rgba(255,255,255,0.4);
-            margin: 0 6px;
-            font-size: 14px;
-        }
-
-        .btn-orient {
-            background: rgba(220,53,69,0.8);
-            color: white;
-            border: 1px solid rgba(220,53,69,0.6);
-        }
-
-        .btn-orient:hover {
-            background: rgba(220,53,69,1);
-            transform: scale(1.05);
-        }
-
-        .btn-center {
-            background: rgba(102,16,242,0.8);
-            color: white;
-            border: 1px solid rgba(102,16,242,0.6);
-        }
-
-        .btn-center:hover {
-            background: rgba(102,16,242,1);
-            transform: scale(1.05);
-        }
-
-        .btn-rotate {
-            background: rgba(255,87,34,0.8);
-            color: white;
-            border: 1px solid rgba(255,87,34,0.6);
-        }
-
-        .btn-rotate:hover {
-            background: rgba(255,87,34,1);
-            transform: scale(1.05);
-        }
-
-        /* Berechnete Werte */
-        .calc-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .calc-values {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
+        .btn-reset-compact {
+            background: #ffc107;
+            color: #212529;
+            grid-column: 1 / -1;
+            height: 36px;
             font-size: 11px;
-            background: rgba(255,255,255,0.15);
-            padding: 6px 10px;
-            border-radius: 8px;
-            min-width: 120px;
+            font-weight: 600;
         }
 
-        .calc-values strong {
-            color: #28a745;
-            font-weight: bold;
+        .btn-reset-compact:hover {
+            background: #e0a800;
+        }
+
+        .tools-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .tools-row:last-child {
+            margin-bottom: 0;
         }
 
         /* Main Content */
@@ -499,66 +518,91 @@
 
         /* Responsive Anpassungen */
         @media (max-width: 1200px) {
-            .controls-grid {
-                justify-content: center;
-                gap: 15px;
+            .tools-grid {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+                height: 160px;
             }
-
-            .input-section {
-                min-width: 250px;
+            
+            .inputs-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
         @media (max-width: 900px) {
-            .controls-grid {
+            .controls-header {
                 flex-direction: column;
-                gap: 12px;
+                gap: 15px;
+                align-items: stretch;
             }
-
-            .input-section {
-                min-width: auto;
-                width: 100%;
-            }
-
-            #geometry-inputs-compact {
+            
+            .calc-summary {
                 justify-content: center;
+                gap: 15px;
             }
-
-            .tool-buttons {
-                justify-content: center;
+            
+            .tools-grid {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+                gap: 10px;
+                height: 140px;
+            }
+            
+            .inputs-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .btn-tool-square {
+                min-height: 60px;
+                font-size: 11px;
+            }
+            
+            .input-square {
+                min-height: 70px;
             }
         }
 
         @media (max-width: 768px) {
-            .compact-controls {
-                padding: 8px 0;
+            .editor-controls {
+                padding: 15px;
+                margin: 15px 0;
             }
-
-            .controls-grid {
+            
+            .calc-summary {
                 gap: 10px;
             }
-
-            #geometry-inputs-compact {
+            
+            .calc-item {
+                min-width: 70px;
+                padding: 6px 10px;
+            }
+            
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+                gap: 8px;
+                height: 280px;
+            }
+            
+            .inputs-grid {
+                grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
             }
-
-            .input-compact {
-                padding: 4px 8px;
-            }
-
-            .input-compact input {
-                width: 50px;
-            }
-
-            .btn-compact {
-                min-width: 60px;
+            
+            .btn-tool-square {
+                min-height: 60px;
                 font-size: 10px;
-                height: 28px;
             }
-
-            .calc-values {
-                font-size: 10px;
-                min-width: 80px;
+            
+            .input-square {
+                min-height: 60px;
+                padding: 8px;
+            }
+            
+            .input-square input {
+                max-width: 50px;
+                font-size: 11px;
             }
 
             .canvas-wrapper {
@@ -633,52 +677,76 @@
             </nav>
         </header>
 
-        <!-- Kompakte Bedienleiste im Header -->
-        <div class="compact-controls">
-            <div class="container">
-                <div class="controls-grid">
-                    <!-- Form-Info -->
+        <main>
+            <!-- Editor Control Panel -->
+            <div class="editor-controls">
+                <div class="controls-header">
                     <div class="form-info">
-                        <span class="form-label">Form:</span>
-                        <span id="current-shape-name">Wird geladen...</span>
+                        <span class="form-label">Aktuelle Form:</span>
+                        <span class="current-shape" id="current-shape-name">Wird geladen...</span>
                     </div>
+                    <div class="calc-summary">
+                        <div class="calc-item">
+                            <span class="calc-label">Fläche</span>
+                            <span class="calc-value" id="calc-area">0 m²</span>
+                        </div>
+                        <div class="calc-item">
+                            <span class="calc-label">Umfang</span>
+                            <span class="calc-value" id="calc-perimeter">0 m</span>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="controls-body">
                     <!-- Eingabefelder -->
-                    <div class="input-section">
-                        <div id="geometry-inputs-compact">
+                    <div class="inputs-section">
+                        <div class="inputs-title">
+                            📐 Abmessungen
+                        </div>
+                        <div class="inputs-grid" id="geometry-inputs-grid">
                             <!-- Wird dynamisch gefüllt -->
                         </div>
                     </div>
 
-                    <!-- Werkzeuge -->
+                    <!-- Werkzeuge - Horizontal mit Text -->
                     <div class="tools-section">
-                        <div class="tool-buttons">
-                            <button class="btn-compact btn-tool" id="btn-mirror-horizontal" title="Horizontal spiegeln">H-Spiegel</button>
-                            <button class="btn-compact btn-tool" id="btn-mirror-vertical" title="Vertikal spiegeln">V-Spiegel</button>
-                            <button class="btn-compact btn-rotate" id="btn-rotate-left" title="90° Links drehen">↺ 90°</button>
-                            <button class="btn-compact btn-rotate" id="btn-rotate-right" title="90° Rechts drehen">↻ 90°</button>
-                            <span class="tool-separator">|</span>
-                            <button class="btn-compact btn-water" id="btn-water-flow" title="Wasserlaufrichtung umkehren">Wasserlauf</button>
-                            <button class="btn-compact btn-traufe" id="btn-traufe" title="Traufe wechseln">Traufe</button>
-                            <button class="btn-compact btn-orient" id="btn-flip" title="Dach umdrehen">Umdrehen</button>
-                            <button class="btn-compact btn-center" id="btn-center" title="Form zentrieren">Zentrieren</button>
-                            <span class="tool-separator">|</span>
-                            <button class="btn-compact btn-reset" id="btn-reset" title="Zurücksetzen">Reset</button>
+                        <div class="tools-title">
+                            Bearbeitungstools
                         </div>
-                    </div>
-
-                    <!-- Berechnete Werte -->
-                    <div class="calc-info">
-                        <div class="calc-values">
-                            <span>Fläche: <strong id="calc-area">0 m²</strong></span>
-                            <span>Umfang: <strong id="calc-perimeter">0 m</strong></span>
+                        
+                        <div class="tools-horizontal">
+                            <button class="btn-tool-horizontal btn-transform" id="btn-mirror-horizontal" title="Horizontal spiegeln">
+                                H-Spiegel
+                            </button>
+                            <button class="btn-tool-horizontal btn-transform" id="btn-mirror-vertical" title="Vertikal spiegeln">
+                                V-Spiegel
+                            </button>
+                            <button class="btn-tool-horizontal btn-transform" id="btn-rotate-left" title="90° Links drehen">
+                                90° Links
+                            </button>
+                            <button class="btn-tool-horizontal btn-transform" id="btn-rotate-right" title="90° Rechts drehen">
+                                90° Rechts
+                            </button>
+                            <button class="btn-tool-horizontal btn-orientation" id="btn-water-flow" title="Wasserlaufrichtung umkehren">
+                                Wasserlauf
+                            </button>
+                            <button class="btn-tool-horizontal btn-orientation" id="btn-traufe" title="Traufe wechseln">
+                                Traufe
+                            </button>
+                            <button class="btn-tool-horizontal btn-orientation" id="btn-flip" title="Dach umdrehen">
+                                Umdrehen
+                            </button>
+                            <button class="btn-tool-horizontal btn-utility" id="btn-center" title="Form zentrieren">
+                                Zentrieren
+                            </button>
+                            <button class="btn-tool-horizontal btn-reset-compact" id="btn-reset" title="Zurücksetzen">
+                                Zurücksetzen
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <main>
             <section class="editor-section">
                 <!-- Hauptzeichnung (volle Breite) -->
                 <div class="canvas-container">
@@ -990,14 +1058,14 @@
         // Shape-Typ aus Projektdaten laden und korrekt mappen
         function loadShapeFromProject() {
             console.log('=== loadShapeFromProject ===');
-            console.log('ProjectData:', projectData);
+            console.log('ProjectData:', JSON.stringify(projectData, null, 2));
             
             if (!projectData.roofShape) {
                 console.log('Keine roofShape Daten gefunden, verwende Standard');
                 return 'rechteck';
             }
             
-            console.log('RoofShape:', projectData.roofShape);
+            console.log('RoofShape:', JSON.stringify(projectData.roofShape, null, 2));
             
             // Korrekte Mapping-Tabelle basierend auf Dachform.html
             const shapeMapping = {
@@ -1080,14 +1148,14 @@
             
             // Eventuell gespeicherte Punkte aus der Dachform-Auswahl laden
             if (projectData.roofShape && projectData.roofShape.points) {
-                console.log('Verwende Punkte aus roofShape:', projectData.roofShape.points);
+                console.log('Verwende Punkte aus roofShape:', JSON.stringify(projectData.roofShape.points, null, 2));
                 // Hier könnten wir versuchen, aus den Punkten die Maße abzuleiten
                 currentPoints = [...projectData.roofShape.points];
                 originalPoints = [...projectData.roofShape.points];
             }
             
             currentValues = { ...defaultValues[currentShapeType] };
-            console.log('Initial Values:', currentValues);
+            console.log('Initial Values:', JSON.stringify(currentValues, null, 2));
         }
 
         // Debug-Info aktualisieren
@@ -1098,10 +1166,10 @@
             document.getElementById('debug-points').textContent = currentPoints.length || '0';
         }
 
-        // Kompakte Eingabefelder generieren
+        // Kompakte Eingabefelder generieren - GRID VERSION
         function generateInputFieldsCompact() {
             console.log('=== generateInputFieldsCompact ===');
-            const container = document.getElementById('geometry-inputs-compact');
+            const container = document.getElementById('geometry-inputs-grid');
             const shape = SmartGeometry.shapes[currentShapeType];
             
             if (!shape) {
@@ -1113,13 +1181,13 @@
             
             shape.inputs.forEach(input => {
                 const div = document.createElement('div');
-                div.className = 'input-compact';
+                div.className = 'input-square';
                 
                 const isCalculated = input.calculated;
                 const value = currentValues[input.id] || '';
                 
                 div.innerHTML = `
-                    <label for="dim-${input.id}">${input.label}:</label>
+                    <label for="dim-${input.id}">${input.label}</label>
                     <input type="number" 
                            id="dim-${input.id}" 
                            step="0.1" 
@@ -1129,8 +1197,10 @@
                            ${isCalculated ? 'readonly' : ''}
                            onchange="updateValue('${input.id}', this.value)"
                            oninput="validateInput('${input.id}', this.value)">
-                    <span>${input.unit || 'm'}</span>
-                    ${isCalculated ? '<span class="calc-indicator-compact">⚡</span>' : ''}
+                    <div class="input-unit">
+                        ${input.unit || 'm'}
+                        ${isCalculated ? '<span class="calc-indicator">⚡</span>' : ''}
+                    </div>
                 `;
                 
                 container.appendChild(div);
@@ -1175,13 +1245,13 @@
             isUpdating = true;
             
             console.log('=== updateGeometry ===');
-            console.log('CurrentValues vor Berechnung:', currentValues);
+            console.log('CurrentValues vor Berechnung:', JSON.stringify(currentValues, null, 2));
             
             const shape = SmartGeometry.shapes[currentShapeType];
             
             if (shape.calculate) {
                 currentValues = shape.calculate({ ...currentValues });
-                console.log('CurrentValues nach Berechnung:', currentValues);
+                console.log('CurrentValues nach Berechnung:', JSON.stringify(currentValues, null, 2));
             }
             
             const isValid = !shape.validate || shape.validate(currentValues);
@@ -1203,7 +1273,7 @@
             currentPoints = shape.generatePoints(currentValues);
             originalPoints = [...currentPoints]; // Backup für Reset
             
-            console.log('Generated Points:', currentPoints);
+            console.log('Generated Points:', JSON.stringify(currentPoints, null, 2));
             
             updateShape();
             updateInfoPanel();
@@ -1225,14 +1295,14 @@
                 return;
             }
             
-            console.log('Drawing points:', currentPoints);
+            console.log('Drawing points:', JSON.stringify(currentPoints, null, 2));
             
             const bounds = getBounds(currentPoints);
             const scale = Math.min(250 / Math.max(bounds.width, 1), 200 / Math.max(bounds.height, 1));
             const centerX = 400;
             const centerY = 300;
             
-            console.log('Scale:', scale, 'Bounds:', bounds);
+            console.log('Scale:', scale, 'Bounds:', JSON.stringify(bounds, null, 2));
             
             const svgPoints = currentPoints.map(p => {
                 const x = centerX + (p.x - (bounds.minX + bounds.maxX) / 2) * scale;
@@ -1401,7 +1471,6 @@
             document.getElementById('btn-water-flow').addEventListener('click', toggleWaterFlow);
             document.getElementById('btn-traufe').addEventListener('click', toggleTraufe);
             document.getElementById('btn-flip').addEventListener('click', flipOrientation);
-            document.getElementById('btn-center').addEventListener('click', centerShape);
             document.getElementById('btn-reset').addEventListener('click', resetShape);
             document.getElementById('btn-back').addEventListener('click', goBack);
             document.getElementById('btn-continue').addEventListener('click', saveAndContinue);
@@ -1416,7 +1485,7 @@
             
             // Projektdaten laden
             projectData = loadData();
-            console.log('Geladene Projektdaten:', projectData);
+            console.log('Geladene Projektdaten:', JSON.stringify(projectData, null, 2));
             
             // Shape-Typ initialisieren basierend auf Dachform-Auswahl
             initializeShapeType();
@@ -1429,8 +1498,8 @@
             
             console.log('Initialisierung abgeschlossen');
             console.log('Aktuelle Form:', currentShapeType);
-            console.log('Aktuelle Punkte:', currentPoints);
-            console.log('Aktuelle Werte:', currentValues);
+            console.log('Aktuelle Punkte:', JSON.stringify(currentPoints, null, 2));
+            console.log('Aktuelle Werte:', JSON.stringify(currentValues, null, 2));
         });
     </script>
 </body>
