@@ -1,57 +1,75 @@
-function drawPlateLayout(layout, transformPoint, scale) {
-    const profile = projectData.profile;
-    const deckbreite = profile.deckbreite / 1000; // in Meter
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berechnung - Dachplattenrechner</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ... (alle CSS-Stile bleiben unverändert wie in deiner Vorlage) ... */
+    </style>
+</head>
+<body>
+    <!-- ... dein kompletter HTML-Body bleibt identisch ... -->
 
-    ctx.strokeStyle = '#28a745';
-    ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
-    ctx.lineWidth = 1;
+    <script>
+        // ... alle anderen Funktionen bleiben wie gehabt ...
 
-    for (let i = 0; i < layout.bahnenAnzahl; i++) {
-        let plateX, plateY, plateWidth, plateHeight;
+        function drawPlateLayout(layout, transformPoint, scale) {
+            const profile = projectData.profile;
+            const deckbreite = profile.deckbreite / 1000; // in Meter
 
-        // → individuelle Plattenlänge (in Meter)
-        let currentPlateLength = layout.bahnenLaenge / 1000; // Standardlänge
+            ctx.strokeStyle = '#28a745';
+            ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
+            ctx.lineWidth = 1;
 
-        if (layout.variableLengths && layout.variableLengths.length > i) {
-            currentPlateLength = layout.variableLengths[i].laenge / 1000;
+            for (let i = 0; i < layout.bahnenAnzahl; i++) {
+                let plateX, plateY, plateWidth, plateHeight;
+
+                // Individuelle Plattenlänge in Meter
+                let currentPlateLength = layout.bahnenLaenge / 1000; // Standard
+
+                if (layout.variableLengths && layout.variableLengths.length > i) {
+                    currentPlateLength = layout.variableLengths[i].laenge / 1000;
+                }
+
+                if (layout.richtung === 'laengs') {
+                    plateX = i * deckbreite;
+                    plateY = 0;
+                    plateWidth = deckbreite;
+                    plateHeight = currentPlateLength;
+                } else {
+                    plateX = 0;
+                    plateY = i * deckbreite;
+                    plateWidth = currentPlateLength;
+                    plateHeight = deckbreite;
+                }
+
+                const topLeft = transformPoint(plateX, plateY);
+                const bottomRight = transformPoint(plateX + plateWidth, plateY + plateHeight);
+
+                const rectWidth = bottomRight.x - topLeft.x;
+                const rectHeight = bottomRight.y - topLeft.y;
+
+                ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
+                ctx.strokeRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
+
+                ctx.fillStyle = '#000';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(
+                    (i + 1).toString(),
+                    topLeft.x + rectWidth / 2,
+                    topLeft.y + rectHeight / 2
+                );
+
+                ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
+            }
         }
 
-        if (layout.richtung === 'laengs') {
-            // Längs – Bahnen vertikal
-            plateX = i * deckbreite;
-            plateY = 0;
-            plateWidth = deckbreite;
-            plateHeight = currentPlateLength;
-        } else {
-            // Quer – Bahnen horizontal
-            plateX = 0;
-            plateY = i * deckbreite;
-            plateWidth = currentPlateLength;
-            plateHeight = deckbreite;
-        }
+        // ... der Rest deines vorhandenen JavaScript-Codes bleibt unverändert ...
 
-        // Umrechnung in Canvas-Koordinaten
-        const topLeft = transformPoint(plateX, plateY);
-        const bottomRight = transformPoint(plateX + plateWidth, plateY + plateHeight);
-
-        const rectWidth = bottomRight.x - topLeft.x;
-        const rectHeight = bottomRight.y - topLeft.y;
-
-        // Zeichnen
-        ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
-        ctx.strokeRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
-
-        // Bahnnummer
-        ctx.fillStyle = '#000';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(
-            (i + 1).toString(),
-            topLeft.x + rectWidth / 2,
-            topLeft.y + rectHeight / 2
-        );
-
-        ctx.fillStyle = 'rgba(40, 167, 69, 0.3)'; // zurücksetzen für nächste Bahn
-    }
-}
+    </script>
+</body>
+</html>
