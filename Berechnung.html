@@ -440,6 +440,8 @@
             ctx.fillStyle = '#f8f9fa';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+            console.log('drawRoofVisualization aufgerufen mit plateLayout:', plateLayout);
+
             // Bounding Box berechnen
             const xs = roofPoints.map(p => p.x);
             const ys = roofPoints.map(p => p.y);
@@ -488,7 +490,13 @@
 
             // Platten zeichnen (falls Layout vorhanden)
             if (plateLayout) {
+                console.log('Zeichne Platten mit Layout:', {
+                    variableLengths: plateLayout.variableLengths,
+                    bahnenAnzahl: plateLayout.bahnenAnzahl
+                });
                 drawPlateLayout(plateLayout, transformPoint, scale);
+            } else {
+                console.log('Kein plateLayout vorhanden');
             }
 
             // Bemaßung
@@ -893,7 +901,7 @@
             if (!container) return;
 
             const verlegerichtungText = results.richtung === 'laengs' ? 'längs (parallel zur Wasserlaufrichtung)' : 'quer (senkrecht zur Wasserlaufrichtung)';
-            const ueberstendText = results.isTriangle ? 'Überstand nur an der Traufe' : 'Überstand nur an der Traufe';
+            const ueberstendWert = ((results.bahnenLaenge - (results.richtung === 'laengs' ? results.dachhoehe * 1000 : results.dachbreite * 1000))).toFixed(0);
             
             let plattenLaengenText = '';
             if (results.variableLengths && results.variableLengths.length > 0) {
@@ -901,14 +909,14 @@
                     <p><strong>Variable Plattenlängen (bei Dreiecken):</strong></p>
                     <ul style="margin-left: 20px;">
                         ${results.variableLengths.slice(0, 3).map(plate => 
-                            `<li>Bahn ${plate.bahnNummer}: ${(plate.laenge / 1000).toFixed(1)}m (Dreieckshöhe: ${plate.dreieckHoehe.toFixed(1)}m)</li>`
+                            `<li>Bahn ${plate.bahnNummer}: ${(plate.laenge / 1000).toFixed(2)}m (Dreieckshöhe: ${plate.dreieckHoehe.toFixed(1)}m + ${ueberstendWert}mm Überstand)</li>`
                         ).join('')}
                         ${results.variableLengths.length > 3 ? '<li>... weitere Bahnen werden kürzer</li>' : ''}
                     </ul>
                 `;
             } else {
                 plattenLaengenText = `
-                    <p><strong>Konstante Plattenlänge:</strong> ${(results.bahnenLaenge / 1000).toFixed(1)} m</p>
+                    <p><strong>Konstante Plattenlänge:</strong> ${(results.bahnenLaenge / 1000).toFixed(2)} m</p>
                 `;
             }
             
@@ -925,7 +933,7 @@
                     <p><strong>3. Plattenlänge berechnen:</strong></p>
                     <ul style="margin-left: 20px;">
                         <li>Dachlänge ${results.richtung === 'laengs' ? 'längs' : 'quer'}: ${results.richtung === 'laengs' ? results.dachhoehe.toFixed(1) : results.dachbreite.toFixed(1)} m</li>
-                        <li>${ueberstendText}: ${((results.bahnenLaenge - (results.richtung === 'laengs' ? results.dachhoehe * 1000 : results.dachbreite * 1000))).toFixed(0)}mm</li>
+                        <li>Überstand nur an der Traufe: ${ueberstendWert}mm</li>
                         ${plattenLaengenText}
                     </ul>
                     <p><strong>Wichtig:</strong> Die Deckbreite (${results.deckbreite}mm) ist die bereits nutzbare Breite pro Platte. Die Seitenüberlappung ist in der Lieferbreite (${results.lieferbreite}mm) bereits berücksichtigt.</p>
