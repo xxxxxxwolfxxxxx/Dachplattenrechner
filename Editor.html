@@ -427,7 +427,28 @@
             margin: 0;
         }
 
-        /* Responsive Anpassungen */
+        /* Seiten-Label Styling */
+        .side-label-circle {
+            fill: rgba(0,123,255,0.9);
+            stroke: #007bff;
+            stroke-width: 2;
+        }
+
+        .side-label-text {
+            fill: white;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .dimension-line {
+            stroke: #007bff;
+            stroke-width: 1;
+            stroke-dasharray: 4,2;
+            opacity: 0.7;
+        }
         @media (max-width: 1200px) {
             #geometry-inputs-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -1024,19 +1045,104 @@
             const centerX = 400;
             const centerY = 300;
             
+            // Punkte für SVG umrechnen
             const svgPoints = currentPoints.map(p => {
                 const x = centerX + (p.x - (bounds.minX + bounds.maxX) / 2) * scale;
                 const y = centerY - (p.y - (bounds.minY + bounds.maxY) / 2) * scale;
-                return `${x},${y}`;
-            }).join(' ');
+                return { x, y, originalX: p.x, originalY: p.y };
+            });
             
+            // Polygon zeichnen
+            const polygonPoints = svgPoints.map(p => `${p.x},${p.y}`).join(' ');
             const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-            polygon.setAttribute('points', svgPoints);
+            polygon.setAttribute('points', polygonPoints);
             polygon.setAttribute('fill', '#007bff20');
             polygon.setAttribute('stroke', '#007bff');
             polygon.setAttribute('stroke-width', '3');
-            
             roofGroup.appendChild(polygon);
+            
+            // Seitenlängen einzeichnen
+            drawSideDimensions(svgPoints, dimensionsGroup);
+        }
+
+        function drawSideDimensions(svgPoints, dimensionsGroup) {
+            // Buchstaben für die Seiten definieren
+            const sideLabels = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+            
+            for (let i = 0; i < svgPoints.length; i++) {
+                const current = svgPoints[i];
+                const next = svgPoints[(i + 1) % svgPoints.length];
+                
+                // Seitenlänge berechnen (für Übersprung-Check)
+                const dx = next.originalX - current.originalX;
+                const dy = next.originalY - current.originalY;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                
+                if (length < 0.01) continue; // Sehr kurze Seiten überspringen
+                
+                // Mittelpunkt der Seite
+                const midX = (current.x + next.x) / 2;
+                const midY = (current.y + next.y) / 2;
+                
+                // Normale der Seite für Textplatzierung
+                const sideLength = Math.sqrt((next.x - current.x) ** 2 + (next.y - current.y) ** 2);
+                if (sideLength < 1) continue;
+                
+                const normalX = -(next.y - current.y) / sideLength;
+                const normalY = (next.x - current.x) / sideLength;
+                
+                // Text-Position (nach außen versetzt)
+                const offset = 25;
+                const textX = midX + normalX * offset;
+                const textY = midY + normalY * offset;
+                
+                // Buchstaben-Label für diese Seite
+                const label = sideLabels[i] || `s${i+1}`;
+                
+                // Prüfen ob Text im sichtbaren Bereich ist
+                if (textX < 20 || textX > 780 || textY < 20 || textY > 580) {
+                    // Text nach innen versetzen wenn außerhalb
+                    const innerTextX = midX - normalX * 15;
+                    const innerTextY = midY - normalY * 15;
+                    createSideLabel(innerTextX, innerTextY, label, dimensionsGroup, true);
+                } else {
+                    // Kleine Linie zur Seite
+                    const dimLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    dimLine.setAttribute('x1', midX);
+                    dimLine.setAttribute('y1', midY);
+                    dimLine.setAttribute('x2', textX);
+                    dimLine.setAttribute('y2', textY);
+                    dimLine.setAttribute('class', 'dimension-line');
+                    dimensionsGroup.appendChild(dimLine);
+                    
+                    createSideLabel(textX, textY, label, dimensionsGroup, false);
+                }
+            }
+        }
+
+        function createSideLabel(x, y, label, parent, isInside) {
+            // Kreis-Hintergrund für den Buchstaben
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', '12');
+            circle.setAttribute('fill', isInside ? 'rgba(255,255,255,0.9)' : 'rgba(0,123,255,0.9)');
+            circle.setAttribute('stroke', isInside ? '#666' : '#007bff');
+            circle.setAttribute('stroke-width', '2');
+            parent.appendChild(circle);
+            
+            // Buchstaben-Text
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', x);
+            text.setAttribute('y', y);
+            text.setAttribute('fill', isInside ? '#666' : 'white');
+            text.setAttribute('font-family', 'Arial, sans-serif');
+            text.setAttribute('font-size', '12');
+            text.setAttribute('font-weight', 'bold');
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.textContent = label;
+            parent.appendChild(text);
         }
 
         function getBounds(points) {
