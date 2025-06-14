@@ -6,70 +6,188 @@
     <title>Berechnung - Dachplattenrechner</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ... (alle CSS-Stile bleiben unverändert wie in deiner Vorlage) ... */
+        .calculation-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .calculation-results {
+            grid-column: 1 / -1;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .summary-label {
+            display: block;
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .summary-value {
+            display: block;
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .visualization-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .visualization-canvas {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            width: 100%;
+            height: 400px;
+            position: relative;
+        }
+
+        .plate-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+
+        .calculation-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .direction-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #007bff;
+        }
+
+        .direction-info h4 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .calculation-container {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- ... dein kompletter HTML-Body bleibt identisch ... -->
+<!-- Der vollständige Body- und Script-Teil folgt, und an passender Stelle wird drawPlateLayout ersetzt -->
+<script>
+// ... anderer JavaScript-Code bleibt erhalten ...
 
-    <script>
-        // ... alle anderen Funktionen bleiben wie gehabt ...
+function drawPlateLayout(layout, transformPoint, scale) {
+    const profile = projectData.profile;
+    const deckbreite = profile.deckbreite / 1000; // in Meter
 
-        function drawPlateLayout(layout, transformPoint, scale) {
-            const profile = projectData.profile;
-            const deckbreite = profile.deckbreite / 1000; // in Meter
+    ctx.strokeStyle = '#28a745';
+    ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
+    ctx.lineWidth = 1;
 
-            ctx.strokeStyle = '#28a745';
-            ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
-            ctx.lineWidth = 1;
+    for (let i = 0; i < layout.bahnenAnzahl; i++) {
+        let plateX, plateY, plateWidth, plateHeight;
 
-            for (let i = 0; i < layout.bahnenAnzahl; i++) {
-                let plateX, plateY, plateWidth, plateHeight;
+        // Individuelle Plattenlänge in Meter
+        let currentPlateLength = layout.bahnenLaenge / 1000; // Standard
 
-                // Individuelle Plattenlänge in Meter
-                let currentPlateLength = layout.bahnenLaenge / 1000; // Standard
-
-                if (layout.variableLengths && layout.variableLengths.length > i) {
-                    currentPlateLength = layout.variableLengths[i].laenge / 1000;
-                }
-
-                if (layout.richtung === 'laengs') {
-                    plateX = i * deckbreite;
-                    plateY = 0;
-                    plateWidth = deckbreite;
-                    plateHeight = currentPlateLength;
-                } else {
-                    plateX = 0;
-                    plateY = i * deckbreite;
-                    plateWidth = currentPlateLength;
-                    plateHeight = deckbreite;
-                }
-
-                const topLeft = transformPoint(plateX, plateY);
-                const bottomRight = transformPoint(plateX + plateWidth, plateY + plateHeight);
-
-                const rectWidth = bottomRight.x - topLeft.x;
-                const rectHeight = bottomRight.y - topLeft.y;
-
-                ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
-                ctx.strokeRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
-
-                ctx.fillStyle = '#000';
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(
-                    (i + 1).toString(),
-                    topLeft.x + rectWidth / 2,
-                    topLeft.y + rectHeight / 2
-                );
-
-                ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
-            }
+        if (layout.variableLengths && layout.variableLengths.length > i) {
+            currentPlateLength = layout.variableLengths[i].laenge / 1000;
         }
 
-        // ... der Rest deines vorhandenen JavaScript-Codes bleibt unverändert ...
+        if (layout.richtung === 'laengs') {
+            plateX = i * deckbreite;
+            plateY = 0;
+            plateWidth = deckbreite;
+            plateHeight = currentPlateLength;
+        } else {
+            plateX = 0;
+            plateY = i * deckbreite;
+            plateWidth = currentPlateLength;
+            plateHeight = deckbreite;
+        }
 
-    </script>
+        const topLeft = transformPoint(plateX, plateY);
+        const bottomRight = transformPoint(plateX + plateWidth, plateY + plateHeight);
+
+        const rectWidth = bottomRight.x - topLeft.x;
+        const rectHeight = bottomRight.y - topLeft.y;
+
+        ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
+        ctx.strokeRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
+
+        ctx.fillStyle = '#000';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(
+            (i + 1).toString(),
+            topLeft.x + rectWidth / 2,
+            topLeft.y + rectHeight / 2
+        );
+
+        ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
+    }
+}
+
+// ... restlicher Code folgt ...
+</script>
 </body>
 </html>
