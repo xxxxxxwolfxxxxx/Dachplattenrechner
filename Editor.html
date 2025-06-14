@@ -482,6 +482,21 @@
             margin: 0;
         }
 
+        /* Debug Info */
+        .debug-info {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-family: monospace;
+            max-width: 300px;
+            z-index: 1000;
+        }
+
         /* Responsive Anpassungen */
         @media (max-width: 1200px) {
             .controls-grid {
@@ -584,6 +599,14 @@
 </head>
 <body>
     <div class="container">
+        <!-- Debug-Info -->
+        <div class="debug-info" id="debug-info">
+            <div>Dachform: <span id="debug-shape">-</span></div>
+            <div>Variante: <span id="debug-variant">-</span></div>
+            <div>Shape Type: <span id="debug-shapetype">-</span></div>
+            <div>Points: <span id="debug-points">-</span></div>
+        </div>
+
         <header>
             <h1>Dachplattenrechner</h1>
             <nav class="progress-nav">
@@ -617,7 +640,7 @@
                     <!-- Form-Info -->
                     <div class="form-info">
                         <span class="form-label">Form:</span>
-                        <span id="current-shape-name">Rechteck</span>
+                        <span id="current-shape-name">Wird geladen...</span>
                     </div>
 
                     <!-- Eingabefelder -->
@@ -852,6 +875,61 @@
                         { x: values.side1 || 10, y: 0 },
                         { x: 0, y: values.side2 || 8 }
                     ]
+                },
+
+                kreis: {
+                    name: 'Kreis',
+                    inputs: [
+                        { id: 'radius', label: 'Radius', required: true, min: 0.1 },
+                        { id: 'diameter', label: 'Durchmesser', calculated: true },
+                        { id: 'circumference', label: 'Umfang', calculated: true },
+                        { id: 'area_calc', label: 'Fläche', calculated: true, unit: 'm²' }
+                    ],
+                    calculate: (values) => {
+                        if (values.radius) {
+                            values.diameter = values.radius * 2;
+                            values.circumference = 2 * Math.PI * values.radius;
+                            values.area_calc = Math.PI * values.radius ** 2;
+                        }
+                        return values;
+                    },
+                    generatePoints: (values) => {
+                        const radius = values.radius || 5;
+                        const segments = 16;
+                        const points = [];
+                        for (let i = 0; i < segments; i++) {
+                            const angle = (i / segments) * 2 * Math.PI;
+                            points.push({
+                                x: Math.cos(angle) * radius,
+                                y: Math.sin(angle) * radius
+                            });
+                        }
+                        return points;
+                    }
+                },
+
+                vieleck: {
+                    name: 'Vieleck',
+                    inputs: [
+                        { id: 'length', label: 'Länge', required: true, min: 0.1 },
+                        { id: 'width', label: 'Breite', required: true, min: 0.1 },
+                        { id: 'corners', label: 'Ecken', required: true, min: 3, max: 12 }
+                    ],
+                    generatePoints: (values) => {
+                        const length = values.length || 10;
+                        const width = values.width || 8;
+                        const corners = values.corners || 6;
+                        
+                        const points = [];
+                        for (let i = 0; i < corners; i++) {
+                            const angle = (i / corners) * 2 * Math.PI;
+                            points.push({
+                                x: Math.cos(angle) * length / 2,
+                                y: Math.sin(angle) * width / 2
+                            });
+                        }
+                        return points;
+                    }
                 }
             };
             
@@ -898,56 +976,138 @@
 
         function loadData() {
             try {
-                // Verwende JavaScript-Variablen statt localStorage
-                return {};
+                let saved = localStorage.getItem('dachplattenrechner_data');
+                if (!saved) {
+                    saved = sessionStorage.getItem('dachplattenrechner_data');
+                }
+                return saved ? JSON.parse(saved) : {};
             } catch (e) {
+                console.log('Fehler beim Laden der Daten');
                 return {};
             }
         }
 
-        // Shape-Typ aus Projektdaten laden
+        // Shape-Typ aus Projektdaten laden und korrekt mappen
         function loadShapeFromProject() {
-            if (!projectData.roofShape) return 'rechteck';
+            console.log('=== loadShapeFromProject ===');
+            console.log('ProjectData:', projectData);
             
+            if (!projectData.roofShape) {
+                console.log('Keine roofShape Daten gefunden, verwende Standard');
+                return 'rechteck';
+            }
+            
+            console.log('RoofShape:', projectData.roofShape);
+            
+            // Korrekte Mapping-Tabelle basierend auf Dachform.html
             const shapeMapping = {
+                // Kreis-Varianten
+                'kreis': 'kreis',
+                'oval': 'kreis', 
+                'halbkreis': 'kreis',
+                'viertelkreis': 'kreis',
+                'langloch': 'kreis',
+                
+                // Dreieck-Varianten
+                'gleichseitig': 'dreieck',
+                'rechtwinklig': 'dreieck',
+                'ungleichschenklig': 'dreieck',
+                
+                // Viereck-Varianten
                 'rechteck': 'rechteck',
                 'quadrat': 'rechteck',
                 'parallelogramm': 'rechteck_schraeg',
                 'trapez': 'trapez',
                 'rhombus': 'rechteck_schraeg',
-                'gleichseitig': 'dreieck',
-                'rechtwinklig': 'dreieck',
-                'ungleichschenklig': 'dreieck',
-                'viereck': 'rechteck',
-                'dreieck': 'dreieck',
-                'kreis': 'rechteck',
-                'vieleck': 'rechteck'
+                
+                // Vieleck-Varianten
+                'fuenfeck': 'vieleck',
+                'sechseck': 'vieleck',
+                'achteck': 'vieleck',
+                'lform': 'vieleck',
+                'tform': 'vieleck',
+                'uform': 'vieleck'
             };
             
             const variant = projectData.roofShape.variant;
             const baseShape = projectData.roofShape.baseShape;
             
-            return shapeMapping[variant] || shapeMapping[baseShape] || 'rechteck';
+            console.log('Variant:', variant);
+            console.log('BaseShape:', baseShape);
+            
+            let mappedShape = shapeMapping[variant] || shapeMapping[baseShape] || 'rechteck';
+            console.log('Mapped Shape:', mappedShape);
+            
+            return mappedShape;
         }
 
-        // Shape-Typ setzen
+        // Shape-Typ setzen und initialisieren
         function initializeShapeType() {
+            console.log('=== initializeShapeType ===');
             currentShapeType = loadShapeFromProject();
             const shape = SmartGeometry.shapes[currentShapeType];
             const shapeName = shape?.name || 'Unbekannte Form';
+            
+            console.log('Current Shape Type:', currentShapeType);
+            console.log('Shape Name:', shapeName);
+            
+            // Debug-Info aktualisieren
+            updateDebugInfo();
             
             const nameElement = document.getElementById('current-shape-name');
             if (nameElement) {
                 nameElement.textContent = shapeName;
             }
             
+            // Initiale Werte setzen basierend auf der Form
+            setInitialValues();
             generateInputFieldsCompact();
+        }
+
+        // Initiale Werte basierend auf der Form setzen
+        function setInitialValues() {
+            console.log('=== setInitialValues ===');
+            
+            // Standard-Werte je nach Form
+            const defaultValues = {
+                'rechteck': { length: 10, width: 8 },
+                'rechteck_schraeg': { length: 10, width: 8, cut_length: 2 },
+                'trapez': { base1: 10, base2: 6, height: 8 },
+                'dreieck': { side1: 10, side2: 8 },
+                'kreis': { radius: 5 },
+                'vieleck': { length: 10, width: 8, corners: 6 }
+            };
+            
+            // Eventuell gespeicherte Punkte aus der Dachform-Auswahl laden
+            if (projectData.roofShape && projectData.roofShape.points) {
+                console.log('Verwende Punkte aus roofShape:', projectData.roofShape.points);
+                // Hier könnten wir versuchen, aus den Punkten die Maße abzuleiten
+                currentPoints = [...projectData.roofShape.points];
+                originalPoints = [...projectData.roofShape.points];
+            }
+            
+            currentValues = { ...defaultValues[currentShapeType] };
+            console.log('Initial Values:', currentValues);
+        }
+
+        // Debug-Info aktualisieren
+        function updateDebugInfo() {
+            document.getElementById('debug-shape').textContent = projectData.roofShape?.baseShape || '-';
+            document.getElementById('debug-variant').textContent = projectData.roofShape?.variant || '-';
+            document.getElementById('debug-shapetype').textContent = currentShapeType || '-';
+            document.getElementById('debug-points').textContent = currentPoints.length || '0';
         }
 
         // Kompakte Eingabefelder generieren
         function generateInputFieldsCompact() {
+            console.log('=== generateInputFieldsCompact ===');
             const container = document.getElementById('geometry-inputs-compact');
             const shape = SmartGeometry.shapes[currentShapeType];
+            
+            if (!shape) {
+                console.error('Shape nicht gefunden:', currentShapeType);
+                return;
+            }
             
             container.innerHTML = '';
             
@@ -975,11 +1135,14 @@
                 
                 container.appendChild(div);
             });
+            
+            console.log('Input fields generated for:', currentShapeType);
         }
 
         // Wert aktualisieren
         function updateValue(fieldId, value) {
             if (isUpdating) return;
+            console.log('updateValue:', fieldId, value);
             currentValues[fieldId] = parseFloat(value) || 0;
             updateGeometry();
         }
@@ -1011,10 +1174,14 @@
             if (isUpdating) return;
             isUpdating = true;
             
+            console.log('=== updateGeometry ===');
+            console.log('CurrentValues vor Berechnung:', currentValues);
+            
             const shape = SmartGeometry.shapes[currentShapeType];
             
             if (shape.calculate) {
                 currentValues = shape.calculate({ ...currentValues });
+                console.log('CurrentValues nach Berechnung:', currentValues);
             }
             
             const isValid = !shape.validate || shape.validate(currentValues);
@@ -1022,6 +1189,7 @@
                 console.warn('Ungültige Geometrie-Konfiguration');
             }
             
+            // Berechnete Felder aktualisieren
             shape.inputs.forEach(input => {
                 if (input.calculated && currentValues[input.id] !== undefined) {
                     const field = document.getElementById(`dim-${input.id}`);
@@ -1031,33 +1199,48 @@
                 }
             });
             
+            // Punkte generieren
             currentPoints = shape.generatePoints(currentValues);
             originalPoints = [...currentPoints]; // Backup für Reset
+            
+            console.log('Generated Points:', currentPoints);
+            
             updateShape();
             updateInfoPanel();
+            updateDebugInfo();
             
             isUpdating = false;
         }
 
         // Form zeichnen
         function updateShape() {
+            console.log('=== updateShape ===');
             const roofGroup = document.getElementById('roof-shape');
             const dimensionsGroup = document.getElementById('dimensions');
             roofGroup.innerHTML = '';
             dimensionsGroup.innerHTML = '';
             
-            if (currentPoints.length === 0) return;
+            if (currentPoints.length === 0) {
+                console.log('Keine Punkte vorhanden');
+                return;
+            }
+            
+            console.log('Drawing points:', currentPoints);
             
             const bounds = getBounds(currentPoints);
             const scale = Math.min(250 / Math.max(bounds.width, 1), 200 / Math.max(bounds.height, 1));
             const centerX = 400;
             const centerY = 300;
             
+            console.log('Scale:', scale, 'Bounds:', bounds);
+            
             const svgPoints = currentPoints.map(p => {
                 const x = centerX + (p.x - (bounds.minX + bounds.maxX) / 2) * scale;
                 const y = centerY - (p.y - (bounds.minY + bounds.maxY) / 2) * scale;
                 return `${x},${y}`;
             }).join(' ');
+            
+            console.log('SVG Points:', svgPoints);
             
             const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
             polygon.setAttribute('points', svgPoints);
@@ -1097,6 +1280,7 @@
             currentPoints = currentPoints.map(p => ({ x: -p.x, y: p.y }));
             console.log('Horizontal spiegeln - Nachher:', currentPoints);
             updateShape();
+            updateDebugInfo();
         }
 
         function mirrorVertical() {
@@ -1104,6 +1288,7 @@
             currentPoints = currentPoints.map(p => ({ x: p.x, y: -p.y }));
             console.log('Vertikal spiegeln - Nachher:', currentPoints);
             updateShape();
+            updateDebugInfo();
         }
 
         function rotateLeft() {
@@ -1111,6 +1296,7 @@
             currentPoints = currentPoints.map(p => ({ x: -p.y, y: p.x }));
             console.log('90° Links drehen - Nachher:', currentPoints);
             updateShape();
+            updateDebugInfo();
         }
 
         function rotateRight() {
@@ -1118,11 +1304,12 @@
             currentPoints = currentPoints.map(p => ({ x: p.y, y: -p.x }));
             console.log('90° Rechts drehen - Nachher:', currentPoints);
             updateShape();
+            updateDebugInfo();
         }
 
         function resetShape() {
             console.log('Reset - Zurück zu Originalwerten');
-            currentValues = { length: 10, width: 8 };
+            setInitialValues();
             updateGeometry();
         }
 
@@ -1138,6 +1325,7 @@
                 }));
                 
                 updateShape();
+                updateDebugInfo();
                 console.log('Form zentriert');
             }
         }
@@ -1147,6 +1335,7 @@
             currentPoints = currentPoints.map(p => ({ x: -p.x, y: -p.y }));
             console.log('Dach umdrehen (180°) - Nachher:', currentPoints);
             updateShape();
+            updateDebugInfo();
         }
 
         function toggleWaterFlow() {
@@ -1175,7 +1364,7 @@
         }
 
         function goBack() {
-            console.log('Zurück zur Dachform');
+            window.location.href = 'Dachform.html';
         }
 
         function saveAndContinue() {
@@ -1184,8 +1373,22 @@
                 values: currentValues,
                 points: currentPoints
             };
+            
+            // Speichere auch die Dachfläche für spätere Berechnungen
+            if (currentPoints.length > 0) {
+                projectData.geometry.area = SmartGeometry.calculateArea(currentPoints);
+                projectData.geometry.perimeter = SmartGeometry.calculatePerimeter(currentPoints);
+            }
+            
+            // Daten speichern
+            try {
+                localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            } catch (e) {
+                sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            }
+            
             console.log('Geometrie gespeichert:', projectData.geometry);
-            console.log('Weiter zur Berechnung');
+            window.location.href = 'Berechnung.html';
         }
 
         // Event-Handler setup
@@ -1208,18 +1411,26 @@
 
         // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM geladen - Initialisierung startet');
+            console.log('=== DOM Content Loaded ===');
+            console.log('Initialisierung startet');
             
+            // Projektdaten laden
             projectData = loadData();
-            currentValues = { length: 10, width: 8 };
+            console.log('Geladene Projektdaten:', projectData);
             
+            // Shape-Typ initialisieren basierend auf Dachform-Auswahl
             initializeShapeType();
+            
+            // Geometrie initial berechnen
             updateGeometry();
+            
+            // Event-Handler einrichten
             setupEventHandlers();
             
             console.log('Initialisierung abgeschlossen');
             console.log('Aktuelle Form:', currentShapeType);
             console.log('Aktuelle Punkte:', currentPoints);
+            console.log('Aktuelle Werte:', currentValues);
         });
     </script>
 </body>
