@@ -347,8 +347,8 @@
             justify-content: center;
         }
         
-        .water-flow-left { left: -70px; }
-        .water-flow-right { right: -70px; }
+        .water-flow-left { left: -65px; }
+        .water-flow-right { right: -65px; }
 
         .flow-text {
             writing-mode: vertical-rl;
@@ -409,8 +409,8 @@
         .navigation-buttons {
             display: flex;
             justify-content: space-between;
-            margin-top: 30px;
-            padding-top: 20px;
+            margin-top: 15px;
+            padding-top: 15px;
             border-top: 1px solid #e9ecef;
         }
 
@@ -625,7 +625,7 @@
                             <div class="label-bottom">Unten (Traufbereich)</div>
                         </div>
                         
-                        <svg id="main-svg" width="100%" height="500" viewBox="0 0 800 600">
+                        <svg id="main-svg" width="100%" height="400" viewBox="0 0 800 500">
                             <defs>
                                 <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
                                     <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
@@ -633,8 +633,8 @@
                             </defs>
                             <rect width="100%" height="100%" fill="url(#grid)" />
                             
-                            <line x1="400" y1="0" x2="400" y2="600" stroke="#c0c0c0" stroke-width="2"/>
-                            <line x1="0" y1="300" x2="800" y2="300" stroke="#c0c0c0" stroke-width="2"/>
+                            <line x1="400" y1="0" x2="400" y2="500" stroke="#c0c0c0" stroke-width="2"/>
+                            <line x1="0" y1="250" x2="800" y2="250" stroke="#c0c0c0" stroke-width="2"/>
                             
                             <g id="roof-shape"></g>
                             <g id="dimensions"></g>
@@ -1043,9 +1043,11 @@
             if (currentPoints.length === 0) return;
             
             const bounds = getBounds(currentPoints);
-            const scale = Math.min(250 / Math.max(bounds.width, 1), 200 / Math.max(bounds.height, 1));
+            // Größere Skalierung für 75-80% Ausfüllung des SVG-Bereichs
+            const maxScale = Math.min(300 / Math.max(bounds.width, 1), 240 / Math.max(bounds.height, 1));
+            const scale = maxScale * 0.8; // 80% der maximalen Größe
             const centerX = 400;
-            const centerY = 300;
+            const centerY = 250;
             
             // Punkte für SVG umrechnen
             const svgPoints = currentPoints.map(p => {
@@ -1093,19 +1095,19 @@
                 const normalX = -(next.y - current.y) / sideLength;
                 const normalY = (next.x - current.x) / sideLength;
                 
-                // Text-Position (nach außen versetzt)
-                const offset = 25;
+                // Text-Position (nach außen versetzt) - größerer Abstand für größere Form
+                const offset = 35;
                 const textX = midX + normalX * offset;
                 const textY = midY + normalY * offset;
                 
                 // Buchstaben-Label für diese Seite
                 const label = sideLabels[i] || `s${i+1}`;
                 
-                // Prüfen ob Text im sichtbaren Bereich ist
-                if (textX < 20 || textX > 780 || textY < 20 || textY > 580) {
+                // Prüfen ob Text im sichtbaren Bereich ist - erweiterte Grenzen
+                if (textX < 15 || textX > 785 || textY < 15 || textY > 485) {
                     // Text nach innen versetzen wenn außerhalb
-                    const innerTextX = midX - normalX * 15;
-                    const innerTextY = midY - normalY * 15;
+                    const innerTextX = midX - normalX * 20;
+                    const innerTextY = midY - normalY * 20;
                     createSideLabel(innerTextX, innerTextY, label, dimensionsGroup, true);
                 } else {
                     // Kleine Linie zur Seite
