@@ -105,7 +105,7 @@
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-            margin: 10px 0;
+            margin: 5px 0;
         }
 
         .panel-header {
@@ -1034,11 +1034,11 @@
             if (currentPoints.length === 0) return;
             
             const bounds = getBounds(currentPoints);
-            // Noch größere Skalierung für schmaleres SVG (4:3 Format)
-            const maxScale = Math.min(220 / Math.max(bounds.width, 1), 180 / Math.max(bounds.height, 1));
-            const scale = maxScale * 0.9; // 90% der maximalen Größe für mehr Ausfüllung
-            const centerX = 300; // Neues Center für 600px Breite
-            const centerY = 200; // Neues Center für 400px Höhe
+            // Doppelt so große Skalierung - Form füllt fast das gesamte SVG aus
+            const maxScale = Math.min(440 / Math.max(bounds.width, 1), 360 / Math.max(bounds.height, 1));
+            const scale = maxScale * 0.9; // 90% für etwas Platz um die Form
+            const centerX = 300;
+            const centerY = 200;
             
             // Punkte für SVG umrechnen
             const svgPoints = currentPoints.map(p => {
@@ -1086,8 +1086,8 @@
                 const normalX = -(next.y - current.y) / sideLength;
                 const normalY = (next.x - current.x) / sideLength;
                 
-                // Text-Position (nach außen versetzt) - größerer Abstand für größere Form
-                const offset = 35;
+                // Text-Position (nach außen versetzt) - größerer Abstand für sehr große Form
+                const offset = 45;
                 const textX = midX + normalX * offset;
                 const textY = midY + normalY * offset;
                 
