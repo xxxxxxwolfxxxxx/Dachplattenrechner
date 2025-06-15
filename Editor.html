@@ -486,9 +486,15 @@
     </div>
 
     <script>
-        // WICHTIG: Globale Funktionen ZUERST definieren, damit sie sofort verfügbar sind
-        
-        // Traufe-Position setzen
+        // Globale Variablen ZUERST definieren
+        let projectData = {};
+        let currentPoints = [];
+        let currentShapeType = 'rechteck';
+        let currentValues = { length: 10, width: 8 };
+        let waterFlowDirection = 'down';
+        let preferredDirection = 'laengs';
+
+        // Globale Funktionen für Traufe-Overlay
         function setTraufePosition(position) {
             console.log('Traufe-Position gesetzt: ' + position);
             
@@ -497,21 +503,12 @@
             closeOverlay();
         }
 
-        // Overlay schließen
         function closeOverlay() {
             const overlay = document.querySelector('.traufe-overlay');
             if (overlay) {
                 document.body.removeChild(overlay);
             }
         }
-
-        // Globale Variablen
-        let projectData = {};
-        let currentPoints = [];
-        let currentShapeType = 'rechteck';
-        let currentValues = { length: 10, width: 8 };
-        let waterFlowDirection = 'down';
-        let preferredDirection = 'laengs';
 
         // Storage-Funktionen
         function saveData() {
