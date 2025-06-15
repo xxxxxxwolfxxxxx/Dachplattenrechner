@@ -785,33 +785,6 @@ function init() {
         console.error('Fehler bei der Initialisierung:', error);
         alert('Fehler beim Laden des Editors: ' + error.message);
     }
-} = currentPoints.map(p => p.x);
-                const ys = currentPoints.map(p => p.y);
-                currentValues.length = Math.max(...xs) - Math.min(...xs);
-                currentValues.width = Math.max(...ys) - Math.min(...ys);
-                generateInputFields();
-            } else {
-                showDebugInfo('🔶 Vieleck erkannt - verwende Punkt-Eingabe');
-                generatePolygonInputFields();
-            }
-        } else {
-            showDebugInfo('📐 Keine Punkte vorhanden - verwende Standard-Rechteck');
-            generateInputFields();
-            updateGeometry();
-        }
-        
-        updateShape();
-        updateInfoPanel();
-        updateWaterFlowDisplay();
-        
-        setupEventHandlers();
-        
-        showDebugInfo('✅ Editor erfolgreich initialisiert');
-        
-    } catch (error) {
-        showDebugInfo('❌ Fehler bei der Initialisierung: ' + error.message);
-        alert('Fehler beim Laden des Editors: ' + error.message);
-    }
 }
 
 // Globale Funktionen für Overlay-Buttons
