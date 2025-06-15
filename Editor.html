@@ -268,6 +268,13 @@
             <!-- Profil-Info Panel -->
             <div class="profile-info-panel">
                 <h3>Gewähltes Profil</h3>
+                
+                <!-- DEBUG-Bereich -->
+                <div id="debug-status" style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
+                    <h4 style="margin-top: 0; color: #856404;">Debug-Status:</h4>
+                    <div id="debug-content">Lade Daten...</div>
+                </div>
+                
                 <div class="profile-info-grid">
                     <div>
                         <div class="profile-info-item">
@@ -392,21 +399,29 @@
         let waterFlowDirection = 'down'; // 'down' = nach unten, 'up' = nach oben
         let preferredDirection = 'laengs'; // 'laengs' oder 'quer'
 
-        // Storage-Funktionen - KORRIGIERT mit detailliertem Debugging
+        // DEBUG-Funktion für sichtbare Ausgabe
+        function showDebugInfo(message) {
+            const debugElement = document.getElementById('debug-content');
+            if (debugElement) {
+                debugElement.innerHTML += '<div>' + message + '</div>';
+            }
+        }
+
+        // Storage-Funktionen - KORRIGIERT mit sichtbarem Debugging
         function saveData() {
             try {
-                console.log('Speichere Daten:', projectData);
+                showDebugInfo('💾 Speichere Daten...');
                 localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-                console.log('Daten erfolgreich in localStorage gespeichert');
+                showDebugInfo('✅ Daten erfolgreich in localStorage gespeichert');
                 return true;
             } catch (e) {
-                console.log('localStorage nicht verfügbar, versuche sessionStorage');
+                showDebugInfo('⚠️ localStorage nicht verfügbar, versuche sessionStorage');
                 try {
                     sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-                    console.log('Daten erfolgreich in sessionStorage gespeichert');
+                    showDebugInfo('✅ Daten erfolgreich in sessionStorage gespeichert');
                     return true;
                 } catch (e2) {
-                    console.error('Speichern fehlgeschlagen:', e2);
+                    showDebugInfo('❌ Speichern fehlgeschlagen: ' + e2.message);
                     return false;
                 }
             }
@@ -414,73 +429,72 @@
 
         function loadData() {
             try {
-                console.log('Versuche Daten zu laden...');
+                showDebugInfo('📥 Versuche Daten zu laden...');
                 
                 let saved = localStorage.getItem('dachplattenrechner_data');
-                console.log('localStorage Inhalt:', saved ? 'Daten gefunden' : 'Leer');
+                showDebugInfo('📦 localStorage: ' + (saved ? 'Daten gefunden (' + saved.length + ' Zeichen)' : 'Leer'));
                 
                 if (!saved) {
                     saved = sessionStorage.getItem('dachplattenrechner_data');
-                    console.log('sessionStorage Inhalt:', saved ? 'Daten gefunden' : 'Leer');
+                    showDebugInfo('📦 sessionStorage: ' + (saved ? 'Daten gefunden (' + saved.length + ' Zeichen)' : 'Leer'));
                 }
                 
                 if (saved) {
                     const data = JSON.parse(saved);
-                    console.log('Geladene Daten:', data);
-                    console.log('Profil in geladenen Daten:', data.profile);
+                    showDebugInfo('📋 Geladene Daten-Struktur: ' + Object.keys(data).join(', '));
+                    showDebugInfo('👤 Profil vorhanden: ' + (data.profile ? 'JA' : 'NEIN'));
+                    if (data.profile) {
+                        showDebugInfo('🔧 Profil-Name: ' + (data.profile.profilname || 'Unbekannt'));
+                        showDebugInfo('📐 Deckbreite: ' + (data.profile.deckbreite || 'Unbekannt'));
+                    }
                     return data;
                 } else {
-                    console.log('Keine gespeicherten Daten gefunden');
+                    showDebugInfo('❌ Keine gespeicherten Daten gefunden');
                     return {};
                 }
             } catch (e) {
-                console.error('Fehler beim Laden der Daten:', e);
+                showDebugInfo('❌ Fehler beim Laden: ' + e.message);
                 return {};
             }
         }
 
-        // Profil-Info anzeigen - KORRIGIERT mit detailliertem Debugging
+        // Profil-Info anzeigen - KORRIGIERT mit sichtbarem Debugging
         function displayProfileInfo() {
-            console.log('displayProfileInfo aufgerufen');
+            showDebugInfo('🎯 displayProfileInfo aufgerufen');
             const profile = projectData.profile;
             
-            console.log('Profil-Objekt:', profile);
+            showDebugInfo('🔍 Profil-Objekt: ' + (profile ? 'Vorhanden' : 'Fehlt'));
             
             if (profile) {
-                console.log('Profil-Daten verfügbar, fülle UI-Felder...');
+                showDebugInfo('✅ Profil-Daten verfügbar, fülle UI-Felder...');
                 
                 const profilName = profile.profilname || 'Standard';
                 const deckbreite = profile.deckbreite || 1000;
                 const lieferbreite = profile.lieferbreite || 1050;
                 const seitenueberlappung = profile.seitenueberlappung || 50;
                 
-                console.log('Setze UI-Werte:', {
-                    profilName,
-                    deckbreite,
-                    lieferbreite,
-                    seitenueberlappung
-                });
+                showDebugInfo('📋 Werte: ' + profilName + ', ' + deckbreite + 'mm, ' + lieferbreite + 'mm, ' + seitenueberlappung + 'mm');
                 
                 const nameElement = document.getElementById('current-profile-name');
                 const deckbreiteElement = document.getElementById('current-deckbreite');
                 const lieferbreiteElement = document.getElementById('current-lieferbreite');
                 const seitenueberlappungElement = document.getElementById('current-seitenueberlappung');
                 
-                console.log('UI-Elemente gefunden:', {
-                    nameElement: !!nameElement,
-                    deckbreiteElement: !!deckbreiteElement,
-                    lieferbreiteElement: !!lieferbreiteElement,
-                    seitenueberlappungElement: !!seitenueberlappungElement
-                });
+                showDebugInfo('🎯 UI-Elemente: ' + 
+                    (nameElement ? '✅' : '❌') + 'Name ' +
+                    (deckbreiteElement ? '✅' : '❌') + 'Deckbreite ' +
+                    (lieferbreiteElement ? '✅' : '❌') + 'Lieferbreite ' +
+                    (seitenueberlappungElement ? '✅' : '❌') + 'Überlappung'
+                );
                 
                 if (nameElement) nameElement.textContent = profilName;
                 if (deckbreiteElement) deckbreiteElement.textContent = deckbreite + ' mm';
                 if (lieferbreiteElement) lieferbreiteElement.textContent = lieferbreite + ' mm';
                 if (seitenueberlappungElement) seitenueberlappungElement.textContent = seitenueberlappung + ' mm';
                 
-                console.log('Profil-Info erfolgreich angezeigt');
+                showDebugInfo('✅ Profil-Info erfolgreich angezeigt');
             } else {
-                console.warn('Keine Profil-Daten gefunden!');
+                showDebugInfo('❌ Keine Profil-Daten gefunden!');
                 
                 const elements = [
                     'current-profile-name',
