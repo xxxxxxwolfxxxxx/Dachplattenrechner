@@ -929,48 +929,49 @@
             }
         }
 
-        // Automatische Berechnungen für Dreiecke MIT DYNAMISCHER ANPASSUNG
+        // Automatische Berechnungen für Dreiecke MIT FLEXIBLER LOGIK
         function updateTriangleValue(fieldId, value) {
             console.log('updateTriangleValue aufgerufen:', fieldId, value);
             currentValues[fieldId] = parseFloat(value) || null;
             
             const variant = projectData.roofShape?.variant || 'gleichseitig';
-            console.log('Triangle variant:', variant, 'currentValues:', currentValues);
+            console.log('Triangle variant:', variant, 'Field changed:', fieldId, 'New value:', value);
             
             if (variant === 'ungleichschenklig') {
-                console.log('Feld geändert:', fieldId, 'Neuer Wert:', value);
-                
                 const a = currentValues.sideA;    // Basis
+                const b = currentValues.sideB;    // Linke Seite
+                const c = currentValues.sideC;    // Rechte Seite
                 const h = currentValues.height;   // Höhe
                 const offset = currentValues.offset; // Versatz von links
                 
-                // PRIORITÄT 1: Wenn Basis, Höhe UND Versatz bekannt sind → Seiten IMMER neu berechnen
-                if (a && h && (offset !== null && offset !== undefined)) {
-                    console.log('PRIORITÄT 1: Berechne Seiten aus Geometrie (a, h, offset)');
+                // UNTERSCHEIDE: Welcher Ansatz wird verwendet?
+                
+                if (fieldId === 'sideA' || fieldId === 'height' || fieldId === 'offset') {
+                    // GEOMETRIE-ANSATZ: Basis/Höhe/Versatz geändert → berechne Seiten
+                    console.log('GEOMETRIE-ANSATZ: Berechne Seiten aus Geometrie');
                     
-                    const calcB = Math.sqrt(offset * offset + h * h);
-                    const calcC = Math.sqrt((a - offset) * (a - offset) + h * h);
-                    
-                    currentValues.sideB = calcB;
-                    currentValues.sideC = calcC;
-                    
-                    const sideBInput = document.getElementById('dim-side-b');
-                    const sideCInput = document.getElementById('dim-side-c');
-                    if (sideBInput) sideBInput.value = calcB.toFixed(2);
-                    if (sideCInput) sideCInput.value = calcC.toFixed(2);
-                    
-                    console.log('→ Neu berechnete Seiten:', { b: calcB.toFixed(2), c: calcC.toFixed(2) });
+                    if (a && h && (offset !== null && offset !== undefined)) {
+                        const calcB = Math.sqrt(offset * offset + h * h);
+                        const calcC = Math.sqrt((a - offset) * (a - offset) + h * h);
+                        
+                        currentValues.sideB = calcB;
+                        currentValues.sideC = calcC;
+                        
+                        const sideBInput = document.getElementById('dim-side-b');
+                        const sideCInput = document.getElementById('dim-side-c');
+                        if (sideBInput) sideBInput.value = calcB.toFixed(2);
+                        if (sideCInput) sideCInput.value = calcC.toFixed(2);
+                        
+                        console.log('→ Seiten aus Geometrie berechnet:', { b: calcB.toFixed(2), c: calcC.toFixed(2) });
+                    }
                 }
                 
-                // PRIORITÄT 2: Wenn eine Seite manuell geändert wurde → berechne Höhe oder Versatz
                 else if (fieldId === 'sideB' || fieldId === 'sideC') {
-                    const b = currentValues.sideB;
-                    const c = currentValues.sideC;
+                    // SEITEN-ANSATZ: Seitenlänge geändert → berechne Geometrie
+                    console.log('SEITEN-ANSATZ: Berechne Geometrie aus Seiten');
                     
                     if (a && b && c) {
-                        console.log('PRIORITÄT 2: Eine Seite wurde geändert → berechne Geometrie neu');
-                        
-                        // Berechne Höhe und Versatz aus den drei Seiten
+                        // Berechne Höhe mit Heron-Formel
                         const s = (a + b + c) / 2; // Halbumfang
                         const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
                         const calcH = (2 * area) / a;
@@ -987,20 +988,55 @@
                         if (heightInput) heightInput.value = calcH.toFixed(2);
                         if (offsetInput) offsetInput.value = calcOffset.toFixed(2);
                         
-                        console.log('→ Neu berechnete Geometrie:', { h: calcH.toFixed(2), offset: calcOffset.toFixed(2) });
+                        console.log('→ Geometrie aus Seiten berechnet:', { h: calcH.toFixed(2), offset: calcOffset.toFixed(2) });
                     }
                 }
                 
-                // PRIORITÄT 3: Automatische Vervollständigung bei fehlenden Werten
                 else {
-                    const b = currentValues.sideB;
-                    const c = currentValues.sideC;
+                    // AUTO-VERVOLLSTÄNDIGUNG: Fehlende Werte berechnen
+                    console.log('AUTO-VERVOLLSTÄNDIGUNG: Fehlende Werte ergänzen');
                     
-                    // Wenn nur a, h, b bekannt → berechne c, offset
-                    if (a && h && b && (!c || !offset)) {
-                        console.log('PRIORITÄT 3a: Berechne c und offset aus a, h, b');
+                    // Geometrie-basiert: wenn a, h, offset vollständig
+                    if (a && h && (offset !== null && offset !== undefined) && (!b || !c)) {
+                        console.log('→ Vervollständige Seiten aus Geometrie');
                         
-                        const calcOffset = Math.sqrt(b*b - h*h);
+                        const calcB = Math.sqrt(offset * offset + h * h);
+                        const calcC = Math.sqrt((a - offset) * (a - offset) + h * h);
+                        
+                        currentValues.sideB = calcB;
+                        currentValues.sideC = calcC;
+                        
+                        const sideBInput = document.getElementById('dim-side-b');
+                        const sideCInput = document.getElementById('dim-side-c');
+                        if (sideBInput) sideBInput.value = calcB.toFixed(2);
+                        if (sideCInput) sideCInput.value = calcC.toFixed(2);
+                    }
+                    
+                    // Seiten-basiert: wenn a, b, c vollständig
+                    else if (a && b && c && (!h || !offset)) {
+                        console.log('→ Vervollständige Geometrie aus Seiten');
+                        
+                        const s = (a + b + c) / 2;
+                        const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+                        const calcH = (2 * area) / a;
+                        
+                        const angleLeft = Math.acos((a*a + b*b - c*c) / (2*a*b));
+                        const calcOffset = b * Math.cos(angleLeft);
+                        
+                        currentValues.height = calcH;
+                        currentValues.offset = calcOffset;
+                        
+                        const heightInput = document.getElementById('dim-height');
+                        const offsetInput = document.getElementById('dim-offset');
+                        if (heightInput) heightInput.value = calcH.toFixed(2);
+                        if (offsetInput) offsetInput.value = calcOffset.toFixed(2);
+                    }
+                    
+                    // Gemischt: wenn a, h, b vollständig
+                    else if (a && h && b && (!c || !offset)) {
+                        console.log('→ Vervollständige aus a, h, b');
+                        
+                        const calcOffset = Math.sqrt(Math.max(0, b*b - h*h));
                         const calcC = Math.sqrt((a - calcOffset) * (a - calcOffset) + h * h);
                         
                         currentValues.sideC = calcC;
@@ -1010,15 +1046,13 @@
                         const offsetInput = document.getElementById('dim-offset');
                         if (sideCInput) sideCInput.value = calcC.toFixed(2);
                         if (offsetInput) offsetInput.value = calcOffset.toFixed(2);
-                        
-                        console.log('→ Berechnete Werte:', { c: calcC.toFixed(2), offset: calcOffset.toFixed(2) });
                     }
                     
-                    // Wenn nur a, h, c bekannt → berechne b, offset  
+                    // Gemischt: wenn a, h, c vollständig
                     else if (a && h && c && (!b || !offset)) {
-                        console.log('PRIORITÄT 3b: Berechne b und offset aus a, h, c');
+                        console.log('→ Vervollständige aus a, h, c');
                         
-                        // Iterative Suche nach dem richtigen Offset
+                        // Iterative Suche nach passendem Offset
                         let bestOffset = 0;
                         let minDiff = Infinity;
                         
@@ -1040,30 +1074,6 @@
                         const offsetInput = document.getElementById('dim-offset');
                         if (sideBInput) sideBInput.value = calcB.toFixed(2);
                         if (offsetInput) offsetInput.value = bestOffset.toFixed(2);
-                        
-                        console.log('→ Berechnete Werte:', { b: calcB.toFixed(2), offset: bestOffset.toFixed(2) });
-                    }
-                    
-                    // Wenn nur a, b, c bekannt → berechne h, offset
-                    else if (a && b && c && (!h || !offset)) {
-                        console.log('PRIORITÄT 3c: Berechne Höhe und Versatz aus den drei Seiten');
-                        
-                        const s = (a + b + c) / 2;
-                        const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
-                        const calcH = (2 * area) / a;
-                        
-                        const angleLeft = Math.acos((a*a + b*b - c*c) / (2*a*b));
-                        const calcOffset = b * Math.cos(angleLeft);
-                        
-                        currentValues.height = calcH;
-                        currentValues.offset = calcOffset;
-                        
-                        const heightInput = document.getElementById('dim-height');
-                        const offsetInput = document.getElementById('dim-offset');
-                        if (heightInput) heightInput.value = calcH.toFixed(2);
-                        if (offsetInput) offsetInput.value = calcOffset.toFixed(2);
-                        
-                        console.log('→ Berechnete Geometrie:', { h: calcH.toFixed(2), offset: calcOffset.toFixed(2) });
                     }
                 }
                 
@@ -1073,16 +1083,20 @@
                 const finalC = currentValues.sideC;
                 
                 if (finalA && finalB && finalC) {
-                    const angleArad = Math.acos((finalB*finalB + finalC*finalC - finalA*finalA) / (2*finalB*finalC));
-                    const angleBrad = Math.acos((finalA*finalA + finalC*finalC - finalB*finalB) / (2*finalA*finalC));
-                    
-                    currentValues.angleA = angleArad * 180 / Math.PI;
-                    currentValues.angleB = angleBrad * 180 / Math.PI;
-                    
-                    const angleAInput = document.getElementById('dim-angle-a');
-                    const angleBInput = document.getElementById('dim-angle-b');
-                    if (angleAInput) angleAInput.value = currentValues.angleA.toFixed(1);
-                    if (angleBInput) angleBInput.value = currentValues.angleB.toFixed(1);
+                    try {
+                        const angleArad = Math.acos((finalB*finalB + finalC*finalC - finalA*finalA) / (2*finalB*finalC));
+                        const angleBrad = Math.acos((finalA*finalA + finalC*finalC - finalB*finalB) / (2*finalA*finalC));
+                        
+                        currentValues.angleA = angleArad * 180 / Math.PI;
+                        currentValues.angleB = angleBrad * 180 / Math.PI;
+                        
+                        const angleAInput = document.getElementById('dim-angle-a');
+                        const angleBInput = document.getElementById('dim-angle-b');
+                        if (angleAInput) angleAInput.value = currentValues.angleA.toFixed(1);
+                        if (angleBInput) angleBInput.value = currentValues.angleB.toFixed(1);
+                    } catch (e) {
+                        console.log('Winkelberechnung nicht möglich (ungültiges Dreieck?)');
+                    }
                 }
                 
                 // Fläche berechnen
@@ -1134,9 +1148,8 @@
                 if (areaInput) areaInput.value = area.toFixed(1);
             }
             
-            console.log('Nach Auto-Berechnung - currentValues:', currentValues);
+            console.log('Nach Berechnung - currentValues:', currentValues);
             currentPoints = generatePoints();
-            console.log('Nach generatePoints - currentPoints:', currentPoints);
             updateShape();
             updateInfoPanel();
         }
