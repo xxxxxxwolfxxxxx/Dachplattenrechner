@@ -1,4 +1,25 @@
-// Globale Variablen
+// Eingabefelder generieren (für Rechtecke)
+function generateInputFields() {
+    const container = document.getElementById('geometry-inputs-grid');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="input-group">
+            <label for="dim-length">Länge:</label>
+            <div class="input-group-wrapper">
+                <input type="number" id="dim-length" step="0.1" min="0.1" value="${currentValues.length || 10}" onchange="updateValue('length', this.value)">
+                <span class="input-unit">m</span>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="dim-width">Breite:</label>
+            <div class="input-group-wrapper">
+                <input type="number" id="dim-width" step="0.1" min="0.1" value="${currentValues.width || 8}" onchange="updateValue('width', this.value)">
+                <span class="input-unit">m</span>
+            </div>
+        </div>
+    `;
+}// Globale Variablen
 let projectData = {};
 let currentPoints = [];
 let currentShapeType = 'rechteck';
@@ -252,27 +273,92 @@ function updateInfoPanel() {
     }
 }
 
-// Eingabefelder generieren
-function generateInputFields() {
+// Eingabefelder für Dreieck
+function generateTriangleInputFields() {
     const container = document.getElementById('geometry-inputs-grid');
     if (!container) return;
     
     container.innerHTML = `
         <div class="input-group">
-            <label for="dim-length">Länge:</label>
+            <label>Dreieck-Typ:</label>
             <div class="input-group-wrapper">
-                <input type="number" id="dim-length" step="0.1" min="0.1" value="${currentValues.length || 10}" onchange="updateValue('length', this.value)">
+                <span>${projectData.roofShape?.variant || 'Standard'}</span>
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Basis:</label>
+            <div class="input-group-wrapper">
+                <input type="number" step="0.1" min="0.1" value="${(Math.max(...currentPoints.map(p => p.x)) - Math.min(...currentPoints.map(p => p.x))).toFixed(1)}" onchange="updateTriangleSize('width', this.value)">
                 <span class="input-unit">m</span>
             </div>
         </div>
         <div class="input-group">
-            <label for="dim-width">Breite:</label>
+            <label>Höhe:</label>
             <div class="input-group-wrapper">
-                <input type="number" id="dim-width" step="0.1" min="0.1" value="${currentValues.width || 8}" onchange="updateValue('width', this.value)">
+                <input type="number" step="0.1" min="0.1" value="${(Math.max(...currentPoints.map(p => p.y)) - Math.min(...currentPoints.map(p => p.y))).toFixed(1)}" onchange="updateTriangleSize('height', this.value)">
                 <span class="input-unit">m</span>
             </div>
         </div>
+        <div class="input-group">
+            <label>Punkte:</label>
+            <div class="input-group-wrapper">
+                <span>${currentPoints.length}</span>
+            </div>
+        </div>
     `;
+}
+
+// Eingabefelder für Vieleck
+function generatePolygonInputFields() {
+    const container = document.getElementById('geometry-inputs-grid');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="input-group">
+            <label>Form-Typ:</label>
+            <div class="input-group-wrapper">
+                <span>${projectData.roofShape?.variant || 'Vieleck'}</span>
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Breite:</label>
+            <div class="input-group-wrapper">
+                <span>${(Math.max(...currentPoints.map(p => p.x)) - Math.min(...currentPoints.map(p => p.x))).toFixed(1)} m</span>
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Höhe:</label>
+            <div class="input-group-wrapper">
+                <span>${(Math.max(...currentPoints.map(p => p.y)) - Math.min(...currentPoints.map(p => p.y))).toFixed(1)} m</span>
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Punkte:</label>
+            <div class="input-group-wrapper">
+                <span>${currentPoints.length}</span>
+            </div>
+        </div>
+    `;
+}
+
+// Dreieck-Größe anpassen
+function updateTriangleSize(dimension, value) {
+    const newValue = parseFloat(value) || 1;
+    
+    if (dimension === 'width') {
+        // Basis anpassen
+        const currentWidth = Math.max(...currentPoints.map(p => p.x)) - Math.min(...currentPoints.map(p => p.x));
+        const scale = newValue / currentWidth;
+        currentPoints = currentPoints.map(p => ({ x: p.x * scale, y: p.y }));
+    } else if (dimension === 'height') {
+        // Höhe anpassen
+        const currentHeight = Math.max(...currentPoints.map(p => p.y)) - Math.min(...currentPoints.map(p => p.y));
+        const scale = newValue / currentHeight;
+        currentPoints = currentPoints.map(p => ({ x: p.x, y: p.y * scale }));
+    }
+    
+    updateShape();
+    updateInfoPanel();
 }
 
 // Wert aktualisieren
@@ -458,8 +544,37 @@ function init() {
             };
         }
         
-        generateInputFields();
-        updateGeometry();
+        // KORRIGIERT: Vorhandene Punkte aus roofShape laden
+        if (projectData.roofShape && projectData.roofShape.points && projectData.roofShape.points.length > 0) {
+            showDebugInfo('📐 Lade vorhandene Dachform-Punkte: ' + projectData.roofShape.points.length + ' Punkte');
+            currentPoints = [...projectData.roofShape.points]; // Kopie erstellen
+            currentShapeType = projectData.roofShape.baseShape || 'rechteck';
+            
+            // Für Dreiecke/Vielecke: keine Standard-Eingabefelder
+            if (currentPoints.length === 3) {
+                showDebugInfo('🔺 Dreieck erkannt - verwende spezielle Eingabe');
+                generateTriangleInputFields();
+            } else if (currentPoints.length === 4) {
+                showDebugInfo('⬜ Rechteck erkannt - verwende Standard-Eingabe');
+                // Berechne length/width aus Punkten
+                const xs = currentPoints.map(p => p.x);
+                const ys = currentPoints.map(p => p.y);
+                currentValues.length = Math.max(...xs) - Math.min(...xs);
+                currentValues.width = Math.max(...ys) - Math.min(...ys);
+                generateInputFields();
+            } else {
+                showDebugInfo('🔶 Vieleck erkannt - verwende Punkt-Eingabe');
+                generatePolygonInputFields();
+            }
+        } else {
+            showDebugInfo('📐 Keine Punkte vorhanden - verwende Standard-Rechteck');
+            generateInputFields();
+            updateGeometry();
+        }
+        
+        // Shape zeichnen
+        updateShape();
+        updateInfoPanel();
         
         // Wasserlauf-Anzeige setzen
         const leftFlow = document.getElementById('water-flow-left');
