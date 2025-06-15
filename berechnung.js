@@ -349,6 +349,10 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
     const points = analysis.points;
     if (points.length !== 3) return [];
 
+    const profile = projectData.profile;
+    const lieferbreite = profile.lieferbreite; // Physische Plattenbreite
+    const seitenueberlappung = profile.seitenueberlappung;
+
     // Analysiere die Dreieck-Geometrie
     const xs = points.map(p => p.x);
     const ys = points.map(p => p.y);
@@ -363,13 +367,14 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
     // Bestimme Dreieck-Typ basierend auf roofShape.variant
     const dreieckTyp = projectData.roofShape?.variant || 'rechtwinklig';
 
-    console.log('Dreieck-Analyse:', {
+    console.log('Dreieck-Analyse (mit physischer Plattenbreite):', {
         basisBreite: basisBreite,
         dreieckHoehe: dreieckHoehe,
         bahnenAnzahl: bahnenAnzahl,
         deckbreite: deckbreite,
-        dreieckTyp: dreieckTyp,
-        points: points
+        lieferbreite: lieferbreite,
+        seitenueberlappung: seitenueberlappung,
+        dreieckTyp: dreieckTyp
     });
 
     // Funktion um Dreieckshöhe an beliebiger Position zu berechnen
@@ -395,19 +400,28 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
     const plateLengths = [];
     
     for (let i = 0; i < bahnenAnzahl; i++) {
-        // Bahn erstreckt sich von bahnStart bis bahnEnd
-        const bahnStart = i * (deckbreite / 1000);
-        const bahnEnd = (i + 1) * (deckbreite / 1000);
+        // KORRIGIERT: Bahnen werden nach Deckbreite positioniert (Abstand zwischen Plattenmitten)
+        const bahnMitte = i * (deckbreite / 1000);
+        
+        // ABER: Die physische Platte ist breiter (Lieferbreite)
+        // Platte erstreckt sich von Mitte - halbe_Lieferbreite bis Mitte + halbe_Lieferbreite
+        const halbeLibreite = (lieferbreite / 1000) / 2;
+        const platteStart = bahnMitte - halbeLibreite;
+        const platteEnd = bahnMitte + halbeLibreite;
+        
+        // Für die erste Platte: Start bei 0 (nicht negativ)
+        const platteStartKorrigiert = Math.max(0, platteStart);
+        const platteEndKorrigiert = Math.min(basisBreite, platteEnd);
         
         // Relative Positionen
-        const relativeStart = bahnStart / basisBreite;
-        const relativeEnd = Math.min(bahnEnd / basisBreite, 1.0);
+        const relativeStart = platteStartKorrigiert / basisBreite;
+        const relativeEnd = platteEndKorrigiert / basisBreite;
         
-        console.log(`Bahn ${i + 1}: Von ${bahnStart.toFixed(2)}m bis ${bahnEnd.toFixed(2)}m (Relativ: ${relativeStart.toFixed(3)} - ${relativeEnd.toFixed(3)})`);
+        console.log(`Bahn ${i + 1}: Deckbereich ${bahnMitte.toFixed(2)}m, Physische Platte: ${platteStartKorrigiert.toFixed(3)}m bis ${platteEndKorrigiert.toFixed(3)}m`);
         
-        // Prüfe mehrere Punkte innerhalb der Bahn und finde das Maximum
+        // Prüfe mehrere Punkte innerhalb der PHYSISCHEN Platte und finde das Maximum
         let maxHoehe = 0;
-        const schritte = 10; // 10 Messpunkte pro Bahn
+        const schritte = 20; // Mehr Messpunkte für Genauigkeit
         
         for (let j = 0; j <= schritte; j++) {
             const relativePosition = relativeStart + (relativeEnd - relativeStart) * (j / schritte);
@@ -415,7 +429,7 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
             maxHoehe = Math.max(maxHoehe, hoehe);
         }
         
-        // Zusätzlich: Prüfe die exakten Start- und Endpunkte
+        // Zusätzlich: Prüfe die exakten Start- und Endpunkte der physischen Platte
         const hoeheStart = getTriangleHeightAtPosition(relativeStart);
         const hoeheEnd = getTriangleHeightAtPosition(relativeEnd);
         maxHoehe = Math.max(maxHoehe, hoeheStart, hoeheEnd);
@@ -423,19 +437,19 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
         // Sicherstellen, dass Höhe nicht negativ wird
         maxHoehe = Math.max(0, maxHoehe);
         
-        // Plattenlänge = maximale Dreieckshöhe in der Bahn + Überstand
+        // Plattenlänge = maximale Dreieckshöhe in der physischen Platte + Überstand
         const plattenLaenge = Math.max(ueberstand, (maxHoehe * 1000) + ueberstand);
         
-        console.log(`Bahn ${i + 1}: Max. Höhe=${maxHoehe.toFixed(2)}m, Plattenlänge=${plattenLaenge.toFixed(0)}mm`);
+        console.log(`Bahn ${i + 1}: Max. Höhe=${maxHoehe.toFixed(2)}m, Plattenlänge=${plattenLaenge.toFixed(0)}mm (physische Breite berücksichtigt)`);
         
         plateLengths.push({
             bahnNummer: i + 1,
             laenge: Math.round(plattenLaenge),
             dreieckHoehe: maxHoehe,
-            position: bahnStart,
-            relativeStart: relativeStart,
-            relativeEnd: relativeEnd,
-            bahnBreite: bahnEnd - bahnStart
+            position: bahnMitte,
+            platteStart: platteStartKorrigiert,
+            platteEnd: platteEndKorrigiert,
+            physischePlattenbereite: platteEndKorrigiert - platteStartKorrigiert
         });
     }
     
