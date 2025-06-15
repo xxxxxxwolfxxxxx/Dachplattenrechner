@@ -638,10 +638,41 @@ function drawPlateLayout(layout, transformPoint, scale) {
     const lieferbreite = profile.lieferbreite / 1000; // in Meter
     const seitenueberlappung = profile.seitenueberlappung / 1000; // in Meter
 
-    // Zuerst: Zeichne die Verschnitt-Bereiche (rot) - Platten die über das Dreieck hinausragen
-    ctx.fillStyle = 'rgba(220, 53, 69, 0.6)'; // Rot für Verschnitt
-    ctx.strokeStyle = '#dc3545';
-    ctx.lineWidth = 1;
+    // Hilfsfunktion: Prüft ob ein Punkt innerhalb des Dreiecks liegt
+    function isPointInTriangle(x, y, roofPoints) {
+        // Für Dreiecke: Verwende Barycentric Coordinates oder Ray Casting
+        // Vereinfacht: Für unser gleichschenkliges Dreieck
+        const xs = roofPoints.map(p => p.x);
+        const ys = roofPoints.map(p => p.y);
+        const minX = Math.min(...xs);
+        const maxX = Math.max(...xs);
+        const minY = Math.min(...ys);
+        const maxY = Math.max(...ys);
+        
+        // Erst grobe Prüfung: ist Punkt in Bounding Box?
+        if (x < minX || x > maxX || y < minY || y > maxY) {
+            return false;
+        }
+        
+        // Für gleichschenkliges Dreieck: detaillierte Prüfung
+        const basisBreite = maxX - minX;
+        const dreieckHoehe = maxY - minY;
+        const relativeX = (x - minX) / basisBreite;
+        const relativeY = (y - minY) / dreieckHoehe;
+        
+        // Höhe des Dreiecks an dieser X-Position
+        let maxHoeheAnX;
+        if (relativeX <= 0.5) {
+            maxHoeheAnX = relativeX * 2; // Anstieg zur Mitte
+        } else {
+            maxHoeheAnX = 2 - relativeX * 2; // Abstieg von der Mitte
+        }
+        
+        return relativeY <= maxHoeheAnX;
+    }
+
+    // Hole die Dach-Punkte für die Verschnitt-Berechnung
+    const roofPoints = projectData.roofShape?.points || projectData.geometry?.points || [];
 
     for (let i = 0; i < layout.bahnenAnzahl; i++) {
         let currentPlateLength = layout.bahnenLaenge / 1000; // Standardlänge in Meter
@@ -650,135 +681,98 @@ function drawPlateLayout(layout, transformPoint, scale) {
             currentPlateLength = layout.variableLengths[i].laenge / 1000;
         }
 
-        // Position der Platte
+        // Position der kompletten physischen Platte
         let plateX, plateY, plateWidth, plateHeight;
 
         if (layout.richtung === 'laengs') {
-            // Längs – Bahnen vertikal
             plateX = i * deckbreite;
             plateY = 0;
-            plateWidth = lieferbreite; // Volle Lieferbreite für Verschnitt-Berechnung
+            plateWidth = lieferbreite; // Komplette Lieferbreite
             plateHeight = currentPlateLength;
         } else {
-            // Quer – Bahnen horizontal  
             plateX = 0;
             plateY = i * deckbreite;
             plateWidth = currentPlateLength;
             plateHeight = lieferbreite;
         }
 
-        // Umrechnung in Canvas-Koordinaten
-        const topLeft = transformPoint(plateX, plateY);
-        const bottomRight = transformPoint(plateX + plateWidth, plateY + plateHeight);
-
-        const rectWidth = bottomRight.x - topLeft.x;
-        const rectHeight = bottomRight.y - topLeft.y;
-
-        // Zeichne Verschnitt-Bereich (komplette Platte)
-        ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
-        ctx.strokeRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
-    }
-
-    // Zweitens: Zeichne die Seitenüberlappungen (dunkelgrün)
-    ctx.fillStyle = 'rgba(40, 167, 69, 0.8)'; // Dunkelgrün für Seitenüberlappungen
-    ctx.strokeStyle = '#28a745';
-    ctx.lineWidth = 1;
-
-    for (let i = 0; i < layout.bahnenAnzahl; i++) {
-        let currentPlateLength = layout.bahnenLaenge / 1000;
-
-        if (layout.variableLengths && layout.variableLengths.length > i) {
-            currentPlateLength = layout.variableLengths[i].laenge / 1000;
-        }
-
-        if (layout.richtung === 'laengs') {
-            // Seitenüberlappungen links und rechts
-            const plateX = i * deckbreite;
-            const plateY = 0;
-
-            // Linke Überlappung (falls nicht erste Platte)
-            if (i > 0) {
-                const overlapX = plateX;
-                const overlapWidth = seitenueberlappung / 2;
-                const overlapHeight = currentPlateLength;
-
-                const topLeft = transformPoint(overlapX, plateY);
-                const bottomRight = transformPoint(overlapX + overlapWidth, plateY + overlapHeight);
+        // Teile die Platte in kleine Bereiche und prüfe jeden separat
+        const steps = 20; // Auflösung für die Verschnitt-Erkennung
+        
+        for (let sx = 0; sx < steps; sx++) {
+            for (let sy = 0; sy < steps; sy++) {
+                const subX = plateX + (plateWidth * sx / steps);
+                const subY = plateY + (plateHeight * sy / steps);
+                const subWidth = plateWidth / steps;
+                const subHeight = plateHeight / steps;
+                
+                // Prüfe Mittelpunkt des Sub-Bereichs
+                const centerX = subX + subWidth / 2;
+                const centerY = subY + subHeight / 2;
+                
+                const isInRoof = isPointInTriangle(centerX, centerY, roofPoints);
+                
+                // Canvas-Koordinaten für diesen Sub-Bereich
+                const topLeft = transformPoint(subX, subY);
+                const bottomRight = transformPoint(subX + subWidth, subY + subHeight);
                 const rectWidth = bottomRight.x - topLeft.x;
                 const rectHeight = bottomRight.y - topLeft.y;
-                ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
-            }
-
-            // Rechte Überlappung (falls nicht letzte Platte)
-            if (i < layout.bahnenAnzahl - 1) {
-                const overlapX = plateX + deckbreite - seitenueberlappung / 2;
-                const overlapWidth = seitenueberlappung / 2;
-                const overlapHeight = currentPlateLength;
-
-                const topLeft = transformPoint(overlapX, plateY);
-                const bottomRight = transformPoint(overlapX + overlapWidth, plateY + overlapHeight);
-                const rectWidth = bottomRight.x - topLeft.x;
-                const rectHeight = bottomRight.y - topLeft.y;
+                
+                if (isInRoof) {
+                    // Innerhalb der Dachfläche: bestimme Typ
+                    const deckbereichStart = i * deckbreite;
+                    const deckbereichEnd = deckbereichStart + deckbreite;
+                    
+                    if (layout.richtung === 'laengs') {
+                        if (subX >= deckbereichStart && subX < deckbereichEnd) {
+                            // Hauptbereich (Deckbreite)
+                            ctx.fillStyle = 'rgba(40, 167, 69, 0.4)'; // Hellgrün
+                        } else {
+                            // Seitenüberlappung
+                            ctx.fillStyle = 'rgba(40, 167, 69, 0.8)'; // Dunkelgrün
+                        }
+                    } else {
+                        // Ähnliche Logik für quer
+                        ctx.fillStyle = 'rgba(40, 167, 69, 0.4)'; // Vereinfacht
+                    }
+                } else {
+                    // Außerhalb der Dachfläche: Verschnitt
+                    ctx.fillStyle = 'rgba(220, 53, 69, 0.6)'; // Rot
+                }
+                
                 ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
             }
         }
-    }
 
-    // Drittens: Zeichne die Hauptplatten (hellgrün) - nur Deckbreite
-    ctx.fillStyle = 'rgba(40, 167, 69, 0.4)'; // Hellgrün für Hauptplatten
-    ctx.strokeStyle = '#28a745';
-    ctx.lineWidth = 2;
-
-    for (let i = 0; i < layout.bahnenAnzahl; i++) {
-        let currentPlateLength = layout.bahnenLaenge / 1000;
-
-        if (layout.variableLengths && layout.variableLengths.length > i) {
-            currentPlateLength = layout.variableLengths[i].laenge / 1000;
-        }
-
-        let plateX, plateY, plateWidth, plateHeight;
-
+        // Bahnnummer nur im Hauptbereich
         if (layout.richtung === 'laengs') {
-            // Längs – nur Deckbreite (nutzbare Fläche)
-            plateX = i * deckbreite;
-            plateY = 0;
-            plateWidth = deckbreite; // Nur Deckbreite
-            plateHeight = currentPlateLength;
-        } else {
-            // Quer – nur Deckbreite
-            plateX = 0;
-            plateY = i * deckbreite;
-            plateWidth = currentPlateLength;
-            plateHeight = deckbreite;
+            const deckX = i * deckbreite;
+            const deckY = 0;
+            const deckW = deckbreite;
+            const deckH = currentPlateLength;
+            
+            const topLeft = transformPoint(deckX, deckY);
+            const bottomRight = transformPoint(deckX + deckW, deckY + deckH);
+            const rectWidth = bottomRight.x - topLeft.x;
+            const rectHeight = bottomRight.y - topLeft.y;
+
+            // Rahmen um Hauptbereich
+            ctx.strokeStyle = '#28a745';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
+
+            // Bahnnummer
+            ctx.fillStyle = '#000';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(
+                (i + 1).toString(),
+                topLeft.x + rectWidth / 2,
+                topLeft.y + rectHeight / 2
+            );
         }
-
-        // Umrechnung in Canvas-Koordinaten
-        const topLeft = transformPoint(plateX, plateY);
-        const bottomRight = transformPoint(plateX + plateWidth, plateY + plateHeight);
-
-        const rectWidth = bottomRight.x - topLeft.x;
-        const rectHeight = bottomRight.y - topLeft.y;
-
-        // Zeichne Hauptplatte
-        ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
-        ctx.strokeRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
-
-        // Bahnnummer
-        ctx.fillStyle = '#000';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(
-            (i + 1).toString(),
-            topLeft.x + rectWidth / 2,
-            topLeft.y + rectHeight / 2
-        );
-
-        ctx.fillStyle = 'rgba(40, 167, 69, 0.4)'; // zurücksetzen für nächste Bahn
     }
-
-    // TODO: Längenüberlappung (gelb) - falls mehrere Plattenreihen übereinander
-    // Das wird erst bei sehr großen Dächern relevant, die geteilt werden müssen
 }
 
 function drawDimensions(roofPoints, transformPoint) {
