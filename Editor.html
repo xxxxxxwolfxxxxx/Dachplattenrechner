@@ -247,36 +247,6 @@
             border-bottom: none;
         }
 
-        /* SVG Bemaßungs-Styles */
-        .dimension-line {
-            stroke: #666;
-            stroke-width: 1;
-            fill: none;
-        }
-
-        .dimension-text {
-            font-family: Arial, sans-serif;
-            font-size: 11px;
-            font-weight: bold;
-            fill: #333;
-            text-anchor: middle;
-        }
-
-        .dimension-helper {
-            stroke: #999;
-            stroke-width: 0.5;
-            stroke-dasharray: 2,2;
-            fill: none;
-        }
-
-        .angle-text {
-            font-family: Arial, sans-serif;
-            font-size: 10px;
-            font-weight: bold;
-            fill: #666;
-            text-anchor: middle;
-        }
-
         /* KORRIGIERTE Traufe-Overlay Styles */
         .traufe-overlay {
             position: fixed;
@@ -443,7 +413,7 @@
                 <div class="inputs-section">
                     <h4>Geometrie-Parameter</h4>
                     <div id="geometry-inputs-grid">
-                        <!-- Wird dynamisch gefüllt mit erweiterten Eingabefeldern -->
+                        <!-- Wird dynamisch aus editor.js gefüllt -->
                     </div>
                 </div>
 
@@ -504,9 +474,10 @@
         </footer>
     </div>
 
+    <!-- WICHTIG: editor.js wird ZUERST geladen -->
     <script src="editor.js"></script>
     <script>
-        // KORRIGIERTE Traufe-Funktionalität mit Event Listeners
+        // KORRIGIERTE Traufe-Funktionalität - lädt NACH editor.js
         let currentTraufeOverlay = null;
 
         function showTraufeDialog() {
@@ -552,7 +523,7 @@
             buttons.forEach(btn => {
                 btn.addEventListener('click', function() {
                     const position = this.dataset.position;
-                    setTraufePosition(position);
+                    setTraufePositionFixed(position);
                 });
             });
             
@@ -582,22 +553,25 @@
             console.log('Traufe-Dialog erfolgreich erstellt und angezeigt');
         }
 
-        function setTraufePosition(position) {
+        function setTraufePositionFixed(position) {
             console.log('Traufe-Position gesetzt:', position);
             
-            // Setze die Wasserlaufrichtung
-            if (typeof waterFlowDirection !== 'undefined') {
-                waterFlowDirection = position;
-            }
-            
-            // Rotiere die Form entsprechend der Traufe-Position
-            if (typeof orientToTraufe === 'function') {
-                orientToTraufe(position);
-            }
-            
-            // Aktualisiere die Verlegerichtung
-            if (typeof determinePreferredDirection === 'function') {
-                determinePreferredDirection();
+            // Verwende die original setTraufePosition Funktion aus editor.js falls vorhanden
+            if (typeof setTraufePosition === 'function') {
+                setTraufePosition(position);
+            } else {
+                // Fallback Implementation
+                if (typeof waterFlowDirection !== 'undefined') {
+                    waterFlowDirection = position;
+                }
+                
+                if (typeof orientToTraufe === 'function') {
+                    orientToTraufe(position);
+                }
+                
+                if (typeof determinePreferredDirection === 'function') {
+                    determinePreferredDirection();
+                }
             }
             
             // Dialog schließen
@@ -617,90 +591,33 @@
             overlays.forEach(overlay => overlay.remove());
         }
 
-        // Form zur Traufe-Position ausrichten
-        function orientToTraufe(position) {
-            if (typeof currentPoints === 'undefined' || !currentPoints.length) return;
-            
-            // Berechne Bounding Box
-            const xs = currentPoints.map(p => p.x);
-            const ys = currentPoints.map(p => p.y);
-            const minX = Math.min(...xs);
-            const maxX = Math.max(...xs);
-            const minY = Math.min(...ys);
-            const maxY = Math.max(...ys);
-            const centerX = (minX + maxX) / 2;
-            const centerY = (minY + maxY) / 2;
-
-            // Verschiebe zum Ursprung
-            currentPoints = currentPoints.map(p => ({
-                x: p.x - centerX,
-                y: p.y - centerY
-            }));
-
-            // Bestimme Rotationswinkel basierend auf Traufe-Position
-            let rotationAngle = 0;
-            switch(position) {
-                case 'top':    // Traufe oben = 180° drehen
-                    rotationAngle = Math.PI;
-                    break;
-                case 'right':  // Traufe rechts = -90° drehen  
-                    rotationAngle = -Math.PI / 2;
-                    break;
-                case 'bottom': // Traufe unten = keine Drehung
-                    rotationAngle = 0;
-                    break;
-                case 'left':   // Traufe links = 90° drehen
-                    rotationAngle = Math.PI / 2;
-                    break;
-                default:
-                    rotationAngle = 0;
-            }
-
-            console.log(`Rotiere Form um ${(rotationAngle * 180 / Math.PI).toFixed(1)}° für Traufe-Position: ${position}`);
-
-            // Führe Rotation durch
-            if (rotationAngle !== 0) {
-                currentPoints = currentPoints.map(p => ({
-                    x: p.x * Math.cos(rotationAngle) - p.y * Math.sin(rotationAngle),
-                    y: p.x * Math.sin(rotationAngle) + p.y * Math.cos(rotationAngle)
-                }));
-            }
-
-            // Verschiebe zurück zur ursprünglichen Position
-            currentPoints = currentPoints.map(p => ({
-                x: p.x + centerX,
-                y: p.y + centerY
-            }));
-
-            // Aktualisiere die Darstellung
-            if (typeof updateShape === 'function') {
-                updateShape();
-            }
-            if (typeof updateInfoPanel === 'function') {
-                updateInfoPanel();
+        // Überschreibt die selectTraufeSide Funktion aus editor.js
+        function replaceTraufeButton() {
+            const traufeBtn = document.getElementById('btn-traufe');
+            if (traufeBtn) {
+                // Entferne alle Event Listener und ersetze den Button
+                const newTraufeBtn = traufeBtn.cloneNode(true);
+                traufeBtn.parentNode.replaceChild(newTraufeBtn, traufeBtn);
+                
+                // Setze neuen Event Listener
+                newTraufeBtn.addEventListener('click', showTraufeDialog);
+                console.log('Traufe-Button erfolgreich mit korrigiertem Event Listener versehen');
+            } else {
+                console.error('Traufe-Button nicht gefunden!');
             }
         }
 
-        // Nach dem Laden der Hauptskripte den Traufe-Button überschreiben
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                const traufeBtn = document.getElementById('btn-traufe');
-                if (traufeBtn) {
-                    // Entferne alle Event Listener und ersetze den Button
-                    const newTraufeBtn = traufeBtn.cloneNode(true);
-                    traufeBtn.parentNode.replaceChild(newTraufeBtn, traufeBtn);
-                    
-                    // Setze neuen Event Listener
-                    newTraufeBtn.addEventListener('click', showTraufeDialog);
-                    console.log('Traufe-Button erfolgreich mit Event Listener versehen');
-                } else {
-                    console.error('Traufe-Button nicht gefunden!');
-                }
-            }, 500);
-        });
+        // Warte bis editor.js vollständig geladen ist
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(replaceTraufeButton, 1000); // Warte 1s auf editor.js
+            });
+        } else {
+            setTimeout(replaceTraufeButton, 1000);
+        }
 
-        // Globale Funktionen für Kompatibilität (falls noch verwendet)
-        window.setTraufePosition = setTraufePosition;
+        // Globale Funktionen für Kompatibilität
+        window.setTraufePosition = setTraufePositionFixed;
         window.closeOverlay = closeTraufeDialog;
         window.selectTraufeSide = showTraufeDialog;
     </script>
