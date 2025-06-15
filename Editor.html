@@ -277,6 +277,73 @@
             text-anchor: middle;
         }
 
+        /* KORRIGIERTE Traufe-Overlay Styles */
+        .traufe-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .traufe-content {
+            background: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .traufe-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .traufe-btn {
+            padding: 15px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            background: white;
+            color: #007bff;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .traufe-btn:hover {
+            background: #007bff;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .traufe-cancel {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .traufe-cancel:hover {
+            background: #545b62;
+        }
+
         @media (max-width: 768px) {
             #geometry-inputs-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -286,6 +353,10 @@
             }
             .tools-row:last-child {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            .traufe-content {
+                margin: 20px;
+                padding: 20px;
             }
         }
     </style>
@@ -435,9 +506,84 @@
 
     <script src="editor.js"></script>
     <script>
-        // TRAUFE-FIX: Globale Funktionen für das Overlay
-        window.setTraufePosition = function(position) {
-            console.log('Traufe-Position gesetzt: ' + position);
+        // KORRIGIERTE Traufe-Funktionalität mit Event Listeners
+        let currentTraufeOverlay = null;
+
+        function showTraufeDialog() {
+            console.log('Traufe-Dialog wird geöffnet');
+            
+            // Entferne eventuell vorhandene Overlays
+            if (currentTraufeOverlay) {
+                currentTraufeOverlay.remove();
+            }
+            
+            // Erstelle neues Overlay
+            currentTraufeOverlay = document.createElement('div');
+            currentTraufeOverlay.className = 'traufe-overlay';
+            
+            currentTraufeOverlay.innerHTML = `
+                <div class="traufe-content">
+                    <h3 style="margin-bottom: 15px; color: #007bff;">Traufe-Position bestimmen</h3>
+                    <p style="margin-bottom: 20px; color: #666;">Klicken Sie auf die Seite, wo sich die Traufe (Dachrand) befindet:</p>
+                    
+                    <div class="traufe-buttons">
+                        <button class="traufe-btn" data-position="top">
+                            ↑ Oben
+                        </button>
+                        <button class="traufe-btn" data-position="right">
+                            → Rechts
+                        </button>
+                        <button class="traufe-btn" data-position="bottom">
+                            ↓ Unten
+                        </button>
+                        <button class="traufe-btn" data-position="left">
+                            ← Links
+                        </button>
+                    </div>
+                    
+                    <button class="traufe-cancel">
+                        Abbrechen
+                    </button>
+                </div>
+            `;
+            
+            // Event Listeners für die Buttons hinzufügen
+            const buttons = currentTraufeOverlay.querySelectorAll('.traufe-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const position = this.dataset.position;
+                    setTraufePosition(position);
+                });
+            });
+            
+            // Cancel Button Event Listener
+            const cancelBtn = currentTraufeOverlay.querySelector('.traufe-cancel');
+            cancelBtn.addEventListener('click', closeTraufeDialog);
+            
+            // Overlay selbst schließen bei Klick außerhalb
+            currentTraufeOverlay.addEventListener('click', function(e) {
+                if (e.target === currentTraufeOverlay) {
+                    closeTraufeDialog();
+                }
+            });
+            
+            // ESC-Taste zum Schließen
+            const escHandler = function(e) {
+                if (e.key === 'Escape') {
+                    closeTraufeDialog();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
+            
+            // Overlay zum DOM hinzufügen
+            document.body.appendChild(currentTraufeOverlay);
+            
+            console.log('Traufe-Dialog erfolgreich erstellt und angezeigt');
+        }
+
+        function setTraufePosition(position) {
+            console.log('Traufe-Position gesetzt:', position);
             
             // Setze die Wasserlaufrichtung
             if (typeof waterFlowDirection !== 'undefined') {
@@ -445,24 +591,31 @@
             }
             
             // Rotiere die Form entsprechend der Traufe-Position
-            orientToTraufe(position);
+            if (typeof orientToTraufe === 'function') {
+                orientToTraufe(position);
+            }
             
             // Aktualisiere die Verlegerichtung
             if (typeof determinePreferredDirection === 'function') {
                 determinePreferredDirection();
             }
             
-            closeOverlay();
-        };
+            // Dialog schließen
+            closeTraufeDialog();
+        }
 
-        window.closeOverlay = function() {
-            const overlays = document.querySelectorAll('[id*="overlay"], .traufe-overlay');
-            overlays.forEach(overlay => {
-                if (overlay.parentNode) {
-                    overlay.parentNode.removeChild(overlay);
-                }
-            });
-        };
+        function closeTraufeDialog() {
+            console.log('Schließe Traufe-Dialog');
+            
+            if (currentTraufeOverlay) {
+                currentTraufeOverlay.remove();
+                currentTraufeOverlay = null;
+            }
+            
+            // Alle eventuell vorhandenen Overlays entfernen
+            const overlays = document.querySelectorAll('.traufe-overlay');
+            overlays.forEach(overlay => overlay.remove());
+        }
 
         // Form zur Traufe-Position ausrichten
         function orientToTraufe(position) {
@@ -528,69 +681,28 @@
             }
         }
 
-        // Modifizierte selectTraufeSide Funktion mit onclick (funktioniert garantiert)
-        window.selectTraufeSideFixed = function() {
-            console.log('Traufe-Auswahl gestartet (FIXED)');
-            
-            const overlay = document.createElement('div');
-            overlay.className = 'traufe-overlay-fixed';
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.7);
-                z-index: 10000;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                color: white;
-                font-family: Arial, sans-serif;
-            `;
-            
-            overlay.innerHTML = `
-                <h3 style="margin-bottom: 20px; font-size: 24px;">Traufe-Position bestimmen</h3>
-                <p style="margin-bottom: 30px; text-align: center; font-size: 16px;">Klicken Sie auf die Seite, wo sich die Traufe (Dachrand) befindet:</p>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
-                    <button onclick="setTraufePosition('top')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; transition: background 0.3s;">↑ Oben</button>
-                    <button onclick="setTraufePosition('right')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; transition: background 0.3s;">→ Rechts</button>
-                    <button onclick="setTraufePosition('bottom')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; transition: background 0.3s;">↓ Unten</button>
-                    <button onclick="setTraufePosition('left')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; transition: background 0.3s;">← Links</button>
-                </div>
-                <button onclick="closeOverlay()" style="margin-top: 10px; padding: 12px 24px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 8px; font-size: 14px;">Abbrechen</button>
-            `;
-            
-            // Hover-Effekte hinzufügen
-            const buttons = overlay.querySelectorAll('button:not([onclick="closeOverlay()"])');
-            buttons.forEach(btn => {
-                btn.addEventListener('mouseenter', function() {
-                    this.style.background = '#0056b3';
-                });
-                btn.addEventListener('mouseleave', function() {
-                    this.style.background = '#007bff';
-                });
-            });
-            
-            document.body.appendChild(overlay);
-        };
-
         // Nach dem Laden der Hauptskripte den Traufe-Button überschreiben
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
                 const traufeBtn = document.getElementById('btn-traufe');
                 if (traufeBtn) {
-                    // Entferne alle Event Listener
-                    traufeBtn.replaceWith(traufeBtn.cloneNode(true));
-                    const newTraufeBtn = document.getElementById('btn-traufe');
+                    // Entferne alle Event Listener und ersetze den Button
+                    const newTraufeBtn = traufeBtn.cloneNode(true);
+                    traufeBtn.parentNode.replaceChild(newTraufeBtn, traufeBtn);
                     
-                    // Setze neue onclick Funktion
-                    newTraufeBtn.onclick = selectTraufeSideFixed;
-                    console.log('Traufe-Button erfolgreich überschrieben');
+                    // Setze neuen Event Listener
+                    newTraufeBtn.addEventListener('click', showTraufeDialog);
+                    console.log('Traufe-Button erfolgreich mit Event Listener versehen');
+                } else {
+                    console.error('Traufe-Button nicht gefunden!');
                 }
             }, 500);
         });
+
+        // Globale Funktionen für Kompatibilität (falls noch verwendet)
+        window.setTraufePosition = setTraufePosition;
+        window.closeOverlay = closeTraufeDialog;
+        window.selectTraufeSide = showTraufeDialog;
     </script>
 </body>
 </html>
