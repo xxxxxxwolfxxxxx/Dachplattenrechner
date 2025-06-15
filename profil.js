@@ -1,0 +1,233 @@
+// Erweiterte Profilkatalog mit Seitenueberlappung
+const profile = {
+    'trapezprofil': {
+        'TP20': { name: 'TP20 (20/100)', deckbreite: 1000, lieferbreite: 1050, seitenueberlappung: 50 },
+        'TP45': { name: 'TP45 (45/150)', deckbreite: 900, lieferbreite: 975, seitenueberlappung: 75 },
+        'T35-207': { name: 'Profil 35.207', deckbreite: 1035, lieferbreite: 1085, seitenueberlappung: 50 },
+        'T19-155': { name: 'Profil 19.155', deckbreite: 1090, lieferbreite: 1140, seitenueberlappung: 50 }
+    },
+    'wellprofil': {
+        'SINUS18': { name: 'Sinus 18.76', deckbreite: 1070, lieferbreite: 1100, seitenueberlappung: 30 },
+        'SINUS76': { name: 'Sinus 76/18', deckbreite: 1090, lieferbreite: 1131, seitenueberlappung: 41 }
+    },
+    'hochprofil': {
+        'H85': { name: 'Hochprofil 85mm', deckbreite: 960, lieferbreite: 1000, seitenueberlappung: 40 },
+        'H100': { name: 'Hochprofil 100mm', deckbreite: 930, lieferbreite: 1000, seitenueberlappung: 70 }
+    },
+    'sandwich': {
+        'ISO40': { name: 'Isopaneel 40mm', deckbreite: 1000, lieferbreite: 1040, seitenueberlappung: 40 },
+        'ISO60': { name: 'Isopaneel 60mm', deckbreite: 1000, lieferbreite: 1040, seitenueberlappung: 40 }
+    },
+    'pfannenblech': {
+        'PFANNE': { name: 'Pfannenblech Standard', deckbreite: 1060, lieferbreite: 1100, seitenueberlappung: 40 },
+        'STILLPANNA': { name: 'Stillpanna', deckbreite: 1040, lieferbreite: 1100, seitenueberlappung: 60 }
+    }
+};
+
+let projectData = {};
+
+// Sichere Storage-Funktionen
+function saveData() {
+    try {
+        localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+        return true;
+    } catch (e) {
+        console.log('localStorage nicht verfügbar, verwende Session-Speicher');
+        sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+        return true;
+    }
+}
+
+function loadData() {
+    try {
+        let saved = localStorage.getItem('dachplattenrechner_data');
+        if (!saved) {
+            saved = sessionStorage.getItem('dachplattenrechner_data');
+        }
+        return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+        console.log('Fehler beim Laden der Daten');
+        return null;
+    }
+}
+
+function loadProfile() {
+    const kategorie = document.getElementById('profil-kategorie').value;
+    const profilSelect = document.getElementById('profil-auswahl');
+    const profilGruppe = document.getElementById('profil-gruppe');
+    
+    profilSelect.innerHTML = '<option value="">Bitte wählen...</option>';
+    
+    if (kategorie && profile[kategorie]) {
+        Object.keys(profile[kategorie]).forEach(key => {
+            const p = profile[kategorie][key];
+            const option = document.createElement('option');
+            option.value = key;
+            option.textContent = p.name;
+            profilSelect.appendChild(option);
+        });
+        profilGruppe.style.display = 'block';
+    } else {
+        profilGruppe.style.display = 'none';
+    }
+    
+    clearProfilData();
+    validateForm();
+}
+
+function setProfilData() {
+    const kategorie = document.getElementById('profil-kategorie').value;
+    const profilKey = document.getElementById('profil-auswahl').value;
+    
+    if (kategorie && profilKey && profile[kategorie] && profile[kategorie][profilKey]) {
+        const p = profile[kategorie][profilKey];
+        document.getElementById('deckbreite').value = p.deckbreite;
+        document.getElementById('lieferbreite').value = p.lieferbreite;
+        document.getElementById('profilname').value = p.name;
+    } else {
+        clearProfilData();
+    }
+    
+    validateForm();
+}
+
+function clearProfilData() {
+    document.getElementById('deckbreite').value = '';
+    document.getElementById('lieferbreite').value = '';
+    document.getElementById('profilname').value = '';
+}
+
+function toggleLaengsueberlappung() {
+    const dachTeilen = document.getElementById('dach-teilen').checked;
+    const section = document.getElementById('laengsueberlappung-section');
+    section.style.display = dachTeilen ? 'block' : 'none';
+}
+
+function toggleLengthSections() {
+    const isLager = document.querySelector('input[name="laengentyp"]:checked').value === 'lager';
+    document.getElementById('lager-section').style.display = isLager ? 'block' : 'none';
+    document.getElementById('bereich-section').style.display = isLager ? 'none' : 'block';
+    validateForm();
+}
+
+function validateForm() {
+    const deckbreite = document.getElementById('deckbreite').value;
+    const lieferbreite = document.getElementById('lieferbreite').value;
+    const isLager = document.querySelector('input[name="laengentyp"]:checked').value === 'lager';
+    
+    let lengthValid = false;
+    if (isLager) {
+        lengthValid = document.getElementById('lagerlaengen').value.trim() !== '';
+    } else {
+        const min = document.getElementById('min-laenge').value;
+        const max = document.getElementById('max-laenge').value;
+        lengthValid = min && max && parseInt(min) < parseInt(max);
+    }
+    
+    const isValid = deckbreite && lieferbreite && lengthValid;
+    document.getElementById('continue-btn').disabled = !isValid;
+}
+
+function saveAndContinue() {
+    const kategorie = document.getElementById('profil-kategorie').value;
+    const profilKey = document.getElementById('profil-auswahl').value;
+    const selectedProfile = profile[kategorie][profilKey];
+    const isLager = document.querySelector('input[name="laengentyp"]:checked').value === 'lager';
+    
+    projectData = {
+        profile: {
+            kategorie: kategorie,
+            profilKey: profilKey,
+            deckbreite: parseInt(document.getElementById('deckbreite').value),
+            lieferbreite: parseInt(document.getElementById('lieferbreite').value),
+            seitenueberlappung: selectedProfile.seitenueberlappung,
+            profilname: document.getElementById('profilname').value,
+            laengentyp: isLager ? 'lager' : 'bereich',
+            ueberstand: parseInt(document.getElementById('ueberstand').value) || 50,
+            laengsueberlappung: parseInt(document.getElementById('laengsueberlappung').value) || 200,
+            dachTeilen: document.getElementById('dach-teilen').checked
+        }
+    };
+
+    if (isLager) {
+        const lagerStr = document.getElementById('lagerlaengen').value;
+        projectData.profile.lagerlaengen = lagerStr.split(',').map(l => parseInt(l.trim())).filter(l => !isNaN(l));
+    } else {
+        projectData.profile.minLaenge = parseInt(document.getElementById('min-laenge').value);
+        projectData.profile.maxLaenge = parseInt(document.getElementById('max-laenge').value);
+        projectData.profile.schnittRaster = 100;
+    }
+
+    try {
+        saveData();
+    } catch (e) {
+        console.log('Speichern nicht möglich');
+    }
+    
+    window.location.href = 'dachform.html';
+}
+
+function loadSavedData() {
+    try {
+        const data = loadData();
+        if (data && data.profile) {
+            const p = data.profile;
+            
+            if (p.kategorie) {
+                document.getElementById('profil-kategorie').value = p.kategorie;
+                loadProfile();
+                
+                if (p.profilKey) {
+                    document.getElementById('profil-auswahl').value = p.profilKey;
+                    setProfilData();
+                }
+            }
+
+            if (p.laengentyp) {
+                document.querySelector(`input[name="laengentyp"][value="${p.laengentyp}"]`).checked = true;
+                toggleLengthSections();
+                
+                if (p.laengentyp === 'lager' && p.lagerlaengen) {
+                    document.getElementById('lagerlaengen').value = p.lagerlaengen.join(', ');
+                } else if (p.laengentyp === 'bereich') {
+                    if (p.minLaenge) document.getElementById('min-laenge').value = p.minLaenge;
+                    if (p.maxLaenge) document.getElementById('max-laenge').value = p.maxLaenge;
+                }
+            }
+
+            if (p.ueberstand) document.getElementById('ueberstand').value = p.ueberstand;
+            if (p.dachTeilen) {
+                document.getElementById('dach-teilen').checked = p.dachTeilen;
+                toggleLaengsueberlappung();
+            }
+            if (p.laengsueberlappung) document.getElementById('laengsueberlappung').value = p.laengsueberlappung;
+            
+            validateForm();
+        }
+    } catch (e) {
+        console.log('Keine gespeicherten Daten vorhanden');
+    }
+}
+
+function goBack() {
+    window.location.href = 'index.html';
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('profil-kategorie').addEventListener('change', loadProfile);
+    document.getElementById('profil-auswahl').addEventListener('change', setProfilData);
+    
+    document.querySelectorAll('input[name="laengentyp"]').forEach(radio => {
+        radio.addEventListener('change', toggleLengthSections);
+    });
+
+    document.getElementById('dach-teilen').addEventListener('change', toggleLaengsueberlappung);
+
+    document.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', validateForm);
+        input.addEventListener('change', validateForm);
+    });
+
+    loadSavedData();
+});
