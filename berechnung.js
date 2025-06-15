@@ -372,62 +372,70 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
         points: points
     });
 
+    // Funktion um Dreieckshöhe an beliebiger Position zu berechnen
+    function getTriangleHeightAtPosition(relativePosition) {
+        if (dreieckTyp === 'gleichseitig' || dreieckTyp === 'gleichschenklig') {
+            // Gleichschenkliges Dreieck: Spitze in der Mitte oben
+            if (relativePosition <= 0.5) {
+                // Linke Hälfte: Höhe steigt linear von 0 auf dreieckHoehe
+                return dreieckHoehe * (relativePosition * 2);
+            } else {
+                // Rechte Hälfte: Höhe fällt linear von dreieckHoehe auf 0
+                return dreieckHoehe * (2 - relativePosition * 2);
+            }
+        } else if (dreieckTyp === 'rechtwinklig') {
+            // Rechtwinkliges Dreieck: Spitze rechts
+            return relativePosition < 1 ? dreieckHoehe * (1 - relativePosition) : 0;
+        } else {
+            // Standard: rechtwinkliges Verhalten
+            return relativePosition < 1 ? dreieckHoehe * (1 - relativePosition) : 0;
+        }
+    }
+
     const plateLengths = [];
     
     for (let i = 0; i < bahnenAnzahl; i++) {
-        // Position der Bahn von links (in Metern)
-        const bahnPosition = i * (deckbreite / 1000);
+        // Bahn erstreckt sich von bahnStart bis bahnEnd
+        const bahnStart = i * (deckbreite / 1000);
+        const bahnEnd = (i + 1) * (deckbreite / 1000);
         
-        // Relative Position entlang der Basis (0 = links, 1 = rechts)
-        const relativePosition = bahnPosition / basisBreite;
+        // Relative Positionen
+        const relativeStart = bahnStart / basisBreite;
+        const relativeEnd = Math.min(bahnEnd / basisBreite, 1.0);
         
-        console.log(`Bahn ${i + 1}: Position=${bahnPosition.toFixed(2)}m, Relativ=${relativePosition.toFixed(3)}`);
+        console.log(`Bahn ${i + 1}: Von ${bahnStart.toFixed(2)}m bis ${bahnEnd.toFixed(2)}m (Relativ: ${relativeStart.toFixed(3)} - ${relativeEnd.toFixed(3)})`);
         
-        // Höhe des Dreiecks an dieser Position - abhängig vom Typ
-        let aktuelleHoehe;
+        // Prüfe mehrere Punkte innerhalb der Bahn und finde das Maximum
+        let maxHoehe = 0;
+        const schritte = 10; // 10 Messpunkte pro Bahn
         
-        if (dreieckTyp === 'gleichseitig' || dreieckTyp === 'gleichschenklig') {
-            // Gleichschenkliges Dreieck: Spitze in der Mitte oben
-            // Höhe ist maximal in der Mitte (relativePosition = 0.5)
-            
-            if (relativePosition <= 0.5) {
-                // Linke Hälfte: Höhe steigt linear von 0 auf dreieckHoehe
-                aktuelleHoehe = dreieckHoehe * (relativePosition * 2);
-            } else {
-                // Rechte Hälfte: Höhe fällt linear von dreieckHoehe auf 0
-                aktuelleHoehe = dreieckHoehe * (2 - relativePosition * 2);
-            }
-            
-            // Sicherstellen, dass Höhe nicht negativ wird
-            aktuelleHoehe = Math.max(0, aktuelleHoehe);
-            
-        } else if (dreieckTyp === 'rechtwinklig') {
-            // Rechtwinkliges Dreieck: Spitze rechts
-            if (relativePosition < 1) {
-                aktuelleHoehe = dreieckHoehe * (1 - relativePosition);
-            } else {
-                aktuelleHoehe = 0;
-            }
-        } else {
-            // Standard: rechtwinkliges Verhalten
-            if (relativePosition < 1) {
-                aktuelleHoehe = dreieckHoehe * (1 - relativePosition);
-            } else {
-                aktuelleHoehe = 0;
-            }
+        for (let j = 0; j <= schritte; j++) {
+            const relativePosition = relativeStart + (relativeEnd - relativeStart) * (j / schritte);
+            const hoehe = getTriangleHeightAtPosition(relativePosition);
+            maxHoehe = Math.max(maxHoehe, hoehe);
         }
         
-        // Plattenlänge = Dreieckshöhe + Überstand (nur an der Traufe)
-        const plattenLaenge = Math.max(ueberstand, (aktuelleHoehe * 1000) + ueberstand);
+        // Zusätzlich: Prüfe die exakten Start- und Endpunkte
+        const hoeheStart = getTriangleHeightAtPosition(relativeStart);
+        const hoeheEnd = getTriangleHeightAtPosition(relativeEnd);
+        maxHoehe = Math.max(maxHoehe, hoeheStart, hoeheEnd);
         
-        console.log(`Bahn ${i + 1}: Höhe=${aktuelleHoehe.toFixed(2)}m, Plattenlänge=${plattenLaenge.toFixed(0)}mm`);
+        // Sicherstellen, dass Höhe nicht negativ wird
+        maxHoehe = Math.max(0, maxHoehe);
+        
+        // Plattenlänge = maximale Dreieckshöhe in der Bahn + Überstand
+        const plattenLaenge = Math.max(ueberstand, (maxHoehe * 1000) + ueberstand);
+        
+        console.log(`Bahn ${i + 1}: Max. Höhe=${maxHoehe.toFixed(2)}m, Plattenlänge=${plattenLaenge.toFixed(0)}mm`);
         
         plateLengths.push({
             bahnNummer: i + 1,
             laenge: Math.round(plattenLaenge),
-            dreieckHoehe: aktuelleHoehe,
-            position: bahnPosition,
-            relativePosition: relativePosition
+            dreieckHoehe: maxHoehe,
+            position: bahnStart,
+            relativeStart: relativeStart,
+            relativeEnd: relativeEnd,
+            bahnBreite: bahnEnd - bahnStart
         });
     }
     
