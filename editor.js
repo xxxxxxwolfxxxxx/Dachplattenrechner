@@ -336,10 +336,12 @@ function updateShape() {
     determinePreferredDirection();
 }
 
-// Bemaßung zeichnen
+// Bemaßung zeichnen (KORRIGIERT)
 function drawDimensions(svgPoints, dimensionsGroup, scale) {
     const variant = projectData.roofShape?.variant || 'rechteck';
     const baseShape = projectData.roofShape?.baseShape || 'viereck';
+    
+    console.log('Zeichne Bemaßung für:', baseShape, variant, 'Punkte:', svgPoints.length);
     
     if (baseShape === 'dreieck') {
         drawTriangleDimensions(svgPoints, dimensionsGroup);
@@ -348,6 +350,9 @@ function drawDimensions(svgPoints, dimensionsGroup, scale) {
             drawRectangleDimensions(svgPoints, dimensionsGroup);
         } else if (variant === 'trapez') {
             drawTrapezDimensions(svgPoints, dimensionsGroup);
+        } else {
+            // Fallback für andere Vierecke
+            drawRectangleDimensions(svgPoints, dimensionsGroup);
         }
     }
     
@@ -375,6 +380,8 @@ function drawDimensions(svgPoints, dimensionsGroup, scale) {
         label.textContent = labels[index] || `P${index}`;
         dimensionsGroup.appendChild(label);
     });
+    
+    console.log('Bemaßung gezeichnet, Elemente in dimensionsGroup:', dimensionsGroup.children.length);
 }
 
 // Rechteck-Bemaßung
@@ -847,12 +854,15 @@ function loadData() {
     }
 }
 
-// Eingabefelder generieren
+// Eingabefelder generieren (KORRIGIERT)
 function generateInputFields() {
     const container = document.getElementById('geometry-inputs-grid');
-    if (!container) return;
+    if (!container) {
+        console.log('Container geometry-inputs-grid nicht gefunden!');
+        return;
+    }
     
-    console.log('Generiere Eingabefelder für:', currentShapeType, 'Variante:', projectData.roofShape?.variant);
+    console.log('Generiere erweiterte Eingabefelder für:', currentShapeType, 'Variante:', projectData.roofShape?.variant);
     
     if (currentShapeType === 'dreieck') {
         generateTriangleInputFields();
@@ -865,6 +875,8 @@ function generateInputFields() {
     } else {
         generateRectangleInputFields();
     }
+    
+    console.log('Eingabefelder generiert, Container-Inhalt:', container.innerHTML.length, 'Zeichen');
 }
 
 // Standard Rechteck-Eingabe
@@ -1818,10 +1830,10 @@ function saveAndContinue() {
     }
 }
 
-// Initialisierung
+// Initialisierung (KORRIGIERT)
 function init() {
     try {
-        console.log('Editor wird initialisiert...');
+        console.log('=== EDITOR WIRD INITIALISIERT ===');
         
         projectData = loadData();
         console.log('Geladene Projektdaten:', projectData);
@@ -1842,6 +1854,7 @@ function init() {
         console.log('Profil-Daten gefunden:', projectData.profile);
         displayProfileInfo();
         
+        // Gespeicherte Werte laden
         if (projectData.geometry) {
             if (projectData.geometry.waterFlowDirection) {
                 waterFlowDirection = projectData.geometry.waterFlowDirection;
@@ -1851,9 +1864,11 @@ function init() {
             }
             if (projectData.geometry.values) {
                 currentValues = { ...projectData.geometry.values };
+                console.log('Gespeicherte Werte geladen:', currentValues);
             }
         }
         
+        // RoofShape-Daten laden
         if (!projectData.roofShape) {
             console.log('Keine roofShape gefunden, erstelle Standard-roofShape');
             projectData.roofShape = {
@@ -1865,32 +1880,52 @@ function init() {
         console.log('RoofShape-Daten:', projectData.roofShape);
         currentShapeType = projectData.roofShape.baseShape || 'viereck';
         
+        // Shape-Namen aktualisieren
         const shapeNameElement = document.getElementById('current-shape-name');
         if (shapeNameElement) {
             const shapeName = projectData.roofShape.variant || currentShapeType || 'Rechteck';
             shapeNameElement.textContent = shapeName.charAt(0).toUpperCase() + shapeName.slice(1);
+            console.log('Shape-Name gesetzt:', shapeName);
         }
         
+        // Punkte laden oder generieren
         if (projectData.roofShape && projectData.roofShape.points && projectData.roofShape.points.length > 0) {
             console.log('Lade vorhandene Dachform-Punkte:', projectData.roofShape.points.length, 'Punkte');
             currentPoints = [...projectData.roofShape.points];
         } else {
             console.log('Keine Punkte vorhanden - generiere neue basierend auf Form');
+            
+            // Für ungleichschenkliges Dreieck spezielle Standardwerte setzen
+            if (projectData.roofShape.variant === 'ungleichschenklig') {
+                currentValues = {
+                    sideA: 10,
+                    sideB: 7,
+                    sideC: 9,
+                    height: 8
+                };
+                console.log('Spezielle Werte für ungleichschenkliges Dreieck gesetzt');
+            }
+            
             currentPoints = generatePoints();
         }
         
+        console.log('=== GENERIERE EINGABEFELDER ===');
         generateInputFields();
+        
+        console.log('=== AKTUALISIERE FORM ===');
         updateShape();
         updateInfoPanel();
         
+        console.log('=== WASSERLAUF-ANZEIGE ===');
         updateWaterFlowDisplay();
         
+        console.log('=== EVENT-HANDLER ===');
         setupEventHandlers();
         
-        console.log('Editor erfolgreich initialisiert');
+        console.log('=== EDITOR ERFOLGREICH INITIALISIERT ===');
         
     } catch (error) {
-        console.error('Fehler bei der Initialisierung:', error);
+        console.error('FEHLER bei der Initialisierung:', error);
         alert('Fehler beim Laden des Editors: ' + error.message);
     }
 }
