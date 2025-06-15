@@ -1,3 +1,18 @@
+import * as Dreieck from './figures/dreieck.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+  const projectData = JSON.parse(localStorage.getItem('dachplattenrechner_data') || '{}');
+  const shape = projectData.baseShape || projectData.roofShape?.base || 'unbekannt';
+
+  switch (shape) {
+    case 'dreieck':
+      Dreieck.init(projectData);
+      break;
+    default:
+      console.warn('Keine Initialisierung für Form:', shape);
+  }
+});
+
 // Erweiterte Dreieck-Eingabefelder mit allen Parametern
 function generateTriangleInputFields() {
     const container = document.getElementById('geometry-inputs-grid');
