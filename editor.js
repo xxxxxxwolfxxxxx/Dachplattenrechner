@@ -19,7 +19,9 @@ function generateInputFields() {
             </div>
         </div>
     `;
-}// Globale Variablen
+}
+
+// Globale Variablen
 let projectData = {};
 let currentPoints = [];
 let currentShapeType = 'rechteck';
@@ -184,7 +186,7 @@ function determinePreferredDirection() {
     const length = currentValues.length || 10;
     const width = currentValues.width || 8;
     
-    if (waterFlowDirection === 'down') {
+    if (waterFlowDirection === 'down' || waterFlowDirection === 'bottom') {
         preferredDirection = 'laengs';
     } else {
         preferredDirection = 'quer';
@@ -376,25 +378,218 @@ function updateGeometry() {
     updateInfoPanel();
 }
 
-// Wasserlaufrichtung umschalten
-function toggleWaterFlow() {
-    const leftFlow = document.getElementById('water-flow-left');
-    const rightFlow = document.getElementById('water-flow-right');
-    const waterBtn = document.getElementById('btn-water-flow');
+// NEU: Wasserlauf-Seite auswählen
+function selectWaterFlowSide() {
+    showDebugInfo('🌊 Wasserlauf-Auswahl gestartet');
     
-    if (waterFlowDirection === 'down') {
-        waterFlowDirection = 'side';
-        if (leftFlow) leftFlow.style.display = 'none';
-        if (rightFlow) rightFlow.style.display = 'none';
-        if (waterBtn) waterBtn.classList.add('active');
-    } else {
-        waterFlowDirection = 'down';
-        if (leftFlow) leftFlow.style.display = 'flex';
-        if (rightFlow) rightFlow.style.display = 'flex';
-        if (waterBtn) waterBtn.classList.remove('active');
+    // Temporäre Overlay erstellen
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: Arial, sans-serif;
+    `;
+    
+    overlay.innerHTML = `
+        <h3 style="margin-bottom: 20px;">Wasserlauf-Richtung bestimmen</h3>
+        <p style="margin-bottom: 30px; text-align: center;">Klicken Sie auf die Seite, in die das Wasser fließen soll:</p>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+            <button onclick="setWaterFlowDirection('top')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">↑ Nach oben</button>
+            <button onclick="setWaterFlowDirection('right')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">→ Nach rechts</button>
+            <button onclick="setWaterFlowDirection('bottom')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">↓ Nach unten</button>
+            <button onclick="setWaterFlowDirection('left')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">← Nach links</button>
+        </div>
+        <button onclick="closeOverlay()" style="margin-top: 30px; padding: 10px 20px; background: #666; color: white; border: none; cursor: pointer;">Abbrechen</button>
+    `;
+    
+    document.body.appendChild(overlay);
+    window.currentOverlay = overlay;
+}
+
+// NEU: Traufe-Seite auswählen
+function selectTraufeSide() {
+    showDebugInfo('🏠 Traufe-Auswahl gestartet');
+    
+    // Temporäre Overlay erstellen
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: Arial, sans-serif;
+    `;
+    
+    overlay.innerHTML = `
+        <h3 style="margin-bottom: 20px;">Traufe-Position bestimmen</h3>
+        <p style="margin-bottom: 30px; text-align: center;">Klicken Sie auf die Seite, wo sich die Traufe (Dachrand) befindet:</p>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+            <button onclick="setTraufePosition('top')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">↑ Oben</button>
+            <button onclick="setTraufePosition('right')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">→ Rechts</button>
+            <button onclick="setTraufePosition('bottom')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">↓ Unten</button>
+            <button onclick="setTraufePosition('left')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">← Links</button>
+        </div>
+        <button onclick="closeOverlay()" style="margin-top: 30px; padding: 10px 20px; background: #666; color: white; border: none; cursor: pointer;">Abbrechen</button>
+    `;
+    
+    document.body.appendChild(overlay);
+    window.currentOverlay = overlay;
+}
+
+// NEU: Wasserlauf-Richtung setzen
+function setWaterFlowDirection(direction) {
+    showDebugInfo('🌊 Wasserlauf-Richtung gesetzt: ' + direction);
+    
+    // Form entsprechend der Wasserlauf-Richtung ausrichten
+    orientToWaterFlow(direction);
+    
+    waterFlowDirection = direction;
+    determinePreferredDirection();
+    updateWaterFlowDisplay();
+    
+    closeOverlay();
+}
+
+// NEU: Traufe-Position setzen
+function setTraufePosition(position) {
+    showDebugInfo('🏠 Traufe-Position gesetzt: ' + position);
+    
+    // Form entsprechend der Traufe-Position ausrichten
+    orientToTraufe(position);
+    
+    // Wasserlauf ist normalerweise zur Traufe hin gerichtet
+    waterFlowDirection = position;
+    determinePreferredDirection();
+    updateWaterFlowDisplay();
+    
+    closeOverlay();
+}
+
+// NEU: Form zur Wasserlauf-Richtung ausrichten
+function orientToWaterFlow(direction) {
+    const bounds = getBoundingBox(currentPoints);
+    const centerX = (bounds.minX + bounds.maxX) / 2;
+    const centerY = (bounds.minY + bounds.maxY) / 2;
+    
+    // Punkte zum Zentrum verschieben
+    currentPoints = currentPoints.map(p => ({
+        x: p.x - centerX,
+        y: p.y - centerY
+    }));
+    
+    // Je nach Richtung rotieren
+    let rotationAngle = 0;
+    switch (direction) {
+        case 'top':
+            rotationAngle = Math.PI; // 180°
+            break;
+        case 'right':
+            rotationAngle = -Math.PI / 2; // -90°
+            break;
+        case 'bottom':
+            rotationAngle = 0; // 0° (Standard)
+            break;
+        case 'left':
+            rotationAngle = Math.PI / 2; // 90°
+            break;
     }
     
-    determinePreferredDirection();
+    if (rotationAngle !== 0) {
+        currentPoints = currentPoints.map(p => ({
+            x: p.x * Math.cos(rotationAngle) - p.y * Math.sin(rotationAngle),
+            y: p.x * Math.sin(rotationAngle) + p.y * Math.cos(rotationAngle)
+        }));
+    }
+    
+    // Zurück zum ursprünglichen Zentrum
+    currentPoints = currentPoints.map(p => ({
+        x: p.x + centerX,
+        y: p.y + centerY
+    }));
+    
+    updateShape();
+    updateInfoPanel();
+}
+
+// NEU: Form zur Traufe-Position ausrichten
+function orientToTraufe(position) {
+    // Gleiche Logik wie bei Wasserlauf, da Traufe = Wasserlauf-Ziel
+    orientToWaterFlow(position);
+}
+
+// NEU: Bounding Box berechnen
+function getBoundingBox(points) {
+    const xs = points.map(p => p.x);
+    const ys = points.map(p => p.y);
+    return {
+        minX: Math.min(...xs),
+        maxX: Math.max(...xs),
+        minY: Math.min(...ys),
+        maxY: Math.max(...ys)
+    };
+}
+
+// NEU: Wasserlauf-Anzeige aktualisieren
+function updateWaterFlowDisplay() {
+    const leftFlow = document.getElementById('water-flow-left');
+    const rightFlow = document.getElementById('water-flow-right');
+    
+    if (!leftFlow || !rightFlow) return;
+    
+    // Alle ausblenden
+    leftFlow.style.display = 'none';
+    rightFlow.style.display = 'none';
+    
+    // Je nach Richtung anzeigen
+    switch (waterFlowDirection) {
+        case 'bottom':
+        case 'down':
+            leftFlow.style.display = 'flex';
+            rightFlow.style.display = 'flex';
+            leftFlow.innerHTML = '<div class="flow-text">Wasserlauf</div><div class="flow-arrow">⬇</div>';
+            rightFlow.innerHTML = '<div class="flow-text">Wasserlauf</div><div class="flow-arrow">⬇</div>';
+            break;
+        case 'top':
+            leftFlow.style.display = 'flex';
+            rightFlow.style.display = 'flex';
+            leftFlow.innerHTML = '<div class="flow-text">Wasserlauf</div><div class="flow-arrow">⬆</div>';
+            rightFlow.innerHTML = '<div class="flow-text">Wasserlauf</div><div class="flow-arrow">⬆</div>';
+            break;
+        case 'left':
+            leftFlow.style.display = 'flex';
+            leftFlow.innerHTML = '<div class="flow-text">Wasserlauf</div><div class="flow-arrow">⬅</div>';
+            break;
+        case 'right':
+            rightFlow.style.display = 'flex';
+            rightFlow.innerHTML = '<div class="flow-text">Wasserlauf</div><div class="flow-arrow">➡</div>';
+            break;
+    }
+}
+
+// NEU: Overlay schließen
+function closeOverlay() {
+    if (window.currentOverlay) {
+        document.body.removeChild(window.currentOverlay);
+        window.currentOverlay = null;
+    }
 }
 
 // Event-Handler
@@ -404,6 +599,7 @@ function setupEventHandlers() {
     const btnRotateL = document.getElementById('btn-rotate-left');
     const btnRotateR = document.getElementById('btn-rotate-right');
     const btnWaterFlow = document.getElementById('btn-water-flow');
+    const btnTraufe = document.getElementById('btn-traufe');
     const btnReset = document.getElementById('btn-reset');
     const btnBack = document.getElementById('btn-back');
     const btnContinue = document.getElementById('btn-continue');
@@ -411,24 +607,57 @@ function setupEventHandlers() {
     if (btnMirrorH) btnMirrorH.addEventListener('click', function() {
         currentPoints = currentPoints.map(p => ({ x: -p.x, y: p.y }));
         updateShape();
+        updateInfoPanel();
     });
 
     if (btnMirrorV) btnMirrorV.addEventListener('click', function() {
         currentPoints = currentPoints.map(p => ({ x: p.x, y: -p.y }));
         updateShape();
+        updateInfoPanel();
     });
 
+    // KORRIGIERT: 45° Drehung statt 90°
     if (btnRotateL) btnRotateL.addEventListener('click', function() {
-        currentPoints = currentPoints.map(p => ({ x: -p.y, y: p.x }));
+        const angle = -Math.PI / 4; // -45 Grad
+        const bounds = getBoundingBox(currentPoints);
+        const centerX = (bounds.minX + bounds.maxX) / 2;
+        const centerY = (bounds.minY + bounds.maxY) / 2;
+        
+        currentPoints = currentPoints.map(p => {
+            const x = p.x - centerX;
+            const y = p.y - centerY;
+            return {
+                x: (x * Math.cos(angle) - y * Math.sin(angle)) + centerX,
+                y: (x * Math.sin(angle) + y * Math.cos(angle)) + centerY
+            };
+        });
         updateShape();
+        updateInfoPanel();
     });
 
     if (btnRotateR) btnRotateR.addEventListener('click', function() {
-        currentPoints = currentPoints.map(p => ({ x: p.y, y: -p.x }));
+        const angle = Math.PI / 4; // +45 Grad
+        const bounds = getBoundingBox(currentPoints);
+        const centerX = (bounds.minX + bounds.maxX) / 2;
+        const centerY = (bounds.minY + bounds.maxY) / 2;
+        
+        currentPoints = currentPoints.map(p => {
+            const x = p.x - centerX;
+            const y = p.y - centerY;
+            return {
+                x: (x * Math.cos(angle) - y * Math.sin(angle)) + centerX,
+                y: (x * Math.sin(angle) + y * Math.cos(angle)) + centerY
+            };
+        });
         updateShape();
+        updateInfoPanel();
     });
 
-    if (btnWaterFlow) btnWaterFlow.addEventListener('click', toggleWaterFlow);
+    // NEU: Wasserlauf-Bestimmung mit Seitenauswahl
+    if (btnWaterFlow) btnWaterFlow.addEventListener('click', selectWaterFlowSide);
+
+    // NEU: Traufe-Bestimmung mit Seitenauswahl
+    if (btnTraufe) btnTraufe.addEventListener('click', selectTraufeSide);
 
     if (btnReset) btnReset.addEventListener('click', function() {
         currentValues = { length: 10, width: 8 };
@@ -436,12 +665,7 @@ function setupEventHandlers() {
         preferredDirection = 'laengs';
         generateInputFields();
         updateGeometry();
-        const leftFlow = document.getElementById('water-flow-left');
-        const rightFlow = document.getElementById('water-flow-right');
-        const waterBtn = document.getElementById('btn-water-flow');
-        if (leftFlow) leftFlow.style.display = 'flex';
-        if (rightFlow) rightFlow.style.display = 'flex';
-        if (waterBtn) waterBtn.classList.remove('active');
+        updateWaterFlowDisplay();
     });
 
     if (btnBack) btnBack.addEventListener('click', function() {
@@ -544,19 +768,17 @@ function init() {
             };
         }
         
-        // KORRIGIERT: Vorhandene Punkte aus roofShape laden
+        // Vorhandene Punkte aus roofShape laden
         if (projectData.roofShape && projectData.roofShape.points && projectData.roofShape.points.length > 0) {
             showDebugInfo('📐 Lade vorhandene Dachform-Punkte: ' + projectData.roofShape.points.length + ' Punkte');
-            currentPoints = [...projectData.roofShape.points]; // Kopie erstellen
+            currentPoints = [...projectData.roofShape.points];
             currentShapeType = projectData.roofShape.baseShape || 'rechteck';
             
-            // Für Dreiecke/Vielecke: keine Standard-Eingabefelder
             if (currentPoints.length === 3) {
                 showDebugInfo('🔺 Dreieck erkannt - verwende spezielle Eingabe');
                 generateTriangleInputFields();
             } else if (currentPoints.length === 4) {
                 showDebugInfo('⬜ Rechteck erkannt - verwende Standard-Eingabe');
-                // Berechne length/width aus Punkten
                 const xs = currentPoints.map(p => p.x);
                 const ys = currentPoints.map(p => p.y);
                 currentValues.length = Math.max(...xs) - Math.min(...xs);
@@ -572,24 +794,9 @@ function init() {
             updateGeometry();
         }
         
-        // Shape zeichnen
         updateShape();
         updateInfoPanel();
-        
-        // Wasserlauf-Anzeige setzen
-        const leftFlow = document.getElementById('water-flow-left');
-        const rightFlow = document.getElementById('water-flow-right');
-        const waterBtn = document.getElementById('btn-water-flow');
-        
-        if (waterFlowDirection === 'side') {
-            if (leftFlow) leftFlow.style.display = 'none';
-            if (rightFlow) rightFlow.style.display = 'none';
-            if (waterBtn) waterBtn.classList.add('active');
-        } else {
-            if (leftFlow) leftFlow.style.display = 'flex';
-            if (rightFlow) rightFlow.style.display = 'flex';
-            if (waterBtn) waterBtn.classList.remove('active');
-        }
+        updateWaterFlowDisplay();
         
         setupEventHandlers();
         
@@ -600,6 +807,11 @@ function init() {
         alert('Fehler beim Laden des Editors: ' + error.message);
     }
 }
+
+// Globale Funktionen für Overlay-Buttons
+window.setWaterFlowDirection = setWaterFlowDirection;
+window.setTraufePosition = setTraufePosition;
+window.closeOverlay = closeOverlay;
 
 // Event Listeners für das Laden
 document.addEventListener('DOMContentLoaded', function() {
