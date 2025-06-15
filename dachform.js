@@ -150,21 +150,104 @@ function saveAndContinue() {
 }
 
 function getDefaultPoints() {
-    // Einfache Standard-Punkte für jede Form
-    var defaults = {
-        'kreis': [
-            { x: 5, y: 0 }, { x: 3.54, y: 3.54 }, { x: 0, y: 5 }, 
-            { x: -3.54, y: 3.54 }, { x: -5, y: 0 }, { x: -3.54, y: -3.54 }, 
-            { x: 0, y: -5 }, { x: 3.54, y: -3.54 }
-        ],
-        'dreieck': getTrianglePoints(),
-        'viereck': getRectanglePoints(),
-        'vieleck': getPolygonPoints()
-    };
-    return defaults[selectedShape] || defaults['viereck'];
+    // KORRIGIERT: Verwende die spezifische Variante, nicht nur die Grundform
+    console.log('Generiere Punkte für:', selectedShape, selectedVariant);
+    
+    if (selectedShape === 'kreis') {
+        return getCirclePoints();
+    } else if (selectedShape === 'dreieck') {
+        return getTrianglePoints();
+    } else if (selectedShape === 'viereck') {
+        return getRectanglePoints();
+    } else if (selectedShape === 'vieleck') {
+        return getPolygonPoints();
+    }
+    
+    // Fallback
+    return [
+        { x: 0, y: 0 }, { x: 10, y: 0 }, 
+        { x: 10, y: 6 }, { x: 0, y: 6 }
+    ];
 }
 
-function getTrianglePoints() {
+// NEUE Funktion für Kreis-Punkte
+function getCirclePoints() {
+    switch(selectedVariant) {
+        case 'kreis':
+            // Kreis mit 12 Punkten approximieren
+            const points = [];
+            const radius = 5;
+            const centerX = 5;
+            const centerY = 4;
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * 2 * Math.PI) / 12;
+                points.push({
+                    x: centerX + radius * Math.cos(angle),
+                    y: centerY + radius * Math.sin(angle)
+                });
+            }
+            return points;
+            
+        case 'oval':
+            // Oval mit 12 Punkten
+            const ovalPoints = [];
+            const radiusX = 6;
+            const radiusY = 3;
+            const centerOvalX = 5;
+            const centerOvalY = 4;
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * 2 * Math.PI) / 12;
+                ovalPoints.push({
+                    x: centerOvalX + radiusX * Math.cos(angle),
+                    y: centerOvalY + radiusY * Math.sin(angle)
+                });
+            }
+            return ovalPoints;
+            
+        case 'halbkreis':
+            // Halbkreis mit gerade Linie unten
+            const halfPoints = [];
+            const halfRadius = 5;
+            const halfCenterX = 5;
+            const halfCenterY = 5;
+            // Oberer Halbkreis (von 0° bis 180°)
+            for (let i = 0; i <= 6; i++) {
+                const angle = (i * Math.PI) / 6;
+                halfPoints.push({
+                    x: halfCenterX + halfRadius * Math.cos(angle),
+                    y: halfCenterY - halfRadius * Math.sin(angle)
+                });
+            }
+            return halfPoints;
+            
+        case 'viertelkreis':
+            return [
+                { x: 0, y: 0 }, { x: 6, y: 0 }, { x: 8, y: 1 },
+                { x: 9, y: 3 }, { x: 9, y: 5 }, { x: 8, y: 7 },
+                { x: 6, y: 8 }, { x: 3, y: 9 }, { x: 0, y: 9 }
+            ];
+            
+        case 'langloch':
+            return [
+                { x: 2, y: 1 }, { x: 8, y: 1 }, { x: 9, y: 2 },
+                { x: 9, y: 6 }, { x: 8, y: 7 }, { x: 2, y: 7 },
+                { x: 1, y: 6 }, { x: 1, y: 2 }
+            ];
+            
+        default:
+            // Standard Kreis
+            const defaultPoints = [];
+            const defaultRadius = 5;
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * 2 * Math.PI) / 8;
+                defaultPoints.push({
+                    x: 5 + defaultRadius * Math.cos(angle),
+                    y: 4 + defaultRadius * Math.sin(angle)
+                });
+            }
+            return defaultPoints;
+    }
+}
     // Je nach Variante unterschiedliche Dreiecke
     switch(selectedVariant) {
         case 'gleichseitig':
