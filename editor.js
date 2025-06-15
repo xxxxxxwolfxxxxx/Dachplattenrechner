@@ -71,66 +71,66 @@ function generateViereckInputFields() {
             `;
             break;
             
-        case 'trapez':
-            container.innerHTML = `
-                <div class="input-group">
-                    <label for="dim-bottom">Untere Breite (a):</label>
-                    <div class="input-group-wrapper">
-                        <input type="number" id="dim-bottom" step="0.1" min="0.1" value="${currentValues.bottomWidth || 10}" onchange="updateValue('bottomWidth', this.value)">
-                        <span class="input-unit">m</span>
+                    case 'trapez':
+                container.innerHTML = `
+                    <div class="input-group">
+                        <label for="dim-bottom">Untere Breite (a):</label>
+                        <div class="input-group-wrapper">
+                            <input type="number" id="dim-bottom" step="0.1" min="0.1" value="${currentValues.bottomWidth || 10}" onchange="updateValue('bottomWidth', this.value)">
+                            <span class="input-unit">m</span>
+                        </div>
                     </div>
-                </div>
-                <div class="input-group">
-                    <label for="dim-top">Obere Breite (c):</label>
-                    <div class="input-group-wrapper">
-                        <input type="number" id="dim-top" step="0.1" min="0.1" value="${currentValues.topWidth || 6}" onchange="updateValue('topWidth', this.value)">
-                        <span class="input-unit">m</span>
+                    <div class="input-group">
+                        <label for="dim-top">Obere Breite (c):</label>
+                        <div class="input-group-wrapper">
+                            <input type="number" id="dim-top" step="0.1" min="0.1" value="${currentValues.topWidth || 6}" onchange="updateValue('topWidth', this.value)">
+                            <span class="input-unit">m</span>
+                        </div>
                     </div>
-                </div>
-                <div class="input-group">
-                    <label for="dim-height">Höhe (h):</label>
-                    <div class="input-group-wrapper">
-                        <input type="number" id="dim-height" step="0.1" min="0.1" value="${currentValues.height || 6}" onchange="updateValue('height', this.value)">
-                        <span class="input-unit">m</span>
+                    <div class="input-group">
+                        <label for="dim-height">Höhe (h):</label>
+                        <div class="input-group-wrapper">
+                            <input type="number" id="dim-height" step="0.1" min="0.1" value="${currentValues.height || 6}" onchange="updateValue('height', this.value)">
+                            <span class="input-unit">m</span>
+                        </div>
                     </div>
-                </div>
-                <div class="input-group">
-                    <label for="dim-left-leg">Linker Schenkel:</label>
-                    <div class="input-group-wrapper">
-                        <input type="number" id="dim-left-leg" step="0.1" min="0.1" value="${currentValues.leftLeg || ''}" onchange="updateTrapezValue('leftLeg', this.value)" placeholder="auto">
-                        <span class="input-unit">m</span>
+                    <div class="input-group">
+                        <label for="dim-left-leg">Linker Schenkel:</label>
+                        <div class="input-group-wrapper">
+                            <input type="number" id="dim-left-leg" step="0.1" min="0.1" value="${currentValues.leftLeg || ''}" onchange="updateTrapezValue('leftLeg', this.value)" placeholder="auto">
+                            <span class="input-unit">m</span>
+                        </div>
                     </div>
-                </div>
-                <div class="input-group">
-                    <label for="dim-right-leg">Rechter Schenkel:</label>
-                    <div class="input-group-wrapper">
-                        <input type="number" id="dim-right-leg" step="0.1" min="0.1" value="${currentValues.rightLeg || ''}" onchange="updateTrapezValue('rightLeg', this.value)" placeholder="auto">
-                        <span class="input-unit">m</span>
+                    <div class="input-group">
+                        <label for="dim-right-leg">Rechter Schenkel:</label>
+                        <div class="input-group-wrapper">
+                            <input type="number" id="dim-right-leg" step="0.1" min="0.1" value="${currentValues.rightLeg || ''}" onchange="updateTrapezValue('rightLeg', this.value)" placeholder="auto">
+                            <span class="input-unit">m</span>
+                        </div>
                     </div>
-                </div>
-                <div class="input-group">
-                    <label for="dim-left-angle">Linker Winkel:</label>
-                    <div class="input-group-wrapper">
-                        <input type="number" id="dim-left-angle" step="1" min="1" max="179" value="${currentValues.leftAngle || ''}" onchange="updateTrapezValue('leftAngle', this.value)" placeholder="auto">
-                        <span class="input-unit">°</span>
+                    <div class="input-group">
+                        <label for="dim-left-angle">Linker Winkel:</label>
+                        <div class="input-group-wrapper">
+                            <input type="number" id="dim-left-angle" step="1" min="1" max="179" value="${currentValues.leftAngle || ''}" onchange="updateTrapezValue('leftAngle', this.value)" placeholder="auto">
+                            <span class="input-unit">°</span>
+                        </div>
                     </div>
-                </div>
-                <div class="input-group">
-                    <label for="dim-right-angle">Rechter Winkel:</label>
-                    <div class="input-group-wrapper">
-                        <input type="number" id="dim-right-angle" step="1" min="1" max="179" value="${currentValues.rightAngle || ''}" onchange="updateTrapezValue('rightAngle', this.value)" placeholder="auto">
-                        <span class="input-unit">°</span>
+                    <div class="input-group">
+                        <label for="dim-right-angle">Rechter Winkel:</label>
+                        <div class="input-group-wrapper">
+                            <input type="number" id="dim-right-angle" step="1" min="1" max="179" value="${currentValues.rightAngle || ''}" onchange="updateTrapezValue('rightAngle', this.value)" placeholder="auto">
+                            <span class="input-unit">°</span>
+                        </div>
                     </div>
-                </div>
-                <div class="input-group">
-                    <label>Fläche:</label>
-                    <div class="input-group-wrapper">
-                        <input type="number" id="calc-area-display" step="0.1" readonly value="${(((currentValues.bottomWidth || 10) + (currentValues.topWidth || 6)) / 2 * (currentValues.height || 6)).toFixed(1)}">
-                        <span class="input-unit">m²</span>
+                    <div class="input-group">
+                        <label>Fläche:</label>
+                        <div class="input-group-wrapper">
+                            <input type="number" id="calc-area-display" step="0.1" readonly value="${(((currentValues.bottomWidth || 10) + (currentValues.topWidth || 6)) / 2 * (currentValues.height || 6)).toFixed(1)}">
+                            <span class="input-unit">m²</span>
+                        </div>
                     </div>
-                </div>
-            `;
-            break;
+                `;
+                break;
             
         case 'parallelogramm':
             container.innerHTML = `
