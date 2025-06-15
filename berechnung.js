@@ -344,14 +344,13 @@ function calculateForDirection(analysis, richtung, profile) {
     };
 }
 
-// Korrigierte Funktion für Dreieck-Berechnungen
+// FINALE KORRIGIERTE Funktion für Dreieck-Berechnungen
 function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueberstand) {
     const points = analysis.points;
     if (points.length !== 3) return [];
 
     const profile = projectData.profile;
-    const lieferbreite = profile.lieferbreite; // Physische Plattenbreite
-    const seitenueberlappung = profile.seitenueberlappung;
+    const lieferbreite = profile.lieferbreite;
 
     // Analysiere die Dreieck-Geometrie
     const xs = points.map(p => p.x);
@@ -367,18 +366,20 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
     // Bestimme Dreieck-Typ basierend auf roofShape.variant
     const dreieckTyp = projectData.roofShape?.variant || 'rechtwinklig';
 
-    console.log('Dreieck-Analyse (mit physischer Plattenbreite):', {
+    console.log('FINALE Dreieck-Analyse (physische Plattenabdeckung):', {
         basisBreite: basisBreite,
         dreieckHoehe: dreieckHoehe,
         bahnenAnzahl: bahnenAnzahl,
         deckbreite: deckbreite,
         lieferbreite: lieferbreite,
-        seitenueberlappung: seitenueberlappung,
         dreieckTyp: dreieckTyp
     });
 
     // Funktion um Dreieckshöhe an beliebiger Position zu berechnen
     function getTriangleHeightAtPosition(relativePosition) {
+        // Sicherstellen, dass Position im gültigen Bereich ist
+        relativePosition = Math.max(0, Math.min(1, relativePosition));
+        
         if (dreieckTyp === 'gleichseitig' || dreieckTyp === 'gleichschenklig') {
             // Gleichschenkliges Dreieck: Spitze in der Mitte oben
             if (relativePosition <= 0.5) {
@@ -390,66 +391,77 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
             }
         } else if (dreieckTyp === 'rechtwinklig') {
             // Rechtwinkliges Dreieck: Spitze rechts
-            return relativePosition < 1 ? dreieckHoehe * (1 - relativePosition) : 0;
+            return dreieckHoehe * (1 - relativePosition);
         } else {
             // Standard: rechtwinkliges Verhalten
-            return relativePosition < 1 ? dreieckHoehe * (1 - relativePosition) : 0;
+            return dreieckHoehe * (1 - relativePosition);
         }
     }
 
     const plateLengths = [];
     
     for (let i = 0; i < bahnenAnzahl; i++) {
-        // KORRIGIERT: Bahnen werden nach Deckbreite positioniert (Abstand zwischen Plattenmitten)
-        const bahnMitte = i * (deckbreite / 1000);
+        // KORREKT: Physische Platte (Lieferbreite) bestimmt die Abdeckung
+        // Erste Platte: 0 bis lieferbreite
+        // Zweite Platte: deckbreite bis (deckbreite + lieferbreite)
+        // usw.
         
-        // ABER: Die physische Platte ist breiter (Lieferbreite)
-        // Platte erstreckt sich von Mitte - halbe_Lieferbreite bis Mitte + halbe_Lieferbreite
-        const halbeLibreite = (lieferbreite / 1000) / 2;
-        const platteStart = bahnMitte - halbeLibreite;
-        const platteEnd = bahnMitte + halbeLibreite;
+        const platteStart = i * (deckbreite / 1000);
+        const platteEnd = platteStart + (lieferbreite / 1000);
         
-        // Für die erste Platte: Start bei 0 (nicht negativ)
+        // Sicherstellen, dass Platte nicht über Dreieck hinausgeht
         const platteStartKorrigiert = Math.max(0, platteStart);
         const platteEndKorrigiert = Math.min(basisBreite, platteEnd);
         
-        // Relative Positionen
+        // Relative Positionen für Höhenberechnung
         const relativeStart = platteStartKorrigiert / basisBreite;
         const relativeEnd = platteEndKorrigiert / basisBreite;
         
-        console.log(`Bahn ${i + 1}: Deckbereich ${bahnMitte.toFixed(2)}m, Physische Platte: ${platteStartKorrigiert.toFixed(3)}m bis ${platteEndKorrigiert.toFixed(3)}m`);
+        // Höhen an den Rändern der physischen Platte
+        const hoeheLinks = getTriangleHeightAtPosition(relativeStart);
+        const hoeheRechts = getTriangleHeightAtPosition(relativeEnd);
         
-        // Prüfe mehrere Punkte innerhalb der PHYSISCHEN Platte und finde das Maximum
-        let maxHoehe = 0;
-        const schritte = 20; // Mehr Messpunkte für Genauigkeit
-        
-        for (let j = 0; j <= schritte; j++) {
-            const relativePosition = relativeStart + (relativeEnd - relativeStart) * (j / schritte);
-            const hoehe = getTriangleHeightAtPosition(relativePosition);
-            maxHoehe = Math.max(maxHoehe, hoehe);
+        // Prüfe ob die Spitze des Dreiecks innerhalb der Platte liegt
+        let hoeheMitte = 0;
+        if (dreieckTyp === 'gleichseitig' || dreieckTyp === 'gleichschenklig') {
+            // Spitze bei relativer Position 0.5 (Mitte)
+            const spitzePosition = 0.5;
+            if (relativeStart <= spitzePosition && spitzePosition <= relativeEnd) {
+                // Spitze liegt innerhalb der Platte
+                hoeheMitte = getTriangleHeightAtPosition(spitzePosition);
+                console.log(`Bahn ${i + 1}: SPITZE liegt in der Platte! Höhe=${hoeheMitte.toFixed(2)}m`);
+            }
         }
         
-        // Zusätzlich: Prüfe die exakten Start- und Endpunkte der physischen Platte
-        const hoeheStart = getTriangleHeightAtPosition(relativeStart);
-        const hoeheEnd = getTriangleHeightAtPosition(relativeEnd);
-        maxHoehe = Math.max(maxHoehe, hoeheStart, hoeheEnd);
+        // Die Plattenlänge ist das MAXIMUM der drei Höhen
+        const maxHoehe = Math.max(hoeheLinks, hoeheRechts, hoeheMitte);
         
-        // Sicherstellen, dass Höhe nicht negativ wird
-        maxHoehe = Math.max(0, maxHoehe);
+        // Bestimme welche Seite/Position das Maximum liefert (für Debug)
+        let maxPosition = 'links';
+        if (maxHoehe === hoeheRechts && hoeheRechts > hoeheLinks && hoeheRechts >= hoeheMitte) {
+            maxPosition = 'rechts';
+        } else if (maxHoehe === hoeheMitte && hoeheMitte > 0) {
+            maxPosition = 'spitze';
+        }
         
-        // Plattenlänge = maximale Dreieckshöhe in der physischen Platte + Überstand
+        // Plattenlänge = maximale Dreieckshöhe + Überstand
         const plattenLaenge = Math.max(ueberstand, (maxHoehe * 1000) + ueberstand);
         
-        console.log(`Bahn ${i + 1}: Max. Höhe=${maxHoehe.toFixed(2)}m, Plattenlänge=${plattenLaenge.toFixed(0)}mm (physische Breite berücksichtigt)`);
+        console.log(`Bahn ${i + 1}: Platte ${platteStartKorrigiert.toFixed(2)}m-${platteEndKorrigiert.toFixed(2)}m`);
+        console.log(`  Links: ${hoeheLinks.toFixed(2)}m, Rechts: ${hoeheRechts.toFixed(2)}m, Mitte: ${hoeheMitte.toFixed(2)}m`);
+        console.log(`  → MAX: ${maxHoehe.toFixed(2)}m (${maxPosition}), Plattenlänge: ${plattenLaenge.toFixed(0)}mm`);
         
         plateLengths.push({
             bahnNummer: i + 1,
             laenge: Math.round(plattenLaenge),
             dreieckHoehe: maxHoehe,
-            position: bahnMitte,
+            position: platteStartKorrigiert,
             platteStart: platteStartKorrigiert,
             platteEnd: platteEndKorrigiert,
-            physischePlattenbereite: platteEndKorrigiert - platteStartKorrigiert
+            hoeheLinks: hoeheLinks,
+            hoeheRechts: hoeheRechts,
+            hoeheMitte: hoeheMitte,
+            maxPosition: maxPosition
         });
     }
     
