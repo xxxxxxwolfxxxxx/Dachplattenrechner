@@ -127,33 +127,146 @@ function selectVariant(variant, name) {
 }
 
 function saveAndContinue() {
-    // Profil-Daten BEIBEHALTEN!
+    // WICHTIG: Profil-Daten BEIBEHALTEN!
     if (!projectData.profile) {
         alert('Profil-Daten fehlen! Bitte kehren Sie zu Schritt 1 zurück.');
         window.location.href = 'profil.html';
         return;
     }
     
-    // Nur roofShape hinzufügen
+    // Nur roofShape hinzufügen, ohne andere Daten zu überschreiben
     projectData.roofShape = {
         baseShape: selectedShape,
         variant: selectedVariant,
         points: getDefaultPoints()
     };
     
+    console.log('Speichere Projektdaten vor Weiterleitung:', projectData);
+    
     saveData();
+    
+    // KORRIGIERT: Weiterleitung zur richtigen Editor-Datei
     window.location.href = 'Editor.html';
 }
 
 function getDefaultPoints() {
     // Einfache Standard-Punkte für jede Form
     var defaults = {
-        'kreis': [{ x: 5, y: 0 }, { x: 0, y: 5 }, { x: -5, y: 0 }, { x: 0, y: -5 }],
-        'dreieck': [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 5, y: 8 }],
-        'viereck': [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 8 }, { x: 0, y: 8 }],
-        'vieleck': [{ x: 5, y: 0 }, { x: 8, y: 3 }, { x: 5, y: 8 }, { x: 2, y: 5 }, { x: 2, y: 3 }]
+        'kreis': [
+            { x: 5, y: 0 }, { x: 3.54, y: 3.54 }, { x: 0, y: 5 }, 
+            { x: -3.54, y: 3.54 }, { x: -5, y: 0 }, { x: -3.54, y: -3.54 }, 
+            { x: 0, y: -5 }, { x: 3.54, y: -3.54 }
+        ],
+        'dreieck': getTrianglePoints(),
+        'viereck': getRectanglePoints(),
+        'vieleck': getPolygonPoints()
     };
     return defaults[selectedShape] || defaults['viereck'];
+}
+
+function getTrianglePoints() {
+    // Je nach Variante unterschiedliche Dreiecke
+    switch(selectedVariant) {
+        case 'gleichseitig':
+            return [
+                { x: 0, y: 8 },      // Spitze oben mittig
+                { x: -5, y: 0 },     // Links unten
+                { x: 5, y: 0 }       // Rechts unten
+            ];
+        case 'rechtwinklig':
+            return [
+                { x: 0, y: 0 },      // Links unten (rechter Winkel)
+                { x: 10, y: 0 },     // Rechts unten
+                { x: 0, y: 8 }       // Links oben
+            ];
+        case 'ungleichschenklig':
+            return [
+                { x: 3, y: 8 },      // Spitze oben (versetzt)
+                { x: -2, y: 0 },     // Links unten
+                { x: 8, y: 0 }       // Rechts unten
+            ];
+        default:
+            return [
+                { x: 0, y: 8 },
+                { x: -5, y: 0 },
+                { x: 5, y: 0 }
+            ];
+    }
+}
+
+function getRectanglePoints() {
+    // Je nach Variante unterschiedliche Vierecke
+    switch(selectedVariant) {
+        case 'quadrat':
+            return [
+                { x: 0, y: 0 }, { x: 8, y: 0 }, 
+                { x: 8, y: 8 }, { x: 0, y: 8 }
+            ];
+        case 'parallelogramm':
+            return [
+                { x: 0, y: 0 }, { x: 10, y: 0 }, 
+                { x: 12, y: 6 }, { x: 2, y: 6 }
+            ];
+        case 'trapez':
+            return [
+                { x: 1, y: 0 }, { x: 9, y: 0 }, 
+                { x: 8, y: 6 }, { x: 2, y: 6 }
+            ];
+        case 'rhombus':
+            return [
+                { x: 5, y: 0 }, { x: 10, y: 4 }, 
+                { x: 5, y: 8 }, { x: 0, y: 4 }
+            ];
+        default: // rechteck
+            return [
+                { x: 0, y: 0 }, { x: 10, y: 0 }, 
+                { x: 10, y: 6 }, { x: 0, y: 6 }
+            ];
+    }
+}
+
+function getPolygonPoints() {
+    // Je nach Variante unterschiedliche Vielecke
+    switch(selectedVariant) {
+        case 'fuenfeck':
+            return [
+                { x: 5, y: 8 }, { x: 9, y: 6 }, { x: 8, y: 1 }, 
+                { x: 2, y: 1 }, { x: 1, y: 6 }
+            ];
+        case 'sechseck':
+            return [
+                { x: 5, y: 8 }, { x: 9, y: 6 }, { x: 9, y: 2 }, 
+                { x: 5, y: 0 }, { x: 1, y: 2 }, { x: 1, y: 6 }
+            ];
+        case 'achteck':
+            return [
+                { x: 5, y: 8 }, { x: 7, y: 7 }, { x: 8, y: 5 }, { x: 8, y: 3 },
+                { x: 7, y: 1 }, { x: 5, y: 0 }, { x: 3, y: 1 }, { x: 2, y: 3 },
+                { x: 2, y: 5 }, { x: 3, y: 7 }
+            ];
+        case 'lform':
+            return [
+                { x: 0, y: 0 }, { x: 6, y: 0 }, { x: 6, y: 4 },
+                { x: 10, y: 4 }, { x: 10, y: 8 }, { x: 0, y: 8 }
+            ];
+        case 'tform':
+            return [
+                { x: 3, y: 0 }, { x: 7, y: 0 }, { x: 7, y: 3 },
+                { x: 10, y: 3 }, { x: 10, y: 8 }, { x: 0, y: 8 },
+                { x: 0, y: 3 }, { x: 3, y: 3 }
+            ];
+        case 'uform':
+            return [
+                { x: 0, y: 0 }, { x: 3, y: 0 }, { x: 3, y: 6 },
+                { x: 7, y: 6 }, { x: 7, y: 0 }, { x: 10, y: 0 },
+                { x: 10, y: 8 }, { x: 0, y: 8 }
+            ];
+        default:
+            return [
+                { x: 5, y: 8 }, { x: 9, y: 6 }, { x: 8, y: 1 }, 
+                { x: 2, y: 1 }, { x: 1, y: 6 }
+            ];
+    }
 }
 
 function goBack() {
@@ -163,6 +276,8 @@ function goBack() {
 // Event Setup
 document.addEventListener('DOMContentLoaded', function() {
     projectData = loadData();
+    
+    console.log('Dachform-Seite geladen, Projektdaten:', projectData);
     
     // Profil-Info anzeigen falls vorhanden
     displayProfileInfo();
