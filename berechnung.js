@@ -349,7 +349,7 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
     const points = analysis.points;
     if (points.length !== 3) return [];
 
-    // Finde die Geometrie des Dreiecks
+    // Analysiere die Dreieck-Geometrie
     const xs = points.map(p => p.x);
     const ys = points.map(p => p.y);
     const minX = Math.min(...xs);
@@ -360,11 +360,16 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
     const basisBreite = maxX - minX;
     const dreieckHoehe = maxY - minY;
 
+    // Bestimme Dreieck-Typ basierend auf roofShape.variant
+    const dreieckTyp = projectData.roofShape?.variant || 'rechtwinklig';
+
     console.log('Dreieck-Analyse:', {
         basisBreite: basisBreite,
         dreieckHoehe: dreieckHoehe,
         bahnenAnzahl: bahnenAnzahl,
-        deckbreite: deckbreite
+        deckbreite: deckbreite,
+        dreieckTyp: dreieckTyp,
+        points: points
     });
 
     const plateLengths = [];
@@ -378,12 +383,38 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
         
         console.log(`Bahn ${i + 1}: Position=${bahnPosition.toFixed(2)}m, Relativ=${relativePosition.toFixed(3)}`);
         
-        // Höhe des Dreiecks an dieser Position
+        // Höhe des Dreiecks an dieser Position - abhängig vom Typ
         let aktuelleHoehe;
-        if (relativePosition < 1) {
-            aktuelleHoehe = dreieckHoehe * (1 - relativePosition);
+        
+        if (dreieckTyp === 'gleichseitig' || dreieckTyp === 'gleichschenklig') {
+            // Gleichschenkliges Dreieck: Spitze in der Mitte oben
+            // Höhe ist maximal in der Mitte (relativePosition = 0.5)
+            
+            if (relativePosition <= 0.5) {
+                // Linke Hälfte: Höhe steigt linear von 0 auf dreieckHoehe
+                aktuelleHoehe = dreieckHoehe * (relativePosition * 2);
+            } else {
+                // Rechte Hälfte: Höhe fällt linear von dreieckHoehe auf 0
+                aktuelleHoehe = dreieckHoehe * (2 - relativePosition * 2);
+            }
+            
+            // Sicherstellen, dass Höhe nicht negativ wird
+            aktuelleHoehe = Math.max(0, aktuelleHoehe);
+            
+        } else if (dreieckTyp === 'rechtwinklig') {
+            // Rechtwinkliges Dreieck: Spitze rechts
+            if (relativePosition < 1) {
+                aktuelleHoehe = dreieckHoehe * (1 - relativePosition);
+            } else {
+                aktuelleHoehe = 0;
+            }
         } else {
-            aktuelleHoehe = 0;
+            // Standard: rechtwinkliges Verhalten
+            if (relativePosition < 1) {
+                aktuelleHoehe = dreieckHoehe * (1 - relativePosition);
+            } else {
+                aktuelleHoehe = 0;
+            }
         }
         
         // Plattenlänge = Dreieckshöhe + Überstand (nur an der Traufe)
@@ -395,7 +426,8 @@ function calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueber
             bahnNummer: i + 1,
             laenge: Math.round(plattenLaenge),
             dreieckHoehe: aktuelleHoehe,
-            position: bahnPosition
+            position: bahnPosition,
+            relativePosition: relativePosition
         });
     }
     
