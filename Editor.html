@@ -439,12 +439,19 @@
         window.setTraufePosition = function(position) {
             console.log('Traufe-Position gesetzt: ' + position);
             
+            // Setze die Wasserlaufrichtung
             if (typeof waterFlowDirection !== 'undefined') {
                 waterFlowDirection = position;
             }
+            
+            // Rotiere die Form entsprechend der Traufe-Position
+            orientToTraufe(position);
+            
+            // Aktualisiere die Verlegerichtung
             if (typeof determinePreferredDirection === 'function') {
                 determinePreferredDirection();
             }
+            
             closeOverlay();
         };
 
@@ -457,11 +464,76 @@
             });
         };
 
+        // Form zur Traufe-Position ausrichten
+        function orientToTraufe(position) {
+            if (typeof currentPoints === 'undefined' || !currentPoints.length) return;
+            
+            // Berechne Bounding Box
+            const xs = currentPoints.map(p => p.x);
+            const ys = currentPoints.map(p => p.y);
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+            const centerX = (minX + maxX) / 2;
+            const centerY = (minY + maxY) / 2;
+
+            // Verschiebe zum Ursprung
+            currentPoints = currentPoints.map(p => ({
+                x: p.x - centerX,
+                y: p.y - centerY
+            }));
+
+            // Bestimme Rotationswinkel basierend auf Traufe-Position
+            let rotationAngle = 0;
+            switch(position) {
+                case 'top':    // Traufe oben = 180° drehen
+                    rotationAngle = Math.PI;
+                    break;
+                case 'right':  // Traufe rechts = -90° drehen  
+                    rotationAngle = -Math.PI / 2;
+                    break;
+                case 'bottom': // Traufe unten = keine Drehung
+                    rotationAngle = 0;
+                    break;
+                case 'left':   // Traufe links = 90° drehen
+                    rotationAngle = Math.PI / 2;
+                    break;
+                default:
+                    rotationAngle = 0;
+            }
+
+            console.log(`Rotiere Form um ${(rotationAngle * 180 / Math.PI).toFixed(1)}° für Traufe-Position: ${position}`);
+
+            // Führe Rotation durch
+            if (rotationAngle !== 0) {
+                currentPoints = currentPoints.map(p => ({
+                    x: p.x * Math.cos(rotationAngle) - p.y * Math.sin(rotationAngle),
+                    y: p.x * Math.sin(rotationAngle) + p.y * Math.cos(rotationAngle)
+                }));
+            }
+
+            // Verschiebe zurück zur ursprünglichen Position
+            currentPoints = currentPoints.map(p => ({
+                x: p.x + centerX,
+                y: p.y + centerY
+            }));
+
+            // Aktualisiere die Darstellung
+            if (typeof updateShape === 'function') {
+                updateShape();
+            }
+            if (typeof updateInfoPanel === 'function') {
+                updateInfoPanel();
+            }
+        }
+
         // Modifizierte selectTraufeSide Funktion mit onclick (funktioniert garantiert)
         window.selectTraufeSideFixed = function() {
             console.log('Traufe-Auswahl gestartet (FIXED)');
             
             const overlay = document.createElement('div');
+            overlay.className = 'traufe-overlay-fixed';
             overlay.style.cssText = `
                 position: fixed;
                 top: 0;
@@ -479,16 +551,27 @@
             `;
             
             overlay.innerHTML = `
-                <h3 style="margin-bottom: 20px;">Traufe-Position bestimmen</h3>
-                <p style="margin-bottom: 30px; text-align: center;">Klicken Sie auf die Seite, wo sich die Traufe (Dachrand) befindet:</p>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-                    <button onclick="setTraufePosition('top')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; background: #007bff; color: white;">↑ Oben</button>
-                    <button onclick="setTraufePosition('right')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; background: #007bff; color: white;">→ Rechts</button>
-                    <button onclick="setTraufePosition('bottom')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; background: #007bff; color: white;">↓ Unten</button>
-                    <button onclick="setTraufePosition('left')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; background: #007bff; color: white;">← Links</button>
+                <h3 style="margin-bottom: 20px; font-size: 24px;">Traufe-Position bestimmen</h3>
+                <p style="margin-bottom: 30px; text-align: center; font-size: 16px;">Klicken Sie auf die Seite, wo sich die Traufe (Dachrand) befindet:</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+                    <button onclick="setTraufePosition('top')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; transition: background 0.3s;">↑ Oben</button>
+                    <button onclick="setTraufePosition('right')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; transition: background 0.3s;">→ Rechts</button>
+                    <button onclick="setTraufePosition('bottom')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; transition: background 0.3s;">↓ Unten</button>
+                    <button onclick="setTraufePosition('left')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; transition: background 0.3s;">← Links</button>
                 </div>
-                <button onclick="closeOverlay()" style="margin-top: 30px; padding: 10px 20px; background: #666; color: white; border: none; cursor: pointer; border-radius: 5px;">Abbrechen</button>
+                <button onclick="closeOverlay()" style="margin-top: 10px; padding: 12px 24px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 8px; font-size: 14px;">Abbrechen</button>
             `;
+            
+            // Hover-Effekte hinzufügen
+            const buttons = overlay.querySelectorAll('button:not([onclick="closeOverlay()"])');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.background = '#0056b3';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.background = '#007bff';
+                });
+            });
             
             document.body.appendChild(overlay);
         };
