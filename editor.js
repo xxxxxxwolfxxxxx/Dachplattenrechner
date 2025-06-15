@@ -1256,12 +1256,29 @@ function generateViereckPoints(variant) {
             const bottomWidth = currentValues.bottomWidth || 10;
             const topWidth = currentValues.topWidth || 6;
             const height = currentValues.height || 6;
-            const offset = currentValues.topOffset || 2;
+            
+            // Berechne die Position der oberen Kante basierend auf den Schenkeln/Winkeln
+            let leftOffset = 0;
+            let rightOffset = 0;
+            
+            if (currentValues.leftAngle && currentValues.rightAngle) {
+                // Berechne Offsets basierend auf Winkeln
+                const leftAngleRad = (currentValues.leftAngle * Math.PI) / 180;
+                const rightAngleRad = (currentValues.rightAngle * Math.PI) / 180;
+                leftOffset = height / Math.tan(leftAngleRad);
+                rightOffset = height / Math.tan(rightAngleRad);
+            } else {
+                // Standard: zentriert
+                const totalOffset = (bottomWidth - topWidth) / 2;
+                leftOffset = totalOffset;
+                rightOffset = totalOffset;
+            }
+            
             return [
                 { x: 0, y: 0 }, 
                 { x: bottomWidth, y: 0 }, 
-                { x: bottomWidth - offset, y: height }, 
-                { x: offset, y: height }
+                { x: bottomWidth - rightOffset, y: height }, 
+                { x: leftOffset, y: height }
             ];
             
         case 'parallelogramm':
@@ -1274,11 +1291,11 @@ function generateViereckPoints(variant) {
             ];
             
         case 'rhombus':
-            const rWidth = currentValues.width || 10;
-            const rHeight = currentValues.height || 8;
+            const d1 = currentValues.diagonal1 || 10;
+            const d2 = currentValues.diagonal2 || 8;
             return [
-                { x: rWidth / 2, y: 0 }, { x: rWidth, y: rHeight / 2 }, 
-                { x: rWidth / 2, y: rHeight }, { x: 0, y: rHeight / 2 }
+                { x: d1 / 2, y: 0 }, { x: d1, y: d2 / 2 }, 
+                { x: d1 / 2, y: d2 }, { x: 0, y: d2 / 2 }
             ];
             
         default: // rechteck
@@ -1290,7 +1307,7 @@ function generateViereckPoints(variant) {
 }
 
 function generateTrianglePoints(variant) {
-    const base = currentValues.base || 10;
+    const base = currentValues.base || currentValues.sideLength || 10;
     const height = currentValues.height || 8;
     
     switch(variant) {
@@ -1368,7 +1385,7 @@ function generateCirclePoints(variant) {
             const lLength = currentValues.length || 8;
             const lWidth = currentValues.width || 4;
             const radius = lWidth / 2;
-            const straightLength = lLength - lWidth;
+            const straightLength = Math.max(0, lLength - lWidth);
             
             const langPoints = [];
             // Rechte Rundung
@@ -1397,8 +1414,69 @@ function generateCirclePoints(variant) {
 function generatePolygonPoints(variant) {
     switch(variant) {
         case 'lform':
-            const w1 = currentValues.width1 || 6;
-            const w2 = currentValues.width2 || 4;
+            const l1 = currentValues.length1 || currentValues.width1 || 6;
+            const w1 = currentValues.width1 || currentValues.height1 || 4;
+            const l2 = currentValues.length2 || currentValues.width2 || 4;
+            const w2 = currentValues.width2 || currentValues.height2 || 4;
+            return [
+                { x: 0, y: 0 }, { x: l1, y: 0 }, { x: l1, y: w1 },
+                { x: l1 + l2, y: w1 }, { x: l1 + l2, y: w1 + w2 }, { x: 0, y: w1 + w2 }
+            ];
+            
+        case 'tform':
+            const stemWidth = currentValues.stemWidth || 4;
+            const stemHeight = currentValues.stemHeight || 5;
+            const topWidth = currentValues.topWidth || 10;
+            const topHeight = currentValues.topHeight || 3;
+            const centerOffset = (topWidth - stemWidth) / 2;
+            return [
+                { x: centerOffset, y: 0 }, { x: centerOffset + stemWidth, y: 0 }, 
+                { x: centerOffset + stemWidth, y: stemHeight },
+                { x: topWidth, y: stemHeight }, { x: topWidth, y: stemHeight + topHeight }, 
+                { x: 0, y: stemHeight + topHeight }, { x: 0, y: stemHeight }, 
+                { x: centerOffset, y: stemHeight }
+            ];
+            
+        case 'fuenfeck':
+            const r5 = currentValues.radius || 5;
+            const points5 = [];
+            for (let i = 0; i < 5; i++) {
+                const angle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+                points5.push({
+                    x: r5 + r5 * Math.cos(angle),
+                    y: r5 + r5 * Math.sin(angle)
+                });
+            }
+            return points5;
+            
+        case 'sechseck':
+            const r6 = currentValues.radius || 5;
+            const points6 = [];
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * 2 * Math.PI) / 6;
+                points6.push({
+                    x: r6 + r6 * Math.cos(angle),
+                    y: r6 + r6 * Math.sin(angle)
+                });
+            }
+            return points6;
+            
+        case 'achteck':
+            const r8 = currentValues.radius || 5;
+            const points8 = [];
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * 2 * Math.PI) / 8;
+                points8.push({
+                    x: r8 + r8 * Math.cos(angle),
+                    y: r8 + r8 * Math.sin(angle)
+                });
+            }
+            return points8;
+            
+        default:
+            return generatePolygonPoints('fuenfeck');
+    }
+} || 4;
             const h1 = currentValues.height1 || 4;
             const h2 = currentValues.height2 || 8;
             return [
