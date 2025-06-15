@@ -29,31 +29,22 @@ let currentValues = { length: 10, width: 8 };
 let waterFlowDirection = 'down';
 let preferredDirection = 'laengs';
 
-// DEBUG-Funktion
+// DEBUG-Funktion (deaktiviert)
 function showDebugInfo(message) {
-    const debugElement = document.getElementById('debug-content');
-    if (debugElement) {
-        debugElement.innerHTML += '<div style="margin: 2px 0; font-size: 12px;">' + message + '</div>';
-    } else {
-        console.log('DEBUG: ' + message);
-    }
+    // Debug-Ausgaben deaktiviert
+    console.log('DEBUG: ' + message);
 }
 
 // Storage-Funktionen
 function saveData() {
     try {
-        showDebugInfo('💾 Speichere Daten...');
         localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-        showDebugInfo('✅ Daten erfolgreich in localStorage gespeichert');
         return true;
     } catch (e) {
-        showDebugInfo('⚠️ localStorage nicht verfügbar, versuche sessionStorage');
         try {
             sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-            showDebugInfo('✅ Daten erfolgreich in sessionStorage gespeichert');
             return true;
         } catch (e2) {
-            showDebugInfo('❌ Speichern fehlgeschlagen: ' + e2.message);
             return false;
         }
     }
@@ -61,73 +52,43 @@ function saveData() {
 
 function loadData() {
     try {
-        showDebugInfo('📥 Versuche Daten zu laden...');
-        
         let saved = localStorage.getItem('dachplattenrechner_data');
-        showDebugInfo('📦 localStorage: ' + (saved ? 'Daten gefunden (' + saved.length + ' Zeichen)' : 'Leer'));
         
         if (!saved) {
             saved = sessionStorage.getItem('dachplattenrechner_data');
-            showDebugInfo('📦 sessionStorage: ' + (saved ? 'Daten gefunden (' + saved.length + ' Zeichen)' : 'Leer'));
         }
         
         if (saved) {
             const data = JSON.parse(saved);
-            showDebugInfo('📋 Geladene Daten-Struktur: ' + Object.keys(data).join(', '));
-            showDebugInfo('👤 Profil vorhanden: ' + (data.profile ? 'JA' : 'NEIN'));
-            if (data.profile) {
-                showDebugInfo('🔧 Profil-Name: ' + (data.profile.profilname || 'Unbekannt'));
-                showDebugInfo('📐 Deckbreite: ' + (data.profile.deckbreite || 'Unbekannt'));
-            }
             return data;
         } else {
-            showDebugInfo('❌ Keine gespeicherten Daten gefunden');
             return {};
         }
     } catch (e) {
-        showDebugInfo('❌ Fehler beim Laden: ' + e.message);
         return {};
     }
 }
 
 // Profil-Info anzeigen
 function displayProfileInfo() {
-    showDebugInfo('🎯 displayProfileInfo aufgerufen');
     const profile = projectData.profile;
     
-    showDebugInfo('🔍 Profil-Objekt: ' + (profile ? 'Vorhanden' : 'Fehlt'));
-    
     if (profile) {
-        showDebugInfo('✅ Profil-Daten verfügbar, fülle UI-Felder...');
-        
         const profilName = profile.profilname || 'Standard';
         const deckbreite = profile.deckbreite || 1000;
         const lieferbreite = profile.lieferbreite || 1050;
         const seitenueberlappung = profile.seitenueberlappung || 50;
-        
-        showDebugInfo('📋 Werte: ' + profilName + ', ' + deckbreite + 'mm, ' + lieferbreite + 'mm, ' + seitenueberlappung + 'mm');
         
         const nameElement = document.getElementById('current-profile-name');
         const deckbreiteElement = document.getElementById('current-deckbreite');
         const lieferbreiteElement = document.getElementById('current-lieferbreite');
         const seitenueberlappungElement = document.getElementById('current-seitenueberlappung');
         
-        showDebugInfo('🎯 UI-Elemente: ' + 
-            (nameElement ? '✅' : '❌') + 'Name ' +
-            (deckbreiteElement ? '✅' : '❌') + 'Deckbreite ' +
-            (lieferbreiteElement ? '✅' : '❌') + 'Lieferbreite ' +
-            (seitenueberlappungElement ? '✅' : '❌') + 'Überlappung'
-        );
-        
         if (nameElement) nameElement.textContent = profilName;
         if (deckbreiteElement) deckbreiteElement.textContent = deckbreite + ' mm';
         if (lieferbreiteElement) lieferbreiteElement.textContent = lieferbreite + ' mm';
         if (seitenueberlappungElement) seitenueberlappungElement.textContent = seitenueberlappung + ' mm';
-        
-        showDebugInfo('✅ Profil-Info erfolgreich angezeigt');
     } else {
-        showDebugInfo('❌ Keine Profil-Daten gefunden!');
-        
         const elements = [
             'current-profile-name',
             'current-deckbreite', 
@@ -380,7 +341,7 @@ function updateGeometry() {
 
 // NEU: Wasserlauf-Seite auswählen
 function selectWaterFlowSide() {
-    showDebugInfo('🌊 Wasserlauf-Auswahl gestartet');
+    console.log('Wasserlauf-Auswahl gestartet');
     
     // Temporäre Overlay erstellen
     const overlay = document.createElement('div');
@@ -404,12 +365,12 @@ function selectWaterFlowSide() {
         <h3 style="margin-bottom: 20px;">Wasserlauf-Richtung bestimmen</h3>
         <p style="margin-bottom: 30px; text-align: center;">Klicken Sie auf die Seite, in die das Wasser fließen soll:</p>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-            <button onclick="setWaterFlowDirection('top')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">↑ Nach oben</button>
-            <button onclick="setWaterFlowDirection('right')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">→ Nach rechts</button>
-            <button onclick="setWaterFlowDirection('bottom')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">↓ Nach unten</button>
-            <button onclick="setWaterFlowDirection('left')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">← Nach links</button>
+            <button onclick="window.setWaterFlowDirection('top')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px;">↑ Nach oben</button>
+            <button onclick="window.setWaterFlowDirection('right')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px;">→ Nach rechts</button>
+            <button onclick="window.setWaterFlowDirection('bottom')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px;">↓ Nach unten</button>
+            <button onclick="window.setWaterFlowDirection('left')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px;">← Nach links</button>
         </div>
-        <button onclick="closeOverlay()" style="margin-top: 30px; padding: 10px 20px; background: #666; color: white; border: none; cursor: pointer;">Abbrechen</button>
+        <button onclick="window.closeOverlay()" style="margin-top: 30px; padding: 10px 20px; background: #666; color: white; border: none; cursor: pointer; border-radius: 5px;">Abbrechen</button>
     `;
     
     document.body.appendChild(overlay);
@@ -418,7 +379,7 @@ function selectWaterFlowSide() {
 
 // NEU: Traufe-Seite auswählen
 function selectTraufeSide() {
-    showDebugInfo('🏠 Traufe-Auswahl gestartet');
+    console.log('Traufe-Auswahl gestartet');
     
     // Temporäre Overlay erstellen
     const overlay = document.createElement('div');
@@ -442,12 +403,12 @@ function selectTraufeSide() {
         <h3 style="margin-bottom: 20px;">Traufe-Position bestimmen</h3>
         <p style="margin-bottom: 30px; text-align: center;">Klicken Sie auf die Seite, wo sich die Traufe (Dachrand) befindet:</p>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-            <button onclick="setTraufePosition('top')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">↑ Oben</button>
-            <button onclick="setTraufePosition('right')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">→ Rechts</button>
-            <button onclick="setTraufePosition('bottom')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">↓ Unten</button>
-            <button onclick="setTraufePosition('left')" style="padding: 20px 40px; font-size: 16px; cursor: pointer;">← Links</button>
+            <button onclick="window.setTraufePosition('top')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px;">↑ Oben</button>
+            <button onclick="window.setTraufePosition('right')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px;">→ Rechts</button>
+            <button onclick="window.setTraufePosition('bottom')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px;">↓ Unten</button>
+            <button onclick="window.setTraufePosition('left')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px;">← Links</button>
         </div>
-        <button onclick="closeOverlay()" style="margin-top: 30px; padding: 10px 20px; background: #666; color: white; border: none; cursor: pointer;">Abbrechen</button>
+        <button onclick="window.closeOverlay()" style="margin-top: 30px; padding: 10px 20px; background: #666; color: white; border: none; cursor: pointer; border-radius: 5px;">Abbrechen</button>
     `;
     
     document.body.appendChild(overlay);
@@ -456,7 +417,7 @@ function selectTraufeSide() {
 
 // NEU: Wasserlauf-Richtung setzen
 function setWaterFlowDirection(direction) {
-    showDebugInfo('🌊 Wasserlauf-Richtung gesetzt: ' + direction);
+    console.log('Wasserlauf-Richtung gesetzt: ' + direction);
     
     // Form entsprechend der Wasserlauf-Richtung ausrichten
     orientToWaterFlow(direction);
@@ -470,7 +431,7 @@ function setWaterFlowDirection(direction) {
 
 // NEU: Traufe-Position setzen
 function setTraufePosition(position) {
-    showDebugInfo('🏠 Traufe-Position gesetzt: ' + position);
+    console.log('Traufe-Position gesetzt: ' + position);
     
     // Form entsprechend der Traufe-Position ausrichten
     orientToTraufe(position);
@@ -703,18 +664,15 @@ function saveAndContinue() {
         projectData.roofShape.waterFlowDirection = waterFlowDirection;
         projectData.roofShape.preferredDirection = preferredDirection;
         
-        showDebugInfo('💾 Speichere Projektdaten mit Profil: ' + (projectData.profile?.profilname || 'Unbekannt'));
-
         const saved = saveData();
         if (saved) {
-            showDebugInfo('✅ Daten erfolgreich gespeichert');
             window.location.href = 'berechnung.html';
         } else {
             alert('Speichern fehlgeschlagen. Daten werden in der Session gespeichert.');
             window.location.href = 'berechnung.html';
         }
     } catch (error) {
-        showDebugInfo('❌ Fehler beim Speichern: ' + error.message);
+        console.error('Fehler beim Speichern:', error);
         alert('Ein Fehler ist aufgetreten. Trotzdem fortfahren?');
         window.location.href = 'berechnung.html';
     }
@@ -723,28 +681,21 @@ function saveAndContinue() {
 // Initialisierung
 function init() {
     try {
-        showDebugInfo('🚀 Editor wird initialisiert...');
+        console.log('Editor wird initialisiert...');
         
         projectData = loadData();
-        showDebugInfo('📊 Projektdaten geladen: ' + Object.keys(projectData).length + ' Eigenschaften');
-        showDebugInfo('📋 Verfügbare Keys: ' + Object.keys(projectData).join(', '));
         
         if (!projectData || typeof projectData !== 'object') {
-            showDebugInfo('❌ Projektdaten sind ungültig!');
             alert('Keine gültigen Projektdaten gefunden! Bitte starten Sie von Schritt 1.');
             window.location.href = 'profil.html';
             return;
         }
         
         if (!projectData.profile) {
-            showDebugInfo('❌ Keine Profil-Daten in projectData gefunden!');
-            showDebugInfo('🔍 Verfügbare Daten: ' + Object.keys(projectData).join(', '));
             alert('Keine Profil-Daten gefunden! Bitte kehren Sie zu Schritt 1 zurück.');
             window.location.href = 'profil.html';
             return;
         }
-        
-        showDebugInfo('✅ Profil-Daten gefunden: ' + projectData.profile.profilname);
         
         displayProfileInfo();
         
@@ -770,16 +721,38 @@ function init() {
         
         // Vorhandene Punkte aus roofShape laden
         if (projectData.roofShape && projectData.roofShape.points && projectData.roofShape.points.length > 0) {
-            showDebugInfo('📐 Lade vorhandene Dachform-Punkte: ' + projectData.roofShape.points.length + ' Punkte');
             currentPoints = [...projectData.roofShape.points];
             currentShapeType = projectData.roofShape.baseShape || 'rechteck';
             
             if (currentPoints.length === 3) {
-                showDebugInfo('🔺 Dreieck erkannt - verwende spezielle Eingabe');
                 generateTriangleInputFields();
             } else if (currentPoints.length === 4) {
-                showDebugInfo('⬜ Rechteck erkannt - verwende Standard-Eingabe');
                 const xs = currentPoints.map(p => p.x);
+                const ys = currentPoints.map(p => p.y);
+                currentValues.length = Math.max(...xs) - Math.min(...xs);
+                currentValues.width = Math.max(...ys) - Math.min(...ys);
+                generateInputFields();
+            } else {
+                generatePolygonInputFields();
+            }
+        } else {
+            generateInputFields();
+            updateGeometry();
+        }
+        
+        updateShape();
+        updateInfoPanel();
+        updateWaterFlowDisplay();
+        
+        setupEventHandlers();
+        
+        console.log('Editor erfolgreich initialisiert');
+        
+    } catch (error) {
+        console.error('Fehler bei der Initialisierung:', error);
+        alert('Fehler beim Laden des Editors: ' + error.message);
+    }
+} = currentPoints.map(p => p.x);
                 const ys = currentPoints.map(p => p.y);
                 currentValues.length = Math.max(...xs) - Math.min(...xs);
                 currentValues.width = Math.max(...ys) - Math.min(...ys);
@@ -815,14 +788,14 @@ window.closeOverlay = closeOverlay;
 
 // Event Listeners für das Laden
 document.addEventListener('DOMContentLoaded', function() {
-    showDebugInfo('🔄 DOMContentLoaded Event ausgelöst');
+    console.log('DOMContentLoaded Event ausgelöst');
     init();
 });
 
 if (document.readyState === 'loading') {
-    showDebugInfo('⏳ Dokument lädt noch, warte auf DOMContentLoaded...');
+    console.log('Dokument lädt noch, warte auf DOMContentLoaded...');
 } else {
-    showDebugInfo('⚡ Dokument bereits geladen, starte sofort...');
+    console.log('Dokument bereits geladen, starte sofort...');
     setTimeout(function() {
         init();
     }, 100);
