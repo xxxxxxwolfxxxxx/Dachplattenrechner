@@ -635,29 +635,117 @@ function drawRoofVisualization(roofPoints, plateLayout) {
 function drawPlateLayout(layout, transformPoint, scale) {
     const profile = projectData.profile;
     const deckbreite = profile.deckbreite / 1000; // in Meter
+    const lieferbreite = profile.lieferbreite / 1000; // in Meter
+    const seitenueberlappung = profile.seitenueberlappung / 1000; // in Meter
 
-    ctx.strokeStyle = '#28a745';
-    ctx.fillStyle = 'rgba(40, 167, 69, 0.3)';
+    // Zuerst: Zeichne die Verschnitt-Bereiche (rot) - Platten die über das Dreieck hinausragen
+    ctx.fillStyle = 'rgba(220, 53, 69, 0.6)'; // Rot für Verschnitt
+    ctx.strokeStyle = '#dc3545';
     ctx.lineWidth = 1;
 
     for (let i = 0; i < layout.bahnenAnzahl; i++) {
+        let currentPlateLength = layout.bahnenLaenge / 1000; // Standardlänge in Meter
+
+        if (layout.variableLengths && layout.variableLengths.length > i) {
+            currentPlateLength = layout.variableLengths[i].laenge / 1000;
+        }
+
+        // Position der Platte
         let plateX, plateY, plateWidth, plateHeight;
 
-        // → individuelle Plattenlänge (in Meter)
-        let currentPlateLength = layout.bahnenLaenge / 1000; // Standardlänge
+        if (layout.richtung === 'laengs') {
+            // Längs – Bahnen vertikal
+            plateX = i * deckbreite;
+            plateY = 0;
+            plateWidth = lieferbreite; // Volle Lieferbreite für Verschnitt-Berechnung
+            plateHeight = currentPlateLength;
+        } else {
+            // Quer – Bahnen horizontal  
+            plateX = 0;
+            plateY = i * deckbreite;
+            plateWidth = currentPlateLength;
+            plateHeight = lieferbreite;
+        }
+
+        // Umrechnung in Canvas-Koordinaten
+        const topLeft = transformPoint(plateX, plateY);
+        const bottomRight = transformPoint(plateX + plateWidth, plateY + plateHeight);
+
+        const rectWidth = bottomRight.x - topLeft.x;
+        const rectHeight = bottomRight.y - topLeft.y;
+
+        // Zeichne Verschnitt-Bereich (komplette Platte)
+        ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
+        ctx.strokeRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
+    }
+
+    // Zweitens: Zeichne die Seitenüberlappungen (dunkelgrün)
+    ctx.fillStyle = 'rgba(40, 167, 69, 0.8)'; // Dunkelgrün für Seitenüberlappungen
+    ctx.strokeStyle = '#28a745';
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i < layout.bahnenAnzahl; i++) {
+        let currentPlateLength = layout.bahnenLaenge / 1000;
 
         if (layout.variableLengths && layout.variableLengths.length > i) {
             currentPlateLength = layout.variableLengths[i].laenge / 1000;
         }
 
         if (layout.richtung === 'laengs') {
-            // Längs – Bahnen vertikal
+            // Seitenüberlappungen links und rechts
+            const plateX = i * deckbreite;
+            const plateY = 0;
+
+            // Linke Überlappung (falls nicht erste Platte)
+            if (i > 0) {
+                const overlapX = plateX;
+                const overlapWidth = seitenueberlappung / 2;
+                const overlapHeight = currentPlateLength;
+
+                const topLeft = transformPoint(overlapX, plateY);
+                const bottomRight = transformPoint(overlapX + overlapWidth, plateY + overlapHeight);
+                const rectWidth = bottomRight.x - topLeft.x;
+                const rectHeight = bottomRight.y - topLeft.y;
+                ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
+            }
+
+            // Rechte Überlappung (falls nicht letzte Platte)
+            if (i < layout.bahnenAnzahl - 1) {
+                const overlapX = plateX + deckbreite - seitenueberlappung / 2;
+                const overlapWidth = seitenueberlappung / 2;
+                const overlapHeight = currentPlateLength;
+
+                const topLeft = transformPoint(overlapX, plateY);
+                const bottomRight = transformPoint(overlapX + overlapWidth, plateY + overlapHeight);
+                const rectWidth = bottomRight.x - topLeft.x;
+                const rectHeight = bottomRight.y - topLeft.y;
+                ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
+            }
+        }
+    }
+
+    // Drittens: Zeichne die Hauptplatten (hellgrün) - nur Deckbreite
+    ctx.fillStyle = 'rgba(40, 167, 69, 0.4)'; // Hellgrün für Hauptplatten
+    ctx.strokeStyle = '#28a745';
+    ctx.lineWidth = 2;
+
+    for (let i = 0; i < layout.bahnenAnzahl; i++) {
+        let currentPlateLength = layout.bahnenLaenge / 1000;
+
+        if (layout.variableLengths && layout.variableLengths.length > i) {
+            currentPlateLength = layout.variableLengths[i].laenge / 1000;
+        }
+
+        let plateX, plateY, plateWidth, plateHeight;
+
+        if (layout.richtung === 'laengs') {
+            // Längs – nur Deckbreite (nutzbare Fläche)
             plateX = i * deckbreite;
             plateY = 0;
-            plateWidth = deckbreite;
+            plateWidth = deckbreite; // Nur Deckbreite
             plateHeight = currentPlateLength;
         } else {
-            // Quer – Bahnen horizontal
+            // Quer – nur Deckbreite
             plateX = 0;
             plateY = i * deckbreite;
             plateWidth = currentPlateLength;
@@ -671,7 +759,7 @@ function drawPlateLayout(layout, transformPoint, scale) {
         const rectWidth = bottomRight.x - topLeft.x;
         const rectHeight = bottomRight.y - topLeft.y;
 
-        // Zeichnen
+        // Zeichne Hauptplatte
         ctx.fillRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
         ctx.strokeRect(topLeft.x, topLeft.y, rectWidth, rectHeight);
 
@@ -686,8 +774,11 @@ function drawPlateLayout(layout, transformPoint, scale) {
             topLeft.y + rectHeight / 2
         );
 
-        ctx.fillStyle = 'rgba(40, 167, 69, 0.3)'; // zurücksetzen für nächste Bahn
+        ctx.fillStyle = 'rgba(40, 167, 69, 0.4)'; // zurücksetzen für nächste Bahn
     }
+
+    // TODO: Längenüberlappung (gelb) - falls mehrere Plattenreihen übereinander
+    // Das wird erst bei sehr großen Dächern relevant, die geteilt werden müssen
 }
 
 function drawDimensions(roofPoints, transformPoint) {
