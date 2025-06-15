@@ -391,6 +391,20 @@
     </div>
 
     <script>
+        // DEBUG-Funktion GANZ OBEN für sofortige Verfügbarkeit
+        function showDebugInfo(message) {
+            const debugElement = document.getElementById('debug-content');
+            if (debugElement) {
+                debugElement.innerHTML += '<div style="margin: 2px 0; font-size: 12px;">' + message + '</div>';
+            } else {
+                // Fallback falls Element noch nicht existiert
+                console.log('DEBUG: ' + message);
+            }
+        }
+        
+        // Sofortiger Test
+        showDebugInfo('🏁 JavaScript wird geladen...');
+
         // Globale Variablen
         let projectData = {};
         let currentPoints = [];
