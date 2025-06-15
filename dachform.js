@@ -45,7 +45,7 @@ var shapes = {
     }
 };
 
-// Storage
+// Storage-Funktionen
 function saveData() {
     try {
         localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
@@ -70,18 +70,26 @@ function displayProfileInfo() {
     const profile = projectData.profile;
     const summaryElement = document.getElementById('profile-summary');
     
+    console.log('displayProfileInfo aufgerufen mit Profil:', profile);
+    
     if (profile && summaryElement) {
         document.getElementById('summary-profile-name').textContent = profile.profilname || 'Standard';
         document.getElementById('summary-deckbreite').textContent = (profile.deckbreite || 1000) + ' mm';
         document.getElementById('summary-lieferbreite').textContent = (profile.lieferbreite || 1050) + ' mm';
         document.getElementById('summary-seitenueberlappung').textContent = (profile.seitenueberlappung || 50) + ' mm';
         summaryElement.style.display = 'block';
+        
+        console.log('Profil-Info erfolgreich angezeigt');
+    } else {
+        console.log('Keine Profil-Daten oder Summary-Element nicht gefunden');
     }
 }
 
 // Shape Selection
 function selectShape(shape) {
     selectedShape = shape;
+    
+    console.log('Shape ausgewählt:', shape);
     
     // Visual feedback
     document.querySelectorAll('.shape-tile').forEach(tile => tile.classList.remove('selected'));
@@ -93,6 +101,8 @@ function selectShape(shape) {
 function showVariants(shape) {
     var variantsGrid = document.getElementById('variants-grid');
     variantsGrid.innerHTML = '';
+    
+    console.log('Zeige Varianten für Shape:', shape);
     
     Object.entries(shapes[shape].variants).forEach(([key, variant]) => {
         var tile = document.createElement('div');
@@ -116,6 +126,8 @@ function showVariants(shape) {
 function selectVariant(variant, name) {
     selectedVariant = variant;
     
+    console.log('Variante ausgewählt:', variant, name);
+    
     // Visual feedback
     document.querySelectorAll('.variant-tile').forEach(tile => tile.classList.remove('selected'));
     event.target.closest('.variant-tile').classList.add('selected');
@@ -127,6 +139,10 @@ function selectVariant(variant, name) {
 }
 
 function saveAndContinue() {
+    console.log('saveAndContinue aufgerufen');
+    console.log('Aktuelle projectData:', projectData);
+    console.log('selectedShape:', selectedShape, 'selectedVariant:', selectedVariant);
+    
     // WICHTIG: Profil-Daten BEIBEHALTEN!
     if (!projectData.profile) {
         alert('Profil-Daten fehlen! Bitte kehren Sie zu Schritt 1 zurück.');
@@ -141,16 +157,16 @@ function saveAndContinue() {
         points: getDefaultPoints()
     };
     
-    console.log('Speichere Projektdaten vor Weiterleitung:', projectData);
+    console.log('Neue projectData mit roofShape:', projectData);
     
-    saveData();
+    var saved = saveData();
+    console.log('Daten gespeichert:', saved);
     
-    // KORRIGIERT: Weiterleitung zur richtigen Editor-Datei
+    // KORRIGIERT: Weiterleitung zur richtigen Editor-Datei (groß geschrieben!)
     window.location.href = 'Editor.html';
 }
 
 function getDefaultPoints() {
-    // KORRIGIERT: Verwende die spezifische Variante, nicht nur die Grundform
     console.log('Generiere Punkte für:', selectedShape, selectedVariant);
     
     if (selectedShape === 'kreis') {
@@ -170,7 +186,7 @@ function getDefaultPoints() {
     ];
 }
 
-// NEUE Funktion für Kreis-Punkte
+// Kreis-Punkte generieren
 function getCirclePoints() {
     switch(selectedVariant) {
         case 'kreis':
@@ -248,13 +264,15 @@ function getCirclePoints() {
             return defaultPoints;
     }
 }
+
+function getTrianglePoints() {
     // Je nach Variante unterschiedliche Dreiecke
     switch(selectedVariant) {
         case 'gleichseitig':
             return [
-                { x: 0, y: 8 },      // Spitze oben mittig
-                { x: -5, y: 0 },     // Links unten
-                { x: 5, y: 0 }       // Rechts unten
+                { x: 5, y: 8 },      // Spitze oben mittig
+                { x: 0, y: 0 },      // Links unten
+                { x: 10, y: 0 }      // Rechts unten
             ];
         case 'rechtwinklig':
             return [
@@ -265,14 +283,14 @@ function getCirclePoints() {
         case 'ungleichschenklig':
             return [
                 { x: 3, y: 8 },      // Spitze oben (versetzt)
-                { x: -2, y: 0 },     // Links unten
-                { x: 8, y: 0 }       // Rechts unten
+                { x: 0, y: 0 },      // Links unten
+                { x: 10, y: 0 }      // Rechts unten
             ];
         default:
             return [
-                { x: 0, y: 8 },
-                { x: -5, y: 0 },
-                { x: 5, y: 0 }
+                { x: 5, y: 8 },
+                { x: 0, y: 0 },
+                { x: 10, y: 0 }
             ];
     }
 }
@@ -358,6 +376,8 @@ function goBack() {
 
 // Event Setup
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded - Lade Projektdaten...');
+    
     projectData = loadData();
     
     console.log('Dachform-Seite geladen, Projektdaten:', projectData);
@@ -365,9 +385,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Profil-Info anzeigen falls vorhanden
     displayProfileInfo();
     
+    // Event Listeners für Shape-Tiles
     document.querySelectorAll('.shape-tile').forEach(tile => {
         tile.addEventListener('click', () => {
             selectShape(tile.dataset.shape);
         });
     });
+    
+    console.log('Event Listeners hinzugefügt');
 });
