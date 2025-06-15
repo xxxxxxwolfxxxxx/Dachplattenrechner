@@ -49,6 +49,10 @@
             margin-bottom: 12px;
         }
 
+        .tools-row:last-child {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
         .btn-tool {
             height: 40px;
             padding: 0 16px;
@@ -233,6 +237,9 @@
             .tools-row {
                 grid-template-columns: repeat(2, 1fr);
             }
+            .tools-row:last-child {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -312,13 +319,12 @@
                     <div class="tools-row">
                         <button class="btn-tool" id="btn-mirror-horizontal">H-Spiegel</button>
                         <button class="btn-tool" id="btn-mirror-vertical">V-Spiegel</button>
-                        <button class="btn-tool" id="btn-rotate-left">↺ 90°</button>
-                        <button class="btn-tool" id="btn-rotate-right">↻ 90°</button>
+                        <button class="btn-tool" id="btn-rotate-left">↺ 45°</button>
+                        <button class="btn-tool" id="btn-rotate-right">↻ 45°</button>
                     </div>
                     <div class="tools-row">
                         <button class="btn-tool" id="btn-water-flow">Wasserlauf</button>
                         <button class="btn-tool" id="btn-traufe">Traufe</button>
-                        <button class="btn-tool" id="btn-flip">Umdrehen</button>
                         <button class="btn-tool" id="btn-reset">Reset</button>
                     </div>
                 </div>
