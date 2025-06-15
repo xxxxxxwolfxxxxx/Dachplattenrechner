@@ -929,7 +929,7 @@
             }
         }
 
-        // Automatische Berechnungen für Dreiecke MIT INTELLIGENTER AUTO-BERECHNUNG
+        // Automatische Berechnungen für Dreiecke MIT DYNAMISCHER ANPASSUNG
         function updateTriangleValue(fieldId, value) {
             console.log('updateTriangleValue aufgerufen:', fieldId, value);
             currentValues[fieldId] = parseFloat(value) || null;
@@ -938,24 +938,15 @@
             console.log('Triangle variant:', variant, 'currentValues:', currentValues);
             
             if (variant === 'ungleichschenklig') {
-                // INTELLIGENTE AUTO-BERECHNUNG für ungleichschenklige Dreiecke
+                console.log('Feld geändert:', fieldId, 'Neuer Wert:', value);
+                
                 const a = currentValues.sideA;    // Basis
-                const b = currentValues.sideB;    // Linke Seite
-                const c = currentValues.sideC;    // Rechte Seite
                 const h = currentValues.height;   // Höhe
                 const offset = currentValues.offset; // Versatz von links
                 
-                console.log('Eingabewerte vor Auto-Berechnung:', { a, b, c, h, offset });
-                
-                // Zähle wie viele Werte vorhanden sind
-                const values = [a, b, c, h, offset].filter(v => v !== null && v !== undefined && v > 0);
-                const valueCount = values.length;
-                
-                console.log('Anzahl gültiger Werte:', valueCount);
-                
-                // FALL 1: Wenn a, h, offset bekannt → berechne b, c
-                if (a && h && offset && (!b || !c)) {
-                    console.log('Fall 1: Berechne Seiten aus Basis, Höhe, Versatz');
+                // PRIORITÄT 1: Wenn Basis, Höhe UND Versatz bekannt sind → Seiten IMMER neu berechnen
+                if (a && h && (offset !== null && offset !== undefined)) {
+                    console.log('PRIORITÄT 1: Berechne Seiten aus Geometrie (a, h, offset)');
                     
                     const calcB = Math.sqrt(offset * offset + h * h);
                     const calcC = Math.sqrt((a - offset) * (a - offset) + h * h);
@@ -968,81 +959,112 @@
                     if (sideBInput) sideBInput.value = calcB.toFixed(2);
                     if (sideCInput) sideCInput.value = calcC.toFixed(2);
                     
-                    console.log('Berechnete Seiten:', { b: calcB.toFixed(2), c: calcC.toFixed(2) });
+                    console.log('→ Neu berechnete Seiten:', { b: calcB.toFixed(2), c: calcC.toFixed(2) });
                 }
                 
-                // FALL 2: Wenn a, b, c bekannt → berechne h, offset
-                else if (a && b && c && (!h || !offset)) {
-                    console.log('Fall 2: Berechne Höhe und Versatz aus den drei Seiten');
+                // PRIORITÄT 2: Wenn eine Seite manuell geändert wurde → berechne Höhe oder Versatz
+                else if (fieldId === 'sideB' || fieldId === 'sideC') {
+                    const b = currentValues.sideB;
+                    const c = currentValues.sideC;
                     
-                    // Verwende Heron-Formel für Fläche, dann h = 2*Fläche/a
-                    const s = (a + b + c) / 2; // Halbumfang
-                    const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
-                    const calcH = (2 * area) / a;
-                    
-                    // Berechne Versatz mit Kosinussatz
-                    // Winkel am linken Eckpunkt (gegenüber Seite c)
-                    const angleLeft = Math.acos((a*a + b*b - c*c) / (2*a*b));
-                    const calcOffset = b * Math.cos(angleLeft);
-                    
-                    currentValues.height = calcH;
-                    currentValues.offset = calcOffset;
-                    
-                    const heightInput = document.getElementById('dim-height');
-                    const offsetInput = document.getElementById('dim-offset');
-                    if (heightInput) heightInput.value = calcH.toFixed(2);
-                    if (offsetInput) offsetInput.value = calcOffset.toFixed(2);
-                    
-                    console.log('Berechnete Geometrie:', { h: calcH.toFixed(2), offset: calcOffset.toFixed(2) });
+                    if (a && b && c) {
+                        console.log('PRIORITÄT 2: Eine Seite wurde geändert → berechne Geometrie neu');
+                        
+                        // Berechne Höhe und Versatz aus den drei Seiten
+                        const s = (a + b + c) / 2; // Halbumfang
+                        const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+                        const calcH = (2 * area) / a;
+                        
+                        // Berechne Versatz mit Kosinussatz
+                        const angleLeft = Math.acos((a*a + b*b - c*c) / (2*a*b));
+                        const calcOffset = b * Math.cos(angleLeft);
+                        
+                        currentValues.height = calcH;
+                        currentValues.offset = calcOffset;
+                        
+                        const heightInput = document.getElementById('dim-height');
+                        const offsetInput = document.getElementById('dim-offset');
+                        if (heightInput) heightInput.value = calcH.toFixed(2);
+                        if (offsetInput) offsetInput.value = calcOffset.toFixed(2);
+                        
+                        console.log('→ Neu berechnete Geometrie:', { h: calcH.toFixed(2), offset: calcOffset.toFixed(2) });
+                    }
                 }
                 
-                // FALL 3: Wenn a, h, b bekannt → berechne c, offset
-                else if (a && h && b && (!c || !offset)) {
-                    console.log('Fall 3: Berechne c und offset aus a, h, b');
+                // PRIORITÄT 3: Automatische Vervollständigung bei fehlenden Werten
+                else {
+                    const b = currentValues.sideB;
+                    const c = currentValues.sideC;
                     
-                    // Aus b² = offset² + h² folgt: offset = √(b² - h²)
-                    const calcOffset = Math.sqrt(b*b - h*h);
-                    const calcC = Math.sqrt((a - calcOffset) * (a - calcOffset) + h * h);
-                    
-                    currentValues.sideC = calcC;
-                    currentValues.offset = calcOffset;
-                    
-                    const sideCInput = document.getElementById('dim-side-c');
-                    const offsetInput = document.getElementById('dim-offset');
-                    if (sideCInput) sideCInput.value = calcC.toFixed(2);
-                    if (offsetInput) offsetInput.value = calcOffset.toFixed(2);
-                    
-                    console.log('Berechnete Werte:', { c: calcC.toFixed(2), offset: calcOffset.toFixed(2) });
-                }
-                
-                // FALL 4: Wenn a, h, c bekannt → berechne b, offset  
-                else if (a && h && c && (!b || !offset)) {
-                    console.log('Fall 4: Berechne b und offset aus a, h, c');
-                    
-                    // Probiere verschiedene Offset-Werte und finde den, der zu c passt
-                    let bestOffset = 0;
-                    let minDiff = Infinity;
-                    
-                    for (let testOffset = 0.1; testOffset < a; testOffset += 0.1) {
-                        const testC = Math.sqrt((a - testOffset) * (a - testOffset) + h * h);
-                        const diff = Math.abs(testC - c);
-                        if (diff < minDiff) {
-                            minDiff = diff;
-                            bestOffset = testOffset;
-                        }
+                    // Wenn nur a, h, b bekannt → berechne c, offset
+                    if (a && h && b && (!c || !offset)) {
+                        console.log('PRIORITÄT 3a: Berechne c und offset aus a, h, b');
+                        
+                        const calcOffset = Math.sqrt(b*b - h*h);
+                        const calcC = Math.sqrt((a - calcOffset) * (a - calcOffset) + h * h);
+                        
+                        currentValues.sideC = calcC;
+                        currentValues.offset = calcOffset;
+                        
+                        const sideCInput = document.getElementById('dim-side-c');
+                        const offsetInput = document.getElementById('dim-offset');
+                        if (sideCInput) sideCInput.value = calcC.toFixed(2);
+                        if (offsetInput) offsetInput.value = calcOffset.toFixed(2);
+                        
+                        console.log('→ Berechnete Werte:', { c: calcC.toFixed(2), offset: calcOffset.toFixed(2) });
                     }
                     
-                    const calcB = Math.sqrt(bestOffset * bestOffset + h * h);
+                    // Wenn nur a, h, c bekannt → berechne b, offset  
+                    else if (a && h && c && (!b || !offset)) {
+                        console.log('PRIORITÄT 3b: Berechne b und offset aus a, h, c');
+                        
+                        // Iterative Suche nach dem richtigen Offset
+                        let bestOffset = 0;
+                        let minDiff = Infinity;
+                        
+                        for (let testOffset = 0.1; testOffset < a; testOffset += 0.1) {
+                            const testC = Math.sqrt((a - testOffset) * (a - testOffset) + h * h);
+                            const diff = Math.abs(testC - c);
+                            if (diff < minDiff) {
+                                minDiff = diff;
+                                bestOffset = testOffset;
+                            }
+                        }
+                        
+                        const calcB = Math.sqrt(bestOffset * bestOffset + h * h);
+                        
+                        currentValues.sideB = calcB;
+                        currentValues.offset = bestOffset;
+                        
+                        const sideBInput = document.getElementById('dim-side-b');
+                        const offsetInput = document.getElementById('dim-offset');
+                        if (sideBInput) sideBInput.value = calcB.toFixed(2);
+                        if (offsetInput) offsetInput.value = bestOffset.toFixed(2);
+                        
+                        console.log('→ Berechnete Werte:', { b: calcB.toFixed(2), offset: bestOffset.toFixed(2) });
+                    }
                     
-                    currentValues.sideB = calcB;
-                    currentValues.offset = bestOffset;
-                    
-                    const sideBInput = document.getElementById('dim-side-b');
-                    const offsetInput = document.getElementById('dim-offset');
-                    if (sideBInput) sideBInput.value = calcB.toFixed(2);
-                    if (offsetInput) offsetInput.value = bestOffset.toFixed(2);
-                    
-                    console.log('Berechnete Werte:', { b: calcB.toFixed(2), offset: bestOffset.toFixed(2) });
+                    // Wenn nur a, b, c bekannt → berechne h, offset
+                    else if (a && b && c && (!h || !offset)) {
+                        console.log('PRIORITÄT 3c: Berechne Höhe und Versatz aus den drei Seiten');
+                        
+                        const s = (a + b + c) / 2;
+                        const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+                        const calcH = (2 * area) / a;
+                        
+                        const angleLeft = Math.acos((a*a + b*b - c*c) / (2*a*b));
+                        const calcOffset = b * Math.cos(angleLeft);
+                        
+                        currentValues.height = calcH;
+                        currentValues.offset = calcOffset;
+                        
+                        const heightInput = document.getElementById('dim-height');
+                        const offsetInput = document.getElementById('dim-offset');
+                        if (heightInput) heightInput.value = calcH.toFixed(2);
+                        if (offsetInput) offsetInput.value = calcOffset.toFixed(2);
+                        
+                        console.log('→ Berechnete Geometrie:', { h: calcH.toFixed(2), offset: calcOffset.toFixed(2) });
+                    }
                 }
                 
                 // Winkel immer berechnen (wenn alle Seiten bekannt)
