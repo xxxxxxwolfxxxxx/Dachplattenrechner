@@ -417,12 +417,7 @@
                     </div>
                 </div>
 
-                <!-- Verlegerichtung-Info -->
-                <div class="direction-info" id="direction-info">
-                    <h4>Verlegerichtung</h4>
-                    <p><strong>Aktuell:</strong> <span id="current-direction">Längs (vertikal)</span></p>
-                    <p><strong>Begründung:</strong> <span id="direction-reason">Basierend auf der Wasserlaufrichtung</span></p>
-                </div>
+
             </div>
 
             <section class="editor-section">
@@ -1194,71 +1189,155 @@
             }
         }
 
-        // Trapez-Bemaßung
+        // Trapez-Bemaßung KORRIGIERT
         function drawTrapezDimensions(svgPoints, dimensionsGroup) {
             if (svgPoints.length !== 4) return;
             
             const [p1, p2, p3, p4] = svgPoints;
             
+            // Seitenbemaßung
             drawDimensionLine(p1, p2, `a=${currentValues.sideA || 10}m`, 'bottom', dimensionsGroup);
             drawDimensionLine(p4, p3, `c=${currentValues.sideC || 6}m`, 'top', dimensionsGroup);
             drawDimensionLine(p1, p4, `b=${currentValues.sideB || 7}m`, 'left', dimensionsGroup);
             drawDimensionLine(p2, p3, `d=${currentValues.sideD || 7}m`, 'right', dimensionsGroup);
             
-            // Höhe
+            // Höhe - BESSER SICHTBAR machen
+            const height = currentValues.height || 6;
             const heightX = (p1.x + p2.x) / 2;
+            
+            // Höhenlinie (vertikal in der Mitte)
             const heightLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             heightLine.setAttribute('x1', heightX);
             heightLine.setAttribute('y1', p1.y);
             heightLine.setAttribute('x2', heightX);
             heightLine.setAttribute('y2', p4.y);
             heightLine.setAttribute('stroke', '#28a745');
-            heightLine.setAttribute('stroke-width', '2');
-            heightLine.setAttribute('stroke-dasharray', '3,3');
+            heightLine.setAttribute('stroke-width', '3');
+            heightLine.setAttribute('stroke-dasharray', '5,3');
             dimensionsGroup.appendChild(heightLine);
             
-            drawLabel(`h=${currentValues.height || 6}m`, heightX + 10, (p1.y + p4.y) / 2, dimensionsGroup, '#28a745');
+            // Höhe-Beschriftung (seitlich versetzt)
+            drawLabel(`h=${height}m`, heightX + 25, (p1.y + p4.y) / 2, dimensionsGroup, '#28a745');
+            
+            // Punkte an den Enden der Höhenlinie
+            const bottomPoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            bottomPoint.setAttribute('cx', heightX);
+            bottomPoint.setAttribute('cy', p1.y);
+            bottomPoint.setAttribute('r', '3');
+            bottomPoint.setAttribute('fill', '#28a745');
+            dimensionsGroup.appendChild(bottomPoint);
+            
+            const topPoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            topPoint.setAttribute('cx', heightX);
+            topPoint.setAttribute('cy', p4.y);
+            topPoint.setAttribute('r', '3');
+            topPoint.setAttribute('fill', '#28a745');
+            dimensionsGroup.appendChild(topPoint);
         }
 
-        // Dreieck-Bemaßung
+        // Dreieck-Bemaßung KORRIGIERT
         function drawTriangleDimensions(svgPoints, dimensionsGroup) {
             if (svgPoints.length !== 3) return;
             
             const [p1, p2, p3] = svgPoints;
+            const variant = projectData.roofShape?.variant || 'gleichseitig';
             
+            // Seitenbemaßung
             drawDimensionLine(p2, p3, `a=${currentValues.sideA || 10}m`, 'bottom', dimensionsGroup);
-            drawDimensionLine(p1, p2, `b=${currentValues.sideB || 7}m`, 'left', dimensionsGroup);
-            drawDimensionLine(p3, p1, `c=${currentValues.sideC || 9}m`, 'right', dimensionsGroup);
+            drawDimensionLine(p1, p2, `b=${currentValues.sideB || currentValues.sideA || 7}m`, 'left', dimensionsGroup);
+            drawDimensionLine(p3, p1, `c=${currentValues.sideC || currentValues.sideA || 9}m`, 'right', dimensionsGroup);
             
-            // Höhe
-            if (currentValues.height) {
-                const baseX = (p2.x + p3.x) / 2;
+            // Höhe - SICHTBAR machen
+            if (currentValues.height || variant === 'ungleichschenklig') {
+                const height = currentValues.height || 8;
+                
+                // Fußpunkt der Höhe auf der Basis berechnen
+                let footX;
+                if (variant === 'ungleichschenklig') {
+                    // Bei ungleichschenklig: Fußpunkt ist versetzt
+                    const offset = currentValues.offset || 3;
+                    footX = p2.x + offset * (p3.x - p2.x) / (currentValues.sideA || 10);
+                } else {
+                    // Bei anderen: Fußpunkt in der Mitte
+                    footX = (p2.x + p3.x) / 2;
+                }
+                
+                // Höhenlinie zeichnen (von Spitze zum Fußpunkt)
                 const heightLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                heightLine.setAttribute('x1', baseX);
-                heightLine.setAttribute('y1', p2.y);
-                heightLine.setAttribute('x2', p1.x);
-                heightLine.setAttribute('y2', p1.y);
+                heightLine.setAttribute('x1', p1.x);
+                heightLine.setAttribute('y1', p1.y);
+                heightLine.setAttribute('x2', footX);
+                heightLine.setAttribute('y2', p2.y); // Basis ist auf gleicher Höhe wie p2
                 heightLine.setAttribute('stroke', '#28a745');
                 heightLine.setAttribute('stroke-width', '2');
-                heightLine.setAttribute('stroke-dasharray', '3,3');
+                heightLine.setAttribute('stroke-dasharray', '5,3');
                 dimensionsGroup.appendChild(heightLine);
                 
-                drawLabel(`h=${currentValues.height}m`, (baseX + p1.x) / 2, p1.y - 10, dimensionsGroup, '#28a745');
+                // Höhe-Beschriftung
+                const labelX = (p1.x + footX) / 2 + 15;
+                const labelY = (p1.y + p2.y) / 2;
+                drawLabel(`h=${height}m`, labelX, labelY, dimensionsGroup, '#28a745');
+                
+                // Kleiner Punkt am Fußpunkt
+                const footPoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                footPoint.setAttribute('cx', footX);
+                footPoint.setAttribute('cy', p2.y);
+                footPoint.setAttribute('r', '2');
+                footPoint.setAttribute('fill', '#28a745');
+                dimensionsGroup.appendChild(footPoint);
             }
 
-            // Spitzen-Versatz bei ungleichschenkligen Dreiecken
-            if (projectData.roofShape?.variant === 'ungleichschenklig' && currentValues.offset) {
+            // Spitzen-Versatz bei ungleichschenkligen Dreiecken - SICHTBAR machen
+            if (variant === 'ungleichschenklig' && currentValues.offset) {
+                const offset = currentValues.offset;
+                const baseLength = currentValues.sideA || 10;
+                
+                // Berechne Fußpunkt der Höhe
+                const footX = p2.x + offset * (p3.x - p2.x) / baseLength;
+                const midBaseX = (p2.x + p3.x) / 2;
+                
+                // Versatz-Linie (horizontal auf der Basis)
                 const offsetLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                offsetLine.setAttribute('x1', p2.x);
-                offsetLine.setAttribute('y1', p2.y - 10);
-                offsetLine.setAttribute('x2', p1.x);
-                offsetLine.setAttribute('y2', p1.y + 10);
+                offsetLine.setAttribute('x1', midBaseX);
+                offsetLine.setAttribute('y1', p2.y + 15);
+                offsetLine.setAttribute('x2', footX);
+                offsetLine.setAttribute('y2', p2.y + 15);
                 offsetLine.setAttribute('stroke', '#ffc107');
-                offsetLine.setAttribute('stroke-width', '1');
-                offsetLine.setAttribute('stroke-dasharray', '2,2');
+                offsetLine.setAttribute('stroke-width', '2');
+                offsetLine.setAttribute('stroke-dasharray', '3,2');
                 dimensionsGroup.appendChild(offsetLine);
                 
-                drawLabel(`Versatz=${currentValues.offset}m`, (p2.x + p1.x) / 2, p2.y - 20, dimensionsGroup, '#ffc107');
+                // Versatz-Maßhilfslinien
+                const helper1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                helper1.setAttribute('x1', midBaseX);
+                helper1.setAttribute('y1', p2.y + 5);
+                helper1.setAttribute('x2', midBaseX);
+                helper1.setAttribute('y2', p2.y + 25);
+                helper1.setAttribute('stroke', '#ffc107');
+                helper1.setAttribute('stroke-width', '1');
+                dimensionsGroup.appendChild(helper1);
+                
+                const helper2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                helper2.setAttribute('x1', footX);
+                helper2.setAttribute('y1', p2.y + 5);
+                helper2.setAttribute('x2', footX);
+                helper2.setAttribute('y2', p2.y + 25);
+                helper2.setAttribute('stroke', '#ffc107');
+                helper2.setAttribute('stroke-width', '1');
+                dimensionsGroup.appendChild(helper2);
+                
+                // Versatz-Beschriftung
+                const offsetLabelX = (midBaseX + footX) / 2;
+                const offsetLabelY = p2.y + 35;
+                drawLabel(`Versatz=${offset}m`, offsetLabelX, offsetLabelY, dimensionsGroup, '#ffc107');
+                
+                // Mittelpunkt-Markierung
+                const midPoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                midPoint.setAttribute('cx', midBaseX);
+                midPoint.setAttribute('cy', p2.y);
+                midPoint.setAttribute('r', '2');
+                midPoint.setAttribute('fill', '#ffc107');
+                dimensionsGroup.appendChild(midPoint);
             }
         }
 
