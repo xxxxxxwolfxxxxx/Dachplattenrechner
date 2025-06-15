@@ -1,4 +1,813 @@
-// Globale Variablen
+// Erweiterte Dreieck-Eingabefelder mit allen Parametern
+function generateTriangleInputFields() {
+    const container = document.getElementById('geometry-inputs-grid');
+    const variant = projectData.roofShape?.variant || 'gleichseitig';
+    
+    if (variant === 'gleichseitig') {
+        container.innerHTML = `
+            <div class="input-group">
+                <label for="dim-side-a">Seite a (Basis):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-a" step="0.1" min="0.1" value="${currentValues.sideA || 10}" onchange="updateTriangleValue('sideA', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-side-b">Seite b:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-b" step="0.1" value="${currentValues.sideB || ''}" onchange="updateTriangleValue('sideB', this.value)" placeholder="auto" readonly>
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-side-c">Seite c:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-c" step="0.1" value="${currentValues.sideC || ''}" onchange="updateTriangleValue('sideC', this.value)" placeholder="auto" readonly>
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-height">Höhe h:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-height" step="0.1" value="${currentValues.height || ''}" placeholder="auto" readonly>
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-angle-a">Winkel α:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-angle-a" step="1" value="60" readonly>
+                    <span class="input-unit">°</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-angle-b">Winkel β:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-angle-b" step="1" value="60" readonly>
+                    <span class="input-unit">°</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-angle-c">Winkel γ:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-angle-c" step="1" value="60" readonly>
+                    <span class="input-unit">°</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Fläche:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="calc-area-display" step="0.1" readonly value="${(Math.pow(currentValues.sideA || 10, 2) * Math.sqrt(3) / 4).toFixed(1)}">
+                    <span class="input-unit">m²</span>
+                </div>
+            </div>
+        `;
+    } else if (variant === 'rechtwinklig') {
+        container.innerHTML = `
+            <div class="input-group">
+                <label for="dim-side-a">Kathete a:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-a" step="0.1" min="0.1" value="${currentValues.sideA || 10}" onchange="updateTriangleValue('sideA', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-side-b">Kathete b:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-b" step="0.1" min="0.1" value="${currentValues.sideB || 8}" onchange="updateTriangleValue('sideB', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-side-c">Hypotenuse c:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-c" step="0.1" value="${currentValues.sideC || ''}" onchange="updateTriangleValue('sideC', this.value)" placeholder="auto" readonly>
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-angle-a">Winkel α:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-angle-a" step="1" value="${currentValues.angleA || ''}" placeholder="auto" readonly>
+                    <span class="input-unit">°</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-angle-b">Winkel β:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-angle-b" step="1" value="${currentValues.angleB || ''}" placeholder="auto" readonly>
+                    <span class="input-unit">°</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-angle-c">Winkel γ:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-angle-c" step="1" value="90" readonly>
+                    <span class="input-unit">°</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Fläche:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="calc-area-display" step="0.1" readonly value="${((currentValues.sideA || 10) * (currentValues.sideB || 8) / 2).toFixed(1)}">
+                    <span class="input-unit">m²</span>
+                </div>
+            </div>
+        `;
+    } else if (variant === 'ungleichschenklig') {
+        container.innerHTML = `
+            <div class="input-group">
+                <label for="dim-side-a">Seite a (Basis):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-a" step="0.1" min="0.1" value="${currentValues.sideA || 10}" onchange="updateTriangleValue('sideA', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-side-b">Seite b (links):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-b" step="0.1" min="0.1" value="${currentValues.sideB || 7}" onchange="updateTriangleValue('sideB', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-side-c">Seite c (rechts):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-c" step="0.1" min="0.1" value="${currentValues.sideC || 9}" onchange="updateTriangleValue('sideC', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-height">Höhe h:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-height" step="0.1" min="0.1" value="${currentValues.height || 8}" onchange="updateTriangleValue('height', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-angle-a">Winkel α (links):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-angle-a" step="1" value="${currentValues.angleA || ''}" placeholder="auto" readonly>
+                    <span class="input-unit">°</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-angle-b">Winkel β (rechts):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-angle-b" step="1" value="${currentValues.angleB || ''}" placeholder="auto" readonly>
+                    <span class="input-unit">°</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-angle-c">Winkel γ (oben):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-angle-c" step="1" value="${currentValues.angleC || ''}" placeholder="auto" readonly>
+                    <span class="input-unit">°</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Fläche:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="calc-area-display" step="0.1" readonly value="${((currentValues.sideA || 10) * (currentValues.height || 8) / 2).toFixed(1)}">
+                    <span class="input-unit">m²</span>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Erweiterte Viereck-Eingabefelder mit vollständiger Bemaßung
+function generateViereckInputFields() {
+    const container = document.getElementById('geometry-inputs-grid');
+    const variant = projectData.roofShape?.variant || 'rechteck';
+    
+    if (variant === 'rechteck') {
+        container.innerHTML = `
+            <div class="input-group">
+                <label for="dim-length">Länge a:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-length" step="0.1" min="0.1" value="${currentValues.length || 10}" onchange="updateValue('length', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-width">Breite b:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-width" step="0.1" min="0.1" value="${currentValues.width || 8}" onchange="updateValue('width', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-diagonal1">Diagonale d1:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-diagonal1" step="0.1" value="${currentValues.diagonal1 || ''}" placeholder="auto" readonly>
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-diagonal2">Diagonale d2:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-diagonal2" step="0.1" value="${currentValues.diagonal2 || ''}" placeholder="auto" readonly>
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Umfang:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="calc-perimeter-display" step="0.1" readonly value="${(2 * (currentValues.length || 10) + 2 * (currentValues.width || 8)).toFixed(1)}">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Fläche:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="calc-area-display" step="0.1" readonly value="${((currentValues.length || 10) * (currentValues.width || 8)).toFixed(1)}">
+                    <span class="input-unit">m²</span>
+                </div>
+            </div>
+        `;
+    } else if (variant === 'trapez') {
+        container.innerHTML = `
+            <div class="input-group">
+                <label for="dim-side-a">Seite a (unten):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-a" step="0.1" min="0.1" value="${currentValues.sideA || 10}" onchange="updateTrapezValue('sideA', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-side-c">Seite c (oben):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-c" step="0.1" min="0.1" value="${currentValues.sideC || 6}" onchange="updateTrapezValue('sideC', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-height">Höhe h:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-height" step="0.1" min="0.1" value="${currentValues.height || 6}" onchange="updateTrapezValue('height', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-side-b">Schenkel b (links):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-b" step="0.1" min="0.1" value="${currentValues.sideB || 7}" onchange="updateTrapezValue('sideB', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-side-d">Schenkel d (rechts):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-side-d" step="0.1" min="0.1" value="${currentValues.sideD || 7}" onchange="updateTrapezValue('sideD', this.value)">
+                    <span class="input-unit">m</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-angle-alpha">Winkel α (links):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-angle-alpha" step="1" min="1" max="179" value="${currentValues.angleAlpha || ''}" onchange="updateTrapezValue('angleAlpha', this.value)" placeholder="auto">
+                    <span class="input-unit">°</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="dim-angle-beta">Winkel β (rechts):</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="dim-angle-beta" step="1" min="1" max="179" value="${currentValues.angleBeta || ''}" onchange="updateTrapezValue('angleBeta', this.value)" placeholder="auto">
+                    <span class="input-unit">°</span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Fläche:</label>
+                <div class="input-group-wrapper">
+                    <input type="number" id="calc-area-display" step="0.1" readonly value="${(((currentValues.sideA || 10) + (currentValues.sideC || 6)) / 2 * (currentValues.height || 6)).toFixed(1)}">
+                    <span class="input-unit">m²</span>
+                </div>
+            </div>
+        `;
+    }
+    // ... weitere Varianten
+}
+
+// Form zeichnen mit Bemaßung
+function updateShape() {
+    const roofGroup = document.getElementById('roof-shape');
+    const dimensionsGroup = document.getElementById('dimensions');
+    
+    if (!roofGroup || !dimensionsGroup) return;
+    
+    roofGroup.innerHTML = '';
+    dimensionsGroup.innerHTML = '';
+    
+    if (!currentPoints || currentPoints.length === 0) return;
+    
+    const xs = currentPoints.map(p => p.x);
+    const ys = currentPoints.map(p => p.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const width = maxX - minX;
+    const height = maxY - minY;
+    
+    const maxScale = Math.min(440 / Math.max(width, 1), 360 / Math.max(height, 1));
+    const scale = maxScale * 0.9;
+    const centerX = 300;
+    const centerY = 200;
+    
+    const svgPoints = currentPoints.map(p => {
+        const x = centerX + (p.x - (minX + maxX) / 2) * scale;
+        const y = centerY - (p.y - (minY + maxY) / 2) * scale;
+        return { x, y };
+    });
+    
+    // Hauptform zeichnen
+    const polygonPoints = svgPoints.map(p => p.x + ',' + p.y).join(' ');
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', polygonPoints);
+    polygon.setAttribute('fill', '#007bff20');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    roofGroup.appendChild(polygon);
+    
+    // Bemaßung hinzufügen
+    drawDimensions(svgPoints, dimensionsGroup, scale);
+    
+    determinePreferredDirection();
+}
+
+// Bemaßung zeichnen
+function drawDimensions(svgPoints, dimensionsGroup, scale) {
+    const variant = projectData.roofShape?.variant || 'rechteck';
+    const baseShape = projectData.roofShape?.baseShape || 'viereck';
+    
+    if (baseShape === 'dreieck') {
+        drawTriangleDimensions(svgPoints, dimensionsGroup);
+    } else if (baseShape === 'viereck') {
+        if (variant === 'rechteck') {
+            drawRectangleDimensions(svgPoints, dimensionsGroup);
+        } else if (variant === 'trapez') {
+            drawTrapezDimensions(svgPoints, dimensionsGroup);
+        }
+    }
+    
+    // Eckpunkte markieren
+    svgPoints.forEach((point, index) => {
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', point.x);
+        circle.setAttribute('cy', point.y);
+        circle.setAttribute('r', '4');
+        circle.setAttribute('fill', '#007bff');
+        circle.setAttribute('stroke', 'white');
+        circle.setAttribute('stroke-width', '2');
+        dimensionsGroup.appendChild(circle);
+        
+        // Eckpunkt-Bezeichnung
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', point.x + 8);
+        label.setAttribute('y', point.y - 8);
+        label.setAttribute('font-family', 'Arial, sans-serif');
+        label.setAttribute('font-size', '12');
+        label.setAttribute('font-weight', 'bold');
+        label.setAttribute('fill', '#007bff');
+        
+        const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        label.textContent = labels[index] || `P${index}`;
+        dimensionsGroup.appendChild(label);
+    });
+}
+
+// Rechteck-Bemaßung
+function drawRectangleDimensions(svgPoints, dimensionsGroup) {
+    if (svgPoints.length !== 4) return;
+    
+    const [p1, p2, p3, p4] = svgPoints;
+    
+    // Länge (unten)
+    drawDimensionLine(p1, p2, `${currentValues.length || 10}m`, 'bottom', dimensionsGroup);
+    
+    // Breite (rechts)
+    drawDimensionLine(p2, p3, `${currentValues.width || 8}m`, 'right', dimensionsGroup);
+    
+    // Diagonale
+    if (currentValues.diagonal1) {
+        const diagonalLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        diagonalLine.setAttribute('x1', p1.x);
+        diagonalLine.setAttribute('y1', p1.y);
+        diagonalLine.setAttribute('x2', p3.x);
+        diagonalLine.setAttribute('y2', p3.y);
+        diagonalLine.setAttribute('stroke', '#ff6b6b');
+        diagonalLine.setAttribute('stroke-width', '1');
+        diagonalLine.setAttribute('stroke-dasharray', '5,5');
+        dimensionsGroup.appendChild(diagonalLine);
+        
+        // Diagonale-Beschriftung
+        const midX = (p1.x + p3.x) / 2;
+        const midY = (p1.y + p3.y) / 2;
+        drawLabel(`d=${currentValues.diagonal1.toFixed(1)}m`, midX, midY, dimensionsGroup, '#ff6b6b');
+    }
+}
+
+// Trapez-Bemaßung
+function drawTrapezDimensions(svgPoints, dimensionsGroup) {
+    if (svgPoints.length !== 4) return;
+    
+    const [p1, p2, p3, p4] = svgPoints;
+    
+    // Seite a (unten)
+    drawDimensionLine(p1, p2, `a=${currentValues.sideA || 10}m`, 'bottom', dimensionsGroup);
+    
+    // Seite c (oben)
+    drawDimensionLine(p4, p3, `c=${currentValues.sideC || 6}m`, 'top', dimensionsGroup);
+    
+    // Schenkel b (links)
+    drawDimensionLine(p1, p4, `b=${currentValues.sideB || 7}m`, 'left', dimensionsGroup);
+    
+    // Schenkel d (rechts)
+    drawDimensionLine(p2, p3, `d=${currentValues.sideD || 7}m`, 'right', dimensionsGroup);
+    
+    // Höhe
+    const heightX = (p1.x + p2.x) / 2;
+    const heightLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    heightLine.setAttribute('x1', heightX);
+    heightLine.setAttribute('y1', p1.y);
+    heightLine.setAttribute('x2', heightX);
+    heightLine.setAttribute('y2', p4.y);
+    heightLine.setAttribute('stroke', '#28a745');
+    heightLine.setAttribute('stroke-width', '2');
+    heightLine.setAttribute('stroke-dasharray', '3,3');
+    dimensionsGroup.appendChild(heightLine);
+    
+    drawLabel(`h=${currentValues.height || 6}m`, heightX + 10, (p1.y + p4.y) / 2, dimensionsGroup, '#28a745');
+}
+
+// Dreieck-Bemaßung
+function drawTriangleDimensions(svgPoints, dimensionsGroup) {
+    if (svgPoints.length !== 3) return;
+    
+    const [p1, p2, p3] = svgPoints;
+    
+    // Seite a (Basis)
+    drawDimensionLine(p2, p3, `a=${currentValues.sideA || 10}m`, 'bottom', dimensionsGroup);
+    
+    // Seite b
+    drawDimensionLine(p1, p2, `b=${currentValues.sideB || 7}m`, 'left', dimensionsGroup);
+    
+    // Seite c
+    drawDimensionLine(p3, p1, `c=${currentValues.sideC || 9}m`, 'right', dimensionsGroup);
+    
+    // Höhe
+    if (currentValues.height) {
+        const baseX = (p2.x + p3.x) / 2;
+        const heightLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        heightLine.setAttribute('x1', baseX);
+        heightLine.setAttribute('y1', p2.y);
+        heightLine.setAttribute('x2', p1.x);
+        heightLine.setAttribute('y2', p1.y);
+        heightLine.setAttribute('stroke', '#28a745');
+        heightLine.setAttribute('stroke-width', '2');
+        heightLine.setAttribute('stroke-dasharray', '3,3');
+        dimensionsGroup.appendChild(heightLine);
+        
+        drawLabel(`h=${currentValues.height}m`, (baseX + p1.x) / 2, p1.y - 10, dimensionsGroup, '#28a745');
+    }
+}
+
+// Bemaßungslinie zeichnen
+function drawDimensionLine(p1, p2, text, position, parent) {
+    const offset = 25;
+    let startX = p1.x, startY = p1.y, endX = p2.x, endY = p2.y;
+    let textX, textY;
+    
+    if (position === 'bottom') {
+        startY += offset;
+        endY += offset;
+        textX = (startX + endX) / 2;
+        textY = startY + 15;
+    } else if (position === 'top') {
+        startY -= offset;
+        endY -= offset;
+        textX = (startX + endX) / 2;
+        textY = startY - 5;
+    } else if (position === 'left') {
+        startX -= offset;
+        endX -= offset;
+        textX = startX - 5;
+        textY = (startY + endY) / 2;
+    } else if (position === 'right') {
+        startX += offset;
+        endX += offset;
+        textX = startX + 5;
+        textY = (startY + endY) / 2;
+    }
+    
+    // Maßlinie
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', startX);
+    line.setAttribute('y1', startY);
+    line.setAttribute('x2', endX);
+    line.setAttribute('y2', endY);
+    line.setAttribute('stroke', '#666');
+    line.setAttribute('stroke-width', '1');
+    parent.appendChild(line);
+    
+    // Maßhilfslinien
+    const helper1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    helper1.setAttribute('x1', p1.x);
+    helper1.setAttribute('y1', p1.y);
+    helper1.setAttribute('x2', startX);
+    helper1.setAttribute('y2', startY);
+    helper1.setAttribute('stroke', '#666');
+    helper1.setAttribute('stroke-width', '1');
+    parent.appendChild(helper1);
+    
+    const helper2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    helper2.setAttribute('x1', p2.x);
+    helper2.setAttribute('y1', p2.y);
+    helper2.setAttribute('x2', endX);
+    helper2.setAttribute('y2', endY);
+    helper2.setAttribute('stroke', '#666');
+    helper2.setAttribute('stroke-width', '1');
+    parent.appendChild(helper2);
+    
+    // Text
+    drawLabel(text, textX, textY, parent, '#666');
+}
+
+// Text-Label zeichnen
+function drawLabel(text, x, y, parent, color = '#666') {
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', x);
+    label.setAttribute('y', y);
+    label.setAttribute('font-family', 'Arial, sans-serif');
+    label.setAttribute('font-size', '11');
+    label.setAttribute('font-weight', 'bold');
+    label.setAttribute('fill', color);
+    label.setAttribute('text-anchor', 'middle');
+    label.textContent = text;
+    parent.appendChild(label);
+}
+
+// Automatische Berechnungen für Dreiecke
+function updateTriangleValue(fieldId, value) {
+    currentValues[fieldId] = parseFloat(value) || null;
+    
+    const variant = projectData.roofShape?.variant || 'gleichseitig';
+    
+    if (variant === 'gleichseitig') {
+        const side = currentValues.sideA || 10;
+        // Alle Seiten gleich
+        currentValues.sideB = side;
+        currentValues.sideC = side;
+        // Höhe eines gleichseitigen Dreiecks
+        currentValues.height = (side * Math.sqrt(3)) / 2;
+        
+        // UI aktualisieren
+        document.getElementById('dim-side-b').value = side.toFixed(2);
+        document.getElementById('dim-side-c').value = side.toFixed(2);
+        document.getElementById('dim-height').value = currentValues.height.toFixed(2);
+        
+        // Fläche
+        const area = (side * side * Math.sqrt(3)) / 4;
+        document.getElementById('calc-area-display').value = area.toFixed(1);
+        
+    } else if (variant === 'rechtwinklig') {
+        const a = currentValues.sideA || 10;
+        const b = currentValues.sideB || 8;
+        
+        // Hypotenuse nach Pythagoras
+        currentValues.sideC = Math.sqrt(a*a + b*b);
+        document.getElementById('dim-side-c').value = currentValues.sideC.toFixed(2);
+        
+        // Winkel berechnen
+        currentValues.angleA = Math.atan(b/a) * 180 / Math.PI;
+        currentValues.angleB = Math.atan(a/b) * 180 / Math.PI;
+        document.getElementById('dim-angle-a').value = currentValues.angleA.toFixed(1);
+        document.getElementById('dim-angle-b').value = currentValues.angleB.toFixed(1);
+        
+        // Fläche
+        const area = (a * b) / 2;
+        document.getElementById('calc-area-display').value = area.toFixed(1);
+        
+    } else if (variant === 'ungleichschenklig') {
+        const a = currentValues.sideA || 10;
+        const b = currentValues.sideB || 7;
+        const c = currentValues.sideC || 9;
+        const h = currentValues.height || 8;
+        
+        // Winkel mit Kosinussatz berechnen
+        if (a && b && c) {
+            // Winkel A (gegenüber Seite a)
+            currentValues.angleA = Math.acos((b*b + c*c - a*a) / (2*b*c)) * 180 / Math.PI;
+            // Winkel B (gegenüber Seite b)
+            currentValues.angleB = Math.acos((a*a + c*c - b*b) / (2*a*c)) * 180 / Math.PI;
+            // Winkel C (gegenüber Seite c)
+            currentValues.angleC = 180 - currentValues.angleA - currentValues.angleB;
+            
+            // UI aktualisieren
+            document.getElementById('dim-angle-a').value = currentValues.angleA.toFixed(1);
+            document.getElementById('dim-angle-b').value = currentValues.angleB.toFixed(1);
+            document.getElementById('dim-angle-c').value = currentValues.angleC.toFixed(1);
+        }
+        
+        // Fläche
+        const area = (a * h) / 2;
+        document.getElementById('calc-area-display').value = area.toFixed(1);
+    }
+    
+    currentPoints = generatePoints();
+    updateShape();
+    updateInfoPanel();
+}
+
+// Automatische Berechnungen für Trapez
+function updateTrapezValue(fieldId, value) {
+    currentValues[fieldId] = parseFloat(value) || null;
+    
+    const a = currentValues.sideA || 10;  // untere Seite
+    const c = currentValues.sideC || 6;   // obere Seite
+    const h = currentValues.height || 6;  // Höhe
+    const b = currentValues.sideB || 7;   // linker Schenkel
+    const d = currentValues.sideD || 7;   // rechter Schenkel
+    
+    // Winkel berechnen wenn Schenkel gegeben sind
+    if (b && h && !currentValues.angleAlpha) {
+        currentValues.angleAlpha = Math.asin(h / b) * 180 / Math.PI;
+        const alphaElement = document.getElementById('dim-angle-alpha');
+        if (alphaElement) alphaElement.value = currentValues.angleAlpha.toFixed(1);
+    }
+    
+    if (d && h && !currentValues.angleBeta) {
+        currentValues.angleBeta = Math.asin(h / d) * 180 / Math.PI;
+        const betaElement = document.getElementById('dim-angle-beta');
+        if (betaElement) betaElement.value = currentValues.angleBeta.toFixed(1);
+    }
+    
+    // Schenkel berechnen wenn Winkel gegeben sind
+    if (currentValues.angleAlpha && h && !currentValues.sideB) {
+        const angleRad = (currentValues.angleAlpha * Math.PI) / 180;
+        currentValues.sideB = h / Math.sin(angleRad);
+        const bElement = document.getElementById('dim-side-b');
+        if (bElement) bElement.value = currentValues.sideB.toFixed(2);
+    }
+    
+    if (currentValues.angleBeta && h && !currentValues.sideD) {
+        const angleRad = (currentValues.angleBeta * Math.PI) / 180;
+        currentValues.sideD = h / Math.sin(angleRad);
+        const dElement = document.getElementById('dim-side-d');
+        if (dElement) dElement.value = currentValues.sideD.toFixed(2);
+    }
+    
+    // Fläche aktualisieren
+    const area = ((a + c) / 2) * h;
+    const areaElement = document.getElementById('calc-area-display');
+    if (areaElement) areaElement.value = area.toFixed(1);
+    
+    currentPoints = generatePoints();
+    updateShape();
+    updateInfoPanel();
+}
+
+// Wert aktualisieren (erweitert für automatische Berechnungen)
+function updateValue(fieldId, value) {
+    currentValues[fieldId] = parseFloat(value) || 0;
+    console.log('Wert aktualisiert:', fieldId, value, currentValues);
+    
+    // Automatische Berechnungen für Rechteck
+    const variant = projectData.roofShape?.variant || 'rechteck';
+    if (variant === 'rechteck') {
+        const length = currentValues.length || 10;
+        const width = currentValues.width || 8;
+        
+        // Diagonalen berechnen
+        currentValues.diagonal1 = Math.sqrt(length * length + width * width);
+        currentValues.diagonal2 = currentValues.diagonal1; // Rechteck hat gleiche Diagonalen
+        
+        // UI aktualisieren
+        const d1Element = document.getElementById('dim-diagonal1');
+        const d2Element = document.getElementById('dim-diagonal2');
+        const perimeterElement = document.getElementById('calc-perimeter-display');
+        const areaElement = document.getElementById('calc-area-display');
+        
+        if (d1Element) d1Element.value = currentValues.diagonal1.toFixed(2);
+        if (d2Element) d2Element.value = currentValues.diagonal2.toFixed(2);
+        if (perimeterElement) perimeterElement.value = (2 * length + 2 * width).toFixed(1);
+        if (areaElement) areaElement.value = (length * width).toFixed(1);
+    }
+    
+    currentPoints = generatePoints();
+    updateShape();
+    updateInfoPanel();
+}
+
+// Erweiterte Punkt-Generierung für Trapez mit korrekter Geometrie
+function generateViereckPoints(variant) {
+    if (variant === 'quadrat') {
+        const size = currentValues.size || 8;
+        return [
+            { x: 0, y: 0 }, { x: size, y: 0 }, 
+            { x: size, y: size }, { x: 0, y: size }
+        ];
+    } else if (variant === 'trapez') {
+        const a = currentValues.sideA || 10;  // untere Seite
+        const c = currentValues.sideC || 6;   // obere Seite
+        const h = currentValues.height || 6;  // Höhe
+        const b = currentValues.sideB || 7;   // linker Schenkel
+        const d = currentValues.sideD || 7;   // rechter Schenkel
+        
+        // Berechne horizontale Offsets basierend auf Schenkellängen und Höhe
+        let leftOffset = 0;
+        let rightOffset = 0;
+        
+        if (b && h) {
+            // Offset links basierend auf Schenkel b
+            leftOffset = Math.sqrt(b*b - h*h);
+        }
+        
+        if (d && h) {
+            // Offset rechts basierend auf Schenkel d
+            rightOffset = Math.sqrt(d*d - h*h);
+        }
+        
+        // Justiere die obere Seite so dass sie zentriert ist
+        const totalOffset = leftOffset + rightOffset;
+        const adjustment = (a - c - totalOffset) / 2;
+        leftOffset += adjustment;
+        rightOffset += adjustment;
+        
+        return [
+            { x: 0, y: 0 },                    // unten links
+            { x: a, y: 0 },                    // unten rechts
+            { x: a - rightOffset, y: h },      // oben rechts
+            { x: leftOffset, y: h }            // oben links
+        ];
+    } else if (variant === 'parallelogramm') {
+        const length = currentValues.length || 10;
+        const width = currentValues.width || 6;
+        const skew = currentValues.skew || 2;
+        return [
+            { x: 0, y: 0 }, { x: length, y: 0 }, 
+            { x: length + skew, y: width }, { x: skew, y: width }
+        ];
+    } else if (variant === 'rhombus') {
+        const rWidth = currentValues.width || 10;
+        const rHeight = currentValues.height || 8;
+        return [
+            { x: rWidth / 2, y: 0 }, { x: rWidth, y: rHeight / 2 }, 
+            { x: rWidth / 2, y: rHeight }, { x: 0, y: rHeight / 2 }
+        ];
+    } else {
+        // rechteck
+        return [
+            { x: 0, y: 0 }, { x: currentValues.length || 10, y: 0 }, 
+            { x: currentValues.length || 10, y: currentValues.width || 8 }, { x: 0, y: currentValues.width || 8 }
+        ];
+    }
+}
+
+// Erweiterte Punkt-Generierung für Dreiecke
+function generateTrianglePoints(variant) {
+    if (variant === 'gleichseitig') {
+        const side = currentValues.sideA || 10;
+        const height = (side * Math.sqrt(3)) / 2;
+        return [
+            { x: side / 2, y: height },  // Spitze oben
+            { x: 0, y: 0 },              // links unten
+            { x: side, y: 0 }            // rechts unten
+        ];
+    } else if (variant === 'rechtwinklig') {
+        const a = currentValues.sideA || 10;  // Kathete a
+        const b = currentValues.sideB || 8;   // Kathete b
+        return [
+            { x: 0, y: 0 },    // rechter Winkel
+            { x: a, y: 0 },    // rechts unten
+            { x: 0, y: b }     // links oben
+        ];
+    } else if (variant === 'ungleichschenklig') {
+        const a = currentValues.sideA || 10;  // Basis
+        const b = currentValues.sideB || 7;   // linke Seite
+        const c = currentValues.sideC || 9;   // rechte Seite
+        const h = currentValues.height || 8;  // Höhe
+        
+        // Berechne Position der Spitze mit Kosinussatz
+        const leftBase = (a*a + b*b - c*c) / (2 * a);
+        
+        return [
+            { x: leftBase, y: h },  // Spitze
+            { x: 0, y: 0 },         // links unten
+            { x: a, y: 0 }          // rechts unten
+        ];
+    } else {
+        // Fallback
+        const base = currentValues.base || currentValues.sideA || 10;
+        const height = currentValues.height || 8;
+        return [
+            { x: base / 2, y: height },
+            { x: 0, y: 0 },
+            { x: base, y: 0 }
+        ];
+    }
+}// Globale Variablen
 let projectData = {};
 let currentPoints = [];
 let currentShapeType = 'rechteck';
