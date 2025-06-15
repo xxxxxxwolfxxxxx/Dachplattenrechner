@@ -72,6 +72,7 @@ function loadData() {
 // Profil-Info anzeigen
 function displayProfileInfo() {
     const profile = projectData.profile;
+    console.log('displayProfileInfo aufgerufen, Profil:', profile);
     
     if (profile) {
         const profilName = profile.profilname || 'Standard';
@@ -79,16 +80,29 @@ function displayProfileInfo() {
         const lieferbreite = profile.lieferbreite || 1050;
         const seitenueberlappung = profile.seitenueberlappung || 50;
         
+        console.log('Profil-Werte:', { profilName, deckbreite, lieferbreite, seitenueberlappung });
+        
         const nameElement = document.getElementById('current-profile-name');
         const deckbreiteElement = document.getElementById('current-deckbreite');
         const lieferbreiteElement = document.getElementById('current-lieferbreite');
         const seitenueberlappungElement = document.getElementById('current-seitenueberlappung');
         
+        console.log('UI-Elemente gefunden:', {
+            nameElement: !!nameElement,
+            deckbreiteElement: !!deckbreiteElement,
+            lieferbreiteElement: !!lieferbreiteElement,
+            seitenueberlappungElement: !!seitenueberlappungElement
+        });
+        
         if (nameElement) nameElement.textContent = profilName;
         if (deckbreiteElement) deckbreiteElement.textContent = deckbreite + ' mm';
         if (lieferbreiteElement) lieferbreiteElement.textContent = lieferbreite + ' mm';
         if (seitenueberlappungElement) seitenueberlappungElement.textContent = seitenueberlappung + ' mm';
+        
+        console.log('Profil-Info erfolgreich angezeigt');
     } else {
+        console.log('Keine Profil-Daten gefunden!');
+        
         const elements = [
             'current-profile-name',
             'current-deckbreite', 
@@ -684,6 +698,7 @@ function init() {
         console.log('Editor wird initialisiert...');
         
         projectData = loadData();
+        console.log('Geladene Projektdaten:', projectData);
         
         if (!projectData || typeof projectData !== 'object') {
             alert('Keine gültigen Projektdaten gefunden! Bitte starten Sie von Schritt 1.');
@@ -692,11 +707,13 @@ function init() {
         }
         
         if (!projectData.profile) {
+            console.log('Verfügbare Daten-Keys:', Object.keys(projectData));
             alert('Keine Profil-Daten gefunden! Bitte kehren Sie zu Schritt 1 zurück.');
             window.location.href = 'profil.html';
             return;
         }
         
+        console.log('Profil-Daten gefunden:', projectData.profile);
         displayProfileInfo();
         
         // Gespeicherte Verlegerichtung laden
@@ -712,30 +729,46 @@ function init() {
             }
         }
         
+        // Stelle sicher, dass roofShape existiert
         if (!projectData.roofShape) {
+            console.log('Keine roofShape gefunden, erstelle Standard-roofShape');
             projectData.roofShape = {
                 baseShape: 'viereck',
                 variant: 'rechteck'
             };
         }
         
+        console.log('RoofShape-Daten:', projectData.roofShape);
+        
         // Vorhandene Punkte aus roofShape laden
         if (projectData.roofShape && projectData.roofShape.points && projectData.roofShape.points.length > 0) {
+            console.log('Lade vorhandene Dachform-Punkte:', projectData.roofShape.points.length, 'Punkte');
             currentPoints = [...projectData.roofShape.points];
             currentShapeType = projectData.roofShape.baseShape || 'rechteck';
             
+            // Shape-Namen aktualisieren
+            const shapeNameElement = document.getElementById('current-shape-name');
+            if (shapeNameElement) {
+                const shapeName = projectData.roofShape.variant || currentShapeType || 'Rechteck';
+                shapeNameElement.textContent = shapeName.charAt(0).toUpperCase() + shapeName.slice(1);
+            }
+            
             if (currentPoints.length === 3) {
+                console.log('Dreieck erkannt - verwende spezielle Eingabe');
                 generateTriangleInputFields();
             } else if (currentPoints.length === 4) {
+                console.log('Rechteck erkannt - verwende Standard-Eingabe');
                 const xs = currentPoints.map(p => p.x);
                 const ys = currentPoints.map(p => p.y);
                 currentValues.length = Math.max(...xs) - Math.min(...xs);
                 currentValues.width = Math.max(...ys) - Math.min(...ys);
                 generateInputFields();
             } else {
+                console.log('Vieleck erkannt - verwende Punkt-Eingabe');
                 generatePolygonInputFields();
             }
         } else {
+            console.log('Keine Punkte vorhanden - verwende Standard-Rechteck');
             generateInputFields();
             updateGeometry();
         }
