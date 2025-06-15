@@ -929,7 +929,7 @@
             }
         }
 
-        // Automatische Berechnungen für Dreiecke KOMPLETT NEU
+        // Automatische Berechnungen für Dreiecke MIT INTELLIGENTER AUTO-BERECHNUNG
         function updateTriangleValue(fieldId, value) {
             console.log('updateTriangleValue aufgerufen:', fieldId, value);
             currentValues[fieldId] = parseFloat(value) || null;
@@ -938,25 +938,125 @@
             console.log('Triangle variant:', variant, 'currentValues:', currentValues);
             
             if (variant === 'ungleichschenklig') {
-                // Für ungleichschenkliges Dreieck: NUR Winkel automatisch berechnen
-                const a = currentValues.sideA || 6;
-                const b = currentValues.sideB || 5;
-                const c = currentValues.sideC || 5;
+                // INTELLIGENTE AUTO-BERECHNUNG für ungleichschenklige Dreiecke
+                const a = currentValues.sideA;    // Basis
+                const b = currentValues.sideB;    // Linke Seite
+                const c = currentValues.sideC;    // Rechte Seite
+                const h = currentValues.height;   // Höhe
+                const offset = currentValues.offset; // Versatz von links
                 
-                // Winkel mit Kosinussatz berechnen (wenn alle Seiten bekannt)
-                if (a && b && c) {
-                    // Winkel A (gegenüber Seite a, am Eckpunkt der Spitze)
-                    const angleArad = Math.acos((b*b + c*c - a*a) / (2*b*c));
-                    currentValues.angleA = angleArad * 180 / Math.PI;
+                console.log('Eingabewerte vor Auto-Berechnung:', { a, b, c, h, offset });
+                
+                // Zähle wie viele Werte vorhanden sind
+                const values = [a, b, c, h, offset].filter(v => v !== null && v !== undefined && v > 0);
+                const valueCount = values.length;
+                
+                console.log('Anzahl gültiger Werte:', valueCount);
+                
+                // FALL 1: Wenn a, h, offset bekannt → berechne b, c
+                if (a && h && offset && (!b || !c)) {
+                    console.log('Fall 1: Berechne Seiten aus Basis, Höhe, Versatz');
                     
-                    // Winkel B (gegenüber Seite b, am rechten Eckpunkt)
-                    const angleBrad = Math.acos((a*a + c*c - b*b) / (2*a*c));
+                    const calcB = Math.sqrt(offset * offset + h * h);
+                    const calcC = Math.sqrt((a - offset) * (a - offset) + h * h);
+                    
+                    currentValues.sideB = calcB;
+                    currentValues.sideC = calcC;
+                    
+                    const sideBInput = document.getElementById('dim-side-b');
+                    const sideCInput = document.getElementById('dim-side-c');
+                    if (sideBInput) sideBInput.value = calcB.toFixed(2);
+                    if (sideCInput) sideCInput.value = calcC.toFixed(2);
+                    
+                    console.log('Berechnete Seiten:', { b: calcB.toFixed(2), c: calcC.toFixed(2) });
+                }
+                
+                // FALL 2: Wenn a, b, c bekannt → berechne h, offset
+                else if (a && b && c && (!h || !offset)) {
+                    console.log('Fall 2: Berechne Höhe und Versatz aus den drei Seiten');
+                    
+                    // Verwende Heron-Formel für Fläche, dann h = 2*Fläche/a
+                    const s = (a + b + c) / 2; // Halbumfang
+                    const area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+                    const calcH = (2 * area) / a;
+                    
+                    // Berechne Versatz mit Kosinussatz
+                    // Winkel am linken Eckpunkt (gegenüber Seite c)
+                    const angleLeft = Math.acos((a*a + b*b - c*c) / (2*a*b));
+                    const calcOffset = b * Math.cos(angleLeft);
+                    
+                    currentValues.height = calcH;
+                    currentValues.offset = calcOffset;
+                    
+                    const heightInput = document.getElementById('dim-height');
+                    const offsetInput = document.getElementById('dim-offset');
+                    if (heightInput) heightInput.value = calcH.toFixed(2);
+                    if (offsetInput) offsetInput.value = calcOffset.toFixed(2);
+                    
+                    console.log('Berechnete Geometrie:', { h: calcH.toFixed(2), offset: calcOffset.toFixed(2) });
+                }
+                
+                // FALL 3: Wenn a, h, b bekannt → berechne c, offset
+                else if (a && h && b && (!c || !offset)) {
+                    console.log('Fall 3: Berechne c und offset aus a, h, b');
+                    
+                    // Aus b² = offset² + h² folgt: offset = √(b² - h²)
+                    const calcOffset = Math.sqrt(b*b - h*h);
+                    const calcC = Math.sqrt((a - calcOffset) * (a - calcOffset) + h * h);
+                    
+                    currentValues.sideC = calcC;
+                    currentValues.offset = calcOffset;
+                    
+                    const sideCInput = document.getElementById('dim-side-c');
+                    const offsetInput = document.getElementById('dim-offset');
+                    if (sideCInput) sideCInput.value = calcC.toFixed(2);
+                    if (offsetInput) offsetInput.value = calcOffset.toFixed(2);
+                    
+                    console.log('Berechnete Werte:', { c: calcC.toFixed(2), offset: calcOffset.toFixed(2) });
+                }
+                
+                // FALL 4: Wenn a, h, c bekannt → berechne b, offset  
+                else if (a && h && c && (!b || !offset)) {
+                    console.log('Fall 4: Berechne b und offset aus a, h, c');
+                    
+                    // Probiere verschiedene Offset-Werte und finde den, der zu c passt
+                    let bestOffset = 0;
+                    let minDiff = Infinity;
+                    
+                    for (let testOffset = 0.1; testOffset < a; testOffset += 0.1) {
+                        const testC = Math.sqrt((a - testOffset) * (a - testOffset) + h * h);
+                        const diff = Math.abs(testC - c);
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            bestOffset = testOffset;
+                        }
+                    }
+                    
+                    const calcB = Math.sqrt(bestOffset * bestOffset + h * h);
+                    
+                    currentValues.sideB = calcB;
+                    currentValues.offset = bestOffset;
+                    
+                    const sideBInput = document.getElementById('dim-side-b');
+                    const offsetInput = document.getElementById('dim-offset');
+                    if (sideBInput) sideBInput.value = calcB.toFixed(2);
+                    if (offsetInput) offsetInput.value = bestOffset.toFixed(2);
+                    
+                    console.log('Berechnete Werte:', { b: calcB.toFixed(2), offset: bestOffset.toFixed(2) });
+                }
+                
+                // Winkel immer berechnen (wenn alle Seiten bekannt)
+                const finalA = currentValues.sideA;
+                const finalB = currentValues.sideB;
+                const finalC = currentValues.sideC;
+                
+                if (finalA && finalB && finalC) {
+                    const angleArad = Math.acos((finalB*finalB + finalC*finalC - finalA*finalA) / (2*finalB*finalC));
+                    const angleBrad = Math.acos((finalA*finalA + finalC*finalC - finalB*finalB) / (2*finalA*finalC));
+                    
+                    currentValues.angleA = angleArad * 180 / Math.PI;
                     currentValues.angleB = angleBrad * 180 / Math.PI;
                     
-                    // Winkel C (gegenüber Seite c, am linken Eckpunkt)
-                    currentValues.angleC = 180 - currentValues.angleA - currentValues.angleB;
-                    
-                    // UI Update nur für Winkel
                     const angleAInput = document.getElementById('dim-angle-a');
                     const angleBInput = document.getElementById('dim-angle-b');
                     if (angleAInput) angleAInput.value = currentValues.angleA.toFixed(1);
@@ -964,10 +1064,13 @@
                 }
                 
                 // Fläche berechnen
-                const h = currentValues.height || 4;
-                const area = (a * h) / 2;
-                const areaInput = document.getElementById('calc-area-display');
-                if (areaInput) areaInput.value = area.toFixed(1);
+                const finalHeight = currentValues.height;
+                const finalBase = currentValues.sideA;
+                if (finalHeight && finalBase) {
+                    const area = (finalBase * finalHeight) / 2;
+                    const areaInput = document.getElementById('calc-area-display');
+                    if (areaInput) areaInput.value = area.toFixed(1);
+                }
                 
             } else if (variant === 'gleichseitig') {
                 // Gleichseitig: alle automatisch
@@ -1009,7 +1112,7 @@
                 if (areaInput) areaInput.value = area.toFixed(1);
             }
             
-            console.log('Vor generatePoints - currentValues:', currentValues);
+            console.log('Nach Auto-Berechnung - currentValues:', currentValues);
             currentPoints = generatePoints();
             console.log('Nach generatePoints - currentPoints:', currentPoints);
             updateShape();
