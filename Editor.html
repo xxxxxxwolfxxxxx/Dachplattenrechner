@@ -201,6 +201,31 @@
             margin-bottom: 10px;
         }
 
+        .profile-info-panel {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .profile-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .profile-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .profile-info-item:last-child {
+            border-bottom: none;
+        }
+
         @media (max-width: 768px) {
             #geometry-inputs-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -240,6 +265,33 @@
         </header>
 
         <main>
+            <!-- Profil-Info Panel -->
+            <div class="profile-info-panel">
+                <h3>Gewähltes Profil</h3>
+                <div class="profile-info-grid">
+                    <div>
+                        <div class="profile-info-item">
+                            <span>Profil:</span>
+                            <strong id="current-profile-name">-</strong>
+                        </div>
+                        <div class="profile-info-item">
+                            <span>Deckbreite:</span>
+                            <strong id="current-deckbreite">-</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="profile-info-item">
+                            <span>Lieferbreite:</span>
+                            <strong id="current-lieferbreite">-</strong>
+                        </div>
+                        <div class="profile-info-item">
+                            <span>Seitenüberlappung:</span>
+                            <strong id="current-seitenueberlappung">-</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="controls-panel">
                 <div class="panel-header">
                     <h3>Geometrie-Editor: <span id="current-shape-name">Rechteck</span></h3>
@@ -366,6 +418,24 @@
             } catch (e) {
                 console.log('Laden nicht möglich');
                 return {};
+            }
+        }
+
+        // Profil-Info anzeigen
+        function displayProfileInfo() {
+            const profile = projectData.profile;
+            
+            if (profile) {
+                document.getElementById('current-profile-name').textContent = profile.profilname || 'Standard';
+                document.getElementById('current-deckbreite').textContent = (profile.deckbreite || 1000) + ' mm';
+                document.getElementById('current-lieferbreite').textContent = (profile.lieferbreite || 1050) + ' mm';
+                document.getElementById('current-seitenueberlappung').textContent = (profile.seitenueberlappung || 50) + ' mm';
+            } else {
+                console.warn('Keine Profil-Daten gefunden!');
+                document.getElementById('current-profile-name').textContent = 'Nicht verfügbar';
+                document.getElementById('current-deckbreite').textContent = 'Nicht verfügbar';
+                document.getElementById('current-lieferbreite').textContent = 'Nicht verfügbar';
+                document.getElementById('current-seitenueberlappung').textContent = 'Nicht verfügbar';
             }
         }
 
@@ -627,10 +697,16 @@
             if (btnContinue) btnContinue.addEventListener('click', saveAndContinue);
         }
 
-        // Speichern und weiter
+        // Speichern und weiter - KORRIGIERT
         function saveAndContinue() {
             try {
-                // Geometrie-Daten speichern
+                // WICHTIG: Profil-Daten NICHT überschreiben, sondern erhalten!
+                if (!projectData.profile) {
+                    alert('Profil-Daten fehlen! Bitte kehren Sie zu Schritt 1 zurück.');
+                    return;
+                }
+
+                // Geometrie-Daten hinzufügen (aber Profil beibehalten)
                 projectData.geometry = {
                     shapeType: currentShapeType,
                     values: currentValues,
@@ -652,9 +728,19 @@
                 projectData.roofShape.waterFlowDirection = waterFlowDirection;
                 projectData.roofShape.preferredDirection = preferredDirection;
                 
+                // DEBUGGING: Überprüfen ob Profil-Daten noch da sind
+                console.log('Speichere Projektdaten:', {
+                    hasProfile: !!projectData.profile,
+                    profileName: projectData.profile?.profilname,
+                    deckbreite: projectData.profile?.deckbreite,
+                    seitenueberlappung: projectData.profile?.seitenueberlappung,
+                    geometry: projectData.geometry,
+                    roofShape: projectData.roofShape
+                });
+
                 const saved = saveData();
                 if (saved) {
-                    console.log('Daten mit Verlegerichtung gespeichert:', projectData);
+                    console.log('Daten erfolgreich gespeichert');
                     window.location.href = 'berechnung.html';
                 } else {
                     alert('Speichern fehlgeschlagen. Daten werden in der Session gespeichert.');
@@ -666,74 +752,3 @@
                 window.location.href = 'berechnung.html';
             }
         }
-
-        // Initialisierung
-        function init() {
-            try {
-                console.log('Editor wird initialisiert...');
-                
-                // Projektdaten laden
-                projectData = loadData();
-                console.log('Geladene Daten:', projectData);
-                
-                // Gespeicherte Verlegerichtung laden
-                if (projectData.geometry) {
-                    if (projectData.geometry.waterFlowDirection) {
-                        waterFlowDirection = projectData.geometry.waterFlowDirection;
-                    }
-                    if (projectData.geometry.preferredDirection) {
-                        preferredDirection = projectData.geometry.preferredDirection;
-                    }
-                }
-                
-                // Fallback für fehlende Daten
-                if (!projectData.roofShape) {
-                    projectData.roofShape = {
-                        baseShape: 'viereck',
-                        variant: 'rechteck'
-                    };
-                }
-                
-                // Eingabefelder generieren
-                generateInputFields();
-                
-                // Geometrie initialisieren
-                updateGeometry();
-                
-                // Wasserlauf-Anzeige entsprechend der gespeicherten Richtung setzen
-                const leftFlow = document.getElementById('water-flow-left');
-                const rightFlow = document.getElementById('water-flow-right');
-                const waterBtn = document.getElementById('btn-water-flow');
-                
-                if (waterFlowDirection === 'side') {
-                    if (leftFlow) leftFlow.style.display = 'none';
-                    if (rightFlow) rightFlow.style.display = 'none';
-                    if (waterBtn) waterBtn.classList.add('active');
-                } else {
-                    if (leftFlow) leftFlow.style.display = 'flex';
-                    if (rightFlow) rightFlow.style.display = 'flex';
-                    if (waterBtn) waterBtn.classList.remove('active');
-                }
-                
-                // Event-Handler einrichten
-                setupEventHandlers();
-                
-                console.log('Editor erfolgreich initialisiert');
-                console.log('Wasserlaufrichtung:', waterFlowDirection);
-                console.log('Bevorzugte Verlegerichtung:', preferredDirection);
-                
-            } catch (error) {
-                console.error('Fehler bei der Initialisierung:', error);
-                alert('Fehler beim Laden des Editors: ' + error.message);
-            }
-        }
-
-        // Warten bis DOM geladen ist
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    </script>
-</body>
-</html>
