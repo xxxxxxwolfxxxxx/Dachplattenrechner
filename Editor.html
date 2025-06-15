@@ -1058,13 +1058,19 @@
                     { x: 0, y: b }
                 ];
             } else if (variant === 'ungleichschenklig') {
-                const a = currentValues.sideA || 10;
-                const h = currentValues.height || 8;
-                const offset = currentValues.offset || 3;
+                const a = currentValues.sideA || 10;  // Basis
+                const h = currentValues.height || 8;  // Höhe
+                const offset = currentValues.offset || 3;  // Versatz von der Mitte
+                
+                console.log('Generiere ungleichschenkliges Dreieck:', { a, h, offset });
+                
+                // Spitze ist um 'offset' von der Basis-Mitte versetzt
+                const spitzeX = (a / 2) + offset;  // Mitte der Basis + Versatz
+                
                 return [
-                    { x: offset, y: h },
-                    { x: 0, y: 0 },
-                    { x: a, y: 0 }
+                    { x: spitzeX, y: h },  // Spitze (versetzt)
+                    { x: 0, y: 0 },        // Links unten
+                    { x: a, y: 0 }         // Rechts unten  
                 ];
             } else {
                 const base = currentValues.base || currentValues.sideA || 10;
@@ -1287,24 +1293,33 @@
                 dimensionsGroup.appendChild(footPoint);
             }
 
-            // Spitzen-Versatz bei ungleichschenkligen Dreiecken - SICHTBAR machen
-            if (variant === 'ungleichschenklig' && currentValues.offset) {
-                const offset = currentValues.offset;
+            // Spitzen-Versatz bei ungleichschenkligen Dreiecken - KORRIGIERT
+            if (variant === 'ungleichschenklig' && currentValues.offset !== undefined) {
+                const offset = currentValues.offset || 3;
                 const baseLength = currentValues.sideA || 10;
                 
-                // Berechne Fußpunkt der Höhe
-                const footX = p2.x + offset * (p3.x - p2.x) / baseLength;
+                console.log('Zeichne Spitzen-Versatz:', offset, 'Basis-Länge:', baseLength);
+                
+                // Mittelpunkt der Basis
                 const midBaseX = (p2.x + p3.x) / 2;
                 
-                // Versatz-Linie (horizontal auf der Basis)
+                // Fußpunkt der Höhe (wo die Spitze "herunterfällt")
+                // p1.x ist bereits die korrekte X-Position der Spitze
+                const footX = p1.x;
+                
+                console.log('Basis-Mitte X:', midBaseX, 'Fußpunkt X:', footX, 'Spitze X:', p1.x);
+                
+                // Versatz-Linie (horizontal auf der Basis, zwischen Mitte und Fußpunkt)
+                const offsetY = p2.y + 20; // Etwas unterhalb der Basis
+                
                 const offsetLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                offsetLine.setAttribute('x1', midBaseX);
-                offsetLine.setAttribute('y1', p2.y + 15);
-                offsetLine.setAttribute('x2', footX);
-                offsetLine.setAttribute('y2', p2.y + 15);
+                offsetLine.setAttribute('x1', Math.min(midBaseX, footX));
+                offsetLine.setAttribute('y1', offsetY);
+                offsetLine.setAttribute('x2', Math.max(midBaseX, footX));
+                offsetLine.setAttribute('y2', offsetY);
                 offsetLine.setAttribute('stroke', '#ffc107');
-                offsetLine.setAttribute('stroke-width', '2');
-                offsetLine.setAttribute('stroke-dasharray', '3,2');
+                offsetLine.setAttribute('stroke-width', '3');
+                offsetLine.setAttribute('stroke-dasharray', '4,2');
                 dimensionsGroup.appendChild(offsetLine);
                 
                 // Versatz-Maßhilfslinien
@@ -1312,7 +1327,7 @@
                 helper1.setAttribute('x1', midBaseX);
                 helper1.setAttribute('y1', p2.y + 5);
                 helper1.setAttribute('x2', midBaseX);
-                helper1.setAttribute('y2', p2.y + 25);
+                helper1.setAttribute('y2', offsetY + 10);
                 helper1.setAttribute('stroke', '#ffc107');
                 helper1.setAttribute('stroke-width', '1');
                 dimensionsGroup.appendChild(helper1);
@@ -1321,23 +1336,38 @@
                 helper2.setAttribute('x1', footX);
                 helper2.setAttribute('y1', p2.y + 5);
                 helper2.setAttribute('x2', footX);
-                helper2.setAttribute('y2', p2.y + 25);
+                helper2.setAttribute('y2', offsetY + 10);
                 helper2.setAttribute('stroke', '#ffc107');
                 helper2.setAttribute('stroke-width', '1');
                 dimensionsGroup.appendChild(helper2);
                 
                 // Versatz-Beschriftung
                 const offsetLabelX = (midBaseX + footX) / 2;
-                const offsetLabelY = p2.y + 35;
-                drawLabel(`Versatz=${offset}m`, offsetLabelX, offsetLabelY, dimensionsGroup, '#ffc107');
+                const offsetLabelY = offsetY + 25;
+                drawLabel(`Versatz=${Math.abs(offset).toFixed(1)}m`, offsetLabelX, offsetLabelY, dimensionsGroup, '#ffc107');
                 
-                // Mittelpunkt-Markierung
+                // Markierungspunkte
                 const midPoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 midPoint.setAttribute('cx', midBaseX);
                 midPoint.setAttribute('cy', p2.y);
-                midPoint.setAttribute('r', '2');
+                midPoint.setAttribute('r', '3');
                 midPoint.setAttribute('fill', '#ffc107');
+                midPoint.setAttribute('stroke', '#000');
+                midPoint.setAttribute('stroke-width', '1');
                 dimensionsGroup.appendChild(midPoint);
+                
+                const footPoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                footPoint.setAttribute('cx', footX);
+                footPoint.setAttribute('cy', p2.y);
+                footPoint.setAttribute('r', '3');
+                footPoint.setAttribute('fill', '#ffc107');
+                footPoint.setAttribute('stroke', '#000');
+                footPoint.setAttribute('stroke-width', '1');
+                dimensionsGroup.appendChild(footPoint);
+                
+                // Beschriftung der Punkte
+                drawLabel('Mitte', midBaseX, p2.y - 15, dimensionsGroup, '#ffc107');
+                drawLabel('Höhen-Fuß', footX, p2.y - 15, dimensionsGroup, '#ffc107');
             }
         }
 
