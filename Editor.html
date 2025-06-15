@@ -392,17 +392,21 @@
         let waterFlowDirection = 'down'; // 'down' = nach unten, 'up' = nach oben
         let preferredDirection = 'laengs'; // 'laengs' oder 'quer'
 
-        // Storage-Funktionen
+        // Storage-Funktionen - KORRIGIERT mit detailliertem Debugging
         function saveData() {
             try {
+                console.log('Speichere Daten:', projectData);
                 localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                console.log('Daten erfolgreich in localStorage gespeichert');
                 return true;
             } catch (e) {
+                console.log('localStorage nicht verfügbar, versuche sessionStorage');
                 try {
                     sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+                    console.log('Daten erfolgreich in sessionStorage gespeichert');
                     return true;
                 } catch (e2) {
-                    console.log('Speichern nicht möglich');
+                    console.error('Speichern fehlgeschlagen:', e2);
                     return false;
                 }
             }
@@ -410,32 +414,88 @@
 
         function loadData() {
             try {
+                console.log('Versuche Daten zu laden...');
+                
                 let saved = localStorage.getItem('dachplattenrechner_data');
+                console.log('localStorage Inhalt:', saved ? 'Daten gefunden' : 'Leer');
+                
                 if (!saved) {
                     saved = sessionStorage.getItem('dachplattenrechner_data');
+                    console.log('sessionStorage Inhalt:', saved ? 'Daten gefunden' : 'Leer');
                 }
-                return saved ? JSON.parse(saved) : {};
+                
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    console.log('Geladene Daten:', data);
+                    console.log('Profil in geladenen Daten:', data.profile);
+                    return data;
+                } else {
+                    console.log('Keine gespeicherten Daten gefunden');
+                    return {};
+                }
             } catch (e) {
-                console.log('Laden nicht möglich');
+                console.error('Fehler beim Laden der Daten:', e);
                 return {};
             }
         }
 
-        // Profil-Info anzeigen
+        // Profil-Info anzeigen - KORRIGIERT mit detailliertem Debugging
         function displayProfileInfo() {
+            console.log('displayProfileInfo aufgerufen');
             const profile = projectData.profile;
             
+            console.log('Profil-Objekt:', profile);
+            
             if (profile) {
-                document.getElementById('current-profile-name').textContent = profile.profilname || 'Standard';
-                document.getElementById('current-deckbreite').textContent = (profile.deckbreite || 1000) + ' mm';
-                document.getElementById('current-lieferbreite').textContent = (profile.lieferbreite || 1050) + ' mm';
-                document.getElementById('current-seitenueberlappung').textContent = (profile.seitenueberlappung || 50) + ' mm';
+                console.log('Profil-Daten verfügbar, fülle UI-Felder...');
+                
+                const profilName = profile.profilname || 'Standard';
+                const deckbreite = profile.deckbreite || 1000;
+                const lieferbreite = profile.lieferbreite || 1050;
+                const seitenueberlappung = profile.seitenueberlappung || 50;
+                
+                console.log('Setze UI-Werte:', {
+                    profilName,
+                    deckbreite,
+                    lieferbreite,
+                    seitenueberlappung
+                });
+                
+                const nameElement = document.getElementById('current-profile-name');
+                const deckbreiteElement = document.getElementById('current-deckbreite');
+                const lieferbreiteElement = document.getElementById('current-lieferbreite');
+                const seitenueberlappungElement = document.getElementById('current-seitenueberlappung');
+                
+                console.log('UI-Elemente gefunden:', {
+                    nameElement: !!nameElement,
+                    deckbreiteElement: !!deckbreiteElement,
+                    lieferbreiteElement: !!lieferbreiteElement,
+                    seitenueberlappungElement: !!seitenueberlappungElement
+                });
+                
+                if (nameElement) nameElement.textContent = profilName;
+                if (deckbreiteElement) deckbreiteElement.textContent = deckbreite + ' mm';
+                if (lieferbreiteElement) lieferbreiteElement.textContent = lieferbreite + ' mm';
+                if (seitenueberlappungElement) seitenueberlappungElement.textContent = seitenueberlappung + ' mm';
+                
+                console.log('Profil-Info erfolgreich angezeigt');
             } else {
                 console.warn('Keine Profil-Daten gefunden!');
-                document.getElementById('current-profile-name').textContent = 'Nicht verfügbar';
-                document.getElementById('current-deckbreite').textContent = 'Nicht verfügbar';
-                document.getElementById('current-lieferbreite').textContent = 'Nicht verfügbar';
-                document.getElementById('current-seitenueberlappung').textContent = 'Nicht verfügbar';
+                
+                const elements = [
+                    'current-profile-name',
+                    'current-deckbreite', 
+                    'current-lieferbreite',
+                    'current-seitenueberlappung'
+                ];
+                
+                elements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = 'Nicht verfügbar';
+                        element.style.color = 'red';
+                    }
+                });
             }
         }
 
