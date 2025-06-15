@@ -512,7 +512,7 @@
             }
         }
 
-        // ERWEITERTE Dreieck-Eingabefelder mit allen Parametern
+        // ERWEITERTE Dreieck-Eingabefelder mit korrigierten Event Handlers
         function generateTriangleInputFields() {
             const container = document.getElementById('geometry-inputs-grid');
             const variant = projectData.roofShape?.variant || 'gleichseitig';
@@ -522,21 +522,21 @@
                     <div class="input-group">
                         <label for="dim-side-a">Seite a (Basis):</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="dim-side-a" step="0.1" min="0.1" value="${currentValues.sideA || 10}" onchange="updateTriangleValue('sideA', this.value)">
+                            <input type="number" id="dim-side-a" step="0.1" min="0.1" value="${currentValues.sideA || 10}">
                             <span class="input-unit">m</span>
                         </div>
                     </div>
                     <div class="input-group">
                         <label for="dim-side-b">Seite b:</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="dim-side-b" step="0.1" value="${currentValues.sideB || ''}" onchange="updateTriangleValue('sideB', this.value)" placeholder="auto" readonly>
+                            <input type="number" id="dim-side-b" step="0.1" value="${currentValues.sideB || ''}" placeholder="auto" readonly>
                             <span class="input-unit">m</span>
                         </div>
                     </div>
                     <div class="input-group">
                         <label for="dim-side-c">Seite c:</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="dim-side-c" step="0.1" value="${currentValues.sideC || ''}" onchange="updateTriangleValue('sideC', this.value)" placeholder="auto" readonly>
+                            <input type="number" id="dim-side-c" step="0.1" value="${currentValues.sideC || ''}" placeholder="auto" readonly>
                             <span class="input-unit">m</span>
                         </div>
                     </div>
@@ -581,21 +581,21 @@
                     <div class="input-group">
                         <label for="dim-side-a">Kathete a:</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="dim-side-a" step="0.1" min="0.1" value="${currentValues.sideA || 10}" onchange="updateTriangleValue('sideA', this.value)">
+                            <input type="number" id="dim-side-a" step="0.1" min="0.1" value="${currentValues.sideA || 10}">
                             <span class="input-unit">m</span>
                         </div>
                     </div>
                     <div class="input-group">
                         <label for="dim-side-b">Kathete b:</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="dim-side-b" step="0.1" min="0.1" value="${currentValues.sideB || 8}" onchange="updateTriangleValue('sideB', this.value)">
+                            <input type="number" id="dim-side-b" step="0.1" min="0.1" value="${currentValues.sideB || 8}">
                             <span class="input-unit">m</span>
                         </div>
                     </div>
                     <div class="input-group">
                         <label for="dim-side-c">Hypotenuse c:</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="dim-side-c" step="0.1" value="${currentValues.sideC || ''}" onchange="updateTriangleValue('sideC', this.value)" placeholder="auto" readonly>
+                            <input type="number" id="dim-side-c" step="0.1" value="${currentValues.sideC || ''}" placeholder="auto" readonly>
                             <span class="input-unit">m</span>
                         </div>
                     </div>
@@ -633,35 +633,35 @@
                     <div class="input-group">
                         <label for="dim-side-a">Seite a (Basis):</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="dim-side-a" step="0.1" min="0.1" value="${currentValues.sideA || 10}" onchange="updateTriangleValue('sideA', this.value)">
+                            <input type="number" id="dim-side-a" step="0.1" min="0.1" value="${currentValues.sideA || 6}">
                             <span class="input-unit">m</span>
                         </div>
                     </div>
                     <div class="input-group">
                         <label for="dim-side-b">Seite b (links):</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="dim-side-b" step="0.1" min="0.1" value="${currentValues.sideB || 7}" onchange="updateTriangleValue('sideB', this.value)">
+                            <input type="number" id="dim-side-b" step="0.1" value="${currentValues.sideB || ''}" placeholder="auto" readonly>
                             <span class="input-unit">m</span>
                         </div>
                     </div>
                     <div class="input-group">
                         <label for="dim-side-c">Seite c (rechts):</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="dim-side-c" step="0.1" min="0.1" value="${currentValues.sideC || 9}" onchange="updateTriangleValue('sideC', this.value)">
+                            <input type="number" id="dim-side-c" step="0.1" value="${currentValues.sideC || ''}" placeholder="auto" readonly>
                             <span class="input-unit">m</span>
                         </div>
                     </div>
                     <div class="input-group">
                         <label for="dim-height">Höhe h:</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="dim-height" step="0.1" min="0.1" value="${currentValues.height || 8}" onchange="updateTriangleValue('height', this.value)">
+                            <input type="number" id="dim-height" step="0.1" min="0.1" value="${currentValues.height || 4}">
                             <span class="input-unit">m</span>
                         </div>
                     </div>
                     <div class="input-group">
                         <label for="dim-offset">Spitzen-Versatz:</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="dim-offset" step="0.1" value="${currentValues.offset || 3}" onchange="updateTriangleValue('offset', this.value)">
+                            <input type="number" id="dim-offset" step="0.1" value="${currentValues.offset || 3}">
                             <span class="input-unit">m</span>
                         </div>
                     </div>
@@ -682,12 +682,63 @@
                     <div class="input-group">
                         <label>Fläche:</label>
                         <div class="input-group-wrapper">
-                            <input type="number" id="calc-area-display" step="0.1" readonly value="${((currentValues.sideA || 10) * (currentValues.height || 8) / 2).toFixed(1)}">
+                            <input type="number" id="calc-area-display" step="0.1" readonly value="${((currentValues.sideA || 6) * (currentValues.height || 4) / 2).toFixed(1)}">
                             <span class="input-unit">m²</span>
                         </div>
                     </div>
                 `;
             }
+            
+            // KRITISCH: Event Listener NACH dem HTML setzen
+            attachTriangleEventListeners();
+        }
+
+        // Neue Funktion: Event Listeners für Dreieck-Eingaben
+        function attachTriangleEventListeners() {
+            console.log('Füge Event Listeners für Dreieck hinzu');
+            
+            const sideAInput = document.getElementById('dim-side-a');
+            const sideBInput = document.getElementById('dim-side-b');
+            const sideCInput = document.getElementById('dim-side-c');
+            const heightInput = document.getElementById('dim-height');
+            const offsetInput = document.getElementById('dim-offset');
+            
+            if (sideAInput) {
+                sideAInput.addEventListener('input', function() {
+                    console.log('Seite A geändert:', this.value);
+                    updateTriangleValue('sideA', this.value);
+                });
+            }
+            
+            if (sideBInput && !sideBInput.readOnly) {
+                sideBInput.addEventListener('input', function() {
+                    console.log('Seite B geändert:', this.value);
+                    updateTriangleValue('sideB', this.value);
+                });
+            }
+            
+            if (sideCInput && !sideCInput.readOnly) {
+                sideCInput.addEventListener('input', function() {
+                    console.log('Seite C geändert:', this.value);
+                    updateTriangleValue('sideC', this.value);
+                });
+            }
+            
+            if (heightInput && !heightInput.readOnly) {
+                heightInput.addEventListener('input', function() {
+                    console.log('Höhe geändert:', this.value);
+                    updateTriangleValue('height', this.value);
+                });
+            }
+            
+            if (offsetInput) {
+                offsetInput.addEventListener('input', function() {
+                    console.log('Offset geändert:', this.value);
+                    updateTriangleValue('offset', this.value);
+                });
+            }
+            
+            console.log('Event Listeners erfolgreich hinzugefügt');
         }
 
         // Eingabefelder generieren (KORRIGIERT)
@@ -707,6 +758,40 @@
             } else {
                 generateRectangleInputFields();
             }
+            
+            // WICHTIG: Event Listeners für alle anderen Formen
+            attachGeneralEventListeners();
+        }
+
+        // Event Listeners für alle anderen Eingabefelder
+        function attachGeneralEventListeners() {
+            const lengthInput = document.getElementById('dim-length');
+            const widthInput = document.getElementById('dim-width');
+            
+            if (lengthInput) {
+                lengthInput.addEventListener('input', function() {
+                    updateValue('length', this.value);
+                });
+            }
+            
+            if (widthInput) {
+                widthInput.addEventListener('input', function() {
+                    updateValue('width', this.value);
+                });
+            }
+            
+            // Trapez Event Listeners
+            const trapezInputs = ['dim-side-a', 'dim-side-c', 'dim-height', 'dim-side-b', 'dim-side-d'];
+            const trapezFields = ['sideA', 'sideC', 'height', 'sideB', 'sideD'];
+            
+            trapezInputs.forEach((inputId, index) => {
+                const input = document.getElementById(inputId);
+                if (input && !input.readOnly) {
+                    input.addEventListener('input', function() {
+                        updateTrapezValue(trapezFields[index], this.value);
+                    });
+                }
+            });
         }
 
         // Standard Rechteck-Eingabe
