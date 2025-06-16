@@ -36,21 +36,58 @@ function loadProjectData() {
                        sessionStorage.getItem('dachplattenrechner_data');
     
     if (!dataString) {
-        alert('Keine Projektdaten gefunden.');
-        window.location.href = 'profil.html';
+        console.log('Keine Projektdaten gefunden, verwende Standard-Daten');
+        // Erstelle Standard-Projektdaten für Demo
+        projectData = {
+            profile: {
+                profilname: 'Standard Profil',
+                deckbreite: 1000,
+                lieferbreite: 1050,
+                seitenueberlappung: 50
+            },
+            roofShape: {
+                baseShape: 'viereck',
+                variant: 'rechteck'
+            }
+        };
         return;
     }
 
     try {
         projectData = JSON.parse(dataString);
         
-        if (!projectData.profile || !projectData.roofShape) {
-            throw new Error('Unvollständige Daten');
+        if (!projectData.profile) {
+            console.log('Profile-Daten fehlen, erstelle Standard-Profil');
+            projectData.profile = {
+                profilname: 'Standard Profil',
+                deckbreite: 1000,
+                lieferbreite: 1050,
+                seitenueberlappung: 50
+            };
+        }
+        
+        if (!projectData.roofShape) {
+            console.log('RoofShape-Daten fehlen, erstelle Standard-Form');
+            projectData.roofShape = {
+                baseShape: 'viereck',
+                variant: 'rechteck'
+            };
         }
         
     } catch (e) {
-        alert('Fehler beim Laden der Daten.');
-        window.location.href = 'index.html';
+        console.log('Fehler beim Parsen der Daten, verwende Standard-Daten');
+        projectData = {
+            profile: {
+                profilname: 'Standard Profil',
+                deckbreite: 1000,
+                lieferbreite: 1050,
+                seitenueberlappung: 50
+            },
+            roofShape: {
+                baseShape: 'viereck',
+                variant: 'rechteck'
+            }
+        };
     }
 }
 
@@ -248,16 +285,21 @@ function getTraufePositionText() {
 
 function loadAndDrawShape() {
     const roofShape = projectData.roofShape;
-    if (!roofShape) return;
-    
-    currentShape = roofShape.baseShape;
-    currentVariant = roofShape.variant;
-    
-    // Lade gespeicherte Transformationen
-    if (roofShape.rotation !== undefined) currentRotation = roofShape.rotation;
-    if (roofShape.mirroredH !== undefined) isMirroredH = roofShape.mirroredH;
-    if (roofShape.mirroredV !== undefined) isMirroredV = roofShape.mirroredV;
-    if (roofShape.traufePosition !== undefined) traufePosition = roofShape.traufePosition;
+    if (!roofShape) {
+        console.log('Keine roofShape-Daten gefunden, verwende Standard-Rechteck');
+        // Fallback: Standard-Rechteck wenn keine Daten vorhanden
+        currentShape = 'viereck';
+        currentVariant = 'rechteck';
+    } else {
+        currentShape = roofShape.baseShape || 'viereck';
+        currentVariant = roofShape.variant || 'rechteck';
+        
+        // Lade gespeicherte Transformationen
+        if (roofShape.rotation !== undefined) currentRotation = roofShape.rotation;
+        if (roofShape.mirroredH !== undefined) isMirroredH = roofShape.mirroredH;
+        if (roofShape.mirroredV !== undefined) isMirroredV = roofShape.mirroredV;
+        if (roofShape.traufePosition !== undefined) traufePosition = roofShape.traufePosition;
+    }
     
     createInputFields();
     
@@ -1158,7 +1200,6 @@ function selectTraufeSide(side, name) {
     disableSideSelection();
     
     // Setze Traufe-Position
-    const oldPosition = traufePosition;
     traufePosition = side;
     
     // Rotiere entsprechend
@@ -1252,26 +1293,7 @@ window.cancelTraufeSelection = function() {
     disableSideSelection();
     hideTraufeInstructions();
     showFeedback('Traufe-Auswahl abgebrochen');
-}; white; text-align: center;">
-                ↓<br><strong>Untere Seite</strong><br><small>ist die Traufe</small>
-            </button>
-            <button onclick="setTraufePosition('left')" style="padding: 15px 25px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
-                ←<br><strong>Linke Seite</strong><br><small>ist die Traufe</small>
-            </button>
-            <button onclick="setTraufePosition('right')" style="padding: 15px 25px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
-                →<br><strong>Rechte Seite</strong><br><small>ist die Traufe</small>
-            </button>
-        </div>
-        
-        <button onclick="closeTraufeDialog()" style="margin-top: 10px; padding: 12px 24px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 8px;">Abbrechen</button>
-        
-        <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 6px; font-size: 12px; max-width: 450px; text-align: center;">
-            💡 Die gewählte Seite wird nach unten gedreht und das Dach wird entsprechend ausgerichtet.
-        </div>
-    `;
-    
-    document.body.appendChild(overlay);
-}
+};
 
 // Globale Funktionen für Traufe-Dialog
 window.setTraufePosition = function(position) {
