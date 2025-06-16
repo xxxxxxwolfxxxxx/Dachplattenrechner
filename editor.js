@@ -415,28 +415,32 @@ function handleInputChange() {
 
 function updateShape() {
     if (!svg) {
-        console.log('SVG nicht verfügbar');
+        console.log('❌ SVG nicht verfügbar');
         return;
     }
     
     const shapeGroup = document.getElementById('roof-shape');
     if (!shapeGroup) {
-        console.log('Shape-Group nicht gefunden');
+        console.log('❌ Shape-Group nicht gefunden');
         return;
     }
     
-    console.log('Aktualisiere Form...');
+    console.log('=== UPDATE SHAPE DEBUG ===');
+    console.log('Aktuelle Rotation beim Update:', currentRotation);
     
+    // WICHTIG: Komplett leeren und neu aufbauen
     shapeGroup.innerHTML = '';
     
     const currentData = getCurrentFormData();
-    console.log('Aktuelle Form-Daten:', currentData);
+    console.log('Form-Daten:', currentData);
     
+    // Neue Form zeichnen
     drawTransformedShape(shapeGroup, currentData);
     updateCalculations(currentData);
     updateDirectionInfo();
     
-    console.log('Form erfolgreich aktualisiert');
+    console.log('✅ Form-Update abgeschlossen');
+    console.log('=== ENDE UPDATE SHAPE ===');
 }
 
 function getCurrentFormData() {
@@ -465,21 +469,36 @@ function getCurrentFormData() {
 }
 
 function drawTransformedShape(group, data) {
+    console.log('=== DRAW TRANSFORM DEBUG ===');
+    console.log('Aktuelle Rotation:', currentRotation);
+    console.log('Ist gespiegelt H:', isMirroredH, 'V:', isMirroredV);
+    
     const transformGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     
-    let transform = `translate(${CANVAS_CENTER_X}, ${CANVAS_CENTER_Y})`;
+    // KORRIGIERTE Transform-Reihenfolge
+    let transform = '';
     
+    // 1. Erst zum Mittelpunkt verschieben
+    transform += `translate(${CANVAS_CENTER_X}, ${CANVAS_CENTER_Y}) `;
+    
+    // 2. Dann rotieren (um den Mittelpunkt)
     if (currentRotation !== 0) {
-        transform += ` rotate(${currentRotation})`;
+        transform += `rotate(${currentRotation}) `;
+        console.log('Rotation angewendet:', currentRotation);
     }
     
+    // 3. Dann spiegeln (falls nötig)
     let scaleX = isMirroredH ? -1 : 1;
     let scaleY = isMirroredV ? -1 : 1;
     if (scaleX !== 1 || scaleY !== 1) {
-        transform += ` scale(${scaleX}, ${scaleY})`;
+        transform += `scale(${scaleX}, ${scaleY}) `;
+        console.log('Spiegelung angewendet:', scaleX, scaleY);
     }
     
-    transform += ` translate(${-CANVAS_CENTER_X}, ${-CANVAS_CENTER_Y})`;
+    // 4. Zurück vom Mittelpunkt
+    transform += `translate(${-CANVAS_CENTER_X}, ${-CANVAS_CENTER_Y})`;
+    
+    console.log('Finale Transform:', transform);
     
     transformGroup.setAttribute('transform', transform);
     
@@ -488,6 +507,8 @@ function drawTransformedShape(group, data) {
     
     // Bemaßung hinzufügen (NACH der Transformation)
     addDimensionLines(group, data);
+    
+    console.log('=== ENDE DRAW TRANSFORM ===');
 }
 
 function addDimensionLines(group, data) {
