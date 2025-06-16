@@ -703,4 +703,619 @@ function setupEventListeners() {
     
     if (continueBtn) {
         continueBtn.addEventListener('click', () => {
-            saveCurrent
+            saveCurrentData();
+            window.location.href = 'berechnung.html';
+        });
+    }
+    
+    setupToolButtons();
+}
+
+function setupToolButtons() {
+    const tools = {
+        'btn-reset': resetToDefaults,
+        'btn-mirror-horizontal': () => {
+            isMirroredH = !isMirroredH;
+            updateShape();
+            showFeedback(isMirroredH ? 'Horizontal gespiegelt' : 'Horizontale Spiegelung aufgehoben');
+        },
+        'btn-mirror-vertical': () => {
+            isMirroredV = !isMirroredV;
+            updateShape();
+            showFeedback(isMirroredV ? 'Vertikal gespiegelt' : 'Vertikale Spiegelung aufgehoben');
+        },
+        'btn-rotate-left': () => {
+            currentRotation -= 45;
+            if (currentRotation <= -180) currentRotation += 360;
+            updateShape();
+            showFeedback(`Um 45° links gedreht (${currentRotation}°)`);
+        },
+        'btn-rotate-right': () => {
+            currentRotation += 45;
+            if (currentRotation >= 180) currentRotation -= 360;
+            updateShape();
+            showFeedback(`Um 45° rechts gedreht (${currentRotation}°)`);
+        },
+        'btn-traufe': selectTraufePosition
+    };
+    
+    Object.entries(tools).forEach(([id, handler]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('click', handler);
+        }
+    });
+}
+
+function selectTraufePosition() {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: Arial, sans-serif;
+    `;
+    
+    overlay.innerHTML = `
+        <h3 style="margin-bottom: 20px; font-size: 24px; text-align: center;">🏠 Traufe-Position bestimmen</h3>
+        <p style="margin-bottom: 30px; text-align: center; font-size: 16px; max-width: 500px; line-height: 1.4;">
+            Die <strong>Traufe</strong> ist die Seite des Daches, wo das Regenwasser abfließt.<br>
+            Welche Seite Ihrer Form soll die <strong>Traufe</strong> (unten im Bild) werden?
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+            <button onclick="setTraufePosition('bottom')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #28a745; color: white; text-align: center;">
+                ↓<br><strong>Aktuelle Unterseite</strong><br><small>wird zur Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('top')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                ↑<br><strong>Aktuelle Oberseite</strong><br><small>wird zur Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('left')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                ←<br><strong>Aktuelle Linke Seite</strong><br><small>wird zur Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('right')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                →<br><strong>Aktuelle Rechte Seite</strong><br><small>wird zur Traufe</small>
+            </button>
+        </div>
+        <button onclick="closeTraufeDialog()" style="margin-top: 10px; padding: 12px 24px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 8px;">Abbrechen</button>
+        <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 6px; font-size: 12px; max-width: 400px; text-align: center;">
+            💡 Die Traufe bestimmt die Verlegerichtung: Dachplatten werden immer senkrecht zur Traufe verlegt.
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+// Globale Funktionen für Traufe-Dialog
+window.setTraufePosition = function(position) {
+    const oldPosition = traufePosition;
+    traufePosition = position;
+    
+    // Rotiere das Dach so, dass die gewählte Seite nach unten zeigt
+    switch(position) {
+        case 'top':
+            // Oberseite wird zur Traufe -> 180° drehen
+            currentRotation = 180;
+            break;
+        case 'right':
+            // Rechte Seite wird zur Traufe -> 90° nach rechts drehen
+            currentRotation = 90;
+            break;
+        case 'bottom':
+            // Unterseite bleibt Traufe -> keine Drehung
+            currentRotation = 0;
+            break;
+        case 'left':
+            // Linke Seite wird zur Traufe -> 90° nach links drehen
+            currentRotation = -90;
+            break;
+    }
+    
+    updateShape();
+    closeTraufeDialog();
+    
+    const positionNames = {
+        'top': 'obere Seite',
+        'right': 'rechte Seite',
+        'bottom': 'untere Seite (Standard)',
+        'left': 'linke Seite'
+    };
+    
+    showFeedback(`Traufe geändert: ${positionNames[position]} ist jetzt unten (Wasserabfluss)`);
+};
+
+window.closeTraufeDialog = function() {
+    const overlays = document.querySelectorAll('[style*="position: fixed"]');
+    overlays.forEach(overlay => {
+        if (overlay.parentNode && overlay.innerHTML.includes('Traufe-Position')) {
+            overlay.parentNode.removeChild(overlay);
+        }
+    });
+};
+
+function showFeedback(message) {
+    const feedback = document.createElement('div');
+    feedback.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        max-width: 300px;
+        font-size: 14px;
+    `;
+    feedback.textContent = message;
+    document.body.appendChild(feedback);
+    
+    setTimeout(() => {
+        if (feedback.parentNode) {
+            document.body.removeChild(feedback);
+        }
+    }, 3000);
+}
+
+function resetToDefaults() {
+    currentRotation = 0;
+    isMirroredH = false;
+    isMirroredV = false;
+    traufePosition = 'bottom';
+    
+    const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    
+    inputs.forEach(input => {
+        switch(input.id) {
+            case 'side': input.value = currentVariant === 'quadrat' ? '5' : '6'; break;
+            case 'katheteA': input.value = '4'; break;
+            case 'katheteB': input.value = '5'; break;
+            case 'sideA': input.value = '4'; break;
+            case 'sideB': input.value = '5'; break;
+            case 'sideC': input.value = '6'; break;
+            case 'radius': input.value = '4'; break;
+            case 'radiusA': input.value = '5'; break;
+            case 'radiusB': input.value = '3'; break;
+            case 'length': input.value = '8'; break;
+            case 'width': input.value = '5'; break;
+            case 'base': input.value = '8'; break;
+            case 'baseA': input.value = '8'; break;
+            case 'baseB': input.value = '5'; break;
+            case 'height': input.value = '4'; break;
+        }
+    });
+    
+    updateShape();
+    showFeedback('🔄 Zurückgesetzt: Form, Rotation, Spiegelung und Traufe');
+}
+
+function saveCurrentData() {
+    const currentData = getCurrentFormData();
+    
+    // Speichere alle Transformationen
+    currentData.rotation = currentRotation;
+    currentData.mirroredH = isMirroredH;
+    currentData.mirroredV = isMirroredV;
+    currentData.traufePosition = traufePosition;
+    
+    // Speichere Verlegerichtung für nachfolgende Berechnungen
+    const direction = getVerlegerichtung();
+    currentData.verlegerichtung = direction.code;
+    currentData.verlegerichtungName = direction.name;
+    currentData.verlegerichtungDescription = direction.description;
+    
+    if (!projectData.roofShape) {
+        projectData.roofShape = {};
+    }
+    
+    // Erweitere bestehende roofShape-Daten
+    Object.assign(projectData.roofShape, currentData);
+    
+    // Erstelle Punkte für die weitere Verarbeitung
+    projectData.roofShape.points = generateRoofPoints(currentData);
+    
+    // Zusätzliche Geometrie-Daten für Berechnung
+    projectData.geometry = {
+        shapeType: determineActualShape(),
+        variant: determineActualVariant(),
+        points: projectData.roofShape.points,
+        preferredDirection: direction.code,
+        traufePosition: traufePosition,
+        rotation: currentRotation,
+        area: calculateArea(currentData),
+        dimensions: calculateDimensions(currentData)
+    };
+    
+    console.log('💾 Speichere Daten:', {
+        roofShape: projectData.roofShape,
+        geometry: projectData.geometry
+    });
+    
+    try {
+        localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+        console.log('✅ Erfolgreich in localStorage gespeichert');
+    } catch (e) {
+        sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+        console.log('✅ Erfolgreich in sessionStorage gespeichert');
+    }
+}
+
+function generateRoofPoints(data) {
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    let points = [];
+    
+    switch (finalShape) {
+        case 'rechteck':
+            const length = data.length || 8;
+            const width = data.width || 5;
+            points = [
+                { x: 0, y: 0 },
+                { x: length, y: 0 },
+                { x: length, y: width },
+                { x: 0, y: width }
+            ];
+            break;
+            
+        case 'quadrat':
+            const side = data.side || 5;
+            points = [
+                { x: 0, y: 0 },
+                { x: side, y: 0 },
+                { x: side, y: side },
+                { x: 0, y: side }
+            ];
+            break;
+            
+        case 'dreieck':
+            if (finalVariant === 'gleichseitig') {
+                const triangleSide = data.side || 6;
+                const height = triangleSide * Math.sqrt(3) / 2;
+                points = [
+                    { x: triangleSide/2, y: height },
+                    { x: 0, y: 0 },
+                    { x: triangleSide, y: 0 }
+                ];
+            } else if (finalVariant === 'rechtwinklig') {
+                const a = data.katheteA || 4;
+                const b = data.katheteB || 5;
+                points = [
+                    { x: 0, y: 0 },
+                    { x: a, y: 0 },
+                    { x: 0, y: b }
+                ];
+            } else {
+                // Allgemeines Dreieck
+                const a = data.sideA || 4;
+                const b = data.sideB || 5;
+                const c = data.sideC || 6;
+                const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
+                points = [
+                    { x: a/2, y: height },
+                    { x: 0, y: 0 },
+                    { x: a, y: 0 }
+                ];
+            }
+            break;
+            
+        case 'trapez':
+            const baseA = data.baseA || 8;
+            const baseB = data.baseB || 5;
+            const height = data.height || 4;
+            const offset = (baseA - baseB) / 2;
+            points = [
+                { x: 0, y: 0 },
+                { x: baseA, y: 0 },
+                { x: baseA - offset, y: height },
+                { x: offset, y: height }
+            ];
+            break;
+            
+        case 'kreis':
+            if (finalVariant === 'oval') {
+                const radiusA = data.radiusA || 5;
+                const radiusB = data.radiusB || 3;
+                // Approximiere Oval mit 16 Punkten
+                for (let i = 0; i < 16; i++) {
+                    const angle = (i * 2 * Math.PI) / 16;
+                    points.push({
+                        x: radiusA + radiusA * Math.cos(angle),
+                        y: radiusB + radiusB * Math.sin(angle)
+                    });
+                }
+            } else {
+                const radius = data.radius || 4;
+                // Approximiere Kreis mit 16 Punkten
+                for (let i = 0; i < 16; i++) {
+                    const angle = (i * 2 * Math.PI) / 16;
+                    points.push({
+                        x: radius + radius * Math.cos(angle),
+                        y: radius + radius * Math.sin(angle)
+                    });
+                }
+            }
+            break;
+            
+        default:
+            // Fallback: Rechteck
+            points = [
+                { x: 0, y: 0 },
+                { x: 8, y: 0 },
+                { x: 8, y: 5 },
+                { x: 0, y: 5 }
+            ];
+    }
+    
+    return points;
+}
+
+function calculateArea(data) {
+    const finalShape = determineActualShape();
+    
+    switch (finalShape) {
+        case 'rechteck':
+            return (data.length || 8) * (data.width || 5);
+        case 'quadrat':
+            const side = data.side || 5;
+            return side * side;
+        case 'dreieck':
+            if (determineActualVariant() === 'rechtwinklig') {
+                return 0.5 * (data.katheteA || 4) * (data.katheteB || 5);
+            }
+            return 10; // Vereinfacht für andere Dreiecke
+        case 'trapez':
+            const baseA = data.baseA || 8;
+            const baseB = data.baseB || 5;
+            const height = data.height || 4;
+            return 0.5 * (baseA + baseB) * height;
+        default:
+            return 40; // Fallback
+    }
+}
+
+function calculateDimensions(data) {
+    const finalShape = determineActualShape();
+    
+    switch (finalShape) {
+        case 'rechteck':
+            return {
+                length: data.length || 8,
+                width: data.width || 5
+            };
+        case 'quadrat':
+            const side = data.side || 5;
+            return {
+                length: side,
+                width: side
+            };
+        default:
+            return {
+                length: 8,
+                width: 5
+            };
+    }
+}
+
+function drawDimensions(group, data) {
+    // Vereinfachte Bemaßung für das aktuelle Rechteck/Quadrat
+    const finalShape = determineActualShape();
+    
+    if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        let width, height;
+        
+        if (finalShape === 'quadrat') {
+            const side = (data.side || 5) * SCALE_FACTOR;
+            width = height = side;
+        } else {
+            width = (data.length || 8) * SCALE_FACTOR;
+            height = (data.width || 5) * SCALE_FACTOR;
+        }
+        
+        const x = CANVAS_CENTER_X - width/2;
+        const y = CANVAS_CENTER_Y - height/2;
+        
+        // Horizontale Bemaßung unten
+        const dimLineY = y + height + 20;
+        const dimLine1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        dimLine1.setAttribute('x1', x);
+        dimLine1.setAttribute('y1', dimLineY);
+        dimLine1.setAttribute('x2', x + width);
+        dimLine1.setAttribute('y2', dimLineY);
+        dimLine1.setAttribute('stroke', '#666');
+        dimLine1.setAttribute('stroke-width', '1');
+        group.appendChild(dimLine1);
+        
+        const dimText1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        dimText1.setAttribute('x', x + width/2);
+        dimText1.setAttribute('y', dimLineY + 15);
+        dimText1.setAttribute('text-anchor', 'middle');
+        dimText1.setAttribute('fill', '#666');
+        dimText1.setAttribute('font-size', '11');
+        dimText1.textContent = `${(data.length || data.side || 8).toFixed(1)}m`;
+        group.appendChild(dimText1);
+        
+        // Vertikale Bemaßung rechts (nur bei Rechteck)
+        if (finalShape === 'rechteck') {
+            const dimLineX = x + width + 20;
+            const dimLine2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            dimLine2.setAttribute('x1', dimLineX);
+            dimLine2.setAttribute('y1', y);
+            dimLine2.setAttribute('x2', dimLineX);
+            dimLine2.setAttribute('y2', y + height);
+            dimLine2.setAttribute('stroke', '#666');
+            dimLine2.setAttribute('stroke-width', '1');
+            group.appendChild(dimLine2);
+            
+            const dimText2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            dimText2.setAttribute('x', dimLineX + 15);
+            dimText2.setAttribute('y', y + height/2);
+            dimText2.setAttribute('text-anchor', 'middle');
+            dimText2.setAttribute('fill', '#666');
+            dimText2.setAttribute('font-size', '11');
+            dimText2.setAttribute('transform', `rotate(90, ${dimLineX + 15}, ${y + height/2})`);
+            dimText2.textContent = `${(data.width || 5).toFixed(1)}m`;
+            group.appendChild(dimText2);
+        }
+    }
+}
+
+// Weitere draw-Funktionen (vereinfacht, da sie dem gleichen Muster folgen)
+function drawTriangle(group, data, variant) {
+    let points = '';
+    
+    if (variant === 'gleichseitig') {
+        const side = (data.side || 6) * SCALE_FACTOR;
+        const height = side * Math.sqrt(3) / 2;
+        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - side/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + side/2},${CANVAS_CENTER_Y + height/2}`;
+    } else if (variant === 'rechtwinklig') {
+        const a = (data.katheteA || 4) * SCALE_FACTOR;
+        const b = (data.katheteB || 5) * SCALE_FACTOR;
+        points = `${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X + a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y - b/2}`;
+    } else {
+        const a = (data.sideA || 4) * SCALE_FACTOR;
+        const height = a * 0.8;
+        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + a/2 - 20},${CANVAS_CENTER_Y + height/2}`;
+    }
+    
+    const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    triangle.setAttribute('points', points);
+    triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    triangle.setAttribute('stroke', '#007bff');
+    triangle.setAttribute('stroke-width', '3');
+    
+    group.appendChild(triangle);
+}
+
+function drawCircle(group, data, variant) {
+    if (variant === 'oval') {
+        const radiusA = (data.radiusA || 5) * SCALE_FACTOR;
+        const radiusB = (data.radiusB || 3) * SCALE_FACTOR;
+        
+        const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        ellipse.setAttribute('cx', CANVAS_CENTER_X);
+        ellipse.setAttribute('cy', CANVAS_CENTER_Y);
+        ellipse.setAttribute('rx', radiusA);
+        ellipse.setAttribute('ry', radiusB);
+        ellipse.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+        ellipse.setAttribute('stroke', '#007bff');
+        ellipse.setAttribute('stroke-width', '3');
+        
+        group.appendChild(ellipse);
+    } else {
+        const radius = (data.radius || 4) * SCALE_FACTOR;
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', CANVAS_CENTER_X);
+        circle.setAttribute('cy', CANVAS_CENTER_Y);
+        circle.setAttribute('r', radius);
+        circle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+        circle.setAttribute('stroke', '#007bff');
+        circle.setAttribute('stroke-width', '3');
+        
+        group.appendChild(circle);
+    }
+}
+
+function drawTrapez(group, data) {
+    const baseA = (data.baseA || 8) * SCALE_FACTOR;
+    const baseB = (data.baseB || 5) * SCALE_FACTOR;
+    const height = (data.height || 4) * SCALE_FACTOR;
+    
+    const points = `${CANVAS_CENTER_X - baseA/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + baseA/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + baseB/2},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - baseB/2},${CANVAS_CENTER_Y - height/2}`;
+    
+    const trapez = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    trapez.setAttribute('points', points);
+    trapez.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    trapez.setAttribute('stroke', '#007bff');
+    trapez.setAttribute('stroke-width', '3');
+    
+    group.appendChild(trapez);
+}
+
+function drawParallelogramm(group, data) {
+    const base = (data.base || 8) * SCALE_FACTOR;
+    const height = (data.height || 4) * SCALE_FACTOR;
+    const shear = base * 0.3;
+    
+    const points = `${CANVAS_CENTER_X - base/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + base/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + base/2 - shear},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - base/2 - shear},${CANVAS_CENTER_Y - height/2}`;
+    
+    const parallelogramm = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    parallelogramm.setAttribute('points', points);
+    parallelogramm.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    parallelogramm.setAttribute('stroke', '#007bff');
+    parallelogramm.setAttribute('stroke-width', '3');
+    
+    group.appendChild(parallelogramm);
+}
+
+function drawRhombus(group, data) {
+    const side = (data.side || 5) * SCALE_FACTOR;
+    const height = (data.height || 4) * SCALE_FACTOR;
+    const width = side * 1.2;
+    
+    const points = `${CANVAS_CENTER_X - width/2},${CANVAS_CENTER_Y} ${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X + width/2},${CANVAS_CENTER_Y} ${CANVAS_CENTER_X},${CANVAS_CENTER_Y + height/2}`;
+    
+    const rhombus = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    rhombus.setAttribute('points', points);
+    rhombus.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    rhombus.setAttribute('stroke', '#007bff');
+    rhombus.setAttribute('stroke-width', '3');
+    
+    group.appendChild(rhombus);
+}
+
+function drawLangloch(group, data) {
+    const length = (data.length || 8) * SCALE_FACTOR;
+    const width = (data.width || 3) * SCALE_FACTOR;
+    const radius = Math.min((data.radius || 1) * SCALE_FACTOR, width / 2);
+    
+    const x = CANVAS_CENTER_X - length/2;
+    const y = CANVAS_CENTER_Y - width/2;
+    
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const d = `M ${x + radius} ${y} L ${x + length - radius} ${y} A ${radius} ${radius} 0 0 1 ${x + length - radius} ${y + width} L ${x + radius} ${y + width} A ${radius} ${radius} 0 0 1 ${x + radius} ${y} Z`;
+    
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    path.setAttribute('stroke', '#007bff');
+    path.setAttribute('stroke-width', '3');
+    
+    group.appendChild(path);
+}
+
+function drawPolygon(group, data, variant) {
+    if (['fuenfeck', 'sechseck', 'achteck'].includes(variant)) {
+        const sides = variant === 'fuenfeck' ? 5 : variant === 'sechseck' ? 6 : 8;
+        const radius = (data.side || 5) * SCALE_FACTOR / 2;
+        
+        let points = '';
+        for (let i = 0; i < sides; i++) {
+            const angle = (i * 2 * Math.PI / sides) - Math.PI / 2;
+            const x = CANVAS_CENTER_X + radius * Math.cos(angle);
+            const y = CANVAS_CENTER_Y + radius * Math.sin(angle);
+            points += `${x},${y} `;
+        }
+        
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', points.trim());
+        polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+        polygon.setAttribute('stroke', '#007bff');
+        polygon.setAttribute('stroke-width', '3');
+        
+        group.appendChild(polygon);
+    } else {
+        drawRectangle(group, data, 'rechteck');
+    }
+}
+
+console.log('✅ Verbesserter Editor mit korrekter Traufe-Logik geladen');
