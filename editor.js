@@ -46,28 +46,53 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadProjectData() {
+    console.log('=== EDITOR: LADE PROJEKTDATEN ===');
+    
     const dataString = localStorage.getItem('dachplattenrechner_data') || 
                        sessionStorage.getItem('dachplattenrechner_data');
     
+    console.log('Rohe Daten aus Storage:', dataString);
+    
     if (!dataString) {
-        console.warn('Keine Projektdaten gefunden - Weiterleitung zu Schritt 1');
+        console.error('❌ Keine Projektdaten gefunden - Weiterleitung zu Schritt 1');
+        alert('Keine Projektdaten gefunden. Sie werden zu Schritt 1 weitergeleitet.');
         window.location.href = 'profil.html';
         return;
     }
 
     try {
         projectData = JSON.parse(dataString);
-        console.log('Projektdaten geladen:', projectData);
+        console.log('✅ Projektdaten erfolgreich geparst:', projectData);
         
-        // Validiere notwendige Daten
-        if (!projectData.profile || !projectData.roofShape) {
-            throw new Error('Unvollständige Projektdaten');
+        // Detaillierte Validierung
+        if (!projectData.profile) {
+            console.error('❌ Keine Profil-Daten gefunden');
+            throw new Error('Keine Profil-Daten vorhanden');
         }
         
+        if (!projectData.roofShape) {
+            console.error('❌ Keine Dachform-Daten gefunden');
+            throw new Error('Keine Dachform-Daten vorhanden');
+        }
+        
+        console.log('✅ Alle notwendigen Daten vorhanden');
+        console.log('Profil:', projectData.profile);
+        console.log('Dachform:', projectData.roofShape);
+        
     } catch (e) {
-        console.error('Fehler beim Laden der Projektdaten:', e);
-        alert('Fehler beim Laden der Projektdaten. Bitte starten Sie neu.');
-        window.location.href = 'index.html';
+        console.error('❌ Fehler beim Laden der Projektdaten:', e);
+        
+        // Spezifische Fehlerbehandlung
+        if (e.message.includes('Profil')) {
+            alert('Profil-Daten fehlen. Sie werden zu Schritt 1 weitergeleitet.');
+            window.location.href = 'profil.html';
+        } else if (e.message.includes('Dachform')) {
+            alert('Dachform-Daten fehlen. Sie werden zu Schritt 2 weitergeleitet.');
+            window.location.href = 'dachform.html';
+        } else {
+            alert('Fehler beim Laden der Projektdaten. Bitte starten Sie neu.');
+            window.location.href = 'index.html';
+        }
     }
 }
 
