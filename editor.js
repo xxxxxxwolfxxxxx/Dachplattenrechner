@@ -1363,82 +1363,123 @@ function addRectangleClickAreas(rect) {
 }
 
 function addTriangleClickAreas(triangle) {
-    const points = triangle.getAttribute('points').split(' ');
+    // Hole die ECHTEN Punkte des gezeichneten Dreiecks
+    const pointsStr = triangle.getAttribute('points');
+    const points = pointsStr.split(' ').map(p => {
+        const [x, y] = p.split(',');
+        return { x: parseFloat(x), y: parseFloat(y) };
+    });
     
-    console.log('Dreieck-Punkte für Klickbereiche:', points);
+    console.log('📐 Erstelle Klickbereiche für Dreieck-Punkte:', points);
     
-    // KORRIGIERTE Zuordnung der Seiten basierend auf der tatsächlichen Geometrie
-    const sides = [
-        { 
-            name: 'bottom', 
-            points: [points[1], points[2]], // Untere horizontale Linie (zwischen 2. und 3. Punkt)
-            label: 'Basis als Traufe',
-            description: 'Basis horizontal unten (Standard)'
-        },
-        { 
-            name: 'left', 
-            points: [points[0], points[1]], // Linke Seite (zwischen 1. und 2. Punkt) 
-            label: 'Linke Seite als Traufe',
-            description: 'Linke Seite wird nach unten gedreht'
-        },
-        { 
-            name: 'right', 
-            points: [points[2], points[0]], // Rechte Seite (zwischen 3. und 1. Punkt)
-            label: 'Rechte Seite als Traufe', 
-            description: 'Rechte Seite wird nach unten gedreht'
-        }
-    ];
-    
-    sides.forEach((side, index) => {
-        // Mittelpunkt der Seite berechnen
-        const p1 = side.points[0].split(',');
-        const p2 = side.points[1].split(',');
-        const midX = (parseFloat(p1[0]) + parseFloat(p2[0])) / 2;
-        const midY = (parseFloat(p1[1]) + parseFloat(p2[1])) / 2;
+    // Erstelle Klickbereiche für ALLE drei Seiten
+    for (let i = 0; i < points.length; i++) {
+        const p1 = points[i];
+        const p2 = points[(i + 1) % points.length]; // Nächster Punkt (zyklisch)
         
-        console.log(`${side.name} Seite - Mittelpunkt:`, midX, midY);
+        // Mittelpunkt der Seite berechnen
+        const midX = (p1.x + p2.x) / 2;
+        const midY = (p1.y + p2.y) / 2;
+        
+        // Seitenlänge berechnen für bessere Beschriftung
+        const sideLength = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+        
+        // Bestimme welche "Seite" das ist basierend auf Position
+        let sideName = '';
+        let sideLabel = '';
+        
+        if (i === 0) {
+            // Erste Seite (meist bottom oder eine Hauptseite)
+            const avgY = (p1.y + p2.y) / 2;
+            if (avgY > points[2].y) {
+                sideName = 'bottom';
+                sideLabel = 'Basis';
+            } else {
+                sideName = 'left';
+                sideLabel = 'Linke Seite';
+            }
+        } else if (i === 1) {
+            sideName = 'right';
+            sideLabel = 'Rechte Seite';
+        } else {
+            sideName = 'left';
+            sideLabel = 'Linke Seite';
+        }
+        
+        console.log(`Seite ${i}: ${p1.x.toFixed(1)},${p1.y.toFixed(1)} → ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`);
+        console.log(`  Mittelpunkt: ${midX.toFixed(1)},${midY.toFixed(1)}, Länge: ${sideLength.toFixed(1)}`);
         
         // Klickbereich erstellen
         const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         clickArea.setAttribute('cx', midX);
         clickArea.setAttribute('cy', midY);
-        clickArea.setAttribute('r', '18');
-        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
+        clickArea.setAttribute('r', '20'); // Größerer Radius für bessere Klickbarkeit
+        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.5)');
         clickArea.setAttribute('stroke', '#ffff00');
         clickArea.setAttribute('stroke-width', '3');
         clickArea.classList.add('traufe-click-area');
         clickArea.style.cursor = 'pointer';
         
-        // Kleine Beschriftung hinzufügen
+        // Beschriftung mit Seitenlänge
         const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         label.setAttribute('x', midX);
         label.setAttribute('y', midY + 4);
         label.setAttribute('text-anchor', 'middle');
         label.setAttribute('font-family', 'Arial');
-        label.setAttribute('font-size', '10');
+        label.setAttribute('font-size', '11');
         label.setAttribute('font-weight', 'bold');
-        label.setAttribute('fill', '#333');
-        label.textContent = side.name.charAt(0).toUpperCase(); // B, L, R
+        label.setAttribute('fill', '#000');
+        label.textContent = `${sideLength.toFixed(1)}m`;
         label.classList.add('traufe-click-area');
+        
+        // Eindeutige ID für diese spezifische Seite
+        const sideId = `side-${i}`;
         
         clickArea.addEventListener('click', (e) => {
             e.stopPropagation();
-            console.log('Klick auf', side.name, 'Seite des Dreiecks');
-            setTraufePositionDirect(side.name);
+            console.log(`🎯 Klick auf Seite ${i} (${sideLength.toFixed(1)}m): ${p1.x.toFixed(1)},${p1.y.toFixed(1)} → ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`);
+            setTraufePositionForSpecificSide(i, p1, p2, sideLength);
         });
         
         clickArea.addEventListener('mouseenter', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.7)');
-            showFeedback(side.label);
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.8)');
+            showFeedback(`${sideLabel}: ${sideLength.toFixed(1)}m - Klicken um als Traufe zu setzen`);
         });
         
         clickArea.addEventListener('mouseleave', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.5)');
         });
         
         document.getElementById('roof-shape').appendChild(clickArea);
         document.getElementById('roof-shape').appendChild(label);
-    });
+    }
+}
+
+function setTraufePositionForSpecificSide(sideIndex, point1, point2, sideLength) {
+    console.log('=== SPEZIFISCHE SEITEN-TRAUFE ===');
+    console.log(`Seite ${sideIndex}: ${point1.x.toFixed(1)},${point1.y.toFixed(1)} → ${point2.x.toFixed(1)},${point2.y.toFixed(1)}`);
+    console.log(`Seitenlänge: ${sideLength.toFixed(1)}m`);
+    
+    // Berechne den Winkel dieser spezifischen Seite
+    const dx = point2.x - point1.x;
+    const dy = point2.y - point1.y;
+    const sideAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+    
+    console.log(`📐 Winkel der Seite: ${sideAngle.toFixed(1)}°`);
+    
+    // Um diese Seite horizontal zu machen, drehen wir um den negativen Winkel
+    const requiredRotation = -sideAngle;
+    
+    console.log(`🔄 Benötigte Rotation: ${requiredRotation.toFixed(1)}°`);
+    
+    currentRotation = requiredRotation;
+    
+    updateShape();
+    exitTraufeMode();
+    
+    showFeedback(`✅ Seite ${sideIndex + 1} (${sideLength.toFixed(1)}m) als Traufe gesetzt`);
+    
+    console.log('=== ENDE SPEZIFISCHE SEITEN-TRAUFE ===');
 }
 
 function addCircleClickAreas(circle) {
