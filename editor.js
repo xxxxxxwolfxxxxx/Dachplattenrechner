@@ -209,38 +209,160 @@ function createInputFields() {
     
     container.innerHTML = '';
     
-    // Erstelle passende Eingabefelder
-    if (currentShape === 'dreieck') {
-        switch (currentVariant) {
-            case 'gleichseitig':
-                container.appendChild(createInput('Seitenlänge (m)', 'side', '6'));
-                break;
-            case 'rechtwinklig':
-                container.appendChild(createInput('Kathete A (m)', 'katheteA', '4'));
-                container.appendChild(createInput('Kathete B (m)', 'katheteB', '5'));
-                break;
-            default:
-                container.appendChild(createInput('Seite A (m)', 'sideA', '4'));
-                container.appendChild(createInput('Seite B (m)', 'sideB', '5'));
-                container.appendChild(createInput('Seite C (m)', 'sideC', '6'));
-        }
-    } else if (currentShape === 'kreis') {
-        container.appendChild(createInput('Radius (m)', 'radius', '4'));
-    } else if (currentShape === 'rechteck' || currentShape === 'quadrat') {
-        if (currentVariant === 'quadrat') {
-            container.appendChild(createInput('Seitenlänge (m)', 'side', '5'));
-        } else {
-            container.appendChild(createInput('Länge (m)', 'length', '8'));
-            container.appendChild(createInput('Breite (m)', 'width', '5'));
-        }
-    } else if (currentShape === 'trapez') {
-        container.appendChild(createInput('Basis A (m)', 'baseA', '8'));
-        container.appendChild(createInput('Basis B (m)', 'baseB', '5'));
-        container.appendChild(createInput('Höhe (m)', 'height', '4'));
+    console.log('Erstelle Felder für:', currentShape, currentVariant);
+    
+    // ROBUSTE Form-Erkennung mit Fallback-Logik
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    console.log('Finale Form:', finalShape, finalVariant);
+    
+    // Erstelle passende Eingabefelder basierend auf finaler Form
+    if (finalShape === 'dreieck') {
+        createTriangleInputs(finalVariant, container);
+    } else if (finalShape === 'kreis') {
+        createCircleInputs(finalVariant, container);
+    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        createRectangleInputs(finalVariant, container);
+    } else if (finalShape === 'trapez') {
+        createTrapezInputs(container);
+    } else if (finalShape === 'rhombus') {
+        createRhombusInputs(container);
+    } else if (finalShape === 'langloch') {
+        createLanglochInputs(container);
+    } else if (finalShape === 'vieleck') {
+        createPolygonInputs(finalVariant, container);
     } else {
-        // Fallback
+        // Absoluter Fallback
+        console.warn('Unbekannte Form, verwende Rechteck-Fallback');
+        createRectangleInputs('rechteck', container);
+    }
+}
+
+function determineActualShape() {
+    // Intelligente Form-Bestimmung
+    
+    // Spezialfall: Quadrat kann als baseShape 'rechteck' oder 'viereck' haben
+    if (currentVariant === 'quadrat') {
+        return 'quadrat';
+    }
+    
+    // Spezialfall: Langloch kann unter 'kreis' kategorisiert sein
+    if (currentVariant === 'langloch') {
+        return 'langloch';
+    }
+    
+    // Spezialfall: Rhombus kann unter 'viereck' kategorisiert sein
+    if (currentVariant === 'rhombus') {
+        return 'rhombus';
+    }
+    
+    // Spezialfall: Verschiedene Vielecke
+    if (['fuenfeck', 'sechseck', 'achteck', 'lform', 'tform', 'uform'].includes(currentVariant)) {
+        return 'vieleck';
+    }
+    
+    // Standard: Verwende baseShape
+    return currentShape || 'rechteck';
+}
+
+function determineActualVariant() {
+    // Bereinige und validiere Variante
+    
+    const validVariants = {
+        'dreieck': ['gleichseitig', 'rechtwinklig', 'ungleichschenklig', 'allgemein'],
+        'kreis': ['kreis', 'vollkreis', 'halbkreis', 'viertelkreis', 'oval'],
+        'rechteck': ['rechteck'],
+        'quadrat': ['quadrat'],
+        'trapez': ['trapez'],
+        'rhombus': ['rhombus'],
+        'langloch': ['langloch'],
+        'vieleck': ['fuenfeck', 'sechseck', 'achteck', 'lform', 'tform', 'uform']
+    };
+    
+    const finalShape = determineActualShape();
+    
+    if (validVariants[finalShape] && validVariants[finalShape].includes(currentVariant)) {
+        return currentVariant;
+    }
+    
+    // Fallback auf erste gültige Variante
+    return validVariants[finalShape] ? validVariants[finalShape][0] : 'standard';
+}
+
+function createTriangleInputs(variant, container) {
+    switch (variant) {
+        case 'gleichseitig':
+            container.appendChild(createInput('Seitenlänge (m)', 'side', '6'));
+            break;
+        case 'rechtwinklig':
+            container.appendChild(createInput('Kathete A (m)', 'katheteA', '4'));
+            container.appendChild(createInput('Kathete B (m)', 'katheteB', '5'));
+            break;
+        default: // ungleichschenklig oder allgemein
+            container.appendChild(createInput('Seite A (m)', 'sideA', '4'));
+            container.appendChild(createInput('Seite B (m)', 'sideB', '5'));
+            container.appendChild(createInput('Seite C (m)', 'sideC', '6'));
+    }
+}
+
+function createCircleInputs(variant, container) {
+    switch (variant) {
+        case 'oval':
+            container.appendChild(createInput('Halbachse A (m)', 'radiusA', '5'));
+            container.appendChild(createInput('Halbachse B (m)', 'radiusB', '3'));
+            break;
+        case 'halbkreis':
+        case 'viertelkreis':
+        default: // kreis, vollkreis
+            container.appendChild(createInput('Radius (m)', 'radius', '4'));
+    }
+}
+
+function createRectangleInputs(variant, container) {
+    if (variant === 'quadrat') {
+        // NUR ein Feld für Quadrat
+        container.appendChild(createInput('Seitenlänge (m)', 'side', '5'));
+    } else {
+        // Zwei Felder für Rechteck
         container.appendChild(createInput('Länge (m)', 'length', '8'));
         container.appendChild(createInput('Breite (m)', 'width', '5'));
+    }
+}
+
+function createTrapezInputs(container) {
+    container.appendChild(createInput('Basis A (m)', 'baseA', '8'));
+    container.appendChild(createInput('Basis B (m)', 'baseB', '5'));
+    container.appendChild(createInput('Höhe (m)', 'height', '4'));
+}
+
+function createRhombusInputs(container) {
+    container.appendChild(createInput('Seitenlänge (m)', 'side', '5'));
+    container.appendChild(createInput('Winkel (°)', 'angle', '60'));
+}
+
+function createLanglochInputs(container) {
+    container.appendChild(createInput('Länge (m)', 'length', '8'));
+    container.appendChild(createInput('Breite (m)', 'width', '3'));
+    container.appendChild(createInput('Eckenradius (m)', 'radius', '1'));
+}
+
+function createPolygonInputs(variant, container) {
+    switch (variant) {
+        case 'fuenfeck':
+        case 'sechseck':
+        case 'achteck':
+            container.appendChild(createInput('Seitenlänge (m)', 'side', '5'));
+            break;
+        case 'lform':
+        case 'tform':
+        case 'uform':
+            container.appendChild(createInput('Länge (m)', 'length', '8'));
+            container.appendChild(createInput('Breite (m)', 'width', '5'));
+            container.appendChild(createInput('Tiefe (m)', 'depth', '3'));
+            break;
+        default:
+            container.appendChild(createInput('Seitenlänge (m)', 'side', '5'));
     }
 }
 
@@ -361,33 +483,48 @@ function drawTransformedShape(group, data) {
 }
 
 function drawShape(group, data) {
-    switch (data.shape) {
+    // Verwende die gleiche robuste Logik wie bei den Eingabefeldern
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    switch (finalShape) {
         case 'dreieck':
-            drawTriangle(group, data);
+            drawTriangle(group, data, finalVariant);
             break;
         case 'kreis':
-            drawCircle(group, data);
+            drawCircle(group, data, finalVariant);
             break;
         case 'rechteck':
+            drawRectangle(group, data, 'rechteck');
+            break;
         case 'quadrat':
-            drawRectangle(group, data);
+            drawRectangle(group, data, 'quadrat');
             break;
         case 'trapez':
             drawTrapez(group, data);
             break;
+        case 'rhombus':
+            drawRhombus(group, data);
+            break;
+        case 'langloch':
+            drawLangloch(group, data);
+            break;
+        case 'vieleck':
+            drawPolygon(group, data, finalVariant);
+            break;
         default:
-            drawRectangle(group, data);
+            drawRectangle(group, data, 'rechteck');
     }
 }
 
-function drawTriangle(group, data) {
+function drawTriangle(group, data, variant) {
     let points = '';
     
-    if (data.variant === 'gleichseitig') {
+    if (variant === 'gleichseitig') {
         const side = (data.side || 6) * SCALE_FACTOR;
         const height = side * Math.sqrt(3) / 2;
         points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - side/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + side/2},${CANVAS_CENTER_Y + height/2}`;
-    } else if (data.variant === 'rechtwinklig') {
+    } else if (variant === 'rechtwinklig') {
         const a = (data.katheteA || 4) * SCALE_FACTOR;
         const b = (data.katheteB || 5) * SCALE_FACTOR;
         points = `${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X + a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y - b/2}`;
@@ -406,27 +543,64 @@ function drawTriangle(group, data) {
     group.appendChild(triangle);
 }
 
-function drawCircle(group, data) {
-    const radius = (data.radius || 4) * SCALE_FACTOR;
-    
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', CANVAS_CENTER_X);
-    circle.setAttribute('cy', CANVAS_CENTER_Y);
-    circle.setAttribute('r', radius);
-    circle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    circle.setAttribute('stroke', '#007bff');
-    circle.setAttribute('stroke-width', '3');
-    
-    group.appendChild(circle);
+function drawCircle(group, data, variant) {
+    if (variant === 'oval') {
+        const radiusA = (data.radiusA || 5) * SCALE_FACTOR;
+        const radiusB = (data.radiusB || 3) * SCALE_FACTOR;
+        
+        const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        ellipse.setAttribute('cx', CANVAS_CENTER_X);
+        ellipse.setAttribute('cy', CANVAS_CENTER_Y);
+        ellipse.setAttribute('rx', radiusA);
+        ellipse.setAttribute('ry', radiusB);
+        ellipse.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+        ellipse.setAttribute('stroke', '#007bff');
+        ellipse.setAttribute('stroke-width', '3');
+        
+        group.appendChild(ellipse);
+    } else {
+        // Standard Kreis, Halbkreis, Viertelkreis
+        const radius = (data.radius || 4) * SCALE_FACTOR;
+        
+        if (variant === 'halbkreis') {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const d = `M ${CANVAS_CENTER_X - radius} ${CANVAS_CENTER_Y} A ${radius} ${radius} 0 0 1 ${CANVAS_CENTER_X + radius} ${CANVAS_CENTER_Y} Z`;
+            path.setAttribute('d', d);
+            path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+            path.setAttribute('stroke', '#007bff');
+            path.setAttribute('stroke-width', '3');
+            group.appendChild(path);
+        } else if (variant === 'viertelkreis') {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const d = `M ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y} L ${CANVAS_CENTER_X + radius} ${CANVAS_CENTER_Y} A ${radius} ${radius} 0 0 1 ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y - radius} Z`;
+            path.setAttribute('d', d);
+            path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+            path.setAttribute('stroke', '#007bff');
+            path.setAttribute('stroke-width', '3');
+            group.appendChild(path);
+        } else {
+            // Vollkreis
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', CANVAS_CENTER_X);
+            circle.setAttribute('cy', CANVAS_CENTER_Y);
+            circle.setAttribute('r', radius);
+            circle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+            circle.setAttribute('stroke', '#007bff');
+            circle.setAttribute('stroke-width', '3');
+            group.appendChild(circle);
+        }
+    }
 }
 
-function drawRectangle(group, data) {
+function drawRectangle(group, data, variant) {
     let width, height;
     
-    if (data.variant === 'quadrat') {
+    if (variant === 'quadrat') {
+        // KORRIGIERT: Quadrat verwendet 'side', nicht 'length'/'width'
         const side = (data.side || 5) * SCALE_FACTOR;
         width = height = side;
     } else {
+        // Rechteck
         width = (data.length || 8) * SCALE_FACTOR;
         height = (data.width || 5) * SCALE_FACTOR;
     }
@@ -441,6 +615,77 @@ function drawRectangle(group, data) {
     rect.setAttribute('stroke-width', '3');
     
     group.appendChild(rect);
+}
+
+function drawRhombus(group, data) {
+    const side = (data.side || 5) * SCALE_FACTOR;
+    const angle = (data.angle || 60) * Math.PI / 180;
+    
+    const halfDiag1 = side * Math.sin(angle / 2);
+    const halfDiag2 = side * Math.cos(angle / 2);
+    
+    const points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - halfDiag1} ${CANVAS_CENTER_X + halfDiag2},${CANVAS_CENTER_Y} ${CANVAS_CENTER_X},${CANVAS_CENTER_Y + halfDiag1} ${CANVAS_CENTER_X - halfDiag2},${CANVAS_CENTER_Y}`;
+    
+    const rhombus = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    rhombus.setAttribute('points', points);
+    rhombus.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    rhombus.setAttribute('stroke', '#007bff');
+    rhombus.setAttribute('stroke-width', '3');
+    
+    group.appendChild(rhombus);
+}
+
+function drawLangloch(group, data) {
+    const length = (data.length || 8) * SCALE_FACTOR;
+    const width = (data.width || 3) * SCALE_FACTOR;
+    const radius = Math.min((data.radius || 1) * SCALE_FACTOR, width / 2);
+    
+    const x = CANVAS_CENTER_X - length/2;
+    const y = CANVAS_CENTER_Y - width/2;
+    
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const d = `
+        M ${x + radius} ${y}
+        L ${x + length - radius} ${y}
+        A ${radius} ${radius} 0 0 1 ${x + length - radius} ${y + width}
+        L ${x + radius} ${y + width}
+        A ${radius} ${radius} 0 0 1 ${x + radius} ${y}
+        Z
+    `;
+    
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    path.setAttribute('stroke', '#007bff');
+    path.setAttribute('stroke-width', '3');
+    
+    group.appendChild(path);
+}
+
+function drawPolygon(group, data, variant) {
+    if (['fuenfeck', 'sechseck', 'achteck'].includes(variant)) {
+        // Regelmäßige Polygone
+        const sides = variant === 'fuenfeck' ? 5 : variant === 'sechseck' ? 6 : 8;
+        const radius = (data.side || 5) * SCALE_FACTOR / 2;
+        
+        let points = '';
+        for (let i = 0; i < sides; i++) {
+            const angle = (i * 2 * Math.PI / sides) - Math.PI / 2;
+            const x = CANVAS_CENTER_X + radius * Math.cos(angle);
+            const y = CANVAS_CENTER_Y + radius * Math.sin(angle);
+            points += `${x},${y} `;
+        }
+        
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', points.trim());
+        polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+        polygon.setAttribute('stroke', '#007bff');
+        polygon.setAttribute('stroke-width', '3');
+        
+        group.appendChild(polygon);
+    } else {
+        // L, T, U-Formen - vereinfacht als Rechteck
+        drawRectangle(group, data, 'rechteck');
+    }
 }
 
 function drawTrapez(group, data) {
