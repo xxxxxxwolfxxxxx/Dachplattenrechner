@@ -1504,14 +1504,14 @@ function removeTraufeClickAreas() {
     });
 }
 
-function setTraufePositionDirect(position, rotation) {
+function setTraufePositionDirect(position) {
     traufePosition = position;
     
-    // KORREKTE Berechnung: Finde die tatsächliche Ausrichtung der gewählten Seite
-    const correctRotation = calculateExactTraufeRotation(position);
+    // EINFACH: Berechne die Rotation um die gewählte Seite horizontal zu machen
+    const correctRotation = calculateSimpleTraufeRotation(position);
     currentRotation = correctRotation;
     
-    console.log('Traufe-Position:', position, 'Berechnete Rotation:', correctRotation);
+    console.log('Traufe-Position:', position, 'Rotation:', correctRotation);
     
     updateShape();
     exitTraufeMode();
@@ -1523,33 +1523,148 @@ function setTraufePositionDirect(position, rotation) {
         'left': 'linke'
     };
     
-    showFeedback(`✅ ${positionNames[position]} Seite als Traufe festgelegt und exakt horizontal ausgerichtet`);
+    showFeedback(`✅ ${positionNames[position]} Seite auf Bodenlinie gelegt`);
 }
 
-function calculateExactTraufeRotation(traufePosition) {
-    const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
+function calculateSimpleTraufeRotation(traufePosition) {
+    // SIMPLE REGEL: Finde heraus, wo die gewählte Seite aktuell ist und drehe sie nach unten
+    
     const currentData = getCurrentFormData();
+    const finalShape = determineActualShape();
     
-    console.log('Berechne exakte Rotation für:', finalShape, finalVariant, 'Traufe:', traufePosition);
+    // Hole die aktuellen Koordinaten der Form (ohne Rotation)
+    const shapePoints = getShapePoints(finalShape, currentData);
     
-    if (finalShape === 'dreieck') {
-        return calculateTriangleTraufeRotation(traufePosition, finalVariant, currentData);
-    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        return calculateRectangleTraufeRotation(traufePosition);
-    } else if (finalShape === 'trapez') {
-        return calculateTrapezTraufeRotation(traufePosition);
-    } else {
-        // Standard für andere Formen
-        return calculateStandardTraufeRotation(traufePosition);
+    if (!shapePoints || shapePoints.length < 2) {
+        console.log('Keine Punkte gefunden, verwende Standard-Rotation');
+        return getStandardRotation(traufePosition);
+    }
+    
+    // Finde die gewählte Seite und ihren aktuellen Winkel
+    const sideAngle = getSideAngle(shapePoints, traufePosition, finalShape);
+    
+    console.log('Aktueller Winkel der', traufePosition, 'Seite:', sideAngle, '°');
+    
+    // Rotation = -aktueller Winkel (um die Seite horizontal zu machen)
+    return -sideAngle;
+}
+
+function getShapePoints(shape, data) {
+    // Einfache Punkt-Generierung für jede Form (ohne SVG-Transformation)
+    const centerX = 0;
+    const centerY = 0;
+    
+    if (shape === 'rechteck' || shape === 'quadrat') {
+        let width, height;
+        if (shape === 'quadrat') {
+            const side = data.side || 5;
+            width = height = side;
+        } else {
+            width = data.length || 8;
+            height = data.width || 5;
+        }
+        
+        return [
+            { x: centerX - width/2, y: centerY - height/2, side: 'top' },
+            { x: centerX + width/2, y: centerY - height/2, side: 'top' },
+            { x: centerX + width/2, y: centerY + height/2, side: 'right' },
+            { x: centerX - width/2, y: centerY + height/2, side: 'bottom' },
+            { x: centerX - width/2, y: centerY - height/2, side: 'left' }
+        ];
+    } else if (shape === 'dreieck') {
+        const variant = determineActualVariant();
+        
+        if (variant === 'gleichseitig') {
+            const side = data.side || 6;
+            const height = side * Math.sqrt(3) / 2;
+            return [
+                { x: centerX, y: centerY - height/2, side: 'top' },
+                { x: centerX - side/2, y: centerY + height/2, side: 'left' },
+                { x: centerX + side/2, y: centerY + height/2, side: 'bottom' }
+            ];
+        } else if (variant === 'rechtwinklig') {
+            const a = data.katheteA || 4;
+            const b = data.katheteB || 5;
+            return [
+                { x: centerX - a/2, y: centerY + b/2, side: 'bottom' },
+                { x: centerX + a/2, y: centerY + b/2, side: 'bottom' },
+                { x: centerX - a/2, y: centerY - b/2, side: 'left' }
+            ];
+        } else {
+            // Ungleichschenkliges Dreieck
+            const sideA = data.sideA || 4;
+            const sideB = data.sideB || 5;
+            const sideC = data.sideC || 6;
+            
+            // Basis horizontal, Spitze darüber
+            const s = (sideA + sideB + sideC) / 2;
+            const area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
+            const height = 2 * area / sideA;
+            const cosC = (sideA*sideA + sideB*sideB - sideC*sideC) / (2 * sideA * sideB);
+            const xTop = sideB * cosC;
+            
+            return [
+                { x: centerX - sideA/2, y: centerY, side: 'bottom' },           // Links unten
+                { x: centerX + sideA/2, y: centerY, side: 'bottom' },           // Rechts unten  
+                { x: centerX - sideA/2 + xTop, y: centerY - height, side: 'top' }  // Spitze oben
+            ];
+        }
+    }
+    
+    return [];
+}
+
+function getSideAngle(points, traufePosition, shape) {
+    if (shape === 'rechteck' || shape === 'quadrat') {
+        // Rechteck: Seiten sind bereits horizontal/vertikal
+        switch(traufePosition) {
+            case 'bottom': return 0;    // Bereits horizontal
+            case 'top': return 180;     // Kopfüber  
+            case 'left': return 90;     // 90° drehen
+            case 'right': return -90;   // -90° drehen
+        }
+    } else if (shape === 'dreieck') {
+        // Dreieck: Berechne Winkel der tatsächlichen Seiten
+        if (traufePosition === 'bottom') {
+            // Basis: Von Punkt 0 zu Punkt 1
+            const p1 = points[0];
+            const p2 = points[1];
+            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+            return angle;
+        } else if (traufePosition === 'left') {
+            // Linke Seite: Von Punkt 1 zu Punkt 2  
+            const p1 = points[1];
+            const p2 = points[2];
+            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+            return angle;
+        } else if (traufePosition === 'right') {
+            // Rechte Seite: Von Punkt 2 zu Punkt 0
+            const p1 = points[2];
+            const p2 = points[0];
+            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+            return angle;
+        }
+    }
+    
+    return 0;
+}
+
+function getStandardRotation(traufePosition) {
+    // Fallback für unbekannte Formen
+    switch(traufePosition) {
+        case 'bottom': return 0;
+        case 'top': return 180;
+        case 'left': return 90;
+        case 'right': return -90;
+        default: return 0;
     }
 }
 
 function calculateTriangleTraufeRotation(traufePosition, variant, data) {
-    console.log('Berechne Dreieck-Rotation für:', variant, 'Daten:', data);
+    console.log('Berechne Dreieck-Rotation für:', variant, 'Daten:', data, 'Traufe:', traufePosition);
     
     if (variant === 'gleichseitig') {
-        // Gleichseitiges Dreieck: alle Seiten sind 60° geneigt
+        // Gleichseitiges Dreieck: alle Seiten sind 60° zur Horizontalen geneigt
         switch(traufePosition) {
             case 'bottom': return 0;    // Basis ist bereits horizontal
             case 'left': return 60;     // Linke Seite um 60° nach rechts drehen
@@ -1558,40 +1673,64 @@ function calculateTriangleTraufeRotation(traufePosition, variant, data) {
         }
     } else if (variant === 'rechtwinklig') {
         // Rechtwinkliges Dreieck
+        const a = data.katheteA || 4;
+        const b = data.katheteB || 5;
+        
         switch(traufePosition) {
             case 'bottom': return 0;    // Horizontale Kathete ist bereits horizontal
             case 'left': return 90;     // Vertikale Kathete um 90° drehen
             case 'right': {
-                // Hypotenuse: Winkel basierend auf Katheten berechnen
-                const a = data.katheteA || 4;
-                const b = data.katheteB || 5;
+                // Hypotenuse: Winkel zur Horizontalen berechnen
                 const hypotenuseAngle = Math.atan2(b, a) * 180 / Math.PI;
-                return -hypotenuseAngle; // Negativ, um nach unten zu drehen
+                console.log('Hypotenuse-Winkel berechnet:', hypotenuseAngle);
+                return -hypotenuseAngle; // Negativ, um horizontal nach unten zu drehen
             }
             case 'top': return 90;
         }
     } else {
-        // Ungleichschenkliges Dreieck - komplexere Berechnung
-        const sideA = data.sideA || 4;
-        const sideB = data.sideB || 5;
-        const sideC = data.sideC || 6;
+        // Ungleichschenkliges Dreieck - NEUE KORREKTE Berechnung
+        const sideA = data.sideA || 4; // Basis (horizontal)
+        const sideB = data.sideB || 5; // Linke Seite
+        const sideC = data.sideC || 6; // Rechte Seite
+        
+        console.log('Ungleichschenkliges Dreieck - Seiten:', {sideA, sideB, sideC});
+        
+        // Berechne die Höhe des Dreiecks und die Position der Spitze
+        // Verwende Heron's Formel für die Fläche, dann h = 2*Fläche/Basis
+        const s = (sideA + sideB + sideC) / 2; // Semiperimeter
+        const area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
+        const height = 2 * area / sideA;
+        
+        // Position der Spitze relativ zur Basis (Kosinussatz)
+        const cosB = (sideA*sideA + sideC*sideC - sideB*sideB) / (2 * sideA * sideC);
+        const xTop = sideC * cosB; // X-Position der Spitze von der linken Ecke aus
+        
+        console.log('Dreieck-Geometrie:', {area, height, xTop, cosB});
         
         switch(traufePosition) {
-            case 'bottom': return 0;    // Basis (sideA) ist bereits horizontal
+            case 'bottom': 
+                return 0; // Basis (sideA) ist bereits horizontal
+            
             case 'left': {
-                // Winkel der linken Seite berechnen
-                // Über Kosinussatz den Winkel am linken Eckpunkt finden
-                const cosB = (sideA*sideA + sideC*sideC - sideB*sideB) / (2 * sideA * sideC);
-                const angleB = Math.acos(Math.max(-1, Math.min(1, cosB))) * 180 / Math.PI;
-                return 90 - angleB; // Anpassung für horizontale Ausrichtung
+                // Linke Seite (sideB): Von (0,0) zu (xTop, height)
+                const leftAngle = Math.atan2(height, xTop) * 180 / Math.PI;
+                console.log('Linke Seite - Winkel zur Horizontalen:', leftAngle);
+                // Um diese Seite horizontal zu machen, drehen wir um den negativen Winkel
+                return -leftAngle;
             }
+            
             case 'right': {
-                // Winkel der rechten Seite berechnen
-                const cosC = (sideA*sideA + sideB*sideB - sideC*sideC) / (2 * sideA * sideB);
-                const angleC = Math.acos(Math.max(-1, Math.min(1, cosC))) * 180 / Math.PI;
-                return -(90 - angleC); // Anpassung für horizontale Ausrichtung
+                // Rechte Seite (sideC): Von (sideA, 0) zu (xTop, height)
+                const dx = xTop - sideA;
+                const dy = height;
+                const rightAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+                console.log('Rechte Seite - Winkel zur Horizontalen:', rightAngle);
+                // Um diese Seite horizontal zu machen, drehen wir um den negativen Winkel
+                return -rightAngle;
             }
-            case 'top': return 180;
+            
+            case 'top': 
+                return 180; // Spitze nach unten (Basis oben)
         }
     }
     
