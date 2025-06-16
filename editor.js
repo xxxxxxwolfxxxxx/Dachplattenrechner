@@ -1,4 +1,17 @@
-// editor.js – Vollständig funktionaler Editor mit Rotation und Traufe
+case 'parallelogramm':
+            const base = data.base || 8;
+            const side = data.side || 5;
+            const height = data.height || 4;
+            area = base * height;
+            perimeter = 2 * (base + side);
+            break;
+            
+        case 'rhombus':
+            const rhombusSide = data.side || 5;
+            const rhombusHeight = data.height || 4;
+            area = rhombusSide * rhombusHeight;
+            perimeter = 4 * rhombusSide;
+            break;// editor.js – Vollständig funktionaler Editor mit Rotation und Traufe
 
 let projectData = {};
 let currentShape = '';
@@ -226,6 +239,8 @@ function createInputFields() {
         createRectangleInputs(finalVariant, container);
     } else if (finalShape === 'trapez') {
         createTrapezInputs(container);
+    } else if (finalShape === 'parallelogramm') {
+        createParallelogrammInputs(container);
     } else if (finalShape === 'rhombus') {
         createRhombusInputs(container);
     } else if (finalShape === 'langloch') {
@@ -247,14 +262,24 @@ function determineActualShape() {
         return 'quadrat';
     }
     
-    // Spezialfall: Langloch kann unter 'kreis' kategorisiert sein
-    if (currentVariant === 'langloch') {
-        return 'langloch';
+    // Spezialfall: Trapez kann unter 'viereck' kategorisiert sein
+    if (currentVariant === 'trapez') {
+        return 'trapez';
+    }
+    
+    // Spezialfall: Parallelogramm kann unter 'viereck' kategorisiert sein
+    if (currentVariant === 'parallelogramm') {
+        return 'parallelogramm';
     }
     
     // Spezialfall: Rhombus kann unter 'viereck' kategorisiert sein
     if (currentVariant === 'rhombus') {
         return 'rhombus';
+    }
+    
+    // Spezialfall: Langloch kann unter 'kreis' kategorisiert sein
+    if (currentVariant === 'langloch') {
+        return 'langloch';
     }
     
     // Spezialfall: Verschiedene Vielecke
@@ -275,6 +300,7 @@ function determineActualVariant() {
         'rechteck': ['rechteck'],
         'quadrat': ['quadrat'],
         'trapez': ['trapez'],
+        'parallelogramm': ['parallelogramm'],
         'rhombus': ['rhombus'],
         'langloch': ['langloch'],
         'vieleck': ['fuenfeck', 'sechseck', 'achteck', 'lform', 'tform', 'uform']
@@ -337,8 +363,15 @@ function createTrapezInputs(container) {
 }
 
 function createRhombusInputs(container) {
+    // VERBESSERT: Höhe statt Winkel für Rhombus
     container.appendChild(createInput('Seitenlänge (m)', 'side', '5'));
-    container.appendChild(createInput('Winkel (°)', 'angle', '60'));
+    container.appendChild(createInput('Höhe (m)', 'height', '4'));
+}
+
+function createParallelogrammInputs(container) {
+    container.appendChild(createInput('Basis (m)', 'base', '8'));
+    container.appendChild(createInput('Seite (m)', 'side', '5'));
+    container.appendChild(createInput('Höhe (m)', 'height', '4'));
 }
 
 function createLanglochInputs(container) {
@@ -503,6 +536,9 @@ function drawShape(group, data) {
         case 'trapez':
             drawTrapez(group, data);
             break;
+        case 'parallelogramm':
+            drawParallelogramm(group, data);
+            break;
         case 'rhombus':
             drawRhombus(group, data);
             break;
@@ -618,13 +654,14 @@ function drawRectangle(group, data, variant) {
 }
 
 function drawRhombus(group, data) {
+    // VERBESSERT: Rhombus mit Höhe statt Winkel
     const side = (data.side || 5) * SCALE_FACTOR;
-    const angle = (data.angle || 60) * Math.PI / 180;
+    const height = (data.height || 4) * SCALE_FACTOR;
     
-    const halfDiag1 = side * Math.sin(angle / 2);
-    const halfDiag2 = side * Math.cos(angle / 2);
+    // Berechne Breite aus Seitenlänge und Höhe
+    const width = Math.sqrt(side * side - (height/2) * (height/2)) * 2;
     
-    const points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - halfDiag1} ${CANVAS_CENTER_X + halfDiag2},${CANVAS_CENTER_Y} ${CANVAS_CENTER_X},${CANVAS_CENTER_Y + halfDiag1} ${CANVAS_CENTER_X - halfDiag2},${CANVAS_CENTER_Y}`;
+    const points = `${CANVAS_CENTER_X - width/2},${CANVAS_CENTER_Y} ${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X + width/2},${CANVAS_CENTER_Y} ${CANVAS_CENTER_X},${CANVAS_CENTER_Y + height/2}`;
     
     const rhombus = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     rhombus.setAttribute('points', points);
@@ -633,6 +670,25 @@ function drawRhombus(group, data) {
     rhombus.setAttribute('stroke-width', '3');
     
     group.appendChild(rhombus);
+}
+
+function drawParallelogramm(group, data) {
+    const base = (data.base || 8) * SCALE_FACTOR;
+    const side = (data.side || 5) * SCALE_FACTOR;
+    const height = (data.height || 4) * SCALE_FACTOR;
+    
+    // Berechne Neigung aus Seite und Höhe
+    const shear = Math.sqrt(side * side - height * height);
+    
+    const points = `${CANVAS_CENTER_X - base/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + base/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + base/2 - shear},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - base/2 - shear},${CANVAS_CENTER_Y - height/2}`;
+    
+    const parallelogramm = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    parallelogramm.setAttribute('points', points);
+    parallelogramm.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    parallelogramm.setAttribute('stroke', '#007bff');
+    parallelogramm.setAttribute('stroke-width', '3');
+    
+    group.appendChild(parallelogramm);
 }
 
 function drawLangloch(group, data) {
