@@ -441,17 +441,22 @@ function getCurrentFormData() {
         variant: currentVariant 
     };
     
+    console.log('Sammle Form-Daten für:', currentShape, currentVariant);
+    
     const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    console.log('Gefundene Inputs:', inputs.length);
     
     inputs.forEach(input => {
         if (input.value) {
             const numValue = parseFloat(input.value);
             if (!isNaN(numValue)) {
                 data[input.id] = numValue;
+                console.log('Input gefunden:', input.id, '=', numValue);
             }
         }
     });
     
+    console.log('Gesammelte Form-Daten:', data);
     return data;
 }
 
@@ -691,27 +696,52 @@ function updateCalculations(data) {
     let area = 0;
     let perimeter = 0;
     
+    console.log('Berechne für Daten:', data);
+    
     const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    console.log('Shape:', finalShape, 'Variant:', finalVariant);
     
     switch (finalShape) {
         case 'dreieck':
-            const finalVariant = determineActualVariant();
             if (finalVariant === 'gleichseitig') {
                 const side = data.side || 6;
                 area = (Math.sqrt(3) / 4) * side * side;
                 perimeter = 3 * side;
+                console.log('Gleichseitiges Dreieck - Seite:', side, 'Fläche:', area);
             } else if (finalVariant === 'rechtwinklig') {
                 const a = data.katheteA || 4;
                 const b = data.katheteB || 5;
                 area = 0.5 * a * b;
                 perimeter = a + b + Math.sqrt(a*a + b*b);
+                console.log('Rechtwinkliges Dreieck - a:', a, 'b:', b, 'Fläche:', area);
+            } else {
+                // Ungleichschenkliges Dreieck - Näherung
+                const sideA = data.sideA || 4;
+                const sideB = data.sideB || 5;
+                const sideC = data.sideC || 6;
+                // Heron's Formel
+                const s = (sideA + sideB + sideC) / 2;
+                area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
+                perimeter = sideA + sideB + sideC;
+                console.log('Ungleichschenkliges Dreieck - Seiten:', sideA, sideB, sideC, 'Fläche:', area);
             }
             break;
             
         case 'kreis':
-            const radius = data.radius || 4;
-            area = Math.PI * radius * radius;
-            perimeter = 2 * Math.PI * radius;
+            if (finalVariant === 'oval') {
+                const radiusA = data.radiusA || 5;
+                const radiusB = data.radiusB || 3;
+                area = Math.PI * radiusA * radiusB;
+                perimeter = Math.PI * (3 * (radiusA + radiusB) - Math.sqrt((3 * radiusA + radiusB) * (radiusA + 3 * radiusB)));
+                console.log('Oval - Radien:', radiusA, radiusB, 'Fläche:', area);
+            } else {
+                const radius = data.radius || 4;
+                area = Math.PI * radius * radius;
+                perimeter = 2 * Math.PI * radius;
+                console.log('Kreis - Radius:', radius, 'Fläche:', area);
+            }
             break;
             
         case 'rechteck':
@@ -719,12 +749,14 @@ function updateCalculations(data) {
             const width = data.width || 5;
             area = length * width;
             perimeter = 2 * (length + width);
+            console.log('Rechteck - Länge:', length, 'Breite:', width, 'Fläche:', area);
             break;
             
         case 'quadrat':
             const side = data.side || 5;
             area = side * side;
             perimeter = 4 * side;
+            console.log('Quadrat - Seite:', side, 'Fläche:', area);
             break;
             
         case 'trapez':
@@ -733,6 +765,7 @@ function updateCalculations(data) {
             const height = data.height || 4;
             area = 0.5 * (baseA + baseB) * height;
             perimeter = baseA + baseB + 2 * Math.sqrt(height*height + ((baseA-baseB)/2)*((baseA-baseB)/2));
+            console.log('Trapez - Basen:', baseA, baseB, 'Höhe:', height, 'Fläche:', area);
             break;
             
         case 'parallelogramm':
@@ -741,6 +774,7 @@ function updateCalculations(data) {
             const pHeight = data.height || 4;
             area = base * pHeight;
             perimeter = 2 * (base + pSide);
+            console.log('Parallelogramm - Basis:', base, 'Seite:', pSide, 'Höhe:', pHeight, 'Fläche:', area);
             break;
             
         case 'rhombus':
@@ -748,14 +782,38 @@ function updateCalculations(data) {
             const rhombusHeight = data.height || 4;
             area = rhombusSide * rhombusHeight;
             perimeter = 4 * rhombusSide;
+            console.log('Rhombus - Seite:', rhombusSide, 'Höhe:', rhombusHeight, 'Fläche:', area);
             break;
+            
+        case 'langloch':
+            const lLength = data.length || 8;
+            const lWidth = data.width || 3;
+            const lRadius = data.radius || 1;
+            // Vereinfachte Berechnung: Rechteck + 2 Halbkreise
+            area = (lLength - 2 * lRadius) * lWidth + Math.PI * lRadius * lRadius;
+            perimeter = 2 * (lLength - 2 * lRadius) + 2 * Math.PI * lRadius;
+            console.log('Langloch - Länge:', lLength, 'Breite:', lWidth, 'Radius:', lRadius, 'Fläche:', area);
+            break;
+            
+        default:
+            console.log('Unbekannte Form, verwende Standard-Rechteck');
+            area = 40; // 8m × 5m Standard
+            perimeter = 26;
     }
+    
+    console.log('Finale Berechnungen - Fläche:', area, 'Umfang:', perimeter);
     
     const areaElement = document.getElementById('calc-area');
     const perimeterElement = document.getElementById('calc-perimeter');
     
-    if (areaElement) areaElement.textContent = `${area.toFixed(2)} m²`;
-    if (perimeterElement) perimeterElement.textContent = `${perimeter.toFixed(2)} m`;
+    if (areaElement) {
+        areaElement.textContent = `${area.toFixed(2)} m²`;
+        console.log('Fläche aktualisiert:', area.toFixed(2));
+    }
+    if (perimeterElement) {
+        perimeterElement.textContent = `${perimeter.toFixed(2)} m`;
+        console.log('Umfang aktualisiert:', perimeter.toFixed(2));
+    }
 }
 
 function setupEventListeners() {
