@@ -1126,15 +1126,12 @@ function createClickableEdge(edge) {
     line.setAttribute('y1', edge.y1);
     line.setAttribute('x2', edge.x2);
     line.setAttribute('y2', edge.y2);
-    line.setAttribute('stroke', 'transparent');
-    line.setAttribute('stroke-width', '20'); // Noch dicker für besseres Klicken
+    line.setAttribute('stroke', 'rgba(255, 193, 7, 0.3)'); // Sichtbar für Debug
+    line.setAttribute('stroke-width', '20');
     line.style.cursor = 'pointer';
     line.classList.add('clickable-edge');
     line.dataset.side = edge.side;
     line.dataset.name = edge.name;
-    
-    // Debug: Markiere die klickbaren Bereiche temporär sichtbar
-    line.setAttribute('stroke', 'rgba(255, 0, 0, 0.2)');
     
     // Hover-Effekt
     line.addEventListener('mouseenter', () => {
@@ -1145,19 +1142,21 @@ function createClickableEdge(edge) {
     });
     
     line.addEventListener('mouseleave', () => {
-        line.setAttribute('stroke', 'rgba(255, 0, 0, 0.2)'); // Debug: Bleibt sichtbar
+        line.setAttribute('stroke', 'rgba(255, 193, 7, 0.3)');
         line.setAttribute('stroke-width', '20');
         hideSideTooltip();
     });
     
     line.addEventListener('click', (e) => {
         e.stopPropagation();
-        console.log(`Klick auf: ${edge.name} (${edge.side})`);
+        e.preventDefault();
+        console.log(`KLICK REGISTRIERT auf: ${edge.name} (${edge.side})`);
         selectTraufeSide(edge.side, edge.name);
     });
     
     console.log(`Klickbare Kante erstellt: ${edge.name} von (${edge.x1},${edge.y1}) zu (${edge.x2},${edge.y2})`);
     
+    // Füge direkt zum SVG hinzu, nicht zur transformierten Gruppe
     svg.appendChild(line);
 }
 
@@ -1247,6 +1246,7 @@ function selectTraufeSide(side, name) {
     console.log(`Traufe-Position geändert von ${oldPosition} zu ${side}`);
     
     // Rotiere entsprechend - die gewählte Seite soll nach unten
+    const oldRotation = currentRotation;
     switch(side) {
         case 'top':
             currentRotation = 180; // Obere Seite nach unten drehen
@@ -1262,11 +1262,16 @@ function selectTraufeSide(side, name) {
             break;
     }
     
-    console.log(`Neue Rotation: ${currentRotation}°`);
+    console.log(`Rotation geändert von ${oldRotation}° zu ${currentRotation}°`);
     
-    // Aktualisiere die Anzeige
-    updateShape();
+    // WICHTIG: Erst die Instruktionen ausblenden, dann Form aktualisieren
     hideTraufeInstructions();
+    
+    // Aktualisiere die Anzeige mit Verzögerung für bessere Sichtbarkeit
+    setTimeout(() => {
+        updateShape();
+        console.log('Form-Update nach Traufe-Auswahl abgeschlossen');
+    }, 100);
     
     showFeedback(`✅ Traufe festgelegt: ${name} ist jetzt die Traufe (Wasserabfluss)`);
     
