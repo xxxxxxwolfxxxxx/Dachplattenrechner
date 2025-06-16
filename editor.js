@@ -553,37 +553,26 @@ function getCurrentFormData() {
 }
 
 function drawTransformedShape(group, data) {
-    // Entferne alle bestehenden Transformationen
+    console.log(`🎨 DRAWING mit Rotation: ${currentRotation}°`);
+    
+    // Erstelle Transform-Gruppe
     const shapeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     shapeGroup.id = 'shape-transform-group';
     
-    // Erstelle Transform-String für Rotation um das Zentrum
-    let transform = '';
-    
-    // Rotation um das Canvas-Zentrum
+    // Wende Rotation an wenn nötig
     if (currentRotation !== 0) {
-        transform = `rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`;
-        console.log(`✅ Transform angewendet: ${transform}`);
-    }
-    
-    // Spiegelung (falls nötig)
-    if (isMirroredH || isMirroredV) {
-        const scaleX = isMirroredH ? -1 : 1;
-        const scaleY = isMirroredV ? -1 : 1;
-        const scaleTransform = `scale(${scaleX} ${scaleY})`;
-        transform = transform ? `${transform} ${scaleTransform}` : scaleTransform;
-        console.log(`✅ Spiegelung hinzugefügt: ${scaleTransform}`);
-    }
-    
-    if (transform) {
+        const transform = `rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`;
         shapeGroup.setAttribute('transform', transform);
+        console.log(`✅ TRANSFORM ANGEWENDET: ${transform}`);
+    } else {
+        console.log('ℹ️ Keine Rotation - Standard Position');
     }
     
     // Zeichne die Form in das transformierte Gruppenelement
     drawShape(shapeGroup, data);
     group.appendChild(shapeGroup);
     
-    console.log(`✅ Form gezeichnet mit Rotation: ${currentRotation}°`);
+    console.log(`✅ FORM GEZEICHNET mit ${currentRotation}° Rotation`);
 }
 
 function drawLabelsAndAnnotations(group, data) {
@@ -1239,60 +1228,64 @@ function hideSideTooltip() {
 }
 
 function selectTraufeSide(side, name) {
-    console.log(`🎯 TRAUFE-AUSWAHL: ${side} (${name})`);
+    console.log(`🎯 KLICK EMPFANGEN: ${side} (${name})`);
     
-    // Entferne Interaktivität sofort
+    // SOFORT alles entfernen
     disableSideSelection();
+    hideTraufeInstructions();
     
-    // Setze neue Rotation basierend auf der gewählten Seite
+    // Setze neue Rotation
     const oldRotation = currentRotation;
     
     switch(side) {
         case 'top':
-            currentRotation = 180; // Spitze nach unten
+            currentRotation = 180;
             break;
         case 'right':
-            currentRotation = -90; // Rechte Seite nach unten
+            currentRotation = -90;
             break;
         case 'bottom':
-            currentRotation = 0; // Basis bleibt unten
+            currentRotation = 0;
             break;
         case 'left':
-            currentRotation = 90; // Linke Seite nach unten
+            currentRotation = 90;
             break;
     }
     
     traufePosition = side;
     
-    console.log(`🔄 ROTATION: ${oldRotation}° → ${currentRotation}°`);
-    console.log(`📍 TRAUFE: ${traufePosition}`);
+    console.log(`🔄 ROTATION GEÄNDERT: ${oldRotation}° → ${currentRotation}°`);
     
-    // Blende Instruktionen aus
-    hideTraufeInstructions();
-    
-    // FORCE Update der Form
-    console.log('🔄 FORCING SHAPE UPDATE...');
-    
-    // Letzten Update-Status zurücksetzen
+    // FORCE komplettes Neuzeichnen
     isUpdating = false;
     
-    // Sofortiges Update
-    updateShape();
+    // Lösche alles und zeichne neu
+    const shapeGroup = document.getElementById('roof-shape');
+    if (shapeGroup) {
+        shapeGroup.innerHTML = '';
+        console.log('🧹 Shape-Group geleert');
+    }
     
-    // Zusätzliches Update nach kurzer Verzögerung für Sicherheit
+    // Zeichne die Form neu mit neuer Rotation
     setTimeout(() => {
-        console.log('🔄 SECOND UPDATE...');
         updateShape();
-        console.log('✅ FORM UPDATE COMPLETED');
-    }, 200);
+        console.log('✅ NEUZEICHNUNG ABGESCHLOSSEN');
+    }, 50);
     
-    showFeedback(`✅ Traufe festgelegt: ${name} → Rotation ${currentRotation}°`);
+    // Entferne die grüne Sprechblase nach kurzer Zeit
+    // (Keine showFeedback Funktion aufrufen)
 }
 
 function disableSideSelection() {
-    // Entferne klickbare Kanten
+    console.log('🧹 CLEANING UP: Entferne alle Interaktivität');
+    
+    // Entferne ALLE klickbaren Kanten
     const clickableEdges = document.querySelectorAll('.clickable-edge');
-    clickableEdges.forEach(edge => edge.remove());
+    console.log(`📌 Gefunden: ${clickableEdges.length} klickbare Kanten`);
+    clickableEdges.forEach(edge => {
+        console.log('🗑️ Entferne Kante:', edge.dataset.name);
+        edge.remove();
+    });
     
     // Entferne Tooltip
     hideSideTooltip();
@@ -1308,6 +1301,8 @@ function disableSideSelection() {
             shape.removeEventListener('click', handleShapeClick);
         });
     }
+    
+    console.log('✅ CLEANUP COMPLETED - Alle Interaktivität entfernt');
 }
 
 function handleShapeClick(e) {
@@ -1742,47 +1737,46 @@ function drawTriangle(group, data, variant) {
         const side = (data.side || 6) * SCALE_FACTOR;
         const height = side * Math.sqrt(3) / 2;
         
-        // Dreieck zentriert um CANVAS_CENTER
+        // Dreieck perfekt zentriert im Canvas
         const top_x = CANVAS_CENTER_X;
-        const top_y = CANVAS_CENTER_Y - height/2;
+        const top_y = CANVAS_CENTER_Y - height/3; // Etwas höher für bessere Zentrierung
         const left_x = CANVAS_CENTER_X - side/2;
-        const left_y = CANVAS_CENTER_Y + height/2;
+        const left_y = CANVAS_CENTER_Y + height/3; // Basis weiter unten
         const right_x = CANVAS_CENTER_X + side/2;
-        const right_y = CANVAS_CENTER_Y + height/2;
+        const right_y = CANVAS_CENTER_Y + height/3;
         
         points = `${top_x},${top_y} ${left_x},${left_y} ${right_x},${right_y}`;
         
-        console.log(`🔺 Gleichseitiges Dreieck gezeichnet:
+        console.log(`🔺 Dreieck ZENTRIERT:
             Spitze: (${top_x}, ${top_y})
             Links: (${left_x}, ${left_y}) 
-            Rechts: (${right_x}, ${right_y})
-            Seitenlänge: ${side}px`);
+            Rechts: (${right_x}, ${right_y})`);
             
     } else if (variant === 'rechtwinklig') {
         const a = (data.katheteA || 4) * SCALE_FACTOR;
         const b = (data.katheteB || 5) * SCALE_FACTOR;
         
-        // Rechtwinkliges Dreieck zentriert
+        // Rechtwinkliges Dreieck perfekt zentriert
         const bottom_left_x = CANVAS_CENTER_X - a/2;
-        const bottom_left_y = CANVAS_CENTER_Y + b/2;
+        const bottom_left_y = CANVAS_CENTER_Y + b/3;
         const bottom_right_x = CANVAS_CENTER_X + a/2;
-        const bottom_right_y = CANVAS_CENTER_Y + b/2;
+        const bottom_right_y = CANVAS_CENTER_Y + b/3;
         const top_left_x = CANVAS_CENTER_X - a/2;
-        const top_left_y = CANVAS_CENTER_Y - b/2;
+        const top_left_y = CANVAS_CENTER_Y - b/3;
         
         points = `${bottom_left_x},${bottom_left_y} ${bottom_right_x},${bottom_right_y} ${top_left_x},${top_left_y}`;
         
     } else {
-        // Allgemeines Dreieck
+        // Allgemeines Dreieck zentriert
         const a = (data.sideA || 4) * SCALE_FACTOR;
         const height = a * 0.8;
         
         const top_x = CANVAS_CENTER_X;
-        const top_y = CANVAS_CENTER_Y - height/2;
+        const top_y = CANVAS_CENTER_Y - height/3;
         const left_x = CANVAS_CENTER_X - a/2;
-        const left_y = CANVAS_CENTER_Y + height/2;
+        const left_y = CANVAS_CENTER_Y + height/3;
         const right_x = CANVAS_CENTER_X + a/2 - 30;
-        const right_y = CANVAS_CENTER_Y + height/2;
+        const right_y = CANVAS_CENTER_Y + height/3;
         
         points = `${top_x},${top_y} ${left_x},${left_y} ${right_x},${right_y}`;
     }
@@ -1796,7 +1790,7 @@ function drawTriangle(group, data, variant) {
     
     group.appendChild(triangle);
     
-    console.log(`✅ Dreieck erstellt mit Punkten: ${points}`);
+    console.log(`✅ ZENTRIERTES Dreieck: ${points}`);
 }
 
 function drawCircle(group, data, variant) {
