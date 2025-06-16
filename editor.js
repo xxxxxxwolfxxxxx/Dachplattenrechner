@@ -12,9 +12,9 @@ let isMirroredH = false;
 let isMirroredV = false;
 let traufePosition = 'bottom'; // Die Seite, die unten liegt (Wasserabfluss)
 
-const CANVAS_CENTER_X = 300;
-const CANVAS_CENTER_Y = 200;
-const SCALE_FACTOR = 25;
+const CANVAS_CENTER_X = 400; // Vergrößert von 300
+const CANVAS_CENTER_Y = 250; // Vergrößert von 200
+const SCALE_FACTOR = 40; // Vergrößert von 25
 
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
@@ -110,17 +110,17 @@ function createFallbackCanvas() {
         border: 2px solid #e9ecef;
         border-radius: 8px;
         background: white;
-        width: 600px;
-        height: 400px;
+        width: 800px;
+        height: 500px;
         margin: 20px auto;
         position: relative;
     `;
     
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.id = 'main-svg';
-    svg.setAttribute('width', '600');
-    svg.setAttribute('height', '400');
-    svg.setAttribute('viewBox', '0 0 600 400');
+    svg.setAttribute('width', '800');
+    svg.setAttribute('height', '500');
+    svg.setAttribute('viewBox', '0 0 800 500');
     
     svg.innerHTML = `
         <defs>
@@ -133,8 +133,8 @@ function createFallbackCanvas() {
             </marker>
         </defs>
         <rect width="100%" height="100%" fill="url(#grid)" />
-        <line x1="300" y1="0" x2="300" y2="400" stroke="#c0c0c0" stroke-width="2"/>
-        <line x1="0" y1="200" x2="600" y2="200" stroke="#c0c0c0" stroke-width="2"/>
+        <line x1="400" y1="0" x2="400" y2="500" stroke="#c0c0c0" stroke-width="2"/>
+        <line x1="0" y1="250" x2="800" y2="250" stroke="#c0c0c0" stroke-width="2"/>
         <g id="roof-shape"></g>
         <g id="dimensions"></g>
         <g id="water-flow"></g>
@@ -1092,16 +1092,60 @@ function enableSideSelection() {
     createClickableEdges();
 }
 
-function createClickableEdges() {
-    const finalShape = determineActualShape();
-    const currentData = getCurrentFormData();
+function createTriangleEdges(data) {
+    const variant = determineActualVariant();
     
-    if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        createRectangleEdges(currentData);
-    } else if (finalShape === 'dreieck') {
-        createTriangleEdges(currentData);
+    if (variant === 'gleichseitig') {
+        const side = (data.side || 6) * SCALE_FACTOR;
+        const height = side * Math.sqrt(3) / 2;
+        
+        const p1 = { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/2 }; // Spitze oben
+        const p2 = { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + height/2 }; // Links unten
+        const p3 = { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + height/2 }; // Rechts unten
+        
+        const edges = [
+            { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, side: 'left', name: 'Linke Seite' },
+            { x1: p2.x, y1: p2.y, x2: p3.x, y2: p3.y, side: 'bottom', name: 'Basis (unten)' },
+            { x1: p3.x, y1: p3.y, x2: p1.x, y2: p1.y, side: 'right', name: 'Rechte Seite' }
+        ];
+        
+        edges.forEach(edge => createClickableEdge(edge));
     }
-    // Weitere Formen hier...
+    // Weitere Dreieck-Varianten hier...
+}
+
+function createClickableEdge(edge) {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', edge.x1);
+    line.setAttribute('y1', edge.y1);
+    line.setAttribute('x2', edge.x2);
+    line.setAttribute('y2', edge.y2);
+    line.setAttribute('stroke', 'transparent');
+    line.setAttribute('stroke-width', '20'); // Noch dicker für besseres Klicken
+    line.style.cursor = 'pointer';
+    line.classList.add('clickable-edge');
+    line.dataset.side = edge.side;
+    line.dataset.name = edge.name;
+    
+    // Hover-Effekt
+    line.addEventListener('mouseenter', () => {
+        line.setAttribute('stroke', 'rgba(255, 193, 7, 0.7)');
+        line.setAttribute('stroke-width', '8');
+        showSideTooltip(edge.name, edge.x1 + (edge.x2 - edge.x1)/2, edge.y1 + (edge.y2 - edge.y1)/2);
+    });
+    
+    line.addEventListener('mouseleave', () => {
+        line.setAttribute('stroke', 'transparent');
+        line.setAttribute('stroke-width', '20');
+        hideSideTooltip();
+    });
+    
+    line.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectTraufeSide(edge.side, edge.name);
+    });
+    
+    svg.appendChild(line);
 }
 
 function createRectangleEdges(data) {
@@ -1126,37 +1170,19 @@ function createRectangleEdges(data) {
         { x1: x, y1: y + height, x2: x, y2: y, side: 'left', name: 'Linke Seite' }
     ];
     
-    edges.forEach(edge => {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', edge.x1);
-        line.setAttribute('y1', edge.y1);
-        line.setAttribute('x2', edge.x2);
-        line.setAttribute('y2', edge.y2);
-        line.setAttribute('stroke', 'transparent');
-        line.setAttribute('stroke-width', '15'); // Dicke unsichtbare Linie für einfaches Klicken
-        line.style.cursor = 'pointer';
-        line.classList.add('clickable-edge');
-        line.dataset.side = edge.side;
-        line.dataset.name = edge.name;
-        
-        // Hover-Effekt
-        line.addEventListener('mouseenter', () => {
-            line.setAttribute('stroke', 'rgba(255, 193, 7, 0.5)');
-            showSideTooltip(edge.name, edge.x1 + (edge.x2 - edge.x1)/2, edge.y1 + (edge.y2 - edge.y1)/2);
-        });
-        
-        line.addEventListener('mouseleave', () => {
-            line.setAttribute('stroke', 'transparent');
-            hideSideTooltip();
-        });
-        
-        line.addEventListener('click', (e) => {
-            e.stopPropagation();
-            selectTraufeSide(edge.side, edge.name);
-        });
-        
-        svg.appendChild(line);
-    });
+    edges.forEach(edge => createClickableEdge(edge));
+}
+
+function createClickableEdges() {
+    const finalShape = determineActualShape();
+    const currentData = getCurrentFormData();
+    
+    if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        createRectangleEdges(currentData);
+    } else if (finalShape === 'dreieck') {
+        createTriangleEdges(currentData);
+    }
+    // Weitere Formen hier...
 }
 
 function showSideTooltip(name, x, y) {
