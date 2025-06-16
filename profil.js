@@ -1,3 +1,5 @@
+// Korrigierte profil.js - richtig formatiert
+
 // Erweiterte Profilkatalog mit Seitenueberlappung
 const profile = {
     'trapezprofil': {
@@ -26,35 +28,72 @@ const profile = {
 
 let projectData = {};
 
-// Sichere Storage-Funktionen
+// VERBESSERTE Speicher-Funktionen mit Debug
 function saveData() {
+    console.log('=== SPEICHERE DATEN ===');
+    console.log('Zu speichernde projectData:', JSON.stringify(projectData, null, 2));
+    
     try {
         localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+        console.log('✅ Erfolgreich in localStorage gespeichert');
+        
+        // Sofort wieder auslesen zur Verifikation
+        const verification = localStorage.getItem('dachplattenrechner_data');
+        console.log('🔍 Verifikation - Ausgelesene Daten:', verification);
+        
         return true;
     } catch (e) {
-        console.log('localStorage nicht verfügbar, verwende Session-Speicher');
-        sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-        return true;
+        console.log('❌ localStorage fehlgeschlagen, verwende sessionStorage:', e);
+        try {
+            sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            console.log('✅ Erfolgreich in sessionStorage gespeichert');
+            
+            // Sofort wieder auslesen zur Verifikation
+            const verification = sessionStorage.getItem('dachplattenrechner_data');
+            console.log('🔍 Verifikation - Ausgelesene Daten:', verification);
+            
+            return true;
+        } catch (e2) {
+            console.error('❌ Beide Storage-Methoden fehlgeschlagen:', e2);
+            return false;
+        }
     }
 }
 
 function loadData() {
+    console.log('=== LADE DATEN ===');
+    
     try {
         let saved = localStorage.getItem('dachplattenrechner_data');
+        console.log('📖 localStorage Inhalt:', saved);
+        
         if (!saved) {
             saved = sessionStorage.getItem('dachplattenrechner_data');
+            console.log('📖 sessionStorage Inhalt:', saved);
         }
-        return saved ? JSON.parse(saved) : null;
+        
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            console.log('✅ Erfolgreich geparst:', parsed);
+            return parsed;
+        } else {
+            console.log('ℹ️ Keine gespeicherten Daten gefunden');
+            return {};
+        }
     } catch (e) {
-        console.log('Fehler beim Laden der Daten');
-        return null;
+        console.error('❌ Fehler beim Laden der Daten:', e);
+        return {};
     }
 }
 
 function loadProfile() {
+    console.log('loadProfile() aufgerufen');
+    
     const kategorie = document.getElementById('profil-kategorie').value;
     const profilSelect = document.getElementById('profil-auswahl');
     const profilGruppe = document.getElementById('profil-gruppe');
+    
+    console.log('Gewählte Kategorie:', kategorie);
     
     profilSelect.innerHTML = '<option value="">Bitte wählen...</option>';
     
@@ -67,8 +106,10 @@ function loadProfile() {
             profilSelect.appendChild(option);
         });
         profilGruppe.style.display = 'block';
+        console.log('Profile geladen für Kategorie:', kategorie);
     } else {
         profilGruppe.style.display = 'none';
+        console.log('Kategorie nicht gefunden oder leer');
     }
     
     clearProfilData();
@@ -76,15 +117,24 @@ function loadProfile() {
 }
 
 function setProfilData() {
+    console.log('setProfilData() aufgerufen');
+    
     const kategorie = document.getElementById('profil-kategorie').value;
     const profilKey = document.getElementById('profil-auswahl').value;
     
+    console.log('Kategorie:', kategorie, 'ProfilKey:', profilKey);
+    
     if (kategorie && profilKey && profile[kategorie] && profile[kategorie][profilKey]) {
         const p = profile[kategorie][profilKey];
+        console.log('Gefundenes Profil:', p);
+        
         document.getElementById('deckbreite').value = p.deckbreite;
         document.getElementById('lieferbreite').value = p.lieferbreite;
         document.getElementById('profilname').value = p.name;
+        
+        console.log('Profil-Daten in Felder eingetragen');
     } else {
+        console.log('Profil nicht gefunden');
         clearProfilData();
     }
     
@@ -101,52 +151,90 @@ function toggleLaengsueberlappung() {
     const dachTeilen = document.getElementById('dach-teilen').checked;
     const section = document.getElementById('laengsueberlappung-section');
     section.style.display = dachTeilen ? 'block' : 'none';
+    console.log('Längsüberlappung-Sektion:', dachTeilen ? 'angezeigt' : 'versteckt');
 }
 
 function toggleLengthSections() {
     const isLager = document.querySelector('input[name="laengentyp"]:checked').value === 'lager';
     document.getElementById('lager-section').style.display = isLager ? 'block' : 'none';
     document.getElementById('bereich-section').style.display = isLager ? 'none' : 'block';
+    console.log('Längen-Typ:', isLager ? 'Lager' : 'Bereich');
     validateForm();
 }
 
 function validateForm() {
+    console.log('=== VALIDIERE FORMULAR ===');
+    
     const deckbreite = document.getElementById('deckbreite').value;
     const lieferbreite = document.getElementById('lieferbreite').value;
     const isLager = document.querySelector('input[name="laengentyp"]:checked').value === 'lager';
     
+    console.log('Deckbreite:', deckbreite);
+    console.log('Lieferbreite:', lieferbreite);
+    console.log('Ist Lager:', isLager);
+    
     let lengthValid = false;
     if (isLager) {
-        lengthValid = document.getElementById('lagerlaengen').value.trim() !== '';
+        const lagerlaengen = document.getElementById('lagerlaengen').value.trim();
+        lengthValid = lagerlaengen !== '';
+        console.log('Lagerlängen:', lagerlaengen, 'Valid:', lengthValid);
     } else {
         const min = document.getElementById('min-laenge').value;
         const max = document.getElementById('max-laenge').value;
         lengthValid = min && max && parseInt(min) < parseInt(max);
+        console.log('Min:', min, 'Max:', max, 'Valid:', lengthValid);
     }
     
     const isValid = deckbreite && lieferbreite && lengthValid;
-    document.getElementById('continue-btn').disabled = !isValid;
+    console.log('Formular gültig:', isValid);
+    
+    const continueBtn = document.getElementById('continue-btn');
+    continueBtn.disabled = !isValid;
+    
+    if (isValid) {
+        continueBtn.style.opacity = '1';
+        continueBtn.style.cursor = 'pointer';
+    } else {
+        continueBtn.style.opacity = '0.5';
+        continueBtn.style.cursor = 'not-allowed';
+    }
 }
 
 function saveAndContinue() {
+    console.log('=== SPEICHERN UND WEITER ===');
+    
     const kategorie = document.getElementById('profil-kategorie').value;
     const profilKey = document.getElementById('profil-auswahl').value;
+    
+    console.log('Kategorie:', kategorie);
+    console.log('ProfilKey:', profilKey);
+    
+    if (!kategorie || !profilKey) {
+        alert('Bitte wählen Sie ein Profil aus!');
+        return;
+    }
+    
     const selectedProfile = profile[kategorie][profilKey];
+    console.log('Gewähltes Profil:', selectedProfile);
+    
     const isLager = document.querySelector('input[name="laengentyp"]:checked').value === 'lager';
     
-    projectData = {
-        profile: {
-            kategorie: kategorie,
-            profilKey: profilKey,
-            deckbreite: parseInt(document.getElementById('deckbreite').value),
-            lieferbreite: parseInt(document.getElementById('lieferbreite').value),
-            seitenueberlappung: selectedProfile.seitenueberlappung,
-            profilname: document.getElementById('profilname').value,
-            laengentyp: isLager ? 'lager' : 'bereich',
-            ueberstand: parseInt(document.getElementById('ueberstand').value) || 50,
-            laengsueberlappung: parseInt(document.getElementById('laengsueberlappung').value) || 200,
-            dachTeilen: document.getElementById('dach-teilen').checked
-        }
+    // KRITISCH: Bestehende Daten laden und erweitern, nicht überschreiben!
+    projectData = loadData();
+    console.log('Bestehende Daten geladen:', projectData);
+    
+    // Profil-Daten hinzufügen/aktualisieren
+    projectData.profile = {
+        kategorie: kategorie,
+        profilKey: profilKey,
+        deckbreite: parseInt(document.getElementById('deckbreite').value),
+        lieferbreite: parseInt(document.getElementById('lieferbreite').value),
+        seitenueberlappung: selectedProfile.seitenueberlappung,
+        profilname: document.getElementById('profilname').value,
+        laengentyp: isLager ? 'lager' : 'bereich',
+        ueberstand: parseInt(document.getElementById('ueberstand').value) || 50,
+        laengsueberlappung: parseInt(document.getElementById('laengsueberlappung').value) || 200,
+        dachTeilen: document.getElementById('dach-teilen').checked
     };
 
     if (isLager) {
@@ -158,20 +246,32 @@ function saveAndContinue() {
         projectData.profile.schnittRaster = 100;
     }
 
-    try {
-        saveData();
-    } catch (e) {
-        console.log('Speichern nicht möglich');
+    console.log('Finale projectData vor Speicherung:', JSON.stringify(projectData, null, 2));
+
+    const saved = saveData();
+    if (!saved) {
+        alert('Fehler beim Speichern! Bitte versuchen Sie es erneut.');
+        return;
     }
     
-    window.location.href = 'dachform.html';
+    console.log('✅ Erfolgreich gespeichert, weiterleiten zu dachform.html');
+    
+    // Kleine Verzögerung um sicherzustellen, dass gespeichert wurde
+    setTimeout(() => {
+        window.location.href = 'dachform.html';
+    }, 100);
 }
 
 function loadSavedData() {
+    console.log('=== LADE GESPEICHERTE DATEN ===');
+    
     try {
         const data = loadData();
+        console.log('Geladene Daten:', data);
+        
         if (data && data.profile) {
             const p = data.profile;
+            console.log('Profil-Daten gefunden:', p);
             
             if (p.kategorie) {
                 document.getElementById('profil-kategorie').value = p.kategorie;
@@ -203,9 +303,12 @@ function loadSavedData() {
             if (p.laengsueberlappung) document.getElementById('laengsueberlappung').value = p.laengsueberlappung;
             
             validateForm();
+            console.log('Alle Felder erfolgreich wiederhergestellt');
+        } else {
+            console.log('Keine Profil-Daten zum Wiederherstellen');
         }
     } catch (e) {
-        console.log('Keine gespeicherten Daten vorhanden');
+        console.error('Fehler beim Wiederherstellen:', e);
     }
 }
 
@@ -215,6 +318,9 @@ function goBack() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== PROFIL-SEITE GELADEN ===');
+    
+    // Alle Event Listener einrichten
     document.getElementById('profil-kategorie').addEventListener('change', loadProfile);
     document.getElementById('profil-auswahl').addEventListener('change', setProfilData);
     
@@ -229,5 +335,40 @@ document.addEventListener('DOMContentLoaded', function() {
         input.addEventListener('change', validateForm);
     });
 
+    // Gespeicherte Daten laden
     loadSavedData();
+    
+    console.log('Event Listeners eingerichtet und Daten geladen');
 });
+
+// EXTRA DEBUG: Storage testen
+window.testStorage = function() {
+    console.log('=== STORAGE TEST ===');
+    
+    const testData = { test: 'value', timestamp: Date.now() };
+    
+    try {
+        localStorage.setItem('test', JSON.stringify(testData));
+        const retrieved = localStorage.getItem('test');
+        console.log('localStorage Test:', retrieved);
+        localStorage.removeItem('test');
+    } catch (e) {
+        console.log('localStorage nicht verfügbar:', e);
+    }
+    
+    try {
+        sessionStorage.setItem('test', JSON.stringify(testData));
+        const retrieved = sessionStorage.getItem('test');
+        console.log('sessionStorage Test:', retrieved);
+        sessionStorage.removeItem('test');
+    } catch (e) {
+        console.log('sessionStorage nicht verfügbar:', e);
+    }
+};
+
+// Debug-Funktionen global verfügbar machen
+window.debugProjectData = () => console.log('Current projectData:', projectData);
+window.debugStorage = () => {
+    console.log('localStorage:', localStorage.getItem('dachplattenrechner_data'));
+    console.log('sessionStorage:', sessionStorage.getItem('dachplattenrechner_data'));
+};
