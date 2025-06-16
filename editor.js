@@ -717,4 +717,247 @@ function updateCalculations(data) {
             const baseB = data.baseB || 5;
             const height = data.height || 4;
             area = 0.5 * (baseA + baseB) * height;
-            perimeter = baseA + baseB + 2 * Math.sqrt(height*height + ((baseA-baseB)/2)*((baseA-baseB)/
+            perimeter = baseA + baseB + 2 * Math.sqrt(height*height + ((baseA-baseB)/2)*((baseA-baseB)/2));
+            break;
+            
+        case 'parallelogramm':
+            const base = data.base || 8;
+            const pSide = data.side || 5;
+            const pHeight = data.height || 4;
+            area = base * pHeight;
+            perimeter = 2 * (base + pSide);
+            break;
+            
+        case 'rhombus':
+            const rhombusSide = data.side || 5;
+            const rhombusHeight = data.height || 4;
+            area = rhombusSide * rhombusHeight;
+            perimeter = 4 * rhombusSide;
+            break;
+    }
+    
+    const areaElement = document.getElementById('calc-area');
+    const perimeterElement = document.getElementById('calc-perimeter');
+    
+    if (areaElement) areaElement.textContent = `${area.toFixed(2)} m²`;
+    if (perimeterElement) perimeterElement.textContent = `${perimeter.toFixed(2)} m`;
+}
+
+function setupEventListeners() {
+    // Navigation
+    const backBtn = document.getElementById('btn-back');
+    const continueBtn = document.getElementById('btn-continue');
+    
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            saveCurrentData();
+            window.location.href = 'dachform.html';
+        });
+    }
+    
+    if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+            saveCurrentData();
+            window.location.href = 'berechnung.html';
+        });
+    }
+    
+    setupToolButtons();
+}
+
+function setupToolButtons() {
+    const tools = {
+        'btn-reset': resetToDefaults,
+        'btn-mirror-horizontal': () => {
+            isMirroredH = !isMirroredH;
+            updateShape();
+            showFeedback(isMirroredH ? 'Horizontal gespiegelt' : 'Horizontale Spiegelung aufgehoben');
+        },
+        'btn-mirror-vertical': () => {
+            isMirroredV = !isMirroredV;
+            updateShape();
+            showFeedback(isMirroredV ? 'Vertikal gespiegelt' : 'Vertikale Spiegelung aufgehoben');
+        },
+        'btn-rotate-left': () => {
+            currentRotation -= 45;
+            if (currentRotation <= -180) currentRotation += 360;
+            updateShape();
+            showFeedback(`Um 45° links gedreht (${currentRotation}°)`);
+        },
+        'btn-rotate-right': () => {
+            currentRotation += 45;
+            if (currentRotation >= 180) currentRotation -= 360;
+            updateShape();
+            showFeedback(`Um 45° rechts gedreht (${currentRotation}°)`);
+        },
+        'btn-traufe': selectTraufePosition
+    };
+    
+    Object.entries(tools).forEach(([id, handler]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('click', handler);
+        }
+    });
+}
+
+function selectTraufePosition() {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: Arial, sans-serif;
+    `;
+    
+    overlay.innerHTML = `
+        <h3 style="margin-bottom: 20px; font-size: 24px; text-align: center;">Traufe-Position bestimmen</h3>
+        <p style="margin-bottom: 30px; text-align: center; font-size: 16px; max-width: 500px; line-height: 1.4;">
+            Welche Seite Ihrer Form ist die <strong>Traufe</strong> (Dachrand)?<br>
+            Die gewählte Seite wird automatisch nach unten ausgerichtet.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+            <button onclick="setTraufePosition('top')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                ↑<br><strong>Obere Seite</strong><br><small>ist Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('right')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                →<br><strong>Rechte Seite</strong><br><small>ist Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('bottom')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #28a745; color: white; text-align: center;">
+                ↓<br><strong>Untere Seite</strong><br><small>ist Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('left')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                ←<br><strong>Linke Seite</strong><br><small>ist Traufe</small>
+            </button>
+        </div>
+        <button onclick="closeTraufeDialog()" style="margin-top: 10px; padding: 12px 24px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 8px;">Abbrechen</button>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+// Globale Funktionen für Traufe-Dialog
+window.setTraufePosition = function(position) {
+    traufePosition = position;
+    
+    switch(position) {
+        case 'top':
+            currentRotation = 180;
+            break;
+        case 'right':
+            currentRotation = 90;
+            break;
+        case 'bottom':
+            currentRotation = 0;
+            break;
+        case 'left':
+            currentRotation = -90;
+            break;
+    }
+    
+    updateShape();
+    closeTraufeDialog();
+    
+    const positionNames = {
+        'top': 'oben',
+        'right': 'rechts',
+        'bottom': 'unten',
+        'left': 'links'
+    };
+    
+    showFeedback(`Traufe-Seite "${positionNames[position]}" nach unten gedreht (${currentRotation}°)`);
+};
+
+window.closeTraufeDialog = function() {
+    const overlays = document.querySelectorAll('[style*="position: fixed"]');
+    overlays.forEach(overlay => {
+        if (overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+        }
+    });
+};
+
+function showFeedback(message) {
+    const feedback = document.createElement('div');
+    feedback.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    `;
+    feedback.textContent = message;
+    document.body.appendChild(feedback);
+    
+    setTimeout(() => {
+        if (feedback.parentNode) {
+            document.body.removeChild(feedback);
+        }
+    }, 3000);
+}
+
+function resetToDefaults() {
+    currentRotation = 0;
+    isMirroredH = false;
+    isMirroredV = false;
+    traufePosition = 'bottom';
+    
+    const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    
+    inputs.forEach(input => {
+        switch(input.id) {
+            case 'side': input.value = currentVariant === 'quadrat' ? '5' : '6'; break;
+            case 'katheteA': input.value = '4'; break;
+            case 'katheteB': input.value = '5'; break;
+            case 'sideA': input.value = '4'; break;
+            case 'sideB': input.value = '5'; break;
+            case 'sideC': input.value = '6'; break;
+            case 'radius': input.value = '4'; break;
+            case 'length': input.value = '8'; break;
+            case 'width': input.value = '5'; break;
+            case 'base': input.value = '8'; break;
+            case 'baseA': input.value = '8'; break;
+            case 'baseB': input.value = '5'; break;
+            case 'height': input.value = '4'; break;
+        }
+    });
+    
+    updateShape();
+    showFeedback('Komplett zurückgesetzt: Form, Rotation und Spiegelung');
+}
+
+function saveCurrentData() {
+    const currentData = getCurrentFormData();
+    
+    currentData.rotation = currentRotation;
+    currentData.mirroredH = isMirroredH;
+    currentData.mirroredV = isMirroredV;
+    currentData.traufePosition = traufePosition;
+    
+    if (!projectData.roofShape) {
+        projectData.roofShape = {};
+    }
+    
+    Object.assign(projectData.roofShape, currentData);
+    
+    try {
+        localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+    } catch (e) {
+        sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+    }
+}
+
+console.log('✅ Editor komplett geladen');
