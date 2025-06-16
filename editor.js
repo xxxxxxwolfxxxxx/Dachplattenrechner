@@ -12,6 +12,10 @@ let isMirroredH = false;
 let isMirroredV = false;
 let traufePosition = 'bottom';
 
+// Traufe-Auswahl Modus
+let traufeSelectionMode = false;
+let traufeOverlay = null;
+
 const CANVAS_CENTER_X = 300;
 const CANVAS_CENTER_Y = 200;
 const SCALE_FACTOR = 25;
@@ -902,14 +906,24 @@ function setupToolButtons() {
 }
 
 function selectTraufePosition() {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
+    if (traufeSelectionMode) {
+        // Modus beenden
+        exitTraufeMode();
+        return;
+    }
+    
+    // Modus aktivieren
+    traufeSelectionMode = true;
+    
+    // Overlay mit Anweisungen erstellen
+    traufeOverlay = document.createElement('div');
+    traufeOverlay.style.cssText = `
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.7);
+        background: rgba(0,0,0,0.6);
         z-index: 10000;
         display: flex;
         flex-direction: column;
@@ -917,74 +931,270 @@ function selectTraufePosition() {
         align-items: center;
         color: white;
         font-family: Arial, sans-serif;
+        cursor: crosshair;
     `;
     
-    overlay.innerHTML = `
-        <h3 style="margin-bottom: 20px; font-size: 24px; text-align: center;">Traufe-Position bestimmen</h3>
-        <p style="margin-bottom: 30px; text-align: center; font-size: 16px; max-width: 500px; line-height: 1.4;">
-            Welche Seite Ihrer Form ist die <strong>Traufe</strong> (Dachrand)?<br>
-            Die gewählte Seite wird automatisch nach unten ausgerichtet.
-        </p>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
-            <button onclick="setTraufePosition('top')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
-                ↑<br><strong>Obere Seite</strong><br><small>ist Traufe</small>
-            </button>
-            <button onclick="setTraufePosition('right')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
-                →<br><strong>Rechte Seite</strong><br><small>ist Traufe</small>
-            </button>
-            <button onclick="setTraufePosition('bottom')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #28a745; color: white; text-align: center;">
-                ↓<br><strong>Untere Seite</strong><br><small>ist Traufe</small>
-            </button>
-            <button onclick="setTraufePosition('left')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
-                ←<br><strong>Linke Seite</strong><br><small>ist Traufe</small>
+    traufeOverlay.innerHTML = `
+        <div style="background: rgba(0,0,0,0.8); padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 20px; max-width: 500px;">
+            <h3 style="margin-bottom: 20px; font-size: 24px;">🎯 Traufe bestimmen</h3>
+            <p style="margin-bottom: 15px; font-size: 16px; line-height: 1.4;">
+                <strong>Klicken Sie auf die Seite der Form,</strong><br>
+                die als <strong>Traufe</strong> (Wasserablauf) dienen soll.
+            </p>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #ccc;">
+                Die gewählte Seite wird automatisch nach unten gedreht.
+            </p>
+            <button onclick="exitTraufeMode()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 6px; font-size: 14px;">
+                Abbrechen (ESC)
             </button>
         </div>
-        <button onclick="closeTraufeDialog()" style="margin-top: 10px; padding: 12px 24px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 8px;">Abbrechen</button>
     `;
     
-    document.body.appendChild(overlay);
+    document.body.appendChild(traufeOverlay);
+    
+    // ESC-Taste zum Beenden
+    document.addEventListener('keydown', handleTraufeKeydown);
+    
+    // Klickbare Bereiche zur Form hinzufügen
+    addTraufeClickAreas();
+    
+    showFeedback('Traufe-Modus aktiviert - Klicken Sie auf eine Seite der Form');
 }
 
-// Globale Funktionen für Traufe-Dialog
-window.setTraufePosition = function(position) {
-    traufePosition = position;
+function handleTraufeKeydown(event) {
+    if (event.key === 'Escape') {
+        exitTraufeMode();
+    }
+}
+
+function exitTraufeMode() {
+    traufeSelectionMode = false;
     
-    switch(position) {
-        case 'top':
-            currentRotation = 180;
-            break;
-        case 'right':
-            currentRotation = 90;
-            break;
-        case 'bottom':
-            currentRotation = 0;
-            break;
-        case 'left':
-            currentRotation = -90;
-            break;
+    if (traufeOverlay) {
+        document.body.removeChild(traufeOverlay);
+        traufeOverlay = null;
     }
     
+    document.removeEventListener('keydown', handleTraufeKeydown);
+    removeTraufeClickAreas();
+    
+    showFeedback('Traufe-Modus beendet');
+}
+
+function addTraufeClickAreas() {
+    const shapeGroup = document.getElementById('roof-shape');
+    if (!shapeGroup) return;
+    
+    // Finde die Form
+    const shape = shapeGroup.querySelector('polygon, rect, circle, ellipse, path');
+    if (!shape) return;
+    
+    const finalShape = determineActualShape();
+    
+    if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        addRectangleClickAreas(shape);
+    } else if (finalShape === 'dreieck') {
+        addTriangleClickAreas(shape);
+    } else if (finalShape === 'kreis') {
+        addCircleClickAreas(shape);
+    } else if (['trapez', 'parallelogramm', 'rhombus'].includes(finalShape)) {
+        addPolygonClickAreas(shape);
+    }
+}
+
+function addRectangleClickAreas(rect) {
+    const x = parseFloat(rect.getAttribute('x'));
+    const y = parseFloat(rect.getAttribute('y'));
+    const width = parseFloat(rect.getAttribute('width'));
+    const height = parseFloat(rect.getAttribute('height'));
+    
+    // Vier klickbare Bereiche für die Seiten erstellen
+    const sides = [
+        { name: 'top', x: x, y: y - 10, width: width, height: 20, rotation: 180 },
+        { name: 'right', x: x + width - 10, y: y, width: 20, height: height, rotation: -90 },
+        { name: 'bottom', x: x, y: y + height - 10, width: width, height: 20, rotation: 0 },
+        { name: 'left', x: x - 10, y: y, width: 20, height: height, rotation: 90 }
+    ];
+    
+    sides.forEach(side => {
+        const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        clickArea.setAttribute('x', side.x);
+        clickArea.setAttribute('y', side.y);
+        clickArea.setAttribute('width', side.width);
+        clickArea.setAttribute('height', side.height);
+        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.3)');
+        clickArea.setAttribute('stroke', '#ffff00');
+        clickArea.setAttribute('stroke-width', '2');
+        clickArea.setAttribute('stroke-dasharray', '5,5');
+        clickArea.classList.add('traufe-click-area');
+        clickArea.style.cursor = 'pointer';
+        
+        clickArea.addEventListener('click', () => {
+            setTraufePositionDirect(side.name, side.rotation);
+        });
+        
+        clickArea.addEventListener('mouseenter', () => {
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.5)');
+            showFeedback(`Klicken: ${side.name.toUpperCase()}-Seite als Traufe`);
+        });
+        
+        clickArea.addEventListener('mouseleave', () => {
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.3)');
+        });
+        
+        document.getElementById('roof-shape').appendChild(clickArea);
+    });
+}
+
+function addTriangleClickAreas(triangle) {
+    const points = triangle.getAttribute('points').split(' ');
+    
+    // Drei klickbare Bereiche für die Seiten
+    const sides = [
+        { name: 'bottom', points: [points[0], points[1]], rotation: 0 },
+        { name: 'left', points: [points[1], points[2]], rotation: 120 },
+        { name: 'right', points: [points[2], points[0]], rotation: -120 }
+    ];
+    
+    sides.forEach((side, index) => {
+        // Mittelpunkt der Seite berechnen
+        const p1 = side.points[0].split(',');
+        const p2 = side.points[1].split(',');
+        const midX = (parseFloat(p1[0]) + parseFloat(p2[0])) / 2;
+        const midY = (parseFloat(p1[1]) + parseFloat(p2[1])) / 2;
+        
+        // Klickbereich erstellen
+        const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        clickArea.setAttribute('cx', midX);
+        clickArea.setAttribute('cy', midY);
+        clickArea.setAttribute('r', '15');
+        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
+        clickArea.setAttribute('stroke', '#ffff00');
+        clickArea.setAttribute('stroke-width', '3');
+        clickArea.classList.add('traufe-click-area');
+        clickArea.style.cursor = 'pointer';
+        
+        clickArea.addEventListener('click', () => {
+            setTraufePositionDirect(side.name, side.rotation);
+        });
+        
+        clickArea.addEventListener('mouseenter', () => {
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
+            showFeedback(`Klicken: ${side.name.toUpperCase()}-Seite als Traufe`);
+        });
+        
+        clickArea.addEventListener('mouseleave', () => {
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
+        });
+        
+        document.getElementById('roof-shape').appendChild(clickArea);
+    });
+}
+
+function addCircleClickAreas(circle) {
+    const cx = parseFloat(circle.getAttribute('cx'));
+    const cy = parseFloat(circle.getAttribute('cy'));
+    const r = parseFloat(circle.getAttribute('r')) || 50;
+    
+    // Vier Bereiche um den Kreis
+    const sides = [
+        { name: 'top', x: cx, y: cy - r, rotation: 180 },
+        { name: 'right', x: cx + r, y: cy, rotation: -90 },
+        { name: 'bottom', x: cx, y: cy + r, rotation: 0 },
+        { name: 'left', x: cx - r, y: cy, rotation: 90 }
+    ];
+    
+    sides.forEach(side => {
+        const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        clickArea.setAttribute('cx', side.x);
+        clickArea.setAttribute('cy', side.y);
+        clickArea.setAttribute('r', '12');
+        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
+        clickArea.setAttribute('stroke', '#ffff00');
+        clickArea.setAttribute('stroke-width', '2');
+        clickArea.classList.add('traufe-click-area');
+        clickArea.style.cursor = 'pointer';
+        
+        clickArea.addEventListener('click', () => {
+            setTraufePositionDirect(side.name, side.rotation);
+        });
+        
+        clickArea.addEventListener('mouseenter', () => {
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
+            showFeedback(`Klicken: ${side.name.toUpperCase()}-Bereich als Traufe`);
+        });
+        
+        clickArea.addEventListener('mouseleave', () => {
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
+        });
+        
+        document.getElementById('roof-shape').appendChild(clickArea);
+    });
+}
+
+function addPolygonClickAreas(polygon) {
+    // Für komplexere Formen - vereinfacht 4 Hauptrichtungen
+    const sides = [
+        { name: 'top', x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - 80, rotation: 180 },
+        { name: 'right', x: CANVAS_CENTER_X + 80, y: CANVAS_CENTER_Y, rotation: -90 },
+        { name: 'bottom', x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y + 80, rotation: 0 },
+        { name: 'left', x: CANVAS_CENTER_X - 80, y: CANVAS_CENTER_Y, rotation: 90 }
+    ];
+    
+    sides.forEach(side => {
+        const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        clickArea.setAttribute('cx', side.x);
+        clickArea.setAttribute('cy', side.y);
+        clickArea.setAttribute('r', '12');
+        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
+        clickArea.setAttribute('stroke', '#ffff00');
+        clickArea.setAttribute('stroke-width', '2');
+        clickArea.classList.add('traufe-click-area');
+        clickArea.style.cursor = 'pointer';
+        
+        clickArea.addEventListener('click', () => {
+            setTraufePositionDirect(side.name, side.rotation);
+        });
+        
+        clickArea.addEventListener('mouseenter', () => {
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
+            showFeedback(`Klicken: ${side.name.toUpperCase()}-Seite als Traufe`);
+        });
+        
+        clickArea.addEventListener('mouseleave', () => {
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
+        });
+        
+        document.getElementById('roof-shape').appendChild(clickArea);
+    });
+}
+
+function removeTraufeClickAreas() {
+    document.querySelectorAll('.traufe-click-area').forEach(area => {
+        area.remove();
+    });
+}
+
+function setTraufePositionDirect(position, rotation) {
+    traufePosition = position;
+    currentRotation = rotation;
+    
     updateShape();
-    closeTraufeDialog();
+    exitTraufeMode();
     
     const positionNames = {
-        'top': 'oben',
-        'right': 'rechts',
-        'bottom': 'unten',
-        'left': 'links'
+        'top': 'obere',
+        'right': 'rechte',
+        'bottom': 'untere',
+        'left': 'linke'
     };
     
-    showFeedback(`Traufe-Seite "${positionNames[position]}" nach unten gedreht (${currentRotation}°)`);
-};
+    showFeedback(`✅ ${positionNames[position]} Seite als Traufe festgelegt (${rotation}° Drehung)`);
+}
 
-window.closeTraufeDialog = function() {
-    const overlays = document.querySelectorAll('[style*="position: fixed"]');
-    overlays.forEach(overlay => {
-        if (overlay.parentNode) {
-            overlay.parentNode.removeChild(overlay);
-        }
-    });
-};
+// Globale Funktionen entfernen da nicht mehr benötigt
+window.setTraufePosition = function() {};
+window.closeTraufeDialog = function() {};
 
 function showFeedback(message) {
     const feedback = document.createElement('div');
