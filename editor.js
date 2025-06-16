@@ -553,26 +553,38 @@ function getCurrentFormData() {
 }
 
 function drawTransformedShape(group, data) {
-    console.log(`🎨 DRAWING mit Rotation: ${currentRotation}°`);
+    console.log(`🎨 ZEICHNE Form - Rotation: ${currentRotation}°, H-Spiegel: ${isMirroredH}, V-Spiegel: ${isMirroredV}`);
     
-    // Erstelle Transform-Gruppe
-    const shapeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    shapeGroup.id = 'shape-transform-group';
+    // Zeichne die Form DIREKT in die Gruppe (ohne Transform-Untergruppe)
+    drawShape(group, data);
     
-    // Wende Rotation an wenn nötig
+    // Wende Transform direkt auf die Hauptgruppe an
+    let transforms = [];
+    
+    // Rotation um das Zentrum
     if (currentRotation !== 0) {
-        const transform = `rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`;
-        shapeGroup.setAttribute('transform', transform);
-        console.log(`✅ TRANSFORM ANGEWENDET: ${transform}`);
-    } else {
-        console.log('ℹ️ Keine Rotation - Standard Position');
+        transforms.push(`rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`);
+        console.log(`➕ Rotation hinzugefügt: ${currentRotation}°`);
     }
     
-    // Zeichne die Form in das transformierte Gruppenelement
-    drawShape(shapeGroup, data);
-    group.appendChild(shapeGroup);
+    // Spiegelungen um das Zentrum
+    if (isMirroredH || isMirroredV) {
+        const scaleX = isMirroredH ? -1 : 1;
+        const scaleY = isMirroredV ? -1 : 1;
+        transforms.push(`translate(${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`);
+        transforms.push(`scale(${scaleX} ${scaleY})`);
+        transforms.push(`translate(${-CANVAS_CENTER_X} ${-CANVAS_CENTER_Y})`);
+        console.log(`➕ Spiegelung hinzugefügt: scaleX=${scaleX}, scaleY=${scaleY}`);
+    }
     
-    console.log(`✅ FORM GEZEICHNET mit ${currentRotation}° Rotation`);
+    if (transforms.length > 0) {
+        const fullTransform = transforms.join(' ');
+        group.setAttribute('transform', fullTransform);
+        console.log(`✅ TRANSFORM GESETZT: ${fullTransform}`);
+    } else {
+        group.removeAttribute('transform');
+        console.log(`ℹ️ Keine Transform - Standard Position`);
+    }
 }
 
 function drawLabelsAndAnnotations(group, data) {
@@ -1028,36 +1040,56 @@ function setupEventListeners() {
 
 function setupToolButtons() {
     const tools = {
-        'btn-reset': resetToDefaults,
+        'btn-reset': () => {
+            console.log('🔄 RESET Button geklickt');
+            resetToDefaults();
+        },
         'btn-mirror-horizontal': () => {
+            console.log('🪞 H-SPIEGEL Button geklickt');
             isMirroredH = !isMirroredH;
+            console.log(`H-Spiegelung jetzt: ${isMirroredH}`);
             updateShape();
             showFeedback(isMirroredH ? 'Horizontal gespiegelt' : 'Horizontale Spiegelung aufgehoben');
         },
         'btn-mirror-vertical': () => {
+            console.log('🪞 V-SPIEGEL Button geklickt');
             isMirroredV = !isMirroredV;
+            console.log(`V-Spiegelung jetzt: ${isMirroredV}`);
             updateShape();
             showFeedback(isMirroredV ? 'Vertikal gespiegelt' : 'Vertikale Spiegelung aufgehoben');
         },
         'btn-rotate-left': () => {
+            console.log('↺ LINKS-ROTATION Button geklickt');
             currentRotation -= 45;
             if (currentRotation <= -180) currentRotation += 360;
+            console.log(`Neue Rotation: ${currentRotation}°`);
             updateShape();
             showFeedback(`Um 45° links gedreht (${currentRotation}°)`);
         },
         'btn-rotate-right': () => {
+            console.log('↻ RECHTS-ROTATION Button geklickt');
             currentRotation += 45;
             if (currentRotation >= 180) currentRotation -= 360;
+            console.log(`Neue Rotation: ${currentRotation}°`);
             updateShape();
             showFeedback(`Um 45° rechts gedreht (${currentRotation}°)`);
         },
-        'btn-traufe': selectTraufePosition
+        'btn-traufe': () => {
+            console.log('🏠 TRAUFE Button geklickt');
+            selectTraufePosition();
+        }
     };
     
     Object.entries(tools).forEach(([id, handler]) => {
         const element = document.getElementById(id);
         if (element) {
+            // Entferne alte Event Listener
+            element.removeEventListener('click', handler);
+            // Füge neuen hinzu
             element.addEventListener('click', handler);
+            console.log(`✅ Event Listener für ${id} hinzugefügt`);
+        } else {
+            console.log(`❌ Element ${id} nicht gefunden`);
         }
     });
 }
@@ -1228,52 +1260,56 @@ function hideSideTooltip() {
 }
 
 function selectTraufeSide(side, name) {
-    console.log(`🎯 KLICK EMPFANGEN: ${side} (${name})`);
+    console.log(`🎯 === TRAUFE AUSWAHL GESTARTET ===`);
+    console.log(`Gewählte Seite: ${side} (${name})`);
+    console.log(`Vorher - Rotation: ${currentRotation}°, H-Spiegel: ${isMirroredH}, V-Spiegel: ${isMirroredV}`);
     
     // SOFORT alles entfernen
     disableSideSelection();
     hideTraufeInstructions();
     
-    // Setze neue Rotation
+    // Setze neue Rotation - DIREKT und SOFORT
     const oldRotation = currentRotation;
     
     switch(side) {
         case 'top':
             currentRotation = 180;
+            console.log(`Obere Seite gewählt → Rotation auf 180°`);
             break;
         case 'right':
             currentRotation = -90;
+            console.log(`Rechte Seite gewählt → Rotation auf -90°`);
             break;
         case 'bottom':
             currentRotation = 0;
+            console.log(`Untere Seite gewählt → Rotation auf 0°`);
             break;
         case 'left':
             currentRotation = 90;
+            console.log(`Linke Seite gewählt → Rotation auf 90°`);
             break;
     }
     
     traufePosition = side;
     
-    console.log(`🔄 ROTATION GEÄNDERT: ${oldRotation}° → ${currentRotation}°`);
+    console.log(`Nachher - Rotation: ${currentRotation}° (war ${oldRotation}°)`);
     
-    // FORCE komplettes Neuzeichnen
+    // FORCE Update - komplett neu zeichnen
     isUpdating = false;
     
-    // Lösche alles und zeichne neu
+    // Leere die Shape-Gruppe komplett
     const shapeGroup = document.getElementById('roof-shape');
     if (shapeGroup) {
         shapeGroup.innerHTML = '';
-        console.log('🧹 Shape-Group geleert');
+        shapeGroup.removeAttribute('transform'); // Entferne alte Transform
+        console.log('🧹 Shape-Group komplett geleert und Transform entfernt');
     }
     
-    // Zeichne die Form neu mit neuer Rotation
-    setTimeout(() => {
-        updateShape();
-        console.log('✅ NEUZEICHNUNG ABGESCHLOSSEN');
-    }, 50);
+    // SOFORTIGES Neuzeichnen
+    console.log('🎨 STARTE NEUZEICHNUNG...');
+    updateShape();
     
-    // Entferne die grüne Sprechblase nach kurzer Zeit
-    // (Keine showFeedback Funktion aufrufen)
+    console.log(`✅ === TRAUFE AUSWAHL BEENDET ===`);
 }
 
 function disableSideSelection() {
