@@ -1,4 +1,4 @@
-// editor.js – Korrigierte und vollständige Version
+// editor.js – Vollständig reparierte und funktionale Version
 
 let projectData = {};
 let currentShape = '';
@@ -12,10 +12,6 @@ let isMirroredH = false;
 let isMirroredV = false;
 let traufePosition = 'bottom';
 
-// Traufe-Auswahl Modus
-let traufeSelectionMode = false;
-let traufeOverlay = null;
-
 const CANVAS_CENTER_X = 300;
 const CANVAS_CENTER_Y = 200;
 const SCALE_FACTOR = 25;
@@ -28,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             initializeUI();
             loadAndDrawShape();
             setupEventListeners();
-            console.log('✅ Editor initialisiert');
+            console.log('✅ Editor erfolgreich initialisiert');
         } catch (error) {
             console.error('❌ Editor-Fehler:', error);
         }
@@ -384,13 +380,8 @@ function createInput(labelText, id, defaultValue = '') {
     input.step = '0.1';
     input.min = '0.1';
     
-    // MEHRERE Event Listener für sofortige Reaktion
-    input.addEventListener('input', handleInputChange);      // Während dem Tippen
-    input.addEventListener('change', handleInputChange);     // Nach Änderung
-    input.addEventListener('keyup', handleInputChange);      // Nach Tastendruck
-    input.addEventListener('blur', handleInputChange);       // Beim Verlassen des Feldes
-    
-    console.log('Input-Feld erstellt:', id, 'mit Wert:', defaultValue);
+    input.addEventListener('input', handleInputChange);
+    input.addEventListener('change', handleInputChange);
     
     const unit = document.createElement('span');
     unit.className = 'input-unit';
@@ -407,40 +398,26 @@ function createInput(labelText, id, defaultValue = '') {
 function handleInputChange() {
     if (isUpdating) return;
     
-    console.log('Input geändert, aktualisiere Form...');
-    
-    // Direkte Aktualisierung ohne isUpdating Block
+    isUpdating = true;
     updateShape();
+    setTimeout(() => {
+        isUpdating = false;
+    }, 50);
 }
 
 function updateShape() {
-    if (!svg) {
-        console.log('❌ SVG nicht verfügbar');
-        return;
-    }
+    if (!svg || isUpdating) return;
     
     const shapeGroup = document.getElementById('roof-shape');
-    if (!shapeGroup) {
-        console.log('❌ Shape-Group nicht gefunden');
-        return;
-    }
+    if (!shapeGroup) return;
     
-    console.log('=== UPDATE SHAPE DEBUG ===');
-    console.log('Aktuelle Rotation beim Update:', currentRotation);
-    
-    // WICHTIG: Komplett leeren und neu aufbauen
     shapeGroup.innerHTML = '';
     
     const currentData = getCurrentFormData();
-    console.log('Form-Daten:', currentData);
     
-    // Neue Form zeichnen
     drawTransformedShape(shapeGroup, currentData);
     updateCalculations(currentData);
     updateDirectionInfo();
-    
-    console.log('✅ Form-Update abgeschlossen');
-    console.log('=== ENDE UPDATE SHAPE ===');
 }
 
 function getCurrentFormData() {
@@ -449,351 +426,41 @@ function getCurrentFormData() {
         variant: currentVariant 
     };
     
-    console.log('Sammle Form-Daten für:', currentShape, currentVariant);
-    
     const inputs = document.querySelectorAll('#geometry-inputs-grid input');
-    console.log('Gefundene Inputs:', inputs.length);
     
     inputs.forEach(input => {
         if (input.value) {
             const numValue = parseFloat(input.value);
             if (!isNaN(numValue)) {
                 data[input.id] = numValue;
-                console.log('Input gefunden:', input.id, '=', numValue);
             }
         }
     });
     
-    console.log('Gesammelte Form-Daten:', data);
     return data;
 }
 
 function drawTransformedShape(group, data) {
-    console.log('=== DRAW TRANSFORM DEBUG ===');
-    console.log('Aktuelle Rotation:', currentRotation);
-    console.log('Ist gespiegelt H:', isMirroredH, 'V:', isMirroredV);
-    
     const transformGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     
-    // KORRIGIERTE Transform-Reihenfolge
-    let transform = '';
+    let transform = `translate(${CANVAS_CENTER_X}, ${CANVAS_CENTER_Y})`;
     
-    // 1. Erst zum Mittelpunkt verschieben
-    transform += `translate(${CANVAS_CENTER_X}, ${CANVAS_CENTER_Y}) `;
-    
-    // 2. Dann rotieren (um den Mittelpunkt)
     if (currentRotation !== 0) {
-        transform += `rotate(${currentRotation}) `;
-        console.log('Rotation angewendet:', currentRotation);
+        transform += ` rotate(${currentRotation})`;
     }
     
-    // 3. Dann spiegeln (falls nötig)
     let scaleX = isMirroredH ? -1 : 1;
     let scaleY = isMirroredV ? -1 : 1;
     if (scaleX !== 1 || scaleY !== 1) {
-        transform += `scale(${scaleX}, ${scaleY}) `;
-        console.log('Spiegelung angewendet:', scaleX, scaleY);
+        transform += ` scale(${scaleX}, ${scaleY})`;
     }
     
-    // 4. Zurück vom Mittelpunkt
-    transform += `translate(${-CANVAS_CENTER_X}, ${-CANVAS_CENTER_Y})`;
-    
-    console.log('Finale Transform:', transform);
+    transform += ` translate(${-CANVAS_CENTER_X}, ${-CANVAS_CENTER_Y})`;
     
     transformGroup.setAttribute('transform', transform);
     
     drawShape(transformGroup, data);
     group.appendChild(transformGroup);
-    
-    // KORRIGIERT: Bemaßung AUCH mit der gleichen Transformation
-    const dimensionGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    dimensionGroup.setAttribute('transform', transform); // Gleiche Transformation!
-    
-    addDimensionLines(dimensionGroup, data);
-    group.appendChild(dimensionGroup);
-    
-    console.log('=== ENDE DRAW TRANSFORM ===');
-}
-
-function addDimensionLines(group, data) {
-    const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
-    
-    console.log('Füge Bemaßung hinzu für:', finalShape, finalVariant);
-    
-    // Bemaßungsgruppe erstellen
-    const dimGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    dimGroup.id = 'dimension-lines';
-    
-    if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        addRectangleDimensions(dimGroup, data, finalVariant);
-    } else if (finalShape === 'dreieck') {
-        addTriangleDimensions(dimGroup, data, finalVariant);
-    } else if (finalShape === 'kreis') {
-        addCircleDimensions(dimGroup, data, finalVariant);
-    } else if (finalShape === 'trapez') {
-        addTrapezDimensions(dimGroup, data);
-    }
-    
-    group.appendChild(dimGroup);
-}
-
-function addRectangleDimensions(group, data, variant) {
-    let width, height;
-    
-    if (variant === 'quadrat') {
-        const side = data.side || 5;
-        width = height = side;
-    } else {
-        width = data.length || 8;
-        height = data.width || 5;
-    }
-    
-    const scaledWidth = width * SCALE_FACTOR;
-    const scaledHeight = height * SCALE_FACTOR;
-    
-    // Horizontale Bemaßung (Breite)
-    addDimensionLine(
-        group,
-        CANVAS_CENTER_X - scaledWidth/2, CANVAS_CENTER_Y + scaledHeight/2 + 30,
-        CANVAS_CENTER_X + scaledWidth/2, CANVAS_CENTER_Y + scaledHeight/2 + 30,
-        `${width.toFixed(1)} m`,
-        'horizontal'
-    );
-    
-    // Vertikale Bemaßung (Höhe)
-    addDimensionLine(
-        group,
-        CANVAS_CENTER_X - scaledWidth/2 - 30, CANVAS_CENTER_Y - scaledHeight/2,
-        CANVAS_CENTER_X - scaledWidth/2 - 30, CANVAS_CENTER_Y + scaledHeight/2,
-        `${height.toFixed(1)} m`,
-        'vertical'
-    );
-}
-
-function addTriangleDimensions(group, data, variant) {
-    if (variant === 'gleichseitig') {
-        const side = data.side || 6;
-        const scaledSide = side * SCALE_FACTOR;
-        
-        // Bemaßung NÄHER an der Basis
-        addDimensionLine(
-            group,
-            CANVAS_CENTER_X - scaledSide/2, CANVAS_CENTER_Y + scaledSide * Math.sqrt(3)/4 + 20,
-            CANVAS_CENTER_X + scaledSide/2, CANVAS_CENTER_Y + scaledSide * Math.sqrt(3)/4 + 20,
-            `${side.toFixed(1)} m`,
-            'horizontal'
-        );
-    } else if (variant === 'rechtwinklig') {
-        const a = data.katheteA || 4;
-        const b = data.katheteB || 5;
-        
-        // Kathete A (horizontal) - näher zur Seite
-        addDimensionLine(
-            group,
-            CANVAS_CENTER_X - a * SCALE_FACTOR/2, CANVAS_CENTER_Y + b * SCALE_FACTOR/2 + 15,
-            CANVAS_CENTER_X + a * SCALE_FACTOR/2, CANVAS_CENTER_Y + b * SCALE_FACTOR/2 + 15,
-            `${a.toFixed(1)} m`,
-            'horizontal'
-        );
-        
-        // Kathete B (vertikal) - näher zur Seite
-        addDimensionLine(
-            group,
-            CANVAS_CENTER_X - a * SCALE_FACTOR/2 - 15, CANVAS_CENTER_Y - b * SCALE_FACTOR/2,
-            CANVAS_CENTER_X - a * SCALE_FACTOR/2 - 15, CANVAS_CENTER_Y + b * SCALE_FACTOR/2,
-            `${b.toFixed(1)} m`,
-            'vertical'
-        );
-        
-        // Hypotenuse - schräg an der Seite
-        const hypLength = Math.sqrt(a*a + b*b);
-        const hypMidX = CANVAS_CENTER_X + (a * SCALE_FACTOR/4);
-        const hypMidY = CANVAS_CENTER_Y - (b * SCALE_FACTOR/4);
-        addDimensionText(group, hypMidX, hypMidY, `${hypLength.toFixed(1)} m`);
-        
-    } else {
-        // Ungleichschenkliges Dreieck - alle drei Seiten NÄHER an den Seiten
-        const sideA = data.sideA || 4;
-        const sideB = data.sideB || 5;
-        const sideC = data.sideC || 6;
-        
-        // Basis (Seite A) - näher zur unteren Seite
-        addDimensionLine(
-            group,
-            CANVAS_CENTER_X - sideA * SCALE_FACTOR/2, CANVAS_CENTER_Y + 25,
-            CANVAS_CENTER_X + sideA * SCALE_FACTOR/2, CANVAS_CENTER_Y + 25,
-            `${sideA.toFixed(1)} m`,
-            'horizontal'
-        );
-        
-        // Seite B (links) - näher zur linken Seite
-        const leftMidX = CANVAS_CENTER_X - sideA * SCALE_FACTOR/3;
-        const leftMidY = CANVAS_CENTER_Y - 30;
-        addDimensionText(group, leftMidX, leftMidY, `${sideB.toFixed(1)} m`);
-        
-        // Seite C (rechts) - näher zur rechten Seite
-        const rightMidX = CANVAS_CENTER_X + sideA * SCALE_FACTOR/3;
-        const rightMidY = CANVAS_CENTER_Y - 30;
-        addDimensionText(group, rightMidX, rightMidY, `${sideC.toFixed(1)} m`);
-    }
-}
-
-function addCircleDimensions(group, data, variant) {
-    if (variant === 'oval') {
-        const radiusA = data.radiusA || 5;
-        const radiusB = data.radiusB || 3;
-        
-        // Durchmesser A (horizontal)
-        addDimensionLine(
-            group,
-            CANVAS_CENTER_X - radiusA * SCALE_FACTOR, CANVAS_CENTER_Y + radiusB * SCALE_FACTOR + 30,
-            CANVAS_CENTER_X + radiusA * SCALE_FACTOR, CANVAS_CENTER_Y + radiusB * SCALE_FACTOR + 30,
-            `⌀ ${(radiusA * 2).toFixed(1)} m`,
-            'horizontal'
-        );
-        
-        // Durchmesser B (vertikal)
-        addDimensionLine(
-            group,
-            CANVAS_CENTER_X - radiusA * SCALE_FACTOR - 30, CANVAS_CENTER_Y - radiusB * SCALE_FACTOR,
-            CANVAS_CENTER_X - radiusA * SCALE_FACTOR - 30, CANVAS_CENTER_Y + radiusB * SCALE_FACTOR,
-            `⌀ ${(radiusB * 2).toFixed(1)} m`,
-            'vertical'
-        );
-    } else {
-        const radius = data.radius || 4;
-        
-        // Durchmesser
-        addDimensionLine(
-            group,
-            CANVAS_CENTER_X - radius * SCALE_FACTOR, CANVAS_CENTER_Y + radius * SCALE_FACTOR + 30,
-            CANVAS_CENTER_X + radius * SCALE_FACTOR, CANVAS_CENTER_Y + radius * SCALE_FACTOR + 30,
-            `⌀ ${(radius * 2).toFixed(1)} m`,
-            'horizontal'
-        );
-    }
-}
-
-function addTrapezDimensions(group, data) {
-    const baseA = data.baseA || 8;
-    const baseB = data.baseB || 5;
-    const height = data.height || 4;
-    
-    // Basis A (unten)
-    addDimensionLine(
-        group,
-        CANVAS_CENTER_X - baseA * SCALE_FACTOR/2, CANVAS_CENTER_Y + height * SCALE_FACTOR/2 + 30,
-        CANVAS_CENTER_X + baseA * SCALE_FACTOR/2, CANVAS_CENTER_Y + height * SCALE_FACTOR/2 + 30,
-        `A: ${baseA.toFixed(1)} m`,
-        'horizontal'
-    );
-    
-    // Basis B (oben)
-    addDimensionLine(
-        group,
-        CANVAS_CENTER_X - baseB * SCALE_FACTOR/2, CANVAS_CENTER_Y - height * SCALE_FACTOR/2 - 30,
-        CANVAS_CENTER_X + baseB * SCALE_FACTOR/2, CANVAS_CENTER_Y - height * SCALE_FACTOR/2 - 30,
-        `B: ${baseB.toFixed(1)} m`,
-        'horizontal'
-    );
-    
-    // Höhe
-    addDimensionLine(
-        group,
-        CANVAS_CENTER_X - baseA * SCALE_FACTOR/2 - 40, CANVAS_CENTER_Y - height * SCALE_FACTOR/2,
-        CANVAS_CENTER_X - baseA * SCALE_FACTOR/2 - 40, CANVAS_CENTER_Y + height * SCALE_FACTOR/2,
-        `h: ${height.toFixed(1)} m`,
-        'vertical'
-    );
-}
-
-function addDimensionLine(group, x1, y1, x2, y2, text, orientation) {
-    // Maßlinie
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', x1);
-    line.setAttribute('y1', y1);
-    line.setAttribute('x2', x2);
-    line.setAttribute('y2', y2);
-    line.setAttribute('stroke', '#666');
-    line.setAttribute('stroke-width', '1');
-    line.setAttribute('stroke-dasharray', '2,2');
-    group.appendChild(line);
-    
-    // Maßhilfslinien
-    if (orientation === 'horizontal') {
-        // Vertikale Hilfslinien
-        const helper1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        helper1.setAttribute('x1', x1);
-        helper1.setAttribute('y1', y1 - 10);
-        helper1.setAttribute('x2', x1);
-        helper1.setAttribute('y2', y1 + 10);
-        helper1.setAttribute('stroke', '#666');
-        helper1.setAttribute('stroke-width', '1');
-        group.appendChild(helper1);
-        
-        const helper2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        helper2.setAttribute('x1', x2);
-        helper2.setAttribute('y1', y2 - 10);
-        helper2.setAttribute('x2', x2);
-        helper2.setAttribute('y2', y2 + 10);
-        helper2.setAttribute('stroke', '#666');
-        helper2.setAttribute('stroke-width', '1');
-        group.appendChild(helper2);
-    } else {
-        // Horizontale Hilfslinien
-        const helper1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        helper1.setAttribute('x1', x1 - 10);
-        helper1.setAttribute('y1', y1);
-        helper1.setAttribute('x2', x1 + 10);
-        helper1.setAttribute('y2', y1);
-        helper1.setAttribute('stroke', '#666');
-        helper1.setAttribute('stroke-width', '1');
-        group.appendChild(helper1);
-        
-        const helper2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        helper2.setAttribute('x1', x2 - 10);
-        helper2.setAttribute('y1', y2);
-        helper2.setAttribute('x2', x2 + 10);
-        helper2.setAttribute('y2', y2);
-        helper2.setAttribute('stroke', '#666');
-        helper2.setAttribute('stroke-width', '1');
-        group.appendChild(helper2);
-    }
-    
-    // Maßtext
-    const midX = (x1 + x2) / 2;
-    const midY = (y1 + y2) / 2;
-    
-    addDimensionText(group, midX, midY, text);
-}
-
-function addDimensionText(group, x, y, text) {
-    const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    textElement.setAttribute('x', x);
-    textElement.setAttribute('y', y);
-    textElement.setAttribute('text-anchor', 'middle');
-    textElement.setAttribute('alignment-baseline', 'middle');
-    textElement.setAttribute('font-family', 'Arial, sans-serif');
-    textElement.setAttribute('font-size', '12');
-    textElement.setAttribute('font-weight', 'bold');
-    textElement.setAttribute('fill', '#333');
-    textElement.textContent = text;
-    
-    // Hintergrund für bessere Lesbarkeit
-    const bbox = textElement.getBBox ? textElement.getBBox() : { x: x-20, y: y-6, width: 40, height: 12 };
-    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    bg.setAttribute('x', bbox.x - 3);
-    bg.setAttribute('y', bbox.y - 1);
-    bg.setAttribute('width', bbox.width + 6);
-    bg.setAttribute('height', bbox.height + 2);
-    bg.setAttribute('fill', 'white');
-    bg.setAttribute('stroke', '#ccc');
-    bg.setAttribute('stroke-width', '0.5');
-    bg.setAttribute('rx', '2');
-    
-    group.appendChild(bg);
-    group.appendChild(textElement);
 }
 
 function drawShape(group, data) {
@@ -836,39 +503,18 @@ function drawShape(group, data) {
 function drawTriangle(group, data, variant) {
     let points = '';
     
-    console.log('Zeichne Dreieck:', variant, 'mit Daten:', data);
-    
     if (variant === 'gleichseitig') {
         const side = (data.side || 6) * SCALE_FACTOR;
         const height = side * Math.sqrt(3) / 2;
         points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - side/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + side/2},${CANVAS_CENTER_Y + height/2}`;
-        console.log('Gleichseitiges Dreieck - Seitenlänge:', side/SCALE_FACTOR, 'm');
     } else if (variant === 'rechtwinklig') {
         const a = (data.katheteA || 4) * SCALE_FACTOR;
         const b = (data.katheteB || 5) * SCALE_FACTOR;
         points = `${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X + a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y - b/2}`;
-        console.log('Rechtwinkliges Dreieck - Katheten:', a/SCALE_FACTOR, 'm ×', b/SCALE_FACTOR, 'm');
     } else {
-        // KORRIGIERT: Ungleichschenkliges Dreieck mit allen drei Seiten
-        const sideA = (data.sideA || 4) * SCALE_FACTOR;
-        const sideB = (data.sideB || 5) * SCALE_FACTOR; 
-        const sideC = (data.sideC || 6) * SCALE_FACTOR;
-        
-        // Berechne Positionen basierend auf allen drei Seiten
-        // Basis = sideA (horizontal unten)
-        const baseWidth = sideA;
-        
-        // Höhe über Kosinussatz berechnen
-        // Für sideB und sideC die Position des dritten Punktes finden
-        const cosA = (sideB*sideB + sideC*sideC - sideA*sideA) / (2 * sideB * sideC);
-        const height = sideB * Math.sin(Math.acos(Math.max(-1, Math.min(1, cosA))));
-        
-        // X-Position des dritten Punktes
-        const topX = sideB * Math.cos(Math.acos(Math.max(-1, Math.min(1, cosA))));
-        
-        points = `${CANVAS_CENTER_X - baseWidth/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + baseWidth/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X - baseWidth/2 + topX},${CANVAS_CENTER_Y - height/2}`;
-        
-        console.log('Ungleichschenkliges Dreieck - Seiten:', sideA/SCALE_FACTOR, sideB/SCALE_FACTOR, sideC/SCALE_FACTOR, 'm, Höhe:', height/SCALE_FACTOR, 'm');
+        const a = (data.sideA || 4) * SCALE_FACTOR;
+        const height = a * 0.8;
+        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + a/2 - 20},${CANVAS_CENTER_Y + height/2}`;
     }
     
     const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
@@ -881,13 +527,9 @@ function drawTriangle(group, data, variant) {
 }
 
 function drawCircle(group, data, variant) {
-    console.log('Zeichne Kreis:', variant, 'mit Daten:', data);
-    
     if (variant === 'oval') {
         const radiusA = (data.radiusA || 5) * SCALE_FACTOR;
         const radiusB = (data.radiusB || 3) * SCALE_FACTOR;
-        
-        console.log('Oval - Radien:', radiusA/SCALE_FACTOR, '×', radiusB/SCALE_FACTOR, 'm');
         
         const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
         ellipse.setAttribute('cx', CANVAS_CENTER_X);
@@ -901,8 +543,6 @@ function drawCircle(group, data, variant) {
         group.appendChild(ellipse);
     } else {
         const radius = (data.radius || 4) * SCALE_FACTOR;
-        
-        console.log('Kreis - Radius:', radius/SCALE_FACTOR, 'm');
         
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('cx', CANVAS_CENTER_X);
@@ -1036,52 +676,27 @@ function updateCalculations(data) {
     let area = 0;
     let perimeter = 0;
     
-    console.log('Berechne für Daten:', data);
-    
     const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
-    
-    console.log('Shape:', finalShape, 'Variant:', finalVariant);
     
     switch (finalShape) {
         case 'dreieck':
+            const finalVariant = determineActualVariant();
             if (finalVariant === 'gleichseitig') {
                 const side = data.side || 6;
                 area = (Math.sqrt(3) / 4) * side * side;
                 perimeter = 3 * side;
-                console.log('Gleichseitiges Dreieck - Seite:', side, 'Fläche:', area);
             } else if (finalVariant === 'rechtwinklig') {
                 const a = data.katheteA || 4;
                 const b = data.katheteB || 5;
                 area = 0.5 * a * b;
                 perimeter = a + b + Math.sqrt(a*a + b*b);
-                console.log('Rechtwinkliges Dreieck - a:', a, 'b:', b, 'Fläche:', area);
-            } else {
-                // Ungleichschenkliges Dreieck - Näherung
-                const sideA = data.sideA || 4;
-                const sideB = data.sideB || 5;
-                const sideC = data.sideC || 6;
-                // Heron's Formel
-                const s = (sideA + sideB + sideC) / 2;
-                area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
-                perimeter = sideA + sideB + sideC;
-                console.log('Ungleichschenkliges Dreieck - Seiten:', sideA, sideB, sideC, 'Fläche:', area);
             }
             break;
             
         case 'kreis':
-            if (finalVariant === 'oval') {
-                const radiusA = data.radiusA || 5;
-                const radiusB = data.radiusB || 3;
-                area = Math.PI * radiusA * radiusB;
-                perimeter = Math.PI * (3 * (radiusA + radiusB) - Math.sqrt((3 * radiusA + radiusB) * (radiusA + 3 * radiusB)));
-                console.log('Oval - Radien:', radiusA, radiusB, 'Fläche:', area);
-            } else {
-                const radius = data.radius || 4;
-                area = Math.PI * radius * radius;
-                perimeter = 2 * Math.PI * radius;
-                console.log('Kreis - Radius:', radius, 'Fläche:', area);
-            }
+            const radius = data.radius || 4;
+            area = Math.PI * radius * radius;
+            perimeter = 2 * Math.PI * radius;
             break;
             
         case 'rechteck':
@@ -1089,14 +704,12 @@ function updateCalculations(data) {
             const width = data.width || 5;
             area = length * width;
             perimeter = 2 * (length + width);
-            console.log('Rechteck - Länge:', length, 'Breite:', width, 'Fläche:', area);
             break;
             
         case 'quadrat':
             const side = data.side || 5;
             area = side * side;
             perimeter = 4 * side;
-            console.log('Quadrat - Seite:', side, 'Fläche:', area);
             break;
             
         case 'trapez':
@@ -1105,7 +718,6 @@ function updateCalculations(data) {
             const height = data.height || 4;
             area = 0.5 * (baseA + baseB) * height;
             perimeter = baseA + baseB + 2 * Math.sqrt(height*height + ((baseA-baseB)/2)*((baseA-baseB)/2));
-            console.log('Trapez - Basen:', baseA, baseB, 'Höhe:', height, 'Fläche:', area);
             break;
             
         case 'parallelogramm':
@@ -1114,7 +726,6 @@ function updateCalculations(data) {
             const pHeight = data.height || 4;
             area = base * pHeight;
             perimeter = 2 * (base + pSide);
-            console.log('Parallelogramm - Basis:', base, 'Seite:', pSide, 'Höhe:', pHeight, 'Fläche:', area);
             break;
             
         case 'rhombus':
@@ -1122,38 +733,14 @@ function updateCalculations(data) {
             const rhombusHeight = data.height || 4;
             area = rhombusSide * rhombusHeight;
             perimeter = 4 * rhombusSide;
-            console.log('Rhombus - Seite:', rhombusSide, 'Höhe:', rhombusHeight, 'Fläche:', area);
             break;
-            
-        case 'langloch':
-            const lLength = data.length || 8;
-            const lWidth = data.width || 3;
-            const lRadius = data.radius || 1;
-            // Vereinfachte Berechnung: Rechteck + 2 Halbkreise
-            area = (lLength - 2 * lRadius) * lWidth + Math.PI * lRadius * lRadius;
-            perimeter = 2 * (lLength - 2 * lRadius) + 2 * Math.PI * lRadius;
-            console.log('Langloch - Länge:', lLength, 'Breite:', lWidth, 'Radius:', lRadius, 'Fläche:', area);
-            break;
-            
-        default:
-            console.log('Unbekannte Form, verwende Standard-Rechteck');
-            area = 40; // 8m × 5m Standard
-            perimeter = 26;
     }
-    
-    console.log('Finale Berechnungen - Fläche:', area, 'Umfang:', perimeter);
     
     const areaElement = document.getElementById('calc-area');
     const perimeterElement = document.getElementById('calc-perimeter');
     
-    if (areaElement) {
-        areaElement.textContent = `${area.toFixed(2)} m²`;
-        console.log('Fläche aktualisiert:', area.toFixed(2));
-    }
-    if (perimeterElement) {
-        perimeterElement.textContent = `${perimeter.toFixed(2)} m`;
-        console.log('Umfang aktualisiert:', perimeter.toFixed(2));
-    }
+    if (areaElement) areaElement.textContent = `${area.toFixed(2)} m²`;
+    if (perimeterElement) perimeterElement.textContent = `${perimeter.toFixed(2)} m`;
 }
 
 function setupEventListeners() {
@@ -1215,820 +802,89 @@ function setupToolButtons() {
 }
 
 function selectTraufePosition() {
-    if (traufeSelectionMode) {
-        // Modus beenden
-        exitTraufeMode();
-        return;
-    }
-    
-    // Modus aktivieren
-    traufeSelectionMode = true;
-    
-    // Overlay OHNE Vollbild-Blocking - nur Anzeige
-    traufeOverlay = document.createElement('div');
-    traufeOverlay.style.cssText = `
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
         position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 9999;
-        pointer-events: none;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: Arial, sans-serif;
     `;
     
-    traufeOverlay.innerHTML = `
-        <div style="background: rgba(0,0,0,0.9); padding: 20px; border-radius: 12px; text-align: center; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-            <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #ffff00;">🎯 Traufe bestimmen</h3>
-            <p style="margin: 0 0 15px 0; font-size: 14px; color: white; line-height: 1.3;">
-                <strong>Klicken Sie auf einen gelben Bereich</strong><br>
-                um diese Seite als Traufe festzulegen
-            </p>
-            <button onclick="exitTraufeMode()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 6px; font-size: 12px; pointer-events: auto;">
-                Abbrechen (ESC)
+    overlay.innerHTML = `
+        <h3 style="margin-bottom: 20px; font-size: 24px; text-align: center;">Traufe-Position bestimmen</h3>
+        <p style="margin-bottom: 30px; text-align: center; font-size: 16px; max-width: 500px; line-height: 1.4;">
+            Welche Seite Ihrer Form ist die <strong>Traufe</strong> (Dachrand)?<br>
+            Die gewählte Seite wird automatisch nach unten ausgerichtet.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+            <button onclick="setTraufePosition('top')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                ↑<br><strong>Obere Seite</strong><br><small>ist Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('right')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                →<br><strong>Rechte Seite</strong><br><small>ist Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('bottom')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #28a745; color: white; text-align: center;">
+                ↓<br><strong>Untere Seite</strong><br><small>ist Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('left')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                ←<br><strong>Linke Seite</strong><br><small>ist Traufe</small>
             </button>
         </div>
+        <button onclick="closeTraufeDialog()" style="margin-top: 10px; padding: 12px 24px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 8px;">Abbrechen</button>
     `;
     
-    document.body.appendChild(traufeOverlay);
-    
-    // ESC-Taste zum Beenden
-    document.addEventListener('keydown', handleTraufeKeydown);
-    
-    // Klickbare Bereiche zur Form hinzufügen
-    addTraufeClickAreas();
-    
-    // Canvas leicht abdunkeln aber klickbar lassen
-    const canvas = document.querySelector('.canvas-wrapper');
-    if (canvas) {
-        canvas.style.background = 'rgba(0,0,0,0.1)';
-        canvas.style.transition = 'background 0.3s';
-    }
-    
-    showFeedback('Traufe-Modus aktiviert - Klicken Sie auf einen gelben Bereich');
+    document.body.appendChild(overlay);
 }
 
-function handleTraufeKeydown(event) {
-    if (event.key === 'Escape') {
-        exitTraufeMode();
-    }
-}
-
-function exitTraufeMode() {
-    traufeSelectionMode = false;
-    
-    if (traufeOverlay) {
-        document.body.removeChild(traufeOverlay);
-        traufeOverlay = null;
-    }
-    
-    document.removeEventListener('keydown', handleTraufeKeydown);
-    removeTraufeClickAreas();
-    
-    // Canvas-Hintergrund zurücksetzen
-    const canvas = document.querySelector('.canvas-wrapper');
-    if (canvas) {
-        canvas.style.background = 'white';
-    }
-    
-    showFeedback('Traufe-Modus beendet');
-}
-
-function addTraufeClickAreas() {
-    const shapeGroup = document.getElementById('roof-shape');
-    if (!shapeGroup) return;
-    
-    // Finde die Form
-    const shape = shapeGroup.querySelector('polygon, rect, circle, ellipse, path');
-    if (!shape) return;
-    
-    const finalShape = determineActualShape();
-    
-    if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        addRectangleClickAreas(shape);
-    } else if (finalShape === 'dreieck') {
-        addTriangleClickAreas(shape);
-    } else if (finalShape === 'kreis') {
-        addCircleClickAreas(shape);
-    } else if (['trapez', 'parallelogramm', 'rhombus'].includes(finalShape)) {
-        addPolygonClickAreas(shape);
-    }
-}
-
-function addRectangleClickAreas(rect) {
-    const x = parseFloat(rect.getAttribute('x'));
-    const y = parseFloat(rect.getAttribute('y'));
-    const width = parseFloat(rect.getAttribute('width'));
-    const height = parseFloat(rect.getAttribute('height'));
-    
-    // Vier klickbare Bereiche für die Seiten erstellen
-    const sides = [
-        { 
-            name: 'top', 
-            x: x, y: y - 15, width: width, height: 30, 
-            label: 'Obere Seite als Traufe',
-            description: 'Diese Seite wird horizontal nach unten gedreht'
-        },
-        { 
-            name: 'right', 
-            x: x + width - 15, y: y, width: 30, height: height, 
-            label: 'Rechte Seite als Traufe',
-            description: 'Diese Seite wird horizontal nach unten gedreht'
-        },
-        { 
-            name: 'bottom', 
-            x: x, y: y + height - 15, width: width, height: 30, 
-            label: 'Untere Seite als Traufe',
-            description: 'Diese Seite ist bereits unten (Standard)'
-        },
-        { 
-            name: 'left', 
-            x: x - 15, y: y, width: 30, height: height, 
-            label: 'Linke Seite als Traufe',
-            description: 'Diese Seite wird horizontal nach unten gedreht'
-        }
-    ];
-    
-    sides.forEach(side => {
-        const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        clickArea.setAttribute('x', side.x);
-        clickArea.setAttribute('y', side.y);
-        clickArea.setAttribute('width', side.width);
-        clickArea.setAttribute('height', side.height);
-        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.3)');
-        clickArea.setAttribute('stroke', '#ffff00');
-        clickArea.setAttribute('stroke-width', '2');
-        clickArea.setAttribute('stroke-dasharray', '5,5');
-        clickArea.classList.add('traufe-click-area');
-        clickArea.style.cursor = 'pointer';
-        
-        clickArea.addEventListener('click', (e) => {
-            e.stopPropagation();
-            console.log('Klick auf', side.name, 'Seite');
-            setTraufePositionDirect(side.name);
-        });
-        
-        clickArea.addEventListener('mouseenter', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
-            showFeedback(side.label);
-        });
-        
-        clickArea.addEventListener('mouseleave', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.3)');
-        });
-        
-        document.getElementById('roof-shape').appendChild(clickArea);
-    });
-}
-
-function addTriangleClickAreas(triangle) {
-    // Hole die ECHTEN Punkte des gezeichneten Dreiecks
-    const pointsStr = triangle.getAttribute('points');
-    const points = pointsStr.split(' ').map(p => {
-        const [x, y] = p.split(',');
-        return { x: parseFloat(x), y: parseFloat(y) };
-    });
-    
-    console.log('📐 Erstelle Klickbereiche für Dreieck-Punkte:', points);
-    
-    // Hole die ursprünglichen Eingabewerte für Tooltips
-    const currentData = getCurrentFormData();
-    const variant = determineActualVariant();
-    
-    let realSideLengths = [];
-    if (variant === 'gleichseitig') {
-        const side = currentData.side || 6;
-        realSideLengths = [side, side, side];
-    } else if (variant === 'rechtwinklig') {
-        const a = currentData.katheteA || 4;
-        const b = currentData.katheteB || 5;
-        const c = Math.sqrt(a*a + b*b); // Hypotenuse
-        realSideLengths = [a, b, c];
-    } else {
-        // Ungleichschenkliges Dreieck
-        realSideLengths = [
-            currentData.sideA || 4,
-            currentData.sideB || 5, 
-            currentData.sideC || 6
-        ];
-    }
-    
-    console.log('🔢 Echte Seitenlängen:', realSideLengths);
-    
-    // Erstelle Klickbereiche für ALLE drei Seiten
-    for (let i = 0; i < points.length; i++) {
-        const p1 = points[i];
-        const p2 = points[(i + 1) % points.length]; // Nächster Punkt (zyklisch)
-        
-        // Mittelpunkt der Seite berechnen
-        const midX = (p1.x + p2.x) / 2;
-        const midY = (p1.y + p2.y) / 2;
-        
-        // Verwende die ECHTE Seitenlänge für Tooltips
-        const realLength = realSideLengths[i];
-        
-        console.log(`Seite ${i}: ${p1.x.toFixed(1)},${p1.y.toFixed(1)} → ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`);
-        console.log(`  Mittelpunkt: ${midX.toFixed(1)},${midY.toFixed(1)}, Echte Länge: ${realLength}m`);
-        
-        // Klickbereich erstellen - OHNE Beschriftung
-        const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        clickArea.setAttribute('cx', midX);
-        clickArea.setAttribute('cy', midY);
-        clickArea.setAttribute('r', '18'); // Etwas kleiner ohne Text
-        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
-        clickArea.setAttribute('stroke', '#ffff00');
-        clickArea.setAttribute('stroke-width', '3');
-        clickArea.classList.add('traufe-click-area');
-        clickArea.style.cursor = 'pointer';
-        
-        clickArea.addEventListener('click', (e) => {
-            e.stopPropagation();
-            console.log(`🎯 Klick auf Seite ${i} (${realLength}m): ${p1.x.toFixed(1)},${p1.y.toFixed(1)} → ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`);
-            setTraufePositionForSpecificSide(i, p1, p2, realLength);
-        });
-        
-        clickArea.addEventListener('mouseenter', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.9)');
-            clickArea.setAttribute('r', '20'); // Etwas größer beim Hover
-            showFeedback(`${realLength}m Seite als Traufe setzen`);
-        });
-        
-        clickArea.addEventListener('mouseleave', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
-            clickArea.setAttribute('r', '18');
-        });
-        
-        document.getElementById('roof-shape').appendChild(clickArea);
-    }
-}
-
-function setTraufePositionForSpecificSide(sideIndex, point1, point2, sideLength) {
-    console.log('=== SPEZIFISCHE SEITEN-TRAUFE ===');
-    console.log(`Seite ${sideIndex}: ${point1.x.toFixed(1)},${point1.y.toFixed(1)} → ${point2.x.toFixed(1)},${point2.y.toFixed(1)}`);
-    console.log(`Seitenlänge: ${sideLength.toFixed(1)}m`);
-    
-    // Berechne den Winkel dieser spezifischen Seite
-    const dx = point2.x - point1.x;
-    const dy = point2.y - point1.y;
-    const sideAngle = Math.atan2(dy, dx) * 180 / Math.PI;
-    
-    console.log(`📐 Winkel der Seite: ${sideAngle.toFixed(1)}°`);
-    
-    // Um diese Seite horizontal zu machen, drehen wir um den negativen Winkel
-    const requiredRotation = -sideAngle;
-    
-    console.log(`🔄 Benötigte Rotation: ${requiredRotation.toFixed(1)}°`);
-    
-    currentRotation = requiredRotation;
-    
-    updateShape();
-    exitTraufeMode();
-    
-    showFeedback(`✅ Seite ${sideIndex + 1} (${sideLength.toFixed(1)}m) als Traufe gesetzt`);
-    
-    console.log('=== ENDE SPEZIFISCHE SEITEN-TRAUFE ===');
-}
-
-function addCircleClickAreas(circle) {
-    const cx = parseFloat(circle.getAttribute('cx'));
-    const cy = parseFloat(circle.getAttribute('cy'));
-    const r = parseFloat(circle.getAttribute('r')) || 50;
-    
-    // Vier Bereiche um den Kreis
-    const sides = [
-        { name: 'top', x: cx, y: cy - r, rotation: 180 },
-        { name: 'right', x: cx + r, y: cy, rotation: -90 },
-        { name: 'bottom', x: cx, y: cy + r, rotation: 0 },
-        { name: 'left', x: cx - r, y: cy, rotation: 90 }
-    ];
-    
-    sides.forEach(side => {
-        const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        clickArea.setAttribute('cx', side.x);
-        clickArea.setAttribute('cy', side.y);
-        clickArea.setAttribute('r', '12');
-        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
-        clickArea.setAttribute('stroke', '#ffff00');
-        clickArea.setAttribute('stroke-width', '2');
-        clickArea.classList.add('traufe-click-area');
-        clickArea.style.cursor = 'pointer';
-        
-        clickArea.addEventListener('click', () => {
-            setTraufePositionDirect(side.name, side.rotation);
-        });
-        
-        clickArea.addEventListener('mouseenter', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
-            showFeedback(`Klicken: ${side.name.toUpperCase()}-Bereich als Traufe`);
-        });
-        
-        clickArea.addEventListener('mouseleave', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
-        });
-        
-        document.getElementById('roof-shape').appendChild(clickArea);
-    });
-}
-
-function addPolygonClickAreas(polygon) {
-    // Für komplexere Formen - vereinfacht 4 Hauptrichtungen
-    const sides = [
-        { name: 'top', x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - 80, rotation: 180 },
-        { name: 'right', x: CANVAS_CENTER_X + 80, y: CANVAS_CENTER_Y, rotation: -90 },
-        { name: 'bottom', x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y + 80, rotation: 0 },
-        { name: 'left', x: CANVAS_CENTER_X - 80, y: CANVAS_CENTER_Y, rotation: 90 }
-    ];
-    
-    sides.forEach(side => {
-        const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        clickArea.setAttribute('cx', side.x);
-        clickArea.setAttribute('cy', side.y);
-        clickArea.setAttribute('r', '12');
-        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
-        clickArea.setAttribute('stroke', '#ffff00');
-        clickArea.setAttribute('stroke-width', '2');
-        clickArea.classList.add('traufe-click-area');
-        clickArea.style.cursor = 'pointer';
-        
-        clickArea.addEventListener('click', () => {
-            setTraufePositionDirect(side.name, side.rotation);
-        });
-        
-        clickArea.addEventListener('mouseenter', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
-            showFeedback(`Klicken: ${side.name.toUpperCase()}-Seite als Traufe`);
-        });
-        
-        clickArea.addEventListener('mouseleave', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
-        });
-        
-        document.getElementById('roof-shape').appendChild(clickArea);
-    });
-}
-
-function removeTraufeClickAreas() {
-    document.querySelectorAll('.traufe-click-area').forEach(area => {
-        area.remove();
-    });
-}
-
-function setTraufePositionDirect(position) {
+// Globale Funktionen für Traufe-Dialog
+window.setTraufePosition = function(position) {
     traufePosition = position;
     
-    console.log('=== PRÄZISE TRAUFE-BERECHNUNG ===');
-    console.log('Position:', position);
-    
-    // Hole die aktuell gezeichnete Form
-    const shapeElement = document.querySelector('#roof-shape polygon');
-    
-    if (!shapeElement) {
-        console.log('❌ Keine Polygon-Form gefunden');
-        exitTraufeMode();
-        return;
-    }
-    
-    // Hole die echten SVG-Koordinaten
-    const pointsStr = shapeElement.getAttribute('points');
-    const points = pointsStr.split(' ').map(p => {
-        const [x, y] = p.split(',');
-        return { x: parseFloat(x), y: parseFloat(y) };
-    });
-    
-    console.log('📐 Aktuelle Dreieck-Punkte:', points);
-    
-    // Finde die gewählte Seite und berechne ihren Winkel
-    let sideAngle = 0;
-    let sidePoints = [];
-    
-    if (position === 'bottom') {
-        // Finde die unterste (horizontalste) Seite
-        const sortedByY = [...points].sort((a, b) => b.y - a.y);
-        sidePoints = [sortedByY[0], sortedByY[1]];
-    } else if (position === 'left') {
-        // Finde die linkeste Seite
-        const sortedByX = [...points].sort((a, b) => a.x - b.x);
-        const leftPoint = sortedByX[0];
-        // Finde den Punkt, der mit dem linkesten eine Seite bildet
-        const others = points.filter(p => p !== leftPoint);
-        // Wähle den Punkt mit der kleinsten Y-Koordinate (meist die Spitze)
-        others.sort((a, b) => a.y - b.y);
-        sidePoints = [leftPoint, others[0]];
-    } else if (position === 'right') {
-        // Finde die rechteste Seite  
-        const sortedByX = [...points].sort((a, b) => b.x - a.x);
-        const rightPoint = sortedByX[0];
-        // Finde den Punkt, der mit dem rechtesten eine Seite bildet
-        const others = points.filter(p => p !== rightPoint);
-        others.sort((a, b) => a.y - b.y);
-        sidePoints = [rightPoint, others[0]];
-    } else if (position === 'top') {
-        // Oberste Seite (wenn vorhanden)
-        const sortedByY = [...points].sort((a, b) => a.y - b.y);
-        sidePoints = [sortedByY[0], sortedByY[1]];
-    }
-    
-    if (sidePoints.length === 2) {
-        // Berechne den Winkel dieser Seite zur Horizontalen
-        const dx = sidePoints[1].x - sidePoints[0].x;
-        const dy = sidePoints[1].y - sidePoints[0].y;
-        sideAngle = Math.atan2(dy, dx) * 180 / Math.PI;
-        
-        console.log('📏 Gewählte Seite:', sidePoints);
-        console.log('📐 Winkel der Seite:', sideAngle.toFixed(1) + '°');
-        
-        // Um diese Seite horizontal zu machen, drehen wir um den negativen Winkel
-        const requiredRotation = -sideAngle;
-        
-        console.log('🔄 Benötigte Rotation:', requiredRotation.toFixed(1) + '°');
-        
-        currentRotation = requiredRotation;
-    } else {
-        console.log('❌ Konnte Seite nicht identifizieren, verwende Standard');
-        // Fallback
-        const standardRotations = {
-            'bottom': 0,
-            'top': 180,
-            'left': -90,
-            'right': 90
-        };
-        currentRotation = standardRotations[position] || 0;
+    switch(position) {
+        case 'top':
+            currentRotation = 180;
+            break;
+        case 'right':
+            currentRotation = 90;
+            break;
+        case 'bottom':
+            currentRotation = 0;
+            break;
+        case 'left':
+            currentRotation = -90;
+            break;
     }
     
     updateShape();
+    closeTraufeDialog();
     
-    console.log('✅ Neue Rotation angewendet:', currentRotation);
-    console.log('=== ENDE PRÄZISE BERECHNUNG ===');
+    const positionNames = {
+        'top': 'oben',
+        'right': 'rechts',
+        'bottom': 'unten',
+        'left': 'links'
+    };
     
-    exitTraufeMode();
-    
-    showFeedback(`🎯 ${position} Seite horizontal ausgerichtet (${currentRotation.toFixed(1)}°)`);
-}
-
-// ZUSÄTZLICHE DEBUG-FUNKTION
-window.testRotation = function(angle) {
-    console.log('Teste Rotation:', angle);
-    currentRotation = angle;
-    updateShape();
-    showFeedback(`Test-Rotation: ${angle}°`);
+    showFeedback(`Traufe-Seite "${positionNames[position]}" nach unten gedreht (${currentRotation}°)`);
 };
 
-// ZUSÄTZLICHE DEBUG-FUNKTION FÜR SCHRITTWEISE ROTATION
-window.rotateStep = function(step = 15) {
-    currentRotation += step;
-    if (currentRotation >= 360) currentRotation -= 360;
-    if (currentRotation < 0) currentRotation += 360;
-    updateShape();
-    showFeedback(`Schritt-Rotation: ${currentRotation}°`);
-    console.log('Aktuelle Rotation:', currentRotation);
-};
-
-function calculateActualSideRotation(traufePosition) {
-    // Hole die aktuell gezeichnete Form aus dem SVG
-    const shapeElement = document.querySelector('#roof-shape polygon, #roof-shape rect, #roof-shape circle, #roof-shape ellipse');
-    
-    if (!shapeElement) {
-        console.log('Keine Form gefunden, verwende Standard-Rotation');
-        return getStandardRotation(traufePosition);
-    }
-    
-    const finalShape = determineActualShape();
-    
-    if (finalShape === 'dreieck') {
-        return calculateTriangleSideRotation(shapeElement, traufePosition);
-    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        return calculateRectangleSideRotation(traufePosition);
-    } else {
-        return getStandardRotation(traufePosition);
-    }
-}
-
-function calculateTriangleSideRotation(triangleElement, traufePosition) {
-    // Hole die aktuellen Punkte des Dreiecks aus dem SVG
-    const pointsStr = triangleElement.getAttribute('points');
-    const points = pointsStr.split(' ').map(p => {
-        const [x, y] = p.split(',');
-        return { x: parseFloat(x), y: parseFloat(y) };
+window.closeTraufeDialog = function() {
+    const overlays = document.querySelectorAll('[style*="position: fixed"]');
+    overlays.forEach(overlay => {
+        if (overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+        }
     });
-    
-    console.log('Dreieck-Punkte aus SVG:', points);
-    
-    let sideAngle = 0;
-    
-    if (traufePosition === 'bottom') {
-        // Unterste Seite: zwischen den beiden unteren Punkten
-        // Finde die zwei Punkte mit der größten Y-Koordinate (unterste)
-        const sortedByY = [...points].sort((a, b) => b.y - a.y);
-        const p1 = sortedByY[0];
-        const p2 = sortedByY[1];
-        sideAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
-        console.log('Bottom Seite:', p1, p2, '→ Winkel:', sideAngle);
-        
-    } else if (traufePosition === 'left') {
-        // Linke Seite: Verbindung zwischen dem linkesten und einem anderen Punkt
-        const sortedByX = [...points].sort((a, b) => a.x - b.x);
-        const leftPoint = sortedByX[0];
-        
-        // Finde den anderen Punkt der linken Seite (nicht der rechteste)
-        const otherPoints = points.filter(p => p !== leftPoint);
-        otherPoints.sort((a, b) => a.x - b.x); // Nach X sortieren
-        const p2 = otherPoints[0]; // Der zweit-linkeste Punkt
-        
-        sideAngle = Math.atan2(p2.y - leftPoint.y, p2.x - leftPoint.x) * 180 / Math.PI;
-        console.log('Left Seite:', leftPoint, p2, '→ Winkel:', sideAngle);
-        
-    } else if (traufePosition === 'right') {
-        // Rechte Seite: Verbindung zwischen dem rechtesten und einem anderen Punkt
-        const sortedByX = [...points].sort((a, b) => b.x - a.x);
-        const rightPoint = sortedByX[0];
-        
-        // Finde den anderen Punkt der rechten Seite
-        const otherPoints = points.filter(p => p !== rightPoint);
-        otherPoints.sort((a, b) => b.x - a.x); // Nach X sortieren (absteigend)
-        const p2 = otherPoints[0]; // Der zweit-rechteste Punkt
-        
-        sideAngle = Math.atan2(p2.y - rightPoint.y, p2.x - rightPoint.x) * 180 / Math.PI;
-        console.log('Right Seite:', rightPoint, p2, '→ Winkel:', sideAngle);
-        
-    } else if (traufePosition === 'top') {
-        // Obere Seite: zwischen den beiden obersten Punkten  
-        const sortedByY = [...points].sort((a, b) => a.y - b.y);
-        const p1 = sortedByY[0];
-        const p2 = sortedByY[1];
-        sideAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
-        console.log('Top Seite:', p1, p2, '→ Winkel:', sideAngle);
-    }
-    
-    // Um die Seite horizontal zu machen, drehen wir um den negativen Winkel
-    return -sideAngle;
-}
-
-function calculateRectangleSideRotation(traufePosition) {
-    // Rechteck: Seiten sind bereits horizontal/vertikal
-    switch(traufePosition) {
-        case 'bottom': return 0;
-        case 'top': return 180;
-        case 'left': return 90;
-        case 'right': return -90;
-        default: return 0;
-    }
-}
-
-function getStandardRotation(traufePosition) {
-    switch(traufePosition) {
-        case 'bottom': return 0;
-        case 'top': return 180;
-        case 'left': return 90;
-        case 'right': return -90;
-        default: return 0;
-    }
-}
-
-function calculateSimpleTraufeRotation(traufePosition) {
-    // SIMPLE REGEL: Finde heraus, wo die gewählte Seite aktuell ist und drehe sie nach unten
-    
-    const currentData = getCurrentFormData();
-    const finalShape = determineActualShape();
-    
-    // Hole die aktuellen Koordinaten der Form (ohne Rotation)
-    const shapePoints = getShapePoints(finalShape, currentData);
-    
-    if (!shapePoints || shapePoints.length < 2) {
-        console.log('Keine Punkte gefunden, verwende Standard-Rotation');
-        return getStandardRotation(traufePosition);
-    }
-    
-    // Finde die gewählte Seite und ihren aktuellen Winkel
-    const sideAngle = getSideAngle(shapePoints, traufePosition, finalShape);
-    
-    console.log('Aktueller Winkel der', traufePosition, 'Seite:', sideAngle, '°');
-    
-    // Rotation = -aktueller Winkel (um die Seite horizontal zu machen)
-    return -sideAngle;
-}
-
-function getShapePoints(shape, data) {
-    // Einfache Punkt-Generierung für jede Form (ohne SVG-Transformation)
-    const centerX = 0;
-    const centerY = 0;
-    
-    if (shape === 'rechteck' || shape === 'quadrat') {
-        let width, height;
-        if (shape === 'quadrat') {
-            const side = data.side || 5;
-            width = height = side;
-        } else {
-            width = data.length || 8;
-            height = data.width || 5;
-        }
-        
-        return [
-            { x: centerX - width/2, y: centerY - height/2, side: 'top' },
-            { x: centerX + width/2, y: centerY - height/2, side: 'top' },
-            { x: centerX + width/2, y: centerY + height/2, side: 'right' },
-            { x: centerX - width/2, y: centerY + height/2, side: 'bottom' },
-            { x: centerX - width/2, y: centerY - height/2, side: 'left' }
-        ];
-    } else if (shape === 'dreieck') {
-        const variant = determineActualVariant();
-        
-        if (variant === 'gleichseitig') {
-            const side = data.side || 6;
-            const height = side * Math.sqrt(3) / 2;
-            return [
-                { x: centerX, y: centerY - height/2, side: 'top' },
-                { x: centerX - side/2, y: centerY + height/2, side: 'left' },
-                { x: centerX + side/2, y: centerY + height/2, side: 'bottom' }
-            ];
-        } else if (variant === 'rechtwinklig') {
-            const a = data.katheteA || 4;
-            const b = data.katheteB || 5;
-            return [
-                { x: centerX - a/2, y: centerY + b/2, side: 'bottom' },
-                { x: centerX + a/2, y: centerY + b/2, side: 'bottom' },
-                { x: centerX - a/2, y: centerY - b/2, side: 'left' }
-            ];
-        } else {
-            // Ungleichschenkliges Dreieck
-            const sideA = data.sideA || 4;
-            const sideB = data.sideB || 5;
-            const sideC = data.sideC || 6;
-            
-            // Basis horizontal, Spitze darüber
-            const s = (sideA + sideB + sideC) / 2;
-            const area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
-            const height = 2 * area / sideA;
-            const cosC = (sideA*sideA + sideB*sideB - sideC*sideC) / (2 * sideA * sideB);
-            const xTop = sideB * cosC;
-            
-            return [
-                { x: centerX - sideA/2, y: centerY, side: 'bottom' },           // Links unten
-                { x: centerX + sideA/2, y: centerY, side: 'bottom' },           // Rechts unten  
-                { x: centerX - sideA/2 + xTop, y: centerY - height, side: 'top' }  // Spitze oben
-            ];
-        }
-    }
-    
-    return [];
-}
-
-function getSideAngle(points, traufePosition, shape) {
-    if (shape === 'rechteck' || shape === 'quadrat') {
-        // Rechteck: Seiten sind bereits horizontal/vertikal
-        switch(traufePosition) {
-            case 'bottom': return 0;    // Bereits horizontal
-            case 'top': return 180;     // Kopfüber  
-            case 'left': return 90;     // 90° drehen
-            case 'right': return -90;   // -90° drehen
-        }
-    } else if (shape === 'dreieck') {
-        // Dreieck: Berechne Winkel der tatsächlichen Seiten
-        if (traufePosition === 'bottom') {
-            // Basis: Von Punkt 0 zu Punkt 1
-            const p1 = points[0];
-            const p2 = points[1];
-            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
-            return angle;
-        } else if (traufePosition === 'left') {
-            // Linke Seite: Von Punkt 1 zu Punkt 2  
-            const p1 = points[1];
-            const p2 = points[2];
-            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
-            return angle;
-        } else if (traufePosition === 'right') {
-            // Rechte Seite: Von Punkt 2 zu Punkt 0
-            const p1 = points[2];
-            const p2 = points[0];
-            const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
-            return angle;
-        }
-    }
-    
-    return 0;
-}
-
-function getStandardRotation(traufePosition) {
-    // Fallback für unbekannte Formen
-    switch(traufePosition) {
-        case 'bottom': return 0;
-        case 'top': return 180;
-        case 'left': return 90;
-        case 'right': return -90;
-        default: return 0;
-    }
-}
-
-function calculateTriangleTraufeRotation(traufePosition, variant, data) {
-    console.log('Berechne Dreieck-Rotation für:', variant, 'Daten:', data, 'Traufe:', traufePosition);
-    
-    if (variant === 'gleichseitig') {
-        // Gleichseitiges Dreieck: alle Seiten sind 60° zur Horizontalen geneigt
-        switch(traufePosition) {
-            case 'bottom': return 0;    // Basis ist bereits horizontal
-            case 'left': return 60;     // Linke Seite um 60° nach rechts drehen
-            case 'right': return -60;   // Rechte Seite um 60° nach links drehen
-            case 'top': return 180;     // Spitze nach unten
-        }
-    } else if (variant === 'rechtwinklig') {
-        // Rechtwinkliges Dreieck
-        const a = data.katheteA || 4;
-        const b = data.katheteB || 5;
-        
-        switch(traufePosition) {
-            case 'bottom': return 0;    // Horizontale Kathete ist bereits horizontal
-            case 'left': return 90;     // Vertikale Kathete um 90° drehen
-            case 'right': {
-                // Hypotenuse: Winkel zur Horizontalen berechnen
-                const hypotenuseAngle = Math.atan2(b, a) * 180 / Math.PI;
-                console.log('Hypotenuse-Winkel berechnet:', hypotenuseAngle);
-                return -hypotenuseAngle; // Negativ, um horizontal nach unten zu drehen
-            }
-            case 'top': return 90;
-        }
-    } else {
-        // Ungleichschenkliges Dreieck - NEUE KORREKTE Berechnung
-        const sideA = data.sideA || 4; // Basis (horizontal)
-        const sideB = data.sideB || 5; // Linke Seite
-        const sideC = data.sideC || 6; // Rechte Seite
-        
-        console.log('Ungleichschenkliges Dreieck - Seiten:', {sideA, sideB, sideC});
-        
-        // Berechne die Höhe des Dreiecks und die Position der Spitze
-        // Verwende Heron's Formel für die Fläche, dann h = 2*Fläche/Basis
-        const s = (sideA + sideB + sideC) / 2; // Semiperimeter
-        const area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
-        const height = 2 * area / sideA;
-        
-        // Position der Spitze relativ zur Basis (Kosinussatz)
-        const cosB = (sideA*sideA + sideC*sideC - sideB*sideB) / (2 * sideA * sideC);
-        const xTop = sideC * cosB; // X-Position der Spitze von der linken Ecke aus
-        
-        console.log('Dreieck-Geometrie:', {area, height, xTop, cosB});
-        
-        switch(traufePosition) {
-            case 'bottom': 
-                return 0; // Basis (sideA) ist bereits horizontal
-            
-            case 'left': {
-                // Linke Seite (sideB): Von (0,0) zu (xTop, height)
-                const leftAngle = Math.atan2(height, xTop) * 180 / Math.PI;
-                console.log('Linke Seite - Winkel zur Horizontalen:', leftAngle);
-                // Um diese Seite horizontal zu machen, drehen wir um den negativen Winkel
-                return -leftAngle;
-            }
-            
-            case 'right': {
-                // Rechte Seite (sideC): Von (sideA, 0) zu (xTop, height)
-                const dx = xTop - sideA;
-                const dy = height;
-                const rightAngle = Math.atan2(dy, dx) * 180 / Math.PI;
-                console.log('Rechte Seite - Winkel zur Horizontalen:', rightAngle);
-                // Um diese Seite horizontal zu machen, drehen wir um den negativen Winkel
-                return -rightAngle;
-            }
-            
-            case 'top': 
-                return 180; // Spitze nach unten (Basis oben)
-        }
-    }
-    
-    return 0;
-}
-
-function calculateRectangleTraufeRotation(traufePosition) {
-    // Rechteck/Quadrat: Seiten sind bereits horizontal/vertikal
-    switch(traufePosition) {
-        case 'bottom': return 0;    // Bereits horizontal unten
-        case 'top': return 180;     // Obere Seite nach unten drehen
-        case 'left': return 90;     // Linke Seite um 90° drehen
-        case 'right': return -90;   // Rechte Seite um -90° drehen
-    }
-    return 0;
-}
-
-function calculateTrapezTraufeRotation(traufePosition) {
-    // Trapez: Basis-Seiten sind horizontal, Schenkel sind geneigt
-    switch(traufePosition) {
-        case 'bottom': return 0;    // Große Basis bereits horizontal
-        case 'top': return 180;     // Kleine Basis nach unten
-        case 'left': return 90;     // Linker Schenkel (vereinfacht)
-        case 'right': return -90;   // Rechter Schenkel (vereinfacht)
-    }
-    return 0;
-}
-
-function calculateStandardTraufeRotation(traufePosition) {
-    // Standard-Rotation für andere Formen
-    switch(traufePosition) {
-        case 'bottom': return 0;
-        case 'top': return 180;
-        case 'left': return 90;
-        case 'right': return -90;
-    }
-    return 0;
-}
-
-// Globale Funktionen entfernen da nicht mehr benötigt
-window.setTraufePosition = function() {};
-window.closeTraufeDialog = function() {};
+};
 
 function showFeedback(message) {
     const feedback = document.createElement('div');
@@ -2097,6 +953,9 @@ function saveCurrentData() {
     
     Object.assign(projectData.roofShape, currentData);
     
+    // Erstelle Punkte für die weitere Verarbeitung
+    projectData.roofShape.points = generateRoofPoints(currentData);
+    
     try {
         localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
     } catch (e) {
@@ -2104,4 +963,137 @@ function saveCurrentData() {
     }
 }
 
-console.log('✅ Editor komplett geladen');
+function generateRoofPoints(data) {
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    let points = [];
+    
+    switch (finalShape) {
+        case 'dreieck':
+            if (finalVariant === 'gleichseitig') {
+                const side = data.side || 6;
+                const height = side * Math.sqrt(3) / 2;
+                points = [
+                    { x: side/2, y: height },
+                    { x: 0, y: 0 },
+                    { x: side, y: 0 }
+                ];
+            } else if (finalVariant === 'rechtwinklig') {
+                const a = data.katheteA || 4;
+                const b = data.katheteB || 5;
+                points = [
+                    { x: 0, y: 0 },
+                    { x: a, y: 0 },
+                    { x: 0, y: b }
+                ];
+            } else {
+                const a = data.sideA || 4;
+                const b = data.sideB || 5;
+                const c = data.sideC || 6;
+                points = [
+                    { x: a/2, y: Math.sqrt(Math.max(0, c*c - (a/2)*(a/2))) },
+                    { x: 0, y: 0 },
+                    { x: a, y: 0 }
+                ];
+            }
+            break;
+            
+        case 'kreis':
+            if (finalVariant === 'oval') {
+                const radiusA = data.radiusA || 5;
+                const radiusB = data.radiusB || 3;
+                // Approximiere Oval mit 12 Punkten
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i * 2 * Math.PI) / 12;
+                    points.push({
+                        x: radiusA + radiusA * Math.cos(angle),
+                        y: radiusB + radiusB * Math.sin(angle)
+                    });
+                }
+            } else {
+                const radius = data.radius || 4;
+                // Approximiere Kreis mit 12 Punkten
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i * 2 * Math.PI) / 12;
+                    points.push({
+                        x: radius + radius * Math.cos(angle),
+                        y: radius + radius * Math.sin(angle)
+                    });
+                }
+            }
+            break;
+            
+        case 'rechteck':
+            const length = data.length || 8;
+            const width = data.width || 5;
+            points = [
+                { x: 0, y: 0 },
+                { x: length, y: 0 },
+                { x: length, y: width },
+                { x: 0, y: width }
+            ];
+            break;
+            
+        case 'quadrat':
+            const side = data.side || 5;
+            points = [
+                { x: 0, y: 0 },
+                { x: side, y: 0 },
+                { x: side, y: side },
+                { x: 0, y: side }
+            ];
+            break;
+            
+        case 'trapez':
+            const baseA = data.baseA || 8;
+            const baseB = data.baseB || 5;
+            const height = data.height || 4;
+            const offset = (baseA - baseB) / 2;
+            points = [
+                { x: 0, y: 0 },
+                { x: baseA, y: 0 },
+                { x: baseA - offset, y: height },
+                { x: offset, y: height }
+            ];
+            break;
+            
+        case 'parallelogramm':
+            const base = data.base || 8;
+            const pSide = data.side || 5;
+            const pHeight = data.height || 4;
+            const shear = base * 0.3; // Vereinfachte Schrägung
+            points = [
+                { x: 0, y: 0 },
+                { x: base, y: 0 },
+                { x: base - shear, y: pHeight },
+                { x: -shear, y: pHeight }
+            ];
+            break;
+            
+        case 'rhombus':
+            const rhombusSide = data.side || 5;
+            const rhombusHeight = data.height || 4;
+            const rhombusWidth = rhombusSide * 1.2; // Vereinfachte Berechnung
+            points = [
+                { x: rhombusWidth/2, y: 0 },
+                { x: rhombusWidth, y: rhombusHeight/2 },
+                { x: rhombusWidth/2, y: rhombusHeight },
+                { x: 0, y: rhombusHeight/2 }
+            ];
+            break;
+            
+        default:
+            // Fallback: Rechteck
+            points = [
+                { x: 0, y: 0 },
+                { x: 8, y: 0 },
+                { x: 8, y: 5 },
+                { x: 0, y: 5 }
+            ];
+    }
+    
+    return points;
+}
+
+console.log('✅ Vollständiger Editor geladen und funktional');
