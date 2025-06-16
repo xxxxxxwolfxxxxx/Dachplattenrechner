@@ -1507,11 +1507,11 @@ function removeTraufeClickAreas() {
 function setTraufePositionDirect(position, rotation) {
     traufePosition = position;
     
-    // KORRIGIERT: Berechne die korrekte Rotation für horizontale Ausrichtung
-    const correctRotation = calculateTraufeRotation(position);
+    // KORREKTE Berechnung: Finde die tatsächliche Ausrichtung der gewählten Seite
+    const correctRotation = calculateExactTraufeRotation(position);
     currentRotation = correctRotation;
     
-    console.log('Traufe-Position:', position, 'Neue Rotation:', correctRotation);
+    console.log('Traufe-Position:', position, 'Berechnete Rotation:', correctRotation);
     
     updateShape();
     exitTraufeMode();
@@ -1523,82 +1523,112 @@ function setTraufePositionDirect(position, rotation) {
         'left': 'linke'
     };
     
-    showFeedback(`✅ ${positionNames[position]} Seite als Traufe festgelegt und horizontal ausgerichtet`);
+    showFeedback(`✅ ${positionNames[position]} Seite als Traufe festgelegt und exakt horizontal ausgerichtet`);
 }
 
-function calculateTraufeRotation(traufePosition) {
+function calculateExactTraufeRotation(traufePosition) {
     const finalShape = determineActualShape();
     const finalVariant = determineActualVariant();
+    const currentData = getCurrentFormData();
     
-    console.log('Berechne Rotation für:', finalShape, finalVariant, 'Traufe:', traufePosition);
-    
-    // KORRIGIERTE Rotationen - gewählte Seite soll IMMER nach unten zeigen
-    let rotationMap = {};
+    console.log('Berechne exakte Rotation für:', finalShape, finalVariant, 'Traufe:', traufePosition);
     
     if (finalShape === 'dreieck') {
-        if (finalVariant === 'gleichseitig') {
-            // Gleichseitiges Dreieck: Spitze oben, Basis unten (Standard)
-            rotationMap = {
-                'bottom': 0,     // Basis ist bereits unten ✓
-                'left': -120,    // Linke Seite nach unten drehen
-                'right': 120,    // Rechte Seite nach unten drehen  
-                'top': 180       // Spitze nach unten (Basis oben)
-            };
-        } else if (finalVariant === 'rechtwinklig') {
-            // Rechtwinkliges Dreieck: Hypotenuse diagonal, rechter Winkel unten links
-            rotationMap = {
-                'bottom': 0,     // Horizontale Kathete unten ✓
-                'left': -90,     // Vertikale Kathete nach unten
-                'right': 180,    // Hypotenuse nach unten
-                'top': 90        // Obere Seite nach unten
-            };
-        } else {
-            // Ungleichschenkliges Dreieck
-            rotationMap = {
-                'bottom': 0,     // Basis (sideA) unten ✓
-                'left': 120,     // Linke Seite nach unten
-                'right': -120,   // Rechte Seite nach unten
-                'top': 180       // Spitze nach unten
-            };
-        }
+        return calculateTriangleTraufeRotation(traufePosition, finalVariant, currentData);
     } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        // Rechteck/Quadrat: Standard ist Länge horizontal
-        rotationMap = {
-            'bottom': 0,     // Untere Seite bereits unten ✓
-            'top': 180,      // Obere Seite nach unten drehen
-            'left': 90,      // Linke Seite nach unten drehen
-            'right': -90     // Rechte Seite nach unten drehen
-        };
+        return calculateRectangleTraufeRotation(traufePosition);
     } else if (finalShape === 'trapez') {
-        // Trapez: BaseA (größere Basis) ist unten
-        rotationMap = {
-            'bottom': 0,     // BaseA (große Basis) unten ✓
-            'top': 180,      // BaseB (kleine Basis) nach unten
-            'left': 90,      // Linke Seite nach unten
-            'right': -90     // Rechte Seite nach unten
-        };
-    } else if (finalShape === 'kreis') {
-        // Kreis: Beliebige "Seite" kann unten sein
-        rotationMap = {
-            'bottom': 0,
-            'top': 180,
-            'left': 90,
-            'right': -90
-        };
+        return calculateTrapezTraufeRotation(traufePosition);
     } else {
         // Standard für andere Formen
-        rotationMap = {
-            'bottom': 0,
-            'top': 180,
-            'left': 90,
-            'right': -90
-        };
+        return calculateStandardTraufeRotation(traufePosition);
+    }
+}
+
+function calculateTriangleTraufeRotation(traufePosition, variant, data) {
+    console.log('Berechne Dreieck-Rotation für:', variant, 'Daten:', data);
+    
+    if (variant === 'gleichseitig') {
+        // Gleichseitiges Dreieck: alle Seiten sind 60° geneigt
+        switch(traufePosition) {
+            case 'bottom': return 0;    // Basis ist bereits horizontal
+            case 'left': return 60;     // Linke Seite um 60° nach rechts drehen
+            case 'right': return -60;   // Rechte Seite um 60° nach links drehen
+            case 'top': return 180;     // Spitze nach unten
+        }
+    } else if (variant === 'rechtwinklig') {
+        // Rechtwinkliges Dreieck
+        switch(traufePosition) {
+            case 'bottom': return 0;    // Horizontale Kathete ist bereits horizontal
+            case 'left': return 90;     // Vertikale Kathete um 90° drehen
+            case 'right': {
+                // Hypotenuse: Winkel basierend auf Katheten berechnen
+                const a = data.katheteA || 4;
+                const b = data.katheteB || 5;
+                const hypotenuseAngle = Math.atan2(b, a) * 180 / Math.PI;
+                return -hypotenuseAngle; // Negativ, um nach unten zu drehen
+            }
+            case 'top': return 90;
+        }
+    } else {
+        // Ungleichschenkliges Dreieck - komplexere Berechnung
+        const sideA = data.sideA || 4;
+        const sideB = data.sideB || 5;
+        const sideC = data.sideC || 6;
+        
+        switch(traufePosition) {
+            case 'bottom': return 0;    // Basis (sideA) ist bereits horizontal
+            case 'left': {
+                // Winkel der linken Seite berechnen
+                // Über Kosinussatz den Winkel am linken Eckpunkt finden
+                const cosB = (sideA*sideA + sideC*sideC - sideB*sideB) / (2 * sideA * sideC);
+                const angleB = Math.acos(Math.max(-1, Math.min(1, cosB))) * 180 / Math.PI;
+                return 90 - angleB; // Anpassung für horizontale Ausrichtung
+            }
+            case 'right': {
+                // Winkel der rechten Seite berechnen
+                const cosC = (sideA*sideA + sideB*sideB - sideC*sideC) / (2 * sideA * sideB);
+                const angleC = Math.acos(Math.max(-1, Math.min(1, cosC))) * 180 / Math.PI;
+                return -(90 - angleC); // Anpassung für horizontale Ausrichtung
+            }
+            case 'top': return 180;
+        }
     }
     
-    const rotation = rotationMap[traufePosition] || 0;
-    console.log('Berechnete Rotation:', rotation, '° für Traufe-Position:', traufePosition);
-    
-    return rotation;
+    return 0;
+}
+
+function calculateRectangleTraufeRotation(traufePosition) {
+    // Rechteck/Quadrat: Seiten sind bereits horizontal/vertikal
+    switch(traufePosition) {
+        case 'bottom': return 0;    // Bereits horizontal unten
+        case 'top': return 180;     // Obere Seite nach unten drehen
+        case 'left': return 90;     // Linke Seite um 90° drehen
+        case 'right': return -90;   // Rechte Seite um -90° drehen
+    }
+    return 0;
+}
+
+function calculateTrapezTraufeRotation(traufePosition) {
+    // Trapez: Basis-Seiten sind horizontal, Schenkel sind geneigt
+    switch(traufePosition) {
+        case 'bottom': return 0;    // Große Basis bereits horizontal
+        case 'top': return 180;     // Kleine Basis nach unten
+        case 'left': return 90;     // Linker Schenkel (vereinfacht)
+        case 'right': return -90;   // Rechter Schenkel (vereinfacht)
+    }
+    return 0;
+}
+
+function calculateStandardTraufeRotation(traufePosition) {
+    // Standard-Rotation für andere Formen
+    switch(traufePosition) {
+        case 'bottom': return 0;
+        case 'top': return 180;
+        case 'left': return 90;
+        case 'right': return -90;
+    }
+    return 0;
 }
 
 // Globale Funktionen entfernen da nicht mehr benötigt
