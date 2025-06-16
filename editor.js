@@ -1528,28 +1528,26 @@ function removeTraufeClickAreas() {
 function setTraufePositionDirect(position) {
     traufePosition = position;
     
-    // DEBUGGING: Lass uns erstmal sehen was passiert
     console.log('=== TRAUFE DEBUG ===');
     console.log('Position:', position);
     console.log('Aktuelle Rotation vor Änderung:', currentRotation);
     
-    // TEST: Einfache feste Werte erstmal
+    // KORRIGIERTE Rotationen - andere Richtung!
     let newRotation = currentRotation;
     
     if (position === 'bottom') {
-        newRotation = 0;
+        newRotation = 0;      // Bleibt wie es ist
     } else if (position === 'top') {
-        newRotation = 180;
+        newRotation = 180;    // Kopfüber
     } else if (position === 'left') {
-        newRotation = 90;
+        newRotation = -90;    // KORRIGIERT: -90° statt +90°
     } else if (position === 'right') {
-        newRotation = 270; // Oder -90, teste beide
+        newRotation = 90;     // KORRIGIERT: +90° statt +270°/-90°
     }
     
-    console.log('Neue Rotation:', newRotation);
+    console.log('KORRIGIERTE Rotation:', newRotation);
     currentRotation = newRotation;
     
-    // Force update
     updateShape();
     
     console.log('Rotation nach Update:', currentRotation);
@@ -1557,7 +1555,7 @@ function setTraufePositionDirect(position) {
     
     exitTraufeMode();
     
-    showFeedback(`Test: ${position} → ${newRotation}°`);
+    showFeedback(`KORRIGIERT: ${position} → ${newRotation}°`);
 }
 
 // ZUSÄTZLICHE DEBUG-FUNKTION
