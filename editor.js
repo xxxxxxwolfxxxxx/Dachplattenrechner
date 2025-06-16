@@ -1507,23 +1507,155 @@ function removeTraufeClickAreas() {
 function setTraufePositionDirect(position) {
     traufePosition = position;
     
-    // EINFACH: Berechne die Rotation um die gewählte Seite horizontal zu machen
-    const correctRotation = calculateSimpleTraufeRotation(position);
-    currentRotation = correctRotation;
+    // DEBUGGING: Lass uns erstmal sehen was passiert
+    console.log('=== TRAUFE DEBUG ===');
+    console.log('Position:', position);
+    console.log('Aktuelle Rotation vor Änderung:', currentRotation);
     
-    console.log('Traufe-Position:', position, 'Rotation:', correctRotation);
+    // TEST: Einfache feste Werte erstmal
+    let newRotation = currentRotation;
     
+    if (position === 'bottom') {
+        newRotation = 0;
+    } else if (position === 'top') {
+        newRotation = 180;
+    } else if (position === 'left') {
+        newRotation = 90;
+    } else if (position === 'right') {
+        newRotation = 270; // Oder -90, teste beide
+    }
+    
+    console.log('Neue Rotation:', newRotation);
+    currentRotation = newRotation;
+    
+    // Force update
     updateShape();
+    
+    console.log('Rotation nach Update:', currentRotation);
+    console.log('=== ENDE DEBUG ===');
+    
     exitTraufeMode();
     
-    const positionNames = {
-        'top': 'obere',
-        'right': 'rechte', 
-        'bottom': 'untere',
-        'left': 'linke'
-    };
+    showFeedback(`Test: ${position} → ${newRotation}°`);
+}
+
+// ZUSÄTZLICHE DEBUG-FUNKTION
+window.testRotation = function(angle) {
+    console.log('Teste Rotation:', angle);
+    currentRotation = angle;
+    updateShape();
+    showFeedback(`Test-Rotation: ${angle}°`);
+};
+
+// ZUSÄTZLICHE DEBUG-FUNKTION FÜR SCHRITTWEISE ROTATION
+window.rotateStep = function(step = 15) {
+    currentRotation += step;
+    if (currentRotation >= 360) currentRotation -= 360;
+    if (currentRotation < 0) currentRotation += 360;
+    updateShape();
+    showFeedback(`Schritt-Rotation: ${currentRotation}°`);
+    console.log('Aktuelle Rotation:', currentRotation);
+};
+
+function calculateActualSideRotation(traufePosition) {
+    // Hole die aktuell gezeichnete Form aus dem SVG
+    const shapeElement = document.querySelector('#roof-shape polygon, #roof-shape rect, #roof-shape circle, #roof-shape ellipse');
     
-    showFeedback(`✅ ${positionNames[position]} Seite auf Bodenlinie gelegt`);
+    if (!shapeElement) {
+        console.log('Keine Form gefunden, verwende Standard-Rotation');
+        return getStandardRotation(traufePosition);
+    }
+    
+    const finalShape = determineActualShape();
+    
+    if (finalShape === 'dreieck') {
+        return calculateTriangleSideRotation(shapeElement, traufePosition);
+    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        return calculateRectangleSideRotation(traufePosition);
+    } else {
+        return getStandardRotation(traufePosition);
+    }
+}
+
+function calculateTriangleSideRotation(triangleElement, traufePosition) {
+    // Hole die aktuellen Punkte des Dreiecks aus dem SVG
+    const pointsStr = triangleElement.getAttribute('points');
+    const points = pointsStr.split(' ').map(p => {
+        const [x, y] = p.split(',');
+        return { x: parseFloat(x), y: parseFloat(y) };
+    });
+    
+    console.log('Dreieck-Punkte aus SVG:', points);
+    
+    let sideAngle = 0;
+    
+    if (traufePosition === 'bottom') {
+        // Unterste Seite: zwischen den beiden unteren Punkten
+        // Finde die zwei Punkte mit der größten Y-Koordinate (unterste)
+        const sortedByY = [...points].sort((a, b) => b.y - a.y);
+        const p1 = sortedByY[0];
+        const p2 = sortedByY[1];
+        sideAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+        console.log('Bottom Seite:', p1, p2, '→ Winkel:', sideAngle);
+        
+    } else if (traufePosition === 'left') {
+        // Linke Seite: Verbindung zwischen dem linkesten und einem anderen Punkt
+        const sortedByX = [...points].sort((a, b) => a.x - b.x);
+        const leftPoint = sortedByX[0];
+        
+        // Finde den anderen Punkt der linken Seite (nicht der rechteste)
+        const otherPoints = points.filter(p => p !== leftPoint);
+        otherPoints.sort((a, b) => a.x - b.x); // Nach X sortieren
+        const p2 = otherPoints[0]; // Der zweit-linkeste Punkt
+        
+        sideAngle = Math.atan2(p2.y - leftPoint.y, p2.x - leftPoint.x) * 180 / Math.PI;
+        console.log('Left Seite:', leftPoint, p2, '→ Winkel:', sideAngle);
+        
+    } else if (traufePosition === 'right') {
+        // Rechte Seite: Verbindung zwischen dem rechtesten und einem anderen Punkt
+        const sortedByX = [...points].sort((a, b) => b.x - a.x);
+        const rightPoint = sortedByX[0];
+        
+        // Finde den anderen Punkt der rechten Seite
+        const otherPoints = points.filter(p => p !== rightPoint);
+        otherPoints.sort((a, b) => b.x - a.x); // Nach X sortieren (absteigend)
+        const p2 = otherPoints[0]; // Der zweit-rechteste Punkt
+        
+        sideAngle = Math.atan2(p2.y - rightPoint.y, p2.x - rightPoint.x) * 180 / Math.PI;
+        console.log('Right Seite:', rightPoint, p2, '→ Winkel:', sideAngle);
+        
+    } else if (traufePosition === 'top') {
+        // Obere Seite: zwischen den beiden obersten Punkten  
+        const sortedByY = [...points].sort((a, b) => a.y - b.y);
+        const p1 = sortedByY[0];
+        const p2 = sortedByY[1];
+        sideAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+        console.log('Top Seite:', p1, p2, '→ Winkel:', sideAngle);
+    }
+    
+    // Um die Seite horizontal zu machen, drehen wir um den negativen Winkel
+    return -sideAngle;
+}
+
+function calculateRectangleSideRotation(traufePosition) {
+    // Rechteck: Seiten sind bereits horizontal/vertikal
+    switch(traufePosition) {
+        case 'bottom': return 0;
+        case 'top': return 180;
+        case 'left': return 90;
+        case 'right': return -90;
+        default: return 0;
+    }
+}
+
+function getStandardRotation(traufePosition) {
+    switch(traufePosition) {
+        case 'bottom': return 0;
+        case 'top': return 180;
+        case 'left': return 90;
+        case 'right': return -90;
+        default: return 0;
+    }
 }
 
 function calculateSimpleTraufeRotation(traufePosition) {
