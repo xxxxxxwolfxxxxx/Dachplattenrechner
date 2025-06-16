@@ -1,10 +1,16 @@
-// editor.js – Saubere Version ohne Debug-Spam
+// editor.js – Vollständig funktionaler Editor mit Rotation und Traufe
 
 let projectData = {};
 let currentShape = '';
 let currentVariant = '';
 let svg;
-let isUpdating = false; // Verhindert Endlosschleifen
+let isUpdating = false;
+
+// Transformation state
+let currentRotation = 0; // Rotation in Grad
+let isMirroredH = false; // Horizontal gespiegelt
+let isMirroredV = false; // Vertikal gespiegelt
+let traufePosition = 'bottom'; // Traufe-Position: top, right, bottom, left
 
 const CANVAS_CENTER_X = 300;
 const CANVAS_CENTER_Y = 200;
@@ -18,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             initializeUI();
             loadAndDrawShape();
             setupEventListeners();
-            console.log('✅ Editor initialisiert');
+            console.log('✅ Funktionaler Editor initialisiert');
         } catch (error) {
             console.error('❌ Editor-Fehler:', error);
         }
@@ -99,6 +105,7 @@ function createFallbackCanvas() {
 function initializeUI() {
     displayProfileInfo();
     updateShapeTitle();
+    updateDirectionInfo();
 }
 
 function displayProfileInfo() {
@@ -142,6 +149,47 @@ function updateShapeTitle() {
     if (element) {
         element.textContent = shapeName;
     }
+}
+
+function updateDirectionInfo() {
+    const directionElement = document.getElementById('current-direction');
+    const reasonElement = document.getElementById('direction-reason');
+    
+    if (directionElement) {
+        const direction = getRecommendedDirection();
+        directionElement.textContent = direction.name;
+    }
+    
+    if (reasonElement) {
+        const reason = getDirectionReason();
+        reasonElement.textContent = reason;
+    }
+}
+
+function getRecommendedDirection() {
+    // Basierend auf aktueller Rotation und Form
+    const rotationDeg = currentRotation % 360;
+    
+    if (rotationDeg >= -45 && rotationDeg <= 45) {
+        return { name: 'Längs (vertikal)', code: 'vertical' };
+    } else if (rotationDeg >= 45 && rotationDeg <= 135) {
+        return { name: 'Quer (horizontal)', code: 'horizontal' };
+    } else if (rotationDeg >= 135 || rotationDeg <= -135) {
+        return { name: 'Längs (gedreht)', code: 'vertical-rotated' };
+    } else {
+        return { name: 'Quer (gedreht)', code: 'horizontal-rotated' };
+    }
+}
+
+function getDirectionReason() {
+    const traufeNames = {
+        'top': 'oben',
+        'right': 'rechts', 
+        'bottom': 'unten',
+        'left': 'links'
+    };
+    
+    return `Traufe ${traufeNames[traufePosition]}, Rotation ${currentRotation}°`;
 }
 
 function loadAndDrawShape() {
@@ -213,7 +261,7 @@ function createInput(labelText, id, defaultValue = '') {
     input.step = '0.1';
     input.min = '0.1';
     
-    // SAUBERE Event Listeners ohne Spam
+    // Event Listeners
     input.addEventListener('input', handleInputChange);
     input.addEventListener('change', handleInputChange);
     
@@ -230,7 +278,6 @@ function createInput(labelText, id, defaultValue = '') {
 }
 
 function handleInputChange() {
-    // Verhindere mehrfache Updates
     if (isUpdating) return;
     
     isUpdating = true;
@@ -252,11 +299,14 @@ function updateShape() {
     // Aktuelle Daten sammeln
     const currentData = getCurrentFormData();
     
-    // Form zeichnen
-    drawShape(shapeGroup, currentData);
+    // Form zeichnen mit Transformationen
+    drawTransformedShape(shapeGroup, currentData);
     
     // Berechnungen aktualisieren
     updateCalculations(currentData);
+    
+    // Richtungsinfo aktualisieren
+    updateDirectionInfo();
 }
 
 function getCurrentFormData() {
@@ -277,6 +327,37 @@ function getCurrentFormData() {
     });
     
     return data;
+}
+
+function drawTransformedShape(group, data) {
+    // Erstelle eine Transform-Gruppe
+    const transformGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    
+    // Berechne Transformationen
+    let transform = `translate(${CANVAS_CENTER_X}, ${CANVAS_CENTER_Y})`;
+    
+    // Rotation
+    if (currentRotation !== 0) {
+        transform += ` rotate(${currentRotation})`;
+    }
+    
+    // Spiegelung
+    let scaleX = isMirroredH ? -1 : 1;
+    let scaleY = isMirroredV ? -1 : 1;
+    if (scaleX !== 1 || scaleY !== 1) {
+        transform += ` scale(${scaleX}, ${scaleY})`;
+    }
+    
+    // Zurück zum Ursprung für das Zeichnen
+    transform += ` translate(${-CANVAS_CENTER_X}, ${-CANVAS_CENTER_Y})`;
+    
+    transformGroup.setAttribute('transform', transform);
+    
+    // Form in die Transform-Gruppe zeichnen
+    drawShape(transformGroup, data);
+    
+    // Transform-Gruppe zur Haupt-Gruppe hinzufügen
+    group.appendChild(transformGroup);
 }
 
 function drawShape(group, data) {
@@ -451,18 +532,36 @@ function setupEventListeners() {
         });
     }
     
-    // Tools
+    // Tools mit echter Funktionalität
     setupToolButtons();
 }
 
 function setupToolButtons() {
     const tools = {
         'btn-reset': resetToDefaults,
-        'btn-mirror-horizontal': () => showFeedback('Horizontal gespiegelt'),
-        'btn-mirror-vertical': () => showFeedback('Vertikal gespiegelt'),
-        'btn-rotate-left': () => showFeedback('Um 45° links gedreht'),
-        'btn-rotate-right': () => showFeedback('Um 45° rechts gedreht'),
-        'btn-traufe': () => showFeedback('Traufe-Tool aktiviert')
+        'btn-mirror-horizontal': () => {
+            isMirroredH = !isMirroredH;
+            updateShape();
+            showFeedback(isMirroredH ? 'Horizontal gespiegelt' : 'Horizontale Spiegelung aufgehoben');
+        },
+        'btn-mirror-vertical': () => {
+            isMirroredV = !isMirroredV;
+            updateShape();
+            showFeedback(isMirroredV ? 'Vertikal gespiegelt' : 'Vertikale Spiegelung aufgehoben');
+        },
+        'btn-rotate-left': () => {
+            currentRotation -= 45;
+            if (currentRotation <= -180) currentRotation += 360;
+            updateShape();
+            showFeedback(`Um 45° links gedreht (${currentRotation}°)`);
+        },
+        'btn-rotate-right': () => {
+            currentRotation += 45;
+            if (currentRotation >= 180) currentRotation -= 360;
+            updateShape();
+            showFeedback(`Um 45° rechts gedreht (${currentRotation}°)`);
+        },
+        'btn-traufe': selectTraufePosition
     };
     
     Object.entries(tools).forEach(([id, handler]) => {
@@ -472,6 +571,82 @@ function setupToolButtons() {
         }
     });
 }
+
+function selectTraufePosition() {
+    // Erstelle Traufe-Auswahl-Dialog
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: Arial, sans-serif;
+    `;
+    
+    overlay.innerHTML = `
+        <h3 style="margin-bottom: 20px; font-size: 24px;">Traufe-Position bestimmen</h3>
+        <p style="margin-bottom: 30px; text-align: center; font-size: 16px;">Klicken Sie auf die Seite, wo sich die Traufe (Dachrand) befindet:</p>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+            <button onclick="setTraufePosition('top')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white;">↑ Oben</button>
+            <button onclick="setTraufePosition('right')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white;">→ Rechts</button>
+            <button onclick="setTraufePosition('bottom')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white;">↓ Unten</button>
+            <button onclick="setTraufePosition('left')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white;">← Links</button>
+        </div>
+        <button onclick="closeTraufeDialog()" style="margin-top: 10px; padding: 12px 24px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 8px;">Abbrechen</button>
+    `;
+    
+    document.body.appendChild(overlay);
+}
+
+// Globale Funktionen für Traufe-Dialog
+window.setTraufePosition = function(position) {
+    traufePosition = position;
+    
+    // Automatische Rotation basierend auf Traufe-Position
+    switch(position) {
+        case 'top':
+            currentRotation = 180;
+            break;
+        case 'right':
+            currentRotation = -90;
+            break;
+        case 'bottom':
+            currentRotation = 0;
+            break;
+        case 'left':
+            currentRotation = 90;
+            break;
+    }
+    
+    updateShape();
+    closeTraufeDialog();
+    
+    const positionNames = {
+        'top': 'oben',
+        'right': 'rechts',
+        'bottom': 'unten',
+        'left': 'links'
+    };
+    
+    showFeedback(`Traufe ${positionNames[position]} gesetzt, Form ausgerichtet`);
+};
+
+window.closeTraufeDialog = function() {
+    const overlays = document.querySelectorAll('[style*="position: fixed"]');
+    overlays.forEach(overlay => {
+        if (overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+        }
+    });
+};
 
 function showFeedback(message) {
     const feedback = document.createElement('div');
@@ -484,6 +659,7 @@ function showFeedback(message) {
         padding: 10px 20px;
         border-radius: 5px;
         z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     `;
     feedback.textContent = message;
     document.body.appendChild(feedback);
@@ -492,10 +668,17 @@ function showFeedback(message) {
         if (feedback.parentNode) {
             document.body.removeChild(feedback);
         }
-    }, 2000);
+    }, 3000);
 }
 
 function resetToDefaults() {
+    // Reset Transformationen
+    currentRotation = 0;
+    isMirroredH = false;
+    isMirroredV = false;
+    traufePosition = 'bottom';
+    
+    // Reset Eingabefelder
     const inputs = document.querySelectorAll('#geometry-inputs-grid input');
     
     inputs.forEach(input => {
@@ -516,11 +699,17 @@ function resetToDefaults() {
     });
     
     updateShape();
-    showFeedback('Auf Standardwerte zurückgesetzt');
+    showFeedback('Komplett zurückgesetzt: Form, Rotation und Spiegelung');
 }
 
 function saveCurrentData() {
     const currentData = getCurrentFormData();
+    
+    // Füge Transformationsdaten hinzu
+    currentData.rotation = currentRotation;
+    currentData.mirroredH = isMirroredH;
+    currentData.mirroredV = isMirroredV;
+    currentData.traufePosition = traufePosition;
     
     if (!projectData.roofShape) {
         projectData.roofShape = {};
@@ -535,4 +724,4 @@ function saveCurrentData() {
     }
 }
 
-console.log('✅ Editor geladen (saubere Version)');
+console.log('✅ Funktionaler Editor mit Rotation und Traufe geladen');
