@@ -1283,10 +1283,30 @@ function addRectangleClickAreas(rect) {
     
     // Vier klickbare Bereiche für die Seiten erstellen
     const sides = [
-        { name: 'top', x: x, y: y - 10, width: width, height: 20, rotation: 180 },
-        { name: 'right', x: x + width - 10, y: y, width: 20, height: height, rotation: -90 },
-        { name: 'bottom', x: x, y: y + height - 10, width: width, height: 20, rotation: 0 },
-        { name: 'left', x: x - 10, y: y, width: 20, height: height, rotation: 90 }
+        { 
+            name: 'top', 
+            x: x, y: y - 15, width: width, height: 30, 
+            label: 'Obere Seite als Traufe',
+            description: 'Diese Seite wird horizontal nach unten gedreht'
+        },
+        { 
+            name: 'right', 
+            x: x + width - 15, y: y, width: 30, height: height, 
+            label: 'Rechte Seite als Traufe',
+            description: 'Diese Seite wird horizontal nach unten gedreht'
+        },
+        { 
+            name: 'bottom', 
+            x: x, y: y + height - 15, width: width, height: 30, 
+            label: 'Untere Seite als Traufe',
+            description: 'Diese Seite ist bereits unten (Standard)'
+        },
+        { 
+            name: 'left', 
+            x: x - 15, y: y, width: 30, height: height, 
+            label: 'Linke Seite als Traufe',
+            description: 'Diese Seite wird horizontal nach unten gedreht'
+        }
     ];
     
     sides.forEach(side => {
@@ -1302,13 +1322,15 @@ function addRectangleClickAreas(rect) {
         clickArea.classList.add('traufe-click-area');
         clickArea.style.cursor = 'pointer';
         
-        clickArea.addEventListener('click', () => {
-            setTraufePositionDirect(side.name, side.rotation);
+        clickArea.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log('Klick auf', side.name, 'Seite');
+            setTraufePositionDirect(side.name);
         });
         
         clickArea.addEventListener('mouseenter', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.5)');
-            showFeedback(`Klicken: ${side.name.toUpperCase()}-Seite als Traufe`);
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
+            showFeedback(side.label);
         });
         
         clickArea.addEventListener('mouseleave', () => {
@@ -1324,9 +1346,24 @@ function addTriangleClickAreas(triangle) {
     
     // Drei klickbare Bereiche für die Seiten
     const sides = [
-        { name: 'bottom', points: [points[0], points[1]], rotation: 0 },
-        { name: 'left', points: [points[1], points[2]], rotation: 120 },
-        { name: 'right', points: [points[2], points[0]], rotation: -120 }
+        { 
+            name: 'bottom', 
+            points: [points[1], points[2]], 
+            label: 'Basis als Traufe',
+            description: 'Basis horizontal unten (Standard)'
+        },
+        { 
+            name: 'left', 
+            points: [points[0], points[1]], 
+            label: 'Linke Seite als Traufe',
+            description: 'Linke Seite wird nach unten gedreht'
+        },
+        { 
+            name: 'right', 
+            points: [points[2], points[0]], 
+            label: 'Rechte Seite als Traufe',
+            description: 'Rechte Seite wird nach unten gedreht'
+        }
     ];
     
     sides.forEach((side, index) => {
@@ -1340,20 +1377,22 @@ function addTriangleClickAreas(triangle) {
         const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         clickArea.setAttribute('cx', midX);
         clickArea.setAttribute('cy', midY);
-        clickArea.setAttribute('r', '15');
+        clickArea.setAttribute('r', '18');
         clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.4)');
         clickArea.setAttribute('stroke', '#ffff00');
         clickArea.setAttribute('stroke-width', '3');
         clickArea.classList.add('traufe-click-area');
         clickArea.style.cursor = 'pointer';
         
-        clickArea.addEventListener('click', () => {
-            setTraufePositionDirect(side.name, side.rotation);
+        clickArea.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log('Klick auf', side.name, 'Seite des Dreiecks');
+            setTraufePositionDirect(side.name);
         });
         
         clickArea.addEventListener('mouseenter', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
-            showFeedback(`Klicken: ${side.name.toUpperCase()}-Seite als Traufe`);
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.7)');
+            showFeedback(side.label);
         });
         
         clickArea.addEventListener('mouseleave', () => {
@@ -1450,19 +1489,67 @@ function removeTraufeClickAreas() {
 
 function setTraufePositionDirect(position, rotation) {
     traufePosition = position;
-    currentRotation = rotation;
+    
+    // KORRIGIERT: Berechne die korrekte Rotation für horizontale Ausrichtung
+    const correctRotation = calculateTraufeRotation(position);
+    currentRotation = correctRotation;
+    
+    console.log('Traufe-Position:', position, 'Neue Rotation:', correctRotation);
     
     updateShape();
     exitTraufeMode();
     
     const positionNames = {
         'top': 'obere',
-        'right': 'rechte',
+        'right': 'rechte', 
         'bottom': 'untere',
         'left': 'linke'
     };
     
-    showFeedback(`✅ ${positionNames[position]} Seite als Traufe festgelegt (${rotation}° Drehung)`);
+    showFeedback(`✅ ${positionNames[position]} Seite als Traufe festgelegt und horizontal ausgerichtet`);
+}
+
+function calculateTraufeRotation(traufePosition) {
+    const finalShape = determineActualShape();
+    
+    // Basis-Rotationen für Standard-Ausrichtung
+    let rotationMap = {};
+    
+    if (finalShape === 'dreieck') {
+        // Bei Dreiecken: Basis soll horizontal sein
+        rotationMap = {
+            'bottom': 0,    // Basis ist bereits unten
+            'left': 90,     // Linke Seite nach unten drehen
+            'right': -90,   // Rechte Seite nach unten drehen
+            'top': 180      // Spitze nach unten (Basis oben)
+        };
+    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        // Bei Rechtecken: Gewählte Seite soll horizontal unten sein
+        rotationMap = {
+            'bottom': 0,    // Bereits richtig
+            'top': 180,     // Obere Seite nach unten
+            'left': 90,     // Linke Seite nach unten
+            'right': -90    // Rechte Seite nach unten
+        };
+    } else if (finalShape === 'trapez') {
+        // Bei Trapez: Gewählte Basis soll unten sein
+        rotationMap = {
+            'bottom': 0,    // Große Basis unten (Standard)
+            'top': 180,     // Kleine Basis unten
+            'left': 90,     // Seite nach unten
+            'right': -90    // Andere Seite nach unten
+        };
+    } else {
+        // Standard für andere Formen
+        rotationMap = {
+            'bottom': 0,
+            'top': 180,
+            'left': 90,
+            'right': -90
+        };
+    }
+    
+    return rotationMap[traufePosition] || 0;
 }
 
 // Globale Funktionen entfernen da nicht mehr benötigt
