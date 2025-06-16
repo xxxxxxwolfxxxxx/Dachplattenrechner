@@ -1,39 +1,324 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Dachplatten Editor</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 2rem;
-    }
-    .editor-section {
-      display: grid;
-      gap: 1rem;
-      max-width: 400px;
-    }
-    label {
-      display: flex;
-      flex-direction: column;
-      font-weight: bold;
-    }
-    input {
-      padding: 0.3rem;
-      font-size: 1rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Geometry Editor - Dachplattenrechner</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Editor-spezifische Styles */
+        .controls-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .calc-display {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+        }
+
+        .calc-display span {
+            background: rgba(0,123,255,0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        .tools-grid {
+            margin-bottom: 20px;
+        }
+
+        .tools-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .tools-row:last-child {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .btn-tool {
+            height: 40px;
+            padding: 0 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            color: #495057;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-tool:hover {
+            border-color: #007bff;
+            background: #f8f9ff;
+            color: #007bff;
+        }
+
+        .btn-tool.active {
+            border-color: #007bff;
+            background: #007bff;
+            color: white;
+        }
+
+        .inputs-section {
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        #geometry-inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .input-group-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 8px 12px;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-group-wrapper:focus-within {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+        }
+
+        .input-group input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .input-unit {
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .canvas-wrapper {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            position: relative;
+            width: 600px;
+            height: 400px;
+            margin: 20px auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .profile-info-panel {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .profile-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .profile-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .profile-info-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            #geometry-inputs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .tools-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .tools-row:last-child {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Dachplatten Editor</h1>
+    <div class="container">
+        <header>
+            <h1>Dachplattenrechner</h1>
+            <nav class="progress-nav">
+                <div class="step completed" data-step="1">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Profil</span>
+                </div>
+                <div class="step completed" data-step="2">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Dachform</span>
+                </div>
+                <div class="step active" data-step="3">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Editor</span>
+                </div>
+                <div class="step" data-step="4">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Berechnung</span>
+                </div>
+                <div class="step" data-step="5">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Anrissplan</span>
+                </div>
+            </nav>
+        </header>
 
-  <section id="geometry-inputs-grid" class="editor-section">
-    <!-- Eingabefelder für die gewählte Figur werden hier dynamisch eingefügt -->
-  </section>
+        <main>
+            <!-- Profil-Info Panel -->
+            <div class="profile-info-panel">
+                <h3>Gewähltes Profil</h3>
+                
+                <div class="profile-info-grid">
+                    <div>
+                        <div class="profile-info-item">
+                            <span>Profil:</span>
+                            <strong id="current-profile-name">-</strong>
+                        </div>
+                        <div class="profile-info-item">
+                            <span>Deckbreite:</span>
+                            <strong id="current-deckbreite">-</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="profile-info-item">
+                            <span>Lieferbreite:</span>
+                            <strong id="current-lieferbreite">-</strong>
+                        </div>
+                        <div class="profile-info-item">
+                            <span>Seitenüberlappung:</span>
+                            <strong id="current-seitenueberlappung">-</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-  <canvas id="shape-canvas" width="400" height="300" style="border:1px solid #ccc; margin-top:2rem;"></canvas>
+            <!-- Controls Panel -->
+            <div class="controls-panel">
+                <div class="panel-header">
+                    <h3>Geometrie-Editor: <span id="current-shape-name">Rechteck</span></h3>
+                    <div class="calc-display">
+                        <span>Fläche: <strong id="calc-area">0 m²</strong></span>
+                        <span>Umfang: <strong id="calc-perimeter">0 m</strong></span>
+                    </div>
+                </div>
 
-  <script type="module" src="editor.js"></script>
+                <!-- Tools -->
+                <div class="tools-grid">
+                    <div class="tools-row">
+                        <button class="btn-tool" id="btn-mirror-horizontal">H-Spiegel</button>
+                        <button class="btn-tool" id="btn-mirror-vertical">V-Spiegel</button>
+                        <button class="btn-tool" id="btn-rotate-left">↻ 45°</button>
+                        <button class="btn-tool" id="btn-rotate-right">↺ 45°</button>
+                    </div>
+                    <div class="tools-row">
+                        <button class="btn-tool" id="btn-traufe">Traufe</button>
+                        <button class="btn-tool" id="btn-reset">Reset</button>
+                    </div>
+                </div>
+
+                <!-- Input Fields -->
+                <div class="inputs-section">
+                    <h4>Geometrie-Parameter</h4>
+                    <div id="geometry-inputs-grid">
+                        <!-- Wird dynamisch gefüllt -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Section -->
+            <section class="editor-section">
+                <div class="canvas-container">
+                    <div class="canvas-wrapper">
+                        <svg id="main-svg" width="600" height="400" viewBox="0 0 600 400">
+                            <defs>
+                                <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
+                                    <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#grid)" />
+                            
+                            <!-- Hilfslinien -->
+                            <line x1="300" y1="0" x2="300" y2="400" stroke="#c0c0c0" stroke-width="2"/>
+                            <line x1="0" y1="200" x2="600" y2="200" stroke="#c0c0c0" stroke-width="2"/>
+                            
+                            <!-- Form und Bemaßung -->
+                            <g id="roof-shape"></g>
+                            <g id="dimensions"></g>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation -->
+            <div class="navigation-buttons">
+                <button type="button" class="btn btn-secondary" id="btn-back">
+                    ← Zurück zur Dachform
+                </button>
+                <button type="button" class="btn btn-primary" id="btn-continue">
+                    Weiter zur Berechnung →
+                </button>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Dachplattenrechner</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="editor.js"></script>
 </body>
 </html>
