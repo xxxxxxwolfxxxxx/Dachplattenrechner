@@ -485,6 +485,277 @@ function drawTransformedShape(group, data) {
     
     drawShape(transformGroup, data);
     group.appendChild(transformGroup);
+    
+    // Bemaßung hinzufügen (NACH der Transformation)
+    addDimensionLines(group, data);
+}
+
+function addDimensionLines(group, data) {
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    console.log('Füge Bemaßung hinzu für:', finalShape, finalVariant);
+    
+    // Bemaßungsgruppe erstellen
+    const dimGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    dimGroup.id = 'dimension-lines';
+    
+    if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        addRectangleDimensions(dimGroup, data, finalVariant);
+    } else if (finalShape === 'dreieck') {
+        addTriangleDimensions(dimGroup, data, finalVariant);
+    } else if (finalShape === 'kreis') {
+        addCircleDimensions(dimGroup, data, finalVariant);
+    } else if (finalShape === 'trapez') {
+        addTrapezDimensions(dimGroup, data);
+    }
+    
+    group.appendChild(dimGroup);
+}
+
+function addRectangleDimensions(group, data, variant) {
+    let width, height;
+    
+    if (variant === 'quadrat') {
+        const side = data.side || 5;
+        width = height = side;
+    } else {
+        width = data.length || 8;
+        height = data.width || 5;
+    }
+    
+    const scaledWidth = width * SCALE_FACTOR;
+    const scaledHeight = height * SCALE_FACTOR;
+    
+    // Horizontale Bemaßung (Breite)
+    addDimensionLine(
+        group,
+        CANVAS_CENTER_X - scaledWidth/2, CANVAS_CENTER_Y + scaledHeight/2 + 30,
+        CANVAS_CENTER_X + scaledWidth/2, CANVAS_CENTER_Y + scaledHeight/2 + 30,
+        `${width.toFixed(1)} m`,
+        'horizontal'
+    );
+    
+    // Vertikale Bemaßung (Höhe)
+    addDimensionLine(
+        group,
+        CANVAS_CENTER_X - scaledWidth/2 - 30, CANVAS_CENTER_Y - scaledHeight/2,
+        CANVAS_CENTER_X - scaledWidth/2 - 30, CANVAS_CENTER_Y + scaledHeight/2,
+        `${height.toFixed(1)} m`,
+        'vertical'
+    );
+}
+
+function addTriangleDimensions(group, data, variant) {
+    if (variant === 'gleichseitig') {
+        const side = data.side || 6;
+        const scaledSide = side * SCALE_FACTOR;
+        
+        // Basis-Bemaßung
+        addDimensionLine(
+            group,
+            CANVAS_CENTER_X - scaledSide/2, CANVAS_CENTER_Y + scaledSide * Math.sqrt(3)/4 + 30,
+            CANVAS_CENTER_X + scaledSide/2, CANVAS_CENTER_Y + scaledSide * Math.sqrt(3)/4 + 30,
+            `${side.toFixed(1)} m`,
+            'horizontal'
+        );
+    } else if (variant === 'rechtwinklig') {
+        const a = data.katheteA || 4;
+        const b = data.katheteB || 5;
+        
+        // Kathete A (horizontal)
+        addDimensionLine(
+            group,
+            CANVAS_CENTER_X - a * SCALE_FACTOR/2, CANVAS_CENTER_Y + b * SCALE_FACTOR/2 + 30,
+            CANVAS_CENTER_X + a * SCALE_FACTOR/2, CANVAS_CENTER_Y + b * SCALE_FACTOR/2 + 30,
+            `${a.toFixed(1)} m`,
+            'horizontal'
+        );
+        
+        // Kathete B (vertikal)
+        addDimensionLine(
+            group,
+            CANVAS_CENTER_X - a * SCALE_FACTOR/2 - 30, CANVAS_CENTER_Y - b * SCALE_FACTOR/2,
+            CANVAS_CENTER_X - a * SCALE_FACTOR/2 - 30, CANVAS_CENTER_Y + b * SCALE_FACTOR/2,
+            `${b.toFixed(1)} m`,
+            'vertical'
+        );
+    } else {
+        // Ungleichschenkliges Dreieck - alle drei Seiten
+        const sideA = data.sideA || 4;
+        const sideB = data.sideB || 5;
+        const sideC = data.sideC || 6;
+        
+        // Basis (Seite A)
+        addDimensionLine(
+            group,
+            CANVAS_CENTER_X - sideA * SCALE_FACTOR/2, CANVAS_CENTER_Y + 60,
+            CANVAS_CENTER_X + sideA * SCALE_FACTOR/2, CANVAS_CENTER_Y + 60,
+            `A: ${sideA.toFixed(1)} m`,
+            'horizontal'
+        );
+        
+        // Seite B und C als Text
+        addDimensionText(group, CANVAS_CENTER_X - 100, CANVAS_CENTER_Y - 100, `B: ${sideB.toFixed(1)} m`);
+        addDimensionText(group, CANVAS_CENTER_X + 60, CANVAS_CENTER_Y - 100, `C: ${sideC.toFixed(1)} m`);
+    }
+}
+
+function addCircleDimensions(group, data, variant) {
+    if (variant === 'oval') {
+        const radiusA = data.radiusA || 5;
+        const radiusB = data.radiusB || 3;
+        
+        // Durchmesser A (horizontal)
+        addDimensionLine(
+            group,
+            CANVAS_CENTER_X - radiusA * SCALE_FACTOR, CANVAS_CENTER_Y + radiusB * SCALE_FACTOR + 30,
+            CANVAS_CENTER_X + radiusA * SCALE_FACTOR, CANVAS_CENTER_Y + radiusB * SCALE_FACTOR + 30,
+            `⌀ ${(radiusA * 2).toFixed(1)} m`,
+            'horizontal'
+        );
+        
+        // Durchmesser B (vertikal)
+        addDimensionLine(
+            group,
+            CANVAS_CENTER_X - radiusA * SCALE_FACTOR - 30, CANVAS_CENTER_Y - radiusB * SCALE_FACTOR,
+            CANVAS_CENTER_X - radiusA * SCALE_FACTOR - 30, CANVAS_CENTER_Y + radiusB * SCALE_FACTOR,
+            `⌀ ${(radiusB * 2).toFixed(1)} m`,
+            'vertical'
+        );
+    } else {
+        const radius = data.radius || 4;
+        
+        // Durchmesser
+        addDimensionLine(
+            group,
+            CANVAS_CENTER_X - radius * SCALE_FACTOR, CANVAS_CENTER_Y + radius * SCALE_FACTOR + 30,
+            CANVAS_CENTER_X + radius * SCALE_FACTOR, CANVAS_CENTER_Y + radius * SCALE_FACTOR + 30,
+            `⌀ ${(radius * 2).toFixed(1)} m`,
+            'horizontal'
+        );
+    }
+}
+
+function addTrapezDimensions(group, data) {
+    const baseA = data.baseA || 8;
+    const baseB = data.baseB || 5;
+    const height = data.height || 4;
+    
+    // Basis A (unten)
+    addDimensionLine(
+        group,
+        CANVAS_CENTER_X - baseA * SCALE_FACTOR/2, CANVAS_CENTER_Y + height * SCALE_FACTOR/2 + 30,
+        CANVAS_CENTER_X + baseA * SCALE_FACTOR/2, CANVAS_CENTER_Y + height * SCALE_FACTOR/2 + 30,
+        `A: ${baseA.toFixed(1)} m`,
+        'horizontal'
+    );
+    
+    // Basis B (oben)
+    addDimensionLine(
+        group,
+        CANVAS_CENTER_X - baseB * SCALE_FACTOR/2, CANVAS_CENTER_Y - height * SCALE_FACTOR/2 - 30,
+        CANVAS_CENTER_X + baseB * SCALE_FACTOR/2, CANVAS_CENTER_Y - height * SCALE_FACTOR/2 - 30,
+        `B: ${baseB.toFixed(1)} m`,
+        'horizontal'
+    );
+    
+    // Höhe
+    addDimensionLine(
+        group,
+        CANVAS_CENTER_X - baseA * SCALE_FACTOR/2 - 40, CANVAS_CENTER_Y - height * SCALE_FACTOR/2,
+        CANVAS_CENTER_X - baseA * SCALE_FACTOR/2 - 40, CANVAS_CENTER_Y + height * SCALE_FACTOR/2,
+        `h: ${height.toFixed(1)} m`,
+        'vertical'
+    );
+}
+
+function addDimensionLine(group, x1, y1, x2, y2, text, orientation) {
+    // Maßlinie
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('stroke', '#666');
+    line.setAttribute('stroke-width', '1');
+    line.setAttribute('stroke-dasharray', '2,2');
+    group.appendChild(line);
+    
+    // Maßhilfslinien
+    if (orientation === 'horizontal') {
+        // Vertikale Hilfslinien
+        const helper1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        helper1.setAttribute('x1', x1);
+        helper1.setAttribute('y1', y1 - 10);
+        helper1.setAttribute('x2', x1);
+        helper1.setAttribute('y2', y1 + 10);
+        helper1.setAttribute('stroke', '#666');
+        helper1.setAttribute('stroke-width', '1');
+        group.appendChild(helper1);
+        
+        const helper2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        helper2.setAttribute('x1', x2);
+        helper2.setAttribute('y1', y2 - 10);
+        helper2.setAttribute('x2', x2);
+        helper2.setAttribute('y2', y2 + 10);
+        helper2.setAttribute('stroke', '#666');
+        helper2.setAttribute('stroke-width', '1');
+        group.appendChild(helper2);
+    } else {
+        // Horizontale Hilfslinien
+        const helper1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        helper1.setAttribute('x1', x1 - 10);
+        helper1.setAttribute('y1', y1);
+        helper1.setAttribute('x2', x1 + 10);
+        helper1.setAttribute('y2', y1);
+        helper1.setAttribute('stroke', '#666');
+        helper1.setAttribute('stroke-width', '1');
+        group.appendChild(helper1);
+        
+        const helper2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        helper2.setAttribute('x1', x2 - 10);
+        helper2.setAttribute('y1', y2);
+        helper2.setAttribute('x2', x2 + 10);
+        helper2.setAttribute('y2', y2);
+        helper2.setAttribute('stroke', '#666');
+        helper2.setAttribute('stroke-width', '1');
+        group.appendChild(helper2);
+    }
+    
+    // Maßtext
+    const midX = (x1 + x2) / 2;
+    const midY = (y1 + y2) / 2;
+    
+    addDimensionText(group, midX, midY, text);
+}
+
+function addDimensionText(group, x, y, text) {
+    const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    textElement.setAttribute('x', x);
+    textElement.setAttribute('y', y);
+    textElement.setAttribute('text-anchor', 'middle');
+    textElement.setAttribute('alignment-baseline', 'middle');
+    textElement.setAttribute('font-family', 'Arial, sans-serif');
+    textElement.setAttribute('font-size', '12');
+    textElement.setAttribute('font-weight', 'bold');
+    textElement.setAttribute('fill', '#333');
+    textElement.textContent = text;
+    
+    // Hintergrund für bessere Lesbarkeit
+    const bbox = textElement.getBBox ? textElement.getBBox() : { x: x-20, y: y-6, width: 40, height: 12 };
+    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bg.setAttribute('x', bbox.x - 3);
+    bg.setAttribute('y', bbox.y - 1);
+    bg.setAttribute('width', bbox.width + 6);
+    bg.setAttribute('height', bbox.height + 2);
+    bg.setAttribute('fill', 'white');
+    bg.setAttribute('stroke', '#ccc');
+    bg.setAttribute('stroke-width', '0.5');
+    bg.setAttribute('rx', '2');
+    
+    group.appendChild(bg);
+    group.appendChild(textElement);
 }
 
 function drawShape(group, data) {
@@ -915,36 +1186,25 @@ function selectTraufePosition() {
     // Modus aktivieren
     traufeSelectionMode = true;
     
-    // Overlay mit Anweisungen erstellen
+    // Overlay OHNE Vollbild-Blocking - nur Anzeige
     traufeOverlay = document.createElement('div');
     traufeOverlay.style.cssText = `
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.6);
-        z-index: 10000;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        font-family: Arial, sans-serif;
-        cursor: crosshair;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        pointer-events: none;
     `;
     
     traufeOverlay.innerHTML = `
-        <div style="background: rgba(0,0,0,0.8); padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 20px; max-width: 500px;">
-            <h3 style="margin-bottom: 20px; font-size: 24px;">🎯 Traufe bestimmen</h3>
-            <p style="margin-bottom: 15px; font-size: 16px; line-height: 1.4;">
-                <strong>Klicken Sie auf die Seite der Form,</strong><br>
-                die als <strong>Traufe</strong> (Wasserablauf) dienen soll.
+        <div style="background: rgba(0,0,0,0.9); padding: 20px; border-radius: 12px; text-align: center; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #ffff00;">🎯 Traufe bestimmen</h3>
+            <p style="margin: 0 0 15px 0; font-size: 14px; color: white; line-height: 1.3;">
+                <strong>Klicken Sie auf einen gelben Bereich</strong><br>
+                um diese Seite als Traufe festzulegen
             </p>
-            <p style="margin-bottom: 20px; font-size: 14px; color: #ccc;">
-                Die gewählte Seite wird automatisch nach unten gedreht.
-            </p>
-            <button onclick="exitTraufeMode()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 6px; font-size: 14px;">
+            <button onclick="exitTraufeMode()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 6px; font-size: 12px; pointer-events: auto;">
                 Abbrechen (ESC)
             </button>
         </div>
@@ -958,7 +1218,14 @@ function selectTraufePosition() {
     // Klickbare Bereiche zur Form hinzufügen
     addTraufeClickAreas();
     
-    showFeedback('Traufe-Modus aktiviert - Klicken Sie auf eine Seite der Form');
+    // Canvas leicht abdunkeln aber klickbar lassen
+    const canvas = document.querySelector('.canvas-wrapper');
+    if (canvas) {
+        canvas.style.background = 'rgba(0,0,0,0.1)';
+        canvas.style.transition = 'background 0.3s';
+    }
+    
+    showFeedback('Traufe-Modus aktiviert - Klicken Sie auf einen gelben Bereich');
 }
 
 function handleTraufeKeydown(event) {
@@ -977,6 +1244,12 @@ function exitTraufeMode() {
     
     document.removeEventListener('keydown', handleTraufeKeydown);
     removeTraufeClickAreas();
+    
+    // Canvas-Hintergrund zurücksetzen
+    const canvas = document.querySelector('.canvas-wrapper');
+    if (canvas) {
+        canvas.style.background = 'white';
+    }
     
     showFeedback('Traufe-Modus beendet');
 }
