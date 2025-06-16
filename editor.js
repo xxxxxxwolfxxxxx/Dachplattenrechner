@@ -505,8 +505,12 @@ function drawTransformedShape(group, data) {
     drawShape(transformGroup, data);
     group.appendChild(transformGroup);
     
-    // Bemaßung hinzufügen (NACH der Transformation)
-    addDimensionLines(group, data);
+    // KORRIGIERT: Bemaßung AUCH mit der gleichen Transformation
+    const dimensionGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    dimensionGroup.setAttribute('transform', transform); // Gleiche Transformation!
+    
+    addDimensionLines(dimensionGroup, data);
+    group.appendChild(dimensionGroup);
     
     console.log('=== ENDE DRAW TRANSFORM ===');
 }
