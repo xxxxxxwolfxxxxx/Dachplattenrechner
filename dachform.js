@@ -1,3 +1,5 @@
+// Verbesserte dachform.js mit Debug und korrekter Datenbehandlung
+
 var projectData = {};
 var selectedShape = null;
 var selectedVariant = null;
@@ -45,32 +47,68 @@ var shapes = {
     }
 };
 
-// Storage-Funktionen
+// VERBESSERTE Storage-Funktionen mit Debug
 function saveData() {
+    console.log('=== DACHFORM: SPEICHERE DATEN ===');
+    console.log('Zu speichernde projectData:', JSON.stringify(projectData, null, 2));
+    
     try {
         localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+        console.log('✅ Erfolgreich in localStorage gespeichert');
+        
+        // Sofort wieder auslesen zur Verifikation
+        const verification = localStorage.getItem('dachplattenrechner_data');
+        console.log('🔍 Verifikation - Ausgelesene Daten:', verification);
+        
         return true;
     } catch (e) {
-        sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-        return true;
+        console.log('❌ localStorage fehlgeschlagen, verwende sessionStorage:', e);
+        try {
+            sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            console.log('✅ Erfolgreich in sessionStorage gespeichert');
+            return true;
+        } catch (e2) {
+            console.error('❌ Beide Storage-Methoden fehlgeschlagen:', e2);
+            return false;
+        }
     }
 }
 
 function loadData() {
+    console.log('=== DACHFORM: LADE DATEN ===');
+    
     try {
-        var saved = localStorage.getItem('dachplattenrechner_data') || sessionStorage.getItem('dachplattenrechner_data');
-        return saved ? JSON.parse(saved) : {};
+        let saved = localStorage.getItem('dachplattenrechner_data');
+        console.log('📖 localStorage Inhalt:', saved);
+        
+        if (!saved) {
+            saved = sessionStorage.getItem('dachplattenrechner_data');
+            console.log('📖 sessionStorage Inhalt:', saved);
+        }
+        
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            console.log('✅ Erfolgreich geparst:', parsed);
+            return parsed;
+        } else {
+            console.log('ℹ️ Keine gespeicherten Daten gefunden');
+            return {};
+        }
     } catch (e) {
+        console.error('❌ Fehler beim Laden der Daten:', e);
         return {};
     }
 }
 
 // Profil-Info anzeigen
 function displayProfileInfo() {
+    console.log('=== ZEIGE PROFIL-INFO ===');
+    
     const profile = projectData.profile;
     const summaryElement = document.getElementById('profile-summary');
     
-    console.log('displayProfileInfo aufgerufen mit Profil:', profile);
+    console.log('Profil-Daten:', profile);
+    console.log('Summary-Element:', summaryElement);
     
     if (profile && summaryElement) {
         document.getElementById('summary-profile-name').textContent = profile.profilname || 'Standard';
@@ -79,9 +117,16 @@ function displayProfileInfo() {
         document.getElementById('summary-seitenueberlappung').textContent = (profile.seitenueberlappung || 50) + ' mm';
         summaryElement.style.display = 'block';
         
-        console.log('Profil-Info erfolgreich angezeigt');
+        console.log('✅ Profil-Info erfolgreich angezeigt');
     } else {
-        console.log('Keine Profil-Daten oder Summary-Element nicht gefunden');
+        console.log('❌ Keine Profil-Daten oder Summary-Element nicht gefunden');
+        
+        if (!profile) {
+            console.log('⚠️ KEINE PROFIL-DATEN! Umleitung zu Profil-Seite');
+            alert('Keine Profil-Daten gefunden. Sie werden zu Schritt 1 weitergeleitet.');
+            window.location.href = 'profil.html';
+            return;
+        }
     }
 }
 
@@ -89,20 +134,30 @@ function displayProfileInfo() {
 function selectShape(shape) {
     selectedShape = shape;
     
-    console.log('Shape ausgewählt:', shape);
+    console.log('=== SHAPE AUSGEWÄHLT ===');
+    console.log('Shape:', shape);
     
     // Visual feedback
     document.querySelectorAll('.shape-tile').forEach(tile => tile.classList.remove('selected'));
-    document.querySelector(`[data-shape="${shape}"]`).classList.add('selected');
+    const shapeElement = document.querySelector(`[data-shape="${shape}"]`);
+    if (shapeElement) {
+        shapeElement.classList.add('selected');
+    }
     
     showVariants(shape);
 }
 
 function showVariants(shape) {
+    console.log('=== ZEIGE VARIANTEN ===');
+    console.log('Für Shape:', shape);
+    
     var variantsGrid = document.getElementById('variants-grid');
     variantsGrid.innerHTML = '';
     
-    console.log('Zeige Varianten für Shape:', shape);
+    if (!shapes[shape]) {
+        console.error('Shape nicht gefunden:', shape);
+        return;
+    }
     
     Object.entries(shapes[shape].variants).forEach(([key, variant]) => {
         var tile = document.createElement('div');
@@ -121,12 +176,16 @@ function showVariants(shape) {
     
     document.getElementById('shape-variants').style.display = 'block';
     document.getElementById('selected-shape').style.display = 'none';
+    
+    console.log(`✅ ${Object.keys(shapes[shape].variants).length} Varianten angezeigt`);
 }
 
 function selectVariant(variant, name) {
     selectedVariant = variant;
     
-    console.log('Variante ausgewählt:', variant, name);
+    console.log('=== VARIANTE AUSGEWÄHLT ===');
+    console.log('Variante:', variant);
+    console.log('Name:', name);
     
     // Visual feedback
     document.querySelectorAll('.variant-tile').forEach(tile => tile.classList.remove('selected'));
@@ -136,38 +195,60 @@ function selectVariant(variant, name) {
     document.getElementById('shape-variants').style.display = 'none';
     document.getElementById('selected-shape').style.display = 'block';
     document.getElementById('continue-btn').disabled = false;
+    
+    console.log('✅ Variante ausgewählt und UI aktualisiert');
 }
 
 function saveAndContinue() {
-    console.log('saveAndContinue aufgerufen');
-    console.log('Aktuelle projectData:', projectData);
-    console.log('selectedShape:', selectedShape, 'selectedVariant:', selectedVariant);
+    console.log('=== DACHFORM: SPEICHERN UND WEITER ===');
+    console.log('Aktuelle projectData vor Änderung:', JSON.stringify(projectData, null, 2));
+    console.log('selectedShape:', selectedShape);
+    console.log('selectedVariant:', selectedVariant);
     
-    // WICHTIG: Profil-Daten BEIBEHALTEN!
+    // KRITISCHE VALIDIERUNG
     if (!projectData.profile) {
+        console.error('❌ PROFIL-DATEN FEHLEN!');
         alert('Profil-Daten fehlen! Bitte kehren Sie zu Schritt 1 zurück.');
         window.location.href = 'profil.html';
         return;
     }
     
-    // Nur roofShape hinzufügen, ohne andere Daten zu überschreiben
+    if (!selectedShape || !selectedVariant) {
+        console.error('❌ KEINE FORM AUSGEWÄHLT!');
+        alert('Bitte wählen Sie eine Form und Variante aus!');
+        return;
+    }
+    
+    // NUR roofShape hinzufügen, OHNE andere Daten zu überschreiben!
+    console.log('✅ Profil-Daten vorhanden, füge roofShape hinzu...');
+    
     projectData.roofShape = {
         baseShape: selectedShape,
         variant: selectedVariant,
-        points: getDefaultPoints()
+        points: getDefaultPoints(),
+        timestamp: Date.now() // Für Debugging
     };
     
-    console.log('Neue projectData mit roofShape:', projectData);
+    console.log('Neue projectData mit roofShape:', JSON.stringify(projectData, null, 2));
     
-    var saved = saveData();
-    console.log('Daten gespeichert:', saved);
+    const saved = saveData();
+    if (!saved) {
+        console.error('❌ SPEICHERN FEHLGESCHLAGEN!');
+        alert('Fehler beim Speichern! Bitte versuchen Sie es erneut.');
+        return;
+    }
     
-    // KORRIGIERT: Weiterleitung zur richtigen Editor-Datei (groß geschrieben!)
-    window.location.href = 'Editor.html';
+    console.log('✅ Erfolgreich gespeichert, weiterleiten zu Editor.html');
+    
+    // Kleine Verzögerung um sicherzustellen, dass gespeichert wurde
+    setTimeout(() => {
+        window.location.href = 'Editor.html';
+    }, 100);
 }
 
 function getDefaultPoints() {
-    console.log('Generiere Punkte für:', selectedShape, selectedVariant);
+    console.log('=== GENERIERE PUNKTE ===');
+    console.log('Für:', selectedShape, selectedVariant);
     
     if (selectedShape === 'kreis') {
         return getCirclePoints();
@@ -180,6 +261,7 @@ function getDefaultPoints() {
     }
     
     // Fallback
+    console.log('Verwende Fallback-Punkte');
     return [
         { x: 0, y: 0 }, { x: 10, y: 0 }, 
         { x: 10, y: 6 }, { x: 0, y: 6 }
@@ -371,18 +453,27 @@ function getPolygonPoints() {
 }
 
 function goBack() {
+    console.log('Zurück zu profil.html');
     window.location.href = 'profil.html';
 }
 
 // Event Setup
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded - Lade Projektdaten...');
+    console.log('=== DACHFORM-SEITE GELADEN ===');
     
+    // Projektdaten laden
     projectData = loadData();
+    console.log('Geladene Projektdaten:', projectData);
     
-    console.log('Dachform-Seite geladen, Projektdaten:', projectData);
+    // KRITISCHE VALIDIERUNG
+    if (!projectData.profile) {
+        console.error('❌ KEINE PROFIL-DATEN GEFUNDEN!');
+        alert('Keine Profil-Daten gefunden. Sie werden zu Schritt 1 weitergeleitet.');
+        window.location.href = 'profil.html';
+        return;
+    }
     
-    // Profil-Info anzeigen falls vorhanden
+    // Profil-Info anzeigen
     displayProfileInfo();
     
     // Event Listeners für Shape-Tiles
@@ -392,5 +483,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    console.log('Event Listeners hinzugefügt');
+    console.log('✅ Dachform-Seite erfolgreich initialisiert');
 });
+
+// Debug-Funktionen global verfügbar machen
+window.debugDachformData = () => {
+    console.log('=== DACHFORM DEBUG ===');
+    console.log('projectData:', projectData);
+    console.log('selectedShape:', selectedShape);
+    console.log('selectedVariant:', selectedVariant);
+    console.log('localStorage:', localStorage.getItem('dachplattenrechner_data'));
+    console.log('sessionStorage:', sessionStorage.getItem('dachplattenrechner_data'));
+};
