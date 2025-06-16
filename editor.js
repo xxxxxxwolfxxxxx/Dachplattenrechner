@@ -210,18 +210,18 @@ function getVerlegerichtung() {
 }
 
 function updateVerlegerichtungDisplay(direction) {
-    // Füge Info-Panel hinzu, falls nicht vorhanden
+    // Nur den Tipp anzeigen, nicht das große Panel
     let infoPanel = document.getElementById('direction-info-panel');
     if (!infoPanel) {
         infoPanel = document.createElement('div');
         infoPanel.id = 'direction-info-panel';
-        infoPanel.className = 'direction-info-panel';
         infoPanel.style.cssText = `
-            background: #e7f3ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 1px solid #007bff;
+            margin: 10px 0;
+            padding: 8px 12px;
+            background: rgba(0,123,255,0.1);
+            border-radius: 4px;
+            font-size: 12px;
+            border-left: 3px solid #007bff;
         `;
         
         const controlsPanel = document.querySelector('.controls-panel');
@@ -231,21 +231,8 @@ function updateVerlegerichtungDisplay(direction) {
     }
     
     infoPanel.innerHTML = `
-        <h4 style="color: #007bff; margin-bottom: 10px;">📏 Verlegerichtung</h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div>
-                <strong>Richtung:</strong> ${direction.name}<br>
-                <strong>Beschreibung:</strong> ${direction.description}
-            </div>
-            <div>
-                <strong>Wasserfluss:</strong> ${direction.waterFlow}<br>
-                <strong>Traufe liegt:</strong> ${getTraufePositionText()}
-            </div>
-        </div>
-        <div style="margin-top: 10px; padding: 8px; background: rgba(0,123,255,0.1); border-radius: 4px; font-size: 12px;">
-            💡 <strong>Tipp:</strong> Die Traufe ist die Seite, wo das Wasser abfließt (unten im Bild). 
-            Platten werden immer senkrecht zur Traufe verlegt, um den Wasserabfluss zu gewährleisten.
-        </div>
+        💡 <strong>Tipp:</strong> Die Traufe ist die Seite, wo das Wasser abfließt (unten im Bild). 
+        Platten werden immer senkrecht zur Traufe verlegt.
     `;
 }
 
@@ -273,7 +260,11 @@ function loadAndDrawShape() {
     if (roofShape.traufePosition !== undefined) traufePosition = roofShape.traufePosition;
     
     createInputFields();
-    updateShape();
+    
+    // Sofort die Form zeichnen nach dem Laden
+    setTimeout(() => {
+        updateShape();
+    }, 100);
 }
 
 function determineActualShape() {
@@ -460,26 +451,49 @@ function handleInputChange() {
 }
 
 function updateShape() {
-    if (!svg || isUpdating) return;
+    if (!svg) return;
     
     const shapeGroup = document.getElementById('roof-shape');
     const labelsGroup = document.getElementById('labels');
     const waterFlowGroup = document.getElementById('water-flow');
     
-    if (!shapeGroup || !labelsGroup || !waterFlowGroup) return;
+    if (!shapeGroup) {
+        console.log('SVG-Gruppen nicht gefunden');
+        return;
+    }
+    
+    // Verhindere mehrfache gleichzeitige Updates
+    if (isUpdating) return;
+    isUpdating = true;
     
     // Lösche vorherige Inhalte
     shapeGroup.innerHTML = '';
-    labelsGroup.innerHTML = '';
-    waterFlowGroup.innerHTML = '';
+    if (labelsGroup) labelsGroup.innerHTML = '';
+    if (waterFlowGroup) waterFlowGroup.innerHTML = '';
     
     const currentData = getCurrentFormData();
     
+    // Zeichne die Grundform
     drawTransformedShape(shapeGroup, currentData);
-    drawLabelsAndAnnotations(labelsGroup, currentData);
-    drawWaterFlowIndication(waterFlowGroup, currentData);
+    
+    // Zeichne Beschriftungen (optional)
+    if (labelsGroup) {
+        drawLabelsAndAnnotations(labelsGroup, currentData);
+    }
+    
+    // Zeichne Wasserfluss (optional)
+    if (waterFlowGroup) {
+        drawWaterFlowIndication(waterFlowGroup, currentData);
+    }
+    
+    // Aktualisiere Berechnungen
     updateCalculations(currentData);
     updateDirectionInfo();
+    
+    // Reset Update-Flag
+    setTimeout(() => {
+        isUpdating = false;
+    }, 50);
 }
 
 function getCurrentFormData() {
