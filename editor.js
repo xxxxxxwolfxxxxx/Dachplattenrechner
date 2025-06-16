@@ -621,23 +621,23 @@ function selectTraufePosition() {
 window.setTraufePosition = function(position) {
     traufePosition = position;
     
-    // KORREKTE Rotation: Die gewählte Seite nach unten drehen
+    // KORRIGIERTE Rotation: Die gewählte Seite nach UNTEN drehen
     switch(position) {
         case 'top':
-            // Obere Seite nach unten → 180° drehen
+            // Obere Seite nach unten → 180° drehen (richtig)
             currentRotation = 180;
             break;
         case 'right':
-            // Rechte Seite nach unten → 90° nach links drehen
-            currentRotation = -90;
+            // Rechte Seite nach unten → 90° nach rechts drehen (war falsch: -90°)
+            currentRotation = 90;
             break;
         case 'bottom':
-            // Untere Seite ist schon unten → keine Drehung
+            // Untere Seite ist schon unten → keine Drehung (richtig)
             currentRotation = 0;
             break;
         case 'left':
-            // Linke Seite nach unten → 90° nach rechts drehen
-            currentRotation = 90;
+            // Linke Seite nach unten → 90° nach links drehen (war falsch: 90°)
+            currentRotation = -90;
             break;
     }
     
