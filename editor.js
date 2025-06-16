@@ -12,9 +12,9 @@ let isMirroredH = false;
 let isMirroredV = false;
 let traufePosition = 'bottom'; // Die Seite, die unten liegt (Wasserabfluss)
 
-const CANVAS_CENTER_X = 400; // Vergrößert von 300
-const CANVAS_CENTER_Y = 250; // Vergrößert von 200
-const SCALE_FACTOR = 40; // Vergrößert von 25
+const CANVAS_CENTER_X = 400;
+const CANVAS_CENTER_Y = 250;
+const SCALE_FACTOR = 60; // Noch größer für bessere Sichtbarkeit
 
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
@@ -553,32 +553,37 @@ function getCurrentFormData() {
 }
 
 function drawTransformedShape(group, data) {
-    const transformGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    // Entferne alle bestehenden Transformationen
+    const shapeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    shapeGroup.id = 'shape-transform-group';
     
-    let transform = `translate(${CANVAS_CENTER_X}, ${CANVAS_CENTER_Y})`;
+    // Erstelle Transform-String für Rotation um das Zentrum
+    let transform = '';
     
-    // Rotiere um das Zentrum
+    // Rotation um das Canvas-Zentrum
     if (currentRotation !== 0) {
-        transform += ` rotate(${currentRotation})`;
-        console.log(`Angewendete Rotation: ${currentRotation}°`);
+        transform = `rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`;
+        console.log(`✅ Transform angewendet: ${transform}`);
     }
     
-    // Spiegelung
-    let scaleX = isMirroredH ? -1 : 1;
-    let scaleY = isMirroredV ? -1 : 1;
-    if (scaleX !== 1 || scaleY !== 1) {
-        transform += ` scale(${scaleX}, ${scaleY})`;
-        console.log(`Angewendete Spiegelung: scaleX=${scaleX}, scaleY=${scaleY}`);
+    // Spiegelung (falls nötig)
+    if (isMirroredH || isMirroredV) {
+        const scaleX = isMirroredH ? -1 : 1;
+        const scaleY = isMirroredV ? -1 : 1;
+        const scaleTransform = `scale(${scaleX} ${scaleY})`;
+        transform = transform ? `${transform} ${scaleTransform}` : scaleTransform;
+        console.log(`✅ Spiegelung hinzugefügt: ${scaleTransform}`);
     }
     
-    // Zurück zum ursprünglichen Koordinatensystem
-    transform += ` translate(${-CANVAS_CENTER_X}, ${-CANVAS_CENTER_Y})`;
+    if (transform) {
+        shapeGroup.setAttribute('transform', transform);
+    }
     
-    transformGroup.setAttribute('transform', transform);
-    console.log(`Gesamt-Transform: ${transform}`);
+    // Zeichne die Form in das transformierte Gruppenelement
+    drawShape(shapeGroup, data);
+    group.appendChild(shapeGroup);
     
-    drawShape(transformGroup, data);
-    group.appendChild(transformGroup);
+    console.log(`✅ Form gezeichnet mit Rotation: ${currentRotation}°`);
 }
 
 function drawLabelsAndAnnotations(group, data) {
@@ -1234,54 +1239,54 @@ function hideSideTooltip() {
 }
 
 function selectTraufeSide(side, name) {
-    console.log(`Traufe-Seite ausgewählt: ${side} (${name})`);
+    console.log(`🎯 TRAUFE-AUSWAHL: ${side} (${name})`);
     
-    // Entferne Interaktivität
+    // Entferne Interaktivität sofort
     disableSideSelection();
     
-    // Setze Traufe-Position
-    const oldPosition = traufePosition;
-    traufePosition = side;
-    
-    console.log(`Traufe-Position geändert von ${oldPosition} zu ${side}`);
-    
-    // Rotiere entsprechend - die gewählte Seite soll nach unten
+    // Setze neue Rotation basierend auf der gewählten Seite
     const oldRotation = currentRotation;
+    
     switch(side) {
         case 'top':
-            currentRotation = 180; // Obere Seite nach unten drehen
+            currentRotation = 180; // Spitze nach unten
             break;
         case 'right':
-            currentRotation = -90; // Rechte Seite nach unten drehen
+            currentRotation = -90; // Rechte Seite nach unten
             break;
         case 'bottom':
-            currentRotation = 0; // Untere Seite bleibt unten
+            currentRotation = 0; // Basis bleibt unten
             break;
         case 'left':
-            currentRotation = 90; // Linke Seite nach unten drehen
+            currentRotation = 90; // Linke Seite nach unten
             break;
     }
     
-    console.log(`Rotation geändert von ${oldRotation}° zu ${currentRotation}°`);
+    traufePosition = side;
     
-    // WICHTIG: Erst die Instruktionen ausblenden, dann Form aktualisieren
+    console.log(`🔄 ROTATION: ${oldRotation}° → ${currentRotation}°`);
+    console.log(`📍 TRAUFE: ${traufePosition}`);
+    
+    // Blende Instruktionen aus
     hideTraufeInstructions();
     
-    // Aktualisiere die Anzeige mit Verzögerung für bessere Sichtbarkeit
+    // FORCE Update der Form
+    console.log('🔄 FORCING SHAPE UPDATE...');
+    
+    // Letzten Update-Status zurücksetzen
+    isUpdating = false;
+    
+    // Sofortiges Update
+    updateShape();
+    
+    // Zusätzliches Update nach kurzer Verzögerung für Sicherheit
     setTimeout(() => {
+        console.log('🔄 SECOND UPDATE...');
         updateShape();
-        console.log('Form-Update nach Traufe-Auswahl abgeschlossen');
-    }, 100);
+        console.log('✅ FORM UPDATE COMPLETED');
+    }, 200);
     
-    showFeedback(`✅ Traufe festgelegt: ${name} ist jetzt die Traufe (Wasserabfluss)`);
-    
-    // Debug: Zeige aktuelle Werte
-    console.log('Aktuelle Werte nach Traufe-Auswahl:', {
-        traufePosition: traufePosition,
-        currentRotation: currentRotation,
-        isMirroredH: isMirroredH,
-        isMirroredV: isMirroredV
-    });
+    showFeedback(`✅ Traufe festgelegt: ${name} → Rotation ${currentRotation}°`);
 }
 
 function disableSideSelection() {
@@ -1736,15 +1741,50 @@ function drawTriangle(group, data, variant) {
     if (variant === 'gleichseitig') {
         const side = (data.side || 6) * SCALE_FACTOR;
         const height = side * Math.sqrt(3) / 2;
-        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - side/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + side/2},${CANVAS_CENTER_Y + height/2}`;
+        
+        // Dreieck zentriert um CANVAS_CENTER
+        const top_x = CANVAS_CENTER_X;
+        const top_y = CANVAS_CENTER_Y - height/2;
+        const left_x = CANVAS_CENTER_X - side/2;
+        const left_y = CANVAS_CENTER_Y + height/2;
+        const right_x = CANVAS_CENTER_X + side/2;
+        const right_y = CANVAS_CENTER_Y + height/2;
+        
+        points = `${top_x},${top_y} ${left_x},${left_y} ${right_x},${right_y}`;
+        
+        console.log(`🔺 Gleichseitiges Dreieck gezeichnet:
+            Spitze: (${top_x}, ${top_y})
+            Links: (${left_x}, ${left_y}) 
+            Rechts: (${right_x}, ${right_y})
+            Seitenlänge: ${side}px`);
+            
     } else if (variant === 'rechtwinklig') {
         const a = (data.katheteA || 4) * SCALE_FACTOR;
         const b = (data.katheteB || 5) * SCALE_FACTOR;
-        points = `${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X + a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y - b/2}`;
+        
+        // Rechtwinkliges Dreieck zentriert
+        const bottom_left_x = CANVAS_CENTER_X - a/2;
+        const bottom_left_y = CANVAS_CENTER_Y + b/2;
+        const bottom_right_x = CANVAS_CENTER_X + a/2;
+        const bottom_right_y = CANVAS_CENTER_Y + b/2;
+        const top_left_x = CANVAS_CENTER_X - a/2;
+        const top_left_y = CANVAS_CENTER_Y - b/2;
+        
+        points = `${bottom_left_x},${bottom_left_y} ${bottom_right_x},${bottom_right_y} ${top_left_x},${top_left_y}`;
+        
     } else {
+        // Allgemeines Dreieck
         const a = (data.sideA || 4) * SCALE_FACTOR;
         const height = a * 0.8;
-        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + a/2 - 20},${CANVAS_CENTER_Y + height/2}`;
+        
+        const top_x = CANVAS_CENTER_X;
+        const top_y = CANVAS_CENTER_Y - height/2;
+        const left_x = CANVAS_CENTER_X - a/2;
+        const left_y = CANVAS_CENTER_Y + height/2;
+        const right_x = CANVAS_CENTER_X + a/2 - 30;
+        const right_y = CANVAS_CENTER_Y + height/2;
+        
+        points = `${top_x},${top_y} ${left_x},${left_y} ${right_x},${right_y}`;
     }
     
     const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
@@ -1752,8 +1792,11 @@ function drawTriangle(group, data, variant) {
     triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
     triangle.setAttribute('stroke', '#007bff');
     triangle.setAttribute('stroke-width', '3');
+    triangle.id = 'main-triangle';
     
     group.appendChild(triangle);
+    
+    console.log(`✅ Dreieck erstellt mit Punkten: ${points}`);
 }
 
 function drawCircle(group, data, variant) {
