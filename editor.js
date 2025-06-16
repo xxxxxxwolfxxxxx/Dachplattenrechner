@@ -1528,34 +1528,93 @@ function removeTraufeClickAreas() {
 function setTraufePositionDirect(position) {
     traufePosition = position;
     
-    console.log('=== TRAUFE DEBUG ===');
+    console.log('=== PRÄZISE TRAUFE-BERECHNUNG ===');
     console.log('Position:', position);
-    console.log('Aktuelle Rotation vor Änderung:', currentRotation);
     
-    // KORRIGIERTE Rotationen - andere Richtung!
-    let newRotation = currentRotation;
+    // Hole die aktuell gezeichnete Form
+    const shapeElement = document.querySelector('#roof-shape polygon');
     
-    if (position === 'bottom') {
-        newRotation = 0;      // Bleibt wie es ist
-    } else if (position === 'top') {
-        newRotation = 180;    // Kopfüber
-    } else if (position === 'left') {
-        newRotation = -90;    // KORRIGIERT: -90° statt +90°
-    } else if (position === 'right') {
-        newRotation = 90;     // KORRIGIERT: +90° statt +270°/-90°
+    if (!shapeElement) {
+        console.log('❌ Keine Polygon-Form gefunden');
+        exitTraufeMode();
+        return;
     }
     
-    console.log('KORRIGIERTE Rotation:', newRotation);
-    currentRotation = newRotation;
+    // Hole die echten SVG-Koordinaten
+    const pointsStr = shapeElement.getAttribute('points');
+    const points = pointsStr.split(' ').map(p => {
+        const [x, y] = p.split(',');
+        return { x: parseFloat(x), y: parseFloat(y) };
+    });
+    
+    console.log('📐 Aktuelle Dreieck-Punkte:', points);
+    
+    // Finde die gewählte Seite und berechne ihren Winkel
+    let sideAngle = 0;
+    let sidePoints = [];
+    
+    if (position === 'bottom') {
+        // Finde die unterste (horizontalste) Seite
+        const sortedByY = [...points].sort((a, b) => b.y - a.y);
+        sidePoints = [sortedByY[0], sortedByY[1]];
+    } else if (position === 'left') {
+        // Finde die linkeste Seite
+        const sortedByX = [...points].sort((a, b) => a.x - b.x);
+        const leftPoint = sortedByX[0];
+        // Finde den Punkt, der mit dem linkesten eine Seite bildet
+        const others = points.filter(p => p !== leftPoint);
+        // Wähle den Punkt mit der kleinsten Y-Koordinate (meist die Spitze)
+        others.sort((a, b) => a.y - b.y);
+        sidePoints = [leftPoint, others[0]];
+    } else if (position === 'right') {
+        // Finde die rechteste Seite  
+        const sortedByX = [...points].sort((a, b) => b.x - a.x);
+        const rightPoint = sortedByX[0];
+        // Finde den Punkt, der mit dem rechtesten eine Seite bildet
+        const others = points.filter(p => p !== rightPoint);
+        others.sort((a, b) => a.y - b.y);
+        sidePoints = [rightPoint, others[0]];
+    } else if (position === 'top') {
+        // Oberste Seite (wenn vorhanden)
+        const sortedByY = [...points].sort((a, b) => a.y - b.y);
+        sidePoints = [sortedByY[0], sortedByY[1]];
+    }
+    
+    if (sidePoints.length === 2) {
+        // Berechne den Winkel dieser Seite zur Horizontalen
+        const dx = sidePoints[1].x - sidePoints[0].x;
+        const dy = sidePoints[1].y - sidePoints[0].y;
+        sideAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+        
+        console.log('📏 Gewählte Seite:', sidePoints);
+        console.log('📐 Winkel der Seite:', sideAngle.toFixed(1) + '°');
+        
+        // Um diese Seite horizontal zu machen, drehen wir um den negativen Winkel
+        const requiredRotation = -sideAngle;
+        
+        console.log('🔄 Benötigte Rotation:', requiredRotation.toFixed(1) + '°');
+        
+        currentRotation = requiredRotation;
+    } else {
+        console.log('❌ Konnte Seite nicht identifizieren, verwende Standard');
+        // Fallback
+        const standardRotations = {
+            'bottom': 0,
+            'top': 180,
+            'left': -90,
+            'right': 90
+        };
+        currentRotation = standardRotations[position] || 0;
+    }
     
     updateShape();
     
-    console.log('Rotation nach Update:', currentRotation);
-    console.log('=== ENDE DEBUG ===');
+    console.log('✅ Neue Rotation angewendet:', currentRotation);
+    console.log('=== ENDE PRÄZISE BERECHNUNG ===');
     
     exitTraufeMode();
     
-    showFeedback(`KORRIGIERT: ${position} → ${newRotation}°`);
+    showFeedback(`🎯 ${position} Seite horizontal ausgerichtet (${currentRotation.toFixed(1)}°)`);
 }
 
 // ZUSÄTZLICHE DEBUG-FUNKTION
