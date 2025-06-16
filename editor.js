@@ -1344,24 +1344,26 @@ function addRectangleClickAreas(rect) {
 function addTriangleClickAreas(triangle) {
     const points = triangle.getAttribute('points').split(' ');
     
-    // Drei klickbare Bereiche für die Seiten
+    console.log('Dreieck-Punkte für Klickbereiche:', points);
+    
+    // KORRIGIERTE Zuordnung der Seiten basierend auf der tatsächlichen Geometrie
     const sides = [
         { 
             name: 'bottom', 
-            points: [points[1], points[2]], 
+            points: [points[1], points[2]], // Untere horizontale Linie (zwischen 2. und 3. Punkt)
             label: 'Basis als Traufe',
             description: 'Basis horizontal unten (Standard)'
         },
         { 
             name: 'left', 
-            points: [points[0], points[1]], 
+            points: [points[0], points[1]], // Linke Seite (zwischen 1. und 2. Punkt) 
             label: 'Linke Seite als Traufe',
             description: 'Linke Seite wird nach unten gedreht'
         },
         { 
             name: 'right', 
-            points: [points[2], points[0]], 
-            label: 'Rechte Seite als Traufe',
+            points: [points[2], points[0]], // Rechte Seite (zwischen 3. und 1. Punkt)
+            label: 'Rechte Seite als Traufe', 
             description: 'Rechte Seite wird nach unten gedreht'
         }
     ];
@@ -1373,6 +1375,8 @@ function addTriangleClickAreas(triangle) {
         const midX = (parseFloat(p1[0]) + parseFloat(p2[0])) / 2;
         const midY = (parseFloat(p1[1]) + parseFloat(p2[1])) / 2;
         
+        console.log(`${side.name} Seite - Mittelpunkt:`, midX, midY);
+        
         // Klickbereich erstellen
         const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         clickArea.setAttribute('cx', midX);
@@ -1383,6 +1387,18 @@ function addTriangleClickAreas(triangle) {
         clickArea.setAttribute('stroke-width', '3');
         clickArea.classList.add('traufe-click-area');
         clickArea.style.cursor = 'pointer';
+        
+        // Kleine Beschriftung hinzufügen
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', midX);
+        label.setAttribute('y', midY + 4);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('font-family', 'Arial');
+        label.setAttribute('font-size', '10');
+        label.setAttribute('font-weight', 'bold');
+        label.setAttribute('fill', '#333');
+        label.textContent = side.name.charAt(0).toUpperCase(); // B, L, R
+        label.classList.add('traufe-click-area');
         
         clickArea.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1400,6 +1416,7 @@ function addTriangleClickAreas(triangle) {
         });
         
         document.getElementById('roof-shape').appendChild(clickArea);
+        document.getElementById('roof-shape').appendChild(label);
     });
 }
 
@@ -1511,33 +1528,62 @@ function setTraufePositionDirect(position, rotation) {
 
 function calculateTraufeRotation(traufePosition) {
     const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
     
-    // Basis-Rotationen für Standard-Ausrichtung
+    console.log('Berechne Rotation für:', finalShape, finalVariant, 'Traufe:', traufePosition);
+    
+    // KORRIGIERTE Rotationen - gewählte Seite soll IMMER nach unten zeigen
     let rotationMap = {};
     
     if (finalShape === 'dreieck') {
-        // Bei Dreiecken: Basis soll horizontal sein
-        rotationMap = {
-            'bottom': 0,    // Basis ist bereits unten
-            'left': 90,     // Linke Seite nach unten drehen
-            'right': -90,   // Rechte Seite nach unten drehen
-            'top': 180      // Spitze nach unten (Basis oben)
-        };
+        if (finalVariant === 'gleichseitig') {
+            // Gleichseitiges Dreieck: Spitze oben, Basis unten (Standard)
+            rotationMap = {
+                'bottom': 0,     // Basis ist bereits unten ✓
+                'left': -120,    // Linke Seite nach unten drehen
+                'right': 120,    // Rechte Seite nach unten drehen  
+                'top': 180       // Spitze nach unten (Basis oben)
+            };
+        } else if (finalVariant === 'rechtwinklig') {
+            // Rechtwinkliges Dreieck: Hypotenuse diagonal, rechter Winkel unten links
+            rotationMap = {
+                'bottom': 0,     // Horizontale Kathete unten ✓
+                'left': -90,     // Vertikale Kathete nach unten
+                'right': 180,    // Hypotenuse nach unten
+                'top': 90        // Obere Seite nach unten
+            };
+        } else {
+            // Ungleichschenkliges Dreieck
+            rotationMap = {
+                'bottom': 0,     // Basis (sideA) unten ✓
+                'left': 120,     // Linke Seite nach unten
+                'right': -120,   // Rechte Seite nach unten
+                'top': 180       // Spitze nach unten
+            };
+        }
     } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        // Bei Rechtecken: Gewählte Seite soll horizontal unten sein
+        // Rechteck/Quadrat: Standard ist Länge horizontal
         rotationMap = {
-            'bottom': 0,    // Bereits richtig
-            'top': 180,     // Obere Seite nach unten
-            'left': 90,     // Linke Seite nach unten
-            'right': -90    // Rechte Seite nach unten
+            'bottom': 0,     // Untere Seite bereits unten ✓
+            'top': 180,      // Obere Seite nach unten drehen
+            'left': 90,      // Linke Seite nach unten drehen
+            'right': -90     // Rechte Seite nach unten drehen
         };
     } else if (finalShape === 'trapez') {
-        // Bei Trapez: Gewählte Basis soll unten sein
+        // Trapez: BaseA (größere Basis) ist unten
         rotationMap = {
-            'bottom': 0,    // Große Basis unten (Standard)
-            'top': 180,     // Kleine Basis unten
-            'left': 90,     // Seite nach unten
-            'right': -90    // Andere Seite nach unten
+            'bottom': 0,     // BaseA (große Basis) unten ✓
+            'top': 180,      // BaseB (kleine Basis) nach unten
+            'left': 90,      // Linke Seite nach unten
+            'right': -90     // Rechte Seite nach unten
+        };
+    } else if (finalShape === 'kreis') {
+        // Kreis: Beliebige "Seite" kann unten sein
+        rotationMap = {
+            'bottom': 0,
+            'top': 180,
+            'left': 90,
+            'right': -90
         };
     } else {
         // Standard für andere Formen
@@ -1549,7 +1595,10 @@ function calculateTraufeRotation(traufePosition) {
         };
     }
     
-    return rotationMap[traufePosition] || 0;
+    const rotation = rotationMap[traufePosition] || 0;
+    console.log('Berechnete Rotation:', rotation, '° für Traufe-Position:', traufePosition);
+    
+    return rotation;
 }
 
 // Globale Funktionen entfernen da nicht mehr benötigt
