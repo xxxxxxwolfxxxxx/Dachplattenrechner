@@ -523,18 +523,39 @@ function drawShape(group, data) {
 function drawTriangle(group, data, variant) {
     let points = '';
     
+    console.log('Zeichne Dreieck:', variant, 'mit Daten:', data);
+    
     if (variant === 'gleichseitig') {
         const side = (data.side || 6) * SCALE_FACTOR;
         const height = side * Math.sqrt(3) / 2;
         points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - side/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + side/2},${CANVAS_CENTER_Y + height/2}`;
+        console.log('Gleichseitiges Dreieck - Seitenlänge:', side/SCALE_FACTOR, 'm');
     } else if (variant === 'rechtwinklig') {
         const a = (data.katheteA || 4) * SCALE_FACTOR;
         const b = (data.katheteB || 5) * SCALE_FACTOR;
         points = `${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X + a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y - b/2}`;
+        console.log('Rechtwinkliges Dreieck - Katheten:', a/SCALE_FACTOR, 'm ×', b/SCALE_FACTOR, 'm');
     } else {
-        const a = (data.sideA || 4) * SCALE_FACTOR;
-        const height = a * 0.8;
-        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + a/2 - 20},${CANVAS_CENTER_Y + height/2}`;
+        // KORRIGIERT: Ungleichschenkliges Dreieck mit allen drei Seiten
+        const sideA = (data.sideA || 4) * SCALE_FACTOR;
+        const sideB = (data.sideB || 5) * SCALE_FACTOR; 
+        const sideC = (data.sideC || 6) * SCALE_FACTOR;
+        
+        // Berechne Positionen basierend auf allen drei Seiten
+        // Basis = sideA (horizontal unten)
+        const baseWidth = sideA;
+        
+        // Höhe über Kosinussatz berechnen
+        // Für sideB und sideC die Position des dritten Punktes finden
+        const cosA = (sideB*sideB + sideC*sideC - sideA*sideA) / (2 * sideB * sideC);
+        const height = sideB * Math.sin(Math.acos(Math.max(-1, Math.min(1, cosA))));
+        
+        // X-Position des dritten Punktes
+        const topX = sideB * Math.cos(Math.acos(Math.max(-1, Math.min(1, cosA))));
+        
+        points = `${CANVAS_CENTER_X - baseWidth/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + baseWidth/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X - baseWidth/2 + topX},${CANVAS_CENTER_Y - height/2}`;
+        
+        console.log('Ungleichschenkliges Dreieck - Seiten:', sideA/SCALE_FACTOR, sideB/SCALE_FACTOR, sideC/SCALE_FACTOR, 'm, Höhe:', height/SCALE_FACTOR, 'm');
     }
     
     const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
@@ -547,9 +568,13 @@ function drawTriangle(group, data, variant) {
 }
 
 function drawCircle(group, data, variant) {
+    console.log('Zeichne Kreis:', variant, 'mit Daten:', data);
+    
     if (variant === 'oval') {
         const radiusA = (data.radiusA || 5) * SCALE_FACTOR;
         const radiusB = (data.radiusB || 3) * SCALE_FACTOR;
+        
+        console.log('Oval - Radien:', radiusA/SCALE_FACTOR, '×', radiusB/SCALE_FACTOR, 'm');
         
         const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
         ellipse.setAttribute('cx', CANVAS_CENTER_X);
@@ -563,6 +588,8 @@ function drawCircle(group, data, variant) {
         group.appendChild(ellipse);
     } else {
         const radius = (data.radius || 4) * SCALE_FACTOR;
+        
+        console.log('Kreis - Radius:', radius/SCALE_FACTOR, 'm');
         
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('cx', CANVAS_CENTER_X);
