@@ -1,4 +1,4 @@
-// editor.js – Debug-Version mit Zeichnungs-Reparatur
+// editor.js – Intelligente Version mit automatischer Parameter-Erkennung
 
 // Globale Variablen
 let projectData = {};
@@ -13,10 +13,10 @@ const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
 const CANVAS_CENTER_X = 300;
 const CANVAS_CENTER_Y = 200;
-const SCALE_FACTOR = 20; // ERHÖHT von 10 auf 20 für größere Formen
+const SCALE_FACTOR = 25; // NOCHMALS ERHÖHT für noch größere Formen
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('=== EDITOR WIRD INITIALISIERT ===');
+    console.log('=== SMART EDITOR WIRD INITIALISIERT ===');
     
     // Kleine Verzögerung für DOM-Ladung
     setTimeout(() => {
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Event Listeners einrichten
             setupEventListeners();
             
-            console.log('✅ Editor erfolgreich initialisiert');
+            console.log('✅ Smart Editor erfolgreich initialisiert');
         } catch (error) {
             console.error('❌ Fehler bei Editor-Initialisierung:', error);
         }
@@ -49,10 +49,8 @@ function loadProjectData() {
     const dataString = localStorage.getItem('dachplattenrechner_data') || 
                        sessionStorage.getItem('dachplattenrechner_data');
     
-    console.log('Rohe Daten aus Storage:', dataString);
-    
     if (!dataString) {
-        console.error('❌ Keine Projektdaten gefunden - Weiterleitung zu Schritt 1');
+        console.error('❌ Keine Projektdaten gefunden');
         alert('Keine Projektdaten gefunden. Sie werden zu Schritt 1 weitergeleitet.');
         window.location.href = 'profil.html';
         return;
@@ -62,77 +60,41 @@ function loadProjectData() {
         projectData = JSON.parse(dataString);
         console.log('✅ Projektdaten erfolgreich geparst:', projectData);
         
-        // Detaillierte Validierung
-        if (!projectData.profile) {
-            console.error('❌ Keine Profil-Daten gefunden');
-            throw new Error('Keine Profil-Daten vorhanden');
-        }
-        
-        if (!projectData.roofShape) {
-            console.error('❌ Keine Dachform-Daten gefunden');
-            throw new Error('Keine Dachform-Daten vorhanden');
+        if (!projectData.profile || !projectData.roofShape) {
+            throw new Error('Unvollständige Projektdaten');
         }
         
         console.log('✅ Alle notwendigen Daten vorhanden');
-        console.log('Profil:', projectData.profile);
-        console.log('Dachform:', projectData.roofShape);
         
     } catch (e) {
         console.error('❌ Fehler beim Laden der Projektdaten:', e);
-        
-        // Spezifische Fehlerbehandlung
-        if (e.message.includes('Profil')) {
-            alert('Profil-Daten fehlen. Sie werden zu Schritt 1 weitergeleitet.');
-            window.location.href = 'profil.html';
-        } else if (e.message.includes('Dachform')) {
-            alert('Dachform-Daten fehlen. Sie werden zu Schritt 2 weitergeleitet.');
-            window.location.href = 'dachform.html';
-        } else {
-            alert('Fehler beim Laden der Projektdaten. Bitte starten Sie neu.');
-            window.location.href = 'index.html';
-        }
+        alert('Fehler beim Laden der Projektdaten. Bitte starten Sie neu.');
+        window.location.href = 'index.html';
     }
 }
 
 function initializeCanvas() {
     console.log('=== INITIALISIERE CANVAS ===');
     
-    // SVG Element holen mit ausführlichem Debug
     svg = document.getElementById('main-svg');
     
     if (!svg) {
-        console.error('❌ SVG Element nicht gefunden!');
-        console.log('Verfügbare Elemente:', document.querySelectorAll('svg'));
-        console.log('Alle IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
-        // Fallback: Canvas dynamisch erstellen falls nicht vorhanden
+        console.error('❌ SVG Element nicht gefunden - erstelle Fallback');
         createFallbackCanvas();
         return;
     }
     
-    console.log('✅ SVG Element gefunden:', svg);
-    console.log('SVG Dimensionen:', svg.getAttribute('width'), 'x', svg.getAttribute('height'));
-    
-    // Prüfe ob SVG-Gruppen vorhanden sind
-    const roofShape = document.getElementById('roof-shape');
-    const dimensions = document.getElementById('dimensions');
-    console.log('roof-shape Gruppe:', roofShape);
-    console.log('dimensions Gruppe:', dimensions);
+    console.log('✅ SVG Element gefunden');
 }
 
 function createFallbackCanvas() {
-    console.log('Erstelle Fallback-Canvas...');
-    
-    // Finde Container
-    const container = document.querySelector('.canvas-container') || 
-                     document.querySelector('.editor-section') ||
-                     document.querySelector('main');
+    const container = document.querySelector('.canvas-container') || document.querySelector('main');
     
     if (!container) {
-        console.error('❌ Kein geeigneter Container gefunden');
+        console.error('❌ Kein Container gefunden');
         return;
     }
     
-    // Erstelle Canvas-Wrapper
     const wrapper = document.createElement('div');
     wrapper.className = 'canvas-wrapper';
     wrapper.style.cssText = `
@@ -145,14 +107,12 @@ function createFallbackCanvas() {
         position: relative;
     `;
     
-    // Erstelle SVG
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.id = 'main-svg';
     svg.setAttribute('width', '600');
     svg.setAttribute('height', '400');
     svg.setAttribute('viewBox', '0 0 600 400');
     
-    // Grid-Pattern hinzufügen
     svg.innerHTML = `
         <defs>
             <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
@@ -168,30 +128,19 @@ function createFallbackCanvas() {
     
     wrapper.appendChild(svg);
     container.appendChild(wrapper);
-    
     console.log('✅ Fallback-Canvas erstellt');
 }
 
 function initializeUI() {
     console.log('=== INITIALISIERE UI ===');
-    
-    // Profil-Info anzeigen
     displayProfileInfo();
-    
-    // Shape-Name anzeigen
     updateShapeTitle();
 }
 
 function displayProfileInfo() {
-    console.log('=== ZEIGE PROFIL-INFO ===');
-    
     const profile = projectData.profile;
-    if (!profile) {
-        console.log('❌ Keine Profil-Daten zum Anzeigen');
-        return;
-    }
+    if (!profile) return;
     
-    // Sichere Element-Zugriffe
     const elements = {
         'current-profile-name': profile.profilname || 'Standard',
         'current-deckbreite': `${profile.deckbreite || 1000} mm`,
@@ -203,9 +152,6 @@ function displayProfileInfo() {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = value;
-            console.log(`✅ ${id} gesetzt: ${value}`);
-        } else {
-            console.log(`⚠️ Element ${id} nicht gefunden`);
         }
     });
 }
@@ -219,16 +165,12 @@ function updateShapeTitle() {
         'rechteck': 'Rechteck',
         'quadrat': 'Quadrat',
         'kreis': 'Kreis',
-        'oval': 'Oval',
-        'halbkreis': 'Halbkreis',
-        'viertelkreis': 'Viertelkreis',
         'trapez': 'Trapez',
         'rhombus': 'Rhombus',
         'langloch': 'Langloch',
         'fuenfeck': 'Fünfeck',
         'sechseck': 'Sechseck',
-        'achteck': 'Achteck',
-        'vieleck': 'Vieleck'
+        'achteck': 'Achteck'
     };
     
     const shapeName = shapeNames[roofShape.variant] || shapeNames[roofShape.baseShape] || 'Unbekannt';
@@ -236,7 +178,6 @@ function updateShapeTitle() {
     const element = document.getElementById('current-shape-name');
     if (element) {
         element.textContent = shapeName;
-        console.log('✅ Shape-Name gesetzt:', shapeName);
     }
 }
 
@@ -252,64 +193,73 @@ function loadAndDrawShape() {
     currentShape = roofShape.baseShape;
     currentVariant = roofShape.variant;
     
-    console.log('Lade Form:', currentShape, currentVariant);
+    console.log('📊 Lade Form:', currentShape, 'Variante:', currentVariant);
     
     // Eingabefelder erstellen
     createInputFields();
     
-    // Initial zeichnen mit Debug
-    console.log('Führe initiales updateShape() aus...');
+    // Initial zeichnen
     updateShape();
 }
 
 function createInputFields() {
-    console.log('=== ERSTELLE EINGABEFELDER ===');
+    console.log('=== ERSTELLE INTELLIGENTE EINGABEFELDER ===');
     
     const container = document.getElementById('geometry-inputs-grid');
     if (!container) {
-        console.error('❌ Eingabefeld-Container nicht gefunden');
+        console.error('❌ Container nicht gefunden');
         return;
     }
     
     container.innerHTML = '';
     
-    // Eingabefelder basierend auf Form
-    switch (currentShape) {
-        case 'rechteck':
-        case 'quadrat':
-            container.appendChild(createInput('Länge (m)', 'length', '8'));
-            container.appendChild(createInput('Breite (m)', 'width', '5'));
-            break;
-            
-        case 'kreis':
-            container.appendChild(createInput('Radius (m)', 'radius', '4'));
-            break;
-            
-        case 'dreieck':
-            if (currentVariant === 'gleichseitig') {
+    // INTELLIGENTE Eingabefeld-Erstellung basierend auf Form UND Variante
+    console.log(`🎯 Erstelle Felder für: ${currentShape} (${currentVariant})`);
+    
+    if (currentShape === 'dreieck') {
+        switch (currentVariant) {
+            case 'gleichseitig':
                 container.appendChild(createInput('Seitenlänge (m)', 'side', '6'));
-            } else if (currentVariant === 'rechtwinklig') {
-                container.appendChild(createInput('Kathete A (m)', 'katheteA', '5'));
-                container.appendChild(createInput('Kathete B (m)', 'katheteB', '6'));
-            } else {
-                container.appendChild(createInput('Seite A (m)', 'sideA', '5'));
-                container.appendChild(createInput('Seite B (m)', 'sideB', '6'));
-                container.appendChild(createInput('Seite C (m)', 'sideC', '7'));
-            }
-            break;
-            
-        case 'trapez':
-            container.appendChild(createInput('Basis A (m)', 'baseA', '8'));
-            container.appendChild(createInput('Basis B (m)', 'baseB', '5'));
-            container.appendChild(createInput('Höhe (m)', 'height', '4'));
-            break;
-            
-        default:
+                console.log('✅ Gleichseitiges Dreieck: Seitenlänge');
+                break;
+                
+            case 'rechtwinklig':
+                container.appendChild(createInput('Kathete A (m)', 'katheteA', '4'));
+                container.appendChild(createInput('Kathete B (m)', 'katheteB', '5'));
+                console.log('✅ Rechtwinkliges Dreieck: Katheten');
+                break;
+                
+            default: // ungleichschenklig oder allgemein
+                container.appendChild(createInput('Seite A (m)', 'sideA', '4'));
+                container.appendChild(createInput('Seite B (m)', 'sideB', '5'));
+                container.appendChild(createInput('Seite C (m)', 'sideC', '6'));
+                console.log('✅ Allgemeines Dreieck: Drei Seiten');
+        }
+    } else if (currentShape === 'kreis') {
+        container.appendChild(createInput('Radius (m)', 'radius', '4'));
+        console.log('✅ Kreis: Radius');
+    } else if (currentShape === 'rechteck' || currentShape === 'quadrat') {
+        if (currentVariant === 'quadrat') {
+            container.appendChild(createInput('Seitenlänge (m)', 'side', '5'));
+            console.log('✅ Quadrat: Seitenlänge');
+        } else {
             container.appendChild(createInput('Länge (m)', 'length', '8'));
             container.appendChild(createInput('Breite (m)', 'width', '5'));
+            console.log('✅ Rechteck: Länge und Breite');
+        }
+    } else if (currentShape === 'trapez') {
+        container.appendChild(createInput('Basis A (m)', 'baseA', '8'));
+        container.appendChild(createInput('Basis B (m)', 'baseB', '5'));
+        container.appendChild(createInput('Höhe (m)', 'height', '4'));
+        console.log('✅ Trapez: Beide Basen und Höhe');
+    } else {
+        // Fallback für unbekannte Formen
+        container.appendChild(createInput('Länge (m)', 'length', '8'));
+        container.appendChild(createInput('Breite (m)', 'width', '5'));
+        console.log('⚠️ Fallback: Länge und Breite');
     }
     
-    console.log('✅ Eingabefelder erstellt für:', currentShape);
+    console.log('✅ Eingabefelder erstellt');
 }
 
 function createInput(labelText, id, defaultValue = '') {
@@ -329,13 +279,14 @@ function createInput(labelText, id, defaultValue = '') {
     input.step = '0.1';
     input.min = '0.1';
     
-    // WICHTIG: Event Listeners direkt hinzufügen mit AUSFÜHRLICHEM DEBUG
+    // Event Listeners mit Smart Debug
     input.addEventListener('input', function() {
-        console.log('🔥 INPUT EVENT AUSGELÖST:', id, 'Neuer Wert:', this.value);
+        console.log(`🔥 INPUT: ${id} = ${this.value} (für ${currentShape}/${currentVariant})`);
         updateShape();
     });
+    
     input.addEventListener('change', function() {
-        console.log('🔥 CHANGE EVENT AUSGELÖST:', id, 'Finaler Wert:', this.value);
+        console.log(`✅ CHANGE: ${id} = ${this.value} (für ${currentShape}/${currentVariant})`);
         updateShape();
     });
     
@@ -348,131 +299,125 @@ function createInput(labelText, id, defaultValue = '') {
     wrapper.appendChild(label);
     wrapper.appendChild(inputWrapper);
     
-    console.log('✅ Input erstellt:', id, 'mit Wert:', defaultValue);
-    
     return wrapper;
 }
 
 function updateShape() {
-    console.log('🎯 === UPDATESHAPE AUFGERUFEN ===');
-    console.log('SVG verfügbar:', !!svg);
+    console.log('🎯 === SMART UPDATE SHAPE ===');
     
     if (!svg) {
-        console.error('❌ SVG nicht verfügbar - STOPPE');
+        console.error('❌ SVG nicht verfügbar');
         return;
     }
     
-    // SVG Form-Gruppe finden und debuggen
     const shapeGroup = document.getElementById('roof-shape');
-    console.log('Shape-Group gefunden:', !!shapeGroup);
-    
     if (!shapeGroup) {
-        console.error('❌ roof-shape Gruppe nicht gefunden - STOPPE');
-        console.log('Alle SVG-Kinder:', svg.children);
+        console.error('❌ roof-shape Gruppe nicht gefunden');
         return;
     }
+    
+    // Gruppe leeren
+    shapeGroup.innerHTML = '';
     
     // Aktuelle Daten sammeln
     const currentData = getCurrentFormData();
-    console.log('🔍 Aktuelle Form-Daten:', currentData);
-    
-    // Gruppe leeren
-    console.log('🗑️ Leere bestehende Formen...');
-    shapeGroup.innerHTML = '';
+    console.log('📊 Smart Data:', currentData);
     
     // Form zeichnen
-    console.log('🎨 Zeichne neue Form...');
-    drawShape(shapeGroup, currentData);
+    drawSmartShape(shapeGroup, currentData);
     
     // Berechnungen aktualisieren
-    console.log('🧮 Aktualisiere Berechnungen...');
     updateCalculations(currentData);
     
-    console.log('✅ updateShape ABGESCHLOSSEN');
+    console.log('✅ Smart Update abgeschlossen');
 }
 
 function getCurrentFormData() {
-    const data = { variant: currentVariant };
+    const data = { 
+        shape: currentShape,
+        variant: currentVariant 
+    };
     
     // Alle Eingabefelder auslesen
     const inputs = document.querySelectorAll('#geometry-inputs-grid input');
-    console.log('🔍 Gefundene Inputs:', inputs.length);
     
     inputs.forEach(input => {
-        console.log(`Input ${input.id}: "${input.value}"`);
         if (input.value) {
             const numValue = parseFloat(input.value);
             if (!isNaN(numValue)) {
                 data[input.id] = numValue;
-                console.log(`✅ ${input.id} = ${numValue}`);
-            } else {
-                console.log(`❌ ${input.id} ist NaN: "${input.value}"`);
             }
         }
     });
     
-    console.log('📊 Finale Form-Daten:', data);
     return data;
 }
 
-function drawShape(group, data) {
-    console.log('🎨 === DRAWSHAPE AUFGERUFEN ===');
-    console.log('Shape:', currentShape, 'Variant:', currentVariant);
-    console.log('Data:', data);
-    console.log('Group:', group);
+function drawSmartShape(group, data) {
+    console.log('🎨 === SMART DRAW ===');
+    console.log('Form:', data.shape, 'Variante:', data.variant);
+    console.log('Daten:', data);
     
-    switch (currentShape) {
-        case 'rechteck':
-        case 'quadrat':
-            console.log('📐 Zeichne Rechteck...');
-            drawRectangle(group, data);
+    switch (data.shape) {
+        case 'dreieck':
+            drawSmartTriangle(group, data);
             break;
         case 'kreis':
-            console.log('⭕ Zeichne Kreis...');
-            drawCircle(group, data);
+            drawSmartCircle(group, data);
             break;
-        case 'dreieck':
-            console.log('🔺 Zeichne Dreieck...');
-            drawTriangle(group, data);
+        case 'rechteck':
+        case 'quadrat':
+            drawSmartRectangle(group, data);
             break;
         case 'trapez':
-            console.log('🔷 Zeichne Trapez...');
-            drawTrapez(group, data);
+            drawSmartTrapez(group, data);
             break;
         default:
-            console.log('📐 Zeichne Rechteck (Fallback)...');
-            drawRectangle(group, data); // Fallback
+            console.log('⚠️ Unbekannte Form, verwende Rechteck-Fallback');
+            drawSmartRectangle(group, data);
+    }
+}
+
+function drawSmartTriangle(group, data) {
+    console.log('🔺 Zeichne intelligentes Dreieck:', data.variant);
+    
+    let points = '';
+    
+    if (data.variant === 'gleichseitig') {
+        const side = (data.side || 6) * SCALE_FACTOR;
+        const height = side * Math.sqrt(3) / 2;
+        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - side/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + side/2},${CANVAS_CENTER_Y + height/2}`;
+        console.log('📐 Gleichseitig: Seitenlänge =', data.side);
+        
+    } else if (data.variant === 'rechtwinklig') {
+        const a = (data.katheteA || 4) * SCALE_FACTOR;
+        const b = (data.katheteB || 5) * SCALE_FACTOR;
+        points = `${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X + a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y - b/2}`;
+        console.log('📐 Rechtwinklig: Katheten =', data.katheteA, 'x', data.katheteB);
+        
+    } else {
+        // Allgemeines Dreieck - verwende verfügbare Daten
+        const a = (data.sideA || 4) * SCALE_FACTOR;
+        const b = (data.sideB || 5) * SCALE_FACTOR;
+        const height = a * 0.8; // Approximation
+        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + a/2 - 20},${CANVAS_CENTER_Y + height/2}`;
+        console.log('📐 Allgemein: Seiten =', data.sideA, data.sideB, data.sideC);
     }
     
-    console.log('🎨 drawShape ABGESCHLOSSEN');
+    const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    triangle.setAttribute('points', points);
+    triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    triangle.setAttribute('stroke', '#007bff');
+    triangle.setAttribute('stroke-width', '3');
+    
+    group.appendChild(triangle);
+    console.log('✅ Dreieck gezeichnet');
 }
 
-function drawRectangle(group, data) {
-    const length = (data.length || 8) * SCALE_FACTOR;
-    const width = (data.width || 5) * SCALE_FACTOR;
+function drawSmartCircle(group, data) {
+    console.log('⭕ Zeichne intelligenten Kreis');
     
-    console.log('📐 Rechteck-Parameter:', { length, width, x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y - width/2 });
-    
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', CANVAS_CENTER_X - length/2);
-    rect.setAttribute('y', CANVAS_CENTER_Y - width/2);
-    rect.setAttribute('width', length);
-    rect.setAttribute('height', width);
-    rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    rect.setAttribute('stroke', '#007bff');
-    rect.setAttribute('stroke-width', '2');
-    
-    console.log('📐 Füge Rechteck zur Gruppe hinzu...');
-    group.appendChild(rect);
-    
-    console.log('✅ Rechteck gezeichnet:', length, 'x', width);
-    console.log('📊 Gruppe hat jetzt', group.children.length, 'Kinder');
-}
-
-function drawCircle(group, data) {
     const radius = (data.radius || 4) * SCALE_FACTOR;
-    
-    console.log('⭕ Kreis-Parameter:', { radius, cx: CANVAS_CENTER_X, cy: CANVAS_CENTER_Y });
     
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     circle.setAttribute('cx', CANVAS_CENTER_X);
@@ -480,82 +425,76 @@ function drawCircle(group, data) {
     circle.setAttribute('r', radius);
     circle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
     circle.setAttribute('stroke', '#007bff');
-    circle.setAttribute('stroke-width', '2');
+    circle.setAttribute('stroke-width', '3');
     
-    console.log('⭕ Füge Kreis zur Gruppe hinzu...');
     group.appendChild(circle);
-    
     console.log('✅ Kreis gezeichnet, Radius:', radius);
-    console.log('📊 Gruppe hat jetzt', group.children.length, 'Kinder');
 }
 
-function drawTriangle(group, data) {
-    let points = '';
+function drawSmartRectangle(group, data) {
+    console.log('📐 Zeichne intelligentes Rechteck/Quadrat');
     
-    if (currentVariant === 'gleichseitig') {
-        const side = (data.side || 6) * SCALE_FACTOR;
-        const height = side * Math.sqrt(3) / 2;
-        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - side/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + side/2},${CANVAS_CENTER_Y + height/2}`;
-    } else if (currentVariant === 'rechtwinklig') {
-        const a = (data.katheteA || 5) * SCALE_FACTOR;
-        const b = (data.katheteB || 6) * SCALE_FACTOR;
-        points = `${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X + a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y - b/2}`;
+    let width, height;
+    
+    if (data.variant === 'quadrat') {
+        const side = (data.side || 5) * SCALE_FACTOR;
+        width = height = side;
+        console.log('📐 Quadrat: Seitenlänge =', data.side);
     } else {
-        // Allgemeines Dreieck
-        const base = 120;
-        const height = 100;
-        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - base/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + base/2},${CANVAS_CENTER_Y + height/2}`;
+        width = (data.length || 8) * SCALE_FACTOR;
+        height = (data.width || 5) * SCALE_FACTOR;
+        console.log('📐 Rechteck: Länge =', data.length, 'Breite =', data.width);
     }
     
-    console.log('🔺 Dreieck-Punkte:', points);
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', CANVAS_CENTER_X - width/2);
+    rect.setAttribute('y', CANVAS_CENTER_Y - height/2);
+    rect.setAttribute('width', width);
+    rect.setAttribute('height', height);
+    rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    rect.setAttribute('stroke', '#007bff');
+    rect.setAttribute('stroke-width', '3');
     
-    const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    triangle.setAttribute('points', points);
-    triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    triangle.setAttribute('stroke', '#007bff');
-    triangle.setAttribute('stroke-width', '2');
-    
-    console.log('🔺 Füge Dreieck zur Gruppe hinzu...');
-    group.appendChild(triangle);
-    
-    console.log('✅ Dreieck gezeichnet');
-    console.log('📊 Gruppe hat jetzt', group.children.length, 'Kinder');
+    group.appendChild(rect);
+    console.log('✅ Rechteck gezeichnet:', width, 'x', height);
 }
 
-function drawTrapez(group, data) {
+function drawSmartTrapez(group, data) {
+    console.log('🔷 Zeichne intelligentes Trapez');
+    
     const baseA = (data.baseA || 8) * SCALE_FACTOR;
     const baseB = (data.baseB || 5) * SCALE_FACTOR;
     const height = (data.height || 4) * SCALE_FACTOR;
     
     const points = `${CANVAS_CENTER_X - baseA/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + baseA/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + baseB/2},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - baseB/2},${CANVAS_CENTER_Y - height/2}`;
     
-    console.log('🔷 Trapez-Punkte:', points);
-    
     const trapez = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     trapez.setAttribute('points', points);
     trapez.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
     trapez.setAttribute('stroke', '#007bff');
-    trapez.setAttribute('stroke-width', '2');
+    trapez.setAttribute('stroke-width', '3');
     
-    console.log('🔷 Füge Trapez zur Gruppe hinzu...');
     group.appendChild(trapez);
-    
-    console.log('✅ Trapez gezeichnet');
-    console.log('📊 Gruppe hat jetzt', group.children.length, 'Kinder');
+    console.log('✅ Trapez gezeichnet: Basen', data.baseA, '/', data.baseB, 'Höhe', data.height);
 }
 
 function updateCalculations(data) {
     let area = 0;
     let perimeter = 0;
     
-    // Berechnungen basierend auf Form
-    switch (currentShape) {
-        case 'rechteck':
-        case 'quadrat':
-            const length = data.length || 8;
-            const width = data.width || 5;
-            area = length * width;
-            perimeter = 2 * (length + width);
+    // Intelligente Berechnungen
+    switch (data.shape) {
+        case 'dreieck':
+            if (data.variant === 'gleichseitig') {
+                const side = data.side || 6;
+                area = (Math.sqrt(3) / 4) * side * side;
+                perimeter = 3 * side;
+            } else if (data.variant === 'rechtwinklig') {
+                const a = data.katheteA || 4;
+                const b = data.katheteB || 5;
+                area = 0.5 * a * b;
+                perimeter = a + b + Math.sqrt(a*a + b*b);
+            }
             break;
             
         case 'kreis':
@@ -564,16 +503,17 @@ function updateCalculations(data) {
             perimeter = 2 * Math.PI * radius;
             break;
             
-        case 'dreieck':
-            if (currentVariant === 'gleichseitig') {
-                const side = data.side || 6;
-                area = (Math.sqrt(3) / 4) * side * side;
-                perimeter = 3 * side;
-            } else if (currentVariant === 'rechtwinklig') {
-                const a = data.katheteA || 5;
-                const b = data.katheteB || 6;
-                area = 0.5 * a * b;
-                perimeter = a + b + Math.sqrt(a*a + b*b);
+        case 'rechteck':
+        case 'quadrat':
+            if (data.variant === 'quadrat') {
+                const side = data.side || 5;
+                area = side * side;
+                perimeter = 4 * side;
+            } else {
+                const length = data.length || 8;
+                const width = data.width || 5;
+                area = length * width;
+                perimeter = 2 * (length + width);
             }
             break;
             
@@ -582,7 +522,6 @@ function updateCalculations(data) {
             const baseB = data.baseB || 5;
             const height = data.height || 4;
             area = 0.5 * (baseA + baseB) * height;
-            // Vereinfachte Umfang-Berechnung
             perimeter = baseA + baseB + 2 * Math.sqrt(height*height + ((baseA-baseB)/2)*((baseA-baseB)/2));
             break;
     }
@@ -593,8 +532,6 @@ function updateCalculations(data) {
     
     if (areaElement) areaElement.textContent = `${area.toFixed(2)} m²`;
     if (perimeterElement) perimeterElement.textContent = `${perimeter.toFixed(2)} m`;
-    
-    console.log('✅ Berechnungen aktualisiert:', { area, perimeter });
 }
 
 function setupEventListeners() {
@@ -606,7 +543,6 @@ function setupEventListeners() {
     
     if (backBtn) {
         backBtn.addEventListener('click', () => {
-            console.log('Zurück-Button geklickt');
             saveCurrentData();
             window.location.href = 'dachform.html';
         });
@@ -614,48 +550,36 @@ function setupEventListeners() {
     
     if (continueBtn) {
         continueBtn.addEventListener('click', () => {
-            console.log('Weiter-Button geklickt');
             saveCurrentData();
             window.location.href = 'berechnung.html';
         });
     }
     
-    // Tools mit visueller Rückmeldung
+    // Tools
+    setupToolButtons();
+    
+    console.log('✅ Event Listeners eingerichtet');
+}
+
+function setupToolButtons() {
     const tools = {
-        'btn-mirror-horizontal': () => {
-            console.log('Horizontal spiegeln');
-            showToolFeedback('Horizontal gespiegelt');
-        },
-        'btn-mirror-vertical': () => {
-            console.log('Vertikal spiegeln');
-            showToolFeedback('Vertikal gespiegelt');
-        },
-        'btn-rotate-left': () => {
-            console.log('Links rotieren');
-            showToolFeedback('Um 45° links gedreht');
-        },
-        'btn-rotate-right': () => {
-            console.log('Rechts rotieren');
-            showToolFeedback('Um 45° rechts gedreht');
-        },
         'btn-reset': () => {
-            console.log('Form zurücksetzen');
-            resetToDefaults();
-            showToolFeedback('Auf Standardwerte zurückgesetzt');
+            console.log('🔄 Smart Reset');
+            resetToSmartDefaults();
+            showToolFeedback('Auf optimale Werte zurückgesetzt');
         },
-        'btn-traufe': () => {
-            console.log('Traufe-Tool');
-            showToolFeedback('Traufe-Tool aktiviert');
-        }
+        'btn-mirror-horizontal': () => showToolFeedback('Horizontal gespiegelt'),
+        'btn-mirror-vertical': () => showToolFeedback('Vertikal gespiegelt'),
+        'btn-rotate-left': () => showToolFeedback('Um 45° links gedreht'),
+        'btn-rotate-right': () => showToolFeedback('Um 45° rechts gedreht'),
+        'btn-traufe': () => showToolFeedback('Traufe-Tool aktiviert')
     };
     
     Object.entries(tools).forEach(([id, handler]) => {
         const element = document.getElementById(id);
         if (element) {
             element.addEventListener('click', function() {
-                console.log(`${id} geklickt`);
                 handler();
-                
                 // Visuelles Feedback
                 this.style.transform = 'scale(0.95)';
                 setTimeout(() => {
@@ -664,12 +588,9 @@ function setupEventListeners() {
             });
         }
     });
-    
-    console.log('✅ Event Listeners eingerichtet');
 }
 
 function showToolFeedback(message) {
-    // Temporäre Nachricht anzeigen
     const feedback = document.createElement('div');
     feedback.style.cssText = `
         position: fixed;
@@ -690,30 +611,68 @@ function showToolFeedback(message) {
     }, 2000);
 }
 
-function resetToDefaults() {
-    console.log('🔄 RESET ZU DEFAULTS');
+function resetToSmartDefaults() {
+    console.log('🔄 Smart Reset für:', currentShape, currentVariant);
     
-    // Setze Standardwerte in Eingabefelder
     const inputs = document.querySelectorAll('#geometry-inputs-grid input');
-    console.log('🔄 Gefundene Inputs für Reset:', inputs.length);
     
     inputs.forEach(input => {
-        console.log(`🔄 Reset Input ${input.id}`);
         switch(input.id) {
+            // Dreieck
+            case 'side': input.value = '6'; break;
+            case 'katheteA': input.value = '4'; break;
+            case 'katheteB': input.value = '5'; break;
+            case 'sideA': input.value = '4'; break;
+            case 'sideB': input.value = '5'; break;
+            case 'sideC': input.value = '6'; break;
+            
+            // Kreis
+            case 'radius': input.value = '4'; break;
+            
+            // Rechteck
             case 'length': input.value = '8'; break;
             case 'width': input.value = '5'; break;
-            case 'radius': input.value = '4'; break;
-            case 'side': input.value = '6'; break;
-            case 'katheteA': input.value = '5'; break;
-            case 'katheteB': input.value = '6'; break;
+            
+            // Trapez
             case 'baseA': input.value = '8'; break;
             case 'baseB': input.value = '5'; break;
             case 'height': input.value = '4'; break;
         }
-        console.log(`✅ ${input.id} = ${input.value}`);
     });
     
-    // Form neu zeichnen
-    console.log('🔄 Führe updateShape nach Reset aus...');
     updateShape();
 }
+
+function saveCurrentData() {
+    const currentData = getCurrentFormData();
+    
+    if (!projectData.roofShape) {
+        projectData.roofShape = {};
+    }
+    
+    Object.assign(projectData.roofShape, currentData);
+    
+    try {
+        localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+    } catch (e) {
+        sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+    }
+}
+
+// Debug-Funktionen
+window.debugEditor = function() {
+    console.log('=== SMART EDITOR DEBUG ===');
+    console.log('Form:', currentShape, 'Variante:', currentVariant);
+    console.log('SVG:', !!svg);
+    console.log('roof-shape:', !!document.getElementById('roof-shape'));
+    
+    const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    console.log('Eingabefelder:', inputs.length);
+    inputs.forEach(input => {
+        console.log(`  ${input.id}: ${input.value}`);
+    });
+};
+
+window.forceUpdate = updateShape;
+
+console.log('✅ Smart Editor geladen und bereit!');
