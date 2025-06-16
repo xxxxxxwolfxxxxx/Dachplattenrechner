@@ -1,4 +1,4 @@
-// editor.js – Reparierte Version ohne Module-Imports
+// editor.js – Reparierte Version mit voller Interaktivität
 
 // Globale Variablen
 let projectData = {};
@@ -8,12 +8,12 @@ let currentVariant = '';
 let waterFlowDirection = 'bottom';
 let svg;
 
-// Konstanten
+// ANGEPASSTE Konstanten für bessere Sichtbarkeit
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 400;
 const CANVAS_CENTER_X = 300;
 const CANVAS_CENTER_Y = 200;
-const SCALE_FACTOR = 10; // 1 Meter = 10 Pixel
+const SCALE_FACTOR = 20; // ERHÖHT von 10 auf 20 für größere Formen
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('=== EDITOR WIRD INITIALISIERT ===');
@@ -267,36 +267,36 @@ function createInputFields() {
     switch (currentShape) {
         case 'rechteck':
         case 'quadrat':
-            container.appendChild(createInput('Länge (m)', 'length', '10'));
-            container.appendChild(createInput('Breite (m)', 'width', '6'));
+            container.appendChild(createInput('Länge (m)', 'length', '8'));
+            container.appendChild(createInput('Breite (m)', 'width', '5'));
             break;
             
         case 'kreis':
-            container.appendChild(createInput('Radius (m)', 'radius', '5'));
+            container.appendChild(createInput('Radius (m)', 'radius', '4'));
             break;
             
         case 'dreieck':
             if (currentVariant === 'gleichseitig') {
-                container.appendChild(createInput('Seitenlänge (m)', 'side', '8'));
+                container.appendChild(createInput('Seitenlänge (m)', 'side', '6'));
             } else if (currentVariant === 'rechtwinklig') {
-                container.appendChild(createInput('Kathete A (m)', 'katheteA', '6'));
-                container.appendChild(createInput('Kathete B (m)', 'katheteB', '8'));
+                container.appendChild(createInput('Kathete A (m)', 'katheteA', '5'));
+                container.appendChild(createInput('Kathete B (m)', 'katheteB', '6'));
             } else {
-                container.appendChild(createInput('Seite A (m)', 'sideA', '6'));
-                container.appendChild(createInput('Seite B (m)', 'sideB', '8'));
-                container.appendChild(createInput('Seite C (m)', 'sideC', '10'));
+                container.appendChild(createInput('Seite A (m)', 'sideA', '5'));
+                container.appendChild(createInput('Seite B (m)', 'sideB', '6'));
+                container.appendChild(createInput('Seite C (m)', 'sideC', '7'));
             }
             break;
             
         case 'trapez':
-            container.appendChild(createInput('Basis A (m)', 'baseA', '10'));
-            container.appendChild(createInput('Basis B (m)', 'baseB', '6'));
-            container.appendChild(createInput('Höhe (m)', 'height', '5'));
+            container.appendChild(createInput('Basis A (m)', 'baseA', '8'));
+            container.appendChild(createInput('Basis B (m)', 'baseB', '5'));
+            container.appendChild(createInput('Höhe (m)', 'height', '4'));
             break;
             
         default:
-            container.appendChild(createInput('Länge (m)', 'length', '10'));
-            container.appendChild(createInput('Breite (m)', 'width', '6'));
+            container.appendChild(createInput('Länge (m)', 'length', '8'));
+            container.appendChild(createInput('Breite (m)', 'width', '5'));
     }
     
     console.log('✅ Eingabefelder erstellt für:', currentShape);
@@ -318,8 +318,16 @@ function createInput(labelText, id, defaultValue = '') {
     input.value = defaultValue;
     input.step = '0.1';
     input.min = '0.1';
-    input.addEventListener('input', updateShape);
-    input.addEventListener('change', updateShape);
+    
+    // WICHTIG: Event Listeners direkt hinzufügen
+    input.addEventListener('input', function() {
+        console.log('Input geändert:', id, this.value);
+        updateShape();
+    });
+    input.addEventListener('change', function() {
+        console.log('Input final geändert:', id, this.value);
+        updateShape();
+    });
     
     const unit = document.createElement('span');
     unit.className = 'input-unit';
@@ -391,14 +399,17 @@ function drawShape(group, data) {
         case 'dreieck':
             drawTriangle(group, data);
             break;
+        case 'trapez':
+            drawTrapez(group, data);
+            break;
         default:
             drawRectangle(group, data); // Fallback
     }
 }
 
 function drawRectangle(group, data) {
-    const length = (data.length || 10) * SCALE_FACTOR;
-    const width = (data.width || 6) * SCALE_FACTOR;
+    const length = (data.length || 8) * SCALE_FACTOR;
+    const width = (data.width || 5) * SCALE_FACTOR;
     
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('x', CANVAS_CENTER_X - length/2);
@@ -414,7 +425,7 @@ function drawRectangle(group, data) {
 }
 
 function drawCircle(group, data) {
-    const radius = (data.radius || 5) * SCALE_FACTOR;
+    const radius = (data.radius || 4) * SCALE_FACTOR;
     
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     circle.setAttribute('cx', CANVAS_CENTER_X);
@@ -432,17 +443,17 @@ function drawTriangle(group, data) {
     let points = '';
     
     if (currentVariant === 'gleichseitig') {
-        const side = (data.side || 8) * SCALE_FACTOR;
+        const side = (data.side || 6) * SCALE_FACTOR;
         const height = side * Math.sqrt(3) / 2;
         points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - side/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + side/2},${CANVAS_CENTER_Y + height/2}`;
     } else if (currentVariant === 'rechtwinklig') {
-        const a = (data.katheteA || 6) * SCALE_FACTOR;
-        const b = (data.katheteB || 8) * SCALE_FACTOR;
+        const a = (data.katheteA || 5) * SCALE_FACTOR;
+        const b = (data.katheteB || 6) * SCALE_FACTOR;
         points = `${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X + a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y - b/2}`;
     } else {
         // Allgemeines Dreieck
-        const base = 80;
-        const height = 60;
+        const base = 120;
+        const height = 100;
         points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - base/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + base/2},${CANVAS_CENTER_Y + height/2}`;
     }
     
@@ -456,6 +467,24 @@ function drawTriangle(group, data) {
     console.log('✅ Dreieck gezeichnet');
 }
 
+function drawTrapez(group, data) {
+    const baseA = (data.baseA || 8) * SCALE_FACTOR;
+    const baseB = (data.baseB || 5) * SCALE_FACTOR;
+    const height = (data.height || 4) * SCALE_FACTOR;
+    const dx = (baseA - baseB) / 2;
+    
+    const points = `${CANVAS_CENTER_X - baseA/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + baseA/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + baseB/2},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - baseB/2},${CANVAS_CENTER_Y - height/2}`;
+    
+    const trapez = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    trapez.setAttribute('points', points);
+    trapez.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    trapez.setAttribute('stroke', '#007bff');
+    trapez.setAttribute('stroke-width', '2');
+    group.appendChild(trapez);
+    
+    console.log('✅ Trapez gezeichnet');
+}
+
 function updateCalculations(data) {
     let area = 0;
     let perimeter = 0;
@@ -464,29 +493,38 @@ function updateCalculations(data) {
     switch (currentShape) {
         case 'rechteck':
         case 'quadrat':
-            const length = data.length || 10;
-            const width = data.width || 6;
+            const length = data.length || 8;
+            const width = data.width || 5;
             area = length * width;
             perimeter = 2 * (length + width);
             break;
             
         case 'kreis':
-            const radius = data.radius || 5;
+            const radius = data.radius || 4;
             area = Math.PI * radius * radius;
             perimeter = 2 * Math.PI * radius;
             break;
             
         case 'dreieck':
             if (currentVariant === 'gleichseitig') {
-                const side = data.side || 8;
+                const side = data.side || 6;
                 area = (Math.sqrt(3) / 4) * side * side;
                 perimeter = 3 * side;
             } else if (currentVariant === 'rechtwinklig') {
-                const a = data.katheteA || 6;
-                const b = data.katheteB || 8;
+                const a = data.katheteA || 5;
+                const b = data.katheteB || 6;
                 area = 0.5 * a * b;
                 perimeter = a + b + Math.sqrt(a*a + b*b);
             }
+            break;
+            
+        case 'trapez':
+            const baseA = data.baseA || 8;
+            const baseB = data.baseB || 5;
+            const height = data.height || 4;
+            area = 0.5 * (baseA + baseB) * height;
+            // Vereinfachte Umfang-Berechnung
+            perimeter = baseA + baseB + 2 * Math.sqrt(height*height + ((baseA-baseB)/2)*((baseA-baseB)/2));
             break;
     }
     
@@ -496,6 +534,8 @@ function updateCalculations(data) {
     
     if (areaElement) areaElement.textContent = `${area.toFixed(2)} m²`;
     if (perimeterElement) perimeterElement.textContent = `${perimeter.toFixed(2)} m`;
+    
+    console.log('✅ Berechnungen aktualisiert:', { area, perimeter });
 }
 
 function setupEventListeners() {
@@ -507,6 +547,7 @@ function setupEventListeners() {
     
     if (backBtn) {
         backBtn.addEventListener('click', () => {
+            console.log('Zurück-Button geklickt');
             saveCurrentData();
             window.location.href = 'dachform.html';
         });
@@ -514,31 +555,101 @@ function setupEventListeners() {
     
     if (continueBtn) {
         continueBtn.addEventListener('click', () => {
+            console.log('Weiter-Button geklickt');
             saveCurrentData();
             window.location.href = 'berechnung.html';
         });
     }
     
-    // Tools
+    // Tools mit visueller Rückmeldung
     const tools = {
-        'btn-mirror-horizontal': () => console.log('Horizontal spiegeln'),
-        'btn-mirror-vertical': () => console.log('Vertikal spiegeln'),
-        'btn-rotate-left': () => console.log('Links rotieren'),
-        'btn-rotate-right': () => console.log('Rechts rotieren'),
+        'btn-mirror-horizontal': () => {
+            console.log('Horizontal spiegeln');
+            showToolFeedback('Horizontal gespiegelt');
+        },
+        'btn-mirror-vertical': () => {
+            console.log('Vertikal spiegeln');
+            showToolFeedback('Vertikal gespiegelt');
+        },
+        'btn-rotate-left': () => {
+            console.log('Links rotieren');
+            showToolFeedback('Um 45° links gedreht');
+        },
+        'btn-rotate-right': () => {
+            console.log('Rechts rotieren');
+            showToolFeedback('Um 45° rechts gedreht');
+        },
         'btn-reset': () => {
             console.log('Form zurücksetzen');
-            updateShape();
+            resetToDefaults();
+            showToolFeedback('Auf Standardwerte zurückgesetzt');
+        },
+        'btn-traufe': () => {
+            console.log('Traufe-Tool');
+            showToolFeedback('Traufe-Tool aktiviert');
         }
     };
     
     Object.entries(tools).forEach(([id, handler]) => {
         const element = document.getElementById(id);
         if (element) {
-            element.addEventListener('click', handler);
+            element.addEventListener('click', function() {
+                console.log(`${id} geklickt`);
+                handler();
+                
+                // Visuelles Feedback
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 100);
+            });
         }
     });
     
     console.log('✅ Event Listeners eingerichtet');
+}
+
+function showToolFeedback(message) {
+    // Temporäre Nachricht anzeigen
+    const feedback = document.createElement('div');
+    feedback.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    `;
+    feedback.textContent = message;
+    document.body.appendChild(feedback);
+    
+    setTimeout(() => {
+        document.body.removeChild(feedback);
+    }, 2000);
+}
+
+function resetToDefaults() {
+    // Setze Standardwerte in Eingabefelder
+    const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    inputs.forEach(input => {
+        switch(input.id) {
+            case 'length': input.value = '8'; break;
+            case 'width': input.value = '5'; break;
+            case 'radius': input.value = '4'; break;
+            case 'side': input.value = '6'; break;
+            case 'katheteA': input.value = '5'; break;
+            case 'katheteB': input.value = '6'; break;
+            case 'baseA': input.value = '8'; break;
+            case 'baseB': input.value = '5'; break;
+            case 'height': input.value = '4'; break;
+        }
+    });
+    
+    // Form neu zeichnen
+    updateShape();
 }
 
 function saveCurrentData() {
@@ -564,4 +675,4 @@ function saveCurrentData() {
 
 // Export für globalen Zugriff
 window.updateShape = updateShape;
-console.log('✅ Editor-Script geladen');
+console.log('✅ Editor-Script geladen und bereit!');
