@@ -572,11 +572,11 @@ function addTriangleDimensions(group, data, variant) {
         const side = data.side || 6;
         const scaledSide = side * SCALE_FACTOR;
         
-        // Basis-Bemaßung
+        // Bemaßung NÄHER an der Basis
         addDimensionLine(
             group,
-            CANVAS_CENTER_X - scaledSide/2, CANVAS_CENTER_Y + scaledSide * Math.sqrt(3)/4 + 30,
-            CANVAS_CENTER_X + scaledSide/2, CANVAS_CENTER_Y + scaledSide * Math.sqrt(3)/4 + 30,
+            CANVAS_CENTER_X - scaledSide/2, CANVAS_CENTER_Y + scaledSide * Math.sqrt(3)/4 + 20,
+            CANVAS_CENTER_X + scaledSide/2, CANVAS_CENTER_Y + scaledSide * Math.sqrt(3)/4 + 20,
             `${side.toFixed(1)} m`,
             'horizontal'
         );
@@ -584,41 +584,54 @@ function addTriangleDimensions(group, data, variant) {
         const a = data.katheteA || 4;
         const b = data.katheteB || 5;
         
-        // Kathete A (horizontal)
+        // Kathete A (horizontal) - näher zur Seite
         addDimensionLine(
             group,
-            CANVAS_CENTER_X - a * SCALE_FACTOR/2, CANVAS_CENTER_Y + b * SCALE_FACTOR/2 + 30,
-            CANVAS_CENTER_X + a * SCALE_FACTOR/2, CANVAS_CENTER_Y + b * SCALE_FACTOR/2 + 30,
+            CANVAS_CENTER_X - a * SCALE_FACTOR/2, CANVAS_CENTER_Y + b * SCALE_FACTOR/2 + 15,
+            CANVAS_CENTER_X + a * SCALE_FACTOR/2, CANVAS_CENTER_Y + b * SCALE_FACTOR/2 + 15,
             `${a.toFixed(1)} m`,
             'horizontal'
         );
         
-        // Kathete B (vertikal)
+        // Kathete B (vertikal) - näher zur Seite
         addDimensionLine(
             group,
-            CANVAS_CENTER_X - a * SCALE_FACTOR/2 - 30, CANVAS_CENTER_Y - b * SCALE_FACTOR/2,
-            CANVAS_CENTER_X - a * SCALE_FACTOR/2 - 30, CANVAS_CENTER_Y + b * SCALE_FACTOR/2,
+            CANVAS_CENTER_X - a * SCALE_FACTOR/2 - 15, CANVAS_CENTER_Y - b * SCALE_FACTOR/2,
+            CANVAS_CENTER_X - a * SCALE_FACTOR/2 - 15, CANVAS_CENTER_Y + b * SCALE_FACTOR/2,
             `${b.toFixed(1)} m`,
             'vertical'
         );
+        
+        // Hypotenuse - schräg an der Seite
+        const hypLength = Math.sqrt(a*a + b*b);
+        const hypMidX = CANVAS_CENTER_X + (a * SCALE_FACTOR/4);
+        const hypMidY = CANVAS_CENTER_Y - (b * SCALE_FACTOR/4);
+        addDimensionText(group, hypMidX, hypMidY, `${hypLength.toFixed(1)} m`);
+        
     } else {
-        // Ungleichschenkliges Dreieck - alle drei Seiten
+        // Ungleichschenkliges Dreieck - alle drei Seiten NÄHER an den Seiten
         const sideA = data.sideA || 4;
         const sideB = data.sideB || 5;
         const sideC = data.sideC || 6;
         
-        // Basis (Seite A)
+        // Basis (Seite A) - näher zur unteren Seite
         addDimensionLine(
             group,
-            CANVAS_CENTER_X - sideA * SCALE_FACTOR/2, CANVAS_CENTER_Y + 60,
-            CANVAS_CENTER_X + sideA * SCALE_FACTOR/2, CANVAS_CENTER_Y + 60,
-            `A: ${sideA.toFixed(1)} m`,
+            CANVAS_CENTER_X - sideA * SCALE_FACTOR/2, CANVAS_CENTER_Y + 25,
+            CANVAS_CENTER_X + sideA * SCALE_FACTOR/2, CANVAS_CENTER_Y + 25,
+            `${sideA.toFixed(1)} m`,
             'horizontal'
         );
         
-        // Seite B und C als Text
-        addDimensionText(group, CANVAS_CENTER_X - 100, CANVAS_CENTER_Y - 100, `B: ${sideB.toFixed(1)} m`);
-        addDimensionText(group, CANVAS_CENTER_X + 60, CANVAS_CENTER_Y - 100, `C: ${sideC.toFixed(1)} m`);
+        // Seite B (links) - näher zur linken Seite
+        const leftMidX = CANVAS_CENTER_X - sideA * SCALE_FACTOR/3;
+        const leftMidY = CANVAS_CENTER_Y - 30;
+        addDimensionText(group, leftMidX, leftMidY, `${sideB.toFixed(1)} m`);
+        
+        // Seite C (rechts) - näher zur rechten Seite
+        const rightMidX = CANVAS_CENTER_X + sideA * SCALE_FACTOR/3;
+        const rightMidY = CANVAS_CENTER_Y - 30;
+        addDimensionText(group, rightMidX, rightMidY, `${sideC.toFixed(1)} m`);
     }
 }
 
@@ -1372,6 +1385,30 @@ function addTriangleClickAreas(triangle) {
     
     console.log('📐 Erstelle Klickbereiche für Dreieck-Punkte:', points);
     
+    // Hole die ursprünglichen Eingabewerte für Tooltips
+    const currentData = getCurrentFormData();
+    const variant = determineActualVariant();
+    
+    let realSideLengths = [];
+    if (variant === 'gleichseitig') {
+        const side = currentData.side || 6;
+        realSideLengths = [side, side, side];
+    } else if (variant === 'rechtwinklig') {
+        const a = currentData.katheteA || 4;
+        const b = currentData.katheteB || 5;
+        const c = Math.sqrt(a*a + b*b); // Hypotenuse
+        realSideLengths = [a, b, c];
+    } else {
+        // Ungleichschenkliges Dreieck
+        realSideLengths = [
+            currentData.sideA || 4,
+            currentData.sideB || 5, 
+            currentData.sideC || 6
+        ];
+    }
+    
+    console.log('🔢 Echte Seitenlängen:', realSideLengths);
+    
     // Erstelle Klickbereiche für ALLE drei Seiten
     for (let i = 0; i < points.length; i++) {
         const p1 = points[i];
@@ -1381,77 +1418,41 @@ function addTriangleClickAreas(triangle) {
         const midX = (p1.x + p2.x) / 2;
         const midY = (p1.y + p2.y) / 2;
         
-        // Seitenlänge berechnen für bessere Beschriftung
-        const sideLength = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
-        
-        // Bestimme welche "Seite" das ist basierend auf Position
-        let sideName = '';
-        let sideLabel = '';
-        
-        if (i === 0) {
-            // Erste Seite (meist bottom oder eine Hauptseite)
-            const avgY = (p1.y + p2.y) / 2;
-            if (avgY > points[2].y) {
-                sideName = 'bottom';
-                sideLabel = 'Basis';
-            } else {
-                sideName = 'left';
-                sideLabel = 'Linke Seite';
-            }
-        } else if (i === 1) {
-            sideName = 'right';
-            sideLabel = 'Rechte Seite';
-        } else {
-            sideName = 'left';
-            sideLabel = 'Linke Seite';
-        }
+        // Verwende die ECHTE Seitenlänge für Tooltips
+        const realLength = realSideLengths[i];
         
         console.log(`Seite ${i}: ${p1.x.toFixed(1)},${p1.y.toFixed(1)} → ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`);
-        console.log(`  Mittelpunkt: ${midX.toFixed(1)},${midY.toFixed(1)}, Länge: ${sideLength.toFixed(1)}`);
+        console.log(`  Mittelpunkt: ${midX.toFixed(1)},${midY.toFixed(1)}, Echte Länge: ${realLength}m`);
         
-        // Klickbereich erstellen
+        // Klickbereich erstellen - OHNE Beschriftung
         const clickArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         clickArea.setAttribute('cx', midX);
         clickArea.setAttribute('cy', midY);
-        clickArea.setAttribute('r', '20'); // Größerer Radius für bessere Klickbarkeit
-        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.5)');
+        clickArea.setAttribute('r', '18'); // Etwas kleiner ohne Text
+        clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
         clickArea.setAttribute('stroke', '#ffff00');
         clickArea.setAttribute('stroke-width', '3');
         clickArea.classList.add('traufe-click-area');
         clickArea.style.cursor = 'pointer';
         
-        // Beschriftung mit Seitenlänge
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', midX);
-        label.setAttribute('y', midY + 4);
-        label.setAttribute('text-anchor', 'middle');
-        label.setAttribute('font-family', 'Arial');
-        label.setAttribute('font-size', '11');
-        label.setAttribute('font-weight', 'bold');
-        label.setAttribute('fill', '#000');
-        label.textContent = `${sideLength.toFixed(1)}m`;
-        label.classList.add('traufe-click-area');
-        
-        // Eindeutige ID für diese spezifische Seite
-        const sideId = `side-${i}`;
-        
         clickArea.addEventListener('click', (e) => {
             e.stopPropagation();
-            console.log(`🎯 Klick auf Seite ${i} (${sideLength.toFixed(1)}m): ${p1.x.toFixed(1)},${p1.y.toFixed(1)} → ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`);
-            setTraufePositionForSpecificSide(i, p1, p2, sideLength);
+            console.log(`🎯 Klick auf Seite ${i} (${realLength}m): ${p1.x.toFixed(1)},${p1.y.toFixed(1)} → ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`);
+            setTraufePositionForSpecificSide(i, p1, p2, realLength);
         });
         
         clickArea.addEventListener('mouseenter', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.8)');
-            showFeedback(`${sideLabel}: ${sideLength.toFixed(1)}m - Klicken um als Traufe zu setzen`);
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.9)');
+            clickArea.setAttribute('r', '20'); // Etwas größer beim Hover
+            showFeedback(`${realLength}m Seite als Traufe setzen`);
         });
         
         clickArea.addEventListener('mouseleave', () => {
-            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.5)');
+            clickArea.setAttribute('fill', 'rgba(255, 255, 0, 0.6)');
+            clickArea.setAttribute('r', '18');
         });
         
         document.getElementById('roof-shape').appendChild(clickArea);
-        document.getElementById('roof-shape').appendChild(label);
     }
 }
 
