@@ -557,19 +557,25 @@ function drawTransformedShape(group, data) {
     
     let transform = `translate(${CANVAS_CENTER_X}, ${CANVAS_CENTER_Y})`;
     
+    // Rotiere um das Zentrum
     if (currentRotation !== 0) {
         transform += ` rotate(${currentRotation})`;
+        console.log(`Angewendete Rotation: ${currentRotation}°`);
     }
     
+    // Spiegelung
     let scaleX = isMirroredH ? -1 : 1;
     let scaleY = isMirroredV ? -1 : 1;
     if (scaleX !== 1 || scaleY !== 1) {
         transform += ` scale(${scaleX}, ${scaleY})`;
+        console.log(`Angewendete Spiegelung: scaleX=${scaleX}, scaleY=${scaleY}`);
     }
     
+    // Zurück zum ursprünglichen Koordinatensystem
     transform += ` translate(${-CANVAS_CENTER_X}, ${-CANVAS_CENTER_Y})`;
     
     transformGroup.setAttribute('transform', transform);
+    console.log(`Gesamt-Transform: ${transform}`);
     
     drawShape(transformGroup, data);
     group.appendChild(transformGroup);
@@ -1127,23 +1133,30 @@ function createClickableEdge(edge) {
     line.dataset.side = edge.side;
     line.dataset.name = edge.name;
     
+    // Debug: Markiere die klickbaren Bereiche temporär sichtbar
+    line.setAttribute('stroke', 'rgba(255, 0, 0, 0.2)');
+    
     // Hover-Effekt
     line.addEventListener('mouseenter', () => {
-        line.setAttribute('stroke', 'rgba(255, 193, 7, 0.7)');
+        line.setAttribute('stroke', 'rgba(255, 193, 7, 0.8)');
         line.setAttribute('stroke-width', '8');
         showSideTooltip(edge.name, edge.x1 + (edge.x2 - edge.x1)/2, edge.y1 + (edge.y2 - edge.y1)/2);
+        console.log(`Hovering über: ${edge.name}`);
     });
     
     line.addEventListener('mouseleave', () => {
-        line.setAttribute('stroke', 'transparent');
+        line.setAttribute('stroke', 'rgba(255, 0, 0, 0.2)'); // Debug: Bleibt sichtbar
         line.setAttribute('stroke-width', '20');
         hideSideTooltip();
     });
     
     line.addEventListener('click', (e) => {
         e.stopPropagation();
+        console.log(`Klick auf: ${edge.name} (${edge.side})`);
         selectTraufeSide(edge.side, edge.name);
     });
+    
+    console.log(`Klickbare Kante erstellt: ${edge.name} von (${edge.x1},${edge.y1}) zu (${edge.x2},${edge.y2})`);
     
     svg.appendChild(line);
 }
@@ -1222,33 +1235,48 @@ function hideSideTooltip() {
 }
 
 function selectTraufeSide(side, name) {
+    console.log(`Traufe-Seite ausgewählt: ${side} (${name})`);
+    
     // Entferne Interaktivität
     disableSideSelection();
     
     // Setze Traufe-Position
+    const oldPosition = traufePosition;
     traufePosition = side;
     
-    // Rotiere entsprechend
+    console.log(`Traufe-Position geändert von ${oldPosition} zu ${side}`);
+    
+    // Rotiere entsprechend - die gewählte Seite soll nach unten
     switch(side) {
         case 'top':
-            currentRotation = 180;
+            currentRotation = 180; // Obere Seite nach unten drehen
             break;
         case 'right':
-            currentRotation = 90;
+            currentRotation = -90; // Rechte Seite nach unten drehen
             break;
         case 'bottom':
-            currentRotation = 0;
+            currentRotation = 0; // Untere Seite bleibt unten
             break;
         case 'left':
-            currentRotation = -90;
+            currentRotation = 90; // Linke Seite nach unten drehen
             break;
     }
+    
+    console.log(`Neue Rotation: ${currentRotation}°`);
     
     // Aktualisiere die Anzeige
     updateShape();
     hideTraufeInstructions();
     
     showFeedback(`✅ Traufe festgelegt: ${name} ist jetzt die Traufe (Wasserabfluss)`);
+    
+    // Debug: Zeige aktuelle Werte
+    console.log('Aktuelle Werte nach Traufe-Auswahl:', {
+        traufePosition: traufePosition,
+        currentRotation: currentRotation,
+        isMirroredH: isMirroredH,
+        isMirroredV: isMirroredV
+    });
 }
 
 function disableSideSelection() {
