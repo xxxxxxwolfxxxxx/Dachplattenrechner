@@ -1,4 +1,4 @@
-// editor.js – Reparierte Version mit voller Interaktivität
+// editor.js – Debug-Version mit Zeichnungs-Reparatur
 
 // Globale Variablen
 let projectData = {};
@@ -97,17 +97,26 @@ function loadProjectData() {
 function initializeCanvas() {
     console.log('=== INITIALISIERE CANVAS ===');
     
-    // SVG Element holen
+    // SVG Element holen mit ausführlichem Debug
     svg = document.getElementById('main-svg');
     
     if (!svg) {
         console.error('❌ SVG Element nicht gefunden!');
+        console.log('Verfügbare Elemente:', document.querySelectorAll('svg'));
+        console.log('Alle IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
         // Fallback: Canvas dynamisch erstellen falls nicht vorhanden
         createFallbackCanvas();
         return;
     }
     
     console.log('✅ SVG Element gefunden:', svg);
+    console.log('SVG Dimensionen:', svg.getAttribute('width'), 'x', svg.getAttribute('height'));
+    
+    // Prüfe ob SVG-Gruppen vorhanden sind
+    const roofShape = document.getElementById('roof-shape');
+    const dimensions = document.getElementById('dimensions');
+    console.log('roof-shape Gruppe:', roofShape);
+    console.log('dimensions Gruppe:', dimensions);
 }
 
 function createFallbackCanvas() {
@@ -248,7 +257,8 @@ function loadAndDrawShape() {
     // Eingabefelder erstellen
     createInputFields();
     
-    // Initial zeichnen
+    // Initial zeichnen mit Debug
+    console.log('Führe initiales updateShape() aus...');
     updateShape();
 }
 
@@ -319,13 +329,13 @@ function createInput(labelText, id, defaultValue = '') {
     input.step = '0.1';
     input.min = '0.1';
     
-    // WICHTIG: Event Listeners direkt hinzufügen
+    // WICHTIG: Event Listeners direkt hinzufügen mit AUSFÜHRLICHEM DEBUG
     input.addEventListener('input', function() {
-        console.log('Input geändert:', id, this.value);
+        console.log('🔥 INPUT EVENT AUSGELÖST:', id, 'Neuer Wert:', this.value);
         updateShape();
     });
     input.addEventListener('change', function() {
-        console.log('Input final geändert:', id, this.value);
+        console.log('🔥 CHANGE EVENT AUSGELÖST:', id, 'Finaler Wert:', this.value);
         updateShape();
     });
     
@@ -338,34 +348,47 @@ function createInput(labelText, id, defaultValue = '') {
     wrapper.appendChild(label);
     wrapper.appendChild(inputWrapper);
     
+    console.log('✅ Input erstellt:', id, 'mit Wert:', defaultValue);
+    
     return wrapper;
 }
 
 function updateShape() {
-    console.log('=== AKTUALISIERE FORM ===');
+    console.log('🎯 === UPDATESHAPE AUFGERUFEN ===');
+    console.log('SVG verfügbar:', !!svg);
     
     if (!svg) {
-        console.log('❌ SVG nicht verfügbar');
+        console.error('❌ SVG nicht verfügbar - STOPPE');
         return;
     }
     
-    // SVG Form-Gruppe leeren
+    // SVG Form-Gruppe finden und debuggen
     const shapeGroup = document.getElementById('roof-shape');
-    if (shapeGroup) {
-        shapeGroup.innerHTML = '';
-        
-        // Aktuelle Daten sammeln
-        const currentData = getCurrentFormData();
-        console.log('Aktuelle Form-Daten:', currentData);
-        
-        // Einfache Form zeichnen
-        drawShape(shapeGroup, currentData);
-        
-        // Berechnungen aktualisieren
-        updateCalculations(currentData);
-        
-        console.log('✅ Form aktualisiert');
+    console.log('Shape-Group gefunden:', !!shapeGroup);
+    
+    if (!shapeGroup) {
+        console.error('❌ roof-shape Gruppe nicht gefunden - STOPPE');
+        console.log('Alle SVG-Kinder:', svg.children);
+        return;
     }
+    
+    // Aktuelle Daten sammeln
+    const currentData = getCurrentFormData();
+    console.log('🔍 Aktuelle Form-Daten:', currentData);
+    
+    // Gruppe leeren
+    console.log('🗑️ Leere bestehende Formen...');
+    shapeGroup.innerHTML = '';
+    
+    // Form zeichnen
+    console.log('🎨 Zeichne neue Form...');
+    drawShape(shapeGroup, currentData);
+    
+    // Berechnungen aktualisieren
+    console.log('🧮 Aktualisiere Berechnungen...');
+    updateCalculations(currentData);
+    
+    console.log('✅ updateShape ABGESCHLOSSEN');
 }
 
 function getCurrentFormData() {
@@ -373,43 +396,62 @@ function getCurrentFormData() {
     
     // Alle Eingabefelder auslesen
     const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    console.log('🔍 Gefundene Inputs:', inputs.length);
+    
     inputs.forEach(input => {
+        console.log(`Input ${input.id}: "${input.value}"`);
         if (input.value) {
             const numValue = parseFloat(input.value);
             if (!isNaN(numValue)) {
                 data[input.id] = numValue;
+                console.log(`✅ ${input.id} = ${numValue}`);
+            } else {
+                console.log(`❌ ${input.id} ist NaN: "${input.value}"`);
             }
         }
     });
     
+    console.log('📊 Finale Form-Daten:', data);
     return data;
 }
 
 function drawShape(group, data) {
-    console.log('=== ZEICHNE FORM ===', currentShape, data);
+    console.log('🎨 === DRAWSHAPE AUFGERUFEN ===');
+    console.log('Shape:', currentShape, 'Variant:', currentVariant);
+    console.log('Data:', data);
+    console.log('Group:', group);
     
     switch (currentShape) {
         case 'rechteck':
         case 'quadrat':
+            console.log('📐 Zeichne Rechteck...');
             drawRectangle(group, data);
             break;
         case 'kreis':
+            console.log('⭕ Zeichne Kreis...');
             drawCircle(group, data);
             break;
         case 'dreieck':
+            console.log('🔺 Zeichne Dreieck...');
             drawTriangle(group, data);
             break;
         case 'trapez':
+            console.log('🔷 Zeichne Trapez...');
             drawTrapez(group, data);
             break;
         default:
+            console.log('📐 Zeichne Rechteck (Fallback)...');
             drawRectangle(group, data); // Fallback
     }
+    
+    console.log('🎨 drawShape ABGESCHLOSSEN');
 }
 
 function drawRectangle(group, data) {
     const length = (data.length || 8) * SCALE_FACTOR;
     const width = (data.width || 5) * SCALE_FACTOR;
+    
+    console.log('📐 Rechteck-Parameter:', { length, width, x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y - width/2 });
     
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('x', CANVAS_CENTER_X - length/2);
@@ -419,13 +461,18 @@ function drawRectangle(group, data) {
     rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
     rect.setAttribute('stroke', '#007bff');
     rect.setAttribute('stroke-width', '2');
+    
+    console.log('📐 Füge Rechteck zur Gruppe hinzu...');
     group.appendChild(rect);
     
     console.log('✅ Rechteck gezeichnet:', length, 'x', width);
+    console.log('📊 Gruppe hat jetzt', group.children.length, 'Kinder');
 }
 
 function drawCircle(group, data) {
     const radius = (data.radius || 4) * SCALE_FACTOR;
+    
+    console.log('⭕ Kreis-Parameter:', { radius, cx: CANVAS_CENTER_X, cy: CANVAS_CENTER_Y });
     
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     circle.setAttribute('cx', CANVAS_CENTER_X);
@@ -434,9 +481,12 @@ function drawCircle(group, data) {
     circle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
     circle.setAttribute('stroke', '#007bff');
     circle.setAttribute('stroke-width', '2');
+    
+    console.log('⭕ Füge Kreis zur Gruppe hinzu...');
     group.appendChild(circle);
     
     console.log('✅ Kreis gezeichnet, Radius:', radius);
+    console.log('📊 Gruppe hat jetzt', group.children.length, 'Kinder');
 }
 
 function drawTriangle(group, data) {
@@ -457,32 +507,41 @@ function drawTriangle(group, data) {
         points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - base/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + base/2},${CANVAS_CENTER_Y + height/2}`;
     }
     
+    console.log('🔺 Dreieck-Punkte:', points);
+    
     const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     triangle.setAttribute('points', points);
     triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
     triangle.setAttribute('stroke', '#007bff');
     triangle.setAttribute('stroke-width', '2');
+    
+    console.log('🔺 Füge Dreieck zur Gruppe hinzu...');
     group.appendChild(triangle);
     
     console.log('✅ Dreieck gezeichnet');
+    console.log('📊 Gruppe hat jetzt', group.children.length, 'Kinder');
 }
 
 function drawTrapez(group, data) {
     const baseA = (data.baseA || 8) * SCALE_FACTOR;
     const baseB = (data.baseB || 5) * SCALE_FACTOR;
     const height = (data.height || 4) * SCALE_FACTOR;
-    const dx = (baseA - baseB) / 2;
     
     const points = `${CANVAS_CENTER_X - baseA/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + baseA/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + baseB/2},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - baseB/2},${CANVAS_CENTER_Y - height/2}`;
+    
+    console.log('🔷 Trapez-Punkte:', points);
     
     const trapez = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     trapez.setAttribute('points', points);
     trapez.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
     trapez.setAttribute('stroke', '#007bff');
     trapez.setAttribute('stroke-width', '2');
+    
+    console.log('🔷 Füge Trapez zur Gruppe hinzu...');
     group.appendChild(trapez);
     
     console.log('✅ Trapez gezeichnet');
+    console.log('📊 Gruppe hat jetzt', group.children.length, 'Kinder');
 }
 
 function updateCalculations(data) {
@@ -632,9 +691,14 @@ function showToolFeedback(message) {
 }
 
 function resetToDefaults() {
+    console.log('🔄 RESET ZU DEFAULTS');
+    
     // Setze Standardwerte in Eingabefelder
     const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    console.log('🔄 Gefundene Inputs für Reset:', inputs.length);
+    
     inputs.forEach(input => {
+        console.log(`🔄 Reset Input ${input.id}`);
         switch(input.id) {
             case 'length': input.value = '8'; break;
             case 'width': input.value = '5'; break;
@@ -646,33 +710,10 @@ function resetToDefaults() {
             case 'baseB': input.value = '5'; break;
             case 'height': input.value = '4'; break;
         }
+        console.log(`✅ ${input.id} = ${input.value}`);
     });
     
     // Form neu zeichnen
+    console.log('🔄 Führe updateShape nach Reset aus...');
     updateShape();
 }
-
-function saveCurrentData() {
-    console.log('=== SPEICHERE AKTUELLE DATEN ===');
-    
-    const currentData = getCurrentFormData();
-    
-    if (!projectData.roofShape) {
-        projectData.roofShape = {};
-    }
-    
-    // Form-spezifische Daten speichern
-    Object.assign(projectData.roofShape, currentData);
-    
-    // In Storage speichern
-    try {
-        localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-        console.log('✅ Daten gespeichert:', projectData);
-    } catch (e) {
-        sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-    }
-}
-
-// Export für globalen Zugriff
-window.updateShape = updateShape;
-console.log('✅ Editor-Script geladen und bereit!');
