@@ -573,7 +573,7 @@ function setupToolButtons() {
 }
 
 function selectTraufePosition() {
-    // Erstelle Traufe-Auswahl-Dialog
+    // Erstelle Traufe-Auswahl-Dialog mit klarerer Beschreibung
     const overlay = document.createElement('div');
     overlay.style.cssText = `
         position: fixed;
@@ -592,13 +592,24 @@ function selectTraufePosition() {
     `;
     
     overlay.innerHTML = `
-        <h3 style="margin-bottom: 20px; font-size: 24px;">Traufe-Position bestimmen</h3>
-        <p style="margin-bottom: 30px; text-align: center; font-size: 16px;">Klicken Sie auf die Seite, wo sich die Traufe (Dachrand) befindet:</p>
+        <h3 style="margin-bottom: 20px; font-size: 24px; text-align: center;">Traufe-Position bestimmen</h3>
+        <p style="margin-bottom: 30px; text-align: center; font-size: 16px; max-width: 500px; line-height: 1.4;">
+            Welche Seite Ihrer Form ist die <strong>Traufe</strong> (Dachrand)?<br>
+            Die gewählte Seite wird automatisch nach unten ausgerichtet.
+        </p>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
-            <button onclick="setTraufePosition('top')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white;">↑ Oben</button>
-            <button onclick="setTraufePosition('right')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white;">→ Rechts</button>
-            <button onclick="setTraufePosition('bottom')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white;">↓ Unten</button>
-            <button onclick="setTraufePosition('left')" style="padding: 20px 40px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white;">← Links</button>
+            <button onclick="setTraufePosition('top')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                ↑<br><strong>Obere Seite</strong><br><small>ist Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('right')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                →<br><strong>Rechte Seite</strong><br><small>ist Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('bottom')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #28a745; color: white; text-align: center;">
+                ↓<br><strong>Untere Seite</strong><br><small>ist Traufe</small>
+            </button>
+            <button onclick="setTraufePosition('left')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                ←<br><strong>Linke Seite</strong><br><small>ist Traufe</small>
+            </button>
         </div>
         <button onclick="closeTraufeDialog()" style="margin-top: 10px; padding: 12px 24px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 8px;">Abbrechen</button>
     `;
@@ -610,18 +621,22 @@ function selectTraufePosition() {
 window.setTraufePosition = function(position) {
     traufePosition = position;
     
-    // Automatische Rotation basierend auf Traufe-Position
+    // KORREKTE Rotation: Die gewählte Seite nach unten drehen
     switch(position) {
         case 'top':
+            // Obere Seite nach unten → 180° drehen
             currentRotation = 180;
             break;
         case 'right':
+            // Rechte Seite nach unten → 90° nach links drehen
             currentRotation = -90;
             break;
         case 'bottom':
+            // Untere Seite ist schon unten → keine Drehung
             currentRotation = 0;
             break;
         case 'left':
+            // Linke Seite nach unten → 90° nach rechts drehen
             currentRotation = 90;
             break;
     }
@@ -636,7 +651,7 @@ window.setTraufePosition = function(position) {
         'left': 'links'
     };
     
-    showFeedback(`Traufe ${positionNames[position]} gesetzt, Form ausgerichtet`);
+    showFeedback(`Traufe-Seite "${positionNames[position]}" nach unten gedreht (${currentRotation}°)`);
 };
 
 window.closeTraufeDialog = function() {
