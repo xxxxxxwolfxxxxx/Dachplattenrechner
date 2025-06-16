@@ -380,8 +380,13 @@ function createInput(labelText, id, defaultValue = '') {
     input.step = '0.1';
     input.min = '0.1';
     
-    input.addEventListener('input', handleInputChange);
-    input.addEventListener('change', handleInputChange);
+    // MEHRERE Event Listener für sofortige Reaktion
+    input.addEventListener('input', handleInputChange);      // Während dem Tippen
+    input.addEventListener('change', handleInputChange);     // Nach Änderung
+    input.addEventListener('keyup', handleInputChange);      // Nach Tastendruck
+    input.addEventListener('blur', handleInputChange);       // Beim Verlassen des Feldes
+    
+    console.log('Input-Feld erstellt:', id, 'mit Wert:', defaultValue);
     
     const unit = document.createElement('span');
     unit.className = 'input-unit';
@@ -398,26 +403,36 @@ function createInput(labelText, id, defaultValue = '') {
 function handleInputChange() {
     if (isUpdating) return;
     
-    isUpdating = true;
+    console.log('Input geändert, aktualisiere Form...');
+    
+    // Direkte Aktualisierung ohne isUpdating Block
     updateShape();
-    setTimeout(() => {
-        isUpdating = false;
-    }, 50);
 }
 
 function updateShape() {
-    if (!svg || isUpdating) return;
+    if (!svg) {
+        console.log('SVG nicht verfügbar');
+        return;
+    }
     
     const shapeGroup = document.getElementById('roof-shape');
-    if (!shapeGroup) return;
+    if (!shapeGroup) {
+        console.log('Shape-Group nicht gefunden');
+        return;
+    }
+    
+    console.log('Aktualisiere Form...');
     
     shapeGroup.innerHTML = '';
     
     const currentData = getCurrentFormData();
+    console.log('Aktuelle Form-Daten:', currentData);
     
     drawTransformedShape(shapeGroup, currentData);
     updateCalculations(currentData);
     updateDirectionInfo();
+    
+    console.log('Form erfolgreich aktualisiert');
 }
 
 function getCurrentFormData() {
