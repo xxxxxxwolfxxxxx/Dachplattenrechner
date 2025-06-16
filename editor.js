@@ -534,40 +534,266 @@ function drawTransformedShape(group, data) {
 }
 
 function drawLabelsAndAnnotations(group, data) {
-    // Zeichne IMMER Bemaßung für die Form
-    drawDimensions(group, data);
+    // Zeichne Seitenbeschriftung je nach Form
+    drawSideLabels(group, data);
     
     // Zeichne Traufe-Markierung
     drawTraufeMarking(group, data);
-    
-    // Zeichne Koordinatenachsen-Labels
-    drawAxisLabels(group);
 }
 
-function drawAxisLabels(group) {
-    // X-Achse Label (Länge)
-    const xLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    xLabel.setAttribute('x', CANVAS_CENTER_X + 120);
-    xLabel.setAttribute('y', CANVAS_CENTER_Y + 5);
-    xLabel.setAttribute('fill', '#666');
-    xLabel.setAttribute('font-size', '12');
-    xLabel.setAttribute('font-weight', 'bold');
-    xLabel.textContent = 'Länge →';
-    group.appendChild(xLabel);
+function drawSideLabels(group, data) {
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
     
-    // Y-Achse Label (Breite)
-    const yLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    yLabel.setAttribute('x', CANVAS_CENTER_X + 5);
-    yLabel.setAttribute('y', CANVAS_CENTER_Y - 120);
-    yLabel.setAttribute('fill', '#666');
-    yLabel.setAttribute('font-size', '12');
-    yLabel.setAttribute('font-weight', 'bold');
-    yLabel.textContent = '↑ Breite';
-    group.appendChild(yLabel);
+    if (finalShape === 'dreieck') {
+        drawTriangleLabels(group, data, finalVariant);
+    } else if (finalShape === 'rechteck') {
+        drawRectangleLabels(group, data);
+    } else if (finalShape === 'quadrat') {
+        drawSquareLabels(group, data);
+    } else if (finalShape === 'trapez') {
+        drawTrapezLabels(group, data);
+    } else if (finalShape === 'parallelogramm') {
+        drawParallelogrammLabels(group, data);
+    } else if (finalShape === 'rhombus') {
+        drawRhombusLabels(group, data);
+    } else if (finalShape === 'kreis') {
+        drawCircleLabels(group, data, finalVariant);
+    }
+    // Weitere Formen hier...
+}
+
+function drawTriangleLabels(group, data, variant) {
+    if (variant === 'gleichseitig') {
+        // Beim gleichseitigen Dreieck: nur eine Seitenlänge
+        const side = (data.side || 6) * SCALE_FACTOR;
+        const height = side * Math.sqrt(3) / 2;
+        
+        // Label für Seitenlänge an der Basis
+        const sideLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        sideLabel.setAttribute('x', CANVAS_CENTER_X);
+        sideLabel.setAttribute('y', CANVAS_CENTER_Y + height/2 + 20);
+        sideLabel.setAttribute('text-anchor', 'middle');
+        sideLabel.setAttribute('fill', '#333');
+        sideLabel.setAttribute('font-size', '12');
+        sideLabel.setAttribute('font-weight', 'bold');
+        sideLabel.textContent = `Seitenlänge: ${(data.side || 6).toFixed(1)}m`;
+        group.appendChild(sideLabel);
+        
+    } else if (variant === 'rechtwinklig') {
+        // Rechtwinkliges Dreieck: Kathete A und B
+        const a = (data.katheteA || 4) * SCALE_FACTOR;
+        const b = (data.katheteB || 5) * SCALE_FACTOR;
+        
+        // Kathete A (horizontal)
+        const kathetaALabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        kathetaALabel.setAttribute('x', CANVAS_CENTER_X);
+        kathetaALabel.setAttribute('y', CANVAS_CENTER_Y + b/2 + 20);
+        kathetaALabel.setAttribute('text-anchor', 'middle');
+        kathetaALabel.setAttribute('fill', '#007bff');
+        kathetaALabel.setAttribute('font-size', '12');
+        kathetaALabel.setAttribute('font-weight', 'bold');
+        kathetaALabel.textContent = `Kathete A: ${(data.katheteA || 4).toFixed(1)}m`;
+        group.appendChild(kathetaALabel);
+        
+        // Kathete B (vertikal)
+        const kathetaBLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        kathetaBLabel.setAttribute('x', CANVAS_CENTER_X - a/2 - 40);
+        kathetaBLabel.setAttribute('y', CANVAS_CENTER_Y);
+        kathetaBLabel.setAttribute('text-anchor', 'middle');
+        kathetaBLabel.setAttribute('fill', '#28a745');
+        kathetaBLabel.setAttribute('font-size', '12');
+        kathetaBLabel.setAttribute('font-weight', 'bold');
+        kathetaBLabel.setAttribute('transform', `rotate(-90, ${CANVAS_CENTER_X - a/2 - 40}, ${CANVAS_CENTER_Y})`);
+        kathetaBLabel.textContent = `Kathete B: ${(data.katheteB || 5).toFixed(1)}m`;
+        group.appendChild(kathetaBLabel);
+        
+    } else {
+        // Allgemeines Dreieck: Seite A, B, C
+        const a = (data.sideA || 4) * SCALE_FACTOR;
+        
+        // Seite A (Basis)
+        const sideALabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        sideALabel.setAttribute('x', CANVAS_CENTER_X);
+        sideALabel.setAttribute('y', CANVAS_CENTER_Y + 60);
+        sideALabel.setAttribute('text-anchor', 'middle');
+        sideALabel.setAttribute('fill', '#007bff');
+        sideALabel.setAttribute('font-size', '12');
+        sideALabel.setAttribute('font-weight', 'bold');
+        sideALabel.textContent = `Seite A: ${(data.sideA || 4).toFixed(1)}m`;
+        group.appendChild(sideALabel);
+        
+        // Seite B
+        const sideBLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        sideBLabel.setAttribute('x', CANVAS_CENTER_X - a/2 - 40);
+        sideBLabel.setAttribute('y', CANVAS_CENTER_Y + 20);
+        sideBLabel.setAttribute('fill', '#28a745');
+        sideBLabel.setAttribute('font-size', '12');
+        sideBLabel.setAttribute('font-weight', 'bold');
+        sideBLabel.textContent = `Seite B: ${(data.sideB || 5).toFixed(1)}m`;
+        group.appendChild(sideBLabel);
+        
+        // Seite C
+        const sideCLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        sideCLabel.setAttribute('x', CANVAS_CENTER_X + a/2 + 20);
+        sideCLabel.setAttribute('y', CANVAS_CENTER_Y + 20);
+        sideCLabel.setAttribute('fill', '#dc3545');
+        sideCLabel.setAttribute('font-size', '12');
+        sideCLabel.setAttribute('font-weight', 'bold');
+        sideCLabel.textContent = `Seite C: ${(data.sideC || 6).toFixed(1)}m`;
+        group.appendChild(sideCLabel);
+    }
+}
+
+function drawRectangleLabels(group, data) {
+    const width = (data.length || 8) * SCALE_FACTOR;
+    const height = (data.width || 5) * SCALE_FACTOR;
+    
+    // Länge (horizontal)
+    const lengthLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    lengthLabel.setAttribute('x', CANVAS_CENTER_X);
+    lengthLabel.setAttribute('y', CANVAS_CENTER_Y + height/2 + 20);
+    lengthLabel.setAttribute('text-anchor', 'middle');
+    lengthLabel.setAttribute('fill', '#007bff');
+    lengthLabel.setAttribute('font-size', '12');
+    lengthLabel.setAttribute('font-weight', 'bold');
+    lengthLabel.textContent = `Länge: ${(data.length || 8).toFixed(1)}m`;
+    group.appendChild(lengthLabel);
+    
+    // Breite (vertikal)
+    const widthLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    widthLabel.setAttribute('x', CANVAS_CENTER_X - width/2 - 40);
+    widthLabel.setAttribute('y', CANVAS_CENTER_Y);
+    widthLabel.setAttribute('text-anchor', 'middle');
+    widthLabel.setAttribute('fill', '#28a745');
+    widthLabel.setAttribute('font-size', '12');
+    widthLabel.setAttribute('font-weight', 'bold');
+    widthLabel.setAttribute('transform', `rotate(-90, ${CANVAS_CENTER_X - width/2 - 40}, ${CANVAS_CENTER_Y})`);
+    widthLabel.textContent = `Breite: ${(data.width || 5).toFixed(1)}m`;
+    group.appendChild(widthLabel);
+}
+
+function drawSquareLabels(group, data) {
+    const side = (data.side || 5) * SCALE_FACTOR;
+    
+    // Seitenlänge
+    const sideLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    sideLabel.setAttribute('x', CANVAS_CENTER_X);
+    sideLabel.setAttribute('y', CANVAS_CENTER_Y + side/2 + 20);
+    sideLabel.setAttribute('text-anchor', 'middle');
+    sideLabel.setAttribute('fill', '#007bff');
+    sideLabel.setAttribute('font-size', '12');
+    sideLabel.setAttribute('font-weight', 'bold');
+    sideLabel.textContent = `Seitenlänge: ${(data.side || 5).toFixed(1)}m`;
+    group.appendChild(sideLabel);
+}
+
+function drawTrapezLabels(group, data) {
+    const baseA = (data.baseA || 8) * SCALE_FACTOR;
+    const baseB = (data.baseB || 5) * SCALE_FACTOR;
+    const height = (data.height || 4) * SCALE_FACTOR;
+    
+    // Basis A (unten)
+    const baseALabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    baseALabel.setAttribute('x', CANVAS_CENTER_X);
+    baseALabel.setAttribute('y', CANVAS_CENTER_Y + height/2 + 20);
+    baseALabel.setAttribute('text-anchor', 'middle');
+    baseALabel.setAttribute('fill', '#007bff');
+    baseALabel.setAttribute('font-size', '12');
+    baseALabel.setAttribute('font-weight', 'bold');
+    baseALabel.textContent = `Basis A: ${(data.baseA || 8).toFixed(1)}m`;
+    group.appendChild(baseALabel);
+    
+    // Basis B (oben)
+    const baseBLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    baseBLabel.setAttribute('x', CANVAS_CENTER_X);
+    baseBLabel.setAttribute('y', CANVAS_CENTER_Y - height/2 - 10);
+    baseBLabel.setAttribute('text-anchor', 'middle');
+    baseBLabel.setAttribute('fill', '#28a745');
+    baseBLabel.setAttribute('font-size', '12');
+    baseBLabel.setAttribute('font-weight', 'bold');
+    baseBLabel.textContent = `Basis B: ${(data.baseB || 5).toFixed(1)}m`;
+    group.appendChild(baseBLabel);
+    
+    // Höhe
+    const heightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    heightLabel.setAttribute('x', CANVAS_CENTER_X - baseA/2 - 40);
+    heightLabel.setAttribute('y', CANVAS_CENTER_Y);
+    heightLabel.setAttribute('text-anchor', 'middle');
+    heightLabel.setAttribute('fill', '#dc3545');
+    heightLabel.setAttribute('font-size', '12');
+    heightLabel.setAttribute('font-weight', 'bold');
+    heightLabel.setAttribute('transform', `rotate(-90, ${CANVAS_CENTER_X - baseA/2 - 40}, ${CANVAS_CENTER_Y})`);
+    heightLabel.textContent = `Höhe: ${(data.height || 4).toFixed(1)}m`;
+    group.appendChild(heightLabel);
+}
+
+function drawCircleLabels(group, data, variant) {
+    if (variant === 'oval') {
+        // Halbachse A und B
+        const radiusALabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        radiusALabel.setAttribute('x', CANVAS_CENTER_X);
+        radiusALabel.setAttribute('y', CANVAS_CENTER_Y + 80);
+        radiusALabel.setAttribute('text-anchor', 'middle');
+        radiusALabel.setAttribute('fill', '#007bff');
+        radiusALabel.setAttribute('font-size', '12');
+        radiusALabel.setAttribute('font-weight', 'bold');
+        radiusALabel.textContent = `Halbachse A: ${(data.radiusA || 5).toFixed(1)}m`;
+        group.appendChild(radiusALabel);
+        
+        const radiusBLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        radiusBLabel.setAttribute('x', CANVAS_CENTER_X - 120);
+        radiusBLabel.setAttribute('y', CANVAS_CENTER_Y);
+        radiusBLabel.setAttribute('text-anchor', 'middle');
+        radiusBLabel.setAttribute('fill', '#28a745');
+        radiusBLabel.setAttribute('font-size', '12');
+        radiusBLabel.setAttribute('font-weight', 'bold');
+        radiusBLabel.setAttribute('transform', `rotate(-90, ${CANVAS_CENTER_X - 120}, ${CANVAS_CENTER_Y})`);
+        radiusBLabel.textContent = `Halbachse B: ${(data.radiusB || 3).toFixed(1)}m`;
+        group.appendChild(radiusBLabel);
+    } else {
+        // Radius
+        const radiusLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        radiusLabel.setAttribute('x', CANVAS_CENTER_X);
+        radiusLabel.setAttribute('y', CANVAS_CENTER_Y + 80);
+        radiusLabel.setAttribute('text-anchor', 'middle');
+        radiusLabel.setAttribute('fill', '#007bff');
+        radiusLabel.setAttribute('font-size', '12');
+        radiusLabel.setAttribute('font-weight', 'bold');
+        radiusLabel.textContent = `Radius: ${(data.radius || 4).toFixed(1)}m`;
+        group.appendChild(radiusLabel);
+    }
+}
+
+// Weitere Label-Funktionen für andere Formen...
+function drawParallelogrammLabels(group, data) {
+    // Basis, Seite, Höhe beschriften
+    const baseLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    baseLabel.setAttribute('x', CANVAS_CENTER_X);
+    baseLabel.setAttribute('y', CANVAS_CENTER_Y + 80);
+    baseLabel.setAttribute('text-anchor', 'middle');
+    baseLabel.setAttribute('fill', '#007bff');
+    baseLabel.setAttribute('font-size', '12');
+    baseLabel.setAttribute('font-weight', 'bold');
+    baseLabel.textContent = `Basis: ${(data.base || 8).toFixed(1)}m`;
+    group.appendChild(baseLabel);
+}
+
+function drawRhombusLabels(group, data) {
+    // Seitenlänge und Höhe
+    const sideLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    sideLabel.setAttribute('x', CANVAS_CENTER_X);
+    sideLabel.setAttribute('y', CANVAS_CENTER_Y + 80);
+    sideLabel.setAttribute('text-anchor', 'middle');
+    sideLabel.setAttribute('fill', '#007bff');
+    sideLabel.setAttribute('font-size', '12');
+    sideLabel.setAttribute('font-weight', 'bold');
+    sideLabel.textContent = `Seitenlänge: ${(data.side || 5).toFixed(1)}m`;
+    group.appendChild(sideLabel);
 }
 
 function drawTraufeMarking(group, data) {
-    // Vereinfachte Traufe-Markierung - nur eine Linie unten
+    // Vereinfachte Traufe-Markierung - nur eine kleine diskrete Markierung
     const finalShape = determineActualShape();
     
     if (finalShape === 'rechteck' || finalShape === 'quadrat') {
@@ -584,57 +810,26 @@ function drawTraufeMarking(group, data) {
         const x = CANVAS_CENTER_X - width/2;
         const y = CANVAS_CENTER_Y + height/2; // Untere Kante
         
-        // Traufe-Linie (unten)
+        // Kleine Traufe-Markierung (diskret)
         const traufeLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        traufeLine.setAttribute('x1', x - 20);
-        traufeLine.setAttribute('y1', y + 15);
-        traufeLine.setAttribute('x2', x + width + 20);
-        traufeLine.setAttribute('y2', y + 15);
+        traufeLine.setAttribute('x1', x);
+        traufeLine.setAttribute('y1', y + 8);
+        traufeLine.setAttribute('x2', x + width);
+        traufeLine.setAttribute('y2', y + 8);
         traufeLine.setAttribute('stroke', '#dc3545');
-        traufeLine.setAttribute('stroke-width', '3');
-        traufeLine.setAttribute('stroke-dasharray', '8,4');
+        traufeLine.setAttribute('stroke-width', '2');
+        traufeLine.setAttribute('stroke-dasharray', '4,2');
         group.appendChild(traufeLine);
         
-        // Traufe-Label
+        // Kleines Traufe-Label
         const traufeLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        traufeLabel.setAttribute('x', x + width + 30);
-        traufeLabel.setAttribute('y', y + 20);
+        traufeLabel.setAttribute('x', x + width + 10);
+        traufeLabel.setAttribute('y', y + 12);
         traufeLabel.setAttribute('fill', '#dc3545');
-        traufeLabel.setAttribute('font-size', '12');
+        traufeLabel.setAttribute('font-size', '10');
         traufeLabel.setAttribute('font-weight', 'bold');
-        traufeLabel.textContent = 'TRAUFE (Wasserabfluss)';
+        traufeLabel.textContent = 'Traufe';
         group.appendChild(traufeLabel);
-        
-        // First-Label (oben)
-        const firstLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        firstLabel.setAttribute('x', x + width + 30);
-        firstLabel.setAttribute('y', y - height + 5);
-        firstLabel.setAttribute('fill', '#28a745');
-        firstLabel.setAttribute('font-size', '12');
-        firstLabel.setAttribute('font-weight', 'bold');
-        firstLabel.textContent = 'FIRST';
-        group.appendChild(firstLabel);
-        
-        // Wasserfluß-Pfeil
-        const waterArrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        waterArrow.setAttribute('x1', x + width/2);
-        waterArrow.setAttribute('y1', y - height + 10);
-        waterArrow.setAttribute('x2', x + width/2);
-        waterArrow.setAttribute('y2', y - 5);
-        waterArrow.setAttribute('stroke', '#007bff');
-        waterArrow.setAttribute('stroke-width', '2');
-        waterArrow.setAttribute('marker-end', 'url(#arrowhead)');
-        group.appendChild(waterArrow);
-        
-        // Wasserfluss-Label
-        const waterLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        waterLabel.setAttribute('x', x + width/2 + 15);
-        waterLabel.setAttribute('y', y - height/2);
-        waterLabel.setAttribute('fill', '#007bff');
-        waterLabel.setAttribute('font-size', '11');
-        waterLabel.setAttribute('font-weight', 'bold');
-        waterLabel.textContent = '💧 Wasserfluss';
-        group.appendChild(waterLabel);
     }
 }
 
@@ -826,46 +1021,238 @@ function setupToolButtons() {
 }
 
 function selectTraufePosition() {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
+    // Erstelle interaktive Seiten-Auswahl direkt auf der Skizze
+    enableSideSelection();
+    
+    // Zeige Instruktionen
+    showTraufeInstructions();
+}
+
+function enableSideSelection() {
+    // Mache die Form-Seiten klickbar
+    const shapeGroup = document.getElementById('roof-shape');
+    if (!shapeGroup) return;
+    
+    // Füge Event-Listener zu allen Pfaden/Polygonen hinzu
+    const shapes = shapeGroup.querySelectorAll('rect, polygon, circle, ellipse, path');
+    
+    shapes.forEach(shape => {
+        // Mache Form visuell interaktiv
+        shape.style.cursor = 'pointer';
+        shape.style.stroke = '#ffc107';
+        shape.style.strokeWidth = '4';
+        
+        // Füge Click-Handler hinzu
+        shape.addEventListener('click', handleShapeClick);
+    });
+    
+    // Erstelle unsichtbare klickbare Bereiche für jede Seite
+    createClickableEdges();
+}
+
+function createClickableEdges() {
+    const finalShape = determineActualShape();
+    const currentData = getCurrentFormData();
+    
+    if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        createRectangleEdges(currentData);
+    } else if (finalShape === 'dreieck') {
+        createTriangleEdges(currentData);
+    }
+    // Weitere Formen hier...
+}
+
+function createRectangleEdges(data) {
+    let width, height;
+    
+    if (determineActualShape() === 'quadrat') {
+        const side = (data.side || 5) * SCALE_FACTOR;
+        width = height = side;
+    } else {
+        width = (data.length || 8) * SCALE_FACTOR;
+        height = (data.width || 5) * SCALE_FACTOR;
+    }
+    
+    const x = CANVAS_CENTER_X - width/2;
+    const y = CANVAS_CENTER_Y - height/2;
+    
+    // Erstelle klickbare Linien für jede Seite
+    const edges = [
+        { x1: x, y1: y, x2: x + width, y2: y, side: 'top', name: 'Obere Seite' },
+        { x1: x + width, y1: y, x2: x + width, y2: y + height, side: 'right', name: 'Rechte Seite' },
+        { x1: x + width, y1: y + height, x2: x, y2: y + height, side: 'bottom', name: 'Untere Seite' },
+        { x1: x, y1: y + height, x2: x, y2: y, side: 'left', name: 'Linke Seite' }
+    ];
+    
+    edges.forEach(edge => {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', edge.x1);
+        line.setAttribute('y1', edge.y1);
+        line.setAttribute('x2', edge.x2);
+        line.setAttribute('y2', edge.y2);
+        line.setAttribute('stroke', 'transparent');
+        line.setAttribute('stroke-width', '15'); // Dicke unsichtbare Linie für einfaches Klicken
+        line.style.cursor = 'pointer';
+        line.classList.add('clickable-edge');
+        line.dataset.side = edge.side;
+        line.dataset.name = edge.name;
+        
+        // Hover-Effekt
+        line.addEventListener('mouseenter', () => {
+            line.setAttribute('stroke', 'rgba(255, 193, 7, 0.5)');
+            showSideTooltip(edge.name, edge.x1 + (edge.x2 - edge.x1)/2, edge.y1 + (edge.y2 - edge.y1)/2);
+        });
+        
+        line.addEventListener('mouseleave', () => {
+            line.setAttribute('stroke', 'transparent');
+            hideSideTooltip();
+        });
+        
+        line.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectTraufeSide(edge.side, edge.name);
+        });
+        
+        svg.appendChild(line);
+    });
+}
+
+function showSideTooltip(name, x, y) {
+    // Entferne alte Tooltips
+    hideSideTooltip();
+    
+    const tooltip = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    tooltip.id = 'side-tooltip';
+    
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', x - 40);
+    rect.setAttribute('y', y - 15);
+    rect.setAttribute('width', '80');
+    rect.setAttribute('height', '20');
+    rect.setAttribute('fill', '#ffc107');
+    rect.setAttribute('rx', '3');
+    
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', y - 2);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#000');
+    text.setAttribute('font-size', '11');
+    text.setAttribute('font-weight', 'bold');
+    text.textContent = name;
+    
+    tooltip.appendChild(rect);
+    tooltip.appendChild(text);
+    svg.appendChild(tooltip);
+}
+
+function hideSideTooltip() {
+    const tooltip = document.getElementById('side-tooltip');
+    if (tooltip) {
+        tooltip.remove();
+    }
+}
+
+function selectTraufeSide(side, name) {
+    // Entferne Interaktivität
+    disableSideSelection();
+    
+    // Setze Traufe-Position
+    const oldPosition = traufePosition;
+    traufePosition = side;
+    
+    // Rotiere entsprechend
+    switch(side) {
+        case 'top':
+            currentRotation = 180;
+            break;
+        case 'right':
+            currentRotation = 90;
+            break;
+        case 'bottom':
+            currentRotation = 0;
+            break;
+        case 'left':
+            currentRotation = -90;
+            break;
+    }
+    
+    // Aktualisiere die Anzeige
+    updateShape();
+    hideTraufeInstructions();
+    
+    showFeedback(`✅ Traufe festgelegt: ${name} ist jetzt die Traufe (Wasserabfluss)`);
+}
+
+function disableSideSelection() {
+    // Entferne klickbare Kanten
+    const clickableEdges = document.querySelectorAll('.clickable-edge');
+    clickableEdges.forEach(edge => edge.remove());
+    
+    // Entferne Tooltip
+    hideSideTooltip();
+    
+    // Setze Form-Stil zurück
+    const shapeGroup = document.getElementById('roof-shape');
+    if (shapeGroup) {
+        const shapes = shapeGroup.querySelectorAll('rect, polygon, circle, ellipse, path');
+        shapes.forEach(shape => {
+            shape.style.cursor = 'default';
+            shape.style.stroke = '#007bff';
+            shape.style.strokeWidth = '3';
+            shape.removeEventListener('click', handleShapeClick);
+        });
+    }
+}
+
+function handleShapeClick(e) {
+    // Fallback für Gesamtform-Klick
+    e.stopPropagation();
+    showFeedback('Klicken Sie auf eine spezifische Seite der Form');
+}
+
+function showTraufeInstructions() {
+    const instructions = document.createElement('div');
+    instructions.id = 'traufe-instructions';
+    instructions.style.cssText = `
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.7);
-        z-index: 10000;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: white;
-        font-family: Arial, sans-serif;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ffc107;
+        color: #000;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 1000;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        border: 2px solid #e6ac00;
     `;
     
-    overlay.innerHTML = `
-        <h3 style="margin-bottom: 20px; font-size: 24px; text-align: center;">🏠 Welche Seite ist die Traufe?</h3>
-        <p style="margin-bottom: 30px; text-align: center; font-size: 16px; max-width: 500px; line-height: 1.4;">
-            Die <strong>Traufe</strong> ist die Seite des Daches, wo das Regenwasser abfließt.<br>
-            Schauen Sie sich Ihre Form im Editor an und wählen Sie aus:
-        </p>
-        
-        <!-- Zeige die aktuelle Form als Referenz -->
-        <div style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-            <p style="text-align: center; margin-bottom: 10px; font-size: 14px;">Ihre aktuelle Form:</p>
-            <div style="width: 120px; height: 80px; border: 2px solid white; margin: 0 auto; position: relative; background: rgba(0,123,255,0.3);">
-                <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 12px;">OBEN</div>
-                <div style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 12px;">UNTEN</div>
-                <div style="position: absolute; left: -30px; top: 50%; transform: translateY(-50%); font-size: 12px;">LINKS</div>
-                <div style="position: absolute; right: -30px; top: 50%; transform: translateY(-50%); font-size: 12px;">RECHTS</div>
-            </div>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
-            <button onclick="setTraufePosition('top')" style="padding: 15px 25px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
-                ↑<br><strong>Obere Seite</strong><br><small>ist die Traufe</small>
-            </button>
-            <button onclick="setTraufePosition('bottom')" style="padding: 15px 25px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #28a745; color: white; text-align: center;">
+    instructions.innerHTML = `
+        🏠 <strong>Traufe auswählen:</strong> Klicken Sie auf die Seite der Form, die die Traufe (Wasserabfluss) werden soll
+        <br><small>Bewegen Sie die Maus über die Seiten und klicken Sie auf die gewünschte</small>
+        <button onclick="cancelTraufeSelection()" style="margin-left: 15px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Abbrechen</button>
+    `;
+    
+    document.body.appendChild(instructions);
+}
+
+function hideTraufeInstructions() {
+    const instructions = document.getElementById('traufe-instructions');
+    if (instructions) {
+        instructions.remove();
+    }
+}
+
+// Globale Funktion für Abbrechen-Button
+window.cancelTraufeSelection = function() {
+    disableSideSelection();
+    hideTraufeInstructions();
+    showFeedback('Traufe-Auswahl abgebrochen');
+}; white; text-align: center;">
                 ↓<br><strong>Untere Seite</strong><br><small>ist die Traufe</small>
             </button>
             <button onclick="setTraufePosition('left')" style="padding: 15px 25px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
