@@ -1,21 +1,12 @@
-// editor.js – Vollständiger Smart Geometry Editor mit Modulen
-
-import * as Dreieck from './figures/dreieck.js';
-import * as Rechteck from './figures/rechteck.js';
-import * as Kreis from './figures/kreis.js';
-import * as Vieleck from './figures/vieleck.js';
-import * as Trapez from './figures/trapez.js';
-import * as Rhombus from './figures/rhombus.js';
-import * as Langloch from './figures/langloch.js';
+// editor.js – Reparierte Version ohne Module-Imports
 
 // Globale Variablen
 let projectData = {};
 let currentPoints = [];
-let currentModule = null;
 let currentShape = '';
 let currentVariant = '';
 let waterFlowDirection = 'bottom';
-let svg, canvas, ctx;
+let svg;
 
 // Konstanten
 const CANVAS_WIDTH = 600;
@@ -25,24 +16,31 @@ const CANVAS_CENTER_Y = 200;
 const SCALE_FACTOR = 10; // 1 Meter = 10 Pixel
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Editor wird initialisiert...');
+    console.log('=== EDITOR WIRD INITIALISIERT ===');
     
-    // Projektdaten laden
-    loadProjectData();
-    
-    // Canvas und SVG initialisieren
-    initializeCanvas();
-    
-    // UI initialisieren
-    initializeUI();
-    
-    // Form laden und zeichnen
-    loadAndDrawShape();
-    
-    // Event Listeners einrichten
-    setupEventListeners();
-    
-    console.log('Editor erfolgreich initialisiert');
+    // Kleine Verzögerung für DOM-Ladung
+    setTimeout(() => {
+        try {
+            // Projektdaten laden
+            loadProjectData();
+            
+            // Canvas und SVG initialisieren
+            initializeCanvas();
+            
+            // UI initialisieren
+            initializeUI();
+            
+            // Form laden und zeichnen
+            loadAndDrawShape();
+            
+            // Event Listeners einrichten
+            setupEventListeners();
+            
+            console.log('✅ Editor erfolgreich initialisiert');
+        } catch (error) {
+            console.error('❌ Fehler bei Editor-Initialisierung:', error);
+        }
+    }, 100);
 });
 
 function loadProjectData() {
@@ -97,18 +95,77 @@ function loadProjectData() {
 }
 
 function initializeCanvas() {
+    console.log('=== INITIALISIERE CANVAS ===');
+    
     // SVG Element holen
     svg = document.getElementById('main-svg');
     
     if (!svg) {
-        console.error('SVG Element nicht gefunden!');
+        console.error('❌ SVG Element nicht gefunden!');
+        // Fallback: Canvas dynamisch erstellen falls nicht vorhanden
+        createFallbackCanvas();
         return;
     }
     
-    console.log('Canvas initialisiert');
+    console.log('✅ SVG Element gefunden:', svg);
+}
+
+function createFallbackCanvas() {
+    console.log('Erstelle Fallback-Canvas...');
+    
+    // Finde Container
+    const container = document.querySelector('.canvas-container') || 
+                     document.querySelector('.editor-section') ||
+                     document.querySelector('main');
+    
+    if (!container) {
+        console.error('❌ Kein geeigneter Container gefunden');
+        return;
+    }
+    
+    // Erstelle Canvas-Wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'canvas-wrapper';
+    wrapper.style.cssText = `
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        background: white;
+        width: 600px;
+        height: 400px;
+        margin: 20px auto;
+        position: relative;
+    `;
+    
+    // Erstelle SVG
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.id = 'main-svg';
+    svg.setAttribute('width', '600');
+    svg.setAttribute('height', '400');
+    svg.setAttribute('viewBox', '0 0 600 400');
+    
+    // Grid-Pattern hinzufügen
+    svg.innerHTML = `
+        <defs>
+            <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
+                <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+        <line x1="300" y1="0" x2="300" y2="400" stroke="#c0c0c0" stroke-width="2"/>
+        <line x1="0" y1="200" x2="600" y2="200" stroke="#c0c0c0" stroke-width="2"/>
+        <g id="roof-shape"></g>
+        <g id="dimensions"></g>
+    `;
+    
+    wrapper.appendChild(svg);
+    container.appendChild(wrapper);
+    
+    console.log('✅ Fallback-Canvas erstellt');
 }
 
 function initializeUI() {
+    console.log('=== INITIALISIERE UI ===');
+    
     // Profil-Info anzeigen
     displayProfileInfo();
     
@@ -117,13 +174,31 @@ function initializeUI() {
 }
 
 function displayProfileInfo() {
-    const profile = projectData.profile;
-    if (!profile) return;
+    console.log('=== ZEIGE PROFIL-INFO ===');
     
-    document.getElementById('current-profile-name').textContent = profile.profilname || 'Standard';
-    document.getElementById('current-deckbreite').textContent = `${profile.deckbreite || 1000} mm`;
-    document.getElementById('current-lieferbreite').textContent = `${profile.lieferbreite || 1050} mm`;
-    document.getElementById('current-seitenueberlappung').textContent = `${profile.seitenueberlappung || 50} mm`;
+    const profile = projectData.profile;
+    if (!profile) {
+        console.log('❌ Keine Profil-Daten zum Anzeigen');
+        return;
+    }
+    
+    // Sichere Element-Zugriffe
+    const elements = {
+        'current-profile-name': profile.profilname || 'Standard',
+        'current-deckbreite': `${profile.deckbreite || 1000} mm`,
+        'current-lieferbreite': `${profile.lieferbreite || 1050} mm`,
+        'current-seitenueberlappung': `${profile.seitenueberlappung || 50} mm`
+    };
+    
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+            console.log(`✅ ${id} gesetzt: ${value}`);
+        } else {
+            console.log(`⚠️ Element ${id} nicht gefunden`);
+        }
+    });
 }
 
 function updateShapeTitle() {
@@ -148,13 +223,20 @@ function updateShapeTitle() {
     };
     
     const shapeName = shapeNames[roofShape.variant] || shapeNames[roofShape.baseShape] || 'Unbekannt';
-    document.getElementById('current-shape-name').textContent = shapeName;
+    
+    const element = document.getElementById('current-shape-name');
+    if (element) {
+        element.textContent = shapeName;
+        console.log('✅ Shape-Name gesetzt:', shapeName);
+    }
 }
 
 function loadAndDrawShape() {
+    console.log('=== LADE UND ZEICHNE FORM ===');
+    
     const roofShape = projectData.roofShape;
     if (!roofShape) {
-        console.error('Keine Dachform-Daten gefunden');
+        console.error('❌ Keine Dachform-Daten gefunden');
         return;
     }
     
@@ -163,189 +245,119 @@ function loadAndDrawShape() {
     
     console.log('Lade Form:', currentShape, currentVariant);
     
-    // Passenden Modul laden
-    switch (currentShape) {
-        case 'dreieck':
-            currentModule = Dreieck;
-            break;
-        case 'rechteck':
-        case 'quadrat':
-            currentModule = Rechteck;
-            break;
-        case 'kreis':
-        case 'halbkreis':
-        case 'viertelkreis':
-        case 'oval':
-        case 'langloch':
-            if (currentVariant === 'langloch') {
-                currentModule = Langloch;
-            } else {
-                currentModule = Kreis;
-            }
-            break;
-        case 'trapez':
-            currentModule = Trapez;
-            break;
-        case 'rhombus':
-            currentModule = Rhombus;
-            break;
-        case 'fuenfeck':
-        case 'sechseck':
-        case 'achteck':
-        case 'vieleck':
-            currentModule = Vieleck;
-            break;
-        default:
-            console.warn('Unbekannte Form:', currentShape);
-            currentModule = Rechteck; // Fallback
-    }
-    
     // Eingabefelder erstellen
-    if (currentModule && currentModule.init) {
-        currentModule.init({
-            ...roofShape,
-            variant: currentVariant
-        });
-    }
-    
-    // Standardwerte setzen falls nicht vorhanden
-    setDefaultValues();
+    createInputFields();
     
     // Initial zeichnen
     updateShape();
 }
 
-function setDefaultValues() {
-    // Setze Standardwerte basierend auf der Form
+function createInputFields() {
+    console.log('=== ERSTELLE EINGABEFELDER ===');
+    
+    const container = document.getElementById('geometry-inputs-grid');
+    if (!container) {
+        console.error('❌ Eingabefeld-Container nicht gefunden');
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    // Eingabefelder basierend auf Form
     switch (currentShape) {
         case 'rechteck':
         case 'quadrat':
-            if (!document.getElementById('length').value) {
-                document.getElementById('length').value = '10';
-            }
-            if (!document.getElementById('width').value) {
-                document.getElementById('width').value = '6';
-            }
+            container.appendChild(createInput('Länge (m)', 'length', '10'));
+            container.appendChild(createInput('Breite (m)', 'width', '6'));
             break;
             
         case 'kreis':
-            if (!document.getElementById('radius').value) {
-                document.getElementById('radius').value = '5';
-            }
+            container.appendChild(createInput('Radius (m)', 'radius', '5'));
             break;
             
         case 'dreieck':
-            if (currentVariant === 'gleichseitig' && !document.getElementById('side').value) {
-                document.getElementById('side').value = '8';
+            if (currentVariant === 'gleichseitig') {
+                container.appendChild(createInput('Seitenlänge (m)', 'side', '8'));
             } else if (currentVariant === 'rechtwinklig') {
-                if (!document.getElementById('katheteA').value) {
-                    document.getElementById('katheteA').value = '6';
-                }
-                if (!document.getElementById('katheteB').value) {
-                    document.getElementById('katheteB').value = '8';
-                }
+                container.appendChild(createInput('Kathete A (m)', 'katheteA', '6'));
+                container.appendChild(createInput('Kathete B (m)', 'katheteB', '8'));
+            } else {
+                container.appendChild(createInput('Seite A (m)', 'sideA', '6'));
+                container.appendChild(createInput('Seite B (m)', 'sideB', '8'));
+                container.appendChild(createInput('Seite C (m)', 'sideC', '10'));
             }
             break;
             
         case 'trapez':
-            if (!document.getElementById('baseA').value) {
-                document.getElementById('baseA').value = '10';
-            }
-            if (!document.getElementById('baseB').value) {
-                document.getElementById('baseB').value = '6';
-            }
-            if (!document.getElementById('height').value) {
-                document.getElementById('height').value = '5';
-            }
+            container.appendChild(createInput('Basis A (m)', 'baseA', '10'));
+            container.appendChild(createInput('Basis B (m)', 'baseB', '6'));
+            container.appendChild(createInput('Höhe (m)', 'height', '5'));
             break;
+            
+        default:
+            container.appendChild(createInput('Länge (m)', 'length', '10'));
+            container.appendChild(createInput('Breite (m)', 'width', '6'));
     }
+    
+    console.log('✅ Eingabefelder erstellt für:', currentShape);
+}
+
+function createInput(labelText, id, defaultValue = '') {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'input-group';
+    
+    const label = document.createElement('label');
+    label.textContent = labelText;
+    
+    const inputWrapper = document.createElement('div');
+    inputWrapper.className = 'input-group-wrapper';
+    
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.id = id;
+    input.value = defaultValue;
+    input.step = '0.1';
+    input.min = '0.1';
+    input.addEventListener('input', updateShape);
+    input.addEventListener('change', updateShape);
+    
+    const unit = document.createElement('span');
+    unit.className = 'input-unit';
+    unit.textContent = 'm';
+    
+    inputWrapper.appendChild(input);
+    inputWrapper.appendChild(unit);
+    wrapper.appendChild(label);
+    wrapper.appendChild(inputWrapper);
+    
+    return wrapper;
 }
 
 function updateShape() {
-    if (!svg || !currentModule) return;
+    console.log('=== AKTUALISIERE FORM ===');
+    
+    if (!svg) {
+        console.log('❌ SVG nicht verfügbar');
+        return;
+    }
     
     // SVG Form-Gruppe leeren
     const shapeGroup = document.getElementById('roof-shape');
-    shapeGroup.innerHTML = '';
-    
-    // Aktuelle Daten sammeln
-    const currentData = getCurrentFormData();
-    
-    // Canvas Context für Module-Zeichnung simulieren
-    const canvasCtx = createSVGCanvasContext(shapeGroup);
-    
-    // Modul-spezifische Zeichnung
-    if (currentModule.draw) {
-        currentModule.draw(canvasCtx, currentData);
-    } else if (currentModule.drawTriangle) {
-        // Spezialfall für Dreieck
-        currentModule.drawTriangle(canvasCtx, currentData);
+    if (shapeGroup) {
+        shapeGroup.innerHTML = '';
+        
+        // Aktuelle Daten sammeln
+        const currentData = getCurrentFormData();
+        console.log('Aktuelle Form-Daten:', currentData);
+        
+        // Einfache Form zeichnen
+        drawShape(shapeGroup, currentData);
+        
+        // Berechnungen aktualisieren
+        updateCalculations(currentData);
+        
+        console.log('✅ Form aktualisiert');
     }
-    
-    // Bemaßung hinzufügen
-    updateDimensions(currentData);
-    
-    // Berechnungen aktualisieren
-    updateCalculations(currentData);
-    
-    // Verlegerichtung bestimmen
-    determinePreferredDirection();
-    
-    console.log('Form aktualisiert:', currentData);
-}
-
-function createSVGCanvasContext(svgGroup) {
-    // Simuliert Canvas-API für SVG
-    return {
-        beginPath: () => {
-            // Neue Path beginnen
-        },
-        moveTo: (x, y) => {
-            this.currentPath = `M ${x + CANVAS_CENTER_X} ${y + CANVAS_CENTER_Y}`;
-        },
-        lineTo: (x, y) => {
-            this.currentPath += ` L ${x + CANVAS_CENTER_X} ${y + CANVAS_CENTER_Y}`;
-        },
-        closePath: () => {
-            this.currentPath += ' Z';
-        },
-        rect: (x, y, width, height) => {
-            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            rect.setAttribute('x', x + CANVAS_CENTER_X);
-            rect.setAttribute('y', y + CANVAS_CENTER_Y);
-            rect.setAttribute('width', width);
-            rect.setAttribute('height', height);
-            rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-            rect.setAttribute('stroke', '#007bff');
-            rect.setAttribute('stroke-width', '2');
-            svgGroup.appendChild(rect);
-        },
-        arc: (x, y, radius, startAngle, endAngle) => {
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('cx', x + CANVAS_CENTER_X);
-            circle.setAttribute('cy', y + CANVAS_CENTER_Y);
-            circle.setAttribute('r', radius);
-            circle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-            circle.setAttribute('stroke', '#007bff');
-            circle.setAttribute('stroke-width', '2');
-            svgGroup.appendChild(circle);
-        },
-        arcTo: (x1, y1, x2, y2, radius) => {
-            // Vereinfachte arcTo Implementation
-            this.currentPath += ` L ${x2 + CANVAS_CENTER_X} ${y2 + CANVAS_CENTER_Y}`;
-        },
-        stroke: () => {
-            if (this.currentPath) {
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path.setAttribute('d', this.currentPath);
-                path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-                path.setAttribute('stroke', '#007bff');
-                path.setAttribute('stroke-width', '2');
-                svgGroup.appendChild(path);
-                this.currentPath = '';
-            }
-        }
-    };
 }
 
 function getCurrentFormData() {
@@ -358,8 +370,6 @@ function getCurrentFormData() {
             const numValue = parseFloat(input.value);
             if (!isNaN(numValue)) {
                 data[input.id] = numValue;
-            } else {
-                data[input.id] = input.value;
             }
         }
     });
@@ -367,78 +377,83 @@ function getCurrentFormData() {
     return data;
 }
 
-function updateDimensions(data) {
-    const dimensionsGroup = document.getElementById('dimensions');
-    dimensionsGroup.innerHTML = '';
+function drawShape(group, data) {
+    console.log('=== ZEICHNE FORM ===', currentShape, data);
     
-    // Einfache Bemaßung basierend auf Form
     switch (currentShape) {
         case 'rechteck':
         case 'quadrat':
-            addRectangleDimensions(dimensionsGroup, data);
+            drawRectangle(group, data);
             break;
         case 'kreis':
-            addCircleDimensions(dimensionsGroup, data);
+            drawCircle(group, data);
             break;
+        case 'dreieck':
+            drawTriangle(group, data);
+            break;
+        default:
+            drawRectangle(group, data); // Fallback
     }
 }
 
-function addRectangleDimensions(group, data) {
+function drawRectangle(group, data) {
     const length = (data.length || 10) * SCALE_FACTOR;
     const width = (data.width || 6) * SCALE_FACTOR;
     
-    // Längen-Bemaßung (horizontal)
-    const lengthLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    lengthLine.setAttribute('x1', CANVAS_CENTER_X - length/2);
-    lengthLine.setAttribute('y1', CANVAS_CENTER_Y + width/2 + 20);
-    lengthLine.setAttribute('x2', CANVAS_CENTER_X + length/2);
-    lengthLine.setAttribute('y2', CANVAS_CENTER_Y + width/2 + 20);
-    lengthLine.setAttribute('class', 'dimension-line');
-    group.appendChild(lengthLine);
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', CANVAS_CENTER_X - length/2);
+    rect.setAttribute('y', CANVAS_CENTER_Y - width/2);
+    rect.setAttribute('width', length);
+    rect.setAttribute('height', width);
+    rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    rect.setAttribute('stroke', '#007bff');
+    rect.setAttribute('stroke-width', '2');
+    group.appendChild(rect);
     
-    const lengthText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    lengthText.setAttribute('x', CANVAS_CENTER_X);
-    lengthText.setAttribute('y', CANVAS_CENTER_Y + width/2 + 35);
-    lengthText.setAttribute('class', 'dimension-text');
-    lengthText.textContent = `${data.length || 10} m`;
-    group.appendChild(lengthText);
-    
-    // Breiten-Bemaßung (vertikal)
-    const widthLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    widthLine.setAttribute('x1', CANVAS_CENTER_X - length/2 - 20);
-    widthLine.setAttribute('y1', CANVAS_CENTER_Y - width/2);
-    widthLine.setAttribute('x2', CANVAS_CENTER_X - length/2 - 20);
-    widthLine.setAttribute('y2', CANVAS_CENTER_Y + width/2);
-    widthLine.setAttribute('class', 'dimension-line');
-    group.appendChild(widthLine);
-    
-    const widthText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    widthText.setAttribute('x', CANVAS_CENTER_X - length/2 - 35);
-    widthText.setAttribute('y', CANVAS_CENTER_Y);
-    widthText.setAttribute('class', 'dimension-text');
-    widthText.setAttribute('transform', `rotate(-90, ${CANVAS_CENTER_X - length/2 - 35}, ${CANVAS_CENTER_Y})`);
-    widthText.textContent = `${data.width || 6} m`;
-    group.appendChild(widthText);
+    console.log('✅ Rechteck gezeichnet:', length, 'x', width);
 }
 
-function addCircleDimensions(group, data) {
+function drawCircle(group, data) {
     const radius = (data.radius || 5) * SCALE_FACTOR;
     
-    // Durchmesser-Linie
-    const diameterLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    diameterLine.setAttribute('x1', CANVAS_CENTER_X - radius);
-    diameterLine.setAttribute('y1', CANVAS_CENTER_Y);
-    diameterLine.setAttribute('x2', CANVAS_CENTER_X + radius);
-    diameterLine.setAttribute('y2', CANVAS_CENTER_Y);
-    diameterLine.setAttribute('class', 'dimension-line');
-    group.appendChild(diameterLine);
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', CANVAS_CENTER_X);
+    circle.setAttribute('cy', CANVAS_CENTER_Y);
+    circle.setAttribute('r', radius);
+    circle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    circle.setAttribute('stroke', '#007bff');
+    circle.setAttribute('stroke-width', '2');
+    group.appendChild(circle);
     
-    const diameterText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    diameterText.setAttribute('x', CANVAS_CENTER_X);
-    diameterText.setAttribute('y', CANVAS_CENTER_Y - 10);
-    diameterText.setAttribute('class', 'dimension-text');
-    diameterText.textContent = `⌀ ${(data.radius || 5) * 2} m`;
-    group.appendChild(diameterText);
+    console.log('✅ Kreis gezeichnet, Radius:', radius);
+}
+
+function drawTriangle(group, data) {
+    let points = '';
+    
+    if (currentVariant === 'gleichseitig') {
+        const side = (data.side || 8) * SCALE_FACTOR;
+        const height = side * Math.sqrt(3) / 2;
+        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - side/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + side/2},${CANVAS_CENTER_Y + height/2}`;
+    } else if (currentVariant === 'rechtwinklig') {
+        const a = (data.katheteA || 6) * SCALE_FACTOR;
+        const b = (data.katheteB || 8) * SCALE_FACTOR;
+        points = `${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X + a/2},${CANVAS_CENTER_Y + b/2} ${CANVAS_CENTER_X - a/2},${CANVAS_CENTER_Y - b/2}`;
+    } else {
+        // Allgemeines Dreieck
+        const base = 80;
+        const height = 60;
+        points = `${CANVAS_CENTER_X},${CANVAS_CENTER_Y - height/2} ${CANVAS_CENTER_X - base/2},${CANVAS_CENTER_Y + height/2} ${CANVAS_CENTER_X + base/2},${CANVAS_CENTER_Y + height/2}`;
+    }
+    
+    const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    triangle.setAttribute('points', points);
+    triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    triangle.setAttribute('stroke', '#007bff');
+    triangle.setAttribute('stroke-width', '2');
+    group.appendChild(triangle);
+    
+    console.log('✅ Dreieck gezeichnet');
 }
 
 function updateCalculations(data) {
@@ -473,108 +488,62 @@ function updateCalculations(data) {
                 perimeter = a + b + Math.sqrt(a*a + b*b);
             }
             break;
-            
-        case 'trapez':
-            const baseA = data.baseA || 10;
-            const baseB = data.baseB || 6;
-            const height = data.height || 5;
-            area = 0.5 * (baseA + baseB) * height;
-            // Vereinfachte Umfang-Berechnung
-            perimeter = baseA + baseB + 2 * Math.sqrt(height*height + ((baseA-baseB)/2)*((baseA-baseB)/2));
-            break;
     }
     
     // Anzeige aktualisieren
-    document.getElementById('calc-area').textContent = `${area.toFixed(2)} m²`;
-    document.getElementById('calc-perimeter').textContent = `${perimeter.toFixed(2)} m`;
-}
-
-function determinePreferredDirection() {
-    const data = getCurrentFormData();
-    let direction = 'längs';
-    let reason = 'Standard-Verlegerichtung';
+    const areaElement = document.getElementById('calc-area');
+    const perimeterElement = document.getElementById('calc-perimeter');
     
-    // Intelligente Richtungsbestimmung
-    if (currentShape === 'rechteck' || currentShape === 'quadrat') {
-        const length = data.length || 10;
-        const width = data.width || 6;
-        
-        if (length > width * 1.5) {
-            direction = 'quer';
-            reason = 'Lange schmale Form → Querverlegung optimiert Materialverbrauch';
-        } else if (width > length * 1.5) {
-            direction = 'längs';
-            reason = 'Hohe schmale Form → Längsverlegung optimiert Materialverbrauch';
-        } else {
-            direction = 'längs';
-            reason = 'Ausgewogene Proportionen → Längsverlegung bevorzugt';
-        }
-    }
-    
-    // Anzeige aktualisieren
-    document.getElementById('current-direction').textContent = direction;
-    document.getElementById('direction-reason').textContent = reason;
+    if (areaElement) areaElement.textContent = `${area.toFixed(2)} m²`;
+    if (perimeterElement) perimeterElement.textContent = `${perimeter.toFixed(2)} m`;
 }
 
 function setupEventListeners() {
-    // Navigation
-    document.getElementById('btn-back').addEventListener('click', () => {
-        saveCurrentData();
-        window.location.href = 'dachform.html';
-    });
+    console.log('=== SETUP EVENT LISTENERS ===');
     
-    document.getElementById('btn-continue').addEventListener('click', () => {
-        saveCurrentData();
-        window.location.href = 'berechnung.html';
-    });
+    // Navigation
+    const backBtn = document.getElementById('btn-back');
+    const continueBtn = document.getElementById('btn-continue');
+    
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            saveCurrentData();
+            window.location.href = 'dachform.html';
+        });
+    }
+    
+    if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+            saveCurrentData();
+            window.location.href = 'berechnung.html';
+        });
+    }
     
     // Tools
-    document.getElementById('btn-mirror-horizontal').addEventListener('click', mirrorHorizontal);
-    document.getElementById('btn-mirror-vertical').addEventListener('click', mirrorVertical);
-    document.getElementById('btn-rotate-left').addEventListener('click', () => rotateShape(-45));
-    document.getElementById('btn-rotate-right').addEventListener('click', () => rotateShape(45));
-    document.getElementById('btn-reset').addEventListener('click', resetShape);
-    
-    // Eingabefeld-Updates (delegierte Events)
-    document.addEventListener('input', (e) => {
-        if (e.target.closest('#geometry-inputs-grid')) {
+    const tools = {
+        'btn-mirror-horizontal': () => console.log('Horizontal spiegeln'),
+        'btn-mirror-vertical': () => console.log('Vertikal spiegeln'),
+        'btn-rotate-left': () => console.log('Links rotieren'),
+        'btn-rotate-right': () => console.log('Rechts rotieren'),
+        'btn-reset': () => {
+            console.log('Form zurücksetzen');
             updateShape();
+        }
+    };
+    
+    Object.entries(tools).forEach(([id, handler]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('click', handler);
         }
     });
     
-    document.addEventListener('change', (e) => {
-        if (e.target.closest('#geometry-inputs-grid')) {
-            updateShape();
-        }
-    });
-}
-
-function mirrorHorizontal() {
-    console.log('Horizontal spiegeln');
-    // TODO: Implementierung für komplexere Formen
-    updateShape();
-}
-
-function mirrorVertical() {
-    console.log('Vertikal spiegeln');
-    // TODO: Implementierung für komplexere Formen
-    updateShape();
-}
-
-function rotateShape(degrees) {
-    console.log(`Rotiere um ${degrees}°`);
-    // TODO: Implementierung für komplexere Formen
-    updateShape();
-}
-
-function resetShape() {
-    console.log('Form zurücksetzen');
-    setDefaultValues();
-    updateShape();
+    console.log('✅ Event Listeners eingerichtet');
 }
 
 function saveCurrentData() {
-    // Aktuelle Eingaben in projectData speichern
+    console.log('=== SPEICHERE AKTUELLE DATEN ===');
+    
     const currentData = getCurrentFormData();
     
     if (!projectData.roofShape) {
@@ -587,42 +556,12 @@ function saveCurrentData() {
     // In Storage speichern
     try {
         localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-        console.log('Daten gespeichert:', projectData);
+        console.log('✅ Daten gespeichert:', projectData);
     } catch (e) {
         sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
     }
 }
 
-// Utility-Funktionen
-function convertToSVGCoordinates(x, y) {
-    return {
-        x: x * SCALE_FACTOR + CANVAS_CENTER_X,
-        y: y * SCALE_FACTOR + CANVAS_CENTER_Y
-    };
-}
-
-function getShapePoints(data) {
-    // Generiert Punkte basierend auf der aktuellen Form
-    const points = [];
-    
-    switch (currentShape) {
-        case 'rechteck':
-        case 'quadrat':
-            const length = data.length || 10;
-            const width = data.width || 6;
-            points.push(
-                { x: -length/2, y: -width/2 },
-                { x: length/2, y: -width/2 },
-                { x: length/2, y: width/2 },
-                { x: -length/2, y: width/2 }
-            );
-            break;
-    }
-    
-    return points.map(p => convertToSVGCoordinates(p.x, p.y));
-}
-
 // Export für globalen Zugriff
 window.updateShape = updateShape;
-window.determinePreferredDirection = determinePreferredDirection;
-window.currentPoints = currentPoints;
+console.log('✅ Editor-Script geladen');
