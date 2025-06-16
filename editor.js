@@ -476,15 +476,9 @@ function updateShape() {
     // Zeichne die Grundform
     drawTransformedShape(shapeGroup, currentData);
     
-    // Zeichne Beschriftungen (optional)
-    if (labelsGroup) {
-        drawLabelsAndAnnotations(labelsGroup, currentData);
-    }
-    
-    // Zeichne Wasserfluss (optional)
-    if (waterFlowGroup) {
-        drawWaterFlowIndication(waterFlowGroup, currentData);
-    }
+    // Zeichne IMMER Beschriftungen - direkt in die shapeGroup wenn nötig
+    const targetGroup = labelsGroup || shapeGroup;
+    drawLabelsAndAnnotations(targetGroup, currentData);
     
     // Aktualisiere Berechnungen
     updateCalculations(currentData);
@@ -540,38 +534,108 @@ function drawTransformedShape(group, data) {
 }
 
 function drawLabelsAndAnnotations(group, data) {
-    // Zeichne Traufe-Markierung
-    drawTraufeMarking(group);
-    
-    // Zeichne Bemaßung
+    // Zeichne IMMER Bemaßung für die Form
     drawDimensions(group, data);
+    
+    // Zeichne Traufe-Markierung
+    drawTraufeMarking(group, data);
+    
+    // Zeichne Koordinatenachsen-Labels
+    drawAxisLabels(group);
 }
 
-function drawTraufeMarking(group) {
-    // Markiere die Traufe (untere Kante) mit einer speziellen Linie
-    const traufeY = CANVAS_CENTER_Y + 100; // Untere Kante der Form (vereinfacht)
+function drawAxisLabels(group) {
+    // X-Achse Label (Länge)
+    const xLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    xLabel.setAttribute('x', CANVAS_CENTER_X + 120);
+    xLabel.setAttribute('y', CANVAS_CENTER_Y + 5);
+    xLabel.setAttribute('fill', '#666');
+    xLabel.setAttribute('font-size', '12');
+    xLabel.setAttribute('font-weight', 'bold');
+    xLabel.textContent = 'Länge →';
+    group.appendChild(xLabel);
     
-    const traufeLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    traufeLine.setAttribute('x1', CANVAS_CENTER_X - 150);
-    traufeLine.setAttribute('y1', traufeY);
-    traufeLine.setAttribute('x2', CANVAS_CENTER_X + 150);
-    traufeLine.setAttribute('y2', traufeY);
-    traufeLine.setAttribute('stroke', '#dc3545');
-    traufeLine.setAttribute('stroke-width', '4');
-    traufeLine.setAttribute('stroke-dasharray', '10,5');
+    // Y-Achse Label (Breite)
+    const yLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    yLabel.setAttribute('x', CANVAS_CENTER_X + 5);
+    yLabel.setAttribute('y', CANVAS_CENTER_Y - 120);
+    yLabel.setAttribute('fill', '#666');
+    yLabel.setAttribute('font-size', '12');
+    yLabel.setAttribute('font-weight', 'bold');
+    yLabel.textContent = '↑ Breite';
+    group.appendChild(yLabel);
+}
+
+function drawTraufeMarking(group, data) {
+    // Vereinfachte Traufe-Markierung - nur eine Linie unten
+    const finalShape = determineActualShape();
     
-    group.appendChild(traufeLine);
-    
-    // Label für Traufe
-    const traufeLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    traufeLabel.setAttribute('x', CANVAS_CENTER_X + 160);
-    traufeLabel.setAttribute('y', traufeY + 5);
-    traufeLabel.setAttribute('fill', '#dc3545');
-    traufeLabel.setAttribute('font-size', '14');
-    traufeLabel.setAttribute('font-weight', 'bold');
-    traufeLabel.textContent = 'TRAUFE';
-    
-    group.appendChild(traufeLabel);
+    if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        let width, height;
+        
+        if (finalShape === 'quadrat') {
+            const side = (data.side || 5) * SCALE_FACTOR;
+            width = height = side;
+        } else {
+            width = (data.length || 8) * SCALE_FACTOR;
+            height = (data.width || 5) * SCALE_FACTOR;
+        }
+        
+        const x = CANVAS_CENTER_X - width/2;
+        const y = CANVAS_CENTER_Y + height/2; // Untere Kante
+        
+        // Traufe-Linie (unten)
+        const traufeLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        traufeLine.setAttribute('x1', x - 20);
+        traufeLine.setAttribute('y1', y + 15);
+        traufeLine.setAttribute('x2', x + width + 20);
+        traufeLine.setAttribute('y2', y + 15);
+        traufeLine.setAttribute('stroke', '#dc3545');
+        traufeLine.setAttribute('stroke-width', '3');
+        traufeLine.setAttribute('stroke-dasharray', '8,4');
+        group.appendChild(traufeLine);
+        
+        // Traufe-Label
+        const traufeLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        traufeLabel.setAttribute('x', x + width + 30);
+        traufeLabel.setAttribute('y', y + 20);
+        traufeLabel.setAttribute('fill', '#dc3545');
+        traufeLabel.setAttribute('font-size', '12');
+        traufeLabel.setAttribute('font-weight', 'bold');
+        traufeLabel.textContent = 'TRAUFE (Wasserabfluss)';
+        group.appendChild(traufeLabel);
+        
+        // First-Label (oben)
+        const firstLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        firstLabel.setAttribute('x', x + width + 30);
+        firstLabel.setAttribute('y', y - height + 5);
+        firstLabel.setAttribute('fill', '#28a745');
+        firstLabel.setAttribute('font-size', '12');
+        firstLabel.setAttribute('font-weight', 'bold');
+        firstLabel.textContent = 'FIRST';
+        group.appendChild(firstLabel);
+        
+        // Wasserfluß-Pfeil
+        const waterArrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        waterArrow.setAttribute('x1', x + width/2);
+        waterArrow.setAttribute('y1', y - height + 10);
+        waterArrow.setAttribute('x2', x + width/2);
+        waterArrow.setAttribute('y2', y - 5);
+        waterArrow.setAttribute('stroke', '#007bff');
+        waterArrow.setAttribute('stroke-width', '2');
+        waterArrow.setAttribute('marker-end', 'url(#arrowhead)');
+        group.appendChild(waterArrow);
+        
+        // Wasserfluss-Label
+        const waterLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        waterLabel.setAttribute('x', x + width/2 + 15);
+        waterLabel.setAttribute('y', y - height/2);
+        waterLabel.setAttribute('fill', '#007bff');
+        waterLabel.setAttribute('font-size', '11');
+        waterLabel.setAttribute('font-weight', 'bold');
+        waterLabel.textContent = '💧 Wasserfluss';
+        group.appendChild(waterLabel);
+    }
 }
 
 function drawWaterFlowIndication(group, data) {
@@ -780,28 +844,42 @@ function selectTraufePosition() {
     `;
     
     overlay.innerHTML = `
-        <h3 style="margin-bottom: 20px; font-size: 24px; text-align: center;">🏠 Traufe-Position bestimmen</h3>
+        <h3 style="margin-bottom: 20px; font-size: 24px; text-align: center;">🏠 Welche Seite ist die Traufe?</h3>
         <p style="margin-bottom: 30px; text-align: center; font-size: 16px; max-width: 500px; line-height: 1.4;">
             Die <strong>Traufe</strong> ist die Seite des Daches, wo das Regenwasser abfließt.<br>
-            Welche Seite Ihrer Form soll die <strong>Traufe</strong> (unten im Bild) werden?
+            Schauen Sie sich Ihre Form im Editor an und wählen Sie aus:
         </p>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
-            <button onclick="setTraufePosition('bottom')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #28a745; color: white; text-align: center;">
-                ↓<br><strong>Aktuelle Unterseite</strong><br><small>wird zur Traufe</small>
+        
+        <!-- Zeige die aktuelle Form als Referenz -->
+        <div style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+            <p style="text-align: center; margin-bottom: 10px; font-size: 14px;">Ihre aktuelle Form:</p>
+            <div style="width: 120px; height: 80px; border: 2px solid white; margin: 0 auto; position: relative; background: rgba(0,123,255,0.3);">
+                <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 12px;">OBEN</div>
+                <div style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 12px;">UNTEN</div>
+                <div style="position: absolute; left: -30px; top: 50%; transform: translateY(-50%); font-size: 12px;">LINKS</div>
+                <div style="position: absolute; right: -30px; top: 50%; transform: translateY(-50%); font-size: 12px;">RECHTS</div>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+            <button onclick="setTraufePosition('top')" style="padding: 15px 25px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                ↑<br><strong>Obere Seite</strong><br><small>ist die Traufe</small>
             </button>
-            <button onclick="setTraufePosition('top')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
-                ↑<br><strong>Aktuelle Oberseite</strong><br><small>wird zur Traufe</small>
+            <button onclick="setTraufePosition('bottom')" style="padding: 15px 25px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #28a745; color: white; text-align: center;">
+                ↓<br><strong>Untere Seite</strong><br><small>ist die Traufe</small>
             </button>
-            <button onclick="setTraufePosition('left')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
-                ←<br><strong>Aktuelle Linke Seite</strong><br><small>wird zur Traufe</small>
+            <button onclick="setTraufePosition('left')" style="padding: 15px 25px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                ←<br><strong>Linke Seite</strong><br><small>ist die Traufe</small>
             </button>
-            <button onclick="setTraufePosition('right')" style="padding: 20px 30px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
-                →<br><strong>Aktuelle Rechte Seite</strong><br><small>wird zur Traufe</small>
+            <button onclick="setTraufePosition('right')" style="padding: 15px 25px; font-size: 14px; cursor: pointer; border: none; border-radius: 8px; background: #007bff; color: white; text-align: center;">
+                →<br><strong>Rechte Seite</strong><br><small>ist die Traufe</small>
             </button>
         </div>
+        
         <button onclick="closeTraufeDialog()" style="margin-top: 10px; padding: 12px 24px; background: #6c757d; color: white; border: none; cursor: pointer; border-radius: 8px;">Abbrechen</button>
-        <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 6px; font-size: 12px; max-width: 400px; text-align: center;">
-            💡 Die Traufe bestimmt die Verlegerichtung: Dachplatten werden immer senkrecht zur Traufe verlegt.
+        
+        <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 6px; font-size: 12px; max-width: 450px; text-align: center;">
+            💡 Die gewählte Seite wird nach unten gedreht und das Dach wird entsprechend ausgerichtet.
         </div>
     `;
     
