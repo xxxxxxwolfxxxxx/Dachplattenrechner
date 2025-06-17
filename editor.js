@@ -482,11 +482,23 @@ function updateShape() {
     if (isUpdating) return;
     isUpdating = true;
     
-    // WICHTIG: Lösche ALLE vorherigen Inhalte gründlich
+    // KRITISCH: Lösche ALLE SVG-Inhalte vollständig, auch direkt im SVG
     shapeGroup.innerHTML = '';
     if (labelsGroup) labelsGroup.innerHTML = '';
     if (waterFlowGroup) waterFlowGroup.innerHTML = '';
     if (traufeGroup) traufeGroup.innerHTML = '';
+    
+    // ZUSÄTZLICH: Lösche alle Text-Elemente die direkt im SVG stehen könnten
+    const allTexts = svg.querySelectorAll('text');
+    allTexts.forEach(text => text.remove());
+    
+    // ZUSÄTZLICH: Lösche alle anderen möglichen Label-Reste
+    const allGroups = svg.querySelectorAll('g:not(#roof-shape):not(#labels):not(#water-flow):not(#traufe-elements)');
+    allGroups.forEach(group => {
+        if (group.children.length === 0 || group.id === '') {
+            group.remove();
+        }
+    });
     
     const currentData = getCurrentFormData();
     
@@ -1382,7 +1394,7 @@ function enableSimpleShapeClicking() {
     console.log('✅ Einfache Form-Klick-Erkennung aktiviert - klicken Sie auf die Seite, die zur Traufe werden soll');
 }
 
-// KORRIGIERTE Klick-Behandlung mit exakter Winkelberechnung
+// KORRIGIERTE Klick-Behandlung mit verbesserter Dreieck-Orientierung
 function handleSimpleShapeClick(event) {
     console.log('🎯 Form wurde geklickt');
     
@@ -1401,43 +1413,70 @@ function handleSimpleShapeClick(event) {
     const deltaX = clickX - CANVAS_CENTER_X;
     const deltaY = clickY - CANVAS_CENTER_Y;
     
-    // Winkel des Klicks relativ zur Form-Mitte berechnen
-    let clickAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-    
-    // Normalisiere Winkel auf 0-360°
-    if (clickAngle < 0) clickAngle += 360;
-    
-    // Die geklickte Seite soll nach UNTEN (270°) rotiert werden
-    // Berechne die notwendige Rotation
-    let targetRotation = 270 - clickAngle;
-    
-    // Normalisiere Rotation auf -180° bis +180°
-    while (targetRotation > 180) targetRotation -= 360;
-    while (targetRotation <= -180) targetRotation += 360;
-    
-    // Bestimme Seitennamen basierend auf ursprünglichem Klick-Winkel
+    // Spezielle Behandlung für Dreiecke
+    const finalShape = determineActualShape();
+    let targetRotation = 0;
     let sideName = '';
-    if (clickAngle >= 315 || clickAngle < 45) {
-        sideName = 'rechte Seite';
-    } else if (clickAngle >= 45 && clickAngle < 135) {
-        sideName = 'untere Seite';
-    } else if (clickAngle >= 135 && clickAngle < 225) {
-        sideName = 'linke Seite';
+    
+    if (finalShape === 'dreieck') {
+        // Für Dreiecke: Bestimme die geklickte Seite genauer
+        if (Math.abs(deltaY) < 30 && deltaY > 0) {
+            // Basis (unten) geklickt
+            targetRotation = 0;
+            sideName = 'Basis';
+        } else if (deltaX < -20 && deltaY < 0) {
+            // Linke Seite geklickt → diese soll nach unten
+            targetRotation = 120;
+            sideName = 'linke Seite';
+        } else if (deltaX > 20 && deltaY < 0) {
+            // Rechte Seite geklickt → diese soll nach unten
+            targetRotation = -120;
+            sideName = 'rechte Seite';
+        } else {
+            // Fallback: Standard-Winkelberechnung
+            let clickAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+            if (clickAngle < 0) clickAngle += 360;
+            targetRotation = 270 - clickAngle;
+            while (targetRotation > 180) targetRotation -= 360;
+            while (targetRotation <= -180) targetRotation += 360;
+            sideName = 'gewählte Seite';
+        }
     } else {
-        sideName = 'obere Seite';
+        // Für andere Formen: Standard-Winkelberechnung
+        let clickAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+        if (clickAngle < 0) clickAngle += 360;
+        
+        targetRotation = 270 - clickAngle;
+        while (targetRotation > 180) targetRotation -= 360;
+        while (targetRotation <= -180) targetRotation += 360;
+        
+        // Bestimme Seitennamen
+        if (clickAngle >= 315 || clickAngle < 45) {
+            sideName = 'rechte Seite';
+        } else if (clickAngle >= 45 && clickAngle < 135) {
+            sideName = 'untere Seite';
+        } else if (clickAngle >= 135 && clickAngle < 225) {
+            sideName = 'linke Seite';
+        } else {
+            sideName = 'obere Seite';
+        }
     }
     
-    console.log(`Klick-Winkel: ${clickAngle.toFixed(1)}°, Erkannte Seite: ${sideName}, Ziel-Rotation: ${targetRotation.toFixed(1)}°`);
+    console.log(`Form: ${finalShape}, Erkannte Seite: ${sideName}, Ziel-Rotation: ${targetRotation.toFixed(1)}°`);
     
-    // Führe die EXAKTE Drehung aus
-    currentRotation = Math.round(targetRotation);
-    traufePosition = 'bottom'; // Traufe ist jetzt immer unten
-    
-    // WICHTIG: Labels und andere Elemente vor der Aktualisierung löschen
+    // KRITISCH: Vor der Transformation ALLE Labels löschen
     const labelsGroup = document.getElementById('labels');
     const traufeGroup = document.getElementById('traufe-elements');
     if (labelsGroup) labelsGroup.innerHTML = '';
     if (traufeGroup) traufeGroup.innerHTML = '';
+    
+    // Lösche auch alle Text-Elemente direkt im SVG
+    const allTexts = svg.querySelectorAll('text');
+    allTexts.forEach(text => text.remove());
+    
+    // Führe die EXAKTE Drehung aus
+    currentRotation = Math.round(targetRotation);
+    traufePosition = 'bottom'; // Traufe ist jetzt immer unten
     
     // Deaktiviere Klick-Erkennung
     disableSimpleShapeClicking();
@@ -1545,6 +1584,16 @@ function showFeedback(message) {
 
 function resetToDefaults() {
     console.log('🔄 Setze auf Standard-Werte zurück');
+    
+    // WICHTIG: Vor dem Reset alle Labels löschen
+    const labelsGroup = document.getElementById('labels');
+    const traufeGroup = document.getElementById('traufe-elements');
+    if (labelsGroup) labelsGroup.innerHTML = '';
+    if (traufeGroup) traufeGroup.innerHTML = '';
+    
+    // Lösche auch alle Text-Elemente direkt im SVG
+    const allTexts = svg.querySelectorAll('text');
+    allTexts.forEach(text => text.remove());
     
     currentRotation = 0;
     isMirroredH = false;
