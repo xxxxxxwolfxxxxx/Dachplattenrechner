@@ -1394,7 +1394,7 @@ function enableSimpleShapeClicking() {
     console.log('✅ Einfache Form-Klick-Erkennung aktiviert - klicken Sie auf die Seite, die zur Traufe werden soll');
 }
 
-// KORRIGIERTE Klick-Behandlung mit universeller Winkelberechnung für alle Formen
+// KORRIGIERTE Klick-Behandlung mit umgekehrter Drehrichtung (Test)
 function handleSimpleShapeClick(event) {
     console.log('🎯 Form wurde geklickt');
     
@@ -1419,9 +1419,9 @@ function handleSimpleShapeClick(event) {
     // Normalisiere Winkel auf 0-360°
     if (clickAngle < 0) clickAngle += 360;
     
-    // Die geklickte Seite soll nach UNTEN (270°) rotiert werden
-    // Berechne die notwendige Rotation
-    let targetRotation = 270 - clickAngle;
+    // TEST: Die geklickte Seite soll nach UNTEN (270°) rotiert werden
+    // UMGEKEHRTE Drehrichtung testen:
+    let targetRotation = clickAngle - 270;
     
     // Normalisiere Rotation auf -180° bis +180°
     while (targetRotation > 180) targetRotation -= 360;
@@ -1436,11 +1436,11 @@ function handleSimpleShapeClick(event) {
         if (clickAngle >= 315 || clickAngle < 45) {
             sideName = 'rechte Seite';
         } else if (clickAngle >= 45 && clickAngle < 135) {
-            sideName = 'Basis (unten)';
+            sideName = 'untere Seite';
         } else if (clickAngle >= 135 && clickAngle < 225) {
             sideName = 'linke Seite';
         } else {
-            sideName = 'obere Spitze';
+            sideName = 'obere Seite';
         }
     } else {
         // Standard-Namen für andere Formen
@@ -1455,7 +1455,7 @@ function handleSimpleShapeClick(event) {
         }
     }
     
-    console.log(`Form: ${finalShape}, Klick-Winkel: ${clickAngle.toFixed(1)}°, Erkannte Seite: ${sideName}, Ziel-Rotation: ${targetRotation.toFixed(1)}°`);
+    console.log(`Form: ${finalShape}, Klick-Winkel: ${clickAngle.toFixed(1)}°, Erkannte Seite: ${sideName}, Ziel-Rotation: ${targetRotation.toFixed(1)}° (UMGEKEHRTE RICHTUNG TEST)`);
     
     // KRITISCH: Vor der Transformation ALLE Labels löschen
     const labelsGroup = document.getElementById('labels');
@@ -1481,7 +1481,7 @@ function handleSimpleShapeClick(event) {
     updateShape();
     
     // Zeige Bestätigung mit exaktem Winkel
-    showFeedback(`✅ Traufe geändert: ${sideName} ist jetzt waagerecht unten (${Math.abs(targetRotation).toFixed(0)}° gedreht)`);
+    showFeedback(`✅ TEST: ${sideName} nach unten gedreht (${Math.abs(targetRotation)}° - umgekehrte Richtung)`);
 }
 
 function disableSimpleShapeClicking() {
