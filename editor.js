@@ -1,4 +1,4 @@
-// editor.js – Finale Version mit korrekter Beschriftung und universeller Traufe-Funktion
+// editor.js – Finale Version mit korrigierter Traufe-Funktion und exakter Winkelberechnung
 
 let projectData = {};
 let currentShape = '';
@@ -482,7 +482,7 @@ function updateShape() {
     if (isUpdating) return;
     isUpdating = true;
     
-    // Lösche vorherige Inhalte
+    // WICHTIG: Lösche ALLE vorherigen Inhalte gründlich
     shapeGroup.innerHTML = '';
     if (labelsGroup) labelsGroup.innerHTML = '';
     if (waterFlowGroup) waterFlowGroup.innerHTML = '';
@@ -497,7 +497,7 @@ function updateShape() {
     const targetGroup = labelsGroup || svg;
     drawLabelsAndAnnotations(targetGroup, currentData);
     
-    // Traufe-Markierung (nicht transformiert)
+    // Traufe-Markierung (entfernt - siehe drawTraufeMarking)
     const traufeTargetGroup = traufeGroup || svg;
     drawTraufeMarking(traufeTargetGroup, currentData);
     
@@ -900,33 +900,13 @@ function drawRhombusLabels(group, data, points) {
     group.appendChild(sideLabel);
 }
 
-// KORRIGIERTE Traufe-Markierung: Immer an der visuell unteren Seite
+// KORRIGIERTE Traufe-Markierung: Entfernt - verwirrende rote Linie
 function drawTraufeMarking(group, data) {
-    // Traufe-Markierung wird IMMER unten angezeigt, unabhängig von Transformationen
-    const traufeLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    traufeLine.setAttribute('x1', CANVAS_CENTER_X - 120);
-    traufeLine.setAttribute('y1', CANVAS_CENTER_Y + 80);
-    traufeLine.setAttribute('x2', CANVAS_CENTER_X + 120);
-    traufeLine.setAttribute('y2', CANVAS_CENTER_Y + 80);
-    traufeLine.setAttribute('stroke', '#dc3545');
-    traufeLine.setAttribute('stroke-width', '3');
-    traufeLine.setAttribute('stroke-dasharray', '8,4');
-    group.appendChild(traufeLine);
+    // ENTFERNT: Traufe-Markierung wird nicht mehr automatisch gezeichnet
+    // Die rote Linie war verwirrend, da die Traufe durch die Drehung definiert wird
+    // Die untere Kante der gedrehten Form IST die Traufe
     
-    const traufeLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    traufeLabel.setAttribute('x', CANVAS_CENTER_X + 130);
-    traufeLabel.setAttribute('y', CANVAS_CENTER_Y + 85);
-    traufeLabel.setAttribute('fill', '#dc3545');
-    traufeLabel.setAttribute('font-size', '12');
-    traufeLabel.setAttribute('font-weight', 'bold');
-    traufeLabel.textContent = 'Traufe (Wasserabfluss)';
-    group.appendChild(traufeLabel);
-    
-    // Pfeil zur Verdeutlichung
-    const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    arrow.setAttribute('points', `${CANVAS_CENTER_X},${CANVAS_CENTER_Y + 90} ${CANVAS_CENTER_X - 8},${CANVAS_CENTER_Y + 75} ${CANVAS_CENTER_X + 8},${CANVAS_CENTER_Y + 75}`);
-    arrow.setAttribute('fill', '#dc3545');
-    group.appendChild(arrow);
+    console.log('Traufe-Markierung übersprungen - Traufe ist die untere Kante der Form');
 }
 
 function drawShape(group, data) {
@@ -1318,11 +1298,11 @@ function setupToolButtons() {
     });
 }
 
-// EINFACHE Traufe-Auswahl: Klick auf Seite → dreht nach unten
+// KORRIGIERTE Traufe-Auswahl: Klick auf Seite → exakte Drehung
 function selectTraufePosition() {
-    console.log('🏠 Einfache Traufe-Auswahl gestartet');
+    console.log('🏠 Korrigierte Traufe-Auswahl gestartet');
     
-    // Zeige einfache Anweisung
+    // Zeige verbesserte Anweisung
     showSimpleTraufeInstructions();
     
     // Aktiviere Klick-Erkennung auf der Form
@@ -1354,7 +1334,7 @@ function showSimpleTraufeInstructions() {
     `;
     
     instructions.innerHTML = `
-        🏠 <strong>Einfach:</strong> Klicken Sie auf die Seite der Form, die nach unten (Traufe) soll
+        🏠 <strong>Traufe festlegen:</strong> Klicken Sie auf die Seite der Form, die waagerecht nach unten (Traufe) soll
         <button onclick="cancelSimpleTraufeSelection()" style="margin-left: 15px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Abbrechen</button>
     `;
     
@@ -1399,9 +1379,10 @@ function enableSimpleShapeClicking() {
         });
     });
     
-    console.log('✅ Einfache Form-Klick-Erkennung aktiviert');
+    console.log('✅ Einfache Form-Klick-Erkennung aktiviert - klicken Sie auf die Seite, die zur Traufe werden soll');
 }
 
+// KORRIGIERTE Klick-Behandlung mit exakter Winkelberechnung
 function handleSimpleShapeClick(event) {
     console.log('🎯 Form wurde geklickt');
     
@@ -1416,43 +1397,47 @@ function handleSimpleShapeClick(event) {
     console.log(`Klick-Position: ${clickX}, ${clickY}`);
     console.log(`Form-Mitte: ${CANVAS_CENTER_X}, ${CANVAS_CENTER_Y}`);
     
-    // Berechne welche Seite geklickt wurde (relativ zur Form-Mitte)
+    // Berechne welche Seite geklickt wurde und den EXAKTEN Winkel
     const deltaX = clickX - CANVAS_CENTER_X;
     const deltaY = clickY - CANVAS_CENTER_Y;
     
-    let targetRotation = 0;
-    let sideName = '';
+    // Winkel des Klicks relativ zur Form-Mitte berechnen
+    let clickAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
     
-    // Bestimme die nächste Seite basierend auf Klick-Position
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // Horizontale Seiten
-        if (deltaX > 0) {
-            // Rechte Seite angeklickt → drehe so dass rechts nach unten kommt
-            targetRotation = 90;
-            sideName = 'rechte Seite';
-        } else {
-            // Linke Seite angeklickt → drehe so dass links nach unten kommt
-            targetRotation = -90;
-            sideName = 'linke Seite';
-        }
+    // Normalisiere Winkel auf 0-360°
+    if (clickAngle < 0) clickAngle += 360;
+    
+    // Die geklickte Seite soll nach UNTEN (270°) rotiert werden
+    // Berechne die notwendige Rotation
+    let targetRotation = 270 - clickAngle;
+    
+    // Normalisiere Rotation auf -180° bis +180°
+    while (targetRotation > 180) targetRotation -= 360;
+    while (targetRotation <= -180) targetRotation += 360;
+    
+    // Bestimme Seitennamen basierend auf ursprünglichem Klick-Winkel
+    let sideName = '';
+    if (clickAngle >= 315 || clickAngle < 45) {
+        sideName = 'rechte Seite';
+    } else if (clickAngle >= 45 && clickAngle < 135) {
+        sideName = 'untere Seite';
+    } else if (clickAngle >= 135 && clickAngle < 225) {
+        sideName = 'linke Seite';
     } else {
-        // Vertikale Seiten
-        if (deltaY > 0) {
-            // Untere Seite angeklickt → keine Drehung (schon unten)
-            targetRotation = 0;
-            sideName = 'untere Seite';
-        } else {
-            // Obere Seite angeklickt → drehe so dass oben nach unten kommt
-            targetRotation = 180;
-            sideName = 'obere Seite';
-        }
+        sideName = 'obere Seite';
     }
     
-    console.log(`Erkannte Seite: ${sideName}, Ziel-Rotation: ${targetRotation}°`);
+    console.log(`Klick-Winkel: ${clickAngle.toFixed(1)}°, Erkannte Seite: ${sideName}, Ziel-Rotation: ${targetRotation.toFixed(1)}°`);
     
-    // Führe die Drehung aus
-    currentRotation = targetRotation;
-    traufePosition = getTraufePositionFromRotation(targetRotation);
+    // Führe die EXAKTE Drehung aus
+    currentRotation = Math.round(targetRotation);
+    traufePosition = 'bottom'; // Traufe ist jetzt immer unten
+    
+    // WICHTIG: Labels und andere Elemente vor der Aktualisierung löschen
+    const labelsGroup = document.getElementById('labels');
+    const traufeGroup = document.getElementById('traufe-elements');
+    if (labelsGroup) labelsGroup.innerHTML = '';
+    if (traufeGroup) traufeGroup.innerHTML = '';
     
     // Deaktiviere Klick-Erkennung
     disableSimpleShapeClicking();
@@ -1464,17 +1449,7 @@ function handleSimpleShapeClick(event) {
     updateShape();
     
     // Zeige Bestätigung
-    showFeedback(`✅ Traufe geändert: ${sideName} ist jetzt unten (Wasserabfluss)`);
-}
-
-function getTraufePositionFromRotation(rotation) {
-    switch(rotation) {
-        case 0: return 'bottom';
-        case 90: return 'right';
-        case 180: return 'top';
-        case -90: return 'left';
-        default: return 'bottom';
-    }
+    showFeedback(`✅ Traufe geändert: ${sideName} ist jetzt unten (Wasserabfluss) - ${Math.abs(targetRotation).toFixed(0)}° gedreht`);
 }
 
 function disableSimpleShapeClicking() {
@@ -1510,28 +1485,6 @@ window.cancelSimpleTraufeSelection = function() {
     disableSimpleShapeClicking();
     hideSimpleTraufeInstructions();
     showFeedback('Traufe-Auswahl abgebrochen');
-};
-
-// ENTFERNE die komplexen Dialog-Funktionen
-function showUniversalTraufeDialog() {
-    // Diese Funktion wird nicht mehr verwendet
-    console.log('Alte Dialog-Funktion wird übersprungen - verwende einfache Klick-Methode');
-}
-
-// ENTFERNE die alten Dialog-Funktionen - werden nicht mehr gebraucht
-window.setTraufeAndClose = function(position) {
-    // Diese Funktion wird nicht mehr verwendet
-    console.log('Alte Dialog-Funktion - verwende stattdessen einfache Klick-Methode');
-};
-
-window.setTraufeForTriangle = function(triangleSide) {
-    // Diese Funktion wird nicht mehr verwendet
-    console.log('Alte Dialog-Funktion - verwende stattdessen einfache Klick-Methode');
-};
-
-window.closeTraufeDialog = function() {
-    // Diese Funktion wird nicht mehr verwendet
-    console.log('Alte Dialog-Funktion - verwende stattdessen einfache Klick-Methode');
 };
 
 function showFeedback(message) {
@@ -1842,4 +1795,4 @@ function calculateDimensions(data) {
     }
 }
 
-console.log('✅ Finaler Editor mit korrekter Beschriftung und universeller Traufe-Funktion geladen');
+console.log('✅ Korrigierter Editor mit exakter Traufe-Funktion geladen');
