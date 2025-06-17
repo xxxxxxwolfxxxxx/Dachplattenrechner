@@ -1578,7 +1578,7 @@ function calculateDimensions(data) {
 }
 
 function straightenBottomEdge() {
-    console.log('🔧 BEGRADIGE die unterste Kante');
+    console.log('🔧 BEGRADIGE die Basis-Kante (längste Kante)');
     
     const currentData = getCurrentFormData();
     const shapePoints = getRawShapePoints(currentData);
@@ -1598,43 +1598,46 @@ function straightenBottomEdge() {
     
     console.log('Transformierte Punkte:', transformedPoints);
     
-    // Finde die unterste Kante (höchster Y-Wert = unterste Position)
-    let bottomEdge = null;
-    let maxY = -Infinity;
+    // Strategie: Finde die LÄNGSTE Kante (meist die Basis)
+    let longestEdge = null;
+    let maxLength = -Infinity;
     
     for (let i = 0; i < transformedPoints.length; i++) {
         const p1 = transformedPoints[i];
         const p2 = transformedPoints[(i + 1) % transformedPoints.length];
         
-        // Mittlerer Y-Wert der Kante
-        const edgeMidY = (p1.y + p2.y) / 2;
+        // Berechne die Länge der Kante
+        const edgeLength = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
         
-        if (edgeMidY > maxY) {
-            maxY = edgeMidY;
-            bottomEdge = {
+        console.log(`Kante ${i}: Länge = ${edgeLength.toFixed(1)}px`);
+        
+        if (edgeLength > maxLength) {
+            maxLength = edgeLength;
+            longestEdge = {
                 index: i,
                 p1: p1,
                 p2: p2,
-                midY: edgeMidY
+                length: edgeLength
             };
         }
     }
     
-    if (!bottomEdge) {
-        console.error('Keine unterste Kante gefunden');
-        showFeedback('❌ Fehler: Keine unterste Kante gefunden');
+    if (!longestEdge) {
+        console.error('Keine längste Kante gefunden');
+        showFeedback('❌ Fehler: Keine längste Kante gefunden');
         return;
     }
     
-    console.log(`🎯 Unterste Kante gefunden: ${bottomEdge.index} → ${(bottomEdge.index + 1) % transformedPoints.length}`);
-    console.log(`   Punkte: (${bottomEdge.p1.x.toFixed(1)}, ${bottomEdge.p1.y.toFixed(1)}) → (${bottomEdge.p2.x.toFixed(1)}, ${bottomEdge.p2.y.toFixed(1)})`);
+    console.log(`🎯 Längste Kante gefunden: ${longestEdge.index} → ${(longestEdge.index + 1) % transformedPoints.length}`);
+    console.log(`   Länge: ${longestEdge.length.toFixed(1)}px`);
+    console.log(`   Punkte: (${longestEdge.p1.x.toFixed(1)}, ${longestEdge.p1.y.toFixed(1)}) → (${longestEdge.p2.x.toFixed(1)}, ${longestEdge.p2.y.toFixed(1)})`);
     
-    // Berechne den aktuellen Winkel der untersten Kante
-    const deltaX = bottomEdge.p2.x - bottomEdge.p1.x;
-    const deltaY = bottomEdge.p2.y - bottomEdge.p1.y;
+    // Berechne den aktuellen Winkel der längsten Kante
+    const deltaX = longestEdge.p2.x - longestEdge.p1.x;
+    const deltaY = longestEdge.p2.y - longestEdge.p1.y;
     const currentAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
     
-    console.log(`📐 Aktueller Winkel der untersten Kante: ${currentAngle.toFixed(2)}°`);
+    console.log(`📐 Aktueller Winkel der längsten Kante: ${currentAngle.toFixed(2)}°`);
     
     // Berechne die benötigte Korrektur um die Kante waagerecht zu machen (0°)
     let correctionAngle = -currentAngle;
@@ -1659,7 +1662,7 @@ function straightenBottomEdge() {
     updateShape();
     
     // Feedback mit präziser Gradzahl
-    showFeedback(`🔧 Begradigt: ${Math.abs(correctionAngle).toFixed(1)}° gedreht, Traufe jetzt waagerecht`);
+    showFeedback(`🔧 Begradigt: Basis-Kante (${longestEdge.length.toFixed(0)}px) um ${Math.abs(correctionAngle).toFixed(1)}° gedreht`);
 }
 
 function getRawShapePoints(data) {
