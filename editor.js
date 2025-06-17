@@ -1425,7 +1425,7 @@ function handleSimpleShapeClick(event) {
     
     console.log('Canvas-Punkte (transformiert):', canvasPoints);
     
-    // Finde die nächste Kante zum Klick-Punkt
+    // Finde die nächste Kante zum Klick-Punkt - VERBESSERT
     let closestEdge = null;
     let minDistance = Infinity;
     let edgeInfo = null;
@@ -1437,21 +1437,25 @@ function handleSimpleShapeClick(event) {
         // Berechne Abstand von Klick-Punkt zur Kante
         const distance = getDistanceToLineSegment(mouseX, mouseY, p1.x, p1.y, p2.x, p2.y);
         
+        console.log(`Kante ${i}: von (${p1.x.toFixed(1)}, ${p1.y.toFixed(1)}) zu (${p2.x.toFixed(1)}, ${p2.y.toFixed(1)}), Abstand: ${distance.toFixed(1)}px`);
+        
         if (distance < minDistance) {
             minDistance = distance;
             closestEdge = i;
             
-            // Berechne den Winkel dieser Kante
+            // WICHTIG: Berechne den Winkel dieser SPEZIFISCHEN Kante
             const edgeAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * (180 / Math.PI);
             
             edgeInfo = {
                 index: i,
                 p1: p1,
                 p2: p2,
-                angle: edgeAngle,
+                angle: edgeAngle,  // Der spezifische Winkel DIESER Kante
                 distance: distance,
                 length: Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2)
             };
+            
+            console.log(`   → Neue beste Kante ${i}: Winkel = ${edgeAngle.toFixed(1)}°`);
         }
     }
     
@@ -1461,15 +1465,12 @@ function handleSimpleShapeClick(event) {
     }
     
     console.log(`🎯 KANTEN-ANALYSE:`);
-    console.log(`   Nächste Kante: ${edgeInfo.index} → ${(edgeInfo.index + 1) % canvasPoints.length}`);
-    console.log(`   Kanten-Winkel: ${edgeInfo.angle.toFixed(1)}°`);
+    console.log(`   GEWÄHLTE Kante: ${edgeInfo.index} → ${(edgeInfo.index + 1) % canvasPoints.length}`);
+    console.log(`   SPEZIFISCHER Kanten-Winkel: ${edgeInfo.angle.toFixed(1)}°`);
     console.log(`   Abstand zum Klick: ${edgeInfo.distance.toFixed(1)}px`);
     console.log(`   Kanten-Länge: ${edgeInfo.length.toFixed(1)}px`);
     
-    // KORRIGIERTE Berechnung: Kante soll waagerecht (0°) werden
-    // Der Kanten-Winkel ist bereits in Canvas-Koordinaten (berücksichtigt aktuelle Transformation)
-    
-    // Normalisiere den Kanten-Winkel auf -180° bis +180°
+    // KORRIGIERTE Berechnung: Diese SPEZIFISCHE Kante soll waagerecht werden
     let normalizedEdgeAngle = edgeInfo.angle;
     while (normalizedEdgeAngle > 180) {
         normalizedEdgeAngle -= 360;
@@ -1478,52 +1479,22 @@ function handleSimpleShapeClick(event) {
         normalizedEdgeAngle += 360;
     }
     
-    // Berechne BEIDE Optionen: Kante auf 0° oder auf 180°
-    let rotationTo0 = -normalizedEdgeAngle;
-    let rotationTo180 = -normalizedEdgeAngle + (normalizedEdgeAngle > 0 ? -180 : 180);
+    // Berechne die Rotation um DIESE Kante auf 0° zu bringen
+    let requiredRotation = -normalizedEdgeAngle;
     
-    // Normalisiere beide Optionen auf -180° bis +180°
-    while (rotationTo0 > 180) rotationTo0 -= 360;
-    while (rotationTo0 < -180) rotationTo0 += 360;
-    while (rotationTo180 > 180) rotationTo180 -= 360;
-    while (rotationTo180 < -180) rotationTo180 += 360;
-    
-    // Berechne Endergebnisse
-    let resultAngle0 = (normalizedEdgeAngle + rotationTo0) % 360;
-    if (resultAngle0 < 0) resultAngle0 += 360;
-    
-    let resultAngle180 = (normalizedEdgeAngle + rotationTo180) % 360;
-    if (resultAngle180 < 0) resultAngle180 += 360;
-    
-    // WICHTIG: Prüfe welche Option tatsächlich waagerecht (0° oder 360°) ergibt
-    const is0Horizontal = Math.abs(resultAngle0) < 1 || Math.abs(resultAngle0 - 360) < 1;
-    const is180Horizontal = Math.abs(resultAngle180) < 1 || Math.abs(resultAngle180 - 360) < 1;
-    
-    let requiredRotation;
-    let chosenOption;
-    
-    if (is0Horizontal && is180Horizontal) {
-        // Beide ergeben waagerechte Linien, wähle kleinere Drehung
-        requiredRotation = Math.abs(rotationTo0) <= Math.abs(rotationTo180) ? rotationTo0 : rotationTo180;
-        chosenOption = Math.abs(rotationTo0) <= Math.abs(rotationTo180) ? "0°" : "180°";
-    } else if (is0Horizontal) {
-        // Nur Option 1 ergibt waagerechte Linie
-        requiredRotation = rotationTo0;
-        chosenOption = "0°";
-    } else if (is180Horizontal) {
-        // Nur Option 2 ergibt waagerechte Linie
-        requiredRotation = rotationTo180;
-        chosenOption = "180°";
-    } else {
-        // Fallback: erzwinge 0°
-        requiredRotation = rotationTo0;
-        chosenOption = "0° (erzwungen)";
+    // Normalisiere die Rotation
+    while (requiredRotation > 180) {
+        requiredRotation -= 360;
+    }
+    while (requiredRotation < -180) {
+        requiredRotation += 360;
     }
     
-    console.log(`   Normalisierter Kanten-Winkel: ${normalizedEdgeAngle.toFixed(1)}°`);
-    console.log(`   Option 1 (→ 0°): ${rotationTo0.toFixed(1)}° → Ergebnis: ${resultAngle0.toFixed(1)}° ${is0Horizontal ? '✅ waagerecht' : '❌ nicht waagerecht'}`);
-    console.log(`   Option 2 (→ 180°): ${rotationTo180.toFixed(1)}° → Ergebnis: ${resultAngle180.toFixed(1)}° ${is180Horizontal ? '✅ waagerecht' : '❌ nicht waagerecht'}`);
-    console.log(`   → Gewählt: ${chosenOption} mit ${requiredRotation.toFixed(1)}° Drehung`)
+    console.log(`📐 ROTATIONS-BERECHNUNG:`);
+    console.log(`   Kante ${edgeInfo.index} hat Winkel: ${edgeInfo.angle.toFixed(1)}°`);
+    console.log(`   Normalisiert: ${normalizedEdgeAngle.toFixed(1)}°`);
+    console.log(`   Benötigte Rotation: ${requiredRotation.toFixed(1)}°`);
+    console.log(`   Alte Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
     
     console.log(`📐 ROTATIONS-BERECHNUNG:`);
     console.log(`   Aktueller Kanten-Winkel: ${edgeInfo.angle.toFixed(1)}°`);
