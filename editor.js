@@ -1,45 +1,4 @@
-// FUNDAMENTAL KORRIGIERTE Funktion - arbeitet mit ursprünglichen Koordinaten
-function handleSimpleShapeClick(event) {
-    console.log('🖱️ Form-Klick erkannt, analysiere angeklickte Seite...');
-    
-    // Hol die Mausposition relativ zur Form
-    const rect = svg.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-    
-    console.log(`Klick-Position: ${mouseX}, ${mouseY}`);
-    
-    // SCHLÜSSEL: Arbeite mit den URSPRÜNGLICHEN Punkten (ohne aktuelle Transformation)
-    const currentData = getCurrentFormData();
-    const originalPoints = getRawShapePointsOriginal(currentData);
-    
-    if (!originalPoints || originalPoints.length < 3) {
-        console.error('Keine gültigen Form-Punkte gefunden');
-        return;
-    }
-    
-    console.log('URSPRÜNGLICHE Form-Punkte (ohne Transformation):', originalPoints);
-    
-    // Transformiere die ursprünglichen Punkte in Canvas-Koordinaten (MIT aktueller Transformation)
-    const transformedCanvasPoints = originalPoints.map(point => {
-        const canvasX = CANVAS_CENTER_X + point.x * SCALE_FACTOR;
-        const canvasY = CANVAS_CENTER_Y - point.y * SCALE_FACTOR;
-        return transformPoint(canvasX, canvasY);
-    });
-    
-    console.log('Transformierte Canvas-Punkte:', transformedCanvasPoints);
-    
-    // Finde die nächste Kante zum Klick-Punkt
-    let closestEdge = null;
-    let minDistance = Infinity;
-    let edgeInfo = null;
-    
-    for (let i = 0; i < transformedCanvasPoints.length; i++) {
-        const p1 = transformedCanvasPoints[i];
-        const p2 = transformedCanvasPoints[(i + 1) % transformedCanvasPoints.length];
-        
-        // Berechne Abstand von Klick-Punkt zur Kante
-        const distance = getDistanceToLine// editor.js – KORRIGIERTE Version mit behobener Traufe-Funktion
+// KORRIGIERTE editor.js - Entfernt fehlerhafte und unvollständige Funktionen
 
 let projectData = {};
 let currentShape = '';
@@ -523,36 +482,24 @@ function updateShape() {
     if (isUpdating) return;
     isUpdating = true;
     
-    // KRITISCH: Lösche ALLE SVG-Inhalte vollständig, auch direkt im SVG
+    // Lösche alle SVG-Inhalte
     shapeGroup.innerHTML = '';
     if (labelsGroup) labelsGroup.innerHTML = '';
     if (waterFlowGroup) waterFlowGroup.innerHTML = '';
     if (traufeGroup) traufeGroup.innerHTML = '';
     
-    // ZUSÄTZLICH: Lösche alle Text-Elemente die direkt im SVG stehen könnten
+    // Lösche alle Text-Elemente die direkt im SVG stehen könnten
     const allTexts = svg.querySelectorAll('text');
     allTexts.forEach(text => text.remove());
-    
-    // ZUSÄTZLICH: Lösche alle anderen möglichen Label-Reste
-    const allGroups = svg.querySelectorAll('g:not(#roof-shape):not(#labels):not(#water-flow):not(#traufe-elements)');
-    allGroups.forEach(group => {
-        if (group.children.length === 0 || group.id === '') {
-            group.remove();
-        }
-    });
     
     const currentData = getCurrentFormData();
     
     // Zeichne die transformierte Form
     drawTransformedShape(shapeGroup, currentData);
     
-    // KORRIGIERT: Beschriftungen an den richtigen Positionen, aber immer lesbar
+    // Beschriftungen
     const targetGroup = labelsGroup || svg;
     drawLabelsAndAnnotations(targetGroup, currentData);
-    
-    // Traufe-Markierung (entfernt - siehe drawTraufeMarking)
-    const traufeTargetGroup = traufeGroup || svg;
-    drawTraufeMarking(traufeTargetGroup, currentData);
     
     // Aktualisiere Berechnungen
     updateCalculations(currentData);
@@ -611,7 +558,6 @@ function drawTransformedShape(group, data) {
     }
 }
 
-// KORRIGIERT: Beschriftungen an den richtigen Seiten, aber immer horizontal lesbar
 function drawLabelsAndAnnotations(group, data) {
     const finalShape = determineActualShape();
     const finalVariant = determineActualVariant();
@@ -634,7 +580,6 @@ function drawLabelsAndAnnotations(group, data) {
     }
 }
 
-// Neue Funktion: Berechnet die aktuellen (transformierten) Eckpunkte
 function getTransformedShapePoints(data) {
     const finalShape = determineActualShape();
     const finalVariant = determineActualVariant();
@@ -727,7 +672,7 @@ function drawTriangleLabels(group, data, variant, points) {
         
         const sideLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         sideLabel.setAttribute('x', midX);
-        sideLabel.setAttribute('y', midY + 25); // Offset nach unten
+        sideLabel.setAttribute('y', midY + 25);
         sideLabel.setAttribute('text-anchor', 'middle');
         sideLabel.setAttribute('fill', '#333');
         sideLabel.setAttribute('font-size', '12');
@@ -864,34 +809,30 @@ function drawTrapezLabels(group, data, points) {
     baseALabel.setAttribute('font-weight', 'bold');
     baseALabel.textContent = `Basis A: ${(data.baseA || 8).toFixed(1)}m`;
     group.appendChild(baseALabel);
-    
-    // Basis B (obere Seite)
-    const baseBMidX = (points[0].x + points[1].x) / 2;
-    const baseBMidY = (points[0].y + points[1].y) / 2;
-    
-    const baseBLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    baseBLabel.setAttribute('x', baseBMidX);
-    baseBLabel.setAttribute('y', baseBMidY - 15);
-    baseBLabel.setAttribute('text-anchor', 'middle');
-    baseBLabel.setAttribute('fill', '#28a745');
-    baseBLabel.setAttribute('font-size', '12');
-    baseBLabel.setAttribute('font-weight', 'bold');
-    baseBLabel.textContent = `Basis B: ${(data.baseB || 5).toFixed(1)}m`;
-    group.appendChild(baseBLabel);
-    
-    // Höhe (linke Seite)
-    const heightMidX = (points[0].x + points[3].x) / 2;
-    const heightMidY = (points[0].y + points[3].y) / 2;
-    
-    const heightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    heightLabel.setAttribute('x', heightMidX - 40);
-    heightLabel.setAttribute('y', heightMidY);
-    heightLabel.setAttribute('text-anchor', 'middle');
-    heightLabel.setAttribute('fill', '#dc3545');
-    heightLabel.setAttribute('font-size', '12');
-    heightLabel.setAttribute('font-weight', 'bold');
-    heightLabel.textContent = `Höhe: ${(data.height || 4).toFixed(1)}m`;
-    group.appendChild(heightLabel);
+}
+
+function drawParallelogrammLabels(group, data, points) {
+    const baseLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    baseLabel.setAttribute('x', CANVAS_CENTER_X);
+    baseLabel.setAttribute('y', CANVAS_CENTER_Y + 120);
+    baseLabel.setAttribute('text-anchor', 'middle');
+    baseLabel.setAttribute('fill', '#007bff');
+    baseLabel.setAttribute('font-size', '12');
+    baseLabel.setAttribute('font-weight', 'bold');
+    baseLabel.textContent = `Basis: ${(data.base || 8).toFixed(1)}m`;
+    group.appendChild(baseLabel);
+}
+
+function drawRhombusLabels(group, data, points) {
+    const sideLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    sideLabel.setAttribute('x', CANVAS_CENTER_X);
+    sideLabel.setAttribute('y', CANVAS_CENTER_Y + 120);
+    sideLabel.setAttribute('text-anchor', 'middle');
+    sideLabel.setAttribute('fill', '#007bff');
+    sideLabel.setAttribute('font-size', '12');
+    sideLabel.setAttribute('font-weight', 'bold');
+    sideLabel.textContent = `Seitenlänge: ${(data.side || 5).toFixed(1)}m`;
+    group.appendChild(sideLabel);
 }
 
 function drawCircleLabels(group, data, variant) {
@@ -927,39 +868,6 @@ function drawCircleLabels(group, data, variant) {
         radiusLabel.textContent = `Radius: ${(data.radius || 4).toFixed(1)}m`;
         group.appendChild(radiusLabel);
     }
-}
-
-function drawParallelogrammLabels(group, data, points) {
-    const baseLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    baseLabel.setAttribute('x', CANVAS_CENTER_X);
-    baseLabel.setAttribute('y', CANVAS_CENTER_Y + 120);
-    baseLabel.setAttribute('text-anchor', 'middle');
-    baseLabel.setAttribute('fill', '#007bff');
-    baseLabel.setAttribute('font-size', '12');
-    baseLabel.setAttribute('font-weight', 'bold');
-    baseLabel.textContent = `Basis: ${(data.base || 8).toFixed(1)}m`;
-    group.appendChild(baseLabel);
-}
-
-function drawRhombusLabels(group, data, points) {
-    const sideLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    sideLabel.setAttribute('x', CANVAS_CENTER_X);
-    sideLabel.setAttribute('y', CANVAS_CENTER_Y + 120);
-    sideLabel.setAttribute('text-anchor', 'middle');
-    sideLabel.setAttribute('fill', '#007bff');
-    sideLabel.setAttribute('font-size', '12');
-    sideLabel.setAttribute('font-weight', 'bold');
-    sideLabel.textContent = `Seitenlänge: ${(data.side || 5).toFixed(1)}m`;
-    group.appendChild(sideLabel);
-}
-
-// KORRIGIERTE Traufe-Markierung: Entfernt - verwirrende rote Linie
-function drawTraufeMarking(group, data) {
-    // ENTFERNT: Traufe-Markierung wird nicht mehr automatisch gezeichnet
-    // Die rote Linie war verwirrend, da die Traufe durch die Drehung definiert wird
-    // Die untere Kante der gedrehten Form IST die Traufe
-    
-    console.log('Traufe-Markierung übersprungen - Traufe ist die untere Kante der Form');
 }
 
 function drawShape(group, data) {
@@ -1335,7 +1243,7 @@ function setupToolButtons() {
         },
         'btn-traufe': () => {
             console.log('🏠 TRAUFE Button geklickt');
-            selectTraufePosition();
+            showFeedback('Traufe-Funktion: Drehen Sie das Dach mit den Rotations-Buttons, so dass die gewünschte Seite unten (Traufe) ist.');
         }
     };
     
@@ -1350,420 +1258,6 @@ function setupToolButtons() {
         }
     });
 }
-
-// KORRIGIERTE Traufe-Auswahl: Klick auf Seite → exakte Drehung
-function selectTraufePosition() {
-    console.log('🏠 Korrigierte Traufe-Auswahl gestartet');
-    
-    // Zeige verbesserte Anweisung
-    showSimpleTraufeInstructions();
-    
-    // Aktiviere Klick-Erkennung auf der Form
-    enableSimpleShapeClicking();
-}
-
-function showSimpleTraufeInstructions() {
-    // Entferne alte Instruktionen
-    const existingInstr = document.getElementById('simple-traufe-instructions');
-    if (existingInstr) existingInstr.remove();
-    
-    const instructions = document.createElement('div');
-    instructions.id = 'simple-traufe-instructions';
-    instructions.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #28a745;
-        color: white;
-        padding: 15px 25px;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        z-index: 1000;
-        font-size: 14px;
-        font-weight: bold;
-        text-align: center;
-        animation: slideDown 0.3s ease-out;
-    `;
-    
-    instructions.innerHTML = `
-        🏠 <strong>Traufe festlegen:</strong> Klicken Sie auf die Seite der Form, die waagerecht nach unten (Traufe) soll
-        <button onclick="cancelSimpleTraufeSelection()" style="margin-left: 15px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Abbrechen</button>
-    `;
-    
-    // CSS für Animation
-    if (!document.getElementById('simple-feedback-styles')) {
-        const style = document.createElement('style');
-        style.id = 'simple-feedback-styles';
-        style.textContent = `
-            @keyframes slideDown {
-                from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-                to { transform: translateX(-50%) translateY(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    document.body.appendChild(instructions);
-}
-
-function enableSimpleShapeClicking() {
-    // Finde die Form im SVG
-    const shapeGroup = document.getElementById('roof-shape');
-    if (!shapeGroup) return;
-    
-    const shapes = shapeGroup.querySelectorAll('rect, polygon, circle, ellipse, path');
-    
-    shapes.forEach(shape => {
-        // Mache Form visuell klickbar
-        shape.style.cursor = 'crosshair';
-        shape.style.strokeWidth = '4';
-        shape.style.stroke = '#28a745';
-        
-        // Event Listener für Klick - KORRIGIERT: Funktion existiert
-        shape.addEventListener('click', handleSimpleShapeClick);
-        shape.addEventListener('mouseenter', () => {
-            shape.style.stroke = '#ffc107';
-            shape.style.strokeWidth = '6';
-        });
-        shape.addEventListener('mouseleave', () => {
-            shape.style.stroke = '#28a745';
-            shape.style.strokeWidth = '4';
-        });
-    });
-    
-    console.log('✅ Einfache Form-Klick-Erkennung aktiviert - klicken Sie auf die Seite, die zur Traufe werden soll');
-}
-
-// PRÄZISE Funktion für Shape-Klick mit Seitenvermessung
-function handleSimpleShapeClick(event) {
-    console.log('🖱️ Form-Klick erkannt, analysiere angeklickte Seite...');
-    
-    // Hol die Mausposition relativ zur Form
-    const rect = svg.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-    
-    console.log(`Klick-Position: ${mouseX}, ${mouseY}`);
-    
-    // Hole die aktuellen Form-Punkte (ohne Transformation)
-    const currentData = getCurrentFormData();
-    const rawPoints = getRawShapePoints(currentData);
-    
-    if (!rawPoints || rawPoints.length < 3) {
-        console.error('Keine gültigen Form-Punkte gefunden');
-        return;
-    }
-    
-    console.log('Raw Form-Punkte:', rawPoints);
-    
-    // Transformiere die rohen Punkte in Canvas-Koordinaten (mit aktueller Transformation)
-    const canvasPoints = rawPoints.map(point => {
-        const canvasX = CANVAS_CENTER_X + (point.x - (point.centerX || 0)) * SCALE_FACTOR;
-        const canvasY = CANVAS_CENTER_Y - (point.y - (point.centerY || 0)) * SCALE_FACTOR;
-        return transformPoint(canvasX, canvasY);
-    });
-    
-    console.log('Canvas-Punkte (transformiert):', canvasPoints);
-    
-    // Finde die nächste Kante zum Klick-Punkt - VERBESSERT
-    let closestEdge = null;
-    let minDistance = Infinity;
-    let edgeInfo = null;
-    
-    for (let i = 0; i < canvasPoints.length; i++) {
-        const p1 = canvasPoints[i];
-        const p2 = canvasPoints[(i + 1) % canvasPoints.length];
-        
-        // Berechne Abstand von Klick-Punkt zur Kante
-        const distance = getDistanceToLineSegment(mouseX, mouseY, p1.x, p1.y, p2.x, p2.y);
-        
-        console.log(`Kante ${i}: von (${p1.x.toFixed(1)}, ${p1.y.toFixed(1)}) zu (${p2.x.toFixed(1)}, ${p2.y.toFixed(1)}), Abstand: ${distance.toFixed(1)}px`);
-        
-        if (distance < minDistance) {
-            minDistance = distance;
-            closestEdge = i;
-            
-            // WICHTIG: Berechne den Winkel dieser SPEZIFISCHEN Kante
-            const edgeAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * (180 / Math.PI);
-            
-            edgeInfo = {
-                index: i,
-                p1: p1,
-                p2: p2,
-                angle: edgeAngle,  // Der spezifische Winkel DIESER Kante
-                distance: distance,
-                length: Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2)
-            };
-            
-            console.log(`   → Neue beste Kante ${i}: Winkel = ${edgeAngle.toFixed(1)}°`);
-        }
-    }
-    
-    if (!edgeInfo) {
-        console.error('Keine Kante gefunden');
-        return;
-    }
-    
-    console.log(`🎯 KANTEN-ANALYSE:`);
-    console.log(`   GEWÄHLTE Kante: ${edgeInfo.index} → ${(edgeInfo.index + 1) % canvasPoints.length}`);
-    console.log(`   SPEZIFISCHER Kanten-Winkel: ${edgeInfo.angle.toFixed(1)}°`);
-    console.log(`   Abstand zum Klick: ${edgeInfo.distance.toFixed(1)}px`);
-    console.log(`   Kanten-Länge: ${edgeInfo.length.toFixed(1)}px`);
-    
-    // KORRIGIERTE Berechnung: Diese SPEZIFISCHE Kante soll waagerecht werden
-    let normalizedEdgeAngle = edgeInfo.angle;
-    while (normalizedEdgeAngle > 180) {
-        normalizedEdgeAngle -= 360;
-    }
-    while (normalizedEdgeAngle < -180) {
-        normalizedEdgeAngle += 360;
-    }
-    
-    // Berechne die Rotation um DIESE Kante auf 0° zu bringen
-    let requiredRotation = -normalizedEdgeAngle;
-    
-    // Normalisiere die Rotation
-    while (requiredRotation > 180) {
-        requiredRotation -= 360;
-    }
-    while (requiredRotation < -180) {
-        requiredRotation += 360;
-    }
-    
-    console.log(`📐 ROTATIONS-BERECHNUNG:`);
-    console.log(`   Kante ${edgeInfo.index} hat Winkel: ${edgeInfo.angle.toFixed(1)}°`);
-    console.log(`   Normalisiert: ${normalizedEdgeAngle.toFixed(1)}°`);
-    console.log(`   Benötigte Rotation: ${requiredRotation.toFixed(1)}°`);
-    console.log(`   Alte Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
-    
-    console.log(`📐 ROTATIONS-BERECHNUNG:`);
-    console.log(`   Aktueller Kanten-Winkel: ${edgeInfo.angle.toFixed(1)}°`);
-    console.log(`   Ziel-Winkel (waagerecht): 0°`);
-    console.log(`   Benötigte Rotation: ${requiredRotation.toFixed(1)}°`);
-    console.log(`   Alte Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
-    
-    // WICHTIG: Setze die Rotation absolut, nicht additiv!
-    // Da der Kanten-Winkel bereits die aktuelle Transformation berücksichtigt,
-    // müssen wir die Gesamt-Rotation so setzen, dass die Kante waagerecht wird
-    
-    const newTotalRotation = currentRotation + requiredRotation;
-    
-    // Normalisiere die neue Gesamt-Rotation
-    currentRotation = newTotalRotation;
-    while (currentRotation > 180) {
-        currentRotation -= 360;
-    }
-    while (currentRotation < -180) {
-        currentRotation += 360;
-    }
-    
-    console.log(`   Neue Gesamt-Rotation: ${newTotalRotation.toFixed(1)}°`);
-    console.log(`✅ FINALE Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
-    
-    // ZUSATZ-VALIDIERUNG: Prüfe ob die Berechnung stimmt
-    console.log(`🔍 VALIDIERUNG:`);
-    console.log(`   Wenn wir um ${requiredRotation.toFixed(1)}° drehen...`);
-    const finalAngle = (edgeInfo.angle + requiredRotation) % 360;
-    const normalizedFinalAngle = finalAngle < 0 ? finalAngle + 360 : finalAngle;
-    console.log(`   Sollte Kanten-Winkel ${edgeInfo.angle.toFixed(1)}° + ${requiredRotation.toFixed(1)}° = ${normalizedFinalAngle.toFixed(1)}° werden`);
-    
-    // Prüfe ob das Ergebnis wirklich waagerecht ist (0° oder 360°, NICHT 180°!)
-    const isReallyHorizontal = Math.abs(normalizedFinalAngle) < 1 || Math.abs(normalizedFinalAngle - 360) < 1;
-    console.log(`   Ergebnis ist waagerecht (≈ 0° oder ≈ 360°): ${isReallyHorizontal ? '✅' : '❌'} (${normalizedFinalAngle.toFixed(1)}°)`);
-    
-    if (!isReallyHorizontal) {
-        console.log(`   ⚠️  WARNUNG: Kante wird NICHT waagerecht! Korrigiere...`);
-        // Erzwinge eine waagerechte Ausrichtung
-        requiredRotation = -edgeInfo.angle;
-        while (requiredRotation > 180) requiredRotation -= 360;
-        while (requiredRotation < -180) requiredRotation += 360;
-        console.log(`   📐 KORREKTUR: Verwende ${requiredRotation.toFixed(1)}° für echte waagerechte Ausrichtung`);
-    };
-    
-    // Bestimme Seiten-Namen für Feedback
-    const edgeNames = getEdgeNames(rawPoints.length);
-    const edgeName = edgeNames[edgeInfo.index] || `Seite ${edgeInfo.index + 1}`;
-    
-    // Aufräumen und neu zeichnen
-    disableSimpleShapeClicking();
-    hideSimpleTraufeInstructions();
-    
-    updateShape();
-    
-    showFeedback(`✅ ${edgeName} als Traufe ausgerichtet (${requiredRotation.toFixed(1)}° gedreht, total: ${currentRotation.toFixed(1)}°)`);
-}
-
-// Hilfsfunktion: Berechnet Abstand von Punkt zu Liniensegment
-function getDistanceToLineSegment(px, py, x1, y1, x2, y2) {
-    const A = px - x1;
-    const B = py - y1;
-    const C = x2 - x1;
-    const D = y2 - y1;
-    
-    const dot = A * C + B * D;
-    const lenSq = C * C + D * D;
-    
-    if (lenSq === 0) {
-        // Punkt-zu-Punkt Abstand
-        return Math.sqrt(A * A + B * B);
-    }
-    
-    let param = dot / lenSq;
-    
-    let xx, yy;
-    
-    if (param < 0) {
-        xx = x1;
-        yy = y1;
-    } else if (param > 1) {
-        xx = x2;
-        yy = y2;
-    } else {
-        xx = x1 + param * C;
-        yy = y1 + param * D;
-    }
-    
-    const dx = px - xx;
-    const dy = py - yy;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
-// Hilfsfunktion: Gibt sprechende Namen für Kanten zurück
-function getEdgeNames(numPoints) {
-    if (numPoints === 3) {
-        return ['Basis', 'Linke Seite', 'Rechte Seite'];
-    } else if (numPoints === 4) {
-        return ['Untere Seite', 'Rechte Seite', 'Obere Seite', 'Linke Seite'];
-    } else {
-        const names = [];
-        for (let i = 0; i < numPoints; i++) {
-            names.push(`Seite ${i + 1}`);
-        }
-        return names;
-    }
-}
-
-// Hilfsfunktion: Rohe Form-Punkte ohne Transformation
-function getRawShapePoints(data) {
-    const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
-    
-    let points = [];
-    let centerX = 0, centerY = 0;
-    
-    if (finalShape === 'dreieck') {
-        if (finalVariant === 'gleichseitig') {
-            const side = data.side || 6;
-            const height = side * Math.sqrt(3) / 2;
-            points = [
-                { x: side/2, y: height/3 },      // Spitze oben
-                { x: 0, y: -height*2/3 },        // Links unten
-                { x: side, y: -height*2/3 }      // Rechts unten
-            ];
-            centerX = side/2;
-            centerY = 0;
-        } else if (finalVariant === 'rechtwinklig') {
-            const a = data.katheteA || 4;
-            const b = data.katheteB || 5;
-            points = [
-                { x: 0, y: 0 },      // Rechter Winkel
-                { x: a, y: 0 },      // Ende Kathete A
-                { x: 0, y: b }       // Ende Kathete B
-            ];
-            centerX = a/2;
-            centerY = b/2;
-        } else {
-            // Ungleichschenkliges Dreieck
-            const a = data.sideA || 4;
-            const b = data.sideB || 5;
-            const c = data.sideC || 6;
-            
-            // Vereinfachte Berechnung
-            const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
-            points = [
-                { x: a/2, y: height },   // Spitze
-                { x: 0, y: 0 },          // Links
-                { x: a, y: 0 }           // Rechts
-            ];
-            centerX = a/2;
-            centerY = height/3;
-        }
-    } else if (finalShape === 'rechteck') {
-        const length = data.length || 8;
-        const width = data.width || 5;
-        points = [
-            { x: 0, y: 0 },
-            { x: length, y: 0 },
-            { x: length, y: width },
-            { x: 0, y: width }
-        ];
-        centerX = length/2;
-        centerY = width/2;
-    } else if (finalShape === 'quadrat') {
-        const side = data.side || 5;
-        points = [
-            { x: 0, y: 0 },
-            { x: side, y: 0 },
-            { x: side, y: side },
-            { x: 0, y: side }
-        ];
-        centerX = side/2;
-        centerY = side/2;
-    } else if (finalShape === 'trapez') {
-        const baseA = data.baseA || 8;
-        const baseB = data.baseB || 5;
-        const height = data.height || 4;
-        const offset = (baseA - baseB) / 2;
-        points = [
-            { x: 0, y: 0 },
-            { x: baseA, y: 0 },
-            { x: baseA - offset, y: height },
-            { x: offset, y: height }
-        ];
-        centerX = baseA/2;
-        centerY = height/2;
-    }
-    
-    return points.map(p => ({
-        ...p,
-        centerX: centerX,
-        centerY: centerY
-    }));
-}
-
-function disableSimpleShapeClicking() {
-    const shapeGroup = document.getElementById('roof-shape');
-    if (!shapeGroup) return;
-    
-    const shapes = shapeGroup.querySelectorAll('rect, polygon, circle, ellipse, path');
-    
-    shapes.forEach(shape => {
-        // Entferne Event Listener
-        shape.removeEventListener('click', handleSimpleShapeClick);
-        
-        // Setze visuellen Stil zurück
-        shape.style.cursor = 'default';
-        shape.style.stroke = '#007bff';
-        shape.style.strokeWidth = '3';
-    });
-    
-    console.log('🧹 Einfache Form-Klick-Erkennung deaktiviert');
-}
-
-function hideSimpleTraufeInstructions() {
-    const instructions = document.getElementById('simple-traufe-instructions');
-    if (instructions) {
-        instructions.remove();
-    }
-}
-
-// Globale Funktion für Abbrechen-Button
-window.cancelSimpleTraufeSelection = function() {
-    disableSimpleShapeClicking();
-    hideSimpleTraufeInstructions();
-    showFeedback('Traufe-Auswahl abgebrochen');
-};
 
 function showFeedback(message) {
     console.log(`💬 Feedback: ${message}`);
@@ -2083,4 +1577,4 @@ function calculateDimensions(data) {
     }
 }
 
-console.log('✅ Korrigierter Editor mit behobener Traufe-Funktion geladen');
+console.log('✅ Korrigierte Editor.js ohne fehlerhafte Funktionen geladen');
