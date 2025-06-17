@@ -1318,286 +1318,220 @@ function setupToolButtons() {
     });
 }
 
-// UNIVERSELLE Traufe-Auswahl: Funktioniert für ALLE Formen
+// EINFACHE Traufe-Auswahl: Klick auf Seite → dreht nach unten
 function selectTraufePosition() {
-    console.log('🏠 Universelle Traufe-Auswahl gestartet');
+    console.log('🏠 Einfache Traufe-Auswahl gestartet');
     
-    const finalShape = determineActualShape();
+    // Zeige einfache Anweisung
+    showSimpleTraufeInstructions();
     
-    // Erstelle formangepassten Dialog
-    showUniversalTraufeDialog(finalShape);
+    // Aktiviere Klick-Erkennung auf der Form
+    enableSimpleShapeClicking();
 }
 
-function showUniversalTraufeDialog(shapeType) {
-    // Entferne alte Dialoge
-    const existingDialog = document.getElementById('traufe-dialog');
-    if (existingDialog) {
-        existingDialog.remove();
-    }
+function showSimpleTraufeInstructions() {
+    // Entferne alte Instruktionen
+    const existingInstr = document.getElementById('simple-traufe-instructions');
+    if (existingInstr) existingInstr.remove();
     
-    // Erstelle neuen Dialog
-    const dialog = document.createElement('div');
-    dialog.id = 'traufe-dialog';
-    dialog.style.cssText = `
+    const instructions = document.createElement('div');
+    instructions.id = 'simple-traufe-instructions';
+    instructions.style.cssText = `
         position: fixed;
-        top: 50%;
+        top: 20px;
         left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        transform: translateX(-50%);
+        background: #28a745;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         z-index: 1000;
-        max-width: 500px;
-        border: 2px solid #007bff;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        animation: slideDown 0.3s ease-out;
     `;
     
-    let shapeSpecificText = '';
-    let buttonLayout = '';
+    instructions.innerHTML = `
+        🏠 <strong>Einfach:</strong> Klicken Sie auf die Seite der Form, die nach unten (Traufe) soll
+        <button onclick="cancelSimpleTraufeSelection()" style="margin-left: 15px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Abbrechen</button>
+    `;
     
-    if (shapeType === 'dreieck') {
-        shapeSpecificText = `
-            <p style="margin-bottom: 20px; color: #666;">
-                Wählen Sie, welche <strong>Seite des Dreiecks</strong> die Traufe (Wasserabfluss) werden soll:
-            </p>
+    // CSS für Animation
+    if (!document.getElementById('simple-feedback-styles')) {
+        const style = document.createElement('style');
+        style.id = 'simple-feedback-styles';
+        style.textContent = `
+            @keyframes slideDown {
+                from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
         `;
-        
-        const variant = determineActualVariant();
-        if (variant === 'gleichseitig') {
-            buttonLayout = `
-                <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px;">
-                    <button onclick="setTraufeForTriangle('base')" class="traufe-btn triangle-btn" 
-                            style="padding: 12px; background: #28a745; color: white; border: 2px solid #28a745; border-radius: 6px; cursor: pointer;">
-                        Basis (Standard) ▽
-                    </button>
-                    <button onclick="setTraufeForTriangle('left')" class="traufe-btn triangle-btn" 
-                            style="padding: 12px; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                        Linke Seite ◣
-                    </button>
-                    <button onclick="setTraufeForTriangle('right')" class="traufe-btn triangle-btn" 
-                            style="padding: 12px; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                        Rechte Seite ◤
-                    </button>
-                </div>
-            `;
-        } else {
-            buttonLayout = `
-                <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px;">
-                    <button onclick="setTraufeForTriangle('base')" class="traufe-btn triangle-btn" 
-                            style="padding: 12px; background: #28a745; color: white; border: 2px solid #28a745; border-radius: 6px; cursor: pointer;">
-                        Basis/Kathete A (Standard) ▽
-                    </button>
-                    <button onclick="setTraufeForTriangle('left')" class="traufe-btn triangle-btn" 
-                            style="padding: 12px; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                        Linke Seite ◣
-                    </button>
-                    <button onclick="setTraufeForTriangle('right')" class="traufe-btn triangle-btn" 
-                            style="padding: 12px; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                        Rechte Seite/Hypotenuse ◤
-                    </button>
-                </div>
-            `;
-        }
-    } else if (shapeType === 'kreis') {
-        shapeSpecificText = `
-            <p style="margin-bottom: 20px; color: #666;">
-                Bei runden Formen wird die <strong>Verlegerichtung</strong> durch Drehung bestimmt:
-            </p>
-        `;
-        buttonLayout = `
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                <button onclick="setTraufeAndClose('bottom')" class="traufe-btn" 
-                        style="padding: 10px; background: #28a745; color: white; border: 2px solid #28a745; border-radius: 6px; cursor: pointer;">
-                    Standard ↓
-                </button>
-                <button onclick="setTraufeAndClose('right')" class="traufe-btn" 
-                        style="padding: 10px; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                    Rechts →
-                </button>
-                <button onclick="setTraufeAndClose('top')" class="traufe-btn" 
-                        style="padding: 10px; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                    Oben ↑
-                </button>
-                <button onclick="setTraufeAndClose('left')" class="traufe-btn" 
-                        style="padding: 10px; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                    Links ←
-                </button>
-            </div>
-        `;
-    } else {
-        // Standard für Rechteck, Quadrat, etc.
-        shapeSpecificText = `
-            <p style="margin-bottom: 20px; color: #666;">
-                Welche Seite soll die Traufe (Wasserabfluss) werden?
-            </p>
-        `;
-        buttonLayout = `
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                <button onclick="setTraufeAndClose('top')" class="traufe-btn" 
-                        style="padding: 10px; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                    Oben
-                </button>
-                <button onclick="setTraufeAndClose('right')" class="traufe-btn" 
-                        style="padding: 10px; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                    Rechts
-                </button>
-                <button onclick="setTraufeAndClose('bottom')" class="traufe-btn" 
-                        style="padding: 10px; background: #28a745; color: white; border: 2px solid #28a745; border-radius: 6px; cursor: pointer;">
-                    Unten (Standard)
-                </button>
-                <button onclick="setTraufeAndClose('left')" class="traufe-btn" 
-                        style="padding: 10px; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                    Links
-                </button>
-            </div>
-        `;
+        document.head.appendChild(style);
     }
     
-    dialog.innerHTML = `
-        <h3 style="margin-bottom: 20px; color: #007bff;">Traufe-Position wählen</h3>
-        ${shapeSpecificText}
-        ${buttonLayout}
-        <div style="text-align: center;">
-            <button onclick="closeTraufeDialog()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                Abbrechen
-            </button>
-        </div>
-    `;
+    document.body.appendChild(instructions);
+}
+
+function enableSimpleShapeClicking() {
+    // Finde die Form im SVG
+    const shapeGroup = document.getElementById('roof-shape');
+    if (!shapeGroup) return;
     
-    // Overlay für Hintergrund
-    const overlay = document.createElement('div');
-    overlay.id = 'traufe-overlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 999;
-    `;
+    const shapes = shapeGroup.querySelectorAll('rect, polygon, circle, ellipse, path');
     
-    // Klick auf Overlay schließt Dialog
-    overlay.addEventListener('click', closeTraufeDialog);
-    
-    document.body.appendChild(overlay);
-    document.body.appendChild(dialog);
-    
-    // Hover-Effekte für Buttons
-    const buttons = dialog.querySelectorAll('.traufe-btn');
-    buttons.forEach(btn => {
-        btn.addEventListener('mouseenter', () => {
-            if (!btn.textContent.includes('Standard')) {
-                btn.style.background = '#007bff';
-                btn.style.color = 'white';
-                btn.style.borderColor = '#007bff';
-            }
+    shapes.forEach(shape => {
+        // Mache Form visuell klickbar
+        shape.style.cursor = 'crosshair';
+        shape.style.strokeWidth = '4';
+        shape.style.stroke = '#28a745';
+        
+        // Event Listener für Klick
+        shape.addEventListener('click', handleSimpleShapeClick);
+        shape.addEventListener('mouseenter', () => {
+            shape.style.stroke = '#ffc107';
+            shape.style.strokeWidth = '6';
         });
-        btn.addEventListener('mouseleave', () => {
-            if (!btn.textContent.includes('Standard')) {
-                btn.style.background = '#f8f9fa';
-                btn.style.color = '#000';
-                btn.style.borderColor = '#dee2e6';
-            }
+        shape.addEventListener('mouseleave', () => {
+            shape.style.stroke = '#28a745';
+            shape.style.strokeWidth = '4';
         });
     });
     
-    console.log(`✅ Universeller Traufe-Dialog für ${shapeType} angezeigt`);
+    console.log('✅ Einfache Form-Klick-Erkennung aktiviert');
 }
 
-// Globale Funktionen für den Dialog
-window.setTraufeAndClose = function(position) {
-    console.log(`🎯 Standard Traufe-Position gewählt: ${position}`);
+function handleSimpleShapeClick(event) {
+    console.log('🎯 Form wurde geklickt');
     
-    const oldPosition = traufePosition;
-    traufePosition = position;
+    // Ermittle Klick-Position relativ zur Form
+    const rect = event.target.getBoundingClientRect();
+    const svgRect = svg.getBoundingClientRect();
     
-    // Rotiere das Dach so, dass die gewählte Seite nach unten zeigt
-    switch(position) {
-        case 'top':
-            currentRotation = 180;
-            break;
-        case 'right':
-            currentRotation = 90;
-            break;
-        case 'bottom':
-            currentRotation = 0;
-            break;
-        case 'left':
-            currentRotation = -90;
-            break;
+    // Klick-Position im SVG-Koordinatensystem
+    const clickX = event.clientX - svgRect.left;
+    const clickY = event.clientY - svgRect.top;
+    
+    console.log(`Klick-Position: ${clickX}, ${clickY}`);
+    console.log(`Form-Mitte: ${CANVAS_CENTER_X}, ${CANVAS_CENTER_Y}`);
+    
+    // Berechne welche Seite geklickt wurde (relativ zur Form-Mitte)
+    const deltaX = clickX - CANVAS_CENTER_X;
+    const deltaY = clickY - CANVAS_CENTER_Y;
+    
+    let targetRotation = 0;
+    let sideName = '';
+    
+    // Bestimme die nächste Seite basierend auf Klick-Position
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Horizontale Seiten
+        if (deltaX > 0) {
+            // Rechte Seite angeklickt → drehe so dass rechts nach unten kommt
+            targetRotation = 90;
+            sideName = 'rechte Seite';
+        } else {
+            // Linke Seite angeklickt → drehe so dass links nach unten kommt
+            targetRotation = -90;
+            sideName = 'linke Seite';
+        }
+    } else {
+        // Vertikale Seiten
+        if (deltaY > 0) {
+            // Untere Seite angeklickt → keine Drehung (schon unten)
+            targetRotation = 0;
+            sideName = 'untere Seite';
+        } else {
+            // Obere Seite angeklickt → drehe so dass oben nach unten kommt
+            targetRotation = 180;
+            sideName = 'obere Seite';
+        }
     }
     
-    console.log(`Rotation geändert auf: ${currentRotation}°`);
+    console.log(`Erkannte Seite: ${sideName}, Ziel-Rotation: ${targetRotation}°`);
     
+    // Führe die Drehung aus
+    currentRotation = targetRotation;
+    traufePosition = getTraufePositionFromRotation(targetRotation);
+    
+    // Deaktiviere Klick-Erkennung
+    disableSimpleShapeClicking();
+    
+    // Verstecke Instruktionen
+    hideSimpleTraufeInstructions();
+    
+    // Aktualisiere die Darstellung
     updateShape();
-    closeTraufeDialog();
     
-    const positionNames = {
-        'top': 'obere Seite',
-        'right': 'rechte Seite',
-        'bottom': 'untere Seite (Standard)',
-        'left': 'linke Seite'
-    };
+    // Zeige Bestätigung
+    showFeedback(`✅ Traufe geändert: ${sideName} ist jetzt unten (Wasserabfluss)`);
+}
+
+function getTraufePositionFromRotation(rotation) {
+    switch(rotation) {
+        case 0: return 'bottom';
+        case 90: return 'right';
+        case 180: return 'top';
+        case -90: return 'left';
+        default: return 'bottom';
+    }
+}
+
+function disableSimpleShapeClicking() {
+    const shapeGroup = document.getElementById('roof-shape');
+    if (!shapeGroup) return;
     
-    showFeedback(`Traufe geändert: ${positionNames[position]} ist jetzt unten (Wasserabfluss)`);
+    const shapes = shapeGroup.querySelectorAll('rect, polygon, circle, ellipse, path');
+    
+    shapes.forEach(shape => {
+        // Entferne Event Listener
+        shape.removeEventListener('click', handleSimpleShapeClick);
+        shape.removeEventListener('mouseenter', () => {});
+        shape.removeEventListener('mouseleave', () => {});
+        
+        // Setze visuellen Stil zurück
+        shape.style.cursor = 'default';
+        shape.style.stroke = '#007bff';
+        shape.style.strokeWidth = '3';
+    });
+    
+    console.log('🧹 Einfache Form-Klick-Erkennung deaktiviert');
+}
+
+function hideSimpleTraufeInstructions() {
+    const instructions = document.getElementById('simple-traufe-instructions');
+    if (instructions) {
+        instructions.remove();
+    }
+}
+
+// Globale Funktion für Abbrechen-Button
+window.cancelSimpleTraufeSelection = function() {
+    disableSimpleShapeClicking();
+    hideSimpleTraufeInstructions();
+    showFeedback('Traufe-Auswahl abgebrochen');
 };
 
-// Spezielle Funktion für Dreiecke
+// ENTFERNE die komplexen Dialog-Funktionen
+function showUniversalTraufeDialog() {
+    // Diese Funktion wird nicht mehr verwendet
+    console.log('Alte Dialog-Funktion wird übersprungen - verwende einfache Klick-Methode');
+}
+
+// ENTFERNE die alten Dialog-Funktionen - werden nicht mehr gebraucht
+window.setTraufeAndClose = function(position) {
+    // Diese Funktion wird nicht mehr verwendet
+    console.log('Alte Dialog-Funktion - verwende stattdessen einfache Klick-Methode');
+};
+
 window.setTraufeForTriangle = function(triangleSide) {
-    console.log(`🔺 Dreieck Traufe-Seite gewählt: ${triangleSide}`);
-    
-    const variant = determineActualVariant();
-    
-    // Bestimme Rotation basierend auf Dreieck-Seite
-    switch(triangleSide) {
-        case 'base':
-            // Basis bleibt unten (Standard)
-            currentRotation = 0;
-            traufePosition = 'bottom';
-            break;
-        case 'left':
-            // Linke Seite wird zur Traufe (nach unten drehen)
-            if (variant === 'gleichseitig') {
-                currentRotation = 120; // Drehe um 120° für gleichseitiges Dreieck
-            } else {
-                currentRotation = 90; // Standarddrehung
-            }
-            traufePosition = 'left';
-            break;
-        case 'right':
-            // Rechte Seite wird zur Traufe
-            if (variant === 'gleichseitig') {
-                currentRotation = -120; // Drehe um -120° für gleichseitiges Dreieck
-            } else {
-                currentRotation = -90; // Standarddrehung
-            }
-            traufePosition = 'right';
-            break;
-    }
-    
-    console.log(`Dreieck gedreht auf: ${currentRotation}° für Seite: ${triangleSide}`);
-    
-    updateShape();
-    closeTraufeDialog();
-    
-    const sideNames = {
-        'base': 'Basis',
-        'left': 'linke Seite', 
-        'right': 'rechte Seite'
-    };
-    
-    showFeedback(`Dreieck-Traufe geändert: ${sideNames[triangleSide]} ist jetzt unten (Wasserabfluss)`);
+    // Diese Funktion wird nicht mehr verwendet
+    console.log('Alte Dialog-Funktion - verwende stattdessen einfache Klick-Methode');
 };
 
 window.closeTraufeDialog = function() {
-    console.log('🚪 Traufe-Dialog wird geschlossen');
-    
-    const dialog = document.getElementById('traufe-dialog');
-    const overlay = document.getElementById('traufe-overlay');
-    
-    if (dialog) dialog.remove();
-    if (overlay) overlay.remove();
+    // Diese Funktion wird nicht mehr verwendet
+    console.log('Alte Dialog-Funktion - verwende stattdessen einfache Klick-Methode');
 };
 
 function showFeedback(message) {
