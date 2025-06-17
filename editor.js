@@ -1,4 +1,45 @@
-// editor.js – KORRIGIERTE Version mit behobener Traufe-Funktion
+// FUNDAMENTAL KORRIGIERTE Funktion - arbeitet mit ursprünglichen Koordinaten
+function handleSimpleShapeClick(event) {
+    console.log('🖱️ Form-Klick erkannt, analysiere angeklickte Seite...');
+    
+    // Hol die Mausposition relativ zur Form
+    const rect = svg.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    
+    console.log(`Klick-Position: ${mouseX}, ${mouseY}`);
+    
+    // SCHLÜSSEL: Arbeite mit den URSPRÜNGLICHEN Punkten (ohne aktuelle Transformation)
+    const currentData = getCurrentFormData();
+    const originalPoints = getRawShapePointsOriginal(currentData);
+    
+    if (!originalPoints || originalPoints.length < 3) {
+        console.error('Keine gültigen Form-Punkte gefunden');
+        return;
+    }
+    
+    console.log('URSPRÜNGLICHE Form-Punkte (ohne Transformation):', originalPoints);
+    
+    // Transformiere die ursprünglichen Punkte in Canvas-Koordinaten (MIT aktueller Transformation)
+    const transformedCanvasPoints = originalPoints.map(point => {
+        const canvasX = CANVAS_CENTER_X + point.x * SCALE_FACTOR;
+        const canvasY = CANVAS_CENTER_Y - point.y * SCALE_FACTOR;
+        return transformPoint(canvasX, canvasY);
+    });
+    
+    console.log('Transformierte Canvas-Punkte:', transformedCanvasPoints);
+    
+    // Finde die nächste Kante zum Klick-Punkt
+    let closestEdge = null;
+    let minDistance = Infinity;
+    let edgeInfo = null;
+    
+    for (let i = 0; i < transformedCanvasPoints.length; i++) {
+        const p1 = transformedCanvasPoints[i];
+        const p2 = transformedCanvasPoints[(i + 1) % transformedCanvasPoints.length];
+        
+        // Berechne Abstand von Klick-Punkt zur Kante
+        const distance = getDistanceToLine// editor.js – KORRIGIERTE Version mit behobener Traufe-Funktion
 
 let projectData = {};
 let currentShape = '';
