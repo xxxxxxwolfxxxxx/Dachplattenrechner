@@ -1478,30 +1478,52 @@ function handleSimpleShapeClick(event) {
         normalizedEdgeAngle += 360;
     }
     
-    // Berechne die Rotation um die Kante auf 0° (waagerecht) zu bringen
-    let requiredRotation = -normalizedEdgeAngle;
+    // Berechne BEIDE Optionen: Kante auf 0° oder auf 180°
+    let rotationTo0 = -normalizedEdgeAngle;
+    let rotationTo180 = -normalizedEdgeAngle + (normalizedEdgeAngle > 0 ? -180 : 180);
     
-    // Prüfe beide Möglichkeiten (0° und 180°) und wähle die kleinere Drehung
-    let alternativeRotation = -normalizedEdgeAngle + (normalizedEdgeAngle > 0 ? -180 : 180);
+    // Normalisiere beide Optionen auf -180° bis +180°
+    while (rotationTo0 > 180) rotationTo0 -= 360;
+    while (rotationTo0 < -180) rotationTo0 += 360;
+    while (rotationTo180 > 180) rotationTo180 -= 360;
+    while (rotationTo180 < -180) rotationTo180 += 360;
     
-    // Normalisiere beide Optionen
-    while (alternativeRotation > 180) {
-        alternativeRotation -= 360;
-    }
-    while (alternativeRotation < -180) {
-        alternativeRotation += 360;
-    }
+    // Berechne Endergebnisse
+    let resultAngle0 = (normalizedEdgeAngle + rotationTo0) % 360;
+    if (resultAngle0 < 0) resultAngle0 += 360;
     
-    // Wähle die kleinere Drehung
-    if (Math.abs(alternativeRotation) < Math.abs(requiredRotation)) {
-        requiredRotation = alternativeRotation;
-        console.log(`   → Wähle 180°-Alternative für kleinere Drehung`);
+    let resultAngle180 = (normalizedEdgeAngle + rotationTo180) % 360;
+    if (resultAngle180 < 0) resultAngle180 += 360;
+    
+    // WICHTIG: Prüfe welche Option tatsächlich waagerecht (0° oder 360°) ergibt
+    const is0Horizontal = Math.abs(resultAngle0) < 1 || Math.abs(resultAngle0 - 360) < 1;
+    const is180Horizontal = Math.abs(resultAngle180) < 1 || Math.abs(resultAngle180 - 360) < 1;
+    
+    let requiredRotation;
+    let chosenOption;
+    
+    if (is0Horizontal && is180Horizontal) {
+        // Beide ergeben waagerechte Linien, wähle kleinere Drehung
+        requiredRotation = Math.abs(rotationTo0) <= Math.abs(rotationTo180) ? rotationTo0 : rotationTo180;
+        chosenOption = Math.abs(rotationTo0) <= Math.abs(rotationTo180) ? "0°" : "180°";
+    } else if (is0Horizontal) {
+        // Nur Option 1 ergibt waagerechte Linie
+        requiredRotation = rotationTo0;
+        chosenOption = "0°";
+    } else if (is180Horizontal) {
+        // Nur Option 2 ergibt waagerechte Linie
+        requiredRotation = rotationTo180;
+        chosenOption = "180°";
+    } else {
+        // Fallback: erzwinge 0°
+        requiredRotation = rotationTo0;
+        chosenOption = "0° (erzwungen)";
     }
     
     console.log(`   Normalisierter Kanten-Winkel: ${normalizedEdgeAngle.toFixed(1)}°`);
-    console.log(`   Option 1 (→ 0°): ${(-normalizedEdgeAngle).toFixed(1)}°`);
-    console.log(`   Option 2 (→ 180°): ${alternativeRotation.toFixed(1)}°`);
-    console.log(`   → Gewählt: ${requiredRotation.toFixed(1)}°`)
+    console.log(`   Option 1 (→ 0°): ${rotationTo0.toFixed(1)}° → Ergebnis: ${resultAngle0.toFixed(1)}° ${is0Horizontal ? '✅ waagerecht' : '❌ nicht waagerecht'}`);
+    console.log(`   Option 2 (→ 180°): ${rotationTo180.toFixed(1)}° → Ergebnis: ${resultAngle180.toFixed(1)}° ${is180Horizontal ? '✅ waagerecht' : '❌ nicht waagerecht'}`);
+    console.log(`   → Gewählt: ${chosenOption} mit ${requiredRotation.toFixed(1)}° Drehung`)
     
     console.log(`📐 ROTATIONS-BERECHNUNG:`);
     console.log(`   Aktueller Kanten-Winkel: ${edgeInfo.angle.toFixed(1)}°`);
@@ -1530,10 +1552,22 @@ function handleSimpleShapeClick(event) {
     // ZUSATZ-VALIDIERUNG: Prüfe ob die Berechnung stimmt
     console.log(`🔍 VALIDIERUNG:`);
     console.log(`   Wenn wir um ${requiredRotation.toFixed(1)}° drehen...`);
-    console.log(`   Sollte Kanten-Winkel ${edgeInfo.angle.toFixed(1)}° + ${requiredRotation.toFixed(1)}° = ${(edgeInfo.angle + requiredRotation).toFixed(1)}° werden`);
-    const expectedResult = edgeInfo.angle + requiredRotation;
-    const isCorrect = Math.abs(expectedResult % 180) < 1; // Sollte 0° oder 180° sein
-    console.log(`   Ergebnis sollte ≈ 0° oder ≈ 180° sein: ${isCorrect ? '✅' : '❌'} (${expectedResult.toFixed(1)}°)`);
+    const finalAngle = (edgeInfo.angle + requiredRotation) % 360;
+    const normalizedFinalAngle = finalAngle < 0 ? finalAngle + 360 : finalAngle;
+    console.log(`   Sollte Kanten-Winkel ${edgeInfo.angle.toFixed(1)}° + ${requiredRotation.toFixed(1)}° = ${normalizedFinalAngle.toFixed(1)}° werden`);
+    
+    // Prüfe ob das Ergebnis wirklich waagerecht ist (0° oder 360°, NICHT 180°!)
+    const isReallyHorizontal = Math.abs(normalizedFinalAngle) < 1 || Math.abs(normalizedFinalAngle - 360) < 1;
+    console.log(`   Ergebnis ist waagerecht (≈ 0° oder ≈ 360°): ${isReallyHorizontal ? '✅' : '❌'} (${normalizedFinalAngle.toFixed(1)}°)`);
+    
+    if (!isReallyHorizontal) {
+        console.log(`   ⚠️  WARNUNG: Kante wird NICHT waagerecht! Korrigiere...`);
+        // Erzwinge eine waagerechte Ausrichtung
+        requiredRotation = -edgeInfo.angle;
+        while (requiredRotation > 180) requiredRotation -= 360;
+        while (requiredRotation < -180) requiredRotation += 360;
+        console.log(`   📐 KORREKTUR: Verwende ${requiredRotation.toFixed(1)}° für echte waagerechte Ausrichtung`);
+    };
     
     // Bestimme Seiten-Namen für Feedback
     const edgeNames = getEdgeNames(rawPoints.length);
