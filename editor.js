@@ -1,4 +1,4 @@
-// editor.js – Finale Version mit korrigierter Traufe-Funktion und exakter Winkelberechnung
+// editor.js – KORRIGIERTE Version mit behobener Traufe-Funktion
 
 let projectData = {};
 let currentShape = '';
@@ -1379,7 +1379,7 @@ function enableSimpleShapeClicking() {
         shape.style.strokeWidth = '4';
         shape.style.stroke = '#28a745';
         
-        // Event Listener für Klick
+        // Event Listener für Klick - KORRIGIERT: Funktion existiert
         shape.addEventListener('click', handleSimpleShapeClick);
         shape.addEventListener('mouseenter', () => {
             shape.style.stroke = '#ffc107';
@@ -1394,79 +1394,64 @@ function enableSimpleShapeClicking() {
     console.log('✅ Einfache Form-Klick-Erkennung aktiviert - klicken Sie auf die Seite, die zur Traufe werden soll');
 }
 
-// Hilfsfunktion: Rohe Form-Punkte ohne Transformation
-function getRawShapePoints(data) {
-    const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
+// NEUE KORRIGIERTE Funktion für Shape-Klick
+function handleSimpleShapeClick(event) {
+    console.log('🖱️ Form-Klick erkannt, bestimme Traufe-Position...');
     
-    let points = [];
-    let centerX = 0, centerY = 0;
+    // Hol die Mausposition relativ zur Form
+    const rect = svg.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
     
-    if (finalShape === 'dreieck') {
-        if (finalVariant === 'gleichseitig') {
-            const side = data.side || 6;
-            const height = side * Math.sqrt(3) / 2;
-            points = [
-                { x: side/2, y: height/3 },      // Spitze oben
-                { x: 0, y: -height/3 },          // Links unten
-                { x: side, y: -height/3 }        // Rechts unten
-            ];
-            centerX = side/2;
-            centerY = 0;
-        } else if (finalVariant === 'rechtwinklig') {
-            const a = data.katheteA || 4;
-            const b = data.katheteB || 5;
-            points = [
-                { x: 0, y: 0 },      // Rechter Winkel
-                { x: a, y: 0 },      // Ende Kathete A
-                { x: 0, y: b }       // Ende Kathete B
-            ];
-            centerX = a/2;
-            centerY = b/2;
+    console.log(`Klick-Position: ${mouseX}, ${mouseY}`);
+    
+    // Bestimme welche Seite geklickt wurde basierend auf der Position
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    const relX = mouseX - centerX;
+    const relY = mouseY - centerY;
+    
+    // Bestimme die nächste "Kardinalrichtung" 
+    let targetRotation = 0;
+    let traufeName = '';
+    
+    if (Math.abs(relX) > Math.abs(relY)) {
+        // Horizontaler Klick
+        if (relX > 0) {
+            // Rechte Seite soll nach unten → 90° links drehen
+            targetRotation = -90;
+            traufeName = 'rechte Seite';
         } else {
-            // Ungleichschenkliges Dreieck
-            const a = data.sideA || 4;
-            const b = data.sideB || 5;
-            const c = data.sideC || 6;
-            
-            // Vereinfachte Berechnung
-            const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
-            points = [
-                { x: a/2, y: height },   // Spitze
-                { x: 0, y: 0 },          // Links
-                { x: a, y: 0 }           // Rechts
-            ];
-            centerX = a/2;
-            centerY = height/3;
+            // Linke Seite soll nach unten → 90° rechts drehen
+            targetRotation = 90;
+            traufeName = 'linke Seite';
         }
-    } else if (finalShape === 'rechteck') {
-        const length = data.length || 8;
-        const width = data.width || 5;
-        points = [
-            { x: 0, y: 0 },
-            { x: length, y: 0 },
-            { x: length, y: width },
-            { x: 0, y: width }
-        ];
-        centerX = length/2;
-        centerY = width/2;
-    } else if (finalShape === 'quadrat') {
-        const side = data.side || 5;
-        points = [
-            { x: 0, y: 0 },
-            { x: side, y: 0 },
-            { x: side, y: side },
-            { x: 0, y: side }
-        ];
-        centerX = side/2;
-        centerY = side/2;
+    } else {
+        // Vertikaler Klick
+        if (relY > 0) {
+            // Untere Seite soll nach unten → keine Drehung
+            targetRotation = 0;
+            traufeName = 'untere Seite';
+        } else {
+            // Obere Seite soll nach unten → 180° drehen
+            targetRotation = 180;
+            traufeName = 'obere Seite';
+        }
     }
     
-    return points.map(p => ({
-        ...p,
-        centerX: centerX,
-        centerY: centerY
-    }));
+    console.log(`Traufe-Ziel: ${traufeName} → Rotation: ${targetRotation}°`);
+    
+    // Setze die neue Rotation
+    currentRotation = targetRotation;
+    
+    // Aufräumen und neu zeichnen
+    disableSimpleShapeClicking();
+    hideSimpleTraufeInstructions();
+    
+    updateShape();
+    
+    showFeedback(`✅ Traufe festgelegt: ${traufeName} ist jetzt die Traufe (${targetRotation}°)`);
 }
 
 function disableSimpleShapeClicking() {
@@ -1478,8 +1463,6 @@ function disableSimpleShapeClicking() {
     shapes.forEach(shape => {
         // Entferne Event Listener
         shape.removeEventListener('click', handleSimpleShapeClick);
-        shape.removeEventListener('mouseenter', () => {});
-        shape.removeEventListener('mouseleave', () => {});
         
         // Setze visuellen Stil zurück
         shape.style.cursor = 'default';
@@ -1822,4 +1805,4 @@ function calculateDimensions(data) {
     }
 }
 
-console.log('✅ Korrigierter Editor mit exakter Traufe-Funktion geladen');
+console.log('✅ Korrigierter Editor mit behobener Traufe-Funktion geladen');
