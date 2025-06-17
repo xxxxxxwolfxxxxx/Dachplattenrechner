@@ -1394,145 +1394,6 @@ function enableSimpleShapeClicking() {
     console.log('✅ Einfache Form-Klick-Erkennung aktiviert - klicken Sie auf die Seite, die zur Traufe werden soll');
 }
 
-// ECHTE Seitenvermessung und Drehung - keine festen Winkel!
-function handleSimpleShapeClick(event) {
-    console.log('🎯 Form wurde geklickt - vermesse echte Seite');
-    
-    // Ermittle Klick-Position relativ zur Form
-    const rect = event.target.getBoundingClientRect();
-    const svgRect = svg.getBoundingClientRect();
-    
-    // Klick-Position im SVG-Koordinatensystem
-    const clickX = event.clientX - svgRect.left;
-    const clickY = event.clientY - svgRect.top;
-    
-    console.log(`Klick-Position: ${clickX}, ${clickY}`);
-    
-    // Hole die aktuellen Form-Punkte (ohne Transformation)
-    const currentData = getCurrentFormData();
-    const basePoints = getRawShapePoints(currentData);
-    
-    console.log('Basis-Punkte der Form:', basePoints);
-    
-    // Finde die nächstliegende Seite zum Klick
-    let closestSide = null;
-    let minDistance = Infinity;
-    
-    for (let i = 0; i < basePoints.length; i++) {
-        const p1 = basePoints[i];
-        const p2 = basePoints[(i + 1) % basePoints.length];
-        
-        // Transformiere Punkte ins Canvas-Koordinatensystem
-        const canvasP1 = {
-            x: CANVAS_CENTER_X + (p1.x - currentData.centerX) * SCALE_FACTOR,
-            y: CANVAS_CENTER_Y - (p1.y - currentData.centerY) * SCALE_FACTOR
-        };
-        const canvasP2 = {
-            x: CANVAS_CENTER_X + (p2.x - currentData.centerX) * SCALE_FACTOR,
-            y: CANVAS_CENTER_Y - (p2.y - currentData.centerY) * SCALE_FACTOR
-        };
-        
-        // Berechne Abstand vom Klick zur Linie
-        const distance = distanceToLineSegment(clickX, clickY, canvasP1.x, canvasP1.y, canvasP2.x, canvasP2.y);
-        
-        if (distance < minDistance) {
-            minDistance = distance;
-            closestSide = {
-                index: i,
-                p1: p1,
-                p2: p2,
-                canvasP1: canvasP1,
-                canvasP2: canvasP2
-            };
-        }
-    }
-    
-    if (!closestSide) {
-        console.log('❌ Keine Seite gefunden');
-        return;
-    }
-    
-    console.log(`✅ Nächste Seite gefunden: Index ${closestSide.index}`);
-    console.log(`Seiten-Punkte: (${closestSide.p1.x}, ${closestSide.p1.y}) zu (${closestSide.p2.x}, ${closestSide.p2.y})`);
-    
-    // VERMESSE den aktuellen Winkel dieser Seite
-    const deltaX = closestSide.p2.x - closestSide.p1.x;
-    const deltaY = closestSide.p2.y - closestSide.p1.y;
-    
-    // Winkel der Seite zur Horizontalen (in Grad)
-    let sideAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-    
-    console.log(`📐 Gemessener Seitenwinkel: ${sideAngle.toFixed(2)}°`);
-    
-    // Berechne notwendige Rotation, um diese Seite horizontal zu machen
-    let targetRotation = -sideAngle;
-    
-    // Normalisiere auf -180° bis +180°
-    while (targetRotation > 180) targetRotation -= 360;
-    while (targetRotation <= -180) targetRotation += 360;
-    
-    console.log(`🎯 Benötigte Rotation: ${targetRotation.toFixed(2)}°`);
-    
-    // KRITISCH: Vor der Transformation ALLE Labels löschen
-    const labelsGroup = document.getElementById('labels');
-    const traufeGroup = document.getElementById('traufe-elements');
-    if (labelsGroup) labelsGroup.innerHTML = '';
-    if (traufeGroup) traufeGroup.innerHTML = '';
-    
-    // Lösche auch alle Text-Elemente direkt im SVG
-    const allTexts = svg.querySelectorAll('text');
-    allTexts.forEach(text => text.remove());
-    
-    // Führe die EXAKT VERMESSENE Drehung aus
-    currentRotation = Math.round(targetRotation * 10) / 10; // Auf 0.1° genau
-    traufePosition = 'bottom';
-    
-    // Deaktiviere Klick-Erkennung
-    disableSimpleShapeClicking();
-    
-    // Verstecke Instruktionen
-    hideSimpleTraufeInstructions();
-    
-    // Aktualisiere die Darstellung
-    updateShape();
-    
-    // Zeige Bestätigung
-    showFeedback(`✅ Seite ${closestSide.index + 1} vermessen und horizontal gedreht (${Math.abs(targetRotation).toFixed(1)}°)`);
-}
-
-// Hilfsfunktion: Abstand von Punkt zu Liniensegment
-function distanceToLineSegment(px, py, x1, y1, x2, y2) {
-    const A = px - x1;
-    const B = py - y1;
-    const C = x2 - x1;
-    const D = y2 - y1;
-    
-    const dot = A * C + B * D;
-    const lenSq = C * C + D * D;
-    let param = -1;
-    
-    if (lenSq !== 0) {
-        param = dot / lenSq;
-    }
-    
-    let xx, yy;
-    
-    if (param < 0) {
-        xx = x1;
-        yy = y1;
-    } else if (param > 1) {
-        xx = x2;
-        yy = y2;
-    } else {
-        xx = x1 + param * C;
-        yy = y1 + param * D;
-    }
-    
-    const dx = px - xx;
-    const dy = py - yy;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
 // Hilfsfunktion: Rohe Form-Punkte ohne Transformation
 function getRawShapePoints(data) {
     const finalShape = determineActualShape();
@@ -1550,6 +1411,8 @@ function getRawShapePoints(data) {
                 { x: 0, y: -height/3 },          // Links unten
                 { x: side, y: -height/3 }        // Rechts unten
             ];
+            centerX = side/2;
+            centerY = 0;
         } else if (finalVariant === 'rechtwinklig') {
             const a = data.katheteA || 4;
             const b = data.katheteB || 5;
@@ -1599,13 +1462,11 @@ function getRawShapePoints(data) {
         centerY = side/2;
     }
     
-    // Füge Zentrum hinzu für Transformation
-    points.forEach(p => {
-        p.centerX = centerX;
-        p.centerY = centerY;
-    });
-    
-    return points;
+    return points.map(p => ({
+        ...p,
+        centerX: centerX,
+        centerY: centerY
+    }));
 }
 
 function disableSimpleShapeClicking() {
