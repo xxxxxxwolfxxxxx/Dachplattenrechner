@@ -1394,7 +1394,7 @@ function enableSimpleShapeClicking() {
     console.log('✅ Einfache Form-Klick-Erkennung aktiviert - klicken Sie auf die Seite, die zur Traufe werden soll');
 }
 
-// KORRIGIERTE Klick-Behandlung mit umgekehrter Drehrichtung (Test)
+// KORRIGIERTE Klick-Behandlung mit echter Seiten-Erkennung statt Klick-Punkt
 function handleSimpleShapeClick(event) {
     console.log('🎯 Form wurde geklickt');
     
@@ -1409,53 +1409,100 @@ function handleSimpleShapeClick(event) {
     console.log(`Klick-Position: ${clickX}, ${clickY}`);
     console.log(`Form-Mitte: ${CANVAS_CENTER_X}, ${CANVAS_CENTER_Y}`);
     
-    // Berechne welche Seite geklickt wurde und den EXAKTEN Winkel
+    // Berechne welche Seite geklickt wurde
     const deltaX = clickX - CANVAS_CENTER_X;
     const deltaY = clickY - CANVAS_CENTER_Y;
     
-    // UNIVERSELLE Winkelberechnung für ALLE Formen
-    let clickAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-    
-    // Normalisiere Winkel auf 0-360°
-    if (clickAngle < 0) clickAngle += 360;
-    
-    // TEST: Die geklickte Seite soll nach UNTEN (270°) rotiert werden
-    // UMGEKEHRTE Drehrichtung testen:
-    let targetRotation = clickAngle - 270;
-    
-    // Normalisiere Rotation auf -180° bis +180°
-    while (targetRotation > 180) targetRotation -= 360;
-    while (targetRotation <= -180) targetRotation += 360;
-    
-    // Bestimme Seitennamen basierend auf ursprünglichem Klick-Winkel
-    let sideName = '';
     const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
     
+    let targetRotation = 0;
+    let sideName = '';
+    
+    // NEUE LOGIK: Bestimme die ECHTE Seite basierend auf Form-Geometrie
     if (finalShape === 'dreieck') {
-        // Spezielle Namen für Dreieck-Seiten
-        if (clickAngle >= 315 || clickAngle < 45) {
-            sideName = 'rechte Seite';
-        } else if (clickAngle >= 45 && clickAngle < 135) {
-            sideName = 'untere Seite';
-        } else if (clickAngle >= 135 && clickAngle < 225) {
-            sideName = 'linke Seite';
+        if (finalVariant === 'gleichseitig') {
+            // Gleichseitiges Dreieck: 3 Seiten, jede hat festen Winkel
+            if (deltaY > 15) {
+                // Basis (unten) geklickt - Winkel 0° (horizontal)
+                targetRotation = 0;
+                sideName = 'Basis (unten)';
+            } else if (deltaX < 0) {
+                // Linke Seite geklickt - Winkel 60° (von horizontal)
+                // Um diese Seite horizontal nach unten zu bringen: -60°
+                targetRotation = -60;
+                sideName = 'linke Seite';
+            } else {
+                // Rechte Seite geklickt - Winkel 120° (von horizontal) 
+                // Um diese Seite horizontal nach unten zu bringen: -120°
+                targetRotation = -120;
+                sideName = 'rechte Seite';
+            }
+        } else if (finalVariant === 'rechtwinklig') {
+            // Rechtwinkliges Dreieck
+            if (deltaY > 0 && Math.abs(deltaX) < 60) {
+                // Basis (Kathete A) - horizontal
+                targetRotation = 0;
+                sideName = 'Kathete A (horizontal)';
+            } else if (deltaX < 0) {
+                // Linke Seite (Kathete B) - vertikal, um horizontal zu machen: -90°
+                targetRotation = -90;
+                sideName = 'Kathete B (vertikal)';
+            } else {
+                // Hypotenuse - diagonal, Winkel abhängig von Katheten-Verhältnis
+                const a = getCurrentFormData().katheteA || 4;
+                const b = getCurrentFormData().katheteB || 5;
+                const hypotenuseAngle = Math.atan2(b, a) * (180 / Math.PI);
+                targetRotation = -hypotenuseAngle;
+                sideName = 'Hypotenuse';
+            }
         } else {
-            sideName = 'obere Seite';
+            // Ungleichschenkliges Dreieck - vereinfacht
+            if (deltaY > 15) {
+                targetRotation = 0;
+                sideName = 'Basis';
+            } else if (deltaX < 0) {
+                targetRotation = -60; // Schätzung
+                sideName = 'linke Seite';
+            } else {
+                targetRotation = -120; // Schätzung
+                sideName = 'rechte Seite';
+            }
+        }
+    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        // Rechteck/Quadrat: 4 Seiten à 90°
+        if (Math.abs(deltaY) > Math.abs(deltaX)) {
+            if (deltaY > 0) {
+                // Untere Seite - bereits horizontal
+                targetRotation = 0;
+                sideName = 'untere Seite';
+            } else {
+                // Obere Seite - um 180° drehen
+                targetRotation = 180;
+                sideName = 'obere Seite';
+            }
+        } else {
+            if (deltaX > 0) {
+                // Rechte Seite - um -90° drehen
+                targetRotation = -90;
+                sideName = 'rechte Seite';
+            } else {
+                // Linke Seite - um 90° drehen  
+                targetRotation = 90;
+                sideName = 'linke Seite';
+            }
         }
     } else {
-        // Standard-Namen für andere Formen
-        if (clickAngle >= 315 || clickAngle < 45) {
-            sideName = 'rechte Seite';
-        } else if (clickAngle >= 45 && clickAngle < 135) {
-            sideName = 'untere Seite';
-        } else if (clickAngle >= 135 && clickAngle < 225) {
-            sideName = 'linke Seite';
-        } else {
-            sideName = 'obere Seite';
-        }
+        // Fallback für andere Formen: Standard-Berechnung
+        let clickAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+        if (clickAngle < 0) clickAngle += 360;
+        targetRotation = clickAngle - 270;
+        while (targetRotation > 180) targetRotation -= 360;
+        while (targetRotation <= -180) targetRotation += 360;
+        sideName = 'gewählte Seite';
     }
     
-    console.log(`Form: ${finalShape}, Klick-Winkel: ${clickAngle.toFixed(1)}°, Erkannte Seite: ${sideName}, Ziel-Rotation: ${targetRotation.toFixed(1)}° (UMGEKEHRTE RICHTUNG TEST)`);
+    console.log(`Form: ${finalShape}/${finalVariant}, Delta: (${deltaX.toFixed(1)}, ${deltaY.toFixed(1)}), Erkannte Seite: ${sideName}, FESTE Rotation: ${targetRotation}°`);
     
     // KRITISCH: Vor der Transformation ALLE Labels löschen
     const labelsGroup = document.getElementById('labels');
@@ -1467,9 +1514,9 @@ function handleSimpleShapeClick(event) {
     const allTexts = svg.querySelectorAll('text');
     allTexts.forEach(text => text.remove());
     
-    // Führe die EXAKTE Drehung aus
-    currentRotation = Math.round(targetRotation);
-    traufePosition = 'bottom'; // Traufe ist jetzt immer unten
+    // Führe die FESTE Drehung aus
+    currentRotation = targetRotation;
+    traufePosition = 'bottom';
     
     // Deaktiviere Klick-Erkennung
     disableSimpleShapeClicking();
@@ -1480,8 +1527,8 @@ function handleSimpleShapeClick(event) {
     // Aktualisiere die Darstellung
     updateShape();
     
-    // Zeige Bestätigung mit exaktem Winkel
-    showFeedback(`✅ TEST: ${sideName} nach unten gedreht (${Math.abs(targetRotation)}° - umgekehrte Richtung)`);
+    // Zeige Bestätigung
+    showFeedback(`✅ ${sideName} ist jetzt waagerecht unten (${Math.abs(targetRotation)}° - FESTE Geometrie)`);
 }
 
 function disableSimpleShapeClicking() {
