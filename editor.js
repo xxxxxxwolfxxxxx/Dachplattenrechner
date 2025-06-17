@@ -2024,6 +2024,144 @@ function generateRoofPoints(data) {
     return points;
 }
 
+// Hilfsfunktion: Berechnet Abstand von Punkt zu Liniensegment
+function getDistanceToLineSegment(px, py, x1, y1, x2, y2) {
+    const A = px - x1;
+    const B = py - y1;
+    const C = x2 - x1;
+    const D = y2 - y1;
+    
+    const dot = A * C + B * D;
+    const lenSq = C * C + D * D;
+    
+    if (lenSq === 0) {
+        // Punkt-zu-Punkt Abstand
+        return Math.sqrt(A * A + B * B);
+    }
+    
+    let param = dot / lenSq;
+    
+    let xx, yy;
+    
+    if (param < 0) {
+        xx = x1;
+        yy = y1;
+    } else if (param > 1) {
+        xx = x2;
+        yy = y2;
+    } else {
+        xx = x1 + param * C;
+        yy = y1 + param * D;
+    }
+    
+    const dx = px - xx;
+    const dy = py - yy;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+// Hilfsfunktion: Gibt sprechende Namen für Kanten zurück
+function getEdgeNames(numPoints) {
+    if (numPoints === 3) {
+        return ['Basis', 'Linke Seite', 'Rechte Seite'];
+    } else if (numPoints === 4) {
+        return ['Untere Seite', 'Rechte Seite', 'Obere Seite', 'Linke Seite'];
+    } else {
+        const names = [];
+        for (let i = 0; i < numPoints; i++) {
+            names.push(`Seite ${i + 1}`);
+        }
+        return names;
+    }
+}
+
+// Hilfsfunktion: Rohe Form-Punkte ohne Transformation (ALTE VERSION - wird nicht mehr verwendet)
+function getRawShapePoints(data) {
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    let points = [];
+    let centerX = 0, centerY = 0;
+    
+    if (finalShape === 'dreieck') {
+        if (finalVariant === 'gleichseitig') {
+            const side = data.side || 6;
+            const height = side * Math.sqrt(3) / 2;
+            points = [
+                { x: side/2, y: height/3 },      // Spitze oben
+                { x: 0, y: -height*2/3 },        // Links unten
+                { x: side, y: -height*2/3 }      // Rechts unten
+            ];
+            centerX = side/2;
+            centerY = 0;
+        } else if (finalVariant === 'rechtwinklig') {
+            const a = data.katheteA || 4;
+            const b = data.katheteB || 5;
+            points = [
+                { x: 0, y: 0 },      // Rechter Winkel
+                { x: a, y: 0 },      // Ende Kathete A
+                { x: 0, y: b }       // Ende Kathete B
+            ];
+            centerX = a/2;
+            centerY = b/2;
+        } else {
+            // Ungleichschenkliges Dreieck
+            const a = data.sideA || 4;
+            const b = data.sideB || 5;
+            const c = data.sideC || 6;
+            
+            // Vereinfachte Berechnung
+            const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
+            points = [
+                { x: a/2, y: height },   // Spitze
+                { x: 0, y: 0 },          // Links
+                { x: a, y: 0 }           // Rechts
+            ];
+            centerX = a/2;
+            centerY = height/3;
+        }
+    } else if (finalShape === 'rechteck') {
+        const length = data.length || 8;
+        const width = data.width || 5;
+        points = [
+            { x: 0, y: 0 },
+            { x: length, y: 0 },
+            { x: length, y: width },
+            { x: 0, y: width }
+        ];
+        centerX = length/2;
+        centerY = width/2;
+    } else if (finalShape === 'quadrat') {
+        const side = data.side || 5;
+        points = [
+            { x: 0, y: 0 },
+            { x: side, y: 0 },
+            { x: side, y: side },
+            { x: 0, y: side }
+        ];
+        centerX = side/2;
+        centerY = side/2;
+    } else if (finalShape === 'trapez') {
+        const baseA = data.baseA || 8;
+        const baseB = data.baseB || 5;
+        const height = data.height || 4;
+        const offset = (baseA - baseB) / 2;
+        points = [
+            { x: 0, y: 0 },
+            { x: baseA, y: 0 },
+            { x: baseA - offset, y: height },
+            { x: offset, y: height }
+        ];
+        centerX = baseA/2;
+        centerY = height/2;
+    }
+    
+    return points.map(p => ({
+        ...p,
+        centerX: centerX,
+        centerY: centerY
+    }));
+}
+
 function calculateArea(data) {
     const finalShape = determineActualShape();
     
