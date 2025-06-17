@@ -1,3 +1,158 @@
+if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            saveCurrentData();
+            window.location.href = 'dachform.html';
+        });
+    }
+    
+    if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+            saveCurrentData();
+            window.location.href = 'berechnung.html';
+        });
+    }
+    
+    setupToolButtons();
+}
+
+function setupToolButtons() {
+    const tools = {
+        'btn-reset': () => {
+            console.log('🔄 RESET Button geklickt');
+            resetToDefaults();
+        },
+        'btn-mirror-horizontal': () => {
+            console.log('🪞 H-SPIEGEL Button geklickt');
+            isMirroredH = !isMirroredH;
+            console.log(`H-Spiegelung jetzt: ${isMirroredH}`);
+            updateShape();
+            showFeedback(isMirroredH ? 'Horizontal gespiegelt' : 'Horizontale Spiegelung aufgehoben');
+        },
+        'btn-mirror-vertical': () => {
+            console.log('🪞 V-SPIEGEL Button geklickt');
+            isMirroredV = !isMirroredV;
+            console.log(`V-Spiegelung jetzt: ${isMirroredV}`);
+            updateShape();
+            showFeedback(isMirroredV ? 'Vertikal gespiegelt' : 'Vertikale Spiegelung aufgehoben');
+        },
+        'btn-rotate-left': () => {
+            console.log('↺ LINKS-ROTATION Button geklickt');
+            currentRotation -= 45;
+            if (currentRotation <= -180) currentRotation += 360;
+            console.log(`Neue Rotation: ${currentRotation}°`);
+            updateShape();
+            showFeedback(`Um 45° links gedreht (${currentRotation}°)`);
+        },
+        'btn-rotate-right': () => {
+            console.log('↻ RECHTS-ROTATION Button geklickt');
+            currentRotation += 45;
+            if (currentRotation >= 180) currentRotation -= 360;
+            console.log(`Neue Rotation: ${currentRotation}°`);
+            updateShape();
+            showFeedback(`Um 45° rechts gedreht (${currentRotation}°)`);
+        },
+        'btn-traufe': () => {
+            console.log('🏠 TRAUFE Button geklickt');
+            selectTraufePosition();
+        }
+    };
+    
+    Object.entries(tools).forEach(([id, handler]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.removeEventListener('click', handler);
+            element.addEventListener('click', handler);
+            console.log(`✅ Event Listener für ${id} hinzugefügt`);
+        } else {
+            console.log(`❌ Element ${id} nicht gefunden`);
+        }
+    });
+}
+
+// KORRIGIERTE Traufe-Auswahl: Klick auf Seite → exakte Drehung
+function selectTraufePosition() {
+    console.log('🏠 Korrigierte Traufe-Auswahl gestartet');
+    
+    // Zeige verbesserte Anweisung
+    showSimpleTraufeInstructions();
+    
+    // Aktiviere Klick-Erkennung auf der Form
+    enableSimpleShapeClicking();
+}
+
+function showSimpleTraufeInstructions() {
+    // Entferne alte Instruktionen
+    const existingInstr = document.getElementById('simple-traufe-instructions');
+    if (existingInstr) existingInstr.remove();
+    
+    const instructions = document.createElement('div');
+    instructions.id = 'simple-traufe-instructions';
+    instructions.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #28a745;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 1000;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        animation: slideDown 0.3s ease-out;
+    `;
+    
+    instructions.innerHTML = `
+        🏠 <strong>Traufe festlegen:</strong> Klicken Sie auf die Seite der Form, die waagerecht nach unten (Traufe) soll
+        <button onclick="cancelSimpleTraufeSelection()" style="margin-left: 15px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Abbrechen</button>
+    `;
+    
+    // CSS für Animation
+    if (!document.getElementById('simple-feedback-styles')) {
+        const style = document.createElement('style');
+        style.id = 'simple-feedback-styles';
+        style.textContent = `
+            @keyframes slideDown {
+                from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(instructions);
+}
+
+function enableSimpleShapeClicking() {
+    // Finde die Form im SVG
+    const shapeGroup = document.getElementById('roof-shape');
+    if (!shapeGroup) return;
+    
+    const shapes = shapeGroup.querySelectorAll('rect, polygon, circle, ellipse, path');
+    
+    shapes.forEach(shape => {
+        // Mache Form visuell klickbar
+        shape.style.cursor = 'crosshair';
+        shape.style.strokeWidth = '4';
+        shape.style.stroke = '#28a745';
+        
+        // Event Listener für Klick - KORRIGIERT: Funktion existiert
+        shape.addEventListener('click', handleSimpleShapeClick);
+        shape.addEventListener('mouseenter', () => {
+            shape.style.stroke = '#ffc107';
+            shape.style.strokeWidth = '6';
+        });
+        shape.addEventListener('mouseleave', () => {
+            shape.style.stroke = '#28a745';
+            shape.style.strokeWidth = '4';
+        });
+    });
+    
+    console.log('✅ Einfache Form-Klick-Erkennung aktiviert - klicken Sie auf die Seite, die zur Traufe werden soll');
+}
+
 // FUNDAMENTAL KORRIGIERTE Funktion - arbeitet mit ursprünglichen Koordinaten
 function handleSimpleShapeClick(event) {
     console.log('🖱️ Form-Klick erkannt, analysiere angeklickte Seite...');
@@ -39,7 +194,571 @@ function handleSimpleShapeClick(event) {
         const p2 = transformedCanvasPoints[(i + 1) % transformedCanvasPoints.length];
         
         // Berechne Abstand von Klick-Punkt zur Kante
-        const distance = getDistanceToLine// editor.js – KORRIGIERTE Version mit behobener Traufe-Funktion
+        const distance = getDistanceToLineSegment(mouseX, mouseY, p1.x, p1.y, p2.x, p2.y);
+        
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestEdge = i;
+            
+            // WICHTIG: Berechne den URSPRÜNGLICHEN Winkel der Kante (ohne Transformation)
+            const originalP1 = originalPoints[i];
+            const originalP2 = originalPoints[(i + 1) % originalPoints.length];
+            const originalEdgeAngle = Math.atan2(originalP2.y - originalP1.y, originalP2.x - originalP1.x) * (180 / Math.PI);
+            
+            edgeInfo = {
+                index: i,
+                originalP1: originalP1,
+                originalP2: originalP2,
+                originalAngle: originalEdgeAngle,  // Der ursprüngliche Winkel OHNE aktuelle Transformation
+                transformedP1: p1,
+                transformedP2: p2,
+                distance: distance,
+                length: Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2)
+            };
+            
+            console.log(`Kante ${i}: Original-Winkel = ${originalEdgeAngle.toFixed(1)}°, Abstand = ${distance.toFixed(1)}px`);
+        }
+    }
+    
+    if (!edgeInfo) {
+        console.error('Keine Kante gefunden');
+        return;
+    }
+    
+    console.log(`🎯 KANTEN-ANALYSE:`);
+    console.log(`   GEWÄHLTE Kante: ${edgeInfo.index} → ${(edgeInfo.index + 1) % originalPoints.length}`);
+    console.log(`   URSPRÜNGLICHER Kanten-Winkel: ${edgeInfo.originalAngle.toFixed(1)}°`);
+    console.log(`   Abstand zum Klick: ${edgeInfo.distance.toFixed(1)}px`);
+    
+    // Berechne die benötigte Rotation um diese ursprüngliche Kante waagerecht zu machen
+    // Ziel: originalAngle + currentRotation + additionalRotation = 0°
+    
+    let targetRotation = -edgeInfo.originalAngle;
+    
+    // Normalisiere auf -180° bis +180°
+    while (targetRotation > 180) {
+        targetRotation -= 360;
+    }
+    while (targetRotation < -180) {
+        targetRotation += 360;
+    }
+    
+    console.log(`📐 ROTATIONS-BERECHNUNG:`);
+    console.log(`   Ursprünglicher Kanten-Winkel: ${edgeInfo.originalAngle.toFixed(1)}°`);
+    console.log(`   Ziel-Rotation (absolut): ${targetRotation.toFixed(1)}°`);
+    console.log(`   Aktuelle Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
+    
+    // Setze die absolute Rotation
+    currentRotation = targetRotation;
+    
+    // Normalisiere die finale Rotation
+    while (currentRotation > 180) {
+        currentRotation -= 360;
+    }
+    while (currentRotation < -180) {
+        currentRotation += 360;
+    }
+    
+    console.log(`✅ NEUE Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
+    
+    // Validierung
+    const finalAngle = edgeInfo.originalAngle + currentRotation;
+    const normalizedFinalAngle = ((finalAngle % 360) + 360) % 360;
+    const isHorizontal = Math.abs(normalizedFinalAngle) < 1 || Math.abs(normalizedFinalAngle - 360) < 1 || Math.abs(normalizedFinalAngle - 180) < 1;
+    
+    console.log(`🔍 VALIDIERUNG:`);
+    console.log(`   Ursprungswinkel ${edgeInfo.originalAngle.toFixed(1)}° + Rotation ${currentRotation.toFixed(1)}° = ${normalizedFinalAngle.toFixed(1)}°`);
+    console.log(`   Ist waagerecht: ${isHorizontal ? '✅' : '❌'}`);
+    
+    // Bestimme Seiten-Namen für Feedback
+    const edgeNames = getEdgeNames(originalPoints.length);
+    const edgeName = edgeNames[edgeInfo.index] || `Seite ${edgeInfo.index + 1}`;
+    
+    // Aufräumen und neu zeichnen
+    disableSimpleShapeClicking();
+    hideSimpleTraufeInstructions();
+    
+    updateShape();
+    
+    showFeedback(`✅ ${edgeName} als Traufe ausgerichtet (Rotation: ${currentRotation.toFixed(1)}°)`);
+}
+
+// NEUE Funktion: Holt ursprüngliche Punkte ohne jegliche Transformation
+function getRawShapePointsOriginal(data) {
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    let points = [];
+    
+    if (finalShape === 'dreieck') {
+        if (finalVariant === 'gleichseitig') {
+            const side = data.side || 6;
+            const height = side * Math.sqrt(3) / 2;
+            points = [
+                { x: side/2, y: height },      // Spitze oben
+                { x: 0, y: 0 },               // Links unten
+                { x: side, y: 0 }             // Rechts unten
+            ];
+        } else if (finalVariant === 'rechtwinklig') {
+            const a = data.katheteA || 4;
+            const b = data.katheteB || 5;
+            points = [
+                { x: 0, y: 0 },      // Rechter Winkel (unten links)
+                { x: a, y: 0 },      // Unten rechts
+                { x: 0, y: b }       // Oben links
+            ];
+        } else {
+            // Ungleichschenkliges Dreieck
+            const a = data.sideA || 4;
+            const b = data.sideB || 5;
+            const c = data.sideC || 6;
+            const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
+            points = [
+                { x: a/2, y: height },   // Spitze oben
+                { x: 0, y: 0 },          // Links unten
+                { x: a, y: 0 }           // Rechts unten
+            ];
+        }
+    } else if (finalShape === 'rechteck') {
+        const length = data.length || 8;
+        const width = data.width || 5;
+        points = [
+            { x: 0, y: 0 },            // Unten links
+            { x: length, y: 0 },       // Unten rechts
+            { x: length, y: width },   // Oben rechts
+            { x: 0, y: width }         // Oben links
+        ];
+    } else if (finalShape === 'quadrat') {
+        const side = data.side || 5;
+        points = [
+            { x: 0, y: 0 },      // Unten links
+            { x: side, y: 0 },   // Unten rechts
+            { x: side, y: side }, // Oben rechts
+            { x: 0, y: side }    // Oben links
+        ];
+    } else if (finalShape === 'trapez') {
+        const baseA = data.baseA || 8;
+        const baseB = data.baseB || 5;
+        const height = data.height || 4;
+        const offset = (baseA - baseB) / 2;
+        points = [
+            { x: 0, y: 0 },              // Unten links
+            { x: baseA, y: 0 },          // Unten rechts
+            { x: baseA - offset, y: height }, // Oben rechts
+            { x: offset, y: height }     // Oben links
+        ];
+    } else {
+        // Fallback: Rechteck
+        points = [
+            { x: 0, y: 0 },
+            { x: 8, y: 0 },
+            { x: 8, y: 5 },
+            { x: 0, y: 5 }
+        ];
+    }
+    
+    return points;
+}
+
+// Hilfsfunktion: Berechnet Abstand von Punkt zu Liniensegment
+function getDistanceToLineSegment(px, py, x1, y1, x2, y2) {
+    const A = px - x1;
+    const B = py - y1;
+    const C = x2 - x1;
+    const D = y2 - y1;
+    
+    const dot = A * C + B * D;
+    const lenSq = C * C + D * D;
+    
+    if (lenSq === 0) {
+        // Punkt-zu-Punkt Abstand
+        return Math.sqrt(A * A + B * B);
+    }
+    
+    let param = dot / lenSq;
+    
+    let xx, yy;
+    
+    if (param < 0) {
+        xx = x1;
+        yy = y1;
+    } else if (param > 1) {
+        xx = x2;
+        yy = y2;
+    } else {
+        xx = x1 + param * C;
+        yy = y1 + param * D;
+    }
+    
+    const dx = px - xx;
+    const dy = py - yy;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+// Hilfsfunktion: Gibt sprechende Namen für Kanten zurück
+function getEdgeNames(numPoints) {
+    if (numPoints === 3) {
+        return ['Basis', 'Linke Seite', 'Rechte Seite'];
+    } else if (numPoints === 4) {
+        return ['Untere Seite', 'Rechte Seite', 'Obere Seite', 'Linke Seite'];
+    } else {
+        const names = [];
+        for (let i = 0; i < numPoints; i++) {
+            names.push(`Seite ${i + 1}`);
+        }
+        return names;
+    }
+}
+
+function disableSimpleShapeClicking() {
+    const shapeGroup = document.getElementById('roof-shape');
+    if (!shapeGroup) return;
+    
+    const shapes = shapeGroup.querySelectorAll('rect, polygon, circle, ellipse, path');
+    
+    shapes.forEach(shape => {
+        // Entferne Event Listener
+        shape.removeEventListener('click', handleSimpleShapeClick);
+        
+        // Setze visuellen Stil zurück
+        shape.style.cursor = 'default';
+        shape.style.stroke = '#007bff';
+        shape.style.strokeWidth = '3';
+    });
+    
+    console.log('🧹 Einfache Form-Klick-Erkennung deaktiviert');
+}
+
+function hideSimpleTraufeInstructions() {
+    const instructions = document.getElementById('simple-traufe-instructions');
+    if (instructions) {
+        instructions.remove();
+    }
+}
+
+// Globale Funktion für Abbrechen-Button
+window.cancelSimpleTraufeSelection = function() {
+    disableSimpleShapeClicking();
+    hideSimpleTraufeInstructions();
+    showFeedback('Traufe-Auswahl abgebrochen');
+};
+
+function showFeedback(message) {
+    console.log(`💬 Feedback: ${message}`);
+    
+    // Entferne alte Feedback-Nachrichten
+    const existingFeedback = document.querySelectorAll('.feedback-message');
+    existingFeedback.forEach(fb => fb.remove());
+    
+    const feedback = document.createElement('div');
+    feedback.className = 'feedback-message';
+    feedback.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        max-width: 300px;
+        font-size: 14px;
+        font-weight: 500;
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    // CSS Animation hinzufügen
+    if (!document.getElementById('feedback-styles')) {
+        const style = document.createElement('style');
+        style.id = 'feedback-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    feedback.textContent = message;
+    document.body.appendChild(feedback);
+    
+    // Automatisch nach 3 Sekunden entfernen
+    setTimeout(() => {
+        feedback.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => {
+            if (feedback.parentNode) {
+                feedback.remove();
+            }
+        }, 300);
+    }, 3000);
+}
+
+function resetToDefaults() {
+    console.log('🔄 Setze auf Standard-Werte zurück');
+    
+    // WICHTIG: Vor dem Reset alle Labels löschen
+    const labelsGroup = document.getElementById('labels');
+    const traufeGroup = document.getElementById('traufe-elements');
+    if (labelsGroup) labelsGroup.innerHTML = '';
+    if (traufeGroup) traufeGroup.innerHTML = '';
+    
+    // Lösche auch alle Text-Elemente direkt im SVG
+    const allTexts = svg.querySelectorAll('text');
+    allTexts.forEach(text => text.remove());
+    
+    currentRotation = 0;
+    isMirroredH = false;
+    isMirroredV = false;
+    traufePosition = 'bottom';
+    
+    const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    
+    inputs.forEach(input => {
+        switch(input.id) {
+            case 'side': input.value = currentVariant === 'quadrat' ? '5' : '6'; break;
+            case 'katheteA': input.value = '4'; break;
+            case 'katheteB': input.value = '5'; break;
+            case 'sideA': input.value = '4'; break;
+            case 'sideB': input.value = '5'; break;
+            case 'sideC': input.value = '6'; break;
+            case 'radius': input.value = '4'; break;
+            case 'radiusA': input.value = '5'; break;
+            case 'radiusB': input.value = '3'; break;
+            case 'length': input.value = '8'; break;
+            case 'width': input.value = '5'; break;
+            case 'base': input.value = '8'; break;
+            case 'baseA': input.value = '8'; break;
+            case 'baseB': input.value = '5'; break;
+            case 'height': input.value = '4'; break;
+        }
+    });
+    
+    updateShape();
+    showFeedback('🔄 Zurückgesetzt: Form, Rotation, Spiegelung und Traufe');
+}
+
+function saveCurrentData() {
+    console.log('💾 Speichere aktuelle Daten');
+    
+    const currentData = getCurrentFormData();
+    
+    // Speichere alle Transformationen
+    currentData.rotation = currentRotation;
+    currentData.mirroredH = isMirroredH;
+    currentData.mirroredV = isMirroredV;
+    currentData.traufePosition = traufePosition;
+    
+    // Speichere Verlegerichtung für nachfolgende Berechnungen
+    const direction = getVerlegerichtung();
+    currentData.verlegerichtung = direction.code;
+    currentData.verlegerichtungName = direction.name;
+    currentData.verlegerichtungDescription = direction.description;
+    
+    if (!projectData.roofShape) {
+        projectData.roofShape = {};
+    }
+    
+    // Erweitere bestehende roofShape-Daten
+    Object.assign(projectData.roofShape, currentData);
+    
+    // Erstelle Punkte für die weitere Verarbeitung
+    projectData.roofShape.points = generateRoofPoints(currentData);
+    
+    // Zusätzliche Geometrie-Daten für Berechnung
+    projectData.geometry = {
+        shapeType: determineActualShape(),
+        variant: determineActualVariant(),
+        points: projectData.roofShape.points,
+        preferredDirection: direction.code,
+        traufePosition: traufePosition,
+        rotation: currentRotation,
+        area: calculateArea(currentData),
+        dimensions: calculateDimensions(currentData)
+    };
+    
+    console.log('💾 Speichere Daten:', {
+        roofShape: projectData.roofShape,
+        geometry: projectData.geometry
+    });
+    
+    try {
+        localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+        console.log('✅ Erfolgreich in localStorage gespeichert');
+    } catch (e) {
+        sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+        console.log('✅ Erfolgreich in sessionStorage gespeichert');
+    }
+}
+
+function generateRoofPoints(data) {
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    let points = [];
+    
+    switch (finalShape) {
+        case 'rechteck':
+            const length = data.length || 8;
+            const width = data.width || 5;
+            points = [
+                { x: 0, y: 0 },
+                { x: length, y: 0 },
+                { x: length, y: width },
+                { x: 0, y: width }
+            ];
+            break;
+            
+        case 'quadrat':
+            const side = data.side || 5;
+            points = [
+                { x: 0, y: 0 },
+                { x: side, y: 0 },
+                { x: side, y: side },
+                { x: 0, y: side }
+            ];
+            break;
+            
+        case 'dreieck':
+            if (finalVariant === 'gleichseitig') {
+                const triangleSide = data.side || 6;
+                const height = triangleSide * Math.sqrt(3) / 2;
+                points = [
+                    { x: triangleSide/2, y: height },
+                    { x: 0, y: 0 },
+                    { x: triangleSide, y: 0 }
+                ];
+            } else if (finalVariant === 'rechtwinklig') {
+                const a = data.katheteA || 4;
+                const b = data.katheteB || 5;
+                points = [
+                    { x: 0, y: 0 },
+                    { x: a, y: 0 },
+                    { x: 0, y: b }
+                ];
+            } else {
+                const a = data.sideA || 4;
+                const b = data.sideB || 5;
+                const c = data.sideC || 6;
+                const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
+                points = [
+                    { x: a/2, y: height },
+                    { x: 0, y: 0 },
+                    { x: a, y: 0 }
+                ];
+            }
+            break;
+            
+        case 'trapez':
+            const baseA = data.baseA || 8;
+            const baseB = data.baseB || 5;
+            const height = data.height || 4;
+            const offset = (baseA - baseB) / 2;
+            points = [
+                { x: 0, y: 0 },
+                { x: baseA, y: 0 },
+                { x: baseA - offset, y: height },
+                { x: offset, y: height }
+            ];
+            break;
+            
+        case 'kreis':
+            if (finalVariant === 'oval') {
+                const radiusA = data.radiusA || 5;
+                const radiusB = data.radiusB || 3;
+                for (let i = 0; i < 16; i++) {
+                    const angle = (i * 2 * Math.PI) / 16;
+                    points.push({
+                        x: radiusA + radiusA * Math.cos(angle),
+                        y: radiusB + radiusB * Math.sin(angle)
+                    });
+                }
+            } else {
+                const radius = data.radius || 4;
+                for (let i = 0; i < 16; i++) {
+                    const angle = (i * 2 * Math.PI) / 16;
+                    points.push({
+                        x: radius + radius * Math.cos(angle),
+                        y: radius + radius * Math.sin(angle)
+                    });
+                }
+            }
+            break;
+            
+        default:
+            points = [
+                { x: 0, y: 0 },
+                { x: 8, y: 0 },
+                { x: 8, y: 5 },
+                { x: 0, y: 5 }
+            ];
+    }
+    
+    return points;
+}
+
+function calculateArea(data) {
+    const finalShape = determineActualShape();
+    
+    switch (finalShape) {
+        case 'rechteck':
+            return (data.length || 8) * (data.width || 5);
+        case 'dreieck':
+            if (determineActualVariant() === 'rechtwinklig') {
+                return 0.5 * (data.katheteA || 4) * (data.katheteB || 5);
+            } else if (determineActualVariant() === 'gleichseitig') {
+                const s = data.side || 6;
+                return (Math.sqrt(3) / 4) * s * s;
+            }
+            return 10; // Vereinfacht für andere Dreiecke
+        case 'trapez':
+            const baseA = data.baseA || 8;
+            const baseB = data.baseB || 5;
+            const height = data.height || 4;
+            return 0.5 * (baseA + baseB) * height;
+        case 'kreis':
+            if (determineActualVariant() === 'oval') {
+                const a = data.radiusA || 5;
+                const b = data.radiusB || 3;
+                return Math.PI * a * b;
+            } else {
+                const r = data.radius || 4;
+                return Math.PI * r * r;
+            }
+        default:
+            return 40; // Fallback
+    }
+}
+
+function calculateDimensions(data) {
+    const finalShape = determineActualShape();
+    
+    switch (finalShape) {
+        case 'rechteck':
+            return {
+                length: data.length || 8,
+                width: data.width || 5
+            };
+        case 'quadrat':
+            const side = data.side || 5;
+            return {
+                length: side,
+                width: side
+            };
+        default:
+            return {
+                length: 8,
+                width: 5
+            };
+    }
+}
+
+console.log('✅ Vollständig korrigierter Editor mit behobener Traufe-Funktion geladen');// editor.js – VOLLSTÄNDIGE korrigierte Version mit behobener Traufe-Funktion
 
 let projectData = {};
 let currentShape = '';
@@ -1281,944 +2000,4 @@ function setupEventListeners() {
     const continueBtn = document.getElementById('btn-continue');
     
     if (backBtn) {
-        backBtn.addEventListener('click', () => {
-            saveCurrentData();
-            window.location.href = 'dachform.html';
-        });
-    }
-    
-    if (continueBtn) {
-        continueBtn.addEventListener('click', () => {
-            saveCurrentData();
-            window.location.href = 'berechnung.html';
-        });
-    }
-    
-    setupToolButtons();
-}
-
-function setupToolButtons() {
-    const tools = {
-        'btn-reset': () => {
-            console.log('🔄 RESET Button geklickt');
-            resetToDefaults();
-        },
-        'btn-mirror-horizontal': () => {
-            console.log('🪞 H-SPIEGEL Button geklickt');
-            isMirroredH = !isMirroredH;
-            console.log(`H-Spiegelung jetzt: ${isMirroredH}`);
-            updateShape();
-            showFeedback(isMirroredH ? 'Horizontal gespiegelt' : 'Horizontale Spiegelung aufgehoben');
-        },
-        'btn-mirror-vertical': () => {
-            console.log('🪞 V-SPIEGEL Button geklickt');
-            isMirroredV = !isMirroredV;
-            console.log(`V-Spiegelung jetzt: ${isMirroredV}`);
-            updateShape();
-            showFeedback(isMirroredV ? 'Vertikal gespiegelt' : 'Vertikale Spiegelung aufgehoben');
-        },
-        'btn-rotate-left': () => {
-            console.log('↺ LINKS-ROTATION Button geklickt');
-            currentRotation -= 45;
-            if (currentRotation <= -180) currentRotation += 360;
-            console.log(`Neue Rotation: ${currentRotation}°`);
-            updateShape();
-            showFeedback(`Um 45° links gedreht (${currentRotation}°)`);
-        },
-        'btn-rotate-right': () => {
-            console.log('↻ RECHTS-ROTATION Button geklickt');
-            currentRotation += 45;
-            if (currentRotation >= 180) currentRotation -= 360;
-            console.log(`Neue Rotation: ${currentRotation}°`);
-            updateShape();
-            showFeedback(`Um 45° rechts gedreht (${currentRotation}°)`);
-        },
-        'btn-traufe': () => {
-            console.log('🏠 TRAUFE Button geklickt');
-            selectTraufePosition();
-        }
-    };
-    
-    Object.entries(tools).forEach(([id, handler]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.removeEventListener('click', handler);
-            element.addEventListener('click', handler);
-            console.log(`✅ Event Listener für ${id} hinzugefügt`);
-        } else {
-            console.log(`❌ Element ${id} nicht gefunden`);
-        }
-    });
-}
-
-// KORRIGIERTE Traufe-Auswahl: Klick auf Seite → exakte Drehung
-function selectTraufePosition() {
-    console.log('🏠 Korrigierte Traufe-Auswahl gestartet');
-    
-    // Zeige verbesserte Anweisung
-    showSimpleTraufeInstructions();
-    
-    // Aktiviere Klick-Erkennung auf der Form
-    enableSimpleShapeClicking();
-}
-
-function showSimpleTraufeInstructions() {
-    // Entferne alte Instruktionen
-    const existingInstr = document.getElementById('simple-traufe-instructions');
-    if (existingInstr) existingInstr.remove();
-    
-    const instructions = document.createElement('div');
-    instructions.id = 'simple-traufe-instructions';
-    instructions.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #28a745;
-        color: white;
-        padding: 15px 25px;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        z-index: 1000;
-        font-size: 14px;
-        font-weight: bold;
-        text-align: center;
-        animation: slideDown 0.3s ease-out;
-    `;
-    
-    instructions.innerHTML = `
-        🏠 <strong>Traufe festlegen:</strong> Klicken Sie auf die Seite der Form, die waagerecht nach unten (Traufe) soll
-        <button onclick="cancelSimpleTraufeSelection()" style="margin-left: 15px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Abbrechen</button>
-    `;
-    
-    // CSS für Animation
-    if (!document.getElementById('simple-feedback-styles')) {
-        const style = document.createElement('style');
-        style.id = 'simple-feedback-styles';
-        style.textContent = `
-            @keyframes slideDown {
-                from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-                to { transform: translateX(-50%) translateY(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    document.body.appendChild(instructions);
-}
-
-function enableSimpleShapeClicking() {
-    // Finde die Form im SVG
-    const shapeGroup = document.getElementById('roof-shape');
-    if (!shapeGroup) return;
-    
-    const shapes = shapeGroup.querySelectorAll('rect, polygon, circle, ellipse, path');
-    
-    shapes.forEach(shape => {
-        // Mache Form visuell klickbar
-        shape.style.cursor = 'crosshair';
-        shape.style.strokeWidth = '4';
-        shape.style.stroke = '#28a745';
-        
-        // Event Listener für Klick - KORRIGIERT: Funktion existiert
-        shape.addEventListener('click', handleSimpleShapeClick);
-        shape.addEventListener('mouseenter', () => {
-            shape.style.stroke = '#ffc107';
-            shape.style.strokeWidth = '6';
-        });
-        shape.addEventListener('mouseleave', () => {
-            shape.style.stroke = '#28a745';
-            shape.style.strokeWidth = '4';
-        });
-    });
-    
-    console.log('✅ Einfache Form-Klick-Erkennung aktiviert - klicken Sie auf die Seite, die zur Traufe werden soll');
-}
-
-// PRÄZISE Funktion für Shape-Klick mit Seitenvermessung
-function handleSimpleShapeClick(event) {
-    console.log('🖱️ Form-Klick erkannt, analysiere angeklickte Seite...');
-    
-    // Hol die Mausposition relativ zur Form
-    const rect = svg.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-    
-    console.log(`Klick-Position: ${mouseX}, ${mouseY}`);
-    
-    // Hole die aktuellen Form-Punkte (ohne Transformation)
-    const currentData = getCurrentFormData();
-    const rawPoints = getRawShapePoints(currentData);
-    
-    if (!rawPoints || rawPoints.length < 3) {
-        console.error('Keine gültigen Form-Punkte gefunden');
-        return;
-    }
-    
-    console.log('Raw Form-Punkte:', rawPoints);
-    
-    // Transformiere die rohen Punkte in Canvas-Koordinaten (mit aktueller Transformation)
-    const canvasPoints = rawPoints.map(point => {
-        const canvasX = CANVAS_CENTER_X + (point.x - (point.centerX || 0)) * SCALE_FACTOR;
-        const canvasY = CANVAS_CENTER_Y - (point.y - (point.centerY || 0)) * SCALE_FACTOR;
-        return transformPoint(canvasX, canvasY);
-    });
-    
-    console.log('Canvas-Punkte (transformiert):', canvasPoints);
-    
-    // Finde die nächste Kante zum Klick-Punkt - VERBESSERT
-    let closestEdge = null;
-    let minDistance = Infinity;
-    let edgeInfo = null;
-    
-    for (let i = 0; i < canvasPoints.length; i++) {
-        const p1 = canvasPoints[i];
-        const p2 = canvasPoints[(i + 1) % canvasPoints.length];
-        
-        // Berechne Abstand von Klick-Punkt zur Kante
-        const distance = getDistanceToLineSegment(mouseX, mouseY, p1.x, p1.y, p2.x, p2.y);
-        
-        console.log(`Kante ${i}: von (${p1.x.toFixed(1)}, ${p1.y.toFixed(1)}) zu (${p2.x.toFixed(1)}, ${p2.y.toFixed(1)}), Abstand: ${distance.toFixed(1)}px`);
-        
-        if (distance < minDistance) {
-            minDistance = distance;
-            closestEdge = i;
-            
-            // WICHTIG: Berechne den Winkel dieser SPEZIFISCHEN Kante
-            const edgeAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * (180 / Math.PI);
-            
-            edgeInfo = {
-                index: i,
-                p1: p1,
-                p2: p2,
-                angle: edgeAngle,  // Der spezifische Winkel DIESER Kante
-                distance: distance,
-                length: Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2)
-            };
-            
-            console.log(`   → Neue beste Kante ${i}: Winkel = ${edgeAngle.toFixed(1)}°`);
-        }
-    }
-    
-    if (!edgeInfo) {
-        console.error('Keine Kante gefunden');
-        return;
-    }
-    
-    console.log(`🎯 KANTEN-ANALYSE:`);
-    console.log(`   GEWÄHLTE Kante: ${edgeInfo.index} → ${(edgeInfo.index + 1) % canvasPoints.length}`);
-    console.log(`   SPEZIFISCHER Kanten-Winkel: ${edgeInfo.angle.toFixed(1)}°`);
-    console.log(`   Abstand zum Klick: ${edgeInfo.distance.toFixed(1)}px`);
-    console.log(`   Kanten-Länge: ${edgeInfo.length.toFixed(1)}px`);
-    
-    // KORRIGIERTE Berechnung: Diese SPEZIFISCHE Kante soll waagerecht werden
-    let normalizedEdgeAngle = edgeInfo.angle;
-    while (normalizedEdgeAngle > 180) {
-        normalizedEdgeAngle -= 360;
-    }
-    while (normalizedEdgeAngle < -180) {
-        normalizedEdgeAngle += 360;
-    }
-    
-    // Berechne die Rotation um DIESE Kante auf 0° zu bringen
-    let requiredRotation = -normalizedEdgeAngle;
-    
-    // Normalisiere die Rotation
-    while (requiredRotation > 180) {
-        requiredRotation -= 360;
-    }
-    while (requiredRotation < -180) {
-        requiredRotation += 360;
-    }
-    
-    console.log(`📐 ROTATIONS-BERECHNUNG:`);
-    console.log(`   Kante ${edgeInfo.index} hat Winkel: ${edgeInfo.angle.toFixed(1)}°`);
-    console.log(`   Normalisiert: ${normalizedEdgeAngle.toFixed(1)}°`);
-    console.log(`   Benötigte Rotation: ${requiredRotation.toFixed(1)}°`);
-    console.log(`   Alte Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
-    
-    console.log(`📐 ROTATIONS-BERECHNUNG:`);
-    console.log(`   Aktueller Kanten-Winkel: ${edgeInfo.angle.toFixed(1)}°`);
-    console.log(`   Ziel-Winkel (waagerecht): 0°`);
-    console.log(`   Benötigte Rotation: ${requiredRotation.toFixed(1)}°`);
-    console.log(`   Alte Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
-    
-    // WICHTIG: Setze die Rotation absolut, nicht additiv!
-    // Da der Kanten-Winkel bereits die aktuelle Transformation berücksichtigt,
-    // müssen wir die Gesamt-Rotation so setzen, dass die Kante waagerecht wird
-    
-    const newTotalRotation = currentRotation + requiredRotation;
-    
-    // Normalisiere die neue Gesamt-Rotation
-    currentRotation = newTotalRotation;
-    while (currentRotation > 180) {
-        currentRotation -= 360;
-    }
-    while (currentRotation < -180) {
-        currentRotation += 360;
-    }
-    
-    console.log(`   Neue Gesamt-Rotation: ${newTotalRotation.toFixed(1)}°`);
-    console.log(`✅ FINALE Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
-    
-    // ZUSATZ-VALIDIERUNG: Prüfe ob die Berechnung stimmt
-    console.log(`🔍 VALIDIERUNG:`);
-    console.log(`   Wenn wir um ${requiredRotation.toFixed(1)}° drehen...`);
-    const finalAngle = (edgeInfo.angle + requiredRotation) % 360;
-    const normalizedFinalAngle = finalAngle < 0 ? finalAngle + 360 : finalAngle;
-    console.log(`   Sollte Kanten-Winkel ${edgeInfo.angle.toFixed(1)}° + ${requiredRotation.toFixed(1)}° = ${normalizedFinalAngle.toFixed(1)}° werden`);
-    
-    // Prüfe ob das Ergebnis wirklich waagerecht ist (0° oder 360°, NICHT 180°!)
-    const isReallyHorizontal = Math.abs(normalizedFinalAngle) < 1 || Math.abs(normalizedFinalAngle - 360) < 1;
-    console.log(`   Ergebnis ist waagerecht (≈ 0° oder ≈ 360°): ${isReallyHorizontal ? '✅' : '❌'} (${normalizedFinalAngle.toFixed(1)}°)`);
-    
-    if (!isReallyHorizontal) {
-        console.log(`   ⚠️  WARNUNG: Kante wird NICHT waagerecht! Korrigiere...`);
-        // Erzwinge eine waagerechte Ausrichtung
-        requiredRotation = -edgeInfo.angle;
-        while (requiredRotation > 180) requiredRotation -= 360;
-        while (requiredRotation < -180) requiredRotation += 360;
-        console.log(`   📐 KORREKTUR: Verwende ${requiredRotation.toFixed(1)}° für echte waagerechte Ausrichtung`);
-    };
-    
-    // Bestimme Seiten-Namen für Feedback
-    const edgeNames = getEdgeNames(rawPoints.length);
-    const edgeName = edgeNames[edgeInfo.index] || `Seite ${edgeInfo.index + 1}`;
-    
-    // Aufräumen und neu zeichnen
-    disableSimpleShapeClicking();
-    hideSimpleTraufeInstructions();
-    
-    updateShape();
-    
-    showFeedback(`✅ ${edgeName} als Traufe ausgerichtet (${requiredRotation.toFixed(1)}° gedreht, total: ${currentRotation.toFixed(1)}°)`);
-}
-
-// Hilfsfunktion: Berechnet Abstand von Punkt zu Liniensegment
-function getDistanceToLineSegment(px, py, x1, y1, x2, y2) {
-    const A = px - x1;
-    const B = py - y1;
-    const C = x2 - x1;
-    const D = y2 - y1;
-    
-    const dot = A * C + B * D;
-    const lenSq = C * C + D * D;
-    
-    if (lenSq === 0) {
-        // Punkt-zu-Punkt Abstand
-        return Math.sqrt(A * A + B * B);
-    }
-    
-    let param = dot / lenSq;
-    
-    let xx, yy;
-    
-    if (param < 0) {
-        xx = x1;
-        yy = y1;
-    } else if (param > 1) {
-        xx = x2;
-        yy = y2;
-    } else {
-        xx = x1 + param * C;
-        yy = y1 + param * D;
-    }
-    
-    const dx = px - xx;
-    const dy = py - yy;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
-// Hilfsfunktion: Gibt sprechende Namen für Kanten zurück
-function getEdgeNames(numPoints) {
-    if (numPoints === 3) {
-        return ['Basis', 'Linke Seite', 'Rechte Seite'];
-    } else if (numPoints === 4) {
-        return ['Untere Seite', 'Rechte Seite', 'Obere Seite', 'Linke Seite'];
-    } else {
-        const names = [];
-        for (let i = 0; i < numPoints; i++) {
-            names.push(`Seite ${i + 1}`);
-        }
-        return names;
-    }
-}
-
-// Hilfsfunktion: Rohe Form-Punkte ohne Transformation
-function getRawShapePoints(data) {
-    const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
-    
-    let points = [];
-    let centerX = 0, centerY = 0;
-    
-    if (finalShape === 'dreieck') {
-        if (finalVariant === 'gleichseitig') {
-            const side = data.side || 6;
-            const height = side * Math.sqrt(3) / 2;
-            points = [
-                { x: side/2, y: height/3 },      // Spitze oben
-                { x: 0, y: -height*2/3 },        // Links unten
-                { x: side, y: -height*2/3 }      // Rechts unten
-            ];
-            centerX = side/2;
-            centerY = 0;
-        } else if (finalVariant === 'rechtwinklig') {
-            const a = data.katheteA || 4;
-            const b = data.katheteB || 5;
-            points = [
-                { x: 0, y: 0 },      // Rechter Winkel
-                { x: a, y: 0 },      // Ende Kathete A
-                { x: 0, y: b }       // Ende Kathete B
-            ];
-            centerX = a/2;
-            centerY = b/2;
-        } else {
-            // Ungleichschenkliges Dreieck
-            const a = data.sideA || 4;
-            const b = data.sideB || 5;
-            const c = data.sideC || 6;
-            
-            // Vereinfachte Berechnung
-            const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
-            points = [
-                { x: a/2, y: height },   // Spitze
-                { x: 0, y: 0 },          // Links
-                { x: a, y: 0 }           // Rechts
-            ];
-            centerX = a/2;
-            centerY = height/3;
-        }
-    } else if (finalShape === 'rechteck') {
-        const length = data.length || 8;
-        const width = data.width || 5;
-        points = [
-            { x: 0, y: 0 },
-            { x: length, y: 0 },
-            { x: length, y: width },
-            { x: 0, y: width }
-        ];
-        centerX = length/2;
-        centerY = width/2;
-    } else if (finalShape === 'quadrat') {
-        const side = data.side || 5;
-        points = [
-            { x: 0, y: 0 },
-            { x: side, y: 0 },
-            { x: side, y: side },
-            { x: 0, y: side }
-        ];
-        centerX = side/2;
-        centerY = side/2;
-    } else if (finalShape === 'trapez') {
-        const baseA = data.baseA || 8;
-        const baseB = data.baseB || 5;
-        const height = data.height || 4;
-        const offset = (baseA - baseB) / 2;
-        points = [
-            { x: 0, y: 0 },
-            { x: baseA, y: 0 },
-            { x: baseA - offset, y: height },
-            { x: offset, y: height }
-        ];
-        centerX = baseA/2;
-        centerY = height/2;
-    }
-    
-    return points.map(p => ({
-        ...p,
-        centerX: centerX,
-        centerY: centerY
-    }));
-}
-
-function disableSimpleShapeClicking() {
-    const shapeGroup = document.getElementById('roof-shape');
-    if (!shapeGroup) return;
-    
-    const shapes = shapeGroup.querySelectorAll('rect, polygon, circle, ellipse, path');
-    
-    shapes.forEach(shape => {
-        // Entferne Event Listener
-        shape.removeEventListener('click', handleSimpleShapeClick);
-        
-        // Setze visuellen Stil zurück
-        shape.style.cursor = 'default';
-        shape.style.stroke = '#007bff';
-        shape.style.strokeWidth = '3';
-    });
-    
-    console.log('🧹 Einfache Form-Klick-Erkennung deaktiviert');
-}
-
-function hideSimpleTraufeInstructions() {
-    const instructions = document.getElementById('simple-traufe-instructions');
-    if (instructions) {
-        instructions.remove();
-    }
-}
-
-// Globale Funktion für Abbrechen-Button
-window.cancelSimpleTraufeSelection = function() {
-    disableSimpleShapeClicking();
-    hideSimpleTraufeInstructions();
-    showFeedback('Traufe-Auswahl abgebrochen');
-};
-
-function showFeedback(message) {
-    console.log(`💬 Feedback: ${message}`);
-    
-    // Entferne alte Feedback-Nachrichten
-    const existingFeedback = document.querySelectorAll('.feedback-message');
-    existingFeedback.forEach(fb => fb.remove());
-    
-    const feedback = document.createElement('div');
-    feedback.className = 'feedback-message';
-    feedback.style.cssText = `
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        background: #28a745;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 6px;
-        z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        max-width: 300px;
-        font-size: 14px;
-        font-weight: 500;
-        animation: slideIn 0.3s ease-out;
-    `;
-    
-    // CSS Animation hinzufügen
-    if (!document.getElementById('feedback-styles')) {
-        const style = document.createElement('style');
-        style.id = 'feedback-styles';
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    feedback.textContent = message;
-    document.body.appendChild(feedback);
-    
-    // Automatisch nach 3 Sekunden entfernen
-    setTimeout(() => {
-        feedback.style.animation = 'slideOut 0.3s ease-in';
-        setTimeout(() => {
-            if (feedback.parentNode) {
-                feedback.remove();
-            }
-        }, 300);
-    }, 3000);
-}
-
-function resetToDefaults() {
-    console.log('🔄 Setze auf Standard-Werte zurück');
-    
-    // WICHTIG: Vor dem Reset alle Labels löschen
-    const labelsGroup = document.getElementById('labels');
-    const traufeGroup = document.getElementById('traufe-elements');
-    if (labelsGroup) labelsGroup.innerHTML = '';
-    if (traufeGroup) traufeGroup.innerHTML = '';
-    
-    // Lösche auch alle Text-Elemente direkt im SVG
-    const allTexts = svg.querySelectorAll('text');
-    allTexts.forEach(text => text.remove());
-    
-    currentRotation = 0;
-    isMirroredH = false;
-    isMirroredV = false;
-    traufePosition = 'bottom';
-    
-    const inputs = document.querySelectorAll('#geometry-inputs-grid input');
-    
-    inputs.forEach(input => {
-        switch(input.id) {
-            case 'side': input.value = currentVariant === 'quadrat' ? '5' : '6'; break;
-            case 'katheteA': input.value = '4'; break;
-            case 'katheteB': input.value = '5'; break;
-            case 'sideA': input.value = '4'; break;
-            case 'sideB': input.value = '5'; break;
-            case 'sideC': input.value = '6'; break;
-            case 'radius': input.value = '4'; break;
-            case 'radiusA': input.value = '5'; break;
-            case 'radiusB': input.value = '3'; break;
-            case 'length': input.value = '8'; break;
-            case 'width': input.value = '5'; break;
-            case 'base': input.value = '8'; break;
-            case 'baseA': input.value = '8'; break;
-            case 'baseB': input.value = '5'; break;
-            case 'height': input.value = '4'; break;
-        }
-    });
-    
-    updateShape();
-    showFeedback('🔄 Zurückgesetzt: Form, Rotation, Spiegelung und Traufe');
-}
-
-function saveCurrentData() {
-    console.log('💾 Speichere aktuelle Daten');
-    
-    const currentData = getCurrentFormData();
-    
-    // Speichere alle Transformationen
-    currentData.rotation = currentRotation;
-    currentData.mirroredH = isMirroredH;
-    currentData.mirroredV = isMirroredV;
-    currentData.traufePosition = traufePosition;
-    
-    // Speichere Verlegerichtung für nachfolgende Berechnungen
-    const direction = getVerlegerichtung();
-    currentData.verlegerichtung = direction.code;
-    currentData.verlegerichtungName = direction.name;
-    currentData.verlegerichtungDescription = direction.description;
-    
-    if (!projectData.roofShape) {
-        projectData.roofShape = {};
-    }
-    
-    // Erweitere bestehende roofShape-Daten
-    Object.assign(projectData.roofShape, currentData);
-    
-    // Erstelle Punkte für die weitere Verarbeitung
-    projectData.roofShape.points = generateRoofPoints(currentData);
-    
-    // Zusätzliche Geometrie-Daten für Berechnung
-    projectData.geometry = {
-        shapeType: determineActualShape(),
-        variant: determineActualVariant(),
-        points: projectData.roofShape.points,
-        preferredDirection: direction.code,
-        traufePosition: traufePosition,
-        rotation: currentRotation,
-        area: calculateArea(currentData),
-        dimensions: calculateDimensions(currentData)
-    };
-    
-    console.log('💾 Speichere Daten:', {
-        roofShape: projectData.roofShape,
-        geometry: projectData.geometry
-    });
-    
-    try {
-        localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-        console.log('✅ Erfolgreich in localStorage gespeichert');
-    } catch (e) {
-        sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-        console.log('✅ Erfolgreich in sessionStorage gespeichert');
-    }
-}
-
-function generateRoofPoints(data) {
-    const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
-    
-    let points = [];
-    
-    switch (finalShape) {
-        case 'rechteck':
-            const length = data.length || 8;
-            const width = data.width || 5;
-            points = [
-                { x: 0, y: 0 },
-                { x: length, y: 0 },
-                { x: length, y: width },
-                { x: 0, y: width }
-            ];
-            break;
-            
-        case 'quadrat':
-            const side = data.side || 5;
-            points = [
-                { x: 0, y: 0 },
-                { x: side, y: 0 },
-                { x: side, y: side },
-                { x: 0, y: side }
-            ];
-            break;
-            
-        case 'dreieck':
-            if (finalVariant === 'gleichseitig') {
-                const triangleSide = data.side || 6;
-                const height = triangleSide * Math.sqrt(3) / 2;
-                points = [
-                    { x: triangleSide/2, y: height },
-                    { x: 0, y: 0 },
-                    { x: triangleSide, y: 0 }
-                ];
-            } else if (finalVariant === 'rechtwinklig') {
-                const a = data.katheteA || 4;
-                const b = data.katheteB || 5;
-                points = [
-                    { x: 0, y: 0 },
-                    { x: a, y: 0 },
-                    { x: 0, y: b }
-                ];
-            } else {
-                const a = data.sideA || 4;
-                const b = data.sideB || 5;
-                const c = data.sideC || 6;
-                const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
-                points = [
-                    { x: a/2, y: height },
-                    { x: 0, y: 0 },
-                    { x: a, y: 0 }
-                ];
-            }
-            break;
-            
-        case 'trapez':
-            const baseA = data.baseA || 8;
-            const baseB = data.baseB || 5;
-            const height = data.height || 4;
-            const offset = (baseA - baseB) / 2;
-            points = [
-                { x: 0, y: 0 },
-                { x: baseA, y: 0 },
-                { x: baseA - offset, y: height },
-                { x: offset, y: height }
-            ];
-            break;
-            
-        case 'kreis':
-            if (finalVariant === 'oval') {
-                const radiusA = data.radiusA || 5;
-                const radiusB = data.radiusB || 3;
-                for (let i = 0; i < 16; i++) {
-                    const angle = (i * 2 * Math.PI) / 16;
-                    points.push({
-                        x: radiusA + radiusA * Math.cos(angle),
-                        y: radiusB + radiusB * Math.sin(angle)
-                    });
-                }
-            } else {
-                const radius = data.radius || 4;
-                for (let i = 0; i < 16; i++) {
-                    const angle = (i * 2 * Math.PI) / 16;
-                    points.push({
-                        x: radius + radius * Math.cos(angle),
-                        y: radius + radius * Math.sin(angle)
-                    });
-                }
-            }
-            break;
-            
-        default:
-            points = [
-                { x: 0, y: 0 },
-                { x: 8, y: 0 },
-                { x: 8, y: 5 },
-                { x: 0, y: 5 }
-            ];
-    }
-    
-    return points;
-}
-
-// Hilfsfunktion: Berechnet Abstand von Punkt zu Liniensegment
-function getDistanceToLineSegment(px, py, x1, y1, x2, y2) {
-    const A = px - x1;
-    const B = py - y1;
-    const C = x2 - x1;
-    const D = y2 - y1;
-    
-    const dot = A * C + B * D;
-    const lenSq = C * C + D * D;
-    
-    if (lenSq === 0) {
-        // Punkt-zu-Punkt Abstand
-        return Math.sqrt(A * A + B * B);
-    }
-    
-    let param = dot / lenSq;
-    
-    let xx, yy;
-    
-    if (param < 0) {
-        xx = x1;
-        yy = y1;
-    } else if (param > 1) {
-        xx = x2;
-        yy = y2;
-    } else {
-        xx = x1 + param * C;
-        yy = y1 + param * D;
-    }
-    
-    const dx = px - xx;
-    const dy = py - yy;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
-// Hilfsfunktion: Gibt sprechende Namen für Kanten zurück
-function getEdgeNames(numPoints) {
-    if (numPoints === 3) {
-        return ['Basis', 'Linke Seite', 'Rechte Seite'];
-    } else if (numPoints === 4) {
-        return ['Untere Seite', 'Rechte Seite', 'Obere Seite', 'Linke Seite'];
-    } else {
-        const names = [];
-        for (let i = 0; i < numPoints; i++) {
-            names.push(`Seite ${i + 1}`);
-        }
-        return names;
-    }
-}
-
-// Hilfsfunktion: Rohe Form-Punkte ohne Transformation (ALTE VERSION - wird nicht mehr verwendet)
-function getRawShapePoints(data) {
-    const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
-    
-    let points = [];
-    let centerX = 0, centerY = 0;
-    
-    if (finalShape === 'dreieck') {
-        if (finalVariant === 'gleichseitig') {
-            const side = data.side || 6;
-            const height = side * Math.sqrt(3) / 2;
-            points = [
-                { x: side/2, y: height/3 },      // Spitze oben
-                { x: 0, y: -height*2/3 },        // Links unten
-                { x: side, y: -height*2/3 }      // Rechts unten
-            ];
-            centerX = side/2;
-            centerY = 0;
-        } else if (finalVariant === 'rechtwinklig') {
-            const a = data.katheteA || 4;
-            const b = data.katheteB || 5;
-            points = [
-                { x: 0, y: 0 },      // Rechter Winkel
-                { x: a, y: 0 },      // Ende Kathete A
-                { x: 0, y: b }       // Ende Kathete B
-            ];
-            centerX = a/2;
-            centerY = b/2;
-        } else {
-            // Ungleichschenkliges Dreieck
-            const a = data.sideA || 4;
-            const b = data.sideB || 5;
-            const c = data.sideC || 6;
-            
-            // Vereinfachte Berechnung
-            const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
-            points = [
-                { x: a/2, y: height },   // Spitze
-                { x: 0, y: 0 },          // Links
-                { x: a, y: 0 }           // Rechts
-            ];
-            centerX = a/2;
-            centerY = height/3;
-        }
-    } else if (finalShape === 'rechteck') {
-        const length = data.length || 8;
-        const width = data.width || 5;
-        points = [
-            { x: 0, y: 0 },
-            { x: length, y: 0 },
-            { x: length, y: width },
-            { x: 0, y: width }
-        ];
-        centerX = length/2;
-        centerY = width/2;
-    } else if (finalShape === 'quadrat') {
-        const side = data.side || 5;
-        points = [
-            { x: 0, y: 0 },
-            { x: side, y: 0 },
-            { x: side, y: side },
-            { x: 0, y: side }
-        ];
-        centerX = side/2;
-        centerY = side/2;
-    } else if (finalShape === 'trapez') {
-        const baseA = data.baseA || 8;
-        const baseB = data.baseB || 5;
-        const height = data.height || 4;
-        const offset = (baseA - baseB) / 2;
-        points = [
-            { x: 0, y: 0 },
-            { x: baseA, y: 0 },
-            { x: baseA - offset, y: height },
-            { x: offset, y: height }
-        ];
-        centerX = baseA/2;
-        centerY = height/2;
-    }
-    
-    return points.map(p => ({
-        ...p,
-        centerX: centerX,
-        centerY: centerY
-    }));
-}
-
-function calculateArea(data) {
-    const finalShape = determineActualShape();
-    
-    switch (finalShape) {
-        case 'rechteck':
-            return (data.length || 8) * (data.width || 5);
-        case 'quadrat':
-            const side = data.side || 5;
-            return side * side;
-        case 'dreieck':
-            if (determineActualVariant() === 'rechtwinklig') {
-                return 0.5 * (data.katheteA || 4) * (data.katheteB || 5);
-            } else if (determineActualVariant() === 'gleichseitig') {
-                const s = data.side || 6;
-                return (Math.sqrt(3) / 4) * s * s;
-            }
-            return 10; // Vereinfacht für andere Dreiecke
-        case 'trapez':
-            const baseA = data.baseA || 8;
-            const baseB = data.baseB || 5;
-            const height = data.height || 4;
-            return 0.5 * (baseA + baseB) * height;
-        case 'kreis':
-            if (determineActualVariant() === 'oval') {
-                const a = data.radiusA || 5;
-                const b = data.radiusB || 3;
-                return Math.PI * a * b;
-            } else {
-                const r = data.radius || 4;
-                return Math.PI * r * r;
-            }
-        default:
-            return 40; // Fallback
-    }
-}
-
-function calculateDimensions(data) {
-    const finalShape = determineActualShape();
-    
-    switch (finalShape) {
-        case 'rechteck':
-            return {
-                length: data.length || 8,
-                width: data.width || 5
-            };
-        case 'quadrat':
-            const side = data.side || 5;
-            return {
-                length: side,
-                width: side
-            };
-        default:
-            return {
-                length: 8,
-                width: 5
-            };
-    }
-}
-
-console.log('✅ Korrigierter Editor mit behobener Traufe-Funktion geladen');
+        backBtn.addEventListener('click
