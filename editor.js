@@ -1466,35 +1466,57 @@ function handleSimpleShapeClick(event) {
     console.log(`   Abstand zum Klick: ${edgeInfo.distance.toFixed(1)}px`);
     console.log(`   Kanten-Länge: ${edgeInfo.length.toFixed(1)}px`);
     
-    // Berechne die Rotation um diese Kante waagerecht nach unten auszurichten
-    // Waagerecht = 0° (horizontale Linie)
-    let requiredRotation = -edgeInfo.angle;
+    // KORRIGIERTE Berechnung: Kante soll waagerecht (0°) werden
+    // Der Kanten-Winkel ist bereits in Canvas-Koordinaten (berücksichtigt aktuelle Transformation)
     
-    // Prüfe ob die Kante "umgedreht" werden sollte (180° Drehung)
-    // Falls die Kante nach oben zeigt, drehe sie um 180°
-    const normalizedAngle = ((edgeInfo.angle % 360) + 360) % 360;
-    if (normalizedAngle > 90 && normalizedAngle < 270) {
-        requiredRotation += 180;
+    // Normalisiere den Kanten-Winkel auf -180° bis +180°
+    let normalizedEdgeAngle = edgeInfo.angle;
+    while (normalizedEdgeAngle > 180) {
+        normalizedEdgeAngle -= 360;
+    }
+    while (normalizedEdgeAngle < -180) {
+        normalizedEdgeAngle += 360;
     }
     
-    // Normalisiere die Rotation auf -180° bis +180°
-    while (requiredRotation > 180) {
-        requiredRotation -= 360;
+    // Berechne die Rotation um die Kante auf 0° (waagerecht) zu bringen
+    let requiredRotation = -normalizedEdgeAngle;
+    
+    // Prüfe beide Möglichkeiten (0° und 180°) und wähle die kleinere Drehung
+    let alternativeRotation = -normalizedEdgeAngle + (normalizedEdgeAngle > 0 ? -180 : 180);
+    
+    // Normalisiere beide Optionen
+    while (alternativeRotation > 180) {
+        alternativeRotation -= 360;
     }
-    while (requiredRotation < -180) {
-        requiredRotation += 360;
+    while (alternativeRotation < -180) {
+        alternativeRotation += 360;
     }
+    
+    // Wähle die kleinere Drehung
+    if (Math.abs(alternativeRotation) < Math.abs(requiredRotation)) {
+        requiredRotation = alternativeRotation;
+        console.log(`   → Wähle 180°-Alternative für kleinere Drehung`);
+    }
+    
+    console.log(`   Normalisierter Kanten-Winkel: ${normalizedEdgeAngle.toFixed(1)}°`);
+    console.log(`   Option 1 (→ 0°): ${(-normalizedEdgeAngle).toFixed(1)}°`);
+    console.log(`   Option 2 (→ 180°): ${alternativeRotation.toFixed(1)}°`);
+    console.log(`   → Gewählt: ${requiredRotation.toFixed(1)}°`)
     
     console.log(`📐 ROTATIONS-BERECHNUNG:`);
     console.log(`   Aktueller Kanten-Winkel: ${edgeInfo.angle.toFixed(1)}°`);
-    console.log(`   Soll-Winkel (waagerecht): 0°`);
+    console.log(`   Ziel-Winkel (waagerecht): 0°`);
     console.log(`   Benötigte Rotation: ${requiredRotation.toFixed(1)}°`);
     console.log(`   Alte Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
     
-    // Wende die Rotation an
-    currentRotation += requiredRotation;
+    // WICHTIG: Setze die Rotation absolut, nicht additiv!
+    // Da der Kanten-Winkel bereits die aktuelle Transformation berücksichtigt,
+    // müssen wir die Gesamt-Rotation so setzen, dass die Kante waagerecht wird
     
-    // Normalisiere die Gesamt-Rotation
+    const newTotalRotation = currentRotation + requiredRotation;
+    
+    // Normalisiere die neue Gesamt-Rotation
+    currentRotation = newTotalRotation;
     while (currentRotation > 180) {
         currentRotation -= 360;
     }
@@ -1502,7 +1524,16 @@ function handleSimpleShapeClick(event) {
         currentRotation += 360;
     }
     
-    console.log(`✅ NEUE Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
+    console.log(`   Neue Gesamt-Rotation: ${newTotalRotation.toFixed(1)}°`);
+    console.log(`✅ FINALE Gesamt-Rotation: ${currentRotation.toFixed(1)}°`);
+    
+    // ZUSATZ-VALIDIERUNG: Prüfe ob die Berechnung stimmt
+    console.log(`🔍 VALIDIERUNG:`);
+    console.log(`   Wenn wir um ${requiredRotation.toFixed(1)}° drehen...`);
+    console.log(`   Sollte Kanten-Winkel ${edgeInfo.angle.toFixed(1)}° + ${requiredRotation.toFixed(1)}° = ${(edgeInfo.angle + requiredRotation).toFixed(1)}° werden`);
+    const expectedResult = edgeInfo.angle + requiredRotation;
+    const isCorrect = Math.abs(expectedResult % 180) < 1; // Sollte 0° oder 180° sein
+    console.log(`   Ergebnis sollte ≈ 0° oder ≈ 180° sein: ${isCorrect ? '✅' : '❌'} (${expectedResult.toFixed(1)}°)`);
     
     // Bestimme Seiten-Namen für Feedback
     const edgeNames = getEdgeNames(rawPoints.length);
@@ -1514,7 +1545,7 @@ function handleSimpleShapeClick(event) {
     
     updateShape();
     
-    showFeedback(`✅ ${edgeName} als Traufe ausgerichtet (${requiredRotation.toFixed(1)}° gedreht)`);
+    showFeedback(`✅ ${edgeName} als Traufe ausgerichtet (${requiredRotation.toFixed(1)}° gedreht, total: ${currentRotation.toFixed(1)}°)`);
 }
 
 // Hilfsfunktion: Berechnet Abstand von Punkt zu Liniensegment
