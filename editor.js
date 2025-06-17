@@ -1394,9 +1394,9 @@ function enableSimpleShapeClicking() {
     console.log('✅ Einfache Form-Klick-Erkennung aktiviert - klicken Sie auf die Seite, die zur Traufe werden soll');
 }
 
-// KORRIGIERTE Klick-Behandlung mit echter Seiten-Erkennung statt Klick-Punkt
+// ECHTE Seitenvermessung und Drehung - keine festen Winkel!
 function handleSimpleShapeClick(event) {
-    console.log('🎯 Form wurde geklickt');
+    console.log('🎯 Form wurde geklickt - vermesse echte Seite');
     
     // Ermittle Klick-Position relativ zur Form
     const rect = event.target.getBoundingClientRect();
@@ -1407,102 +1407,71 @@ function handleSimpleShapeClick(event) {
     const clickY = event.clientY - svgRect.top;
     
     console.log(`Klick-Position: ${clickX}, ${clickY}`);
-    console.log(`Form-Mitte: ${CANVAS_CENTER_X}, ${CANVAS_CENTER_Y}`);
     
-    // Berechne welche Seite geklickt wurde
-    const deltaX = clickX - CANVAS_CENTER_X;
-    const deltaY = clickY - CANVAS_CENTER_Y;
+    // Hole die aktuellen Form-Punkte (ohne Transformation)
+    const currentData = getCurrentFormData();
+    const basePoints = getRawShapePoints(currentData);
     
-    const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
+    console.log('Basis-Punkte der Form:', basePoints);
     
-    let targetRotation = 0;
-    let sideName = '';
+    // Finde die nächstliegende Seite zum Klick
+    let closestSide = null;
+    let minDistance = Infinity;
     
-    // NEUE LOGIK: Bestimme die ECHTE Seite basierend auf Form-Geometrie
-    if (finalShape === 'dreieck') {
-        if (finalVariant === 'gleichseitig') {
-            // Gleichseitiges Dreieck: 3 Seiten, jede hat festen Winkel
-            if (deltaY > 15) {
-                // Basis (unten) geklickt - Winkel 0° (horizontal)
-                targetRotation = 0;
-                sideName = 'Basis (unten)';
-            } else if (deltaX < 0) {
-                // Linke Seite geklickt - Winkel 60° (von horizontal)
-                // Um diese Seite horizontal nach unten zu bringen: -60°
-                targetRotation = -60;
-                sideName = 'linke Seite';
-            } else {
-                // Rechte Seite geklickt - Winkel 120° (von horizontal) 
-                // Um diese Seite horizontal nach unten zu bringen: -120°
-                targetRotation = -120;
-                sideName = 'rechte Seite';
-            }
-        } else if (finalVariant === 'rechtwinklig') {
-            // Rechtwinkliges Dreieck
-            if (deltaY > 0 && Math.abs(deltaX) < 60) {
-                // Basis (Kathete A) - horizontal
-                targetRotation = 0;
-                sideName = 'Kathete A (horizontal)';
-            } else if (deltaX < 0) {
-                // Linke Seite (Kathete B) - vertikal, um horizontal zu machen: -90°
-                targetRotation = -90;
-                sideName = 'Kathete B (vertikal)';
-            } else {
-                // Hypotenuse - diagonal, Winkel abhängig von Katheten-Verhältnis
-                const a = getCurrentFormData().katheteA || 4;
-                const b = getCurrentFormData().katheteB || 5;
-                const hypotenuseAngle = Math.atan2(b, a) * (180 / Math.PI);
-                targetRotation = -hypotenuseAngle;
-                sideName = 'Hypotenuse';
-            }
-        } else {
-            // Ungleichschenkliges Dreieck - vereinfacht
-            if (deltaY > 15) {
-                targetRotation = 0;
-                sideName = 'Basis';
-            } else if (deltaX < 0) {
-                targetRotation = -60; // Schätzung
-                sideName = 'linke Seite';
-            } else {
-                targetRotation = -120; // Schätzung
-                sideName = 'rechte Seite';
-            }
+    for (let i = 0; i < basePoints.length; i++) {
+        const p1 = basePoints[i];
+        const p2 = basePoints[(i + 1) % basePoints.length];
+        
+        // Transformiere Punkte ins Canvas-Koordinatensystem
+        const canvasP1 = {
+            x: CANVAS_CENTER_X + (p1.x - currentData.centerX) * SCALE_FACTOR,
+            y: CANVAS_CENTER_Y - (p1.y - currentData.centerY) * SCALE_FACTOR
+        };
+        const canvasP2 = {
+            x: CANVAS_CENTER_X + (p2.x - currentData.centerX) * SCALE_FACTOR,
+            y: CANVAS_CENTER_Y - (p2.y - currentData.centerY) * SCALE_FACTOR
+        };
+        
+        // Berechne Abstand vom Klick zur Linie
+        const distance = distanceToLineSegment(clickX, clickY, canvasP1.x, canvasP1.y, canvasP2.x, canvasP2.y);
+        
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestSide = {
+                index: i,
+                p1: p1,
+                p2: p2,
+                canvasP1: canvasP1,
+                canvasP2: canvasP2
+            };
         }
-    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        // Rechteck/Quadrat: 4 Seiten à 90°
-        if (Math.abs(deltaY) > Math.abs(deltaX)) {
-            if (deltaY > 0) {
-                // Untere Seite - bereits horizontal
-                targetRotation = 0;
-                sideName = 'untere Seite';
-            } else {
-                // Obere Seite - um 180° drehen
-                targetRotation = 180;
-                sideName = 'obere Seite';
-            }
-        } else {
-            if (deltaX > 0) {
-                // Rechte Seite - um -90° drehen
-                targetRotation = -90;
-                sideName = 'rechte Seite';
-            } else {
-                // Linke Seite - um 90° drehen  
-                targetRotation = 90;
-                sideName = 'linke Seite';
-            }
-        }
-    } else {
-        // Fallback für andere Formen: Standard-Berechnung
-        let clickAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-        if (clickAngle < 0) clickAngle += 360;
-        targetRotation = clickAngle - 270;
-        while (targetRotation > 180) targetRotation -= 360;
-        while (targetRotation <= -180) targetRotation += 360;
-        sideName = 'gewählte Seite';
     }
     
-    console.log(`Form: ${finalShape}/${finalVariant}, Delta: (${deltaX.toFixed(1)}, ${deltaY.toFixed(1)}), Erkannte Seite: ${sideName}, FESTE Rotation: ${targetRotation}°`);
+    if (!closestSide) {
+        console.log('❌ Keine Seite gefunden');
+        return;
+    }
+    
+    console.log(`✅ Nächste Seite gefunden: Index ${closestSide.index}`);
+    console.log(`Seiten-Punkte: (${closestSide.p1.x}, ${closestSide.p1.y}) zu (${closestSide.p2.x}, ${closestSide.p2.y})`);
+    
+    // VERMESSE den aktuellen Winkel dieser Seite
+    const deltaX = closestSide.p2.x - closestSide.p1.x;
+    const deltaY = closestSide.p2.y - closestSide.p1.y;
+    
+    // Winkel der Seite zur Horizontalen (in Grad)
+    let sideAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+    
+    console.log(`📐 Gemessener Seitenwinkel: ${sideAngle.toFixed(2)}°`);
+    
+    // Berechne notwendige Rotation, um diese Seite horizontal zu machen
+    let targetRotation = -sideAngle;
+    
+    // Normalisiere auf -180° bis +180°
+    while (targetRotation > 180) targetRotation -= 360;
+    while (targetRotation <= -180) targetRotation += 360;
+    
+    console.log(`🎯 Benötigte Rotation: ${targetRotation.toFixed(2)}°`);
     
     // KRITISCH: Vor der Transformation ALLE Labels löschen
     const labelsGroup = document.getElementById('labels');
@@ -1514,8 +1483,8 @@ function handleSimpleShapeClick(event) {
     const allTexts = svg.querySelectorAll('text');
     allTexts.forEach(text => text.remove());
     
-    // Führe die FESTE Drehung aus
-    currentRotation = targetRotation;
+    // Führe die EXAKT VERMESSENE Drehung aus
+    currentRotation = Math.round(targetRotation * 10) / 10; // Auf 0.1° genau
     traufePosition = 'bottom';
     
     // Deaktiviere Klick-Erkennung
@@ -1528,7 +1497,115 @@ function handleSimpleShapeClick(event) {
     updateShape();
     
     // Zeige Bestätigung
-    showFeedback(`✅ ${sideName} ist jetzt waagerecht unten (${Math.abs(targetRotation)}° - FESTE Geometrie)`);
+    showFeedback(`✅ Seite ${closestSide.index + 1} vermessen und horizontal gedreht (${Math.abs(targetRotation).toFixed(1)}°)`);
+}
+
+// Hilfsfunktion: Abstand von Punkt zu Liniensegment
+function distanceToLineSegment(px, py, x1, y1, x2, y2) {
+    const A = px - x1;
+    const B = py - y1;
+    const C = x2 - x1;
+    const D = y2 - y1;
+    
+    const dot = A * C + B * D;
+    const lenSq = C * C + D * D;
+    let param = -1;
+    
+    if (lenSq !== 0) {
+        param = dot / lenSq;
+    }
+    
+    let xx, yy;
+    
+    if (param < 0) {
+        xx = x1;
+        yy = y1;
+    } else if (param > 1) {
+        xx = x2;
+        yy = y2;
+    } else {
+        xx = x1 + param * C;
+        yy = y1 + param * D;
+    }
+    
+    const dx = px - xx;
+    const dy = py - yy;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+// Hilfsfunktion: Rohe Form-Punkte ohne Transformation
+function getRawShapePoints(data) {
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    let points = [];
+    let centerX = 0, centerY = 0;
+    
+    if (finalShape === 'dreieck') {
+        if (finalVariant === 'gleichseitig') {
+            const side = data.side || 6;
+            const height = side * Math.sqrt(3) / 2;
+            points = [
+                { x: side/2, y: height/3 },      // Spitze oben
+                { x: 0, y: -height/3 },          // Links unten
+                { x: side, y: -height/3 }        // Rechts unten
+            ];
+        } else if (finalVariant === 'rechtwinklig') {
+            const a = data.katheteA || 4;
+            const b = data.katheteB || 5;
+            points = [
+                { x: 0, y: 0 },      // Rechter Winkel
+                { x: a, y: 0 },      // Ende Kathete A
+                { x: 0, y: b }       // Ende Kathete B
+            ];
+            centerX = a/2;
+            centerY = b/2;
+        } else {
+            // Ungleichschenkliges Dreieck
+            const a = data.sideA || 4;
+            const b = data.sideB || 5;
+            const c = data.sideC || 6;
+            
+            // Vereinfachte Berechnung
+            const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
+            points = [
+                { x: a/2, y: height },   // Spitze
+                { x: 0, y: 0 },          // Links
+                { x: a, y: 0 }           // Rechts
+            ];
+            centerX = a/2;
+            centerY = height/3;
+        }
+    } else if (finalShape === 'rechteck') {
+        const length = data.length || 8;
+        const width = data.width || 5;
+        points = [
+            { x: 0, y: 0 },
+            { x: length, y: 0 },
+            { x: length, y: width },
+            { x: 0, y: width }
+        ];
+        centerX = length/2;
+        centerY = width/2;
+    } else if (finalShape === 'quadrat') {
+        const side = data.side || 5;
+        points = [
+            { x: 0, y: 0 },
+            { x: side, y: 0 },
+            { x: side, y: side },
+            { x: 0, y: side }
+        ];
+        centerX = side/2;
+        centerY = side/2;
+    }
+    
+    // Füge Zentrum hinzu für Transformation
+    points.forEach(p => {
+        p.centerX = centerX;
+        p.centerY = centerY;
+    });
+    
+    return points;
 }
 
 function disableSimpleShapeClicking() {
