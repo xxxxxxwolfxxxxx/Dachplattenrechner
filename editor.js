@@ -1242,8 +1242,8 @@ function setupToolButtons() {
             showFeedback(`Um 45° rechts gedreht (${currentRotation}°)`);
         },
         'btn-traufe': () => {
-            console.log('🏠 TRAUFE Button geklickt');
-            showFeedback('Traufe-Funktion: Drehen Sie das Dach mit den Rotations-Buttons, so dass die gewünschte Seite unten (Traufe) ist.');
+            console.log('🏠 BEGRADIGEN Button geklickt');
+            straightenBottomEdge();
         }
     };
     
@@ -1577,4 +1577,198 @@ function calculateDimensions(data) {
     }
 }
 
-console.log('✅ Korrigierte Editor.js ohne fehlerhafte Funktionen geladen');
+function straightenBottomEdge() {
+    console.log('🔧 BEGRADIGE die unterste Kante');
+    
+    const currentData = getCurrentFormData();
+    const shapePoints = getRawShapePoints(currentData);
+    
+    if (!shapePoints || shapePoints.length < 3) {
+        console.error('Keine gültigen Form-Punkte für Begradigung gefunden');
+        showFeedback('❌ Fehler: Keine gültigen Form-Punkte gefunden');
+        return;
+    }
+    
+    // Transformiere die Punkte mit der aktuellen Rotation
+    const transformedPoints = shapePoints.map(point => {
+        const canvasX = CANVAS_CENTER_X + point.x * SCALE_FACTOR;
+        const canvasY = CANVAS_CENTER_Y - point.y * SCALE_FACTOR;
+        return transformPoint(canvasX, canvasY);
+    });
+    
+    console.log('Transformierte Punkte:', transformedPoints);
+    
+    // Finde die unterste Kante (höchster Y-Wert = unterste Position)
+    let bottomEdge = null;
+    let maxY = -Infinity;
+    
+    for (let i = 0; i < transformedPoints.length; i++) {
+        const p1 = transformedPoints[i];
+        const p2 = transformedPoints[(i + 1) % transformedPoints.length];
+        
+        // Mittlerer Y-Wert der Kante
+        const edgeMidY = (p1.y + p2.y) / 2;
+        
+        if (edgeMidY > maxY) {
+            maxY = edgeMidY;
+            bottomEdge = {
+                index: i,
+                p1: p1,
+                p2: p2,
+                midY: edgeMidY
+            };
+        }
+    }
+    
+    if (!bottomEdge) {
+        console.error('Keine unterste Kante gefunden');
+        showFeedback('❌ Fehler: Keine unterste Kante gefunden');
+        return;
+    }
+    
+    console.log(`🎯 Unterste Kante gefunden: ${bottomEdge.index} → ${(bottomEdge.index + 1) % transformedPoints.length}`);
+    console.log(`   Punkte: (${bottomEdge.p1.x.toFixed(1)}, ${bottomEdge.p1.y.toFixed(1)}) → (${bottomEdge.p2.x.toFixed(1)}, ${bottomEdge.p2.y.toFixed(1)})`);
+    
+    // Berechne den aktuellen Winkel der untersten Kante
+    const deltaX = bottomEdge.p2.x - bottomEdge.p1.x;
+    const deltaY = bottomEdge.p2.y - bottomEdge.p1.y;
+    const currentAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+    
+    console.log(`📐 Aktueller Winkel der untersten Kante: ${currentAngle.toFixed(2)}°`);
+    
+    // Berechne die benötigte Korrektur um die Kante waagerecht zu machen (0°)
+    let correctionAngle = -currentAngle;
+    
+    // Normalisiere den Korrekturwinkel
+    while (correctionAngle > 180) correctionAngle -= 360;
+    while (correctionAngle < -180) correctionAngle += 360;
+    
+    console.log(`🔧 Benötigte Korrektur: ${correctionAngle.toFixed(2)}°`);
+    console.log(`📊 Alte Gesamt-Rotation: ${currentRotation.toFixed(2)}°`);
+    
+    // Wende die Korrektur an
+    currentRotation += correctionAngle;
+    
+    // Normalisiere die neue Gesamt-Rotation
+    while (currentRotation > 180) currentRotation -= 360;
+    while (currentRotation < -180) currentRotation += 360;
+    
+    console.log(`✅ Neue Gesamt-Rotation: ${currentRotation.toFixed(2)}°`);
+    
+    // Form neu zeichnen
+    updateShape();
+    
+    // Feedback mit präziser Gradzahl
+    showFeedback(`🔧 Begradigt: ${Math.abs(correctionAngle).toFixed(1)}° gedreht, Traufe jetzt waagerecht`);
+}
+
+function getRawShapePoints(data) {
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    let points = [];
+    
+    if (finalShape === 'dreieck') {
+        if (finalVariant === 'gleichseitig') {
+            const side = data.side || 6;
+            const height = side * Math.sqrt(3) / 2;
+            points = [
+                { x: side/2, y: height/2 },      // Spitze oben
+                { x: 0, y: -height/2 },          // Links unten
+                { x: side, y: -height/2 }        // Rechts unten
+            ];
+        } else if (finalVariant === 'rechtwinklig') {
+            const a = data.katheteA || 4;
+            const b = data.katheteB || 5;
+            points = [
+                { x: 0, y: 0 },          // Rechter Winkel
+                { x: a, y: 0 },          // Ende Kathete A
+                { x: 0, y: b }           // Ende Kathete B
+            ];
+        } else {
+            // Ungleichschenkliges Dreieck
+            const a = data.sideA || 4;
+            const b = data.sideB || 5;
+            const c = data.sideC || 6;
+            
+            const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
+            points = [
+                { x: a/2, y: height/2 },   // Spitze
+                { x: 0, y: -height/2 },    // Links
+                { x: a, y: -height/2 }     // Rechts
+            ];
+        }
+    } else if (finalShape === 'rechteck') {
+        const length = data.length || 8;
+        const width = data.width || 5;
+        points = [
+            { x: 0, y: width/2 },        // Oben links
+            { x: length, y: width/2 },   // Oben rechts
+            { x: length, y: -width/2 },  // Unten rechts
+            { x: 0, y: -width/2 }        // Unten links
+        ];
+    } else if (finalShape === 'quadrat') {
+        const side = data.side || 5;
+        points = [
+            { x: 0, y: side/2 },         // Oben links
+            { x: side, y: side/2 },      // Oben rechts
+            { x: side, y: -side/2 },     // Unten rechts
+            { x: 0, y: -side/2 }         // Unten links
+        ];
+    } else if (finalShape === 'trapez') {
+        const baseA = data.baseA || 8;
+        const baseB = data.baseB || 5;
+        const height = data.height || 4;
+        const offset = (baseA - baseB) / 2;
+        points = [
+            { x: offset, y: height/2 },           // Oben links
+            { x: baseA - offset, y: height/2 },   // Oben rechts
+            { x: baseA, y: -height/2 },           // Unten rechts
+            { x: 0, y: -height/2 }                // Unten links
+        ];
+    } else if (finalShape === 'parallelogramm') {
+        const base = data.base || 8;
+        const height = data.height || 4;
+        const shear = base * 0.3;
+        points = [
+            { x: shear, y: height/2 },           // Oben links
+            { x: base + shear, y: height/2 },    // Oben rechts
+            { x: base, y: -height/2 },           // Unten rechts
+            { x: 0, y: -height/2 }               // Unten links
+        ];
+    } else if (finalShape === 'rhombus') {
+        const side = data.side || 5;
+        const height = data.height || 4;
+        const width = side * 1.2;
+        points = [
+            { x: width/2, y: 0 },                // Rechts
+            { x: width/4, y: height/2 },         // Oben
+            { x: -width/2, y: 0 },               // Links
+            { x: -width/4, y: -height/2 }        // Unten
+        ];
+    } else if (finalShape === 'kreis') {
+        // Für Kreise: Approximation mit 8 Punkten
+        const radius = data.radius || 4;
+        for (let i = 0; i < 8; i++) {
+            const angle = (i * 2 * Math.PI) / 8;
+            points.push({
+                x: radius * Math.cos(angle),
+                y: radius * Math.sin(angle)
+            });
+        }
+    } else {
+        // Fallback: Rechteck
+        points = [
+            { x: 0, y: 2.5 },
+            { x: 8, y: 2.5 },
+            { x: 8, y: -2.5 },
+            { x: 0, y: -2.5 }
+        ];
+    }
+    
+    return points;
+}
+
+// Ändere den Button-Text zu "Begradigen" (falls nötig im HTML)
+// In der HTML-Datei sollte der Button so aussehen:
+// <button class="btn-tool" id="btn-traufe">Begradigen</button>
