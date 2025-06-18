@@ -338,7 +338,10 @@ function updateShapeWithScale(scale) {
         drawLabelsOnShape(labelsGroup, data, scale);
     }
     
-    updateCalculations(data);
+    // Berechnungen aktualisieren (falls Funktion existiert)
+    if (typeof updateCalculations === 'function') {
+        updateCalculations(data);
+    }
     updateRotationDisplay();
 }
 
