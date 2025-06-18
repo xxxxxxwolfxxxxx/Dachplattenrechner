@@ -680,39 +680,28 @@ function updateRotation(x, y) {
     
     let newRotation = dragStartRotation + (angleDiff * 180 / Math.PI);
     
-    // EINRASTLOGIK: Prüfe ob die Form horizontal ausgerichtet werden soll
+    // Normalisiere die Rotation
+    while (newRotation > 180) newRotation -= 360;
+    while (newRotation < -180) newRotation += 360;
+    
+    // Setze die neue Rotation
+    currentRotation = newRotation;
+    
+    // EINRASTLOGIK: Nur prüfen, keine automatische Korrektur
     const data = getCurrentFormData();
     const scale = calculateDynamicScale(data);
-    
-    // Temporär die neue Rotation setzen um Ecken zu berechnen
-    const oldRotation = currentRotation;
-    currentRotation = newRotation;
     const corners = getActualCornerPositions(data, scale);
-    
-    // Prüfe horizontale Ausrichtung
     const isHorizontal = checkForHorizontalBase(corners);
     
     if (isHorizontal) {
-        // EINRASTEN: Finde die exakte Rotation für perfekte horizontale Ausrichtung
-        const snapRotation = findPerfectHorizontalRotation(data, scale, dragStartRotation);
-        if (snapRotation !== null) {
-            currentRotation = snapRotation;
-        }
-        
+        // Nur visuelles Feedback, KEINE automatische Rotation
         if (!document.getElementById('snap-feedback')) {
             showSnapFeedback();
-            // Verwende die eingerastete Rotation für highlighting
-            const snapCorners = getActualCornerPositions(data, scale);
-            highlightBottomEdge(snapCorners);
+            highlightBottomEdge(corners);
         }
     } else {
-        currentRotation = newRotation;
         removeSnapEffects();
     }
-    
-    // Normalisiere die finale Rotation
-    while (currentRotation > 180) currentRotation -= 360;
-    while (currentRotation < -180) currentRotation += 360;
     
     updateShapeWithScale(scale);
     updateRotationDisplay();
