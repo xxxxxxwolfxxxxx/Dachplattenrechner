@@ -815,19 +815,64 @@ function drawLabelsAndAnnotations(group, data) {
 
 function drawTriangleLabels(group, data, variant) {
     if (variant === 'gleichseitig') {
+        // Label direkt an der Basis
         const sideLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         sideLabel.setAttribute('x', CANVAS_CENTER_X);
-        sideLabel.setAttribute('y', CANVAS_CENTER_Y + 120);
+        sideLabel.setAttribute('y', CANVAS_CENTER_Y + 80); // Näher an der Form
         sideLabel.setAttribute('text-anchor', 'middle');
-        sideLabel.setAttribute('fill', '#333');
-        sideLabel.setAttribute('font-size', '12');
+        sideLabel.setAttribute('fill', '#dc3545');
+        sideLabel.setAttribute('font-size', '14');
         sideLabel.setAttribute('font-weight', 'bold');
-        sideLabel.textContent = 'Seitenlänge: ' + (data.side || 6).toFixed(1) + 'm';
+        sideLabel.textContent = 'Seite: ' + (data.side || 6).toFixed(1) + 'm';
         group.appendChild(sideLabel);
+        
+        // Labels direkt an den Seiten
+        const side = (data.side || 6) * SCALE_FACTOR;
+        const height = side * Math.sqrt(3) / 2;
+        
+        // Basis-Label (unten)
+        const basisLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        basisLabel.setAttribute('x', CANVAS_CENTER_X);
+        basisLabel.setAttribute('y', CANVAS_CENTER_Y + height/3 + 20);
+        basisLabel.setAttribute('text-anchor', 'middle');
+        basisLabel.setAttribute('fill', '#007bff');
+        basisLabel.setAttribute('font-size', '12');
+        basisLabel.setAttribute('font-weight', 'bold');
+        basisLabel.textContent = 'Basis';
+        group.appendChild(basisLabel);
+        
+        // Linke Seite
+        const leftLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        leftLabel.setAttribute('x', CANVAS_CENTER_X - side/4);
+        leftLabel.setAttribute('y', CANVAS_CENTER_Y);
+        leftLabel.setAttribute('text-anchor', 'middle');
+        leftLabel.setAttribute('fill', '#28a745');
+        leftLabel.setAttribute('font-size', '12');
+        leftLabel.setAttribute('font-weight', 'bold');
+        leftLabel.setAttribute('transform', 'rotate(-60, ' + (CANVAS_CENTER_X - side/4) + ', ' + CANVAS_CENTER_Y + ')');
+        leftLabel.textContent = 'Links';
+        group.appendChild(leftLabel);
+        
+        // Rechte Seite
+        const rightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        rightLabel.setAttribute('x', CANVAS_CENTER_X + side/4);
+        rightLabel.setAttribute('y', CANVAS_CENTER_Y);
+        rightLabel.setAttribute('text-anchor', 'middle');
+        rightLabel.setAttribute('fill', '#ffc107');
+        rightLabel.setAttribute('font-size', '12');
+        rightLabel.setAttribute('font-weight', 'bold');
+        rightLabel.setAttribute('transform', 'rotate(60, ' + (CANVAS_CENTER_X + side/4) + ', ' + CANVAS_CENTER_Y + ')');
+        rightLabel.textContent = 'Rechts';
+        group.appendChild(rightLabel);
+        
     } else if (variant === 'rechtwinklig') {
+        const a = (data.katheteA || 4) * SCALE_FACTOR;
+        const b = (data.katheteB || 5) * SCALE_FACTOR;
+        
+        // Kathete A Label (horizontale Seite)
         const kathetaALabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        kathetaALabel.setAttribute('x', CANVAS_CENTER_X - 80);
-        kathetaALabel.setAttribute('y', CANVAS_CENTER_Y + 120);
+        kathetaALabel.setAttribute('x', CANVAS_CENTER_X);
+        kathetaALabel.setAttribute('y', CANVAS_CENTER_Y + b/3 + 20);
         kathetaALabel.setAttribute('text-anchor', 'middle');
         kathetaALabel.setAttribute('fill', '#007bff');
         kathetaALabel.setAttribute('font-size', '12');
@@ -835,35 +880,134 @@ function drawTriangleLabels(group, data, variant) {
         kathetaALabel.textContent = 'Kathete A: ' + (data.katheteA || 4).toFixed(1) + 'm';
         group.appendChild(kathetaALabel);
         
+        // Kathete B Label (vertikale Seite)
         const kathetaBLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        kathetaBLabel.setAttribute('x', CANVAS_CENTER_X + 80);
-        kathetaBLabel.setAttribute('y', CANVAS_CENTER_Y + 120);
+        kathetaBLabel.setAttribute('x', CANVAS_CENTER_X - a/2 - 30);
+        kathetaBLabel.setAttribute('y', CANVAS_CENTER_Y);
         kathetaBLabel.setAttribute('text-anchor', 'middle');
         kathetaBLabel.setAttribute('fill', '#28a745');
         kathetaBLabel.setAttribute('font-size', '12');
         kathetaBLabel.setAttribute('font-weight', 'bold');
+        kathetaBLabel.setAttribute('transform', 'rotate(-90, ' + (CANVAS_CENTER_X - a/2 - 30) + ', ' + CANVAS_CENTER_Y + ')');
         kathetaBLabel.textContent = 'Kathete B: ' + (data.katheteB || 5).toFixed(1) + 'm';
         group.appendChild(kathetaBLabel);
+        
+        // Hypotenuse Label
+        const hypLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        hypLabel.setAttribute('x', CANVAS_CENTER_X - a/4 + 20);
+        hypLabel.setAttribute('y', CANVAS_CENTER_Y - b/6);
+        hypLabel.setAttribute('text-anchor', 'middle');
+        hypLabel.setAttribute('fill', '#dc3545');
+        hypLabel.setAttribute('font-size', '12');
+        hypLabel.setAttribute('font-weight', 'bold');
+        hypLabel.textContent = 'Hypotenuse';
+        group.appendChild(hypLabel);
     }
 }
 
 function drawRectangleLabels(group, data) {
     const finalShape = determineActualShape();
     
-    const lengthLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    lengthLabel.setAttribute('x', CANVAS_CENTER_X);
-    lengthLabel.setAttribute('y', CANVAS_CENTER_Y + 120);
-    lengthLabel.setAttribute('text-anchor', 'middle');
-    lengthLabel.setAttribute('fill', '#007bff');
-    lengthLabel.setAttribute('font-size', '12');
-    lengthLabel.setAttribute('font-weight', 'bold');
-    
     if (finalShape === 'quadrat') {
-        lengthLabel.textContent = 'Seitenlänge: ' + (data.side || 5).toFixed(1) + 'm';
+        const side = (data.side || 5) * SCALE_FACTOR;
+        
+        // Oben
+        const topLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        topLabel.setAttribute('x', CANVAS_CENTER_X);
+        topLabel.setAttribute('y', CANVAS_CENTER_Y - side/2 - 10);
+        topLabel.setAttribute('text-anchor', 'middle');
+        topLabel.setAttribute('fill', '#007bff');
+        topLabel.setAttribute('font-size', '12');
+        topLabel.setAttribute('font-weight', 'bold');
+        topLabel.textContent = 'Oben: ' + (data.side || 5).toFixed(1) + 'm';
+        group.appendChild(topLabel);
+        
+        // Rechts
+        const rightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        rightLabel.setAttribute('x', CANVAS_CENTER_X + side/2 + 15);
+        rightLabel.setAttribute('y', CANVAS_CENTER_Y + 5);
+        rightLabel.setAttribute('text-anchor', 'middle');
+        rightLabel.setAttribute('fill', '#28a745');
+        rightLabel.setAttribute('font-size', '12');
+        rightLabel.setAttribute('font-weight', 'bold');
+        rightLabel.setAttribute('transform', 'rotate(90, ' + (CANVAS_CENTER_X + side/2 + 15) + ', ' + (CANVAS_CENTER_Y + 5) + ')');
+        rightLabel.textContent = 'Rechts: ' + (data.side || 5).toFixed(1) + 'm';
+        group.appendChild(rightLabel);
+        
+        // Unten
+        const bottomLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        bottomLabel.setAttribute('x', CANVAS_CENTER_X);
+        bottomLabel.setAttribute('y', CANVAS_CENTER_Y + side/2 + 20);
+        bottomLabel.setAttribute('text-anchor', 'middle');
+        bottomLabel.setAttribute('fill', '#dc3545');
+        bottomLabel.setAttribute('font-size', '12');
+        bottomLabel.setAttribute('font-weight', 'bold');
+        bottomLabel.textContent = 'Unten: ' + (data.side || 5).toFixed(1) + 'm';
+        group.appendChild(bottomLabel);
+        
+        // Links
+        const leftLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        leftLabel.setAttribute('x', CANVAS_CENTER_X - side/2 - 15);
+        leftLabel.setAttribute('y', CANVAS_CENTER_Y + 5);
+        leftLabel.setAttribute('text-anchor', 'middle');
+        leftLabel.setAttribute('fill', '#ffc107');
+        leftLabel.setAttribute('font-size', '12');
+        leftLabel.setAttribute('font-weight', 'bold');
+        leftLabel.setAttribute('transform', 'rotate(-90, ' + (CANVAS_CENTER_X - side/2 - 15) + ', ' + (CANVAS_CENTER_Y + 5) + ')');
+        leftLabel.textContent = 'Links: ' + (data.side || 5).toFixed(1) + 'm';
+        group.appendChild(leftLabel);
+        
     } else {
-        lengthLabel.textContent = 'Länge: ' + (data.length || 8).toFixed(1) + 'm, Breite: ' + (data.width || 5).toFixed(1) + 'm';
+        // Rechteck
+        const width = (data.length || 8) * SCALE_FACTOR;
+        const height = (data.width || 5) * SCALE_FACTOR;
+        
+        // Oben (Länge)
+        const topLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        topLabel.setAttribute('x', CANVAS_CENTER_X);
+        topLabel.setAttribute('y', CANVAS_CENTER_Y - height/2 - 10);
+        topLabel.setAttribute('text-anchor', 'middle');
+        topLabel.setAttribute('fill', '#007bff');
+        topLabel.setAttribute('font-size', '12');
+        topLabel.setAttribute('font-weight', 'bold');
+        topLabel.textContent = 'Länge: ' + (data.length || 8).toFixed(1) + 'm';
+        group.appendChild(topLabel);
+        
+        // Rechts (Breite)
+        const rightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        rightLabel.setAttribute('x', CANVAS_CENTER_X + width/2 + 15);
+        rightLabel.setAttribute('y', CANVAS_CENTER_Y + 5);
+        rightLabel.setAttribute('text-anchor', 'middle');
+        rightLabel.setAttribute('fill', '#28a745');
+        rightLabel.setAttribute('font-size', '12');
+        rightLabel.setAttribute('font-weight', 'bold');
+        rightLabel.setAttribute('transform', 'rotate(90, ' + (CANVAS_CENTER_X + width/2 + 15) + ', ' + (CANVAS_CENTER_Y + 5) + ')');
+        rightLabel.textContent = 'Breite: ' + (data.width || 5).toFixed(1) + 'm';
+        group.appendChild(rightLabel);
+        
+        // Unten
+        const bottomLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        bottomLabel.setAttribute('x', CANVAS_CENTER_X);
+        bottomLabel.setAttribute('y', CANVAS_CENTER_Y + height/2 + 20);
+        bottomLabel.setAttribute('text-anchor', 'middle');
+        bottomLabel.setAttribute('fill', '#dc3545');
+        bottomLabel.setAttribute('font-size', '12');
+        bottomLabel.setAttribute('font-weight', 'bold');
+        bottomLabel.textContent = 'Traufe';
+        group.appendChild(bottomLabel);
+        
+        // Links
+        const leftLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        leftLabel.setAttribute('x', CANVAS_CENTER_X - width/2 - 15);
+        leftLabel.setAttribute('y', CANVAS_CENTER_Y + 5);
+        leftLabel.setAttribute('text-anchor', 'middle');
+        leftLabel.setAttribute('fill', '#ffc107');
+        leftLabel.setAttribute('font-size', '12');
+        leftLabel.setAttribute('font-weight', 'bold');
+        leftLabel.setAttribute('transform', 'rotate(-90, ' + (CANVAS_CENTER_X - width/2 - 15) + ', ' + (CANVAS_CENTER_Y + 5) + ')');
+        leftLabel.textContent = 'Seite';
+        group.appendChild(leftLabel);
     }
-    group.appendChild(lengthLabel);
 }
 
 function drawTrapezLabels(group, data) {
