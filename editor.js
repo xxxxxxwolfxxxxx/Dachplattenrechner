@@ -806,6 +806,292 @@ function highlightBottomEdge(corners) {
     ], { duration: 500, iterations: 2 });
 }
 
+function showSnapFeedback() {
+    const feedback = document.createElement('div');
+    feedback.id = 'snap-feedback';
+    feedback.style.cssText = `
+        position: absolute; top: 50px; right: 10px; background: #28a745; color: white;
+        padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold;
+        z-index: 1001; pointer-events: none;
+    `;
+    feedback.textContent = '📐 Eingerastet!';
+    
+    const canvasWrapper = document.querySelector('.canvas-wrapper');
+    if (canvasWrapper) { canvasWrapper.appendChild(feedback); }
+}
+
+function removeSnapEffects() {
+    const snapFeedback = document.getElementById('snap-feedback');
+    if (snapFeedback) { snapFeedback.remove(); }
+    
+    const highlight = document.getElementById('bottom-edge-highlight');
+    if (highlight) { highlight.remove(); }
+}
+
+function stopDragging() {
+    isDragging = false;
+    svg.style.cursor = 'default';
+    
+    setTimeout(() => { removeSnapEffects(); }, 1000);
+}
+
+// === BERECHNUNGEN ===
+function updateCalculations(data) {
+    let area = 0;
+    let perimeter = 0;
+    const finalShape = determineActualShape();
+    
+    switch (finalShape) {
+        case 'rechteck':
+            const length = data.length || 8;
+            const width = data.width || 5;
+            area = length * width;
+            perimeter = 2 * (length + width);
+            break;
+        case 'quadrat':
+            const side = data.side || 5;
+            area = side * side;
+            perimeter = 4 * side;
+            break;
+        case 'dreieck':
+            if (determineActualVariant() === 'rechtwinklig') {
+                const a = data.katheteA || 4;
+                const b = data.katheteB || 5;
+                area = 0.5 * a * b;
+                const c = Math.sqrt(a*a + b*b);
+                perimeter = a + b + c;
+            } else if (determineActualVariant() === 'gleichseitig') {
+                const s = data.side || 6;
+                area = (Math.sqrt(3) / 4) * s * s;
+                perimeter = 3 * s;
+            } else {
+                const a = data.sideA || 4;
+                const b = data.sideB || 5;
+                const c = data.sideC || 6;
+                const s = (a + b + c) / 2;
+                area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+                perimeter = a + b + c;
+            }
+            break;
+    }
+    
+    const areaElement = document.getElementById('calc-area');
+    const perimeterElement = document.getElementById('calc-perimeter');
+    
+    if (areaElement) areaElement.textContent = area.toFixed(2) + ' m²';
+    if (perimeterElement) perimeterElement.textContent = perimeter.toFixed(2) + ' m';
+}
+
+// === EVENT LISTENERS ===
+function setupEventListeners() {
+    const backBtn = document.getElementById('btn-back');
+    const continueBtn = document.getElementById('btn-continue');
+    
+    if (backBtn) {
+        backBtn.addEventListener('click', function() {
+            saveCurrentData();
+            window.location.href = 'dachform.html';
+        });
+    }
+    
+    if (continueBtn) {
+        continueBtn.addEventListener('click', function() {
+            saveCurrentData();
+            window.location.href = 'berechnung.html';
+        });
+    }
+    
+    const resetBtn = document.getElementById('btn-reset');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            resetToDefaults();
+        });
+    }
+}
+
+function resetToDefaults() {
+    console.log('Reset aufgerufen');
+    
+    // Reset Rotation und Transformationen
+    currentRotation = 0;
+    isMirroredH = false;
+    isMirroredV = false;
+    
+    // Reset Input-Felder
+    const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    console.log('Setze', inputs.length, 'Inputs zurück');
+    
+    inputs.forEach(input => {
+        let defaultValue = '';
+        switch(input.id) {
+            case 'side': 
+                defaultValue = currentVariant === 'quadrat' ? '5' : '6'; 
+                break;
+            case 'katheteA': defaultValue = '4'; break;
+            case 'katheteB': defaultValue = '5'; break;
+            case 'sideA': defaultValue = '4'; break;
+            case 'sideB': defaultValue = '5'; break;
+            case 'sideC': defaultValue = '6'; break;
+            case 'length': defaultValue = '8'; break;
+            case 'width': defaultValue = '5'; break;
+        }
+        
+        console.log(`Reset ${input.id} zu ${defaultValue}`);
+        input.value = defaultValue;
+        
+        // Trigger Input-Event um Update zu forcieren
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    
+    // Force Update nach Reset
+    setTimeout(() => {
+        console.log('Force Update nach Reset');
+        updateShape();
+        showFeedback('Zurückgesetzt: Form, Rotation und alle Parameter');
+    }, 100);
+}
+
+function showFeedback(message) {
+    const existingFeedback = document.querySelectorAll('.feedback-message');
+    existingFeedback.forEach(fb => fb.remove());
+    
+    const feedback = document.createElement('div');
+    feedback.className = 'feedback-message';
+    feedback.style.cssText = `
+        position: fixed; top: 100px; right: 20px; background: #28a745; color: white;
+        padding: 12px 20px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        max-width: 300px; font-size: 14px; font-weight: 500; animation: slideIn 0.3s ease-out;
+    `;
+    
+    if (!document.getElementById('feedback-styles')) {
+        const style = document.createElement('style');
+        style.id = 'feedback-styles';
+        style.textContent = `
+            @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+            @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    feedback.textContent = message;
+    document.body.appendChild(feedback);
+    
+    setTimeout(() => {
+        feedback.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => { if (feedback.parentNode) { feedback.remove(); } }, 300);
+    }, 3000);
+}
+
+function saveCurrentData() {
+    const currentData = getCurrentFormData();
+    currentData.rotation = currentRotation;
+    
+    if (!projectData.roofShape) { projectData.roofShape = {}; }
+    Object.assign(projectData.roofShape, currentData);
+    
+    projectData.roofShape.points = generateRoofPoints(currentData);
+    
+    projectData.geometry = {
+        shapeType: determineActualShape(),
+        variant: determineActualVariant(),
+        points: projectData.roofShape.points,
+        rotation: currentRotation,
+        area: calculateArea(currentData),
+        dimensions: calculateDimensions(currentData)
+    };
+    
+    try {
+        localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+    } catch (e) {
+        sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+    }
+}
+
+function generateRoofPoints(data) {
+    const finalShape = determineActualShape();
+    let points = [];
+    
+    switch (finalShape) {
+        case 'rechteck':
+            const length = data.length || 8;
+            const width = data.width || 5;
+            points = [
+                { x: 0, y: 0 }, { x: length, y: 0 },
+                { x: length, y: width }, { x: 0, y: width }
+            ];
+            break;
+        case 'quadrat':
+            const side = data.side || 5;
+            points = [
+                { x: 0, y: 0 }, { x: side, y: 0 },
+                { x: side, y: side }, { x: 0, y: side }
+            ];
+            break;
+        case 'dreieck':
+            if (determineActualVariant() === 'gleichseitig') {
+                const triangleSide = data.side || 6;
+                const height = triangleSide * Math.sqrt(3) / 2;
+                points = [
+                    { x: triangleSide/2, y: height },
+                    { x: 0, y: 0 }, { x: triangleSide, y: 0 }
+                ];
+            } else if (determineActualVariant() === 'rechtwinklig') {
+                const a = data.katheteA || 4;
+                const b = data.katheteB || 5;
+                points = [
+                    { x: 0, y: 0 }, { x: a, y: 0 }, { x: 0, y: b }
+                ];
+            }
+            break;
+        default:
+            points = [
+                { x: 0, y: 0 }, { x: 8, y: 0 },
+                { x: 8, y: 5 }, { x: 0, y: 5 }
+            ];
+    }
+    
+    return points;
+}
+
+function calculateArea(data) {
+    const finalShape = determineActualShape();
+    
+    switch (finalShape) {
+        case 'rechteck':
+            return (data.length || 8) * (data.width || 5);
+        case 'quadrat':
+            const side = data.side || 5;
+            return side * side;
+        case 'dreieck':
+            if (determineActualVariant() === 'rechtwinklig') {
+                return 0.5 * (data.katheteA || 4) * (data.katheteB || 5);
+            } else if (determineActualVariant() === 'gleichseitig') {
+                const s = data.side || 6;
+                return (Math.sqrt(3) / 4) * s * s;
+            }
+            return 10;
+        default:
+            return 40;
+    }
+}
+
+function calculateDimensions(data) {
+    const finalShape = determineActualShape();
+    
+    switch (finalShape) {
+        case 'rechteck':
+            return { length: data.length || 8, width: data.width || 5 };
+        case 'quadrat':
+            const side = data.side || 5;
+            return { length: side, width: side };
+        default:
+            return { length: 8, width: 5 };
+    }
+}
+
+console.log('Vereinfachter Editor mit dynamischem Maßstab geladen');
+}
+
 function drawLabelsOnShape(group, data) {
     const corners = getActualCornerPositions(data);
     const finalShape = determineActualShape();
