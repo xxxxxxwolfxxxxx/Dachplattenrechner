@@ -569,42 +569,86 @@ function updateRotation(x, y) {
     
     let newRotation = dragStartRotation + (angleDiff * 180 / Math.PI);
     
-    // ERWEITERTE SNAP-MECHANISMUS: Einrasten auf ALLE 90°-Schritte
-    const snapAngles = [0, 90, 180, 270, -90, -180, -270, 360];
-    const snapTolerance = 5; // Größere Toleranz für besseres Einrasten
-    
-    let snapped = false;
-    for (const snapAngle of snapAngles) {
-        const diff = Math.abs(newRotation - snapAngle);
-        const diffWrapped = Math.abs(Math.abs(newRotation - snapAngle) - 360);
-        
-        if (diff <= snapTolerance || diffWrapped <= snapTolerance) {
-            newRotation = snapAngle;
-            snapped = true;
-            
-            // Visual Feedback für Snap
-            if (!document.getElementById('snap-feedback')) {
-                showSnapFeedback();
-            }
-            break;
-        }
-    }
-    
-    // Entferne Snap-Feedback wenn nicht eingerastet
-    if (!snapped) {
-        const snapFeedback = document.getElementById('snap-feedback');
-        if (snapFeedback) {
-            snapFeedback.remove();
-        }
-    }
-    
     // Normalisiere die Rotation
     currentRotation = newRotation;
     while (currentRotation > 180) currentRotation -= 360;
     while (currentRotation < -180) currentRotation += 360;
     
+    // Prüfe ob die unterste Kante waagerecht ist
+    const isHorizontalBase = checkForHorizontalBase();
+    
+    if (isHorizontalBase) {
+        if (!document.getElementById('snap-feedback')) {
+            showSnapFeedback();
+            highlightBottomEdge();
+        }
+    } else {
+        const snapFeedback = document.getElementById('snap-feedback');
+        if (snapFeedback) {
+            snapFeedback.remove();
+        }
+        removeBottomEdgeHighlight();
+    }
+    
     updateShape();
     updateRotationDisplay();
+}
+
+function checkForHorizontalBase() {
+    const corners = getShapeCorners();
+    if (corners.length < 3) return false;
+    
+    // Finde die zwei untersten Punkte
+    let bottomPoints = [...corners].sort((a, b) => b.y - a.y).slice(0, 2);
+    
+    // Prüfe ob diese beiden Punkte eine waagerechte Linie bilden (±2 Pixel Toleranz)
+    const yDiff = Math.abs(bottomPoints[0].y - bottomPoints[1].y);
+    return yDiff <= 2;
+}
+
+function highlightBottomEdge() {
+    // Entferne vorherige Hervorhebung
+    removeBottomEdgeHighlight();
+    
+    const corners = getShapeCorners();
+    if (corners.length < 3) return;
+    
+    // Finde die zwei untersten Punkte
+    let bottomPoints = [...corners].sort((a, b) => b.y - a.y).slice(0, 2);
+    
+    // Sortiere von links nach rechts
+    bottomPoints.sort((a, b) => a.x - b.x);
+    
+    // Erstelle Hervorhebungs-Linie
+    const highlightLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    highlightLine.id = 'bottom-edge-highlight';
+    highlightLine.setAttribute('x1', bottomPoints[0].x);
+    highlightLine.setAttribute('y1', bottomPoints[0].y);
+    highlightLine.setAttribute('x2', bottomPoints[1].x);
+    highlightLine.setAttribute('y2', bottomPoints[1].y);
+    highlightLine.setAttribute('stroke', '#28a745');
+    highlightLine.setAttribute('stroke-width', '6');
+    highlightLine.setAttribute('opacity', '0.8');
+    highlightLine.style.pointerEvents = 'none';
+    
+    svg.appendChild(highlightLine);
+    
+    // Animation für Aufleuchten
+    highlightLine.animate([
+        { opacity: 0.8 },
+        { opacity: 0.3 },
+        { opacity: 0.8 }
+    ], {
+        duration: 500,
+        iterations: 2
+    });
+}
+
+function removeBottomEdgeHighlight() {
+    const existing = document.getElementById('bottom-edge-highlight');
+    if (existing) {
+        existing.remove();
+    }
 }
 
 function showSnapFeedback() {
@@ -911,19 +955,19 @@ function drawTriangleLabelsAtEdges(group, data, variant, corners) {
     // Seite A (zwischen Punkt 1 und 2) - Basis
     const sideAMidX = (corners[1].x + corners[2].x) / 2;
     const sideAMidY = (corners[1].y + corners[2].y) / 2;
-    const sideALabel = createEdgeLabel(sideAMidX, sideAMidY + 20, '🏠 A', '#dc3545', '14');
+    const sideALabel = createEdgeLabel(sideAMidX, sideAMidY + 15, 'A', '#dc3545', '12');
     group.appendChild(sideALabel);
     
     // Seite B (zwischen Punkt 0 und 1)
     const sideBMidX = (corners[0].x + corners[1].x) / 2;
     const sideBMidY = (corners[0].y + corners[1].y) / 2;
-    const sideBLabel = createEdgeLabel(sideBMidX - 25, sideBMidY, 'B', '#28a745', '12');
+    const sideBLabel = createEdgeLabel(sideBMidX - 15, sideBMidY, 'B', '#28a745', '12');
     group.appendChild(sideBLabel);
     
     // Seite C (zwischen Punkt 0 und 2)
     const sideCMidX = (corners[0].x + corners[2].x) / 2;
     const sideCMidY = (corners[0].y + corners[2].y) / 2;
-    const sideCLabel = createEdgeLabel(sideCMidX + 25, sideCMidY, 'C', '#ffc107', '12');
+    const sideCLabel = createEdgeLabel(sideCMidX + 15, sideCMidY, 'C', '#ffc107', '12');
     group.appendChild(sideCLabel);
 }
 
@@ -933,43 +977,41 @@ function drawRectangleLabelsAtEdges(group, data, corners) {
     // Seite A (oben, zwischen Punkt 0 und 1)
     const sideAMidX = (corners[0].x + corners[1].x) / 2;
     const sideAMidY = (corners[0].y + corners[1].y) / 2;
-    const sideALabel = createEdgeLabel(sideAMidX, sideAMidY - 15, 'A', '#007bff', '12');
+    const sideALabel = createEdgeLabel(sideAMidX, sideAMidY - 12, 'A', '#007bff', '12');
     group.appendChild(sideALabel);
     
     // Seite B (rechts, zwischen Punkt 1 und 2)
     const sideBMidX = (corners[1].x + corners[2].x) / 2;
     const sideBMidY = (corners[1].y + corners[2].y) / 2;
-    const sideBLabel = createEdgeLabel(sideBMidX + 20, sideBMidY, 'B', '#28a745', '12');
+    const sideBLabel = createEdgeLabel(sideBMidX + 12, sideBMidY, 'B', '#28a745', '12');
     group.appendChild(sideBLabel);
     
-    // Seite C (unten, zwischen Punkt 2 und 3) - TRAUFE
+    // Seite C (unten, zwischen Punkt 2 und 3)
     const sideCMidX = (corners[2].x + corners[3].x) / 2;
     const sideCMidY = (corners[2].y + corners[3].y) / 2;
-    const sideCLabel = createEdgeLabel(sideCMidX, sideCMidY + 25, '🏠 C', '#dc3545', '14');
+    const sideCLabel = createEdgeLabel(sideCMidX, sideCMidY + 15, 'C', '#dc3545', '12');
     group.appendChild(sideCLabel);
     
     // Seite D (links, zwischen Punkt 3 und 0)
     const sideDMidX = (corners[3].x + corners[0].x) / 2;
     const sideDMidY = (corners[3].y + corners[0].y) / 2;
-    const sideDLabel = createEdgeLabel(sideDMidX - 20, sideDMidY, 'D', '#ffc107', '12');
+    const sideDLabel = createEdgeLabel(sideDMidX - 12, sideDMidY, 'D', '#ffc107', '12');
     group.appendChild(sideDLabel);
 }
 
 function drawTrapezLabelsAtEdges(group, data, corners) {
-    // Ähnlich wie Rechteck, aber mit Trapez-spezifischen Labels
     if (corners.length < 4) return;
     
     const bottomMidX = (corners[2].x + corners[3].x) / 2;
     const bottomMidY = (corners[2].y + corners[3].y) / 2;
     
-    const bottomLabel = createEdgeLabel(bottomMidX, bottomMidY + 25, '🏠 TRAUFE', '#dc3545', '14');
+    const bottomLabel = createEdgeLabel(bottomMidX, bottomMidY + 15, 'C', '#dc3545', '12');
     group.appendChild(bottomLabel);
     
-    // Zusätzliche Trapez-Labels
     const topMidX = (corners[0].x + corners[1].x) / 2;
     const topMidY = (corners[0].y + corners[1].y) / 2;
     
-    const topLabel = createEdgeLabel(topMidX, topMidY - 15, 'FIRST', '#007bff', '12');
+    const topLabel = createEdgeLabel(topMidX, topMidY - 12, 'A', '#007bff', '12');
     group.appendChild(topLabel);
 }
 
@@ -977,6 +1019,22 @@ function drawCircleLabelsAtCenter(group, data, variant) {
     const centerLabel = createEdgeLabel(CANVAS_CENTER_X, CANVAS_CENTER_Y + 5, 
         variant === 'oval' ? 'OVAL' : 'KREIS', '#007bff', '12');
     group.appendChild(centerLabel);
+}
+
+function stopDragging() {
+    isDragging = false;
+    svg.style.cursor = 'default';
+    
+    // Entferne Highlight nach dem Drag-Ende
+    setTimeout(() => {
+        removeBottomEdgeHighlight();
+        const snapFeedback = document.getElementById('snap-feedback');
+        if (snapFeedback) {
+            snapFeedback.remove();
+        }
+    }, 1000);
+    
+    console.log('Drag beendet');
 }
 
 function drawShape(group, data) {
