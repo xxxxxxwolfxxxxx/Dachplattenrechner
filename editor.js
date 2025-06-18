@@ -263,17 +263,30 @@ function loadAndDrawShape() {
         if (roofShape.rotation !== undefined) currentRotation = roofShape.rotation;
     }
     
+    console.log('loadAndDrawShape: currentShape =', currentShape, 'currentVariant =', currentVariant);
+    
     createInputFields();
-    updateShape();
+    
+    // WICHTIG: Force Initial Update
+    setTimeout(() => {
+        console.log('Force initial updateShape()');
+        updateShape();
+    }, 100);
 }
 
 function determineActualShape() {
+    console.log('determineActualShape: currentVariant =', currentVariant);
+    
     if (currentVariant === 'quadrat') return 'quadrat';
     if (currentVariant === 'trapez') return 'trapez';
-    return currentShape || 'rechteck';
+    if (currentShape === 'dreieck') return 'dreieck';
+    
+    // Standard-Fallback
+    return 'rechteck';
 }
 
 function determineActualVariant() {
+    console.log('determineActualVariant: currentVariant =', currentVariant);
     return currentVariant || 'rechteck';
 }
 
@@ -362,9 +375,13 @@ function handleInputChange() {
 
 // === HAUPTFUNKTION: Alles zeichnen ===
 function updateShape() {
-    if (!svg) return;
+    if (!svg) {
+        console.error('SVG Element nicht gefunden!');
+        return;
+    }
     
-    console.log('updateShape() aufgerufen');
+    console.log('=== updateShape() START ===');
+    console.log('currentShape:', currentShape, 'currentVariant:', currentVariant);
     
     // Aktuelle Form-Daten aus Input-Feldern lesen
     const data = getCurrentFormData();
@@ -379,6 +396,12 @@ function updateShape() {
     const cornerGroup = document.getElementById('corner-handles');
     const labelsGroup = document.getElementById('labels');
     
+    console.log('SVG Groups gefunden:', {
+        shapeGroup: !!shapeGroup,
+        cornerGroup: !!cornerGroup,
+        labelsGroup: !!labelsGroup
+    });
+    
     if (shapeGroup) shapeGroup.innerHTML = '';
     if (cornerGroup) cornerGroup.innerHTML = '';
     if (labelsGroup) labelsGroup.innerHTML = '';
@@ -388,24 +411,31 @@ function updateShape() {
     
     // 2. Zeichne die Form mit dynamischem Maßstab
     if (shapeGroup) {
+        console.log('Zeichne Form...');
         drawCurrentShape(shapeGroup, data, dynamicScale);
         console.log('Form gezeichnet');
+    } else {
+        console.error('shapeGroup nicht gefunden!');
     }
     
     // 3. Zeichne Corner-Handles DIREKT auf die Form-Ecken
     if (cornerGroup) {
+        console.log('Zeichne Corner-Handles...');
         drawCornerHandlesOnShape(cornerGroup, data, dynamicScale);
         console.log('Corner-Handles gezeichnet');
     }
     
     // 4. Zeichne Labels
     if (labelsGroup) {
+        console.log('Zeichne Labels...');
         drawLabelsOnShape(labelsGroup, data, dynamicScale);
         console.log('Labels gezeichnet');
     }
     
     updateCalculations(data);
     updateRotationDisplay();
+    
+    console.log('=== updateShape() ENDE ===');
 }
 
 function calculateDynamicScale(data) {
