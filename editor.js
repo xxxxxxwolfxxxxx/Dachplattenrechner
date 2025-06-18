@@ -685,10 +685,68 @@ function updateRotation(x, y) {
     while (currentRotation > 180) currentRotation -= 360;
     while (currentRotation < -180) currentRotation += 360;
     
+    // VERBESSERTES EINRASTEN: Prüfe alle Seiten auf Horizontalität
     const data = getCurrentFormData();
     const scale = calculateDynamicScale(data);
+    const corners = getActualCornerPositions(data, scale);
+    
+    // Prüfe ob IRGENDEINE Seite horizontal ist
+    const hasHorizontalSide = checkAnyHorizontalSide(corners);
+    
+    if (hasHorizontalSide) {
+        if (!document.getElementById('snap-feedback')) {
+            showSnapFeedback();
+            highlightAllHorizontalSides(corners);
+        }
+    } else {
+        removeSnapEffects();
+    }
+    
     updateShapeWithScale(scale);
     updateRotationDisplay();
+}
+
+function checkAnyHorizontalSide(corners) {
+    if (corners.length < 3) return false;
+    
+    // Prüfe alle Seiten des Polygons
+    for (let i = 0; i < corners.length; i++) {
+        const p1 = corners[i];
+        const p2 = corners[(i + 1) % corners.length];
+        
+        // Prüfe ob diese Seite horizontal ist (±2 Pixel Toleranz)
+        const yDiff = Math.abs(p1.y - p2.y);
+        if (yDiff <= 2) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function highlightAllHorizontalSides(corners) {
+    removeSnapEffects();
+    
+    // Finde und highlighte alle horizontalen Seiten
+    for (let i = 0; i < corners.length; i++) {
+        const p1 = corners[i];
+        const p2 = corners[(i + 1) % corners.length];
+        
+        const yDiff = Math.abs(p1.y - p2.y);
+        if (yDiff <= 2) {
+            const highlightLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            highlightLine.className = 'horizontal-highlight';
+            highlightLine.setAttribute('x1', p1.x);
+            highlightLine.setAttribute('y1', p1.y);
+            highlightLine.setAttribute('x2', p2.x);
+            highlightLine.setAttribute('y2', p2.y);
+            highlightLine.setAttribute('stroke', '#28a745');
+            highlightLine.setAttribute('stroke-width', '4');
+            highlightLine.setAttribute('opacity', '0.8');
+            highlightLine.style.pointerEvents = 'none';
+            
+            svg.appendChild(highlightLine);
+        }
+    }
 }
 
 function checkForHorizontalBase(corners) {
