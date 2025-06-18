@@ -450,31 +450,55 @@
 
         function updateShapeTitle() {
             const roofShape = projectData.roofShape;
-            if (!roofShape) return;
             
-            const shapeNames = {
-                'dreieck': 'Dreieck', 'rechteck': 'Rechteck', 'quadrat': 'Quadrat',
-                'gleichseitig': 'Gleichseitiges Dreieck', 'rechtwinklig': 'Rechtwinkliges Dreieck'
-            };
+            // Shape-Namen basierend auf aktueller Form bestimmen
+            const finalShape = determineActualShape();
+            const variant = determineActualVariant();
             
-            const shapeName = shapeNames[roofShape.variant] || shapeNames[roofShape.baseShape] || 'Unbekannt';
+            let shapeName = 'Unbekannt';
+            
+            // Priorität: Zuerst Variante, dann Grundform
+            if (variant === 'rechteck') {
+                shapeName = 'Rechteck';
+            } else if (variant === 'quadrat') {
+                shapeName = 'Quadrat';
+            } else if (variant === 'gleichseitig') {
+                shapeName = 'Gleichseitiges Dreieck';
+            } else if (variant === 'rechtwinklig') {
+                shapeName = 'Rechtwinkliges Dreieck';
+            } else if (finalShape === 'dreieck') {
+                shapeName = 'Dreieck';
+            } else if (finalShape === 'viereck' || finalShape === 'rechteck') {
+                shapeName = 'Rechteck';
+            } else if (finalShape === 'quadrat') {
+                shapeName = 'Quadrat';
+            }
+            
             const element = document.getElementById('current-shape-name');
-            if (element) { element.textContent = shapeName; }
+            if (element) { 
+                element.textContent = shapeName;
+                console.log(`Shape-Titel aktualisiert: ${shapeName} (finalShape: ${finalShape}, variant: ${variant})`);
+            }
         }
 
         function loadAndDrawShape() {
             const roofShape = projectData.roofShape;
+            
+            // Standard-Werte setzen falls keine Daten vorhanden
             if (!roofShape) {
                 currentShape = 'viereck';
                 currentVariant = 'rechteck';
+                console.log('Keine roofShape-Daten gefunden, verwende Standard: viereck/rechteck');
             } else {
                 currentShape = roofShape.baseShape || 'viereck';
                 currentVariant = roofShape.variant || 'rechteck';
                 if (roofShape.rotation !== undefined) currentRotation = roofShape.rotation;
+                console.log(`Geladene Form: baseShape=${currentShape}, variant=${currentVariant}`);
             }
             
             createInputFields();
             updateShape();
+            updateShapeTitle(); // Explizit nach dem Laden aufrufen
         }
 
         function determineActualShape() {
@@ -628,6 +652,9 @@
             const data = getCurrentFormData();
             const optimalScale = calculateOptimalScale(data);
             updateShapeWithScale(optimalScale);
+            
+            // WICHTIG: Shape-Titel nach jedem Update aktualisieren
+            updateShapeTitle();
         }
 
         function getCurrentFormData() {
