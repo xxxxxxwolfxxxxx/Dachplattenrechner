@@ -1,4 +1,4 @@
-// Interaktive editor.js - Vollständige korrigierte Version
+// Vereinfachter Editor - Corner-Handles direkt auf Form-Ecken
 
 let projectData = {};
 let currentShape = '';
@@ -43,51 +43,24 @@ function loadProjectData() {
     
     if (!dataString) {
         projectData = {
-            profile: {
-                profilname: 'Standard Profil',
-                deckbreite: 1000,
-                lieferbreite: 1050,
-                seitenueberlappung: 50
-            },
-            roofShape: {
-                baseShape: 'viereck',
-                variant: 'rechteck'
-            }
+            profile: { profilname: 'Standard Profil', deckbreite: 1000, lieferbreite: 1050, seitenueberlappung: 50 },
+            roofShape: { baseShape: 'viereck', variant: 'rechteck' }
         };
         return;
     }
 
     try {
         projectData = JSON.parse(dataString);
-        
         if (!projectData.profile) {
-            projectData.profile = {
-                profilname: 'Standard Profil',
-                deckbreite: 1000,
-                lieferbreite: 1050,
-                seitenueberlappung: 50
-            };
+            projectData.profile = { profilname: 'Standard Profil', deckbreite: 1000, lieferbreite: 1050, seitenueberlappung: 50 };
         }
-        
         if (!projectData.roofShape) {
-            projectData.roofShape = {
-                baseShape: 'viereck',
-                variant: 'rechteck'
-            };
+            projectData.roofShape = { baseShape: 'viereck', variant: 'rechteck' };
         }
-        
     } catch (e) {
         projectData = {
-            profile: {
-                profilname: 'Standard Profil',
-                deckbreite: 1000,
-                lieferbreite: 1050,
-                seitenueberlappung: 50
-            },
-            roofShape: {
-                baseShape: 'viereck',
-                variant: 'rechteck'
-            }
+            profile: { profilname: 'Standard Profil', deckbreite: 1000, lieferbreite: 1050, seitenueberlappung: 50 },
+            roofShape: { baseShape: 'viereck', variant: 'rechteck' }
         };
     }
 }
@@ -99,36 +72,23 @@ function initializeCanvas() {
         createFallbackCanvas();
     }
     
-    // SVG für Maus-Events vorbereiten
     svg.addEventListener('mousedown', handleMouseDown);
     svg.addEventListener('mousemove', handleMouseMove);
     svg.addEventListener('mouseup', handleMouseUp);
     svg.addEventListener('mouseleave', handleMouseUp);
-    
-    // Touch-Events für mobile Geräte
-    svg.addEventListener('touchstart', handleTouchStart);
-    svg.addEventListener('touchmove', handleTouchMove);
-    svg.addEventListener('touchend', handleTouchEnd);
     
     rotationCenter = { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y };
 }
 
 function createFallbackCanvas() {
     const container = document.querySelector('.canvas-container') || document.querySelector('main');
-    
     if (!container) return;
     
     const wrapper = document.createElement('div');
     wrapper.className = 'canvas-wrapper';
     wrapper.style.cssText = `
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        background: white;
-        width: 600px;
-        height: 400px;
-        margin: 20px auto;
-        position: relative;
-        user-select: none;
+        border: 2px solid #e9ecef; border-radius: 8px; background: white;
+        width: 600px; height: 400px; margin: 20px auto; position: relative; user-select: none;
     `;
     
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -169,25 +129,14 @@ function createRotationDisplay() {
     const display = document.createElement('div');
     display.id = 'rotation-display';
     display.style.cssText = `
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
-        font-weight: bold;
-        z-index: 1000;
-        pointer-events: none;
+        position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: white;
+        padding: 8px 12px; border-radius: 6px; font-family: 'Courier New', monospace;
+        font-size: 14px; font-weight: bold; z-index: 1000; pointer-events: none;
     `;
     display.textContent = '0°';
     
     const canvasWrapper = document.querySelector('.canvas-wrapper');
-    if (canvasWrapper) {
-        canvasWrapper.appendChild(display);
-    }
+    if (canvasWrapper) { canvasWrapper.appendChild(display); }
 }
 
 function updateRotationDisplay() {
@@ -195,14 +144,7 @@ function updateRotationDisplay() {
     if (display) {
         const roundedRotation = Math.round(currentRotation * 10) / 10;
         display.textContent = roundedRotation + '°';
-        
-        if (Math.abs(roundedRotation % 90) < 1) {
-            display.style.background = '#28a745';
-            display.style.color = 'white';
-        } else {
-            display.style.background = 'rgba(0, 0, 0, 0.8)';
-            display.style.color = 'white';
-        }
+        display.style.background = Math.abs(roundedRotation % 90) < 1 ? '#28a745' : 'rgba(0, 0, 0, 0.8)';
     }
 }
 
@@ -219,9 +161,7 @@ function displayProfileInfo() {
     
     Object.entries(elements).forEach(([id, value]) => {
         const element = document.getElementById(id);
-        if (element) {
-            element.textContent = value;
-        }
+        if (element) { element.textContent = value; }
     });
 }
 
@@ -230,25 +170,13 @@ function updateShapeTitle() {
     if (!roofShape) return;
     
     const shapeNames = {
-        'dreieck': 'Dreieck',
-        'rechteck': 'Rechteck',
-        'quadrat': 'Quadrat',
-        'parallelogramm': 'Parallelogramm',
-        'trapez': 'Trapez',
-        'rhombus': 'Rhombus',
-        'kreis': 'Kreis',
-        'oval': 'Oval',
-        'gleichseitig': 'Gleichseitiges Dreieck',
-        'rechtwinklig': 'Rechtwinkliges Dreieck',
-        'ungleichschenklig': 'Ungleichschenkliges Dreieck'
+        'dreieck': 'Dreieck', 'rechteck': 'Rechteck', 'quadrat': 'Quadrat',
+        'gleichseitig': 'Gleichseitiges Dreieck', 'rechtwinklig': 'Rechtwinkliges Dreieck'
     };
     
     const shapeName = shapeNames[roofShape.variant] || shapeNames[roofShape.baseShape] || 'Unbekannt';
-    
     const element = document.getElementById('current-shape-name');
-    if (element) {
-        element.textContent = shapeName;
-    }
+    if (element) { element.textContent = shapeName; }
 }
 
 function loadAndDrawShape() {
@@ -259,10 +187,7 @@ function loadAndDrawShape() {
     } else {
         currentShape = roofShape.baseShape || 'viereck';
         currentVariant = roofShape.variant || 'rechteck';
-        
         if (roofShape.rotation !== undefined) currentRotation = roofShape.rotation;
-        if (roofShape.mirroredH !== undefined) isMirroredH = roofShape.mirroredH;
-        if (roofShape.mirroredV !== undefined) isMirroredV = roofShape.mirroredV;
     }
     
     createInputFields();
@@ -272,35 +197,11 @@ function loadAndDrawShape() {
 function determineActualShape() {
     if (currentVariant === 'quadrat') return 'quadrat';
     if (currentVariant === 'trapez') return 'trapez';
-    if (currentVariant === 'parallelogramm') return 'parallelogramm';
-    if (currentVariant === 'rhombus') return 'rhombus';
-    if (currentVariant === 'langloch') return 'langloch';
-    if (['fuenfeck', 'sechseck', 'achteck', 'lform', 'tform', 'uform'].includes(currentVariant)) {
-        return 'vieleck';
-    }
     return currentShape || 'rechteck';
 }
 
 function determineActualVariant() {
-    const validVariants = {
-        'dreieck': ['gleichseitig', 'rechtwinklig', 'ungleichschenklig', 'allgemein'],
-        'kreis': ['kreis', 'vollkreis', 'halbkreis', 'viertelkreis', 'oval'],
-        'rechteck': ['rechteck'],
-        'quadrat': ['quadrat'],
-        'trapez': ['trapez'],
-        'parallelogramm': ['parallelogramm'],
-        'rhombus': ['rhombus'],
-        'langloch': ['langloch'],
-        'vieleck': ['fuenfeck', 'sechseck', 'achteck', 'lform', 'tform', 'uform']
-    };
-    
-    const finalShape = determineActualShape();
-    
-    if (validVariants[finalShape] && validVariants[finalShape].includes(currentVariant)) {
-        return currentVariant;
-    }
-    
-    return validVariants[finalShape] ? validVariants[finalShape][0] : 'standard';
+    return currentVariant || 'rechteck';
 }
 
 function createInputFields() {
@@ -308,64 +209,21 @@ function createInputFields() {
     if (!container) return;
     
     container.innerHTML = '';
-    
     const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
-    
     const savedData = projectData.roofShape || {};
     
     if (finalShape === 'dreieck') {
-        createTriangleInputs(finalVariant, container, savedData);
-    } else if (finalShape === 'kreis') {
-        createCircleInputs(finalVariant, container, savedData);
-    } else if (finalShape === 'rechteck') {
-        createRectangleInputs('rechteck', container, savedData);
-    } else if (finalShape === 'quadrat') {
-        createRectangleInputs('quadrat', container, savedData);
-    } else if (finalShape === 'trapez') {
-        createTrapezInputs(container, savedData);
-    } else if (finalShape === 'parallelogramm') {
-        createParallelogrammInputs(container, savedData);
-    } else if (finalShape === 'rhombus') {
-        createRhombusInputs(container, savedData);
-    } else if (finalShape === 'langloch') {
-        createLanglochInputs(container, savedData);
-    } else if (finalShape === 'vieleck') {
-        createPolygonInputs(finalVariant, container, savedData);
-    } else {
-        createRectangleInputs('rechteck', container, savedData);
-    }
-}
-
-function createTriangleInputs(variant, container, savedData) {
-    switch (variant) {
-        case 'gleichseitig':
+        if (currentVariant === 'gleichseitig') {
             container.appendChild(createInput('Seitenlänge (m)', 'side', savedData.side || '6'));
-            break;
-        case 'rechtwinklig':
+        } else if (currentVariant === 'rechtwinklig') {
             container.appendChild(createInput('Kathete A (m)', 'katheteA', savedData.katheteA || '4'));
             container.appendChild(createInput('Kathete B (m)', 'katheteB', savedData.katheteB || '5'));
-            break;
-        default:
+        } else {
             container.appendChild(createInput('Seite A (m)', 'sideA', savedData.sideA || '4'));
             container.appendChild(createInput('Seite B (m)', 'sideB', savedData.sideB || '5'));
             container.appendChild(createInput('Seite C (m)', 'sideC', savedData.sideC || '6'));
-    }
-}
-
-function createCircleInputs(variant, container, savedData) {
-    switch (variant) {
-        case 'oval':
-            container.appendChild(createInput('Halbachse A (m)', 'radiusA', savedData.radiusA || '5'));
-            container.appendChild(createInput('Halbachse B (m)', 'radiusB', savedData.radiusB || '3'));
-            break;
-        default:
-            container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '4'));
-    }
-}
-
-function createRectangleInputs(variant, container, savedData) {
-    if (variant === 'quadrat') {
+        }
+    } else if (finalShape === 'quadrat') {
         container.appendChild(createInput('Seitenlänge (m)', 'side', savedData.side || '5'));
     } else {
         container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
@@ -373,45 +231,7 @@ function createRectangleInputs(variant, container, savedData) {
     }
 }
 
-function createTrapezInputs(container, savedData) {
-    container.appendChild(createInput('Basis A (m)', 'baseA', savedData.baseA || '8'));
-    container.appendChild(createInput('Basis B (m)', 'baseB', savedData.baseB || '5'));
-    container.appendChild(createInput('Höhe (m)', 'height', savedData.height || '4'));
-}
-
-function createParallelogrammInputs(container, savedData) {
-    container.appendChild(createInput('Basis (m)', 'base', savedData.base || '8'));
-    container.appendChild(createInput('Seite (m)', 'side', savedData.side || '5'));
-    container.appendChild(createInput('Höhe (m)', 'height', savedData.height || '4'));
-}
-
-function createRhombusInputs(container, savedData) {
-    container.appendChild(createInput('Seitenlänge (m)', 'side', savedData.side || '5'));
-    container.appendChild(createInput('Höhe (m)', 'height', savedData.height || '4'));
-}
-
-function createLanglochInputs(container, savedData) {
-    container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
-    container.appendChild(createInput('Breite (m)', 'width', savedData.width || '3'));
-    container.appendChild(createInput('Eckenradius (m)', 'radius', savedData.radius || '1'));
-}
-
-function createPolygonInputs(variant, container, savedData) {
-    switch (variant) {
-        case 'fuenfeck':
-        case 'sechseck':
-        case 'achteck':
-            container.appendChild(createInput('Seitenlänge (m)', 'side', savedData.side || '5'));
-            break;
-        default:
-            container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
-            container.appendChild(createInput('Breite (m)', 'width', savedData.width || '5'));
-    }
-}
-
 function createInput(labelText, id, defaultValue) {
-    defaultValue = defaultValue || '';
-    
     const wrapper = document.createElement('div');
     wrapper.className = 'input-group';
     
@@ -424,12 +244,10 @@ function createInput(labelText, id, defaultValue) {
     const input = document.createElement('input');
     input.type = 'number';
     input.id = id;
-    input.value = defaultValue;
+    input.value = defaultValue || '';
     input.step = '0.1';
     input.min = '0.1';
-    
     input.addEventListener('input', handleInputChange);
-    input.addEventListener('change', handleInputChange);
     
     const unit = document.createElement('span');
     unit.className = 'input-unit';
@@ -445,15 +263,296 @@ function createInput(labelText, id, defaultValue) {
 
 function handleInputChange() {
     if (isUpdating) return;
-    
     isUpdating = true;
     updateShape();
-    setTimeout(() => {
-        isUpdating = false;
-    }, 50);
+    setTimeout(() => { isUpdating = false; }, 50);
 }
 
-// MAUS- UND TOUCH-EVENT HANDLER
+// === HAUPTFUNKTION: Alles zeichnen ===
+function updateShape() {
+    if (!svg || isUpdating) return;
+    
+    // Aktuelle Form-Daten aus Input-Feldern lesen
+    const data = getCurrentFormData();
+    
+    // 1. Lösche alles
+    const shapeGroup = document.getElementById('roof-shape');
+    const cornerGroup = document.getElementById('corner-handles');
+    const labelsGroup = document.getElementById('labels');
+    
+    if (shapeGroup) shapeGroup.innerHTML = '';
+    if (cornerGroup) cornerGroup.innerHTML = '';
+    if (labelsGroup) labelsGroup.innerHTML = '';
+    
+    // 2. Zeichne die Form
+    if (shapeGroup) {
+        drawCurrentShape(shapeGroup, data);
+    }
+    
+    // 3. Zeichne Corner-Handles DIREKT auf die Form-Ecken
+    if (cornerGroup) {
+        drawCornerHandlesOnShape(cornerGroup, data);
+    }
+    
+    // 4. Zeichne Labels
+    if (labelsGroup) {
+        drawLabelsOnShape(labelsGroup, data);
+    }
+    
+    updateCalculations(data);
+    updateRotationDisplay();
+}
+
+function getCurrentFormData() {
+    const data = { shape: currentShape, variant: currentVariant };
+    const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    inputs.forEach(input => {
+        if (input.value) {
+            const numValue = parseFloat(input.value);
+            if (!isNaN(numValue)) {
+                data[input.id] = numValue;
+            }
+        }
+    });
+    return data;
+}
+
+function drawCurrentShape(group, data) {
+    const finalShape = determineActualShape();
+    
+    if (finalShape === 'dreieck') {
+        drawTriangleShape(group, data);
+    } else if (finalShape === 'quadrat') {
+        drawSquareShape(group, data);
+    } else {
+        drawRectangleShape(group, data);
+    }
+    
+    // Wende Rotation an
+    if (currentRotation !== 0) {
+        group.setAttribute('transform', `rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`);
+    }
+}
+
+function drawTriangleShape(group, data) {
+    const variant = determineActualVariant();
+    let points = '';
+    
+    if (variant === 'gleichseitig') {
+        const side = (data.side || 6) * SCALE_FACTOR;
+        const height = side * Math.sqrt(3) / 2;
+        const topX = CANVAS_CENTER_X;
+        const topY = CANVAS_CENTER_Y - height/3;
+        const leftX = CANVAS_CENTER_X - side/2;
+        const leftY = CANVAS_CENTER_Y + height*2/3;
+        const rightX = CANVAS_CENTER_X + side/2;
+        const rightY = CANVAS_CENTER_Y + height*2/3;
+        points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
+    } else if (variant === 'rechtwinklig') {
+        const a = (data.katheteA || 4) * SCALE_FACTOR;
+        const b = (data.katheteB || 5) * SCALE_FACTOR;
+        const leftX = CANVAS_CENTER_X - a/2;
+        const rightX = CANVAS_CENTER_X + a/2;
+        const bottomY = CANVAS_CENTER_Y + b/2;
+        const topY = CANVAS_CENTER_Y - b/2;
+        points = `${leftX},${bottomY} ${rightX},${bottomY} ${leftX},${topY}`;
+    } else {
+        const side = (data.sideA || 4) * SCALE_FACTOR;
+        const height = side * 0.8;
+        const topX = CANVAS_CENTER_X;
+        const topY = CANVAS_CENTER_Y - height/2;
+        const leftX = CANVAS_CENTER_X - side/2;
+        const leftY = CANVAS_CENTER_Y + height/2;
+        const rightX = CANVAS_CENTER_X + side/2;
+        const rightY = CANVAS_CENTER_Y + height/2;
+        points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
+    }
+    
+    const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    triangle.setAttribute('points', points);
+    triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    triangle.setAttribute('stroke', '#007bff');
+    triangle.setAttribute('stroke-width', '3');
+    group.appendChild(triangle);
+}
+
+function drawSquareShape(group, data) {
+    const side = (data.side || 5) * SCALE_FACTOR;
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', CANVAS_CENTER_X - side/2);
+    rect.setAttribute('y', CANVAS_CENTER_Y - side/2);
+    rect.setAttribute('width', side);
+    rect.setAttribute('height', side);
+    rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    rect.setAttribute('stroke', '#007bff');
+    rect.setAttribute('stroke-width', '3');
+    group.appendChild(rect);
+}
+
+function drawRectangleShape(group, data) {
+    const width = (data.length || 8) * SCALE_FACTOR;
+    const height = (data.width || 5) * SCALE_FACTOR;
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', CANVAS_CENTER_X - width/2);
+    rect.setAttribute('y', CANVAS_CENTER_Y - height/2);
+    rect.setAttribute('width', width);
+    rect.setAttribute('height', height);
+    rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    rect.setAttribute('stroke', '#007bff');
+    rect.setAttribute('stroke-width', '3');
+    group.appendChild(rect);
+}
+
+function drawCornerHandlesOnShape(group, data) {
+    const corners = getActualCornerPositions(data);
+    
+    corners.forEach((corner, index) => {
+        const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        handle.setAttribute('cx', corner.x);
+        handle.setAttribute('cy', corner.y);
+        handle.setAttribute('r', CORNER_RADIUS);
+        handle.setAttribute('fill', 'rgba(0, 123, 255, 0.7)');
+        handle.setAttribute('stroke', '#007bff');
+        handle.setAttribute('stroke-width', '2');
+        handle.style.cursor = 'grab';
+        group.appendChild(handle);
+        
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', corner.x);
+        dot.setAttribute('cy', corner.y);
+        dot.setAttribute('r', '2');
+        dot.setAttribute('fill', 'white');
+        dot.style.pointerEvents = 'none';
+        group.appendChild(dot);
+    });
+}
+
+function getActualCornerPositions(data) {
+    const finalShape = determineActualShape();
+    const variant = determineActualVariant();
+    let corners = [];
+    
+    if (finalShape === 'dreieck') {
+        if (variant === 'gleichseitig') {
+            const side = (data.side || 6) * SCALE_FACTOR;
+            const height = side * Math.sqrt(3) / 2;
+            corners = [
+                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/3 },
+                { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + height*2/3 },
+                { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + height*2/3 }
+            ];
+        } else if (variant === 'rechtwinklig') {
+            const a = (data.katheteA || 4) * SCALE_FACTOR;
+            const b = (data.katheteB || 5) * SCALE_FACTOR;
+            corners = [
+                { x: CANVAS_CENTER_X - a/2, y: CANVAS_CENTER_Y + b/2 },
+                { x: CANVAS_CENTER_X + a/2, y: CANVAS_CENTER_Y + b/2 },
+                { x: CANVAS_CENTER_X - a/2, y: CANVAS_CENTER_Y - b/2 }
+            ];
+        } else {
+            const side = (data.sideA || 4) * SCALE_FACTOR;
+            const height = side * 0.8;
+            corners = [
+                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/2 },
+                { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + height/2 },
+                { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + height/2 }
+            ];
+        }
+    } else if (finalShape === 'quadrat') {
+        const side = (data.side || 5) * SCALE_FACTOR;
+        corners = [
+            { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y - side/2 },
+            { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y - side/2 },
+            { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + side/2 },
+            { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + side/2 }
+        ];
+    } else {
+        const width = (data.length || 8) * SCALE_FACTOR;
+        const height = (data.width || 5) * SCALE_FACTOR;
+        corners = [
+            { x: CANVAS_CENTER_X - width/2, y: CANVAS_CENTER_Y - height/2 },
+            { x: CANVAS_CENTER_X + width/2, y: CANVAS_CENTER_Y - height/2 },
+            { x: CANVAS_CENTER_X + width/2, y: CANVAS_CENTER_Y + height/2 },
+            { x: CANVAS_CENTER_X - width/2, y: CANVAS_CENTER_Y + height/2 }
+        ];
+    }
+    
+    // Wende Rotation an
+    if (currentRotation !== 0) {
+        const angle = (currentRotation * Math.PI) / 180;
+        corners = corners.map(corner => {
+            const relX = corner.x - CANVAS_CENTER_X;
+            const relY = corner.y - CANVAS_CENTER_Y;
+            return {
+                x: CANVAS_CENTER_X + relX * Math.cos(angle) - relY * Math.sin(angle),
+                y: CANVAS_CENTER_Y + relX * Math.sin(angle) + relY * Math.cos(angle)
+            };
+        });
+    }
+    
+    return corners;
+}
+
+function drawLabelsOnShape(group, data) {
+    const corners = getActualCornerPositions(data);
+    const finalShape = determineActualShape();
+    
+    if (finalShape === 'dreieck' && corners.length >= 3) {
+        // Seite A (zwischen Punkt 1 und 2)
+        const sideAMidX = (corners[1].x + corners[2].x) / 2;
+        const sideAMidY = (corners[1].y + corners[2].y) / 2;
+        const sideALabel = createLabel(sideAMidX, sideAMidY + 15, 'A', '#dc3545');
+        group.appendChild(sideALabel);
+        
+        // Seite B (zwischen Punkt 0 und 1)
+        const sideBMidX = (corners[0].x + corners[1].x) / 2;
+        const sideBMidY = (corners[0].y + corners[1].y) / 2;
+        const sideBLabel = createLabel(sideBMidX - 15, sideBMidY, 'B', '#28a745');
+        group.appendChild(sideBLabel);
+        
+        // Seite C (zwischen Punkt 0 und 2)
+        const sideCMidX = (corners[0].x + corners[2].x) / 2;
+        const sideCMidY = (corners[0].y + corners[2].y) / 2;
+        const sideCLabel = createLabel(sideCMidX + 15, sideCMidY, 'C', '#ffc107');
+        group.appendChild(sideCLabel);
+        
+    } else if (corners.length >= 4) {
+        // Rechteck/Quadrat Labels
+        const labels = ['A', 'B', 'C', 'D'];
+        const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107'];
+        const offsets = [
+            { x: 0, y: -12 },   // A oben
+            { x: 12, y: 0 },    // B rechts
+            { x: 0, y: 15 },    // C unten
+            { x: -12, y: 0 }    // D links
+        ];
+        
+        for (let i = 0; i < 4; i++) {
+            const nextI = (i + 1) % 4;
+            const midX = (corners[i].x + corners[nextI].x) / 2;
+            const midY = (corners[i].y + corners[nextI].y) / 2;
+            const label = createLabel(midX + offsets[i].x, midY + offsets[i].y, labels[i], colors[i]);
+            group.appendChild(label);
+        }
+    }
+}
+
+function createLabel(x, y, text, color) {
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', x);
+    label.setAttribute('y', y);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('fill', color);
+    label.setAttribute('font-size', '12');
+    label.setAttribute('font-weight', 'bold');
+    label.setAttribute('stroke', 'white');
+    label.setAttribute('stroke-width', '2');
+    label.setAttribute('paint-order', 'stroke');
+    label.textContent = text;
+    return label;
+}
+
+// === MAUS-EVENTS ===
 function handleMouseDown(event) {
     event.preventDefault();
     const rect = svg.getBoundingClientRect();
@@ -470,7 +569,6 @@ function handleMouseMove(event) {
         const rect = svg.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
         const mouseY = event.clientY - rect.top;
-        
         svg.style.cursor = isNearCorner(mouseX, mouseY) ? 'grab' : 'default';
         return;
     }
@@ -479,7 +577,6 @@ function handleMouseMove(event) {
     const rect = svg.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
-    
     updateRotation(mouseX, mouseY);
 }
 
@@ -489,40 +586,9 @@ function handleMouseUp(event) {
     }
 }
 
-function handleTouchStart(event) {
-    event.preventDefault();
-    if (event.touches.length !== 1) return;
-    
-    const rect = svg.getBoundingClientRect();
-    const touch = event.touches[0];
-    const touchX = touch.clientX - rect.left;
-    const touchY = touch.clientY - rect.top;
-    
-    if (isNearCorner(touchX, touchY)) {
-        startDragging(touchX, touchY);
-    }
-}
-
-function handleTouchMove(event) {
-    if (!isDragging || event.touches.length !== 1) return;
-    
-    event.preventDefault();
-    const rect = svg.getBoundingClientRect();
-    const touch = event.touches[0];
-    const touchX = touch.clientX - rect.left;
-    const touchY = touch.clientY - rect.top;
-    
-    updateRotation(touchX, touchY);
-}
-
-function handleTouchEnd(event) {
-    if (isDragging) {
-        stopDragging();
-    }
-}
-
 function isNearCorner(x, y) {
-    const corners = getShapeCorners();
+    const data = getCurrentFormData();
+    const corners = getActualCornerPositions(data);
     
     for (const corner of corners) {
         const distance = Math.sqrt((x - corner.x) * (x - corner.x) + (y - corner.y) * (y - corner.y));
@@ -530,31 +596,20 @@ function isNearCorner(x, y) {
             return true;
         }
     }
-    
     return false;
-}
-
-function getShapeCorners() {
-    // Diese Funktion wird für die Einrastfunktion verwendet
-    const currentData = getCurrentFormData();
-    return getFinalTransformedCorners(currentData);
 }
 
 function startDragging(x, y) {
     isDragging = true;
     svg.style.cursor = 'grabbing';
-    
     dragStartAngle = Math.atan2(y - rotationCenter.y, x - rotationCenter.x);
     dragStartRotation = currentRotation;
-    
-    console.log('Drag gestartet');
 }
 
 function updateRotation(x, y) {
     if (!isDragging) return;
     
     const currentAngle = Math.atan2(y - rotationCenter.y, x - rotationCenter.x);
-    
     let angleDiff = currentAngle - dragStartAngle;
     
     while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
@@ -567,52 +622,41 @@ function updateRotation(x, y) {
     while (currentRotation > 180) currentRotation -= 360;
     while (currentRotation < -180) currentRotation += 360;
     
-    // Prüfe ob die unterste Kante waagerecht ist
-    const isHorizontalBase = checkForHorizontalBase();
+    // Prüfe auf horizontale Basis
+    const data = getCurrentFormData();
+    const corners = getActualCornerPositions(data);
+    const isHorizontal = checkForHorizontalBase(corners);
     
-    if (isHorizontalBase) {
+    if (isHorizontal) {
         if (!document.getElementById('snap-feedback')) {
             showSnapFeedback();
-            highlightBottomEdge();
+            highlightBottomEdge(corners);
         }
     } else {
-        const snapFeedback = document.getElementById('snap-feedback');
-        if (snapFeedback) {
-            snapFeedback.remove();
-        }
-        removeBottomEdgeHighlight();
+        removeSnapEffects();
     }
     
     updateShape();
     updateRotationDisplay();
 }
 
-function checkForHorizontalBase() {
-    const corners = getShapeCorners();
+function checkForHorizontalBase(corners) {
     if (corners.length < 3) return false;
     
     // Finde die zwei untersten Punkte
     let bottomPoints = [...corners].sort((a, b) => b.y - a.y).slice(0, 2);
     
-    // Prüfe ob diese beiden Punkte eine waagerechte Linie bilden (±2 Pixel Toleranz)
+    // Prüfe ob diese eine waagerechte Linie bilden (±3 Pixel Toleranz)
     const yDiff = Math.abs(bottomPoints[0].y - bottomPoints[1].y);
-    return yDiff <= 2;
+    return yDiff <= 3;
 }
 
-function highlightBottomEdge() {
-    // Entferne vorherige Hervorhebung
-    removeBottomEdgeHighlight();
+function highlightBottomEdge(corners) {
+    removeSnapEffects();
     
-    const corners = getShapeCorners();
-    if (corners.length < 3) return;
-    
-    // Finde die zwei untersten Punkte
     let bottomPoints = [...corners].sort((a, b) => b.y - a.y).slice(0, 2);
-    
-    // Sortiere von links nach rechts
     bottomPoints.sort((a, b) => a.x - b.x);
     
-    // Erstelle Hervorhebungs-Linie
     const highlightLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     highlightLine.id = 'bottom-edge-highlight';
     highlightLine.setAttribute('x1', bottomPoints[0].x);
@@ -626,637 +670,45 @@ function highlightBottomEdge() {
     
     svg.appendChild(highlightLine);
     
-    // Animation für Aufleuchten
+    // Animation
     highlightLine.animate([
-        { opacity: 0.8 },
-        { opacity: 0.3 },
-        { opacity: 0.8 }
-    ], {
-        duration: 500,
-        iterations: 2
-    });
-}
-
-function removeBottomEdgeHighlight() {
-    const existing = document.getElementById('bottom-edge-highlight');
-    if (existing) {
-        existing.remove();
-    }
+        { opacity: 0.8 }, { opacity: 0.3 }, { opacity: 0.8 }
+    ], { duration: 500, iterations: 2 });
 }
 
 function showSnapFeedback() {
     const feedback = document.createElement('div');
     feedback.id = 'snap-feedback';
     feedback.style.cssText = `
-        position: absolute;
-        top: 50px;
-        right: 10px;
-        background: #28a745;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: bold;
-        z-index: 1001;
-        pointer-events: none;
+        position: absolute; top: 50px; right: 10px; background: #28a745; color: white;
+        padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold;
+        z-index: 1001; pointer-events: none;
     `;
     feedback.textContent = '📐 Eingerastet!';
     
     const canvasWrapper = document.querySelector('.canvas-wrapper');
-    if (canvasWrapper) {
-        canvasWrapper.appendChild(feedback);
-    }
+    if (canvasWrapper) { canvasWrapper.appendChild(feedback); }
+}
+
+function removeSnapEffects() {
+    const snapFeedback = document.getElementById('snap-feedback');
+    if (snapFeedback) { snapFeedback.remove(); }
+    
+    const highlight = document.getElementById('bottom-edge-highlight');
+    if (highlight) { highlight.remove(); }
 }
 
 function stopDragging() {
     isDragging = false;
     svg.style.cursor = 'default';
     
-    console.log('Drag beendet');
+    setTimeout(() => { removeSnapEffects(); }, 1000);
 }
 
-function updateShape() {
-    if (!svg || isUpdating) return;
-    
-    isUpdating = true;
-    
-    const shapeGroup = document.getElementById('roof-shape');
-    const cornerGroup = document.getElementById('corner-handles');
-    const labelsGroup = document.getElementById('labels');
-    
-    if (!shapeGroup) {
-        isUpdating = false;
-        return;
-    }
-    
-    // Entferne alle Inhalte
-    shapeGroup.innerHTML = '';
-    if (cornerGroup) cornerGroup.innerHTML = '';
-    if (labelsGroup) labelsGroup.innerHTML = '';
-    
-    const allTexts = svg.querySelectorAll('text');
-    allTexts.forEach(text => text.remove());
-    
-    const currentData = getCurrentFormData();
-    
-    // 1. Zeichne die Form (mit Transformation)
-    drawTransformedShape(shapeGroup, currentData);
-    
-    // 2. Hole die FINALEN Eckpunkte nach der Transformation
-    const finalCorners = getFinalTransformedCorners(currentData);
-    
-    // 3. Zeichne Corner-Handles an den finalen Positionen (OHNE Transformation)
-    if (cornerGroup && finalCorners.length > 0) {
-        drawCornerHandlesAtPositions(cornerGroup, finalCorners);
-    }
-    
-    // 4. Zeichne Labels an den finalen Positionen (OHNE Transformation)
-    if (labelsGroup && finalCorners.length > 0) {
-        drawLabelsAtPositions(labelsGroup, finalCorners, currentData);
-    }
-    
-    updateCalculations(currentData);
-    updateRotationDisplay();
-    
-    setTimeout(() => {
-        isUpdating = false;
-    }, 50);
-}
-
-function getFinalTransformedCorners(data) {
-    // 1. Hole die Rohpunkte der aktuellen Form
-    const rawPoints = getRawShapePoints(data);
-    if (!rawPoints || rawPoints.length === 0) return [];
-    
-    // 2. Konvertiere zu Canvas-Koordinaten
-    const canvasPoints = rawPoints.map(point => ({
-        x: CANVAS_CENTER_X + point.x * SCALE_FACTOR,
-        y: CANVAS_CENTER_Y - point.y * SCALE_FACTOR
-    }));
-    
-    // 3. Wende die aktuelle Transformation an
-    return canvasPoints.map(point => transformPoint(point.x, point.y));
-}
-
-function drawCornerHandlesAtPositions(group, corners) {
-    corners.forEach((corner, index) => {
-        const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        handle.setAttribute('cx', corner.x);
-        handle.setAttribute('cy', corner.y);
-        handle.setAttribute('r', CORNER_RADIUS);
-        handle.setAttribute('fill', 'rgba(0, 123, 255, 0.7)');
-        handle.setAttribute('stroke', '#007bff');
-        handle.setAttribute('stroke-width', '2');
-        handle.setAttribute('class', 'corner-handle');
-        handle.style.cursor = 'grab';
-        
-        group.appendChild(handle);
-        
-        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        dot.setAttribute('cx', corner.x);
-        dot.setAttribute('cy', corner.y);
-        dot.setAttribute('r', '2');
-        dot.setAttribute('fill', 'white');
-        dot.style.pointerEvents = 'none';
-        
-        group.appendChild(dot);
-    });
-}
-
-function drawLabelsAtPositions(group, corners, data) {
-    const finalShape = determineActualShape();
-    
-    if (finalShape === 'dreieck') {
-        drawTriangleLabelsAtEdges(group, data, null, corners);
-    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        drawRectangleLabelsAtEdges(group, data, corners);
-    } else if (finalShape === 'trapez') {
-        drawTrapezLabelsAtEdges(group, data, corners);
-    } else if (finalShape === 'kreis') {
-        drawCircleLabelsAtCenter(group, data, determineActualVariant());
-    }
-}
-
-function drawCornerHandles(group, data) {
-    // Verwende die RAW (untransformierten) Eckpunkte
-    const currentData = getCurrentFormData();
-    const rawPoints = getRawShapePoints(currentData);
-    
-    if (!rawPoints || rawPoints.length === 0) return;
-    
-    rawPoints.forEach((point, index) => {
-        // Konvertiere zu Canvas-Koordinaten OHNE Transformation
-        const canvasX = CANVAS_CENTER_X + point.x * SCALE_FACTOR;
-        const canvasY = CANVAS_CENTER_Y - point.y * SCALE_FACTOR;
-        
-        const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        handle.setAttribute('cx', canvasX);
-        handle.setAttribute('cy', canvasY);
-        handle.setAttribute('r', CORNER_RADIUS);
-        handle.setAttribute('fill', 'rgba(0, 123, 255, 0.7)');
-        handle.setAttribute('stroke', '#007bff');
-        handle.setAttribute('stroke-width', '2');
-        handle.setAttribute('class', 'corner-handle');
-        handle.style.cursor = 'grab';
-        
-        group.appendChild(handle);
-        
-        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        dot.setAttribute('cx', canvasX);
-        dot.setAttribute('cy', canvasY);
-        dot.setAttribute('r', '2');
-        dot.setAttribute('fill', 'white');
-        dot.style.pointerEvents = 'none';
-        
-        group.appendChild(dot);
-    });
-}
-
-function getCurrentFormData() {
-    const data = { 
-        shape: currentShape,
-        variant: currentVariant 
-    };
-    
-    const inputs = document.querySelectorAll('#geometry-inputs-grid input');
-    
-    inputs.forEach(input => {
-        if (input.value) {
-            const numValue = parseFloat(input.value);
-            if (!isNaN(numValue)) {
-                data[input.id] = numValue;
-            }
-        }
-    });
-    
-    return data;
-}
-
-function drawTransformedShape(group, data) {
-    drawShape(group, data);
-    
-    let transforms = [];
-    
-    if (currentRotation !== 0) {
-        transforms.push('rotate(' + currentRotation + ' ' + CANVAS_CENTER_X + ' ' + CANVAS_CENTER_Y + ')');
-    }
-    
-    if (isMirroredH || isMirroredV) {
-        const scaleX = isMirroredH ? -1 : 1;
-        const scaleY = isMirroredV ? -1 : 1;
-        transforms.push('translate(' + CANVAS_CENTER_X + ' ' + CANVAS_CENTER_Y + ')');
-        transforms.push('scale(' + scaleX + ' ' + scaleY + ')');
-        transforms.push('translate(' + (-CANVAS_CENTER_X) + ' ' + (-CANVAS_CENTER_Y) + ')');
-    }
-    
-    if (transforms.length > 0) {
-        const fullTransform = transforms.join(' ');
-        group.setAttribute('transform', fullTransform);
-    } else {
-        group.removeAttribute('transform');
-    }
-}
-
-function transformPoint(x, y) {
-    let newX = x;
-    let newY = y;
-    
-    if (isMirroredH || isMirroredV) {
-        const relX = x - CANVAS_CENTER_X;
-        const relY = y - CANVAS_CENTER_Y;
-        
-        const scaleX = isMirroredH ? -1 : 1;
-        const scaleY = isMirroredV ? -1 : 1;
-        
-        newX = CANVAS_CENTER_X + relX * scaleX;
-        newY = CANVAS_CENTER_Y + relY * scaleY;
-    }
-    
-    if (currentRotation !== 0) {
-        const angle = (currentRotation * Math.PI) / 180;
-        const relX = newX - CANVAS_CENTER_X;
-        const relY = newY - CANVAS_CENTER_Y;
-        
-        newX = CANVAS_CENTER_X + relX * Math.cos(angle) - relY * Math.sin(angle);
-        newY = CANVAS_CENTER_Y + relX * Math.sin(angle) + relY * Math.cos(angle);
-    }
-    
-    return { x: newX, y: newY };
-}
-
-function getRawShapePoints(data) {
-    const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
-    
-    let points = [];
-    
-    if (finalShape === 'dreieck') {
-        if (finalVariant === 'gleichseitig') {
-            const side = data.side || 6;
-            const height = side * Math.sqrt(3) / 2;
-            points = [
-                { x: side/2, y: height/2 },    // Spitze oben
-                { x: 0, y: -height/2 },        // Links unten
-                { x: side, y: -height/2 }      // Rechts unten
-            ];
-        } else if (finalVariant === 'rechtwinklig') {
-            const a = data.katheteA || 4;
-            const b = data.katheteB || 5;
-            points = [
-                { x: 0, y: 0 },          // Rechter Winkel
-                { x: a, y: 0 },          // Rechts
-                { x: 0, y: b }           // Oben
-            ];
-        } else {
-            const a = data.sideA || 4;
-            const b = data.sideB || 5;
-            const c = data.sideC || 6;
-            const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
-            points = [
-                { x: a/2, y: height/2 },
-                { x: 0, y: -height/2 },
-                { x: a, y: -height/2 }
-            ];
-        }
-    } else if (finalShape === 'rechteck') {
-        const length = data.length || 8;
-        const width = data.width || 5;
-        points = [
-            { x: -length/2, y: width/2 },    // Links oben
-            { x: length/2, y: width/2 },     // Rechts oben
-            { x: length/2, y: -width/2 },    // Rechts unten
-            { x: -length/2, y: -width/2 }    // Links unten
-        ];
-    } else if (finalShape === 'quadrat') {
-        const side = data.side || 5;
-        points = [
-            { x: -side/2, y: side/2 },
-            { x: side/2, y: side/2 },
-            { x: side/2, y: -side/2 },
-            { x: -side/2, y: -side/2 }
-        ];
-    } else if (finalShape === 'trapez') {
-        const baseA = data.baseA || 8;
-        const baseB = data.baseB || 5;
-        const height = data.height || 4;
-        const offset = (baseA - baseB) / 2;
-        points = [
-            { x: -baseB/2, y: height/2 },        // Links oben
-            { x: baseB/2, y: height/2 },         // Rechts oben
-            { x: baseA/2, y: -height/2 },        // Rechts unten
-            { x: -baseA/2, y: -height/2 }        // Links unten
-        ];
-    } else if (finalShape === 'kreis') {
-        const radius = data.radius || 4;
-        for (let i = 0; i < 8; i++) {
-            const angle = (i * 2 * Math.PI) / 8;
-            points.push({
-                x: radius * Math.cos(angle),
-                y: radius * Math.sin(angle)
-            });
-        }
-    } else {
-        // Fallback: Rechteck
-        points = [
-            { x: -4, y: 2.5 },
-            { x: 4, y: 2.5 },
-            { x: 4, y: -2.5 },
-            { x: -4, y: -2.5 }
-        ];
-    }
-    
-    return points;
-}
-
-// Hilfsfunktion für Label-Erstellung
-function createEdgeLabel(x, y, text, color, fontSize) {
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('x', x);
-    label.setAttribute('y', y);
-    label.setAttribute('text-anchor', 'middle');
-    label.setAttribute('fill', color);
-    label.setAttribute('font-size', fontSize);
-    label.setAttribute('font-weight', 'bold');
-    label.setAttribute('stroke', 'white');
-    label.setAttribute('stroke-width', '3');
-    label.setAttribute('paint-order', 'stroke');
-    label.textContent = text;
-    return label;
-}
-
-function drawLabelsAndAnnotations(group, data) {
-    const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
-    
-    // Verwende die RAW (untransformierten) Eckpunkte
-    const currentData = getCurrentFormData();
-    const rawPoints = getRawShapePoints(currentData);
-    
-    if (!rawPoints || rawPoints.length === 0) return;
-    
-    // Konvertiere zu Canvas-Koordinaten OHNE Transformation
-    const corners = rawPoints.map(point => ({
-        x: CANVAS_CENTER_X + point.x * SCALE_FACTOR,
-        y: CANVAS_CENTER_Y - point.y * SCALE_FACTOR
-    }));
-    
-    if (finalShape === 'dreieck') {
-        drawTriangleLabelsAtEdges(group, data, finalVariant, corners);
-    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        drawRectangleLabelsAtEdges(group, data, corners);
-    } else if (finalShape === 'trapez') {
-        drawTrapezLabelsAtEdges(group, data, corners);
-    } else if (finalShape === 'kreis') {
-        drawCircleLabelsAtCenter(group, data, finalVariant);
-    }
-}
-
-function drawTriangleLabelsAtEdges(group, data, variant, corners) {
-    if (corners.length < 3) return;
-    
-    // Seite A (zwischen Punkt 1 und 2) - Basis
-    const sideAMidX = (corners[1].x + corners[2].x) / 2;
-    const sideAMidY = (corners[1].y + corners[2].y) / 2;
-    const sideALabel = createEdgeLabel(sideAMidX, sideAMidY + 15, 'A', '#dc3545', '12');
-    group.appendChild(sideALabel);
-    
-    // Seite B (zwischen Punkt 0 und 1)
-    const sideBMidX = (corners[0].x + corners[1].x) / 2;
-    const sideBMidY = (corners[0].y + corners[1].y) / 2;
-    const sideBLabel = createEdgeLabel(sideBMidX - 15, sideBMidY, 'B', '#28a745', '12');
-    group.appendChild(sideBLabel);
-    
-    // Seite C (zwischen Punkt 0 und 2)
-    const sideCMidX = (corners[0].x + corners[2].x) / 2;
-    const sideCMidY = (corners[0].y + corners[2].y) / 2;
-    const sideCLabel = createEdgeLabel(sideCMidX + 15, sideCMidY, 'C', '#ffc107', '12');
-    group.appendChild(sideCLabel);
-}
-
-function drawRectangleLabelsAtEdges(group, data, corners) {
-    if (corners.length < 4) return;
-    
-    // Seite A (oben, zwischen Punkt 0 und 1)
-    const sideAMidX = (corners[0].x + corners[1].x) / 2;
-    const sideAMidY = (corners[0].y + corners[1].y) / 2;
-    const sideALabel = createEdgeLabel(sideAMidX, sideAMidY - 12, 'A', '#007bff', '12');
-    group.appendChild(sideALabel);
-    
-    // Seite B (rechts, zwischen Punkt 1 und 2)
-    const sideBMidX = (corners[1].x + corners[2].x) / 2;
-    const sideBMidY = (corners[1].y + corners[2].y) / 2;
-    const sideBLabel = createEdgeLabel(sideBMidX + 12, sideBMidY, 'B', '#28a745', '12');
-    group.appendChild(sideBLabel);
-    
-    // Seite C (unten, zwischen Punkt 2 und 3)
-    const sideCMidX = (corners[2].x + corners[3].x) / 2;
-    const sideCMidY = (corners[2].y + corners[3].y) / 2;
-    const sideCLabel = createEdgeLabel(sideCMidX, sideCMidY + 15, 'C', '#dc3545', '12');
-    group.appendChild(sideCLabel);
-    
-    // Seite D (links, zwischen Punkt 3 und 0)
-    const sideDMidX = (corners[3].x + corners[0].x) / 2;
-    const sideDMidY = (corners[3].y + corners[0].y) / 2;
-    const sideDLabel = createEdgeLabel(sideDMidX - 12, sideDMidY, 'D', '#ffc107', '12');
-    group.appendChild(sideDLabel);
-}
-
-function drawTrapezLabelsAtEdges(group, data, corners) {
-    if (corners.length < 4) return;
-    
-    const bottomMidX = (corners[2].x + corners[3].x) / 2;
-    const bottomMidY = (corners[2].y + corners[3].y) / 2;
-    
-    const bottomLabel = createEdgeLabel(bottomMidX, bottomMidY + 15, 'C', '#dc3545', '12');
-    group.appendChild(bottomLabel);
-    
-    const topMidX = (corners[0].x + corners[1].x) / 2;
-    const topMidY = (corners[0].y + corners[1].y) / 2;
-    
-    const topLabel = createEdgeLabel(topMidX, topMidY - 12, 'A', '#007bff', '12');
-    group.appendChild(topLabel);
-}
-
-function drawCircleLabelsAtCenter(group, data, variant) {
-    const centerLabel = createEdgeLabel(CANVAS_CENTER_X, CANVAS_CENTER_Y + 5, 
-        variant === 'oval' ? 'OVAL' : 'KREIS', '#007bff', '12');
-    group.appendChild(centerLabel);
-}
-
-function stopDragging() {
-    isDragging = false;
-    svg.style.cursor = 'default';
-    
-    // Entferne Highlight nach dem Drag-Ende
-    setTimeout(() => {
-        removeBottomEdgeHighlight();
-        const snapFeedback = document.getElementById('snap-feedback');
-        if (snapFeedback) {
-            snapFeedback.remove();
-        }
-    }, 1000);
-    
-    console.log('Drag beendet');
-}
-
-function drawShape(group, data) {
-    const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
-    
-    switch (finalShape) {
-        case 'dreieck':
-            drawTriangle(group, data, finalVariant);
-            break;
-        case 'kreis':
-            drawCircle(group, data, finalVariant);
-            break;
-        case 'rechteck':
-            drawRectangle(group, data, 'rechteck');
-            break;
-        case 'quadrat':
-            drawRectangle(group, data, 'quadrat');
-            break;
-        case 'trapez':
-            drawTrapez(group, data);
-            break;
-        default:
-            drawRectangle(group, data, 'rechteck');
-    }
-}
-
-function drawRectangle(group, data, variant) {
-    let width, height;
-    
-    if (variant === 'quadrat') {
-        const side = (data.side || 5) * SCALE_FACTOR;
-        width = height = side;
-    } else {
-        width = (data.length || 8) * SCALE_FACTOR;
-        height = (data.width || 5) * SCALE_FACTOR;
-    }
-    
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', CANVAS_CENTER_X - width/2);
-    rect.setAttribute('y', CANVAS_CENTER_Y - height/2);
-    rect.setAttribute('width', width);
-    rect.setAttribute('height', height);
-    rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    rect.setAttribute('stroke', '#007bff');
-    rect.setAttribute('stroke-width', '3');
-    rect.setAttribute('data-shape', 'rectangle');
-    
-    group.appendChild(rect);
-}
-
-function drawTriangle(group, data, variant) {
-    let points = '';
-    
-    if (variant === 'gleichseitig') {
-        const side = (data.side || 6) * SCALE_FACTOR;
-        const height = side * Math.sqrt(3) / 2;
-        
-        const top_x = CANVAS_CENTER_X;
-        const top_y = CANVAS_CENTER_Y - height/3;
-        const left_x = CANVAS_CENTER_X - side/2;
-        const left_y = CANVAS_CENTER_Y + height/3;
-        const right_x = CANVAS_CENTER_X + side/2;
-        const right_y = CANVAS_CENTER_Y + height/3;
-        
-        points = top_x + ',' + top_y + ' ' + left_x + ',' + left_y + ' ' + right_x + ',' + right_y;
-        
-    } else if (variant === 'rechtwinklig') {
-        const a = (data.katheteA || 4) * SCALE_FACTOR;
-        const b = (data.katheteB || 5) * SCALE_FACTOR;
-        
-        const bottom_left_x = CANVAS_CENTER_X - a/2;
-        const bottom_left_y = CANVAS_CENTER_Y + b/3;
-        const bottom_right_x = CANVAS_CENTER_X + a/2;
-        const bottom_right_y = CANVAS_CENTER_Y + b/3;
-        const top_left_x = CANVAS_CENTER_X - a/2;
-        const top_left_y = CANVAS_CENTER_Y - b/3;
-        
-        points = bottom_left_x + ',' + bottom_left_y + ' ' + bottom_right_x + ',' + bottom_right_y + ' ' + top_left_x + ',' + top_left_y;
-        
-    } else {
-        const a = (data.sideA || 4) * SCALE_FACTOR;
-        const height = a * 0.8;
-        
-        const top_x = CANVAS_CENTER_X;
-        const top_y = CANVAS_CENTER_Y - height/3;
-        const left_x = CANVAS_CENTER_X - a/2;
-        const left_y = CANVAS_CENTER_Y + height/3;
-        const right_x = CANVAS_CENTER_X + a/2 - 30;
-        const right_y = CANVAS_CENTER_Y + height/3;
-        
-        points = top_x + ',' + top_y + ' ' + left_x + ',' + left_y + ' ' + right_x + ',' + right_y;
-    }
-    
-    const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    triangle.setAttribute('points', points);
-    triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    triangle.setAttribute('stroke', '#007bff');
-    triangle.setAttribute('stroke-width', '3');
-    triangle.setAttribute('data-shape', 'triangle');
-    
-    group.appendChild(triangle);
-}
-
-function drawCircle(group, data, variant) {
-    if (variant === 'oval') {
-        const radiusA = (data.radiusA || 5) * SCALE_FACTOR;
-        const radiusB = (data.radiusB || 3) * SCALE_FACTOR;
-        
-        const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-        ellipse.setAttribute('cx', CANVAS_CENTER_X);
-        ellipse.setAttribute('cy', CANVAS_CENTER_Y);
-        ellipse.setAttribute('rx', radiusA);
-        ellipse.setAttribute('ry', radiusB);
-        ellipse.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-        ellipse.setAttribute('stroke', '#007bff');
-        ellipse.setAttribute('stroke-width', '3');
-        ellipse.setAttribute('data-shape', 'ellipse');
-        
-        group.appendChild(ellipse);
-    } else {
-        const radius = (data.radius || 4) * SCALE_FACTOR;
-        
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', CANVAS_CENTER_X);
-        circle.setAttribute('cy', CANVAS_CENTER_Y);
-        circle.setAttribute('r', radius);
-        circle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-        circle.setAttribute('stroke', '#007bff');
-        circle.setAttribute('stroke-width', '3');
-        circle.setAttribute('data-shape', 'circle');
-        
-        group.appendChild(circle);
-    }
-}
-
-function drawTrapez(group, data) {
-    const baseA = (data.baseA || 8) * SCALE_FACTOR;
-    const baseB = (data.baseB || 5) * SCALE_FACTOR;
-    const height = (data.height || 4) * SCALE_FACTOR;
-    
-    const points = (CANVAS_CENTER_X - baseA/2) + ',' + (CANVAS_CENTER_Y + height/2) + ' ' + 
-                   (CANVAS_CENTER_X + baseA/2) + ',' + (CANVAS_CENTER_Y + height/2) + ' ' + 
-                   (CANVAS_CENTER_X + baseB/2) + ',' + (CANVAS_CENTER_Y - height/2) + ' ' + 
-                   (CANVAS_CENTER_X - baseB/2) + ',' + (CANVAS_CENTER_Y - height/2);
-    
-    const trapez = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    trapez.setAttribute('points', points);
-    trapez.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    trapez.setAttribute('stroke', '#007bff');
-    trapez.setAttribute('stroke-width', '3');
-    trapez.setAttribute('data-shape', 'trapez');
-    
-    group.appendChild(trapez);
-}
-
+// === BERECHNUNGEN ===
 function updateCalculations(data) {
     let area = 0;
     let perimeter = 0;
-    
     const finalShape = determineActualShape();
     
     switch (finalShape) {
@@ -1266,13 +718,11 @@ function updateCalculations(data) {
             area = length * width;
             perimeter = 2 * (length + width);
             break;
-            
         case 'quadrat':
             const side = data.side || 5;
             area = side * side;
             perimeter = 4 * side;
             break;
-            
         case 'dreieck':
             if (determineActualVariant() === 'rechtwinklig') {
                 const a = data.katheteA || 4;
@@ -1293,27 +743,6 @@ function updateCalculations(data) {
                 perimeter = a + b + c;
             }
             break;
-            
-        case 'kreis':
-            if (determineActualVariant() === 'oval') {
-                const a = data.radiusA || 5;
-                const b = data.radiusB || 3;
-                area = Math.PI * a * b;
-                perimeter = Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
-            } else {
-                const r = data.radius || 4;
-                area = Math.PI * r * r;
-                perimeter = 2 * Math.PI * r;
-            }
-            break;
-            
-        case 'trapez':
-            const baseA = data.baseA || 8;
-            const baseB = data.baseB || 5;
-            const height = data.height || 4;
-            area = 0.5 * (baseA + baseB) * height;
-            perimeter = baseA + baseB + 2 * Math.sqrt(height * height + Math.pow((baseA - baseB) / 2, 2));
-            break;
     }
     
     const areaElement = document.getElementById('calc-area');
@@ -1323,6 +752,7 @@ function updateCalculations(data) {
     if (perimeterElement) perimeterElement.textContent = perimeter.toFixed(2) + ' m';
 }
 
+// === EVENT LISTENERS ===
 function setupEventListeners() {
     const backBtn = document.getElementById('btn-back');
     const continueBtn = document.getElementById('btn-continue');
@@ -1341,35 +771,20 @@ function setupEventListeners() {
         });
     }
     
-    setupToolButtons();
-}
-
-function setupToolButtons() {
     const resetBtn = document.getElementById('btn-reset');
-    
     if (resetBtn) {
         resetBtn.addEventListener('click', function() {
-            console.log('RESET Button geklickt');
             resetToDefaults();
         });
     }
 }
 
 function resetToDefaults() {
-    console.log('Setze auf Standard-Werte zurück');
-    
-    const labelsGroup = document.getElementById('labels');
-    if (labelsGroup) labelsGroup.innerHTML = '';
-    
-    const allTexts = svg.querySelectorAll('text');
-    allTexts.forEach(text => text.remove());
-    
     currentRotation = 0;
     isMirroredH = false;
     isMirroredV = false;
     
     const inputs = document.querySelectorAll('#geometry-inputs-grid input');
-    
     inputs.forEach(input => {
         switch(input.id) {
             case 'side': input.value = currentVariant === 'quadrat' ? '5' : '6'; break;
@@ -1378,15 +793,8 @@ function resetToDefaults() {
             case 'sideA': input.value = '4'; break;
             case 'sideB': input.value = '5'; break;
             case 'sideC': input.value = '6'; break;
-            case 'radius': input.value = '4'; break;
-            case 'radiusA': input.value = '5'; break;
-            case 'radiusB': input.value = '3'; break;
             case 'length': input.value = '8'; break;
             case 'width': input.value = '5'; break;
-            case 'base': input.value = '8'; break;
-            case 'baseA': input.value = '8'; break;
-            case 'baseB': input.value = '5'; break;
-            case 'height': input.value = '4'; break;
         }
     });
     
@@ -1395,43 +803,23 @@ function resetToDefaults() {
 }
 
 function showFeedback(message) {
-    console.log('Feedback: ' + message);
-    
     const existingFeedback = document.querySelectorAll('.feedback-message');
-    existingFeedback.forEach(function(fb) { 
-        fb.remove(); 
-    });
+    existingFeedback.forEach(fb => fb.remove());
     
     const feedback = document.createElement('div');
     feedback.className = 'feedback-message';
     feedback.style.cssText = `
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        background: #28a745;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 6px;
-        z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        max-width: 300px;
-        font-size: 14px;
-        font-weight: 500;
-        animation: slideIn 0.3s ease-out;
+        position: fixed; top: 100px; right: 20px; background: #28a745; color: white;
+        padding: 12px 20px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        max-width: 300px; font-size: 14px; font-weight: 500; animation: slideIn 0.3s ease-out;
     `;
     
     if (!document.getElementById('feedback-styles')) {
         const style = document.createElement('style');
         style.id = 'feedback-styles';
         style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
+            @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+            @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
         `;
         document.head.appendChild(style);
     }
@@ -1439,34 +827,17 @@ function showFeedback(message) {
     feedback.textContent = message;
     document.body.appendChild(feedback);
     
-    setTimeout(function() {
+    setTimeout(() => {
         feedback.style.animation = 'slideOut 0.3s ease-in';
-        setTimeout(function() {
-            if (feedback.parentNode) {
-                feedback.remove();
-            }
-        }, 300);
+        setTimeout(() => { if (feedback.parentNode) { feedback.remove(); } }, 300);
     }, 3000);
 }
 
 function saveCurrentData() {
-    console.log('Speichere aktuelle Daten');
-    
     const currentData = getCurrentFormData();
-    
     currentData.rotation = currentRotation;
-    currentData.mirroredH = isMirroredH;
-    currentData.mirroredV = isMirroredV;
     
-    const direction = getVerlegerichtung();
-    currentData.verlegerichtung = direction.code;
-    currentData.verlegerichtungName = direction.name;
-    currentData.verlegerichtungDescription = direction.description;
-    
-    if (!projectData.roofShape) {
-        projectData.roofShape = {};
-    }
-    
+    if (!projectData.roofShape) { projectData.roofShape = {}; }
     Object.assign(projectData.roofShape, currentData);
     
     projectData.roofShape.points = generateRoofPoints(currentData);
@@ -1475,7 +846,6 @@ function saveCurrentData() {
         shapeType: determineActualShape(),
         variant: determineActualVariant(),
         points: projectData.roofShape.points,
-        preferredDirection: direction.code,
         rotation: currentRotation,
         area: calculateArea(currentData),
         dimensions: calculateDimensions(currentData)
@@ -1483,41 +853,13 @@ function saveCurrentData() {
     
     try {
         localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-        console.log('Erfolgreich in localStorage gespeichert');
     } catch (e) {
         sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
-        console.log('Erfolgreich in sessionStorage gespeichert');
-    }
-}
-
-function getVerlegerichtung() {
-    const effectiveRotation = currentRotation % 360;
-    
-    if (Math.abs(effectiveRotation) < 45 || Math.abs(effectiveRotation) > 315) {
-        return {
-            name: 'Längs (senkrecht zur Traufe)',
-            code: 'laengs',
-            description: 'Platten verlaufen von der Traufe zum First'
-        };
-    } else if (Math.abs(effectiveRotation - 90) < 45 || Math.abs(effectiveRotation + 270) < 45) {
-        return {
-            name: 'Quer (senkrecht zur Traufe)',
-            code: 'quer', 
-            description: 'Platten verlaufen seitlich zur Hauptwasserlaufrichtung'
-        };
-    } else {
-        return {
-            name: 'Diagonal',
-            code: 'diagonal',
-            description: 'Platten verlaufen diagonal zur Standardausrichtung'
-        };
     }
 }
 
 function generateRoofPoints(data) {
     const finalShape = determineActualShape();
-    const finalVariant = determineActualVariant();
-    
     let points = [];
     
     switch (finalShape) {
@@ -1525,95 +867,37 @@ function generateRoofPoints(data) {
             const length = data.length || 8;
             const width = data.width || 5;
             points = [
-                { x: 0, y: 0 },
-                { x: length, y: 0 },
-                { x: length, y: width },
-                { x: 0, y: width }
+                { x: 0, y: 0 }, { x: length, y: 0 },
+                { x: length, y: width }, { x: 0, y: width }
             ];
             break;
-            
         case 'quadrat':
             const side = data.side || 5;
             points = [
-                { x: 0, y: 0 },
-                { x: side, y: 0 },
-                { x: side, y: side },
-                { x: 0, y: side }
+                { x: 0, y: 0 }, { x: side, y: 0 },
+                { x: side, y: side }, { x: 0, y: side }
             ];
             break;
-            
         case 'dreieck':
-            if (finalVariant === 'gleichseitig') {
+            if (determineActualVariant() === 'gleichseitig') {
                 const triangleSide = data.side || 6;
                 const height = triangleSide * Math.sqrt(3) / 2;
                 points = [
                     { x: triangleSide/2, y: height },
-                    { x: 0, y: 0 },
-                    { x: triangleSide, y: 0 }
+                    { x: 0, y: 0 }, { x: triangleSide, y: 0 }
                 ];
-            } else if (finalVariant === 'rechtwinklig') {
+            } else if (determineActualVariant() === 'rechtwinklig') {
                 const a = data.katheteA || 4;
                 const b = data.katheteB || 5;
                 points = [
-                    { x: 0, y: 0 },
-                    { x: a, y: 0 },
-                    { x: 0, y: b }
-                ];
-            } else {
-                const a = data.sideA || 4;
-                const b = data.sideB || 5;
-                const c = data.sideC || 6;
-                const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
-                points = [
-                    { x: a/2, y: height },
-                    { x: 0, y: 0 },
-                    { x: a, y: 0 }
+                    { x: 0, y: 0 }, { x: a, y: 0 }, { x: 0, y: b }
                 ];
             }
             break;
-            
-        case 'trapez':
-            const baseA = data.baseA || 8;
-            const baseB = data.baseB || 5;
-            const height = data.height || 4;
-            const offset = (baseA - baseB) / 2;
-            points = [
-                { x: 0, y: 0 },
-                { x: baseA, y: 0 },
-                { x: baseA - offset, y: height },
-                { x: offset, y: height }
-            ];
-            break;
-            
-        case 'kreis':
-            if (finalVariant === 'oval') {
-                const radiusA = data.radiusA || 5;
-                const radiusB = data.radiusB || 3;
-                for (let i = 0; i < 16; i++) {
-                    const angle = (i * 2 * Math.PI) / 16;
-                    points.push({
-                        x: radiusA + radiusA * Math.cos(angle),
-                        y: radiusB + radiusB * Math.sin(angle)
-                    });
-                }
-            } else {
-                const radius = data.radius || 4;
-                for (let i = 0; i < 16; i++) {
-                    const angle = (i * 2 * Math.PI) / 16;
-                    points.push({
-                        x: radius + radius * Math.cos(angle),
-                        y: radius + radius * Math.sin(angle)
-                    });
-                }
-            }
-            break;
-            
         default:
             points = [
-                { x: 0, y: 0 },
-                { x: 8, y: 0 },
-                { x: 8, y: 5 },
-                { x: 0, y: 5 }
+                { x: 0, y: 0 }, { x: 8, y: 0 },
+                { x: 8, y: 5 }, { x: 0, y: 5 }
             ];
     }
     
@@ -1637,20 +921,6 @@ function calculateArea(data) {
                 return (Math.sqrt(3) / 4) * s * s;
             }
             return 10;
-        case 'trapez':
-            const baseA = data.baseA || 8;
-            const baseB = data.baseB || 5;
-            const height = data.height || 4;
-            return 0.5 * (baseA + baseB) * height;
-        case 'kreis':
-            if (determineActualVariant() === 'oval') {
-                const a = data.radiusA || 5;
-                const b = data.radiusB || 3;
-                return Math.PI * a * b;
-            } else {
-                const r = data.radius || 4;
-                return Math.PI * r * r;
-            }
         default:
             return 40;
     }
@@ -1661,22 +931,13 @@ function calculateDimensions(data) {
     
     switch (finalShape) {
         case 'rechteck':
-            return {
-                length: data.length || 8,
-                width: data.width || 5
-            };
+            return { length: data.length || 8, width: data.width || 5 };
         case 'quadrat':
             const side = data.side || 5;
-            return {
-                length: side,
-                width: side
-            };
+            return { length: side, width: side };
         default:
-            return {
-                length: 8,
-                width: 5
-            };
+            return { length: 8, width: 5 };
     }
 }
 
-console.log('Interaktiver Editor mit Drag-Rotation geladen');
+console.log('Vereinfachter Editor geladen');
