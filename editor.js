@@ -569,28 +569,32 @@ function updateRotation(x, y) {
     
     let newRotation = dragStartRotation + (angleDiff * 180 / Math.PI);
     
-    // SNAP-MECHANISMUS: Einrasten auf 0°, 90°, 180°, 270° (±3° Toleranz)
-    const snapAngles = [0, 90, 180, 270, -90, -180];
-    const snapTolerance = 3; // Grad
+    // ERWEITERTE SNAP-MECHANISMUS: Einrasten auf ALLE 90°-Schritte
+    const snapAngles = [0, 90, 180, 270, -90, -180, -270, 360];
+    const snapTolerance = 5; // Größere Toleranz für besseres Einrasten
     
+    let snapped = false;
     for (const snapAngle of snapAngles) {
         const diff = Math.abs(newRotation - snapAngle);
         const diffWrapped = Math.abs(Math.abs(newRotation - snapAngle) - 360);
         
         if (diff <= snapTolerance || diffWrapped <= snapTolerance) {
             newRotation = snapAngle;
+            snapped = true;
             
             // Visual Feedback für Snap
             if (!document.getElementById('snap-feedback')) {
                 showSnapFeedback();
             }
             break;
-        } else {
-            // Entferne Snap-Feedback wenn nicht eingerastet
-            const snapFeedback = document.getElementById('snap-feedback');
-            if (snapFeedback) {
-                snapFeedback.remove();
-            }
+        }
+    }
+    
+    // Entferne Snap-Feedback wenn nicht eingerastet
+    if (!snapped) {
+        const snapFeedback = document.getElementById('snap-feedback');
+        if (snapFeedback) {
+            snapFeedback.remove();
         }
     }
     
@@ -648,6 +652,7 @@ function updateShape() {
         return;
     }
     
+    // Entferne alle Inhalte
     shapeGroup.innerHTML = '';
     if (cornerGroup) cornerGroup.innerHTML = '';
     if (labelsGroup) labelsGroup.innerHTML = '';
@@ -657,12 +662,19 @@ function updateShape() {
     
     const currentData = getCurrentFormData();
     
+    // 1. Zeichne die transformierte Form
     drawTransformedShape(shapeGroup, currentData);
     
+    // 2. Zeichne Corner-Handles OHNE Transformation (da sie die finalen Positionen verwenden)
     if (cornerGroup) {
+        // Corner-Handles werden OHNE Transform-Attribut gezeichnet
+        const tempTransform = shapeGroup.getAttribute('transform');
+        if (tempTransform) shapeGroup.removeAttribute('transform');
         drawCornerHandles(cornerGroup, currentData);
+        if (tempTransform) shapeGroup.setAttribute('transform', tempTransform);
     }
     
+    // 3. Labels OHNE Transformation zeichnen (da sie die finalen Positionen verwenden)
     if (labelsGroup) {
         drawLabelsAndAnnotations(labelsGroup, currentData);
     }
@@ -878,7 +890,8 @@ function drawLabelsAndAnnotations(group, data) {
     const finalShape = determineActualShape();
     const finalVariant = determineActualVariant();
     
-    // Hole die transformierten Eckpunkte für präzise Beschriftung
+    // WICHTIG: Labels werden OHNE Transformation gezeichnet, 
+    // aber verwenden die transformierten Eckpunkte als Basis
     const corners = getShapeCorners();
     
     if (finalShape === 'dreieck') {
@@ -895,85 +908,51 @@ function drawLabelsAndAnnotations(group, data) {
 function drawTriangleLabelsAtEdges(group, data, variant, corners) {
     if (corners.length < 3) return;
     
-    // Labels an Kanten-Mittelpunkten (für alle Dreiecks-Varianten)
-    const finalVariant = determineActualVariant();
+    // Seite A (zwischen Punkt 1 und 2) - Basis
+    const sideAMidX = (corners[1].x + corners[2].x) / 2;
+    const sideAMidY = (corners[1].y + corners[2].y) / 2;
+    const sideALabel = createEdgeLabel(sideAMidX, sideAMidY + 20, '🏠 A', '#dc3545', '14');
+    group.appendChild(sideALabel);
     
-    if (finalVariant === 'gleichseitig') {
-        // Basis (zwischen Punkt 1 und 2) - bei gleichseitigem Dreieck ist das die untere Kante
-        const basisMidX = (corners[1].x + corners[2].x) / 2;
-        const basisMidY = (corners[1].y + corners[2].y) / 2;
-        
-        const basisLabel = createEdgeLabel(basisMidX, basisMidY + 20, '🏠 BASIS', '#dc3545', '14');
-        group.appendChild(basisLabel);
-        
-        // Linke Seite (zwischen Punkt 0 und 1)
-        const leftMidX = (corners[0].x + corners[1].x) / 2;
-        const leftMidY = (corners[0].y + corners[1].y) / 2;
-        
-        const leftLabel = createEdgeLabel(leftMidX - 25, leftMidY, 'LINKS', '#28a745', '12');
-        group.appendChild(leftLabel);
-        
-        // Rechte Seite (zwischen Punkt 0 und 2)
-        const rightMidX = (corners[0].x + corners[2].x) / 2;
-        const rightMidY = (corners[0].y + corners[2].y) / 2;
-        
-        const rightLabel = createEdgeLabel(rightMidX + 25, rightMidY, 'RECHTS', '#ffc107', '12');
-        group.appendChild(rightLabel);
-        
-    } else if (finalVariant === 'rechtwinklig') {
-        // Für rechtwinkliges Dreieck: Katheten und Hypotenuse
-        const baseLabel = createEdgeLabel((corners[0].x + corners[1].x) / 2, (corners[0].y + corners[1].y) / 2 + 20, '🏠 BASIS', '#dc3545', '14');
-        group.appendChild(baseLabel);
-        
-        const leftLabel = createEdgeLabel((corners[0].x + corners[2].x) / 2 - 25, (corners[0].y + corners[2].y) / 2, 'LINKS', '#28a745', '12');
-        group.appendChild(leftLabel);
-        
-        const rightLabel = createEdgeLabel((corners[1].x + corners[2].x) / 2 + 25, (corners[1].y + corners[2].y) / 2, 'RECHTS', '#ffc107', '12');
-        group.appendChild(rightLabel);
-        
-    } else {
-        // Allgemeines ungleichschenkliges Dreieck
-        const baseLabel = createEdgeLabel((corners[1].x + corners[2].x) / 2, (corners[1].y + corners[2].y) / 2 + 20, '🏠 BASIS', '#dc3545', '14');
-        group.appendChild(baseLabel);
-        
-        const leftLabel = createEdgeLabel((corners[0].x + corners[1].x) / 2 - 25, (corners[0].y + corners[1].y) / 2, 'LINKS', '#28a745', '12');
-        group.appendChild(leftLabel);
-        
-        const rightLabel = createEdgeLabel((corners[0].x + corners[2].x) / 2 + 25, (corners[0].y + corners[2].y) / 2, 'RECHTS', '#ffc107', '12');
-        group.appendChild(rightLabel);
-    }
+    // Seite B (zwischen Punkt 0 und 1)
+    const sideBMidX = (corners[0].x + corners[1].x) / 2;
+    const sideBMidY = (corners[0].y + corners[1].y) / 2;
+    const sideBLabel = createEdgeLabel(sideBMidX - 25, sideBMidY, 'B', '#28a745', '12');
+    group.appendChild(sideBLabel);
+    
+    // Seite C (zwischen Punkt 0 und 2)
+    const sideCMidX = (corners[0].x + corners[2].x) / 2;
+    const sideCMidY = (corners[0].y + corners[2].y) / 2;
+    const sideCLabel = createEdgeLabel(sideCMidX + 25, sideCMidY, 'C', '#ffc107', '12');
+    group.appendChild(sideCLabel);
 }
 
 function drawRectangleLabelsAtEdges(group, data, corners) {
     if (corners.length < 4) return;
     
-    // Obere Seite
-    const topMidX = (corners[0].x + corners[1].x) / 2;
-    const topMidY = (corners[0].y + corners[1].y) / 2;
+    // Seite A (oben, zwischen Punkt 0 und 1)
+    const sideAMidX = (corners[0].x + corners[1].x) / 2;
+    const sideAMidY = (corners[0].y + corners[1].y) / 2;
+    const sideALabel = createEdgeLabel(sideAMidX, sideAMidY - 15, 'A', '#007bff', '12');
+    group.appendChild(sideALabel);
     
-    const topLabel = createEdgeLabel(topMidX, topMidY - 15, 'OBEN', '#007bff', '12');
-    group.appendChild(topLabel);
+    // Seite B (rechts, zwischen Punkt 1 und 2)
+    const sideBMidX = (corners[1].x + corners[2].x) / 2;
+    const sideBMidY = (corners[1].y + corners[2].y) / 2;
+    const sideBLabel = createEdgeLabel(sideBMidX + 20, sideBMidY, 'B', '#28a745', '12');
+    group.appendChild(sideBLabel);
     
-    // Untere Seite - TRAUFE
-    const bottomMidX = (corners[2].x + corners[3].x) / 2;
-    const bottomMidY = (corners[2].y + corners[3].y) / 2;
+    // Seite C (unten, zwischen Punkt 2 und 3) - TRAUFE
+    const sideCMidX = (corners[2].x + corners[3].x) / 2;
+    const sideCMidY = (corners[2].y + corners[3].y) / 2;
+    const sideCLabel = createEdgeLabel(sideCMidX, sideCMidY + 25, '🏠 C', '#dc3545', '14');
+    group.appendChild(sideCLabel);
     
-    const bottomLabel = createEdgeLabel(bottomMidX, bottomMidY + 25, '🏠 TRAUFE', '#dc3545', '14');
-    group.appendChild(bottomLabel);
-    
-    // Linke Seite
-    const leftMidX = (corners[0].x + corners[3].x) / 2;
-    const leftMidY = (corners[0].y + corners[3].y) / 2;
-    
-    const leftLabel = createEdgeLabel(leftMidX - 20, leftMidY, 'LINKS', '#ffc107', '12');
-    group.appendChild(leftLabel);
-    
-    // Rechte Seite
-    const rightMidX = (corners[1].x + corners[2].x) / 2;
-    const rightMidY = (corners[1].y + corners[2].y) / 2;
-    
-    const rightLabel = createEdgeLabel(rightMidX + 20, rightMidY, 'RECHTS', '#28a745', '12');
-    group.appendChild(rightLabel);
+    // Seite D (links, zwischen Punkt 3 und 0)
+    const sideDMidX = (corners[3].x + corners[0].x) / 2;
+    const sideDMidY = (corners[3].y + corners[0].y) / 2;
+    const sideDLabel = createEdgeLabel(sideDMidX - 20, sideDMidY, 'D', '#ffc107', '12');
+    group.appendChild(sideDLabel);
 }
 
 function drawTrapezLabelsAtEdges(group, data, corners) {
