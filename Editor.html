@@ -142,6 +142,7 @@
             height: 400px;
             margin: 20px auto;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            user-select: none;
         }
 
         .canvas-container {
@@ -256,9 +257,11 @@
                 </div>
 
                 <!-- Tools -->
-                <div class="tools-row">
-           <button class="btn-tool" id="btn-reset">Reset</button>
-      </div>
+                <div class="tools-grid">
+                    <div class="tools-row">
+                        <button class="btn-tool" id="btn-reset">Reset</button>
+                    </div>
+                </div>
 
                 <!-- Input Fields -->
                 <div class="inputs-section">
@@ -285,8 +288,10 @@
                             <line x1="300" y1="0" x2="300" y2="400" stroke="#c0c0c0" stroke-width="2"/>
                             <line x1="0" y1="200" x2="600" y2="200" stroke="#c0c0c0" stroke-width="2"/>
                             
-                            <!-- Form und Bemaßung -->
+                            <!-- WICHTIG: Alle SVG-Gruppen hinzufügen -->
                             <g id="roof-shape"></g>
+                            <g id="corner-handles"></g>
+                            <g id="labels"></g>
                             <g id="dimensions"></g>
                         </svg>
                     </div>
