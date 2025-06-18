@@ -374,6 +374,8 @@ function drawTriangleShape(group, data) {
     const variant = determineActualVariant();
     let points = '';
     
+    console.log('Zeichne Dreieck mit Daten:', data);
+    
     if (variant === 'gleichseitig') {
         const side = (data.side || 6) * SCALE_FACTOR;
         const height = side * Math.sqrt(3) / 2;
@@ -385,22 +387,41 @@ function drawTriangleShape(group, data) {
         const rightY = CANVAS_CENTER_Y + height*2/3;
         points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
     } else if (variant === 'rechtwinklig') {
-        const a = (data.katheteA || 4) * SCALE_FACTOR;
-        const b = (data.katheteB || 5) * SCALE_FACTOR;
-        const leftX = CANVAS_CENTER_X - a/2;
-        const rightX = CANVAS_CENTER_X + a/2;
-        const bottomY = CANVAS_CENTER_Y + b/2;
-        const topY = CANVAS_CENTER_Y - b/2;
+        // KORRIGIERT: Verwende katheteA und katheteB separat
+        const katheteA = (data.katheteA || 4) * SCALE_FACTOR;
+        const katheteB = (data.katheteB || 5) * SCALE_FACTOR;
+        
+        console.log(`Rechtwinkliges Dreieck: katheteA=${data.katheteA}, katheteB=${data.katheteB}`);
+        console.log(`Skaliert: katheteA=${katheteA}px, katheteB=${katheteB}px`);
+        
+        // Rechtwinkliges Dreieck: rechter Winkel unten links
+        const leftX = CANVAS_CENTER_X - katheteA/2;   // Links (Kathete A)
+        const rightX = CANVAS_CENTER_X + katheteA/2;  // Rechts (Kathete A)
+        const bottomY = CANVAS_CENTER_Y + katheteB/3; // Unten 
+        const topY = CANVAS_CENTER_Y - katheteB*2/3;  // Oben (Kathete B)
+        
         points = `${leftX},${bottomY} ${rightX},${bottomY} ${leftX},${topY}`;
+        
     } else {
-        const side = (data.sideA || 4) * SCALE_FACTOR;
-        const height = side * 0.8;
+        // KORRIGIERT: Verwende sideA, sideB, sideC für ungleichschenkliges Dreieck
+        const sideA = (data.sideA || 4) * SCALE_FACTOR;  // Basis
+        const sideB = (data.sideB || 5) * SCALE_FACTOR;  // Linke Seite
+        const sideC = (data.sideC || 6) * SCALE_FACTOR;  // Rechte Seite
+        
+        console.log(`Ungleichschenkliges Dreieck: A=${data.sideA}, B=${data.sideB}, C=${data.sideC}`);
+        
+        // Berechne Höhe basierend auf sideB und sideC
+        // Verwende Durchschnitt der beiden Seiten für die Höhe
+        const avgSide = (sideB + sideC) / 2;
+        const height = avgSide * 0.8; // Approximation
+        
         const topX = CANVAS_CENTER_X;
         const topY = CANVAS_CENTER_Y - height/2;
-        const leftX = CANVAS_CENTER_X - side/2;
+        const leftX = CANVAS_CENTER_X - sideA/2;   // Basis links
         const leftY = CANVAS_CENTER_Y + height/2;
-        const rightX = CANVAS_CENTER_X + side/2;
+        const rightX = CANVAS_CENTER_X + sideA/2;  // Basis rechts  
         const rightY = CANVAS_CENTER_Y + height/2;
+        
         points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
     }
     
@@ -426,13 +447,17 @@ function drawSquareShape(group, data) {
 }
 
 function drawRectangleShape(group, data) {
-    const width = (data.length || 8) * SCALE_FACTOR;
-    const height = (data.width || 5) * SCALE_FACTOR;
+    // KORRIGIERT: Verwende length und width separat
+    const length = (data.length || 8) * SCALE_FACTOR;  // Länge (horizontal)
+    const width = (data.width || 5) * SCALE_FACTOR;    // Breite (vertikal)
+    
+    console.log(`Zeichne Rechteck: length=${data.length} (${length}px), width=${data.width} (${width}px)`);
+    
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', CANVAS_CENTER_X - width/2);
-    rect.setAttribute('y', CANVAS_CENTER_Y - height/2);
-    rect.setAttribute('width', width);
-    rect.setAttribute('height', height);
+    rect.setAttribute('x', CANVAS_CENTER_X - length/2);  // Länge bestimmt X
+    rect.setAttribute('y', CANVAS_CENTER_Y - width/2);   // Breite bestimmt Y
+    rect.setAttribute('width', length);                  // Länge = Breite des Rechtecks
+    rect.setAttribute('height', width);                  // Breite = Höhe des Rechtecks
     rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
     rect.setAttribute('stroke', '#007bff');
     rect.setAttribute('stroke-width', '3');
@@ -468,6 +493,8 @@ function getActualCornerPositions(data) {
     const variant = determineActualVariant();
     let corners = [];
     
+    console.log('Berechne Corner-Positionen für:', finalShape, variant, 'mit Daten:', data);
+    
     if (finalShape === 'dreieck') {
         if (variant === 'gleichseitig') {
             const side = (data.side || 6) * SCALE_FACTOR;
@@ -478,20 +505,27 @@ function getActualCornerPositions(data) {
                 { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + height*2/3 }
             ];
         } else if (variant === 'rechtwinklig') {
-            const a = (data.katheteA || 4) * SCALE_FACTOR;
-            const b = (data.katheteB || 5) * SCALE_FACTOR;
+            // KORRIGIERT: Verwende katheteA und katheteB korrekt
+            const katheteA = (data.katheteA || 4) * SCALE_FACTOR;
+            const katheteB = (data.katheteB || 5) * SCALE_FACTOR;
+            
             corners = [
-                { x: CANVAS_CENTER_X - a/2, y: CANVAS_CENTER_Y + b/2 },
-                { x: CANVAS_CENTER_X + a/2, y: CANVAS_CENTER_Y + b/2 },
-                { x: CANVAS_CENTER_X - a/2, y: CANVAS_CENTER_Y - b/2 }
+                { x: CANVAS_CENTER_X - katheteA/2, y: CANVAS_CENTER_Y + katheteB/3 },   // Unten links (rechter Winkel)
+                { x: CANVAS_CENTER_X + katheteA/2, y: CANVAS_CENTER_Y + katheteB/3 },   // Unten rechts  
+                { x: CANVAS_CENTER_X - katheteA/2, y: CANVAS_CENTER_Y - katheteB*2/3 }  // Oben links
             ];
         } else {
-            const side = (data.sideA || 4) * SCALE_FACTOR;
-            const height = side * 0.8;
+            // KORRIGIERT: Ungleichschenkliges Dreieck mit allen drei Seiten
+            const sideA = (data.sideA || 4) * SCALE_FACTOR;
+            const sideB = (data.sideB || 5) * SCALE_FACTOR;
+            const sideC = (data.sideC || 6) * SCALE_FACTOR;
+            const avgSide = (sideB + sideC) / 2;
+            const height = avgSide * 0.8;
+            
             corners = [
-                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/2 },
-                { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + height/2 },
-                { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + height/2 }
+                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/2 },           // Spitze oben
+                { x: CANVAS_CENTER_X - sideA/2, y: CANVAS_CENTER_Y + height/2 }, // Links unten
+                { x: CANVAS_CENTER_X + sideA/2, y: CANVAS_CENTER_Y + height/2 }  // Rechts unten
             ];
         }
     } else if (finalShape === 'quadrat') {
@@ -503,13 +537,17 @@ function getActualCornerPositions(data) {
             { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + side/2 }
         ];
     } else {
-        const width = (data.length || 8) * SCALE_FACTOR;
-        const height = (data.width || 5) * SCALE_FACTOR;
+        // KORRIGIERT: Rechteck mit korrekter Länge/Breite-Zuordnung
+        const length = (data.length || 8) * SCALE_FACTOR;  // Horizontal
+        const width = (data.width || 5) * SCALE_FACTOR;    // Vertikal
+        
+        console.log(`Rechteck-Corners: length=${length}px, width=${width}px`);
+        
         corners = [
-            { x: CANVAS_CENTER_X - width/2, y: CANVAS_CENTER_Y - height/2 },
-            { x: CANVAS_CENTER_X + width/2, y: CANVAS_CENTER_Y - height/2 },
-            { x: CANVAS_CENTER_X + width/2, y: CANVAS_CENTER_Y + height/2 },
-            { x: CANVAS_CENTER_X - width/2, y: CANVAS_CENTER_Y + height/2 }
+            { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y - width/2 },  // Links oben
+            { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y - width/2 },  // Rechts oben
+            { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y + width/2 },  // Rechts unten
+            { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y + width/2 }   // Links unten
         ];
     }
     
@@ -526,6 +564,7 @@ function getActualCornerPositions(data) {
         });
     }
     
+    console.log('Finale Corner-Positionen:', corners);
     return corners;
 }
 
