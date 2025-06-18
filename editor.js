@@ -29,7 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
             initializeCanvas();
             initializeUI();
             loadAndDrawShape();
-            setupEventListeners();
+            // setupEventListeners wird später aufgerufen
+            if (typeof setupEventListeners === 'function') {
+                setupEventListeners();
+            }
             console.log('Editor erfolgreich initialisiert');
         } catch (error) {
             console.error('Editor-Fehler:', error);
