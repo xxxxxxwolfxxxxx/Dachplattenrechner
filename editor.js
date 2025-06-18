@@ -138,17 +138,25 @@ function createRotationDisplay() {
     if (canvasWrapper) { canvasWrapper.appendChild(display); }
 }
 
-function updateRotationDisplay() {
+function updateRotationDisplay(isSnapped = false) {
     const display = document.getElementById('rotation-display');
     if (display) {
         const roundedRotation = Math.round(currentRotation * 10) / 10;
         display.textContent = roundedRotation + '°';
         
-        // Zeige grün wenn nahe bei 90° Schritten
-        if (Math.abs(roundedRotation % 90) < 2) {
+        if (isSnapped) {
             display.style.background = '#28a745';
+            display.style.color = 'white';
+            display.style.fontWeight = 'bold';
+            display.textContent += ' 📐';
+        } else if (Math.abs(roundedRotation % 90) < 2) {
+            display.style.background = '#28a745';
+            display.style.color = 'white';
+            display.style.fontWeight = 'bold';
         } else {
             display.style.background = 'rgba(0, 0, 0, 0.8)';
+            display.style.color = 'white';
+            display.style.fontWeight = 'bold';
         }
     }
 }
@@ -629,29 +637,182 @@ function updateRotation(x, y) {
     while (newRotation > 180) newRotation -= 360;
     while (newRotation < -180) newRotation += 360;
     
-    // EINFACHES EINRASTEN bei 90° Schritten
-    const snapTolerance = 3; // Grad
-    const snapTargets = [0, 90, 180, -90, -180];
-    
+    // SMART EINRASTEN: Prüfe sowohl 90°-Schritte als auch horizontale Basis
+    const snapTolerance = 4; // Grad
     let snapped = false;
+    let snapAngle = newRotation;
+    
+    // 1. Teste 90°-Schritte für alle Formen
+    const snapTargets = [0, 90, 180, -90, -180];
     for (const target of snapTargets) {
         if (Math.abs(newRotation - target) <= snapTolerance) {
-            currentRotation = target;
+            snapAngle = target;
             snapped = true;
             break;
         }
     }
     
-    if (!snapped) {
-        currentRotation = newRotation;
+    // 2. Für Dreiecke: Teste zusätzlich horizontale Basis
+    if (!snapped && determineActualShape() === 'dreieck') {
+        const data = getCurrentFormData();
+        
+        // Teste Winkel in der Nähe für horizontale Basis
+        for (let testAngle = newRotation - snapTolerance; testAngle <= newRotation + snapTolerance; testAngle += 0.5) {
+            // Teste diesen Winkel
+            const testCorners = getCornerPositionsAtRotation(data, testAngle, SCALE_FACTOR);
+            
+            if (checkForHorizontalBase(testCorners)) {
+                const distance = Math.abs(newRotation - testAngle);
+                if (distance <= snapTolerance) {
+                    snapAngle = testAngle;
+                    snapped = true;
+                    showSnapFeedback("Horizontale Basis");
+                    break;
+                }
+            }
+        }
     }
     
+    // Aktualisiere Rotation
+    currentRotation = snapAngle;
+    
     updateShape();
+    updateRotationDisplay(snapped);
+}
+
+// Neue Hilfsfunktion: Berechne Eckpunkte für einen bestimmten Rotationswinkel
+function getCornerPositionsAtRotation(data, rotation, scale = SCALE_FACTOR) {
+    const finalShape = determineActualShape();
+    let corners = [];
+    
+    // Basis-Eckpunkte ohne Rotation berechnen
+    if (finalShape === 'dreieck') {
+        if (currentVariant === 'gleichseitig') {
+            const side = (data.side || 6) * scale;
+            const height = side * Math.sqrt(3) / 2;
+            corners = [
+                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/3 },
+                { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + height*2/3 },
+                { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + height*2/3 }
+            ];
+        } else if (currentVariant === 'rechtwinklig') {
+            const katheteA = (data.katheteA || 4) * scale;
+            const katheteB = (data.katheteB || 5) * scale;
+            
+            corners = [
+                { x: CANVAS_CENTER_X - katheteA/2, y: CANVAS_CENTER_Y + katheteB/3 },
+                { x: CANVAS_CENTER_X + katheteA/2, y: CANVAS_CENTER_Y + katheteB/3 },
+                { x: CANVAS_CENTER_X - katheteA/2, y: CANVAS_CENTER_Y - katheteB*2/3 }
+            ];
+        } else {
+            const sideA = (data.sideA || 4) * scale;
+            const avgSide = ((data.sideB || 5) + (data.sideC || 6)) / 2;
+            const height = avgSide * scale * 0.8;
+            
+            corners = [
+                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/2 },
+                { x: CANVAS_CENTER_X - sideA/2, y: CANVAS_CENTER_Y + height/2 },
+                { x: CANVAS_CENTER_X + sideA/2, y: CANVAS_CENTER_Y + height/2 }
+            ];
+        }
+    } else if (finalShape === 'quadrat') {
+        const side = (data.side || 5) * scale;
+        corners = [
+            { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y - side/2 },
+            { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y - side/2 },
+            { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + side/2 },
+            { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + side/2 }
+        ];
+    } else {
+        const length = (data.length || 8) * scale;
+        const width = (data.width || 5) * scale;
+        
+        corners = [
+            { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y - width/2 },
+            { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y - width/2 },
+            { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y + width/2 },
+            { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y + width/2 }
+        ];
+    }
+    
+    // Wende Rotation an
+    if (rotation !== 0) {
+        const angle = (rotation * Math.PI) / 180;
+        corners = corners.map(corner => {
+            const relX = corner.x - CANVAS_CENTER_X;
+            const relY = corner.y - CANVAS_CENTER_Y;
+            return {
+                x: CANVAS_CENTER_X + relX * Math.cos(angle) - relY * Math.sin(angle),
+                y: CANVAS_CENTER_Y + relX * Math.sin(angle) + relY * Math.cos(angle)
+            };
+        });
+    }
+    
+    return corners;
+}
+
+// Verbesserte Horizontal-Prüfung
+function checkForHorizontalBase(corners) {
+    if (corners.length < 3) return false;
+    
+    // Finde die zwei untersten Punkte (höchste Y-Werte)
+    let bottomPoints = [...corners].sort((a, b) => b.y - a.y).slice(0, 2);
+    
+    // Prüfe ob diese eine waagerechte Linie bilden (±1.5 Pixel Toleranz)
+    const yDiff = Math.abs(bottomPoints[0].y - bottomPoints[1].y);
+    return yDiff <= 1.5;
+}
+
+// Verbesserte Snap-Feedback Funktion
+function showSnapFeedback(type = "Eingerastet") {
+    // Entferne altes Feedback
+    const existingFeedback = document.getElementById('snap-feedback');
+    if (existingFeedback) existingFeedback.remove();
+    
+    const feedback = document.createElement('div');
+    feedback.id = 'snap-feedback';
+    feedback.style.cssText = `
+        position: absolute; top: 50px; right: 10px; background: #28a745; color: white;
+        padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: bold;
+        z-index: 1001; pointer-events: none; box-shadow: 0 4px 12px rgba(40,167,69,0.4);
+        border: 2px solid white; animation: snapPulse 0.3s ease-out;
+    `;
+    feedback.textContent = `📐 ${type}!`;
+    
+    // CSS für Animation hinzufügen
+    if (!document.getElementById('snap-animations')) {
+        const style = document.createElement('style');
+        style.id = 'snap-animations';
+        style.textContent = `
+            @keyframes snapPulse {
+                0% { transform: scale(0.8); opacity: 0; }
+                50% { transform: scale(1.1); }
+                100% { transform: scale(1); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    const canvasWrapper = document.querySelector('.canvas-wrapper');
+    if (canvasWrapper) { canvasWrapper.appendChild(feedback); }
+    
+    // Auto-remove nach 1.5 Sekunden
+    setTimeout(() => {
+        if (feedback.parentNode) {
+            feedback.remove();
+        }
+    }, 1500);
 }
 
 function stopDragging() {
     isDragging = false;
     svg.style.cursor = 'default';
+    
+    // Entferne Snap-Feedback nach kurzer Zeit
+    setTimeout(() => {
+        const feedback = document.getElementById('snap-feedback');
+        if (feedback) feedback.remove();
+    }, 2000);
 }
 
 // === BERECHNUNGEN ===
