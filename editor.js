@@ -709,18 +709,23 @@ function updateShape() {
     // 1. Zeichne die transformierte Form
     drawTransformedShape(shapeGroup, currentData);
     
-    // 2. Zeichne Corner-Handles OHNE Transformation (da sie die finalen Positionen verwenden)
+    // 2. Corner-Handles und Labels verwenden die GLEICHE Transformation wie die Form
     if (cornerGroup) {
-        // Corner-Handles werden OHNE Transform-Attribut gezeichnet
-        const tempTransform = shapeGroup.getAttribute('transform');
-        if (tempTransform) shapeGroup.removeAttribute('transform');
         drawCornerHandles(cornerGroup, currentData);
-        if (tempTransform) shapeGroup.setAttribute('transform', tempTransform);
+        // Wende die GLEICHE Transformation auf Corner-Handles an
+        const shapeTransform = shapeGroup.getAttribute('transform');
+        if (shapeTransform) {
+            cornerGroup.setAttribute('transform', shapeTransform);
+        }
     }
     
-    // 3. Labels OHNE Transformation zeichnen (da sie die finalen Positionen verwenden)
     if (labelsGroup) {
         drawLabelsAndAnnotations(labelsGroup, currentData);
+        // Wende die GLEICHE Transformation auf Labels an
+        const shapeTransform = shapeGroup.getAttribute('transform');
+        if (shapeTransform) {
+            labelsGroup.setAttribute('transform', shapeTransform);
+        }
     }
     
     updateCalculations(currentData);
@@ -732,12 +737,20 @@ function updateShape() {
 }
 
 function drawCornerHandles(group, data) {
-    const corners = getShapeCorners();
+    // Verwende die RAW (untransformierten) Eckpunkte
+    const currentData = getCurrentFormData();
+    const rawPoints = getRawShapePoints(currentData);
     
-    corners.forEach((corner, index) => {
+    if (!rawPoints || rawPoints.length === 0) return;
+    
+    rawPoints.forEach((point, index) => {
+        // Konvertiere zu Canvas-Koordinaten OHNE Transformation
+        const canvasX = CANVAS_CENTER_X + point.x * SCALE_FACTOR;
+        const canvasY = CANVAS_CENTER_Y - point.y * SCALE_FACTOR;
+        
         const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        handle.setAttribute('cx', corner.x);
-        handle.setAttribute('cy', corner.y);
+        handle.setAttribute('cx', canvasX);
+        handle.setAttribute('cy', canvasY);
         handle.setAttribute('r', CORNER_RADIUS);
         handle.setAttribute('fill', 'rgba(0, 123, 255, 0.7)');
         handle.setAttribute('stroke', '#007bff');
@@ -748,8 +761,8 @@ function drawCornerHandles(group, data) {
         group.appendChild(handle);
         
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        dot.setAttribute('cx', corner.x);
-        dot.setAttribute('cy', corner.y);
+        dot.setAttribute('cx', canvasX);
+        dot.setAttribute('cy', canvasY);
         dot.setAttribute('r', '2');
         dot.setAttribute('fill', 'white');
         dot.style.pointerEvents = 'none';
@@ -934,9 +947,17 @@ function drawLabelsAndAnnotations(group, data) {
     const finalShape = determineActualShape();
     const finalVariant = determineActualVariant();
     
-    // WICHTIG: Labels werden OHNE Transformation gezeichnet, 
-    // aber verwenden die transformierten Eckpunkte als Basis
-    const corners = getShapeCorners();
+    // Verwende die RAW (untransformierten) Eckpunkte
+    const currentData = getCurrentFormData();
+    const rawPoints = getRawShapePoints(currentData);
+    
+    if (!rawPoints || rawPoints.length === 0) return;
+    
+    // Konvertiere zu Canvas-Koordinaten OHNE Transformation
+    const corners = rawPoints.map(point => ({
+        x: CANVAS_CENTER_X + point.x * SCALE_FACTOR,
+        y: CANVAS_CENTER_Y - point.y * SCALE_FACTOR
+    }));
     
     if (finalShape === 'dreieck') {
         drawTriangleLabelsAtEdges(group, data, finalVariant, corners);
