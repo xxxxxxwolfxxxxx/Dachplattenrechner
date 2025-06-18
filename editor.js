@@ -781,7 +781,6 @@ function drawPolygonVariant(group, data, scale, variant) {
         const innerWidth = (data.innerWidth || 4) * scale;
         const height = (data.height || 6) * scale;
         
-        const wallThickness = (outerWidth - innerWidth) / 2;
         const topY = centerY - height/2;
         const bottomY = centerY + height/2;
         const innerBottom = bottomY - height/3; // 2/3 Tiefe
