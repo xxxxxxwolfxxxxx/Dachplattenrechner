@@ -1,4 +1,77 @@
-// Vereinfachter Editor - Corner-Handles direkt auf Form-Ecken
+function getActualCornerPositions(data, scale = SCALE_FACTOR) {
+    const finalShape = determineActualShape();
+    const variant = determineActualVariant();
+    let corners = [];
+    
+    console.log('Berechne Corner-Positionen für:', finalShape, variant, 'mit Daten:', data, 'Scale:', scale);
+    
+    if (finalShape === 'dreieck') {
+        if (variant === 'gleichseitig') {
+            const side = (data.side || 6) * scale;
+            const height = side * Math.sqrt(3) / 2;
+            corners = [
+                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/3 },
+                { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + height*2/3 },
+                { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + height*2/3 }
+            ];
+        } else if (variant === 'rechtwinklig') {
+            const katheteA = (data.katheteA || 4) * scale;
+            const katheteB = (data.katheteB || 5) * scale;
+            
+            corners = [
+                { x: CANVAS_CENTER_X - katheteA/2, y: CANVAS_CENTER_Y + katheteB/3 },
+                { x: CANVAS_CENTER_X + katheteA/2, y: CANVAS_CENTER_Y + katheteB/3 },
+                { x: CANVAS_CENTER_X - katheteA/2, y: CANVAS_CENTER_Y - katheteB*2/3 }
+            ];
+        } else {
+            const sideA = (data.sideA || 4) * scale;
+            const sideB = (data.sideB || 5) * scale;
+            const sideC = (data.sideC || 6) * scale;
+            const avgSide = (sideB + sideC) / 2;
+            const height = avgSide * 0.8;
+            
+            corners = [
+                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/2 },
+                { x: CANVAS_CENTER_X - sideA/2, y: CANVAS_CENTER_Y + height/2 },
+                { x: CANVAS_CENTER_X + sideA/2, y: CANVAS_CENTER_Y + height/2 }
+            ];
+        }
+    } else if (finalShape === 'quadrat') {
+        const side = (data.side || 5) * scale;
+        corners = [
+            { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y - side/2 },
+            { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y - side/2 },
+            { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + side/2 },
+            { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + side/2 }
+        ];
+    } else {
+        const length = (data.length || 8) * scale;
+        const width = (data.width || 5) * scale;
+        
+        console.log(`Rechteck-Corners: length=${length}px, width=${width}px`);
+        
+        corners = [
+            { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y - width/2 },
+            { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y - width/2 },
+            { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y + width/2 },
+            { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y + width/2 }
+        ];
+    }
+    
+    // Wende Rotation an
+    if (currentRotation !== 0) {
+        const angle = (currentRotation * Math.PI) / 180;
+        corners = corners.map(corner => {
+            const relX = corner.x - CANVAS_CENTER_X;
+            const relY = corner.y - CANVAS_CENTER_Y;
+            return {
+                x: CANVAS_CENTER_X + relX * Math.cos(angle) - relY * Math.sin(angle),
+                y: CANVAS_CENTER_Y + relX * Math.sin(angle) + relY * Math.cos(angle)
+            };
+        });
+    }
+    
+    console// Vereinfachter Editor - Corner-Handles direkt auf Form-Ecken
 
 let projectData = {};
 let currentShape = '';
@@ -297,6 +370,10 @@ function updateShape() {
     const data = getCurrentFormData();
     console.log('Aktuelle Daten:', data);
     
+    // NEUE: Dynamischen Maßstab berechnen
+    const dynamicScale = calculateDynamicScale(data);
+    console.log('Dynamischer Maßstab:', dynamicScale);
+    
     // 1. Lösche alles
     const shapeGroup = document.getElementById('roof-shape');
     const cornerGroup = document.getElementById('corner-handles');
@@ -309,26 +386,63 @@ function updateShape() {
     // Entferne auch vorherige Highlights
     removeSnapEffects();
     
-    // 2. Zeichne die Form
+    // 2. Zeichne die Form mit dynamischem Maßstab
     if (shapeGroup) {
-        drawCurrentShape(shapeGroup, data);
+        drawCurrentShape(shapeGroup, data, dynamicScale);
         console.log('Form gezeichnet');
     }
     
     // 3. Zeichne Corner-Handles DIREKT auf die Form-Ecken
     if (cornerGroup) {
-        drawCornerHandlesOnShape(cornerGroup, data);
+        drawCornerHandlesOnShape(cornerGroup, data, dynamicScale);
         console.log('Corner-Handles gezeichnet');
     }
     
     // 4. Zeichne Labels
     if (labelsGroup) {
-        drawLabelsOnShape(labelsGroup, data);
+        drawLabelsOnShape(labelsGroup, data, dynamicScale);
         console.log('Labels gezeichnet');
     }
     
     updateCalculations(data);
     updateRotationDisplay();
+}
+
+function calculateDynamicScale(data) {
+    const finalShape = determineActualShape();
+    const variant = determineActualVariant();
+    
+    // Berechne die maximalen Abmessungen der Form
+    let maxDimension = 0;
+    
+    if (finalShape === 'dreieck') {
+        if (variant === 'gleichseitig') {
+            maxDimension = Math.max(data.side || 6);
+        } else if (variant === 'rechtwinklig') {
+            maxDimension = Math.max(data.katheteA || 4, data.katheteB || 5);
+        } else {
+            maxDimension = Math.max(data.sideA || 4, data.sideB || 5, data.sideC || 6);
+        }
+    } else if (finalShape === 'quadrat') {
+        maxDimension = data.side || 5;
+    } else {
+        maxDimension = Math.max(data.length || 8, data.width || 5);
+    }
+    
+    // Verfügbarer Platz im Canvas (mit Margin für Labels und Handles)
+    const availableWidth = 500;  // 600px Canvas - 100px Margin
+    const availableHeight = 300; // 400px Canvas - 100px Margin
+    const availableSpace = Math.min(availableWidth, availableHeight);
+    
+    // Berechne Maßstab so dass die Form gut reinpasst
+    const targetSize = availableSpace * 0.6; // 60% des verfügbaren Platzes
+    let scale = targetSize / maxDimension;
+    
+    // Mindest- und Höchstmaßstab
+    scale = Math.max(scale, 20);   // Mindestens 20px pro Meter
+    scale = Math.min(scale, 100);  // Höchstens 100px pro Meter
+    
+    return scale;
 }
 
 function getCurrentFormData() {
@@ -353,15 +467,15 @@ function getCurrentFormData() {
     return data;
 }
 
-function drawCurrentShape(group, data) {
+function drawCurrentShape(group, data, scale = SCALE_FACTOR) {
     const finalShape = determineActualShape();
     
     if (finalShape === 'dreieck') {
-        drawTriangleShape(group, data);
+        drawTriangleShape(group, data, scale);
     } else if (finalShape === 'quadrat') {
-        drawSquareShape(group, data);
+        drawSquareShape(group, data, scale);
     } else {
-        drawRectangleShape(group, data);
+        drawRectangleShape(group, data, scale);
     }
     
     // Wende Rotation an
@@ -370,14 +484,14 @@ function drawCurrentShape(group, data) {
     }
 }
 
-function drawTriangleShape(group, data) {
+function drawTriangleShape(group, data, scale = SCALE_FACTOR) {
     const variant = determineActualVariant();
     let points = '';
     
-    console.log('Zeichne Dreieck mit Daten:', data);
+    console.log('Zeichne Dreieck mit Daten:', data, 'Scale:', scale);
     
     if (variant === 'gleichseitig') {
-        const side = (data.side || 6) * SCALE_FACTOR;
+        const side = (data.side || 6) * scale;
         const height = side * Math.sqrt(3) / 2;
         const topX = CANVAS_CENTER_X;
         const topY = CANVAS_CENTER_Y - height/3;
@@ -387,39 +501,34 @@ function drawTriangleShape(group, data) {
         const rightY = CANVAS_CENTER_Y + height*2/3;
         points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
     } else if (variant === 'rechtwinklig') {
-        // KORRIGIERT: Verwende katheteA und katheteB separat
-        const katheteA = (data.katheteA || 4) * SCALE_FACTOR;
-        const katheteB = (data.katheteB || 5) * SCALE_FACTOR;
+        const katheteA = (data.katheteA || 4) * scale;
+        const katheteB = (data.katheteB || 5) * scale;
         
         console.log(`Rechtwinkliges Dreieck: katheteA=${data.katheteA}, katheteB=${data.katheteB}`);
         console.log(`Skaliert: katheteA=${katheteA}px, katheteB=${katheteB}px`);
         
-        // Rechtwinkliges Dreieck: rechter Winkel unten links
-        const leftX = CANVAS_CENTER_X - katheteA/2;   // Links (Kathete A)
-        const rightX = CANVAS_CENTER_X + katheteA/2;  // Rechts (Kathete A)
-        const bottomY = CANVAS_CENTER_Y + katheteB/3; // Unten 
-        const topY = CANVAS_CENTER_Y - katheteB*2/3;  // Oben (Kathete B)
+        const leftX = CANVAS_CENTER_X - katheteA/2;
+        const rightX = CANVAS_CENTER_X + katheteA/2;
+        const bottomY = CANVAS_CENTER_Y + katheteB/3;
+        const topY = CANVAS_CENTER_Y - katheteB*2/3;
         
         points = `${leftX},${bottomY} ${rightX},${bottomY} ${leftX},${topY}`;
         
     } else {
-        // KORRIGIERT: Verwende sideA, sideB, sideC für ungleichschenkliges Dreieck
-        const sideA = (data.sideA || 4) * SCALE_FACTOR;  // Basis
-        const sideB = (data.sideB || 5) * SCALE_FACTOR;  // Linke Seite
-        const sideC = (data.sideC || 6) * SCALE_FACTOR;  // Rechte Seite
+        const sideA = (data.sideA || 4) * scale;
+        const sideB = (data.sideB || 5) * scale;
+        const sideC = (data.sideC || 6) * scale;
         
         console.log(`Ungleichschenkliges Dreieck: A=${data.sideA}, B=${data.sideB}, C=${data.sideC}`);
         
-        // Berechne Höhe basierend auf sideB und sideC
-        // Verwende Durchschnitt der beiden Seiten für die Höhe
         const avgSide = (sideB + sideC) / 2;
-        const height = avgSide * 0.8; // Approximation
+        const height = avgSide * 0.8;
         
         const topX = CANVAS_CENTER_X;
         const topY = CANVAS_CENTER_Y - height/2;
-        const leftX = CANVAS_CENTER_X - sideA/2;   // Basis links
+        const leftX = CANVAS_CENTER_X - sideA/2;
         const leftY = CANVAS_CENTER_Y + height/2;
-        const rightX = CANVAS_CENTER_X + sideA/2;  // Basis rechts  
+        const rightX = CANVAS_CENTER_X + sideA/2;
         const rightY = CANVAS_CENTER_Y + height/2;
         
         points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
@@ -433,8 +542,8 @@ function drawTriangleShape(group, data) {
     group.appendChild(triangle);
 }
 
-function drawSquareShape(group, data) {
-    const side = (data.side || 5) * SCALE_FACTOR;
+function drawSquareShape(group, data, scale = SCALE_FACTOR) {
+    const side = (data.side || 5) * scale;
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('x', CANVAS_CENTER_X - side/2);
     rect.setAttribute('y', CANVAS_CENTER_Y - side/2);
@@ -446,18 +555,17 @@ function drawSquareShape(group, data) {
     group.appendChild(rect);
 }
 
-function drawRectangleShape(group, data) {
-    // KORRIGIERT: Verwende length und width separat
-    const length = (data.length || 8) * SCALE_FACTOR;  // Länge (horizontal)
-    const width = (data.width || 5) * SCALE_FACTOR;    // Breite (vertikal)
+function drawRectangleShape(group, data, scale = SCALE_FACTOR) {
+    const length = (data.length || 8) * scale;
+    const width = (data.width || 5) * scale;
     
     console.log(`Zeichne Rechteck: length=${data.length} (${length}px), width=${data.width} (${width}px)`);
     
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', CANVAS_CENTER_X - length/2);  // Länge bestimmt X
-    rect.setAttribute('y', CANVAS_CENTER_Y - width/2);   // Breite bestimmt Y
-    rect.setAttribute('width', length);                  // Länge = Breite des Rechtecks
-    rect.setAttribute('height', width);                  // Breite = Höhe des Rechtecks
+    rect.setAttribute('x', CANVAS_CENTER_X - length/2);
+    rect.setAttribute('y', CANVAS_CENTER_Y - width/2);
+    rect.setAttribute('width', length);
+    rect.setAttribute('height', width);
     rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
     rect.setAttribute('stroke', '#007bff');
     rect.setAttribute('stroke-width', '3');
@@ -566,6 +674,136 @@ function getActualCornerPositions(data) {
     
     console.log('Finale Corner-Positionen:', corners);
     return corners;
+}
+
+// === MAUS-EVENTS MIT KORRIGIERTER EINRASTFUNKTION ===
+function handleMouseDown(event) {
+    event.preventDefault();
+    const rect = svg.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    
+    if (isNearCorner(mouseX, mouseY)) {
+        startDragging(mouseX, mouseY);
+    }
+}
+
+function handleMouseMove(event) {
+    if (!isDragging) {
+        const rect = svg.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+        svg.style.cursor = isNearCorner(mouseX, mouseY) ? 'grab' : 'default';
+        return;
+    }
+    
+    event.preventDefault();
+    const rect = svg.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    updateRotation(mouseX, mouseY);
+}
+
+function handleMouseUp(event) {
+    if (isDragging) {
+        stopDragging();
+    }
+}
+
+function isNearCorner(x, y) {
+    // KORRIGIERT: Verwende aktuelle Daten und dynamischen Maßstab
+    const data = getCurrentFormData();
+    const scale = calculateDynamicScale(data);
+    const corners = getActualCornerPositions(data, scale);
+    
+    for (const corner of corners) {
+        const distance = Math.sqrt((x - corner.x) * (x - corner.x) + (y - corner.y) * (y - corner.y));
+        if (distance <= CORNER_RADIUS * 2) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function startDragging(x, y) {
+    isDragging = true;
+    svg.style.cursor = 'grabbing';
+    dragStartAngle = Math.atan2(y - rotationCenter.y, x - rotationCenter.x);
+    dragStartRotation = currentRotation;
+}
+
+function updateRotation(x, y) {
+    if (!isDragging) return;
+    
+    const currentAngle = Math.atan2(y - rotationCenter.y, x - rotationCenter.x);
+    let angleDiff = currentAngle - dragStartAngle;
+    
+    while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+    while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+    
+    let newRotation = dragStartRotation + (angleDiff * 180 / Math.PI);
+    
+    // Normalisiere die Rotation
+    currentRotation = newRotation;
+    while (currentRotation > 180) currentRotation -= 360;
+    while (currentRotation < -180) currentRotation += 360;
+    
+    // KORRIGIERT: Prüfe auf horizontale Basis mit aktuellen Daten
+    const data = getCurrentFormData();
+    const scale = calculateDynamicScale(data);
+    const corners = getActualCornerPositions(data, scale);
+    const isHorizontal = checkForHorizontalBase(corners);
+    
+    if (isHorizontal) {
+        if (!document.getElementById('snap-feedback')) {
+            showSnapFeedback();
+            highlightBottomEdge(corners);
+        }
+    } else {
+        removeSnapEffects();
+    }
+    
+    updateShape();
+    updateRotationDisplay();
+}
+
+function checkForHorizontalBase(corners) {
+    if (corners.length < 3) return false;
+    
+    // Finde die zwei untersten Punkte
+    let bottomPoints = [...corners].sort((a, b) => b.y - a.y).slice(0, 2);
+    
+    // Prüfe ob diese eine waagerechte Linie bilden (±3 Pixel Toleranz)
+    const yDiff = Math.abs(bottomPoints[0].y - bottomPoints[1].y);
+    console.log('Horizontal-Check: yDiff =', yDiff, 'für Punkte:', bottomPoints);
+    return yDiff <= 3;
+}
+
+function highlightBottomEdge(corners) {
+    removeSnapEffects();
+    
+    let bottomPoints = [...corners].sort((a, b) => b.y - a.y).slice(0, 2);
+    bottomPoints.sort((a, b) => a.x - b.x);
+    
+    console.log('Highlight Bottom Edge für Punkte:', bottomPoints);
+    
+    const highlightLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    highlightLine.id = 'bottom-edge-highlight';
+    highlightLine.setAttribute('x1', bottomPoints[0].x);
+    highlightLine.setAttribute('y1', bottomPoints[0].y);
+    highlightLine.setAttribute('x2', bottomPoints[1].x);
+    highlightLine.setAttribute('y2', bottomPoints[1].y);
+    highlightLine.setAttribute('stroke', '#28a745');
+    highlightLine.setAttribute('stroke-width', '6');
+    highlightLine.setAttribute('opacity', '0.8');
+    highlightLine.style.pointerEvents = 'none';
+    
+    svg.appendChild(highlightLine);
+    
+    // Animation
+    highlightLine.animate([
+        { opacity: 0.8 }, { opacity: 0.3 }, { opacity: 0.8 }
+    ], { duration: 500, iterations: 2 });
 }
 
 function drawLabelsOnShape(group, data) {
