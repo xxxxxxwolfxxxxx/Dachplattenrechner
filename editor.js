@@ -80,12 +80,20 @@ function initializeCanvas() {
         createFallbackCanvas();
     }
     
-    svg.addEventListener('mousedown', handleMouseDown);
-    svg.addEventListener('mousemove', handleMouseMove);
-    svg.addEventListener('mouseup', handleMouseUp);
-    svg.addEventListener('mouseleave', handleMouseUp);
+    // WICHTIG: Event Listeners direkt auf das SVG-Element setzen
+    svg.addEventListener('mousedown', handleMouseDown, { passive: false });
+    svg.addEventListener('mousemove', handleMouseMove, { passive: false });
+    svg.addEventListener('mouseup', handleMouseUp, { passive: false });
+    svg.addEventListener('mouseleave', handleMouseUp, { passive: false });
+    
+    // Touch-Events für mobile Geräte
+    svg.addEventListener('touchstart', handleTouchStart, { passive: false });
+    svg.addEventListener('touchmove', handleTouchMove, { passive: false });
+    svg.addEventListener('touchend', handleTouchEnd, { passive: false });
     
     rotationCenter = { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y };
+    
+    console.log('Canvas initialisiert mit Event Listeners');
 }
 
 function createFallbackCanvas() {
@@ -744,24 +752,41 @@ function drawPolygonShape(group, data, scale = SCALE_FACTOR) {
 function drawCornerHandlesOnShape(group, data, scale = SCALE_FACTOR) {
     const corners = getActualCornerPositions(data, scale);
     
+    console.log('Zeichne Corner Handles:', corners.length);
+    
     corners.forEach((corner, index) => {
+        // Größerer, sichtbarerer Handle
         const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         handle.setAttribute('cx', corner.x);
         handle.setAttribute('cy', corner.y);
-        handle.setAttribute('r', CORNER_RADIUS);
-        handle.setAttribute('fill', 'rgba(0, 123, 255, 0.7)');
+        handle.setAttribute('r', CORNER_RADIUS * 1.5); // Größer machen
+        handle.setAttribute('fill', 'rgba(0, 123, 255, 0.8)');
         handle.setAttribute('stroke', '#007bff');
-        handle.setAttribute('stroke-width', '2');
+        handle.setAttribute('stroke-width', '3');
         handle.style.cursor = 'grab';
+        handle.style.pointerEvents = 'all'; // Explizit aktivieren
         group.appendChild(handle);
         
+        // Sichtbarer weißer Punkt in der Mitte
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         dot.setAttribute('cx', corner.x);
         dot.setAttribute('cy', corner.y);
-        dot.setAttribute('r', '2');
+        dot.setAttribute('r', '3');
         dot.setAttribute('fill', 'white');
         dot.style.pointerEvents = 'none';
         group.appendChild(dot);
+        
+        // Debug: Zeige Handle-Nummer
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', corner.x);
+        label.setAttribute('y', corner.y - 15);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('fill', '#007bff');
+        label.setAttribute('font-size', '10');
+        label.setAttribute('font-weight', 'bold');
+        label.textContent = index + 1;
+        label.style.pointerEvents = 'none';
+        group.appendChild(label);
     });
 }
 
@@ -999,12 +1024,17 @@ function createLabel(x, y, text, color) {
 // === MAUS-EVENTS ===
 function handleMouseDown(event) {
     event.preventDefault();
+    event.stopPropagation();
+    
     const rect = svg.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
     
+    console.log('MouseDown at:', mouseX, mouseY);
+    
     if (isNearCorner(mouseX, mouseY)) {
         startDragging(mouseX, mouseY);
+        console.log('Dragging started');
     }
 }
 
@@ -1018,6 +1048,8 @@ function handleMouseMove(event) {
     }
     
     event.preventDefault();
+    event.stopPropagation();
+    
     const rect = svg.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
@@ -1025,6 +1057,37 @@ function handleMouseMove(event) {
 }
 
 function handleMouseUp(event) {
+    if (isDragging) {
+        console.log('Dragging stopped');
+        stopDragging();
+    }
+}
+
+// Touch-Events für mobile Geräte
+function handleTouchStart(event) {
+    event.preventDefault();
+    const touch = event.touches[0];
+    const rect = svg.getBoundingClientRect();
+    const touchX = touch.clientX - rect.left;
+    const touchY = touch.clientY - rect.top;
+    
+    if (isNearCorner(touchX, touchY)) {
+        startDragging(touchX, touchY);
+    }
+}
+
+function handleTouchMove(event) {
+    if (!isDragging) return;
+    
+    event.preventDefault();
+    const touch = event.touches[0];
+    const rect = svg.getBoundingClientRect();
+    const touchX = touch.clientX - rect.left;
+    const touchY = touch.clientY - rect.top;
+    updateRotation(touchX, touchY);
+}
+
+function handleTouchEnd(event) {
     if (isDragging) {
         stopDragging();
     }
@@ -1035,9 +1098,15 @@ function isNearCorner(x, y) {
     const scale = calculateDynamicScale(data);
     const corners = getActualCornerPositions(data, scale);
     
-    for (const corner of corners) {
+    console.log('Checking corners:', corners.length, 'at position:', x, y);
+    
+    for (let i = 0; i < corners.length; i++) {
+        const corner = corners[i];
         const distance = Math.sqrt((x - corner.x) * (x - corner.x) + (y - corner.y) * (y - corner.y));
-        if (distance <= CORNER_RADIUS * 2) {
+        console.log(`Corner ${i}: (${corner.x.toFixed(1)}, ${corner.y.toFixed(1)}) distance: ${distance.toFixed(1)}`);
+        
+        if (distance <= CORNER_RADIUS * 3) { // Größerer Bereich für bessere Bedienbarkeit
+            console.log(`Near corner ${i}!`);
             return true;
         }
     }
