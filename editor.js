@@ -1,4 +1,39 @@
-// KORRIGIERTE editor.js - Form-Erkennung repariert
+function createInput(labelText, id, defaultValue) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'input-group';
+    
+    const label = document.createElement('label');
+    label.textContent = labelText;
+    
+    const inputWrapper = document.createElement('div');
+    inputWrapper.className = 'input-group-wrapper';
+    
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.id = id;
+    input.value = defaultValue || '';
+    input.step = '0.1';
+    input.min = '0.1';
+    
+    // Event-Listener für dynamische Updates
+    input.addEventListener('input', handleInputChange);
+    input.addEventListener('change', handleInputChange);
+    
+    const unit = document.createElement('span');
+    unit.className = 'input-unit';
+    unit.textContent = id === 'angle' ? '°' : 'm';
+    
+    inputWrapper.appendChild(input);
+    inputWrapper.appendChild(unit);
+    wrapper.appendChild(label);
+    wrapper.appendChild(inputWrapper);
+    
+    return wrapper;
+}
+
+function createRotationInput(labelText, id, defaultValue) {
+    const wrapper = document.createElement('div');
+    wrapper.className = // KORRIGIERTE editor.js - Form-Erkennung repariert
 
 let projectData = {};
 let currentShape = '';
@@ -92,8 +127,6 @@ function initializeCanvas() {
     svg.addEventListener('touchend', handleTouchEnd, { passive: false });
     
     rotationCenter = { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y };
-    
-    console.log('Canvas initialisiert mit Event Listeners');
 }
 
 function createFallbackCanvas() {
@@ -245,17 +278,8 @@ function loadAndDrawShape() {
 function determineActualShape() {
     // SICHERHEITSCHECK: Stelle sicher dass Variablen gesetzt sind
     if (!currentVariant || !currentShape) {
-        console.warn('determineActualShape: Variablen nicht gesetzt:', {
-            currentShape: currentShape,
-            currentVariant: currentVariant
-        });
         return 'rechteck';
     }
-    
-    console.log('determineActualShape aufgerufen:', {
-        currentShape: currentShape,
-        currentVariant: currentVariant
-    });
     
     // WICHTIG: Die Variante bestimmt die echte Form!
     if (currentVariant === 'quadrat') return 'quadrat';
@@ -279,9 +303,7 @@ function determineActualShape() {
     }
     
     // Fallback auf die Basis-Form
-    const result = currentShape || 'rechteck';
-    console.log('determineActualShape Result:', result);
-    return result;
+    return currentShape || 'rechteck';
 }
 
 function determineActualVariant() {
@@ -296,7 +318,9 @@ function createInputFields() {
     const finalShape = determineActualShape();
     const savedData = projectData.roofShape || {};
     
-    console.log('createInputFields für finalShape:', finalShape, 'variant:', currentVariant);
+    // IMMER einen Rotations-Slider hinzufügen
+    const rotationInput = createRotationInput('Rotation (°)', 'rotation', currentRotation || 0);
+    container.appendChild(rotationInput);
     
     if (finalShape === 'dreieck') {
         if (currentVariant === 'gleichseitig') {
@@ -344,7 +368,7 @@ function createInputFields() {
     }
 }
 
-function createInput(labelText, id, defaultValue) {
+function createRotationInput(labelText, id, defaultValue) {
     const wrapper = document.createElement('div');
     wrapper.className = 'input-group';
     
@@ -355,22 +379,32 @@ function createInput(labelText, id, defaultValue) {
     inputWrapper.className = 'input-group-wrapper';
     
     const input = document.createElement('input');
-    input.type = 'number';
+    input.type = 'range';
     input.id = id;
-    input.value = defaultValue || '';
-    input.step = '0.1';
-    input.min = '0.1';
+    input.value = defaultValue || 0;
+    input.min = '-180';
+    input.max = '180';
+    input.step = '5';
+    input.style.width = '100%';
     
-    // Event-Listener für dynamische Updates
-    input.addEventListener('input', handleInputChange);
-    input.addEventListener('change', handleInputChange);
+    // Event-Listener für Rotation
+    input.addEventListener('input', function() {
+        currentRotation = parseFloat(this.value);
+        updateRotationDisplay();
+        updateShape();
+    });
     
-    const unit = document.createElement('span');
-    unit.className = 'input-unit';
-    unit.textContent = id === 'angle' ? '°' : 'm';
+    const valueDisplay = document.createElement('span');
+    valueDisplay.className = 'input-unit';
+    valueDisplay.textContent = (defaultValue || 0) + '°';
+    
+    // Update display when slider changes
+    input.addEventListener('input', function() {
+        valueDisplay.textContent = this.value + '°';
+    });
     
     inputWrapper.appendChild(input);
-    inputWrapper.appendChild(unit);
+    inputWrapper.appendChild(valueDisplay);
     wrapper.appendChild(label);
     wrapper.appendChild(inputWrapper);
     
@@ -383,7 +417,6 @@ function handleInputChange() {
     
     // Überprüfe ob Variablen gesetzt sind
     if (!currentShape || !currentVariant) {
-        console.warn('handleInputChange: Variablen nicht gesetzt, verwende Fallback');
         currentShape = 'viereck';
         currentVariant = 'rechteck';
     }
@@ -752,8 +785,6 @@ function drawPolygonShape(group, data, scale = SCALE_FACTOR) {
 function drawCornerHandlesOnShape(group, data, scale = SCALE_FACTOR) {
     const corners = getActualCornerPositions(data, scale);
     
-    console.log('Zeichne Corner Handles:', corners.length);
-    
     corners.forEach((corner, index) => {
         // Größerer, sichtbarerer Handle
         const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -775,18 +806,6 @@ function drawCornerHandlesOnShape(group, data, scale = SCALE_FACTOR) {
         dot.setAttribute('fill', 'white');
         dot.style.pointerEvents = 'none';
         group.appendChild(dot);
-        
-        // Debug: Zeige Handle-Nummer
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', corner.x);
-        label.setAttribute('y', corner.y - 15);
-        label.setAttribute('text-anchor', 'middle');
-        label.setAttribute('fill', '#007bff');
-        label.setAttribute('font-size', '10');
-        label.setAttribute('font-weight', 'bold');
-        label.textContent = index + 1;
-        label.style.pointerEvents = 'none';
-        group.appendChild(label);
     });
 }
 
@@ -1030,11 +1049,8 @@ function handleMouseDown(event) {
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
     
-    console.log('MouseDown at:', mouseX, mouseY);
-    
     if (isNearCorner(mouseX, mouseY)) {
         startDragging(mouseX, mouseY);
-        console.log('Dragging started');
     }
 }
 
@@ -1058,7 +1074,6 @@ function handleMouseMove(event) {
 
 function handleMouseUp(event) {
     if (isDragging) {
-        console.log('Dragging stopped');
         stopDragging();
     }
 }
@@ -1098,15 +1113,11 @@ function isNearCorner(x, y) {
     const scale = calculateDynamicScale(data);
     const corners = getActualCornerPositions(data, scale);
     
-    console.log('Checking corners:', corners.length, 'at position:', x, y);
-    
     for (let i = 0; i < corners.length; i++) {
         const corner = corners[i];
         const distance = Math.sqrt((x - corner.x) * (x - corner.x) + (y - corner.y) * (y - corner.y));
-        console.log(`Corner ${i}: (${corner.x.toFixed(1)}, ${corner.y.toFixed(1)}) distance: ${distance.toFixed(1)}`);
         
         if (distance <= CORNER_RADIUS * 3) { // Größerer Bereich für bessere Bedienbarkeit
-            console.log(`Near corner ${i}!`);
             return true;
         }
     }
