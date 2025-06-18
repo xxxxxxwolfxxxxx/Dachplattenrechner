@@ -684,25 +684,23 @@ function updateRotation(x, y) {
     while (newRotation > 180) newRotation -= 360;
     while (newRotation < -180) newRotation += 360;
     
-    // Setze die neue Rotation
+    // Setze die neue Rotation IMMER
     currentRotation = newRotation;
     
-    // EINRASTLOGIK: Nur prüfen, keine automatische Korrektur
-    const data = getCurrentFormData();
-    const scale = calculateDynamicScale(data);
-    const corners = getActualCornerPositions(data, scale);
-    const isHorizontal = checkForHorizontalBase(corners);
+    // Einfaches visuelles Feedback nur bei sehr naher horizontaler Ausrichtung
+    const normalizedRotation = Math.abs(currentRotation % 90);
+    const isNearHorizontal = normalizedRotation < 2 || normalizedRotation > 88;
     
-    if (isHorizontal) {
-        // Nur visuelles Feedback, KEINE automatische Rotation
+    if (isNearHorizontal) {
         if (!document.getElementById('snap-feedback')) {
             showSnapFeedback();
-            highlightBottomEdge(corners);
         }
     } else {
         removeSnapEffects();
     }
     
+    const data = getCurrentFormData();
+    const scale = calculateDynamicScale(data);
     updateShapeWithScale(scale);
     updateRotationDisplay();
 }
