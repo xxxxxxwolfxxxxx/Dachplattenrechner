@@ -28,6 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
             loadProjectData();
             initializeCanvas();
             initializeUI();
+            
+            // WICHTIG: Debug-Ausgabe nach dem Laden
+            console.log('Nach loadProjectData:', {
+                currentShape: currentShape,
+                currentVariant: currentVariant,
+                projectData: projectData
+            });
+            
             loadAndDrawShape();
             setupEventListeners();
             console.log('Editor erfolgreich initialisiert');
@@ -218,12 +226,24 @@ function loadAndDrawShape() {
         roofShape: roofShape
     });
     
-    createInputFields();
-    updateShape();
+    // WICHTIG: Erst nach dem Setzen der Variablen die UI erstellen
+    setTimeout(() => {
+        createInputFields();
+        updateShape();
+    }, 100);
 }
 
 // KRITISCHE KORREKTUR: Bestimme echte Form basierend auf Variante
 function determineActualShape() {
+    // SICHERHEITSCHECK: Stelle sicher dass Variablen gesetzt sind
+    if (!currentVariant || !currentShape) {
+        console.warn('determineActualShape: Variablen nicht gesetzt:', {
+            currentShape: currentShape,
+            currentVariant: currentVariant
+        });
+        return 'rechteck';
+    }
+    
     console.log('determineActualShape aufgerufen:', {
         currentShape: currentShape,
         currentVariant: currentVariant
@@ -352,6 +372,13 @@ function createInput(labelText, id, defaultValue) {
 function handleInputChange() {
     if (isUpdating) return;
     isUpdating = true;
+    
+    // Überprüfe ob Variablen gesetzt sind
+    if (!currentShape || !currentVariant) {
+        console.warn('handleInputChange: Variablen nicht gesetzt, verwende Fallback');
+        currentShape = 'viereck';
+        currentVariant = 'rechteck';
+    }
     
     // DYNAMISCHER MASSSTAB: Berechne neuen Maßstab bei Input-Änderung
     const data = getCurrentFormData();
