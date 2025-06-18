@@ -193,8 +193,205 @@ function createRotationDisplay() {
 function updateRotationDisplay() {
     const display = document.getElementById('rotation-display');
     if (display) {
-        display.textContent = currentRotation.toFixed(1) + '°';
+        const roundedRotation = Math.round(currentRotation * 10) / 10; // Auf 0.1° runden
+        display.textContent = roundedRotation + '°';
+        
+        // Spezielle Farbe für waagerechte Positionen
+        if (Math.abs(roundedRotation % 90) < 1) {
+            display.style.background = '#28a745'; // Grün für waagerecht
+            display.style.color = 'white';
+        } else {
+            display.style.background = 'rgba(0, 0, 0, 0.8)'; // Normal
+            display.style.color = 'white';
+        }
     }
+}
+
+// Verbesserte Seitenbeschriftung - direkt an den Kanten
+function drawLabelsAndAnnotations(group, data) {
+    const finalShape = determineActualShape();
+    const finalVariant = determineActualVariant();
+    
+    // Hole die transformierten Eckpunkte für präzise Beschriftung
+    const corners = getShapeCorners();
+    
+    if (finalShape === 'dreieck') {
+        drawTriangleLabelsAtEdges(group, data, finalVariant, corners);
+    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        drawRectangleLabelsAtEdges(group, data, corners);
+    } else if (finalShape === 'trapez') {
+        drawTrapezLabelsAtEdges(group, data, corners);
+    } else if (finalShape === 'kreis') {
+        drawCircleLabelsAtCenter(group, data, finalVariant);
+    }
+}
+
+function drawTriangleLabelsAtEdges(group, data, variant, corners) {
+    if (corners.length < 3) return;
+    
+    // Basis (zwischen Punkt 1 und 2)
+    const basisMidX = (corners[1].x + corners[2].x) / 2;
+    const basisMidY = (corners[1].y + corners[2].y) / 2;
+    
+    const basisLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    basisLabel.setAttribute('x', basisMidX);
+    basisLabel.setAttribute('y', basisMidY + 15);
+    basisLabel.setAttribute('text-anchor', 'middle');
+    basisLabel.setAttribute('fill', '#dc3545');
+    basisLabel.setAttribute('font-size', '12');
+    basisLabel.setAttribute('font-weight', 'bold');
+    basisLabel.setAttribute('stroke', 'white');
+    basisLabel.setAttribute('stroke-width', '2');
+    basisLabel.setAttribute('paint-order', 'stroke');
+    basisLabel.textContent = 'Basis';
+    group.appendChild(basisLabel);
+    
+    // Linke Seite (zwischen Punkt 0 und 1)
+    const leftMidX = (corners[0].x + corners[1].x) / 2;
+    const leftMidY = (corners[0].y + corners[1].y) / 2;
+    
+    const leftLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    leftLabel.setAttribute('x', leftMidX - 15);
+    leftLabel.setAttribute('y', leftMidY);
+    leftLabel.setAttribute('text-anchor', 'middle');
+    leftLabel.setAttribute('fill', '#28a745');
+    leftLabel.setAttribute('font-size', '12');
+    leftLabel.setAttribute('font-weight', 'bold');
+    leftLabel.setAttribute('stroke', 'white');
+    leftLabel.setAttribute('stroke-width', '2');
+    leftLabel.setAttribute('paint-order', 'stroke');
+    leftLabel.textContent = 'Links';
+    group.appendChild(leftLabel);
+    
+    // Rechte Seite (zwischen Punkt 0 und 2)
+    const rightMidX = (corners[0].x + corners[2].x) / 2;
+    const rightMidY = (corners[0].y + corners[2].y) / 2;
+    
+    const rightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    rightLabel.setAttribute('x', rightMidX + 15);
+    rightLabel.setAttribute('y', rightMidY);
+    rightLabel.setAttribute('text-anchor', 'middle');
+    rightLabel.setAttribute('fill', '#ffc107');
+    rightLabel.setAttribute('font-size', '12');
+    rightLabel.setAttribute('font-weight', 'bold');
+    rightLabel.setAttribute('stroke', 'white');
+    rightLabel.setAttribute('stroke-width', '2');
+    rightLabel.setAttribute('paint-order', 'stroke');
+    rightLabel.textContent = 'Rechts';
+    group.appendChild(rightLabel);
+}
+
+function drawRectangleLabelsAtEdges(group, data, corners) {
+    if (corners.length < 4) return;
+    
+    // Obere Seite
+    const topMidX = (corners[0].x + corners[1].x) / 2;
+    const topMidY = (corners[0].y + corners[1].y) / 2;
+    
+    const topLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    topLabel.setAttribute('x', topMidX);
+    topLabel.setAttribute('y', topMidY - 10);
+    topLabel.setAttribute('text-anchor', 'middle');
+    topLabel.setAttribute('fill', '#007bff');
+    topLabel.setAttribute('font-size', '12');
+    topLabel.setAttribute('font-weight', 'bold');
+    topLabel.setAttribute('stroke', 'white');
+    topLabel.setAttribute('stroke-width', '2');
+    topLabel.setAttribute('paint-order', 'stroke');
+    topLabel.textContent = 'Oben';
+    group.appendChild(topLabel);
+    
+    // Untere Seite - TRAUFE
+    const bottomMidX = (corners[2].x + corners[3].x) / 2;
+    const bottomMidY = (corners[2].y + corners[3].y) / 2;
+    
+    const bottomLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    bottomLabel.setAttribute('x', bottomMidX);
+    bottomLabel.setAttribute('y', bottomMidY + 20);
+    bottomLabel.setAttribute('text-anchor', 'middle');
+    bottomLabel.setAttribute('fill', '#dc3545');
+    bottomLabel.setAttribute('font-size', '14');
+    bottomLabel.setAttribute('font-weight', 'bold');
+    bottomLabel.setAttribute('stroke', 'white');
+    bottomLabel.setAttribute('stroke-width', '3');
+    bottomLabel.setAttribute('paint-order', 'stroke');
+    bottomLabel.textContent = '🏠 TRAUFE';
+    group.appendChild(bottomLabel);
+    
+    // Linke Seite
+    const leftMidX = (corners[0].x + corners[3].x) / 2;
+    const leftMidY = (corners[0].y + corners[3].y) / 2;
+    
+    const leftLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    leftLabel.setAttribute('x', leftMidX - 15);
+    leftLabel.setAttribute('y', leftMidY);
+    leftLabel.setAttribute('text-anchor', 'middle');
+    leftLabel.setAttribute('fill', '#ffc107');
+    leftLabel.setAttribute('font-size', '12');
+    leftLabel.setAttribute('font-weight', 'bold');
+    leftLabel.setAttribute('stroke', 'white');
+    leftLabel.setAttribute('stroke-width', '2');
+    leftLabel.setAttribute('paint-order', 'stroke');
+    leftLabel.textContent = 'Links';
+    group.appendChild(leftLabel);
+    
+    // Rechte Seite
+    const rightMidX = (corners[1].x + corners[2].x) / 2;
+    const rightMidY = (corners[1].y + corners[2].y) / 2;
+    
+    const rightLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    rightLabel.setAttribute('x', rightMidX + 15);
+    rightLabel.setAttribute('y', rightMidY);
+    rightLabel.setAttribute('text-anchor', 'middle');
+    rightLabel.setAttribute('fill', '#28a745');
+    rightLabel.setAttribute('font-size', '12');
+    rightLabel.setAttribute('font-weight', 'bold');
+    rightLabel.setAttribute('stroke', 'white');
+    rightLabel.setAttribute('stroke-width', '2');
+    rightLabel.setAttribute('paint-order', 'stroke');
+    rightLabel.textContent = 'Rechts';
+    group.appendChild(rightLabel);
+}
+
+function drawTrapezLabelsAtEdges(group, data, corners) {
+    // Ähnlich wie Rechteck, aber mit Trapez-spezifischen Labels
+    if (corners.length < 4) return;
+    
+    const bottomMidX = (corners[2].x + corners[3].x) / 2;
+    const bottomMidY = (corners[2].y + corners[3].y) / 2;
+    
+    const bottomLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    bottomLabel.setAttribute('x', bottomMidX);
+    bottomLabel.setAttribute('y', bottomMidY + 20);
+    bottomLabel.setAttribute('text-anchor', 'middle');
+    bottomLabel.setAttribute('fill', '#dc3545');
+    bottomLabel.setAttribute('font-size', '14');
+    bottomLabel.setAttribute('font-weight', 'bold');
+    bottomLabel.setAttribute('stroke', 'white');
+    bottomLabel.setAttribute('stroke-width', '3');
+    bottomLabel.setAttribute('paint-order', 'stroke');
+    bottomLabel.textContent = '🏠 TRAUFE';
+    group.appendChild(bottomLabel);
+}
+
+function drawCircleLabelsAtCenter(group, data, variant) {
+    const centerLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    centerLabel.setAttribute('x', CANVAS_CENTER_X);
+    centerLabel.setAttribute('y', CANVAS_CENTER_Y + 5);
+    centerLabel.setAttribute('text-anchor', 'middle');
+    centerLabel.setAttribute('fill', '#007bff');
+    centerLabel.setAttribute('font-size', '12');
+    centerLabel.setAttribute('font-weight', 'bold');
+    centerLabel.setAttribute('stroke', 'white');
+    centerLabel.setAttribute('stroke-width', '2');
+    centerLabel.setAttribute('paint-order', 'stroke');
+    
+    if (variant === 'oval') {
+        centerLabel.textContent = 'Oval';
+    } else {
+        centerLabel.textContent = 'Kreis';
+    }
+    group.appendChild(centerLabel);
 }
 
 function displayProfileInfo() {
@@ -558,14 +755,64 @@ function updateRotation(x, y) {
     while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
     while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
     
-    const newRotation = dragStartRotation + (angleDiff * 180 / Math.PI);
+    let newRotation = dragStartRotation + (angleDiff * 180 / Math.PI);
     
+    // SNAP-MECHANISMUS: Einrasten auf 0°, 90°, 180°, 270° (±3° Toleranz)
+    const snapAngles = [0, 90, 180, 270, -90, -180];
+    const snapTolerance = 3; // Grad
+    
+    for (const snapAngle of snapAngles) {
+        const diff = Math.abs(newRotation - snapAngle);
+        const diffWrapped = Math.abs(Math.abs(newRotation - snapAngle) - 360);
+        
+        if (diff <= snapTolerance || diffWrapped <= snapTolerance) {
+            newRotation = snapAngle;
+            
+            // Visual Feedback für Snap
+            if (!document.getElementById('snap-feedback')) {
+                showSnapFeedback();
+            }
+            break;
+        } else {
+            // Entferne Snap-Feedback wenn nicht eingerastet
+            const snapFeedback = document.getElementById('snap-feedback');
+            if (snapFeedback) {
+                snapFeedback.remove();
+            }
+        }
+    }
+    
+    // Normalisiere die Rotation
     currentRotation = newRotation;
     while (currentRotation > 180) currentRotation -= 360;
     while (currentRotation < -180) currentRotation += 360;
     
     updateShape();
     updateRotationDisplay();
+}
+
+function showSnapFeedback() {
+    const feedback = document.createElement('div');
+    feedback.id = 'snap-feedback';
+    feedback.style.cssText = `
+        position: absolute;
+        top: 50px;
+        right: 10px;
+        background: #28a745;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 1001;
+        pointer-events: none;
+    `;
+    feedback.textContent = '📐 Eingerastet!';
+    
+    const canvasWrapper = document.querySelector('.canvas-wrapper');
+    if (canvasWrapper) {
+        canvasWrapper.appendChild(feedback);
+    }
 }
 
 function stopDragging() {
