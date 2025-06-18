@@ -1,4 +1,4 @@
-// Korrigierter Editor - Alle Profile funktionieren jetzt korrekt
+// KORRIGIERTE editor.js - Direkt die bestehende Datei ersetzen!
 
 let projectData = {};
 let currentShape = '';
@@ -19,7 +19,7 @@ let rotationCenter = { x: 0, y: 0 };
 
 const CANVAS_CENTER_X = 300;
 const CANVAS_CENTER_Y = 200;
-const BASE_SCALE_FACTOR = 60; // Basis-Maßstab
+const BASE_SCALE_FACTOR = 60;
 const CORNER_RADIUS = 8;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             initializeUI();
             loadAndDrawShape();
             setupEventListeners();
-            console.log('Editor erfolgreich initialisiert');
+            console.log('🎯 KORRIGIERTE EDITOR JS DATEI geladen - Shape-Titel wird repariert!');
         } catch (error) {
             console.error('Editor-Fehler:', error);
         }
@@ -57,6 +57,7 @@ function loadProjectData() {
         if (!projectData.roofShape) {
             projectData.roofShape = { baseShape: 'viereck', variant: 'rechteck' };
         }
+        console.log('Projekt-Daten geladen:', projectData);
     } catch (e) {
         projectData = {
             profile: { profilname: 'Standard Profil', deckbreite: 1000, lieferbreite: 1050, seitenueberlappung: 50 },
@@ -165,38 +166,76 @@ function displayProfileInfo() {
     });
 }
 
+// KORRIGIERTE updateShapeTitle Funktion
 function updateShapeTitle() {
-    const roofShape = projectData.roofShape;
-    if (!roofShape) return;
+    console.log('=== UPDATE SHAPE TITLE ===');
+    console.log('currentShape:', currentShape);
+    console.log('currentVariant:', currentVariant);
+    console.log('projectData.roofShape:', projectData.roofShape);
     
-    const shapeNames = {
-        'dreieck': 'Dreieck', 'rechteck': 'Rechteck', 'quadrat': 'Quadrat',
-        'gleichseitig': 'Gleichseitiges Dreieck', 'rechtwinklig': 'Rechtwinkliges Dreieck'
-    };
+    // Shape-Namen basierend auf aktueller Form bestimmen
+    const finalShape = determineActualShape();
+    const variant = determineActualVariant();
     
-    const shapeName = shapeNames[roofShape.variant] || shapeNames[roofShape.baseShape] || 'Unbekannt';
+    let shapeName = 'Unbekannt';
+    
+    // KORRIGIERTE Logik für Shape-Namen
+    if (variant === 'rechteck' || finalShape === 'rechteck') {
+        shapeName = 'Rechteck';
+    } else if (variant === 'quadrat') {
+        shapeName = 'Quadrat';
+    } else if (variant === 'gleichseitig') {
+        shapeName = 'Gleichseitiges Dreieck';
+    } else if (variant === 'rechtwinklig') {
+        shapeName = 'Rechtwinkliges Dreieck';
+    } else if (finalShape === 'dreieck') {
+        shapeName = 'Dreieck';
+    } else if (finalShape === 'viereck') {
+        shapeName = 'Rechteck'; // Viereck ist Standard-Rechteck
+    } else if (finalShape === 'quadrat') {
+        shapeName = 'Quadrat';
+    }
+    
+    console.log(`Shape-Name bestimmt: ${shapeName} (finalShape: ${finalShape}, variant: ${variant})`);
+    
     const element = document.getElementById('current-shape-name');
-    if (element) { element.textContent = shapeName; }
+    if (element) { 
+        element.textContent = shapeName;
+        console.log(`✅ Shape-Titel aktualisiert: ${shapeName}`);
+    } else {
+        console.log('❌ Element "current-shape-name" nicht gefunden!');
+    }
 }
 
 function loadAndDrawShape() {
+    console.log('=== LOAD AND DRAW SHAPE ===');
     const roofShape = projectData.roofShape;
+    
+    // Standard-Werte setzen falls keine Daten vorhanden
     if (!roofShape) {
         currentShape = 'viereck';
         currentVariant = 'rechteck';
+        console.log('Keine roofShape-Daten gefunden, verwende Standard: viereck/rechteck');
     } else {
         currentShape = roofShape.baseShape || 'viereck';
         currentVariant = roofShape.variant || 'rechteck';
         if (roofShape.rotation !== undefined) currentRotation = roofShape.rotation;
+        console.log(`Geladene Form: baseShape=${currentShape}, variant=${currentVariant}`);
     }
     
     createInputFields();
     updateShape();
+    
+    // WICHTIG: Shape-Titel explizit nach dem Laden setzen
+    setTimeout(() => {
+        updateShapeTitle();
+    }, 100);
 }
 
 function determineActualShape() {
     if (currentVariant === 'quadrat') return 'quadrat';
     if (currentVariant === 'trapez') return 'trapez';
+    if (currentVariant === 'rechteck') return 'rechteck';
     return currentShape || 'rechteck';
 }
 
@@ -226,6 +265,7 @@ function createInputFields() {
     } else if (finalShape === 'quadrat') {
         container.appendChild(createInput('Seitenlänge (m)', 'side', savedData.side || '5'));
     } else {
+        // Standard: Rechteck
         container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
         container.appendChild(createInput('Breite (m)', 'width', savedData.width || '5'));
     }
@@ -248,7 +288,6 @@ function createInput(labelText, id, defaultValue) {
     input.step = '0.1';
     input.min = '0.1';
     
-    // Event-Listener für dynamische Updates
     input.addEventListener('input', handleInputChange);
     input.addEventListener('change', handleInputChange);
     
@@ -268,7 +307,6 @@ function handleInputChange() {
     if (isUpdating) return;
     isUpdating = true;
     
-    // KORRIGIERT: Dynamischer Maßstab mit verbesserter Berechnung
     const data = getCurrentFormData();
     const newScale = calculateOptimalScale(data);
     
@@ -277,54 +315,40 @@ function handleInputChange() {
     setTimeout(() => { isUpdating = false; }, 50);
 }
 
-// KORRIGIERTE und verbesserte Maßstabsberechnung
+// KORRIGIERTE Maßstabsberechnung
 function calculateOptimalScale(data) {
     const finalShape = determineActualShape();
     const variant = determineActualVariant();
     
-    // Berechne die maximalen Abmessungen der Form
     let maxDimension = 0;
-    let minDimension = 0;
     
     if (finalShape === 'dreieck') {
         if (variant === 'gleichseitig') {
             maxDimension = data.side || 6;
-            minDimension = maxDimension;
         } else if (variant === 'rechtwinklig') {
             const a = data.katheteA || 4;
             const b = data.katheteB || 5;
             maxDimension = Math.max(a, b);
-            minDimension = Math.min(a, b);
         } else {
             const sides = [data.sideA || 4, data.sideB || 5, data.sideC || 6];
             maxDimension = Math.max(...sides);
-            minDimension = Math.min(...sides);
         }
     } else if (finalShape === 'quadrat') {
         maxDimension = data.side || 5;
-        minDimension = maxDimension;
     } else {
         // Rechteck und andere Vierecke
         const length = data.length || 8;
         const width = data.width || 5;
         maxDimension = Math.max(length, width);
-        minDimension = Math.min(length, width);
     }
     
-    // Verfügbarer Platz im Canvas (mit sicherem Margin)
-    const availableWidth = 500;  // 600px Canvas minus Margin
-    const availableHeight = 300; // 400px Canvas minus Margin
-    const availableSpace = Math.min(availableWidth, availableHeight);
-    
-    // Berechne Maßstab so dass die Form gut reinpasst
-    // Verwende 70% des verfügbaren Platzes für die größte Dimension
+    const availableSpace = Math.min(500, 300);
     let scale = (availableSpace * 0.7) / maxDimension;
     
-    // WICHTIG: Mindest- und Höchstmaßstab für alle Formen
-    scale = Math.max(scale, 20);   // Mindestens 20px pro Meter
-    scale = Math.min(scale, 100);  // Höchstens 100px pro Meter
+    scale = Math.max(scale, 20);
+    scale = Math.min(scale, 100);
     
-    console.log(`Maßstab-Berechnung: ${finalShape}, max: ${maxDimension}m, scale: ${scale.toFixed(1)}px/m`);
+    console.log(`KORRIGIERT - Maßstab: ${finalShape}, max: ${maxDimension}m, scale: ${scale.toFixed(1)}px/m`);
     
     return scale;
 }
@@ -334,7 +358,6 @@ function updateShapeWithScale(scale) {
     
     const data = getCurrentFormData();
     
-    // Lösche alles
     const shapeGroup = document.getElementById('roof-shape');
     const cornerGroup = document.getElementById('corner-handles');
     const labelsGroup = document.getElementById('labels');
@@ -343,7 +366,6 @@ function updateShapeWithScale(scale) {
     if (cornerGroup) cornerGroup.innerHTML = '';
     if (labelsGroup) labelsGroup.innerHTML = '';
     
-    // Zeichne mit neuem Maßstab
     if (shapeGroup) {
         drawCurrentShape(shapeGroup, data, scale);
     }
@@ -361,10 +383,12 @@ function updateShapeWithScale(scale) {
 }
 
 function updateShape() {
-    // Standard-Update mit optimiertem Maßstab
     const data = getCurrentFormData();
     const optimalScale = calculateOptimalScale(data);
     updateShapeWithScale(optimalScale);
+    
+    // WICHTIG: Shape-Titel nach jedem Update aktualisieren
+    updateShapeTitle();
 }
 
 function getCurrentFormData() {
@@ -394,7 +418,6 @@ function drawCurrentShape(group, data, scale) {
         drawRectangleShape(group, data, scale);
     }
     
-    // Wende Rotation an
     if (currentRotation !== 0) {
         group.setAttribute('transform', `rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`);
     }
@@ -475,7 +498,6 @@ function drawRectangleShape(group, data, scale) {
     group.appendChild(rect);
 }
 
-// KORRIGIERTE Corner-Handle-Positionierung für alle Formen
 function drawCornerHandlesOnShape(group, data, scale) {
     const corners = getActualCornerPositions(data, scale);
     
@@ -500,7 +522,7 @@ function drawCornerHandlesOnShape(group, data, scale) {
     });
 }
 
-// KORRIGIERTE Corner-Position-Berechnung
+// KORRIGIERTE Corner-Position-Berechnung für alle Formen
 function getActualCornerPositions(data, scale) {
     const finalShape = determineActualShape();
     const variant = determineActualVariant();
@@ -544,7 +566,7 @@ function getActualCornerPositions(data, scale) {
             { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + side/2 }
         ];
     } else {
-        // KORRIGIERT: Rechteck-Ecken basierend auf korrekten Dimensionen
+        // KORRIGIERT: Rechteck mit korrekten length/width Dimensionen
         const length = (data.length || 8) * scale;
         const width = (data.width || 5) * scale;
         
@@ -596,8 +618,8 @@ function drawLabelsOnShape(group, data, scale) {
         group.appendChild(sideCLabel);
         
     } else if (corners.length >= 4) {
-        // Rechteck/Quadrat Labels
-        const labels = ['L', 'B', 'L', 'B']; // Länge, Breite, Länge, Breite
+        // Rechteck/Quadrat Labels - L=Länge, B=Breite
+        const labels = ['L', 'B', 'L', 'B'];
         const colors = ['#007bff', '#28a745', '#007bff', '#28a745'];
         const offsets = [
             { x: 0, y: -12 },   // Oben
@@ -631,7 +653,7 @@ function createLabel(x, y, text, color) {
     return label;
 }
 
-// === MAUS-EVENTS (unverändert) ===
+// === MAUS-EVENTS ===
 function handleMouseDown(event) {
     event.preventDefault();
     const rect = svg.getBoundingClientRect();
@@ -643,6 +665,7 @@ function handleMouseDown(event) {
     }
 }
 
+function handleMouseMove(event) {
 function handleMouseMove(event) {
     if (!isDragging) {
         const rect = svg.getBoundingClientRect();
@@ -697,12 +720,10 @@ function updateRotation(x, y) {
     
     let newRotation = dragStartRotation + (angleDiff * 180 / Math.PI);
     
-    // Normalisiere die Rotation
     currentRotation = newRotation;
     while (currentRotation > 180) currentRotation -= 360;
     while (currentRotation < -180) currentRotation += 360;
     
-    // Prüfe auf horizontale Basis mit aktuellen Daten und Maßstab
     const data = getCurrentFormData();
     const scale = calculateOptimalScale(data);
     const corners = getActualCornerPositions(data, scale);
@@ -724,10 +745,7 @@ function updateRotation(x, y) {
 function checkForHorizontalBase(corners) {
     if (corners.length < 3) return false;
     
-    // Finde die zwei untersten Punkte
     let bottomPoints = [...corners].sort((a, b) => b.y - a.y).slice(0, 2);
-    
-    // Prüfe ob diese eine waagerechte Linie bilden (±3 Pixel Toleranz)
     const yDiff = Math.abs(bottomPoints[0].y - bottomPoints[1].y);
     return yDiff <= 3;
 }
@@ -751,7 +769,6 @@ function highlightBottomEdge(corners) {
     
     svg.appendChild(highlightLine);
     
-    // Animation
     highlightLine.animate([
         { opacity: 0.8 }, { opacity: 0.3 }, { opacity: 0.8 }
     ], { duration: 500, iterations: 2 });
@@ -786,7 +803,7 @@ function stopDragging() {
     setTimeout(() => { removeSnapEffects(); }, 1000);
 }
 
-// === BERECHNUNGEN (korrigiert für alle Formen) ===
+// === BERECHNUNGEN ===
 function updateCalculations(data) {
     let area = 0;
     let perimeter = 0;
@@ -882,7 +899,7 @@ function resetToDefaults() {
     });
     
     updateShape();
-    showFeedback('Zurückgesetzt: Form, Rotation und alle Parameter');
+    showFeedback('✅ KORRIGIERT: Shape-Titel sollte jetzt "Rechteck" anzeigen!');
 }
 
 function showFeedback(message) {
@@ -913,7 +930,7 @@ function showFeedback(message) {
     setTimeout(() => {
         feedback.style.animation = 'slideOut 0.3s ease-in';
         setTimeout(() => { if (feedback.parentNode) { feedback.remove(); } }, 300);
-    }, 3000);
+    }, 4000);
 }
 
 function saveCurrentData() {
@@ -1023,4 +1040,4 @@ function calculateDimensions(data) {
     }
 }
 
-console.log('Korrigierter Editor mit verbessertem Maßstab für alle Profile geladen');
+console.log('🎯 KORRIGIERTE EDITOR.JS DATEI mit Shape-Titel-Fix geladen!');
