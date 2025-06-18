@@ -681,23 +681,9 @@ function updateRotation(x, y) {
     let newRotation = dragStartRotation + (angleDiff * 180 / Math.PI);
     
     // Normalisiere die Rotation
-    while (newRotation > 180) newRotation -= 360;
-    while (newRotation < -180) newRotation += 360;
-    
-    // Setze die neue Rotation IMMER
     currentRotation = newRotation;
-    
-    // Einfaches visuelles Feedback nur bei sehr naher horizontaler Ausrichtung
-    const normalizedRotation = Math.abs(currentRotation % 90);
-    const isNearHorizontal = normalizedRotation < 2 || normalizedRotation > 88;
-    
-    if (isNearHorizontal) {
-        if (!document.getElementById('snap-feedback')) {
-            showSnapFeedback();
-        }
-    } else {
-        removeSnapEffects();
-    }
+    while (currentRotation > 180) currentRotation -= 360;
+    while (currentRotation < -180) currentRotation += 360;
     
     const data = getCurrentFormData();
     const scale = calculateDynamicScale(data);
