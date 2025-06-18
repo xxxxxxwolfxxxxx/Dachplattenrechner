@@ -258,52 +258,88 @@ function createInputFields() {
     const finalVariant = determineActualVariant();
     const savedData = projectData.roofShape || {};
     
-    // Für alle Kreisformen: Radius-basierte Inputs
-    if (['kreis', 'oval', 'halbkreis', 'viertelkreis', 'langloch'].includes(finalShape)) {
-        if (finalShape === 'oval') {
-            container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
-            container.appendChild(createInput('Breite (m)', 'width', savedData.width || '5'));
-        } else if (finalShape === 'langloch') {
-            container.appendChild(createInput('Länge (m)', 'length', savedData.length || '10'));
-            container.appendChild(createInput('Breite (m)', 'width', savedData.width || '3'));
-        } else {
-            // Kreis, Halbkreis, Viertelkreis
-            container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '4'));
-        }
+    // KREISFORMEN
+    if (finalShape === 'kreis') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '4'));
     }
-    // Dreiecke
+    else if (finalShape === 'oval') {
+        container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
+        container.appendChild(createInput('Breite (m)', 'width', savedData.width || '5'));
+    }
+    else if (finalShape === 'halbkreis') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '4'));
+    }
+    else if (finalShape === 'viertelkreis') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '4'));
+    }
+    else if (finalShape === 'langloch') {
+        container.appendChild(createInput('Länge (m)', 'length', savedData.length || '10'));
+        container.appendChild(createInput('Breite (m)', 'width', savedData.width || '3'));
+    }
+    
+    // DREIECKE
     else if (finalShape === 'dreieck') {
         if (finalVariant === 'gleichseitig') {
             container.appendChild(createInput('Seitenlänge (m)', 'side', savedData.side || '6'));
         } else if (finalVariant === 'rechtwinklig') {
             container.appendChild(createInput('Kathete A (m)', 'katheteA', savedData.katheteA || '4'));
             container.appendChild(createInput('Kathete B (m)', 'katheteB', savedData.katheteB || '5'));
-        } else {
-            container.appendChild(createInput('Seite A (m)', 'sideA', savedData.sideA || '4'));
-            container.appendChild(createInput('Seite B (m)', 'sideB', savedData.sideB || '5'));
-            container.appendChild(createInput('Seite C (m)', 'sideC', savedData.sideC || '6'));
+        } else { // ungleichschenklig
+            container.appendChild(createInput('Basis (m)', 'sideA', savedData.sideA || '6'));
+            container.appendChild(createInput('Höhe (m)', 'height', savedData.height || '4'));
         }
     }
-    // Spezielle Vierecke
+    
+    // VIERECKE
     else if (finalShape === 'quadrat') {
         container.appendChild(createInput('Seitenlänge (m)', 'side', savedData.side || '5'));
     }
-    else if (['trapez', 'parallelogramm', 'rhombus'].includes(finalShape)) {
+    else if (finalShape === 'rechteck') {
         container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
         container.appendChild(createInput('Breite (m)', 'width', savedData.width || '5'));
-        if (finalShape === 'trapez') {
-            container.appendChild(createInput('Schräge (m)', 'angle', savedData.angle || '2'));
-        }
     }
-    // Vielecke - vereinfacht als Rechteck behandeln
-    else if (['fuenfeck', 'sechseck', 'achteck', 'lform', 'tform', 'uform'].includes(finalShape)) {
-        container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
-        container.appendChild(createInput('Breite (m)', 'width', savedData.width || '6'));
-        if (['lform', 'tform', 'uform'].includes(finalShape)) {
-            container.appendChild(createInput('Einschnitt (m)', 'cutout', savedData.cutout || '3'));
-        }
+    else if (finalShape === 'trapez') {
+        container.appendChild(createInput('Basis unten (m)', 'length', savedData.length || '8'));
+        container.appendChild(createInput('Basis oben (m)', 'topLength', savedData.topLength || '6'));
+        container.appendChild(createInput('Höhe (m)', 'height', savedData.height || '4'));
     }
-    // Standard Rechteck
+    else if (finalShape === 'parallelogramm') {
+        container.appendChild(createInput('Basis (m)', 'length', savedData.length || '8'));
+        container.appendChild(createInput('Höhe (m)', 'height', savedData.height || '5'));
+        container.appendChild(createInput('Neigung (m)', 'skew', savedData.skew || '2'));
+    }
+    else if (finalShape === 'rhombus') {
+        container.appendChild(createInput('Diagonale 1 (m)', 'diagonal1', savedData.diagonal1 || '8'));
+        container.appendChild(createInput('Diagonale 2 (m)', 'diagonal2', savedData.diagonal2 || '6'));
+    }
+    
+    // VIELECKE
+    else if (finalShape === 'fuenfeck') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '4'));
+    }
+    else if (finalShape === 'sechseck') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '4'));
+    }
+    else if (finalShape === 'achteck') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '4'));
+    }
+    else if (finalShape === 'lform') {
+        container.appendChild(createInput('Gesamtlänge (m)', 'length', savedData.length || '8'));
+        container.appendChild(createInput('Gesamtbreite (m)', 'width', savedData.width || '6'));
+        container.appendChild(createInput('Aussparung (m)', 'cutout', savedData.cutout || '3'));
+    }
+    else if (finalShape === 'tform') {
+        container.appendChild(createInput('Kopfbreite (m)', 'headWidth', savedData.headWidth || '8'));
+        container.appendChild(createInput('Stammbreite (m)', 'stemWidth', savedData.stemWidth || '3'));
+        container.appendChild(createInput('Höhe (m)', 'height', savedData.height || '6'));
+    }
+    else if (finalShape === 'uform') {
+        container.appendChild(createInput('Außenbreite (m)', 'outerWidth', savedData.outerWidth || '8'));
+        container.appendChild(createInput('Innenbreite (m)', 'innerWidth', savedData.innerWidth || '4'));
+        container.appendChild(createInput('Höhe (m)', 'height', savedData.height || '6'));
+    }
+    
+    // FALLBACK
     else {
         container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
         container.appendChild(createInput('Breite (m)', 'width', savedData.width || '5'));
@@ -384,15 +420,17 @@ function calculateDynamicScale(data) {
         maxDimension = Math.max(data.length || 8, data.width || 5);
     }
     
-    // Verfügbarer Platz im Canvas (mit Margin für Labels und Handles)
-    const availableSpace = Math.min(500, 300); // 60% von 600x400
+    // Verfügbarer Platz im Canvas (viel konservativer)
+    const availableWidth = 500; // Canvas ist 600px breit - 100px Margin
+    const availableHeight = 300; // Canvas ist 400px hoch - 100px Margin
+    const availableSpace = Math.min(availableWidth, availableHeight);
     
-    // Berechne Maßstab so dass die Form gut reinpasst
-    let scale = (availableSpace * 0.7) / maxDimension;
+    // Berechne Maßstab so dass die Form SICHER reinpasst
+    let scale = (availableSpace * 0.6) / maxDimension; // Nur 60% der verfügbaren Fläche nutzen
     
-    // Mindest- und Höchstmaßstab
-    scale = Math.max(scale, 15);   // Mindestens 15px pro Meter
-    scale = Math.min(scale, 120);  // Höchstens 120px pro Meter
+    // Viel engere Grenzen für bessere Sichtbarkeit
+    scale = Math.max(scale, 20);   // Mindestens 20px pro Meter
+    scale = Math.min(scale, 80);   // Höchstens 80px pro Meter
     
     return scale;
 }
@@ -581,15 +619,15 @@ function drawTriangleShape(group, data, scale = SCALE_FACTOR) {
         
         points = `${leftX},${bottomY} ${rightX},${bottomY} ${leftX},${topY}`;
     } else {
-        const sideA = (data.sideA || 4) * scale;
-        const avgSide = ((data.sideB || 5) + (data.sideC || 6)) / 2;
-        const height = avgSide * scale * 0.8;
+        // ungleichschenklig mit Basis und Höhe
+        const basis = (data.sideA || 6) * scale;
+        const height = (data.height || 4) * scale;
         
         const topX = CANVAS_CENTER_X;
         const topY = CANVAS_CENTER_Y - height/2;
-        const leftX = CANVAS_CENTER_X - sideA/2;
+        const leftX = CANVAS_CENTER_X - basis/2;
         const leftY = CANVAS_CENTER_Y + height/2;
-        const rightX = CANVAS_CENTER_X + sideA/2;
+        const rightX = CANVAS_CENTER_X + basis/2;
         const rightY = CANVAS_CENTER_Y + height/2;
         
         points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
@@ -632,16 +670,17 @@ function drawRectangleShape(group, data, scale = SCALE_FACTOR) {
 }
 
 function drawTrapezShape(group, data, scale = SCALE_FACTOR) {
-    const length = (data.length || 8) * scale;
-    const width = (data.width || 5) * scale;
-    const angle = (data.angle || 2) * scale;
+    const bottomLength = (data.length || 8) * scale;
+    const topLength = (data.topLength || 6) * scale;
+    const height = (data.height || 4) * scale;
     
-    const leftX = CANVAS_CENTER_X - length/2;
-    const rightX = CANVAS_CENTER_X + length/2;
-    const topY = CANVAS_CENTER_Y - width/2;
-    const bottomY = CANVAS_CENTER_Y + width/2;
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
     
-    const points = `${leftX + angle},${topY} ${rightX - angle},${topY} ${rightX},${bottomY} ${leftX},${bottomY}`;
+    const topY = centerY - height/2;
+    const bottomY = centerY + height/2;
+    
+    const points = `${centerX - bottomLength/2},${bottomY} ${centerX + bottomLength/2},${bottomY} ${centerX + topLength/2},${topY} ${centerX - topLength/2},${topY}`;
     
     const trapez = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     trapez.setAttribute('points', points);
@@ -652,16 +691,17 @@ function drawTrapezShape(group, data, scale = SCALE_FACTOR) {
 }
 
 function drawParallelogrammShape(group, data, scale = SCALE_FACTOR) {
-    const length = (data.length || 8) * scale;
-    const width = (data.width || 5) * scale;
-    const skew = length * 0.2; // 20% Schräge
+    const basis = (data.length || 8) * scale;
+    const height = (data.height || 5) * scale;
+    const skew = (data.skew || 2) * scale;
     
-    const leftX = CANVAS_CENTER_X - length/2;
-    const rightX = CANVAS_CENTER_X + length/2;
-    const topY = CANVAS_CENTER_Y - width/2;
-    const bottomY = CANVAS_CENTER_Y + width/2;
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
     
-    const points = `${leftX + skew},${topY} ${rightX + skew},${topY} ${rightX},${bottomY} ${leftX},${bottomY}`;
+    const topY = centerY - height/2;
+    const bottomY = centerY + height/2;
+    
+    const points = `${centerX - basis/2 + skew},${topY} ${centerX + basis/2 + skew},${topY} ${centerX + basis/2},${bottomY} ${centerX - basis/2},${bottomY}`;
     
     const parallelogram = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     parallelogram.setAttribute('points', points);
@@ -672,13 +712,13 @@ function drawParallelogrammShape(group, data, scale = SCALE_FACTOR) {
 }
 
 function drawRhombusShape(group, data, scale = SCALE_FACTOR) {
-    const length = (data.length || 8) * scale;
-    const width = (data.width || 5) * scale;
+    const diagonal1 = (data.diagonal1 || 8) * scale;
+    const diagonal2 = (data.diagonal2 || 6) * scale;
     
     const centerX = CANVAS_CENTER_X;
     const centerY = CANVAS_CENTER_Y;
     
-    const points = `${centerX},${centerY - width/2} ${centerX + length/2},${centerY} ${centerX},${centerY + width/2} ${centerX - length/2},${centerY}`;
+    const points = `${centerX},${centerY - diagonal2/2} ${centerX + diagonal1/2},${centerY} ${centerX},${centerY + diagonal2/2} ${centerX - diagonal1/2},${centerY}`;
     
     const rhombus = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     rhombus.setAttribute('points', points);
@@ -689,50 +729,31 @@ function drawRhombusShape(group, data, scale = SCALE_FACTOR) {
 }
 
 function drawPolygonVariant(group, data, scale, variant) {
-    const length = (data.length || 8) * scale;
-    const width = (data.width || 6) * scale;
-    const cutout = (data.cutout || 3) * scale;
-    
     const centerX = CANVAS_CENTER_X;
     const centerY = CANVAS_CENTER_Y;
     
     let points = '';
     
-    if (variant === 'fuenfeck') {
-        // Regelmäßiges Fünfeck
-        const radius = Math.min(length, width) / 2;
+    if (variant === 'fuenfeck' || variant === 'sechseck' || variant === 'achteck') {
+        // Regelmäßige Vielecke mit Radius
+        const radius = (data.radius || 4) * scale;
+        const sides = variant === 'fuenfeck' ? 5 : (variant === 'sechseck' ? 6 : 8);
         const pointsArray = [];
-        for (let i = 0; i < 5; i++) {
-            const angle = (i * 2 * Math.PI / 5) - Math.PI/2;
+        
+        for (let i = 0; i < sides; i++) {
+            const angle = (i * 2 * Math.PI / sides) - Math.PI/2;
             const x = centerX + radius * Math.cos(angle);
             const y = centerY + radius * Math.sin(angle);
             pointsArray.push(`${x},${y}`);
         }
         points = pointsArray.join(' ');
-    } else if (variant === 'sechseck') {
-        // Regelmäßiges Sechseck
-        const radius = Math.min(length, width) / 2;
-        const pointsArray = [];
-        for (let i = 0; i < 6; i++) {
-            const angle = i * Math.PI / 3;
-            const x = centerX + radius * Math.cos(angle);
-            const y = centerY + radius * Math.sin(angle);
-            pointsArray.push(`${x},${y}`);
-        }
-        points = pointsArray.join(' ');
-    } else if (variant === 'achteck') {
-        // Regelmäßiges Achteck
-        const radius = Math.min(length, width) / 2;
-        const pointsArray = [];
-        for (let i = 0; i < 8; i++) {
-            const angle = i * Math.PI / 4;
-            const x = centerX + radius * Math.cos(angle);
-            const y = centerY + radius * Math.sin(angle);
-            pointsArray.push(`${x},${y}`);
-        }
-        points = pointsArray.join(' ');
-    } else if (variant === 'lform') {
-        // L-Form
+    } 
+    else if (variant === 'lform') {
+        // L-Form mit besseren Parametern
+        const length = (data.length || 8) * scale;
+        const width = (data.width || 6) * scale;
+        const cutout = (data.cutout || 3) * scale;
+        
         const leftX = centerX - length/2;
         const rightX = centerX + length/2;
         const topY = centerY - width/2;
@@ -741,28 +762,31 @@ function drawPolygonVariant(group, data, scale, variant) {
         const cutX = leftX + cutout;
         
         points = `${leftX},${topY} ${cutX},${topY} ${cutX},${cutY} ${rightX},${cutY} ${rightX},${bottomY} ${leftX},${bottomY}`;
-    } else if (variant === 'tform') {
-        // T-Form
-        const leftX = centerX - length/2;
-        const rightX = centerX + length/2;
-        const topY = centerY - width/2;
-        const bottomY = centerY + width/2;
-        const cutY = topY + cutout;
-        const cutLeftX = leftX + cutout;
-        const cutRightX = rightX - cutout;
+    } 
+    else if (variant === 'tform') {
+        // T-Form mit spezifischen Parametern
+        const headWidth = (data.headWidth || 8) * scale;
+        const stemWidth = (data.stemWidth || 3) * scale;
+        const height = (data.height || 6) * scale;
         
-        points = `${cutLeftX},${topY} ${cutRightX},${topY} ${cutRightX},${cutY} ${rightX},${cutY} ${rightX},${bottomY} ${leftX},${bottomY} ${leftX},${cutY} ${cutLeftX},${cutY}`;
-    } else if (variant === 'uform') {
-        // U-Form
-        const leftX = centerX - length/2;
-        const rightX = centerX + length/2;
-        const topY = centerY - width/2;
-        const bottomY = centerY + width/2;
-        const cutBottomY = bottomY - cutout;
-        const cutLeftX = leftX + cutout;
-        const cutRightX = rightX - cutout;
+        const topY = centerY - height/2;
+        const bottomY = centerY + height/2;
+        const stemTop = topY + height/3; // 1/3 für den Kopf
         
-        points = `${leftX},${topY} ${cutLeftX},${topY} ${cutLeftX},${cutBottomY} ${cutRightX},${cutBottomY} ${cutRightX},${topY} ${rightX},${topY} ${rightX},${bottomY} ${leftX},${bottomY}`;
+        points = `${centerX - headWidth/2},${topY} ${centerX + headWidth/2},${topY} ${centerX + headWidth/2},${stemTop} ${centerX + stemWidth/2},${stemTop} ${centerX + stemWidth/2},${bottomY} ${centerX - stemWidth/2},${bottomY} ${centerX - stemWidth/2},${stemTop} ${centerX - headWidth/2},${stemTop}`;
+    } 
+    else if (variant === 'uform') {
+        // U-Form mit spezifischen Parametern
+        const outerWidth = (data.outerWidth || 8) * scale;
+        const innerWidth = (data.innerWidth || 4) * scale;
+        const height = (data.height || 6) * scale;
+        
+        const wallThickness = (outerWidth - innerWidth) / 2;
+        const topY = centerY - height/2;
+        const bottomY = centerY + height/2;
+        const innerBottom = bottomY - height/3; // 2/3 Tiefe
+        
+        points = `${centerX - outerWidth/2},${topY} ${centerX + outerWidth/2},${topY} ${centerX + outerWidth/2},${bottomY} ${centerX + innerWidth/2},${bottomY} ${centerX + innerWidth/2},${innerBottom} ${centerX - innerWidth/2},${innerBottom} ${centerX - innerWidth/2},${bottomY} ${centerX - outerWidth/2},${bottomY}`;
     }
     
     const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
@@ -770,6 +794,8 @@ function drawPolygonVariant(group, data, scale, variant) {
     polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
     polygon.setAttribute('stroke', '#007bff');
     polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}width', '3');
     group.appendChild(polygon);
 }
 
@@ -1037,24 +1063,24 @@ function handleMouseDown(event) {
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
     
+    // Prüfe ob nahe einem Corner-Handle
     if (isNearCorner(mouseX, mouseY)) {
         startDragging(mouseX, mouseY);
     }
 }
 
 function handleMouseMove(event) {
+    const rect = svg.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    
     if (!isDragging) {
-        const rect = svg.getBoundingClientRect();
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
+        // Cursor-Änderung bei Hover über Corner-Handles
         svg.style.cursor = isNearCorner(mouseX, mouseY) ? 'grab' : 'default';
         return;
     }
     
     event.preventDefault();
-    const rect = svg.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
     updateRotation(mouseX, mouseY);
 }
 
@@ -1081,6 +1107,8 @@ function isNearCorner(x, y) {
 function startDragging(x, y) {
     isDragging = true;
     svg.style.cursor = 'grabbing';
+    
+    // Berechne den Startwinkel relativ zum Rotationszentrum
     dragStartAngle = Math.atan2(y - rotationCenter.y, x - rotationCenter.x);
     dragStartRotation = currentRotation;
 }
@@ -1088,20 +1116,33 @@ function startDragging(x, y) {
 function updateRotation(x, y) {
     if (!isDragging) return;
     
+    // Berechne den aktuellen Winkel
     const currentAngle = Math.atan2(y - rotationCenter.y, x - rotationCenter.x);
     let angleDiff = currentAngle - dragStartAngle;
     
+    // Normalisiere den Winkelunterschied
     while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
     while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
     
+    // Berechne neue Rotation
     let newRotation = dragStartRotation + (angleDiff * 180 / Math.PI);
     
-    // Normalisiere die Rotation
+    // Normalisiere die Rotation auf -180° bis +180°
     currentRotation = newRotation;
     while (currentRotation > 180) currentRotation -= 360;
     while (currentRotation < -180) currentRotation += 360;
     
-    // Prüfe auf horizontale Basis mit aktuellen Daten und Maßstab
+    // Aktualisiere die Anzeige mit dynamischem Maßstab
+    const data = getCurrentFormData();
+    const scale = calculateDynamicScale(data);
+    updateShapeWithScale(scale);
+    updateRotationDisplay();
+    
+    // Prüfe auf Einrasten (horizontale Basis)
+    checkForSnapping();
+}
+
+function checkForSnapping() {
     const data = getCurrentFormData();
     const scale = calculateDynamicScale(data);
     const corners = getActualCornerPositions(data, scale);
@@ -1115,9 +1156,6 @@ function updateRotation(x, y) {
     } else {
         removeSnapEffects();
     }
-    
-    updateShapeWithScale(scale);
-    updateRotationDisplay();
 }
 
 function checkForHorizontalBase(corners) {
