@@ -29,11 +29,7 @@ function createInput(labelText, id, defaultValue) {
     wrapper.appendChild(inputWrapper);
     
     return wrapper;
-}
-
-function createRotationInput(labelText, id, defaultValue) {
-    const wrapper = document.createElement('div');
-    wrapper.className = // KORRIGIERTE editor.js - Form-Erkennung repariert
+} // KORRIGIERTE editor.js - Form-Erkennung repariert
 
 let projectData = {};
 let currentShape = '';
