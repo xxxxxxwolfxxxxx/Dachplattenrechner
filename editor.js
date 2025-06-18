@@ -247,7 +247,20 @@ function createInput(labelText, id, defaultValue) {
     input.value = defaultValue || '';
     input.step = '0.1';
     input.min = '0.1';
-    input.addEventListener('input', handleInputChange);
+    
+    // Mehrere Event-Listener für sicheres Update
+    input.addEventListener('input', function() {
+        console.log(`Input ${id} geändert zu: ${input.value}`);
+        handleInputChange();
+    });
+    input.addEventListener('change', function() {
+        console.log(`Input ${id} change event: ${input.value}`);
+        handleInputChange();
+    });
+    input.addEventListener('keyup', function() {
+        console.log(`Input ${id} keyup event: ${input.value}`);
+        handleInputChange();
+    });
     
     const unit = document.createElement('span');
     unit.className = 'input-unit';
@@ -263,17 +276,26 @@ function createInput(labelText, id, defaultValue) {
 
 function handleInputChange() {
     if (isUpdating) return;
+    
     isUpdating = true;
-    updateShape();
-    setTimeout(() => { isUpdating = false; }, 50);
+    console.log('Input geändert, aktualisiere Form');
+    
+    // Wichtig: Kleine Verzögerung um sicherzustellen, dass der Input-Wert gesetzt ist
+    setTimeout(() => {
+        updateShape();
+        isUpdating = false;
+    }, 10);
 }
 
 // === HAUPTFUNKTION: Alles zeichnen ===
 function updateShape() {
-    if (!svg || isUpdating) return;
+    if (!svg) return;
+    
+    console.log('updateShape() aufgerufen');
     
     // Aktuelle Form-Daten aus Input-Feldern lesen
     const data = getCurrentFormData();
+    console.log('Aktuelle Daten:', data);
     
     // 1. Lösche alles
     const shapeGroup = document.getElementById('roof-shape');
@@ -284,19 +306,25 @@ function updateShape() {
     if (cornerGroup) cornerGroup.innerHTML = '';
     if (labelsGroup) labelsGroup.innerHTML = '';
     
+    // Entferne auch vorherige Highlights
+    removeSnapEffects();
+    
     // 2. Zeichne die Form
     if (shapeGroup) {
         drawCurrentShape(shapeGroup, data);
+        console.log('Form gezeichnet');
     }
     
     // 3. Zeichne Corner-Handles DIREKT auf die Form-Ecken
     if (cornerGroup) {
         drawCornerHandlesOnShape(cornerGroup, data);
+        console.log('Corner-Handles gezeichnet');
     }
     
     // 4. Zeichne Labels
     if (labelsGroup) {
         drawLabelsOnShape(labelsGroup, data);
+        console.log('Labels gezeichnet');
     }
     
     updateCalculations(data);
@@ -305,15 +333,23 @@ function updateShape() {
 
 function getCurrentFormData() {
     const data = { shape: currentShape, variant: currentVariant };
+    
+    // Lese ALLE Input-Felder und deren aktuelle Werte
     const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    console.log('Gefundene Inputs:', inputs.length);
+    
     inputs.forEach(input => {
-        if (input.value) {
+        console.log(`Input ${input.id}: ${input.value}`);
+        if (input.value && input.value.trim() !== '') {
             const numValue = parseFloat(input.value);
-            if (!isNaN(numValue)) {
+            if (!isNaN(numValue) && numValue > 0) {
                 data[input.id] = numValue;
+                console.log(`Gesetzt: ${input.id} = ${numValue}`);
             }
         }
     });
+    
+    console.log('Finale Form-Daten:', data);
     return data;
 }
 
@@ -780,26 +816,45 @@ function setupEventListeners() {
 }
 
 function resetToDefaults() {
+    console.log('Reset aufgerufen');
+    
+    // Reset Rotation und Transformationen
     currentRotation = 0;
     isMirroredH = false;
     isMirroredV = false;
     
+    // Reset Input-Felder
     const inputs = document.querySelectorAll('#geometry-inputs-grid input');
+    console.log('Setze', inputs.length, 'Inputs zurück');
+    
     inputs.forEach(input => {
+        let defaultValue = '';
         switch(input.id) {
-            case 'side': input.value = currentVariant === 'quadrat' ? '5' : '6'; break;
-            case 'katheteA': input.value = '4'; break;
-            case 'katheteB': input.value = '5'; break;
-            case 'sideA': input.value = '4'; break;
-            case 'sideB': input.value = '5'; break;
-            case 'sideC': input.value = '6'; break;
-            case 'length': input.value = '8'; break;
-            case 'width': input.value = '5'; break;
+            case 'side': 
+                defaultValue = currentVariant === 'quadrat' ? '5' : '6'; 
+                break;
+            case 'katheteA': defaultValue = '4'; break;
+            case 'katheteB': defaultValue = '5'; break;
+            case 'sideA': defaultValue = '4'; break;
+            case 'sideB': defaultValue = '5'; break;
+            case 'sideC': defaultValue = '6'; break;
+            case 'length': defaultValue = '8'; break;
+            case 'width': defaultValue = '5'; break;
         }
+        
+        console.log(`Reset ${input.id} zu ${defaultValue}`);
+        input.value = defaultValue;
+        
+        // Trigger Input-Event um Update zu forcieren
+        input.dispatchEvent(new Event('input', { bubbles: true }));
     });
     
-    updateShape();
-    showFeedback('Zurückgesetzt: Form, Rotation und alle Parameter');
+    // Force Update nach Reset
+    setTimeout(() => {
+        console.log('Force Update nach Reset');
+        updateShape();
+        showFeedback('Zurückgesetzt: Form, Rotation und alle Parameter');
+    }, 100);
 }
 
 function showFeedback(message) {
