@@ -30,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
             initializeUI();
             loadAndDrawShape();
             setupEventListeners();
-            console.log('Editor erfolgreich initialisiert');
         } catch (error) {
             console.error('Editor-Fehler:', error);
         }
@@ -206,8 +205,6 @@ function determineActualShape() {
     const baseShape = currentShape;
     const variant = currentVariant;
     
-    console.log('determineActualShape - baseShape:', baseShape, 'variant:', variant);
-    
     // Spezielle Varianten die als eigene Shapes behandelt werden
     if (variant === 'quadrat') return 'quadrat';
     if (variant === 'trapez') return 'trapez';
@@ -260,8 +257,6 @@ function createInputFields() {
     const finalShape = determineActualShape();
     const finalVariant = determineActualVariant();
     const savedData = projectData.roofShape || {};
-    
-    console.log('createInputFields - finalShape:', finalShape, 'finalVariant:', finalVariant);
     
     // Für alle Kreisformen: Radius-basierte Inputs
     if (['kreis', 'oval', 'halbkreis', 'viertelkreis', 'langloch'].includes(finalShape)) {
@@ -456,8 +451,6 @@ function getCurrentFormData() {
 
 function drawCurrentShape(group, data, scale = SCALE_FACTOR) {
     const finalShape = determineActualShape();
-    
-    console.log('drawCurrentShape - finalShape:', finalShape, 'data:', data);
     
     // Kreisformen
     if (['kreis', 'oval', 'halbkreis', 'viertelkreis', 'langloch'].includes(finalShape)) {
@@ -1496,4 +1489,4 @@ function calculateDimensions(data) {
     }
 }
 
-console.log('Vereinfachter Editor mit dynamischem Maßstab geladen');
+console.log('Smart Editor mit allen Formen geladen');
