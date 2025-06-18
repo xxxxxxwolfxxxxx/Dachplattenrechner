@@ -1,5 +1,4 @@
-function checkForHorizontalBase(corners) {
-    if (corners.length < 3) return false;// Vereinfachter Editor - Corner-Handles direkt auf Form-Ecken
+// Vereinfachter Editor - Corner-Handles direkt auf Form-Ecken
 
 let projectData = {};
 let currentShape = '';
