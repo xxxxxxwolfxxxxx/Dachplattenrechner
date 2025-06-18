@@ -535,16 +535,9 @@ function isNearCorner(x, y) {
 }
 
 function getShapeCorners() {
+    // Diese Funktion wird für die Einrastfunktion verwendet
     const currentData = getCurrentFormData();
-    const shapePoints = getRawShapePoints(currentData);
-    
-    if (!shapePoints || shapePoints.length === 0) return [];
-    
-    return shapePoints.map(point => {
-        const canvasX = CANVAS_CENTER_X + point.x * SCALE_FACTOR;
-        const canvasY = CANVAS_CENTER_Y - point.y * SCALE_FACTOR;
-        return transformPoint(canvasX, canvasY);
-    });
+    return getFinalTransformedCorners(currentData);
 }
 
 function startDragging(x, y) {
@@ -706,26 +699,20 @@ function updateShape() {
     
     const currentData = getCurrentFormData();
     
-    // 1. Zeichne die transformierte Form
+    // 1. Zeichne die Form (mit Transformation)
     drawTransformedShape(shapeGroup, currentData);
     
-    // 2. Corner-Handles und Labels verwenden die GLEICHE Transformation wie die Form
-    if (cornerGroup) {
-        drawCornerHandles(cornerGroup, currentData);
-        // Wende die GLEICHE Transformation auf Corner-Handles an
-        const shapeTransform = shapeGroup.getAttribute('transform');
-        if (shapeTransform) {
-            cornerGroup.setAttribute('transform', shapeTransform);
-        }
+    // 2. Hole die FINALEN Eckpunkte nach der Transformation
+    const finalCorners = getFinalTransformedCorners(currentData);
+    
+    // 3. Zeichne Corner-Handles an den finalen Positionen (OHNE Transformation)
+    if (cornerGroup && finalCorners.length > 0) {
+        drawCornerHandlesAtPositions(cornerGroup, finalCorners);
     }
     
-    if (labelsGroup) {
-        drawLabelsAndAnnotations(labelsGroup, currentData);
-        // Wende die GLEICHE Transformation auf Labels an
-        const shapeTransform = shapeGroup.getAttribute('transform');
-        if (shapeTransform) {
-            labelsGroup.setAttribute('transform', shapeTransform);
-        }
+    // 4. Zeichne Labels an den finalen Positionen (OHNE Transformation)
+    if (labelsGroup && finalCorners.length > 0) {
+        drawLabelsAtPositions(labelsGroup, finalCorners, currentData);
     }
     
     updateCalculations(currentData);
@@ -734,6 +721,60 @@ function updateShape() {
     setTimeout(() => {
         isUpdating = false;
     }, 50);
+}
+
+function getFinalTransformedCorners(data) {
+    // 1. Hole die Rohpunkte der aktuellen Form
+    const rawPoints = getRawShapePoints(data);
+    if (!rawPoints || rawPoints.length === 0) return [];
+    
+    // 2. Konvertiere zu Canvas-Koordinaten
+    const canvasPoints = rawPoints.map(point => ({
+        x: CANVAS_CENTER_X + point.x * SCALE_FACTOR,
+        y: CANVAS_CENTER_Y - point.y * SCALE_FACTOR
+    }));
+    
+    // 3. Wende die aktuelle Transformation an
+    return canvasPoints.map(point => transformPoint(point.x, point.y));
+}
+
+function drawCornerHandlesAtPositions(group, corners) {
+    corners.forEach((corner, index) => {
+        const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        handle.setAttribute('cx', corner.x);
+        handle.setAttribute('cy', corner.y);
+        handle.setAttribute('r', CORNER_RADIUS);
+        handle.setAttribute('fill', 'rgba(0, 123, 255, 0.7)');
+        handle.setAttribute('stroke', '#007bff');
+        handle.setAttribute('stroke-width', '2');
+        handle.setAttribute('class', 'corner-handle');
+        handle.style.cursor = 'grab';
+        
+        group.appendChild(handle);
+        
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', corner.x);
+        dot.setAttribute('cy', corner.y);
+        dot.setAttribute('r', '2');
+        dot.setAttribute('fill', 'white');
+        dot.style.pointerEvents = 'none';
+        
+        group.appendChild(dot);
+    });
+}
+
+function drawLabelsAtPositions(group, corners, data) {
+    const finalShape = determineActualShape();
+    
+    if (finalShape === 'dreieck') {
+        drawTriangleLabelsAtEdges(group, data, null, corners);
+    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        drawRectangleLabelsAtEdges(group, data, corners);
+    } else if (finalShape === 'trapez') {
+        drawTrapezLabelsAtEdges(group, data, corners);
+    } else if (finalShape === 'kreis') {
+        drawCircleLabelsAtCenter(group, data, determineActualVariant());
+    }
 }
 
 function drawCornerHandles(group, data) {
@@ -854,23 +895,22 @@ function getRawShapePoints(data) {
             const side = data.side || 6;
             const height = side * Math.sqrt(3) / 2;
             points = [
-                { x: side/2, y: height/2 },
-                { x: 0, y: -height/2 },
-                { x: side, y: -height/2 }
+                { x: side/2, y: height/2 },    // Spitze oben
+                { x: 0, y: -height/2 },        // Links unten
+                { x: side, y: -height/2 }      // Rechts unten
             ];
         } else if (finalVariant === 'rechtwinklig') {
             const a = data.katheteA || 4;
             const b = data.katheteB || 5;
             points = [
-                { x: 0, y: 0 },
-                { x: a, y: 0 },
-                { x: 0, y: b }
+                { x: 0, y: 0 },          // Rechter Winkel
+                { x: a, y: 0 },          // Rechts
+                { x: 0, y: b }           // Oben
             ];
         } else {
             const a = data.sideA || 4;
             const b = data.sideB || 5;
             const c = data.sideC || 6;
-            
             const height = Math.sqrt(Math.max(0, c*c - (a/2)*(a/2)));
             points = [
                 { x: a/2, y: height/2 },
@@ -882,18 +922,18 @@ function getRawShapePoints(data) {
         const length = data.length || 8;
         const width = data.width || 5;
         points = [
-            { x: 0, y: width/2 },
-            { x: length, y: width/2 },
-            { x: length, y: -width/2 },
-            { x: 0, y: -width/2 }
+            { x: -length/2, y: width/2 },    // Links oben
+            { x: length/2, y: width/2 },     // Rechts oben
+            { x: length/2, y: -width/2 },    // Rechts unten
+            { x: -length/2, y: -width/2 }    // Links unten
         ];
     } else if (finalShape === 'quadrat') {
         const side = data.side || 5;
         points = [
-            { x: 0, y: side/2 },
-            { x: side, y: side/2 },
-            { x: side, y: -side/2 },
-            { x: 0, y: -side/2 }
+            { x: -side/2, y: side/2 },
+            { x: side/2, y: side/2 },
+            { x: side/2, y: -side/2 },
+            { x: -side/2, y: -side/2 }
         ];
     } else if (finalShape === 'trapez') {
         const baseA = data.baseA || 8;
@@ -901,10 +941,10 @@ function getRawShapePoints(data) {
         const height = data.height || 4;
         const offset = (baseA - baseB) / 2;
         points = [
-            { x: offset, y: height/2 },
-            { x: baseA - offset, y: height/2 },
-            { x: baseA, y: -height/2 },
-            { x: 0, y: -height/2 }
+            { x: -baseB/2, y: height/2 },        // Links oben
+            { x: baseB/2, y: height/2 },         // Rechts oben
+            { x: baseA/2, y: -height/2 },        // Rechts unten
+            { x: -baseA/2, y: -height/2 }        // Links unten
         ];
     } else if (finalShape === 'kreis') {
         const radius = data.radius || 4;
@@ -916,11 +956,12 @@ function getRawShapePoints(data) {
             });
         }
     } else {
+        // Fallback: Rechteck
         points = [
-            { x: 0, y: 2.5 },
-            { x: 8, y: 2.5 },
-            { x: 8, y: -2.5 },
-            { x: 0, y: -2.5 }
+            { x: -4, y: 2.5 },
+            { x: 4, y: 2.5 },
+            { x: 4, y: -2.5 },
+            { x: -4, y: -2.5 }
         ];
     }
     
