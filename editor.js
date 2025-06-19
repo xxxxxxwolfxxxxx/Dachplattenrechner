@@ -26,39 +26,41 @@ function drawRectangleShape(group, data, scale = SCALE_FACTOR) {
     group.appendChild(rect);
 }
 
-// VEREINFACHTE Corner-Handles - Nur für Test
+// KORRIGIERT: Corner-Handles mit korrekter Rotation
 function drawCornerHandlesOnShape(group, data, scale = SCALE_FACTOR) {
-    // EINFACH: Vier feste Corner-Handles um die Mitte
-    const size = 100;
-    const corners = [
-        { x: CANVAS_CENTER_X - size, y: CANVAS_CENTER_Y - size }, // oben links
-        { x: CANVAS_CENTER_X + size, y: CANVAS_CENTER_Y - size }, // oben rechts
-        { x: CANVAS_CENTER_X + size, y: CANVAS_CENTER_Y + size }, // unten rechts
-        { x: CANVAS_CENTER_X - size, y: CANVAS_CENTER_Y + size }  // unten links
-    ];
+    const corners = getActualCornerPositions(data, scale);
     
     corners.forEach((corner, index) => {
+        // Rotation auf Corner-Positionen anwenden
+        let cornerX = corner.x;
+        let cornerY = corner.y;
+        
+        if (currentRotation !== 0) {
+            const angle = (currentRotation * Math.PI) / 180;
+            const relX = corner.x - CANVAS_CENTER_X;
+            const relY = corner.y - CANVAS_CENTER_Y;
+            cornerX = CANVAS_CENTER_X + relX * Math.cos(angle) - relY * Math.sin(angle);
+            cornerY = CANVAS_CENTER_Y + relX * Math.sin(angle) + relY * Math.cos(angle);
+        }
+        
         const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        handle.setAttribute('cx', corner.x);
-        handle.setAttribute('cy', corner.y);
+        handle.setAttribute('cx', cornerX);
+        handle.setAttribute('cy', cornerY);
         handle.setAttribute('r', CORNER_RADIUS);
-        handle.setAttribute('fill', 'rgba(255, 0, 0, 0.8)'); // Rot für bessere Sichtbarkeit
-        handle.setAttribute('stroke', '#ff0000');
+        handle.setAttribute('fill', 'rgba(0, 123, 255, 0.7)');
+        handle.setAttribute('stroke', '#007bff');
         handle.setAttribute('stroke-width', '2');
         handle.style.cursor = 'grab';
-        handle.id = `corner-handle-${index}`;
         group.appendChild(handle);
         
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        dot.setAttribute('cx', corner.x);
-        dot.setAttribute('cy', corner.y);
+        dot.setAttribute('cx', cornerX);
+        dot.setAttribute('cy', cornerY);
         dot.setAttribute('r', '2');
         dot.setAttribute('fill', 'white');
         dot.style.pointerEvents = 'none';
         group.appendChild(dot);
     });
-    
-    console.log('Corner-Handles gezeichnet:', corners);
 }
 
 // KORRIGIERT: Erweiterte Corner-Positionen für alle Formen
@@ -418,10 +420,22 @@ function handleMouseUp(event) {
 function isNearCorner(x, y) {
     const data = getCurrentFormData();
     const scale = calculateDynamicScale(data);
-    const corners = getOriginalCornerPositions(data, scale); // Verwende Original-Positionen
+    const corners = getActualCornerPositions(data, scale);
     
     for (const corner of corners) {
-        const distance = Math.sqrt((x - corner.x) * (x - corner.x) + (y - corner.y) * (y - corner.y));
+        // Berücksichtige Rotation bei der Maus-Hit-Detection
+        let cornerX = corner.x;
+        let cornerY = corner.y;
+        
+        if (currentRotation !== 0) {
+            const angle = (currentRotation * Math.PI) / 180;
+            const relX = corner.x - CANVAS_CENTER_X;
+            const relY = corner.y - CANVAS_CENTER_Y;
+            cornerX = CANVAS_CENTER_X + relX * Math.cos(angle) - relY * Math.sin(angle);
+            cornerY = CANVAS_CENTER_Y + relX * Math.sin(angle) + relY * Math.cos(angle);
+        }
+        
+        const distance = Math.sqrt((x - cornerX) * (x - cornerX) + (y - cornerY) * (y - cornerY));
         if (distance <= CORNER_RADIUS * 2) {
             return true;
         }
@@ -442,31 +456,18 @@ function updateRotation(x, y) {
     const currentAngle = Math.atan2(y - rotationCenter.y, x - rotationCenter.x);
     let angleDiff = currentAngle - dragStartAngle;
     
-    // Normalisiere Winkel-Differenz
     while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
     while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
     
-    // Neue Rotation berechnen
     let newRotation = dragStartRotation + (angleDiff * 180 / Math.PI);
     
-    // Normalisiere Rotation
-    while (newRotation > 180) newRotation -= 360;
-    while (newRotation < -180) newRotation += 360;
-    
     currentRotation = newRotation;
+    while (currentRotation > 180) currentRotation -= 360;
+    while (currentRotation < -180) currentRotation += 360;
     
-    // DIREKTE Transform-Anwendung - so wie es ursprünglich war
-    const shapeGroup = document.getElementById('roof-shape');
-    if (shapeGroup && currentRotation !== 0) {
-        shapeGroup.setAttribute('transform', `rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`);
-    } else if (shapeGroup) {
-        shapeGroup.removeAttribute('transform');
-    }
-    
-    // Prüfe auf horizontale Basis
     const data = getCurrentFormData();
     const scale = calculateDynamicScale(data);
-    const corners = getOriginalCornerPositions(data, scale); // Verwende Original-Positionen
+    const corners = getActualCornerPositions(data, scale);
     const isHorizontal = checkForHorizontalBase(corners);
     
     if (isHorizontal) {
@@ -478,77 +479,8 @@ function updateRotation(x, y) {
         removeSnapEffects();
     }
     
+    updateShapeWithScale(scale);
     updateRotationDisplay();
-}
-
-// NEUE Funktion für Original-Corner-Positionen (ohne Rotation)
-function getOriginalCornerPositions(data, scale = SCALE_FACTOR) {
-    const finalShape = determineActualShape();
-    const variant = determineActualVariant();
-    let corners = [];
-    
-    // Hier die gleiche Logik wie getActualCornerPositions, aber OHNE Rotation
-    if (finalShape === 'dreieck') {
-        if (variant === 'gleichseitig') {
-            const side = (data.side || 6) * scale;
-            const height = side * Math.sqrt(3) / 2;
-            corners = [
-                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/3 },
-                { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + height*2/3 },
-                { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + height*2/3 }
-            ];
-        } else if (variant === 'rechtwinklig') {
-            const katheteA = (data.katheteA || 4) * scale;
-            const katheteB = (data.katheteB || 5) * scale;
-            corners = [
-                { x: CANVAS_CENTER_X - katheteA/2, y: CANVAS_CENTER_Y + katheteB/3 },
-                { x: CANVAS_CENTER_X + katheteA/2, y: CANVAS_CENTER_Y + katheteB/3 },
-                { x: CANVAS_CENTER_X - katheteA/2, y: CANVAS_CENTER_Y - katheteB*2/3 }
-            ];
-        } else {
-            const sideA = (data.sideA || 4) * scale;
-            const avgSide = ((data.sideB || 5) + (data.sideC || 6)) / 2;
-            const height = avgSide * scale * 0.8;
-            corners = [
-                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/2 },
-                { x: CANVAS_CENTER_X - sideA/2, y: CANVAS_CENTER_Y + height/2 },
-                { x: CANVAS_CENTER_X + sideA/2, y: CANVAS_CENTER_Y + height/2 }
-            ];
-        }
-    } else if (finalShape === 'quadrat') {
-        const side = (data.side || 5) * scale;
-        corners = [
-            { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y - side/2 },
-            { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y - side/2 },
-            { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + side/2 },
-            { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + side/2 }
-        ];
-    } else {
-        // Rechteck fallback
-        const length = (data.length || 8) * scale;
-        const width = (data.width || 5) * scale;
-        corners = [
-            { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y - width/2 },
-            { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y - width/2 },
-            { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y + width/2 },
-            { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y + width/2 }
-        ];
-    }
-    
-    // WICHTIG: Wende Rotation auf diese Positionen an für die Snap-Erkennung
-    if (currentRotation !== 0) {
-        const angle = (currentRotation * Math.PI) / 180;
-        corners = corners.map(corner => {
-            const relX = corner.x - CANVAS_CENTER_X;
-            const relY = corner.y - CANVAS_CENTER_Y;
-            return {
-                x: CANVAS_CENTER_X + relX * Math.cos(angle) - relY * Math.sin(angle),
-                y: CANVAS_CENTER_Y + relX * Math.sin(angle) + relY * Math.cos(angle)
-            };
-        });
-    }
-    
-    return corners;
 }
 
 function checkForHorizontalBase(corners) {
