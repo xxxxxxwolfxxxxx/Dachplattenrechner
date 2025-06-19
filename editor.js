@@ -139,7 +139,13 @@ function initializeUI() {
     createRotationControls(); // NEUE FUNKTION
 }
 
-// KORRIGIERTE FUNKTION: Rotations-Steuerung hinzufügen
+// Auto-Repeat Variablen für beschleunigte Rotation
+let rotationInterval = null;
+let rotationTimeout = null;
+let rotationSpeed = 1; // Grad pro Schritt
+let isMouseDown = false;
+
+// KORRIGIERTE FUNKTION: Rotations-Steuerung hinzufügen (weniger Logging)
 function createRotationControls() {
     // Prüfe ob die Buttons bereits im HTML vorhanden sind
     const existingLeftBtn = document.getElementById('btn-rotate-left');
@@ -148,20 +154,37 @@ function createRotationControls() {
     
     if (existingLeftBtn && existingRightBtn && existingResetBtn) {
         // Buttons existieren bereits im HTML, nur Event Listeners hinzufügen
-        console.log('Rotations-Buttons gefunden, füge Event Listeners hinzu');
         
-        existingLeftBtn.addEventListener('click', () => {
-            console.log('Links-Button geklickt');
-            rotateByDegrees(-1);
+        // Links-Button mit Auto-Repeat
+        existingLeftBtn.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startRotationRepeat(-1);
         });
         
-        existingRightBtn.addEventListener('click', () => {
-            console.log('Rechts-Button geklickt');
-            rotateByDegrees(1);
+        existingLeftBtn.addEventListener('mouseup', () => {
+            stopRotationRepeat();
         });
         
+        existingLeftBtn.addEventListener('mouseleave', () => {
+            stopRotationRepeat();
+        });
+        
+        // Rechts-Button mit Auto-Repeat
+        existingRightBtn.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startRotationRepeat(1);
+        });
+        
+        existingRightBtn.addEventListener('mouseup', () => {
+            stopRotationRepeat();
+        });
+        
+        existingRightBtn.addEventListener('mouseleave', () => {
+            stopRotationRepeat();
+        });
+        
+        // Reset-Button (normale Click-Funktion)
         existingResetBtn.addEventListener('click', () => {
-            console.log('Reset-Button geklickt');
             currentRotation = 0;
             updateShapeWithScale(calculateOptimalScale(getCurrentFormData()));
             updateRotationDisplay();
@@ -169,7 +192,6 @@ function createRotationControls() {
         });
     } else {
         // Fallback: Buttons dynamisch erstellen
-        console.log('Rotations-Buttons nicht gefunden, erstelle dynamisch');
         const toolsGrid = document.querySelector('.tools-grid');
         if (!toolsGrid) return;
         
@@ -190,15 +212,104 @@ function createRotationControls() {
         
         toolsGrid.insertBefore(rotationRow, toolsGrid.firstChild);
         
-        // Event Listeners für dynamisch erstellte Buttons
-        document.getElementById('btn-rotate-left').addEventListener('click', () => rotateByDegrees(-1));
-        document.getElementById('btn-rotate-right').addEventListener('click', () => rotateByDegrees(1));
-        document.getElementById('btn-reset-rotation').addEventListener('click', () => {
+        // Event Listeners für dynamisch erstellte Buttons mit Auto-Repeat
+        const leftBtn = document.getElementById('btn-rotate-left');
+        const rightBtn = document.getElementById('btn-rotate-right');
+        const resetBtn = document.getElementById('btn-reset-rotation');
+        
+        // Links-Button
+        leftBtn.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startRotationRepeat(-1);
+        });
+        leftBtn.addEventListener('mouseup', stopRotationRepeat);
+        leftBtn.addEventListener('mouseleave', stopRotationRepeat);
+        
+        // Rechts-Button
+        rightBtn.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            startRotationRepeat(1);
+        });
+        rightBtn.addEventListener('mouseup', stopRotationRepeat);
+        rightBtn.addEventListener('mouseleave', stopRotationRepeat);
+        
+        // Reset-Button
+        resetBtn.addEventListener('click', () => {
             currentRotation = 0;
             updateShapeWithScale(calculateOptimalScale(getCurrentFormData()));
             updateRotationDisplay();
             showFeedback('Rotation zurückgesetzt');
         });
+    }
+}
+
+// NEUE FUNKTION: Auto-Repeat Rotation starten (weniger Logging)
+function startRotationRepeat(direction) {
+    if (isMouseDown) return; // Verhindere mehrfache Aufrufe
+    
+    isMouseDown = true;
+    rotationSpeed = 1; // Startgeschwindigkeit
+    
+    // Erste Rotation sofort ausführen
+    rotateByDegrees(direction * rotationSpeed);
+    
+    // Nach 300ms beginnt die Wiederholung
+    rotationTimeout = setTimeout(() => {
+        if (!isMouseDown) return;
+        
+        // Langsamer Start (alle 150ms)
+        rotationInterval = setInterval(() => {
+            if (!isMouseDown) return;
+            
+            rotateByDegrees(direction * rotationSpeed);
+            
+            // Beschleunigung nach 1 Sekunde
+            if (rotationSpeed === 1) {
+                setTimeout(() => {
+                    if (isMouseDown) {
+                        clearInterval(rotationInterval);
+                        
+                        // Mittlere Geschwindigkeit (alle 100ms, 2° pro Schritt)
+                        rotationSpeed = 2;
+                        rotationInterval = setInterval(() => {
+                            if (!isMouseDown) return;
+                            
+                            rotateByDegrees(direction * rotationSpeed);
+                            
+                            // Weitere Beschleunigung nach 2 Sekunden
+                            setTimeout(() => {
+                                if (isMouseDown) {
+                                    clearInterval(rotationInterval);
+                                    
+                                    // Schnelle Geschwindigkeit (alle 50ms, 5° pro Schritt)
+                                    rotationSpeed = 5;
+                                    rotationInterval = setInterval(() => {
+                                        if (!isMouseDown) return;
+                                        rotateByDegrees(direction * rotationSpeed);
+                                    }, 50);
+                                }
+                            }, 1500);
+                        }, 100);
+                    }
+                }, 1000);
+            }
+        }, 150);
+    }, 300);
+}
+
+// NEUE FUNKTION: Auto-Repeat Rotation stoppen (weniger Logging)
+function stopRotationRepeat() {
+    isMouseDown = false;
+    rotationSpeed = 1;
+    
+    if (rotationTimeout) {
+        clearTimeout(rotationTimeout);
+        rotationTimeout = null;
+    }
+    
+    if (rotationInterval) {
+        clearInterval(rotationInterval);
+        rotationInterval = null;
     }
 }
 
@@ -427,19 +538,14 @@ function loadAndDrawShape() {
         if (roofShape.rotation !== undefined) currentRotation = roofShape.rotation;
     }
     
-    console.log('Lade Form:', { currentShape, currentVariant, roofShape });
-    
     createInputFields();
     updateShape();
 }
 
-// KORRIGIERTE Shape-Bestimmung
+// KORRIGIERTE Shape-Bestimmung (weniger Logging)
 function determineActualShape() {
-    console.log('determineActualShape Input:', { currentShape, currentVariant });
-    
     // Cache prüfen
     if (shapeCache.lastShape === currentShape && shapeCache.lastVariant === currentVariant) {
-        console.log('Cache hit:', shapeCache.lastResult);
         return shapeCache.lastResult;
     }
     
@@ -480,6 +586,88 @@ function determineActualShape() {
         result = 'sechseck';
     } else if (currentVariant === 'achteck') {
         result = 'achteck';
+    } else if (currentVariant === 'lform') {
+        result = 'lform';
+    } else if (currentVariant === 'tform') {
+        result = 'tform';
+    } else if (currentVariant === 'uform') {
+        result = 'uform';
+    }
+    // Fallback auf Shape
+    else if (currentShape === 'kreis') {
+        result = 'kreis';
+    } else if (currentShape === 'dreieck') {
+        result = 'dreieck';
+    } else if (currentShape === 'vieleck') {
+        result = 'fuenfeck';
+    }
+    
+    // Cache aktualisieren
+    shapeCache.lastShape = currentShape;
+    shapeCache.lastVariant = currentVariant;
+    shapeCache.lastResult = result;
+    
+    return result;
+}
+
+// KORRIGIERTE Zeichenfunktionen mit mehr Formen (weniger Logging)
+function drawCurrentShape(group, data, scale) {
+    const finalShape = determineActualShape();
+    
+    // Kreisformen
+    if (finalShape === 'kreis') {
+        drawCircleShape(group, data, scale);
+    } else if (finalShape === 'oval') {
+        drawOvalShape(group, data, scale);
+    } else if (finalShape === 'halbkreis') {
+        drawHalfCircleShape(group, data, scale);
+    } else if (finalShape === 'viertelkreis') {
+        drawQuarterCircleShape(group, data, scale);
+    } else if (finalShape === 'langloch') {
+        drawLanglochShape(group, data, scale);
+    }
+    
+    // Dreiecke
+    else if (finalShape === 'dreieck') {
+        drawTriangleShape(group, data, scale);
+    }
+    
+    // Vierecke
+    else if (finalShape === 'quadrat') {
+        drawSquareShape(group, data, scale);
+    } else if (finalShape === 'trapez') {
+        drawTrapezShape(group, data, scale);
+    } else if (finalShape === 'parallelogramm') {
+        drawParallelogrammShape(group, data, scale);
+    } else if (finalShape === 'rhombus') {
+        drawRhombusShape(group, data, scale);
+    }
+    
+    // Vielecke
+    else if (finalShape === 'fuenfeck') {
+        drawPolygonShape(group, data, scale, 5);
+    } else if (finalShape === 'sechseck') {
+        drawPolygonShape(group, data, scale, 6);
+    } else if (finalShape === 'achteck') {
+        drawPolygonShape(group, data, scale, 8);
+    } else if (finalShape === 'lform') {
+        drawLShape(group, data, scale);
+    } else if (finalShape === 'tform') {
+        drawTShape(group, data, scale);
+    } else if (finalShape === 'uform') {
+        drawUShape(group, data, scale);
+    }
+    
+    // Fallback: Rechteck
+    else {
+        drawRectangleShape(group, data, scale);
+    }
+    
+    // Rotation anwenden
+    if (currentRotation !== 0) {
+        group.setAttribute('transform', `rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`);
+    }
+}'achteck';
     } else if (currentVariant === 'lform') {
         result = 'lform';
     } else if (currentVariant === 'tform') {
@@ -1603,10 +1791,8 @@ function updateCalculations(data) {
     if (perimeterElement) perimeterElement.textContent = perimeter.toFixed(2) + ' m';
 }
 
-// Event Listeners und Setup-Funktionen
+// Event Listeners und Setup-Funktionen (weniger Logging)
 function setupEventListeners() {
-    console.log('setupEventListeners aufgerufen');
-    
     const backBtn = document.getElementById('btn-back');
     const continueBtn = document.getElementById('btn-continue');
     
@@ -1615,7 +1801,6 @@ function setupEventListeners() {
             saveCurrentData();
             window.location.href = 'dachform.html';
         });
-        console.log('Back-Button Event Listener hinzugefügt');
     }
     
     if (continueBtn) {
@@ -1623,7 +1808,6 @@ function setupEventListeners() {
             saveCurrentData();
             window.location.href = 'berechnung.html';
         });
-        console.log('Continue-Button Event Listener hinzugefügt');
     }
     
     const resetBtn = document.getElementById('btn-reset');
@@ -1631,9 +1815,313 @@ function setupEventListeners() {
         resetBtn.addEventListener('click', function() {
             resetToDefaults();
         });
-        console.log('Reset-Button Event Listener hinzugefügt');
     }
 }
+
+// KORRIGIERTE Input-Felder für alle Formen (weniger Logging)
+function createInputFields() {
+    const container = document.getElementById('geometry-inputs-grid');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    const finalShape = determineActualShape();
+    const variant = determineActualVariant();
+    const savedData = projectData.roofShape || {};
+    
+    // Kreisformen
+    if (finalShape === 'kreis') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '3'));
+    } else if (finalShape === 'oval') {
+        container.appendChild(createInput('Radius X (m)', 'radiusX', savedData.radiusX || '4'));
+        container.appendChild(createInput('Radius Y (m)', 'radiusY', savedData.radiusY || '2.5'));
+    } else if (finalShape === 'halbkreis') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '4'));
+    } else if (finalShape === 'viertelkreis') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '5'));
+    } else if (finalShape === 'langloch') {
+        container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
+        container.appendChild(createInput('Breite (m)', 'width', savedData.width || '3'));
+    }
+    
+    // Dreiecke
+    else if (finalShape === 'dreieck') {
+        if (variant === 'gleichseitig') {
+            container.appendChild(createInput('Seitenlänge (m)', 'side', savedData.side || '6'));
+        } else if (variant === 'rechtwinklig') {
+            container.appendChild(createInput('Kathete A (m)', 'katheteA', savedData.katheteA || '4'));
+            container.appendChild(createInput('Kathete B (m)', 'katheteB', savedData.katheteB || '5'));
+        } else {
+            container.appendChild(createInput('Seite A (m)', 'sideA', savedData.sideA || '4'));
+            container.appendChild(createInput('Seite B (m)', 'sideB', savedData.sideB || '5'));
+            container.appendChild(createInput('Seite C (m)', 'sideC', savedData.sideC || '6'));
+        }
+    }
+    
+    // Quadrat
+    else if (finalShape === 'quadrat') {
+        container.appendChild(createInput('Seitenlänge (m)', 'side', savedData.side || '5'));
+    }
+    
+    // Trapez
+    else if (finalShape === 'trapez') {
+        container.appendChild(createInput('Seite A (m)', 'sideA', savedData.sideA || '8'));
+        container.appendChild(createInput('Seite B (m)', 'sideB', savedData.sideB || '6'));
+        container.appendChild(createInput('Höhe (m)', 'height', savedData.height || '4'));
+    }
+    
+    // Parallelogramm
+    else if (finalShape === 'parallelogramm') {
+        container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
+        container.appendChild(createInput('Breite (m)', 'width', savedData.width || '5'));
+        container.appendChild(createInput('Winkel (°)', 'angle', savedData.angle || '75'));
+    }
+    
+    // Rhombus
+    else if (finalShape === 'rhombus') {
+        container.appendChild(createInput('Diagonale 1 (m)', 'diagonal1', savedData.diagonal1 || '6'));
+        container.appendChild(createInput('Diagonale 2 (m)', 'diagonal2', savedData.diagonal2 || '4'));
+    }
+    
+    // Vielecke
+    else if (finalShape === 'fuenfeck') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '3'));
+    } else if (finalShape === 'sechseck') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '3'));
+    } else if (finalShape === 'achteck') {
+        container.appendChild(createInput('Radius (m)', 'radius', savedData.radius || '3'));
+    } else if (finalShape === 'lform') {
+        container.appendChild(createInput('Länge 1 (m)', 'length1', savedData.length1 || '8'));
+        container.appendChild(createInput('Breite 1 (m)', 'width1', savedData.width1 || '3'));
+        container.appendChild(createInput('Länge 2 (m)', 'length2', savedData.length2 || '5'));
+        container.appendChild(createInput('Breite 2 (m)', 'width2', savedData.width2 || '4'));
+    } else if (finalShape === 'tform') {
+        container.appendChild(createInput('Breite Kopf (m)', 'headWidth', savedData.headWidth || '8'));
+        container.appendChild(createInput('Höhe Kopf (m)', 'headHeight', savedData.headHeight || '2'));
+        container.appendChild(createInput('Breite Stamm (m)', 'stemWidth', savedData.stemWidth || '3'));
+        container.appendChild(createInput('Höhe Stamm (m)', 'stemHeight', savedData.stemHeight || '5'));
+    } else if (finalShape === 'uform') {
+        container.appendChild(createInput('Außenbreite (m)', 'outerWidth', savedData.outerWidth || '8'));
+        container.appendChild(createInput('Außenhöhe (m)', 'outerHeight', savedData.outerHeight || '6'));
+        container.appendChild(createInput('Innenbreite (m)', 'innerWidth', savedData.innerWidth || '4'));
+        container.appendChild(createInput('Innenhöhe (m)', 'innerHeight', savedData.innerHeight || '4'));
+    }
+    
+    // Fallback: Rechteck
+    else {
+        container.appendChild(createInput('Länge (m)', 'length', savedData.length || '8'));
+        container.appendChild(createInput('Breite (m)', 'width', savedData.width || '5'));
+    }
+}
+
+// KORRIGIERTE Corner-Positionen für alle Formen (weniger Logging)
+function getActualCornerPositions(data, scale) {
+    const finalShape = determineActualShape();
+    const variant = determineActualVariant();
+    let corners = [];
+    
+    // Kreisformen - vereinfacht als Polygone für Handles
+    if (finalShape === 'kreis') {
+        const radius = (data.radius || 3) * scale;
+        for (let i = 0; i < 12; i++) {
+            const angle = (i * 2 * Math.PI) / 12;
+            corners.push({
+                x: CANVAS_CENTER_X + radius * Math.cos(angle),
+                y: CANVAS_CENTER_Y + radius * Math.sin(angle)
+            });
+        }
+    } else if (finalShape === 'oval') {
+        const radiusX = (data.radiusX || 4) * scale;
+        const radiusY = (data.radiusY || 2.5) * scale;
+        for (let i = 0; i < 12; i++) {
+            const angle = (i * 2 * Math.PI) / 12;
+            corners.push({
+                x: CANVAS_CENTER_X + radiusX * Math.cos(angle),
+                y: CANVAS_CENTER_Y + radiusY * Math.sin(angle)
+            });
+        }
+    } else if (finalShape === 'halbkreis') {
+        const radius = (data.radius || 4) * scale;
+        // Halbkreis-Punkte von 0° bis 180°
+        for (let i = 0; i <= 8; i++) {
+            const angle = (i * Math.PI) / 8;
+            corners.push({
+                x: CANVAS_CENTER_X + radius * Math.cos(angle),
+                y: CANVAS_CENTER_Y + radius * Math.sin(angle)
+            });
+        }
+        // Gerade Linie zurück
+        corners.push({
+            x: CANVAS_CENTER_X - radius,
+            y: CANVAS_CENTER_Y
+        });
+    } else if (finalShape === 'viertelkreis') {
+        const radius = (data.radius || 5) * scale;
+        corners = [
+            { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y },
+            { x: CANVAS_CENTER_X + radius, y: CANVAS_CENTER_Y }
+        ];
+        // Viertelkreis-Bogen
+        for (let i = 1; i <= 4; i++) {
+            const angle = (i * Math.PI / 2) / 4;
+            corners.push({
+                x: CANVAS_CENTER_X + radius * Math.cos(angle),
+                y: CANVAS_CENTER_Y - radius * Math.sin(angle)
+            });
+        }
+        corners.push({ x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - radius });
+    } else if (finalShape === 'langloch') {
+        const length = (data.length || 8) * scale;
+        const width = (data.width || 3) * scale;
+        const radius = width / 2;
+        const halfLength = length / 2 - radius;
+        
+        // Vereinfacht als Rechteck mit abgerundeten Enden
+        corners = [
+            { x: CANVAS_CENTER_X - halfLength, y: CANVAS_CENTER_Y - radius },
+            { x: CANVAS_CENTER_X + halfLength, y: CANVAS_CENTER_Y - radius },
+            { x: CANVAS_CENTER_X + halfLength, y: CANVAS_CENTER_Y + radius },
+            { x: CANVAS_CENTER_X - halfLength, y: CANVAS_CENTER_Y + radius }
+        ];
+    }
+    
+    // Dreiecke
+    else if (finalShape === 'dreieck') {
+        if (variant === 'gleichseitig') {
+            const side = (data.side || 6) * scale;
+            const height = side * Math.sqrt(3) / 2;
+            corners = [
+                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/3 },
+                { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + height*2/3 },
+                { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + height*2/3 }
+            ];
+        } else if (variant === 'rechtwinklig') {
+            const katheteA = (data.katheteA || 4) * scale;
+            const katheteB = (data.katheteB || 5) * scale;
+            corners = [
+                { x: CANVAS_CENTER_X - katheteA/2, y: CANVAS_CENTER_Y + katheteB/3 },
+                { x: CANVAS_CENTER_X + katheteA/2, y: CANVAS_CENTER_Y + katheteB/3 },
+                { x: CANVAS_CENTER_X - katheteA/2, y: CANVAS_CENTER_Y - katheteB*2/3 }
+            ];
+        } else {
+            const sideA = (data.sideA || 4) * scale;
+            const avgSide = ((data.sideB || 5) + (data.sideC || 6)) / 2;
+            const height = avgSide * scale * 0.8;
+            corners = [
+                { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - height/2 },
+                { x: CANVAS_CENTER_X - sideA/2, y: CANVAS_CENTER_Y + height/2 },
+                { x: CANVAS_CENTER_X + sideA/2, y: CANVAS_CENTER_Y + height/2 }
+            ];
+        }
+    }
+    
+    // Quadrat
+    else if (finalShape === 'quadrat') {
+        const side = (data.side || 5) * scale;
+        corners = [
+            { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y - side/2 },
+            { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y - side/2 },
+            { x: CANVAS_CENTER_X + side/2, y: CANVAS_CENTER_Y + side/2 },
+            { x: CANVAS_CENTER_X - side/2, y: CANVAS_CENTER_Y + side/2 }
+        ];
+    }
+    
+    // Trapez
+    else if (finalShape === 'trapez') {
+        const sideA = (data.sideA || 8) * scale;
+        const sideB = (data.sideB || 6) * scale;
+        const height = (data.height || 4) * scale;
+        corners = [
+            { x: CANVAS_CENTER_X - sideA/2, y: CANVAS_CENTER_Y + height/2 },
+            { x: CANVAS_CENTER_X + sideA/2, y: CANVAS_CENTER_Y + height/2 },
+            { x: CANVAS_CENTER_X + sideB/2, y: CANVAS_CENTER_Y - height/2 },
+            { x: CANVAS_CENTER_X - sideB/2, y: CANVAS_CENTER_Y - height/2 }
+        ];
+    }
+    
+    // Parallelogramm
+    else if (finalShape === 'parallelogramm') {
+        const length = (data.length || 8) * scale;
+        const width = (data.width || 5) * scale;
+        const angle = (data.angle || 75) * Math.PI / 180;
+        const offset = width * Math.cos(angle);
+        corners = [
+            { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y + width/2 },
+            { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y + width/2 },
+            { x: CANVAS_CENTER_X + length/2 + offset, y: CANVAS_CENTER_Y - width/2 },
+            { x: CANVAS_CENTER_X - length/2 + offset, y: CANVAS_CENTER_Y - width/2 }
+        ];
+    }
+    
+    // Rhombus
+    else if (finalShape === 'rhombus') {
+        const diagonal1 = (data.diagonal1 || 6) * scale;
+        const diagonal2 = (data.diagonal2 || 4) * scale;
+        corners = [
+            { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - diagonal2/2 },
+            { x: CANVAS_CENTER_X + diagonal1/2, y: CANVAS_CENTER_Y },
+            { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y + diagonal2/2 },
+            { x: CANVAS_CENTER_X - diagonal1/2, y: CANVAS_CENTER_Y }
+        ];
+    }
+    
+    // Vielecke
+    else if (['fuenfeck', 'sechseck', 'achteck'].includes(finalShape)) {
+        const radius = (data.radius || 3) * scale;
+        const sides = finalShape === 'fuenfeck' ? 5 : finalShape === 'sechseck' ? 6 : 8;
+        for (let i = 0; i < sides; i++) {
+            const angle = (i * 2 * Math.PI / sides) - Math.PI / 2;
+            corners.push({
+                x: CANVAS_CENTER_X + radius * Math.cos(angle),
+                y: CANVAS_CENTER_Y + radius * Math.sin(angle)
+            });
+        }
+    }
+    
+    // L-Form, T-Form, U-Form (gekürzt für weniger Code)
+    else if (finalShape === 'lform') {
+        const length1 = (data.length1 || 8) * scale;
+        const width1 = (data.width1 || 3) * scale;
+        const length2 = (data.length2 || 5) * scale;
+        const width2 = (data.width2 || 4) * scale;
+        corners = [
+            { x: CANVAS_CENTER_X - length1/2, y: CANVAS_CENTER_Y - width1/2 },
+            { x: CANVAS_CENTER_X - length1/2 + length2, y: CANVAS_CENTER_Y - width1/2 },
+            { x: CANVAS_CENTER_X - length1/2 + length2, y: CANVAS_CENTER_Y - width1/2 + width2 },
+            { x: CANVAS_CENTER_X + length1/2, y: CANVAS_CENTER_Y - width1/2 + width2 },
+            { x: CANVAS_CENTER_X + length1/2, y: CANVAS_CENTER_Y + width1/2 },
+            { x: CANVAS_CENTER_X - length1/2, y: CANVAS_CENTER_Y + width1/2 }
+        ];
+    }
+    
+    // Fallback: Rechteck
+    else {
+        const length = (data.length || 8) * scale;
+        const width = (data.width || 5) * scale;
+        corners = [
+            { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y - width/2 },
+            { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y - width/2 },
+            { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y + width/2 },
+            { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y + width/2 }
+        ];
+    }
+    
+    return corners;
+}
+
+// Reduziertes Logging für DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        try {
+            loadProjectData();
+            initializeCanvas();
+            initializeUI();
+            loadAndDrawShape();
+            setupEventListeners();
+        } catch (error) {
+            console.error('Editor-Fehler:', error);
+        }
+    }, 100);
+});
 
 function resetToDefaults() {
     currentRotation = 0;
@@ -1850,7 +2338,21 @@ function calculateDimensions(data) {
     }
 }
 
-console.log('Korrigierte Editor.js mit vollständiger Funktionalität geladen');
+// Globale Event Listener für mouseup (wichtig für Auto-Repeat)
+document.addEventListener('mouseup', () => {
+    if (isMouseDown) {
+        stopRotationRepeat();
+    }
+});
+
+// Verhindere Context-Menu auf Rotations-Buttons
+document.addEventListener('contextmenu', (e) => {
+    if (e.target.closest('.btn-tool.rotation')) {
+        e.preventDefault();
+    }
+});
+
+console.log('Korrigierte Editor.js mit Auto-Repeat Rotation geladen');
 
 // WICHTIG: Diese Funktion muss am Ende der Datei stehen
 document.addEventListener('DOMContentLoaded', () => {
