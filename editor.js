@@ -141,18 +141,18 @@ function createRotationControls() {
     const existingResetBtn = document.getElementById('btn-reset-rotation');
     
     if (existingLeftBtn && existingRightBtn && existingResetBtn) {
-        // Links-Button mit Auto-Repeat
+        // Links-Button mit Auto-Repeat (NEGATIV = gegen Uhrzeigersinn)
         existingLeftBtn.addEventListener('mousedown', (e) => {
             e.preventDefault();
-            startRotationRepeat(-1);
+            startRotationRepeat(-1); // NEGATIV für links
         });
         existingLeftBtn.addEventListener('mouseup', stopRotationRepeat);
         existingLeftBtn.addEventListener('mouseleave', stopRotationRepeat);
         
-        // Rechts-Button mit Auto-Repeat
+        // Rechts-Button mit Auto-Repeat (POSITIV = im Uhrzeigersinn)
         existingRightBtn.addEventListener('mousedown', (e) => {
             e.preventDefault();
-            startRotationRepeat(1);
+            startRotationRepeat(1); // POSITIV für rechts
         });
         existingRightBtn.addEventListener('mouseup', stopRotationRepeat);
         existingRightBtn.addEventListener('mouseleave', stopRotationRepeat);
@@ -280,8 +280,10 @@ function checkAlignmentAndHighlight() {
     let hasHorizontalLine = false;
     let hasVerticalLine = false;
     let alignedEdges = [];
+    let totalHorizontalLines = 0;
+    let totalVerticalLines = 0;
     
-    // KORRIGIERTE Ausrichtungserkennung mit strikteren Toleranzen
+    // KORRIGIERTE Ausrichtungserkennung: ALLE Seiten prüfen
     for (let i = 0; i < rotatedCorners.length; i++) {
         const nextIndex = (i + 1) % rotatedCorners.length;
         const p1 = rotatedCorners[i];
@@ -297,8 +299,9 @@ function checkAlignmentAndHighlight() {
         
         if (lineLength > minLineLength) {
             if (deltaY <= tolerance && deltaX > minLineLength) {
-                // Horizontale Linie
+                // Horizontale Linie gefunden
                 hasHorizontalLine = true;
+                totalHorizontalLines++;
                 alignedEdges.push({
                     type: 'horizontal',
                     p1: p1,
@@ -307,8 +310,9 @@ function checkAlignmentAndHighlight() {
                     deviation: deltaY
                 });
             } else if (deltaX <= tolerance && deltaY > minLineLength) {
-                // Vertikale Linie
+                // Vertikale Linie gefunden
                 hasVerticalLine = true;
+                totalVerticalLines++;
                 alignedEdges.push({
                     type: 'vertical',
                     p1: p1,
@@ -320,15 +324,39 @@ function checkAlignmentAndHighlight() {
         }
     }
     
-    // KRITISCH: Nur bei TATSÄCHLICHER Ausrichtung anzeigen
-    // Zusätzliche Prüfung: Rotation muss nahe an 0°, 90°, 180°, 270° sein
+    // ERWEITERTE Logik: Prüfe ob GENUG Seiten ausgerichtet sind
+    const finalShape = determineActualShape();
+    let requiredAlignments = 0;
+    
+    if (finalShape === 'dreieck') {
+        // Bei Dreiecken: mindestens 1 Seite muss ausgerichtet sein
+        requiredAlignments = 1;
+    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        // Bei Rechtecken: mindestens 2 parallele Seiten (1 horizontal UND 1 vertikal)
+        requiredAlignments = 2;
+    }
+    
+    // KRITISCH: Nur bei TATSÄCHLICHER Ausrichtung UND genug ausgerichteten Seiten
     const normalizedRotation = ((currentRotation % 360) + 360) % 360;
     const nearestCardinal = Math.round(normalizedRotation / 90) * 90;
     const rotationDeviation = Math.abs(normalizedRotation - nearestCardinal);
     
-    if (alignedEdges.length > 0 && rotationDeviation < 3) {
+    // Zusätzliche Bedingung: Bei Rechtecken müssen BEIDE Richtungen ausgerichtet sein
+    let sufficientAlignment = false;
+    if (finalShape === 'dreieck') {
+        sufficientAlignment = alignedEdges.length >= 1;
+    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
+        // Rechteck muss sowohl horizontale ALS AUCH vertikale Linien haben
+        sufficientAlignment = hasHorizontalLine && hasVerticalLine;
+    } else {
+        sufficientAlignment = alignedEdges.length >= 1;
+    }
+    
+    console.log(`Ausrichtungscheck: Form=${finalShape}, Horizontal=${totalHorizontalLines}, Vertikal=${totalVerticalLines}, Rotation=${currentRotation.toFixed(1)}°, Abweichung=${rotationDeviation.toFixed(1)}°`);
+    
+    if (alignedEdges.length > 0 && rotationDeviation < 3 && sufficientAlignment) {
         highlightAlignedEdges(alignedEdges);
-        showAlignmentFeedback(hasHorizontalLine, hasVerticalLine);
+        showAlignmentFeedback(hasHorizontalLine, hasVerticalLine, totalHorizontalLines, totalVerticalLines);
     } else {
         removeAlignmentHighlights();
     }
@@ -394,7 +422,7 @@ function removeAlignmentHighlights() {
     }
 }
 
-function showAlignmentFeedback(hasHorizontal, hasVertical) {
+function showAlignmentFeedback(hasHorizontal, hasVertical, totalHorizontal, totalVertical) {
     // WICHTIG: Zusätzliche Validierung vor Anzeige
     const normalizedRotation = ((currentRotation % 360) + 360) % 360;
     const nearestCardinal = Math.round(normalizedRotation / 90) * 90;
@@ -412,8 +440,13 @@ function showAlignmentFeedback(hasHorizontal, hasVertical) {
     let message = '📐 Ausgerichtet: ';
     const messages = [];
     
-    if (hasHorizontal) messages.push('Horizontal');
-    if (hasVertical) messages.push('Vertikal');
+    // ERWEITERTE Meldung mit Anzahl der ausgerichteten Seiten
+    if (hasHorizontal) {
+        messages.push(`${totalHorizontal} Horizontal`);
+    }
+    if (hasVertical) {
+        messages.push(`${totalVertical} Vertikal`);
+    }
     
     // Zusätzliche Info über Kardinalrichtung
     const cardinalNames = { 0: '0°', 90: '90°', 180: '180°', 270: '270°' };
