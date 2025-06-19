@@ -244,22 +244,40 @@ function rotateByDegrees(degrees) {
 
 function checkAlignmentAndHighlight() {
     const data = getCurrentFormData();
-    const corners = getActualCornerPositions(data, calculateOptimalScale(data));
+    const baseCorners = getActualCornerPositions(data, calculateOptimalScale(data));
+    
+    // WICHTIG: Rotation manuell anwenden, da SVG-Transform die Corner-Positionen nicht automatisch rotiert
+    const rotatedCorners = baseCorners.map(corner => {
+        if (currentRotation === 0) return corner;
+        
+        const angle = (currentRotation * Math.PI) / 180;
+        const relX = corner.x - CANVAS_CENTER_X;
+        const relY = corner.y - CANVAS_CENTER_Y;
+        
+        return {
+            x: CANVAS_CENTER_X + relX * Math.cos(angle) - relY * Math.sin(angle),
+            y: CANVAS_CENTER_Y + relX * Math.sin(angle) + relY * Math.cos(angle)
+        };
+    });
     
     let hasHorizontalLine = false;
     let hasVerticalLine = false;
     let alignedEdges = [];
     
-    for (let i = 0; i < corners.length; i++) {
-        const nextIndex = (i + 1) % corners.length;
-        const p1 = corners[i];
-        const p2 = corners[nextIndex];
+    // Prüfe alle Kanten der rotierten Form
+    for (let i = 0; i < rotatedCorners.length; i++) {
+        const nextIndex = (i + 1) % rotatedCorners.length;
+        const p1 = rotatedCorners[i];
+        const p2 = rotatedCorners[nextIndex];
         
         const deltaX = Math.abs(p2.x - p1.x);
         const deltaY = Math.abs(p2.y - p1.y);
-        const tolerance = 5;
+        
+        // Strenge Toleranz für präzise Ausrichtung
+        const tolerance = 2;
         
         if (deltaY <= tolerance && deltaX > tolerance) {
+            // Horizontale Linie
             hasHorizontalLine = true;
             alignedEdges.push({
                 type: 'horizontal',
@@ -268,6 +286,7 @@ function checkAlignmentAndHighlight() {
                 index: i
             });
         } else if (deltaX <= tolerance && deltaY > tolerance) {
+            // Vertikale Linie
             hasVerticalLine = true;
             alignedEdges.push({
                 type: 'vertical',
@@ -278,7 +297,8 @@ function checkAlignmentAndHighlight() {
         }
     }
     
-    if (hasHorizontalLine || hasVerticalLine) {
+    // Visuelle Rückmeldung nur bei tatsächlicher Ausrichtung
+    if (alignedEdges.length > 0) {
         highlightAlignedEdges(alignedEdges);
         showAlignmentFeedback(hasHorizontalLine, hasVerticalLine);
     } else {
@@ -292,39 +312,65 @@ function highlightAlignedEdges(alignedEdges) {
     alignedEdges.forEach((edge, index) => {
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         line.id = `alignment-highlight-${index}`;
+        
+        // KORREKT: Verwende die bereits rotierten Koordinaten
         line.setAttribute('x1', edge.p1.x);
         line.setAttribute('y1', edge.p1.y);
         line.setAttribute('x2', edge.p2.x);
         line.setAttribute('y2', edge.p2.y);
+        
         line.setAttribute('stroke', '#28a745');
         line.setAttribute('stroke-width', '6');
         line.setAttribute('opacity', '0.9');
         line.style.pointerEvents = 'none';
-        line.style.animation = 'alignmentPulse 1.5s ease-in-out 3';
         
-        let highlightGroup = document.getElementById('alignment-highlights');
-        if (!highlightGroup) {
-            highlightGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            highlightGroup.id = 'alignment-highlights';
-            svg.appendChild(highlightGroup);
-        }
-        highlightGroup.appendChild(line);
+        // Kürzere Animation
+        line.style.animation = 'alignmentPulse 1s ease-in-out 2';
+        
+        // WICHTIG: Highlight-Linie OHNE Transform hinzufügen, da Koordinaten bereits rotiert sind
+        svg.appendChild(line);
+        
+        // Auto-Remove nach Animation
+        setTimeout(() => {
+            if (line.parentNode) {
+                line.remove();
+            }
+        }, 2000);
     });
+    
+    // CSS-Animation hinzufügen falls noch nicht vorhanden
+    if (!document.getElementById('alignment-animation-styles')) {
+        const style = document.createElement('style');
+        style.id = 'alignment-animation-styles';
+        style.textContent = `
+            @keyframes alignmentPulse {
+                0%, 100% { opacity: 0.9; stroke-width: 6; }
+                50% { opacity: 1; stroke-width: 8; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
 }
 
 function removeAlignmentHighlights() {
     if (!svg) return;
     
+    // Entferne alle Highlight-Linien (sowohl direkt im SVG als auch in Gruppen)
     const highlights = svg.querySelectorAll('[id^="alignment-highlight-"]');
     highlights.forEach(highlight => highlight.remove());
     
+    // Entferne auch die Highlight-Gruppe falls vorhanden
     const highlightGroup = document.getElementById('alignment-highlights');
     if (highlightGroup) {
-        highlightGroup.innerHTML = '';
+        highlightGroup.remove();
     }
 }
 
 function showAlignmentFeedback(hasHorizontal, hasVertical) {
+    // Entferne vorherige Feedback-Nachrichten
+    const existingFeedback = document.querySelectorAll('.alignment-feedback');
+    existingFeedback.forEach(fb => fb.remove());
+    
     let message = '📐 Ausgerichtet: ';
     const messages = [];
     
@@ -333,7 +379,28 @@ function showAlignmentFeedback(hasHorizontal, hasVertical) {
     
     message += messages.join(' & ');
     
-    showFeedback(message, '#28a745');
+    // Temporäres Feedback mit Auto-Remove
+    const feedback = document.createElement('div');
+    feedback.className = 'alignment-feedback';
+    feedback.style.cssText = `
+        position: fixed; top: 140px; right: 20px; background: #28a745; color: white;
+        padding: 8px 16px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        font-size: 12px; font-weight: 500; animation: slideIn 0.3s ease-out;
+    `;
+    feedback.textContent = message;
+    document.body.appendChild(feedback);
+    
+    // Auto-Remove nach 1.5 Sekunden
+    setTimeout(() => {
+        if (feedback.parentNode) {
+            feedback.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => { 
+                if (feedback.parentNode) { 
+                    feedback.remove(); 
+                } 
+            }, 300);
+        }
+    }, 1500);
 }
 
 function createRotationDisplay() {
