@@ -229,6 +229,7 @@ function stopRotationRepeat() {
     isMouseDown = false;
     rotationSpeed = 1;
     
+    // WICHTIG: Alle Timeouts und Intervals komplett löschen
     if (rotationTimeout) {
         clearTimeout(rotationTimeout);
         rotationTimeout = null;
@@ -238,6 +239,19 @@ function stopRotationRepeat() {
         clearInterval(rotationInterval);
         rotationInterval = null;
     }
+    
+    // Extra-Sicherheit: Nach kurzer Verzögerung nochmals prüfen
+    setTimeout(() => {
+        if (rotationTimeout) {
+            clearTimeout(rotationTimeout);
+            rotationTimeout = null;
+        }
+        if (rotationInterval) {
+            clearInterval(rotationInterval);
+            rotationInterval = null;
+        }
+        isMouseDown = false;
+    }, 50);
 }
 
 function rotateByDegrees(degrees) {
@@ -282,6 +296,7 @@ function checkAlignmentAndHighlight() {
     let alignedEdges = [];
     let totalHorizontalLines = 0;
     let totalVerticalLines = 0;
+    let alignedSides = []; // Welche Seiten sind ausgerichtet
     
     // KORRIGIERTE Ausrichtungserkennung: ALLE Seiten prüfen
     for (let i = 0; i < rotatedCorners.length; i++) {
@@ -293,32 +308,39 @@ function checkAlignmentAndHighlight() {
         const deltaY = Math.abs(p2.y - p1.y);
         const lineLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         
-        // Sehr strenge Toleranz: Linie muss mindestens 30px lang sein und fast perfekt ausgerichtet
-        const tolerance = 1.5;
-        const minLineLength = 30;
+        // ERWEITERTE Toleranz für bessere Erkennung verschiedener Formen
+        const tolerance = 2.0; // Etwas lockerer
+        const minLineLength = 25; // Etwas kleiner
+        
+        const sideLabels = ['A', 'B', 'C', 'D', 'E', 'F'];
+        const sideName = sideLabels[i] || `Seite ${i+1}`;
         
         if (lineLength > minLineLength) {
             if (deltaY <= tolerance && deltaX > minLineLength) {
                 // Horizontale Linie gefunden
                 hasHorizontalLine = true;
                 totalHorizontalLines++;
+                alignedSides.push(`${sideName} (horizontal)`);
                 alignedEdges.push({
                     type: 'horizontal',
                     p1: p1,
                     p2: p2,
                     index: i,
-                    deviation: deltaY
+                    deviation: deltaY,
+                    sideName: sideName
                 });
             } else if (deltaX <= tolerance && deltaY > minLineLength) {
                 // Vertikale Linie gefunden
                 hasVerticalLine = true;
                 totalVerticalLines++;
+                alignedSides.push(`${sideName} (vertikal)`);
                 alignedEdges.push({
                     type: 'vertical',
                     p1: p1,
                     p2: p2,
                     index: i,
-                    deviation: deltaX
+                    deviation: deltaX,
+                    sideName: sideName
                 });
             }
         }
@@ -326,14 +348,16 @@ function checkAlignmentAndHighlight() {
     
     // ERWEITERTE Logik: Prüfe ob GENUG Seiten ausgerichtet sind
     const finalShape = determineActualShape();
-    let requiredAlignments = 0;
+    let sufficientAlignment = false;
     
     if (finalShape === 'dreieck') {
-        // Bei Dreiecken: mindestens 1 Seite muss ausgerichtet sein
-        requiredAlignments = 1;
+        // Bei Dreiecken: mindestens 1 Seite ausgerichtet
+        sufficientAlignment = alignedEdges.length >= 1;
     } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        // Bei Rechtecken: mindestens 2 parallele Seiten (1 horizontal UND 1 vertikal)
-        requiredAlignments = 2;
+        // Bei Rechtecken: mindestens 2 Seiten ausgerichtet (können beide horizontal oder beide vertikal sein)
+        sufficientAlignment = alignedEdges.length >= 2;
+    } else {
+        sufficientAlignment = alignedEdges.length >= 1;
     }
     
     // KRITISCH: Nur bei TATSÄCHLICHER Ausrichtung UND genug ausgerichteten Seiten
@@ -341,22 +365,11 @@ function checkAlignmentAndHighlight() {
     const nearestCardinal = Math.round(normalizedRotation / 90) * 90;
     const rotationDeviation = Math.abs(normalizedRotation - nearestCardinal);
     
-    // Zusätzliche Bedingung: Bei Rechtecken müssen BEIDE Richtungen ausgerichtet sein
-    let sufficientAlignment = false;
-    if (finalShape === 'dreieck') {
-        sufficientAlignment = alignedEdges.length >= 1;
-    } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        // Rechteck muss sowohl horizontale ALS AUCH vertikale Linien haben
-        sufficientAlignment = hasHorizontalLine && hasVerticalLine;
-    } else {
-        sufficientAlignment = alignedEdges.length >= 1;
-    }
+    console.log(`Ausrichtungscheck: Form=${finalShape}, Horizontal=${totalHorizontalLines}, Vertikal=${totalVerticalLines}, Rotation=${currentRotation.toFixed(1)}°, Abweichung=${rotationDeviation.toFixed(1)}°, Ausgerichtete Seiten: [${alignedSides.join(', ')}]`);
     
-    console.log(`Ausrichtungscheck: Form=${finalShape}, Horizontal=${totalHorizontalLines}, Vertikal=${totalVerticalLines}, Rotation=${currentRotation.toFixed(1)}°, Abweichung=${rotationDeviation.toFixed(1)}°`);
-    
-    if (alignedEdges.length > 0 && rotationDeviation < 3 && sufficientAlignment) {
+    if (alignedEdges.length > 0 && rotationDeviation < 4 && sufficientAlignment) {
         highlightAlignedEdges(alignedEdges);
-        showAlignmentFeedback(hasHorizontalLine, hasVerticalLine, totalHorizontalLines, totalVerticalLines);
+        showAlignmentFeedback(hasHorizontalLine, hasVerticalLine, totalHorizontalLines, totalVerticalLines, alignedSides);
     } else {
         removeAlignmentHighlights();
     }
@@ -422,14 +435,14 @@ function removeAlignmentHighlights() {
     }
 }
 
-function showAlignmentFeedback(hasHorizontal, hasVertical, totalHorizontal, totalVertical) {
+function showAlignmentFeedback(hasHorizontal, hasVertical, totalHorizontal, totalVertical, alignedSides) {
     // WICHTIG: Zusätzliche Validierung vor Anzeige
     const normalizedRotation = ((currentRotation % 360) + 360) % 360;
     const nearestCardinal = Math.round(normalizedRotation / 90) * 90;
     const rotationDeviation = Math.abs(normalizedRotation - nearestCardinal);
     
     // Nur anzeigen wenn wirklich gut ausgerichtet
-    if (rotationDeviation > 3) {
+    if (rotationDeviation > 4) {
         return; // Keine Anzeige bei schlechter Ausrichtung
     }
     
@@ -438,21 +451,27 @@ function showAlignmentFeedback(hasHorizontal, hasVertical, totalHorizontal, tota
     existingFeedback.forEach(fb => fb.remove());
     
     let message = '📐 Ausgerichtet: ';
-    const messages = [];
     
-    // ERWEITERTE Meldung mit Anzahl der ausgerichteten Seiten
-    if (hasHorizontal) {
-        messages.push(`${totalHorizontal} Horizontal`);
-    }
-    if (hasVertical) {
-        messages.push(`${totalVertical} Vertikal`);
+    // ERWEITERTE Meldung mit Details über ausgerichtete Seiten
+    if (alignedSides && alignedSides.length > 0) {
+        message += alignedSides.join(', ');
+    } else {
+        // Fallback wenn alignedSides nicht verfügbar
+        const messages = [];
+        if (hasHorizontal) {
+            messages.push(`${totalHorizontal} Horizontal`);
+        }
+        if (hasVertical) {
+            messages.push(`${totalVertical} Vertikal`);
+        }
+        message += messages.join(' & ');
     }
     
     // Zusätzliche Info über Kardinalrichtung
     const cardinalNames = { 0: '0°', 90: '90°', 180: '180°', 270: '270°' };
     const cardinalName = cardinalNames[nearestCardinal] || `${nearestCardinal}°`;
     
-    message += messages.join(' & ') + ` (${cardinalName})`;
+    message += ` (${cardinalName})`;
     
     // Temporäres Feedback mit Auto-Remove
     const feedback = document.createElement('div');
@@ -460,7 +479,7 @@ function showAlignmentFeedback(hasHorizontal, hasVertical, totalHorizontal, tota
     feedback.style.cssText = `
         position: fixed; top: 140px; right: 20px; background: #28a745; color: white;
         padding: 8px 16px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        font-size: 12px; font-weight: 500; animation: slideIn 0.3s ease-out;
+        font-size: 12px; font-weight: 500; animation: slideIn 0.3s ease-out; max-width: 300px;
     `;
     feedback.textContent = message;
     document.body.appendChild(feedback);
@@ -475,7 +494,7 @@ function showAlignmentFeedback(hasHorizontal, hasVertical, totalHorizontal, tota
                 } 
             }, 300);
         }
-    }, 2000);
+    }, 2500);
 }
 
 function createRotationDisplay() {
@@ -1008,48 +1027,81 @@ function drawLabelsOnShape(group, data, scale) {
         const labels = ['A', 'B', 'C'];
         const colors = ['#dc3545', '#28a745', '#ffc107'];
         
-        // KORRIGIERTE Positionierung: Näher an den Seiten/Ecken
+        // KORRIGIERTE Positionierung: Labels an den SEITEN, nicht Ecken
         for (let i = 0; i < 3; i++) {
-            const corner = corners[i];
+            const nextI = (i + 1) % 3;
+            const p1 = corners[i];
+            const p2 = corners[nextI];
             
-            // Label direkt bei der Ecke positionieren mit kleinem Offset
-            let offsetX = 0;
-            let offsetY = 0;
+            // Seitenmittelpunkt berechnen
+            const midX = (p1.x + p2.x) / 2;
+            const midY = (p1.y + p2.y) / 2;
             
-            // Bestimme Offset basierend auf Ecken-Position relativ zum Zentrum
-            if (corner.x < CANVAS_CENTER_X) offsetX = -15; // Links
-            else if (corner.x > CANVAS_CENTER_X) offsetX = 15; // Rechts
+            // Seitenvektor für Offset-Berechnung
+            const sideVectorX = p2.x - p1.x;
+            const sideVectorY = p2.y - p1.y;
+            const sideLength = Math.sqrt(sideVectorX * sideVectorX + sideVectorY * sideVectorY);
             
-            if (corner.y < CANVAS_CENTER_Y) offsetY = -10; // Oben
-            else if (corner.y > CANVAS_CENTER_Y) offsetY = 20; // Unten
+            // Normaler Vektor (90° gedreht, nach außen zeigend)
+            const normalX = -sideVectorY / sideLength;
+            const normalY = sideVectorX / sideLength;
             
-            // Spezielle Behandlung für obere Ecke
-            if (i === 0) { // Obere Ecke
-                offsetY = -10;
-                offsetX = 0;
-            }
+            // Prüfe ob Normal nach außen zeigt (vom Zentrum weg)
+            const centerToMidX = midX - CANVAS_CENTER_X;
+            const centerToMidY = midY - CANVAS_CENTER_Y;
+            const dotProduct = normalX * centerToMidX + normalY * centerToMidY;
             
-            const label = createLabel(corner.x + offsetX, corner.y + offsetY, labels[i], colors[i]);
+            // Falls Normal nach innen zeigt, umdrehen
+            const finalNormalX = dotProduct > 0 ? normalX : -normalX;
+            const finalNormalY = dotProduct > 0 ? normalY : -normalY;
+            
+            // Label-Position mit Offset nach außen
+            const labelX = midX + finalNormalX * 20;
+            const labelY = midY + finalNormalY * 20;
+            
+            const label = createLabel(labelX, labelY, labels[i], colors[i]);
             group.appendChild(label);
         }
     } else if (corners.length >= 4 && ['quadrat', 'rechteck', 'trapez'].includes(finalShape)) {
         const labels = ['A', 'B', 'C', 'D'];
         const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107'];
         
-        // KORRIGIERTE Positionierung: Direkt an den Ecken
-        const offsets = [
-            { x: -15, y: -10 },   // A oben-links
-            { x: 15, y: -10 },    // B oben-rechts
-            { x: 15, y: 20 },     // C unten-rechts
-            { x: -15, y: 20 }     // D unten-links
-        ];
-        
+        // KORRIGIERTE Positionierung: Labels an den SEITEN
         for (let i = 0; i < Math.min(4, corners.length); i++) {
-            const corner = corners[i];
-            const offset = offsets[i];
+            const nextI = (i + 1) % corners.length;
+            const p1 = corners[i];
+            const p2 = corners[nextI];
             
-            const label = createLabel(corner.x + offset.x, corner.y + offset.y, labels[i], colors[i]);
-            group.appendChild(label);
+            // Seitenmittelpunkt
+            const midX = (p1.x + p2.x) / 2;
+            const midY = (p1.y + p2.y) / 2;
+            
+            // Seitenvektor
+            const sideVectorX = p2.x - p1.x;
+            const sideVectorY = p2.y - p1.y;
+            const sideLength = Math.sqrt(sideVectorX * sideVectorX + sideVectorY * sideVectorY);
+            
+            if (sideLength > 0) {
+                // Normaler Vektor (nach außen)
+                const normalX = -sideVectorY / sideLength;
+                const normalY = sideVectorX / sideLength;
+                
+                // Prüfe Richtung zum Zentrum
+                const centerToMidX = midX - CANVAS_CENTER_X;
+                const centerToMidY = midY - CANVAS_CENTER_Y;
+                const dotProduct = normalX * centerToMidX + normalY * centerToMidY;
+                
+                // Nach außen gerichteter Normal
+                const finalNormalX = dotProduct > 0 ? normalX : -normalX;
+                const finalNormalY = dotProduct > 0 ? normalY : -normalY;
+                
+                // Label-Position
+                const labelX = midX + finalNormalX * 25;
+                const labelY = midY + finalNormalY * 25;
+                
+                const label = createLabel(labelX, labelY, labels[i], colors[i]);
+                group.appendChild(label);
+            }
         }
     }
 }
