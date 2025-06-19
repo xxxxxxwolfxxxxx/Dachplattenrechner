@@ -1748,6 +1748,53 @@ function drawLanglochShape(group, data, scale) {
     group.appendChild(path);
 }
 
+function drawTriangleShape(group, data, scale = SCALE_FACTOR) {
+    const variant = determineActualVariant();
+    let points = '';
+    
+    if (variant === 'gleichseitig') {
+        const side = (data.side || 6) * scale;
+        const height = side * Math.sqrt(3) / 2;
+        const topX = CANVAS_CENTER_X;
+        const topY = CANVAS_CENTER_Y - height/3;
+        const leftX = CANVAS_CENTER_X - side/2;
+        const leftY = CANVAS_CENTER_Y + height*2/3;
+        const rightX = CANVAS_CENTER_X + side/2;
+        const rightY = CANVAS_CENTER_Y + height*2/3;
+        points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
+    } else if (variant === 'rechtwinklig') {
+        const katheteA = (data.katheteA || 4) * scale;
+        const katheteB = (data.katheteB || 5) * scale;
+        
+        const leftX = CANVAS_CENTER_X - katheteA/2;
+        const rightX = CANVAS_CENTER_X + katheteA/2;
+        const bottomY = CANVAS_CENTER_Y + katheteB/3;
+        const topY = CANVAS_CENTER_Y - katheteB*2/3;
+        
+        points = `${leftX},${bottomY} ${rightX},${bottomY} ${leftX},${topY}`;
+    } else {
+        const sideA = (data.sideA || 4) * scale;
+        const avgSide = ((data.sideB || 5) + (data.sideC || 6)) / 2;
+        const height = avgSide * scale * 0.8;
+        
+        const topX = CANVAS_CENTER_X;
+        const topY = CANVAS_CENTER_Y - height/2;
+        const leftX = CANVAS_CENTER_X - sideA/2;
+        const leftY = CANVAS_CENTER_Y + height/2;
+        const rightX = CANVAS_CENTER_X + sideA/2;
+        const rightY = CANVAS_CENTER_Y + height/2;
+        
+        points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
+    }
+    
+    const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    triangle.setAttribute('points', points);
+    triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    triangle.setAttribute('stroke', '#007bff');
+    triangle.setAttribute('stroke-width', '3');
+    group.appendChild(triangle);
+}
+
 function drawTrapezShape(group, data, scale) {
     const sideA = (data.sideA || 8) * scale;
     const sideB = (data.sideB || 6) * scale;
