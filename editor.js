@@ -26,19 +26,27 @@ function drawRectangleShape(group, data, scale = SCALE_FACTOR) {
     group.appendChild(rect);
 }
 
-// KORRIGIERT: Vereinfachte Corner-Handles - NUR für Rotation, nicht für Positionierung
+// VEREINFACHTE Corner-Handles - Nur für Test
 function drawCornerHandlesOnShape(group, data, scale = SCALE_FACTOR) {
-    const corners = getOriginalCornerPositions(data, scale); // Verwende Original-Positionen
+    // EINFACH: Vier feste Corner-Handles um die Mitte
+    const size = 100;
+    const corners = [
+        { x: CANVAS_CENTER_X - size, y: CANVAS_CENTER_Y - size }, // oben links
+        { x: CANVAS_CENTER_X + size, y: CANVAS_CENTER_Y - size }, // oben rechts
+        { x: CANVAS_CENTER_X + size, y: CANVAS_CENTER_Y + size }, // unten rechts
+        { x: CANVAS_CENTER_X - size, y: CANVAS_CENTER_Y + size }  // unten links
+    ];
     
     corners.forEach((corner, index) => {
         const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         handle.setAttribute('cx', corner.x);
         handle.setAttribute('cy', corner.y);
         handle.setAttribute('r', CORNER_RADIUS);
-        handle.setAttribute('fill', 'rgba(0, 123, 255, 0.7)');
-        handle.setAttribute('stroke', '#007bff');
+        handle.setAttribute('fill', 'rgba(255, 0, 0, 0.8)'); // Rot für bessere Sichtbarkeit
+        handle.setAttribute('stroke', '#ff0000');
         handle.setAttribute('stroke-width', '2');
         handle.style.cursor = 'grab';
+        handle.id = `corner-handle-${index}`;
         group.appendChild(handle);
         
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -49,6 +57,8 @@ function drawCornerHandlesOnShape(group, data, scale = SCALE_FACTOR) {
         dot.style.pointerEvents = 'none';
         group.appendChild(dot);
     });
+    
+    console.log('Corner-Handles gezeichnet:', corners);
 }
 
 // KORRIGIERT: Erweiterte Corner-Positionen für alle Formen
