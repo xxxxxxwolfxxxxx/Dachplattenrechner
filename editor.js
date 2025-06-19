@@ -78,12 +78,15 @@ function initializeCanvas() {
         createFallbackCanvas();
     }
     
-    svg.addEventListener('mousedown', handleMouseDown);
-    svg.addEventListener('mousemove', handleMouseMove);
-    svg.addEventListener('mouseup', handleMouseUp);
-    svg.addEventListener('mouseleave', handleMouseUp);
+    // ENTFERNT: Maus-Event-Listener für manuelles Drehen
+    // svg.addEventListener('mousedown', handleMouseDown);
+    // svg.addEventListener('mousemove', handleMouseMove);
+    // svg.addEventListener('mouseup', handleMouseUp);
+    // svg.addEventListener('mouseleave', handleMouseUp);
     
     rotationCenter = { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y };
+    
+    console.log('Canvas initialisiert - manuelles Drehen deaktiviert');
 }
 
 function createFallbackCanvas() {
@@ -129,39 +132,67 @@ function initializeUI() {
     createRotationControls(); // NEUE FUNKTION
 }
 
-// NEUE FUNKTION: Rotations-Steuerung hinzufügen
+// KORRIGIERTE FUNKTION: Rotations-Steuerung hinzufügen
 function createRotationControls() {
-    const toolsGrid = document.querySelector('.tools-grid');
-    if (!toolsGrid) return;
+    // Prüfe ob die Buttons bereits im HTML vorhanden sind
+    const existingLeftBtn = document.getElementById('btn-rotate-left');
+    const existingRightBtn = document.getElementById('btn-rotate-right');
+    const existingResetBtn = document.getElementById('btn-reset-rotation');
     
-    // Neue Zeile für Rotations-Controls hinzufügen
-    const rotationRow = document.createElement('div');
-    rotationRow.className = 'tools-row';
-    rotationRow.style.gridTemplateColumns = 'repeat(3, 1fr)';
-    
-    rotationRow.innerHTML = `
-        <button class="btn-tool" id="btn-rotate-left" title="1° nach links drehen">↺ -1°</button>
-        <button class="btn-tool" id="btn-rotate-right" title="1° nach rechts drehen">↻ +1°</button>
-        <button class="btn-tool" id="btn-reset-rotation" title="Rotation zurücksetzen">0°</button>
-    `;
-    
-    // Nach der ersten Zeile einfügen
-    const firstRow = toolsGrid.querySelector('.tools-row');
-    if (firstRow) {
-        firstRow.parentNode.insertBefore(rotationRow, firstRow.nextSibling);
+    if (existingLeftBtn && existingRightBtn && existingResetBtn) {
+        // Buttons existieren bereits im HTML, nur Event Listeners hinzufügen
+        console.log('Rotations-Buttons gefunden, füge Event Listeners hinzu');
+        
+        existingLeftBtn.addEventListener('click', () => {
+            console.log('Links-Button geklickt');
+            rotateByDegrees(-1);
+        });
+        
+        existingRightBtn.addEventListener('click', () => {
+            console.log('Rechts-Button geklickt');
+            rotateByDegrees(1);
+        });
+        
+        existingResetBtn.addEventListener('click', () => {
+            console.log('Reset-Button geklickt');
+            currentRotation = 0;
+            updateShapeWithScale(calculateOptimalScale(getCurrentFormData()));
+            updateRotationDisplay();
+            showFeedback('Rotation zurückgesetzt');
+        });
     } else {
-        toolsGrid.appendChild(rotationRow);
+        // Fallback: Buttons dynamisch erstellen
+        console.log('Rotations-Buttons nicht gefunden, erstelle dynamisch');
+        const toolsGrid = document.querySelector('.tools-grid');
+        if (!toolsGrid) return;
+        
+        const rotationRow = document.createElement('div');
+        rotationRow.className = 'tools-row rotation-controls';
+        
+        rotationRow.innerHTML = `
+            <button class="btn-tool rotation rotate-left" id="btn-rotate-left" title="1° nach links drehen">
+                <span style="font-size: 18px;">↺</span> -1°
+            </button>
+            <button class="btn-tool rotation rotate-right" id="btn-rotate-right" title="1° nach rechts drehen">
+                <span style="font-size: 18px;">↻</span> +1°
+            </button>
+            <button class="btn-tool rotation reset" id="btn-reset-rotation" title="Rotation zurücksetzen">
+                <span style="font-size: 16px;">⌂</span> 0°
+            </button>
+        `;
+        
+        toolsGrid.insertBefore(rotationRow, toolsGrid.firstChild);
+        
+        // Event Listeners für dynamisch erstellte Buttons
+        document.getElementById('btn-rotate-left').addEventListener('click', () => rotateByDegrees(-1));
+        document.getElementById('btn-rotate-right').addEventListener('click', () => rotateByDegrees(1));
+        document.getElementById('btn-reset-rotation').addEventListener('click', () => {
+            currentRotation = 0;
+            updateShapeWithScale(calculateOptimalScale(getCurrentFormData()));
+            updateRotationDisplay();
+            showFeedback('Rotation zurückgesetzt');
+        });
     }
-    
-    // Event Listeners hinzufügen
-    document.getElementById('btn-rotate-left').addEventListener('click', () => rotateByDegrees(-1));
-    document.getElementById('btn-rotate-right').addEventListener('click', () => rotateByDegrees(1));
-    document.getElementById('btn-reset-rotation').addEventListener('click', () => {
-        currentRotation = 0;
-        updateShapeWithScale(calculateOptimalScale(getCurrentFormData()));
-        updateRotationDisplay();
-        showFeedback('Rotation zurückgesetzt');
-    });
 }
 
 // NEUE FUNKTION: Präzise Rotation um bestimmte Grad
@@ -612,9 +643,10 @@ function updateShapeWithScale(scale) {
         drawCurrentShape(shapeGroup, data, scale);
     }
     
-    if (cornerGroup) {
-        drawCornerHandlesOnShape(cornerGroup, data, scale);
-    }
+    // KORRIGIERT: Corner-Handles nicht mehr zeichnen
+    // if (cornerGroup) {
+    //     drawCornerHandlesOnShape(cornerGroup, data, scale);
+    // }
     
     if (labelsGroup) {
         drawLabelsOnShape(labelsGroup, data, scale);
@@ -848,27 +880,9 @@ function getActualCornerPositions(data, scale) {
 }
 
 function drawCornerHandlesOnShape(group, data, scale) {
-    const corners = getActualCornerPositions(data, scale);
-    
-    corners.forEach((corner, index) => {
-        const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        handle.setAttribute('cx', corner.x);
-        handle.setAttribute('cy', corner.y);
-        handle.setAttribute('r', CORNER_RADIUS);
-        handle.setAttribute('fill', 'rgba(0, 123, 255, 0.7)');
-        handle.setAttribute('stroke', '#007bff');
-        handle.setAttribute('stroke-width', '2');
-        handle.style.cursor = 'grab';
-        group.appendChild(handle);
-        
-        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        dot.setAttribute('cx', corner.x);
-        dot.setAttribute('cy', corner.y);
-        dot.setAttribute('r', '2');
-        dot.setAttribute('fill', 'white');
-        dot.style.pointerEvents = 'none';
-        group.appendChild(dot);
-    });
+    // ENTFERNT: Keine Corner-Handles mehr zeichnen
+    // Die bunten Punkte an den Ecken werden nicht mehr angezeigt
+    console.log('Corner-Handles deaktiviert - keine visuellen Handles mehr');
 }
 
 function drawLabelsOnShape(group, data, scale) {
@@ -925,51 +939,24 @@ function createLabel(x, y, text, color) {
     return label;
 }
 
-// Maus-Events (vereinfacht)
+// Maus-Events (DEAKTIVIERT - nur für Referenz behalten)
 function handleMouseDown(event) {
-    event.preventDefault();
-    const rect = svg.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-    
-    if (isNearCorner(mouseX, mouseY)) {
-        startDragging(mouseX, mouseY);
-    }
+    // DEAKTIVIERT: Kein manuelles Drehen mehr
+    console.log('Manuelles Drehen ist deaktiviert - verwende die Rotations-Buttons');
 }
 
 function handleMouseMove(event) {
-    if (!isDragging) {
-        const rect = svg.getBoundingClientRect();
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
-        svg.style.cursor = isNearCorner(mouseX, mouseY) ? 'grab' : 'default';
-        return;
-    }
-    
-    event.preventDefault();
-    const rect = svg.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-    updateRotation(mouseX, mouseY);
+    // DEAKTIVIERT: Kein manuelles Drehen mehr
+    // Nur noch Standard-Cursor
+    svg.style.cursor = 'default';
 }
 
 function handleMouseUp(event) {
-    if (isDragging) {
-        stopDragging();
-    }
+    // DEAKTIVIERT: Kein manuelles Drehen mehr
 }
 
 function isNearCorner(x, y) {
-    const data = getCurrentFormData();
-    const scale = calculateOptimalScale(data);
-    const corners = getActualCornerPositions(data, scale);
-    
-    for (const corner of corners) {
-        const distance = Math.sqrt((x - corner.x) * (x - corner.x) + (y - corner.y) * (y - corner.y));
-        if (distance <= CORNER_RADIUS * 2) {
-            return true;
-        }
-    }
+    // DEAKTIVIERT: Keine Corner-Detection mehr nötig
     return false;
 }
 
