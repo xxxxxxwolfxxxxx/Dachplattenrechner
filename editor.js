@@ -1366,41 +1366,62 @@ function loadAndDrawShape() {
 }
 
 // KORRIGIERT: Erweiterte Shape-Bestimmung
+// OPTIMIERT: Cache für Shape-Bestimmung
+let shapeCache = {
+    lastShape: '',
+    lastVariant: '',
+    lastResult: ''
+};
+
 function determineActualShape() {
+    // Cache-Check um wiederholte Berechnungen zu vermeiden
+    if (shapeCache.lastShape === currentShape && shapeCache.lastVariant === currentVariant) {
+        return shapeCache.lastResult;
+    }
+    
     console.log('determineActualShape - Input:', { currentShape, currentVariant });
     
+    let result = 'rechteck'; // Fallback
+    
     // Spezialfall: Wenn variant direkt eine Shape ist
-    if (currentVariant === 'quadrat') return 'quadrat';
-    if (currentVariant === 'trapez') return 'trapez';
-    if (currentVariant === 'parallelogramm') return 'parallelogramm';
-    if (currentVariant === 'rhombus') return 'rhombus';
+    if (currentVariant === 'quadrat') result = 'quadrat';
+    else if (currentVariant === 'trapez') result = 'trapez';
+    else if (currentVariant === 'parallelogramm') result = 'parallelogramm';
+    else if (currentVariant === 'rhombus') result = 'rhombus';
     
     // Kreisformen
-    if (currentShape === 'kreis') {
+    else if (currentShape === 'kreis') {
         if (['oval', 'halbkreis', 'viertelkreis', 'langloch'].includes(currentVariant)) {
-            return currentVariant;
+            result = currentVariant;
+        } else {
+            result = 'kreis';
         }
-        return 'kreis';
     }
     
     // Dreiecke
-    if (currentShape === 'dreieck') {
-        if (['gleichseitig', 'rechtwinklig', 'ungleichschenklig'].includes(currentVariant)) {
-            return 'dreieck';
-        }
-        return 'dreieck';
+    else if (currentShape === 'dreieck') {
+        result = 'dreieck';
     }
     
     // Vielecke
-    if (currentShape === 'vieleck') {
+    else if (currentShape === 'vieleck') {
         if (['fuenfeck', 'sechseck', 'achteck', 'lform', 'tform', 'uform'].includes(currentVariant)) {
-            return currentVariant;
+            result = currentVariant;
+        } else {
+            result = 'fuenfeck';
         }
-        return 'fuenfeck'; // Default
     }
     
-    // Fallback zu Rechteck
-    const result = currentShape || 'rechteck';
+    // Fallback
+    else {
+        result = currentShape || 'rechteck';
+    }
+    
+    // Cache aktualisieren
+    shapeCache.lastShape = currentShape;
+    shapeCache.lastVariant = currentVariant;
+    shapeCache.lastResult = result;
+    
     console.log('determineActualShape - Result:', result);
     return result;
 }
@@ -1542,14 +1563,23 @@ function createInput(labelText, id, defaultValue) {
 
 function handleInputChange() {
     if (isUpdating) return;
-    isUpdating = true;
     
-    const data = getCurrentFormData();
-    const newScale = calculateDynamicScale(data);
-    
-    updateShapeWithScale(newScale);
-    
-    setTimeout(() => { isUpdating = false; }, 50);
+    // Throttle Input-Changes - nur alle 100ms verarbeiten
+    clearTimeout(window.inputTimeout);
+    window.inputTimeout = setTimeout(() => {
+        if (isUpdating) return;
+        isUpdating = true;
+        
+        try {
+            const data = getCurrentFormData();
+            const newScale = calculateDynamicScale(data);
+            updateShapeWithScale(newScale);
+        } catch (error) {
+            console.error('Input-Change Fehler:', error);
+        } finally {
+            setTimeout(() => { isUpdating = false; }, 50);
+        }
+    }, 100);
 }
 
 function calculateDynamicScale(data) {
@@ -1657,11 +1687,14 @@ function getCurrentFormData() {
     return data;
 }
 
-// KORRIGIERT: Erweiterte Shape-Zeichnung für alle Formen mit Rotation
+// KORRIGIERT: Erweiterte Shape-Zeichnung für alle Formen mit Rotation - OPTIMIERT
 function drawCurrentShape(group, data, scale = SCALE_FACTOR) {
     const finalShape = determineActualShape();
     
-    console.log('Zeichne Form:', finalShape, 'mit Daten:', data, 'Rotation:', currentRotation);
+    // Weniger Logging für Performance
+    if (Math.random() < 0.1) { // Nur 10% der Aufrufe loggen
+        console.log('Zeichne Form:', finalShape, 'Rotation:', currentRotation);
+    }
     
     // Kreisformen
     if (finalShape === 'kreis') {
