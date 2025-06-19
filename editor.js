@@ -26,14 +26,26 @@ function drawRectangleShape(group, data, scale = SCALE_FACTOR) {
     group.appendChild(rect);
 }
 
-// KORRIGIERT: Erweiterte Corner-Handles für alle Formen
+// KORRIGIERT: Corner-Handles mit korrekter Rotation
 function drawCornerHandlesOnShape(group, data, scale = SCALE_FACTOR) {
     const corners = getActualCornerPositions(data, scale);
     
     corners.forEach((corner, index) => {
+        // Rotation auf Corner-Positionen anwenden
+        let cornerX = corner.x;
+        let cornerY = corner.y;
+        
+        if (currentRotation !== 0) {
+            const angle = (currentRotation * Math.PI) / 180;
+            const relX = corner.x - CANVAS_CENTER_X;
+            const relY = corner.y - CANVAS_CENTER_Y;
+            cornerX = CANVAS_CENTER_X + relX * Math.cos(angle) - relY * Math.sin(angle);
+            cornerY = CANVAS_CENTER_Y + relX * Math.sin(angle) + relY * Math.cos(angle);
+        }
+        
         const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        handle.setAttribute('cx', corner.x);
-        handle.setAttribute('cy', corner.y);
+        handle.setAttribute('cx', cornerX);
+        handle.setAttribute('cy', cornerY);
         handle.setAttribute('r', CORNER_RADIUS);
         handle.setAttribute('fill', 'rgba(0, 123, 255, 0.7)');
         handle.setAttribute('stroke', '#007bff');
@@ -42,8 +54,8 @@ function drawCornerHandlesOnShape(group, data, scale = SCALE_FACTOR) {
         group.appendChild(handle);
         
         const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        dot.setAttribute('cx', corner.x);
-        dot.setAttribute('cy', corner.y);
+        dot.setAttribute('cx', cornerX);
+        dot.setAttribute('cy', cornerY);
         dot.setAttribute('r', '2');
         dot.setAttribute('fill', 'white');
         dot.style.pointerEvents = 'none';
@@ -290,31 +302,47 @@ function getActualCornerPositions(data, scale = SCALE_FACTOR) {
     return corners;
 }
 
+// KORRIGIERT: Labels mit Rotation
 function drawLabelsOnShape(group, data, scale = SCALE_FACTOR) {
     const corners = getActualCornerPositions(data, scale);
     const finalShape = determineActualShape();
+    
+    // Funktion um Punkt zu rotieren
+    function rotatePoint(x, y) {
+        if (currentRotation === 0) return { x, y };
+        const angle = (currentRotation * Math.PI) / 180;
+        const relX = x - CANVAS_CENTER_X;
+        const relY = y - CANVAS_CENTER_Y;
+        return {
+            x: CANVAS_CENTER_X + relX * Math.cos(angle) - relY * Math.sin(angle),
+            y: CANVAS_CENTER_Y + relX * Math.sin(angle) + relY * Math.cos(angle)
+        };
+    }
     
     if (finalShape === 'dreieck' && corners.length >= 3) {
         // Seite A (zwischen Punkt 1 und 2)
         const sideAMidX = (corners[1].x + corners[2].x) / 2;
         const sideAMidY = (corners[1].y + corners[2].y) / 2;
-        const sideALabel = createLabel(sideAMidX, sideAMidY + 15, 'A', '#dc3545');
+        const rotatedA = rotatePoint(sideAMidX, sideAMidY + 15);
+        const sideALabel = createLabel(rotatedA.x, rotatedA.y, 'A', '#dc3545');
         group.appendChild(sideALabel);
         
         // Seite B (zwischen Punkt 0 und 1)
         const sideBMidX = (corners[0].x + corners[1].x) / 2;
         const sideBMidY = (corners[0].y + corners[1].y) / 2;
-        const sideBLabel = createLabel(sideBMidX - 15, sideBMidY, 'B', '#28a745');
+        const rotatedB = rotatePoint(sideBMidX - 15, sideBMidY);
+        const sideBLabel = createLabel(rotatedB.x, rotatedB.y, 'B', '#28a745');
         group.appendChild(sideBLabel);
         
         // Seite C (zwischen Punkt 0 und 2)
         const sideCMidX = (corners[0].x + corners[2].x) / 2;
         const sideCMidY = (corners[0].y + corners[2].y) / 2;
-        const sideCLabel = createLabel(sideCMidX + 15, sideCMidY, 'C', '#ffc107');
+        const rotatedC = rotatePoint(sideCMidX + 15, sideCMidY);
+        const sideCLabel = createLabel(rotatedC.x, rotatedC.y, 'C', '#ffc107');
         group.appendChild(sideCLabel);
         
     } else if (corners.length >= 4 && ['quadrat', 'rechteck', 'trapez', 'parallelogramm', 'rhombus'].includes(finalShape)) {
-        // Viereck-Labels
+        // Viereck-Labels mit Rotation
         const labels = ['A', 'B', 'C', 'D'];
         const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107'];
         const offsets = [
@@ -328,12 +356,14 @@ function drawLabelsOnShape(group, data, scale = SCALE_FACTOR) {
             const nextI = (i + 1) % corners.length;
             const midX = (corners[i].x + corners[nextI].x) / 2;
             const midY = (corners[i].y + corners[nextI].y) / 2;
-            const label = createLabel(midX + offsets[i].x, midY + offsets[i].y, labels[i], colors[i]);
+            const rotated = rotatePoint(midX + offsets[i].x, midY + offsets[i].y);
+            const label = createLabel(rotated.x, rotated.y, labels[i], colors[i]);
             group.appendChild(label);
         }
     } else if (['kreis', 'oval'].includes(finalShape)) {
-        // Radius-Labels für Kreisformen
-        const label = createLabel(CANVAS_CENTER_X + 15, CANVAS_CENTER_Y - 15, 'R', '#007bff');
+        // Radius-Labels für Kreisformen mit Rotation
+        const rotated = rotatePoint(CANVAS_CENTER_X + 15, CANVAS_CENTER_Y - 15);
+        const label = createLabel(rotated.x, rotated.y, 'R', '#007bff');
         group.appendChild(label);
     }
 }
@@ -393,7 +423,19 @@ function isNearCorner(x, y) {
     const corners = getActualCornerPositions(data, scale);
     
     for (const corner of corners) {
-        const distance = Math.sqrt((x - corner.x) * (x - corner.x) + (y - corner.y) * (y - corner.y));
+        // Berücksichtige Rotation bei der Maus-Hit-Detection
+        let cornerX = corner.x;
+        let cornerY = corner.y;
+        
+        if (currentRotation !== 0) {
+            const angle = (currentRotation * Math.PI) / 180;
+            const relX = corner.x - CANVAS_CENTER_X;
+            const relY = corner.y - CANVAS_CENTER_Y;
+            cornerX = CANVAS_CENTER_X + relX * Math.cos(angle) - relY * Math.sin(angle);
+            cornerY = CANVAS_CENTER_Y + relX * Math.sin(angle) + relY * Math.cos(angle);
+        }
+        
+        const distance = Math.sqrt((x - cornerX) * (x - cornerX) + (y - cornerY) * (y - cornerY));
         if (distance <= CORNER_RADIUS * 2) {
             return true;
         }
@@ -1516,7 +1558,7 @@ function calculateDynamicScale(data) {
     
     let maxDimension = 0;
     
-    // KORRIGIERT: Berücksichtige alle Formen
+    // KORRIGIERT: Berücksichtige alle Formen mit einheitlicheren Größen
     if (finalShape === 'kreis' || finalShape === 'fuenfeck' || finalShape === 'sechseck' || finalShape === 'achteck') {
         maxDimension = (data.radius || 3) * 2;
     } else if (finalShape === 'oval') {
@@ -1544,7 +1586,7 @@ function calculateDynamicScale(data) {
     } else if (finalShape === 'lform') {
         maxDimension = Math.max(data.length1 || 8, data.width1 || 3, data.length2 || 5, data.width2 || 4);
     } else if (finalShape === 'tform') {
-        maxDimension = Math.max(data.headWidth || 8, data.headHeight + data.stemHeight || 7);
+        maxDimension = Math.max(data.headWidth || 8, (data.headHeight || 2) + (data.stemHeight || 5));
     } else if (finalShape === 'uform') {
         maxDimension = Math.max(data.outerWidth || 8, data.outerHeight || 6);
     } else {
@@ -1552,11 +1594,13 @@ function calculateDynamicScale(data) {
         maxDimension = Math.max(data.length || 8, data.width || 5);
     }
     
-    const availableSpace = Math.min(500, 300);
-    let scale = (availableSpace * 0.7) / maxDimension;
+    // Einheitlicherer Maßstab: Alle Formen etwa gleich groß darstellen
+    const availableSpace = Math.min(400, 250); // Etwas kleiner für einheitlichere Darstellung
+    let scale = (availableSpace * 0.6) / maxDimension; // Etwas weniger Platz nutzen
     
-    scale = Math.max(scale, 15);
-    scale = Math.min(scale, 120);
+    // Engere Grenzen für einheitlichere Größe
+    scale = Math.max(scale, 25);   // Mindestens 25px pro Meter
+    scale = Math.min(scale, 80);   // Höchstens 80px pro Meter
     
     return scale;
 }
@@ -1574,7 +1618,10 @@ function updateShapeWithScale(scale) {
     if (cornerGroup) cornerGroup.innerHTML = '';
     if (labelsGroup) labelsGroup.innerHTML = '';
     
+    // WICHTIG: Entferne Transform vom Shape-Group, da wir die Rotation 
+    // bereits in den Koordinaten-Berechnungen berücksichtigen
     if (shapeGroup) {
+        shapeGroup.removeAttribute('transform');
         drawCurrentShape(shapeGroup, data, scale);
     }
     
@@ -1610,11 +1657,11 @@ function getCurrentFormData() {
     return data;
 }
 
-// KORRIGIERT: Erweiterte Shape-Zeichnung für alle Formen
+// KORRIGIERT: Erweiterte Shape-Zeichnung für alle Formen mit Rotation
 function drawCurrentShape(group, data, scale = SCALE_FACTOR) {
     const finalShape = determineActualShape();
     
-    console.log('Zeichne Form:', finalShape, 'mit Daten:', data);
+    console.log('Zeichne Form:', finalShape, 'mit Daten:', data, 'Rotation:', currentRotation);
     
     // Kreisformen
     if (finalShape === 'kreis') {
@@ -1665,7 +1712,7 @@ function drawCurrentShape(group, data, scale = SCALE_FACTOR) {
         drawRectangleShape(group, data, scale);
     }
     
-    // Rotation anwenden
+    // KORRIGIERT: Rotation auf die gesamte Gruppe anwenden
     if (currentRotation !== 0) {
         group.setAttribute('transform', `rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`);
     }
