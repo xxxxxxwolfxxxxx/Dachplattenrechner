@@ -1,4 +1,4 @@
-// Editor.js - VERBESSERT mit Rotations-Buttons und visueller Rückmeldung
+// Editor.js - KORRIGIERT für alle Dachformen
 
 let projectData = {};
 let currentShape = '';
@@ -25,6 +25,13 @@ const CORNER_RADIUS = 8;
 const MIN_SCALE = 20;
 const MAX_SCALE = 120;
 const CANVAS_PADDING = 60; // Mehr Padding für bessere Sichtbarkeit
+
+// WICHTIG: Shape-Cache hier definieren
+let shapeCache = {
+    lastShape: '',
+    lastVariant: '',
+    lastResult: ''
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
@@ -319,8 +326,17 @@ function highlightAlignedEdges(alignedEdges) {
 
 // NEUE FUNKTION: Entferne Ausrichtungs-Highlights
 function removeAlignmentHighlights() {
+    if (!svg) return;
+    
+    // Entferne alle Highlight-Linien
     const highlights = svg.querySelectorAll('[id^="alignment-highlight-"]');
     highlights.forEach(highlight => highlight.remove());
+    
+    // Entferne auch die Highlight-Gruppe falls vorhanden
+    const highlightGroup = document.getElementById('alignment-highlights');
+    if (highlightGroup) {
+        highlightGroup.innerHTML = '';
+    }
 }
 
 // NEUE FUNKTION: Zeige Ausrichtungs-Feedback
@@ -1464,7 +1480,9 @@ function handleMouseDown(event) {
 function handleMouseMove(event) {
     // DEAKTIVIERT: Kein manuelles Drehen mehr
     // Nur noch Standard-Cursor
-    svg.style.cursor = 'default';
+    if (svg) {
+        svg.style.cursor = 'default';
+    }
 }
 
 function handleMouseUp(event) {
@@ -1474,6 +1492,18 @@ function handleMouseUp(event) {
 function isNearCorner(x, y) {
     // DEAKTIVIERT: Keine Corner-Detection mehr nötig
     return false;
+}
+
+function startDragging(x, y) {
+    // DEAKTIVIERT
+}
+
+function updateRotation(x, y) {
+    // DEAKTIVIERT
+}
+
+function stopDragging() {
+    // DEAKTIVIERT
 }
 
 function startDragging(x, y) {
@@ -1573,8 +1603,10 @@ function updateCalculations(data) {
     if (perimeterElement) perimeterElement.textContent = perimeter.toFixed(2) + ' m';
 }
 
-// Event Listeners
+// Event Listeners und Setup-Funktionen
 function setupEventListeners() {
+    console.log('setupEventListeners aufgerufen');
+    
     const backBtn = document.getElementById('btn-back');
     const continueBtn = document.getElementById('btn-continue');
     
@@ -1583,6 +1615,7 @@ function setupEventListeners() {
             saveCurrentData();
             window.location.href = 'dachform.html';
         });
+        console.log('Back-Button Event Listener hinzugefügt');
     }
     
     if (continueBtn) {
@@ -1590,6 +1623,7 @@ function setupEventListeners() {
             saveCurrentData();
             window.location.href = 'berechnung.html';
         });
+        console.log('Continue-Button Event Listener hinzugefügt');
     }
     
     const resetBtn = document.getElementById('btn-reset');
@@ -1597,6 +1631,7 @@ function setupEventListeners() {
         resetBtn.addEventListener('click', function() {
             resetToDefaults();
         });
+        console.log('Reset-Button Event Listener hinzugefügt');
     }
 }
 
@@ -1815,4 +1850,23 @@ function calculateDimensions(data) {
     }
 }
 
-console.log('Verbesserte Editor.js mit Rotations-Controls und visueller Rückmeldung geladen');
+console.log('Korrigierte Editor.js mit vollständiger Funktionalität geladen');
+
+// WICHTIG: Diese Funktion muss am Ende der Datei stehen
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('=== EDITOR DOM CONTENT LOADED ===');
+    setTimeout(() => {
+        try {
+            console.log('Starte Editor-Initialisierung...');
+            loadProjectData();
+            initializeCanvas();
+            initializeUI();
+            loadAndDrawShape();
+            setupEventListeners();
+            console.log('✅ Editor erfolgreich initialisiert');
+        } catch (error) {
+            console.error('❌ Editor-Fehler:', error);
+            console.error('Stack:', error.stack);
+        }
+    }, 100);
+});
