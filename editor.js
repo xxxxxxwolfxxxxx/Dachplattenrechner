@@ -735,7 +735,6 @@ function drawPolygonVariant(group, data, scale, variant) {
     let points = '';
     
     if (variant === 'fuenfeck' || variant === 'sechseck' || variant === 'achteck') {
-        // Regelmäßige Vielecke mit Radius
         const radius = (data.radius || 4) * scale;
         const sides = variant === 'fuenfeck' ? 5 : (variant === 'sechseck' ? 6 : 8);
         const pointsArray = [];
@@ -749,7 +748,6 @@ function drawPolygonVariant(group, data, scale, variant) {
         points = pointsArray.join(' ');
     } 
     else if (variant === 'lform') {
-        // L-Form mit besseren Parametern
         const length = (data.length || 8) * scale;
         const width = (data.width || 6) * scale;
         const cutout = (data.cutout || 3) * scale;
@@ -764,26 +762,24 @@ function drawPolygonVariant(group, data, scale, variant) {
         points = `${leftX},${topY} ${cutX},${topY} ${cutX},${cutY} ${rightX},${cutY} ${rightX},${bottomY} ${leftX},${bottomY}`;
     } 
     else if (variant === 'tform') {
-        // T-Form mit spezifischen Parametern
         const headWidth = (data.headWidth || 8) * scale;
         const stemWidth = (data.stemWidth || 3) * scale;
         const height = (data.height || 6) * scale;
         
         const topY = centerY - height/2;
         const bottomY = centerY + height/2;
-        const stemTop = topY + height/3; // 1/3 für den Kopf
+        const stemTop = topY + height/3;
         
         points = `${centerX - headWidth/2},${topY} ${centerX + headWidth/2},${topY} ${centerX + headWidth/2},${stemTop} ${centerX + stemWidth/2},${stemTop} ${centerX + stemWidth/2},${bottomY} ${centerX - stemWidth/2},${bottomY} ${centerX - stemWidth/2},${stemTop} ${centerX - headWidth/2},${stemTop}`;
     } 
     else if (variant === 'uform') {
-        // U-Form mit spezifischen Parametern
         const outerWidth = (data.outerWidth || 8) * scale;
         const innerWidth = (data.innerWidth || 4) * scale;
         const height = (data.height || 6) * scale;
         
         const topY = centerY - height/2;
         const bottomY = centerY + height/2;
-        const innerBottom = bottomY - height/3; // 2/3 Tiefe
+        const innerBottom = bottomY - height/3;
         
         points = `${centerX - outerWidth/2},${topY} ${centerX + outerWidth/2},${topY} ${centerX + outerWidth/2},${bottomY} ${centerX + innerWidth/2},${bottomY} ${centerX + innerWidth/2},${innerBottom} ${centerX - innerWidth/2},${innerBottom} ${centerX - innerWidth/2},${bottomY} ${centerX - outerWidth/2},${bottomY}`;
     }
