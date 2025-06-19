@@ -173,44 +173,56 @@ function startRotationRepeat(direction) {
     isMouseDown = true;
     rotationSpeed = 1;
     
-    rotateByDegrees(direction * rotationSpeed);
+    // Erste Drehung: Nur 1°
+    rotateByDegrees(direction * 1);
     
+    // Warten auf gedrückt halten (800ms)
     rotationTimeout = setTimeout(() => {
         if (!isMouseDown) return;
         
+        // Phase 1: Langsam (1° alle 200ms)
+        rotationSpeed = 1;
         rotationInterval = setInterval(() => {
             if (!isMouseDown) return;
-            
             rotateByDegrees(direction * rotationSpeed);
+        }, 200);
+        
+        // Phase 2: Nach 2 Sekunden etwas schneller (1° alle 100ms)
+        setTimeout(() => {
+            if (!isMouseDown) return;
+            clearInterval(rotationInterval);
             
-            if (rotationSpeed === 1) {
+            rotationSpeed = 1;
+            rotationInterval = setInterval(() => {
+                if (!isMouseDown) return;
+                rotateByDegrees(direction * rotationSpeed);
+            }, 100);
+            
+            // Phase 3: Nach weiteren 3 Sekunden schneller (2° alle 80ms)
+            setTimeout(() => {
+                if (!isMouseDown) return;
+                clearInterval(rotationInterval);
+                
+                rotationSpeed = 2;
+                rotationInterval = setInterval(() => {
+                    if (!isMouseDown) return;
+                    rotateByDegrees(direction * rotationSpeed);
+                }, 80);
+                
+                // Phase 4: Nach weiteren 3 Sekunden am schnellsten (3° alle 60ms)
                 setTimeout(() => {
-                    if (isMouseDown) {
-                        clearInterval(rotationInterval);
-                        
-                        rotationSpeed = 2;
-                        rotationInterval = setInterval(() => {
-                            if (!isMouseDown) return;
-                            
-                            rotateByDegrees(direction * rotationSpeed);
-                            
-                            setTimeout(() => {
-                                if (isMouseDown) {
-                                    clearInterval(rotationInterval);
-                                    
-                                    rotationSpeed = 5;
-                                    rotationInterval = setInterval(() => {
-                                        if (!isMouseDown) return;
-                                        rotateByDegrees(direction * rotationSpeed);
-                                    }, 50);
-                                }
-                            }, 1500);
-                        }, 100);
-                    }
-                }, 1000);
-            }
-        }, 150);
-    }, 300);
+                    if (!isMouseDown) return;
+                    clearInterval(rotationInterval);
+                    
+                    rotationSpeed = 3;
+                    rotationInterval = setInterval(() => {
+                        if (!isMouseDown) return;
+                        rotateByDegrees(direction * rotationSpeed);
+                    }, 60);
+                }, 3000);
+            }, 3000);
+        }, 2000);
+    }, 800); // Längere Wartezeit vor Auto-Repeat
 }
 
 function stopRotationRepeat() {
@@ -963,30 +975,47 @@ function drawLabelsOnShape(group, data, scale) {
         const labels = ['A', 'B', 'C'];
         const colors = ['#dc3545', '#28a745', '#ffc107'];
         
+        // KORRIGIERTE Positionierung: Näher an den Seiten/Ecken
         for (let i = 0; i < 3; i++) {
-            const nextI = (i + 1) % 3;
-            const midX = (corners[i].x + corners[nextI].x) / 2;
-            const midY = (corners[i].y + corners[nextI].y) / 2;
+            const corner = corners[i];
             
-            const label = createLabel(midX, midY + 15, labels[i], colors[i]);
+            // Label direkt bei der Ecke positionieren mit kleinem Offset
+            let offsetX = 0;
+            let offsetY = 0;
+            
+            // Bestimme Offset basierend auf Ecken-Position relativ zum Zentrum
+            if (corner.x < CANVAS_CENTER_X) offsetX = -15; // Links
+            else if (corner.x > CANVAS_CENTER_X) offsetX = 15; // Rechts
+            
+            if (corner.y < CANVAS_CENTER_Y) offsetY = -10; // Oben
+            else if (corner.y > CANVAS_CENTER_Y) offsetY = 20; // Unten
+            
+            // Spezielle Behandlung für obere Ecke
+            if (i === 0) { // Obere Ecke
+                offsetY = -10;
+                offsetX = 0;
+            }
+            
+            const label = createLabel(corner.x + offsetX, corner.y + offsetY, labels[i], colors[i]);
             group.appendChild(label);
         }
     } else if (corners.length >= 4 && ['quadrat', 'rechteck', 'trapez'].includes(finalShape)) {
         const labels = ['A', 'B', 'C', 'D'];
         const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107'];
+        
+        // KORRIGIERTE Positionierung: Direkt an den Ecken
         const offsets = [
-            { x: 0, y: -12 },   // A oben
-            { x: 12, y: 0 },    // B rechts
-            { x: 0, y: 15 },    // C unten
-            { x: -12, y: 0 }    // D links
+            { x: -15, y: -10 },   // A oben-links
+            { x: 15, y: -10 },    // B oben-rechts
+            { x: 15, y: 20 },     // C unten-rechts
+            { x: -15, y: 20 }     // D unten-links
         ];
         
         for (let i = 0; i < Math.min(4, corners.length); i++) {
-            const nextI = (i + 1) % corners.length;
-            const midX = (corners[i].x + corners[nextI].x) / 2;
-            const midY = (corners[i].y + corners[nextI].y) / 2;
+            const corner = corners[i];
+            const offset = offsets[i];
             
-            const label = createLabel(midX + offsets[i].x, midY + offsets[i].y, labels[i], colors[i]);
+            const label = createLabel(corner.x + offset.x, corner.y + offset.y, labels[i], colors[i]);
             group.appendChild(label);
         }
     }
