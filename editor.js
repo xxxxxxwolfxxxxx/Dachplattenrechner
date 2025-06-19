@@ -926,30 +926,30 @@ function generateRoofPoints(data) {
             ];
             break;
         case 'halbkreis':
-            const halfRadius = data.radius || 4;
+            const halfCircleRadius = data.radius || 4;
             for (let i = 0; i <= 8; i++) {
                 const angle = (i * Math.PI) / 8;
                 points.push({
-                    x: halfRadius * Math.cos(angle),
-                    y: halfRadius * Math.sin(angle)
+                    x: halfCircleRadius * Math.cos(angle),
+                    y: halfCircleRadius * Math.sin(angle)
                 });
             }
             break;
         case 'viertelkreis':
-            const quarterRadius = data.radius || 5;
+            const quarterCircleRadius = data.radius || 5;
             points = [{ x: 0, y: 0 }];
             for (let i = 0; i <= 4; i++) {
                 const angle = (i * Math.PI / 2) / 4;
                 points.push({
-                    x: quarterRadius * Math.cos(angle),
-                    y: quarterRadius * Math.sin(angle)
+                    x: quarterCircleRadius * Math.cos(angle),
+                    y: quarterCircleRadius * Math.sin(angle)
                 });
             }
             break;
         case 'langloch':
             const langLength = data.length || 8;
             const langWidth = data.width || 3;
-            const radius = langWidth / 2;
+            const langlochRadius = langWidth / 2;
             const straightLength = langLength - langWidth;
             // Vereinfacht als Rechteck mit abgerundeten Enden
             points = [
@@ -986,16 +986,16 @@ function calculateArea(data) {
             const radiusY = data.radiusY || 2.5;
             return Math.PI * radiusX * radiusY;
         case 'halbkreis':
-            const halfRadius = data.radius || 4;
-            return (Math.PI * halfRadius * halfRadius) / 2;
+            const halfCircleRadius = data.radius || 4;
+            return (Math.PI * halfCircleRadius * halfCircleRadius) / 2;
         case 'viertelkreis':
-            const quarterRadius = data.radius || 5;
-            return (Math.PI * quarterRadius * quarterRadius) / 4;
+            const quarterCircleRadius = data.radius || 5;
+            return (Math.PI * quarterCircleRadius * quarterCircleRadius) / 4;
         case 'langloch':
-            const length = data.length || 8;
-            const width = data.width || 3;
-            const r = width / 2;
-            return (length - width) * width + Math.PI * r * r;
+            const langLochLength = data.length || 8;
+            const langLochWidth = data.width || 3;
+            const langLochR = langLochWidth / 2;
+            return (langLochLength - langLochWidth) * langLochWidth + Math.PI * langLochR * langLochR;
         case 'rechteck':
             return (data.length || 8) * (data.width || 5);
         case 'quadrat':
@@ -1063,8 +1063,8 @@ function calculateDimensions(data) {
     
     switch (finalShape) {
         case 'kreis':
-            const radius = data.radius || 3;
-            return { length: radius * 2, width: radius * 2 };
+            const circleRadius = data.radius || 3;
+            return { length: circleRadius * 2, width: circleRadius * 2 };
         case 'oval':
             const radiusX = data.radiusX || 4;
             const radiusY = data.radiusY || 2.5;
