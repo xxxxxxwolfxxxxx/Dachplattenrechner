@@ -2077,19 +2077,40 @@ function getActualCornerPositions(data, scale) {
         }
     }
     
-    // L-Form, T-Form, U-Form (gekürzt für weniger Code)
-    else if (finalShape === 'lform') {
-        const length1 = (data.length1 || 8) * scale;
-        const width1 = (data.width1 || 3) * scale;
-        const length2 = (data.length2 || 5) * scale;
-        const width2 = (data.width2 || 4) * scale;
+    // T-Form und U-Form (vollständige Implementierung)
+    else if (finalShape === 'tform') {
+        const headWidth = (data.headWidth || 8) * scale;
+        const headHeight = (data.headHeight || 2) * scale;
+        const stemWidth = (data.stemWidth || 3) * scale;
+        const stemHeight = (data.stemHeight || 5) * scale;
+        const totalHeight = headHeight + stemHeight;
         corners = [
-            { x: CANVAS_CENTER_X - length1/2, y: CANVAS_CENTER_Y - width1/2 },
-            { x: CANVAS_CENTER_X - length1/2 + length2, y: CANVAS_CENTER_Y - width1/2 },
-            { x: CANVAS_CENTER_X - length1/2 + length2, y: CANVAS_CENTER_Y - width1/2 + width2 },
-            { x: CANVAS_CENTER_X + length1/2, y: CANVAS_CENTER_Y - width1/2 + width2 },
-            { x: CANVAS_CENTER_X + length1/2, y: CANVAS_CENTER_Y + width1/2 },
-            { x: CANVAS_CENTER_X - length1/2, y: CANVAS_CENTER_Y + width1/2 }
+            { x: CANVAS_CENTER_X - headWidth/2, y: CANVAS_CENTER_Y - totalHeight/2 },
+            { x: CANVAS_CENTER_X + headWidth/2, y: CANVAS_CENTER_Y - totalHeight/2 },
+            { x: CANVAS_CENTER_X + headWidth/2, y: CANVAS_CENTER_Y - totalHeight/2 + headHeight },
+            { x: CANVAS_CENTER_X + stemWidth/2, y: CANVAS_CENTER_Y - totalHeight/2 + headHeight },
+            { x: CANVAS_CENTER_X + stemWidth/2, y: CANVAS_CENTER_Y + totalHeight/2 },
+            { x: CANVAS_CENTER_X - stemWidth/2, y: CANVAS_CENTER_Y + totalHeight/2 },
+            { x: CANVAS_CENTER_X - stemWidth/2, y: CANVAS_CENTER_Y - totalHeight/2 + headHeight },
+            { x: CANVAS_CENTER_X - headWidth/2, y: CANVAS_CENTER_Y - totalHeight/2 + headHeight }
+        ];
+    }
+    
+    // U-Form
+    else if (finalShape === 'uform') {
+        const outerWidth = (data.outerWidth || 8) * scale;
+        const outerHeight = (data.outerHeight || 6) * scale;
+        const innerWidth = (data.innerWidth || 4) * scale;
+        const innerHeight = (data.innerHeight || 4) * scale;
+        corners = [
+            { x: CANVAS_CENTER_X - outerWidth/2, y: CANVAS_CENTER_Y - outerHeight/2 },
+            { x: CANVAS_CENTER_X + outerWidth/2, y: CANVAS_CENTER_Y - outerHeight/2 },
+            { x: CANVAS_CENTER_X + outerWidth/2, y: CANVAS_CENTER_Y + outerHeight/2 },
+            { x: CANVAS_CENTER_X + innerWidth/2, y: CANVAS_CENTER_Y + outerHeight/2 },
+            { x: CANVAS_CENTER_X + innerWidth/2, y: CANVAS_CENTER_Y - outerHeight/2 + (outerHeight - innerHeight) },
+            { x: CANVAS_CENTER_X - innerWidth/2, y: CANVAS_CENTER_Y - outerHeight/2 + (outerHeight - innerHeight) },
+            { x: CANVAS_CENTER_X - innerWidth/2, y: CANVAS_CENTER_Y + outerHeight/2 },
+            { x: CANVAS_CENTER_X - outerWidth/2, y: CANVAS_CENTER_Y + outerHeight/2 }
         ];
     }
     
@@ -2352,23 +2373,4 @@ document.addEventListener('contextmenu', (e) => {
     }
 });
 
-console.log('Korrigierte Editor.js mit Auto-Repeat Rotation geladen');
-
-// WICHTIG: Diese Funktion muss am Ende der Datei stehen
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('=== EDITOR DOM CONTENT LOADED ===');
-    setTimeout(() => {
-        try {
-            console.log('Starte Editor-Initialisierung...');
-            loadProjectData();
-            initializeCanvas();
-            initializeUI();
-            loadAndDrawShape();
-            setupEventListeners();
-            console.log('✅ Editor erfolgreich initialisiert');
-        } catch (error) {
-            console.error('❌ Editor-Fehler:', error);
-            console.error('Stack:', error.stack);
-        }
-    }, 100);
-});
+console.log('Editor.js mit reduziertem Logging erfolgreich geladen');
