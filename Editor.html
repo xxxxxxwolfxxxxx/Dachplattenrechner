@@ -6,40 +6,62 @@
     <title>Smart Geometry Editor - Dachplattenrechner</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Seitenauswahl-spezifische Styles */
-        .side-selection-section {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e9ecef;
+        /* Editor-spezifische Styles */
+        .controls-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            margin: 20px 0;
         }
 
-        .side-selection-section h4 {
-            margin-bottom: 15px;
-            color: #495057;
-            font-size: 16px;
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
         }
 
-        .side-buttons {
-            display: grid;
-            gap: 8px;
-            margin-bottom: 15px;
+        .calc-display {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
         }
 
-        .side-buttons.triangle {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .side-buttons.rectangle {
-            grid-template-columns: repeat(4, 1fr);
-        }
-
-        .side-buttons.polygon {
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-        }
-
-        .btn-side {
-            height: 45px;
+        .calc-display span {
+            background: rgba(0,123,255,0.1);
             padding: 8px 12px;
+            border-radius: 8px;
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        .tools-grid {
+            margin-bottom: 20px;
+        }
+
+        .tools-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        /* NEUE Rotations-Controls Zeile */
+        .tools-row.rotation-controls {
+            grid-template-columns: repeat(3, 1fr);
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .btn-tool {
+            height: 40px;
+            padding: 0 16px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
             background: white;
@@ -49,41 +71,265 @@
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 2px;
+            gap: 5px;
         }
 
-        .btn-side:hover {
+        .btn-tool:hover {
             border-color: #007bff;
             background: #f8f9ff;
             color: #007bff;
+            transform: translateY(-1px);
         }
 
-        .btn-side.active {
-            border-color: #28a745;
-            background: #28a745;
+        .btn-tool.active {
+            border-color: #007bff;
+            background: #007bff;
             color: white;
         }
 
-        .side-label {
-            font-size: 11px;
+        /* NEUE Rotation Button Styles */
+        .btn-tool.rotation {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            height: 45px;
         }
 
-        .orientation-info {
-            background: #e7f3ff;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #b8daff;
-            margin-top: 10px;
-            font-size: 13px;
-            color: #004085;
+        .btn-tool.rotation:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
         }
 
+        .btn-tool.rotation.rotate-left {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-color: #28a745;
+        }
+
+        .btn-tool.rotation.rotate-left:hover {
+            background: linear-gradient(135deg, #218838, #1ea872);
+            border-color: #1e7e34;
+        }
+
+        .btn-tool.rotation.rotate-right {
+            background: linear-gradient(135deg, #007bff, #6610f2);
+            color: white;
+            border-color: #007bff;
+        }
+
+        .btn-tool.rotation.rotate-right:hover {
+            background: linear-gradient(135deg, #0056b3, #520dc2);
+            border-color: #004085;
+        }
+
+        .btn-tool.rotation.reset {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            border-color: #6c757d;
+        }
+
+        .btn-tool.rotation.reset:hover {
+            background: linear-gradient(135deg, #5a6268, #3d4147);
+            border-color: #545b62;
+        }
+
+        .inputs-section {
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        #geometry-inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .input-group-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 8px 12px;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-group-wrapper:focus-within {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+        }
+
+        .input-group input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .input-unit {
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .canvas-wrapper {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            position: relative;
+            width: 600px;
+            height: 400px;
+            margin: 20px auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .profile-info-panel {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .profile-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .profile-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .profile-info-item:last-child {
+            border-bottom: none;
+        }
+
+        /* NEUE Animationen für Ausrichtung */
+        @keyframes alignmentPulse {
+            0%, 100% { 
+                opacity: 0.8; 
+                stroke-width: 4;
+                filter: drop-shadow(0 0 5px #28a745);
+            }
+            50% { 
+                opacity: 1; 
+                stroke-width: 6;
+                filter: drop-shadow(0 0 10px #28a745);
+            }
+        }
+
+        @keyframes rotationFeedback {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* Rotation Display Verbesserungen */
+        .rotation-display {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .rotation-display.aligned {
+            background: #28a745 !important;
+            border-color: #1e7e34;
+            animation: rotationFeedback 0.5s ease-out;
+        }
+
+        /* Feedback-Nachrichten */
+        .feedback-message {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .feedback-message.alignment {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            border-left: 4px solid #1e7e34;
+        }
+
+        /* Canvas Verbesserungen */
+        #main-svg {
+            transition: filter 0.2s ease;
+        }
+
+        #main-svg:hover {
+            filter: brightness(1.02);
+        }
+
+        /* Hover-Effekte für Corner-Handles */
+        .corner-handle {
+            transition: all 0.2s ease;
+        }
+
+        .corner-handle:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 5px rgba(0,123,255,0.5));
+        }
+
+        /* Responsive Anpassungen */
         @media (max-width: 768px) {
-            .side-buttons {
+            #geometry-inputs-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tools-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tools-row.rotation-controls {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .canvas-wrapper {
+                width: 100%;
+                max-width: 500px;
+                height: 300px;
+            }
+            
+            .calc-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tools-row.rotation-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-tool.rotation {
+                height: 50px;
+                font-size: 16px;
             }
         }
     </style>
@@ -157,19 +403,22 @@
 
                 <!-- Tools -->
                 <div class="tools-grid">
+                    <!-- NEUE Rotations-Controls Zeile -->
+                    <div class="tools-row rotation-controls">
+                        <button class="btn-tool rotation rotate-left" id="btn-rotate-left" title="1° nach links drehen">
+                            <span style="font-size: 18px;">↺</span> -1°
+                        </button>
+                        <button class="btn-tool rotation rotate-right" id="btn-rotate-right" title="1° nach rechts drehen">
+                            <span style="font-size: 18px;">↻</span> +1°
+                        </button>
+                        <button class="btn-tool rotation reset" id="btn-reset-rotation" title="Rotation zurücksetzen">
+                            <span style="font-size: 16px;">⌂</span> 0°
+                        </button>
+                    </div>
+                    
+                    <!-- Standard Tools -->
                     <div class="tools-row">
-                        <button class="btn-tool" id="btn-reset">Reset</button>
-                    </div>
-                </div>
-
-                <!-- Seitenauswahl -->
-                <div class="side-selection-section" id="side-selection-section">
-                    <h4>Welche Seite soll waagerecht (unten) sein?</h4>
-                    <div class="side-buttons" id="side-buttons">
-                        <!-- Wird dynamisch gefüllt -->
-                    </div>
-                    <div class="orientation-info" id="orientation-info">
-                        Wählen Sie die Seite, die beim Verlegen waagerecht (parallel zur Traufe) ausgerichtet werden soll.
+                        <button class="btn-tool" id="btn-reset">🔄 Reset</button>
                     </div>
                 </div>
 
@@ -191,18 +440,38 @@
                                 <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
                                     <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
                                 </pattern>
+                                
+                                <!-- NEUE Gradient-Definitionen für Highlights -->
+                                <linearGradient id="alignmentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#28a745;stop-opacity:0.8" />
+                                    <stop offset="50%" style="stop-color:#20c997;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#28a745;stop-opacity:0.8" />
+                                </linearGradient>
+                                
+                                <filter id="alignmentGlow">
+                                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                    <feMerge> 
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
                             </defs>
+                            
                             <rect width="100%" height="100%" fill="url(#grid)" />
                             
                             <!-- Hilfslinien -->
                             <line x1="300" y1="0" x2="300" y2="400" stroke="#c0c0c0" stroke-width="2"/>
                             <line x1="0" y1="200" x2="600" y2="200" stroke="#c0c0c0" stroke-width="2"/>
                             
-                            <!-- SVG-Gruppen -->
+                            <!-- SVG-Gruppen für verschiedene Elemente -->
                             <g id="roof-shape"></g>
+                            <g id="corner-handles"></g>
                             <g id="labels"></g>
-                            <g id="base-line"></g>
+                            <g id="dimensions"></g>
+                            <g id="alignment-highlights"></g>
                         </svg>
+                        
+                        <!-- Rotation Display (wird dynamisch hinzugefügt) -->
                     </div>
                 </div>
             </section>
@@ -223,7 +492,7 @@
         </footer>
     </div>
 
-    <!-- Externe JavaScript-Datei -->
-    <script src="editor-sides.js"></script>
+    <!-- JavaScript -->
+    <script src="editor.js"></script>
 </body>
 </html>
