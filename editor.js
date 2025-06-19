@@ -298,7 +298,7 @@ function checkAlignmentAndHighlight() {
     let totalVerticalLines = 0;
     let alignedSides = []; // Welche Seiten sind ausgerichtet
     
-    // KORRIGIERTE Ausrichtungserkennung: ALLE Seiten prüfen
+    // KORRIGIERTE Ausrichtungserkennung: ALLE Seiten prüfen mit besserer Toleranz
     for (let i = 0; i < rotatedCorners.length; i++) {
         const nextIndex = (i + 1) % rotatedCorners.length;
         const p1 = rotatedCorners[i];
@@ -308,16 +308,22 @@ function checkAlignmentAndHighlight() {
         const deltaY = Math.abs(p2.y - p1.y);
         const lineLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         
-        // ERWEITERTE Toleranz für bessere Erkennung verschiedener Formen
-        const tolerance = 2.0; // Etwas lockerer
-        const minLineLength = 25; // Etwas kleiner
+        // VERBESSERTE Toleranz: Abhängig von der Linienlänge
+        const tolerancePercent = 0.02; // 2% der Linienlänge
+        const minTolerance = 1.0;       // Minimum 1px
+        const maxTolerance = 5.0;       // Maximum 5px
+        
+        const tolerance = Math.max(minTolerance, Math.min(maxTolerance, lineLength * tolerancePercent));
+        const minLineLength = 20; // Reduziert für bessere Erkennung
         
         const sideLabels = ['A', 'B', 'C', 'D', 'E', 'F'];
         const sideName = sideLabels[i] || `Seite ${i+1}`;
         
+        console.log(`Prüfe ${sideName}: Länge=${lineLength.toFixed(1)}px, deltaX=${deltaX.toFixed(1)}, deltaY=${deltaY.toFixed(1)}, Toleranz=${tolerance.toFixed(1)}`);
+        
         if (lineLength > minLineLength) {
+            // Prüfung für horizontale Linien (kleine Y-Differenz)
             if (deltaY <= tolerance && deltaX > minLineLength) {
-                // Horizontale Linie gefunden
                 hasHorizontalLine = true;
                 totalHorizontalLines++;
                 alignedSides.push(`${sideName} (horizontal)`);
@@ -329,8 +335,10 @@ function checkAlignmentAndHighlight() {
                     deviation: deltaY,
                     sideName: sideName
                 });
-            } else if (deltaX <= tolerance && deltaY > minLineLength) {
-                // Vertikale Linie gefunden
+                console.log(`✅ ${sideName} ist HORIZONTAL (deltaY=${deltaY.toFixed(1)} ≤ ${tolerance.toFixed(1)})`);
+            }
+            // Prüfung für vertikale Linien (kleine X-Differenz)  
+            else if (deltaX <= tolerance && deltaY > minLineLength) {
                 hasVerticalLine = true;
                 totalVerticalLines++;
                 alignedSides.push(`${sideName} (vertikal)`);
@@ -342,11 +350,16 @@ function checkAlignmentAndHighlight() {
                     deviation: deltaX,
                     sideName: sideName
                 });
+                console.log(`✅ ${sideName} ist VERTIKAL (deltaX=${deltaX.toFixed(1)} ≤ ${tolerance.toFixed(1)})`);
+            } else {
+                console.log(`❌ ${sideName} ist nicht ausgerichtet (deltaX=${deltaX.toFixed(1)}, deltaY=${deltaY.toFixed(1)})`);
             }
+        } else {
+            console.log(`⚠️ ${sideName} zu kurz (${lineLength.toFixed(1)}px < ${minLineLength}px)`);
         }
     }
     
-    // ERWEITERTE Logik: Prüfe ob GENUG Seiten ausgerichtet sind
+    // ERWEITERTE Logik: Lockerere Anforderungen für bessere Erkennung
     const finalShape = determineActualShape();
     let sufficientAlignment = false;
     
@@ -354,24 +367,25 @@ function checkAlignmentAndHighlight() {
         // Bei Dreiecken: mindestens 1 Seite ausgerichtet
         sufficientAlignment = alignedEdges.length >= 1;
     } else if (finalShape === 'rechteck' || finalShape === 'quadrat') {
-        // Bei Rechtecken: mindestens 2 Seiten ausgerichtet (können beide horizontal oder beide vertikal sein)
-        sufficientAlignment = alignedEdges.length >= 2;
+        // Bei Rechtecken: mindestens 1 Seite ausgerichtet (nicht mehr beide Richtungen)
+        sufficientAlignment = alignedEdges.length >= 1;
     } else {
         sufficientAlignment = alignedEdges.length >= 1;
     }
     
-    // KRITISCH: Nur bei TATSÄCHLICHER Ausrichtung UND genug ausgerichteten Seiten
+    // KRITISCH: Lockerere Rotations-Toleranz
     const normalizedRotation = ((currentRotation % 360) + 360) % 360;
     const nearestCardinal = Math.round(normalizedRotation / 90) * 90;
     const rotationDeviation = Math.abs(normalizedRotation - nearestCardinal);
     
-    console.log(`Ausrichtungscheck: Form=${finalShape}, Horizontal=${totalHorizontalLines}, Vertikal=${totalVerticalLines}, Rotation=${currentRotation.toFixed(1)}°, Abweichung=${rotationDeviation.toFixed(1)}°, Ausgerichtete Seiten: [${alignedSides.join(', ')}]`);
+    console.log(`Zusammenfassung: Form=${finalShape}, Horizontal=${totalHorizontalLines}, Vertikal=${totalVerticalLines}, Rotation=${currentRotation.toFixed(1)}°, Abweichung=${rotationDeviation.toFixed(1)}°, Ausgerichtete Seiten: [${alignedSides.join(', ')}]`);
     
-    if (alignedEdges.length > 0 && rotationDeviation < 4 && sufficientAlignment) {
+    if (alignedEdges.length > 0 && rotationDeviation < 6 && sufficientAlignment) {
         highlightAlignedEdges(alignedEdges);
         showAlignmentFeedback(hasHorizontalLine, hasVerticalLine, totalHorizontalLines, totalVerticalLines, alignedSides);
     } else {
         removeAlignmentHighlights();
+        console.log(`Keine Ausrichtung angezeigt: alignedEdges=${alignedEdges.length}, rotationDeviation=${rotationDeviation.toFixed(1)}°, sufficient=${sufficientAlignment}`);
     }
 }
 
@@ -1022,87 +1036,82 @@ function getActualCornerPositions(data, scale) {
 function drawLabelsOnShape(group, data, scale) {
     const corners = getActualCornerPositions(data, scale);
     const finalShape = determineActualShape();
+    const variant = determineActualVariant();
     
     if (finalShape === 'dreieck' && corners.length >= 3) {
         const labels = ['A', 'B', 'C'];
         const colors = ['#dc3545', '#28a745', '#ffc107'];
         
-        // KORRIGIERTE Positionierung: Labels an den SEITEN, nicht Ecken
-        for (let i = 0; i < 3; i++) {
-            const nextI = (i + 1) % 3;
-            const p1 = corners[i];
-            const p2 = corners[nextI];
+        // DEBUG: Ausgabe der Eckpunkte
+        console.log('Dreieck-Ecken:', corners.map((c, i) => `${labels[i]}: (${c.x.toFixed(1)}, ${c.y.toFixed(1)})`));
+        
+        // SPEZIELLE Behandlung für verschiedene Dreieck-Typen
+        if (variant === 'gleichseitig') {
+            // Gleichseitiges Dreieck: Spitze oben, Basis unten
+            const labels_positions = [
+                { label: 'A', pos: corners[0], offset: { x: 0, y: -20 } },    // Spitze oben
+                { label: 'B', pos: corners[1], offset: { x: -20, y: 15 } },   // Links unten
+                { label: 'C', pos: corners[2], offset: { x: 20, y: 15 } }     // Rechts unten
+            ];
             
-            // Seitenmittelpunkt berechnen
-            const midX = (p1.x + p2.x) / 2;
-            const midY = (p1.y + p2.y) / 2;
+            labels_positions.forEach((item, i) => {
+                const labelX = item.pos.x + item.offset.x;
+                const labelY = item.pos.y + item.offset.y;
+                const label = createLabel(labelX, labelY, item.label, colors[i]);
+                group.appendChild(label);
+            });
+        } else if (variant === 'rechtwinklig') {
+            // Rechtwinkliges Dreieck: Rechter Winkel unten links
+            const labels_positions = [
+                { label: 'A', pos: corners[0], offset: { x: -25, y: 15 } },   // Unten links (rechter Winkel)
+                { label: 'B', pos: corners[1], offset: { x: 25, y: 15 } },    // Unten rechts
+                { label: 'C', pos: corners[2], offset: { x: -25, y: -15 } }   // Oben links
+            ];
             
-            // Seitenvektor für Offset-Berechnung
-            const sideVectorX = p2.x - p1.x;
-            const sideVectorY = p2.y - p1.y;
-            const sideLength = Math.sqrt(sideVectorX * sideVectorX + sideVectorY * sideVectorY);
+            labels_positions.forEach((item, i) => {
+                const labelX = item.pos.x + item.offset.x;
+                const labelY = item.pos.y + item.offset.y;
+                const label = createLabel(labelX, labelY, item.label, colors[i]);
+                group.appendChild(label);
+            });
+        } else {
+            // Ungleichschenkliges Dreieck: Standard-Positionierung
+            const labels_positions = [
+                { label: 'A', pos: corners[0], offset: { x: 0, y: -20 } },    // Spitze oben
+                { label: 'B', pos: corners[1], offset: { x: -20, y: 15 } },   // Links unten
+                { label: 'C', pos: corners[2], offset: { x: 20, y: 15 } }     // Rechts unten
+            ];
             
-            // Normaler Vektor (90° gedreht, nach außen zeigend)
-            const normalX = -sideVectorY / sideLength;
-            const normalY = sideVectorX / sideLength;
-            
-            // Prüfe ob Normal nach außen zeigt (vom Zentrum weg)
-            const centerToMidX = midX - CANVAS_CENTER_X;
-            const centerToMidY = midY - CANVAS_CENTER_Y;
-            const dotProduct = normalX * centerToMidX + normalY * centerToMidY;
-            
-            // Falls Normal nach innen zeigt, umdrehen
-            const finalNormalX = dotProduct > 0 ? normalX : -normalX;
-            const finalNormalY = dotProduct > 0 ? normalY : -normalY;
-            
-            // Label-Position mit Offset nach außen
-            const labelX = midX + finalNormalX * 20;
-            const labelY = midY + finalNormalY * 20;
-            
-            const label = createLabel(labelX, labelY, labels[i], colors[i]);
-            group.appendChild(label);
+            labels_positions.forEach((item, i) => {
+                const labelX = item.pos.x + item.offset.x;
+                const labelY = item.pos.y + item.offset.y;
+                const label = createLabel(labelX, labelY, item.label, colors[i]);
+                group.appendChild(label);
+            });
         }
     } else if (corners.length >= 4 && ['quadrat', 'rechteck', 'trapez'].includes(finalShape)) {
         const labels = ['A', 'B', 'C', 'D'];
         const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107'];
         
-        // KORRIGIERTE Positionierung: Labels an den SEITEN
-        for (let i = 0; i < Math.min(4, corners.length); i++) {
-            const nextI = (i + 1) % corners.length;
-            const p1 = corners[i];
-            const p2 = corners[nextI];
-            
-            // Seitenmittelpunkt
-            const midX = (p1.x + p2.x) / 2;
-            const midY = (p1.y + p2.y) / 2;
-            
-            // Seitenvektor
-            const sideVectorX = p2.x - p1.x;
-            const sideVectorY = p2.y - p1.y;
-            const sideLength = Math.sqrt(sideVectorX * sideVectorX + sideVectorY * sideVectorY);
-            
-            if (sideLength > 0) {
-                // Normaler Vektor (nach außen)
-                const normalX = -sideVectorY / sideLength;
-                const normalY = sideVectorX / sideLength;
-                
-                // Prüfe Richtung zum Zentrum
-                const centerToMidX = midX - CANVAS_CENTER_X;
-                const centerToMidY = midY - CANVAS_CENTER_Y;
-                const dotProduct = normalX * centerToMidX + normalY * centerToMidY;
-                
-                // Nach außen gerichteter Normal
-                const finalNormalX = dotProduct > 0 ? normalX : -normalX;
-                const finalNormalY = dotProduct > 0 ? normalY : -normalY;
-                
-                // Label-Position
-                const labelX = midX + finalNormalX * 25;
-                const labelY = midY + finalNormalY * 25;
-                
-                const label = createLabel(labelX, labelY, labels[i], colors[i]);
+        // DEBUG: Ausgabe der Eckpunkte
+        console.log('Rechteck-Ecken:', corners.map((c, i) => `${labels[i]}: (${c.x.toFixed(1)}, ${c.y.toFixed(1)})`));
+        
+        // Fixe Positionierung basierend auf der Eckpunkt-Reihenfolge
+        const labels_positions = [
+            { label: 'A', pos: corners[0], offset: { x: -20, y: -15 } },  // Erste Ecke
+            { label: 'B', pos: corners[1], offset: { x: 20, y: -15 } },   // Zweite Ecke  
+            { label: 'C', pos: corners[2], offset: { x: 20, y: 20 } },    // Dritte Ecke
+            { label: 'D', pos: corners[3], offset: { x: -20, y: 20 } }    // Vierte Ecke
+        ];
+        
+        labels_positions.forEach((item, i) => {
+            if (i < corners.length) {
+                const labelX = item.pos.x + item.offset.x;
+                const labelY = item.pos.y + item.offset.y;
+                const label = createLabel(labelX, labelY, item.label, colors[i]);
                 group.appendChild(label);
             }
-        }
+        });
     }
 }
 
