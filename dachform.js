@@ -1,10 +1,10 @@
-// Verbesserte dachform.js mit Debug und korrekter Datenbehandlung
+// Korrigierte dachform.js - Alle Varianten korrekt unterstützt
 
 var projectData = {};
 var selectedShape = null;
 var selectedVariant = null;
 
-// Formen-Definitionen mit SVG-Vorschauen
+// ERWEITERTE Formen-Definitionen mit ALLEN Varianten und korrekten SVGs
 var shapes = {
     kreis: {
         name: 'Kreis',
@@ -12,7 +12,7 @@ var shapes = {
             kreis: { name: 'Kreis', svg: '<circle cx="50" cy="50" r="30" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
             oval: { name: 'Oval', svg: '<ellipse cx="50" cy="50" rx="35" ry="20" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
             halbkreis: { name: 'Halbkreis', svg: '<path d="M 20 50 A 30 30 0 0 1 80 50 Z" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
-            viertelkreis: { name: 'Viertelkreis', svg: '<path d="M 20 20 L 80 20 A 60 60 0 0 1 20 80 Z" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+            viertelkreis: { name: 'Viertelkreis', svg: '<path d="M 50 50 L 80 50 A 30 30 0 0 1 50 80 Z" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
             langloch: { name: 'Langloch', svg: '<path d="M 35 30 L 65 30 A 20 20 0 0 1 65 70 L 35 70 A 20 20 0 0 1 35 30 Z" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' }
         }
     },
@@ -246,6 +246,7 @@ function saveAndContinue() {
     }, 100);
 }
 
+// VOLLSTÄNDIGE getDefaultPoints() für ALLE Varianten
 function getDefaultPoints() {
     console.log('=== GENERIERE PUNKTE ===');
     console.log('Für:', selectedShape, selectedVariant);
@@ -268,7 +269,7 @@ function getDefaultPoints() {
     ];
 }
 
-// Kreis-Punkte generieren
+// ERWEITERTE Kreis-Punkte generieren für ALLE Varianten
 function getCirclePoints() {
     switch(selectedVariant) {
         case 'kreis':
@@ -495,3 +496,5 @@ window.debugDachformData = () => {
     console.log('localStorage:', localStorage.getItem('dachplattenrechner_data'));
     console.log('sessionStorage:', sessionStorage.getItem('dachplattenrechner_data'));
 };
+
+console.log('Korrigierte dachform.js erfolgreich geladen - Alle Varianten werden unterstützt');
