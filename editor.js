@@ -1,13 +1,4 @@
-case 'parallelogramm':
-                drawParallelogramShape(group, data, scale);
-                break;
-            case 'rhombus':
-                drawRhombusShape(group, data, scale);
-                break;
-            case 'fuenfeck':
-                drawPentagonShape(group, data, scale);
-                break;
-            case 'sechseck':
+case 'sechseck':
                 drawHexagonShape(group, data, scale);
                 break;
             case 'achteck':
@@ -239,7 +230,7 @@ function drawTrapezShape(group, data, scale) {
 function drawParallelogramShape(group, data, scale) {
     const length = (data.length || 8) * scale;
     const width = (data.width || 5) * scale;
-    const angle = (data.angle || 30) * Math.PI / 180; // Convert to radians
+    const angle = (data.angle || 30) * Math.PI / 180;
     const skew = width * Math.cos(angle);
     
     const points = [
@@ -287,7 +278,7 @@ function drawPentagonShape(group, data, scale) {
     const points = [];
     
     for (let i = 0; i < 5; i++) {
-        const angle = (i * 2 * Math.PI / 5) - Math.PI/2; // Start from top
+        const angle = (i * 2 * Math.PI / 5) - Math.PI/2;
         points.push({
             x: CANVAS_CENTER_X + radius * Math.cos(angle),
             y: CANVAS_CENTER_Y + radius * Math.sin(angle)
@@ -309,7 +300,7 @@ function drawHexagonShape(group, data, scale) {
     const points = [];
     
     for (let i = 0; i < 6; i++) {
-        const angle = (i * 2 * Math.PI / 6) - Math.PI/2; // Start from top
+        const angle = (i * 2 * Math.PI / 6) - Math.PI/2;
         points.push({
             x: CANVAS_CENTER_X + radius * Math.cos(angle),
             y: CANVAS_CENTER_Y + radius * Math.sin(angle)
@@ -331,7 +322,7 @@ function drawOctagonShape(group, data, scale) {
     const points = [];
     
     for (let i = 0; i < 8; i++) {
-        const angle = (i * 2 * Math.PI / 8) - Math.PI/2; // Start from top
+        const angle = (i * 2 * Math.PI / 8) - Math.PI/2;
         points.push({
             x: CANVAS_CENTER_X + radius * Math.cos(angle),
             y: CANVAS_CENTER_Y + radius * Math.sin(angle)
@@ -357,7 +348,6 @@ function drawLShape(group, data, scale) {
     const centerX = CANVAS_CENTER_X;
     const centerY = CANVAS_CENTER_Y;
     
-    // L-Form durch Pfad mit Ausschnitt
     const points = [
         { x: centerX - lengthTotal/2, y: centerY - widthTotal/2 },
         { x: centerX + lengthTotal/2, y: centerY - widthTotal/2 },
@@ -417,7 +407,6 @@ function drawUShape(group, data, scale) {
     const centerX = CANVAS_CENTER_X;
     const centerY = CANVAS_CENTER_Y;
     
-    // U-Form als Pfad mit innerem Ausschnitt
     const outerPoints = [
         { x: centerX - outerWidth/2, y: centerY - height/2 },
         { x: centerX + outerWidth/2, y: centerY - height/2 },
@@ -432,7 +421,6 @@ function drawUShape(group, data, scale) {
         { x: centerX - innerWidth/2, y: centerY + height/2 }
     ];
     
-    // Äußere Form zeichnen
     const outerPointsStr = outerPoints.map(function(p) { return p.x + ',' + p.y; }).join(' ');
     const outerPolygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     outerPolygon.setAttribute('points', outerPointsStr);
@@ -441,7 +429,6 @@ function drawUShape(group, data, scale) {
     outerPolygon.setAttribute('stroke-width', '3');
     group.appendChild(outerPolygon);
     
-    // Inneren Ausschnitt zeichnen
     const innerPointsStr = innerPoints.map(function(p) { return p.x + ',' + p.y; }).join(' ');
     const innerPolygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     innerPolygon.setAttribute('points', innerPointsStr);
@@ -451,17 +438,13 @@ function drawUShape(group, data, scale) {
     group.appendChild(innerPolygon);
 }
 
-// Weitere Funktionen (Labels, Berechnungen, etc.) bleiben gleich...
 function drawLabelsOnShape(group, data, scale) {
-    // Vereinfachte Labels für bessere Browser-Kompatibilität
     const finalShape = determineActualShape();
     
     if (finalShape === 'dreieck') {
-        const variant = determineActualVariant();
         const labels = ['A', 'B', 'C'];
         const colors = ['#dc3545', '#28a745', '#ffc107'];
         
-        // Einfache Positionierung
         const positions = [
             { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - 50 },
             { x: CANVAS_CENTER_X - 40, y: CANVAS_CENTER_Y + 30 },
@@ -683,7 +666,6 @@ function resetToDefaults() {
         const input = inputs[i];
         const finalShape = determineActualShape();
         
-        // Shape-spezifische Defaults
         switch(input.id) {
             case 'radius': 
                 input.value = finalShape === 'kreis' ? '3' : '4'; 
@@ -985,7 +967,7 @@ window.addEventListener('load', function() {
     }
 });
 
-console.log('✅ Korrigierte editor.js erfolgreich geladen - Alle Dachformen werden jetzt korrekt dargestellt');// Korrigierte editor.js - Mit verbesserter Fehlerbehandlung
+console.log('✅ Vollständige korrigierte editor.js erfolgreich geladen - Alle Dachformen werden jetzt korrekt dargestellt');// Vollständige korrigierte editor.js - Mit verbesserter Fehlerbehandlung
 
 let projectData = {};
 let currentShape = '';
@@ -1707,4 +1689,13 @@ function drawCurrentShape(group, data, scale) {
                 drawTrapezShape(group, data, scale);
                 break;
             case 'parallelogramm':
-                drawParal
+                drawParallelogramShape(group, data, scale);
+                break;
+            case 'rhombus':
+                drawRhombusShape(group, data, scale);
+                break;
+            case 'fuenfeck':
+                drawPentagonShape(group, data, scale);
+                break;
+            case 'sechseck':
+                drawHexagonShape(group, data, scale);
