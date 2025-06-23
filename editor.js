@@ -1,4 +1,4 @@
-// Korrigierte editor.js - Dachform wird richtig geladen
+// VOLLSTÄNDIGE korrigierte editor.js - Alle Dachformen werden korrekt dargestellt
 
 let projectData = {};
 let currentShape = '';
@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('✅ Editor erfolgreich initialisiert');
         } catch (error) {
             console.error('❌ Editor-Initialisierung fehlgeschlagen:', error);
-            // Fallback: Lade Standard-Form
             loadDefaultShape();
         }
     }, 100);
@@ -58,7 +57,6 @@ function loadProjectData() {
         projectData = JSON.parse(dataString);
         console.log('📖 Projektdaten aus Storage geladen:', projectData);
         
-        // Validierung und Bereinigung
         if (!projectData.profile) {
             console.log('⚠️ Keine Profil-Daten, setze Standard');
             projectData.profile = createDefaultProfile();
@@ -255,7 +253,6 @@ function loadAndDrawShape() {
         currentVariant = 'rechteck';
         currentRotation = 0;
     } else {
-        // WICHTIG: Korrekte Zuweisung der Shape-Daten
         currentShape = roofShape.baseShape || 'viereck';
         currentVariant = roofShape.variant || 'rechteck';
         currentRotation = roofShape.rotation || 0;
@@ -269,11 +266,11 @@ function loadAndDrawShape() {
         console.log('✅ Shape erfolgreich geladen und gezeichnet');
     } catch (error) {
         console.error('❌ Fehler beim Laden/Zeichnen:', error);
-        // Fallback
         loadDefaultShape();
     }
 }
 
+// KORRIGIERTE Shape-Erkennung
 function determineActualShape() {
     console.log('=== DETERMINE ACTUAL SHAPE ===');
     console.log(`Input: currentShape=${currentShape}, currentVariant=${currentVariant}`);
@@ -285,41 +282,52 @@ function determineActualShape() {
     
     let result = 'rechteck';
     
+    // WICHTIG: Prüfe zuerst die spezifische Variante
     if (currentVariant) {
         switch (currentVariant) {
-            case 'trapez': result = 'trapez'; break;
-            case 'quadrat': result = 'quadrat'; break;
-            case 'parallelogramm': result = 'parallelogramm'; break;
-            case 'rhombus': result = 'rhombus'; break;
-            case 'rechteck': result = 'rechteck'; break;
+            // KREIS-Varianten
             case 'kreis': result = 'kreis'; break;
             case 'oval': result = 'oval'; break;
             case 'halbkreis': result = 'halbkreis'; break;
             case 'viertelkreis': result = 'viertelkreis'; break;
             case 'langloch': result = 'langloch'; break;
-            case 'gleichseitig':
-            case 'rechtwinklig':
-            case 'ungleichschenklig':
+            
+            // DREIECK-Varianten (alle werden als 'dreieck' gezeichnet)
+            case 'gleichseitig': 
+            case 'rechtwinklig': 
+            case 'ungleichschenklig': 
                 result = 'dreieck'; break;
+            
+            // VIERECK-Varianten
+            case 'rechteck': result = 'rechteck'; break;
+            case 'quadrat': result = 'quadrat'; break;
+            case 'parallelogramm': result = 'parallelogramm'; break;
+            case 'trapez': result = 'trapez'; break;
+            case 'rhombus': result = 'rhombus'; break;
+            
+            // VIELECK-Varianten
             case 'fuenfeck': result = 'fuenfeck'; break;
             case 'sechseck': result = 'sechseck'; break;
             case 'achteck': result = 'achteck'; break;
             case 'lform': result = 'lform'; break;
             case 'tform': result = 'tform'; break;
             case 'uform': result = 'uform'; break;
+            
             default:
+                // Falls variant nicht erkannt wird, nutze baseShape
                 if (currentShape) {
                     switch (currentShape) {
                         case 'kreis': result = 'kreis'; break;
                         case 'dreieck': result = 'dreieck'; break;
-                        case 'vieleck': result = 'fuenfeck'; break;
-                        case 'viereck': result = 'rechteck'; break;
+                        case 'vieleck': result = 'fuenfeck'; break;  // Standard für Vieleck
+                        case 'viereck': result = 'rechteck'; break;  // Standard für Viereck
                         default: result = 'rechteck'; break;
                     }
                 }
                 break;
         }
     } else if (currentShape) {
+        // Fallback auf baseShape wenn keine variant vorhanden
         switch (currentShape) {
             case 'kreis': result = 'kreis'; break;
             case 'dreieck': result = 'dreieck'; break;
@@ -645,6 +653,7 @@ function updateShapeWithScale(scale) {
     }
 }
 
+// VOLLSTÄNDIGE Zeichenfunktionen für alle Dachformen
 function drawCurrentShape(group, data, scale) {
     const finalShape = determineActualShape();
     console.log(`🎨 Zeichne Shape: ${finalShape} mit Skalierung: ${scale}`);
@@ -656,6 +665,15 @@ function drawCurrentShape(group, data, scale) {
                 break;
             case 'oval':
                 drawOvalShape(group, data, scale);
+                break;
+            case 'halbkreis':
+                drawHalfCircleShape(group, data, scale);
+                break;
+            case 'viertelkreis':
+                drawQuarterCircleShape(group, data, scale);
+                break;
+            case 'langloch':
+                drawLanglochShape(group, data, scale);
                 break;
             case 'rechteck':
                 drawRectangleShape(group, data, scale);
@@ -671,6 +689,27 @@ function drawCurrentShape(group, data, scale) {
                 break;
             case 'parallelogramm':
                 drawParallelogramShape(group, data, scale);
+                break;
+            case 'rhombus':
+                drawRhombusShape(group, data, scale);
+                break;
+            case 'fuenfeck':
+                drawPentagonShape(group, data, scale);
+                break;
+            case 'sechseck':
+                drawHexagonShape(group, data, scale);
+                break;
+            case 'achteck':
+                drawOctagonShape(group, data, scale);
+                break;
+            case 'lform':
+                drawLShape(group, data, scale);
+                break;
+            case 'tform':
+                drawTShape(group, data, scale);
+                break;
+            case 'uform':
+                drawUShape(group, data, scale);
                 break;
             default:
                 console.log(`⚠️ Unbekannte Form: ${finalShape}, verwende Rechteck`);
@@ -689,6 +728,7 @@ function drawCurrentShape(group, data, scale) {
     }
 }
 
+// KREIS FORMEN
 function drawCircleShape(group, data, scale) {
     const radius = (data.radius || 3) * scale;
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -715,6 +755,67 @@ function drawOvalShape(group, data, scale) {
     group.appendChild(ellipse);
 }
 
+function drawHalfCircleShape(group, data, scale) {
+    const radius = (data.radius || 4) * scale;
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    // Halbkreis mit SVG Path
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const pathData = `M ${centerX - radius} ${centerY} 
+                      A ${radius} ${radius} 0 0 1 ${centerX + radius} ${centerY} 
+                      Z`;
+    path.setAttribute('d', pathData);
+    path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    path.setAttribute('stroke', '#007bff');
+    path.setAttribute('stroke-width', '3');
+    group.appendChild(path);
+}
+
+function drawQuarterCircleShape(group, data, scale) {
+    const radius = (data.radius || 4) * scale;
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    // Viertelkreis mit SVG Path
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const pathData = `M ${centerX} ${centerY} 
+                      L ${centerX + radius} ${centerY} 
+                      A ${radius} ${radius} 0 0 1 ${centerX} ${centerY + radius} 
+                      Z`;
+    path.setAttribute('d', pathData);
+    path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    path.setAttribute('stroke', '#007bff');
+    path.setAttribute('stroke-width', '3');
+    group.appendChild(path);
+}
+
+function drawLanglochShape(group, data, scale) {
+    const length = (data.length || 6) * scale;
+    const width = (data.width || 3) * scale;
+    const radius = width / 2;
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    // Langloch = Rechteck mit abgerundeten Enden
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const halfLength = length / 2 - radius;
+    
+    const pathData = `M ${centerX - halfLength} ${centerY - radius}
+                      L ${centerX + halfLength} ${centerY - radius}
+                      A ${radius} ${radius} 0 0 1 ${centerX + halfLength} ${centerY + radius}
+                      L ${centerX - halfLength} ${centerY + radius}
+                      A ${radius} ${radius} 0 0 1 ${centerX - halfLength} ${centerY - radius}
+                      Z`;
+    
+    path.setAttribute('d', pathData);
+    path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    path.setAttribute('stroke', '#007bff');
+    path.setAttribute('stroke-width', '3');
+    group.appendChild(path);
+}
+
+// VIERECK FORMEN
 function drawRectangleShape(group, data, scale) {
     const length = (data.length || 8) * scale;
     const width = (data.width || 5) * scale;
@@ -728,8 +829,6 @@ function drawRectangleShape(group, data, scale) {
     rect.setAttribute('stroke', '#007bff');
     rect.setAttribute('stroke-width', '3');
     group.appendChild(rect);
-    
-    console.log(`✅ Rechteck gezeichnet: ${length} x ${width} px`);
 }
 
 function drawSquareShape(group, data, scale) {
@@ -745,78 +844,23 @@ function drawSquareShape(group, data, scale) {
     group.appendChild(rect);
 }
 
-function drawTriangleShape(group, data, scale) {
-    const variant = determineActualVariant();
-    let points = '';
-    
-    if (variant === 'gleichseitig') {
-        const side = (data.side || 6) * scale;
-        const height = side * Math.sqrt(3) / 2;
-        const topX = CANVAS_CENTER_X;
-        const topY = CANVAS_CENTER_Y - height/3;
-        const leftX = CANVAS_CENTER_X - side/2;
-        const leftY = CANVAS_CENTER_Y + height*2/3;
-        const rightX = CANVAS_CENTER_X + side/2;
-        const rightY = CANVAS_CENTER_Y + height*2/3;
-        points = topX + ',' + topY + ' ' + leftX + ',' + leftY + ' ' + rightX + ',' + rightY;
-    } else if (variant === 'rechtwinklig') {
-        const katheteA = (data.katheteA || 4) * scale;
-        const katheteB = (data.katheteB || 5) * scale;
-        
-        const leftX = CANVAS_CENTER_X - katheteA/2;
-        const rightX = CANVAS_CENTER_X + katheteA/2;
-        const bottomY = CANVAS_CENTER_Y + katheteB/3;
-        const topY = CANVAS_CENTER_Y - katheteB*2/3;
-        
-        points = leftX + ',' + bottomY + ' ' + rightX + ',' + bottomY + ' ' + leftX + ',' + topY;
-    } else {
-        const sideA = (data.sideA || 4) * scale;
-        const avgSide = ((data.sideB || 5) + (data.sideC || 6)) / 2;
-        const height = avgSide * scale * 0.8;
-        
-        const topX = CANVAS_CENTER_X;
-        const topY = CANVAS_CENTER_Y - height/2;
-        const leftX = CANVAS_CENTER_X - sideA/2;
-        const leftY = CANVAS_CENTER_Y + height/2;
-        const rightX = CANVAS_CENTER_X + sideA/2;
-        const rightY = CANVAS_CENTER_Y + height/2;
-        
-        points = topX + ',' + topY + ' ' + leftX + ',' + leftY + ' ' + rightX + ',' + rightY;
-    }
-    
-    const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    triangle.setAttribute('points', points);
-    triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    triangle.setAttribute('stroke', '#007bff');
-    triangle.setAttribute('stroke-width', '3');
-    group.appendChild(triangle);
-}
-
 function drawTrapezShape(group, data, scale) {
-    console.log('🎨 === ZEICHNE TRAPEZ ===');
-    console.log('Daten:', data);
-    console.log('Skalierung:', scale);
-    
-    const sideA = (data.sideA || 8) * scale;
-    const sideB = (data.sideB || 6) * scale;
+    const sideA = (data.sideA || 8) * scale;  // Untere Seite
+    const sideB = (data.sideB || 6) * scale;  // Obere Seite  
     const height = (data.height || 4) * scale;
     const offset = (data.offset || 1) * scale;
-    
-    console.log(`Trapez-Parameter: sideA=${sideA}px, sideB=${sideB}px, height=${height}px, offset=${offset}px`);
     
     const centerX = CANVAS_CENTER_X;
     const centerY = CANVAS_CENTER_Y;
     
     const points = [
-        { x: centerX - sideA/2, y: centerY + height/2 },
-        { x: centerX + sideA/2, y: centerY + height/2 },
-        { x: centerX + sideB/2 + offset, y: centerY - height/2 },
-        { x: centerX - sideB/2 + offset, y: centerY - height/2 }
+        { x: centerX - sideA/2, y: centerY + height/2 },  // Links unten
+        { x: centerX + sideA/2, y: centerY + height/2 },  // Rechts unten
+        { x: centerX + sideB/2 + offset, y: centerY - height/2 },  // Rechts oben
+        { x: centerX - sideB/2 + offset, y: centerY - height/2 }   // Links oben
     ];
     
-    console.log('Trapez-Punkte:', points);
-    
-    const pointsStr = points.map(function(p) { return p.x + ',' + p.y; }).join(' ');
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
     
     const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     polygon.setAttribute('points', pointsStr);
@@ -824,8 +868,6 @@ function drawTrapezShape(group, data, scale) {
     polygon.setAttribute('stroke', '#007bff');
     polygon.setAttribute('stroke-width', '3');
     group.appendChild(polygon);
-    
-    console.log('✅ Trapez erfolgreich gezeichnet');
 }
 
 function drawParallelogramShape(group, data, scale) {
@@ -841,7 +883,228 @@ function drawParallelogramShape(group, data, scale) {
         { x: CANVAS_CENTER_X - length/2 + skew, y: CANVAS_CENTER_Y + width/2 }
     ];
     
-    const pointsStr = points.map(function(p) { return p.x + ',' + p.y; }).join(' ');
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', pointsStr);
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+function drawRhombusShape(group, data, scale) {
+    const side = (data.side || 5) * scale;
+    const angle = (data.angle || 60) * Math.PI / 180;
+    
+    // Rhombus-Punkte berechnen
+    const halfDiag1 = side * Math.sin(angle / 2);
+    const halfDiag2 = side * Math.cos(angle / 2);
+    
+    const points = [
+        { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - halfDiag1 },      // Oben
+        { x: CANVAS_CENTER_X + halfDiag2, y: CANVAS_CENTER_Y },      // Rechts
+        { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y + halfDiag1 },      // Unten
+        { x: CANVAS_CENTER_X - halfDiag2, y: CANVAS_CENTER_Y }       // Links
+    ];
+    
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', pointsStr);
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+// DREIECK FORMEN
+function drawTriangleShape(group, data, scale) {
+    const variant = determineActualVariant();
+    let points = '';
+    
+    if (variant === 'gleichseitig') {
+        const side = (data.side || 6) * scale;
+        const height = side * Math.sqrt(3) / 2;
+        const topX = CANVAS_CENTER_X;
+        const topY = CANVAS_CENTER_Y - height/3;
+        const leftX = CANVAS_CENTER_X - side/2;
+        const leftY = CANVAS_CENTER_Y + height*2/3;
+        const rightX = CANVAS_CENTER_X + side/2;
+        const rightY = CANVAS_CENTER_Y + height*2/3;
+        points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
+    } else if (variant === 'rechtwinklig') {
+        const katheteA = (data.katheteA || 4) * scale;
+        const katheteB = (data.katheteB || 5) * scale;
+        
+        const leftX = CANVAS_CENTER_X - katheteA/2;
+        const rightX = CANVAS_CENTER_X + katheteA/2;
+        const bottomY = CANVAS_CENTER_Y + katheteB/3;
+        const topY = CANVAS_CENTER_Y - katheteB*2/3;
+        
+        points = `${leftX},${bottomY} ${rightX},${bottomY} ${leftX},${topY}`;
+    } else {
+        const sideA = (data.sideA || 4) * scale;
+        const avgSide = ((data.sideB || 5) + (data.sideC || 6)) / 2;
+        const height = avgSide * scale * 0.8;
+        
+        const topX = CANVAS_CENTER_X;
+        const topY = CANVAS_CENTER_Y - height/2;
+        const leftX = CANVAS_CENTER_X - sideA/2;
+        const leftY = CANVAS_CENTER_Y + height/2;
+        const rightX = CANVAS_CENTER_X + sideA/2;
+        const rightY = CANVAS_CENTER_Y + height/2;
+        
+        points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
+    }
+    
+    const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    triangle.setAttribute('points', points);
+    triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    triangle.setAttribute('stroke', '#007bff');
+    triangle.setAttribute('stroke-width', '3');
+    group.appendChild(triangle);
+}
+
+// VIELECK FORMEN
+function drawPentagonShape(group, data, scale) {
+    const radius = (data.radius || 4) * scale;
+    const points = [];
+    
+    for (let i = 0; i < 5; i++) {
+        const angle = (i * 2 * Math.PI / 5) - Math.PI / 2; // Start oben
+        const x = CANVAS_CENTER_X + radius * Math.cos(angle);
+        const y = CANVAS_CENTER_Y + radius * Math.sin(angle);
+        points.push(`${x},${y}`);
+    }
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', points.join(' '));
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+function drawHexagonShape(group, data, scale) {
+    const radius = (data.radius || 4) * scale;
+    const points = [];
+    
+    for (let i = 0; i < 6; i++) {
+        const angle = (i * 2 * Math.PI / 6) - Math.PI / 2; // Start oben
+        const x = CANVAS_CENTER_X + radius * Math.cos(angle);
+        const y = CANVAS_CENTER_Y + radius * Math.sin(angle);
+        points.push(`${x},${y}`);
+    }
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', points.join(' '));
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+function drawOctagonShape(group, data, scale) {
+    const radius = (data.radius || 4) * scale;
+    const points = [];
+    
+    for (let i = 0; i < 8; i++) {
+        const angle = (i * 2 * Math.PI / 8) - Math.PI / 2; // Start oben
+        const x = CANVAS_CENTER_X + radius * Math.cos(angle);
+        const y = CANVAS_CENTER_Y + radius * Math.sin(angle);
+        points.push(`${x},${y}`);
+    }
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', points.join(' '));
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+// KOMPLEXE FORMEN
+function drawLShape(group, data, scale) {
+    const lengthTotal = (data.lengthTotal || 10) * scale;
+    const widthTotal = (data.widthTotal || 8) * scale;
+    const cutLength = (data.cutLength || 4) * scale;
+    const cutWidth = (data.cutWidth || 4) * scale;
+    
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    // L-Form: Großes Rechteck minus kleines Rechteck oben rechts
+    const points = [
+        { x: centerX - lengthTotal/2, y: centerY - widthTotal/2 },           // Links oben
+        { x: centerX + lengthTotal/2, y: centerY - widthTotal/2 },           // Rechts oben
+        { x: centerX + lengthTotal/2, y: centerY - widthTotal/2 + cutWidth }, // Rechts, Ausschnitt oben
+        { x: centerX - lengthTotal/2 + cutLength, y: centerY - widthTotal/2 + cutWidth }, // Ausschnitt links
+        { x: centerX - lengthTotal/2 + cutLength, y: centerY + widthTotal/2 }, // Ausschnitt unten
+        { x: centerX - lengthTotal/2, y: centerY + widthTotal/2 }            // Links unten
+    ];
+    
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', pointsStr);
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+function drawTShape(group, data, scale) {
+    const topWidth = (data.topWidth || 8) * scale;
+    const stemWidth = (data.stemWidth || 4) * scale;
+    const topHeight = (data.topHeight || 3) * scale;
+    const stemHeight = (data.stemHeight || 5) * scale;
+    
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    const points = [
+        { x: centerX - topWidth/2, y: centerY - (topHeight + stemHeight)/2 },           // Links oben
+        { x: centerX + topWidth/2, y: centerY - (topHeight + stemHeight)/2 },           // Rechts oben
+        { x: centerX + topWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }, // Rechts, Ende Top
+        { x: centerX + stemWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }, // Rechts Stiel oben
+        { x: centerX + stemWidth/2, y: centerY + (topHeight + stemHeight)/2 },          // Rechts Stiel unten
+        { x: centerX - stemWidth/2, y: centerY + (topHeight + stemHeight)/2 },          // Links Stiel unten
+        { x: centerX - stemWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }, // Links Stiel oben
+        { x: centerX - topWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }   // Links, Ende Top
+    ];
+    
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', pointsStr);
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+function drawUShape(group, data, scale) {
+    const outerWidth = (data.outerWidth || 10) * scale;
+    const innerWidth = (data.innerWidth || 4) * scale;
+    const height = (data.height || 6) * scale;
+    const thickness = (data.thickness || 3) * scale;
+    
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    const points = [
+        { x: centerX - outerWidth/2, y: centerY - height/2 },                    // Links außen oben
+        { x: centerX + outerWidth/2, y: centerY - height/2 },                    // Rechts außen oben
+        { x: centerX + outerWidth/2, y: centerY + height/2 },                    // Rechts außen unten
+        { x: centerX + innerWidth/2, y: centerY + height/2 },                    // Rechts innen unten
+        { x: centerX + innerWidth/2, y: centerY - height/2 + thickness },        // Rechts innen oben
+        { x: centerX - innerWidth/2, y: centerY - height/2 + thickness },        // Links innen oben
+        { x: centerX - innerWidth/2, y: centerY + height/2 },                    // Links innen unten
+        { x: centerX - outerWidth/2, y: centerY + height/2 }                     // Links außen unten
+    ];
+    
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
     
     const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     polygon.setAttribute('points', pointsStr);
@@ -914,6 +1177,12 @@ function updateCalculations(data) {
                 area = Math.PI * radius * radius;
                 perimeter = 2 * Math.PI * radius;
                 break;
+            case 'oval':
+                const radiusX = data.radiusX || 4;
+                const radiusY = data.radiusY || 2.5;
+                area = Math.PI * radiusX * radiusY;
+                perimeter = Math.PI * (3 * (radiusX + radiusY) - Math.sqrt((3 * radiusX + radiusY) * (radiusX + 3 * radiusY)));
+                break;
             case 'trapez':
                 const sideA = data.sideA || 8;
                 const sideB = data.sideB || 6;
@@ -953,6 +1222,27 @@ function updateCalculations(data) {
                     area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
                     perimeter = a + b + c;
                 }
+                break;
+            case 'rhombus':
+                const rhombusSide = data.side || 5;
+                const angle = (data.angle || 60) * Math.PI / 180;
+                area = rhombusSide * rhombusSide * Math.sin(angle);
+                perimeter = 4 * rhombusSide;
+                break;
+            case 'parallelogramm':
+                const paraLength = data.length || 8;
+                const paraWidth = data.width || 5;
+                const paraAngle = (data.angle || 30) * Math.PI / 180;
+                area = paraLength * paraWidth * Math.sin(paraAngle);
+                perimeter = 2 * (paraLength + paraWidth);
+                break;
+            case 'fuenfeck':
+            case 'sechseck':
+            case 'achteck':
+                const polygonRadius = data.radius || 4;
+                const sides = finalShape === 'fuenfeck' ? 5 : finalShape === 'sechseck' ? 6 : 8;
+                area = 0.5 * sides * polygonRadius * polygonRadius * Math.sin(2 * Math.PI / sides);
+                perimeter = sides * 2 * polygonRadius * Math.sin(Math.PI / sides);
                 break;
             default:
                 area = 40;
@@ -1178,6 +1468,51 @@ function generateRoofPoints(data) {
                 }
                 break;
                 
+            case 'kreis':
+                const radius = data.radius || 3;
+                // Kreis mit 12 Punkten approximieren
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i * 2 * Math.PI) / 12;
+                    points.push({
+                        x: radius * Math.cos(angle),
+                        y: radius * Math.sin(angle)
+                    });
+                }
+                break;
+                
+            case 'fuenfeck':
+                const pentagonRadius = data.radius || 4;
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * 2 * Math.PI / 5) - Math.PI / 2;
+                    points.push({
+                        x: pentagonRadius * Math.cos(angle),
+                        y: pentagonRadius * Math.sin(angle)
+                    });
+                }
+                break;
+                
+            case 'sechseck':
+                const hexagonRadius = data.radius || 4;
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i * 2 * Math.PI / 6) - Math.PI / 2;
+                    points.push({
+                        x: hexagonRadius * Math.cos(angle),
+                        y: hexagonRadius * Math.sin(angle)
+                    });
+                }
+                break;
+                
+            case 'achteck':
+                const octagonRadius = data.radius || 4;
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i * 2 * Math.PI / 8) - Math.PI / 2;
+                    points.push({
+                        x: octagonRadius * Math.cos(angle),
+                        y: octagonRadius * Math.sin(angle)
+                    });
+                }
+                break;
+                
             default:
                 points = [
                     { x: -4, y: -2.5 }, { x: 4, y: -2.5 },
@@ -1204,6 +1539,10 @@ function calculateArea(data) {
             case 'kreis':
                 const radius = data.radius || 3;
                 return Math.PI * radius * radius;
+            case 'oval':
+                const radiusX = data.radiusX || 4;
+                const radiusY = data.radiusY || 2.5;
+                return Math.PI * radiusX * radiusY;
             case 'rechteck':
                 return (data.length || 8) * (data.width || 5);
             case 'quadrat':
@@ -1227,6 +1566,21 @@ function calculateArea(data) {
                 const sideB = data.sideB || 6;
                 const height = data.height || 4;
                 return ((sideA + sideB) / 2) * height;
+            case 'rhombus':
+                const rhombusSide = data.side || 5;
+                const angle = (data.angle || 60) * Math.PI / 180;
+                return rhombusSide * rhombusSide * Math.sin(angle);
+            case 'parallelogramm':
+                const length = data.length || 8;
+                const width = data.width || 5;
+                const paraAngle = (data.angle || 30) * Math.PI / 180;
+                return length * width * Math.sin(paraAngle);
+            case 'fuenfeck':
+            case 'sechseck':
+            case 'achteck':
+                const polygonRadius = data.radius || 4;
+                const sides = finalShape === 'fuenfeck' ? 5 : finalShape === 'sechseck' ? 6 : 8;
+                return 0.5 * sides * polygonRadius * polygonRadius * Math.sin(2 * Math.PI / sides);
             default:
                 return 40;
         }
@@ -1244,6 +1598,8 @@ function calculateDimensions(data) {
             case 'kreis':
                 const circleRadius = data.radius || 3;
                 return { length: circleRadius * 2, width: circleRadius * 2 };
+            case 'oval':
+                return { length: (data.radiusX || 4) * 2, width: (data.radiusY || 2.5) * 2 };
             case 'rechteck':
                 return { length: data.length || 8, width: data.width || 5 };
             case 'quadrat':
@@ -1251,6 +1607,11 @@ function calculateDimensions(data) {
                 return { length: side, width: side };
             case 'trapez':
                 return { length: Math.max(data.sideA || 8, data.sideB || 6), width: data.height || 4 };
+            case 'fuenfeck':
+            case 'sechseck':
+            case 'achteck':
+                const radius = data.radius || 4;
+                return { length: radius * 2, width: radius * 2 };
             default:
                 return { length: 8, width: 5 };
         }
@@ -1289,4 +1650,4 @@ window.addEventListener('load', function() {
     }, 1500);
 });
 
-console.log('✅ Korrigierte editor.js erfolgreich geladen - Dachformen werden jetzt richtig geladen!');
+console.log('✅ Vollständige korrigierte editor.js erfolgreich geladen - Alle Dachformen werden jetzt korrekt dargestellt!');
