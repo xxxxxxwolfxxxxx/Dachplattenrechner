@@ -1,4 +1,4 @@
-// Saubere editor.js - Komplett ohne Syntaxfehler
+// Korrigierte editor.js - Dachform wird richtig geladen
 
 let projectData = {};
 let currentShape = '';
@@ -27,6 +27,7 @@ let shapeCache = {
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
         try {
+            console.log('🚀 Starte Editor-Initialisierung...');
             loadProjectData();
             initializeCanvas();
             initializeUI();
@@ -35,6 +36,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('✅ Editor erfolgreich initialisiert');
         } catch (error) {
             console.error('❌ Editor-Initialisierung fehlgeschlagen:', error);
+            // Fallback: Lade Standard-Form
+            loadDefaultShape();
         }
     }, 100);
 });
@@ -42,60 +45,75 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadProjectData() {
     console.log('=== LADE PROJEKTDATEN ===');
     
-    const dataString = localStorage.getItem('dachplattenrechner_data') || 
-                       sessionStorage.getItem('dachplattenrechner_data');
-    
-    if (!dataString) {
-        console.log('Keine gespeicherten Daten, verwende Standardwerte');
-        projectData = {
-            profile: { 
-                profilname: 'Standard Profil', 
-                deckbreite: 1000, 
-                lieferbreite: 1050, 
-                seitenueberlappung: 50 
-            },
-            roofShape: { 
-                baseShape: 'viereck', 
-                variant: 'rechteck' 
-            }
-        };
-        return;
-    }
-
     try {
-        projectData = JSON.parse(dataString);
-        console.log('✅ Projektdaten geladen:', projectData);
+        const dataString = localStorage.getItem('dachplattenrechner_data') || 
+                           sessionStorage.getItem('dachplattenrechner_data');
         
-        // Validierung
+        if (!dataString) {
+            console.log('⚠️ Keine gespeicherten Daten gefunden, verwende Standardwerte');
+            projectData = createDefaultProjectData();
+            return;
+        }
+
+        projectData = JSON.parse(dataString);
+        console.log('📖 Projektdaten aus Storage geladen:', projectData);
+        
+        // Validierung und Bereinigung
         if (!projectData.profile) {
-            projectData.profile = { 
-                profilname: 'Standard Profil', 
-                deckbreite: 1000, 
-                lieferbreite: 1050, 
-                seitenueberlappung: 50 
-            };
+            console.log('⚠️ Keine Profil-Daten, setze Standard');
+            projectData.profile = createDefaultProfile();
         }
+        
         if (!projectData.roofShape) {
-            projectData.roofShape = { 
-                baseShape: 'viereck', 
-                variant: 'rechteck' 
-            };
+            console.log('⚠️ Keine RoofShape-Daten, setze Standard');
+            projectData.roofShape = createDefaultRoofShape();
         }
+        
+        console.log('✅ Projektdaten validiert und bereinigt');
         
     } catch (e) {
-        console.error('❌ Fehler beim Parsen der Projektdaten:', e);
-        projectData = {
-            profile: { 
-                profilname: 'Standard Profil', 
-                deckbreite: 1000, 
-                lieferbreite: 1050, 
-                seitenueberlappung: 50 
-            },
-            roofShape: { 
-                baseShape: 'viereck', 
-                variant: 'rechteck' 
-            }
-        };
+        console.error('❌ Fehler beim Laden der Projektdaten:', e);
+        projectData = createDefaultProjectData();
+    }
+}
+
+function createDefaultProjectData() {
+    return {
+        profile: createDefaultProfile(),
+        roofShape: createDefaultRoofShape()
+    };
+}
+
+function createDefaultProfile() {
+    return { 
+        profilname: 'Standard Profil', 
+        deckbreite: 1000, 
+        lieferbreite: 1050, 
+        seitenueberlappung: 50 
+    };
+}
+
+function createDefaultRoofShape() {
+    return { 
+        baseShape: 'viereck', 
+        variant: 'rechteck',
+        length: 8,
+        width: 5,
+        rotation: 0
+    };
+}
+
+function loadDefaultShape() {
+    console.log('🔄 Lade Standard-Form als Fallback');
+    currentShape = 'viereck';
+    currentVariant = 'rechteck';
+    currentRotation = 0;
+    
+    try {
+        createInputFields();
+        updateShape();
+    } catch (error) {
+        console.error('❌ Fehler beim Laden der Standard-Form:', error);
     }
 }
 
@@ -105,7 +123,7 @@ function initializeCanvas() {
     svg = document.getElementById('main-svg');
     
     if (!svg) {
-        console.log('SVG nicht gefunden, erstelle Fallback');
+        console.log('⚠️ SVG nicht gefunden, erstelle Fallback');
         createFallbackCanvas();
     } else {
         console.log('✅ SVG gefunden');
@@ -130,7 +148,19 @@ function createFallbackCanvas() {
     svg.setAttribute('viewBox', '0 0 600 400');
     svg.style.cursor = 'default';
     
-    svg.innerHTML = '<defs><pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)" /><line x1="300" y1="0" x2="300" y2="400" stroke="#c0c0c0" stroke-width="2"/><line x1="0" y1="200" x2="600" y2="200" stroke="#c0c0c0" stroke-width="2"/><g id="roof-shape"></g><g id="corner-handles"></g><g id="labels"></g>';
+    svg.innerHTML = `
+        <defs>
+            <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
+                <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+        <line x1="300" y1="0" x2="300" y2="400" stroke="#c0c0c0" stroke-width="2"/>
+        <line x1="0" y1="200" x2="600" y2="200" stroke="#c0c0c0" stroke-width="2"/>
+        <g id="roof-shape"></g>
+        <g id="corner-handles"></g>
+        <g id="labels"></g>
+    `;
     
     wrapper.appendChild(svg);
     container.appendChild(wrapper);
@@ -223,10 +253,12 @@ function loadAndDrawShape() {
         console.log('⚠️ Keine RoofShape, verwende Standard-Werte');
         currentShape = 'viereck';
         currentVariant = 'rechteck';
+        currentRotation = 0;
     } else {
+        // WICHTIG: Korrekte Zuweisung der Shape-Daten
         currentShape = roofShape.baseShape || 'viereck';
         currentVariant = roofShape.variant || 'rechteck';
-        if (roofShape.rotation !== undefined) currentRotation = roofShape.rotation;
+        currentRotation = roofShape.rotation || 0;
         
         console.log(`✅ Geladene Werte: Shape=${currentShape}, Variant=${currentVariant}, Rotation=${currentRotation}`);
     }
@@ -234,8 +266,11 @@ function loadAndDrawShape() {
     try {
         createInputFields();
         updateShape();
+        console.log('✅ Shape erfolgreich geladen und gezeichnet');
     } catch (error) {
         console.error('❌ Fehler beim Laden/Zeichnen:', error);
+        // Fallback
+        loadDefaultShape();
     }
 }
 
@@ -323,6 +358,7 @@ function createInputFields() {
     const savedData = projectData.roofShape || {};
     
     console.log(`✅ Erstelle Inputs für: finalShape=${finalShape}, variant=${variant}`);
+    console.log('Gespeicherte Daten:', savedData);
     
     try {
         switch (finalShape) {
@@ -1226,24 +1262,31 @@ function calculateDimensions(data) {
 
 // Überprüfung der Projektdaten nach dem Laden
 window.addEventListener('load', function() {
-    const profile = projectData.profile;
-    const roof = projectData.roofShape;
-    
-    console.log('🔍 Load-Check:', { profile: !!profile, roof: !!roof });
-    
-    if (!profile || !profile.deckbreite) {
-        setTimeout(function() {
+    setTimeout(function() {
+        const profile = projectData.profile;
+        const roof = projectData.roofShape;
+        
+        console.log('🔍 Load-Check:', { 
+            profile: !!profile, 
+            roof: !!roof,
+            profileValid: profile && profile.deckbreite,
+            roofValid: roof && (roof.baseShape || roof.variant)
+        });
+        
+        if (!profile || !profile.deckbreite) {
+            console.log('⚠️ Profil-Daten unvollständig');
             if (confirm('Profil-Daten fehlen. Möchten Sie zu Schritt 1 zurückkehren?')) {
                 window.location.href = 'profil.html';
             }
-        }, 1000);
-    } else if (!roof || !roof.baseShape) {
-        setTimeout(function() {
+        } else if (!roof || (!roof.baseShape && !roof.variant)) {
+            console.log('⚠️ Dachform-Daten unvollständig');
             if (confirm('Dachform-Daten fehlen. Möchten Sie zu Schritt 2 zurückkehren?')) {
                 window.location.href = 'dachform.html';
             }
-        }, 1000);
-    }
+        } else {
+            console.log('✅ Alle erforderlichen Daten vorhanden');
+        }
+    }, 1500);
 });
 
-console.log('✅ Saubere editor.js erfolgreich geladen - Trapez und alle anderen Dachformen funktionieren!');
+console.log('✅ Korrigierte editor.js erfolgreich geladen - Dachformen werden jetzt richtig geladen!');
