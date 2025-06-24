@@ -1,304 +1,3 @@
-// Ungleichschenkliges Dreieck
-        const sideALabel = createDimensionLabel(
-            CANVAS_CENTER_X, 
-            CANVAS_CENTER_Y + 30, 
-            `a: ${data.sideA || 4} m`, 
-            '#007bff'
-        );
-        group.appendChild(sideALabel);
-        
-        const sideBLabel = createDimensionLabel(
-            CANVAS_CENTER_X - 30, 
-            CANVAS_CENTER_Y - 10, 
-            `b: ${data.sideB || 5} m`, 
-            '#28a745'
-        );
-        group.appendChild(sideBLabel);
-        
-        const sideCLabel = createDimensionLabel(
-            CANVAS_CENTER_X + 30, 
-            CANVAS_CENTER_Y - 10, 
-            `c: ${data.sideC || 6} m`, 
-            '#dc3545'
-        );
-        group.appendChild(sideCLabel);
-    }
-}
-
-function drawParallelogramDimensions(group, data, scale) {
-    const length = (data.length || 8) * scale;
-    const width = (data.width || 5) * scale;
-    const angle = data.angle || 30;
-    
-    const lengthLabel = createDimensionLabel(
-        CANVAS_CENTER_X, 
-        CANVAS_CENTER_Y - width/2 - 15, 
-        `${data.length || 8} m`, 
-        '#007bff'
-    );
-    group.appendChild(lengthLabel);
-    
-    const widthLabel = createDimensionLabel(
-        CANVAS_CENTER_X + length/2 + 25, 
-        CANVAS_CENTER_Y, 
-        `${data.width || 5} m`, 
-        '#28a745'
-    );
-    group.appendChild(widthLabel);
-    
-    const angleLabel = createDimensionLabel(
-        CANVAS_CENTER_X - length/4, 
-        CANVAS_CENTER_Y + width/4, 
-        `∠${angle}°`, 
-        '#ffc107'
-    );
-    group.appendChild(angleLabel);
-}
-
-function drawRhombusDimensions(group, data, scale) {
-    const side = data.side || 5;
-    const angle = data.angle || 60;
-    
-    const sideLabel = createDimensionLabel(
-        CANVAS_CENTER_X + 40, 
-        CANVAS_CENTER_Y - 20, 
-        `${side} m`, 
-        '#007bff'
-    );
-    group.appendChild(sideLabel);
-    
-    const angleLabel = createDimensionLabel(
-        CANVAS_CENTER_X - 30, 
-        CANVAS_CENTER_Y + 20, 
-        `∠${angle}°`, 
-        '#28a745'
-    );
-    group.appendChild(angleLabel);
-}
-
-function drawCircleDimensions(group, data, scale) {
-    const radius = data.radius || 3;
-    
-    const radiusLabel = createDimensionLabel(
-        CANVAS_CENTER_X + 30, 
-        CANVAS_CENTER_Y - 30, 
-        `r = ${radius} m`, 
-        '#007bff'
-    );
-    group.appendChild(radiusLabel);
-    
-    // Radius-Linie
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', CANVAS_CENTER_X);
-    line.setAttribute('y1', CANVAS_CENTER_Y);
-    line.setAttribute('x2', CANVAS_CENTER_X + radius * scale);
-    line.setAttribute('y2', CANVAS_CENTER_Y);
-    line.setAttribute('stroke', '#007bff');
-    line.setAttribute('stroke-width', '2');
-    line.setAttribute('stroke-dasharray', '5,5');
-    group.appendChild(line);
-}
-
-function drawOvalDimensions(group, data, scale) {
-    const radiusX = data.radiusX || 4;
-    const radiusY = data.radiusY || 2.5;
-    
-    const radiusXLabel = createDimensionLabel(
-        CANVAS_CENTER_X, 
-        CANVAS_CENTER_Y - radiusY * scale - 15, 
-        `rx = ${radiusX} m`, 
-        '#007bff'
-    );
-    group.appendChild(radiusXLabel);
-    
-    const radiusYLabel = createDimensionLabel(
-        CANVAS_CENTER_X + radiusX * scale + 15, 
-        CANVAS_CENTER_Y, 
-        `ry = ${radiusY} m`, 
-        '#28a745'
-    );
-    group.appendChild(radiusYLabel);
-}
-
-function drawLanglochDimensions(group, data, scale) {
-    const length = data.length || 6;
-    const width = data.width || 3;
-    
-    const lengthLabel = createDimensionLabel(
-        CANVAS_CENTER_X, 
-        CANVAS_CENTER_Y - width * scale / 2 - 15, 
-        `${length} m`, 
-        '#007bff'
-    );
-    group.appendChild(lengthLabel);
-    
-    const widthLabel = createDimensionLabel(
-        CANVAS_CENTER_X + length * scale / 2 + 15, 
-        CANVAS_CENTER_Y, 
-        `${width} m`, 
-        '#28a745'
-    );
-    group.appendChild(widthLabel);
-}
-
-function drawPolygonDimensions(group, data, scale) {
-    const radius = data.radius || 4;
-    
-    const radiusLabel = createDimensionLabel(
-        CANVAS_CENTER_X + radius * scale + 15, 
-        CANVAS_CENTER_Y - 10, 
-        `r = ${radius} m`, 
-        '#007bff'
-    );
-    group.appendChild(radiusLabel);
-    
-    // Radius-Linie zum obersten Punkt
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', CANVAS_CENTER_X);
-    line.setAttribute('y1', CANVAS_CENTER_Y);
-    line.setAttribute('x2', CANVAS_CENTER_X);
-    line.setAttribute('y2', CANVAS_CENTER_Y - radius * scale);
-    line.setAttribute('stroke', '#007bff');
-    line.setAttribute('stroke-width', '2');
-    line.setAttribute('stroke-dasharray', '5,5');
-    group.appendChild(line);
-}
-
-function createDimensionLabel(x, y, text, color) {
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('x', x);
-    label.setAttribute('y', y);
-    label.setAttribute('text-anchor', 'middle');
-    label.setAttribute('fill', color);
-    label.setAttribute('font-size', '12');
-    label.setAttribute('font-weight', 'bold');
-    label.setAttribute('stroke', 'white');
-    label.setAttribute('stroke-width', '3');
-    label.setAttribute('paint-order', 'stroke');
-    label.textContent = text;
-    return label;
-}
-
-function drawDimensionLine(group, x1, y1, x2, y2, color) {
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', x1);
-    line.setAttribute('y1', y1);
-    line.setAttribute('x2', x2);
-    line.setAttribute('y2', y2);
-    line.setAttribute('stroke', color);
-    line.setAttribute('stroke-width', '1');
-    line.setAttribute('stroke-dasharray', '3,3');
-    group.appendChild(line);
-    
-    // Pfeilspitzen
-    const arrow1 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    arrow1.setAttribute('points', `${x1-3},${y1-3} ${x1+3},${y1} ${x1-3},${y1+3}`);
-    arrow1.setAttribute('fill', color);
-    group.appendChild(arrow1);
-    
-    const arrow2 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    arrow2.setAttribute('points', `${x2+3},${y2-3} ${x2-3},${y2} ${x2+3},${y2+3}`);
-    arrow2.setAttribute('fill', color);
-    group.appendChild(arrow2);
-}
-
-function updateCalculations(data) {
-    let area = 0;
-    let perimeter = 0;
-    const finalShape = determineActualShape();
-    const variant = determineActualVariant();
-    
-    try {
-        switch (finalShape) {
-            case 'kreis':
-                const radius = data.radius || 3;
-                area = Math.PI * radius * radius;
-                perimeter = 2 * Math.PI * radius;
-                break;
-            case 'oval':
-                const radiusX = data.radiusX || 4;
-                const radiusY = data.radiusY || 2.5;
-                area = Math.PI * radiusX * radiusY;
-                perimeter = Math.PI * (3 * (radiusX + radiusY) - Math.sqrt((3 * radiusX + radiusY) * (radiusX + 3 * radiusY)));
-                break;
-            case 'trapez':
-                const sideA = data.sideA || 8;
-                const sideB = data.sideB || 6;
-                const height = data.height || 4;
-                area = ((sideA + sideB) / 2) * height;
-                const offset = data.offset || 1;
-                const trapezSideLength = Math.sqrt(height * height + offset * offset);
-                perimeter = sideA + sideB + 2 * trapezSideLength;
-                break;
-            case 'rechteck':
-                const rectLength = data.length || 8;
-                const rectWidth = data.width || 5;
-                area = rectLength * rectWidth;
-                perimeter = 2 * (rectLength + rectWidth);
-                break;
-            case 'quadrat':
-                const side = data.side || 5;
-                area = side * side;
-                perimeter = 4 * side;
-                break;
-            case 'dreieck':
-                if (variant === 'rechtwinklig') {
-                    const a = data.katheteA || 4;
-                    const b = data.katheteB || 5;
-                    area = 0.5 * a * b;
-                    const c = Math.sqrt(a*a + b*b);
-                    perimeter = a + b + c;
-                } else if (variant === 'gleichseitig') {
-                    const s = data.side || 6;
-                    area = (Math.sqrt(3) / 4) * s * s;
-                    perimeter = 3 * s;
-                } else {
-                    const a = data.sideA || 4;
-                    const b = data.sideB || 5;
-                    const c = data.sideC || 6;
-                    const s = (a + b + c) / 2;
-                    area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
-                    perimeter = a + b + c;
-                }
-                break;
-            case 'rhombus':
-                const rhombusSide = data.side || 5;
-                const angle = (data.angle || 60) * Math.PI / 180;
-                area = rhombusSide * rhombusSide * Math.sin(angle);
-                perimeter = 4 * rhombusSide;
-                break;
-            case 'parallelogramm':
-                const paraLength = data.length || 8;
-                const paraWidth = data.width || 5;
-                const paraAngle = (data.angle || 30) * Math.PI / 180;
-                area = paraLength * paraWidth * Math.sin(paraAngle);
-                perimeter = 2 * (paraLength + paraWidth);
-                break;
-            case 'fuenfeck':
-            case 'sechseck':
-            case 'achteck':
-                const polygonRadius = data.radius || 4;
-                const sides = finalShape === 'fuenfeck' ? 5 : finalShape === 'sechseck' ? 6 : 8;
-                area = 0.5 * sides * polygonRadius * polygonRadius * Math.sin(2 * Math.PI / sides);
-                perimeter = sides * 2 * polygonRadius * Math.sin(Math.PI / sides);
-                break;
-            default:
-                area = 40;
-                perimeter = 26;
-        }
-    } catch (error) {
-        console.error('❌ Berechnungen Fehler:', error);
-        area = 40;
-        perimeter = 26;
-    }
-    
-    const areaElement = document.getElementById('calc-area');
-    const perimeterElement = document.getElementById('calc-perimeter');
-    
-    if (areaElement) areaElement.textContent = area.toFixed(2) + ' m²';
-    if (perimeterElement) perimeterElement.textContent = perimeter.toFixed(2) + ' m';
-}
-
 function createRotationDisplay() {
     const existing = document.getElementById('rotation-display');
     if (existing) existing.remove();
@@ -742,618 +441,8 @@ window.addEventListener('load', function() {
     }, 1500);
 });
 
-console.log('✅ Vollständige korrigierte editor.js erfolgreich geladen - Alle Dachformen + Seitenbemaßung + funktionsfähige Rotation!');            case 'quadrat':
-                drawSquareShape(group, data, scale);
-                break;
-            case 'dreieck':
-                drawTriangleShape(group, data, scale);
-                break;
-            case 'trapez':
-                drawTrapezShape(group, data, scale);
-                break;
-            case 'parallelogramm':
-                drawParallelogramShape(group, data, scale);
-                break;
-            case 'rhombus':
-                drawRhombusShape(group, data, scale);
-                break;
-            case 'fuenfeck':
-                drawPentagonShape(group, data, scale);
-                break;
-            case 'sechseck':
-                drawHexagonShape(group, data, scale);
-                break;
-            case 'achteck':
-                drawOctagonShape(group, data, scale);
-                break;
-            case 'lform':
-                drawLShape(group, data, scale);
-                break;
-            case 'tform':
-                drawTShape(group, data, scale);
-                break;
-            case 'uform':
-                drawUShape(group, data, scale);
-                break;
-            default:
-                console.log(`⚠️ Unbekannte Form: ${finalShape}, verwende Rechteck`);
-                drawRectangleShape(group, data, scale);
-        }
-        
-        console.log(`✅ Shape ${finalShape} erfolgreich gezeichnet`);
-        
-    } catch (error) {
-        console.error(`❌ Fehler beim Zeichnen von ${finalShape}:`, error);
-        drawRectangleShape(group, data, scale);
-    }
-}
-
-// KREIS FORMEN
-function drawCircleShape(group, data, scale) {
-    const radius = (data.radius || 3) * scale;
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', CANVAS_CENTER_X);
-    circle.setAttribute('cy', CANVAS_CENTER_Y);
-    circle.setAttribute('r', radius);
-    circle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    circle.setAttribute('stroke', '#007bff');
-    circle.setAttribute('stroke-width', '3');
-    group.appendChild(circle);
-}
-
-function drawOvalShape(group, data, scale) {
-    const radiusX = (data.radiusX || 4) * scale;
-    const radiusY = (data.radiusY || 2.5) * scale;
-    const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-    ellipse.setAttribute('cx', CANVAS_CENTER_X);
-    ellipse.setAttribute('cy', CANVAS_CENTER_Y);
-    ellipse.setAttribute('rx', radiusX);
-    ellipse.setAttribute('ry', radiusY);
-    ellipse.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    ellipse.setAttribute('stroke', '#007bff');
-    ellipse.setAttribute('stroke-width', '3');
-    group.appendChild(ellipse);
-}
-
-function drawHalfCircleShape(group, data, scale) {
-    const radius = (data.radius || 4) * scale;
-    const centerX = CANVAS_CENTER_X;
-    const centerY = CANVAS_CENTER_Y;
-    
-    // Halbkreis mit SVG Path
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    const pathData = `M ${centerX - radius} ${centerY} 
-                      A ${radius} ${radius} 0 0 1 ${centerX + radius} ${centerY} 
-                      Z`;
-    path.setAttribute('d', pathData);
-    path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    path.setAttribute('stroke', '#007bff');
-    path.setAttribute('stroke-width', '3');
-    group.appendChild(path);
-}
-
-function drawQuarterCircleShape(group, data, scale) {
-    const radius = (data.radius || 4) * scale;
-    const centerX = CANVAS_CENTER_X;
-    const centerY = CANVAS_CENTER_Y;
-    
-    // Viertelkreis mit SVG Path
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    const pathData = `M ${centerX} ${centerY} 
-                      L ${centerX + radius} ${centerY} 
-                      A ${radius} ${radius} 0 0 1 ${centerX} ${centerY + radius} 
-                      Z`;
-    path.setAttribute('d', pathData);
-    path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    path.setAttribute('stroke', '#007bff');
-    path.setAttribute('stroke-width', '3');
-    group.appendChild(path);
-}
-
-function drawLanglochShape(group, data, scale) {
-    const length = (data.length || 6) * scale;
-    const width = (data.width || 3) * scale;
-    const radius = width / 2;
-    const centerX = CANVAS_CENTER_X;
-    const centerY = CANVAS_CENTER_Y;
-    
-    // Langloch = Rechteck mit abgerundeten Enden
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    const halfLength = length / 2 - radius;
-    
-    const pathData = `M ${centerX - halfLength} ${centerY - radius}
-                      L ${centerX + halfLength} ${centerY - radius}
-                      A ${radius} ${radius} 0 0 1 ${centerX + halfLength} ${centerY + radius}
-                      L ${centerX - halfLength} ${centerY + radius}
-                      A ${radius} ${radius} 0 0 1 ${centerX - halfLength} ${centerY - radius}
-                      Z`;
-    
-    path.setAttribute('d', pathData);
-    path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    path.setAttribute('stroke', '#007bff');
-    path.setAttribute('stroke-width', '3');
-    group.appendChild(path);
-}
-
-// VIERECK FORMEN
-function drawRectangleShape(group, data, scale) {
-    const length = (data.length || 8) * scale;
-    const width = (data.width || 5) * scale;
-    
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', CANVAS_CENTER_X - length/2);
-    rect.setAttribute('y', CANVAS_CENTER_Y - width/2);
-    rect.setAttribute('width', length);
-    rect.setAttribute('height', width);
-    rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    rect.setAttribute('stroke', '#007bff');
-    rect.setAttribute('stroke-width', '3');
-    group.appendChild(rect);
-}
-
-function drawSquareShape(group, data, scale) {
-    const side = (data.side || 5) * scale;
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', CANVAS_CENTER_X - side/2);
-    rect.setAttribute('y', CANVAS_CENTER_Y - side/2);
-    rect.setAttribute('width', side);
-    rect.setAttribute('height', side);
-    rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    rect.setAttribute('stroke', '#007bff');
-    rect.setAttribute('stroke-width', '3');
-    group.appendChild(rect);
-}
-
-function drawTrapezShape(group, data, scale) {
-    const sideA = (data.sideA || 8) * scale;  // Untere Seite
-    const sideB = (data.sideB || 6) * scale;  // Obere Seite  
-    const height = (data.height || 4) * scale;
-    const offset = (data.offset || 1) * scale;
-    
-    const centerX = CANVAS_CENTER_X;
-    const centerY = CANVAS_CENTER_Y;
-    
-    const points = [
-        { x: centerX - sideA/2, y: centerY + height/2 },  // Links unten
-        { x: centerX + sideA/2, y: centerY + height/2 },  // Rechts unten
-        { x: centerX + sideB/2 + offset, y: centerY - height/2 },  // Rechts oben
-        { x: centerX - sideB/2 + offset, y: centerY - height/2 }   // Links oben
-    ];
-    
-    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
-    
-    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', pointsStr);
-    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    polygon.setAttribute('stroke', '#007bff');
-    polygon.setAttribute('stroke-width', '3');
-    group.appendChild(polygon);
-}
-
-function drawParallelogramShape(group, data, scale) {
-    const length = (data.length || 8) * scale;
-    const width = (data.width || 5) * scale;
-    const angle = (data.angle || 30) * Math.PI / 180;
-    const skew = width * Math.cos(angle);
-    
-    const points = [
-        { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y - width/2 },
-        { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y - width/2 },
-        { x: CANVAS_CENTER_X + length/2 + skew, y: CANVAS_CENTER_Y + width/2 },
-        { x: CANVAS_CENTER_X - length/2 + skew, y: CANVAS_CENTER_Y + width/2 }
-    ];
-    
-    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
-    
-    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', pointsStr);
-    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    polygon.setAttribute('stroke', '#007bff');
-    polygon.setAttribute('stroke-width', '3');
-    group.appendChild(polygon);
-}
-
-function drawRhombusShape(group, data, scale) {
-    const side = (data.side || 5) * scale;
-    const angle = (data.angle || 60) * Math.PI / 180;
-    
-    // Rhombus-Punkte berechnen
-    const halfDiag1 = side * Math.sin(angle / 2);
-    const halfDiag2 = side * Math.cos(angle / 2);
-    
-    const points = [
-        { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - halfDiag1 },      // Oben
-        { x: CANVAS_CENTER_X + halfDiag2, y: CANVAS_CENTER_Y },      // Rechts
-        { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y + halfDiag1 },      // Unten
-        { x: CANVAS_CENTER_X - halfDiag2, y: CANVAS_CENTER_Y }       // Links
-    ];
-    
-    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
-    
-    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', pointsStr);
-    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    polygon.setAttribute('stroke', '#007bff');
-    polygon.setAttribute('stroke-width', '3');
-    group.appendChild(polygon);
-}
-
-// DREIECK FORMEN
-function drawTriangleShape(group, data, scale) {
-    const variant = determineActualVariant();
-    let points = '';
-    
-    if (variant === 'gleichseitig') {
-        const side = (data.side || 6) * scale;
-        const height = side * Math.sqrt(3) / 2;
-        const topX = CANVAS_CENTER_X;
-        const topY = CANVAS_CENTER_Y - height/3;
-        const leftX = CANVAS_CENTER_X - side/2;
-        const leftY = CANVAS_CENTER_Y + height*2/3;
-        const rightX = CANVAS_CENTER_X + side/2;
-        const rightY = CANVAS_CENTER_Y + height*2/3;
-        points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
-    } else if (variant === 'rechtwinklig') {
-        const katheteA = (data.katheteA || 4) * scale;
-        const katheteB = (data.katheteB || 5) * scale;
-        
-        const leftX = CANVAS_CENTER_X - katheteA/2;
-        const rightX = CANVAS_CENTER_X + katheteA/2;
-        const bottomY = CANVAS_CENTER_Y + katheteB/3;
-        const topY = CANVAS_CENTER_Y - katheteB*2/3;
-        
-        points = `${leftX},${bottomY} ${rightX},${bottomY} ${leftX},${topY}`;
-    } else {
-        const sideA = (data.sideA || 4) * scale;
-        const avgSide = ((data.sideB || 5) + (data.sideC || 6)) / 2;
-        const height = avgSide * scale * 0.8;
-        
-        const topX = CANVAS_CENTER_X;
-        const topY = CANVAS_CENTER_Y - height/2;
-        const leftX = CANVAS_CENTER_X - sideA/2;
-        const leftY = CANVAS_CENTER_Y + height/2;
-        const rightX = CANVAS_CENTER_X + sideA/2;
-        const rightY = CANVAS_CENTER_Y + height/2;
-        
-        points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
-    }
-    
-    const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    triangle.setAttribute('points', points);
-    triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    triangle.setAttribute('stroke', '#007bff');
-    triangle.setAttribute('stroke-width', '3');
-    group.appendChild(triangle);
-}
-
-// VIELECK FORMEN
-function drawPentagonShape(group, data, scale) {
-    const radius = (data.radius || 4) * scale;
-    const points = [];
-    
-    for (let i = 0; i < 5; i++) {
-        const angle = (i * 2 * Math.PI / 5) - Math.PI / 2; // Start oben
-        const x = CANVAS_CENTER_X + radius * Math.cos(angle);
-        const y = CANVAS_CENTER_Y + radius * Math.sin(angle);
-        points.push(`${x},${y}`);
-    }
-    
-    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', points.join(' '));
-    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    polygon.setAttribute('stroke', '#007bff');
-    polygon.setAttribute('stroke-width', '3');
-    group.appendChild(polygon);
-}
-
-function drawHexagonShape(group, data, scale) {
-    const radius = (data.radius || 4) * scale;
-    const points = [];
-    
-    for (let i = 0; i < 6; i++) {
-        const angle = (i * 2 * Math.PI / 6) - Math.PI / 2; // Start oben
-        const x = CANVAS_CENTER_X + radius * Math.cos(angle);
-        const y = CANVAS_CENTER_Y + radius * Math.sin(angle);
-        points.push(`${x},${y}`);
-    }
-    
-    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', points.join(' '));
-    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    polygon.setAttribute('stroke', '#007bff');
-    polygon.setAttribute('stroke-width', '3');
-    group.appendChild(polygon);
-}
-
-function drawOctagonShape(group, data, scale) {
-    const radius = (data.radius || 4) * scale;
-    const points = [];
-    
-    for (let i = 0; i < 8; i++) {
-        const angle = (i * 2 * Math.PI / 8) - Math.PI / 2; // Start oben
-        const x = CANVAS_CENTER_X + radius * Math.cos(angle);
-        const y = CANVAS_CENTER_Y + radius * Math.sin(angle);
-        points.push(`${x},${y}`);
-    }
-    
-    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', points.join(' '));
-    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    polygon.setAttribute('stroke', '#007bff');
-    polygon.setAttribute('stroke-width', '3');
-    group.appendChild(polygon);
-}
-
-// KOMPLEXE FORMEN
-function drawLShape(group, data, scale) {
-    const lengthTotal = (data.lengthTotal || 10) * scale;
-    const widthTotal = (data.widthTotal || 8) * scale;
-    const cutLength = (data.cutLength || 4) * scale;
-    const cutWidth = (data.cutWidth || 4) * scale;
-    
-    const centerX = CANVAS_CENTER_X;
-    const centerY = CANVAS_CENTER_Y;
-    
-    // L-Form: Großes Rechteck minus kleines Rechteck oben rechts
-    const points = [
-        { x: centerX - lengthTotal/2, y: centerY - widthTotal/2 },           // Links oben
-        { x: centerX + lengthTotal/2, y: centerY - widthTotal/2 },           // Rechts oben
-        { x: centerX + lengthTotal/2, y: centerY - widthTotal/2 + cutWidth }, // Rechts, Ausschnitt oben
-        { x: centerX - lengthTotal/2 + cutLength, y: centerY - widthTotal/2 + cutWidth }, // Ausschnitt links
-        { x: centerX - lengthTotal/2 + cutLength, y: centerY + widthTotal/2 }, // Ausschnitt unten
-        { x: centerX - lengthTotal/2, y: centerY + widthTotal/2 }            // Links unten
-    ];
-    
-    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
-    
-    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', pointsStr);
-    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    polygon.setAttribute('stroke', '#007bff');
-    polygon.setAttribute('stroke-width', '3');
-    group.appendChild(polygon);
-}
-
-function drawTShape(group, data, scale) {
-    const topWidth = (data.topWidth || 8) * scale;
-    const stemWidth = (data.stemWidth || 4) * scale;
-    const topHeight = (data.topHeight || 3) * scale;
-    const stemHeight = (data.stemHeight || 5) * scale;
-    
-    const centerX = CANVAS_CENTER_X;
-    const centerY = CANVAS_CENTER_Y;
-    
-    const points = [
-        { x: centerX - topWidth/2, y: centerY - (topHeight + stemHeight)/2 },           // Links oben
-        { x: centerX + topWidth/2, y: centerY - (topHeight + stemHeight)/2 },           // Rechts oben
-        { x: centerX + topWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }, // Rechts, Ende Top
-        { x: centerX + stemWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }, // Rechts Stiel oben
-        { x: centerX + stemWidth/2, y: centerY + (topHeight + stemHeight)/2 },          // Rechts Stiel unten
-        { x: centerX - stemWidth/2, y: centerY + (topHeight + stemHeight)/2 },          // Links Stiel unten
-        { x: centerX - stemWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }, // Links Stiel oben
-        { x: centerX - topWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }   // Links, Ende Top
-    ];
-    
-    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
-    
-    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', pointsStr);
-    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    polygon.setAttribute('stroke', '#007bff');
-    polygon.setAttribute('stroke-width', '3');
-    group.appendChild(polygon);
-}
-
-function drawUShape(group, data, scale) {
-    const outerWidth = (data.outerWidth || 10) * scale;
-    const innerWidth = (data.innerWidth || 4) * scale;
-    const height = (data.height || 6) * scale;
-    const thickness = (data.thickness || 3) * scale;
-    
-    const centerX = CANVAS_CENTER_X;
-    const centerY = CANVAS_CENTER_Y;
-    
-    const points = [
-        { x: centerX - outerWidth/2, y: centerY - height/2 },                    // Links außen oben
-        { x: centerX + outerWidth/2, y: centerY - height/2 },                    // Rechts außen oben
-        { x: centerX + outerWidth/2, y: centerY + height/2 },                    // Rechts außen unten
-        { x: centerX + innerWidth/2, y: centerY + height/2 },                    // Rechts innen unten
-        { x: centerX + innerWidth/2, y: centerY - height/2 + thickness },        // Rechts innen oben
-        { x: centerX - innerWidth/2, y: centerY - height/2 + thickness },        // Links innen oben
-        { x: centerX - innerWidth/2, y: centerY + height/2 },                    // Links innen unten
-        { x: centerX - outerWidth/2, y: centerY + height/2 }                     // Links außen unten
-    ];
-    
-    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
-    
-    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', pointsStr);
-    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
-    polygon.setAttribute('stroke', '#007bff');
-    polygon.setAttribute('stroke-width', '3');
-    group.appendChild(polygon);
-}
-
-// KORRIGIERTE Labels und Seitenbemaßung - zeigt Seitenbemaßungen statt Eckbeschriftungen
-function drawLabelsOnShape(group, data, scale) {
-    const finalShape = determineActualShape();
-    
-    // Seitenbemaßungen statt Eckbeschriftungen
-    switch (finalShape) {
-        case 'rechteck':
-            drawRectangleDimensions(group, data, scale);
-            break;
-        case 'quadrat':
-            drawSquareDimensions(group, data, scale);
-            break;
-        case 'trapez':
-            drawTrapezDimensions(group, data, scale);
-            break;
-        case 'dreieck':
-            drawTriangleDimensions(group, data, scale);
-            break;
-        case 'parallelogramm':
-            drawParallelogramDimensions(group, data, scale);
-            break;
-        case 'rhombus':
-            drawRhombusDimensions(group, data, scale);
-            break;
-        case 'kreis':
-            drawCircleDimensions(group, data, scale);
-            break;
-        case 'oval':
-            drawOvalDimensions(group, data, scale);
-            break;
-        case 'langloch':
-            drawLanglochDimensions(group, data, scale);
-            break;
-        case 'fuenfeck':
-        case 'sechseck':
-        case 'achteck':
-            drawPolygonDimensions(group, data, scale);
-            break;
-        default:
-            drawRectangleDimensions(group, data, scale);
-            break;
-    }
-}
-
-function drawRectangleDimensions(group, data, scale) {
-    const length = (data.length || 8) * scale;
-    const width = (data.width || 5) * scale;
-    
-    // Länge oben
-    const lengthLabel = createDimensionLabel(
-        CANVAS_CENTER_X, 
-        CANVAS_CENTER_Y - width/2 - 15, 
-        `${data.length || 8} m`, 
-        '#007bff'
-    );
-    group.appendChild(lengthLabel);
-    
-    // Breite rechts
-    const widthLabel = createDimensionLabel(
-        CANVAS_CENTER_X + length/2 + 25, 
-        CANVAS_CENTER_Y, 
-        `${data.width || 5} m`, 
-        '#28a745'
-    );
-    group.appendChild(widthLabel);
-    
-    // Bemaßungslinien
-    drawDimensionLine(group, 
-        CANVAS_CENTER_X - length/2, CANVAS_CENTER_Y - width/2 - 10,
-        CANVAS_CENTER_X + length/2, CANVAS_CENTER_Y - width/2 - 10,
-        '#007bff'
-    );
-    
-    drawDimensionLine(group,
-        CANVAS_CENTER_X + length/2 + 15, CANVAS_CENTER_Y - width/2,
-        CANVAS_CENTER_X + length/2 + 15, CANVAS_CENTER_Y + width/2,
-        '#28a745'
-    );
-}
-
-function drawSquareDimensions(group, data, scale) {
-    const side = (data.side || 5) * scale;
-    
-    // Seitenlänge oben
-    const sideLabel = createDimensionLabel(
-        CANVAS_CENTER_X, 
-        CANVAS_CENTER_Y - side/2 - 15, 
-        `${data.side || 5} m`, 
-        '#007bff'
-    );
-    group.appendChild(sideLabel);
-    
-    // Bemaßungslinie
-    drawDimensionLine(group, 
-        CANVAS_CENTER_X - side/2, CANVAS_CENTER_Y - side/2 - 10,
-        CANVAS_CENTER_X + side/2, CANVAS_CENTER_Y - side/2 - 10,
-        '#007bff'
-    );
-}
-
-function drawTrapezDimensions(group, data, scale) {
-    const sideA = (data.sideA || 8) * scale;
-    const sideB = (data.sideB || 6) * scale;
-    const height = (data.height || 4) * scale;
-    const offset = (data.offset || 1) * scale;
-    
-    // Untere Seite A
-    const sideALabel = createDimensionLabel(
-        CANVAS_CENTER_X, 
-        CANVAS_CENTER_Y + height/2 + 20, 
-        `A: ${data.sideA || 8} m`, 
-        '#007bff'
-    );
-    group.appendChild(sideALabel);
-    
-    // Obere Seite B
-    const sideBLabel = createDimensionLabel(
-        CANVAS_CENTER_X + offset, 
-        CANVAS_CENTER_Y - height/2 - 15, 
-        `B: ${data.sideB || 6} m`, 
-        '#28a745'
-    );
-    group.appendChild(sideBLabel);
-    
-    // Höhe
-    const heightLabel = createDimensionLabel(
-        CANVAS_CENTER_X - sideA/2 - 25, 
-        CANVAS_CENTER_Y, 
-        `H: ${data.height || 4} m`, 
-        '#dc3545'
-    );
-    group.appendChild(heightLabel);
-    
-    // Versatz (falls vorhanden)
-    if (Math.abs(data.offset || 1) > 0.1) {
-        const offsetLabel = createDimensionLabel(
-            CANVAS_CENTER_X + sideA/4, 
-            CANVAS_CENTER_Y - height/4, 
-            `Versatz: ${data.offset || 1} m`, 
-            '#ffc107'
-        );
-        group.appendChild(offsetLabel);
-    }
-}
-
-function drawTriangleDimensions(group, data, scale) {
-    const variant = determineActualVariant();
-    
-    if (variant === 'gleichseitig') {
-        const side = (data.side || 6) * scale;
-        const sideLabel = createDimensionLabel(
-            CANVAS_CENTER_X, 
-            CANVAS_CENTER_Y + side/3 + 20, 
-            `${data.side || 6} m`, 
-            '#007bff'
-        );
-        group.appendChild(sideLabel);
-    } else if (variant === 'rechtwinklig') {
-        const katheteA = (data.katheteA || 4) * scale;
-        const katheteB = (data.katheteB || 5) * scale;
-        
-        const katheteALabel = createDimensionLabel(
-            CANVAS_CENTER_X, 
-            CANVAS_CENTER_Y + katheteB/3 + 20, 
-            `a: ${data.katheteA || 4} m`, 
-            '#007bff'
-        );
-        group.appendChild(katheteALabel);
-        
-        const katheteBLabel = createDimensionLabel(
-            CANVAS_CENTER_X - katheteA/2 - 25, 
-            CANVAS_CENTER_Y, 
-            `b: ${data.katheteB || 5} m`, 
-            '#28a745'
-        );
-        group.appendChild(katheteBLabel);
-    } else {
-        // Ungleichschenkliges Dreieck
-        const sideALabel = createDimensionLabel(
-            // VOLLSTÄNDIGE korrigierte editor.js - Alle Dachformen + Seitenbemaßung + funktionsfähige Rotation
+console.log('✅ Vollständige korrigierte editor.js erfolgreich geladen - Alle Dachformen + Seitenbemaßung + funktionsfähige Rotation!');
+                // VOLLSTÄNDIGE korrigierte editor.js - Alle Dachformen + Seitenbemaßung + funktionsfähige Rotation
 
 let projectData = {};
 let currentShape = '';
@@ -2052,3 +1141,909 @@ function drawCurrentShape(group, data, scale) {
             case 'quadrat':
                 drawSquareShape(group, data, scale);
                 break;
+            case 'dreieck':
+                drawTriangleShape(group, data, scale);
+                break;
+            case 'trapez':
+                drawTrapezShape(group, data, scale);
+                break;
+            case 'parallelogramm':
+                drawParallelogramShape(group, data, scale);
+                break;
+            case 'rhombus':
+                drawRhombusShape(group, data, scale);
+                break;
+            case 'fuenfeck':
+                drawPentagonShape(group, data, scale);
+                break;
+            case 'sechseck':
+                drawHexagonShape(group, data, scale);
+                break;
+            case 'achteck':
+                drawOctagonShape(group, data, scale);
+                break;
+            case 'lform':
+                drawLShape(group, data, scale);
+                break;
+            case 'tform':
+                drawTShape(group, data, scale);
+                break;
+            case 'uform':
+                drawUShape(group, data, scale);
+                break;
+            default:
+                console.log(`⚠️ Unbekannte Form: ${finalShape}, verwende Rechteck`);
+                drawRectangleShape(group, data, scale);
+        }
+        
+        console.log(`✅ Shape ${finalShape} erfolgreich gezeichnet`);
+        
+    } catch (error) {
+        console.error(`❌ Fehler beim Zeichnen von ${finalShape}:`, error);
+        drawRectangleShape(group, data, scale);
+    }
+}
+
+// KREIS FORMEN
+function drawCircleShape(group, data, scale) {
+    const radius = (data.radius || 3) * scale;
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', CANVAS_CENTER_X);
+    circle.setAttribute('cy', CANVAS_CENTER_Y);
+    circle.setAttribute('r', radius);
+    circle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    circle.setAttribute('stroke', '#007bff');
+    circle.setAttribute('stroke-width', '3');
+    group.appendChild(circle);
+}
+
+function drawOvalShape(group, data, scale) {
+    const radiusX = (data.radiusX || 4) * scale;
+    const radiusY = (data.radiusY || 2.5) * scale;
+    const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+    ellipse.setAttribute('cx', CANVAS_CENTER_X);
+    ellipse.setAttribute('cy', CANVAS_CENTER_Y);
+    ellipse.setAttribute('rx', radiusX);
+    ellipse.setAttribute('ry', radiusY);
+    ellipse.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    ellipse.setAttribute('stroke', '#007bff');
+    ellipse.setAttribute('stroke-width', '3');
+    group.appendChild(ellipse);
+}
+
+function drawHalfCircleShape(group, data, scale) {
+    const radius = (data.radius || 4) * scale;
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    // Halbkreis mit SVG Path
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const pathData = `M ${centerX - radius} ${centerY} 
+                      A ${radius} ${radius} 0 0 1 ${centerX + radius} ${centerY} 
+                      Z`;
+    path.setAttribute('d', pathData);
+    path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    path.setAttribute('stroke', '#007bff');
+    path.setAttribute('stroke-width', '3');
+    group.appendChild(path);
+}
+
+function drawQuarterCircleShape(group, data, scale) {
+    const radius = (data.radius || 4) * scale;
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    // Viertelkreis mit SVG Path
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const pathData = `M ${centerX} ${centerY} 
+                      L ${centerX + radius} ${centerY} 
+                      A ${radius} ${radius} 0 0 1 ${centerX} ${centerY + radius} 
+                      Z`;
+    path.setAttribute('d', pathData);
+    path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    path.setAttribute('stroke', '#007bff');
+    path.setAttribute('stroke-width', '3');
+    group.appendChild(path);
+}
+
+function drawLanglochShape(group, data, scale) {
+    const length = (data.length || 6) * scale;
+    const width = (data.width || 3) * scale;
+    const radius = width / 2;
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    // Langloch = Rechteck mit abgerundeten Enden
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const halfLength = length / 2 - radius;
+    
+    const pathData = `M ${centerX - halfLength} ${centerY - radius}
+                      L ${centerX + halfLength} ${centerY - radius}
+                      A ${radius} ${radius} 0 0 1 ${centerX + halfLength} ${centerY + radius}
+                      L ${centerX - halfLength} ${centerY + radius}
+                      A ${radius} ${radius} 0 0 1 ${centerX - halfLength} ${centerY - radius}
+                      Z`;
+    
+    path.setAttribute('d', pathData);
+    path.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    path.setAttribute('stroke', '#007bff');
+    path.setAttribute('stroke-width', '3');
+    group.appendChild(path);
+}
+
+// VIERECK FORMEN
+function drawRectangleShape(group, data, scale) {
+    const length = (data.length || 8) * scale;
+    const width = (data.width || 5) * scale;
+    
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', CANVAS_CENTER_X - length/2);
+    rect.setAttribute('y', CANVAS_CENTER_Y - width/2);
+    rect.setAttribute('width', length);
+    rect.setAttribute('height', width);
+    rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    rect.setAttribute('stroke', '#007bff');
+    rect.setAttribute('stroke-width', '3');
+    group.appendChild(rect);
+}
+
+function drawSquareShape(group, data, scale) {
+    const side = (data.side || 5) * scale;
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', CANVAS_CENTER_X - side/2);
+    rect.setAttribute('y', CANVAS_CENTER_Y - side/2);
+    rect.setAttribute('width', side);
+    rect.setAttribute('height', side);
+    rect.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    rect.setAttribute('stroke', '#007bff');
+    rect.setAttribute('stroke-width', '3');
+    group.appendChild(rect);
+}
+
+function drawTrapezShape(group, data, scale) {
+    const sideA = (data.sideA || 8) * scale;  // Untere Seite
+    const sideB = (data.sideB || 6) * scale;  // Obere Seite  
+    const height = (data.height || 4) * scale;
+    const offset = (data.offset || 1) * scale;
+    
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    const points = [
+        { x: centerX - sideA/2, y: centerY + height/2 },  // Links unten
+        { x: centerX + sideA/2, y: centerY + height/2 },  // Rechts unten
+        { x: centerX + sideB/2 + offset, y: centerY - height/2 },  // Rechts oben
+        { x: centerX - sideB/2 + offset, y: centerY - height/2 }   // Links oben
+    ];
+    
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', pointsStr);
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+function drawParallelogramShape(group, data, scale) {
+    const length = (data.length || 8) * scale;
+    const width = (data.width || 5) * scale;
+    const angle = (data.angle || 30) * Math.PI / 180;
+    const skew = width * Math.cos(angle);
+    
+    const points = [
+        { x: CANVAS_CENTER_X - length/2, y: CANVAS_CENTER_Y - width/2 },
+        { x: CANVAS_CENTER_X + length/2, y: CANVAS_CENTER_Y - width/2 },
+        { x: CANVAS_CENTER_X + length/2 + skew, y: CANVAS_CENTER_Y + width/2 },
+        { x: CANVAS_CENTER_X - length/2 + skew, y: CANVAS_CENTER_Y + width/2 }
+    ];
+    
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', pointsStr);
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+function drawRhombusShape(group, data, scale) {
+    const side = (data.side || 5) * scale;
+    const angle = (data.angle || 60) * Math.PI / 180;
+    
+    // Rhombus-Punkte berechnen
+    const halfDiag1 = side * Math.sin(angle / 2);
+    const halfDiag2 = side * Math.cos(angle / 2);
+    
+    const points = [
+        { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y - halfDiag1 },      // Oben
+        { x: CANVAS_CENTER_X + halfDiag2, y: CANVAS_CENTER_Y },      // Rechts
+        { x: CANVAS_CENTER_X, y: CANVAS_CENTER_Y + halfDiag1 },      // Unten
+        { x: CANVAS_CENTER_X - halfDiag2, y: CANVAS_CENTER_Y }       // Links
+    ];
+    
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', pointsStr);
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+// DREIECK FORMEN
+function drawTriangleShape(group, data, scale) {
+    const variant = determineActualVariant();
+    let points = '';
+    
+    if (variant === 'gleichseitig') {
+        const side = (data.side || 6) * scale;
+        const height = side * Math.sqrt(3) / 2;
+        const topX = CANVAS_CENTER_X;
+        const topY = CANVAS_CENTER_Y - height/3;
+        const leftX = CANVAS_CENTER_X - side/2;
+        const leftY = CANVAS_CENTER_Y + height*2/3;
+        const rightX = CANVAS_CENTER_X + side/2;
+        const rightY = CANVAS_CENTER_Y + height*2/3;
+        points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
+    } else if (variant === 'rechtwinklig') {
+        const katheteA = (data.katheteA || 4) * scale;
+        const katheteB = (data.katheteB || 5) * scale;
+        
+        const leftX = CANVAS_CENTER_X - katheteA/2;
+        const rightX = CANVAS_CENTER_X + katheteA/2;
+        const bottomY = CANVAS_CENTER_Y + katheteB/3;
+        const topY = CANVAS_CENTER_Y - katheteB*2/3;
+        
+        points = `${leftX},${bottomY} ${rightX},${bottomY} ${leftX},${topY}`;
+    } else {
+        const sideA = (data.sideA || 4) * scale;
+        const avgSide = ((data.sideB || 5) + (data.sideC || 6)) / 2;
+        const height = avgSide * scale * 0.8;
+        
+        const topX = CANVAS_CENTER_X;
+        const topY = CANVAS_CENTER_Y - height/2;
+        const leftX = CANVAS_CENTER_X - sideA/2;
+        const leftY = CANVAS_CENTER_Y + height/2;
+        const rightX = CANVAS_CENTER_X + sideA/2;
+        const rightY = CANVAS_CENTER_Y + height/2;
+        
+        points = `${topX},${topY} ${leftX},${leftY} ${rightX},${rightY}`;
+    }
+    
+    const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    triangle.setAttribute('points', points);
+    triangle.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    triangle.setAttribute('stroke', '#007bff');
+    triangle.setAttribute('stroke-width', '3');
+    group.appendChild(triangle);
+}
+
+// VIELECK FORMEN
+function drawPentagonShape(group, data, scale) {
+    const radius = (data.radius || 4) * scale;
+    const points = [];
+    
+    for (let i = 0; i < 5; i++) {
+        const angle = (i * 2 * Math.PI / 5) - Math.PI / 2; // Start oben
+        const x = CANVAS_CENTER_X + radius * Math.cos(angle);
+        const y = CANVAS_CENTER_Y + radius * Math.sin(angle);
+        points.push(`${x},${y}`);
+    }
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', points.join(' '));
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+function drawHexagonShape(group, data, scale) {
+    const radius = (data.radius || 4) * scale;
+    const points = [];
+    
+    for (let i = 0; i < 6; i++) {
+        const angle = (i * 2 * Math.PI / 6) - Math.PI / 2; // Start oben
+        const x = CANVAS_CENTER_X + radius * Math.cos(angle);
+        const y = CANVAS_CENTER_Y + radius * Math.sin(angle);
+        points.push(`${x},${y}`);
+    }
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', points.join(' '));
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+function drawOctagonShape(group, data, scale) {
+    const radius = (data.radius || 4) * scale;
+    const points = [];
+    
+    for (let i = 0; i < 8; i++) {
+        const angle = (i * 2 * Math.PI / 8) - Math.PI / 2; // Start oben
+        const x = CANVAS_CENTER_X + radius * Math.cos(angle);
+        const y = CANVAS_CENTER_Y + radius * Math.sin(angle);
+        points.push(`${x},${y}`);
+    }
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', points.join(' '));
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+// KOMPLEXE FORMEN
+function drawLShape(group, data, scale) {
+    const lengthTotal = (data.lengthTotal || 10) * scale;
+    const widthTotal = (data.widthTotal || 8) * scale;
+    const cutLength = (data.cutLength || 4) * scale;
+    const cutWidth = (data.cutWidth || 4) * scale;
+    
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    // L-Form: Großes Rechteck minus kleines Rechteck oben rechts
+    const points = [
+        { x: centerX - lengthTotal/2, y: centerY - widthTotal/2 },           // Links oben
+        { x: centerX + lengthTotal/2, y: centerY - widthTotal/2 },           // Rechts oben
+        { x: centerX + lengthTotal/2, y: centerY - widthTotal/2 + cutWidth }, // Rechts, Ausschnitt oben
+        { x: centerX - lengthTotal/2 + cutLength, y: centerY - widthTotal/2 + cutWidth }, // Ausschnitt links
+        { x: centerX - lengthTotal/2 + cutLength, y: centerY + widthTotal/2 }, // Ausschnitt unten
+        { x: centerX - lengthTotal/2, y: centerY + widthTotal/2 }            // Links unten
+    ];
+    
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', pointsStr);
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+function drawTShape(group, data, scale) {
+    const topWidth = (data.topWidth || 8) * scale;
+    const stemWidth = (data.stemWidth || 4) * scale;
+    const topHeight = (data.topHeight || 3) * scale;
+    const stemHeight = (data.stemHeight || 5) * scale;
+    
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    const points = [
+        { x: centerX - topWidth/2, y: centerY - (topHeight + stemHeight)/2 },           // Links oben
+        { x: centerX + topWidth/2, y: centerY - (topHeight + stemHeight)/2 },           // Rechts oben
+        { x: centerX + topWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }, // Rechts, Ende Top
+        { x: centerX + stemWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }, // Rechts Stiel oben
+        { x: centerX + stemWidth/2, y: centerY + (topHeight + stemHeight)/2 },          // Rechts Stiel unten
+        { x: centerX - stemWidth/2, y: centerY + (topHeight + stemHeight)/2 },          // Links Stiel unten
+        { x: centerX - stemWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }, // Links Stiel oben
+        { x: centerX - topWidth/2, y: centerY - (topHeight + stemHeight)/2 + topHeight }   // Links, Ende Top
+    ];
+    
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', pointsStr);
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+function drawUShape(group, data, scale) {
+    const outerWidth = (data.outerWidth || 10) * scale;
+    const innerWidth = (data.innerWidth || 4) * scale;
+    const height = (data.height || 6) * scale;
+    const thickness = (data.thickness || 3) * scale;
+    
+    const centerX = CANVAS_CENTER_X;
+    const centerY = CANVAS_CENTER_Y;
+    
+    const points = [
+        { x: centerX - outerWidth/2, y: centerY - height/2 },                    // Links außen oben
+        { x: centerX + outerWidth/2, y: centerY - height/2 },                    // Rechts außen oben
+        { x: centerX + outerWidth/2, y: centerY + height/2 },                    // Rechts außen unten
+        { x: centerX + innerWidth/2, y: centerY + height/2 },                    // Rechts innen unten
+        { x: centerX + innerWidth/2, y: centerY - height/2 + thickness },        // Rechts innen oben
+        { x: centerX - innerWidth/2, y: centerY - height/2 + thickness },        // Links innen oben
+        { x: centerX - innerWidth/2, y: centerY + height/2 },                    // Links innen unten
+        { x: centerX - outerWidth/2, y: centerY + height/2 }                     // Links außen unten
+    ];
+    
+    const pointsStr = points.map(p => `${p.x},${p.y}`).join(' ');
+    
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', pointsStr);
+    polygon.setAttribute('fill', 'rgba(0, 123, 255, 0.3)');
+    polygon.setAttribute('stroke', '#007bff');
+    polygon.setAttribute('stroke-width', '3');
+    group.appendChild(polygon);
+}
+
+// KORRIGIERTE Labels und Seitenbemaßung - zeigt Seitenbemaßungen statt Eckbeschriftungen
+function drawLabelsOnShape(group, data, scale) {
+    const finalShape = determineActualShape();
+    
+    // Seitenbemaßungen statt Eckbeschriftungen
+    switch (finalShape) {
+        case 'rechteck':
+            drawRectangleDimensions(group, data, scale);
+            break;
+        case 'quadrat':
+            drawSquareDimensions(group, data, scale);
+            break;
+        case 'trapez':
+            drawTrapezDimensions(group, data, scale);
+            break;
+        case 'dreieck':
+            drawTriangleDimensions(group, data, scale);
+            break;
+        case 'parallelogramm':
+            drawParallelogramDimensions(group, data, scale);
+            break;
+        case 'rhombus':
+            drawRhombusDimensions(group, data, scale);
+            break;
+        case 'kreis':
+            drawCircleDimensions(group, data, scale);
+            break;
+        case 'oval':
+            drawOvalDimensions(group, data, scale);
+            break;
+        case 'langloch':
+            drawLanglochDimensions(group, data, scale);
+            break;
+        case 'fuenfeck':
+        case 'sechseck':
+        case 'achteck':
+            drawPolygonDimensions(group, data, scale);
+            break;
+        default:
+            drawRectangleDimensions(group, data, scale);
+            break;
+    }
+}
+
+function drawRectangleDimensions(group, data, scale) {
+    const length = (data.length || 8) * scale;
+    const width = (data.width || 5) * scale;
+    
+    // Länge oben
+    const lengthLabel = createDimensionLabel(
+        CANVAS_CENTER_X, 
+        CANVAS_CENTER_Y - width/2 - 15, 
+        `${data.length || 8} m`, 
+        '#007bff'
+    );
+    group.appendChild(lengthLabel);
+    
+    // Breite rechts
+    const widthLabel = createDimensionLabel(
+        CANVAS_CENTER_X + length/2 + 25, 
+        CANVAS_CENTER_Y, 
+        `${data.width || 5} m`, 
+        '#28a745'
+    );
+    group.appendChild(widthLabel);
+    
+    // Bemaßungslinien
+    drawDimensionLine(group, 
+        CANVAS_CENTER_X - length/2, CANVAS_CENTER_Y - width/2 - 10,
+        CANVAS_CENTER_X + length/2, CANVAS_CENTER_Y - width/2 - 10,
+        '#007bff'
+    );
+    
+    drawDimensionLine(group,
+        CANVAS_CENTER_X + length/2 + 15, CANVAS_CENTER_Y - width/2,
+        CANVAS_CENTER_X + length/2 + 15, CANVAS_CENTER_Y + width/2,
+        '#28a745'
+    );
+}
+
+function drawSquareDimensions(group, data, scale) {
+    const side = (data.side || 5) * scale;
+    
+    // Seitenlänge oben
+    const sideLabel = createDimensionLabel(
+        CANVAS_CENTER_X, 
+        CANVAS_CENTER_Y - side/2 - 15, 
+        `${data.side || 5} m`, 
+        '#007bff'
+    );
+    group.appendChild(sideLabel);
+    
+    // Bemaßungslinie
+    drawDimensionLine(group, 
+        CANVAS_CENTER_X - side/2, CANVAS_CENTER_Y - side/2 - 10,
+        CANVAS_CENTER_X + side/2, CANVAS_CENTER_Y - side/2 - 10,
+        '#007bff'
+    );
+}
+
+function drawTrapezDimensions(group, data, scale) {
+    const sideA = (data.sideA || 8) * scale;
+    const sideB = (data.sideB || 6) * scale;
+    const height = (data.height || 4) * scale;
+    const offset = (data.offset || 1) * scale;
+    
+    // Untere Seite A
+    const sideALabel = createDimensionLabel(
+        CANVAS_CENTER_X, 
+        CANVAS_CENTER_Y + height/2 + 20, 
+        `A: ${data.sideA || 8} m`, 
+        '#007bff'
+    );
+    group.appendChild(sideALabel);
+    
+    // Obere Seite B
+    const sideBLabel = createDimensionLabel(
+        CANVAS_CENTER_X + offset, 
+        CANVAS_CENTER_Y - height/2 - 15, 
+        `B: ${data.sideB || 6} m`, 
+        '#28a745'
+    );
+    group.appendChild(sideBLabel);
+    
+    // Höhe
+    const heightLabel = createDimensionLabel(
+        CANVAS_CENTER_X - sideA/2 - 25, 
+        CANVAS_CENTER_Y, 
+        `H: ${data.height || 4} m`, 
+        '#dc3545'
+    );
+    group.appendChild(heightLabel);
+    
+    // Versatz (falls vorhanden)
+    if (Math.abs(data.offset || 1) > 0.1) {
+        const offsetLabel = createDimensionLabel(
+            CANVAS_CENTER_X + sideA/4, 
+            CANVAS_CENTER_Y - height/4, 
+            `Versatz: ${data.offset || 1} m`, 
+            '#ffc107'
+        );
+        group.appendChild(offsetLabel);
+    }
+}
+
+function drawTriangleDimensions(group, data, scale) {
+    const variant = determineActualVariant();
+    
+    if (variant === 'gleichseitig') {
+        const side = (data.side || 6) * scale;
+        const sideLabel = createDimensionLabel(
+            CANVAS_CENTER_X, 
+            CANVAS_CENTER_Y + side/3 + 20, 
+            `${data.side || 6} m`, 
+            '#007bff'
+        );
+        group.appendChild(sideLabel);
+    } else if (variant === 'rechtwinklig') {
+        const katheteA = (data.katheteA || 4) * scale;
+        const katheteB = (data.katheteB || 5) * scale;
+        
+        const katheteALabel = createDimensionLabel(
+            CANVAS_CENTER_X, 
+            CANVAS_CENTER_Y + katheteB/3 + 20, 
+            `a: ${data.katheteA || 4} m`, 
+            '#007bff'
+        );
+        group.appendChild(katheteALabel);
+        
+        const katheteBLabel = createDimensionLabel(
+            CANVAS_CENTER_X - katheteA/2 - 25, 
+            CANVAS_CENTER_Y, 
+            `b: ${data.katheteB || 5} m`, 
+            '#28a745'
+        );
+        group.appendChild(katheteBLabel);
+    } else {
+        // Ungleichschenkliges Dreieck
+        const sideALabel = createDimensionLabel(
+            CANVAS_CENTER_X, 
+            CANVAS_CENTER_Y + 30, 
+            `a: ${data.sideA || 4} m`, 
+            '#007bff'
+        );
+        group.appendChild(sideALabel);
+        
+        const sideBLabel = createDimensionLabel(
+            CANVAS_CENTER_X - 30, 
+            CANVAS_CENTER_Y - 10, 
+            `b: ${data.sideB || 5} m`, 
+            '#28a745'
+        );
+        group.appendChild(sideBLabel);
+        
+        const sideCLabel = createDimensionLabel(
+            CANVAS_CENTER_X + 30, 
+            CANVAS_CENTER_Y - 10, 
+            `c: ${data.sideC || 6} m`, 
+            '#dc3545'
+        );
+        group.appendChild(sideCLabel);
+    }
+}
+
+function drawParallelogramDimensions(group, data, scale) {
+    const length = (data.length || 8) * scale;
+    const width = (data.width || 5) * scale;
+    const angle = data.angle || 30;
+    
+    const lengthLabel = createDimensionLabel(
+        CANVAS_CENTER_X, 
+        CANVAS_CENTER_Y - width/2 - 15, 
+        `${data.length || 8} m`, 
+        '#007bff'
+    );
+    group.appendChild(lengthLabel);
+    
+    const widthLabel = createDimensionLabel(
+        CANVAS_CENTER_X + length/2 + 25, 
+        CANVAS_CENTER_Y, 
+        `${data.width || 5} m`, 
+        '#28a745'
+    );
+    group.appendChild(widthLabel);
+    
+    const angleLabel = createDimensionLabel(
+        CANVAS_CENTER_X - length/4, 
+        CANVAS_CENTER_Y + width/4, 
+        `∠${angle}°`, 
+        '#ffc107'
+    );
+    group.appendChild(angleLabel);
+}
+
+function drawRhombusDimensions(group, data, scale) {
+    const side = data.side || 5;
+    const angle = data.angle || 60;
+    
+    const sideLabel = createDimensionLabel(
+        CANVAS_CENTER_X + 40, 
+        CANVAS_CENTER_Y - 20, 
+        `${side} m`, 
+        '#007bff'
+    );
+    group.appendChild(sideLabel);
+    
+    const angleLabel = createDimensionLabel(
+        CANVAS_CENTER_X - 30, 
+        CANVAS_CENTER_Y + 20, 
+        `∠${angle}°`, 
+        '#28a745'
+    );
+    group.appendChild(angleLabel);
+}
+
+function drawCircleDimensions(group, data, scale) {
+    const radius = data.radius || 3;
+    
+    const radiusLabel = createDimensionLabel(
+        CANVAS_CENTER_X + 30, 
+        CANVAS_CENTER_Y - 30, 
+        `r = ${radius} m`, 
+        '#007bff'
+    );
+    group.appendChild(radiusLabel);
+    
+    // Radius-Linie
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', CANVAS_CENTER_X);
+    line.setAttribute('y1', CANVAS_CENTER_Y);
+    line.setAttribute('x2', CANVAS_CENTER_X + radius * scale);
+    line.setAttribute('y2', CANVAS_CENTER_Y);
+    line.setAttribute('stroke', '#007bff');
+    line.setAttribute('stroke-width', '2');
+    line.setAttribute('stroke-dasharray', '5,5');
+    group.appendChild(line);
+}
+
+function drawOvalDimensions(group, data, scale) {
+    const radiusX = data.radiusX || 4;
+    const radiusY = data.radiusY || 2.5;
+    
+    const radiusXLabel = createDimensionLabel(
+        CANVAS_CENTER_X, 
+        CANVAS_CENTER_Y - radiusY * scale - 15, 
+        `rx = ${radiusX} m`, 
+        '#007bff'
+    );
+    group.appendChild(radiusXLabel);
+    
+    const radiusYLabel = createDimensionLabel(
+        CANVAS_CENTER_X + radiusX * scale + 15, 
+        CANVAS_CENTER_Y, 
+        `ry = ${radiusY} m`, 
+        '#28a745'
+    );
+    group.appendChild(radiusYLabel);
+}
+
+function drawLanglochDimensions(group, data, scale) {
+    const length = data.length || 6;
+    const width = data.width || 3;
+    
+    const lengthLabel = createDimensionLabel(
+        CANVAS_CENTER_X, 
+        CANVAS_CENTER_Y - width * scale / 2 - 15, 
+        `${length} m`, 
+        '#007bff'
+    );
+    group.appendChild(lengthLabel);
+    
+    const widthLabel = createDimensionLabel(
+        CANVAS_CENTER_X + length * scale / 2 + 15, 
+        CANVAS_CENTER_Y, 
+        `${width} m`, 
+        '#28a745'
+    );
+    group.appendChild(widthLabel);
+}
+
+function drawPolygonDimensions(group, data, scale) {
+    const radius = data.radius || 4;
+    
+    const radiusLabel = createDimensionLabel(
+        CANVAS_CENTER_X + radius * scale + 15, 
+        CANVAS_CENTER_Y - 10, 
+        `r = ${radius} m`, 
+        '#007bff'
+    );
+    group.appendChild(radiusLabel);
+    
+    // Radius-Linie zum obersten Punkt
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', CANVAS_CENTER_X);
+    line.setAttribute('y1', CANVAS_CENTER_Y);
+    line.setAttribute('x2', CANVAS_CENTER_X);
+    line.setAttribute('y2', CANVAS_CENTER_Y - radius * scale);
+    line.setAttribute('stroke', '#007bff');
+    line.setAttribute('stroke-width', '2');
+    line.setAttribute('stroke-dasharray', '5,5');
+    group.appendChild(line);
+}
+
+function createDimensionLabel(x, y, text, color) {
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', x);
+    label.setAttribute('y', y);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('fill', color);
+    label.setAttribute('font-size', '12');
+    label.setAttribute('font-weight', 'bold');
+    label.setAttribute('stroke', 'white');
+    label.setAttribute('stroke-width', '3');
+    label.setAttribute('paint-order', 'stroke');
+    label.textContent = text;
+    return label;
+}
+
+function drawDimensionLine(group, x1, y1, x2, y2, color) {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('stroke', color);
+    line.setAttribute('stroke-width', '1');
+    line.setAttribute('stroke-dasharray', '3,3');
+    group.appendChild(line);
+    
+    // Pfeilspitzen
+    const arrow1 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    arrow1.setAttribute('points', `${x1-3},${y1-3} ${x1+3},${y1} ${x1-3},${y1+3}`);
+    arrow1.setAttribute('fill', color);
+    group.appendChild(arrow1);
+    
+    const arrow2 = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    arrow2.setAttribute('points', `${x2+3},${y2-3} ${x2-3},${y2} ${x2+3},${y2+3}`);
+    arrow2.setAttribute('fill', color);
+    group.appendChild(arrow2);
+}
+
+function updateCalculations(data) {
+    let area = 0;
+    let perimeter = 0;
+    const finalShape = determineActualShape();
+    const variant = determineActualVariant();
+    
+    try {
+        switch (finalShape) {
+            case 'kreis':
+                const radius = data.radius || 3;
+                area = Math.PI * radius * radius;
+                perimeter = 2 * Math.PI * radius;
+                break;
+            case 'oval':
+                const radiusX = data.radiusX || 4;
+                const radiusY = data.radiusY || 2.5;
+                area = Math.PI * radiusX * radiusY;
+                perimeter = Math.PI * (3 * (radiusX + radiusY) - Math.sqrt((3 * radiusX + radiusY) * (radiusX + 3 * radiusY)));
+                break;
+            case 'trapez':
+                const sideA = data.sideA || 8;
+                const sideB = data.sideB || 6;
+                const height = data.height || 4;
+                area = ((sideA + sideB) / 2) * height;
+                const offset = data.offset || 1;
+                const trapezSideLength = Math.sqrt(height * height + offset * offset);
+                perimeter = sideA + sideB + 2 * trapezSideLength;
+                break;
+            case 'rechteck':
+                const rectLength = data.length || 8;
+                const rectWidth = data.width || 5;
+                area = rectLength * rectWidth;
+                perimeter = 2 * (rectLength + rectWidth);
+                break;
+            case 'quadrat':
+                const side = data.side || 5;
+                area = side * side;
+                perimeter = 4 * side;
+                break;
+            case 'dreieck':
+                if (variant === 'rechtwinklig') {
+                    const a = data.katheteA || 4;
+                    const b = data.katheteB || 5;
+                    area = 0.5 * a * b;
+                    const c = Math.sqrt(a*a + b*b);
+                    perimeter = a + b + c;
+                } else if (variant === 'gleichseitig') {
+                    const s = data.side || 6;
+                    area = (Math.sqrt(3) / 4) * s * s;
+                    perimeter = 3 * s;
+                } else {
+                    const a = data.sideA || 4;
+                    const b = data.sideB || 5;
+                    const c = data.sideC || 6;
+                    const s = (a + b + c) / 2;
+                    area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+                    perimeter = a + b + c;
+                }
+                break;
+            case 'rhombus':
+                const rhombusSide = data.side || 5;
+                const angle = (data.angle || 60) * Math.PI / 180;
+                area = rhombusSide * rhombusSide * Math.sin(angle);
+                perimeter = 4 * rhombusSide;
+                break;
+            case 'parallelogramm':
+                const paraLength = data.length || 8;
+                const paraWidth = data.width || 5;
+                const paraAngle = (data.angle || 30) * Math.PI / 180;
+                area = paraLength * paraWidth * Math.sin(paraAngle);
+                perimeter = 2 * (paraLength + paraWidth);
+                break;
+            case 'fuenfeck':
+            case 'sechseck':
+            case 'achteck':
+                const polygonRadius = data.radius || 4;
+                const sides = finalShape === 'fuenfeck' ? 5 : finalShape === 'sechseck' ? 6 : 8;
+                area = 0.5 * sides * polygonRadius * polygonRadius * Math.sin(2 * Math.PI / sides);
+                perimeter = sides * 2 * polygonRadius * Math.sin(Math.PI / sides);
+                break;
+            default:
+                area = 40;
+                perimeter = 26;
+        }
+    } catch (error) {
+        console.error('❌ Berechnungen Fehler:', error);
+        area = 40;
+        perimeter = 26;
+    }
+    
+    const areaElement = document.getElementById('calc-area');
+    const perimeterElement = document.getElementById('calc-perimeter');
+    
+    if (areaElement) areaElement.textContent = area.toFixed(2) + ' m²';
+    if (perimeterElement) perimeterElement.textContent = perimeter.toFixed(2) + ' m';
+}
