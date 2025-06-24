@@ -530,126 +530,505 @@ function saveCurrentData() {
     }
 }
 
+// KORRIGIERTE Punkt-Generierung für Editor.js
+// Diese Funktion sollte die generateRoofPoints Funktion in editor.js ersetzen
+
 function generateRoofPoints(data) {
     const finalShape = determineActualShape();
+    const variant = determineActualVariant();
+    
+    console.log(`🎨 Generiere Punkte für: ${finalShape}, Variante: ${variant}`);
+    console.log('Input-Daten:', data);
+    
     let points = [];
     
     try {
         switch (finalShape) {
-            case 'rechteck':
-                const rectLength = data.length || 8;
-                const rectWidth = data.width || 5;
-                points = [
-                    { x: -rectLength/2, y: -rectWidth/2 }, 
-                    { x: rectLength/2, y: -rectWidth/2 },
-                    { x: rectLength/2, y: rectWidth/2 }, 
-                    { x: -rectLength/2, y: rectWidth/2 }
-                ];
-                break;
-                
-            case 'trapez':
-                const sideA = data.sideA || 8;
-                const sideB = data.sideB || 6;
-                const height = data.height || 4;
-                const offset = data.offset || 1;
-                
-                points = [
-                    { x: -sideA/2, y: -height/2 },
-                    { x: sideA/2, y: -height/2 },
-                    { x: sideB/2 + offset, y: height/2 },
-                    { x: -sideB/2 + offset, y: height/2 }
-                ];
-                break;
-                
-            case 'dreieck':
-                const variant = determineActualVariant();
-                if (variant === 'gleichseitig') {
-                    const side = data.side || 6;
-                    const height = side * Math.sqrt(3) / 2;
-                    points = [
-                        { x: 0, y: height * 2/3 },
-                        { x: -side/2, y: -height/3 },
-                        { x: side/2, y: -height/3 }
-                    ];
-                } else if (variant === 'rechtwinklig') {
-                    const a = data.katheteA || 4;
-                    const b = data.katheteB || 5;
-                    points = [
-                        { x: -a/2, y: -b/3 },
-                        { x: a/2, y: -b/3 },
-                        { x: -a/2, y: b*2/3 }
-                    ];
-                } else {
-                    const sideA = data.sideA || 4;
-                    points = [
-                        { x: 0, y: 3 },
-                        { x: -sideA/2, y: -2 },
-                        { x: sideA/2, y: -2 }
-                    ];
-                }
-                break;
-                
             case 'kreis':
-                const radius = data.radius || 3;
-                // Kreis mit 12 Punkten approximieren
-                for (let i = 0; i < 12; i++) {
-                    const angle = (i * 2 * Math.PI) / 12;
-                    points.push({
-                        x: radius * Math.cos(angle),
-                        y: radius * Math.sin(angle)
-                    });
-                }
+                points = generateCirclePointsForEditor(data);
                 break;
-                
+            case 'oval':
+                points = generateOvalPointsForEditor(data);
+                break;
+            case 'halbkreis':
+                points = generateHalfCirclePointsForEditor(data);
+                break;
+            case 'viertelkreis':
+                points = generateQuarterCirclePointsForEditor(data);
+                break;
+            case 'langloch':
+                points = generateLanglochPointsForEditor(data);
+                break;
+            case 'dreieck':
+                points = generateTrianglePointsForEditor(data, variant);
+                break;
+            case 'rechteck':
+                points = generateRectanglePointsForEditor(data);
+                break;
+            case 'quadrat':
+                points = generateSquarePointsForEditor(data);
+                break;
+            case 'trapez':
+                points = generateTrapezPointsForEditor(data);
+                break;
+            case 'parallelogramm':
+                points = generateParallelogramPointsForEditor(data);
+                break;
+            case 'rhombus':
+                points = generateRhombusPointsForEditor(data);
+                break;
             case 'fuenfeck':
-                const pentagonRadius = data.radius || 4;
-                for (let i = 0; i < 5; i++) {
-                    const angle = (i * 2 * Math.PI / 5) - Math.PI / 2;
-                    points.push({
-                        x: pentagonRadius * Math.cos(angle),
-                        y: pentagonRadius * Math.sin(angle)
-                    });
-                }
+                points = generatePentagonPointsForEditor(data);
                 break;
-                
             case 'sechseck':
-                const hexagonRadius = data.radius || 4;
-                for (let i = 0; i < 6; i++) {
-                    const angle = (i * 2 * Math.PI / 6) - Math.PI / 2;
-                    points.push({
-                        x: hexagonRadius * Math.cos(angle),
-                        y: hexagonRadius * Math.sin(angle)
-                    });
-                }
+                points = generateHexagonPointsForEditor(data);
                 break;
-                
             case 'achteck':
-                const octagonRadius = data.radius || 4;
-                for (let i = 0; i < 8; i++) {
-                    const angle = (i * 2 * Math.PI / 8) - Math.PI / 2;
-                    points.push({
-                        x: octagonRadius * Math.cos(angle),
-                        y: octagonRadius * Math.sin(angle)
-                    });
-                }
+                points = generateOctagonPointsForEditor(data);
                 break;
-                
+            case 'lform':
+                points = generateLShapePointsForEditor(data);
+                break;
+            case 'tform':
+                points = generateTShapePointsForEditor(data);
+                break;
+            case 'uform':
+                points = generateUShapePointsForEditor(data);
+                break;
             default:
-                points = [
-                    { x: -4, y: -2.5 }, { x: 4, y: -2.5 },
-                    { x: 4, y: 2.5 }, { x: -4, y: 2.5 }
-                ];
+                console.log(`⚠️ Unbekannter Shape: ${finalShape}, verwende Rechteck`);
+                points = generateRectanglePointsForEditor(data);
+                break;
         }
+        
+        console.log(`✅ ${points.length} Punkte generiert für ${finalShape}`);
+        return points;
+        
     } catch (error) {
-        console.error('❌ Punkt-Generierung Fehler:', error);
-        points = [
-            { x: -4, y: -2.5 }, { x: 4, y: -2.5 },
-            { x: 4, y: 2.5 }, { x: -4, y: 2.5 }
-        ];
+        console.error(`❌ Fehler bei Punkt-Generierung für ${finalShape}:`, error);
+        // Fallback auf Rechteck
+        return generateRectanglePointsForEditor(data);
+    }
+}
+
+// EDITOR-SPEZIFISCHE PUNKT-GENERIERUNG FUNKTIONEN
+
+function generateCirclePointsForEditor(data) {
+    const radius = data.radius || 3;
+    const points = [];
+    const segments = 24;
+    
+    for (let i = 0; i < segments; i++) {
+        const angle = (i * 2 * Math.PI) / segments;
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
     }
     
     return points;
 }
+
+function generateOvalPointsForEditor(data) {
+    const radiusX = data.radiusX || 4;
+    const radiusY = data.radiusY || 2.5;
+    const points = [];
+    const segments = 24;
+    
+    for (let i = 0; i < segments; i++) {
+        const angle = (i * 2 * Math.PI) / segments;
+        points.push({
+            x: radiusX * Math.cos(angle),
+            y: radiusY * Math.sin(angle)
+        });
+    }
+    
+    return points;
+}
+
+function generateHalfCirclePointsForEditor(data) {
+    const radius = data.radius || 4;
+    const points = [];
+    const segments = 12;
+    
+    // Halbkreis von 0° bis 180°, dann gerade Linie zurück
+    for (let i = 0; i <= segments; i++) {
+        const angle = (i * Math.PI) / segments;
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    return points;
+}
+
+function generateQuarterCirclePointsForEditor(data) {
+    const radius = data.radius || 4;
+    const points = [];
+    
+    // Viertelkreis: Ursprung + Kreisbogen von 0° bis 90°
+    points.push({ x: 0, y: 0 }); // Ursprung
+    
+    const segments = 8;
+    for (let i = 0; i <= segments; i++) {
+        const angle = (i * Math.PI / 2) / segments;
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    return points;
+}
+
+function generateLanglochPointsForEditor(data) {
+    const length = data.length || 6;
+    const width = data.width || 3;
+    const radius = width / 2;
+    const straightLength = Math.max(0, length - width);
+    
+    const points = [];
+    const segments = 8;
+    
+    // Rechtes Halbkreis-Ende (von unten nach oben)
+    for (let i = 0; i <= segments; i++) {
+        const angle = (-Math.PI/2) + (i * Math.PI) / segments;
+        points.push({
+            x: straightLength/2 + radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    // Linkes Halbkreis-Ende (von oben nach unten)
+    for (let i = 0; i <= segments; i++) {
+        const angle = (Math.PI/2) + (i * Math.PI) / segments;
+        points.push({
+            x: -straightLength/2 + radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    return points;
+}
+
+function generateTrianglePointsForEditor(data, variant) {
+    console.log(`🔺 Generiere Dreieck für Editor: ${variant}`);
+    
+    if (variant === 'gleichseitig' || (!variant && data.side)) {
+        const side = data.side || 6;
+        const height = side * Math.sqrt(3) / 2;
+        return [
+            { x: 0, y: height * 2/3 },           // Spitze oben mittig
+            { x: -side/2, y: -height/3 },        // Links unten
+            { x: side/2, y: -height/3 }          // Rechts unten
+        ];
+    } else if (variant === 'rechtwinklig') {
+        const katheteA = data.katheteA || 4;
+        const katheteB = data.katheteB || 5;
+        return [
+            { x: -katheteA/2, y: -katheteB/3 },  // Links unten (rechter Winkel)
+            { x: katheteA/2, y: -katheteB/3 },   // Rechts unten
+            { x: -katheteA/2, y: katheteB*2/3 }  // Links oben
+        ];
+    } else {
+        // Ungleichschenkliges Dreieck
+        const sideA = data.sideA || 4;
+        return [
+            { x: 0, y: 3 },                      // Spitze oben (leicht versetzt)
+            { x: -sideA/2, y: -2 },              // Links unten
+            { x: sideA/2, y: -2 }                // Rechts unten
+        ];
+    }
+}
+
+function generateRectanglePointsForEditor(data) {
+    const length = data.length || 8;
+    const width = data.width || 5;
+    
+    return [
+        { x: -length/2, y: -width/2 },  // Links oben
+        { x: length/2, y: -width/2 },   // Rechts oben
+        { x: length/2, y: width/2 },    // Rechts unten
+        { x: -length/2, y: width/2 }    // Links unten
+    ];
+}
+
+function generateSquarePointsForEditor(data) {
+    const side = data.side || 5;
+    
+    return [
+        { x: -side/2, y: -side/2 },  // Links oben
+        { x: side/2, y: -side/2 },   // Rechts oben
+        { x: side/2, y: side/2 },    // Rechts unten
+        { x: -side/2, y: side/2 }    // Links unten
+    ];
+}
+
+function generateTrapezPointsForEditor(data) {
+    const sideA = data.sideA || 8;     // Untere Seite (breiter)
+    const sideB = data.sideB || 6;     // Obere Seite (schmaler)
+    const height = data.height || 4;
+    const offset = data.offset || 1;   // Versatz der oberen Seite
+    
+    console.log(`📐 Trapez-Parameter: unten=${sideA}m, oben=${sideB}m, höhe=${height}m, versatz=${offset}m`);
+    
+    return [
+        { x: -sideA/2, y: -height/2 },                    // Links unten
+        { x: sideA/2, y: -height/2 },                     // Rechts unten
+        { x: sideB/2 + offset, y: height/2 },             // Rechts oben (mit Versatz)
+        { x: -sideB/2 + offset, y: height/2 }             // Links oben (mit Versatz)
+    ];
+}
+
+function generateParallelogramPointsForEditor(data) {
+    const length = data.length || 8;
+    const width = data.width || 5;
+    const angle = (data.angle || 30) * Math.PI / 180;
+    const skew = width * Math.cos(angle);
+    
+    return [
+        { x: -length/2, y: -width/2 },
+        { x: length/2, y: -width/2 },
+        { x: length/2 + skew, y: width/2 },
+        { x: -length/2 + skew, y: width/2 }
+    ];
+}
+
+function generateRhombusPointsForEditor(data) {
+    const side = data.side || 5;
+    const angle = (data.angle || 60) * Math.PI / 180;
+    
+    // Rhombus-Punkte berechnen
+    const halfDiag1 = side * Math.sin(angle / 2);
+    const halfDiag2 = side * Math.cos(angle / 2);
+    
+    return [
+        { x: 0, y: -halfDiag1 },        // Oben
+        { x: halfDiag2, y: 0 },         // Rechts
+        { x: 0, y: halfDiag1 },         // Unten
+        { x: -halfDiag2, y: 0 }         // Links
+    ];
+}
+
+function generatePentagonPointsForEditor(data) {
+    const radius = data.radius || 4;
+    const points = [];
+    
+    for (let i = 0; i < 5; i++) {
+        const angle = (i * 2 * Math.PI / 5) - Math.PI / 2; // Start oben
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    return points;
+}
+
+function generateHexagonPointsForEditor(data) {
+    const radius = data.radius || 4;
+    const points = [];
+    
+    for (let i = 0; i < 6; i++) {
+        const angle = (i * 2 * Math.PI / 6) - Math.PI / 2; // Start oben
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    return points;
+}
+
+function generateOctagonPointsForEditor(data) {
+    const radius = data.radius || 4;
+    const points = [];
+    
+    for (let i = 0; i < 8; i++) {
+        const angle = (i * 2 * Math.PI / 8) - Math.PI / 2; // Start oben
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    return points;
+}
+
+function generateLShapePointsForEditor(data) {
+    const lengthTotal = data.lengthTotal || 10;
+    const widthTotal = data.widthTotal || 8;
+    const cutLength = data.cutLength || 4;
+    const cutWidth = data.cutWidth || 4;
+    
+    // L-Form: Großes Rechteck minus kleines Rechteck rechts oben
+    return [
+        { x: -lengthTotal/2, y: -widthTotal/2 },                      // Links unten
+        { x: lengthTotal/2, y: -widthTotal/2 },                       // Rechts unten
+        { x: lengthTotal/2, y: -widthTotal/2 + cutWidth },            // Rechts, vor Ausschnitt
+        { x: -lengthTotal/2 + cutLength, y: -widthTotal/2 + cutWidth }, // Ausschnitt innen
+        { x: -lengthTotal/2 + cutLength, y: widthTotal/2 },           // Ausschnitt oben
+        { x: -lengthTotal/2, y: widthTotal/2 }                        // Links oben
+    ];
+}
+
+function generateTShapePointsForEditor(data) {
+    const topWidth = data.topWidth || 8;
+    const stemWidth = data.stemWidth || 4;
+    const topHeight = data.topHeight || 3;
+    const stemHeight = data.stemHeight || 5;
+    
+    const totalHeight = topHeight + stemHeight;
+    
+    return [
+        { x: -topWidth/2, y: totalHeight/2 },                    // Links oben
+        { x: topWidth/2, y: totalHeight/2 },                     // Rechts oben
+        { x: topWidth/2, y: totalHeight/2 - topHeight },         // Rechts Top Ende
+        { x: stemWidth/2, y: totalHeight/2 - topHeight },        // Rechts Stiel Anfang
+        { x: stemWidth/2, y: -totalHeight/2 },                   // Rechts Stiel Ende
+        { x: -stemWidth/2, y: -totalHeight/2 },                  // Links Stiel Ende
+        { x: -stemWidth/2, y: totalHeight/2 - topHeight },       // Links Stiel Anfang
+        { x: -topWidth/2, y: totalHeight/2 - topHeight }         // Links Top Ende
+    ];
+}
+
+function generateUShapePointsForEditor(data) {
+    const outerWidth = data.outerWidth || 10;
+    const innerWidth = data.innerWidth || 4;
+    const height = data.height || 6;
+    const thickness = data.thickness || 3;
+    
+    return [
+        { x: -outerWidth/2, y: -height/2 },                    // Links außen unten
+        { x: outerWidth/2, y: -height/2 },                     // Rechts außen unten
+        { x: outerWidth/2, y: height/2 },                      // Rechts außen oben
+        { x: innerWidth/2, y: height/2 },                      // Rechts innen oben
+        { x: innerWidth/2, y: -height/2 + thickness },         // Rechts innen unten
+        { x: -innerWidth/2, y: -height/2 + thickness },        // Links innen unten
+        { x: -innerWidth/2, y: height/2 },                     // Links innen oben
+        { x: -outerWidth/2, y: height/2 }                      // Links außen oben
+    ];
+}
+
+// ZUSÄTZLICHE HILFSFUNKTIONEN FÜR AREA UND DIMENSIONS
+
+function calculateAreaForEditor(data) {
+    const finalShape = determineActualShape();
+    const variant = determineActualVariant();
+    
+    try {
+        switch (finalShape) {
+            case 'kreis':
+                const radius = data.radius || 3;
+                return Math.PI * radius * radius;
+            case 'oval':
+                const radiusX = data.radiusX || 4;
+                const radiusY = data.radiusY || 2.5;
+                return Math.PI * radiusX * radiusY;
+            case 'rechteck':
+                return (data.length || 8) * (data.width || 5);
+            case 'quadrat':
+                const side = data.side || 5;
+                return side * side;
+            case 'dreieck':
+                if (variant === 'rechtwinklig') {
+                    return 0.5 * (data.katheteA || 4) * (data.katheteB || 5);
+                } else if (variant === 'gleichseitig') {
+                    const s = data.side || 6;
+                    return (Math.sqrt(3) / 4) * s * s;
+                } else {
+                    const a = data.sideA || 4;
+                    const b = data.sideB || 5;
+                    const c = data.sideC || 6;
+                    const s = (a + b + c) / 2;
+                    return Math.sqrt(s * (s - a) * (s - b) * (s - c));
+                }
+            case 'trapez':
+                const sideA = data.sideA || 8;
+                const sideB = data.sideB || 6;
+                const height = data.height || 4;
+                return ((sideA + sideB) / 2) * height;
+            case 'rhombus':
+                const rhombusSide = data.side || 5;
+                const angle = (data.angle || 60) * Math.PI / 180;
+                return rhombusSide * rhombusSide * Math.sin(angle);
+            case 'parallelogramm':
+                const length = data.length || 8;
+                const width = data.width || 5;
+                const paraAngle = (data.angle || 30) * Math.PI / 180;
+                return length * width * Math.sin(paraAngle);
+            case 'fuenfeck':
+            case 'sechseck':
+            case 'achteck':
+                const polygonRadius = data.radius || 4;
+                const sides = finalShape === 'fuenfeck' ? 5 : finalShape === 'sechseck' ? 6 : 8;
+                return 0.5 * sides * polygonRadius * polygonRadius * Math.sin(2 * Math.PI / sides);
+            case 'lform':
+                const lengthTotal = data.lengthTotal || 10;
+                const widthTotal = data.widthTotal || 8;
+                const cutLength = data.cutLength || 4;
+                const cutWidth = data.cutWidth || 4;
+                return (lengthTotal * widthTotal) - (cutLength * cutWidth);
+            case 'tform':
+                const topWidth = data.topWidth || 8;
+                const stemWidth = data.stemWidth || 4;
+                const topHeight = data.topHeight || 3;
+                const stemHeight = data.stemHeight || 5;
+                return (topWidth * topHeight) + (stemWidth * stemHeight);
+            case 'uform':
+                const outerWidth = data.outerWidth || 10;
+                const innerWidth = data.innerWidth || 4;
+                const heightU = data.height || 6;
+                const thickness = data.thickness || 3;
+                return (outerWidth * heightU) - (innerWidth * (heightU - thickness));
+            default:
+                return 40;
+        }
+    } catch (error) {
+        console.error('❌ Flächenberechnung Fehler:', error);
+        return 40;
+    }
+}
+
+function calculateDimensionsForEditor(data) {
+    const finalShape = determineActualShape();
+    
+    try {
+        switch (finalShape) {
+            case 'kreis':
+                const circleRadius = data.radius || 3;
+                return { length: circleRadius * 2, width: circleRadius * 2 };
+            case 'oval':
+                return { length: (data.radiusX || 4) * 2, width: (data.radiusY || 2.5) * 2 };
+            case 'rechteck':
+                return { length: data.length || 8, width: data.width || 5 };
+            case 'quadrat':
+                const side = data.side || 5;
+                return { length: side, width: side };
+            case 'trapez':
+                return { length: Math.max(data.sideA || 8, data.sideB || 6), width: data.height || 4 };
+            case 'fuenfeck':
+            case 'sechseck':
+            case 'achteck':
+                const radius = data.radius || 4;
+                return { length: radius * 2, width: radius * 2 };
+            case 'lform':
+                return { length: data.lengthTotal || 10, width: data.widthTotal || 8 };
+            case 'tform':
+                return { length: data.topWidth || 8, width: (data.topHeight || 3) + (data.stemHeight || 5) };
+            case 'uform':
+                return { length: data.outerWidth || 10, width: data.height || 6 };
+            default:
+                return { length: 8, width: 5 };
+        }
+    } catch (error) {
+        console.error('❌ Dimensions-Berechnung Fehler:', error);
+        return { length: 8, width: 5 };
+    }
+}
+
+console.log('✅ Korrigierte Editor Shape-Generierung geladen - Alle Formen werden präzise dargestellt!');
 
 function calculateArea(data) {
     const finalShape = determineActualShape();
