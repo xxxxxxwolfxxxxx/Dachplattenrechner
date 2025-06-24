@@ -239,92 +239,689 @@ function loadProjectInfo() {
     return true;
 }
 
+// VOLLSTÄNDIG KORRIGIERTE berechnung.js - Richtige Dachformen und präzise Berechnungen
+
+// Globale Variablen
+let projectData = {};
+let calculationResults = null;
+let canvas = null;
+let ctx = null;
+
+// Storage-Funktionen
+function saveData() {
+    try {
+        localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+        return true;
+    } catch (e) {
+        try {
+            sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
+            return true;
+        } catch (e2) {
+            console.log('Speichern nicht möglich');
+            return false;
+        }
+    }
+}
+
+function loadData() {
+    try {
+        let saved = localStorage.getItem('dachplattenrechner_data');
+        if (!saved) {
+            saved = sessionStorage.getItem('dachplattenrechner_data');
+        }
+        return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+        console.log('Laden nicht möglich');
+        return {};
+    }
+}
+
+// Debug-Informationen anzeigen
+function showDebugInfo(info) {
+    const debugElement = document.getElementById('debug-info');
+    const debugContent = document.getElementById('debug-content');
+    
+    if (debugElement && debugContent) {
+        debugContent.innerHTML = `<pre>${JSON.stringify(info, null, 2)}</pre>`;
+        debugElement.style.display = 'block';
+    }
+}
+
+// Canvas initialisieren
+function initCanvas() {
+    canvas = document.getElementById('roof-canvas');
+    if (canvas) {
+        ctx = canvas.getContext('2d');
+        canvas.width = 600;
+        canvas.height = 400;
+    }
+}
+
+// KORRIGIERTE Dachfläche berechnen
+function calculateRoofArea(points) {
+    if (!points || points.length < 3) return 0;
+    
+    let area = 0;
+    for (let i = 0; i < points.length; i++) {
+        const j = (i + 1) % points.length;
+        area += points[i].x * points[j].y;
+        area -= points[j].x * points[i].y;
+    }
+    return Math.abs(area) / 2;
+}
+
+// KORRIGIERTE Shape-Type Bestimmung aus Daten
+function determineShapeTypeFromData() {
+    const roofShape = projectData.roofShape;
+    const geometry = projectData.geometry;
+    
+    console.log('🔍 Bestimme Shape-Type aus:', { roofShape, geometry });
+    
+    // Prüfe verschiedene Datenquellen
+    if (roofShape?.variant) {
+        const variant = roofShape.variant;
+        console.log(`✅ Shape-Type aus roofShape.variant: ${variant}`);
+        return variant;
+    }
+    
+    if (roofShape?.baseShape) {
+        const baseShape = roofShape.baseShape;
+        console.log(`✅ Shape-Type aus roofShape.baseShape: ${baseShape}`);
+        return baseShape;
+    }
+    
+    if (geometry?.shapeType) {
+        const shapeType = geometry.shapeType;
+        console.log(`✅ Shape-Type aus geometry.shapeType: ${shapeType}`);
+        return shapeType;
+    }
+    
+    console.log('⚠️ Kein Shape-Type gefunden, verwende rechteck');
+    return 'rechteck';
+}
+
+// VOLLSTÄNDIG ÜBERARBEITETE Punkt-Generierung basierend auf Shape-Type
+function generateCorrectRoofPoints() {
+    const roofShape = projectData.roofShape;
+    const shapeType = determineShapeTypeFromData();
+    
+    console.log(`🎨 Generiere Punkte für: ${shapeType}`);
+    console.log('RoofShape Daten:', roofShape);
+    
+    try {
+        switch (shapeType) {
+            case 'kreis':
+                return generateCirclePoints(roofShape);
+            case 'oval':
+                return generateOvalPoints(roofShape);
+            case 'halbkreis':
+                return generateHalfCirclePoints(roofShape);
+            case 'viertelkreis':
+                return generateQuarterCirclePoints(roofShape);
+            case 'langloch':
+                return generateLanglochPoints(roofShape);
+            case 'dreieck':
+            case 'gleichseitig':
+            case 'rechtwinklig':
+            case 'ungleichschenklig':
+                return generateTrianglePoints(roofShape, shapeType);
+            case 'rechteck':
+                return generateRectanglePoints(roofShape);
+            case 'quadrat':
+                return generateSquarePoints(roofShape);
+            case 'trapez':
+                return generateTrapezPoints(roofShape);
+            case 'parallelogramm':
+                return generateParallelogramPoints(roofShape);
+            case 'rhombus':
+                return generateRhombusPoints(roofShape);
+            case 'fuenfeck':
+                return generatePentagonPoints(roofShape);
+            case 'sechseck':
+                return generateHexagonPoints(roofShape);
+            case 'achteck':
+                return generateOctagonPoints(roofShape);
+            case 'lform':
+                return generateLShapePoints(roofShape);
+            case 'tform':
+                return generateTShapePoints(roofShape);
+            case 'uform':
+                return generateUShapePoints(roofShape);
+            default:
+                console.log(`⚠️ Unbekannter Shape-Type: ${shapeType}, verwende Rechteck`);
+                return generateRectanglePoints(roofShape);
+        }
+    } catch (error) {
+        console.error(`❌ Fehler bei Punkt-Generierung für ${shapeType}:`, error);
+        return generateRectanglePoints(roofShape);
+    }
+}
+
+// PUNKT-GENERIERUNG FUNKTIONEN FÜR JEDE FORM
+
+function generateCirclePoints(data) {
+    const radius = data.radius || 3;
+    const points = [];
+    const segments = 24; // Mehr Segmente für glatten Kreis
+    
+    for (let i = 0; i < segments; i++) {
+        const angle = (i * 2 * Math.PI) / segments;
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    console.log(`✅ Kreis generiert: radius=${radius}, ${segments} Punkte`);
+    return points;
+}
+
+function generateOvalPoints(data) {
+    const radiusX = data.radiusX || 4;
+    const radiusY = data.radiusY || 2.5;
+    const points = [];
+    const segments = 24;
+    
+    for (let i = 0; i < segments; i++) {
+        const angle = (i * 2 * Math.PI) / segments;
+        points.push({
+            x: radiusX * Math.cos(angle),
+            y: radiusY * Math.sin(angle)
+        });
+    }
+    
+    console.log(`✅ Oval generiert: radiusX=${radiusX}, radiusY=${radiusY}`);
+    return points;
+}
+
+function generateHalfCirclePoints(data) {
+    const radius = data.radius || 4;
+    const points = [];
+    const segments = 12;
+    
+    // Halbkreis von 0° bis 180°
+    for (let i = 0; i <= segments; i++) {
+        const angle = (i * Math.PI) / segments;
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    console.log(`✅ Halbkreis generiert: radius=${radius}`);
+    return points;
+}
+
+function generateQuarterCirclePoints(data) {
+    const radius = data.radius || 4;
+    const points = [];
+    
+    // Viertelkreis von 0° bis 90°
+    points.push({ x: 0, y: 0 }); // Ursprung
+    
+    const segments = 6;
+    for (let i = 0; i <= segments; i++) {
+        const angle = (i * Math.PI / 2) / segments;
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    console.log(`✅ Viertelkreis generiert: radius=${radius}`);
+    return points;
+}
+
+function generateLanglochPoints(data) {
+    const length = data.length || 6;
+    const width = data.width || 3;
+    const radius = width / 2;
+    const straightLength = length - width;
+    
+    const points = [];
+    const segments = 8;
+    
+    // Rechtes Halbkreis-Ende
+    for (let i = 0; i <= segments; i++) {
+        const angle = (-Math.PI/2) + (i * Math.PI) / segments;
+        points.push({
+            x: straightLength/2 + radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    // Linkes Halbkreis-Ende
+    for (let i = 0; i <= segments; i++) {
+        const angle = (Math.PI/2) + (i * Math.PI) / segments;
+        points.push({
+            x: -straightLength/2 + radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    console.log(`✅ Langloch generiert: length=${length}, width=${width}`);
+    return points;
+}
+
+function generateTrianglePoints(data, variant) {
+    console.log(`🔺 Generiere Dreieck: ${variant}`);
+    
+    if (variant === 'gleichseitig' || (!variant && data.side)) {
+        const side = data.side || 6;
+        const height = side * Math.sqrt(3) / 2;
+        return [
+            { x: 0, y: height * 2/3 },           // Spitze oben
+            { x: -side/2, y: -height/3 },        // Links unten
+            { x: side/2, y: -height/3 }          // Rechts unten
+        ];
+    } else if (variant === 'rechtwinklig') {
+        const katheteA = data.katheteA || 4;
+        const katheteB = data.katheteB || 5;
+        return [
+            { x: -katheteA/2, y: -katheteB/3 },  // Links unten (rechter Winkel)
+            { x: katheteA/2, y: -katheteB/3 },   // Rechts unten
+            { x: -katheteA/2, y: katheteB*2/3 }  // Links oben
+        ];
+    } else {
+        // Ungleichschenkliges Dreieck
+        const sideA = data.sideA || 4;
+        const sideB = data.sideB || 5;
+        const sideC = data.sideC || 6;
+        
+        // Verwende Heron's Formel für korrekte Geometrie
+        const s = (sideA + sideB + sideC) / 2;
+        const area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
+        const height = (2 * area) / sideA;
+        
+        return [
+            { x: 0, y: height * 2/3 },          // Spitze oben
+            { x: -sideA/2, y: -height/3 },      // Links unten
+            { x: sideA/2, y: -height/3 }        // Rechts unten
+        ];
+    }
+}
+
+function generateRectanglePoints(data) {
+    const length = data.length || 8;
+    const width = data.width || 5;
+    
+    const points = [
+        { x: -length/2, y: -width/2 },  // Links oben
+        { x: length/2, y: -width/2 },   // Rechts oben
+        { x: length/2, y: width/2 },    // Rechts unten
+        { x: -length/2, y: width/2 }    // Links unten
+    ];
+    
+    console.log(`✅ Rechteck generiert: ${length}×${width}m`);
+    return points;
+}
+
+function generateSquarePoints(data) {
+    const side = data.side || 5;
+    
+    const points = [
+        { x: -side/2, y: -side/2 },  // Links oben
+        { x: side/2, y: -side/2 },   // Rechts oben
+        { x: side/2, y: side/2 },    // Rechts unten
+        { x: -side/2, y: side/2 }    // Links unten
+    ];
+    
+    console.log(`✅ Quadrat generiert: ${side}×${side}m`);
+    return points;
+}
+
+function generateTrapezPoints(data) {
+    const sideA = data.sideA || 8;     // Untere Seite (breiter)
+    const sideB = data.sideB || 6;     // Obere Seite (schmaler)
+    const height = data.height || 4;
+    const offset = data.offset || 1;   // Versatz der oberen Seite
+    
+    const points = [
+        { x: -sideA/2, y: -height/2 },                    // Links unten
+        { x: sideA/2, y: -height/2 },                     // Rechts unten
+        { x: sideB/2 + offset, y: height/2 },             // Rechts oben (mit Versatz)
+        { x: -sideB/2 + offset, y: height/2 }             // Links oben (mit Versatz)
+    ];
+    
+    console.log(`✅ Trapez generiert: unten=${sideA}m, oben=${sideB}m, höhe=${height}m, versatz=${offset}m`);
+    return points;
+}
+
+function generateParallelogramPoints(data) {
+    const length = data.length || 8;
+    const width = data.width || 5;
+    const angle = (data.angle || 30) * Math.PI / 180;
+    const skew = width * Math.cos(angle);
+    
+    const points = [
+        { x: -length/2, y: -width/2 },
+        { x: length/2, y: -width/2 },
+        { x: length/2 + skew, y: width/2 },
+        { x: -length/2 + skew, y: width/2 }
+    ];
+    
+    console.log(`✅ Parallelogramm generiert: ${length}×${width}m, winkel=${data.angle}°`);
+    return points;
+}
+
+function generateRhombusPoints(data) {
+    const side = data.side || 5;
+    const angle = (data.angle || 60) * Math.PI / 180;
+    
+    const halfDiag1 = side * Math.sin(angle / 2);
+    const halfDiag2 = side * Math.cos(angle / 2);
+    
+    const points = [
+        { x: 0, y: -halfDiag1 },        // Oben
+        { x: halfDiag2, y: 0 },         // Rechts
+        { x: 0, y: halfDiag1 },         // Unten
+        { x: -halfDiag2, y: 0 }         // Links
+    ];
+    
+    console.log(`✅ Rhombus generiert: seite=${side}m, winkel=${data.angle}°`);
+    return points;
+}
+
+function generatePentagonPoints(data) {
+    const radius = data.radius || 4;
+    const points = [];
+    
+    for (let i = 0; i < 5; i++) {
+        const angle = (i * 2 * Math.PI / 5) - Math.PI / 2; // Start oben
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    console.log(`✅ Fünfeck generiert: radius=${radius}m`);
+    return points;
+}
+
+function generateHexagonPoints(data) {
+    const radius = data.radius || 4;
+    const points = [];
+    
+    for (let i = 0; i < 6; i++) {
+        const angle = (i * 2 * Math.PI / 6) - Math.PI / 2; // Start oben
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    console.log(`✅ Sechseck generiert: radius=${radius}m`);
+    return points;
+}
+
+function generateOctagonPoints(data) {
+    const radius = data.radius || 4;
+    const points = [];
+    
+    for (let i = 0; i < 8; i++) {
+        const angle = (i * 2 * Math.PI / 8) - Math.PI / 2; // Start oben
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    console.log(`✅ Achteck generiert: radius=${radius}m`);
+    return points;
+}
+
+function generateLShapePoints(data) {
+    const lengthTotal = data.lengthTotal || 10;
+    const widthTotal = data.widthTotal || 8;
+    const cutLength = data.cutLength || 4;
+    const cutWidth = data.cutWidth || 4;
+    
+    // L-Form: Großes Rechteck minus kleines Rechteck rechts oben
+    const points = [
+        { x: -lengthTotal/2, y: -widthTotal/2 },                      // Links unten
+        { x: lengthTotal/2, y: -widthTotal/2 },                       // Rechts unten
+        { x: lengthTotal/2, y: -widthTotal/2 + cutWidth },            // Rechts, vor Ausschnitt
+        { x: -lengthTotal/2 + cutLength, y: -widthTotal/2 + cutWidth }, // Ausschnitt innen
+        { x: -lengthTotal/2 + cutLength, y: widthTotal/2 },           // Ausschnitt oben
+        { x: -lengthTotal/2, y: widthTotal/2 }                        // Links oben
+    ];
+    
+    console.log(`✅ L-Form generiert: gesamt=${lengthTotal}×${widthTotal}m, ausschnitt=${cutLength}×${cutWidth}m`);
+    return points;
+}
+
+function generateTShapePoints(data) {
+    const topWidth = data.topWidth || 8;
+    const stemWidth = data.stemWidth || 4;
+    const topHeight = data.topHeight || 3;
+    const stemHeight = data.stemHeight || 5;
+    
+    const totalHeight = topHeight + stemHeight;
+    
+    const points = [
+        { x: -topWidth/2, y: totalHeight/2 },                    // Links oben
+        { x: topWidth/2, y: totalHeight/2 },                     // Rechts oben
+        { x: topWidth/2, y: totalHeight/2 - topHeight },         // Rechts Top Ende
+        { x: stemWidth/2, y: totalHeight/2 - topHeight },        // Rechts Stiel Anfang
+        { x: stemWidth/2, y: -totalHeight/2 },                   // Rechts Stiel Ende
+        { x: -stemWidth/2, y: -totalHeight/2 },                  // Links Stiel Ende
+        { x: -stemWidth/2, y: totalHeight/2 - topHeight },       // Links Stiel Anfang
+        { x: -topWidth/2, y: totalHeight/2 - topHeight }         // Links Top Ende
+    ];
+    
+    console.log(`✅ T-Form generiert: top=${topWidth}×${topHeight}m, stiel=${stemWidth}×${stemHeight}m`);
+    return points;
+}
+
+function generateUShapePoints(data) {
+    const outerWidth = data.outerWidth || 10;
+    const innerWidth = data.innerWidth || 4;
+    const height = data.height || 6;
+    const thickness = data.thickness || 3;
+    
+    const points = [
+        { x: -outerWidth/2, y: -height/2 },                    // Links außen unten
+        { x: outerWidth/2, y: -height/2 },                     // Rechts außen unten
+        { x: outerWidth/2, y: height/2 },                      // Rechts außen oben
+        { x: innerWidth/2, y: height/2 },                      // Rechts innen oben
+        { x: innerWidth/2, y: -height/2 + thickness },         // Rechts innen unten
+        { x: -innerWidth/2, y: -height/2 + thickness },        // Links innen unten
+        { x: -innerWidth/2, y: height/2 },                     // Links innen oben
+        { x: -outerWidth/2, y: height/2 }                      // Links außen oben
+    ];
+    
+    console.log(`✅ U-Form generiert: außen=${outerWidth}×${height}m, innen=${innerWidth}m, dicke=${thickness}m`);
+    return points;
+}
+
+// KORRIGIERTE Geometrie-Analyse mit richtigen Punkten
+function analyzeRoofGeometry() {
+    console.log('=== ANALYSIERE DACH-GEOMETRIE ===');
+    
+    // Generiere korrekte Punkte basierend auf Shape-Type
+    const points = generateCorrectRoofPoints();
+    
+    if (!points || points.length < 3) {
+        console.error('❌ Keine gültigen Punkte generiert');
+        return {
+            minX: 0, maxX: 8, minY: 0, maxY: 5,
+            width: 8, height: 5, area: 40,
+            points: generateRectanglePoints({ length: 8, width: 5 }),
+            shapeType: 'rechteck'
+        };
+    }
+    
+    const xs = points.map(p => p.x);
+    const ys = points.map(p => p.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    
+    const width = maxX - minX;
+    const height = maxY - minY;
+    const area = calculateRoofArea(points);
+    const shapeType = determineShapeTypeFromData();
+    
+    console.log(`✅ Geometrie analysiert: ${shapeType}, ${width.toFixed(1)}×${height.toFixed(1)}m, ${area.toFixed(2)}m²`);
+    
+    return {
+        minX, maxX, minY, maxY,
+        width, height, area,
+        points: points,
+        shapeType: shapeType
+    };
+}
+
+// Projekt-Info laden und anzeigen
+function loadProjectInfo() {
+    const profile = projectData.profile;
+    const analysis = analyzeRoofGeometry();
+
+    console.log('=== LADE PROJEKT-INFO ===');
+    console.log('Profile:', profile);
+    console.log('Analysis:', analysis);
+
+    if (!profile) {
+        showDebugInfo({
+            error: 'Profil-Daten fehlen!',
+            projectData: projectData
+        });
+        alert('Profil-Daten fehlen! Bitte kehren Sie zu Schritt 1 zurück.');
+        return false;
+    }
+
+    // Info-Felder füllen
+    document.getElementById('info-profile-name').textContent = profile.profilname || 'Standard';
+    document.getElementById('info-deckbreite').textContent = profile.deckbreite + ' mm (nutzbar)';
+    document.getElementById('info-lieferbreite').textContent = profile.lieferbreite + ' mm (inkl. Überlappung)';
+    document.getElementById('info-seitenueberlappung').textContent = (profile.seitenueberlappung || 50) + ' mm';
+    document.getElementById('info-ueberstand').textContent = (profile.ueberstand || 50) + ' mm';
+    
+    document.getElementById('info-roof-type').textContent = analysis.shapeType;
+    document.getElementById('info-dimensions').textContent = `${analysis.width.toFixed(1)} × ${analysis.height.toFixed(1)} m`;
+    document.getElementById('info-area').textContent = analysis.area.toFixed(2) + ' m²';
+
+    // Dachneigung
+    const dachNeigung = projectData.roofShape?.dachNeigung || 15;
+    document.getElementById('info-neigung').textContent = dachNeigung + '°';
+
+    // Verlegerichtung
+    document.getElementById('direction-text').textContent = 'Längs (parallel zur Wasserlaufrichtung)';
+
+    console.log('✅ Projekt-Info erfolgreich geladen');
+    return true;
+}
+
+// KORRIGIERTE Hauptberechnung
 function calculateLengths() {
     try {
-        const profile = projectData.profile;
-        const roof = projectData.roofShape;
-        const geometry = projectData.geometry;
+        console.log('=== STARTE BERECHNUNG ===');
         
-        console.log('Starte Berechnung mit Daten:', {
-            hasProfile: !!profile,
-            hasRoof: !!roof, 
-            hasGeometry: !!geometry,
-            profileDetails: profile
-        });
-
-        if (!profile) {
-            showDebugInfo({
-                error: 'Profil-Daten unvollständig!',
-                projectData: projectData
-            });
-            alert('Profil-Daten unvollständig!');
-            return;
-        }
-
-        // WICHTIGE Validierung der Profil-Daten
-        if (!profile.deckbreite || !profile.seitenueberlappung) {
+        const profile = projectData.profile;
+        if (!profile || !profile.deckbreite || !profile.seitenueberlappung) {
             showDebugInfo({
                 error: 'Kritische Profil-Daten fehlen!',
-                deckbreite: profile.deckbreite,
-                seitenueberlappung: profile.seitenueberlappung,
                 profile: profile
             });
-            alert(`Kritische Profil-Daten fehlen!\nDeckbreite: ${profile.deckbreite}\nSeitenüberlappung: ${profile.seitenueberlappung}`);
-            return;
-        }
-
-        // Punkte laden
-        let roofPoints = null;
-        if (roof && roof.points) {
-            roofPoints = roof.points;
-        } else if (geometry && geometry.points) {
-            roofPoints = geometry.points;
-        }
-
-        if (!roofPoints || roofPoints.length < 3) {
-            showDebugInfo({
-                error: 'Dachform-Daten unvollständig!',
-                roof: roof,
-                geometry: geometry
-            });
-            alert('Dachform-Daten unvollständig!');
+            alert('Kritische Profil-Daten fehlen!');
             return;
         }
 
         // Geometrie analysieren
-        const analysis = analyzeRoofGeometry(roofPoints);
+        const analysis = analyzeRoofGeometry();
         
-        // Verlegerichtung bestimmen
-        let verlegerichtung = 'laengs'; // Standard: parallel zur Wasserlaufrichtung
-        if (geometry && geometry.preferredDirection) {
-            verlegerichtung = geometry.preferredDirection;
-        } else if (roof && roof.preferredDirection) {
-            verlegerichtung = roof.preferredDirection;
-        }
+        // Verlegerichtung bestimmen (Standard: längs)
+        const verlegerichtung = 'laengs';
 
-        console.log('Verwende Verlegerichtung:', verlegerichtung);
-
-        // Berechnung
+        // Berechnung durchführen
         calculationResults = calculateForDirection(analysis, verlegerichtung, profile);
 
         // Ergebnisse anzeigen
         displayResults(calculationResults);
         
         // Visualisierung aktualisieren
-        drawRoofVisualization(roofPoints, calculationResults);
+        drawRoofVisualization(analysis.points, calculationResults);
         
         document.getElementById('continue-btn').disabled = false;
 
     } catch (error) {
-        console.error('Fehler bei der Berechnung:', error);
+        console.error('❌ Fehler bei der Berechnung:', error);
         showDebugInfo({
             error: error.message,
-            stack: error.stack,
-            projectData: projectData
+            stack: error.stack
         });
         alert('Fehler bei der Berechnung: ' + error.message);
     }
 }
+
+// KORRIGIERTE Richtungsberechnung mit Form-spezifischer Logik
+function calculateForDirection(analysis, richtung, profile) {
+    console.log('=== BERECHNE FÜR RICHTUNG ===');
+    console.log(`Shape: ${analysis.shapeType}, Richtung: ${richtung}`);
+    console.log('Profile:', profile);
+    
+    const deckbreite = profile.deckbreite; // Nutzbare Breite
+    const seitenueberlappung = profile.seitenueberlappung;
+    const ueberstand = profile.ueberstand || 50;
+    
+    let bahnenAnzahl, bahnenLaenge;
+    let variableLengths = [];
+    
+    // Form-spezifische Berechnung
+    switch (analysis.shapeType) {
+        case 'kreis':
+        case 'oval':
+            // Kreisförmige Dächer: Durchmesser als Basis
+            bahnenAnzahl = Math.ceil(analysis.width * 1000 / deckbreite);
+            bahnenLaenge = (analysis.height * 1000) + ueberstand;
+            break;
+            
+        case 'dreieck':
+        case 'gleichseitig':
+        case 'rechtwinklig':
+        case 'ungleichschenklig':
+            // Dreieckige Dächer: Variable Längen
+            bahnenAnzahl = Math.ceil(analysis.width * 1000 / deckbreite);
+            bahnenLaenge = (analysis.height * 1000) + ueberstand;
+            variableLengths = calculateTrianglePlateLengths(analysis, bahnenAnzahl, deckbreite, ueberstand);
+            break;
+            
+        case 'trapez':
+            // Trapezförmige Dächer: Spezielle Berechnung
+            bahnenAnzahl = Math.ceil(analysis.width * 1000 / deckbreite);
+            bahnenLaenge = (analysis.height * 1000) + ueberstand;
+            variableLengths = calculateTrapezPlateLengths(analysis, bahnenAnzahl, deckbreite, ueberstand);
+            break;
+            
+        case 'lform':
+        case 'tform':
+        case 'uform':
+            // Komplexe Formen: Spezielle Behandlung
+            const complexResult = calculateComplexShape(analysis, deckbreite, ueberstand);
+            bahnenAnzahl = complexResult.bahnenAnzahl;
+            bahnenLaenge = complexResult.bahnenLaenge;
+            variableLengths = complexResult.variableLengths;
+            break;
+            
+        default:
+            // Standard Rechteck/Quadrat
+            if (richtung === 'laengs') {
+                bahnenAnzahl = Math.ceil(analysis.width * 1000 / deckbreite);
+                bahnenLaenge = (analysis.height * 1000) + ueberstand;
+            } else {
+                bahnenAnzahl = Math.ceil(analysis.height * 1000 / deckbreite);
+                bahnenLaenge = (analysis.width * 1000) + ueberstand;
+            }
+            break;
+    }
+
+    // Verfügbare Längen ermitteln
+    let verfuegbareLaengen = [];
+    if (profile.laengentyp === 'lager') {
+        verfuegbareLaengen = [...profile.lagerlaengen];
+    } else {
+        for (let l = profile.minL
 
 // KORRIGIERTE calculateForDirection Funktion für Trapez
 function calculateForDirection(analysis, richtung, profile) {
