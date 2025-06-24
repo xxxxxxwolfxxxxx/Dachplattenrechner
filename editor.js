@@ -110,18 +110,19 @@ let rotationSpeed = 1;
 let isRotating = false;
 
 function rotateShape(degrees, fromInterval = false) {
+    const oldRotation = currentRotation;
     currentRotation += degrees;
     
     // Normalisierung auf 0-360°
     while (currentRotation >= 360) currentRotation -= 360;
     while (currentRotation < 0) currentRotation += 360;
     
-    console.log(`🔄 Rotation: ${currentRotation}°`);
+    console.log(`🔄 Rotation: ${oldRotation.toFixed(1)}° → ${currentRotation.toFixed(1)}°`);
     
     // Shape neu zeichnen mit Rotation
     updateShapeWithScale(calculateOptimalScale(getCurrentFormData()));
     
-    // Prüfe Ausrichtung bei allen Seiten
+    // Prüfe Ausrichtung bei allen Seiten (mit Snap-Funktion)
     checkAlignment();
     
     // Feedback nur bei manuellen Klicks, nicht bei Intervallen
@@ -163,52 +164,177 @@ function checkAlignment() {
     const points = generateRoofPoints(getCurrentFormData());
     if (!points || points.length < 2) return;
     
-    const tolerance = 2; // Toleranz in Grad
+    const tolerance = 3; // Toleranz in Grad für Snap-Erkennung
+    const snapTolerance = 1; // Genauere Toleranz für visuelle Anzeige
     let alignedSides = [];
+    let shouldSnap = null;
     
     // Prüfe alle Seiten der Form
     for (let i = 0; i < points.length; i++) {
         const p1 = points[i];
         const p2 = points[(i + 1) % points.length];
         
-        // Berechne Winkel der Seite (ohne Rotation)
-        let sideAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
-        
-        // Addiere aktuelle Rotation
-        sideAngle += currentRotation;
+        // Berechne ursprünglichen Winkel der Seite (ohne Rotation)
+        let originalAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
         
         // Normalisiere auf 0-360°
-        while (sideAngle < 0) sideAngle += 360;
-        while (sideAngle >= 360) sideAngle -= 360;
+        while (originalAngle < 0) originalAngle += 360;
+        while (originalAngle >= 360) originalAngle -= 360;
+        
+        // Berechne aktuellen Winkel mit Rotation
+        let currentAngle = originalAngle + currentRotation;
+        while (currentAngle < 0) currentAngle += 360;
+        while (currentAngle >= 360) currentAngle -= 360;
         
         // Prüfe Ausrichtung zu Hauptachsen (0°, 90°, 180°, 270°)
-        const alignments = [0, 90, 180, 270];
-        for (let targetAngle of alignments) {
+        const targetAngles = [0, 90, 180, 270];
+        for (let targetAngle of targetAngles) {
             const diff = Math.min(
-                Math.abs(sideAngle - targetAngle),
-                Math.abs(sideAngle - targetAngle + 360),
-                Math.abs(sideAngle - targetAngle - 360)
+                Math.abs(currentAngle - targetAngle),
+                Math.abs(currentAngle - targetAngle + 360),
+                Math.abs(currentAngle - targetAngle - 360)
             );
             
-            if (diff <= tolerance) {
+            // Snap-Erkennung: Wenn nah genug, merke dir den Snap
+            if (diff <= tolerance && !shouldSnap) {
+                const snapRotation = targetAngle - originalAngle;
+                // Normalisiere Snap-Rotation
+                let normalizedSnap = snapRotation;
+                while (normalizedSnap < 0) normalizedSnap += 360;
+                while (normalizedSnap >= 360) normalizedSnap -= 360;
+                
+                // Wähle kürzesten Weg zur Ziel-Rotation
+                if (normalizedSnap > 180) normalizedSnap -= 360;
+                
+                shouldSnap = {
+                    targetRotation: normalizedSnap,
+                    side: i,
+                    targetAngle: targetAngle,
+                    originalAngle: originalAngle,
+                    currentDiff: diff
+                };
+            }
+            
+            // Visuelle Anzeige: Nur bei sehr präziser Ausrichtung
+            if (diff <= snapTolerance) {
                 const direction = targetAngle === 0 || targetAngle === 180 ? 'horizontal' : 'vertical';
                 alignedSides.push({
                     side: i,
                     direction: direction,
                     angle: targetAngle,
-                    actualAngle: sideAngle
+                    actualAngle: currentAngle,
+                    p1: p1,
+                    p2: p2
                 });
             }
         }
     }
     
-    // Visuelle Rückmeldung bei Ausrichtung
+    // Automatisches Snapping
+    if (shouldSnap && Math.abs(shouldSnap.currentDiff) <= tolerance) {
+        performSnap(shouldSnap);
+        return; // Nach Snap erneut prüfen
+    }
+    
+    // Visuelle Rückmeldung bei perfekter Ausrichtung
     if (alignedSides.length > 0) {
         showAlignmentFeedback(alignedSides);
-        highlightAlignedSides(alignedSides, points);
+        highlightAlignedSides(alignedSides);
     } else {
         removeAlignmentHighlights();
     }
+}
+
+function performSnap(snapInfo) {
+    console.log(`🧲 Snapping: ${snapInfo.currentDiff.toFixed(1)}° Abweichung → perfekte Ausrichtung`);
+    
+    // Setze Rotation auf perfekte Ausrichtung
+    currentRotation = snapInfo.targetRotation;
+    
+    // Normalisiere auf 0-360°
+    while (currentRotation < 0) currentRotation += 360;
+    while (currentRotation >= 360) currentRotation -= 360;
+    
+    // Shape neu zeichnen
+    updateShapeWithScale(calculateOptimalScale(getCurrentFormData()));
+    
+    // Kurzes visuelles Feedback für Snap
+    showSnapFeedback(snapInfo);
+    
+    // Nach Snap nochmal alignment prüfen für visuelle Anzeige
+    setTimeout(() => {
+        checkAlignment();
+    }, 50);
+}
+
+function showSnapFeedback(snapInfo) {
+    const direction = snapInfo.targetAngle === 0 || snapInfo.targetAngle === 180 ? 'waagerecht' : 'senkrecht';
+    showFeedback(`🧲 Eingerastet! Seite ${snapInfo.side + 1} ist jetzt perfekt ${direction}`, '#ff6b35');
+    
+    // Rotations-Display orange färben für Snap
+    const display = document.getElementById('rotation-display');
+    if (display) {
+        display.style.background = '#ff6b35';
+        display.style.animation = 'pulse 0.3s ease-out';
+        
+        setTimeout(() => {
+            display.style.background = 'rgba(0, 0, 0, 0.8)';
+            display.style.animation = '';
+        }, 800);
+    }
+}
+
+function highlightAlignedSides(alignedSides) {
+    const svg = document.getElementById('main-svg');
+    if (!svg) return;
+    
+    // Entferne alte Highlights
+    removeAlignmentHighlights();
+    
+    // Erstelle Highlight-Gruppe
+    const highlightGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    highlightGroup.id = 'alignment-highlights';
+    
+    const scale = calculateOptimalScale(getCurrentFormData());
+    
+    alignedSides.forEach(aligned => {
+        const p1 = aligned.p1;
+        const p2 = aligned.p2;
+        
+        // KORRIGIERT: Transformiere Punkte OHNE zusätzliche Rotation
+        // (da die Punkte bereits aus generateRoofPoints kommen, die keine Rotation enthalten)
+        const x1 = CANVAS_CENTER_X + p1.x * scale;
+        const y1 = CANVAS_CENTER_Y + p1.y * scale;
+        const x2 = CANVAS_CENTER_X + p2.x * scale;
+        const y2 = CANVAS_CENTER_Y + p2.y * scale;
+        
+        // Erstelle Highlight-Linie
+        const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        highlight.setAttribute('x1', x1);
+        highlight.setAttribute('y1', y1);
+        highlight.setAttribute('x2', x2);
+        highlight.setAttribute('y2', y2);
+        highlight.setAttribute('stroke', '#28a745');
+        highlight.setAttribute('stroke-width', '8');
+        highlight.setAttribute('opacity', '0.9');
+        highlight.setAttribute('stroke-linecap', 'round');
+        highlight.style.filter = 'drop-shadow(0 0 10px #28a745)';
+        highlight.className = 'alignment-highlight';
+        
+        // KORRIGIERT: Rotation wird hier angewendet, da die Punkte ohne Rotation sind
+        if (currentRotation !== 0) {
+            highlight.setAttribute('transform', `rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`);
+        }
+        
+        highlightGroup.appendChild(highlight);
+    });
+    
+    svg.appendChild(highlightGroup);
+    
+    // Entferne Highlights nach 3 Sekunden
+    setTimeout(() => {
+        removeAlignmentHighlights();
+    }, 3000);
 }
 
 function showAlignmentFeedback(alignedSides) {
@@ -685,30 +811,37 @@ function addAlignmentAnimations() {
             100% { transform: scale(1) rotate(0deg); }
         }
 
-        /* Verbesserte Button-Hover-Effekte für Rotations-Buttons */
-        .btn-tool.rotation:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        /* Snap-Feedback Animation */
+        @keyframes snapPulse {
+            0% { 
+                transform: scale(1); 
+                box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.7);
+            }
+            50% { 
+                transform: scale(1.1); 
+                box-shadow: 0 0 0 8px rgba(255, 107, 53, 0);
+            }
+            100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 0 0 rgba(255, 107, 53, 0);
+            }
         }
 
-        .btn-tool.rotation.rotating {
-            animation: rotationFeedback 0.3s ease-out;
-        }
-
-        /* Alignment-Highlight-Effekte */
+        /* Verbesserte Alignment-Highlights */
         .alignment-highlight {
             stroke: #28a745;
-            stroke-width: 6;
-            opacity: 0.9;
-            filter: drop-shadow(0 0 8px #28a745);
-            animation: alignmentPulse 1.5s ease-out infinite;
+            stroke-width: 8;
+            opacity: 0.95;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 12px rgba(40, 167, 69, 0.8));
+            animation: alignmentPulse 2s ease-in-out infinite;
         }
 
-        /* Rotation Display Effekte */
-        .rotation-display.aligned {
-            background: #28a745 !important;
-            animation: pulse 0.8s ease-out;
-            box-shadow: 0 0 15px rgba(40, 167, 69, 0.6);
+        /* Snap-Display-Effekt */
+        .rotation-display.snapped {
+            background: #ff6b35 !important;
+            animation: snapPulse 0.5s ease-out;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.6);
         }
     `;
     
