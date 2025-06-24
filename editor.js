@@ -21,7 +21,7 @@ function updateRotationDisplay() {
     }
 }
 
-// KORRIGIERTE Event-Listener mit funktionsfähigen Rotations-Buttons
+// VERBESSERTE Event-Listener mit Mouse-Events für kontinuierliche Rotation
 function setupEventListeners() {
     const backBtn = document.getElementById('btn-back');
     const continueBtn = document.getElementById('btn-continue');
@@ -47,32 +47,69 @@ function setupEventListeners() {
         });
     }
 
-    // NEUE: Rotations-Event-Listener
+    // VERBESSERTE Rotations-Event-Listener mit kontinuierlicher Rotation
     const rotateLeftBtn = document.getElementById('btn-rotate-left');
     const rotateRightBtn = document.getElementById('btn-rotate-right');
     const resetRotationBtn = document.getElementById('btn-reset-rotation');
     
     if (rotateLeftBtn) {
-        rotateLeftBtn.addEventListener('click', function() {
-            rotateShape(-1);
+        // Mouse Events für kontinuierliche Rotation
+        rotateLeftBtn.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            startContinuousRotation(-1);
         });
+        
+        rotateLeftBtn.addEventListener('mouseup', stopContinuousRotation);
+        rotateLeftBtn.addEventListener('mouseleave', stopContinuousRotation);
+        
+        // Touch Events für mobile Geräte
+        rotateLeftBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            startContinuousRotation(-1);
+        });
+        
+        rotateLeftBtn.addEventListener('touchend', stopContinuousRotation);
+        rotateLeftBtn.addEventListener('touchcancel', stopContinuousRotation);
     }
     
     if (rotateRightBtn) {
-        rotateRightBtn.addEventListener('click', function() {
-            rotateShape(1);
+        // Mouse Events für kontinuierliche Rotation
+        rotateRightBtn.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            startContinuousRotation(1);
         });
+        
+        rotateRightBtn.addEventListener('mouseup', stopContinuousRotation);
+        rotateRightBtn.addEventListener('mouseleave', stopContinuousRotation);
+        
+        // Touch Events für mobile Geräte
+        rotateRightBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            startContinuousRotation(1);
+        });
+        
+        rotateRightBtn.addEventListener('touchend', stopContinuousRotation);
+        rotateRightBtn.addEventListener('touchcancel', stopContinuousRotation);
     }
     
     if (resetRotationBtn) {
         resetRotationBtn.addEventListener('click', function() {
+            stopContinuousRotation(); // Stoppe eventuelle Rotation
             resetRotation();
         });
     }
+    
+    // Globale Event-Listener für Sicherheit
+    document.addEventListener('mouseup', stopContinuousRotation);
+    window.addEventListener('blur', stopContinuousRotation);
 }
 
-// NEUE Rotations-Funktionen
-function rotateShape(degrees) {
+// VERBESSERTE Rotations-Funktionen mit Beschleunigung und Ausrichtungs-Erkennung
+let rotationInterval = null;
+let rotationSpeed = 1;
+let isRotating = false;
+
+function rotateShape(degrees, fromInterval = false) {
     currentRotation += degrees;
     
     // Normalisierung auf 0-360°
@@ -84,8 +121,175 @@ function rotateShape(degrees) {
     // Shape neu zeichnen mit Rotation
     updateShapeWithScale(calculateOptimalScale(getCurrentFormData()));
     
-    // Feedback anzeigen
-    showFeedback(`Gedreht um ${degrees > 0 ? '+' : ''}${degrees}° (Gesamt: ${currentRotation.toFixed(1)}°)`, '#007bff');
+    // Prüfe Ausrichtung bei allen Seiten
+    checkAlignment();
+    
+    // Feedback nur bei manuellen Klicks, nicht bei Intervallen
+    if (!fromInterval) {
+        showFeedback(`Gedreht um ${degrees > 0 ? '+' : ''}${degrees}° (Gesamt: ${currentRotation.toFixed(1)}°)`, '#007bff');
+    }
+}
+
+function startContinuousRotation(direction) {
+    if (isRotating) return;
+    
+    isRotating = true;
+    rotationSpeed = 1;
+    
+    // Erste Rotation sofort
+    rotateShape(direction, true);
+    
+    // Kontinuierliche Rotation mit Beschleunigung
+    rotationInterval = setInterval(() => {
+        rotateShape(direction * rotationSpeed, true);
+        
+        // Geschwindigkeit langsam erhöhen (max 5° pro Schritt)
+        if (rotationSpeed < 5) {
+            rotationSpeed += 0.1;
+        }
+    }, 50);
+}
+
+function stopContinuousRotation() {
+    if (rotationInterval) {
+        clearInterval(rotationInterval);
+        rotationInterval = null;
+    }
+    isRotating = false;
+    rotationSpeed = 1;
+}
+
+function checkAlignment() {
+    const points = generateRoofPoints(getCurrentFormData());
+    if (!points || points.length < 2) return;
+    
+    const tolerance = 2; // Toleranz in Grad
+    let alignedSides = [];
+    
+    // Prüfe alle Seiten der Form
+    for (let i = 0; i < points.length; i++) {
+        const p1 = points[i];
+        const p2 = points[(i + 1) % points.length];
+        
+        // Berechne Winkel der Seite (ohne Rotation)
+        let sideAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+        
+        // Addiere aktuelle Rotation
+        sideAngle += currentRotation;
+        
+        // Normalisiere auf 0-360°
+        while (sideAngle < 0) sideAngle += 360;
+        while (sideAngle >= 360) sideAngle -= 360;
+        
+        // Prüfe Ausrichtung zu Hauptachsen (0°, 90°, 180°, 270°)
+        const alignments = [0, 90, 180, 270];
+        for (let targetAngle of alignments) {
+            const diff = Math.min(
+                Math.abs(sideAngle - targetAngle),
+                Math.abs(sideAngle - targetAngle + 360),
+                Math.abs(sideAngle - targetAngle - 360)
+            );
+            
+            if (diff <= tolerance) {
+                const direction = targetAngle === 0 || targetAngle === 180 ? 'horizontal' : 'vertical';
+                alignedSides.push({
+                    side: i,
+                    direction: direction,
+                    angle: targetAngle,
+                    actualAngle: sideAngle
+                });
+            }
+        }
+    }
+    
+    // Visuelle Rückmeldung bei Ausrichtung
+    if (alignedSides.length > 0) {
+        showAlignmentFeedback(alignedSides);
+        highlightAlignedSides(alignedSides, points);
+    } else {
+        removeAlignmentHighlights();
+    }
+}
+
+function showAlignmentFeedback(alignedSides) {
+    const messages = alignedSides.map(side => {
+        const dir = side.direction === 'horizontal' ? 'waagerecht' : 'senkrecht';
+        return `Seite ${side.side + 1}: ${dir}`;
+    });
+    
+    showFeedback(`✓ Ausgerichtet! ${messages.join(', ')}`, '#28a745');
+    
+    // Rotations-Display grün färben
+    const display = document.getElementById('rotation-display');
+    if (display) {
+        display.style.background = '#28a745';
+        display.style.animation = 'pulse 0.5s ease-out';
+        
+        setTimeout(() => {
+            display.style.background = 'rgba(0, 0, 0, 0.8)';
+            display.style.animation = '';
+        }, 1000);
+    }
+}
+
+function highlightAlignedSides(alignedSides, points) {
+    const svg = document.getElementById('main-svg');
+    if (!svg) return;
+    
+    // Entferne alte Highlights
+    removeAlignmentHighlights();
+    
+    // Erstelle Highlight-Gruppe
+    const highlightGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    highlightGroup.id = 'alignment-highlights';
+    
+    const scale = calculateOptimalScale(getCurrentFormData());
+    
+    alignedSides.forEach(aligned => {
+        const i = aligned.side;
+        const p1 = points[i];
+        const p2 = points[(i + 1) % points.length];
+        
+        // Transformiere Punkte in Canvas-Koordinaten
+        const x1 = CANVAS_CENTER_X + p1.x * scale;
+        const y1 = CANVAS_CENTER_Y + p1.y * scale;
+        const x2 = CANVAS_CENTER_X + p2.x * scale;
+        const y2 = CANVAS_CENTER_Y + p2.y * scale;
+        
+        // Erstelle Highlight-Linie
+        const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        highlight.setAttribute('x1', x1);
+        highlight.setAttribute('y1', y1);
+        highlight.setAttribute('x2', x2);
+        highlight.setAttribute('y2', y2);
+        highlight.setAttribute('stroke', '#28a745');
+        highlight.setAttribute('stroke-width', '6');
+        highlight.setAttribute('opacity', '0.8');
+        highlight.setAttribute('stroke-linecap', 'round');
+        highlight.style.filter = 'drop-shadow(0 0 5px #28a745)';
+        highlight.style.animation = 'alignmentPulse 1s ease-out';
+        
+        // Rotation anwenden
+        if (currentRotation !== 0) {
+            highlight.setAttribute('transform', `rotate(${currentRotation} ${CANVAS_CENTER_X} ${CANVAS_CENTER_Y})`);
+        }
+        
+        highlightGroup.appendChild(highlight);
+    });
+    
+    svg.appendChild(highlightGroup);
+    
+    // Entferne Highlights nach 2 Sekunden
+    setTimeout(() => {
+        removeAlignmentHighlights();
+    }, 2000);
+}
+
+function removeAlignmentHighlights() {
+    const existing = document.getElementById('alignment-highlights');
+    if (existing) {
+        existing.remove();
+    }
 }
 
 function resetRotation() {
@@ -442,6 +646,79 @@ window.addEventListener('load', function() {
 });
 
 console.log('✅ Vollständige korrigierte editor.js erfolgreich geladen - Alle Dachformen + Seitenbemaßung + funktionsfähige Rotation!');
+
+// CSS-Animationen für Ausrichtungs-Effekte dynamisch hinzufügen
+function addAlignmentAnimations() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes alignmentPulse {
+            0%, 100% { 
+                opacity: 0.8; 
+                stroke-width: 6;
+                filter: drop-shadow(0 0 5px #28a745);
+            }
+            50% { 
+                opacity: 1; 
+                stroke-width: 8;
+                filter: drop-shadow(0 0 15px #28a745);
+            }
+        }
+
+        @keyframes pulse {
+            0% { 
+                transform: scale(1); 
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+            }
+            70% { 
+                transform: scale(1.05); 
+                box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+            }
+            100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+            }
+        }
+
+        @keyframes rotationFeedback {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* Verbesserte Button-Hover-Effekte für Rotations-Buttons */
+        .btn-tool.rotation:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .btn-tool.rotation.rotating {
+            animation: rotationFeedback 0.3s ease-out;
+        }
+
+        /* Alignment-Highlight-Effekte */
+        .alignment-highlight {
+            stroke: #28a745;
+            stroke-width: 6;
+            opacity: 0.9;
+            filter: drop-shadow(0 0 8px #28a745);
+            animation: alignmentPulse 1.5s ease-out infinite;
+        }
+
+        /* Rotation Display Effekte */
+        .rotation-display.aligned {
+            background: #28a745 !important;
+            animation: pulse 0.8s ease-out;
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.6);
+        }
+    `;
+    
+    document.head.appendChild(style);
+}
+
+// Initialisiere Animationen beim Laden
+document.addEventListener('DOMContentLoaded', function() {
+    addAlignmentAnimations();
+});
                 // VOLLSTÄNDIGE korrigierte editor.js - Alle Dachformen + Seitenbemaßung + funktionsfähige Rotation
 
 let projectData = {};
