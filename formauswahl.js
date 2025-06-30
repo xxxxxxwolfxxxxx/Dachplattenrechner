@@ -365,8 +365,13 @@ function goBack() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== BEMASUNG SEITE GELADEN ===');
     
-    // Projektdaten laden
-    projectData = loadData();
+    // Projektdaten laden - prüfen ob bereits vorhanden
+    if (typeof projectData === 'undefined' || !projectData) {
+        projectData = loadData();
+    } else {
+        // Falls projectData bereits existiert, trotzdem neue Daten laden
+        projectData = loadData();
+    }
     console.log('📁 Geladene projectData:', projectData);
     
     // Validierung: Profil vorhanden?
