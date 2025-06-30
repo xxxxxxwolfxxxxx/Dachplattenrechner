@@ -235,11 +235,11 @@ function saveAndContinue() {
         return;
     }
     
-    console.log('✅ Erfolgreich gespeichert, weiterleiten zu bemasung.html');
+    console.log('✅ Erfolgreich gespeichert, weiterleiten zu formauswahl.html');
     
-    // GEÄNDERT: Weiterleitung zur Bemaßung-Seite
+    // NAVIGATION zur Bemaßung-Seite
     setTimeout(() => {
-        window.location.href = 'bemasung.html';
+        window.location.href = 'formauswahl.html';
     }, 100);
 }
 
