@@ -3,104 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formauswahl - Dachplattenrechner</title>
+    <title>Bemaßung - Dachplattenrechner</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .form-selection-container {
+        .form-editor-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
             margin-bottom: 30px;
         }
 
-        .shape-categories {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .category-tile {
+        .shape-preview-section {
             background: white;
-            border: 3px solid #e9ecef;
-            border-radius: 12px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .category-tile:hover {
-            border-color: #007bff;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,123,255,0.15);
-        }
-
-        .category-tile.selected {
-            border-color: #007bff;
-            background-color: #f8f9ff;
-            box-shadow: 0 0 20px rgba(0,123,255,0.2);
-        }
-
-        .category-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .category-name {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
-        }
-
-        .category-description {
-            font-size: 0.9em;
-            color: #6c757d;
-        }
-
-        .variants-section {
-            background: #f8f9fa;
             padding: 25px;
             border-radius: 12px;
-            margin-bottom: 30px;
-        }
-
-        .variants-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .variant-card {
-            background: white;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             text-align: center;
         }
 
-        .variant-card:hover {
-            border-color: #007bff;
-            transform: translateY(-2px);
+        .selected-shape-display {
+            background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+            border: 3px solid #007bff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
         }
 
-        .variant-card.selected {
-            border-color: #007bff;
-            background-color: #f0f8ff;
+        .shape-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #007bff;
+            margin-bottom: 10px;
         }
 
-        .variant-preview {
-            margin-bottom: 15px;
+        .shape-description {
+            color: #495057;
+            font-size: 1.1em;
+            margin-bottom: 20px;
         }
 
-        .variant-name {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 5px;
+        .shape-preview-svg {
+            width: 100%;
+            max-width: 300px;
+            height: 250px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 20px 0;
         }
 
         .dimensions-section {
@@ -112,7 +61,7 @@
 
         .dimensions-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
@@ -133,7 +82,7 @@
 
         .dimension-label {
             display: block;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             color: #495057;
             margin-bottom: 8px;
@@ -156,40 +105,25 @@
             margin-left: 5px;
         }
 
-        .selected-shape-summary {
-            background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
-            border: 2px solid #007bff;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .shape-summary-title {
-            font-size: 1.4em;
-            font-weight: 700;
-            color: #007bff;
-            margin-bottom: 10px;
-        }
-
-        .shape-summary-details {
-            color: #495057;
-            font-size: 1.1em;
-        }
-
         .calculation-preview {
             background: #f8f9fa;
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
-            margin-top: 20px;
+            margin-top: 25px;
             border-left: 4px solid #28a745;
+        }
+
+        .calculation-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
         }
 
         .calculation-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 10px;
+            font-size: 16px;
         }
 
         .calculation-value {
@@ -197,14 +131,27 @@
             color: #28a745;
         }
 
+        .profile-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .profile-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .profile-info-item:last-child {
+            border-bottom: none;
+        }
+
         @media (max-width: 768px) {
-            .form-selection-container {
+            .form-editor-container {
                 grid-template-columns: 1fr;
                 gap: 20px;
-            }
-            
-            .shape-categories {
-                grid-template-columns: repeat(2, 1fr);
             }
             
             .dimensions-grid {
@@ -228,7 +175,7 @@
                 </div>
                 <div class="step active" data-step="3">
                     <span class="step-number">3</span>
-                    <span class="step-title">Formauswahl</span>
+                    <span class="step-title">Bemaßung</span>
                 </div>
                 <div class="step" data-step="4">
                     <span class="step-number">4</span>
@@ -273,62 +220,65 @@
                 </div>
             </div>
 
-            <section class="form-selection-section">
-                <h2>Schritt 3: Dachform definieren</h2>
-                <p>Wählen Sie die Grundform und geben Sie die genauen Maße ein:</p>
+            <section class="form-editor-section">
+                <h2>Schritt 3: Dachform bemaßen</h2>
+                <p>Geben Sie die genauen Abmessungen für Ihre gewählte Dachform ein:</p>
 
-                <!-- Form-Kategorien -->
-                <div class="shape-categories" id="shape-categories">
-                    <div class="category-tile" data-category="rund">
-                        <span class="category-icon">⭕</span>
-                        <div class="category-name">Runde Formen</div>
-                        <div class="category-description">Kreis, Oval, Halbkreis</div>
+                <div class="form-editor-container">
+                    <!-- Form-Vorschau -->
+                    <div class="shape-preview-section">
+                        <div class="selected-shape-display">
+                            <div class="shape-title" id="shape-title">Rechteck</div>
+                            <div class="shape-description" id="shape-description">Klassische rechteckige Dachform</div>
+                        </div>
+                        
+                        <h3>Vorschau</h3>
+                        <svg class="shape-preview-svg" id="shape-preview-svg" viewBox="0 0 300 250">
+                            <defs>
+                                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+                            
+                            <!-- Grid Background -->
+                            <rect width="100%" height="100%" fill="url(#grid)" />
+                            
+                            <!-- Center Lines -->
+                            <line x1="150" y1="0" x2="150" y2="250" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <line x1="0" y1="125" x2="300" y2="125" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            
+                            <!-- Shape wird hier gezeichnet -->
+                            <g id="shape-group" transform="translate(150,125)">
+                                <!-- Placeholder -->
+                                <rect x="-60" y="-40" width="120" height="80" 
+                                      fill="rgba(0,123,255,0.3)" 
+                                      stroke="#007bff" 
+                                      stroke-width="3"/>
+                            </g>
+                            
+                            <!-- Bemaßung wird hier hinzugefügt -->
+                            <g id="dimensions-group"></g>
+                        </svg>
+                        
+                        <!-- Berechnung Vorschau -->
+                        <div class="calculation-preview" id="calculation-preview">
+                            <div class="calculation-title">Berechnete Werte</div>
+                            <div class="calculation-item">
+                                <span>Fläche:</span>
+                                <span class="calculation-value" id="calc-area">40.0 m²</span>
+                            </div>
+                            <div class="calculation-item">
+                                <span>Umfang:</span>
+                                <span class="calculation-value" id="calc-perimeter">26.0 m</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="category-tile" data-category="eckig">
-                        <span class="category-icon">⬜</span>
-                        <div class="category-name">Eckige Formen</div>
-                        <div class="category-description">Rechteck, Quadrat, Vieleck</div>
-                    </div>
-                    <div class="category-tile" data-category="komplex">
-                        <span class="category-icon">🔷</span>
-                        <div class="category-name">Komplexe Formen</div>
-                        <div class="category-description">L-Form, T-Form, U-Form</div>
-                    </div>
-                </div>
 
-                <!-- Varianten-Auswahl -->
-                <div class="variants-section" id="variants-section" style="display: none;">
-                    <h3>Formvariante wählen</h3>
-                    <div class="variants-grid" id="variants-grid">
-                        <!-- Wird dynamisch gefüllt -->
-                    </div>
-                </div>
-
-                <!-- Ausgewählte Form -->
-                <div class="selected-shape-summary" id="selected-shape" style="display: none;">
-                    <div class="shape-summary-title" id="shape-summary-title">Rechteck</div>
-                    <div class="shape-summary-details" id="shape-summary-details">Klassische rechteckige Dachform</div>
-                </div>
-
-                <!-- Bemaßung -->
-                <div class="form-selection-container">
+                    <!-- Bemaßung -->
                     <div class="dimensions-section">
                         <h3>Abmessungen eingeben</h3>
                         <div class="dimensions-grid" id="dimensions-grid">
                             <!-- Wird dynamisch gefüllt -->
-                        </div>
-                        
-                        <!-- Berechnung Vorschau -->
-                        <div class="calculation-preview" id="calculation-preview" style="display: none;">
-                            <h4>Berechnung (Vorschau)</h4>
-                            <div class="calculation-item">
-                                <span>Fläche:</span>
-                                <span class="calculation-value" id="calc-area">0 m²</span>
-                            </div>
-                            <div class="calculation-item">
-                                <span>Umfang:</span>
-                                <span class="calculation-value" id="calc-perimeter">0 m</span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -369,6 +319,6 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="formauswahl.js"></script>
+    <script src="bemaßung.js"></script>
 </body>
 </html>
