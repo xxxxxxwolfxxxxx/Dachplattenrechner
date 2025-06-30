@@ -158,10 +158,10 @@ function generateCorrectRoofPoints() {
     }
 }
 
-// ===== KREIS-FORMEN (IDENTISCH MIT EDITOR) =====
+// ===== PUNKT-GENERIERUNG MIT FALLBACK-WERTEN =====
 
 function generateCirclePoints(data) {
-    const radius = data.radius || 3;
+    const radius = data.radius || data.r || 3;
     const points = [];
     const segments = 24;
     
@@ -178,8 +178,8 @@ function generateCirclePoints(data) {
 }
 
 function generateOvalPoints(data) {
-    const radiusX = data.radiusX || 4;
-    const radiusY = data.radiusY || 2.5;
+    const radiusX = data.radiusX || data.rx || 4;
+    const radiusY = data.radiusY || data.ry || 2.5;
     const points = [];
     const segments = 24;
     
@@ -196,7 +196,7 @@ function generateOvalPoints(data) {
 }
 
 function generateHalfCirclePoints(data) {
-    const radius = data.radius || 4;
+    const radius = data.radius || data.r || 4;
     const points = [];
     const segments = 12;
     
@@ -213,7 +213,7 @@ function generateHalfCirclePoints(data) {
 }
 
 function generateQuarterCirclePoints(data) {
-    const radius = data.radius || 4;
+    const radius = data.radius || data.r || 4;
     const points = [];
     
     points.push({ x: 0, y: 0 });
@@ -232,10 +232,10 @@ function generateQuarterCirclePoints(data) {
 }
 
 function generateLanglochPoints(data) {
-    const length = data.length || 6;
-    const width = data.width || 3;
+    const length = data.length || data.l || 6;
+    const width = data.width || data.w || 3;
     const radius = width / 2;
-    const straightLength = length - width;
+    const straightLength = Math.max(0, length - width);
     
     const points = [];
     const segments = 8;
@@ -260,13 +260,11 @@ function generateLanglochPoints(data) {
     return points;
 }
 
-// ===== DREIECK-FORMEN (IDENTISCH MIT EDITOR) =====
-
 function generateTrianglePoints(data, variant) {
     console.log(`🔺 Generiere Dreieck: ${variant}`);
     
-    if (variant === 'gleichseitig' || (!variant && data.side)) {
-        const side = data.side || 6;
+    if (variant === 'gleichseitig' || (!variant && (data.side || data.s))) {
+        const side = data.side || data.s || 6;
         const height = side * Math.sqrt(3) / 2;
         return [
             { x: 0, y: height * 2/3 },
@@ -274,17 +272,17 @@ function generateTrianglePoints(data, variant) {
             { x: side/2, y: -height/3 }
         ];
     } else if (variant === 'rechtwinklig') {
-        const katheteA = data.katheteA || 4;
-        const katheteB = data.katheteB || 5;
+        const katheteA = data.katheteA || data.a || 4;
+        const katheteB = data.katheteB || data.b || 5;
         return [
             { x: -katheteA/2, y: -katheteB/3 },
             { x: katheteA/2, y: -katheteB/3 },
             { x: -katheteA/2, y: katheteB*2/3 }
         ];
     } else {
-        const sideA = data.sideA || 4;
-        const sideB = data.sideB || 5;
-        const sideC = data.sideC || 6;
+        const sideA = data.sideA || data.a || 4;
+        const sideB = data.sideB || data.b || 5;
+        const sideC = data.sideC || data.c || 6;
         
         const s = (sideA + sideB + sideC) / 2;
         const area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
@@ -298,11 +296,9 @@ function generateTrianglePoints(data, variant) {
     }
 }
 
-// ===== VIERECK-FORMEN (IDENTISCH MIT EDITOR) =====
-
 function generateRectanglePoints(data) {
-    const length = data.length || 8;
-    const width = data.width || 5;
+    const length = data.length || data.l || 8;
+    const width = data.width || data.w || 5;
     
     const points = [
         { x: -length/2, y: -width/2 },
@@ -316,7 +312,7 @@ function generateRectanglePoints(data) {
 }
 
 function generateSquarePoints(data) {
-    const side = data.side || 5;
+    const side = data.side || data.s || 5;
     
     const points = [
         { x: -side/2, y: -side/2 },
@@ -330,10 +326,10 @@ function generateSquarePoints(data) {
 }
 
 function generateTrapezPoints(data) {
-    const sideA = data.sideA || 8;
-    const sideB = data.sideB || 6;
-    const height = data.height || 4;
-    const offset = data.offset || 1;
+    const sideA = data.sideA || data.a || 8;
+    const sideB = data.sideB || data.b || 6;
+    const height = data.height || data.h || 4;
+    const offset = data.offset || data.versatz || 1;
     
     const points = [
         { x: -sideA/2, y: -height/2 },
@@ -347,9 +343,9 @@ function generateTrapezPoints(data) {
 }
 
 function generateParallelogramPoints(data) {
-    const length = data.length || 8;
-    const width = data.width || 5;
-    const angle = (data.angle || 30) * Math.PI / 180;
+    const length = data.length || data.l || 8;
+    const width = data.width || data.w || 5;
+    const angle = (data.angle || data.winkel || 30) * Math.PI / 180;
     const skew = width * Math.cos(angle);
     
     const points = [
@@ -359,14 +355,14 @@ function generateParallelogramPoints(data) {
         { x: -length/2 + skew, y: width/2 }
     ];
     
-    console.log(`✅ Parallelogramm generiert: ${length}×${width}m, winkel=${data.angle}°`);
+    console.log(`✅ Parallelogramm generiert: ${length}×${width}m, winkel=${data.angle || data.winkel || 30}°`);
     return points;
 }
 
 // ===== KORRIGIERTE RHOMBUS-GENERIERUNG (IDENTISCH MIT EDITOR) =====
 function generateRhombusPoints(data) {
-    const side = data.side || 5;
-    const angle = (data.angle || 60) * Math.PI / 180;
+    const side = data.side || data.s || 5;
+    const angle = (data.angle || data.winkel || 60) * Math.PI / 180;
     
     // KRITISCH: IDENTISCHE Berechnung wie im Editor
     const halfDiag1 = side * Math.sin(angle / 2);
@@ -380,9 +376,122 @@ function generateRhombusPoints(data) {
         { x: -halfDiag2, y: 0 }         // Links
     ];
     
-    console.log(`✅ Rhombus generiert: seite=${side}m, winkel=${data.angle}°`);
+    console.log(`✅ Rhombus generiert: seite=${side}m, winkel=${data.angle || data.winkel || 60}°`);
     console.log(`    Diagonalen: h=${halfDiag2*2:.2f}m, v=${halfDiag1*2:.2f}m`);
     console.log(`    Punkte: ${points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(', ')}`);
+    return points;
+}
+
+function generatePentagonPoints(data) {
+    const radius = data.radius || data.r || 4;
+    const points = [];
+    
+    for (let i = 0; i < 5; i++) {
+        const angle = (i * 2 * Math.PI / 5) - Math.PI / 2;
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    console.log(`✅ Fünfeck generiert: radius=${radius}m`);
+    return points;
+}
+
+function generateHexagonPoints(data) {
+    const radius = data.radius || data.r || 4;
+    const points = [];
+    
+    for (let i = 0; i < 6; i++) {
+        const angle = (i * 2 * Math.PI / 6) - Math.PI / 2;
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    console.log(`✅ Sechseck generiert: radius=${radius}m`);
+    return points;
+}
+
+function generateOctagonPoints(data) {
+    const radius = data.radius || data.r || 4;
+    const points = [];
+    
+    for (let i = 0; i < 8; i++) {
+        const angle = (i * 2 * Math.PI / 8) - Math.PI / 2;
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    
+    console.log(`✅ Achteck generiert: radius=${radius}m`);
+    return points;
+}
+
+function generateLShapePoints(data) {
+    const lengthTotal = data.lengthTotal || data.lGesamt || 10;
+    const widthTotal = data.widthTotal || data.wGesamt || 8;
+    const cutLength = data.cutLength || data.lAusschnitt || 4;
+    const cutWidth = data.cutWidth || data.wAusschnitt || 4;
+    
+    const points = [
+        { x: -lengthTotal/2, y: -widthTotal/2 },
+        { x: lengthTotal/2, y: -widthTotal/2 },
+        { x: lengthTotal/2, y: -widthTotal/2 + cutWidth },
+        { x: -lengthTotal/2 + cutLength, y: -widthTotal/2 + cutWidth },
+        { x: -lengthTotal/2 + cutLength, y: widthTotal/2 },
+        { x: -lengthTotal/2, y: widthTotal/2 }
+    ];
+    
+    console.log(`✅ L-Form generiert: gesamt=${lengthTotal}×${widthTotal}m, ausschnitt=${cutLength}×${cutWidth}m`);
+    return points;
+}
+
+function generateTShapePoints(data) {
+    const topWidth = data.topWidth || data.obenBreite || 8;
+    const stemWidth = data.stemWidth || data.stielBreite || 4;
+    const topHeight = data.topHeight || data.obenHoehe || 3;
+    const stemHeight = data.stemHeight || data.stielHoehe || 5;
+    
+    const totalHeight = topHeight + stemHeight;
+    
+    const points = [
+        { x: -topWidth/2, y: totalHeight/2 },
+        { x: topWidth/2, y: totalHeight/2 },
+        { x: topWidth/2, y: totalHeight/2 - topHeight },
+        { x: stemWidth/2, y: totalHeight/2 - topHeight },
+        { x: stemWidth/2, y: -totalHeight/2 },
+        { x: -stemWidth/2, y: -totalHeight/2 },
+        { x: -stemWidth/2, y: totalHeight/2 - topHeight },
+        { x: -topWidth/2, y: totalHeight/2 - topHeight }
+    ];
+    
+    console.log(`✅ T-Form generiert: top=${topWidth}×${topHeight}m, stiel=${stemWidth}×${stemHeight}m`);
+    return points;
+}
+
+function generateUShapePoints(data) {
+    const outerWidth = data.outerWidth || data.aussenBreite || 10;
+    const innerWidth = data.innerWidth || data.innenBreite || 4;
+    const height = data.height || data.hoehe || 6;
+    const thickness = data.thickness || data.dicke || 3;
+    
+    const points = [
+        { x: -outerWidth/2, y: -height/2 },
+        { x: outerWidth/2, y: -height/2 },
+        { x: outerWidth/2, y: height/2 },
+        { x: innerWidth/2, y: height/2 },
+        { x: innerWidth/2, y: -height/2 + thickness },
+        { x: -innerWidth/2, y: -height/2 + thickness },
+        { x: -innerWidth/2, y: height/2 },
+        { x: -outerWidth/2, y: height/2 }
+    ];
+    
+    console.log(`✅ U-Form generiert: außen=${outerWidth}×${height}m, innen=${innerWidth}m, dicke=${thickness}m`);
+    return points;
+}    Punkte: ${points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(', ')}`);
     return points;
 }
 
