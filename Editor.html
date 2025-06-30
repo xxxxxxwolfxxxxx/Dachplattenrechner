@@ -3,333 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Geometry Editor - Dachplattenrechner</title>
+    <title>Editor - Dachplattenrechner</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Editor-spezifische Styles */
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
         .controls-panel {
             background: white;
             border-radius: 12px;
-            padding: 20px;
+            padding: 25px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-            margin: 20px 0;
+            height: fit-content;
         }
 
-        .panel-header {
+        .shape-info-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #007bff;
+        }
+
+        .shape-info-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .shape-info-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e9ecef;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
         }
 
-        .calc-display {
-            display: flex;
-            gap: 20px;
-            font-size: 14px;
+        .info-value {
+            font-weight: 600;
+            color: #495057;
         }
 
-        .calc-display span {
-            background: rgba(0,123,255,0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
-            color: #007bff;
-            font-weight: 500;
-        }
-
-        .tools-grid {
-            margin-bottom: 20px;
-        }
-
-        .tools-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        /* NEUE Rotations-Controls Zeile */
-        .tools-row.rotation-controls {
-            grid-template-columns: repeat(3, 1fr);
-            margin-bottom: 15px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-        }
-
-        .btn-tool {
-            height: 40px;
-            padding: 0 16px;
+        .transform-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
             border: 2px solid #e9ecef;
-            border-radius: 8px;
+        }
+
+        .transform-section {
+            margin-bottom: 25px;
+        }
+
+        .transform-section h4 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .rotation-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .transform-btn {
+            height: 50px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
             background: white;
             color: #495057;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 8px;
         }
 
-        .btn-tool:hover {
+        .transform-btn:hover {
             border-color: #007bff;
             background: #f8f9ff;
             color: #007bff;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.2);
         }
 
-        .btn-tool.active {
+        .transform-btn.active {
             border-color: #007bff;
             background: #007bff;
             color: white;
         }
 
-        /* NEUE Rotation Button Styles */
-        .btn-tool.rotation {
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            height: 45px;
-        }
-
-        .btn-tool.rotation:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
-        }
-
-        .btn-tool.rotation.rotate-left {
+        .rotation-btn {
             background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
             border-color: #28a745;
         }
 
-        .btn-tool.rotation.rotate-left:hover {
+        .rotation-btn:hover {
             background: linear-gradient(135deg, #218838, #1ea872);
             border-color: #1e7e34;
-        }
-
-        .btn-tool.rotation.rotate-right {
-            background: linear-gradient(135deg, #007bff, #6610f2);
             color: white;
-            border-color: #007bff;
         }
 
-        .btn-tool.rotation.rotate-right:hover {
-            background: linear-gradient(135deg, #0056b3, #520dc2);
-            border-color: #004085;
+        .mirror-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
-        .btn-tool.rotation.reset {
+        .mirror-btn {
+            background: linear-gradient(135deg, #6f42c1, #e83e8c);
+            color: white;
+            border-color: #6f42c1;
+        }
+
+        .mirror-btn:hover {
+            background: linear-gradient(135deg, #5a2d91, #c02952);
+            border-color: #512479;
+            color: white;
+        }
+
+        .reset-btn {
             background: linear-gradient(135deg, #6c757d, #495057);
             color: white;
             border-color: #6c757d;
+            grid-column: 1 / -1;
         }
 
-        .btn-tool.rotation.reset:hover {
+        .reset-btn:hover {
             background: linear-gradient(135deg, #5a6268, #3d4147);
             border-color: #545b62;
+            color: white;
         }
 
-        .inputs-section {
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        #geometry-inputs-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .input-group label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .input-group-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
+        .current-transform-display {
+            background: #e9ecef;
+            padding: 15px;
             border-radius: 8px;
-            padding: 8px 12px;
-            transition: border-color 0.2s ease;
-        }
-
-        .input-group-wrapper:focus-within {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
-        }
-
-        .input-group input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            outline: none;
+            font-family: 'Courier New', monospace;
             font-size: 14px;
-            font-weight: 500;
-            color: #333;
+            color: #495057;
+            text-align: center;
         }
 
-        .input-unit {
-            font-size: 12px;
-            color: #6c757d;
-            font-weight: 500;
+        .canvas-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         }
 
         .canvas-wrapper {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            background: white;
+            border: 3px solid #e9ecef;
+            border-radius: 12px;
+            background: #fafafa;
             position: relative;
-            width: 600px;
-            height: 400px;
-            margin: 20px auto;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            user-select: none;
+            width: 100%;
+            height: 500px;
             overflow: hidden;
-        }
-
-        .canvas-container {
             display: flex;
+            align-items: center;
             justify-content: center;
-            margin: 20px 0;
         }
 
-        .profile-info-panel {
-            background: #f8f9fa;
-            padding: 15px;
+        .canvas-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
             border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #495057;
         }
 
-        .profile-info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .profile-info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .profile-info-item:last-child {
-            border-bottom: none;
-        }
-
-        /* NEUE Animationen für Ausrichtung */
-        @keyframes alignmentPulse {
-            0%, 100% { 
-                opacity: 0.8; 
-                stroke-width: 4;
-                filter: drop-shadow(0 0 5px #28a745);
-            }
-            50% { 
-                opacity: 1; 
-                stroke-width: 6;
-                filter: drop-shadow(0 0 10px #28a745);
-            }
-        }
-
-        @keyframes rotationFeedback {
-            0% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.1) rotate(5deg); }
-            100% { transform: scale(1) rotate(0deg); }
-        }
-
-        /* Rotation Display Verbesserungen */
-        .rotation-display {
+        #visualization-svg {
+            max-width: 100%;
+            max-height: 100%;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
             transition: all 0.3s ease;
-            border: 2px solid transparent;
         }
 
-        .rotation-display.aligned {
-            background: #28a745 !important;
-            border-color: #1e7e34;
-            animation: rotationFeedback 0.5s ease-out;
+        .transformation-feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,123,255,0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
         }
 
-        /* Feedback-Nachrichten */
-        .feedback-message {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            letter-spacing: 0.5px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        .transformation-feedback.show {
+            opacity: 1;
         }
 
-        .feedback-message.alignment {
-            background: linear-gradient(135deg, #28a745, #20c997) !important;
-            border-left: 4px solid #1e7e34;
-        }
-
-        /* Canvas Verbesserungen */
-        #main-svg {
-            transition: filter 0.2s ease;
-        }
-
-        #main-svg:hover {
-            filter: brightness(1.02);
-        }
-
-        /* Hover-Effekte für Corner-Handles */
-        .corner-handle {
-            transition: all 0.2s ease;
-        }
-
-        .corner-handle:hover {
-            transform: scale(1.2);
-            filter: drop-shadow(0 0 5px rgba(0,123,255,0.5));
-        }
-
-        /* Responsive Anpassungen */
         @media (max-width: 768px) {
-            #geometry-inputs-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .editor-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
             
-            .tools-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .tools-row.rotation-controls {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            .canvas-wrapper {
-                width: 100%;
-                max-width: 500px;
-                height: 300px;
-            }
-            
-            .calc-display {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .tools-row.rotation-controls {
+            .rotation-controls {
                 grid-template-columns: 1fr;
             }
             
-            .btn-tool.rotation {
-                height: 50px;
-                font-size: 16px;
+            .mirror-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .canvas-wrapper {
+                height: 400px;
             }
         }
     </style>
@@ -347,131 +255,156 @@
                     <span class="step-number">2</span>
                     <span class="step-title">Dachform</span>
                 </div>
-                <div class="step active" data-step="3">
+                <div class="step completed" data-step="3">
                     <span class="step-number">3</span>
-                    <span class="step-title">Editor</span>
+                    <span class="step-title">Formauswahl</span>
                 </div>
-                <div class="step" data-step="4">
+                <div class="step active" data-step="4">
                     <span class="step-number">4</span>
-                    <span class="step-title">Berechnung</span>
+                    <span class="step-title">Editor</span>
                 </div>
                 <div class="step" data-step="5">
                     <span class="step-number">5</span>
+                    <span class="step-title">Berechnung</span>
+                </div>
+                <div class="step" data-step="6">
+                    <span class="step-number">6</span>
                     <span class="step-title">Anrissplan</span>
                 </div>
             </nav>
         </header>
 
         <main>
-            <!-- Profil-Info Panel -->
-            <div class="profile-info-panel">
-                <h3>Gewähltes Profil</h3>
-                
-                <div class="profile-info-grid">
-                    <div>
-                        <div class="profile-info-item">
-                            <span>Profil:</span>
-                            <strong id="current-profile-name">-</strong>
-                        </div>
-                        <div class="profile-info-item">
-                            <span>Deckbreite:</span>
-                            <strong id="current-deckbreite">-</strong>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="profile-info-item">
-                            <span>Lieferbreite:</span>
-                            <strong id="current-lieferbreite">-</strong>
-                        </div>
-                        <div class="profile-info-item">
-                            <span>Seitenüberlappung:</span>
-                            <strong id="current-seitenueberlappung">-</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Controls Panel -->
-            <div class="controls-panel">
-                <div class="panel-header">
-                    <h3>Geometrie-Editor: <span id="current-shape-name">Rechteck</span></h3>
-                    <div class="calc-display">
-                        <span>Fläche: <strong id="calc-area">0 m²</strong></span>
-                        <span>Umfang: <strong id="calc-perimeter">0 m</strong></span>
-                    </div>
-                </div>
-
-                <!-- Tools -->
-                <div class="tools-grid">
-                    <!-- NEUE Rotations-Controls Zeile -->
-                    <div class="tools-row rotation-controls">
-                        <button class="btn-tool rotation rotate-left" id="btn-rotate-left" title="1° nach links drehen">
-                            <span style="font-size: 18px;">↺</span> -1°
-                        </button>
-                        <button class="btn-tool rotation rotate-right" id="btn-rotate-right" title="1° nach rechts drehen">
-                            <span style="font-size: 18px;">↻</span> +1°
-                        </button>
-                        <button class="btn-tool rotation reset" id="btn-reset-rotation" title="Rotation zurücksetzen">
-                            <span style="font-size: 16px;">⌂</span> 0°
-                        </button>
-                    </div>
-                    
-                    <!-- Standard Tools -->
-                    <div class="tools-row">
-                        <button class="btn-tool" id="btn-reset">🔄 Reset</button>
-                    </div>
-                </div>
-
-                <!-- Input Fields -->
-                <div class="inputs-section">
-                    <h4>Geometrie-Parameter</h4>
-                    <div id="geometry-inputs-grid">
-                        <!-- Wird dynamisch gefüllt -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Canvas Section -->
             <section class="editor-section">
-                <div class="canvas-container">
-                    <div class="canvas-wrapper">
-                        <svg id="main-svg" width="600" height="400" viewBox="0 0 600 400">
-                            <defs>
-                                <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
-                                    <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="1"/>
-                                </pattern>
+                <h2>Schritt 4: Form bearbeiten</h2>
+                <p>Drehen und spiegeln Sie Ihre Dachform nach Bedarf:</p>
+
+                <div class="editor-container">
+                    <!-- Controls Panel -->
+                    <div class="controls-panel">
+                        <!-- Form-Info -->
+                        <div class="shape-info-section">
+                            <div class="shape-info-title" id="current-shape-title">Rechteck</div>
+                            
+                            <div class="shape-info-details">
+                                <div>
+                                    <div class="info-item">
+                                        <span>Fläche:</span>
+                                        <span class="info-value" id="info-area">40.0 m²</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Umfang:</span>
+                                        <span class="info-value" id="info-perimeter">26.0 m</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="info-item">
+                                        <span>Rotation:</span>
+                                        <span class="info-value" id="info-rotation">0°</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span>Gespiegelt:</span>
+                                        <span class="info-value" id="info-mirrored">Nein</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transform Controls -->
+                        <div class="transform-controls">
+                            <div class="transform-section">
+                                <h4>🔄 Rotation</h4>
+                                <div class="rotation-controls">
+                                    <button class="transform-btn rotation-btn" id="btn-rotate-left" title="15° nach links">
+                                        <span style="font-size: 18px;">↺</span> -15°
+                                    </button>
+                                    <button class="transform-btn rotation-btn" id="btn-rotate-right" title="15° nach rechts">
+                                        <span style="font-size: 18px;">↻</span> +15°
+                                    </button>
+                                    <button class="transform-btn rotation-btn" id="btn-fine-rotate" title="Feineinstellung ±1°">
+                                        <span style="font-size: 16px;">⚙</span> ±1°
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="transform-section">
+                                <h4>🪞 Spiegelung</h4>
+                                <div class="mirror-controls">
+                                    <button class="transform-btn mirror-btn" id="btn-mirror-h" title="Horizontal spiegeln">
+                                        <span style="font-size: 16px;">⟷</span> Horizontal
+                                    </button>
+                                    <button class="transform-btn mirror-btn" id="btn-mirror-v" title="Vertikal spiegeln">
+                                        <span style="font-size: 16px;">↕</span> Vertikal
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="transform-section">
+                                <button class="transform-btn reset-btn" id="btn-reset" title="Alle Transformationen zurücksetzen">
+                                    <span style="font-size: 16px;">🔄</span> Zurücksetzen
+                                </button>
+                            </div>
+
+                            <!-- Transform Display -->
+                            <div class="current-transform-display" id="transform-display">
+                                Rotation: 0° | Spiegelung: Keine
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Section -->
+                    <div class="canvas-section">
+                        <h3>Vorschau</h3>
+                        <div class="canvas-wrapper">
+                            <svg id="visualization-svg" width="400" height="400" viewBox="0 0 400 400">
+                                <defs>
+                                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                    </pattern>
+                                    
+                                    <linearGradient id="shapeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#007bff;stop-opacity:0.8" />
+                                        <stop offset="50%" style="stop-color:#20c997;stop-opacity:0.9" />
+                                        <stop offset="100%" style="stop-color:#007bff;stop-opacity:0.8" />
+                                    </linearGradient>
+                                    
+                                    <filter id="shadowEffect">
+                                        <feDropShadow dx="3" dy="3" stdDeviation="3" flood-opacity="0.3"/>
+                                    </filter>
+                                </defs>
                                 
-                                <!-- NEUE Gradient-Definitionen für Highlights -->
-                                <linearGradient id="alignmentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#28a745;stop-opacity:0.8" />
-                                    <stop offset="50%" style="stop-color:#20c997;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#28a745;stop-opacity:0.8" />
-                                </linearGradient>
+                                <!-- Grid Background -->
+                                <rect width="100%" height="100%" fill="url(#grid)" />
                                 
-                                <filter id="alignmentGlow">
-                                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                                    <feMerge> 
-                                        <feMergeNode in="coloredBlur"/>
-                                        <feMergeNode in="SourceGraphic"/>
-                                    </feMerge>
-                                </filter>
-                            </defs>
+                                <!-- Center Lines -->
+                                <line x1="200" y1="0" x2="200" y2="400" stroke="#ccc" stroke-width="2" stroke-dasharray="5,5"/>
+                                <line x1="0" y1="200" x2="400" y2="200" stroke="#ccc" stroke-width="2" stroke-dasharray="5,5"/>
+                                
+                                <!-- Shape Group -->
+                                <g id="shape-group" transform="translate(200,200)">
+                                    <!-- Shape wird hier gezeichnet -->
+                                </g>
+                                
+                                <!-- Compass -->
+                                <g id="compass" transform="translate(350,50)">
+                                    <circle cx="0" cy="0" r="25" fill="rgba(255,255,255,0.9)" stroke="#ccc" stroke-width="2"/>
+                                    <text x="0" y="-15" text-anchor="middle" font-size="10" fill="#666">N</text>
+                                    <text x="15" y="5" text-anchor="middle" font-size="10" fill="#666">O</text>
+                                    <text x="0" y="20" text-anchor="middle" font-size="10" fill="#666">S</text>
+                                    <text x="-15" y="5" text-anchor="middle" font-size="10" fill="#666">W</text>
+                                    <line x1="0" y1="-10" x2="0" y2="-20" stroke="#007bff" stroke-width="2" id="compass-needle"/>
+                                </g>
+                            </svg>
                             
-                            <rect width="100%" height="100%" fill="url(#grid)" />
-                            
-                            <!-- Hilfslinien -->
-                            <line x1="300" y1="0" x2="300" y2="400" stroke="#c0c0c0" stroke-width="2"/>
-                            <line x1="0" y1="200" x2="600" y2="200" stroke="#c0c0c0" stroke-width="2"/>
-                            
-                            <!-- SVG-Gruppen für verschiedene Elemente -->
-                            <g id="roof-shape"></g>
-                            <g id="corner-handles"></g>
-                            <g id="labels"></g>
-                            <g id="dimensions"></g>
-                            <g id="alignment-highlights"></g>
-                        </svg>
-                        
-                        <!-- Rotation Display (wird dynamisch hinzugefügt) -->
+                            <div class="canvas-overlay">
+                                Maßstab: 1:100<br>
+                                <span id="canvas-info">Bereit</span>
+                            </div>
+            
+                            <div class="transformation-feedback" id="feedback-message">
+                                Transformation angewendet
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -479,7 +412,7 @@
             <!-- Navigation -->
             <div class="navigation-buttons">
                 <button type="button" class="btn btn-secondary" id="btn-back">
-                    ← Zurück zur Dachform
+                    ← Zurück zur Formauswahl
                 </button>
                 <button type="button" class="btn btn-primary" id="btn-continue">
                     Weiter zur Berechnung →
@@ -493,6 +426,6 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="editor.js"></script>
+    <script src="editor-simplified.js"></script>
 </body>
 </html>
