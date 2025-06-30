@@ -91,10 +91,19 @@ function displayShapeInfo() {
     console.log('projectData:', projectData);
     
     const roofShape = projectData.roofShape;
-    if (!roofShape || !roofShape.variant) {
-        console.error('❌ Keine Dachform-Daten gefunden!');
-        console.log('roofShape:', roofShape);
+    console.log('roofShape:', roofShape);
+    
+    if (!roofShape) {
+        console.error('❌ Kein roofShape gefunden!');
         alert('Keine Dachform gewählt. Sie werden zu Schritt 2 weitergeleitet.');
+        window.location.href = 'dachform.html';
+        return false;
+    }
+    
+    if (!roofShape.variant) {
+        console.error('❌ Keine variant in roofShape gefunden!');
+        console.log('Verfügbare roofShape keys:', Object.keys(roofShape));
+        alert('Keine Dachform-Variante gewählt. Sie werden zu Schritt 2 weitergeleitet.');
         window.location.href = 'dachform.html';
         return false;
     }
@@ -103,6 +112,7 @@ function displayShapeInfo() {
     console.log('✅ Gewählte Variante:', selectedVariant);
     
     const info = shapeInfo[selectedVariant];
+    console.log('Shape Info für', selectedVariant, ':', info);
     
     if (info) {
         document.getElementById('shape-title').textContent = info.name;
@@ -110,6 +120,7 @@ function displayShapeInfo() {
         console.log('✅ Form-Info angezeigt:', info.name);
     } else {
         console.error('❌ Form-Info nicht gefunden für:', selectedVariant);
+        console.log('Verfügbare shapeInfo keys:', Object.keys(shapeInfo));
         // Fallback
         document.getElementById('shape-title').textContent = selectedVariant;
         document.getElementById('shape-description').textContent = 'Benutzerdefinierte Form';
@@ -326,8 +337,8 @@ function saveAndContinue() {
         variant: selectedVariant,
         shapeType: selectedVariant,
         dimensions: currentDimensions,
-        dachNeigung: parseFloat(document.getElementById('dach-neigung').value) || 15,
-        ausrichtung: document.getElementById('ausrichtung').value || 'laengs',
+        dachNeigung: 15, // Standard-Wert
+        ausrichtung: 'laengs', // Standard-Wert
         area: calculateArea(),
         perimeter: calculatePerimeter(),
         timestamp: Date.now()
@@ -388,14 +399,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 input.value = value;
             }
         });
-        
-        // Zusätzliche Einstellungen
-        if (projectData.geometry.dachNeigung) {
-            document.getElementById('dach-neigung').value = projectData.geometry.dachNeigung;
-        }
-        if (projectData.geometry.ausrichtung) {
-            document.getElementById('ausrichtung').value = projectData.geometry.ausrichtung;
-        }
     }
     
     // Initiale Vorschau und Berechnung
@@ -414,7 +417,7 @@ window.debugBemasung = () => {
     console.log('localStorage:', localStorage.getItem('dachplattenrechner_data'));
 };
 
-console.log('✅ bemasung.js geladen');
+console.log('✅ formauswahl.js geladen (für Bemaßung)');
 
 let projectData = {};
 let currentDimensions = {};
