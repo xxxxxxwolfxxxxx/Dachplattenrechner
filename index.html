@@ -21,10 +21,18 @@
                 </div>
                 <div class="step" data-step="3">
                     <span class="step-number">3</span>
-                    <span class="step-title">Berechnung</span>
+                    <span class="step-title">Formauswahl</span>
                 </div>
                 <div class="step" data-step="4">
                     <span class="step-number">4</span>
+                    <span class="step-title">Editor</span>
+                </div>
+                <div class="step" data-step="5">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Berechnung</span>
+                </div>
+                <div class="step" data-step="6">
+                    <span class="step-number">6</span>
                     <span class="step-title">Anrissplan</span>
                 </div>
             </nav>
@@ -41,15 +49,23 @@
                         <p>Eingabe von Deck- und Lieferbreite sowie Lagerlängen oder Bestellbereich</p>
                     </div>
                     <div class="step-card">
-                        <h3>2. Dachform erstellen</h3>
-                        <p>Interaktiver Editor für die Gestaltung Ihrer Dachform</p>
+                        <h3>2. Dachform wählen</h3>
+                        <p>Auswahl der Grundform für Ihr Dach</p>
                     </div>
                     <div class="step-card">
-                        <h3>3. Bestelllängen berechnen</h3>
+                        <h3>3. Form definieren</h3>
+                        <p>Eingabe der genauen Abmessungen und Parameter</p>
+                    </div>
+                    <div class="step-card">
+                        <h3>4. Form bearbeiten</h3>
+                        <p>Drehen und spiegeln der Dachform nach Bedarf</p>
+                    </div>
+                    <div class="step-card">
+                        <h3>5. Bestelllängen berechnen</h3>
                         <p>Automatische Ermittlung der optimalen Bestelllängen</p>
                     </div>
                     <div class="step-card">
-                        <h3>4. Anrissplan erstellen</h3>
+                        <h3>6. Anrissplan erstellen</h3>
                         <p>Detaillierte Skizzen und Anrisspläne generieren</p>
                     </div>
                 </div>
@@ -75,6 +91,7 @@
         let projectData = {
             profile: {},
             roofShape: {},
+            geometry: {},
             calculations: {},
             drawingPlan: {}
         };
@@ -93,8 +110,10 @@
             const pages = {
                 1: 'profil.html',
                 2: 'dachform.html',
-                3: 'berechnung.html',
-                4: 'anrissplan.html'
+                3: 'formauswahl.html',
+                4: 'Editor.html',
+                5: 'berechnung.html',
+                6: 'anrissplan.html'
             };
             
             if (pages[stepNumber]) {
