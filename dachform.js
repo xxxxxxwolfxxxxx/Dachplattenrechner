@@ -1,10 +1,10 @@
-// Korrigierte dachform.js - Alle Varianten korrekt unterstützt
+// Aktualisierte dachform.js - Vereinfacht für Grundauswahl
 
 var projectData = {};
 var selectedShape = null;
 var selectedVariant = null;
 
-// ERWEITERTE Formen-Definitionen mit ALLEN Varianten und korrekten SVGs
+// VEREINFACHTE Formen-Definitionen - nur Grundkategorien
 var shapes = {
     kreis: {
         name: 'Kreis',
@@ -19,9 +19,7 @@ var shapes = {
     dreieck: {
         name: 'Dreieck',
         variants: {
-            gleichseitig: { name: 'Gleichseitiges Dreieck', svg: '<polygon points="50,20 25,70 75,70" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
-            rechtwinklig: { name: 'Rechtwinkliges Dreieck', svg: '<polygon points="25,25 75,25 25,75" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
-            ungleichschenklig: { name: 'Ungleichschenkliges Dreieck', svg: '<polygon points="40,20 20,75 80,70" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' }
+            dreieck: { name: 'Dreieck', svg: '<polygon points="50,20 25,70 75,70" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' }
         }
     },
     viereck: {
@@ -47,7 +45,7 @@ var shapes = {
     }
 };
 
-// VERBESSERTE Storage-Funktionen mit Debug
+// Storage-Funktionen
 function saveData() {
     console.log('=== DACHFORM: SPEICHERE DATEN ===');
     console.log('Zu speichernde projectData:', JSON.stringify(projectData, null, 2));
@@ -225,7 +223,6 @@ function saveAndContinue() {
     projectData.roofShape = {
         baseShape: selectedShape,
         variant: selectedVariant,
-        points: getDefaultPoints(),
         timestamp: Date.now() // Für Debugging
     };
     
@@ -238,223 +235,15 @@ function saveAndContinue() {
         return;
     }
     
-    console.log('✅ Erfolgreich gespeichert, weiterleiten zu Editor.html');
+    console.log('✅ Erfolgreich gespeichert, weiterleiten zu formauswahl.html');
     
-    // Kleine Verzögerung um sicherzustellen, dass gespeichert wurde
+    // GEÄNDERT: Weiterleitung zur neuen Formauswahl-Seite
     setTimeout(() => {
-        window.location.href = 'Editor.html';
+        window.location.href = 'formauswahl.html';
     }, 100);
 }
 
-// VOLLSTÄNDIGE getDefaultPoints() für ALLE Varianten
-function getDefaultPoints() {
-    console.log('=== GENERIERE PUNKTE ===');
-    console.log('Für:', selectedShape, selectedVariant);
-    
-    if (selectedShape === 'kreis') {
-        return getCirclePoints();
-    } else if (selectedShape === 'dreieck') {
-        return getTrianglePoints();
-    } else if (selectedShape === 'viereck') {
-        return getRectanglePoints();
-    } else if (selectedShape === 'vieleck') {
-        return getPolygonPoints();
-    }
-    
-    // Fallback
-    console.log('Verwende Fallback-Punkte');
-    return [
-        { x: 0, y: 0 }, { x: 10, y: 0 }, 
-        { x: 10, y: 6 }, { x: 0, y: 6 }
-    ];
-}
-
-// ERWEITERTE Kreis-Punkte generieren für ALLE Varianten
-function getCirclePoints() {
-    switch(selectedVariant) {
-        case 'kreis':
-            // Kreis mit 12 Punkten approximieren
-            const points = [];
-            const radius = 5;
-            const centerX = 5;
-            const centerY = 4;
-            for (let i = 0; i < 12; i++) {
-                const angle = (i * 2 * Math.PI) / 12;
-                points.push({
-                    x: centerX + radius * Math.cos(angle),
-                    y: centerY + radius * Math.sin(angle)
-                });
-            }
-            return points;
-            
-        case 'oval':
-            // Oval mit 12 Punkten
-            const ovalPoints = [];
-            const radiusX = 6;
-            const radiusY = 3;
-            const centerOvalX = 5;
-            const centerOvalY = 4;
-            for (let i = 0; i < 12; i++) {
-                const angle = (i * 2 * Math.PI) / 12;
-                ovalPoints.push({
-                    x: centerOvalX + radiusX * Math.cos(angle),
-                    y: centerOvalY + radiusY * Math.sin(angle)
-                });
-            }
-            return ovalPoints;
-            
-        case 'halbkreis':
-            // Halbkreis mit gerade Linie unten
-            const halfPoints = [];
-            const halfRadius = 5;
-            const halfCenterX = 5;
-            const halfCenterY = 5;
-            // Oberer Halbkreis (von 0° bis 180°)
-            for (let i = 0; i <= 6; i++) {
-                const angle = (i * Math.PI) / 6;
-                halfPoints.push({
-                    x: halfCenterX + halfRadius * Math.cos(angle),
-                    y: halfCenterY - halfRadius * Math.sin(angle)
-                });
-            }
-            return halfPoints;
-            
-        case 'viertelkreis':
-            return [
-                { x: 0, y: 0 }, { x: 6, y: 0 }, { x: 8, y: 1 },
-                { x: 9, y: 3 }, { x: 9, y: 5 }, { x: 8, y: 7 },
-                { x: 6, y: 8 }, { x: 3, y: 9 }, { x: 0, y: 9 }
-            ];
-            
-        case 'langloch':
-            return [
-                { x: 2, y: 1 }, { x: 8, y: 1 }, { x: 9, y: 2 },
-                { x: 9, y: 6 }, { x: 8, y: 7 }, { x: 2, y: 7 },
-                { x: 1, y: 6 }, { x: 1, y: 2 }
-            ];
-            
-        default:
-            // Standard Kreis
-            const defaultPoints = [];
-            const defaultRadius = 5;
-            for (let i = 0; i < 8; i++) {
-                const angle = (i * 2 * Math.PI) / 8;
-                defaultPoints.push({
-                    x: 5 + defaultRadius * Math.cos(angle),
-                    y: 4 + defaultRadius * Math.sin(angle)
-                });
-            }
-            return defaultPoints;
-    }
-}
-
-function getTrianglePoints() {
-    // Je nach Variante unterschiedliche Dreiecke
-    switch(selectedVariant) {
-        case 'gleichseitig':
-            return [
-                { x: 5, y: 8 },      // Spitze oben mittig
-                { x: 0, y: 0 },      // Links unten
-                { x: 10, y: 0 }      // Rechts unten
-            ];
-        case 'rechtwinklig':
-            return [
-                { x: 0, y: 0 },      // Links unten (rechter Winkel)
-                { x: 10, y: 0 },     // Rechts unten
-                { x: 0, y: 8 }       // Links oben
-            ];
-        case 'ungleichschenklig':
-            return [
-                { x: 3, y: 8 },      // Spitze oben (versetzt)
-                { x: 0, y: 0 },      // Links unten
-                { x: 10, y: 0 }      // Rechts unten
-            ];
-        default:
-            return [
-                { x: 5, y: 8 },
-                { x: 0, y: 0 },
-                { x: 10, y: 0 }
-            ];
-    }
-}
-
-function getRectanglePoints() {
-    // Je nach Variante unterschiedliche Vierecke
-    switch(selectedVariant) {
-        case 'quadrat':
-            return [
-                { x: 0, y: 0 }, { x: 8, y: 0 }, 
-                { x: 8, y: 8 }, { x: 0, y: 8 }
-            ];
-        case 'parallelogramm':
-            return [
-                { x: 0, y: 0 }, { x: 10, y: 0 }, 
-                { x: 12, y: 6 }, { x: 2, y: 6 }
-            ];
-        case 'trapez':
-            return [
-                { x: 1, y: 0 }, { x: 9, y: 0 }, 
-                { x: 8, y: 6 }, { x: 2, y: 6 }
-            ];
-        case 'rhombus':
-            return [
-                { x: 5, y: 0 }, { x: 10, y: 4 }, 
-                { x: 5, y: 8 }, { x: 0, y: 4 }
-            ];
-        default: // rechteck
-            return [
-                { x: 0, y: 0 }, { x: 10, y: 0 }, 
-                { x: 10, y: 6 }, { x: 0, y: 6 }
-            ];
-    }
-}
-
-function getPolygonPoints() {
-    // Je nach Variante unterschiedliche Vielecke
-    switch(selectedVariant) {
-        case 'fuenfeck':
-            return [
-                { x: 5, y: 8 }, { x: 9, y: 6 }, { x: 8, y: 1 }, 
-                { x: 2, y: 1 }, { x: 1, y: 6 }
-            ];
-        case 'sechseck':
-            return [
-                { x: 5, y: 8 }, { x: 9, y: 6 }, { x: 9, y: 2 }, 
-                { x: 5, y: 0 }, { x: 1, y: 2 }, { x: 1, y: 6 }
-            ];
-        case 'achteck':
-            return [
-                { x: 5, y: 8 }, { x: 7, y: 7 }, { x: 8, y: 5 }, { x: 8, y: 3 },
-                { x: 7, y: 1 }, { x: 5, y: 0 }, { x: 3, y: 1 }, { x: 2, y: 3 },
-                { x: 2, y: 5 }, { x: 3, y: 7 }
-            ];
-        case 'lform':
-            return [
-                { x: 0, y: 0 }, { x: 6, y: 0 }, { x: 6, y: 4 },
-                { x: 10, y: 4 }, { x: 10, y: 8 }, { x: 0, y: 8 }
-            ];
-        case 'tform':
-            return [
-                { x: 3, y: 0 }, { x: 7, y: 0 }, { x: 7, y: 3 },
-                { x: 10, y: 3 }, { x: 10, y: 8 }, { x: 0, y: 8 },
-                { x: 0, y: 3 }, { x: 3, y: 3 }
-            ];
-        case 'uform':
-            return [
-                { x: 0, y: 0 }, { x: 3, y: 0 }, { x: 3, y: 6 },
-                { x: 7, y: 6 }, { x: 7, y: 0 }, { x: 10, y: 0 },
-                { x: 10, y: 8 }, { x: 0, y: 8 }
-            ];
-        default:
-            return [
-                { x: 5, y: 8 }, { x: 9, y: 6 }, { x: 8, y: 1 }, 
-                { x: 2, y: 1 }, { x: 1, y: 6 }
-            ];
-    }
-}
-
 function goBack() {
-    console.log('Zurück zu profil.html');
     window.location.href = 'profil.html';
 }
 
@@ -497,4 +286,4 @@ window.debugDachformData = () => {
     console.log('sessionStorage:', sessionStorage.getItem('dachplattenrechner_data'));
 };
 
-console.log('Korrigierte dachform.js erfolgreich geladen - Alle Varianten werden unterstützt');
+console.log('Aktualisierte dachform.js erfolgreich geladen - Navigation zu formauswahl.html');
