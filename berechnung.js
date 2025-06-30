@@ -377,9 +377,10 @@ function generateRhombusPoints(data) {
     ];
     
     console.log(`✅ Rhombus generiert: seite=${side}m, winkel=${data.angle || data.winkel || 60}°`);
-    console.log(`    Diagonalen: h=${halfDiag2*2:.2f}m, v=${halfDiag1*2:.2f}m`);
+    console.log(`    Diagonalen: h=${(halfDiag2*2).toFixed(2)}m, v=${(halfDiag1*2).toFixed(2)}m`);
     console.log(`    Punkte: ${points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(', ')}`);
     return points;
+}
 }
 
 function generatePentagonPoints(data) {
