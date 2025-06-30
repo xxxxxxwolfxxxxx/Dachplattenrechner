@@ -331,4 +331,70 @@ function goBack() {
 }
 
 // Initialisierung
-document.addEventListener('D
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== BEMASUNG GELADEN ===');
+    
+    // Projektdaten laden
+    projectData = loadData();
+    
+    // Validierung: Profil und Dachform vorhanden?
+    if (!projectData.profile) {
+        alert('Keine Profil-Daten gefunden. Sie werden zu Schritt 1 weitergeleitet.');
+        window.location.href = 'profil.html';
+        return;
+    }
+    
+    if (!projectData.roofShape || !projectData.roofShape.variant) {
+        alert('Keine Dachform gewählt. Sie werden zu Schritt 2 weitergeleitet.');
+        window.location.href = 'dachform.html';
+        return;
+    }
+    
+    // Profil-Info anzeigen
+    displayProfileInfo();
+    
+    // Form-Info anzeigen
+    displayShapeInfo();
+    
+    // Dimensions-Inputs erstellen
+    createDimensionInputs();
+    
+    // Navigation Event Listeners
+    document.getElementById('btn-back').addEventListener('click', goBack);
+    document.getElementById('btn-continue').addEventListener('click', saveAndContinue);
+    
+    // Gespeicherte Dimensionen wiederherstellen
+    if (projectData.geometry && projectData.geometry.dimensions) {
+        currentDimensions = { ...projectData.geometry.dimensions };
+        Object.entries(projectData.geometry.dimensions).forEach(([dim, value]) => {
+            const input = document.querySelector(`[data-dimension="${dim}"]`);
+            if (input) {
+                input.value = value;
+            }
+        });
+        
+        // Zusätzliche Einstellungen
+        if (projectData.geometry.dachNeigung) {
+            document.getElementById('dach-neigung').value = projectData.geometry.dachNeigung;
+        }
+        if (projectData.geometry.ausrichtung) {
+            document.getElementById('ausrichtung').value = projectData.geometry.ausrichtung;
+        }
+    }
+    
+    // Initiale Vorschau und Berechnung
+    updatePreview();
+    updateCalculation();
+    
+    console.log('✅ Bemaßung initialisiert');
+});
+
+// Debug-Funktionen
+window.debugBemasung = () => {
+    console.log('=== BEMASUNG DEBUG ===');
+    console.log('projectData:', projectData);
+    console.log('selectedVariant:', selectedVariant);
+    console.log('currentDimensions:', currentDimensions);
+};
+
+console.log('✅ bemaßung.js geladen');
