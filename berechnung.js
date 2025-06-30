@@ -1,4 +1,95 @@
-deckbreite: profile.deckbreite,
+// KORRIGIERTE Hauptberechnung - Function Declaration fix
+function calculateLengths() {
+    try {
+        console.log('=== STARTE BERECHNUNG ===');
+        
+        const profile = projectData.profile;
+        if (!profile || !profile.deckbreite || !profile.seitenueberlappung) {
+            showDebugInfo({
+                error: 'Kritische Profil-Daten fehlen!',
+                profile: profile
+            });
+            alert('Kritische Profil-Daten fehlen!');
+            return;
+        }
+
+        const analysis = analyzeRoofGeometry();
+        const verlegerichtung = 'laengs';
+
+        calculationResults = calculateForDirection(analysis, verlegerichtung, profile);
+
+        displayResults(calculationResults);
+        drawRoofVisualization(analysis.points, calculationResults);
+        
+        const continueBtn = document.getElementById('continue-btn');
+        if (continueBtn) {
+            continueBtn.disabled = false;
+        }
+
+    } catch (error) {
+        console.error('❌ Fehler bei der Berechnung:', error);
+        showDebugInfo({
+            error: error.message,
+            stack: error.stack
+        });
+        alert('Fehler bei der Berechnung: ' + error.message);
+    }
+}
+
+// KORRIGIERTE Richtungsberechnung
+function calculateForDirection(analysis, richtung, profile) {
+    console.log('=== BERECHNE FÜR RICHTUNG ===');
+    console.log('Shape: ' + analysis.shapeType + ', Richtung: ' + richtung);
+    
+    const deckbreite = profile.deckbreite;
+    const seitenueberlappung = profile.seitenueberlappung;
+    const ueberstand = profile.ueberstand || 50;
+    
+    let bahnenAnzahl, bahnenLaenge;
+    let variableLengths = [];
+    
+    // Standard-Berechnung für alle Formen
+    if (richtung === 'laengs') {
+        bahnenAnzahl = Math.ceil(analysis.width * 1000 / deckbreite);
+        bahnenLaenge = (analysis.height * 1000) + ueberstand;
+    } else {
+        bahnenAnzahl = Math.ceil(analysis.height * 1000 / deckbreite);
+        bahnenLaenge = (analysis.width * 1000) + ueberstand;
+    }
+
+    // Verfügbare Längen ermitteln
+    let verfuegbareLaengen = [];
+    if (profile.laengentyp === 'lager') {
+        verfuegbareLaengen = profile.lagerlaengen ? [...profile.lagerlaengen] : [2000, 3000, 4000, 5000, 6000];
+    } else {
+        for (let l = profile.minLaenge || 1000; l <= (profile.maxLaenge || 12000); l += (profile.schnittRaster || 100)) {
+            verfuegbareLaengen.push(l);
+        }
+    }
+
+    // Optimierung
+    const optimization = optimizeLengths(bahnenLaenge, verfuegbareLaengen, bahnenAnzahl);
+    
+    const totalLength = optimization.totalLength;
+    const totalWaste = optimization.totalWaste;
+    const verschnittProzent = totalLength > 0 ? (totalWaste / totalLength) * 100 : 0;
+    
+    console.log('✅ Berechnung abgeschlossen: ' + bahnenAnzahl + ' Bahnen, ' + verschnittProzent.toFixed(1) + '% Verschnitt');
+    
+    return {
+        richtung: richtung,
+        bahnenAnzahl: bahnenAnzahl,
+        bahnenLaenge: bahnenLaenge,
+        variableLengths: variableLengths,
+        bestellliste: optimization.orderList,
+        schnittplan: optimization.cuttingPlan,
+        totalLength: totalLength / 1000,
+        totalWaste: totalWaste / 1000,
+        verschnitt: verschnittProzent,
+        dachflaeche: analysis.area,
+        dachbreite: analysis.width,
+        dachhoehe: analysis.height,
+        deckbreite: profile.deckbreite,
         lieferbreite: profile.lieferbreite,
         seitenueberlappung: profile.seitenueberlappung,
         shapeType: analysis.shapeType
@@ -105,7 +196,7 @@ function drawPlateLayoutCentered(layout, transformPoint, scale, roofPoints) {
     const deckbreite = profile.deckbreite / 1000;
     const lieferbreite = profile.lieferbreite / 1000;
 
-    console.log(`🎨 Zeichne zentrierte Platten: ${layout.bahnenAnzahl} Bahnen`);
+    console.log('🎨 Zeichne zentrierte Platten: ' + layout.bahnenAnzahl + ' Bahnen');
 
     // Berechne Dach-Zentrum und Grenzen
     const xs = roofPoints.map(p => p.x);
@@ -801,8 +892,8 @@ function generateRhombusPoints(data) {
         { x: -halfDiag2, y: 0 }         // Links
     ];
     
-    console.log(`✅ Rhombus generiert: seite=${side}m, winkel=${data.angle || 60}°`);
-    console.log(`    Punkte: ${points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(', ')}`);
+    console.log('✅ Rhombus generiert: seite=' + side + 'm, winkel=' + (data.angle || 60) + '°');
+    console.log('    Punkte: ' + points.map(p => '(' + p.x.toFixed(2) + ', ' + p.y.toFixed(2) + ')').join(', '));
     return points;
 }
 
@@ -948,7 +1039,7 @@ function analyzeRoofGeometry() {
     const area = calculateRoofArea(points);
     const shapeType = determineShapeTypeFromData();
     
-    console.log(`✅ Geometrie analysiert: ${shapeType}, ${width.toFixed(1)}×${height.toFixed(1)}m, ${area.toFixed(2)}m²`);
+    console.log('✅ Geometrie analysiert: ' + shapeType + ', ' + width.toFixed(1) + '×' + height.toFixed(1) + 'm, ' + area.toFixed(2) + 'm²');
     
     return {
         minX, maxX, minY, maxY,
@@ -1000,7 +1091,7 @@ function loadProjectInfo() {
     
     const shapeName = shapeNames[analysis.shapeType] || analysis.shapeType || 'Unbekannt';
     updateElement('info-roof-type', shapeName);
-    updateElement('info-dimensions', `${analysis.width.toFixed(1)} × ${analysis.height.toFixed(1)} m`);
+    updateElement('info-dimensions', analysis.width.toFixed(1) + ' × ' + analysis.height.toFixed(1) + ' m');
     updateElement('info-area', analysis.area.toFixed(2) + ' m²');
 
     const dachNeigung = projectData.roofShape?.dachNeigung || 15;
@@ -1009,6 +1100,6 @@ function loadProjectInfo() {
     updateElement('direction-text', 'Längs (parallel zur Wasserlaufrichtung)');
 
     console.log('✅ Projekt-Info erfolgreich geladen');
-    console.log(`Shape: ${analysis.shapeType}, Name: ${shapeName}, Area: ${analysis.area.toFixed(2)}m²`);
+    console.log('Shape: ' + analysis.shapeType + ', Name: ' + shapeName + ', Area: ' + analysis.area.toFixed(2) + 'm²');
     return true;
 }
