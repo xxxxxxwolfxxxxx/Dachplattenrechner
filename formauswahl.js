@@ -1,113 +1,8 @@
-// formauswahl.js - Einfache Formauswahl und Bemaßung ohne visuelle Darstellung
+// bemaßung.js - Nur Bemaßung der in Schritt 2 gewählten Form
 
 let projectData = {};
-let selectedCategory = null;
-let selectedVariant = null;
 let currentDimensions = {};
-
-// Form-Definitionen
-const formCategories = {
-    rund: {
-        name: 'Runde Formen',
-        variants: {
-            kreis: { 
-                name: 'Kreis', 
-                description: 'Perfekte Rundform',
-                dimensions: ['radius']
-            },
-            oval: { 
-                name: 'Oval/Ellipse', 
-                description: 'Längliche Rundform',
-                dimensions: ['radiusX', 'radiusY']
-            },
-            halbkreis: { 
-                name: 'Halbkreis', 
-                description: 'Halbe Kreisform',
-                dimensions: ['radius']
-            },
-            viertelkreis: { 
-                name: 'Viertelkreis', 
-                description: 'Viertel einer Kreisform',
-                dimensions: ['radius']
-            },
-            langloch: { 
-                name: 'Langloch', 
-                description: 'Rechteck mit runden Enden',
-                dimensions: ['length', 'width']
-            }
-        }
-    },
-    eckig: {
-        name: 'Eckige Formen',
-        variants: {
-            rechteck: { 
-                name: 'Rechteck', 
-                description: 'Klassische rechteckige Form',
-                dimensions: ['length', 'width']
-            },
-            quadrat: { 
-                name: 'Quadrat', 
-                description: 'Gleichseitiges Rechteck',
-                dimensions: ['side']
-            },
-            dreieck: { 
-                name: 'Dreieck', 
-                description: 'Dreieckige Grundform',
-                dimensions: ['sideA', 'sideB', 'sideC']
-            },
-            trapez: { 
-                name: 'Trapez', 
-                description: 'Viereck mit parallelen Seiten',
-                dimensions: ['sideA', 'sideB', 'height', 'offset']
-            },
-            parallelogramm: { 
-                name: 'Parallelogramm', 
-                description: 'Schiefes Viereck',
-                dimensions: ['length', 'width', 'angle']
-            },
-            rhombus: { 
-                name: 'Rhombus', 
-                description: 'Rautenform',
-                dimensions: ['side', 'angle']
-            },
-            fuenfeck: { 
-                name: 'Fünfeck', 
-                description: 'Regelmäßiges Fünfeck',
-                dimensions: ['radius']
-            },
-            sechseck: { 
-                name: 'Sechseck', 
-                description: 'Regelmäßiges Sechseck',
-                dimensions: ['radius']
-            },
-            achteck: { 
-                name: 'Achteck', 
-                description: 'Regelmäßiges Achteck',
-                dimensions: ['radius']
-            }
-        }
-    },
-    komplex: {
-        name: 'Komplexe Formen',
-        variants: {
-            lform: { 
-                name: 'L-Form', 
-                description: 'L-förmige Grundform',
-                dimensions: ['lengthTotal', 'widthTotal', 'cutLength', 'cutWidth']
-            },
-            tform: { 
-                name: 'T-Form', 
-                description: 'T-förmige Grundform',
-                dimensions: ['topWidth', 'stemWidth', 'topHeight', 'stemHeight']
-            },
-            uform: { 
-                name: 'U-Form', 
-                description: 'U-förmige Grundform',
-                dimensions: ['outerWidth', 'innerWidth', 'height', 'thickness']
-            }
-        }
-    }
-};
+let selectedVariant = null;
 
 // Dimension-Labels und Standardwerte
 const dimensionConfig = {
@@ -136,6 +31,29 @@ const dimensionConfig = {
     outerWidth: { label: 'Außenbreite', unit: 'm', default: 10, min: 2, max: 100 },
     innerWidth: { label: 'Innenbreite', unit: 'm', default: 4, min: 1, max: 50 },
     thickness: { label: 'Wandstärke', unit: 'm', default: 3, min: 0.5, max: 20 }
+};
+
+// Form-Informationen
+const shapeInfo = {
+    kreis: { name: 'Kreis', description: 'Perfekte Rundform', dimensions: ['radius'] },
+    oval: { name: 'Oval/Ellipse', description: 'Längliche Rundform', dimensions: ['radiusX', 'radiusY'] },
+    halbkreis: { name: 'Halbkreis', description: 'Halbe Kreisform', dimensions: ['radius'] },
+    viertelkreis: { name: 'Viertelkreis', description: 'Viertel einer Kreisform', dimensions: ['radius'] },
+    langloch: { name: 'Langloch', description: 'Rechteck mit runden Enden', dimensions: ['length', 'width'] },
+    rechteck: { name: 'Rechteck', description: 'Klassische rechteckige Form', dimensions: ['length', 'width'] },
+    quadrat: { name: 'Quadrat', description: 'Gleichseitiges Rechteck', dimensions: ['side'] },
+    gleichseitig: { name: 'Gleichseitiges Dreieck', description: 'Dreieck mit gleichen Seiten', dimensions: ['side'] },
+    rechtwinklig: { name: 'Rechtwinkliges Dreieck', description: 'Dreieck mit rechtem Winkel', dimensions: ['katheteA', 'katheteB'] },
+    ungleichschenklig: { name: 'Ungleichschenkliges Dreieck', description: 'Dreieck mit unterschiedlichen Seiten', dimensions: ['sideA', 'sideB', 'sideC'] },
+    trapez: { name: 'Trapez', description: 'Viereck mit parallelen Seiten', dimensions: ['sideA', 'sideB', 'height', 'offset'] },
+    parallelogramm: { name: 'Parallelogramm', description: 'Schiefes Viereck', dimensions: ['length', 'width', 'angle'] },
+    rhombus: { name: 'Rhombus', description: 'Rautenform', dimensions: ['side', 'angle'] },
+    fuenfeck: { name: 'Fünfeck', description: 'Regelmäßiges Fünfeck', dimensions: ['radius'] },
+    sechseck: { name: 'Sechseck', description: 'Regelmäßiges Sechseck', dimensions: ['radius'] },
+    achteck: { name: 'Achteck', description: 'Regelmäßiges Achteck', dimensions: ['radius'] },
+    lform: { name: 'L-Form', description: 'L-förmige Grundform', dimensions: ['lengthTotal', 'widthTotal', 'cutLength', 'cutWidth'] },
+    tform: { name: 'T-Form', description: 'T-förmige Grundform', dimensions: ['topWidth', 'stemWidth', 'topHeight', 'stemHeight'] },
+    uform: { name: 'U-Form', description: 'U-förmige Grundform', dimensions: ['outerWidth', 'innerWidth', 'height', 'thickness'] }
 };
 
 // Storage-Funktionen
@@ -178,93 +96,42 @@ function displayProfileInfo() {
     }
 }
 
-// Kategorie auswählen
-function selectCategory(category) {
-    selectedCategory = category;
-    selectedVariant = null;
+// Form-Info anzeigen
+function displayShapeInfo() {
+    const roofShape = projectData.roofShape;
+    if (!roofShape || !roofShape.variant) {
+        console.error('Keine Dachform-Daten gefunden');
+        return;
+    }
     
-    // Visual feedback
-    document.querySelectorAll('.category-tile').forEach(tile => {
-        tile.classList.remove('selected');
-    });
-    document.querySelector(`[data-category="${category}"]`).classList.add('selected');
+    selectedVariant = roofShape.variant;
+    const info = shapeInfo[selectedVariant];
     
-    // Varianten anzeigen
-    showVariants(category);
+    if (info) {
+        document.getElementById('shape-title').textContent = info.name;
+        document.getElementById('shape-description').textContent = info.description;
+    }
     
-    // Selected shape verstecken
-    document.getElementById('selected-shape').style.display = 'none';
-    document.getElementById('btn-continue').disabled = true;
-}
-
-// Varianten anzeigen
-function showVariants(category) {
-    const variantsSection = document.getElementById('variants-section');
-    const variantsGrid = document.getElementById('variants-grid');
-    
-    variantsGrid.innerHTML = '';
-    
-    const categoryData = formCategories[category];
-    if (!categoryData) return;
-    
-    Object.entries(categoryData.variants).forEach(([key, variant]) => {
-        const card = document.createElement('div');
-        card.className = 'variant-card';
-        card.dataset.variant = key;
-        card.onclick = () => selectVariant(key);
-        
-        card.innerHTML = `
-            <div class="variant-preview">
-                ${getVariantIcon(key)}
-            </div>
-            <div class="variant-name">${variant.name}</div>
-            <div class="variant-description">${variant.description}</div>
-        `;
-        
-        variantsGrid.appendChild(card);
-    });
-    
-    variantsSection.style.display = 'block';
-}
-
-// Variante auswählen
-function selectVariant(variant) {
-    selectedVariant = variant;
-    
-    // Visual feedback
-    document.querySelectorAll('.variant-card').forEach(card => {
-        card.classList.remove('selected');
-    });
-    document.querySelector(`[data-variant="${variant}"]`).classList.add('selected');
-    
-    // Form-Info anzeigen
-    showSelectedShape(variant);
-    
-    // Dimensions erstellen
-    createDimensionInputs(variant);
-    
-    // Berechnung aktualisieren
-    updateCalculation();
-    
-    document.getElementById('btn-continue').disabled = false;
-}
-
-// Ausgewählte Form anzeigen
-function showSelectedShape(variant) {
-    const shapeInfo = getVariantInfo(variant);
-    
-    document.getElementById('shape-summary-title').textContent = shapeInfo.name;
-    document.getElementById('shape-summary-details').textContent = shapeInfo.description;
-    document.getElementById('selected-shape').style.display = 'block';
+    console.log('Form angezeigt:', selectedVariant, info);
 }
 
 // Dimensions-Inputs erstellen
-function createDimensionInputs(variant) {
+function createDimensionInputs() {
     const dimensionsGrid = document.getElementById('dimensions-grid');
     dimensionsGrid.innerHTML = '';
     
-    const variantInfo = getVariantInfo(variant);
-    const dimensions = variantInfo.dimensions;
+    if (!selectedVariant) {
+        console.error('Keine Variante ausgewählt');
+        return;
+    }
+    
+    const info = shapeInfo[selectedVariant];
+    if (!info) {
+        console.error('Form-Info nicht gefunden für:', selectedVariant);
+        return;
+    }
+    
+    const dimensions = info.dimensions;
     
     // Gespeicherte Werte laden
     const savedGeometry = projectData.geometry || {};
@@ -301,10 +168,67 @@ function createDimensionInputs(variant) {
             const value = parseFloat(e.target.value);
             if (!isNaN(value)) {
                 currentDimensions[dim] = value;
+                updatePreview();
                 updateCalculation();
             }
         });
     });
+    
+    console.log('Dimension-Inputs erstellt für:', dimensions);
+}
+
+// Form-Vorschau aktualisieren
+function updatePreview() {
+    const shapeGroup = document.getElementById('shape-group');
+    shapeGroup.innerHTML = '';
+    
+    const svg = getShapeSVG();
+    shapeGroup.innerHTML = svg;
+}
+
+// SVG für Form generieren
+function getShapeSVG() {
+    const dims = currentDimensions;
+    
+    switch (selectedVariant) {
+        case 'kreis':
+            const radius = (dims.radius || 4) * 15; // Skalierung für Vorschau
+            return `<circle cx="0" cy="0" r="${radius}" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>`;
+            
+        case 'oval':
+            const rx = (dims.radiusX || 5) * 15;
+            const ry = (dims.radiusY || 3) * 15;
+            return `<ellipse cx="0" cy="0" rx="${rx}" ry="${ry}" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>`;
+            
+        case 'rechteck':
+            const length = (dims.length || 8) * 10;
+            const width = (dims.width || 5) * 10;
+            return `<rect x="${-length/2}" y="${-width/2}" width="${length}" height="${width}" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>`;
+            
+        case 'quadrat':
+            const side = (dims.side || 5) * 12;
+            return `<rect x="${-side/2}" y="${-side/2}" width="${side}" height="${side}" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>`;
+            
+        case 'trapez':
+            const sideA = (dims.sideA || 8) * 8;
+            const sideB = (dims.sideB || 6) * 8;
+            const height = (dims.height || 4) * 8;
+            const offset = (dims.offset || 1) * 8;
+            const points = `${-sideA/2},${height/2} ${sideA/2},${height/2} ${sideB/2 + offset},${-height/2} ${-sideB/2 + offset},${-height/2}`;
+            return `<polygon points="${points}" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>`;
+            
+        case 'rhombus':
+            const rhombusSide = (dims.side || 5) * 10;
+            const angle = (dims.angle || 60) * Math.PI / 180;
+            const halfDiag1 = rhombusSide * Math.sin(angle / 2);
+            const halfDiag2 = rhombusSide * Math.cos(angle / 2);
+            const rhombusPoints = `0,${-halfDiag1} ${halfDiag2},0 0,${halfDiag1} ${-halfDiag2},0`;
+            return `<polygon points="${rhombusPoints}" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>`;
+            
+        default:
+            // Fallback für unbekannte Formen
+            return `<rect x="-60" y="-40" width="120" height="80" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>`;
+    }
 }
 
 // Berechnung aktualisieren
@@ -316,10 +240,12 @@ function updateCalculation() {
     
     document.getElementById('calc-area').textContent = area.toFixed(2) + ' m²';
     document.getElementById('calc-perimeter').textContent = perimeter.toFixed(2) + ' m';
-    document.getElementById('calculation-preview').style.display = 'block';
+    
+    // Continue-Button aktivieren wenn Werte vorhanden
+    document.getElementById('btn-continue').disabled = area <= 0;
 }
 
-// Fläche berechnen (vereinfacht)
+// Fläche berechnen
 function calculateArea() {
     const dims = currentDimensions;
     
@@ -328,63 +254,25 @@ function calculateArea() {
             return Math.PI * Math.pow(dims.radius || 4, 2);
         case 'oval':
             return Math.PI * (dims.radiusX || 5) * (dims.radiusY || 3);
-        case 'halbkreis':
-            return (Math.PI * Math.pow(dims.radius || 4, 2)) / 2;
-        case 'viertelkreis':
-            return (Math.PI * Math.pow(dims.radius || 4, 2)) / 4;
-        case 'langloch':
-            const length = dims.length || 6;
-            const width = dims.width || 3;
-            const radius = width / 2;
-            const straightArea = (length - width) * width;
-            const circleArea = Math.PI * Math.pow(radius, 2);
-            return straightArea + circleArea;
         case 'rechteck':
             return (dims.length || 8) * (dims.width || 5);
         case 'quadrat':
             return Math.pow(dims.side || 5, 2);
-        case 'dreieck':
-            // Heron's formula vereinfacht
-            const a = dims.sideA || 4;
-            const b = dims.sideB || 5;
-            const c = dims.sideC || 6;
-            const s = (a + b + c) / 2;
-            return Math.sqrt(s * (s - a) * (s - b) * (s - c));
         case 'trapez':
             const sideA = dims.sideA || 8;
             const sideB = dims.sideB || 6;
             const height = dims.height || 4;
             return ((sideA + sideB) / 2) * height;
-        case 'parallelogramm':
-            return (dims.length || 8) * (dims.width || 5);
         case 'rhombus':
             const side = dims.side || 5;
             const angle = (dims.angle || 60) * Math.PI / 180;
             return Math.pow(side, 2) * Math.sin(angle);
-        case 'fuenfeck':
-        case 'sechseck':
-        case 'achteck':
-            const sides = selectedVariant === 'fuenfeck' ? 5 : (selectedVariant === 'sechseck' ? 6 : 8);
-            const radius = dims.radius || 4;
-            return 0.5 * sides * Math.pow(radius, 2) * Math.sin(2 * Math.PI / sides);
-        case 'lform':
-            const totalArea = (dims.lengthTotal || 10) * (dims.widthTotal || 8);
-            const cutArea = (dims.cutLength || 4) * (dims.cutWidth || 4);
-            return totalArea - cutArea;
-        case 'tform':
-            const topArea = (dims.topWidth || 8) * (dims.topHeight || 3);
-            const stemArea = (dims.stemWidth || 4) * (dims.stemHeight || 5);
-            return topArea + stemArea;
-        case 'uform':
-            const outerArea = (dims.outerWidth || 10) * (dims.height || 6);
-            const innerArea = (dims.innerWidth || 4) * ((dims.height || 6) - (dims.thickness || 3));
-            return outerArea - innerArea;
         default:
             return 40; // Fallback
     }
 }
 
-// Umfang berechnen (vereinfacht)
+// Umfang berechnen
 function calculatePerimeter() {
     const dims = currentDimensions;
     
@@ -395,20 +283,10 @@ function calculatePerimeter() {
             const a = dims.radiusX || 5;
             const b = dims.radiusY || 3;
             return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
-        case 'halbkreis':
-            return Math.PI * (dims.radius || 4) + 2 * (dims.radius || 4);
-        case 'viertelkreis':
-            return (Math.PI * (dims.radius || 4)) / 2 + 2 * (dims.radius || 4);
-        case 'langloch':
-            const length = dims.length || 6;
-            const width = dims.width || 3;
-            return 2 * length + Math.PI * width;
         case 'rechteck':
             return 2 * ((dims.length || 8) + (dims.width || 5));
         case 'quadrat':
             return 4 * (dims.side || 5);
-        case 'dreieck':
-            return (dims.sideA || 4) + (dims.sideB || 5) + (dims.sideC || 6);
         case 'rhombus':
             return 4 * (dims.side || 5);
         default:
@@ -416,50 +294,15 @@ function calculatePerimeter() {
     }
 }
 
-// Varianten-Icon bestimmen
-function getVariantIcon(variant) {
-    const icons = {
-        kreis: '⭕',
-        oval: '🥚',
-        halbkreis: '🌙',
-        viertelkreis: '◐',
-        langloch: '⬭',
-        rechteck: '⬜',
-        quadrat: '⬛',
-        dreieck: '🔺',
-        trapez: '⬡',
-        parallelogramm: '▱',
-        rhombus: '🔷',
-        fuenfeck: '⬟',
-        sechseck: '⬢',
-        achteck: '⬣',
-        lform: '📐',
-        tform: '⚹',
-        uform: '🔲'
-    };
-    return `<span style="font-size: 2em;">${icons[variant] || '⬜'}</span>`;
-}
-
-// Varianten-Info abrufen
-function getVariantInfo(variant) {
-    for (const categoryData of Object.values(formCategories)) {
-        if (categoryData.variants[variant]) {
-            return categoryData.variants[variant];
-        }
-    }
-    return { name: 'Unbekannt', description: '', dimensions: ['length', 'width'] };
-}
-
 // Speichern und Weiter
 function saveAndContinue() {
-    if (!selectedCategory || !selectedVariant) {
-        alert('Bitte wählen Sie eine Form aus!');
+    if (!selectedVariant) {
+        alert('Keine Form gefunden!');
         return;
     }
     
     // Geometry-Daten zur projectData hinzufügen
     projectData.geometry = {
-        category: selectedCategory,
         variant: selectedVariant,
         shapeType: selectedVariant,
         dimensions: currentDimensions,
@@ -482,80 +325,10 @@ function saveAndContinue() {
     window.location.href = 'Editor.html';
 }
 
-// Zurück zur Dachform
+// Navigation
 function goBack() {
     window.location.href = 'dachform.html';
 }
 
 // Initialisierung
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('=== FORMAUSWAHL GELADEN ===');
-    
-    // Projektdaten laden
-    projectData = loadData();
-    
-    // Profil-Info anzeigen
-    displayProfileInfo();
-    
-    // Validierung: Profil vorhanden?
-    if (!projectData.profile) {
-        alert('Keine Profil-Daten gefunden. Sie werden zu Schritt 1 weitergeleitet.');
-        window.location.href = 'profil.html';
-        return;
-    }
-    
-    // Event Listeners für Kategorien
-    document.querySelectorAll('.category-tile').forEach(tile => {
-        tile.addEventListener('click', () => {
-            selectCategory(tile.dataset.category);
-        });
-    });
-    
-    // Navigation Event Listeners
-    document.getElementById('btn-back').addEventListener('click', goBack);
-    document.getElementById('btn-continue').addEventListener('click', saveAndContinue);
-    
-    // Gespeicherte Auswahl wiederherstellen
-    if (projectData.geometry) {
-        const geo = projectData.geometry;
-        if (geo.category && geo.variant) {
-            selectCategory(geo.category);
-            setTimeout(() => {
-                selectVariant(geo.variant);
-                
-                // Gespeicherte Dimensionen wiederherstellen
-                if (geo.dimensions) {
-                    currentDimensions = { ...geo.dimensions };
-                    Object.entries(geo.dimensions).forEach(([dim, value]) => {
-                        const input = document.querySelector(`[data-dimension="${dim}"]`);
-                        if (input) {
-                            input.value = value;
-                        }
-                    });
-                    updateCalculation();
-                }
-                
-                // Zusätzliche Einstellungen
-                if (geo.dachNeigung) {
-                    document.getElementById('dach-neigung').value = geo.dachNeigung;
-                }
-                if (geo.ausrichtung) {
-                    document.getElementById('ausrichtung').value = geo.ausrichtung;
-                }
-            }, 100);
-        }
-    }
-    
-    console.log('✅ Formauswahl initialisiert');
-});
-
-// Debug-Funktionen
-window.debugFormauswahl = () => {
-    console.log('=== FORMAUSWAHL DEBUG ===');
-    console.log('projectData:', projectData);
-    console.log('selectedCategory:', selectedCategory);
-    console.log('selectedVariant:', selectedVariant);
-    console.log('currentDimensions:', currentDimensions);
-};
-
-console.log('✅ formauswahl.js geladen');
+document.addEventListener('D
