@@ -613,42 +613,62 @@ function generateUShapePoints(data) {
 
 // ===== REST DER BERECHNUNG.JS BLEIBT UNVERÄNDERT =====
 
-// KORRIGIERTE Geometrie-Analyse mit richtigen Punkten
+// KORRIGIERTE Geometrie-Analyse mit besserer Fehlerbehandlung
 function analyzeRoofGeometry() {
     console.log('=== ANALYSIERE DACH-GEOMETRIE ===');
     
-    const points = generateCorrectRoofPoints();
-    
-    if (!points || points.length < 3) {
-        console.error('❌ Keine gültigen Punkte generiert');
+    try {
+        const points = generateCorrectRoofPoints();
+        
+        if (!points || points.length < 3) {
+            console.error('❌ Keine gültigen Punkte generiert, verwende Fallback');
+            return {
+                minX: -4, maxX: 4, minY: -2.5, maxY: 2.5,
+                width: 8, height: 5, area: 40,
+                points: [
+                    { x: -4, y: -2.5 }, { x: 4, y: -2.5 }, 
+                    { x: 4, y: 2.5 }, { x: -4, y: 2.5 }
+                ],
+                shapeType: 'rechteck'
+            };
+        }
+        
+        const xs = points.map(p => p.x);
+        const ys = points.map(p => p.y);
+        const minX = Math.min(...xs);
+        const maxX = Math.max(...xs);
+        const minY = Math.min(...ys);
+        const maxY = Math.max(...ys);
+        
+        const width = maxX - minX;
+        const height = maxY - minY;
+        const area = calculateRoofArea(points);
+        const shapeType = determineShapeTypeFromData();
+        
+        console.log(`✅ Geometrie analysiert: ${shapeType}, ${width.toFixed(1)}×${height.toFixed(1)}m, ${area.toFixed(2)}m²`);
+        console.log(`   BoundingBox: x[${minX.toFixed(2)}, ${maxX.toFixed(2)}], y[${minY.toFixed(2)}, ${maxY.toFixed(2)}]`);
+        console.log(`   Punkte: ${points.length} Stück`);
+        
         return {
-            minX: 0, maxX: 8, minY: 0, maxY: 5,
+            minX, maxX, minY, maxY,
+            width, height, area,
+            points: points,
+            shapeType: shapeType
+        };
+        
+    } catch (error) {
+        console.error('❌ Fehler bei Geometrie-Analyse:', error);
+        // Fallback-Geometrie
+        return {
+            minX: -4, maxX: 4, minY: -2.5, maxY: 2.5,
             width: 8, height: 5, area: 40,
-            points: generateRectanglePoints({ length: 8, width: 5 }),
+            points: [
+                { x: -4, y: -2.5 }, { x: 4, y: -2.5 }, 
+                { x: 4, y: 2.5 }, { x: -4, y: 2.5 }
+            ],
             shapeType: 'rechteck'
         };
     }
-    
-    const xs = points.map(p => p.x);
-    const ys = points.map(p => p.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
-    
-    const width = maxX - minX;
-    const height = maxY - minY;
-    const area = calculateRoofArea(points);
-    const shapeType = determineShapeTypeFromData();
-    
-    console.log(`✅ Geometrie analysiert: ${shapeType}, ${width.toFixed(1)}×${height.toFixed(1)}m, ${area.toFixed(2)}m²`);
-    
-    return {
-        minX, maxX, minY, maxY,
-        width, height, area,
-        points: points,
-        shapeType: shapeType
-    };
 }
 
 // Projekt-Info laden und anzeigen
@@ -667,22 +687,42 @@ function loadProjectInfo() {
         return false;
     }
 
-    document.getElementById('info-profile-name').textContent = profile.profilname || 'Standard';
-    document.getElementById('info-deckbreite').textContent = profile.deckbreite + ' mm (nutzbar)';
-    document.getElementById('info-lieferbreite').textContent = profile.lieferbreite + ' mm (inkl. Überlappung)';
-    document.getElementById('info-seitenueberlappung').textContent = (profile.seitenueberlappung || 50) + ' mm';
-    document.getElementById('info-ueberstand').textContent = (profile.ueberstand || 50) + ' mm';
+    // Sichere Element-Updates
+    const updateElement = (id, value) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        } else {
+            console.warn(`Element ${id} nicht gefunden`);
+        }
+    };
+
+    updateElement('info-profile-name', profile.profilname || 'Standard');
+    updateElement('info-deckbreite', (profile.deckbreite || 1000) + ' mm (nutzbar)');
+    updateElement('info-lieferbreite', (profile.lieferbreite || 1050) + ' mm (inkl. Überlappung)');
+    updateElement('info-seitenueberlappung', (profile.seitenueberlappung || 50) + ' mm');
+    updateElement('info-ueberstand', (profile.ueberstand || 50) + ' mm');
     
-    document.getElementById('info-roof-type').textContent = analysis.shapeType;
-    document.getElementById('info-dimensions').textContent = `${analysis.width.toFixed(1)} × ${analysis.height.toFixed(1)} m`;
-    document.getElementById('info-area').textContent = analysis.area.toFixed(2) + ' m²';
+    // Dachform-Informationen mit Fallbacks
+    const shapeNames = {
+        'kreis': 'Kreis', 'oval': 'Oval', 'halbkreis': 'Halbkreis', 'viertelkreis': 'Viertelkreis', 'langloch': 'Langloch',
+        'dreieck': 'Dreieck', 'gleichseitig': 'Gleichseitiges Dreieck', 'rechtwinklig': 'Rechtwinkliges Dreieck', 'ungleichschenklig': 'Ungleichschenkliges Dreieck',
+        'rechteck': 'Rechteck', 'quadrat': 'Quadrat', 'parallelogramm': 'Parallelogramm', 'trapez': 'Trapez', 'rhombus': 'Rhombus',
+        'fuenfeck': 'Fünfeck', 'sechseck': 'Sechseck', 'achteck': 'Achteck', 'lform': 'L-Form', 'tform': 'T-Form', 'uform': 'U-Form'
+    };
+    
+    const shapeName = shapeNames[analysis.shapeType] || analysis.shapeType || 'Unbekannt';
+    updateElement('info-roof-type', shapeName);
+    updateElement('info-dimensions', `${analysis.width.toFixed(1)} × ${analysis.height.toFixed(1)} m`);
+    updateElement('info-area', analysis.area.toFixed(2) + ' m²');
 
     const dachNeigung = projectData.roofShape?.dachNeigung || 15;
-    document.getElementById('info-neigung').textContent = dachNeigung + '°';
+    updateElement('info-neigung', dachNeigung + '°');
 
-    document.getElementById('direction-text').textContent = 'Längs (parallel zur Wasserlaufrichtung)';
+    updateElement('direction-text', 'Längs (parallel zur Wasserlaufrichtung)');
 
     console.log('✅ Projekt-Info erfolgreich geladen');
+    console.log(`Shape: ${analysis.shapeType}, Name: ${shapeName}, Area: ${analysis.area.toFixed(2)}m²`);
     return true;
 }
 
