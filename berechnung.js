@@ -880,7 +880,7 @@ function generateRhombusPoints(data) {
     const side = data.side || 5;
     const angle = (data.angle || 60) * Math.PI / 180;
     
-    // EXAKT wie im Editor: drawRhombusShape Funktion
+    // EXAKT wie im Editor: gleiche Berechnung
     const halfDiag1 = side * Math.sin(angle / 2);
     const halfDiag2 = side * Math.cos(angle / 2);
     
@@ -893,6 +893,7 @@ function generateRhombusPoints(data) {
     ];
     
     console.log('✅ Rhombus generiert: seite=' + side + 'm, winkel=' + (data.angle || 60) + '°');
+    console.log('    Halbdiagonalen: h=' + (halfDiag2*2).toFixed(2) + 'm, v=' + (halfDiag1*2).toFixed(2) + 'm');
     console.log('    Punkte: ' + points.map(p => '(' + p.x.toFixed(2) + ', ' + p.y.toFixed(2) + ')').join(', '));
     return points;
 }
