@@ -280,8 +280,9 @@ function drawShape() {
     // Orientierungs-Hinweise hinzufügen
     drawOrientationIndicators(transformedPoints, scale);
     
-    // Kompass-Nadel aktualisieren
-    updateCompass();
+    // Legende für Wasserlaufrichtung hinzufügen
+    drawWaterFlowLegend();
+}
 }
 
 // Orientierungs-Hinweise zeichnen
@@ -309,23 +310,23 @@ function drawOrientationIndicators(points, scale) {
         // Kantenlänge
         const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
         
-        // Nur bei Kanten > 15px anzeigen (reduziert von 20px)
+        // Nur bei Kanten > 15px anzeigen
         if (length > 15) {
             if (orientation.isVertical) {
-                // Senkrechte Kante - Blaues Symbol
+                // Senkrechte Kante - Blaues "S" für Senkrecht
                 const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 indicator.innerHTML = `
-                    <circle cx="${midX + 20}" cy="${midY}" r="10" fill="#007bff" fill-opacity="0.8" stroke="#ffffff" stroke-width="2"/>
-                    <text x="${midX + 20}" y="${midY + 4}" text-anchor="middle" font-size="12" font-weight="bold" fill="white">⏸</text>
+                    <circle cx="${midX + 25}" cy="${midY}" r="12" fill="#007bff" fill-opacity="0.9" stroke="#ffffff" stroke-width="2"/>
+                    <text x="${midX + 25}" y="${midY + 5}" text-anchor="middle" font-size="14" font-weight="bold" fill="white">S</text>
                 `;
                 shapeGroup.appendChild(indicator);
                 
             } else if (orientation.isHorizontal) {
-                // Waagerechte Kante - Grünes Symbol
+                // Waagerechte Kante - Oranges "W" für Wasserlaufrichtung
                 const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 indicator.innerHTML = `
-                    <circle cx="${midX}" cy="${midY - 20}" r="10" fill="#28a745" fill-opacity="0.8" stroke="#ffffff" stroke-width="2"/>
-                    <text x="${midX}" y="${midY - 16}" text-anchor="middle" font-size="12" font-weight="bold" fill="white">⏹</text>
+                    <circle cx="${midX}" cy="${midY - 25}" r="12" fill="#ff6b35" fill-opacity="0.9" stroke="#ffffff" stroke-width="2"/>
+                    <text x="${midX}" y="${midY - 20}" text-anchor="middle" font-size="14" font-weight="bold" fill="white">W</text>
                 `;
                 shapeGroup.appendChild(indicator);
             }
@@ -334,23 +335,53 @@ function drawOrientationIndicators(points, scale) {
 }
 
 function calculateScale(points) {
-    if (points.length === 0) return 30;
+    if (points.length === 0) return 50;
     
     const xs = points.map(p => Math.abs(p.x));
     const ys = points.map(p => Math.abs(p.y));
     const maxExtent = Math.max(...xs, ...ys);
     
-    // VERGRÖSSERTE SKALIERUNG
-    // Vorher: Math.min(120, 80 / maxExtent)
-    // Nachher: Deutlich größer
-    return maxExtent > 0 ? Math.min(180, 140 / maxExtent) : 30;
+    // DEUTLICH VERGRÖSSERTE SKALIERUNG für bessere Sichtbarkeit
+    return maxExtent > 0 ? Math.min(280, 200 / maxExtent) : 50;
+}
+
+// Wasserlauf-Legende zeichnen
+function drawWaterFlowLegend() {
+    const svg = document.getElementById('visualization-svg');
+    if (!svg) return;
+    
+    // Entferne alte Legende
+    const oldLegend = svg.querySelector('#water-flow-legend');
+    if (oldLegend) {
+        oldLegend.remove();
+    }
+    
+    // Neue Legende erstellen
+    const legend = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    legend.setAttribute('id', 'water-flow-legend');
+    legend.innerHTML = `
+        <!-- Hintergrund -->
+        <rect x="10" y="10" width="180" height="80" rx="8" fill="rgba(255,255,255,0.95)" stroke="#ddd" stroke-width="1"/>
+        
+        <!-- Titel -->
+        <text x="20" y="30" font-size="14" font-weight="bold" fill="#333">Wasserlaufrichtung:</text>
+        
+        <!-- W Symbol und Erklärung -->
+        <circle cx="30" cy="50" r="12" fill="#ff6b35" fill-opacity="0.9" stroke="#ffffff" stroke-width="2"/>
+        <text x="30" y="55" text-anchor="middle" font-size="14" font-weight="bold" fill="white">W</text>
+        <text x="50" y="55" font-size="12" fill="#333">= Waagerecht (Wasserlauf)</text>
+        
+        <!-- S Symbol und Erklärung -->
+        <circle cx="30" cy="75" r="12" fill="#007bff" fill-opacity="0.9" stroke="#ffffff" stroke-width="2"/>
+        <text x="30" y="80" text-anchor="middle" font-size="14" font-weight="bold" fill="white">S</text>
+        <text x="50" y="80" font-size="12" fill="#333">= Senkrecht (quer zum Wasserlauf)</text>
+    `;
+    
+    svg.appendChild(legend);
 }
 
 function updateCompass() {
-    const needle = document.getElementById('compass-needle');
-    if (needle) {
-        needle.style.transform = `rotate(${currentTransform.rotation}deg)`;
-    }
+    // Kompass entfernt - nicht mehr benötigt für Wasserlaufrichtung
 }
 
 // Transform-Controls
