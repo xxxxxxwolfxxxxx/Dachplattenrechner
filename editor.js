@@ -309,14 +309,14 @@ function drawOrientationIndicators(points, scale) {
         // Kantenlänge
         const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
         
-        // Nur bei Kanten > 20px anzeigen
-        if (length > 20) {
+        // Nur bei Kanten > 15px anzeigen (reduziert von 20px)
+        if (length > 15) {
             if (orientation.isVertical) {
                 // Senkrechte Kante - Blaues Symbol
                 const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 indicator.innerHTML = `
-                    <circle cx="${midX + 15}" cy="${midY}" r="8" fill="#007bff" fill-opacity="0.8" stroke="#ffffff" stroke-width="2"/>
-                    <text x="${midX + 15}" y="${midY + 3}" text-anchor="middle" font-size="10" font-weight="bold" fill="white">⏸</text>
+                    <circle cx="${midX + 20}" cy="${midY}" r="10" fill="#007bff" fill-opacity="0.8" stroke="#ffffff" stroke-width="2"/>
+                    <text x="${midX + 20}" y="${midY + 4}" text-anchor="middle" font-size="12" font-weight="bold" fill="white">⏸</text>
                 `;
                 shapeGroup.appendChild(indicator);
                 
@@ -324,8 +324,8 @@ function drawOrientationIndicators(points, scale) {
                 // Waagerechte Kante - Grünes Symbol
                 const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 indicator.innerHTML = `
-                    <circle cx="${midX}" cy="${midY - 15}" r="8" fill="#28a745" fill-opacity="0.8" stroke="#ffffff" stroke-width="2"/>
-                    <text x="${midX}" y="${midY - 12}" text-anchor="middle" font-size="10" font-weight="bold" fill="white">⏹</text>
+                    <circle cx="${midX}" cy="${midY - 20}" r="10" fill="#28a745" fill-opacity="0.8" stroke="#ffffff" stroke-width="2"/>
+                    <text x="${midX}" y="${midY - 16}" text-anchor="middle" font-size="12" font-weight="bold" fill="white">⏹</text>
                 `;
                 shapeGroup.appendChild(indicator);
             }
@@ -334,13 +334,16 @@ function drawOrientationIndicators(points, scale) {
 }
 
 function calculateScale(points) {
-    if (points.length === 0) return 20;
+    if (points.length === 0) return 30;
     
     const xs = points.map(p => Math.abs(p.x));
     const ys = points.map(p => Math.abs(p.y));
     const maxExtent = Math.max(...xs, ...ys);
     
-    return maxExtent > 0 ? Math.min(120, 80 / maxExtent) : 20;
+    // VERGRÖSSERTE SKALIERUNG
+    // Vorher: Math.min(120, 80 / maxExtent)
+    // Nachher: Deutlich größer
+    return maxExtent > 0 ? Math.min(180, 140 / maxExtent) : 30;
 }
 
 function updateCompass() {
