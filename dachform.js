@@ -1,10 +1,32 @@
-// Aktualisierte dachform.js - Vereinfacht für Grundauswahl
+// Korrigierte dachform.js - Navigation zu Editor.html
 
-var projectData = {};
-var selectedShape = null;
-var selectedVariant = null;
+// Erweiterte Profilkatalog mit Seitenueberlappung
+const profile = {
+    'trapezprofil': {
+        'TP20': { name: 'TP20 (20/100)', deckbreite: 1000, lieferbreite: 1050, seitenueberlappung: 50 },
+        'TP45': { name: 'TP45 (45/150)', deckbreite: 900, lieferbreite: 975, seitenueberlappung: 75 },
+        'T35-207': { name: 'Profil 35.207', deckbreite: 1035, lieferbreite: 1085, seitenueberlappung: 50 },
+        'T19-155': { name: 'Profil 19.155', deckbreite: 1090, lieferbreite: 1140, seitenueberlappung: 50 }
+    },
+    'wellprofil': {
+        'SINUS18': { name: 'Sinus 18.76', deckbreite: 1070, lieferbreite: 1100, seitenueberlappung: 30 },
+        'SINUS76': { name: 'Sinus 76/18', deckbreite: 1090, lieferbreite: 1131, seitenueberlappung: 41 }
+    },
+    'hochprofil': {
+        'H85': { name: 'Hochprofil 85mm', deckbreite: 960, lieferbreite: 1000, seitenueberlappung: 40 },
+        'H100': { name: 'Hochprofil 100mm', deckbreite: 930, lieferbreite: 1000, seitenueberlappung: 70 }
+    },
+    'sandwich': {
+        'ISO40': { name: 'Isopaneel 40mm', deckbreite: 1000, lieferbreite: 1040, seitenueberlappung: 40 },
+        'ISO60': { name: 'Isopaneel 60mm', deckbreite: 1000, lieferbreite: 1040, seitenueberlappung: 40 }
+    },
+    'pfannenblech': {
+        'PFANNE': { name: 'Pfannenblech Standard', deckbreite: 1060, lieferbreite: 1100, seitenueberlappung: 40 },
+        'STILLPANNA': { name: 'Stillpanna', deckbreite: 1040, lieferbreite: 1100, seitenueberlappung: 60 }
+    }
+};
 
-// VEREINFACHTE Formen-Definitionen - nur Grundkategorien
+// Erweiterte Formen-Definitionen
 var shapes = {
     kreis: {
         name: 'Kreis',
@@ -19,7 +41,9 @@ var shapes = {
     dreieck: {
         name: 'Dreieck',
         variants: {
-            dreieck: { name: 'Dreieck', svg: '<polygon points="50,20 25,70 75,70" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' }
+            dreieck: { name: 'Gleichseitiges Dreieck', svg: '<polygon points="50,20 25,70 75,70" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+            rechtwinklig: { name: 'Rechtwinkliges Dreieck', svg: '<polygon points="25,70 75,70 25,30" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' },
+            ungleichschenklig: { name: 'Ungleichschenkliges Dreieck', svg: '<polygon points="50,20 20,70 80,70" fill="rgba(0, 123, 255, 0.3)" stroke="#007bff" stroke-width="2"/>' }
         }
     },
     viereck: {
@@ -45,9 +69,13 @@ var shapes = {
     }
 };
 
-// Storage-Funktionen
+var projectData = {};
+var selectedShape = null;
+var selectedVariant = null;
+
+// VERBESSERTE Speicher-Funktionen mit Debug
 function saveData() {
-    console.log('=== DACHFORM: SPEICHERE DATEN ===');
+    console.log('=== SPEICHERE DATEN ===');
     console.log('Zu speichernde projectData:', JSON.stringify(projectData, null, 2));
     
     try {
@@ -64,6 +92,11 @@ function saveData() {
         try {
             sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
             console.log('✅ Erfolgreich in sessionStorage gespeichert');
+            
+            // Sofort wieder auslesen zur Verifikation
+            const verification = sessionStorage.getItem('dachplattenrechner_data');
+            console.log('🔍 Verifikation - Ausgelesene Daten:', verification);
+            
             return true;
         } catch (e2) {
             console.error('❌ Beide Storage-Methoden fehlgeschlagen:', e2);
@@ -73,7 +106,7 @@ function saveData() {
 }
 
 function loadData() {
-    console.log('=== DACHFORM: LADE DATEN ===');
+    console.log('=== LADE DATEN ===');
     
     try {
         let saved = localStorage.getItem('dachplattenrechner_data');
@@ -235,11 +268,11 @@ function saveAndContinue() {
         return;
     }
     
-    console.log('✅ Erfolgreich gespeichert, weiterleiten zu formauswahl.html');
+    console.log('✅ Erfolgreich gespeichert, weiterleiten zu Editor.html');
     
-    // NAVIGATION zur Bemaßung-Seite
+    // NAVIGATION ZUM EDITOR (GEÄNDERT!)
     setTimeout(() => {
-        window.location.href = 'formauswahl.html';
+        window.location.href = 'Editor.html';
     }, 100);
 }
 
@@ -286,4 +319,4 @@ window.debugDachformData = () => {
     console.log('sessionStorage:', sessionStorage.getItem('dachplattenrechner_data'));
 };
 
-console.log('Aktualisierte dachform.js erfolgreich geladen - Navigation zu formauswahl.html');
+console.log('Dachform.js geladen - Navigation zu Editor.html korrigiert');
