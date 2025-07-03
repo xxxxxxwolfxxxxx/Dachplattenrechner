@@ -1,4 +1,97 @@
-// editor.js - Korrigierte Navigation zu formauswahl.html
+// Initialisierung
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== EDITOR GELADEN ===');
+    
+    // Projektdaten laden
+    projectData = loadData();
+    
+    // Validierung
+    if (!projectData.roofShape) {
+        alert('Keine Dachform-Daten gefunden. Sie werden zur Dachform-Auswahl weitergeleitet.');
+        window.location.href = 'dachform.html';
+        return;
+    }
+    
+    // Punkte generieren
+    generatedPoints = generateShapePoints();
+    console.log('Generierte Punkte:', generatedPoints);
+    
+    // Gespeicherte Transformationen laden
+    if (projectData.roofShape.transform) {
+        currentTransform = { ...projectData.roofShape.transform };
+    }
+    
+    // Info anzeigen
+    updateShapeInfo();
+    updateTransformDisplay();
+    
+    // Shape zeichnen
+    drawShape();
+    
+    // Event Listeners
+    const btnRotateLeft = document.getElementById('btn-rotate-left');
+    const btnRotateRight = document.getElementById('btn-rotate-right');
+    const btnFineRotate = document.getElementById('btn-fine-rotate');
+    const btnMirrorH = document.getElementById('btn-mirror-h');
+    const btnMirrorV = document.getElementById('btn-mirror-v');
+    const btnReset = document.getElementById('btn-reset');
+    const btnBack = document.getElementById('btn-back');
+    const btnContinue = document.getElementById('btn-continue');
+    
+    if (btnRotateLeft) {
+        btnRotateLeft.addEventListener('click', () => {
+            rotateShape(fineRotationMode ? -1 : -15);
+        });
+    }
+    
+    if (btnRotateRight) {
+        btnRotateRight.addEventListener('click', () => {
+            rotateShape(fineRotationMode ? 1 : 15);
+        });
+    }
+    
+    if (btnFineRotate) {
+        btnFineRotate.addEventListener('click', toggleFineRotation);
+    }
+    
+    if (btnMirrorH) {
+        btnMirrorH.addEventListener('click', () => {
+            mirrorShape('horizontal');
+        });
+    }
+    
+    if (btnMirrorV) {
+        btnMirrorV.addEventListener('click', () => {
+            mirrorShape('vertical');
+        });
+    }
+    
+    if (btnReset) {
+        btnReset.addEventListener('click', resetTransform);
+    }
+    
+    // Navigation
+    if (btnBack) {
+        btnBack.addEventListener('click', goBack);
+    }
+    
+    if (btnContinue) {
+        btnContinue.addEventListener('click', saveAndContinue);
+    }
+    
+    console.log('✅ Editor erfolgreich initialisiert');
+});
+
+// Debug-Funktionen
+window.debugEditor = () => {
+    console.log('=== EDITOR DEBUG ===');
+    console.log('projectData:', projectData);
+    console.log('currentTransform:', currentTransform);
+    console.log('generatedPoints:', generatedPoints);
+    console.log('transformedPoints:', applyTransformation(generatedPoints));
+};
+
+console.log('✅ editor.js geladen - Mit Orientierungs-Hinweisen für senkrechte/waagerechte Kanten'); editor.js - Mit Orientierungs-Hinweisen für senkrechte/waagerechte Kanten
 
 let projectData = {};
 let currentTransform = {
@@ -100,7 +193,7 @@ function generateShapePoints() {
     }
 }
 
-// Punkt-Generierung Funktionen
+// Vereinfachte Punkt-Generierung Funktionen
 function generateCirclePoints(dims) {
     const radius = dims.radius || 4;
     const points = [];
@@ -114,6 +207,81 @@ function generateCirclePoints(dims) {
         });
     }
     return points;
+}
+
+function generateRectanglePoints(dims) {
+    const length = dims.length || 8;
+    const width = dims.width || 5;
+    
+    return [
+        { x: -length/2, y: -width/2 },
+        { x: length/2, y: -width/2 },
+        { x: length/2, y: width/2 },
+        { x: -length/2, y: width/2 }
+    ];
+}
+
+function generateSquarePoints(dims) {
+    const side = dims.side || 5;
+    
+    return [
+        { x: -side/2, y: -side/2 },
+        { x: side/2, y: -side/2 },
+        { x: side/2, y: side/2 },
+        { x: -side/2, y: side/2 }
+    ];
+}
+
+function generateTrapezPoints(dims) {
+    const bottomBase = dims.bottomBase || 8;
+    const topBase = dims.topBase || 6;
+    const height = dims.height || 4;
+    
+    return [
+        { x: -bottomBase/2, y: -height/2 },
+        { x: bottomBase/2, y: -height/2 },
+        { x: topBase/2, y: height/2 },
+        { x: -topBase/2, y: height/2 }
+    ];
+}
+
+function generateLShapePoints(dims) {
+    const totalLength = dims.totalLength || 10;
+    const totalWidth = dims.totalWidth || 8;
+    const cutoutLength = dims.cutoutLength || 4;
+    const cutoutWidth = dims.cutoutWidth || 4;
+    
+    return [
+        { x: -totalLength/2, y: -totalWidth/2 },
+        { x: totalLength/2, y: -totalWidth/2 },
+        { x: totalLength/2, y: -totalWidth/2 + cutoutWidth },
+        { x: -totalLength/2 + cutoutLength, y: -totalWidth/2 + cutoutWidth },
+        { x: -totalLength/2 + cutoutLength, y: totalWidth/2 },
+        { x: -totalLength/2, y: totalWidth/2 }
+    ];
+}
+
+function generateRightTrianglePoints(dims) {
+    const katheteA = dims.katheteA || 4;
+    const katheteB = dims.katheteB || 5;
+    
+    return [
+        { x: 0, y: 0 },
+        { x: katheteA, y: 0 },
+        { x: 0, y: katheteB }
+    ];
+}
+
+// Weitere Formen (vereinfacht)
+function generateTrianglePoints(dims) {
+    const side = dims.side || 5;
+    const height = side * Math.sqrt(3) / 2;
+    
+    return [
+        { x: 0, y: height * 2/3 },
+        { x: -side/2, y: -height/3 },
+        { x: side/2, y: -height/3 }
+    ];
 }
 
 function generateOvalPoints(dims) {
@@ -173,7 +341,6 @@ function generateLanglochPoints(dims) {
     const points = [];
     const segments = 8;
     
-    // Rechter Halbkreis
     for (let i = 0; i <= segments; i++) {
         const angle = (-Math.PI/2) + (i * Math.PI) / segments;
         points.push({
@@ -182,7 +349,6 @@ function generateLanglochPoints(dims) {
         });
     }
     
-    // Linker Halbkreis
     for (let i = 0; i <= segments; i++) {
         const angle = (Math.PI/2) + (i * Math.PI) / segments;
         points.push({
@@ -194,75 +360,13 @@ function generateLanglochPoints(dims) {
     return points;
 }
 
-function generateRectanglePoints(dims) {
-    const length = dims.length || 8;
-    const width = dims.width || 5;
-    
-    return [
-        { x: -length/2, y: -width/2 },
-        { x: length/2, y: -width/2 },
-        { x: length/2, y: width/2 },
-        { x: -length/2, y: width/2 }
-    ];
-}
-
-function generateSquarePoints(dims) {
-    const side = dims.side || 5;
-    
-    return [
-        { x: -side/2, y: -side/2 },
-        { x: side/2, y: -side/2 },
-        { x: side/2, y: side/2 },
-        { x: -side/2, y: side/2 }
-    ];
-}
-
-function generateTrianglePoints(dims) {
-    const side = dims.side || 5;
-    const height = side * Math.sqrt(3) / 2;
-    
-    return [
-        { x: 0, y: height * 2/3 },
-        { x: -side/2, y: -height/3 },
-        { x: side/2, y: -height/3 }
-    ];
-}
-
-function generateRightTrianglePoints(dims) {
-    const katheteA = dims.katheteA || 4;
-    const katheteB = dims.katheteB || 5;
-    
-    return [
-        { x: 0, y: 0 },
-        { x: katheteA, y: 0 },
-        { x: 0, y: katheteB }
-    ];
-}
-
 function generateIrregularTrianglePoints(dims) {
     const sideA = dims.sideA || 5;
-    const sideB = dims.sideB || 6;
-    const sideC = dims.sideC || 7;
-    
-    // Vereinfachte Darstellung
     const height = 4;
     return [
         { x: 0, y: height },
         { x: -sideA/2, y: 0 },
         { x: sideA/2, y: 0 }
-    ];
-}
-
-function generateTrapezPoints(dims) {
-    const bottomBase = dims.bottomBase || 8;
-    const topBase = dims.topBase || 6;
-    const height = dims.height || 4;
-    
-    return [
-        { x: -bottomBase/2, y: -height/2 },
-        { x: bottomBase/2, y: -height/2 },
-        { x: topBase/2, y: height/2 },
-        { x: -topBase/2, y: height/2 }
     ];
 }
 
@@ -337,22 +441,6 @@ function generateOctagonPoints(dims) {
     return points;
 }
 
-function generateLShapePoints(dims) {
-    const totalLength = dims.totalLength || 10;
-    const totalWidth = dims.totalWidth || 8;
-    const cutoutLength = dims.cutoutLength || 4;
-    const cutoutWidth = dims.cutoutWidth || 4;
-    
-    return [
-        { x: -totalLength/2, y: -totalWidth/2 },
-        { x: totalLength/2, y: -totalWidth/2 },
-        { x: totalLength/2, y: -totalWidth/2 + cutoutWidth },
-        { x: -totalLength/2 + cutoutLength, y: -totalWidth/2 + cutoutWidth },
-        { x: -totalLength/2 + cutoutLength, y: totalWidth/2 },
-        { x: -totalLength/2, y: totalWidth/2 }
-    ];
-}
-
 function generateTShapePoints(dims) {
     const topWidth = dims.topWidth || 8;
     const stemWidth = dims.stemWidth || 3;
@@ -425,7 +513,30 @@ function applyTransformation(points) {
     return transformedPoints;
 }
 
-// SVG-Darstellung
+// Hilfsfunktion: Prüft ob eine Linie senkrecht/waagerecht ist
+function isVerticalOrHorizontal(p1, p2, tolerance = 0.1) {
+    const dx = Math.abs(p2.x - p1.x);
+    const dy = Math.abs(p2.y - p1.y);
+    
+    const isVertical = dx < tolerance;
+    const isHorizontal = dy < tolerance;
+    
+    return { isVertical, isHorizontal };
+}
+
+// Hilfsfunktion: Berechnet den Winkel einer Linie
+function getLineAngle(p1, p2) {
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    
+    // Normalisiere auf 0-360°
+    if (angle < 0) angle += 360;
+    
+    return angle;
+}
+
+// SVG-Darstellung mit Orientierungs-Hinweisen
 function drawShape() {
     const shapeGroup = document.getElementById('shape-group');
     const transformedPoints = applyTransformation(generatedPoints);
@@ -454,8 +565,75 @@ function drawShape() {
     
     shapeGroup.appendChild(path);
     
+    // NEUE FUNKTION: Orientierungs-Hinweise hinzufügen
+    drawOrientationIndicators(transformedPoints, scale);
+    
     // Kompass-Nadel aktualisieren
     updateCompass();
+}
+
+// NEUE FUNKTION: Orientierungs-Hinweise zeichnen
+function drawOrientationIndicators(points, scale) {
+    const shapeGroup = document.getElementById('shape-group');
+    
+    // Für jede Kante der Form
+    for (let i = 0; i < points.length; i++) {
+        const p1 = points[i];
+        const p2 = points[(i + 1) % points.length];
+        
+        const x1 = p1.x * scale;
+        const y1 = -p1.y * scale;
+        const x2 = p2.x * scale;
+        const y2 = -p2.y * scale;
+        
+        // Prüfe Orientierung
+        const orientation = isVerticalOrHorizontal(p1, p2, 0.05);
+        const angle = getLineAngle(p1, p2);
+        
+        // Mittelpunkt der Kante
+        const midX = (x1 + x2) / 2;
+        const midY = (y1 + y2) / 2;
+        
+        // Kantenlänge
+        const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        
+        // Nur bei Kanten > 20px anzeigen
+        if (length > 20) {
+            if (orientation.isVertical) {
+                // Senkrechte Kante - Blaues Symbol
+                const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                indicator.innerHTML = `
+                    <circle cx="${midX + 15}" cy="${midY}" r="8" fill="#007bff" fill-opacity="0.8" stroke="#ffffff" stroke-width="2"/>
+                    <text x="${midX + 15}" y="${midY + 3}" text-anchor="middle" font-size="10" font-weight="bold" fill="white">⏸</text>
+                `;
+                shapeGroup.appendChild(indicator);
+                
+            } else if (orientation.isHorizontal) {
+                // Waagerechte Kante - Grünes Symbol
+                const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                indicator.innerHTML = `
+                    <circle cx="${midX}" cy="${midY - 15}" r="8" fill="#28a745" fill-opacity="0.8" stroke="#ffffff" stroke-width="2"/>
+                    <text x="${midX}" y="${midY - 12}" text-anchor="middle" font-size="10" font-weight="bold" fill="white">⏹</text>
+                `;
+                shapeGroup.appendChild(indicator);
+            }
+        }
+        
+        // Winkel-Anzeige für schräge Kanten (optional)
+        if (!orientation.isVertical && !orientation.isHorizontal && length > 30) {
+            const normalizedAngle = Math.round(angle);
+            
+            // Nur bestimmte Winkel anzeigen (45°, 30°, 60°, etc.)
+            if ([30, 45, 60, 120, 135, 150, 210, 225, 240, 300, 315, 330].includes(normalizedAngle)) {
+                const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                indicator.innerHTML = `
+                    <rect x="${midX - 12}" y="${midY - 8}" width="24" height="16" rx="3" fill="#ffc107" fill-opacity="0.9" stroke="#ffffff" stroke-width="1"/>
+                    <text x="${midX}" y="${midY + 3}" text-anchor="middle" font-size="9" font-weight="bold" fill="#000">${normalizedAngle}°</text>
+                `;
+                shapeGroup.appendChild(indicator);
+            }
+        }
+    }
 }
 
 function calculateScale(points) {
@@ -623,7 +801,7 @@ function saveAndContinue() {
         return;
     }
     
-    // KORRIGIERTE NAVIGATION ZUR BEMASUNG
+    // Navigation zur Bemaßung
     window.location.href = 'formauswahl.html';
 }
 
@@ -645,97 +823,4 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Initialisierung
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('=== EDITOR GELADEN ===');
-    
-    // Projektdaten laden
-    projectData = loadData();
-    
-    // Validierung
-    if (!projectData.roofShape) {
-        alert('Keine Dachform-Daten gefunden. Sie werden zur Dachform-Auswahl weitergeleitet.');
-        window.location.href = 'dachform.html';
-        return;
-    }
-    
-    // Punkte generieren
-    generatedPoints = generateShapePoints();
-    console.log('Generierte Punkte:', generatedPoints);
-    
-    // Gespeicherte Transformationen laden
-    if (projectData.roofShape.transform) {
-        currentTransform = { ...projectData.roofShape.transform };
-    }
-    
-    // Info anzeigen
-    updateShapeInfo();
-    updateTransformDisplay();
-    
-    // Shape zeichnen
-    drawShape();
-    
-    // Event Listeners
-    const btnRotateLeft = document.getElementById('btn-rotate-left');
-    const btnRotateRight = document.getElementById('btn-rotate-right');
-    const btnFineRotate = document.getElementById('btn-fine-rotate');
-    const btnMirrorH = document.getElementById('btn-mirror-h');
-    const btnMirrorV = document.getElementById('btn-mirror-v');
-    const btnReset = document.getElementById('btn-reset');
-    const btnBack = document.getElementById('btn-back');
-    const btnContinue = document.getElementById('btn-continue');
-    
-    if (btnRotateLeft) {
-        btnRotateLeft.addEventListener('click', () => {
-            rotateShape(fineRotationMode ? -1 : -15);
-        });
-    }
-    
-    if (btnRotateRight) {
-        btnRotateRight.addEventListener('click', () => {
-            rotateShape(fineRotationMode ? 1 : 15);
-        });
-    }
-    
-    if (btnFineRotate) {
-        btnFineRotate.addEventListener('click', toggleFineRotation);
-    }
-    
-    if (btnMirrorH) {
-        btnMirrorH.addEventListener('click', () => {
-            mirrorShape('horizontal');
-        });
-    }
-    
-    if (btnMirrorV) {
-        btnMirrorV.addEventListener('click', () => {
-            mirrorShape('vertical');
-        });
-    }
-    
-    if (btnReset) {
-        btnReset.addEventListener('click', resetTransform);
-    }
-    
-    // Navigation
-    if (btnBack) {
-        btnBack.addEventListener('click', goBack);
-    }
-    
-    if (btnContinue) {
-        btnContinue.addEventListener('click', saveAndContinue);
-    }
-    
-    console.log('✅ Editor erfolgreich initialisiert');
-});
-
-// Debug-Funktionen
-window.debugEditor = () => {
-    console.log('=== EDITOR DEBUG ===');
-    console.log('projectData:', projectData);
-    console.log('currentTransform:', currentTransform);
-    console.log('generatedPoints:', generatedPoints);
-    console.log('transformedPoints:', applyTransformation(generatedPoints));
-};
-
-console.log('✅ editor.js geladen - Navigation zu formauswahl.html korrigiert');
+//
