@@ -342,28 +342,28 @@
                 
                 return [
                     // Untere Basis - Maßlinie
-                    '<line x1="' + (200-bottomBase/2) + '" y1="' + (175+height/2+offset) + '" x2="' + (200+bottomBase/2) + '" y2="' + (175+height/2+offset) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    '<line x1="' + (300-bottomBase/2) + '" y1="' + (225+height/2+offset) + '" x2="' + (300+bottomBase/2) + '" y2="' + (225+height/2+offset) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
                     // Untere Basis - Text
-                    '<text x="200" y="' + (175+height/2+offset+15) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">' + (dims.bottomBase || 8) + 'm</text>',
+                    '<text x="300" y="' + (225+height/2+offset+15) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">' + (dims.bottomBase || 8) + 'm</text>',
                     // Untere Basis - Verbindungslinien
-                    '<line x1="' + (200-bottomBase/2) + '" y1="' + (175+height/2) + '" x2="' + (200-bottomBase/2) + '" y2="' + (175+height/2+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
-                    '<line x1="' + (200+bottomBase/2) + '" y1="' + (175+height/2) + '" x2="' + (200+bottomBase/2) + '" y2="' + (175+height/2+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (300-bottomBase/2) + '" y1="' + (225+height/2) + '" x2="' + (300-bottomBase/2) + '" y2="' + (225+height/2+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (300+bottomBase/2) + '" y1="' + (225+height/2) + '" x2="' + (300+bottomBase/2) + '" y2="' + (225+height/2+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
                     
                     // Obere Basis - Maßlinie
-                    '<line x1="' + (200-topBase/2) + '" y1="' + (175-height/2-offset) + '" x2="' + (200+topBase/2) + '" y2="' + (175-height/2-offset) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    '<line x1="' + (300-topBase/2) + '" y1="' + (225-height/2-offset) + '" x2="' + (300+topBase/2) + '" y2="' + (225-height/2-offset) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
                     // Obere Basis - Text
-                    '<text x="200" y="' + (175-height/2-offset-5) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">' + (dims.topBase || 6) + 'm</text>',
+                    '<text x="300" y="' + (225-height/2-offset-5) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">' + (dims.topBase || 6) + 'm</text>',
                     // Obere Basis - Verbindungslinien
-                    '<line x1="' + (200-topBase/2) + '" y1="' + (175-height/2) + '" x2="' + (200-topBase/2) + '" y2="' + (175-height/2-offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
-                    '<line x1="' + (200+topBase/2) + '" y1="' + (175-height/2) + '" x2="' + (200+topBase/2) + '" y2="' + (175-height/2-offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (300-topBase/2) + '" y1="' + (225-height/2) + '" x2="' + (300-topBase/2) + '" y2="' + (225-height/2-offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (300+topBase/2) + '" y1="' + (225-height/2) + '" x2="' + (300+topBase/2) + '" y2="' + (225-height/2-offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
                     
                     // Höhe - Maßlinie
-                    '<line x1="' + (200-bottomBase/2-offset) + '" y1="' + (175-height/2) + '" x2="' + (200-bottomBase/2-offset) + '" y2="' + (175+height/2) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    '<line x1="' + (300-bottomBase/2-offset) + '" y1="' + (225-height/2) + '" x2="' + (300-bottomBase/2-offset) + '" y2="' + (225+height/2) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
                     // Höhe - Text (gedreht)
-                    '<text x="' + (200-bottomBase/2-offset-15) + '" y="175" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (200-bottomBase/2-offset-15) + ' 175)">' + (dims.height || 4) + 'm</text>',
+                    '<text x="' + (300-bottomBase/2-offset-15) + '" y="225" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (300-bottomBase/2-offset-15) + ' 225)">' + (dims.height || 4) + 'm</text>',
                     // Höhe - Verbindungslinien
-                    '<line x1="' + (200-bottomBase/2) + '" y1="' + (175-height/2) + '" x2="' + (200-bottomBase/2-offset) + '" y2="' + (175-height/2) + '" stroke="#ff6b6b" stroke-width="1"/>',
-                    '<line x1="' + (200-bottomBase/2) + '" y1="' + (175+height/2) + '" x2="' + (200-bottomBase/2-offset) + '" y2="' + (175+height/2) + '" stroke="#ff6b6b" stroke-width="1"/>'
+                    '<line x1="' + (300-bottomBase/2) + '" y1="' + (225-height/2) + '" x2="' + (300-bottomBase/2-offset) + '" y2="' + (225-height/2) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (300-bottomBase/2) + '" y1="' + (225+height/2) + '" x2="' + (300-bottomBase/2-offset) + '" y2="' + (225+height/2) + '" stroke="#ff6b6b" stroke-width="1"/>'
                 ].join('');
                 
             case 'rechteck':
@@ -372,20 +372,20 @@
                 
                 return [
                     // Länge - Maßlinie
-                    '<line x1="' + (200-length/2) + '" y1="' + (175+width/2+offset) + '" x2="' + (200+length/2) + '" y2="' + (175+width/2+offset) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    '<line x1="' + (300-length/2) + '" y1="' + (225+width/2+offset) + '" x2="' + (300+length/2) + '" y2="' + (225+width/2+offset) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
                     // Länge - Text
-                    '<text x="200" y="' + (175+width/2+offset+15) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">' + (dims.length || 8) + 'm</text>',
+                    '<text x="300" y="' + (225+width/2+offset+15) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">' + (dims.length || 8) + 'm</text>',
                     // Länge - Verbindungslinien
-                    '<line x1="' + (200-length/2) + '" y1="' + (175+width/2) + '" x2="' + (200-length/2) + '" y2="' + (175+width/2+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
-                    '<line x1="' + (200+length/2) + '" y1="' + (175+width/2) + '" x2="' + (200+length/2) + '" y2="' + (175+width/2+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (300-length/2) + '" y1="' + (225+width/2) + '" x2="' + (300-length/2) + '" y2="' + (225+width/2+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (300+length/2) + '" y1="' + (225+width/2) + '" x2="' + (300+length/2) + '" y2="' + (225+width/2+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
                     
                     // Breite - Maßlinie
-                    '<line x1="' + (200-length/2-offset) + '" y1="' + (175-width/2) + '" x2="' + (200-length/2-offset) + '" y2="' + (175+width/2) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    '<line x1="' + (300-length/2-offset) + '" y1="' + (225-width/2) + '" x2="' + (300-length/2-offset) + '" y2="' + (225+width/2) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
                     // Breite - Text (gedreht)
-                    '<text x="' + (200-length/2-offset-15) + '" y="175" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (200-length/2-offset-15) + ' 175)">' + (dims.width || 5) + 'm</text>',
+                    '<text x="' + (300-length/2-offset-15) + '" y="225" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (300-length/2-offset-15) + ' 225)">' + (dims.width || 5) + 'm</text>',
                     // Breite - Verbindungslinien
-                    '<line x1="' + (200-length/2) + '" y1="' + (175-width/2) + '" x2="' + (200-length/2-offset) + '" y2="' + (175-width/2) + '" stroke="#ff6b6b" stroke-width="1"/>',
-                    '<line x1="' + (200-length/2) + '" y1="' + (175+width/2) + '" x2="' + (200-length/2-offset) + '" y2="' + (175+width/2) + '" stroke="#ff6b6b" stroke-width="1"/>'
+                    '<line x1="' + (300-length/2) + '" y1="' + (225-width/2) + '" x2="' + (300-length/2-offset) + '" y2="' + (225-width/2) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (300-length/2) + '" y1="' + (225+width/2) + '" x2="' + (300-length/2-offset) + '" y2="' + (225+width/2) + '" stroke="#ff6b6b" stroke-width="1"/>'
                 ].join('');
                 
             case 'kreis':
@@ -393,17 +393,48 @@
                 
                 return [
                     // Radius - Linie von Zentrum nach außen
-                    '<line x1="200" y1="175" x2="' + (200+radius) + '" y2="175" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>',
+                    '<line x1="300" y1="225" x2="' + (300+radius) + '" y2="225" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>',
                     // Radius - Text
-                    '<text x="' + (200+radius/2) + '" y="170" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">r = ' + (dims.radius || 4) + 'm</text>',
+                    '<text x="' + (300+radius/2) + '" y="220" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">r = ' + (dims.radius || 4) + 'm</text>',
                     
                     // Durchmesser - Maßlinie unten
-                    '<line x1="' + (200-radius) + '" y1="' + (175+radius+offset) + '" x2="' + (200+radius) + '" y2="' + (175+radius+offset) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    '<line x1="' + (300-radius) + '" y1="' + (225+radius+offset) + '" x2="' + (300+radius) + '" y2="' + (225+radius+offset) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
                     // Durchmesser - Text
-                    '<text x="200" y="' + (175+radius+offset+15) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">⌀ ' + ((dims.radius || 4) * 2) + 'm</text>',
+                    '<text x="300" y="' + (225+radius+offset+15) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">⌀ ' + ((dims.radius || 4) * 2) + 'm</text>',
                     // Durchmesser - Verbindungslinien
-                    '<line x1="' + (200-radius) + '" y1="' + (175+radius) + '" x2="' + (200-radius) + '" y2="' + (175+radius+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
-                    '<line x1="' + (200+radius) + '" y1="' + (175+radius) + '" x2="' + (200+radius) + '" y2="' + (175+radius+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (300-radius) + '" y1="' + (225+radius) + '" x2="' + (300-radius) + '" y2="' + (225+radius+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (300+radius) + '" y1="' + (225+radius) + '" x2="' + (300+radius) + '" y2="' + (225+radius+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    
+                    // Zentrum markieren
+                    '<circle cx="300" cy="225" r="3" fill="#ff6b6b"/>',
+                    '<text x="305" y="240" font-size="10" fill="#ff6b6b">Zentrum</text>'
+                ].join('');
+                
+            case 'rechtwinklig':
+                var katheteA = (dims.katheteA || 4) * scale;
+                var katheteB = (dims.katheteB || 5) * scale;
+                
+                return [
+                    // Kathete A - Maßlinie (horizontal, noch höher)
+                    '<line x1="300" y1="' + (225+katheteB+offset+30) + '" x2="' + (300+katheteA) + '" y2="' + (225+katheteB+offset+30) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Kathete A - Text
+                    '<text x="' + (300+katheteA/2) + '" y="' + (225+katheteB+offset+45) + '" text-anchor="middle" font-size="14" font-weight="bold" fill="#ff6b6b">' + (dims.katheteA || 4) + 'm</text>',
+                    // Kathete A - Verbindungslinien
+                    '<line x1="300" y1="' + (225+katheteB) + '" x2="300" y2="' + (225+katheteB+offset+30) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (300+katheteA) + '" y1="' + (225+katheteB) + '" x2="' + (300+katheteA) + '" y2="' + (225+katheteB+offset+30) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    
+                    // Kathete B - Maßlinie (vertikal, noch weiter links)
+                    '<line x1="' + (300-offset-35) + '" y1="225" x2="' + (300-offset-35) + '" y2="' + (225+katheteB) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Kathete B - Text (gedreht, noch weiter links)
+                    '<text x="' + (300-offset-50) + '" y="' + (225+katheteB/2) + '" text-anchor="middle" font-size="14" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (300-offset-50) + ' ' + (225+katheteB/2) + ')">' + (dims.katheteB || 5) + 'm</text>',
+                    // Kathete B - Verbindungslinien
+                    '<line x1="300" y1="225" x2="' + (300-offset-35) + '" y2="225" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="300" y1="' + (225+katheteB) + '" x2="' + (300-offset-35) + '" y2="' + (225+katheteB) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    
+                    // Rechter Winkel Symbol (angepasst an größere Form)
+                    '<path d="M ' + (300+25) + ' ' + (225+katheteB) + ' L ' + (300+25) + ' ' + (225+katheteB-25) + ' L 300 ' + (225+katheteB-25) + '" stroke="#007bff" stroke-width="4" fill="none"/>',
+                    '<text x="' + (300+30) + '" y="' + (225+katheteB-30) + '" font-size="14" fill="#007bff">90°</text>'
+                ].join('');+radius) + '" y1="' + (175+radius) + '" x2="' + (200+radius) + '" y2="' + (175+radius+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
                     
                     // Zentrum markieren
                     '<circle cx="200" cy="175" r="3" fill="#ff6b6b"/>',
@@ -444,24 +475,24 @@
                 
                 return [
                     // Gesamtlänge - Maßlinie
-                    '<line x1="' + (200-totalLength/2) + '" y1="' + (175+totalWidth/2+offset) + '" x2="' + (200+totalLength/2) + '" y2="' + (175+totalWidth/2+offset) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    '<line x1="' + (300-totalLength/2) + '" y1="' + (225+totalWidth/2+offset) + '" x2="' + (300+totalLength/2) + '" y2="' + (225+totalWidth/2+offset) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
                     // Gesamtlänge - Text
-                    '<text x="200" y="' + (175+totalWidth/2+offset+15) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">' + (dims.totalLength || 10) + 'm</text>',
+                    '<text x="300" y="' + (225+totalWidth/2+offset+15) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">' + (dims.totalLength || 10) + 'm</text>',
                     
                     // Gesamtbreite - Maßlinie
-                    '<line x1="' + (200-totalLength/2-offset) + '" y1="' + (175-totalWidth/2) + '" x2="' + (200-totalLength/2-offset) + '" y2="' + (175+totalWidth/2) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    '<line x1="' + (300-totalLength/2-offset) + '" y1="' + (225-totalWidth/2) + '" x2="' + (300-totalLength/2-offset) + '" y2="' + (225+totalWidth/2) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
                     // Gesamtbreite - Text (gedreht)
-                    '<text x="' + (200-totalLength/2-offset-15) + '" y="175" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (200-totalLength/2-offset-15) + ' 175)">' + (dims.totalWidth || 8) + 'm</text>',
+                    '<text x="' + (300-totalLength/2-offset-15) + '" y="225" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (300-totalLength/2-offset-15) + ' 225)">' + (dims.totalWidth || 8) + 'm</text>',
                     
                     // Ausschnitt Länge - Maßlinie (innen)
-                    '<line x1="' + (200-totalLength/2+cutoutLength) + '" y1="' + (175-totalWidth/2+cutoutWidth-20) + '" x2="' + (200+totalLength/2) + '" y2="' + (175-totalWidth/2+cutoutWidth-20) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="3,3" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    '<line x1="' + (300-totalLength/2+cutoutLength) + '" y1="' + (225-totalWidth/2+cutoutWidth-20) + '" x2="' + (300+totalLength/2) + '" y2="' + (225-totalWidth/2+cutoutWidth-20) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="3,3" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
                     // Ausschnitt Länge - Text
-                    '<text x="' + (200+totalLength/4-cutoutLength/4) + '" y="' + (175-totalWidth/2+cutoutWidth-25) + '" text-anchor="middle" font-size="10" font-weight="bold" fill="#ff6b6b">' + (dims.cutoutLength || 4) + 'm</text>',
+                    '<text x="' + (300+totalLength/4-cutoutLength/4) + '" y="' + (225-totalWidth/2+cutoutWidth-25) + '" text-anchor="middle" font-size="10" font-weight="bold" fill="#ff6b6b">' + (dims.cutoutLength || 4) + 'm</text>',
                     
                     // Ausschnitt Breite - Maßlinie (seitlich)
-                    '<line x1="' + (200+totalLength/2+20) + '" y1="' + (175-totalWidth/2) + '" x2="' + (200+totalLength/2+20) + '" y2="' + (175-totalWidth/2+cutoutWidth) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="3,3" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    '<line x1="' + (300+totalLength/2+20) + '" y1="' + (225-totalWidth/2) + '" x2="' + (300+totalLength/2+20) + '" y2="' + (225-totalWidth/2+cutoutWidth) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="3,3" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
                     // Ausschnitt Breite - Text (gedreht)
-                    '<text x="' + (200+totalLength/2+35) + '" y="' + (175-totalWidth/2+cutoutWidth/2) + '" text-anchor="middle" font-size="10" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (200+totalLength/2+35) + ' ' + (175-totalWidth/2+cutoutWidth/2) + ')">' + (dims.cutoutWidth || 4) + 'm</text>'
+                    '<text x="' + (300+totalLength/2+35) + '" y="' + (225-totalWidth/2+cutoutWidth/2) + '" text-anchor="middle" font-size="10" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (300+totalLength/2+35) + ' ' + (225-totalWidth/2+cutoutWidth/2) + ')">' + (dims.cutoutWidth || 4) + 'm</text>'
                 ].join('');
                 
             default:
