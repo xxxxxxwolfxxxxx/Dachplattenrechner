@@ -646,8 +646,4 @@
 
     debugLog('formauswahl.js geladen - Navigation zu berechnung.html');
 
-})(); Maßlinie (vertikal, noch weiter links)
-                    '<line x1="' + (300-offset-35) + '" y1="225" x2="' + (300-offset-35) + '" y2="' + (225+katheteB) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
-                    // Kathete B - Text (gedreht, noch weiter links)
-                    '<text x="' + (300-offset-50) + '" y="' + (225+katheteB/2) + '" text-anchor="middle" font-size="14" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (300-offset-50) + ' ' + (225+katheteB/2) + ')">' + (dims.katheteB || 5) + 'm</text>',
-                    // Kathete B -
+})();
