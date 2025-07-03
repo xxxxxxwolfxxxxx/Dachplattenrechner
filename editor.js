@@ -1,4 +1,4 @@
-// editor.js - Korrigierte Version ohne Syntax-Fehler
+// editor.js - Korrigierte Version mit W/S Orientierungs-Symbolen
 
 let projectData = {};
 let currentTransform = {
@@ -284,7 +284,7 @@ function drawShape() {
     updateCompass();
 }
 
-// Orientierungs-Hinweise zeichnen
+// Orientierungs-Hinweise zeichnen mit W- und S-Symbolen
 function drawOrientationIndicators(points, scale) {
     const shapeGroup = document.getElementById('shape-group');
     if (!shapeGroup) return;
@@ -309,23 +309,25 @@ function drawOrientationIndicators(points, scale) {
         // Kantenlänge
         const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
         
-        // Nur bei Kanten > 15px anzeigen (reduziert von 20px)
+        // Nur bei Kanten > 15px anzeigen
         if (length > 15) {
             if (orientation.isVertical) {
-                // Senkrechte Kante - Blaues Symbol
+                // Senkrechte Kante - Blaues S-Symbol
                 const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 indicator.innerHTML = `
-                    <circle cx="${midX + 20}" cy="${midY}" r="10" fill="#007bff" fill-opacity="0.8" stroke="#ffffff" stroke-width="2"/>
-                    <text x="${midX + 20}" y="${midY + 4}" text-anchor="middle" font-size="12" font-weight="bold" fill="white">⏸</text>
+                    <circle cx="${midX + 20}" cy="${midY}" r="12" fill="#007bff" fill-opacity="0.9" stroke="#ffffff" stroke-width="2"/>
+                    <text x="${midX + 20}" y="${midY + 5}" text-anchor="middle" font-size="14" font-weight="bold" fill="white">S</text>
+                    <title>Senkrecht - Wasserlaufrichtung vertikal</title>
                 `;
                 shapeGroup.appendChild(indicator);
                 
             } else if (orientation.isHorizontal) {
-                // Waagerechte Kante - Grünes Symbol
+                // Waagerechte Kante - Grünes W-Symbol
                 const indicator = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 indicator.innerHTML = `
-                    <circle cx="${midX}" cy="${midY - 20}" r="10" fill="#28a745" fill-opacity="0.8" stroke="#ffffff" stroke-width="2"/>
-                    <text x="${midX}" y="${midY - 16}" text-anchor="middle" font-size="12" font-weight="bold" fill="white">⏹</text>
+                    <circle cx="${midX}" cy="${midY - 20}" r="12" fill="#28a745" fill-opacity="0.9" stroke="#ffffff" stroke-width="2"/>
+                    <text x="${midX}" y="${midY - 15}" text-anchor="middle" font-size="14" font-weight="bold" fill="white">W</text>
+                    <title>Waagerecht - Wasserlaufrichtung horizontal</title>
                 `;
                 shapeGroup.appendChild(indicator);
             }
@@ -618,4 +620,4 @@ window.debugEditor = () => {
     console.log('transformedPoints:', applyTransformation(generatedPoints));
 };
 
-console.log('✅ editor.js geladen - Korrigierte Version ohne Syntax-Fehler');
+console.log('✅ editor.js geladen - Mit W/S Orientierungs-Symbolen');
