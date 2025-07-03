@@ -294,6 +294,7 @@
             case 'rechtwinklig':
                 var katheteA = (dims.katheteA || 4) * scale;
                 var katheteB = (dims.katheteB || 5) * scale;
+                // Dreieck mit rechtem Winkel unten links, Kathete A nach rechts, Kathete B nach oben
                 var pointsRight = '0,0 ' + katheteA + ',0 0,' + (-katheteB);
                 return '<polygon points="' + pointsRight + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
@@ -414,25 +415,25 @@
                 var katheteB = (dims.katheteB || 5) * scale;
                 
                 return [
-                    // Kathete A - Maßlinie
-                    '<line x1="200" y1="' + (160+offset) + '" x2="' + (200+katheteA) + '" y2="' + (160+offset) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Kathete A - Maßlinie (horizontal, weiter unten)
+                    '<line x1="150" y1="' + (125+katheteB+offset+10) + '" x2="' + (150+katheteA) + '" y2="' + (125+katheteB+offset+10) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
                     // Kathete A - Text
-                    '<text x="' + (200+katheteA/2) + '" y="' + (160+offset+15) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">' + (dims.katheteA || 4) + 'm</text>',
+                    '<text x="' + (150+katheteA/2) + '" y="' + (125+katheteB+offset+25) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">' + (dims.katheteA || 4) + 'm</text>',
                     // Kathete A - Verbindungslinien
-                    '<line x1="200" y1="160" x2="200" y2="' + (160+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
-                    '<line x1="' + (200+katheteA) + '" y1="160" x2="' + (200+katheteA) + '" y2="' + (160+offset) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="150" y1="' + (125+katheteB) + '" x2="150" y2="' + (125+katheteB+offset+10) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="' + (150+katheteA) + '" y1="' + (125+katheteB) + '" x2="' + (150+katheteA) + '" y2="' + (125+katheteB+offset+10) + '" stroke="#ff6b6b" stroke-width="1"/>',
                     
-                    // Kathete B - Maßlinie
-                    '<line x1="' + (200-offset) + '" y1="160" x2="' + (200-offset) + '" y2="' + (160-katheteB) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
-                    // Kathete B - Text (gedreht)
-                    '<text x="' + (200-offset-15) + '" y="' + (160-katheteB/2) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (200-offset-15) + ' ' + (160-katheteB/2) + ')">' + (dims.katheteB || 5) + 'm</text>',
+                    // Kathete B - Maßlinie (vertikal, weiter links)
+                    '<line x1="' + (150-offset-15) + '" y1="125" x2="' + (150-offset-15) + '" y2="' + (125+katheteB) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Kathete B - Text (gedreht, weiter links)
+                    '<text x="' + (150-offset-30) + '" y="' + (125+katheteB/2) + '" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (150-offset-30) + ' ' + (125+katheteB/2) + ')">' + (dims.katheteB || 5) + 'm</text>',
                     // Kathete B - Verbindungslinien
-                    '<line x1="200" y1="160" x2="' + (200-offset) + '" y2="160" stroke="#ff6b6b" stroke-width="1"/>',
-                    '<line x1="200" y1="' + (160-katheteB) + '" x2="' + (200-offset) + '" y2="' + (160-katheteB) + '" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="150" y1="125" x2="' + (150-offset-15) + '" y2="125" stroke="#ff6b6b" stroke-width="1"/>',
+                    '<line x1="150" y1="' + (125+katheteB) + '" x2="' + (150-offset-15) + '" y2="' + (125+katheteB) + '" stroke="#ff6b6b" stroke-width="1"/>',
                     
-                    // Rechter Winkel Symbol
-                    '<path d="M ' + (200+15) + ' 160 L ' + (200+15) + ' ' + (160-15) + ' L 200 ' + (160-15) + '" stroke="#007bff" stroke-width="2" fill="none"/>',
-                    '<text x="' + (200+20) + '" y="' + (160-20) + '" font-size="10" fill="#007bff">90°</text>'
+                    // Rechter Winkel Symbol (bleibt an der Ecke)
+                    '<path d="M ' + (150+15) + ' ' + (125+katheteB) + ' L ' + (150+15) + ' ' + (125+katheteB-15) + ' L 150 ' + (125+katheteB-15) + '" stroke="#007bff" stroke-width="2" fill="none"/>',
+                    '<text x="' + (150+20) + '" y="' + (125+katheteB-20) + '" font-size="10" fill="#007bff">90°</text>'
                 ].join('');
                 
             case 'lform':
