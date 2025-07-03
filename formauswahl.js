@@ -1,4 +1,4 @@
-// formauswahl.js - BEHOBENE VERSION
+// formauswahl.js - KOMPLETT KORRIGIERTE VERSION
 
 (function() {
     'use strict';
@@ -13,77 +13,158 @@
         console.log(`[FORMAUSWAHL] ${message}`, data);
     }
 
-    // Dimension-Konfiguration - ERWEITERT
+    // KORRIGIERTE Dimension-Konfiguration
     var dimensionConfig = {
-        // Kreis-Formen
+        // Basis-Maße
         radius: { label: 'Radius', unit: 'm', default: 4, min: 0.5, max: 50 },
-        radiusX: { label: 'Radius X (Länge)', unit: 'm', default: 5, min: 0.5, max: 50 },
-        radiusY: { label: 'Radius Y (Breite)', unit: 'm', default: 3, min: 0.5, max: 50 },
-        
-        // Basis-Formen
+        radiusX: { label: 'Radius Längs', unit: 'm', default: 5, min: 0.5, max: 50 },
+        radiusY: { label: 'Radius Quer', unit: 'm', default: 3, min: 0.5, max: 50 },
         length: { label: 'Länge', unit: 'm', default: 8, min: 1, max: 100 },
         width: { label: 'Breite', unit: 'm', default: 5, min: 1, max: 100 },
         side: { label: 'Seitenlänge', unit: 'm', default: 5, min: 1, max: 50 },
         
-        // Trapez-spezifisch
-        sideA: { label: 'Basis unten', unit: 'm', default: 8, min: 1, max: 100 },
-        sideB: { label: 'Basis oben', unit: 'm', default: 6, min: 1, max: 100 },
-        sideC: { label: 'Seite C', unit: 'm', default: 6, min: 1, max: 100 },
+        // Trapez (korrigiert)
+        bottomBase: { label: 'Untere Basis', unit: 'm', default: 8, min: 1, max: 100 },
+        topBase: { label: 'Obere Basis', unit: 'm', default: 6, min: 1, max: 100 },
         height: { label: 'Höhe', unit: 'm', default: 4, min: 1, max: 50 },
-        offset: { label: 'Versatz', unit: 'm', default: 1, min: -10, max: 10 },
         
-        // Dreieck-spezifisch
-        angle: { label: 'Winkel', unit: '°', default: 60, min: 10, max: 170 },
+        // Dreieck-Varianten (korrigiert)
+        base: { label: 'Basis', unit: 'm', default: 6, min: 1, max: 100 },
+        sideA: { label: 'Seite A', unit: 'm', default: 5, min: 1, max: 100 },
+        sideB: { label: 'Seite B', unit: 'm', default: 6, min: 1, max: 100 },
+        sideC: { label: 'Seite C', unit: 'm', default: 7, min: 1, max: 100 },
         katheteA: { label: 'Kathete A', unit: 'm', default: 4, min: 1, max: 50 },
         katheteB: { label: 'Kathete B', unit: 'm', default: 5, min: 1, max: 50 },
         
-        // Komplexe Formen
-        lengthTotal: { label: 'Gesamtlänge', unit: 'm', default: 10, min: 2, max: 100 },
-        widthTotal: { label: 'Gesamtbreite', unit: 'm', default: 8, min: 2, max: 100 },
-        cutLength: { label: 'Ausschnitt Länge', unit: 'm', default: 4, min: 1, max: 50 },
-        cutWidth: { label: 'Ausschnitt Breite', unit: 'm', default: 4, min: 1, max: 50 },
-        topWidth: { label: 'Breite oben', unit: 'm', default: 8, min: 1, max: 100 },
-        stemWidth: { label: 'Breite Stiel', unit: 'm', default: 4, min: 1, max: 50 },
-        topHeight: { label: 'Höhe oben', unit: 'm', default: 3, min: 1, max: 50 },
-        stemHeight: { label: 'Höhe Stiel', unit: 'm', default: 5, min: 1, max: 50 },
+        // Parallelogramm
+        angle: { label: 'Winkel', unit: '°', default: 60, min: 10, max: 170 },
+        
+        // L-Form (korrigiert)
+        totalLength: { label: 'Gesamtlänge', unit: 'm', default: 10, min: 2, max: 100 },
+        totalWidth: { label: 'Gesamtbreite', unit: 'm', default: 8, min: 2, max: 100 },
+        cutoutLength: { label: 'Ausschnitt Länge', unit: 'm', default: 4, min: 1, max: 50 },
+        cutoutWidth: { label: 'Ausschnitt Breite', unit: 'm', default: 4, min: 1, max: 50 },
+        
+        // T-Form (korrigiert)
+        topWidth: { label: 'Kopfbreite', unit: 'm', default: 8, min: 1, max: 100 },
+        stemWidth: { label: 'Stielbreite', unit: 'm', default: 3, min: 1, max: 50 },
+        topHeight: { label: 'Kopfhöhe', unit: 'm', default: 2, min: 1, max: 50 },
+        stemHeight: { label: 'Stielhöhe', unit: 'm', default: 6, min: 1, max: 50 },
+        
+        // U-Form (korrigiert)
         outerWidth: { label: 'Außenbreite', unit: 'm', default: 10, min: 2, max: 100 },
         innerWidth: { label: 'Innenbreite', unit: 'm', default: 4, min: 1, max: 50 },
-        thickness: { label: 'Wandstärke', unit: 'm', default: 3, min: 0.5, max: 20 }
+        thickness: { label: 'Wandstärke', unit: 'm', default: 2, min: 0.5, max: 20 }
     };
 
-    // Form-Informationen - VOLLSTÄNDIG
+    // KORRIGIERTE Form-Informationen mit richtigen Dimensionen
     var shapeInfo = {
         // Kreis-Formen
-        kreis: { name: 'Kreis', description: 'Perfekte Rundform', dimensions: ['radius'] },
-        oval: { name: 'Oval/Ellipse', description: 'Längliche Rundform', dimensions: ['radiusX', 'radiusY'] },
-        halbkreis: { name: 'Halbkreis', description: 'Halbe Kreisform', dimensions: ['radius'] },
-        viertelkreis: { name: 'Viertelkreis', description: 'Viertel einer Kreisform', dimensions: ['radius'] },
-        langloch: { name: 'Langloch', description: 'Rechteck mit runden Enden', dimensions: ['length', 'width'] },
+        kreis: { 
+            name: 'Kreis', 
+            description: 'Perfekte Rundform', 
+            dimensions: ['radius'] 
+        },
+        oval: { 
+            name: 'Oval/Ellipse', 
+            description: 'Längliche Rundform', 
+            dimensions: ['radiusX', 'radiusY'] 
+        },
+        halbkreis: { 
+            name: 'Halbkreis', 
+            description: 'Halbe Kreisform', 
+            dimensions: ['radius'] 
+        },
+        viertelkreis: { 
+            name: 'Viertelkreis', 
+            description: 'Viertel einer Kreisform', 
+            dimensions: ['radius'] 
+        },
+        langloch: { 
+            name: 'Langloch', 
+            description: 'Rechteck mit runden Enden', 
+            dimensions: ['length', 'width'] 
+        },
         
         // Basis-Formen
-        rechteck: { name: 'Rechteck', description: 'Klassische rechteckige Form', dimensions: ['length', 'width'] },
-        quadrat: { name: 'Quadrat', description: 'Gleichseitiges Rechteck', dimensions: ['side'] },
+        rechteck: { 
+            name: 'Rechteck', 
+            description: 'Klassische rechteckige Form', 
+            dimensions: ['length', 'width'] 
+        },
+        quadrat: { 
+            name: 'Quadrat', 
+            description: 'Gleichseitiges Rechteck', 
+            dimensions: ['side'] 
+        },
         
-        // Dreieck-Formen
-        dreieck: { name: 'Dreieck', description: 'Allgemeines Dreieck', dimensions: ['sideA', 'sideB', 'height'] },
-        gleichseitig: { name: 'Gleichseitiges Dreieck', description: 'Dreieck mit gleichen Seiten', dimensions: ['side'] },
-        rechtwinklig: { name: 'Rechtwinkliges Dreieck', description: 'Dreieck mit rechtem Winkel', dimensions: ['katheteA', 'katheteB'] },
-        ungleichschenklig: { name: 'Ungleichschenkliges Dreieck', description: 'Dreieck mit unterschiedlichen Seiten', dimensions: ['sideA', 'sideB', 'sideC'] },
+        // Dreieck-Varianten (KORRIGIERT)
+        dreieck: { 
+            name: 'Gleichseitiges Dreieck', 
+            description: 'Dreieck mit allen Seiten gleich', 
+            dimensions: ['side'] 
+        },
+        rechtwinklig: { 
+            name: 'Rechtwinkliges Dreieck', 
+            description: 'Dreieck mit rechtem Winkel', 
+            dimensions: ['katheteA', 'katheteB'] 
+        },
+        ungleichschenklig: { 
+            name: 'Ungleichschenkliges Dreieck', 
+            description: 'Dreieck mit drei verschiedenen Seiten', 
+            dimensions: ['sideA', 'sideB', 'sideC'] 
+        },
         
-        // Viereck-Formen
-        trapez: { name: 'Trapez', description: 'Viereck mit parallelen Seiten', dimensions: ['sideA', 'sideB', 'height', 'offset'] },
-        parallelogramm: { name: 'Parallelogramm', description: 'Schiefes Viereck', dimensions: ['length', 'width', 'angle'] },
-        rhombus: { name: 'Rhombus', description: 'Rautenform', dimensions: ['side', 'angle'] },
+        // Viereck-Formen (KORRIGIERT)
+        trapez: { 
+            name: 'Trapez', 
+            description: 'Viereck mit zwei parallelen Seiten', 
+            dimensions: ['bottomBase', 'topBase', 'height'] 
+        },
+        parallelogramm: { 
+            name: 'Parallelogramm', 
+            description: 'Schiefes Rechteck', 
+            dimensions: ['length', 'width', 'angle'] 
+        },
+        rhombus: { 
+            name: 'Rhombus/Raute', 
+            description: 'Gleichseitiges Parallelogramm', 
+            dimensions: ['side', 'angle'] 
+        },
         
         // Vieleck-Formen
-        fuenfeck: { name: 'Fünfeck', description: 'Regelmäßiges Fünfeck', dimensions: ['radius'] },
-        sechseck: { name: 'Sechseck', description: 'Regelmäßiges Sechseck', dimensions: ['radius'] },
-        achteck: { name: 'Achteck', description: 'Regelmäßiges Achteck', dimensions: ['radius'] },
+        fuenfeck: { 
+            name: 'Regelmäßiges Fünfeck', 
+            description: 'Fünfeck mit gleichen Seiten', 
+            dimensions: ['radius'] 
+        },
+        sechseck: { 
+            name: 'Regelmäßiges Sechseck', 
+            description: 'Sechseck mit gleichen Seiten', 
+            dimensions: ['radius'] 
+        },
+        achteck: { 
+            name: 'Regelmäßiges Achteck', 
+            description: 'Achteck mit gleichen Seiten', 
+            dimensions: ['radius'] 
+        },
         
-        // Komplexe Formen
-        lform: { name: 'L-Form', description: 'L-förmige Grundform', dimensions: ['lengthTotal', 'widthTotal', 'cutLength', 'cutWidth'] },
-        tform: { name: 'T-Form', description: 'T-förmige Grundform', dimensions: ['topWidth', 'stemWidth', 'topHeight', 'stemHeight'] },
-        uform: { name: 'U-Form', description: 'U-förmige Grundform', dimensions: ['outerWidth', 'innerWidth', 'height', 'thickness'] }
+        // Komplexe Formen (KORRIGIERT)
+        lform: { 
+            name: 'L-Form', 
+            description: 'L-förmige Grundform mit Ausschnitt', 
+            dimensions: ['totalLength', 'totalWidth', 'cutoutLength', 'cutoutWidth'] 
+        },
+        tform: { 
+            name: 'T-Form', 
+            description: 'T-förmige Grundform', 
+            dimensions: ['topWidth', 'stemWidth', 'topHeight', 'stemHeight'] 
+        },
+        uform: { 
+            name: 'U-Form', 
+            description: 'U-förmige Grundform', 
+            dimensions: ['outerWidth', 'innerWidth', 'height', 'thickness'] 
+        }
     };
 
     // Storage-Funktionen
@@ -144,12 +225,10 @@
             return false;
         }
         
-        // WICHTIG: Prüfe beide möglichen Strukturen
         selectedVariant = roofShape.variant || roofShape.baseShape;
         
         if (!selectedVariant) {
             debugLog('❌ Keine Variante gefunden!');
-            console.log('Verfügbare roofShape keys:', Object.keys(roofShape));
             alert('Keine Dachform-Variante gewählt. Sie werden zu Schritt 2 weitergeleitet.');
             window.location.href = 'dachform.html';
             return false;
@@ -164,8 +243,6 @@
             debugLog('✅ Form-Info angezeigt', info);
         } else {
             debugLog('❌ Form-Info nicht gefunden für:', selectedVariant);
-            console.log('Verfügbare shapeInfo keys:', Object.keys(shapeInfo));
-            // Fallback
             document.getElementById('shape-title').textContent = selectedVariant;
             document.getElementById('shape-description').textContent = 'Benutzerdefinierte Form';
         }
@@ -193,14 +270,12 @@
         var info = shapeInfo[selectedVariant];
         if (!info) {
             debugLog('❌ Form-Info nicht gefunden für:', selectedVariant);
-            // Fallback für unbekannte Formen
             info = { dimensions: ['length', 'width'] };
         }
         
         var dimensions = info.dimensions;
         debugLog('📐 Erstelle Inputs für Dimensionen', dimensions);
         
-        // Gespeicherte Werte laden
         var savedGeometry = currentProjectData.geometry || {};
         
         dimensions.forEach(function(dim) {
@@ -231,7 +306,6 @@
             
             dimensionsGrid.appendChild(inputContainer);
             
-            // Event listener für Änderungen
             var input = inputContainer.querySelector('.dimension-value');
             input.addEventListener('input', function(e) {
                 var value = parseFloat(e.target.value);
@@ -257,90 +331,96 @@
         shapeGroup.innerHTML = svg;
     }
 
-    // SVG für Form generieren - VOLLSTÄNDIG
+    // KORRIGIERTE SVG-Generierung
     function getShapeSVG() {
         var dims = currentDimensions;
+        var scale = 8; // Einheitliche Skalierung
         
         switch (selectedVariant) {
             case 'kreis':
-                var radius = (dims.radius || 4) * 15;
+                var radius = (dims.radius || 4) * scale * 2;
                 return '<circle cx="0" cy="0" r="' + radius + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
             case 'oval':
-                var rx = (dims.radiusX || 5) * 15;
-                var ry = (dims.radiusY || 3) * 15;
+                var rx = (dims.radiusX || 5) * scale * 2;
+                var ry = (dims.radiusY || 3) * scale * 2;
                 return '<ellipse cx="0" cy="0" rx="' + rx + '" ry="' + ry + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
             case 'halbkreis':
-                var radiusHalf = (dims.radius || 4) * 15;
+                var radiusHalf = (dims.radius || 4) * scale * 2;
                 return '<path d="M -' + radiusHalf + ' 0 A ' + radiusHalf + ' ' + radiusHalf + ' 0 0 1 ' + radiusHalf + ' 0 Z" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
             case 'viertelkreis':
-                var radiusQuarter = (dims.radius || 4) * 15;
+                var radiusQuarter = (dims.radius || 4) * scale * 2;
                 return '<path d="M 0 0 L ' + radiusQuarter + ' 0 A ' + radiusQuarter + ' ' + radiusQuarter + ' 0 0 1 0 ' + radiusQuarter + ' Z" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
             case 'langloch':
-                var langLength = (dims.length || 6) * 10;
-                var langWidth = (dims.width || 3) * 10;
+                var langLength = (dims.length || 6) * scale;
+                var langWidth = (dims.width || 3) * scale;
                 var langRadius = langWidth / 2;
                 var straightLength = Math.max(0, langLength - langWidth);
                 return '<path d="M -' + (straightLength/2) + ' -' + langRadius + ' L ' + (straightLength/2) + ' -' + langRadius + ' A ' + langRadius + ' ' + langRadius + ' 0 0 1 ' + (straightLength/2) + ' ' + langRadius + ' L -' + (straightLength/2) + ' ' + langRadius + ' A ' + langRadius + ' ' + langRadius + ' 0 0 1 -' + (straightLength/2) + ' -' + langRadius + ' Z" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
             case 'rechteck':
-                var length = (dims.length || 8) * 10;
-                var width = (dims.width || 5) * 10;
+                var length = (dims.length || 8) * scale;
+                var width = (dims.width || 5) * scale;
                 return '<rect x="' + (-length/2) + '" y="' + (-width/2) + '" width="' + length + '" height="' + width + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
             case 'quadrat':
-                var side = (dims.side || 5) * 12;
+                var side = (dims.side || 5) * scale;
                 return '<rect x="' + (-side/2) + '" y="' + (-side/2) + '" width="' + side + '" height="' + side + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
-            case 'dreieck':
-                var baseTriangle = (dims.sideA || 8) * 8;
-                var heightTriangle = (dims.height || 4) * 8;
-                var points = '0,' + (-heightTriangle/2) + ' ' + (-baseTriangle/2) + ',' + (heightTriangle/2) + ' ' + (baseTriangle/2) + ',' + (heightTriangle/2);
-                return '<polygon points="' + points + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
-                
-            case 'gleichseitig':
-                var sideEq = (dims.side || 5) * 12;
+            // KORRIGIERTE Dreiecke
+            case 'dreieck': // Gleichseitiges Dreieck
+                var sideEq = (dims.side || 5) * scale;
                 var heightEq = sideEq * Math.sqrt(3) / 2;
                 var pointsEq = '0,' + (-heightEq*2/3) + ' ' + (-sideEq/2) + ',' + (heightEq/3) + ' ' + (sideEq/2) + ',' + (heightEq/3);
                 return '<polygon points="' + pointsEq + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
-            case 'rechtwinklig':
-                var katheteA = (dims.katheteA || 4) * 12;
-                var katheteB = (dims.katheteB || 5) * 12;
+            case 'rechtwinklig': // Rechtwinkliges Dreieck
+                var katheteA = (dims.katheteA || 4) * scale;
+                var katheteB = (dims.katheteB || 5) * scale;
                 var pointsRight = '0,0 ' + katheteA + ',0 0,' + (-katheteB);
                 return '<polygon points="' + pointsRight + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
+            case 'ungleichschenklig': // Ungleichschenkliges Dreieck (vereinfacht)
+                var sideA = (dims.sideA || 5) * scale;
+                var sideB = (dims.sideB || 6) * scale;
+                var sideC = (dims.sideC || 7) * scale;
+                // Vereinfachte Darstellung basierend auf sideA als Basis
+                var heightCalc = 4 * scale; // Vereinfachte Höhe
+                var pointsUnequal = '0,' + (-heightCalc) + ' ' + (-sideA/2) + ',0 ' + (sideA/2) + ',0';
+                return '<polygon points="' + pointsUnequal + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
+                
+            // KORRIGIERTES Trapez
             case 'trapez':
-                var sideA = (dims.sideA || 8) * 8;
-                var sideB = (dims.sideB || 6) * 8;
-                var height = (dims.height || 4) * 8;
-                var offset = (dims.offset || 1) * 8;
-                var points = (-sideA/2) + ',' + (height/2) + ' ' + (sideA/2) + ',' + (height/2) + ' ' + (sideB/2 + offset) + ',' + (-height/2) + ' ' + (-sideB/2 + offset) + ',' + (-height/2);
+                var bottomBase = (dims.bottomBase || 8) * scale;
+                var topBase = (dims.topBase || 6) * scale;
+                var height = (dims.height || 4) * scale;
+                var points = (-bottomBase/2) + ',' + (height/2) + ' ' + (bottomBase/2) + ',' + (height/2) + ' ' + (topBase/2) + ',' + (-height/2) + ' ' + (-topBase/2) + ',' + (-height/2);
                 return '<polygon points="' + points + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
             case 'parallelogramm':
-                var lengthPara = (dims.length || 8) * 8;
-                var widthPara = (dims.width || 5) * 8;
+                var lengthPara = (dims.length || 8) * scale;
+                var widthPara = (dims.width || 5) * scale;
                 var anglePara = (dims.angle || 30) * Math.PI / 180;
                 var skew = widthPara * Math.cos(anglePara);
                 var pointsPara = (-lengthPara/2) + ',' + (-widthPara/2) + ' ' + (lengthPara/2) + ',' + (-widthPara/2) + ' ' + (lengthPara/2 + skew) + ',' + (widthPara/2) + ' ' + (-lengthPara/2 + skew) + ',' + (widthPara/2);
                 return '<polygon points="' + pointsPara + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
             case 'rhombus':
-                var rhombusSide = (dims.side || 5) * 10;
+                var rhombusSide = (dims.side || 5) * scale;
                 var angleRhombus = (dims.angle || 60) * Math.PI / 180;
                 var halfDiag1 = rhombusSide * Math.sin(angleRhombus / 2);
                 var halfDiag2 = rhombusSide * Math.cos(angleRhombus / 2);
                 var rhombusPoints = '0,' + (-halfDiag1) + ' ' + halfDiag2 + ',0 0,' + halfDiag1 + ' ' + (-halfDiag2) + ',0';
                 return '<polygon points="' + rhombusPoints + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
+            // Regelmäßige Vielecke
             case 'fuenfeck':
             case 'sechseck':
             case 'achteck':
-                var radiusPoly = (dims.radius || 4) * 12;
+                var radiusPoly = (dims.radius || 4) * scale;
                 var n = selectedVariant === 'fuenfeck' ? 5 : 
                        selectedVariant === 'sechseck' ? 6 : 8;
                 var polyPoints = [];
@@ -351,6 +431,63 @@
                     polyPoints.push(x + ',' + y);
                 }
                 return '<polygon points="' + polyPoints.join(' ') + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
+                
+            // KORRIGIERTE L-Form
+            case 'lform':
+                var totalLength = (dims.totalLength || 10) * scale;
+                var totalWidth = (dims.totalWidth || 8) * scale;
+                var cutoutLength = (dims.cutoutLength || 4) * scale;
+                var cutoutWidth = (dims.cutoutWidth || 4) * scale;
+                
+                var lPoints = [
+                    (-totalLength/2) + ',' + (-totalWidth/2),           // Links unten
+                    (totalLength/2) + ',' + (-totalWidth/2),            // Rechts unten
+                    (totalLength/2) + ',' + (-totalWidth/2 + cutoutWidth), // Rechts Einschnitt unten
+                    (-totalLength/2 + cutoutLength) + ',' + (-totalWidth/2 + cutoutWidth), // Einschnitt innen unten
+                    (-totalLength/2 + cutoutLength) + ',' + (totalWidth/2), // Einschnitt innen oben
+                    (-totalLength/2) + ',' + (totalWidth/2)             // Links oben
+                ];
+                return '<polygon points="' + lPoints.join(' ') + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
+                
+            // KORRIGIERTE T-Form
+            case 'tform':
+                var topWidth = (dims.topWidth || 8) * scale;
+                var stemWidth = (dims.stemWidth || 3) * scale;
+                var topHeight = (dims.topHeight || 2) * scale;
+                var stemHeight = (dims.stemHeight || 6) * scale;
+                
+                var totalHeight = topHeight + stemHeight;
+                
+                var tPoints = [
+                    (-topWidth/2) + ',' + (totalHeight/2),              // Links oben
+                    (topWidth/2) + ',' + (totalHeight/2),               // Rechts oben
+                    (topWidth/2) + ',' + (totalHeight/2 - topHeight),   // Rechts Kopf unten
+                    (stemWidth/2) + ',' + (totalHeight/2 - topHeight),  // Stiel rechts oben
+                    (stemWidth/2) + ',' + (-totalHeight/2),             // Stiel rechts unten
+                    (-stemWidth/2) + ',' + (-totalHeight/2),            // Stiel links unten
+                    (-stemWidth/2) + ',' + (totalHeight/2 - topHeight), // Stiel links oben
+                    (-topWidth/2) + ',' + (totalHeight/2 - topHeight)   // Links Kopf unten
+                ];
+                return '<polygon points="' + tPoints.join(' ') + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
+                
+            // KORRIGIERTE U-Form
+            case 'uform':
+                var outerWidth = (dims.outerWidth || 10) * scale;
+                var innerWidth = (dims.innerWidth || 4) * scale;
+                var height = (dims.height || 6) * scale;
+                var thickness = (dims.thickness || 2) * scale;
+                
+                var uPoints = [
+                    (-outerWidth/2) + ',' + (-height/2),                // Links unten außen
+                    (outerWidth/2) + ',' + (-height/2),                 // Rechts unten außen
+                    (outerWidth/2) + ',' + (height/2),                  // Rechts oben außen
+                    (innerWidth/2) + ',' + (height/2),                  // Rechts oben innen
+                    (innerWidth/2) + ',' + (-height/2 + thickness),     // Rechts unten innen
+                    (-innerWidth/2) + ',' + (-height/2 + thickness),    // Links unten innen
+                    (-innerWidth/2) + ',' + (height/2),                 // Links oben innen
+                    (-outerWidth/2) + ',' + (height/2)                  // Links oben außen
+                ];
+                return '<polygon points="' + uPoints.join(' ') + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="3"/>';
                 
             default:
                 debugLog('⚠️ Unbekannte Form, verwende Rechteck:', selectedVariant);
@@ -374,7 +511,7 @@
         }
     }
 
-    // Fläche berechnen - VOLLSTÄNDIG
+    // KORRIGIERTE Flächen-Berechnung
     function calculateArea() {
         var dims = currentDimensions;
         
@@ -404,21 +541,28 @@
             case 'quadrat':
                 return Math.pow(dims.side || 5, 2);
                 
-            case 'dreieck':
-                return ((dims.sideA || 8) * (dims.height || 4)) / 2;
-                
-            case 'gleichseitig':
+            // KORRIGIERTE Dreieck-Berechnungen
+            case 'dreieck': // Gleichseitiges Dreieck
                 var sideEq = dims.side || 5;
                 return (Math.sqrt(3) / 4) * Math.pow(sideEq, 2);
                 
-            case 'rechtwinklig':
+            case 'rechtwinklig': // Rechtwinkliges Dreieck
                 return ((dims.katheteA || 4) * (dims.katheteB || 5)) / 2;
                 
+            case 'ungleichschenklig': // Ungleichschenkliges Dreieck (Heron-Formel)
+                var a = dims.sideA || 5;
+                var b = dims.sideB || 6;
+                var c = dims.sideC || 7;
+                var s = (a + b + c) / 2;
+                var area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+                return isNaN(area) ? 0 : area;
+                
+            // KORRIGIERTE Trapez-Berechnung
             case 'trapez':
-                var sideA = dims.sideA || 8;
-                var sideB = dims.sideB || 6;
+                var bottomBase = dims.bottomBase || 8;
+                var topBase = dims.topBase || 6;
                 var height = dims.height || 4;
-                return ((sideA + sideB) / 2) * height;
+                return ((bottomBase + topBase) / 2) * height;
                 
             case 'parallelogramm':
                 var lengthPara = dims.length || 8;
@@ -431,6 +575,7 @@
                 var angle = (dims.angle || 60) * Math.PI / 180;
                 return Math.pow(side, 2) * Math.sin(angle);
                 
+            // Regelmäßige Vielecke
             case 'fuenfeck':
             case 'sechseck':
             case 'achteck':
@@ -439,13 +584,41 @@
                        selectedVariant === 'sechseck' ? 6 : 8;
                 return (n * Math.pow(radiusPoly, 2) * Math.sin(2 * Math.PI / n)) / 2;
                 
+            // KORRIGIERTE komplexe Formen
+            case 'lform':
+                var totalLength = dims.totalLength || 10;
+                var totalWidth = dims.totalWidth || 8;
+                var cutoutLength = dims.cutoutLength || 4;
+                var cutoutWidth = dims.cutoutWidth || 4;
+                var totalArea = totalLength * totalWidth;
+                var cutoutArea = cutoutLength * cutoutWidth;
+                return totalArea - cutoutArea;
+                
+            case 'tform':
+                var topWidth = dims.topWidth || 8;
+                var stemWidth = dims.stemWidth || 3;
+                var topHeight = dims.topHeight || 2;
+                var stemHeight = dims.stemHeight || 6;
+                var topArea = topWidth * topHeight;
+                var stemArea = stemWidth * stemHeight;
+                return topArea + stemArea;
+                
+            case 'uform':
+                var outerWidth = dims.outerWidth || 10;
+                var innerWidth = dims.innerWidth || 4;
+                var height = dims.height || 6;
+                var thickness = dims.thickness || 2;
+                var outerArea = outerWidth * height;
+                var innerArea = innerWidth * (height - thickness);
+                return outerArea - innerArea;
+                
             default:
                 debugLog('Standard-Fläche verwendet für', selectedVariant);
                 return 40;
         }
     }
 
-    // Umfang berechnen - VOLLSTÄNDIG
+    // KORRIGIERTE Umfang-Berechnung
     function calculatePerimeter() {
         var dims = currentDimensions;
         
@@ -456,6 +629,7 @@
             case 'oval':
                 var a = dims.radiusX || 5;
                 var b = dims.radiusY || 3;
+                // Ramanujan-Approximation für Ellipsenumfang
                 return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
                 
             case 'halbkreis':
@@ -466,23 +640,52 @@
                 var radius = dims.radius || 4;
                 return (Math.PI * radius / 2) + 2 * radius;
                 
+            case 'langloch':
+                var langLength = dims.length || 6;
+                var langWidth = dims.width || 3;
+                var langRadius = langWidth / 2;
+                var straightLength = Math.max(0, langLength - langWidth);
+                return 2 * straightLength + 2 * Math.PI * langRadius;
+                
             case 'rechteck':
                 return 2 * ((dims.length || 8) + (dims.width || 5));
                 
             case 'quadrat':
                 return 4 * (dims.side || 5);
                 
+            // KORRIGIERTE Dreieck-Umfänge
+            case 'dreieck': // Gleichseitiges Dreieck
+                return 3 * (dims.side || 5);
+                
+            case 'rechtwinklig': // Rechtwinkliges Dreieck
+                var katheteA = dims.katheteA || 4;
+                var katheteB = dims.katheteB || 5;
+                var hypotenuse = Math.sqrt(Math.pow(katheteA, 2) + Math.pow(katheteB, 2));
+                return katheteA + katheteB + hypotenuse;
+                
+            case 'ungleichschenklig': // Ungleichschenkliges Dreieck
+                var a = dims.sideA || 5;
+                var b = dims.sideB || 6;
+                var c = dims.sideC || 7;
+                return a + b + c;
+                
+            // KORRIGIERTE Trapez-Umfang
             case 'trapez':
-                var sideA = dims.sideA || 8;
-                var sideB = dims.sideB || 6;
+                var bottomBase = dims.bottomBase || 8;
+                var topBase = dims.topBase || 6;
                 var height = dims.height || 4;
-                var offset = dims.offset || 1;
-                var sideLength = Math.sqrt(Math.pow(height, 2) + Math.pow((sideA - sideB + 2 * offset) / 2, 2));
-                return sideA + sideB + 2 * sideLength;
+                // Vereinfachte Berechnung der Schrägseiten
+                var sideDiff = Math.abs(bottomBase - topBase) / 2;
+                var sideLength = Math.sqrt(Math.pow(height, 2) + Math.pow(sideDiff, 2));
+                return bottomBase + topBase + 2 * sideLength;
+                
+            case 'parallelogramm':
+                return 2 * ((dims.length || 8) + (dims.width || 5));
                 
             case 'rhombus':
                 return 4 * (dims.side || 5);
                 
+            // Regelmäßige Vielecke
             case 'fuenfeck':
             case 'sechseck':
             case 'achteck':
@@ -491,6 +694,31 @@
                        selectedVariant === 'sechseck' ? 6 : 8;
                 var sideLength = 2 * radiusPoly * Math.sin(Math.PI / n);
                 return n * sideLength;
+                
+            // KORRIGIERTE komplexe Formen
+            case 'lform':
+                var totalLength = dims.totalLength || 10;
+                var totalWidth = dims.totalWidth || 8;
+                var cutoutLength = dims.cutoutLength || 4;
+                var cutoutWidth = dims.cutoutWidth || 4;
+                // Vereinfachte Berechnung des Außenumfangs
+                return 2 * totalLength + 2 * totalWidth - 2 * cutoutLength - 2 * cutoutWidth + 2 * cutoutLength + 2 * cutoutWidth;
+                
+            case 'tform':
+                var topWidth = dims.topWidth || 8;
+                var stemWidth = dims.stemWidth || 3;
+                var topHeight = dims.topHeight || 2;
+                var stemHeight = dims.stemHeight || 6;
+                // Vereinfachte Berechnung des Außenumfangs
+                return 2 * topWidth + 2 * topHeight + 2 * stemHeight + 2 * (topWidth - stemWidth) / 2;
+                
+            case 'uform':
+                var outerWidth = dims.outerWidth || 10;
+                var innerWidth = dims.innerWidth || 4;
+                var height = dims.height || 6;
+                var thickness = dims.thickness || 2;
+                // Vereinfachte Berechnung des Außenumfangs
+                return 2 * outerWidth + 2 * height + 2 * innerWidth + 2 * (height - thickness);
                 
             default:
                 debugLog('Standard-Umfang verwendet für', selectedVariant);
@@ -586,6 +814,27 @@
     // Alle verfügbaren Formen zum Testen
     window.availableShapes = Object.keys(shapeInfo);
     
-    debugLog('✅ formauswahl.js geladen (BEHOBENE VERSION)');
+    // Spezielle Test-Funktionen für die korrigierten Formen
+    window.testProblematicShapes = function() {
+        console.log('=== TESTE PROBLEMATISCHE FORMEN ===');
+        
+        // Trapez testen
+        console.log('1. Teste Trapez...');
+        testShape('trapez');
+        setTimeout(() => {
+            console.log('2. Teste L-Form...');
+            testShape('lform');
+            setTimeout(() => {
+                console.log('3. Teste Dreieck-Varianten...');
+                testShape('dreieck');
+                setTimeout(() => testShape('rechtwinklig'), 1000);
+                setTimeout(() => testShape('ungleichschenklig'), 2000);
+            }, 1000);
+        }, 1000);
+    };
+    
+    debugLog('✅ formauswahl.js geladen (KOMPLETT KORRIGIERTE VERSION)');
+    debugLog('📋 Verfügbare Formen:', window.availableShapes);
+    debugLog('🧪 Teste problematische Formen mit: testProblematicShapes()');
 
 })();
