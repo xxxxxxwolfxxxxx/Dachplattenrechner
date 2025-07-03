@@ -1,4 +1,4 @@
-// editor-simplified.js - Vereinfachter Editor nur für Transformation
+// editor.js - Korrigierte Navigation zu formauswahl.html
 
 let projectData = {};
 let currentTransform = {
@@ -40,53 +40,56 @@ function loadData() {
 
 // Punkt-Generierung basierend auf Geometrie-Daten
 function generateShapePoints() {
-    const geometry = projectData.geometry;
-    if (!geometry || !geometry.variant || !geometry.dimensions) {
-        console.error('Keine Geometrie-Daten gefunden');
+    const roofShape = projectData.roofShape;
+    if (!roofShape || !roofShape.variant) {
+        console.error('Keine roofShape-Daten gefunden');
         return [];
     }
 
-    const variant = geometry.variant;
-    const dims = geometry.dimensions;
+    const variant = roofShape.variant;
     
-    console.log('Generiere Punkte für:', variant, dims);
+    console.log('Generiere Punkte für:', variant);
 
     try {
         switch (variant) {
             case 'kreis':
-                return generateCirclePoints(dims);
+                return generateCirclePoints({ radius: 4 });
             case 'oval':
-                return generateOvalPoints(dims);
+                return generateOvalPoints({ radiusX: 5, radiusY: 3 });
             case 'halbkreis':
-                return generateHalfCirclePoints(dims);
+                return generateHalfCirclePoints({ radius: 4 });
             case 'viertelkreis':
-                return generateQuarterCirclePoints(dims);
+                return generateQuarterCirclePoints({ radius: 4 });
             case 'langloch':
-                return generateLanglochPoints(dims);
+                return generateLanglochPoints({ length: 6, width: 3 });
             case 'rechteck':
-                return generateRectanglePoints(dims);
+                return generateRectanglePoints({ length: 8, width: 5 });
             case 'quadrat':
-                return generateSquarePoints(dims);
+                return generateSquarePoints({ side: 5 });
             case 'dreieck':
-                return generateTrianglePoints(dims);
+                return generateTrianglePoints({ side: 5 });
+            case 'rechtwinklig':
+                return generateRightTrianglePoints({ katheteA: 4, katheteB: 5 });
+            case 'ungleichschenklig':
+                return generateIrregularTrianglePoints({ sideA: 5, sideB: 6, sideC: 7 });
             case 'trapez':
-                return generateTrapezPoints(dims);
+                return generateTrapezPoints({ bottomBase: 8, topBase: 6, height: 4 });
             case 'parallelogramm':
-                return generateParallelogramPoints(dims);
+                return generateParallelogramPoints({ length: 8, width: 5, angle: 30 });
             case 'rhombus':
-                return generateRhombusPoints(dims);
+                return generateRhombusPoints({ side: 5, angle: 60 });
             case 'fuenfeck':
-                return generatePentagonPoints(dims);
+                return generatePentagonPoints({ radius: 4 });
             case 'sechseck':
-                return generateHexagonPoints(dims);
+                return generateHexagonPoints({ radius: 4 });
             case 'achteck':
-                return generateOctagonPoints(dims);
+                return generateOctagonPoints({ radius: 4 });
             case 'lform':
-                return generateLShapePoints(dims);
+                return generateLShapePoints({ totalLength: 10, totalWidth: 8, cutoutLength: 4, cutoutWidth: 4 });
             case 'tform':
-                return generateTShapePoints(dims);
+                return generateTShapePoints({ topWidth: 8, stemWidth: 3, topHeight: 2, stemHeight: 6 });
             case 'uform':
-                return generateUShapePoints(dims);
+                return generateUShapePoints({ outerWidth: 10, innerWidth: 4, height: 6, thickness: 2 });
             default:
                 console.log('Unbekannte Variante, verwende Rechteck');
                 return generateRectanglePoints({ length: 8, width: 5 });
@@ -215,12 +218,7 @@ function generateSquarePoints(dims) {
 }
 
 function generateTrianglePoints(dims) {
-    const sideA = dims.sideA || 4;
-    const sideB = dims.sideB || 5;
-    const sideC = dims.sideC || 6;
-    
-    // Vereinfachtes gleichseitiges Dreieck
-    const side = sideA;
+    const side = dims.side || 5;
     const height = side * Math.sqrt(3) / 2;
     
     return [
@@ -230,17 +228,41 @@ function generateTrianglePoints(dims) {
     ];
 }
 
-function generateTrapezPoints(dims) {
-    const sideA = dims.sideA || 8;
-    const sideB = dims.sideB || 6;
-    const height = dims.height || 4;
-    const offset = dims.offset || 1;
+function generateRightTrianglePoints(dims) {
+    const katheteA = dims.katheteA || 4;
+    const katheteB = dims.katheteB || 5;
     
     return [
-        { x: -sideA/2, y: -height/2 },
-        { x: sideA/2, y: -height/2 },
-        { x: sideB/2 + offset, y: height/2 },
-        { x: -sideB/2 + offset, y: height/2 }
+        { x: 0, y: 0 },
+        { x: katheteA, y: 0 },
+        { x: 0, y: katheteB }
+    ];
+}
+
+function generateIrregularTrianglePoints(dims) {
+    const sideA = dims.sideA || 5;
+    const sideB = dims.sideB || 6;
+    const sideC = dims.sideC || 7;
+    
+    // Vereinfachte Darstellung
+    const height = 4;
+    return [
+        { x: 0, y: height },
+        { x: -sideA/2, y: 0 },
+        { x: sideA/2, y: 0 }
+    ];
+}
+
+function generateTrapezPoints(dims) {
+    const bottomBase = dims.bottomBase || 8;
+    const topBase = dims.topBase || 6;
+    const height = dims.height || 4;
+    
+    return [
+        { x: -bottomBase/2, y: -height/2 },
+        { x: bottomBase/2, y: -height/2 },
+        { x: topBase/2, y: height/2 },
+        { x: -topBase/2, y: height/2 }
     ];
 }
 
@@ -316,26 +338,26 @@ function generateOctagonPoints(dims) {
 }
 
 function generateLShapePoints(dims) {
-    const lengthTotal = dims.lengthTotal || 10;
-    const widthTotal = dims.widthTotal || 8;
-    const cutLength = dims.cutLength || 4;
-    const cutWidth = dims.cutWidth || 4;
+    const totalLength = dims.totalLength || 10;
+    const totalWidth = dims.totalWidth || 8;
+    const cutoutLength = dims.cutoutLength || 4;
+    const cutoutWidth = dims.cutoutWidth || 4;
     
     return [
-        { x: -lengthTotal/2, y: -widthTotal/2 },
-        { x: lengthTotal/2, y: -widthTotal/2 },
-        { x: lengthTotal/2, y: -widthTotal/2 + cutWidth },
-        { x: -lengthTotal/2 + cutLength, y: -widthTotal/2 + cutWidth },
-        { x: -lengthTotal/2 + cutLength, y: widthTotal/2 },
-        { x: -lengthTotal/2, y: widthTotal/2 }
+        { x: -totalLength/2, y: -totalWidth/2 },
+        { x: totalLength/2, y: -totalWidth/2 },
+        { x: totalLength/2, y: -totalWidth/2 + cutoutWidth },
+        { x: -totalLength/2 + cutoutLength, y: -totalWidth/2 + cutoutWidth },
+        { x: -totalLength/2 + cutoutLength, y: totalWidth/2 },
+        { x: -totalLength/2, y: totalWidth/2 }
     ];
 }
 
 function generateTShapePoints(dims) {
     const topWidth = dims.topWidth || 8;
-    const stemWidth = dims.stemWidth || 4;
-    const topHeight = dims.topHeight || 3;
-    const stemHeight = dims.stemHeight || 5;
+    const stemWidth = dims.stemWidth || 3;
+    const topHeight = dims.topHeight || 2;
+    const stemHeight = dims.stemHeight || 6;
     
     const totalHeight = topHeight + stemHeight;
     
@@ -355,7 +377,7 @@ function generateUShapePoints(dims) {
     const outerWidth = dims.outerWidth || 10;
     const innerWidth = dims.innerWidth || 4;
     const height = dims.height || 6;
-    const thickness = dims.thickness || 3;
+    const thickness = dims.thickness || 2;
     
     return [
         { x: -outerWidth/2, y: -height/2 },
@@ -448,7 +470,9 @@ function calculateScale(points) {
 
 function updateCompass() {
     const needle = document.getElementById('compass-needle');
-    needle.style.transform = `rotate(${currentTransform.rotation}deg)`;
+    if (needle) {
+        needle.style.transform = `rotate(${currentTransform.rotation}deg)`;
+    }
 }
 
 // Transform-Controls
@@ -492,14 +516,16 @@ function toggleFineRotation() {
     fineRotationMode = !fineRotationMode;
     const btn = document.getElementById('btn-fine-rotate');
     
-    if (fineRotationMode) {
-        btn.classList.add('active');
-        btn.innerHTML = '<span style="font-size: 16px;">⚙</span> Aktiv';
-        showFeedback('Feinrotation aktiv: Links/Rechts = ±1°');
-    } else {
-        btn.classList.remove('active');
-        btn.innerHTML = '<span style="font-size: 16px;">⚙</span> ±1°';
-        showFeedback('Feinrotation deaktiviert');
+    if (btn) {
+        if (fineRotationMode) {
+            btn.classList.add('active');
+            btn.innerHTML = '<span style="font-size: 16px;">⚙</span> Aktiv';
+            showFeedback('Feinrotation aktiv: Links/Rechts = ±1°');
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<span style="font-size: 16px;">⚙</span> ±1°';
+            showFeedback('Feinrotation deaktiviert');
+        }
     }
 }
 
@@ -509,60 +535,87 @@ function updateTransformDisplay() {
     if (currentTransform.mirrorV) mirrorText.push('Vertikal');
     
     const displayText = `Rotation: ${currentTransform.rotation}° | Spiegelung: ${mirrorText.length > 0 ? mirrorText.join(', ') : 'Keine'}`;
-    document.getElementById('transform-display').textContent = displayText;
+    const displayElement = document.getElementById('transform-display');
+    if (displayElement) {
+        displayElement.textContent = displayText;
+    }
     
     // Info-Anzeige aktualisieren
-    document.getElementById('info-rotation').textContent = currentTransform.rotation + '°';
-    document.getElementById('info-mirrored').textContent = mirrorText.length > 0 ? mirrorText.join(', ') : 'Nein';
+    const rotationElement = document.getElementById('info-rotation');
+    const mirroredElement = document.getElementById('info-mirrored');
+    
+    if (rotationElement) rotationElement.textContent = currentTransform.rotation + '°';
+    if (mirroredElement) mirroredElement.textContent = mirrorText.length > 0 ? mirrorText.join(', ') : 'Nein';
 }
 
 function showFeedback(message) {
     const feedback = document.getElementById('feedback-message');
-    feedback.textContent = message;
-    feedback.classList.add('show');
-    
-    setTimeout(() => {
-        feedback.classList.remove('show');
-    }, 2000);
+    if (feedback) {
+        feedback.textContent = message;
+        feedback.classList.add('show');
+        
+        setTimeout(() => {
+            feedback.classList.remove('show');
+        }, 2000);
+    }
 }
 
 // Info-Anzeige aktualisieren
 function updateShapeInfo() {
-    const geometry = projectData.geometry;
-    if (!geometry) return;
+    const roofShape = projectData.roofShape;
+    if (!roofShape) return;
     
     // Shape-Name
     const shapeNames = {
         'kreis': 'Kreis', 'oval': 'Oval', 'halbkreis': 'Halbkreis', 'viertelkreis': 'Viertelkreis', 'langloch': 'Langloch',
-        'rechteck': 'Rechteck', 'quadrat': 'Quadrat', 'dreieck': 'Dreieck', 'trapez': 'Trapez', 'parallelogramm': 'Parallelogramm',
-        'rhombus': 'Rhombus', 'fuenfeck': 'Fünfeck', 'sechseck': 'Sechseck', 'achteck': 'Achteck',
+        'rechteck': 'Rechteck', 'quadrat': 'Quadrat', 'dreieck': 'Gleichseitiges Dreieck', 'rechtwinklig': 'Rechtwinkliges Dreieck', 'ungleichschenklig': 'Ungleichschenkliges Dreieck',
+        'trapez': 'Trapez', 'parallelogramm': 'Parallelogramm', 'rhombus': 'Rhombus', 
+        'fuenfeck': 'Fünfeck', 'sechseck': 'Sechseck', 'achteck': 'Achteck',
         'lform': 'L-Form', 'tform': 'T-Form', 'uform': 'U-Form'
     };
     
-    const shapeName = shapeNames[geometry.variant] || geometry.variant || 'Unbekannt';
-    document.getElementById('current-shape-title').textContent = shapeName;
+    const shapeName = shapeNames[roofShape.variant] || roofShape.variant || 'Unbekannt';
+    const titleElement = document.getElementById('current-shape-title');
+    if (titleElement) {
+        titleElement.textContent = shapeName;
+    }
     
-    // Fläche und Umfang
-    document.getElementById('info-area').textContent = (geometry.area || 0).toFixed(1) + ' m²';
-    document.getElementById('info-perimeter').textContent = (geometry.perimeter || 0).toFixed(1) + ' m';
+    // Vereinfachte Flächen- und Umfangsberechnung
+    const area = Math.abs(generatedPoints.reduce((sum, point, i) => {
+        const nextPoint = generatedPoints[(i + 1) % generatedPoints.length];
+        return sum + (point.x * nextPoint.y - nextPoint.x * point.y);
+    }, 0)) / 2;
+    
+    const perimeter = generatedPoints.reduce((sum, point, i) => {
+        const nextPoint = generatedPoints[(i + 1) % generatedPoints.length];
+        const dx = nextPoint.x - point.x;
+        const dy = nextPoint.y - point.y;
+        return sum + Math.sqrt(dx * dx + dy * dy);
+    }, 0);
+    
+    const areaElement = document.getElementById('info-area');
+    const perimeterElement = document.getElementById('info-perimeter');
+    
+    if (areaElement) areaElement.textContent = area.toFixed(1) + ' m²';
+    if (perimeterElement) perimeterElement.textContent = perimeter.toFixed(1) + ' m';
 }
 
 // Speichern und Weiter
 function saveAndContinue() {
-    // Transform-Daten zur Geometrie hinzufügen
-    if (!projectData.geometry) {
-        alert('Keine Geometrie-Daten gefunden!');
+    // Transform-Daten zur roofShape hinzufügen
+    if (!projectData.roofShape) {
+        alert('Keine Dachform-Daten gefunden!');
         return;
     }
     
     // Finale Punkte mit Transformationen generieren
     const finalPoints = applyTransformation(generatedPoints);
     
-    projectData.geometry.transform = { ...currentTransform };
-    projectData.geometry.points = finalPoints;
-    projectData.geometry.originalPoints = [...generatedPoints];
+    projectData.roofShape.transform = { ...currentTransform };
+    projectData.roofShape.points = finalPoints;
+    projectData.roofShape.originalPoints = [...generatedPoints];
     
-    console.log('Speichere finale Geometrie-Daten:', projectData.geometry);
+    console.log('Speichere finale roofShape-Daten:', projectData.roofShape);
     
     const saved = saveData();
     if (!saved) {
@@ -570,13 +623,13 @@ function saveAndContinue() {
         return;
     }
     
-    // Weiterleitung zur Berechnung
-    window.location.href = 'berechnung.html';
+    // KORRIGIERTE NAVIGATION ZUR BEMASUNG
+    window.location.href = 'formauswahl.html';
 }
 
 // Navigation
 function goBack() {
-    window.location.href = 'formauswahl.html';
+    window.location.href = 'dachform.html';
 }
 
 // Tastatur-Events
@@ -600,9 +653,9 @@ document.addEventListener('DOMContentLoaded', function() {
     projectData = loadData();
     
     // Validierung
-    if (!projectData.geometry) {
-        alert('Keine Geometrie-Daten gefunden. Sie werden zur Formauswahl weitergeleitet.');
-        window.location.href = 'formauswahl.html';
+    if (!projectData.roofShape) {
+        alert('Keine Dachform-Daten gefunden. Sie werden zur Dachform-Auswahl weitergeleitet.');
+        window.location.href = 'dachform.html';
         return;
     }
     
@@ -611,8 +664,8 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Generierte Punkte:', generatedPoints);
     
     // Gespeicherte Transformationen laden
-    if (projectData.geometry.transform) {
-        currentTransform = { ...projectData.geometry.transform };
+    if (projectData.roofShape.transform) {
+        currentTransform = { ...projectData.roofShape.transform };
     }
     
     // Info anzeigen
@@ -623,29 +676,55 @@ document.addEventListener('DOMContentLoaded', function() {
     drawShape();
     
     // Event Listeners
-    document.getElementById('btn-rotate-left').addEventListener('click', () => {
-        rotateShape(fineRotationMode ? -1 : -15);
-    });
+    const btnRotateLeft = document.getElementById('btn-rotate-left');
+    const btnRotateRight = document.getElementById('btn-rotate-right');
+    const btnFineRotate = document.getElementById('btn-fine-rotate');
+    const btnMirrorH = document.getElementById('btn-mirror-h');
+    const btnMirrorV = document.getElementById('btn-mirror-v');
+    const btnReset = document.getElementById('btn-reset');
+    const btnBack = document.getElementById('btn-back');
+    const btnContinue = document.getElementById('btn-continue');
     
-    document.getElementById('btn-rotate-right').addEventListener('click', () => {
-        rotateShape(fineRotationMode ? 1 : 15);
-    });
+    if (btnRotateLeft) {
+        btnRotateLeft.addEventListener('click', () => {
+            rotateShape(fineRotationMode ? -1 : -15);
+        });
+    }
     
-    document.getElementById('btn-fine-rotate').addEventListener('click', toggleFineRotation);
+    if (btnRotateRight) {
+        btnRotateRight.addEventListener('click', () => {
+            rotateShape(fineRotationMode ? 1 : 15);
+        });
+    }
     
-    document.getElementById('btn-mirror-h').addEventListener('click', () => {
-        mirrorShape('horizontal');
-    });
+    if (btnFineRotate) {
+        btnFineRotate.addEventListener('click', toggleFineRotation);
+    }
     
-    document.getElementById('btn-mirror-v').addEventListener('click', () => {
-        mirrorShape('vertical');
-    });
+    if (btnMirrorH) {
+        btnMirrorH.addEventListener('click', () => {
+            mirrorShape('horizontal');
+        });
+    }
     
-    document.getElementById('btn-reset').addEventListener('click', resetTransform);
+    if (btnMirrorV) {
+        btnMirrorV.addEventListener('click', () => {
+            mirrorShape('vertical');
+        });
+    }
+    
+    if (btnReset) {
+        btnReset.addEventListener('click', resetTransform);
+    }
     
     // Navigation
-    document.getElementById('btn-back').addEventListener('click', goBack);
-    document.getElementById('btn-continue').addEventListener('click', saveAndContinue);
+    if (btnBack) {
+        btnBack.addEventListener('click', goBack);
+    }
+    
+    if (btnContinue) {
+        btnContinue.addEventListener('click', saveAndContinue);
+    }
     
     console.log('✅ Editor erfolgreich initialisiert');
 });
@@ -659,4 +738,4 @@ window.debugEditor = () => {
     console.log('transformedPoints:', applyTransformation(generatedPoints));
 };
 
-console.log('✅ editor-simplified.js geladen');
+console.log('✅ editor.js geladen - Navigation zu formauswahl.html korrigiert');
