@@ -298,89 +298,296 @@
 
     <script>
         // Globale Variablen
-        let katheteA = 4;
-        let katheteB = 5;
+        let currentShape = 'rechtwinklig'; // Standard-Form
+        let currentDimensions = {
+            katheteA: 4,
+            katheteB: 5,
+            bottomBase: 8,
+            topBase: 6,
+            height: 4,
+            length: 8,
+            width: 5,
+            radius: 4
+        };
 
-        // Zeichnung aktualisieren - KORREKTE PROPORTIONALE SKALIERUNG
+        // Form-Definitionen
+        const shapeDefinitions = {
+            rechtwinklig: {
+                name: 'Rechtwinkliges Dreieck',
+                description: 'Dreieck mit rechtem Winkel',
+                dimensions: ['katheteA', 'katheteB']
+            },
+            trapez: {
+                name: 'Trapez',
+                description: 'Viereck mit zwei parallelen Seiten',
+                dimensions: ['bottomBase', 'topBase', 'height']
+            },
+            rechteck: {
+                name: 'Rechteck',
+                description: 'Klassische rechteckige Form',
+                dimensions: ['length', 'width']
+            },
+            kreis: {
+                name: 'Kreis',
+                description: 'Perfekte Rundform',
+                dimensions: ['radius']
+            }
+        };
+
+        // Dimension-Labels
+        const dimensionLabels = {
+            katheteA: 'Kathete A',
+            katheteB: 'Kathete B',
+            bottomBase: 'Untere Basis',
+            topBase: 'Obere Basis',
+            height: 'Höhe',
+            length: 'Länge',
+            width: 'Breite',
+            radius: 'Radius'
+        };
+
+        // Form-spezifische Zeichnung
+        function drawShape(dims, scaleFactor) {
+            const scale = (value) => value * scaleFactor;
+            
+            switch (currentShape) {
+                case 'rechtwinklig':
+                    const displayA = scale(dims.katheteA);
+                    const displayB = scale(dims.katheteB);
+                    return `<polygon points="0,0 ${displayA},0 0,${-displayB}" 
+                            fill="url(#shapeGradient)" stroke="#007bff" stroke-width="5" filter="url(#shadowEffect)"/>`;
+                
+                case 'trapez':
+                    const bottomBase = scale(dims.bottomBase);
+                    const topBase = scale(dims.topBase);
+                    const height = scale(dims.height);
+                    const points = `${-bottomBase/2},${height/2} ${bottomBase/2},${height/2} ${topBase/2},${-height/2} ${-topBase/2},${-height/2}`;
+                    return `<polygon points="${points}" 
+                            fill="url(#shapeGradient)" stroke="#007bff" stroke-width="5" filter="url(#shadowEffect)"/>`;
+                
+                case 'rechteck':
+                    const length = scale(dims.length);
+                    const width = scale(dims.width);
+                    return `<rect x="${-length/2}" y="${-width/2}" width="${length}" height="${width}" 
+                            fill="url(#shapeGradient)" stroke="#007bff" stroke-width="5" filter="url(#shadowEffect)"/>`;
+                
+                case 'kreis':
+                    const radius = scale(dims.radius);
+                    return `<circle cx="0" cy="0" r="${radius}" 
+                            fill="url(#shapeGradient)" stroke="#007bff" stroke-width="5" filter="url(#shadowEffect)"/>`;
+                
+                default:
+                    return '<rect x="-50" y="-50" width="100" height="100" fill="red"/>';
+            }
+        }
+
+        // Form-spezifische Bemaßung
+        function drawDimensions(dims, scaleFactor) {
+            const scale = (value) => value * scaleFactor;
+            const offset = 120;
+            
+            switch (currentShape) {
+                case 'rechtwinklig':
+                    const displayA = scale(dims.katheteA);
+                    const displayB = scale(dims.katheteB);
+                    return `
+                        <!-- Kathete A (horizontal) -->
+                        <line x1="500" y1="${500 + offset}" x2="${500 + displayA}" y2="${500 + offset}" 
+                              stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
+                              marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+                        <text x="${500 + displayA / 2}" y="${500 + offset + 25}" 
+                              text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b">${dims.katheteA}m</text>
+                        <line x1="500" y1="500" x2="500" y2="${500 + offset}" stroke="#ff6b6b" stroke-width="2"/>
+                        <line x1="${500 + displayA}" y1="500" x2="${500 + displayA}" y2="${500 + offset}" stroke="#ff6b6b" stroke-width="2"/>
+                        
+                        <!-- Kathete B (vertikal) -->
+                        <line x1="${500 - offset}" y1="500" x2="${500 - offset}" y2="${500 - displayB}" 
+                              stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
+                              marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+                        <text x="${500 - offset - 25}" y="${500 - displayB / 2}" 
+                              text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b" 
+                              transform="rotate(-90 ${500 - offset - 25} ${500 - displayB / 2})">${dims.katheteB}m</text>
+                        <line x1="500" y1="500" x2="${500 - offset}" y2="500" stroke="#ff6b6b" stroke-width="2"/>
+                        <line x1="500" y1="${500 - displayB}" x2="${500 - offset}" y2="${500 - displayB}" stroke="#ff6b6b" stroke-width="2"/>
+                        
+                        <!-- Rechter Winkel -->
+                        <path d="M 530 500 L 530 470 L 500 470" stroke="#007bff" stroke-width="4" fill="none"/>
+                        <text x="540" y="460" font-size="16" fill="#007bff">90°</text>
+                    `;
+                
+                case 'trapez':
+                    const bottomBase = scale(dims.bottomBase);
+                    const topBase = scale(dims.topBase);
+                    const height = scale(dims.height);
+                    return `
+                        <!-- Untere Basis -->
+                        <line x1="${500-bottomBase/2}" y1="${500+height/2+offset}" x2="${500+bottomBase/2}" y2="${500+height/2+offset}" 
+                              stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
+                              marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+                        <text x="500" y="${500+height/2+offset+25}" 
+                              text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b">${dims.bottomBase}m</text>
+                        
+                        <!-- Obere Basis -->
+                        <line x1="${500-topBase/2}" y1="${500-height/2-offset}" x2="${500+topBase/2}" y2="${500-height/2-offset}" 
+                              stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
+                              marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+                        <text x="500" y="${500-height/2-offset-10}" 
+                              text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b">${dims.topBase}m</text>
+                        
+                        <!-- Höhe -->
+                        <line x1="${500-bottomBase/2-offset}" y1="${500-height/2}" x2="${500-bottomBase/2-offset}" y2="${500+height/2}" 
+                              stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
+                              marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+                        <text x="${500-bottomBase/2-offset-25}" y="500" 
+                              text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b" 
+                              transform="rotate(-90 ${500-bottomBase/2-offset-25} 500)">${dims.height}m</text>
+                    `;
+                
+                case 'rechteck':
+                    const length = scale(dims.length);
+                    const width = scale(dims.width);
+                    return `
+                        <!-- Länge -->
+                        <line x1="${500-length/2}" y1="${500+width/2+offset}" x2="${500+length/2}" y2="${500+width/2+offset}" 
+                              stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
+                              marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+                        <text x="500" y="${500+width/2+offset+25}" 
+                              text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b">${dims.length}m</text>
+                        
+                        <!-- Breite -->
+                        <line x1="${500-length/2-offset}" y1="${500-width/2}" x2="${500-length/2-offset}" y2="${500+width/2}" 
+                              stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
+                              marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+                        <text x="${500-length/2-offset-25}" y="500" 
+                              text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b" 
+                              transform="rotate(-90 ${500-length/2-offset-25} 500)">${dims.width}m</text>
+                    `;
+                
+                case 'kreis':
+                    const radius = scale(dims.radius);
+                    return `
+                        <!-- Radius -->
+                        <line x1="500" y1="500" x2="${500+radius}" y2="500" 
+                              stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
+                              marker-end="url(#arrowhead)"/>
+                        <text x="${500+radius/2}" y="485" 
+                              text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b">r = ${dims.radius}m</text>
+                        
+                        <!-- Durchmesser -->
+                        <line x1="${500-radius}" y1="${500+radius+offset}" x2="${500+radius}" y2="${500+radius+offset}" 
+                              stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
+                              marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+                        <text x="500" y="${500+radius+offset+25}" 
+                              text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b">⌀ ${dims.radius * 2}m</text>
+                    `;
+                
+                default:
+                    return '';
+            }
+        }
+
+        // Maximale Dimension finden
+        function getMaxDimension(dims) {
+            const activeDimensions = shapeDefinitions[currentShape].dimensions;
+            return Math.max(...activeDimensions.map(dim => dims[dim]));
+        }
+
+        // Zeichnung aktualisieren
         function updateDrawing() {
             const shapeGroup = document.getElementById('shape-group');
             const dimensionsGroup = document.getElementById('dimensions-group');
             
-            // VERGRÖSSERTE Gesamtgröße - die längste Seite wird auf 350px gesetzt
-            const maxDisplaySize = 350; // VERGRÖSSERT von 200px auf 350px (1,75x größer)
+            // VERGRÖSSERTE Gesamtgröße
+            const maxDisplaySize = 350;
+            const maxDimension = getMaxDimension(currentDimensions);
+            const scaleFactor = maxDisplaySize / maxDimension;
             
-            // Die längere der beiden Katheten bestimmt die Skalierung
-            const longerSide = Math.max(katheteA, katheteB);
-            const scaleFactor = maxDisplaySize / longerSide;
-            
-            // BEIDE Seiten mit dem GLEICHEN Faktor skalieren
-            const displayA = katheteA * scaleFactor;  // Proportional zur echten Größe
-            const displayB = katheteB * scaleFactor;  // Proportional zur echten Größe
-            
-            console.log(`Kathete A: ${katheteA}m -> ${displayA}px`);
-            console.log(`Kathete B: ${katheteB}m -> ${displayB}px`);
-            console.log(`Skalierungsfaktor: ${scaleFactor}`);
+            console.log(`Form: ${currentShape}, Max-Dimension: ${maxDimension}, Skalierung: ${scaleFactor}`);
             
             // Form zeichnen
-            const points = `0,0 ${displayA},0 0,${-displayB}`;
-            shapeGroup.innerHTML = `
-                <polygon points="${points}" 
-                         fill="url(#shapeGradient)" 
-                         stroke="#007bff" 
-                         stroke-width="5"
-                         filter="url(#shadowEffect)"/>
-            `;
+            shapeGroup.innerHTML = drawShape(currentDimensions, scaleFactor);
             
-            // Bemaßung - angepasst an die tatsächlich gezeichnete Größe
-            const offset = 120; // VERGRÖSSERT von 80px auf 120px für mehr Abstand
-            dimensionsGroup.innerHTML = `
-                <!-- Kathete A (horizontal) -->
-                <line x1="500" y1="${500 + offset}" x2="${500 + displayA}" y2="${500 + offset}" 
-                      stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
-                      marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-                <text x="${500 + displayA / 2}" y="${500 + offset + 25}" 
-                      text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b">${katheteA}m</text>
-                <line x1="500" y1="500" x2="500" y2="${500 + offset}" stroke="#ff6b6b" stroke-width="2"/>
-                <line x1="${500 + displayA}" y1="500" x2="${500 + displayA}" y2="${500 + offset}" stroke="#ff6b6b" stroke-width="2"/>
+            // Bemaßung zeichnen
+            dimensionsGroup.innerHTML = drawDimensions(currentDimensions, scaleFactor);
+        }
+
+        // Eingaben erstellen
+        function createInputs() {
+            const grid = document.querySelector('.dimensions-grid');
+            const activeDimensions = shapeDefinitions[currentShape].dimensions;
+            
+            grid.innerHTML = '';
+            
+            activeDimensions.forEach(dim => {
+                const container = document.createElement('div');
+                container.className = 'dimension-input';
+                container.innerHTML = `
+                    <label class="dimension-label">${dimensionLabels[dim]}</label>
+                    <div style="display: flex; align-items: center;">
+                        <input type="number" class="dimension-value" id="${dim}" 
+                               value="${currentDimensions[dim]}" min="0.1" max="100" step="0.1">
+                        <span class="dimension-unit">m</span>
+                    </div>
+                `;
+                grid.appendChild(container);
                 
-                <!-- Kathete B (vertikal) -->
-                <line x1="${500 - offset}" y1="500" x2="${500 - offset}" y2="${500 - displayB}" 
-                      stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
-                      marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-                <text x="${500 - offset - 25}" y="${500 - displayB / 2}" 
-                      text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b" 
-                      transform="rotate(-90 ${500 - offset - 25} ${500 - displayB / 2})">${katheteB}m</text>
-                <line x1="500" y1="500" x2="${500 - offset}" y2="500" stroke="#ff6b6b" stroke-width="2"/>
-                <line x1="500" y1="${500 - displayB}" x2="${500 - offset}" y2="${500 - displayB}" stroke="#ff6b6b" stroke-width="2"/>
-                
-                <!-- Rechter Winkel -->
-                <path d="M 530 500 L 530 470 L 500 470" stroke="#007bff" stroke-width="4" fill="none"/>
-                <text x="540" y="460" font-size="16" fill="#007bff">90°</text>
-            `;
+                // Event Listener
+                container.querySelector('input').addEventListener('input', function(e) {
+                    currentDimensions[dim] = parseFloat(e.target.value) || 1;
+                    updateDrawing();
+                    updateCalculations();
+                });
+            });
+        }
+
+        // Form-Info aktualisieren
+        function updateShapeInfo() {
+            const def = shapeDefinitions[currentShape];
+            document.querySelector('.shape-title').textContent = def.name;
+            document.querySelector('.shape-description').textContent = def.description;
+        }
+
+        // Form wechseln (für Tests)
+        function changeShape(newShape) {
+            if (shapeDefinitions[newShape]) {
+                currentShape = newShape;
+                updateShapeInfo();
+                createInputs();
+                updateDrawing();
+                updateCalculations();
+            }
         }
 
         // Berechnungen aktualisieren
         function updateCalculations() {
-            const area = (katheteA * katheteB) / 2;
-            const hypotenuse = Math.sqrt(katheteA * katheteA + katheteB * katheteB);
-            const perimeter = katheteA + katheteB + hypotenuse;
+            let area = 0;
+            let perimeter = 0;
+            
+            switch (currentShape) {
+                case 'rechtwinklig':
+                    area = (currentDimensions.katheteA * currentDimensions.katheteB) / 2;
+                    const hypotenuse = Math.sqrt(currentDimensions.katheteA ** 2 + currentDimensions.katheteB ** 2);
+                    perimeter = currentDimensions.katheteA + currentDimensions.katheteB + hypotenuse;
+                    break;
+                case 'trapez':
+                    area = ((currentDimensions.bottomBase + currentDimensions.topBase) / 2) * currentDimensions.height;
+                    const sideDiff = Math.abs(currentDimensions.bottomBase - currentDimensions.topBase) / 2;
+                    const sideLength = Math.sqrt(currentDimensions.height ** 2 + sideDiff ** 2);
+                    perimeter = currentDimensions.bottomBase + currentDimensions.topBase + 2 * sideLength;
+                    break;
+                case 'rechteck':
+                    area = currentDimensions.length * currentDimensions.width;
+                    perimeter = 2 * (currentDimensions.length + currentDimensions.width);
+                    break;
+                case 'kreis':
+                    area = Math.PI * currentDimensions.radius ** 2;
+                    perimeter = 2 * Math.PI * currentDimensions.radius;
+                    break;
+            }
             
             document.getElementById('calc-area').textContent = area.toFixed(1) + ' m²';
             document.getElementById('calc-perimeter').textContent = perimeter.toFixed(1) + ' m';
         }
-
-        // Event Listeners
-        document.getElementById('kathete-a').addEventListener('input', function(e) {
-            katheteA = parseFloat(e.target.value) || 4;
-            updateDrawing();
-            updateCalculations();
-        });
-
-        document.getElementById('kathete-b').addEventListener('input', function(e) {
-            katheteB = parseFloat(e.target.value) || 5;
-            updateDrawing();
-            updateCalculations();
-        });
 
         // Navigation
         function goBack() {
@@ -391,8 +598,16 @@
             window.location.href = 'berechnung.html';
         }
 
+        // Test-Funktionen für verschiedene Formen
+        window.testTrapez = () => changeShape('trapez');
+        window.testRechteck = () => changeShape('rechteck');
+        window.testKreis = () => changeShape('kreis');
+        window.testDreieck = () => changeShape('rechtwinklig');
+
         // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
+            updateShapeInfo();
+            createInputs();
             updateDrawing();
             updateCalculations();
         });
