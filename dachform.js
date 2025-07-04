@@ -1,4 +1,4 @@
-// Korrigierte dachform.js - Navigation zu Editor.html
+// REPARIERTE dachform.js - Konsistente Datenübertragung
 
 // Erweiterte Profilkatalog mit Seitenueberlappung
 const profile = {
@@ -26,7 +26,7 @@ const profile = {
     }
 };
 
-// Erweiterte Formen-Definitionen
+// KORRIGIERTE Formen-Definitionen mit eindeutigen IDs
 var shapes = {
     kreis: {
         name: 'Kreis',
@@ -230,6 +230,7 @@ function selectVariant(variant, name) {
     console.log('✅ Variante ausgewählt und UI aktualisiert');
 }
 
+// KORRIGIERTE saveAndContinue Funktion
 function saveAndContinue() {
     console.log('=== DACHFORM: SPEICHERN UND WEITER ===');
     console.log('Aktuelle projectData vor Änderung:', JSON.stringify(projectData, null, 2));
@@ -250,13 +251,14 @@ function saveAndContinue() {
         return;
     }
     
-    // NUR roofShape hinzufügen, OHNE andere Daten zu überschreiben!
+    // KORRIGIERT: Konsistente roofShape Struktur
     console.log('✅ Profil-Daten vorhanden, füge roofShape hinzu...');
     
     projectData.roofShape = {
-        baseShape: selectedShape,
-        variant: selectedVariant,
-        timestamp: Date.now() // Für Debugging
+        baseShape: selectedShape,        // z.B. 'viereck'
+        variant: selectedVariant,        // z.B. 'trapez'  
+        variantName: shapes[selectedShape]?.variants[selectedVariant]?.name || selectedVariant,
+        timestamp: Date.now()
     };
     
     console.log('Neue projectData mit roofShape:', JSON.stringify(projectData, null, 2));
@@ -268,11 +270,11 @@ function saveAndContinue() {
         return;
     }
     
-    console.log('✅ Erfolgreich gespeichert, weiterleiten zu Editor.html');
+    console.log('✅ Erfolgreich gespeichert, weiterleiten zu formauswahl.html');
     
-    // NAVIGATION ZUM EDITOR (GEÄNDERT!)
+    // KORRIGIERT: Navigation zu Bemaßung (formauswahl.html), nicht Editor
     setTimeout(() => {
-        window.location.href = 'Editor.html';
+        window.location.href = 'formauswahl.html';
     }, 100);
 }
 
@@ -306,6 +308,33 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Gespeicherte Auswahl wiederherstellen
+    if (projectData.roofShape) {
+        const savedBaseShape = projectData.roofShape.baseShape;
+        const savedVariant = projectData.roofShape.variant;
+        
+        if (savedBaseShape && shapes[savedBaseShape]) {
+            console.log('🔄 Stelle gespeicherte Auswahl wieder her:', savedBaseShape, savedVariant);
+            selectShape(savedBaseShape);
+            
+            if (savedVariant) {
+                // Warte kurz auf UI-Update, dann Variante auswählen
+                setTimeout(() => {
+                    const variantTiles = document.querySelectorAll('.variant-tile');
+                    variantTiles.forEach(tile => {
+                        const h4 = tile.querySelector('h4');
+                        if (h4 && shapes[savedBaseShape].variants[savedVariant]) {
+                            const expectedName = shapes[savedBaseShape].variants[savedVariant].name;
+                            if (h4.textContent === expectedName) {
+                                tile.click();
+                            }
+                        }
+                    });
+                }, 200);
+            }
+        }
+    }
+    
     console.log('✅ Dachform-Seite erfolgreich initialisiert');
 });
 
@@ -319,4 +348,31 @@ window.debugDachformData = () => {
     console.log('sessionStorage:', sessionStorage.getItem('dachplattenrechner_data'));
 };
 
-console.log('Dachform.js geladen - Navigation zu Editor.html korrigiert');
+// TEST-Funktionen für alle Formen
+window.testForm = (baseShape, variant) => {
+    console.log(`🧪 TESTE FORM: ${baseShape} → ${variant}`);
+    
+    if (!shapes[baseShape] || !shapes[baseShape].variants[variant]) {
+        console.error('❌ Ungültige Form:', baseShape, variant);
+        return;
+    }
+    
+    selectedShape = baseShape;
+    selectedVariant = variant;
+    
+    // UI aktualisieren
+    selectShape(baseShape);
+    setTimeout(() => {
+        const variantTiles = document.querySelectorAll('.variant-tile');
+        variantTiles.forEach(tile => {
+            const h4 = tile.querySelector('h4');
+            if (h4 && h4.textContent === shapes[baseShape].variants[variant].name) {
+                tile.click();
+            }
+        });
+    }, 100);
+    
+    console.log('✅ Test-Form gesetzt');
+};
+
+console.log('✅ dachform.js geladen - REPARIERTE VERSION mit korrekter Navigation');
