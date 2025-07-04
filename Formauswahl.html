@@ -306,8 +306,8 @@
             const shapeGroup = document.getElementById('shape-group');
             const dimensionsGroup = document.getElementById('dimensions-group');
             
-            // FESTE Gesamtgröße - die längste Seite wird immer auf 200px gesetzt
-            const maxDisplaySize = 200;
+            // VERGRÖSSERTE Gesamtgröße - die längste Seite wird auf 350px gesetzt
+            const maxDisplaySize = 350; // VERGRÖSSERT von 200px auf 350px (1,75x größer)
             
             // Die längere der beiden Katheten bestimmt die Skalierung
             const longerSide = Math.max(katheteA, katheteB);
@@ -332,7 +332,7 @@
             `;
             
             // Bemaßung - angepasst an die tatsächlich gezeichnete Größe
-            const offset = 80;
+            const offset = 120; // VERGRÖSSERT von 80px auf 120px für mehr Abstand
             dimensionsGroup.innerHTML = `
                 <!-- Kathete A (horizontal) -->
                 <line x1="500" y1="${500 + offset}" x2="${500 + displayA}" y2="${500 + offset}" 
