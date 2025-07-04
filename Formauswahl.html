@@ -604,8 +604,54 @@
         window.testKreis = () => changeShape('kreis');
         window.testDreieck = () => changeShape('rechtwinklig');
 
+        // Daten aus localStorage/sessionStorage laden
+        function loadProjectData() {
+            try {
+                let saved = localStorage.getItem('dachplattenrechner_data');
+                if (!saved) {
+                    saved = sessionStorage.getItem('dachplattenrechner_data');
+                }
+                return saved ? JSON.parse(saved) : {};
+            } catch (e) {
+                console.error('Fehler beim Laden:', e);
+                return {};
+            }
+        }
+
+        // Form aus Projektdaten bestimmen
+        function determineShapeFromProject() {
+            const projectData = loadProjectData();
+            console.log('Geladene Projektdaten:', projectData);
+            
+            if (projectData.roofShape && projectData.roofShape.variant) {
+                const variant = projectData.roofShape.variant;
+                console.log('Gefundene Variante:', variant);
+                
+                // Mapping von roofShape.variant zu unserem System
+                switch (variant) {
+                    case 'rechtwinklig': return 'rechtwinklig';
+                    case 'trapez': return 'trapez';
+                    case 'rechteck': return 'rechteck';
+                    case 'quadrat': return 'rechteck'; // Quadrat wird als Rechteck behandelt
+                    case 'kreis': return 'kreis';
+                    case 'oval': return 'kreis'; // Oval wird als Kreis behandelt
+                    case 'dreieck': return 'rechtwinklig'; // Gleichseitiges als rechtwinkliges
+                    default:
+                        console.log('Unbekannte Variante, verwende Standard');
+                        return 'rechtwinklig';
+                }
+            }
+            
+            console.log('Keine roofShape gefunden, verwende Standard');
+            return 'rechtwinklig';
+        }
+
         // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
+            // Form aus Projektdaten bestimmen
+            currentShape = determineShapeFromProject();
+            console.log('Initialisiere mit Form:', currentShape);
+            
             updateShapeInfo();
             createInputs();
             updateDrawing();
