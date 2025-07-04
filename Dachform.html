@@ -211,26 +211,36 @@
             border-left: 5px solid #ffc107;
         }
 
-        /* Styles für externe Controls */
-        .external-dimension-control {
-            pointer-events: auto;
+        /* Vereinfachte Eingabefeld-Styles - ohne Pfeile */
+        .dimension-input-container-simple {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 8px;
+            padding: 4px 8px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+            border: 2px solid #007bff;
+            min-width: 100px;
+            height: 30px;
         }
 
-        .external-dimension-control .dimension-input-container {
-            position: relative;
-            pointer-events: auto;
+        .dimension-input-container-simple .dimension-input {
+            width: 60px;
+            height: 22px;
+            font-size: 14px;
+            text-align: center;
+            border: none;
+            outline: none;
+            font-weight: bold;
+            color: #2c3e50;
+            background: transparent;
         }
 
-        .external-btn {
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            pointer-events: auto;
-        }
-
-        .external-input {
-            pointer-events: auto;
+        .dimension-input-container-simple .dimension-unit {
+            font-size: 11px;
+            color: #007bff;
+            font-weight: bold;
+            margin-left: 4px;
         }
 
         .preview-panel {
@@ -270,6 +280,68 @@
         .info-value {
             font-weight: bold;
             color: #28a745;
+        }
+
+        /* Styles für den Maß-Berechnungs-Hinweis */
+        .missing-dimension-hint {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .missing-dimension-hint h4 {
+            color: #856404;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .missing-dimension-hint p {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .calc-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+            margin: 10px 0;
+        }
+
+        .calc-link:hover {
+            background: linear-gradient(135deg, #ff8c00 0%, #ffc107 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .external-icon {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .hint-text {
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+
+        .hint-text small {
+            color: #6c757d;
+            font-style: italic;
         }
 
         .shape-info {
@@ -519,6 +591,19 @@
                                     <span>Umfang:</span>
                                     <span class="info-value" id="calc-perimeter">0 m</span>
                                 </div>
+                            </div>
+
+                            <!-- Neuer Hinweis für fehlende Maße -->
+                            <div class="missing-dimension-hint">
+                                <h4>💡 Maß vergessen zu messen?</h4>
+                                <p>Nicht immer hat man alle Maße zur Hand. Ein fehlendes Dreieck-Maß können Sie berechnen:</p>
+                                <a href="https://www.dreieck-berechnen.de" target="_blank" rel="noopener noreferrer" class="calc-link">
+                                    🧮 Dreieck-Rechner öffnen
+                                    <span class="external-icon">↗</span>
+                                </a>
+                                <p class="hint-text">
+                                    <small>💻 Öffnet in neuem Tab - diese Seite bleibt offen</small>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1146,11 +1231,49 @@
         window.updateSideLength = updateSideLength;
         window.adjustDimension = adjustDimension;
 
-        // VEREINFACHTE Event-Handler - nur für externe Controls
+        // Vereinfachte Event-Handler - nur für Eingabefelder
         function setupInputEventListeners() {
-            console.log('Setting up input event listeners - external controls only');
-            // Events werden jetzt direkt in createExternalDimensionControl() eingerichtet
-            // Hier nur noch globale Fallback-Events falls nötig
+            console.log('Setting up input event listeners - simple version');
+            
+            setTimeout(() => {
+                // Alle Eingabefelder finden
+                const inputs = document.querySelectorAll('.dimension-input');
+                console.log('Found dimension inputs:', inputs.length);
+                
+                inputs.forEach((input, index) => {
+                    // Change Event für Tastatureingabe
+                    input.addEventListener('change', function(e) {
+                        const sideIndex = parseInt(this.dataset.sideIndex);
+                        const sideKey = this.dataset.sideKey;
+                        let newValue = parseFloat(this.value);
+                        
+                        // Validierung
+                        if (isNaN(newValue) || newValue < 0.01) {
+                            newValue = 0.01;
+                            this.value = newValue.toFixed(2);
+                        }
+                        if (newValue > 100) {
+                            newValue = 100;
+                            this.value = newValue.toFixed(2);
+                        }
+                        
+                        console.log('Input changed:', sideIndex, sideKey, newValue);
+                        updateSideLength(sideIndex, sideKey, newValue);
+                    });
+                    
+                    // Input Event für Live-Updates
+                    input.addEventListener('input', function(e) {
+                        const value = parseFloat(this.value);
+                        if (!isNaN(value) && value > 0) {
+                            const sideIndex = parseInt(this.dataset.sideIndex);
+                            const sideKey = this.dataset.sideKey;
+                            updateSideLength(sideIndex, sideKey, value);
+                        }
+                    });
+                });
+                
+                console.log('Event listeners attached successfully');
+            }, 200);
         }
 
         // Event Listeners mit korrigierter Initialisierung
