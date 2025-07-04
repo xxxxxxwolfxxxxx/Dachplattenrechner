@@ -456,15 +456,26 @@
                     const sideB = currentDimensions.sideB;
                     const sideC = currentDimensions.sideC;
                     
-                    const angle = Math.acos((sideA*sideA + sideB*sideB - sideC*sideC) / (2*sideA*sideB));
-                    const height = sideB * Math.sin(angle);
-                    const baseOffset = sideB * Math.cos(angle);
-                    
-                    originalPoints = [
-                        { x: 0, y: -height*scale/2, label: 'B' },
-                        { x: sideA*scale/2, y: height*scale/2, label: 'A' },
-                        { x: (baseOffset-sideA/2)*scale, y: height*scale/2, label: 'C' }
-                    ];
+                    // Prüfe Dreiecksungleichung bevor Berechnung
+                    if ((sideA + sideB <= sideC) || (sideA + sideC <= sideB) || (sideB + sideC <= sideA)) {
+                        // Ungültiges Dreieck - verwende Standardform
+                        originalPoints = [
+                            { x: 0, y: -100, label: 'B' },
+                            { x: 150, y: 100, label: 'A' },
+                            { x: -150, y: 100, label: 'C' }
+                        ];
+                    } else {
+                        // Gültiges Dreieck - normale Berechnung
+                        const angle = Math.acos((sideA*sideA + sideB*sideB - sideC*sideC) / (2*sideA*sideB));
+                        const height = sideB * Math.sin(angle);
+                        const baseOffset = sideB * Math.cos(angle);
+                        
+                        originalPoints = [
+                            { x: 0, y: -height*scale/2, label: 'B' },
+                            { x: sideA*scale/2, y: height*scale/2, label: 'A' },
+                            { x: (baseOffset-sideA/2)*scale, y: height*scale/2, label: 'C' }
+                        ];
+                    }
                     break;
 
                 case '4': // Viereck
@@ -571,35 +582,39 @@
                 const dy = p2.y - p1.y;
                 const length = Math.sqrt(dx * dx + dy * dy) / 50; // Zurück zu Metern
                 
-                // Normale zur Seite für Textposition
-                const normalX = -dy / Math.sqrt(dx * dx + dy * dy) * 30;
-                const normalY = dx / Math.sqrt(dx * dx + dy * dy) * 30;
+                // Normale zur Seite für Textposition (deutlich weiter außen)
+                const normalLength = Math.sqrt(dx * dx + dy * dy);
+                const normalX = (-dy / normalLength) * 60; // Verdoppelt von 30 auf 60
+                const normalY = (dx / normalLength) * 60;
                 
                 const textX = midX + normalX;
                 const textY = midY + normalY;
                 
-                // Maßlinie
+                // Maßlinie zur besseren Sichtbarkeit
                 dimensionsSVG += `
                     <line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" 
-                          stroke="#ff6b6b" stroke-width="2" stroke-dasharray="3,3"/>
-                    <circle cx="${midX}" cy="${midY}" r="3" fill="#ff6b6b"/>
+                          stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5"/>
+                    <line x1="${midX}" y1="${midY}" x2="${textX}" y2="${textY}" 
+                          stroke="#ff6b6b" stroke-width="2"/>
+                    <circle cx="${textX}" cy="${textY}" r="4" fill="#ff6b6b"/>
                 `;
                 
-                // Eingabefeld als foreignObject
+                // Eingabefeld als foreignObject - größer und besser positioniert
                 const sideKey = getSideKey(i, selectedCorners);
-                const currentValue = getSideValue(sideKey, i);
+                const currentValue = getSideValue(sideKey, i, length);
                 
                 dimensionsSVG += `
-                    <foreignObject x="${textX - 30}" y="${textY - 12}" width="60" height="24">
+                    <foreignObject x="${textX - 35}" y="${textY - 15}" width="70" height="30">
                         <input type="number" 
                                value="${currentValue.toFixed(1)}" 
-                               style="width: 58px; height: 22px; font-size: 11px; text-align: center; 
-                                      border: 2px solid #ff6b6b; border-radius: 4px; background: white;"
+                               style="width: 68px; height: 28px; font-size: 13px; text-align: center; 
+                                      border: 3px solid #ff6b6b; border-radius: 6px; background: white;
+                                      font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"
                                onchange="updateSideLength(${i}, '${sideKey}', this.value)"
                                step="0.1" min="0.1" max="100"/>
                     </foreignObject>
-                    <text x="${textX}" y="${textY + 20}" text-anchor="middle" font-size="10" fill="#666">
-                        Seite ${i + 1}
+                    <text x="${textX}" y="${textY + 25}" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">
+                        ${getSideLabel(sideKey, i)}
                     </text>
                 `;
             }
@@ -619,26 +634,62 @@
             }
         }
 
-        function getSideValue(sideKey, index) {
+        function getSideLabel(sideKey, index) {
+            switch (sideKey) {
+                case 'sideA': return 'Seite A';
+                case 'sideB': return 'Seite B'; 
+                case 'sideC': return 'Seite C';
+                case 'bottomWidth': return 'Unten';
+                case 'topWidth': return 'Oben';
+                case 'rightSide': return 'Rechts';
+                case 'leftSide': return 'Links';
+                default: return `Seite ${index + 1}`;
+            }
+        }
+
+        function getSideValue(sideKey, index, calculatedLength) {
             if (currentDimensions[sideKey]) {
                 return currentDimensions[sideKey];
             }
-            // Fallback: Berechne Länge aus aktueller Geometrie
-            return 5; // Standard
+            // Verwende berechnete Länge als Fallback
+            return calculatedLength || 5;
         }
 
-        // Seitenlänge aktualisieren
+        // VERBESSERTE Seitenlänge-Aktualisierung mit Dreieck-Validierung
         function updateSideLength(sideIndex, sideKey, newValue) {
             const value = parseFloat(newValue) || 1;
-            currentDimensions[sideKey] = value;
             
-            // Bei Dreiecken alle 3 Seiten speichern
+            // Temporär in separatem Objekt speichern
+            let tempDimensions = {...currentDimensions};
+            tempDimensions[sideKey] = value;
+            
+            // Spezielle Behandlung für Dreiecke - Validierung
             if (selectedCorners === '3') {
-                if (sideKey === 'sideA') currentDimensions.sideA = value;
-                if (sideKey === 'sideB') currentDimensions.sideB = value;
-                if (sideKey === 'sideC') currentDimensions.sideC = value;
+                const a = tempDimensions.sideA || currentDimensions.sideA;
+                const b = tempDimensions.sideB || currentDimensions.sideB;
+                const c = tempDimensions.sideC || currentDimensions.sideC;
+                
+                // Dreiecksungleichung prüfen
+                const isValidTriangle = (a + b > c) && (a + c > b) && (b + c > a);
+                
+                if (!isValidTriangle) {
+                    // Warnung anzeigen, aber Wert trotzdem speichern
+                    const orientationInfo = document.getElementById('orientation-info');
+                    orientationInfo.className = 'orientation-info orientation-warning';
+                    orientationInfo.innerHTML = `
+                        <strong>⚠️ Ungültiges Dreieck</strong><br>
+                        A=${a.toFixed(1)}m, B=${b.toFixed(1)}m, C=${c.toFixed(1)}m<br>
+                        <small>Die Summe zweier Seiten muss größer als die dritte sein.</small>
+                    `;
+                } else {
+                    // Gültiges Dreieck - normale Orientierungsprüfung wird in updatePreview() gemacht
+                }
             }
             
+            // Werte übernehmen
+            currentDimensions[sideKey] = value;
+            
+            // Nur bei gültigen Formen neu zeichnen
             updatePreview();
             updateCalculations();
         }
