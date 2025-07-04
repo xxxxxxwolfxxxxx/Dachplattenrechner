@@ -1,4 +1,143 @@
-// formauswahl.js - VERGRÖSSERTE VERSION mit korrekter Bemaßung
+// KORRIGIERTE Bemaßung-SVG generieren mit vergrößerten Koordinaten (800x800)
+    function getDimensionsSVG() {
+        var dims = currentDimensions;
+        var scale = 80; // VERGRÖSSERT von 60 auf 80 (passend zur Form)
+        var offset = 120; // VERGRÖSSERT von 100 auf 120 für noch mehr Abstand
+        
+        switch (selectedVariant) {
+            case 'trapez':
+                var bottomBase = (dims.bottomBase || 8) * scale;
+                var topBase = (dims.topBase || 6) * scale;
+                var height = (dims.height || 4) * scale;
+                
+                return [
+                    // Untere Basis - Maßlinie
+                    '<line x1="' + (400-bottomBase/2) + '" y1="' + (400+height/2+offset) + '" x2="' + (400+bottomBase/2) + '" y2="' + (400+height/2+offset) + '" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Untere Basis - Text
+                    '<text x="400" y="' + (400+height/2+offset+20) + '" text-anchor="middle" font-size="16" font-weight="bold" fill="#ff6b6b">' + (dims.bottomBase || 8) + 'm</text>',
+                    // Untere Basis - Verbindungslinien
+                    '<line x1="' + (400-bottomBase/2) + '" y1="' + (400+height/2) + '" x2="' + (400-bottomBase/2) + '" y2="' + (400+height/2+offset) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    '<line x1="' + (400+bottomBase/2) + '" y1="' + (400+height/2) + '" x2="' + (400+bottomBase/2) + '" y2="' + (400+height/2+offset) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    
+                    // Obere Basis - Maßlinie
+                    '<line x1="' + (400-topBase/2) + '" y1="' + (400-height/2-offset) + '" x2="' + (400+topBase/2) + '" y2="' + (400-height/2-offset) + '" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Obere Basis - Text
+                    '<text x="400" y="' + (400-height/2-offset-10) + '" text-anchor="middle" font-size="16" font-weight="bold" fill="#ff6b6b">' + (dims.topBase || 6) + 'm</text>',
+                    // Obere Basis - Verbindungslinien
+                    '<line x1="' + (400-topBase/2) + '" y1="' + (400-height/2) + '" x2="' + (400-topBase/2) + '" y2="' + (400-height/2-offset) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    '<line x1="' + (400+topBase/2) + '" y1="' + (400-height/2) + '" x2="' + (400+topBase/2) + '" y2="' + (400-height/2-offset) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    
+                    // Höhe - Maßlinie
+                    '<line x1="' + (400-bottomBase/2-offset) + '" y1="' + (400-height/2) + '" x2="' + (400-bottomBase/2-offset) + '" y2="' + (400+height/2) + '" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Höhe - Text (gedreht)
+                    '<text x="' + (400-bottomBase/2-offset-20) + '" y="400" text-anchor="middle" font-size="16" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (400-bottomBase/2-offset-20) + ' 400)">' + (dims.height || 4) + 'm</text>',
+                    // Höhe - Verbindungslinien
+                    '<line x1="' + (400-bottomBase/2) + '" y1="' + (400-height/2) + '" x2="' + (400-bottomBase/2-offset) + '" y2="' + (400-height/2) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    '<line x1="' + (400-bottomBase/2) + '" y1="' + (400+height/2) + '" x2="' + (400-bottomBase/2-offset) + '" y2="' + (400+height/2) + '" stroke="#ff6b6b" stroke-width="2"/>'
+                ].join('');
+                
+            case 'rechteck':
+                var length = (dims.length || 8) * scale;
+                var width = (dims.width || 5) * scale;
+                
+                return [
+                    // Länge - Maßlinie
+                    '<line x1="' + (400-length/2) + '" y1="' + (400+width/2+offset) + '" x2="' + (400+length/2) + '" y2="' + (400+width/2+offset) + '" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Länge - Text
+                    '<text x="400" y="' + (400+width/2+offset+20) + '" text-anchor="middle" font-size="16" font-weight="bold" fill="#ff6b6b">' + (dims.length || 8) + 'm</text>',
+                    // Länge - Verbindungslinien
+                    '<line x1="' + (400-length/2) + '" y1="' + (400+width/2) + '" x2="' + (400-length/2) + '" y2="' + (400+width/2+offset) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    '<line x1="' + (400+length/2) + '" y1="' + (400+width/2) + '" x2="' + (400+length/2) + '" y2="' + (400+width/2+offset) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    
+                    // Breite - Maßlinie
+                    '<line x1="' + (400-length/2-offset) + '" y1="' + (400-width/2) + '" x2="' + (400-length/2-offset) + '" y2="' + (400+width/2) + '" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Breite - Text (gedreht)
+                    '<text x="' + (400-length/2-offset-20) + '" y="400" text-anchor="middle" font-size="16" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (400-length/2-offset-20) + ' 400)">' + (dims.width || 5) + 'm</text>',
+                    // Breite - Verbindungslinien
+                    '<line x1="' + (400-length/2) + '" y1="' + (400-width/2) + '" x2="' + (400-length/2-offset) + '" y2="' + (400-width/2) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    '<line x1="' + (400-length/2) + '" y1="' + (400+width/2) + '" x2="' + (400-length/2-offset) + '" y2="' + (400+width/2) + '" stroke="#ff6b6b" stroke-width="2"/>'
+                ].join('');
+                
+            case 'kreis':
+                var radius = (dims.radius || 4) * scale;
+                
+                return [
+                    // Radius - Linie von Zentrum nach außen
+                    '<line x1="400" y1="400" x2="' + (400-offset-40) + '" y2="400" stroke="#ff6b6b" stroke-width="2"/>',
+                    '<line x1="400" y1="' + (400-katheteB) + '" x2="' + (400-offset-40) + '" y2="' + (400-katheteB) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    
+                    // Rechter Winkel Symbol (vergrößert)
+                    '<path d="M ' + (400+30) + ' 400 L ' + (400+30) + ' ' + (400-30) + ' L 400 ' + (400-30) + '" stroke="#007bff" stroke-width="4" fill="none"/>',
+                    '<text x="' + (400+40) + '" y="' + (400-40) + '" font-size="16" fill="#007bff">90°</text>'
+                ].join('');
+                
+            case 'lform':
+                var totalLength = (dims.totalLength || 10) * scale;
+                var totalWidth = (dims.totalWidth || 8) * scale;
+                var cutoutLength = (dims.cutoutLength || 4) * scale;
+                var cutoutWidth = (dims.cutoutWidth || 4) * scale;
+                
+                return [
+                    // Gesamtlänge - Maßlinie
+                    '<line x1="' + (400-totalLength/2) + '" y1="' + (400+totalWidth/2+offset) + '" x2="' + (400+totalLength/2) + '" y2="' + (400+totalWidth/2+offset) + '" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Gesamtlänge - Text
+                    '<text x="400" y="' + (400+totalWidth/2+offset+20) + '" text-anchor="middle" font-size="16" font-weight="bold" fill="#ff6b6b">' + (dims.totalLength || 10) + 'm</text>',
+                    
+                    // Gesamtbreite - Maßlinie
+                    '<line x1="' + (400-totalLength/2-offset) + '" y1="' + (400-totalWidth/2) + '" x2="' + (400-totalLength/2-offset) + '" y2="' + (400+totalWidth/2) + '" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Gesamtbreite - Text (gedreht)
+                    '<text x="' + (400-totalLength/2-offset-20) + '" y="400" text-anchor="middle" font-size="16" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (400-totalLength/2-offset-20) + ' 400)">' + (dims.totalWidth || 8) + 'm</text>',
+                    
+                    // Ausschnitt Länge - Maßlinie (innen)
+                    '<line x1="' + (400-totalLength/2+cutoutLength) + '" y1="' + (400-totalWidth/2+cutoutWidth-30) + '" x2="' + (400+totalLength/2) + '" y2="' + (400-totalWidth/2+cutoutWidth-30) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="3,3" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Ausschnitt Länge - Text
+                    '<text x="' + (400+totalLength/4-cutoutLength/4) + '" y="' + (400-totalWidth/2+cutoutWidth-35) + '" text-anchor="middle" font-size="14" font-weight="bold" fill="#ff6b6b">' + (dims.cutoutLength || 4) + 'm</text>',
+                    
+                    // Ausschnitt Breite - Maßlinie (seitlich)
+                    '<line x1="' + (400+totalLength/2+30) + '" y1="' + (400-totalWidth/2) + '" x2="' + (400+totalLength/2+30) + '" y2="' + (400-totalWidth/2+cutoutWidth) + '" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="3,3" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Ausschnitt Breite - Text (gedreht)
+                    '<text x="' + (400+totalLength/2+50) + '" y="' + (400-totalWidth/2+cutoutWidth/2) + '" text-anchor="middle" font-size="14" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (400+totalLength/2+50) + ' ' + (400-totalWidth/2+cutoutWidth/2) + ')">' + (dims.cutoutWidth || 4) + 'm</text>'
+                ].join('');
+                
+            default:
+                return '';
+        }
+    }+radius) + '" y2="400" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>',
+                    // Radius - Text
+                    '<text x="' + (400+radius/2) + '" y="390" text-anchor="middle" font-size="16" font-weight="bold" fill="#ff6b6b">r = ' + (dims.radius || 4) + 'm</text>',
+                    
+                    // Durchmesser - Maßlinie unten
+                    '<line x1="' + (400-radius) + '" y1="' + (400+radius+offset) + '" x2="' + (400+radius) + '" y2="' + (400+radius+offset) + '" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Durchmesser - Text
+                    '<text x="400" y="' + (400+radius+offset+20) + '" text-anchor="middle" font-size="16" font-weight="bold" fill="#ff6b6b">⌀ ' + ((dims.radius || 4) * 2) + 'm</text>',
+                    // Durchmesser - Verbindungslinien
+                    '<line x1="' + (400-radius) + '" y1="' + (400+radius) + '" x2="' + (400-radius) + '" y2="' + (400+radius+offset) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    '<line x1="' + (400+radius) + '" y1="' + (400+radius) + '" x2="' + (400+radius) + '" y2="' + (400+radius+offset) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    
+                    // Zentrum markieren
+                    '<circle cx="400" cy="400" r="4" fill="#ff6b6b"/>',
+                    '<text x="410" y="420" font-size="12" fill="#ff6b6b">Zentrum</text>'
+                ].join('');
+                
+            case 'rechtwinklig':
+                var katheteA = (dims.katheteA || 4) * scale;
+                var katheteB = (dims.katheteB || 5) * scale;
+                
+                return [
+                    // Kathete A - Maßlinie (horizontal)
+                    '<line x1="400" y1="' + (400+offset+40) + '" x2="' + (400+katheteA) + '" y2="' + (400+offset+40) + '" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Kathete A - Text
+                    '<text x="' + (400+katheteA/2) + '" y="' + (400+offset+60) + '" text-anchor="middle" font-size="16" font-weight="bold" fill="#ff6b6b">' + (dims.katheteA || 4) + 'm</text>',
+                    // Kathete A - Verbindungslinien
+                    '<line x1="400" y1="400" x2="400" y2="' + (400+offset+40) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    '<line x1="' + (400+katheteA) + '" y1="400" x2="' + (400+katheteA) + '" y2="' + (400+offset+40) + '" stroke="#ff6b6b" stroke-width="2"/>',
+                    
+                    // Kathete B - Maßlinie (vertikal)
+                    '<line x1="' + (400-offset-40) + '" y1="400" x2="' + (400-offset-40) + '" y2="' + (400-katheteB) + '" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>',
+                    // Kathete B - Text (gedreht)
+                    '<text x="' + (400-offset-60) + '" y="' + (400-katheteB/2) + '" text-anchor="middle" font-size="16" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 ' + (400-offset-60) + ' ' + (400-katheteB/2) + ')">' + (dims.katheteB || 5) + 'm</text>',
+                    // Kathete B - Verbindungslinien
+                    '<line x1="400" y1="400" x2="' + (400// formauswahl.js - VERGRÖSSERTE VERSION mit korrekter Bemaßung
 
 (function() {
     'use strict';
@@ -254,7 +393,7 @@
     // SVG für Form generieren
     function getShapeSVG() {
         var dims = currentDimensions;
-        var scale = 60; // VERGRÖSSERT von 30 auf 60 (doppelt so groß)
+        var scale = 80; // NOCH GRÖSSER von 60 auf 80 für bessere Sichtbarkeit
         
         switch (selectedVariant) {
             case 'trapez':
@@ -265,38 +404,38 @@
                            (bottomBase/2) + ',' + (height/2) + ' ' + 
                            (topBase/2) + ',' + (-height/2) + ' ' + 
                            (-topBase/2) + ',' + (-height/2);
-                return '<polygon points="' + points + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="4"/>';
+                return '<polygon points="' + points + '" fill="url(#shapeGradient)" stroke="#007bff" stroke-width="4" filter="url(#shadowEffect)"/>';
                 
             case 'rechteck':
                 var length = (dims.length || 8) * scale;
                 var width = (dims.width || 5) * scale;
-                return '<rect x="' + (-length/2) + '" y="' + (-width/2) + '" width="' + length + '" height="' + width + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="4"/>';
+                return '<rect x="' + (-length/2) + '" y="' + (-width/2) + '" width="' + length + '" height="' + width + '" fill="url(#shapeGradient)" stroke="#007bff" stroke-width="4" filter="url(#shadowEffect)"/>';
                 
             case 'quadrat':
                 var side = (dims.side || 5) * scale;
-                return '<rect x="' + (-side/2) + '" y="' + (-side/2) + '" width="' + side + '" height="' + side + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="4"/>';
+                return '<rect x="' + (-side/2) + '" y="' + (-side/2) + '" width="' + side + '" height="' + side + '" fill="url(#shapeGradient)" stroke="#007bff" stroke-width="4" filter="url(#shadowEffect)"/>';
                 
             case 'kreis':
                 var radius = (dims.radius || 4) * scale;
-                return '<circle cx="0" cy="0" r="' + radius + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="4"/>';
+                return '<circle cx="0" cy="0" r="' + radius + '" fill="url(#shapeGradient)" stroke="#007bff" stroke-width="4" filter="url(#shadowEffect)"/>';
                 
             case 'oval':
                 var rx = (dims.radiusX || 5) * scale;
                 var ry = (dims.radiusY || 3) * scale;
-                return '<ellipse cx="0" cy="0" rx="' + rx + '" ry="' + ry + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="4"/>';
+                return '<ellipse cx="0" cy="0" rx="' + rx + '" ry="' + ry + '" fill="url(#shapeGradient)" stroke="#007bff" stroke-width="4" filter="url(#shadowEffect)"/>';
                 
             case 'dreieck':
                 var sideEq = (dims.side || 5) * scale;
                 var heightEq = sideEq * Math.sqrt(3) / 2;
                 var pointsEq = '0,' + (-heightEq*2/3) + ' ' + (-sideEq/2) + ',' + (heightEq/3) + ' ' + (sideEq/2) + ',' + (heightEq/3);
-                return '<polygon points="' + pointsEq + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="4"/>';
+                return '<polygon points="' + pointsEq + '" fill="url(#shapeGradient)" stroke="#007bff" stroke-width="4" filter="url(#shadowEffect)"/>';
                 
             case 'rechtwinklig':
                 var katheteA = (dims.katheteA || 4) * scale;
                 var katheteB = (dims.katheteB || 5) * scale;
                 // Dreieck mit rechtem Winkel unten links, Kathete A nach rechts, Kathete B nach oben
                 var pointsRight = '0,0 ' + katheteA + ',0 0,' + (-katheteB);
-                return '<polygon points="' + pointsRight + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="4"/>';
+                return '<polygon points="' + pointsRight + '" fill="url(#shapeGradient)" stroke="#007bff" stroke-width="4" filter="url(#shadowEffect)"/>';
                 
             case 'lform':
                 var totalLength = (dims.totalLength || 10) * scale;
@@ -312,10 +451,10 @@
                     (-totalLength/2 + cutoutLength) + ',' + (totalWidth/2),
                     (-totalLength/2) + ',' + (totalWidth/2)
                 ];
-                return '<polygon points="' + lPoints.join(' ') + '" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="4"/>';
+                return '<polygon points="' + lPoints.join(' ') + '" fill="url(#shapeGradient)" stroke="#007bff" stroke-width="4" filter="url(#shadowEffect)"/>';
                 
             default:
-                return '<rect x="-60" y="-40" width="120" height="80" fill="rgba(0,123,255,0.3)" stroke="#007bff" stroke-width="4"/>';
+                return '<rect x="-80" y="-60" width="160" height="120" fill="url(#shapeGradient)" stroke="#007bff" stroke-width="4" filter="url(#shadowEffect)"/>';
         }
     }
 
