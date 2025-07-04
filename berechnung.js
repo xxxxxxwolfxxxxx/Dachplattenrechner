@@ -258,73 +258,139 @@ function drawPlateLayout() {
     const centerX = roofCanvas.width / 2;
     const centerY = roofCanvas.height / 2;
     
-    // Platten-Darstellung für verschiedene Geometrien
-    roofCtx.strokeStyle = '#28a745';
-    roofCtx.lineWidth = 2;
-    roofCtx.setLineDash([5, 5]);
-    
     if (geometry.variant === 'trapez') {
-        // Trapez: Platten werden schmaler nach oben
+        // Trapez: Platten haben immer gleiche Breite, ragen aber über
         const bottomBase = (geometry.dimensions.bottomBase || 8) * scale;
         const topBase = (geometry.dimensions.topBase || 6) * scale;
         const height = (geometry.dimensions.height || 4) * scale;
         
         for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
-            // Lineare Interpolation für trapezförmige Plattenverteilung
-            const bottomX = centerX - bottomBase/2 + (i * bottomBase / calculationResults.bahnenAnzahl);
-            const topX = centerX - topBase/2 + (i * topBase / calculationResults.bahnenAnzahl);
+            // Platten gleichmäßig über die untere Basis verteilen
+            const plattenbreite = nutzbreite * scale;
+            const startX = centerX - bottomBase/2 + (i * plattenbreite);
             
-            // Plattengrenzen zeichnen
-            roofCtx.beginPath();
-            roofCtx.moveTo(bottomX, centerY + height/2);
-            roofCtx.lineTo(topX, centerY - height/2);
-            roofCtx.stroke();
+            // Vollständige Platte zeichnen (grün)
+            roofCtx.strokeStyle = '#28a745';
+            roofCtx.lineWidth = 2;
+            roofCtx.setLineDash([]);
+            roofCtx.strokeRect(startX, centerY - height/2, plattenbreite, height);
+            
+            // Überstände berechnen und rot markieren
+            // Unten: Platte ragt über untere Basis hinaus?
+            const bottomOverhang = Math.max(0, (startX + plattenbreite) - (centerX + bottomBase/2));
+            if (bottomOverhang > 0) {
+                roofCtx.fillStyle = 'rgba(220, 53, 69, 0.6)'; // Rot für Verschnitt
+                roofCtx.fillRect(startX + plattenbreite - bottomOverhang, centerY - height/2, bottomOverhang, height);
+            }
+            
+            // Links: Erste Platte ragt über linke Seite hinaus?
+            if (i === 0 && startX < centerX - bottomBase/2) {
+                const leftOverhang = (centerX - bottomBase/2) - startX;
+                roofCtx.fillStyle = 'rgba(220, 53, 69, 0.6)';
+                roofCtx.fillRect(startX, centerY - height/2, leftOverhang, height);
+            }
+            
+            // Oben: Platte ragt über obere Basis hinaus?
+            const topStartX = centerX - topBase/2 + (i * plattenbreite * topBase/bottomBase);
+            const topEndX = topStartX + (plattenbreite * topBase/bottomBase);
+            
+            // Trapezförmige Verschnittbereiche oben
+            if (topStartX < centerX - topBase/2 || topEndX > centerX + topBase/2) {
+                // Linker oberer Verschnitt
+                if (topStartX < centerX - topBase/2) {
+                    const leftTopOverhang = (centerX - topBase/2) - topStartX;
+                    roofCtx.beginPath();
+                    roofCtx.moveTo(startX, centerY - height/2);
+                    roofCtx.lineTo(centerX - topBase/2, centerY - height/2);
+                    roofCtx.lineTo(startX + leftTopOverhang, centerY - height/2 + 20);
+                    roofCtx.closePath();
+                    roofCtx.fillStyle = 'rgba(220, 53, 69, 0.6)';
+                    roofCtx.fill();
+                }
+                
+                // Rechter oberer Verschnitt
+                if (topEndX > centerX + topBase/2) {
+                    const rightTopOverhang = topEndX - (centerX + topBase/2);
+                    roofCtx.beginPath();
+                    roofCtx.moveTo(centerX + topBase/2, centerY - height/2);
+                    roofCtx.lineTo(startX + plattenbreite, centerY - height/2);
+                    roofCtx.lineTo(startX + plattenbreite - rightTopOverhang, centerY - height/2 + 20);
+                    roofCtx.closePath();
+                    roofCtx.fillStyle = 'rgba(220, 53, 69, 0.6)';
+                    roofCtx.fill();
+                }
+            }
             
             // Plattennummer
-            const midX = (bottomX + topX) / 2;
-            const midY = centerY;
-            roofCtx.fillStyle = '#28a745';
+            roofCtx.fillStyle = '#000';
             roofCtx.font = '12px Arial';
             roofCtx.textAlign = 'center';
-            roofCtx.fillText(i + 1, midX, midY);
+            roofCtx.fillText(i + 1, startX + plattenbreite/2, centerY);
         }
         
     } else if (geometry.variant === 'rechtwinklig') {
-        // Rechtwinkliges Dreieck: Platten werden kürzer nach oben
+        // Rechtwinkliges Dreieck: Platten haben gleiche Breite
         const katheteA = (geometry.dimensions.katheteA || 4) * scale;
         const katheteB = (geometry.dimensions.katheteB || 5) * scale;
         
         for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
-            const x = centerX - katheteA/2 + (i * katheteA / calculationResults.bahnenAnzahl);
+            const plattenbreite = nutzbreite * scale;
+            const startX = centerX - katheteA/2 + (i * plattenbreite);
             
-            // Dreieck-spezifische Höhenberechnung
-            const relativePosition = i / calculationResults.bahnenAnzahl;
-            const plattenHoehe = katheteB * (1 - relativePosition);
+            // Vollständige Platte zeichnen
+            roofCtx.strokeStyle = '#28a745';
+            roofCtx.lineWidth = 2;
+            roofCtx.setLineDash([]);
+            roofCtx.strokeRect(startX, centerY - katheteB/2, plattenbreite, katheteB);
             
-            roofCtx.beginPath();
-            roofCtx.moveTo(x, centerY + katheteB/2);
-            roofCtx.lineTo(x, centerY + katheteB/2 - plattenHoehe);
-            roofCtx.stroke();
+            // Dreieckiger Verschnitt oben
+            const triangleTopX = startX + plattenbreite * (katheteB/2) / katheteB;
+            if (startX + plattenbreite > centerX - katheteA/2 + katheteA * (katheteB/2) / katheteB) {
+                roofCtx.beginPath();
+                roofCtx.moveTo(triangleTopX, centerY - katheteB/2);
+                roofCtx.lineTo(startX + plattenbreite, centerY - katheteB/2);
+                roofCtx.lineTo(startX + plattenbreite, centerY);
+                roofCtx.closePath();
+                roofCtx.fillStyle = 'rgba(220, 53, 69, 0.6)';
+                roofCtx.fill();
+            }
             
             // Plattennummer
-            roofCtx.fillStyle = '#28a745';
+            roofCtx.fillStyle = '#000';
             roofCtx.font = '12px Arial';
             roofCtx.textAlign = 'center';
-            roofCtx.fillText(i + 1, x + 10, centerY);
+            roofCtx.fillText(i + 1, startX + plattenbreite/2, centerY);
         }
         
     } else {
         // Standard-Rechteck: Gleichmäßige Plattenverteilung
+        const length = (geometry.dimensions.length || 8) * scale;
+        const width = (geometry.dimensions.width || 5) * scale;
+        
         for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
-            const x = centerX - (calculationResults.bahnenAnzahl * deckbreite * scale) / 2 + (i * deckbreite * scale);
-            roofCtx.beginPath();
-            roofCtx.moveTo(x, centerY - 100);
-            roofCtx.lineTo(x, centerY + 100);
-            roofCtx.stroke();
+            const plattenbreite = nutzbreite * scale;
+            const startX = centerX - length/2 + (i * plattenbreite);
+            
+            // Vollständige Platte zeichnen
+            roofCtx.strokeStyle = '#28a745';
+            roofCtx.lineWidth = 2;
+            roofCtx.setLineDash([]);
+            roofCtx.strokeRect(startX, centerY - width/2, plattenbreite, width);
+            
+            // Überstand rechts (falls letzte Platte über Dach hinausragt)
+            if (startX + plattenbreite > centerX + length/2) {
+                const overhang = (startX + plattenbreite) - (centerX + length/2);
+                roofCtx.fillStyle = 'rgba(220, 53, 69, 0.6)';
+                roofCtx.fillRect(centerX + length/2, centerY - width/2, overhang, width);
+            }
+            
+            // Plattennummer
+            roofCtx.fillStyle = '#000';
+            roofCtx.font = '12px Arial';
+            roofCtx.textAlign = 'center';
+            roofCtx.fillText(i + 1, startX + plattenbreite/2, centerY);
         }
     }
-    
-    roofCtx.setLineDash([]);
 }
 
 // Berechnung durchführen
