@@ -607,67 +607,94 @@ function goBack() {
     window.location.href = 'Editor.html';
 }
 
-// Initialisierung - REPARIERT
+// Initialisierung - VERBESSERTE Datenladung
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== BERECHNUNG-SEITE GELADEN ===');
     
     // Projektdaten laden
     projectData = loadData();
-    console.log('Geladene Projektdaten:', projectData);
+    console.log('🔍 RAW Geladene Projektdaten:', JSON.stringify(projectData, null, 2));
     
-    // VERBESSERTE Validierung - prüfe auf echte Geometrie-Daten
-    if (!projectData.profile) {
+    // ALLE möglichen Datenquellen prüfen
+    let foundGeometry = null;
+    let foundProfile = projectData.profile;
+    
+    // 1. Prüfe projectData.geometry (von Formauswahl.html)
+    if (projectData.geometry && projectData.geometry.dimensions) {
+        console.log('✅ Gefunden: projectData.geometry');
+        foundGeometry = projectData.geometry;
+    }
+    
+    // 2. Prüfe projectData.roofShape (von Editor.html) 
+    else if (projectData.roofShape && projectData.roofShape.points) {
+        console.log('✅ Gefunden: projectData.roofShape mit Points');
+        // Konvertiere points zu dimensions (vereinfacht)
+        foundGeometry = {
+            variant: projectData.roofShape.variant || projectData.roofShape.baseShape,
+            dimensions: extractDimensionsFromPoints(projectData.roofShape.points),
+            area: calculateAreaFromPoints(projectData.roofShape.points)
+        };
+    }
+    
+    // 3. Prüfe andere roofShape Strukturen
+    else if (projectData.roofShape) {
+        console.log('✅ Gefunden: projectData.roofShape ohne Points');
+        foundGeometry = {
+            variant: projectData.roofShape.variant || projectData.roofShape.baseShape,
+            dimensions: projectData.roofShape.dimensions || getDefaultDimensions(projectData.roofShape.variant || 'rechteck'),
+            area: projectData.roofShape.area || 40
+        };
+    }
+    
+    // 4. Letzte Fallback-Prüfung im localStorage
+    else {
+        console.log('🔍 Suche nach alternativen Datenquellen...');
+        try {
+            // Prüfe alle localStorage Keys
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.includes('dach')) {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    console.log(`📦 Gefunden in ${key}:`, data);
+                    if (data.geometry || data.roofShape) {
+                        foundGeometry = data.geometry || data.roofShape;
+                        foundProfile = data.profile || foundProfile;
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            console.log('Fehler bei localStorage-Suche:', e);
+        }
+    }
+    
+    // VALIDATION: Falls immer noch keine Daten
+    if (!foundProfile) {
         console.error('❌ KEINE PROFIL-DATEN!');
         alert('Keine Profil-Daten gefunden. Bitte kehren Sie zu Schritt 1 zurück.');
         window.location.href = 'profil.html';
         return;
     }
     
-    if (!projectData.geometry && !projectData.roofShape) {
+    if (!foundGeometry) {
         console.error('❌ KEINE GEOMETRIE-DATEN!');
         alert('Keine Geometrie-Daten gefunden. Bitte kehren Sie zu den vorherigen Schritten zurück.');
-        window.location.href = 'dachform.html';
+        window.location.href = 'formauswahl.html';
         return;
     }
     
-    // ECHTE Geometrie-Daten aus allen möglichen Quellen zusammenbauen
-    let finalGeometry = projectData.geometry;
+    // Finalisiere projectData
+    projectData.profile = foundProfile;
+    projectData.geometry = foundGeometry;
     
-    // Falls keine geometry aber roofShape vorhanden, konvertiere
-    if (!finalGeometry && projectData.roofShape) {
-        console.log('🔄 Konvertiere roofShape zu geometry...');
-        finalGeometry = {
-            variant: projectData.roofShape.variant,
-            // Standardmaße falls keine Dimensionen gespeichert
-            dimensions: projectData.roofShape.dimensions || getDefaultDimensions(projectData.roofShape.variant),
-            area: calculateAreaFromDimensions(projectData.roofShape.variant, projectData.roofShape.dimensions || getDefaultDimensions(projectData.roofShape.variant))
-        };
-        
-        // Aktualisiere projectData
-        projectData.geometry = finalGeometry;
-        console.log('✅ Geometrie konvertiert:', finalGeometry);
-    }
+    console.log('🎯 FINALE DATEN:', {
+        profile: projectData.profile,
+        geometry: projectData.geometry
+    });
     
-    // Debug-Info anzeigen wenn Daten unvollständig aussehen
-    if (usesDefaultValues(finalGeometry)) {
-        const debugInfo = document.getElementById('debug-info');
-        const debugContent = document.getElementById('debug-content');
-        if (debugInfo && debugContent) {
-            debugInfo.style.display = 'block';
-            debugContent.innerHTML = `
-                <p><strong>⚠️ Verwendet Standard-Abmessungen:</strong></p>
-                <pre>${JSON.stringify(finalGeometry, null, 2)}</pre>
-                <p>Falls das nicht Ihren eingegebenen Maßen entspricht, gehen Sie zurück zur Bemaßung.</p>
-                <button onclick="window.location.href='formauswahl.html'" class="btn btn-warning">Zurück zur Bemaßung</button>
-            `;
-        }
-    } else {
-        // DEBUG-INFO VERSTECKEN wenn echte Daten vorhanden
-        const debugInfo = document.getElementById('debug-info');
-        if (debugInfo) {
-            debugInfo.style.display = 'none';
-        }
-        console.log('✅ Echte Geometrie-Daten erkannt - Debug-Warnung ausgeblendet');
+    // Weitere Debug-Ausgabe
+    if (projectData.geometry && projectData.geometry.dimensions) {
+        console.log('📐 VERWENDETE DIMENSIONEN:', projectData.geometry.dimensions);
     }
     
     // Canvas setup
@@ -680,8 +707,60 @@ document.addEventListener('DOMContentLoaded', function() {
     // AUTOMATISCHE BERECHNUNG mit echten Daten
     calculateLengths();
     
-    console.log('✅ Berechnung-Seite erfolgreich initialisiert mit automatischer Berechnung');
+    console.log('✅ Berechnung-Seite erfolgreich initialisiert');
 });
+
+// Hilfsfunktionen für Point-zu-Dimension Konvertierung
+function extractDimensionsFromPoints(points) {
+    if (!points || points.length === 0) return getDefaultDimensions('rechteck');
+    
+    // Vereinfachte Extraktion - berechne Bounding Box
+    const minX = Math.min(...points.map(p => p.x));
+    const maxX = Math.max(...points.map(p => p.x));
+    const minY = Math.min(...points.map(p => p.y));
+    const maxY = Math.max(...points.map(p => p.y));
+    
+    const width = maxX - minX;
+    const height = maxY - minY;
+    
+    console.log(`📏 Extrahiert aus Points: ${width.toFixed(1)}m × ${height.toFixed(1)}m`);
+    
+    // Erkenne Form basierend auf Punktanzahl
+    if (points.length === 3) {
+        return { katheteA: width, katheteB: height };
+    } else if (points.length === 4) {
+        // Prüfe ob Trapez (unterschiedliche obere/untere Breite)
+        const topWidth = Math.abs(points[2].x - points[3].x);
+        const bottomWidth = Math.abs(points[1].x - points[0].x);
+        
+        if (Math.abs(topWidth - bottomWidth) > 0.1) {
+            // Trapez
+            return { 
+                bottomBase: Math.max(topWidth, bottomWidth), 
+                topBase: Math.min(topWidth, bottomWidth), 
+                height: height 
+            };
+        } else {
+            // Rechteck
+            return { length: width, width: height };
+        }
+    } else {
+        return { length: width, width: height };
+    }
+}
+
+function calculateAreaFromPoints(points) {
+    if (!points || points.length < 3) return 40;
+    
+    // Shoelace-Formel für Polygon-Fläche
+    let area = 0;
+    for (let i = 0; i < points.length; i++) {
+        const j = (i + 1) % points.length;
+        area += points[i].x * points[j].y;
+        area -= points[j].x * points[i].y;
+    }
+    return Math.abs(area) / 2;
+}
 
 // Canvas-Größe bei Fenster-Resize anpassen
 window.addEventListener('resize', function() {
