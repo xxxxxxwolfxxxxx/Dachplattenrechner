@@ -252,24 +252,30 @@ function drawPlateLayout() {
     const geometry = projectData.geometry;
     if (!profile || !geometry) return;
     
-    const deckbreite = profile.deckbreite / 1000; // in Meter (z.B. 1.0m)
-    const nutzbreite = deckbreite - (profile.seitenueberlappung / 1000); // z.B. 0.95m
+    // KORRIGIERT: Richtige Begriffe verwenden
+    const lieferbreite = profile.lieferbreite / 1000; // physische Plattenbreite (z.B. 1.05m)
+    const deckbreite = profile.deckbreite / 1000; // effektive Deckbreite (z.B. 1.0m)
+    const seitenueberlappung = (profile.seitenueberlappung / 1000); // z.B. 0.05m
+    
     const scale = 50;
     const centerX = roofCanvas.width / 2;
     const centerY = roofCanvas.height / 2;
     
+    console.log(`Lieferbreite: ${lieferbreite}m, Deckbreite: ${deckbreite}m, Überlappung: ${seitenueberlappung}m`);
+    
     if (geometry.variant === 'trapez') {
-        // Trapez: Platten haben immer gleiche Deckbreite
+        // Trapez: Platten haben physische Lieferbreite
         const bottomBase = (geometry.dimensions.bottomBase || 8) * scale;
         const topBase = (geometry.dimensions.topBase || 6) * scale;
         const height = (geometry.dimensions.height || 4) * scale;
         
         for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
-            // KORRIGIERT: Verwende Deckbreite für Visualisierung, nicht Nutzbreite
-            const plattenbreite = deckbreite * scale; // 1000mm = 1m Deckbreite
-            const startX = centerX - bottomBase/2 + (i * nutzbreite * scale); // Position basiert auf Nutzbreite (Überlappung)
+            // Position basiert auf Deckbreite (was tatsächlich gedeckt wird)
+            const startX = centerX - bottomBase/2 + (i * deckbreite * scale);
+            // Platte selbst hat aber Lieferbreite
+            const plattenbreite = lieferbreite * scale; // 1050mm physische Breite
             
-            // Vollständige Platte zeichnen (grün umrandet)
+            // Vollständige Platte zeichnen (physische Größe)
             roofCtx.strokeStyle = '#28a745';
             roofCtx.lineWidth = 2;
             roofCtx.setLineDash([]);
@@ -277,22 +283,29 @@ function drawPlateLayout() {
             roofCtx.fillRect(startX, centerY - height/2, plattenbreite, height);
             roofCtx.strokeRect(startX, centerY - height/2, plattenbreite, height);
             
-            // Dachform-Grenze für Verschnitt-Berechnung
+            // Dachform-Grenzen
             const leftDachEdge = centerX - bottomBase/2;
             const rightDachEdge = centerX + bottomBase/2;
             const topLeftDachEdge = centerX - topBase/2;
             const topRightDachEdge = centerX + topBase/2;
             
+            // Seitenüberlappung visualisieren (rechte 50mm der Platte)
+            if (i < calculationResults.bahnenAnzahl - 1) { // Nicht bei letzter Platte
+                const ueberlappungX = startX + plattenbreite - (seitenueberlappung * scale);
+                roofCtx.fillStyle = 'rgba(40, 167, 69, 0.8)'; // Dunkelgrün für Überlappung
+                roofCtx.fillRect(ueberlappungX, centerY - height/2, seitenueberlappung * scale, height);
+            }
+            
             // Überstände berechnen und rot markieren
             
-            // 1. Überstand unten links (erste Platte)
+            // 1. Überstand links (erste Platte)
             if (i === 0 && startX < leftDachEdge) {
                 const leftOverhang = leftDachEdge - startX;
                 roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)'; // Rot für Verschnitt
                 roofCtx.fillRect(startX, centerY - height/2, leftOverhang, height);
             }
             
-            // 2. Überstand unten rechts (letzte Platte)
+            // 2. Überstand rechts (letzte Platte)
             if (startX + plattenbreite > rightDachEdge) {
                 const rightOverhang = (startX + plattenbreite) - rightDachEdge;
                 roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)';
@@ -300,50 +313,48 @@ function drawPlateLayout() {
             }
             
             // 3. Trapezförmige Verschnitte oben
-            // Berechne wo diese Platte oben auf dem Trapez landet
-            const trapezRatio = topBase / bottomBase; // Verhältnis oben/unten
-            const platteStartRelativ = (startX - leftDachEdge) / bottomBase; // 0-1 Position
-            const platteEndRelativ = (startX + plattenbreite - leftDachEdge) / bottomBase;
+            const trapezRatio = topBase / bottomBase;
+            const platteStartRelativ = Math.max(0, (startX - leftDachEdge) / bottomBase);
+            const platteEndRelativ = Math.min(1, (startX + plattenbreite - leftDachEdge) / bottomBase);
             
             const topPlatteStart = topLeftDachEdge + (platteStartRelativ * topBase);
             const topPlatteEnd = topLeftDachEdge + (platteEndRelativ * topBase);
             
             // Linker oberer Verschnitt
-            if (topPlatteStart < topLeftDachEdge) {
-                roofCtx.beginPath();
-                roofCtx.moveTo(startX, centerY - height/2);
-                roofCtx.lineTo(topLeftDachEdge, centerY - height/2);
-                roofCtx.lineTo(startX + (topLeftDachEdge - topPlatteStart), centerY - height/2 + 20);
-                roofCtx.lineTo(startX, centerY - height/2 + 20);
-                roofCtx.closePath();
-                roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)';
-                roofCtx.fill();
+            if (startX < leftDachEdge || topPlatteStart < topLeftDachEdge) {
+                const verschnittBreite = Math.max(0, leftDachEdge - startX);
+                if (verschnittBreite > 0) {
+                    roofCtx.beginPath();
+                    roofCtx.moveTo(startX, centerY - height/2);
+                    roofCtx.lineTo(leftDachEdge, centerY - height/2);
+                    roofCtx.lineTo(topLeftDachEdge, centerY - height/2);
+                    roofCtx.lineTo(startX + verschnittBreite * trapezRatio, centerY - height/2);
+                    roofCtx.closePath();
+                    roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)';
+                    roofCtx.fill();
+                }
             }
             
             // Rechter oberer Verschnitt
-            if (topPlatteEnd > topRightDachEdge) {
-                roofCtx.beginPath();
-                roofCtx.moveTo(topRightDachEdge, centerY - height/2);
-                roofCtx.lineTo(startX + plattenbreite, centerY - height/2);
-                roofCtx.lineTo(startX + plattenbreite, centerY - height/2 + 20);
-                roofCtx.lineTo(topRightDachEdge - (topPlatteEnd - topRightDachEdge), centerY - height/2 + 20);
-                roofCtx.closePath();
-                roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)';
-                roofCtx.fill();
-            }
-            
-            // Seitenüberlappung visualisieren (dunkelgrün)
-            if (i > 0) {
-                const ueberlappung = (profile.seitenueberlappung / 1000) * scale;
-                roofCtx.fillStyle = 'rgba(40, 167, 69, 0.8)';
-                roofCtx.fillRect(startX, centerY - height/2, ueberlappung, height);
+            if (startX + plattenbreite > rightDachEdge || topPlatteEnd > topRightDachEdge) {
+                const verschnittBreite = Math.max(0, (startX + plattenbreite) - rightDachEdge);
+                if (verschnittBreite > 0) {
+                    roofCtx.beginPath();
+                    roofCtx.moveTo(rightDachEdge, centerY - height/2);
+                    roofCtx.lineTo(startX + plattenbreite, centerY - height/2);
+                    roofCtx.lineTo(startX + plattenbreite - verschnittBreite * trapezRatio, centerY - height/2);
+                    roofCtx.lineTo(topRightDachEdge, centerY - height/2);
+                    roofCtx.closePath();
+                    roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)';
+                    roofCtx.fill();
+                }
             }
             
             // Plattennummer
             roofCtx.fillStyle = '#000';
             roofCtx.font = 'bold 14px Arial';
             roofCtx.textAlign = 'center';
-            roofCtx.fillText(i + 1, startX + plattenbreite/2, centerY);
+            roofCtx.fillText(i + 1, startX + plattenbreite/2, centerY + 5);
         }
         
     } else if (geometry.variant === 'rechtwinklig') {
@@ -352,8 +363,8 @@ function drawPlateLayout() {
         const katheteB = (geometry.dimensions.katheteB || 5) * scale;
         
         for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
-            const plattenbreite = deckbreite * scale; // Vollständige Deckbreite
-            const startX = centerX - katheteA/2 + (i * nutzbreite * scale);
+            const plattenbreite = lieferbreite * scale; // Physische Plattenbreite
+            const startX = centerX - katheteA/2 + (i * deckbreite * scale); // Position basiert auf Deckbreite
             
             // Vollständige Platte zeichnen
             roofCtx.strokeStyle = '#28a745';
@@ -363,8 +374,12 @@ function drawPlateLayout() {
             roofCtx.fillRect(startX, centerY - katheteB/2, plattenbreite, katheteB);
             roofCtx.strokeRect(startX, centerY - katheteB/2, plattenbreite, katheteB);
             
-            // Dreieckiger Verschnitt berechnen
-            // TODO: Dreieck-spezifische Verschnitt-Logik
+            // Seitenüberlappung
+            if (i < calculationResults.bahnenAnzahl - 1) {
+                const ueberlappungX = startX + plattenbreite - (seitenueberlappung * scale);
+                roofCtx.fillStyle = 'rgba(40, 167, 69, 0.8)';
+                roofCtx.fillRect(ueberlappungX, centerY - katheteB/2, seitenueberlappung * scale, katheteB);
+            }
             
             // Plattennummer
             roofCtx.fillStyle = '#000';
@@ -379,8 +394,8 @@ function drawPlateLayout() {
         const width = (geometry.dimensions.width || 5) * scale;
         
         for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
-            const plattenbreite = deckbreite * scale; // Vollständige Deckbreite
-            const startX = centerX - length/2 + (i * nutzbreite * scale);
+            const plattenbreite = lieferbreite * scale; // Physische Plattenbreite (1050mm)
+            const startX = centerX - length/2 + (i * deckbreite * scale); // Position basiert auf Deckbreite (1000mm)
             
             // Vollständige Platte zeichnen
             roofCtx.strokeStyle = '#28a745';
@@ -398,10 +413,10 @@ function drawPlateLayout() {
             }
             
             // Seitenüberlappung
-            if (i > 0) {
-                const ueberlappung = (profile.seitenueberlappung / 1000) * scale;
+            if (i < calculationResults.bahnenAnzahl - 1) {
+                const ueberlappungX = startX + plattenbreite - (seitenueberlappung * scale);
                 roofCtx.fillStyle = 'rgba(40, 167, 69, 0.8)';
-                roofCtx.fillRect(startX, centerY - width/2, ueberlappung, width);
+                roofCtx.fillRect(ueberlappungX, centerY - width/2, seitenueberlappung * scale, width);
             }
             
             // Plattennummer
