@@ -296,92 +296,83 @@ function drawPlateLayout() {
                 roofCtx.fillRect(ueberlappungX, centerY - height/2, seitenueberlappung * scale, height);
             }
             
-            // KORREKTE Verschnitt-Darstellung: Alles außerhalb der Trapezform ist rot
+            // VEREINFACHTE Verschnitt-Darstellung
+            // Regel: Alles außerhalb der Trapezform ist rot
             
-            // Für jede Platte prüfen, welche Teile außerhalb des Trapezes liegen
-            const platteLinks = startX;
-            const platteRechts = startX + plattenbreite;
-            const platteOben = centerY - height/2;
-            const platteUnten = centerY + height/2;
+            // Trapez-Eckpunkte definieren
+            const trapezEcken = [
+                { x: leftDachEdge, y: centerY + height/2 },      // unten links
+                { x: rightDachEdge, y: centerY + height/2 },     // unten rechts  
+                { x: topRightDachEdge, y: centerY - height/2 },  // oben rechts
+                { x: topLeftDachEdge, y: centerY - height/2 }    // oben links
+            ];
             
-            // 1. LINKER Verschnitt (außerhalb der linken Trapezkante)
-            if (platteLinks < leftDachEdge) {
-                const verschnittBreite = leftDachEdge - platteLinks;
-                
-                // Kompletter linker Verschnitt (rechteckig)
+            // Für jede Platte: Schneide alles außerhalb des Trapezes rot
+            
+            // 1. Linker Überstand (außerhalb linker Trapezkante)
+            if (startX < leftDachEdge) {
+                const verschnittBreite = leftDachEdge - startX;
                 roofCtx.fillStyle = 'rgba(220, 53, 69, 0.8)';
-                roofCtx.fillRect(platteLinks, platteOben, verschnittBreite, height);
-                
-                // Zusätzlich: Oberer dreieckiger Verschnitt
-                const trapezVerschnittBreite = verschnittBreite * (topBase / bottomBase);
-                roofCtx.beginPath();
-                roofCtx.moveTo(leftDachEdge, platteOben);
-                roofCtx.lineTo(leftDachEdge + trapezVerschnittBreite, platteOben);
-                roofCtx.lineTo(topLeftDachEdge, platteOben);
-                roofCtx.closePath();
-                roofCtx.fill();
+                roofCtx.fillRect(startX, centerY - height/2, verschnittBreite, height);
+                console.log(`Platte ${i+1}: Linker Verschnitt ${verschnittBreite.toFixed(1)}px`);
             }
             
-            // 2. RECHTER Verschnitt (außerhalb der rechten Trapezkante)  
-            if (platteRechts > rightDachEdge) {
-                const verschnittBreite = platteRechts - rightDachEdge;
-                
-                // Kompletter rechter Verschnitt (rechteckig)
+            // 2. Rechter Überstand (außerhalb rechter Trapezkante)
+            if (startX + plattenbreite > rightDachEdge) {
+                const verschnittBreite = (startX + plattenbreite) - rightDachEdge;
                 roofCtx.fillStyle = 'rgba(220, 53, 69, 0.8)';
-                roofCtx.fillRect(rightDachEdge, platteOben, verschnittBreite, height);
-                
-                // Zusätzlich: Oberer dreieckiger Verschnitt
-                const trapezVerschnittBreite = verschnittBreite * (topBase / bottomBase);
-                roofCtx.beginPath();
-                roofCtx.moveTo(rightDachEdge - trapezVerschnittBreite, platteOben);
-                roofCtx.lineTo(rightDachEdge, platteOben);
-                roofCtx.lineTo(topRightDachEdge, platteOben);
-                roofCtx.closePath();
-                roofCtx.fill();
+                roofCtx.fillRect(rightDachEdge, centerY - height/2, verschnittBreite, height);
+                console.log(`Platte ${i+1}: Rechter Verschnitt ${verschnittBreite.toFixed(1)}px`);
             }
             
-            // 3. OBERE dreieckige Verschnitte (die wichtigsten!)
-            // Berechne wo diese Platte innerhalb des Daches liegt
-            const platteStartInDach = Math.max(platteLinks, leftDachEdge);
-            const platteEndInDach = Math.min(platteRechts, rightDachEdge);
+            // 3. Obere Dreiecks-Verschnitte
+            // Vereinfacht: Alles oberhalb der schrägen Trapezkanten
             
-            if (platteStartInDach < platteEndInDach) {
-                // Diese Platte hat Bereiche innerhalb des Daches
-                const dachBreiteUnten = rightDachEdge - leftDachEdge;
-                const dachBreiteOben = topRightDachEdge - topLeftDachEdge;
-                const schrumpfungsFaktor = dachBreiteOben / dachBreiteUnten;
+            // Prüfe ob diese Platte die oberen schrägen Kanten schneidet
+            const platteInnerhalb = Math.max(startX, leftDachEdge);
+            const platteBreiteInnerhalb = Math.min(startX + plattenbreite, rightDachEdge) - platteInnerhalb;
+            
+            if (platteBreiteInnerhalb > 0) {
+                // Diese Platte liegt teilweise innerhalb des Daches
                 
-                // Entsprechende Position oben berechnen
-                const relatStartPos = (platteStartInDach - leftDachEdge) / dachBreiteUnten;
-                const relatEndPos = (platteEndInDach - leftDachEdge) / dachBreiteUnten;
+                // Berechne entsprechende obere Positionen
+                const positionRatio = (platteInnerhalb - leftDachEdge) / (rightDachEdge - leftDachEdge);
+                const breitenRatio = platteBreiteInnerhalb / (rightDachEdge - leftDachEdge);
                 
-                const obenStart = topLeftDachEdge + (relatStartPos * dachBreiteOben);
-                const obenEnd = topLeftDachEdge + (relatEndPos * dachBreiteOben);
+                const obenStart = topLeftDachEdge + (positionRatio * (topRightDachEdge - topLeftDachEdge));
+                const obenBreite = breitenRatio * (topRightDachEdge - topLeftDachEdge);
                 
-                // LINKER oberer Dreieck-Verschnitt
-                if (platteStartInDach > leftDachEdge || obenStart > topLeftDachEdge) {
+                // Linkes oberes Dreieck (wenn Platte breiter als oben erlaubt)
+                if (platteInnerhalb < leftDachEdge + (topLeftDachEdge - topLeftDachEdge) / 0.75) {
                     roofCtx.fillStyle = 'rgba(220, 53, 69, 0.8)';
                     roofCtx.beginPath();
-                    roofCtx.moveTo(platteStartInDach, platteOben);
-                    roofCtx.lineTo(obenStart, platteOben);
-                    roofCtx.lineTo(topLeftDachEdge, platteOben);
-                    roofCtx.lineTo(leftDachEdge, platteOben);
+                    roofCtx.moveTo(platteInnerhalb, centerY - height/2);
+                    roofCtx.lineTo(obenStart, centerY - height/2);
+                    roofCtx.lineTo(topLeftDachEdge, centerY - height/2);
+                    roofCtx.lineTo(leftDachEdge, centerY - height/2);
                     roofCtx.closePath();
                     roofCtx.fill();
+                    console.log(`Platte ${i+1}: Linkes oberes Dreieck`);
                 }
                 
-                // RECHTER oberer Dreieck-Verschnitt
-                if (platteEndInDach < rightDachEdge || obenEnd < topRightDachEdge) {
+                // Rechtes oberes Dreieck
+                const platteEndeInnerhalb = platteInnerhalb + platteBreiteInnerhalb;
+                const obenEnde = obenStart + obenBreite;
+                
+                if (platteEndeInnerhalb > rightDachEdge - (topRightDachEdge - topRightDachEdge) / 0.75) {
                     roofCtx.fillStyle = 'rgba(220, 53, 69, 0.8)';
                     roofCtx.beginPath();
-                    roofCtx.moveTo(obenEnd, platteOben);
-                    roofCtx.lineTo(platteEndInDach, platteOben);
-                    roofCtx.lineTo(rightDachEdge, platteOben);
-                    roofCtx.lineTo(topRightDachEdge, platteOben);
+                    roofCtx.moveTo(obenEnde, centerY - height/2);
+                    roofCtx.lineTo(platteEndeInnerhalb, centerY - height/2);
+                    roofCtx.lineTo(rightDachEdge, centerY - height/2);
+                    roofCtx.lineTo(topRightDachEdge, centerY - height/2);
                     roofCtx.closePath();
                     roofCtx.fill();
+                    console.log(`Platte ${i+1}: Rechtes oberes Dreieck`);
                 }
             }
+            
+            console.log(`Platte ${i+1}: Start=${startX.toFixed(1)}, Breite=${plattenbreite.toFixed(1)}, DachLinks=${leftDachEdge.toFixed(1)}, DachRechts=${rightDachEdge.toFixed(1)}`);
             
             // Plattennummer
             roofCtx.fillStyle = '#000';
