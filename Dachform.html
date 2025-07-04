@@ -263,21 +263,22 @@
             margin-bottom: 20px;
         }
 
-        /* Verbesserte Eingabefeld-Styles */
+        /* Verbesserte Eingabefeld-Styles - geschlossene Kästen */
         .dimension-input-container {
             display: flex;
             align-items: center;
             background: white;
-            border-radius: 12px;
-            padding: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            padding: 6px 8px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
             border: 2px solid #007bff;
-            min-width: 180px;
+            min-width: 120px;
+            height: 36px;
         }
 
         .dimension-input {
-            width: 70px;
-            height: 32px;
+            width: 60px;
+            height: 24px;
             font-size: 14px;
             text-align: center;
             border: none;
@@ -290,17 +291,17 @@
         .dimension-controls {
             display: flex;
             flex-direction: column;
-            margin-left: 8px;
+            margin-left: 4px;
         }
 
         .dimension-btn {
-            width: 24px;
-            height: 16px;
+            width: 20px;
+            height: 12px;
             border: none;
             background: #007bff;
             color: white;
             cursor: pointer;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             transition: all 0.2s ease;
             display: flex;
@@ -309,25 +310,25 @@
         }
 
         .dimension-btn:first-child {
-            border-radius: 4px 4px 0 0;
+            border-radius: 3px 3px 0 0;
             border-bottom: 1px solid rgba(255,255,255,0.3);
         }
 
         .dimension-btn:last-child {
-            border-radius: 0 0 4px 4px;
+            border-radius: 0 0 3px 3px;
         }
 
         .dimension-btn:hover {
             background: #0056b3;
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
-        .dimension-label {
+        .dimension-unit {
             font-size: 11px;
             color: #007bff;
             font-weight: bold;
-            margin-left: 8px;
-            white-space: nowrap;
+            margin-left: 4px;
+            margin-right: 4px;
         }
 
         /* Buttons */
@@ -617,7 +618,7 @@
             updateCalculations();
         }
 
-        // VERBESSERTE Seitenpositionierung - konsistent an den Seiten
+        // KORRIGIERTE Seitenpositionierung - nahe am blauen Punkt, aber außen
         function getSidePosition(points, sideIndex) {
             const p1 = points[sideIndex];
             const p2 = points[(sideIndex + 1) % points.length];
@@ -629,19 +630,37 @@
             const dx = p2.x - p1.x;
             const dy = p2.y - p1.y;
             
-            // Normale berechnen (90° gedreht)
+            // Normale berechnen (90° gedreht, nach außen)
             const normalX = -dy;
             const normalY = dx;
             
             // Normalisieren
             const length = Math.sqrt(normalX * normalX + normalY * normalY);
+            if (length === 0) return { x: midX, y: midY - 40, midX, midY };
+            
             const unitNormalX = normalX / length;
             const unitNormalY = normalY / length;
             
-            // Position 60px nach außen von der Seitenmitte
-            const offsetDistance = 60;
-            const textX = midX + unitNormalX * offsetDistance;
-            const textY = midY + unitNormalY * offsetDistance;
+            // Bestimme ob die Normale nach innen oder außen zeigt
+            // Mittelpunkt der Form berechnen
+            const centerX = points.reduce((sum, p) => sum + p.x, 0) / points.length;
+            const centerY = points.reduce((sum, p) => sum + p.y, 0) / points.length;
+            
+            // Vektor vom Mittelpunkt zur Seitenmitte
+            const toCenterX = centerX - midX;
+            const toCenterY = centerY - midY;
+            
+            // Prüfe ob Normale in Richtung Zentrum zeigt (Skalarprodukt)
+            const dotProduct = unitNormalX * toCenterX + unitNormalY * toCenterY;
+            
+            // Wenn Normale zum Zentrum zeigt, umkehren
+            const finalNormalX = dotProduct > 0 ? -unitNormalX : unitNormalX;
+            const finalNormalY = dotProduct > 0 ? -unitNormalY : unitNormalY;
+            
+            // Position 40px nach außen von der Seitenmitte
+            const offsetDistance = 40;
+            const textX = midX + finalNormalX * offsetDistance;
+            const textY = midY + finalNormalY * offsetDistance;
             
             return { x: textX, y: textY, midX, midY };
         }
@@ -784,7 +803,7 @@
             shapeGroup.innerHTML = shapeSVG;
         }
 
-        // NEUE VERBESSERTE Seitenbemaßung - konsistent positioniert
+        // NEUE VERBESSERTE Seitenbemaßung - nahe am blauen Punkt, außen positioniert
         function drawImprovedSideDimensions(points) {
             let dimensionsSVG = '';
             
@@ -800,30 +819,48 @@
                 // Position für Eingabefeld berechnen
                 const position = getSidePosition(points, i);
                 
-                // Verbindungslinie zur Seitenmitte
+                // Blauer Punkt an der Seitenmitte
                 dimensionsSVG += `
-                    <circle cx="${position.midX}" cy="${position.midY}" r="3" fill="#007bff"/>
-                    <line x1="${position.midX}" y1="${position.midY}" x2="${position.x}" y2="${position.y}" 
-                          stroke="#007bff" stroke-width="1" stroke-dasharray="2,2" opacity="0.7"/>
+                    <circle cx="${position.midX}" cy="${position.midY}" r="4" fill="#007bff" stroke="white" stroke-width="1"/>
                 `;
                 
-                // Eingabefeld-Container
+                // Kurze Verbindungslinie vom Punkt zum Eingabefeld
+                const lineLength = 25;
+                const dirX = position.x - position.midX;
+                const dirY = position.y - position.midY;
+                const dirLength = Math.sqrt(dirX * dirX + dirY * dirY);
+                
+                if (dirLength > 0) {
+                    const unitDirX = dirX / dirLength;
+                    const unitDirY = dirY / dirLength;
+                    
+                    const lineEndX = position.midX + unitDirX * lineLength;
+                    const lineEndY = position.midY + unitDirY * lineLength;
+                    
+                    dimensionsSVG += `
+                        <line x1="${position.midX}" y1="${position.midY}" x2="${lineEndX}" y2="${lineEndY}" 
+                              stroke="#007bff" stroke-width="2" opacity="0.8"/>
+                    `;
+                }
+                
+                // Eingabefeld-Container - kompakt mit funktionierenden Buttons
                 const sideKey = getSideKey(i, selectedCorners);
                 const currentValue = getSideValue(sideKey, i, length);
                 
                 dimensionsSVG += `
-                    <foreignObject x="${position.x - 90}" y="${position.y - 20}" width="180" height="40">
+                    <foreignObject x="${position.x - 60}" y="${position.y - 18}" width="120" height="36">
                         <div class="dimension-input-container">
                             <input type="number" 
                                    class="dimension-input"
                                    value="${currentValue.toFixed(2)}" 
                                    onchange="updateSideLength(${i}, '${sideKey}', this.value)"
+                                   oninput="updateSideLength(${i}, '${sideKey}', this.value)"
                                    step="0.01" min="0.01" max="100"/>
+                            <span class="dimension-unit">m</span>
                             <div class="dimension-controls">
-                                <button class="dimension-btn" onclick="adjustDimension(${i}, '${sideKey}', 0.01)">▲</button>
-                                <button class="dimension-btn" onclick="adjustDimension(${i}, '${sideKey}', -0.01)">▼</button>
+                                <button class="dimension-btn" type="button" onclick="event.preventDefault(); adjustDimension(${i}, '${sideKey}', 0.01); return false;">▲</button>
+                                <button class="dimension-btn" type="button" onclick="event.preventDefault(); adjustDimension(${i}, '${sideKey}', -0.01); return false;">▼</button>
                             </div>
-                            <span class="dimension-label">${getSideLabel(sideKey, i)}</span>
                         </div>
                     </foreignObject>
                 `;
@@ -832,17 +869,30 @@
             return dimensionsSVG;
         }
 
-        // Neue Funktion für 1cm-Schritte
+        // Neue Funktion für 1cm-Schritte mit sofortiger Aktualisierung
         function adjustDimension(sideIndex, sideKey, delta) {
-            const currentValue = currentDimensions[sideKey] || 5;
-            const newValue = Math.max(0.01, currentValue + delta);
-            updateSideLength(sideIndex, sideKey, newValue);
+            console.log('adjustDimension called:', sideIndex, sideKey, delta);
             
-            // Eingabefeld aktualisieren
+            const currentValue = currentDimensions[sideKey] || 5;
+            const newValue = Math.max(0.01, parseFloat((currentValue + delta).toFixed(2)));
+            
+            console.log('Updating from', currentValue, 'to', newValue);
+            
+            // Dimension aktualisieren
+            currentDimensions[sideKey] = newValue;
+            
+            // Eingabefeld sofort aktualisieren
             const inputs = document.querySelectorAll('.dimension-input');
             if (inputs[sideIndex]) {
                 inputs[sideIndex].value = newValue.toFixed(2);
             }
+            
+            // Vorschau und Berechnungen aktualisieren
+            updatePreview();
+            updateCalculations();
+            
+            // Auch die normale updateSideLength Funktion aufrufen für Konsistenz
+            updateSideLength(sideIndex, sideKey, newValue);
         }
 
         // Hilfsfunktionen für Seitenwerte
@@ -1069,14 +1119,26 @@
         window.updateSideLength = updateSideLength;
         window.adjustDimension = adjustDimension;
 
-        // Event Listeners
+        // Event Listeners mit Debug-Ausgabe
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, setting up event listeners');
+            
             document.querySelectorAll('.corner-option').forEach(option => {
                 option.addEventListener('click', function() {
                     const corners = this.getAttribute('data-corners');
+                    console.log('Corner selected:', corners);
                     selectCorners(corners);
                 });
             });
+            
+            // Global verfügbar machen
+            window.updateSideLength = updateSideLength;
+            window.adjustDimension = adjustDimension;
+            window.rotateShape = rotateShape;
+            window.resetRotation = resetRotation;
+            window.snapToAngle = snapToAngle;
+            
+            console.log('All functions assigned to window');
         });
 
         function goBack() {
