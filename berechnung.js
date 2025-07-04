@@ -1,23 +1,4 @@
-// Initialisierung
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('=== BERECHNUNG-SEITE GELADEN ===');
-    
-    // Projektdaten laden
-    projectData = loadData();
-    console.log('Geladene Projektdaten:', projectData);
-    
-    // VERBESSERTE Validierung - prüfe auf echte Geometrie-Daten
-    if (!projectData.profile) {
-        console.error('❌ KEINE PROFIL-DATEN!');
-        alert('Keine Profil-Daten gefunden. Bitte kehren Sie zu Schritt 1 zurück.');
-        window.location.href = 'profil.html';
-        return;
-    }
-    
-    if (!projectData.geometry && !projectData.roofShape) {
-        console.error('❌ KEINE GEOMETRIE-DATEN!');
-        alert('Keine Geometrie-Daten gefunden. Bitte kehren Sie zu den vorherigen Schritten zurück.');
-        window.location.href = '// berechnung.js - Vollständige Implementation
+// berechnung.js - Vollständige Implementation - REPARIERT
 
 // Globale Variablen
 let projectData = {};
@@ -53,6 +34,47 @@ function loadData() {
         console.error('Laden fehlgeschlagen:', e);
         return {};
     }
+}
+
+// Hilfsfunktionen für Datenvalidierung
+function getDefaultDimensions(variant) {
+    switch (variant) {
+        case 'trapez':
+            return { bottomBase: 8, topBase: 6, height: 4 };
+        case 'rechteck':
+            return { length: 8, width: 5 };
+        case 'rechtwinklig':
+            return { katheteA: 4, katheteB: 5 };
+        case 'kreis':
+            return { radius: 4 };
+        default:
+            return { length: 8, width: 5 };
+    }
+}
+
+function calculateAreaFromDimensions(variant, dims) {
+    switch (variant) {
+        case 'trapez':
+            return ((dims.bottomBase + dims.topBase) / 2) * dims.height;
+        case 'rechteck':
+            return dims.length * dims.width;
+        case 'rechtwinklig':
+            return (dims.katheteA * dims.katheteB) / 2;
+        case 'kreis':
+            return Math.PI * dims.radius * dims.radius;
+        default:
+            return 40;
+    }
+}
+
+function usesDefaultValues(geometry) {
+    if (!geometry || !geometry.dimensions) return true;
+    
+    const dims = geometry.dimensions;
+    const defaults = getDefaultDimensions(geometry.variant);
+    
+    // Prüfe ob die Werte den Standardwerten entsprechen
+    return Object.keys(defaults).every(key => dims[key] === defaults[key]);
 }
 
 // Projekt-Info anzeigen
@@ -405,7 +427,7 @@ function calculateLengths() {
         
         // Mittlere Breite für realistischere Berechnung
         const averageWidth = (bottomBase + topBase) / 2;
-        bahnenAnzahl = Math.ceil(averageWidth / nutzbreite);
+        bahnenAnzahl = Math.ceil(averageWidth / deckbreite);
         
         console.log(`Trapez-Berechnung: Unten ${bottomBase}m, Oben ${topBase}m, Mittel ${averageWidth}m, Bahnen: ${bahnenAnzahl}`);
         
@@ -416,17 +438,17 @@ function calculateLengths() {
         
         // Die Basis ist die horizontale Kathete
         const basis = katheteA;
-        bahnenAnzahl = Math.ceil(basis / nutzbreite);
+        bahnenAnzahl = Math.ceil(basis / deckbreite);
         
         console.log(`Dreieck-Berechnung: Basis ${basis}m, Bahnen: ${bahnenAnzahl}`);
         
     } else if (geometry.variant === 'rechteck') {
         // Für Rechtecke: Über die Breite
         const width = geometry.dimensions.width || 5;
-        bahnenAnzahl = Math.ceil(width / nutzbreite);
+        bahnenAnzahl = Math.ceil(width / deckbreite);
     } else {
         // Standard-Berechnung
-        bahnenAnzahl = Math.ceil(Math.sqrt(area) / nutzbreite);
+        bahnenAnzahl = Math.ceil(Math.sqrt(area) / deckbreite);
     }
     
     // Plattenlänge berechnen
@@ -556,12 +578,6 @@ function getCalculationMethod() {
         default:
             return 'Standard-Berechnung';
     }
-    
-    // Continue-Button aktivieren
-    document.getElementById('continue-btn').disabled = false;
-    
-    // Visualisierung aktualisieren
-    visualizeRoof();
 }
 
 // Speichern und weiter
@@ -589,7 +605,7 @@ function goBack() {
     window.location.href = 'Editor.html';
 }
 
-// Initialisierung
+// Initialisierung - REPARIERT
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== BERECHNUNG-SEITE GELADEN ===');
     
@@ -657,47 +673,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ Berechnung-Seite erfolgreich initialisiert mit automatischer Berechnung');
 });
-
-// Hilfsfunktionen für Datenvalidierung
-function getDefaultDimensions(variant) {
-    switch (variant) {
-        case 'trapez':
-            return { bottomBase: 8, topBase: 6, height: 4 };
-        case 'rechteck':
-            return { length: 8, width: 5 };
-        case 'rechtwinklig':
-            return { katheteA: 4, katheteB: 5 };
-        case 'kreis':
-            return { radius: 4 };
-        default:
-            return { length: 8, width: 5 };
-    }
-}
-
-function calculateAreaFromDimensions(variant, dims) {
-    switch (variant) {
-        case 'trapez':
-            return ((dims.bottomBase + dims.topBase) / 2) * dims.height;
-        case 'rechteck':
-            return dims.length * dims.width;
-        case 'rechtwinklig':
-            return (dims.katheteA * dims.katheteB) / 2;
-        case 'kreis':
-            return Math.PI * dims.radius * dims.radius;
-        default:
-            return 40;
-    }
-}
-
-function usesDefaultValues(geometry) {
-    if (!geometry || !geometry.dimensions) return true;
-    
-    const dims = geometry.dimensions;
-    const defaults = getDefaultDimensions(geometry.variant);
-    
-    // Prüfe ob die Werte den Standardwerten entsprechen
-    return Object.keys(defaults).every(key => dims[key] === defaults[key]);
-}
 
 // Canvas-Größe bei Fenster-Resize anpassen
 window.addEventListener('resize', function() {
