@@ -843,23 +843,27 @@
                     `;
                 }
                 
-                // Eingabefeld-Container - kompakt mit funktionierenden Buttons
+                // KORRIGIERTE Eingabefeld-Container mit besseren Event-Handlern
                 const sideKey = getSideKey(i, selectedCorners);
                 const currentValue = getSideValue(sideKey, i, length);
+                const uniqueId = `input_${i}_${Date.now()}`;
                 
                 dimensionsSVG += `
                     <foreignObject x="${position.x - 60}" y="${position.y - 18}" width="120" height="36">
                         <div class="dimension-input-container">
                             <input type="number" 
+                                   id="${uniqueId}"
                                    class="dimension-input"
                                    value="${currentValue.toFixed(2)}" 
-                                   onchange="updateSideLength(${i}, '${sideKey}', this.value)"
-                                   oninput="updateSideLength(${i}, '${sideKey}', this.value)"
+                                   data-side-index="${i}"
+                                   data-side-key="${sideKey}"
                                    step="0.01" min="0.01" max="100"/>
                             <span class="dimension-unit">m</span>
                             <div class="dimension-controls">
-                                <button class="dimension-btn" type="button" onclick="event.preventDefault(); adjustDimension(${i}, '${sideKey}', 0.01); return false;">▲</button>
-                                <button class="dimension-btn" type="button" onclick="event.preventDefault(); adjustDimension(${i}, '${sideKey}', -0.01); return false;">▼</button>
+                                <button class="dimension-btn btn-up" type="button" 
+                                        data-side-index="${i}" data-side-key="${sideKey}" data-delta="0.01">▲</button>
+                                <button class="dimension-btn btn-down" type="button" 
+                                        data-side-index="${i}" data-side-key="${sideKey}" data-delta="-0.01">▼</button>
                             </div>
                         </div>
                     </foreignObject>
@@ -1119,15 +1123,55 @@
         window.updateSideLength = updateSideLength;
         window.adjustDimension = adjustDimension;
 
-        // Event Listeners mit Debug-Ausgabe
+        // NEUE Event-Handler mit besserer Delegation
+        function setupInputEventListeners() {
+            console.log('Setting up input event listeners');
+            
+            // Event-Delegation für alle Eingabefelder
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('dimension-input')) {
+                    const sideIndex = parseInt(e.target.dataset.sideIndex);
+                    const sideKey = e.target.dataset.sideKey;
+                    const newValue = parseFloat(e.target.value);
+                    
+                    console.log('Input changed:', sideIndex, sideKey, newValue);
+                    updateSideLength(sideIndex, sideKey, newValue);
+                }
+            });
+            
+            // Event-Delegation für alle Buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('dimension-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const sideIndex = parseInt(e.target.dataset.sideIndex);
+                    const sideKey = e.target.dataset.sideKey;
+                    const delta = parseFloat(e.target.dataset.delta);
+                    
+                    console.log('Button clicked:', sideIndex, sideKey, delta);
+                    adjustDimension(sideIndex, sideKey, delta);
+                    
+                    return false;
+                }
+            });
+            
+            console.log('Event listeners set up successfully');
+        }
+
+        // Event Listeners mit korrigierter Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, setting up event listeners');
             
+            // Corner selection
             document.querySelectorAll('.corner-option').forEach(option => {
                 option.addEventListener('click', function() {
                     const corners = this.getAttribute('data-corners');
                     console.log('Corner selected:', corners);
                     selectCorners(corners);
+                    
+                    // Event-Listener für Inputs nach Form-Auswahl einrichten
+                    setTimeout(setupInputEventListeners, 100);
                 });
             });
             
@@ -1137,6 +1181,7 @@
             window.rotateShape = rotateShape;
             window.resetRotation = resetRotation;
             window.snapToAngle = snapToAngle;
+            window.setupInputEventListeners = setupInputEventListeners;
             
             console.log('All functions assigned to window');
         });
