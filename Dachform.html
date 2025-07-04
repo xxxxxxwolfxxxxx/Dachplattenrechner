@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form-Editor - Dachplattenrechner</title>
     <style>
-        /* Reset und Basis-Styles */
         * {
             margin: 0;
             padding: 0;
@@ -40,7 +39,6 @@
             font-size: 2.5em;
         }
 
-        /* Progress Navigation */
         .progress-nav {
             display: flex;
             justify-content: center;
@@ -89,7 +87,6 @@
             color: white;
         }
 
-        /* Form Editor spezifische Styles */
         .corners-selector {
             display: flex;
             justify-content: center;
@@ -211,61 +208,6 @@
             border-left: 5px solid #ffc107;
         }
 
-        /* Vereinfachte Eingabefeld-Styles - mit sichtbaren Browser-Spinnern */
-        .dimension-input-container-simple {
-            display: flex;
-            align-items: center;
-            background: white;
-            border-radius: 8px;
-            padding: 4px 8px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
-            border: 2px solid #007bff;
-            min-width: 100px;
-            height: 30px;
-        }
-
-        .dimension-input-container-simple .dimension-input.browser-spinner {
-            width: 70px;
-            height: 22px;
-            font-size: 14px;
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            outline: none;
-            font-weight: bold;
-            color: #2c3e50;
-            background: white;
-            /* Browser-Spinner explizit aktivieren */
-            -webkit-appearance: textfield;
-            -moz-appearance: textfield;
-        }
-
-        /* Browser-Spinner Styles für WebKit (Chrome, Safari, Edge) */
-        .dimension-input.browser-spinner::-webkit-outer-spin-button,
-        .dimension-input.browser-spinner::-webkit-inner-spin-button {
-            -webkit-appearance: inner-spin-button;
-            opacity: 1;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        /* Firefox Spinner */
-        .dimension-input.browser-spinner[type="number"] {
-            -moz-appearance: textfield;
-        }
-
-        .dimension-input.browser-spinner:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-        }
-
-        .dimension-input-container-simple .dimension-unit {
-            font-size: 11px;
-            color: #007bff;
-            font-weight: bold;
-            margin-left: 6px;
-        }
-
         .preview-panel {
             background: white;
             border-radius: 15px;
@@ -305,7 +247,64 @@
             color: #28a745;
         }
 
-        /* Styles für den Maß-Berechnungs-Hinweis */
+        .shape-info {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #ffc107;
+        }
+
+        .question-title {
+            font-size: 2em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        /* Controls unter dem SVG */
+        .dimension-controls {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #007bff;
+        }
+
+        .dimension-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .dimension-label {
+            min-width: 80px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .dimension-input {
+            width: 100px;
+            padding: 8px;
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .dimension-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+        }
+
+        .dimension-unit {
+            color: #007bff;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        /* Hinweis für fehlende Maße */
         .missing-dimension-hint {
             background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
             border: 2px solid #ffc107;
@@ -367,89 +366,6 @@
             font-style: italic;
         }
 
-        .shape-info {
-            background: #fff3cd;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-left: 5px solid #ffc107;
-        }
-
-        .question-title {
-            font-size: 2em;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-
-        /* Verbesserte Eingabefeld-Styles - geschlossene Kästen */
-        .dimension-input-container {
-            display: flex;
-            align-items: center;
-            background: white;
-            border-radius: 8px;
-            padding: 6px 8px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
-            border: 2px solid #007bff;
-            min-width: 120px;
-            height: 36px;
-        }
-
-        .dimension-input {
-            width: 60px;
-            height: 24px;
-            font-size: 14px;
-            text-align: center;
-            border: none;
-            outline: none;
-            font-weight: bold;
-            color: #2c3e50;
-            background: transparent;
-        }
-
-        .dimension-controls {
-            display: flex;
-            flex-direction: column;
-            margin-left: 4px;
-        }
-
-        .dimension-btn {
-            width: 20px;
-            height: 12px;
-            border: none;
-            background: #007bff;
-            color: white;
-            cursor: pointer;
-            font-size: 9px;
-            font-weight: bold;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .dimension-btn:first-child {
-            border-radius: 3px 3px 0 0;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .dimension-btn:last-child {
-            border-radius: 0 0 3px 3px;
-        }
-
-        .dimension-btn:hover {
-            background: #0056b3;
-            transform: scale(1.05);
-        }
-
-        .dimension-unit {
-            font-size: 11px;
-            color: #007bff;
-            font-weight: bold;
-            margin-left: 4px;
-            margin-right: 4px;
-        }
-
-        /* Buttons */
         .btn {
             padding: 12px 24px;
             border: none;
@@ -616,7 +532,7 @@
                                 </div>
                             </div>
 
-                            <!-- Neuer Hinweis für fehlende Maße -->
+                            <!-- Hinweis für fehlende Maße -->
                             <div class="missing-dimension-hint">
                                 <h4>💡 Maß vergessen zu messen?</h4>
                                 <p>Nicht immer hat man alle Maße zur Hand. Ein fehlendes Dreieck-Maß können Sie berechnen:</p>
@@ -634,7 +550,7 @@
                     <!-- Vorschau -->
                     <div class="preview-panel">
                         <h3>📏 Live-Bemaßung (1cm Präzision)</h3>
-                        <p style="color: #666; margin-bottom: 20px;">Eingabefelder sind direkt an den Seiten positioniert. Verwenden Sie die Pfeiltasten für 1cm-Schritte.</p>
+                        <p style="color: #666; margin-bottom: 20px;">Ändern Sie die Maße in den Eingabefeldern unten. Die Form passt sich automatisch an.</p>
                         <svg class="preview-svg" id="preview-svg" viewBox="0 0 600 600">
                             <defs>
                                 <linearGradient id="shapeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -654,6 +570,14 @@
                                 </text>
                             </g>
                         </svg>
+
+                        <!-- Einfache Controls unter dem SVG -->
+                        <div class="dimension-controls" id="dimension-controls" style="display: none;">
+                            <h4 style="margin-bottom: 15px; color: #007bff;">📐 Maße eingeben:</h4>
+                            <div id="dimension-inputs">
+                                <!-- Eingabefelder werden hier eingefügt -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -677,27 +601,27 @@
 
         // Standard-Eingaben je nach Eckenanzahl
         const shapeInputs = {
-            0: [ // Rund
+            0: [ 
                 { key: 'radiusX', label: 'Breite-Radius', default: 5, unit: 'm' },
                 { key: 'radiusY', label: 'Höhe-Radius', default: 5, unit: 'm' }
             ],
-            3: [ // Dreieck
+            3: [ 
                 { key: 'sideA', label: 'Seite A', default: 8, unit: 'm' },
                 { key: 'sideB', label: 'Seite B', default: 6, unit: 'm' },
                 { key: 'sideC', label: 'Seite C', default: 7, unit: 'm' }
             ],
-            4: [ // Viereck
+            4: [ 
                 { key: 'bottomWidth', label: 'Untere Breite', default: 10, unit: 'm' },
                 { key: 'topWidth', label: 'Obere Breite', default: 8, unit: 'm' },
                 { key: 'offset', label: 'Seitversatz', default: 1, unit: 'm' }
             ],
-            5: [ // Fünfeck
+            5: [ 
                 { key: 'radius', label: 'Radius', default: 6, unit: 'm' }
             ],
-            6: [ // Sechseck
+            6: [ 
                 { key: 'radius', label: 'Radius', default: 6, unit: 'm' }
             ],
-            special: [ // L-Form
+            special: [ 
                 { key: 'totalWidth', label: 'Gesamtbreite', default: 12, unit: 'm' },
                 { key: 'totalHeight', label: 'Gesamthöhe', default: 10, unit: 'm' },
                 { key: 'cutWidth', label: 'Ausschnitt Breite', default: 5, unit: 'm' },
@@ -705,7 +629,6 @@
             ]
         };
 
-        // Info-Texte
         const shapeInfos = {
             0: "Mit 2 Radien können Sie Kreise, Ovale und Langlöcher erstellen",
             3: "Mit 3 Seiten entstehen automatisch alle Dreiecksarten - rechtwinklig, gleichschenklig oder ungleichseitig",
@@ -733,6 +656,7 @@
             `;
             
             createInputs();
+            createDimensionControls();
             document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -749,51 +673,71 @@
             updateCalculations();
         }
 
-        // KORRIGIERTE Seitenpositionierung - nahe am blauen Punkt, aber außen
-        function getSidePosition(points, sideIndex) {
-            const p1 = points[sideIndex];
-            const p2 = points[(sideIndex + 1) % points.length];
+        // NEUE: Einfache Dimension Controls unter dem SVG
+        function createDimensionControls() {
+            const controlsDiv = document.getElementById('dimension-controls');
+            const inputsDiv = document.getElementById('dimension-inputs');
             
-            const midX = (p1.x + p2.x) / 2;
-            const midY = (p1.y + p2.y) / 2;
+            controlsDiv.style.display = 'block';
+            inputsDiv.innerHTML = '';
+
+            const inputs = shapeInputs[selectedCorners];
             
-            // Berechne die Normale zur Seite (nach außen zeigend)
-            const dx = p2.x - p1.x;
-            const dy = p2.y - p1.y;
-            
-            // Normale berechnen (90° gedreht, nach außen)
-            const normalX = -dy;
-            const normalY = dx;
-            
-            // Normalisieren
-            const length = Math.sqrt(normalX * normalX + normalY * normalY);
-            if (length === 0) return { x: midX, y: midY - 40, midX, midY };
-            
-            const unitNormalX = normalX / length;
-            const unitNormalY = normalY / length;
-            
-            // Bestimme ob die Normale nach innen oder außen zeigt
-            // Mittelpunkt der Form berechnen
-            const centerX = points.reduce((sum, p) => sum + p.x, 0) / points.length;
-            const centerY = points.reduce((sum, p) => sum + p.y, 0) / points.length;
-            
-            // Vektor vom Mittelpunkt zur Seitenmitte
-            const toCenterX = centerX - midX;
-            const toCenterY = centerY - midY;
-            
-            // Prüfe ob Normale in Richtung Zentrum zeigt (Skalarprodukt)
-            const dotProduct = unitNormalX * toCenterX + unitNormalY * toCenterY;
-            
-            // Wenn Normale zum Zentrum zeigt, umkehren
-            const finalNormalX = dotProduct > 0 ? -unitNormalX : unitNormalX;
-            const finalNormalY = dotProduct > 0 ? -unitNormalY : unitNormalY;
-            
-            // Position 40px nach außen von der Seitenmitte
-            const offsetDistance = 40;
-            const textX = midX + finalNormalX * offsetDistance;
-            const textY = midY + finalNormalY * offsetDistance;
-            
-            return { x: textX, y: textY, midX, midY };
+            inputs.forEach((input, index) => {
+                const row = document.createElement('div');
+                row.className = 'dimension-row';
+                
+                row.innerHTML = `
+                    <span class="dimension-label">${input.label}:</span>
+                    <input type="number" 
+                           class="dimension-input"
+                           id="dim-${input.key}"
+                           value="${input.default.toFixed(2)}" 
+                           step="0.01" min="0.01" max="100"
+                           oninput="updateDimension('${input.key}', this.value)">
+                    <span class="dimension-unit">${input.unit}</span>
+                `;
+                
+                inputsDiv.appendChild(row);
+            });
+        }
+
+        // NEUE: Einfache Update-Funktion
+        function updateDimension(key, value) {
+            const numValue = parseFloat(value);
+            if (!isNaN(numValue) && numValue > 0) {
+                currentDimensions[key] = numValue;
+                console.log('Updated dimension:', key, '=', numValue);
+                updatePreview();
+                updateCalculations();
+                validateTriangle();
+            }
+        }
+
+        function validateTriangle() {
+            if (selectedCorners === '3') {
+                const a = currentDimensions.sideA || 5;
+                const b = currentDimensions.sideB || 5;
+                const c = currentDimensions.sideC || 5;
+                
+                const isValidTriangle = (a + b > c) && (a + c > b) && (b + c > a);
+                
+                const orientationInfo = document.getElementById('orientation-info');
+                if (!isValidTriangle) {
+                    orientationInfo.className = 'orientation-info orientation-warning';
+                    orientationInfo.innerHTML = `
+                        <strong>⚠️ Ungültiges Dreieck</strong><br>
+                        A=${a.toFixed(2)}m, B=${b.toFixed(2)}m, C=${c.toFixed(2)}m<br>
+                        <small>Die Summe zweier Seiten muss größer als die dritte sein.</small>
+                    `;
+                } else {
+                    orientationInfo.className = 'orientation-info';
+                    orientationInfo.innerHTML = `
+                        <strong>✅ Gültiges Dreieck!</strong><br>
+                        A=${a.toFixed(2)}m, B=${b.toFixed(2)}m, C=${c.toFixed(2)}m
+                    `;
+                }
+            }
         }
 
         // Vorschau zeichnen
@@ -802,7 +746,7 @@
             
             if (!selectedCorners) return;
 
-            const scale = 40; // Etwas kleiner für bessere Eingabefeld-Positionierung
+            const scale = 40;
             let originalPoints = [];
             
             switch (selectedCorners) {
@@ -824,24 +768,21 @@
                     const sideB = currentDimensions.sideB;
                     const sideC = currentDimensions.sideC;
                     
-                    // Prüfe Dreiecksungleichung bevor Berechnung
                     if ((sideA + sideB <= sideC) || (sideA + sideC <= sideB) || (sideB + sideC <= sideA)) {
-                        // Ungültiges Dreieck - verwende Standardform
                         originalPoints = [
-                            { x: 0, y: -80, label: 'B' },
-                            { x: 120, y: 80, label: 'A' },
-                            { x: -120, y: 80, label: 'C' }
+                            { x: 0, y: -80 },
+                            { x: 120, y: 80 },
+                            { x: -120, y: 80 }
                         ];
                     } else {
-                        // Gültiges Dreieck - normale Berechnung
                         const angle = Math.acos((sideA*sideA + sideB*sideB - sideC*sideC) / (2*sideA*sideB));
                         const height = sideB * Math.sin(angle);
                         const baseOffset = sideB * Math.cos(angle);
                         
                         originalPoints = [
-                            { x: 0, y: -height*scale/2, label: 'B' },
-                            { x: sideA*scale/2, y: height*scale/2, label: 'A' },
-                            { x: (baseOffset-sideA/2)*scale, y: height*scale/2, label: 'C' }
+                            { x: 0, y: -height*scale/2 },
+                            { x: sideA*scale/2, y: height*scale/2 },
+                            { x: (baseOffset-sideA/2)*scale, y: height*scale/2 }
                         ];
                     }
                     break;
@@ -853,10 +794,10 @@
                     const autoHeight = Math.max(bottomWidth, topWidth) * 0.6;
                     
                     originalPoints = [
-                        { x: -bottomWidth*scale/2, y: autoHeight*scale/2, label: 'bottomWidth' },
-                        { x: bottomWidth*scale/2, y: autoHeight*scale/2, label: 'height' },
-                        { x: topWidth*scale/2 + offset*scale, y: -autoHeight*scale/2, label: 'topWidth' },
-                        { x: -topWidth*scale/2 + offset*scale, y: -autoHeight*scale/2, label: 'leftSide' }
+                        { x: -bottomWidth*scale/2, y: autoHeight*scale/2 },
+                        { x: bottomWidth*scale/2, y: autoHeight*scale/2 },
+                        { x: topWidth*scale/2 + offset*scale, y: -autoHeight*scale/2 },
+                        { x: -topWidth*scale/2 + offset*scale, y: -autoHeight*scale/2 }
                     ];
                     break;
 
@@ -866,8 +807,7 @@
                         const angle = (i * 2 * Math.PI / 5) - Math.PI/2;
                         originalPoints.push({
                             x: radius5 * Math.cos(angle),
-                            y: radius5 * Math.sin(angle),
-                            label: `side${i+1}`
+                            y: radius5 * Math.sin(angle)
                         });
                     }
                     break;
@@ -878,8 +818,7 @@
                         const angle = (i * 2 * Math.PI / 6);
                         originalPoints.push({
                             x: radius6 * Math.cos(angle),
-                            y: radius6 * Math.sin(angle),
-                            label: `side${i+1}`
+                            y: radius6 * Math.sin(angle)
                         });
                     }
                     break;
@@ -891,12 +830,12 @@
                     const ch = currentDimensions.cutHeight * scale;
                     
                     originalPoints = [
-                        { x: -tw/2, y: -th/2, label: 'totalWidth' },
-                        { x: tw/2, y: -th/2, label: 'side1' },
-                        { x: tw/2, y: -th/2+ch, label: 'cutHeight' },
-                        { x: -tw/2+cw, y: -th/2+ch, label: 'cutWidth' },
-                        { x: -tw/2+cw, y: th/2, label: 'totalHeight' },
-                        { x: -tw/2, y: th/2, label: 'side2' }
+                        { x: -tw/2, y: -th/2 },
+                        { x: tw/2, y: -th/2 },
+                        { x: tw/2, y: -th/2+ch },
+                        { x: -tw/2+cw, y: -th/2+ch },
+                        { x: -tw/2+cw, y: th/2 },
+                        { x: -tw/2, y: th/2 }
                     ];
                     break;
             }
@@ -908,8 +847,7 @@
                 const sin = Math.sin(rad);
                 return {
                     x: point.x * cos - point.y * sin,
-                    y: point.x * sin + point.y * cos,
-                    label: point.label
+                    y: point.x * sin + point.y * cos
                 };
             });
 
@@ -927,184 +865,13 @@
                            fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
             }
 
-            // VERBESSERTE Bemaßung - konsistent an den Seiten
-            shapeSVG += drawImprovedSideDimensions(rotatedPoints);
-            
             checkOrientation(rotatedPoints);
             shapeGroup.innerHTML = shapeSVG;
         }
 
-        // NEUE VERBESSERTE Seitenbemaßung - nahe am blauen Punkt, außen positioniert
-        function drawImprovedSideDimensions(points) {
-            let dimensionsSVG = '';
-            
-            for (let i = 0; i < points.length; i++) {
-                const p1 = points[i];
-                const p2 = points[(i + 1) % points.length];
-                
-                // Seitenlänge berechnen
-                const dx = p2.x - p1.x;
-                const dy = p2.y - p1.y;
-                const length = Math.sqrt(dx * dx + dy * dy) / 40; // Scale angepasst
-                
-                // Position für Eingabefeld berechnen
-                const position = getSidePosition(points, i);
-                
-                // Blauer Punkt an der Seitenmitte
-                dimensionsSVG += `
-                    <circle cx="${position.midX}" cy="${position.midY}" r="4" fill="#007bff" stroke="white" stroke-width="1"/>
-                `;
-                
-                // Kurze Verbindungslinie vom Punkt zum Eingabefeld
-                const lineLength = 25;
-                const dirX = position.x - position.midX;
-                const dirY = position.y - position.midY;
-                const dirLength = Math.sqrt(dirX * dirX + dirY * dirY);
-                
-                if (dirLength > 0) {
-                    const unitDirX = dirX / dirLength;
-                    const unitDirY = dirY / dirLength;
-                    
-                    const lineEndX = position.midX + unitDirX * lineLength;
-                    const lineEndY = position.midY + unitDirY * lineLength;
-                    
-                    dimensionsSVG += `
-                        <line x1="${position.midX}" y1="${position.midY}" x2="${lineEndX}" y2="${lineEndY}" 
-                              stroke="#007bff" stroke-width="2" opacity="0.8"/>
-                    `;
-                }
-                
-                // KORRIGIERTE Eingabefeld-Container mit besseren Event-Handlern
-                const sideKey = getSideKey(i, selectedCorners);
-                const currentValue = getSideValue(sideKey, i, length);
-                const uniqueId = `input_${i}_${Date.now()}`;
-                
-                dimensionsSVG += `
-                    <foreignObject x="${position.x - 60}" y="${position.y - 18}" width="120" height="36">
-                        <div class="dimension-input-container">
-                            <input type="number" 
-                                   id="${uniqueId}"
-                                   class="dimension-input"
-                                   value="${currentValue.toFixed(2)}" 
-                                   data-side-index="${i}"
-                                   data-side-key="${sideKey}"
-                                   step="0.01" min="0.01" max="100"/>
-                            <span class="dimension-unit">m</span>
-                            <div class="dimension-controls">
-                                <button class="dimension-btn btn-up" type="button" 
-                                        data-side-index="${i}" data-side-key="${sideKey}" data-delta="0.01">▲</button>
-                                <button class="dimension-btn btn-down" type="button" 
-                                        data-side-index="${i}" data-side-key="${sideKey}" data-delta="-0.01">▼</button>
-                            </div>
-                        </div>
-                    </foreignObject>
-                `;
-            }
-            
-            return dimensionsSVG;
-        }
-
-        // Neue Funktion für 1cm-Schritte mit sofortiger Aktualisierung
-        function adjustDimension(sideIndex, sideKey, delta) {
-            console.log('adjustDimension called:', sideIndex, sideKey, delta);
-            
-            const currentValue = currentDimensions[sideKey] || 5;
-            const newValue = Math.max(0.01, parseFloat((currentValue + delta).toFixed(2)));
-            
-            console.log('Updating from', currentValue, 'to', newValue);
-            
-            // Dimension aktualisieren
-            currentDimensions[sideKey] = newValue;
-            
-            // Eingabefeld sofort aktualisieren
-            const inputs = document.querySelectorAll('.dimension-input');
-            if (inputs[sideIndex]) {
-                inputs[sideIndex].value = newValue.toFixed(2);
-            }
-            
-            // Vorschau und Berechnungen aktualisieren
-            updatePreview();
-            updateCalculations();
-            
-            // Auch die normale updateSideLength Funktion aufrufen für Konsistenz
-            updateSideLength(sideIndex, sideKey, newValue);
-        }
-
-        // Hilfsfunktionen für Seitenwerte
-        function getSideKey(index, corners) {
-            switch (corners) {
-                case '3':
-                    return ['sideA', 'sideB', 'sideC'][index];
-                case '4':
-                    return ['bottomWidth', 'rightSide', 'topWidth', 'leftSide'][index];
-                default:
-                    return `side${index + 1}`;
-            }
-        }
-
-        function getSideLabel(sideKey, index) {
-            switch (sideKey) {
-                case 'sideA': return 'Seite A';
-                case 'sideB': return 'Seite B'; 
-                case 'sideC': return 'Seite C';
-                case 'bottomWidth': return 'Unten';
-                case 'topWidth': return 'Oben';
-                case 'rightSide': return 'Rechts';
-                case 'leftSide': return 'Links';
-                default: return `Seite ${index + 1}`;
-            }
-        }
-
-        function getSideValue(sideKey, index, calculatedLength) {
-            if (currentDimensions[sideKey]) {
-                return currentDimensions[sideKey];
-            }
-            // Verwende berechnete Länge als Fallback
-            return calculatedLength || 5;
-        }
-
-        // VERBESSERTE Seitenlänge-Aktualisierung mit Dreieck-Validierung
-        function updateSideLength(sideIndex, sideKey, newValue) {
-            const value = parseFloat(newValue) || 0.01;
-            
-            // Temporär in separatem Objekt speichern
-            let tempDimensions = {...currentDimensions};
-            tempDimensions[sideKey] = value;
-            
-            // Spezielle Behandlung für Dreiecke - Validierung
-            if (selectedCorners === '3') {
-                const a = tempDimensions.sideA || currentDimensions.sideA;
-                const b = tempDimensions.sideB || currentDimensions.sideB;
-                const c = tempDimensions.sideC || currentDimensions.sideC;
-                
-                // Dreiecksungleichung prüfen
-                const isValidTriangle = (a + b > c) && (a + c > b) && (b + c > a);
-                
-                if (!isValidTriangle) {
-                    // Warnung anzeigen, aber Wert trotzdem speichern
-                    const orientationInfo = document.getElementById('orientation-info');
-                    orientationInfo.className = 'orientation-info orientation-warning';
-                    orientationInfo.innerHTML = `
-                        <strong>⚠️ Ungültiges Dreieck</strong><br>
-                        A=${a.toFixed(2)}m, B=${b.toFixed(2)}m, C=${c.toFixed(2)}m<br>
-                        <small>Die Summe zweier Seiten muss größer als die dritte sein.</small>
-                    `;
-                } else {
-                    // Gültiges Dreieck - normale Orientierungsprüfung wird in updatePreview() gemacht
-                }
-            }
-            
-            // Werte übernehmen
-            currentDimensions[sideKey] = value;
-            
-            // Nur bei gültigen Formen neu zeichnen
-            updatePreview();
-            updateCalculations();
-        }
-
         // Orientierung prüfen
         function checkOrientation(points) {
-            const tolerance = 0.1; // Nur 0.1 Grad Toleranz für exakte Ausrichtung
+            const tolerance = 0.1;
             let horizontalSides = 0;
             let verticalSides = 0;
 
@@ -1118,48 +885,31 @@
                 
                 if (angle < tolerance) {
                     horizontalSides++;
-                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    line.setAttribute('x1', p1.x);
-                    line.setAttribute('y1', p1.y);
-                    line.setAttribute('x2', p2.x);
-                    line.setAttribute('y2', p2.y);
-                    line.setAttribute('stroke', '#28a745');
-                    line.setAttribute('stroke-width', '6');
-                    document.getElementById('shape-group').appendChild(line);
                 }
                 else if (Math.abs(angle - 90) < tolerance) {
                     verticalSides++;
-                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    line.setAttribute('x1', p1.x);
-                    line.setAttribute('y1', p1.y);
-                    line.setAttribute('x2', p2.x);
-                    line.setAttribute('y2', p2.y);
-                    line.setAttribute('stroke', '#007bff');
-                    line.setAttribute('stroke-width', '6');
-                    document.getElementById('shape-group').appendChild(line);
                 }
             }
 
-            const orientationInfo = document.getElementById('orientation-info');
-            let orientationText = '';
-            
-            if (horizontalSides > 0 || verticalSides > 0) {
-                orientationInfo.className = 'orientation-info';
-                orientationText = `
-                    <strong>✅ Exakte Orientierung!</strong><br>
-                    ${horizontalSides > 0 ? `🟢 ${horizontalSides} exakt waagerechte Seite(n)<br>` : ''}
-                    ${verticalSides > 0 ? `🔵 ${verticalSides} exakt senkrechte Seite(n)<br>` : ''}
-                    Perfekt für Wasserlaufrichtung!
-                `;
-            } else {
-                orientationInfo.className = 'orientation-info orientation-warning';
-                orientationText = `
-                    <strong>⚠️ Keine exakte Orientierung</strong><br>
-                    Drehen Sie die Form präzise so, dass mindestens eine Seite exakt waagerecht (0°) oder senkrecht (90°) liegt.<br>
-                    <small>Aktuelle Rotation: ${currentRotation}°</small>
-                `;
+            if (selectedCorners !== '3') { // Nicht bei Dreiecken überschreiben
+                const orientationInfo = document.getElementById('orientation-info');
+                if (horizontalSides > 0 || verticalSides > 0) {
+                    orientationInfo.className = 'orientation-info';
+                    orientationInfo.innerHTML = `
+                        <strong>✅ Exakte Orientierung!</strong><br>
+                        ${horizontalSides > 0 ? `🟢 ${horizontalSides} exakt waagerechte Seite(n)<br>` : ''}
+                        ${verticalSides > 0 ? `🔵 ${verticalSides} exakt senkrechte Seite(n)<br>` : ''}
+                        Perfekt für Wasserlaufrichtung!
+                    `;
+                } else {
+                    orientationInfo.className = 'orientation-info orientation-warning';
+                    orientationInfo.innerHTML = `
+                        <strong>⚠️ Keine exakte Orientierung</strong><br>
+                        Drehen Sie die Form präzise so, dass mindestens eine Seite exakt waagerecht (0°) oder senkrecht (90°) liegt.<br>
+                        <small>Aktuelle Rotation: ${currentRotation}°</small>
+                    `;
+                }
             }
-            orientationInfo.innerHTML = orientationText;
         }
 
         // Rotation
@@ -1177,7 +927,6 @@
             updatePreview();
         }
 
-        // Snap zu exakten Winkeln
         function snapToAngle(targetAngle) {
             currentRotation = targetAngle % 360;
             document.getElementById('rotation-display').textContent = `Drehung: ${currentRotation}°`;
@@ -1250,83 +999,14 @@
             document.getElementById('calc-perimeter').textContent = perimeter.toFixed(2) + ' m';
         }
 
-        // Global verfügbar machen für Inline-Events
-        window.updateSideLength = updateSideLength;
-        window.adjustDimension = adjustDimension;
-
-        // Vereinfachte Event-Handler - nur für Eingabefelder
-        function setupInputEventListeners() {
-            console.log('Setting up input event listeners - simple version');
-            
-            setTimeout(() => {
-                // Alle Eingabefelder finden
-                const inputs = document.querySelectorAll('.dimension-input');
-                console.log('Found dimension inputs:', inputs.length);
-                
-                inputs.forEach((input, index) => {
-                    // Change Event für Tastatureingabe
-                    input.addEventListener('change', function(e) {
-                        const sideIndex = parseInt(this.dataset.sideIndex);
-                        const sideKey = this.dataset.sideKey;
-                        let newValue = parseFloat(this.value);
-                        
-                        // Validierung
-                        if (isNaN(newValue) || newValue < 0.01) {
-                            newValue = 0.01;
-                            this.value = newValue.toFixed(2);
-                        }
-                        if (newValue > 100) {
-                            newValue = 100;
-                            this.value = newValue.toFixed(2);
-                        }
-                        
-                        console.log('Input changed:', sideIndex, sideKey, newValue);
-                        updateSideLength(sideIndex, sideKey, newValue);
-                    });
-                    
-                    // Input Event für Live-Updates
-                    input.addEventListener('input', function(e) {
-                        const value = parseFloat(this.value);
-                        if (!isNaN(value) && value > 0) {
-                            const sideIndex = parseInt(this.dataset.sideIndex);
-                            const sideKey = this.dataset.sideKey;
-                            updateSideLength(sideIndex, sideKey, value);
-                        }
-                    });
-                });
-                
-                console.log('Event listeners attached successfully');
-            }, 200);
-        }
-
-        // Event Listeners mit korrigierter Initialisierung
+        // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, setting up event listeners');
-            
-            // Corner selection mit verbesserter Event-Einrichtung
             document.querySelectorAll('.corner-option').forEach(option => {
                 option.addEventListener('click', function() {
                     const corners = this.getAttribute('data-corners');
-                    console.log('Corner selected:', corners);
                     selectCorners(corners);
-                    
-                    // Event-Listener für Inputs nach Form-Auswahl einrichten
-                    // Mehrere Versuche für robuste Einrichtung
-                    setTimeout(setupInputEventListeners, 100);
-                    setTimeout(setupInputEventListeners, 300);
-                    setTimeout(setupInputEventListeners, 500);
                 });
             });
-            
-            // Global verfügbar machen
-            window.updateSideLength = updateSideLength;
-            window.adjustDimension = adjustDimension;
-            window.rotateShape = rotateShape;
-            window.resetRotation = resetRotation;
-            window.snapToAngle = snapToAngle;
-            window.setupInputEventListeners = setupInputEventListeners;
-            
-            console.log('All functions assigned to window');
         });
 
         function goBack() {
@@ -1349,7 +1029,6 @@
             }
 
             alert('✅ Form und Rotation gespeichert!\nWeiterleitung zur Berechnung...');
-            // window.location.href = 'berechnung.html';
         }
     </script>
 </body>
