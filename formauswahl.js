@@ -24,129 +24,158 @@
         }
     }
 
-    // KORRIGIERTE Form-Erkennung mit baseShape + variant Mapping
+    // ERWEITERTE Form-Erkennung mit ausführlichem Debug
     function determineShapeFromProject() {
         debugLog('=== BESTIMME FORM AUS PROJEKT ===');
         
         const projectData = loadData();
-        debugLog('Geladene Projektdaten:', projectData);
+        debugLog('Geladene Projektdaten:', JSON.stringify(projectData, null, 2));
         
         if (projectData.roofShape) {
             const baseShape = projectData.roofShape.baseShape;
             const variant = projectData.roofShape.variant;
             
-            debugLog('baseShape:', baseShape);
-            debugLog('variant:', variant);
+            debugLog('🔍 baseShape:', baseShape);
+            debugLog('🔍 variant:', variant);
             
             // KORRIGIERT: Kombiniere baseShape + variant richtig
             let finalVariant = variant;
             
             // Spezial-Mapping für Dreieck-Formen
             if (baseShape === 'dreieck') {
+                debugLog('📐 DREIECK-MAPPING für variant:', variant);
                 switch (variant) {
                     case 'dreieck':
                     case 'gleichseitig':
                         finalVariant = 'dreieck';
+                        debugLog('✅ Mapped zu: dreieck (Gleichseitig)');
                         break;
                     case 'rechtwinklig':
                         finalVariant = 'rechtwinklig';
+                        debugLog('✅ Mapped zu: rechtwinklig');
                         break;
                     case 'ungleichschenklig':
                         finalVariant = 'ungleichschenklig';
+                        debugLog('✅ Mapped zu: ungleichschenklig');
                         break;
                     default:
                         finalVariant = 'rechtwinklig'; // Fallback für Dreiecke
+                        debugLog('⚠️ Unbekannte Dreieck-Variante, Fallback zu: rechtwinklig');
                 }
             }
             
             // Spezial-Mapping für Viereck-Formen
             else if (baseShape === 'viereck') {
+                debugLog('📦 VIERECK-MAPPING für variant:', variant);
                 switch (variant) {
                     case 'rechteck':
                         finalVariant = 'rechteck';
+                        debugLog('✅ Mapped zu: rechteck');
                         break;
                     case 'quadrat':
                         finalVariant = 'quadrat';
+                        debugLog('✅ Mapped zu: quadrat');
                         break;
                     case 'trapez':
                         finalVariant = 'trapez';
+                        debugLog('✅ Mapped zu: trapez');
                         break;
                     case 'parallelogramm':
                         finalVariant = 'parallelogramm';
+                        debugLog('✅ Mapped zu: parallelogramm');
                         break;
                     case 'rhombus':
                         finalVariant = 'rhombus';
+                        debugLog('✅ Mapped zu: rhombus');
                         break;
                     default:
                         finalVariant = 'rechteck'; // Fallback für Vierecke
+                        debugLog('⚠️ Unbekannte Viereck-Variante, Fallback zu: rechteck');
                 }
             }
             
             // Spezial-Mapping für Kreis-Formen
             else if (baseShape === 'kreis') {
+                debugLog('⭕ KREIS-MAPPING für variant:', variant);
                 switch (variant) {
                     case 'kreis':
                         finalVariant = 'kreis';
+                        debugLog('✅ Mapped zu: kreis');
                         break;
                     case 'oval':
                         finalVariant = 'oval';
+                        debugLog('✅ Mapped zu: oval');
                         break;
                     case 'halbkreis':
                     case 'viertelkreis':
                     case 'langloch':
                         finalVariant = 'kreis'; // Vereinfacht zu Kreis
+                        debugLog('✅ Mapped zu: kreis (vereinfacht)');
                         break;
                     default:
                         finalVariant = 'kreis';
+                        debugLog('⚠️ Unbekannte Kreis-Variante, Fallback zu: kreis');
                 }
             }
             
             // Spezial-Mapping für Vieleck-Formen
             else if (baseShape === 'vieleck') {
+                debugLog('🔷 VIELECK-MAPPING für variant:', variant);
                 switch (variant) {
                     case 'lform':
                         finalVariant = 'lform';
+                        debugLog('✅ Mapped zu: lform');
                         break;
                     case 'tform':
                         finalVariant = 'tform';
+                        debugLog('✅ Mapped zu: tform');
                         break;
                     case 'uform':
                         finalVariant = 'uform';
+                        debugLog('✅ Mapped zu: uform');
                         break;
                     case 'fuenfeck':
                         finalVariant = 'fuenfeck';
+                        debugLog('✅ Mapped zu: fuenfeck');
                         break;
                     case 'sechseck':
                         finalVariant = 'sechseck';
+                        debugLog('✅ Mapped zu: sechseck');
                         break;
                     case 'achteck':
                         finalVariant = 'achteck';
+                        debugLog('✅ Mapped zu: achteck');
                         break;
                     default:
                         finalVariant = 'lform'; // Fallback für Vielecke
+                        debugLog('⚠️ Unbekannte Vieleck-Variante, Fallback zu: lform');
                 }
             }
             
             // Fallback: Verwende variantMapping wenn kein baseShape Match
             else {
+                debugLog('❓ UNBEKANNTE baseShape, verwende variantMapping');
                 finalVariant = variantMapping[variant] || variant;
+                debugLog('Gemappt über variantMapping:', variant, '→', finalVariant);
             }
             
-            debugLog('Final gemappte Variante:', finalVariant);
+            debugLog('🎯 Final gemappte Variante:', finalVariant);
             
             // Validierung: Existiert die Form in unseren Definitionen?
             if (shapeInfo[finalVariant]) {
-                debugLog('✅ Form gefunden:', finalVariant);
+                debugLog('✅ Form gefunden in shapeInfo:', finalVariant);
+                debugLog('🏁 RÜCKGABE:', finalVariant);
                 return finalVariant;
             } else {
                 debugLog('❌ Form nicht in shapeInfo gefunden:', finalVariant);
                 debugLog('Verfügbare Formen:', Object.keys(shapeInfo));
+                debugLog('⚠️ Fallback zu rechtwinklig');
             }
         } else {
-            debugLog('❌ Keine roofShape gefunden');
+            debugLog('❌ Keine roofShape gefunden in projectData');
         }
         
-        debugLog('🔄 Fallback auf rechtwinklig');
+        debugLog('🔄 FINAL FALLBACK: rechtwinklig');
         return 'rechtwinklig';
     }
 
@@ -562,6 +591,63 @@
         updateCalculation();
         
         debugLog('✅ Form gewechselt zu:', variant);
+    };
+
+    // DIREKTE Form-Setzung ohne Daten-Abhängigkeit
+    window.forceShape = function(variant) {
+        debugLog('🔧 FORCE SHAPE:', variant);
+        
+        if (!shapeInfo[variant]) {
+            console.error('❌ Unbekannte Form:', variant);
+            console.log('Verfügbare Formen:', Object.keys(shapeInfo));
+            return;
+        }
+        
+        // Überschreibe selectedVariant direkt
+        selectedVariant = variant;
+        
+        // Setze auch currentProjectData
+        currentProjectData.roofShape = {
+            baseShape: 'test',
+            variant: variant,
+            timestamp: Date.now()
+        };
+        
+        // UI komplett neu aufbauen
+        displayShapeInfo();
+        createDimensionInputs();
+        updatePreview();
+        updateCalculation();
+        
+        console.log('✅ Form DIREKT gesetzt zu:', variant);
+        console.log('Aktuelle selectedVariant:', selectedVariant);
+    };
+
+    // Debug aktuelle Situation
+    window.debugCurrentForm = function() {
+        console.log('=== AKTUELLE FORM DEBUG ===');
+        console.log('selectedVariant:', selectedVariant);
+        console.log('currentProjectData:', currentProjectData);
+        console.log('localStorage:', localStorage.getItem('dachplattenrechner_data'));
+        
+        const extracted = determineShapeFromProject();
+        console.log('determineShapeFromProject() returns:', extracted);
+        
+        console.log('shapeInfo keys:', Object.keys(shapeInfo));
+        console.log('shapeInfo[selectedVariant]:', shapeInfo[selectedVariant]);
+    };
+
+    // Teste alle verfügbaren Formen
+    window.testAllShapes = function() {
+        const shapes = Object.keys(shapeInfo);
+        console.log('🧪 TESTE ALLE FORMEN:', shapes);
+        
+        shapes.forEach((shape, index) => {
+            setTimeout(() => {
+                console.log(`\n=== TEST ${index + 1}/${shapes.length}: ${shape} ===`);
+                forceShape(shape);
+            }, index * 2000);
+        });
     };
 
     // Globale Funktionen
