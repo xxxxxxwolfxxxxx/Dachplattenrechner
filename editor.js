@@ -1,4 +1,4 @@
-// editor.js - Korrigierte Version mit W/S Orientierungs-Symbolen
+// REPARIERTE editor.js - Korrigierte Datenübertragung
 
 let projectData = {};
 let currentTransform = {
@@ -38,41 +38,72 @@ function loadData() {
     }
 }
 
-// Punkt-Generierung basierend auf Geometrie-Daten
+// KORRIGIERTE Punkt-Generierung basierend auf roofShape.variant
 function generateShapePoints() {
+    console.log('=== GENERIERE SHAPE POINTS ===');
+    console.log('projectData:', projectData);
+    
     const roofShape = projectData.roofShape;
     if (!roofShape || !roofShape.variant) {
-        console.error('Keine roofShape-Daten gefunden');
+        console.error('❌ Keine roofShape-Daten gefunden');
         return generateRectanglePoints({ length: 8, width: 5 }); // Fallback
     }
 
     const variant = roofShape.variant;
-    console.log('Generiere Punkte für:', variant);
+    console.log('🎯 Generiere Punkte für Variante:', variant);
 
     try {
         switch (variant) {
+            // Kreis-Varianten
             case 'kreis':
                 return generateCirclePoints({ radius: 4 });
             case 'oval':
                 return generateOvalPoints({ radiusX: 5, radiusY: 3 });
-            case 'rechteck':
-                return generateRectanglePoints({ length: 8, width: 5 });
-            case 'quadrat':
-                return generateSquarePoints({ side: 5 });
+            case 'halbkreis':
+                return generateHalfCirclePoints({ radius: 4 });
+            case 'langloch':
+                return generateOvalPoints({ radiusX: 6, radiusY: 2 });
+                
+            // Dreieck-Varianten
             case 'dreieck':
                 return generateTrianglePoints({ side: 5 });
             case 'rechtwinklig':
                 return generateRightTrianglePoints({ katheteA: 4, katheteB: 5 });
+            case 'ungleichschenklig':
+                return generateIrregularTrianglePoints({ sideA: 5, sideB: 6, sideC: 7 });
+                
+            // Viereck-Varianten
+            case 'rechteck':
+                return generateRectanglePoints({ length: 8, width: 5 });
+            case 'quadrat':
+                return generateSquarePoints({ side: 5 });
             case 'trapez':
                 return generateTrapezPoints({ bottomBase: 8, topBase: 6, height: 4 });
+            case 'parallelogramm':
+                return generateParallelogramPoints({ length: 8, width: 5, angle: 60 });
+            case 'rhombus':
+                return generateRhombusPoints({ side: 5, angle: 60 });
+                
+            // Vieleck-Varianten
+            case 'fuenfeck':
+                return generatePolygonPoints({ sides: 5, radius: 4 });
+            case 'sechseck':
+                return generatePolygonPoints({ sides: 6, radius: 4 });
+            case 'achteck':
+                return generatePolygonPoints({ sides: 8, radius: 4 });
             case 'lform':
                 return generateLShapePoints({ totalLength: 10, totalWidth: 8, cutoutLength: 4, cutoutWidth: 4 });
+            case 'tform':
+                return generateTShapePoints({ totalLength: 10, totalWidth: 8, cutoutLength: 3, cutoutWidth: 3 });
+            case 'uform':
+                return generateUShapePoints({ totalLength: 10, totalWidth: 8, cutoutLength: 4, cutoutWidth: 4 });
+                
             default:
-                console.log('Unbekannte Variante, verwende Rechteck');
+                console.log('⚠️ Unbekannte Variante, verwende Rechteck:', variant);
                 return generateRectanglePoints({ length: 8, width: 5 });
         }
     } catch (error) {
-        console.error('Fehler bei Punkt-Generierung:', error);
+        console.error('❌ Fehler bei Punkt-Generierung:', error);
         return generateRectanglePoints({ length: 8, width: 5 });
     }
 }
@@ -104,6 +135,22 @@ function generateOvalPoints(dims) {
         points.push({
             x: radiusX * Math.cos(angle),
             y: radiusY * Math.sin(angle)
+        });
+    }
+    return points;
+}
+
+function generateHalfCirclePoints(dims) {
+    const radius = dims.radius || 4;
+    const points = [];
+    const segments = 12;
+    
+    // Halbkreis von 0 bis π
+    for (let i = 0; i <= segments; i++) {
+        const angle = (i * Math.PI) / segments;
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
         });
     }
     return points;
@@ -167,6 +214,62 @@ function generateRightTrianglePoints(dims) {
     ];
 }
 
+function generateIrregularTrianglePoints(dims) {
+    const sideA = dims.sideA || 5;
+    const sideB = dims.sideB || 6;
+    const sideC = dims.sideC || 7;
+    
+    // Vereinfachte Berechnung für ungleichschenkliges Dreieck
+    const p1 = { x: -sideA/2, y: -sideB/3 };
+    const p2 = { x: sideA/2, y: -sideB/3 };
+    const p3 = { x: (sideC - sideA)/2, y: sideB*2/3 };
+    
+    return [p1, p2, p3];
+}
+
+function generateParallelogramPoints(dims) {
+    const length = dims.length || 8;
+    const width = dims.width || 5;
+    const angle = (dims.angle || 60) * Math.PI / 180;
+    const skew = width * Math.cos(angle);
+    
+    return [
+        { x: -length/2, y: -width/2 },
+        { x: length/2, y: -width/2 },
+        { x: length/2 + skew, y: width/2 },
+        { x: -length/2 + skew, y: width/2 }
+    ];
+}
+
+function generateRhombusPoints(dims) {
+    const side = dims.side || 5;
+    const angle = (dims.angle || 60) * Math.PI / 180;
+    const halfDiag1 = side * Math.sin(angle/2);
+    const halfDiag2 = side * Math.cos(angle/2);
+    
+    return [
+        { x: 0, y: -halfDiag1 },
+        { x: halfDiag2, y: 0 },
+        { x: 0, y: halfDiag1 },
+        { x: -halfDiag2, y: 0 }
+    ];
+}
+
+function generatePolygonPoints(dims) {
+    const sides = dims.sides || 5;
+    const radius = dims.radius || 4;
+    const points = [];
+    
+    for (let i = 0; i < sides; i++) {
+        const angle = (i * 2 * Math.PI) / sides - Math.PI/2; // Start oben
+        points.push({
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        });
+    }
+    return points;
+}
+
 function generateLShapePoints(dims) {
     const totalLength = dims.totalLength || 10;
     const totalWidth = dims.totalWidth || 8;
@@ -179,6 +282,42 @@ function generateLShapePoints(dims) {
         { x: totalLength/2, y: -totalWidth/2 + cutoutWidth },
         { x: -totalLength/2 + cutoutLength, y: -totalWidth/2 + cutoutWidth },
         { x: -totalLength/2 + cutoutLength, y: totalWidth/2 },
+        { x: -totalLength/2, y: totalWidth/2 }
+    ];
+}
+
+function generateTShapePoints(dims) {
+    const totalLength = dims.totalLength || 10;
+    const totalWidth = dims.totalWidth || 8;
+    const cutoutLength = dims.cutoutLength || 3;
+    const cutoutWidth = dims.cutoutWidth || 3;
+    
+    return [
+        { x: -totalLength/2, y: -totalWidth/2 },
+        { x: totalLength/2, y: -totalWidth/2 },
+        { x: totalLength/2, y: -totalWidth/2 + cutoutWidth },
+        { x: cutoutLength/2, y: -totalWidth/2 + cutoutWidth },
+        { x: cutoutLength/2, y: totalWidth/2 },
+        { x: -cutoutLength/2, y: totalWidth/2 },
+        { x: -cutoutLength/2, y: -totalWidth/2 + cutoutWidth },
+        { x: -totalLength/2, y: -totalWidth/2 + cutoutWidth }
+    ];
+}
+
+function generateUShapePoints(dims) {
+    const totalLength = dims.totalLength || 10;
+    const totalWidth = dims.totalWidth || 8;
+    const cutoutLength = dims.cutoutLength || 4;
+    const cutoutWidth = dims.cutoutWidth || 4;
+    
+    return [
+        { x: -totalLength/2, y: -totalWidth/2 },
+        { x: -totalLength/2 + cutoutWidth, y: -totalWidth/2 },
+        { x: -totalLength/2 + cutoutWidth, y: totalWidth/2 - cutoutLength },
+        { x: totalLength/2 - cutoutWidth, y: totalWidth/2 - cutoutLength },
+        { x: totalLength/2 - cutoutWidth, y: -totalWidth/2 },
+        { x: totalLength/2, y: -totalWidth/2 },
+        { x: totalLength/2, y: totalWidth/2 },
         { x: -totalLength/2, y: totalWidth/2 }
     ];
 }
@@ -226,18 +365,6 @@ function isVerticalOrHorizontal(p1, p2, tolerance = 0.1) {
     const isHorizontal = dy < tolerance;
     
     return { isVertical, isHorizontal };
-}
-
-// Hilfsfunktion: Berechnet den Winkel einer Linie
-function getLineAngle(p1, p2) {
-    const dx = p2.x - p1.x;
-    const dy = p2.y - p1.y;
-    let angle = Math.atan2(dy, dx) * 180 / Math.PI;
-    
-    // Normalisiere auf 0-360°
-    if (angle < 0) angle += 360;
-    
-    return angle;
 }
 
 // SVG-Darstellung mit Orientierungs-Hinweisen
@@ -342,9 +469,7 @@ function calculateScale(points) {
     const ys = points.map(p => Math.abs(p.y));
     const maxExtent = Math.max(...xs, ...ys);
     
-    // VERGRÖSSERTE SKALIERUNG
-    // Vorher: Math.min(120, 80 / maxExtent)
-    // Nachher: Deutlich größer
+    // Vergrößerte Skalierung für bessere Sichtbarkeit
     return maxExtent > 0 ? Math.min(180, 140 / maxExtent) : 30;
 }
 
@@ -449,10 +574,13 @@ function updateShapeInfo() {
     const shapeNames = {
         'kreis': 'Kreis', 'oval': 'Oval', 'rechteck': 'Rechteck', 'quadrat': 'Quadrat', 
         'dreieck': 'Gleichseitiges Dreieck', 'rechtwinklig': 'Rechtwinkliges Dreieck', 
-        'trapez': 'Trapez', 'lform': 'L-Form'
+        'ungleichschenklig': 'Ungleichschenkliges Dreieck',
+        'trapez': 'Trapez', 'parallelogramm': 'Parallelogramm', 'rhombus': 'Rhombus',
+        'lform': 'L-Form', 'tform': 'T-Form', 'uform': 'U-Form',
+        'fuenfeck': 'Fünfeck', 'sechseck': 'Sechseck', 'achteck': 'Achteck'
     };
     
-    const shapeName = shapeNames[roofShape.variant] || roofShape.variant || 'Unbekannt';
+    const shapeName = shapeNames[roofShape.variant] || roofShape.variantName || roofShape.variant || 'Unbekannt';
     const titleElement = document.getElementById('current-shape-title');
     if (titleElement) {
         titleElement.textContent = shapeName;
@@ -480,30 +608,36 @@ function updateShapeInfo() {
     }
 }
 
-// Speichern und Weiter
+// KORRIGIERTE Speichern und Weiter Funktion
 function saveAndContinue() {
-    // Transform-Daten zur roofShape hinzufügen
+    console.log('=== EDITOR: SPEICHERN UND WEITER ===');
+    
+    // Validierung
     if (!projectData.roofShape) {
-        alert('Keine Dachform-Daten gefunden!');
+        alert('❌ Keine Dachform-Daten gefunden!');
         return;
     }
     
     // Finale Punkte mit Transformationen generieren
     const finalPoints = applyTransformation(generatedPoints);
     
+    // Erweitere roofShape um Transform-Daten und finale Punkte
     projectData.roofShape.transform = { ...currentTransform };
     projectData.roofShape.points = finalPoints;
     projectData.roofShape.originalPoints = [...generatedPoints];
+    projectData.roofShape.timestamp = Date.now();
     
-    console.log('Speichere finale roofShape-Daten:', projectData.roofShape);
+    console.log('🔄 Erweiterte roofShape-Daten:', projectData.roofShape);
     
     const saved = saveData();
     if (!saved) {
-        alert('Fehler beim Speichern!');
+        alert('❌ Fehler beim Speichern!');
         return;
     }
     
-    // Navigation zur Bemaßung
+    console.log('✅ Navigation zur Bemaßung (formauswahl.html)');
+    
+    // KORRIGIERT: Navigation zur Bemaßung
     window.location.href = 'formauswahl.html';
 }
 
@@ -531,23 +665,31 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Projektdaten laden
     projectData = loadData();
+    console.log('🔍 Geladene Projektdaten:', projectData);
     
-    // Demo-Daten falls keine vorhanden
-    if (!projectData.roofShape) {
-        console.log('Keine roofShape-Daten, erstelle Demo-Daten');
+    // Validierung und Fallback
+    if (!projectData.roofShape || !projectData.roofShape.variant) {
+        console.log('⚠️ Keine roofShape-Daten, erstelle Demo-Daten');
         projectData = {
             profile: { kategorie: 'trapezprofil', profilKey: 'TP20' },
-            roofShape: { variant: 'rechteck', baseShape: 'viereck' }
+            roofShape: { 
+                baseShape: 'viereck', 
+                variant: 'rechteck',
+                variantName: 'Rechteck'
+            }
         };
     }
     
+    console.log('🎯 Verwende roofShape.variant:', projectData.roofShape.variant);
+    
     // Punkte generieren
     generatedPoints = generateShapePoints();
-    console.log('Generierte Punkte:', generatedPoints);
+    console.log('📐 Generierte Punkte:', generatedPoints.length, 'Punkte');
     
     // Gespeicherte Transformationen laden
     if (projectData.roofShape.transform) {
         currentTransform = { ...projectData.roofShape.transform };
+        console.log('🔄 Gespeicherte Transformationen geladen:', currentTransform);
     }
     
     // Info anzeigen
@@ -618,6 +760,28 @@ window.debugEditor = () => {
     console.log('currentTransform:', currentTransform);
     console.log('generatedPoints:', generatedPoints);
     console.log('transformedPoints:', applyTransformation(generatedPoints));
+    console.log('roofShape.variant:', projectData.roofShape?.variant);
 };
 
-console.log('✅ editor.js geladen - Mit W/S Orientierungs-Symbolen');
+// Test-Funktion für Editor
+window.testEditorShape = (variant) => {
+    console.log('🧪 TESTE EDITOR-FORM:', variant);
+    
+    // Projektdaten temporär setzen
+    projectData.roofShape = {
+        baseShape: 'test',
+        variant: variant,
+        variantName: `Test ${variant}`
+    };
+    
+    // Punkte neu generieren
+    generatedPoints = generateShapePoints();
+    
+    // UI aktualisieren
+    updateShapeInfo();
+    drawShape();
+    
+    console.log('✅ Test-Form gesetzt:', variant);
+};
+
+console.log('✅ editor.js geladen - REPARIERTE VERSION mit korrekter roofShape.variant Verarbeitung');
