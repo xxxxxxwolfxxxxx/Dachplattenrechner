@@ -1,4 +1,23 @@
-// berechnung.js - Vollständige Implementation
+// Initialisierung
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== BERECHNUNG-SEITE GELADEN ===');
+    
+    // Projektdaten laden
+    projectData = loadData();
+    console.log('Geladene Projektdaten:', projectData);
+    
+    // VERBESSERTE Validierung - prüfe auf echte Geometrie-Daten
+    if (!projectData.profile) {
+        console.error('❌ KEINE PROFIL-DATEN!');
+        alert('Keine Profil-Daten gefunden. Bitte kehren Sie zu Schritt 1 zurück.');
+        window.location.href = 'profil.html';
+        return;
+    }
+    
+    if (!projectData.geometry && !projectData.roofShape) {
+        console.error('❌ KEINE GEOMETRIE-DATEN!');
+        alert('Keine Geometrie-Daten gefunden. Bitte kehren Sie zu den vorherigen Schritten zurück.');
+        window.location.href = '// berechnung.js - Vollständige Implementation
 
 // Globale Variablen
 let projectData = {};
@@ -578,40 +597,51 @@ document.addEventListener('DOMContentLoaded', function() {
     projectData = loadData();
     console.log('Geladene Projektdaten:', projectData);
     
-    // Validierung
-    if (!projectData.profile || !projectData.geometry) {
-        console.error('Unvollständige Projektdaten');
+    // VERBESSERTE Validierung - prüfe auf echte Geometrie-Daten
+    if (!projectData.profile) {
+        console.error('❌ KEINE PROFIL-DATEN!');
+        alert('Keine Profil-Daten gefunden. Bitte kehren Sie zu Schritt 1 zurück.');
+        window.location.href = 'profil.html';
+        return;
+    }
+    
+    if (!projectData.geometry && !projectData.roofShape) {
+        console.error('❌ KEINE GEOMETRIE-DATEN!');
+        alert('Keine Geometrie-Daten gefunden. Bitte kehren Sie zu den vorherigen Schritten zurück.');
+        window.location.href = 'dachform.html';
+        return;
+    }
+    
+    // ECHTE Geometrie-Daten aus allen möglichen Quellen zusammenbauen
+    let finalGeometry = projectData.geometry;
+    
+    // Falls keine geometry aber roofShape vorhanden, konvertiere
+    if (!finalGeometry && projectData.roofShape) {
+        console.log('🔄 Konvertiere roofShape zu geometry...');
+        finalGeometry = {
+            variant: projectData.roofShape.variant,
+            // Standardmaße falls keine Dimensionen gespeichert
+            dimensions: projectData.roofShape.dimensions || getDefaultDimensions(projectData.roofShape.variant),
+            area: calculateAreaFromDimensions(projectData.roofShape.variant, projectData.roofShape.dimensions || getDefaultDimensions(projectData.roofShape.variant))
+        };
         
-        // Debug-Info anzeigen
+        // Aktualisiere projectData
+        projectData.geometry = finalGeometry;
+        console.log('✅ Geometrie konvertiert:', finalGeometry);
+    }
+    
+    // Debug-Info anzeigen wenn Daten unvollständig aussehen
+    if (usesDefaultValues(finalGeometry)) {
         const debugInfo = document.getElementById('debug-info');
         const debugContent = document.getElementById('debug-content');
         if (debugInfo && debugContent) {
             debugInfo.style.display = 'block';
             debugContent.innerHTML = `
-                <p><strong>Gefundene Daten:</strong></p>
-                <pre>${JSON.stringify(projectData, null, 2)}</pre>
-                <p>Fehlende Daten werden mit Standardwerten ersetzt.</p>
+                <p><strong>⚠️ Verwendet Standard-Abmessungen:</strong></p>
+                <pre>${JSON.stringify(finalGeometry, null, 2)}</pre>
+                <p>Falls das nicht Ihren eingegebenen Maßen entspricht, gehen Sie zurück zur Bemaßung.</p>
+                <button onclick="window.location.href='formauswahl.html'" class="btn btn-warning">Zurück zur Bemaßung</button>
             `;
-        }
-        
-        // Fallback-Daten setzen
-        if (!projectData.profile) {
-            projectData.profile = {
-                profilname: 'TP20 Standard',
-                deckbreite: 1000,
-                lieferbreite: 1050,
-                seitenueberlappung: 50,
-                ueberstand: 50,
-                lagerlaengen: [2000, 3000, 4000, 5000, 6000]
-            };
-        }
-        
-        if (!projectData.geometry) {
-            projectData.geometry = {
-                variant: 'rechteck',
-                dimensions: { length: 8, width: 5 },
-                area: 40
-            };
         }
     }
     
@@ -622,11 +652,52 @@ document.addEventListener('DOMContentLoaded', function() {
     displayProjectInfo();
     determineWaterDirection();
     
-    // AUTOMATISCHE BERECHNUNG beim Laden der Seite
+    // AUTOMATISCHE BERECHNUNG mit echten Daten
     calculateLengths();
     
     console.log('✅ Berechnung-Seite erfolgreich initialisiert mit automatischer Berechnung');
 });
+
+// Hilfsfunktionen für Datenvalidierung
+function getDefaultDimensions(variant) {
+    switch (variant) {
+        case 'trapez':
+            return { bottomBase: 8, topBase: 6, height: 4 };
+        case 'rechteck':
+            return { length: 8, width: 5 };
+        case 'rechtwinklig':
+            return { katheteA: 4, katheteB: 5 };
+        case 'kreis':
+            return { radius: 4 };
+        default:
+            return { length: 8, width: 5 };
+    }
+}
+
+function calculateAreaFromDimensions(variant, dims) {
+    switch (variant) {
+        case 'trapez':
+            return ((dims.bottomBase + dims.topBase) / 2) * dims.height;
+        case 'rechteck':
+            return dims.length * dims.width;
+        case 'rechtwinklig':
+            return (dims.katheteA * dims.katheteB) / 2;
+        case 'kreis':
+            return Math.PI * dims.radius * dims.radius;
+        default:
+            return 40;
+    }
+}
+
+function usesDefaultValues(geometry) {
+    if (!geometry || !geometry.dimensions) return true;
+    
+    const dims = geometry.dimensions;
+    const defaults = getDefaultDimensions(geometry.variant);
+    
+    // Prüfe ob die Werte den Standardwerten entsprechen
+    return Object.keys(defaults).every(key => dims[key] === defaults[key]);
+}
 
 // Canvas-Größe bei Fenster-Resize anpassen
 window.addEventListener('resize', function() {
