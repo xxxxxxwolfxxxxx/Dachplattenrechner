@@ -24,31 +24,126 @@
         }
     }
 
-    // KORRIGIERTE Form-Erkennung
+    // KORRIGIERTE Form-Erkennung mit baseShape + variant Mapping
     function determineShapeFromProject() {
         debugLog('=== BESTIMME FORM AUS PROJEKT ===');
         
         const projectData = loadData();
         debugLog('Geladene Projektdaten:', projectData);
         
-        if (projectData.roofShape && projectData.roofShape.variant) {
+        if (projectData.roofShape) {
+            const baseShape = projectData.roofShape.baseShape;
             const variant = projectData.roofShape.variant;
-            debugLog('Gefundene roofShape.variant:', variant);
             
-            // DIREKTE Verwendung der Variante mit Fallback-Mapping
-            const mappedVariant = variantMapping[variant] || variant;
-            debugLog('Gemappte Variante:', variant, '→', mappedVariant);
+            debugLog('baseShape:', baseShape);
+            debugLog('variant:', variant);
+            
+            // KORRIGIERT: Kombiniere baseShape + variant richtig
+            let finalVariant = variant;
+            
+            // Spezial-Mapping für Dreieck-Formen
+            if (baseShape === 'dreieck') {
+                switch (variant) {
+                    case 'dreieck':
+                    case 'gleichseitig':
+                        finalVariant = 'dreieck';
+                        break;
+                    case 'rechtwinklig':
+                        finalVariant = 'rechtwinklig';
+                        break;
+                    case 'ungleichschenklig':
+                        finalVariant = 'ungleichschenklig';
+                        break;
+                    default:
+                        finalVariant = 'rechtwinklig'; // Fallback für Dreiecke
+                }
+            }
+            
+            // Spezial-Mapping für Viereck-Formen
+            else if (baseShape === 'viereck') {
+                switch (variant) {
+                    case 'rechteck':
+                        finalVariant = 'rechteck';
+                        break;
+                    case 'quadrat':
+                        finalVariant = 'quadrat';
+                        break;
+                    case 'trapez':
+                        finalVariant = 'trapez';
+                        break;
+                    case 'parallelogramm':
+                        finalVariant = 'parallelogramm';
+                        break;
+                    case 'rhombus':
+                        finalVariant = 'rhombus';
+                        break;
+                    default:
+                        finalVariant = 'rechteck'; // Fallback für Vierecke
+                }
+            }
+            
+            // Spezial-Mapping für Kreis-Formen
+            else if (baseShape === 'kreis') {
+                switch (variant) {
+                    case 'kreis':
+                        finalVariant = 'kreis';
+                        break;
+                    case 'oval':
+                        finalVariant = 'oval';
+                        break;
+                    case 'halbkreis':
+                    case 'viertelkreis':
+                    case 'langloch':
+                        finalVariant = 'kreis'; // Vereinfacht zu Kreis
+                        break;
+                    default:
+                        finalVariant = 'kreis';
+                }
+            }
+            
+            // Spezial-Mapping für Vieleck-Formen
+            else if (baseShape === 'vieleck') {
+                switch (variant) {
+                    case 'lform':
+                        finalVariant = 'lform';
+                        break;
+                    case 'tform':
+                        finalVariant = 'tform';
+                        break;
+                    case 'uform':
+                        finalVariant = 'uform';
+                        break;
+                    case 'fuenfeck':
+                        finalVariant = 'fuenfeck';
+                        break;
+                    case 'sechseck':
+                        finalVariant = 'sechseck';
+                        break;
+                    case 'achteck':
+                        finalVariant = 'achteck';
+                        break;
+                    default:
+                        finalVariant = 'lform'; // Fallback für Vielecke
+                }
+            }
+            
+            // Fallback: Verwende variantMapping wenn kein baseShape Match
+            else {
+                finalVariant = variantMapping[variant] || variant;
+            }
+            
+            debugLog('Final gemappte Variante:', finalVariant);
             
             // Validierung: Existiert die Form in unseren Definitionen?
-            if (shapeInfo[mappedVariant]) {
-                debugLog('✅ Form gefunden:', mappedVariant);
-                return mappedVariant;
+            if (shapeInfo[finalVariant]) {
+                debugLog('✅ Form gefunden:', finalVariant);
+                return finalVariant;
             } else {
-                debugLog('❌ Form nicht in shapeInfo gefunden:', mappedVariant);
+                debugLog('❌ Form nicht in shapeInfo gefunden:', finalVariant);
                 debugLog('Verfügbare Formen:', Object.keys(shapeInfo));
             }
         } else {
-            debugLog('❌ Keine roofShape.variant gefunden');
+            debugLog('❌ Keine roofShape gefunden');
         }
         
         debugLog('🔄 Fallback auf rechtwinklig');
