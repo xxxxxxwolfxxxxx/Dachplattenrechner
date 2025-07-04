@@ -378,6 +378,10 @@
                                 <button class="rotate-btn" onclick="rotateShape(5)">↻ +5°</button>
                                 <button class="rotate-btn" onclick="rotateShape(15)">↻ +15°</button>
                             </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                                <button class="rotate-btn" onclick="snapToAngle(0)" style="background: #28a745; color: white;">⟷ 0° (Waagerecht)</button>
+                                <button class="rotate-btn" onclick="snapToAngle(90)" style="background: #007bff; color: white;">↕ 90° (Senkrecht)</button>
+                            </div>
                             <div class="orientation-info" id="orientation-info">
                                 <strong>💡 Orientierung:</strong><br>
                                 Drehen Sie die Form so, dass mindestens eine Seite waagerecht oder senkrecht liegt.
@@ -680,7 +684,7 @@
 
         // Orientierung prüfen
         function checkOrientation(points) {
-            const tolerance = 2;
+            const tolerance = 0.1; // Nur 0.1 Grad Toleranz für exakte Ausrichtung
             let horizontalSides = 0;
             let verticalSides = 0;
 
@@ -722,16 +726,17 @@
             if (horizontalSides > 0 || verticalSides > 0) {
                 orientationInfo.className = 'orientation-info';
                 orientationText = `
-                    <strong>✅ Perfekte Orientierung!</strong><br>
-                    ${horizontalSides > 0 ? `🟢 ${horizontalSides} waagerechte Seite(n)<br>` : ''}
-                    ${verticalSides > 0 ? `🔵 ${verticalSides} senkrechte Seite(n)<br>` : ''}
-                    Optimal für Wasserlaufrichtung!
+                    <strong>✅ Exakte Orientierung!</strong><br>
+                    ${horizontalSides > 0 ? `🟢 ${horizontalSides} exakt waagerechte Seite(n)<br>` : ''}
+                    ${verticalSides > 0 ? `🔵 ${verticalSides} exakt senkrechte Seite(n)<br>` : ''}
+                    Perfekt für Wasserlaufrichtung!
                 `;
             } else {
                 orientationInfo.className = 'orientation-info orientation-warning';
                 orientationText = `
-                    <strong>⚠️ Keine optimale Orientierung</strong><br>
-                    Drehen Sie die Form so, dass mindestens eine Seite waagerecht oder senkrecht liegt.
+                    <strong>⚠️ Keine exakte Orientierung</strong><br>
+                    Drehen Sie die Form präzise so, dass mindestens eine Seite exakt waagerecht (0°) oder senkrecht (90°) liegt.<br>
+                    <small>Aktuelle Rotation: ${currentRotation}°</small>
                 `;
             }
             orientationInfo.innerHTML = orientationText;
@@ -749,6 +754,13 @@
         function resetRotation() {
             currentRotation = 0;
             document.getElementById('rotation-display').textContent = `Drehung: 0°`;
+            updatePreview();
+        }
+
+        // Snap zu exakten Winkeln
+        function snapToAngle(targetAngle) {
+            currentRotation = targetAngle % 360;
+            document.getElementById('rotation-display').textContent = `Drehung: ${currentRotation}°`;
             updatePreview();
         }
 
