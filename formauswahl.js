@@ -456,49 +456,9 @@
             return;
         }
         
-        dimensionsGrid.innerHTML = '';
-        
-        var info = shapeInfo[selectedVariant];
-        if (!info) {
-            debugLog('Form-Info nicht gefunden für: ' + selectedVariant);
-            return;
-        }
-        
-        var dimensions = info.dimensions;
-        debugLog('Erstelle Inputs für Dimensionen: ' + dimensions.join(', '));
-        
-        for (var i = 0; i < dimensions.length; i++) {
-            var dim = dimensions[i];
-            var config = dimensionConfig[dim];
-            
-            if (!config) {
-                debugLog('Dimension-Config nicht gefunden für: ' + dim);
-                continue;
-            }
-            
-            var savedValue = currentDimensions[dim] || config.default;
-            currentDimensions[dim] = savedValue;
-            
-            var inputContainer = document.createElement('div');
-            inputContainer.className = 'dimension-input';
-            
-            inputContainer.innerHTML = 
-                '<label class="dimension-label">' + config.label + '</label>' +
-                '<div style="display: flex; align-items: center;">' +
-                    '<input type="number" ' +
-                           'class="dimension-value" ' +
-                           'data-dimension="' + dim + '"' +
-                           'value="' + savedValue + '"' +
-                           'min="' + config.min + '"' +
-                           'max="' + config.max + '"' +
-                           'step="0.1">' +
-                    '<span class="dimension-unit">' + config.unit + '</span>' +
-                '</div>';
-            
-            dimensionsGrid.appendChild(inputContainer);
-            
-            // Event listener für Änderungen
-            var input = inputContainer.querySelector('.dimension-value');
+        // Für Demo: Inputs sind bereits in HTML vorhanden, nur Event Listener hinzufügen
+        var inputs = dimensionsGrid.querySelectorAll('.dimension-value');
+        inputs.forEach(function(input) {
             input.addEventListener('input', function(e) {
                 var dimension = e.target.getAttribute('data-dimension');
                 var value = parseFloat(e.target.value);
@@ -508,9 +468,13 @@
                     updateCalculation();
                 }
             });
-        }
+        });
         
-        debugLog('Dimension-Inputs erstellt: ' + dimensions.length + ' Inputs');
+        // Standardwerte setzen
+        currentDimensions.katheteA = 4;
+        currentDimensions.katheteB = 5;
+        
+        debugLog('Event Listeners für Inputs hinzugefügt');
     }
 
     // Form-Vorschau aktualisieren
@@ -894,6 +858,13 @@
         
         currentProjectData = loadData();
         
+        // Standard: Rechtwinkliges Dreieck
+        selectedVariant = 'rechtwinklig';
+        currentDimensions = {
+            katheteA: 4,
+            katheteB: 5
+        };
+        
         // Fallback für Demo
         if (!currentProjectData.profile) {
             currentProjectData = {
@@ -909,14 +880,12 @@
             };
         }
         
-        var shapeLoaded = displayShapeInfo();
-        if (shapeLoaded) {
-            createDimensionInputs();
-            updatePreview();
-            updateCalculation();
-        }
+        displayShapeInfo();
+        createDimensionInputs();
+        updatePreview();
+        updateCalculation();
         
-        // Event Listeners
+        // Event Listeners für Navigation
         var backBtn = document.getElementById('btn-back');
         var continueBtn = document.getElementById('btn-continue');
         
