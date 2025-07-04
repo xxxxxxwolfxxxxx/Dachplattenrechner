@@ -123,15 +123,7 @@
             gap: 25px;
         }
 
-        .dimensions-panel {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            height: fit-content;
-        }
-
-        .rotation-controls {
+        .rotation-controls, .dimensions-panel {
             background: white;
             border-radius: 15px;
             padding: 25px;
@@ -160,12 +152,6 @@
             background: #f8f9ff;
         }
 
-        .rotate-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #667eea;
-        }
-
         .rotation-display {
             text-align: center;
             padding: 15px;
@@ -189,16 +175,6 @@
             border-left: 5px solid #ffc107;
         }
 
-        .side-horizontal {
-            stroke: #28a745 !important;
-            stroke-width: 5 !important;
-        }
-
-        .side-vertical {
-            stroke: #007bff !important;
-            stroke-width: 5 !important;
-        }
-
         .preview-panel {
             background: white;
             border-radius: 15px;
@@ -208,6 +184,13 @@
 
         .dimension-input {
             margin-bottom: 20px;
+        }
+
+        .dimension-label {
+            display: block;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
         }
 
         .input-with-unit {
@@ -439,10 +422,6 @@
                                     <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.8" />
                                     <stop offset="100%" style="stop-color:#764ba2;stop-opacity:0.8" />
                                 </linearGradient>
-                                
-                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                    <polygon points="0 0, 10 3.5, 0 7" fill="#ff6b6b" />
-                                </marker>
                             </defs>
                             
                             <!-- Koordinatensystem -->
@@ -454,10 +433,6 @@
                                 <text y="0" text-anchor="middle" fill="#999" font-size="18">
                                     Wählen Sie zuerst die Anzahl der Ecken
                                 </text>
-                            </g>
-                            
-                            <!-- Bemaßung -->
-                            <g id="dimensions-group">
                             </g>
                         </svg>
                     </div>
@@ -523,29 +498,22 @@
 
         // Ecken-Auswahl
         function selectCorners(corners) {
-            // Alle Optionen deselektieren
             document.querySelectorAll('.corner-option').forEach(opt => {
                 opt.classList.remove('selected');
             });
 
-            // Gewählte Option markieren
             document.querySelector(`[data-corners="${corners}"]`).classList.add('selected');
             
             selectedCorners = corners;
             
-            // Editor anzeigen
             document.getElementById('editor-area').style.display = 'block';
             document.getElementById('continue-btn').style.display = 'inline-block';
             
-            // Info anzeigen
             document.getElementById('shape-info').innerHTML = `
                 <strong>Gewählt:</strong> ${shapeInfos[corners]}
             `;
             
-            // Eingaben erstellen
             createInputs();
-            
-            // Zum Editor scrollen
             document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -577,7 +545,6 @@
                 `;
                 container.appendChild(div);
 
-                // Event Listener
                 const inputField = div.querySelector('input');
                 inputField.addEventListener('input', function() {
                     currentDimensions[input.key] = parseFloat(this.value) || input.default;
@@ -593,35 +560,24 @@
         // Vorschau zeichnen
         function updatePreview() {
             const shapeGroup = document.getElementById('shape-group');
-            const dimensionsGroup = document.getElementById('dimensions-group');
             
             if (!selectedCorners) return;
 
             const scale = 50;
-            let shapeSVG = '';
-            let dimensionsSVG = '';
-
+            let originalPoints = [];
+            
             switch (selectedCorners) {
                 case '0': // Rund
-                    const rx = currentDimensions.radiusX * scale;
-                    const ry = currentDimensions.radiusY * scale;
-                    shapeSVG = `<ellipse cx="0" cy="0" rx="${rx}" ry="${ry}" 
-                               fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                    const rx = currentDimensions.radiusX;
+                    const ry = currentDimensions.radiusY;
                     
-                    // Bemaßung
-                    dimensionsSVG = `
-                        <line x1="${250-rx}" y1="${250+ry+40}" x2="${250+rx}" y2="${250+ry+40}" 
-                              stroke="#ff6b6b" stroke-width="2" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-                        <text x="250" y="${250+ry+60}" text-anchor="middle" fill="#ff6b6b" font-weight="bold">
-                            ${(currentDimensions.radiusX * 2).toFixed(1)}m
-                        </text>
-                        <line x1="${250-rx-40}" y1="${250-ry}" x2="${250-rx-40}" y2="${250+ry}" 
-                              stroke="#ff6b6b" stroke-width="2" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-                        <text x="${250-rx-60}" y="250" text-anchor="middle" fill="#ff6b6b" font-weight="bold" 
-                              transform="rotate(-90 ${250-rx-60} 250)">
-                            ${(currentDimensions.radiusY * 2).toFixed(1)}m
-                        </text>
-                    `;
+                    for (let i = 0; i < 32; i++) {
+                        const angle = (i * 2 * Math.PI) / 32;
+                        originalPoints.push({
+                            x: rx * Math.cos(angle) * scale,
+                            y: ry * Math.sin(angle) * scale
+                        });
+                    }
                     break;
 
                 case '3': // Dreieck
@@ -629,105 +585,51 @@
                     const sideB = currentDimensions.sideB;
                     const sideC = currentDimensions.sideC;
                     
-                    // Dreieck mit Kosinussatz berechnen
                     const angle = Math.acos((sideA*sideA + sideB*sideB - sideC*sideC) / (2*sideA*sideB));
                     const height = sideB * Math.sin(angle);
                     const baseOffset = sideB * Math.cos(angle);
                     
-                    shapeSVG = `<polygon points="0,${-height*scale/2} ${sideA*scale/2},${height*scale/2} ${(baseOffset-sideA/2)*scale},${height*scale/2}" 
-                               fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                    
-                    // Seitenbeschriftung
-                    dimensionsSVG = `
-                        <!-- Seite A (unten) -->
-                        <line x1="${250-sideA*scale/2}" y1="${250+height*scale/2+30}" x2="${250+sideA*scale/2}" y2="${250+height*scale/2+30}" 
-                              stroke="#ff6b6b" stroke-width="2" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-                        <text x="250" y="${250+height*scale/2+50}" text-anchor="middle" fill="#ff6b6b" font-weight="bold">
-                            A = ${sideA}m
-                        </text>
-                        
-                        <!-- Seite B (links) -->
-                        <line x1="${250-50}" y1="${250-height*scale/2}" x2="${250-50}" y2="${250+height*scale/2}" 
-                              stroke="#28a745" stroke-width="2" marker-start="url(#arrowhead-green)" marker-end="url(#arrowhead-green)"/>
-                        <text x="${250-70}" y="250" text-anchor="middle" fill="#28a745" font-weight="bold" 
-                              transform="rotate(-90 ${250-70} 250)">
-                            B = ${sideB}m
-                        </text>
-                        
-                        <!-- Seite C (schräg rechts) -->
-                        <text x="${250+sideA*scale/4}" y="${250-height*scale/4}" text-anchor="middle" fill="#007bff" font-weight="bold">
-                            C = ${sideC}m
-                        </text>
-                    `;
+                    originalPoints = [
+                        { x: 0, y: -height*scale/2 },
+                        { x: sideA*scale/2, y: height*scale/2 },
+                        { x: (baseOffset-sideA/2)*scale, y: height*scale/2 }
+                    ];
                     break;
 
                 case '4': // Viereck
-                    const bottomWidth = currentDimensions.bottomWidth * scale;
-                    const topWidth = currentDimensions.topWidth * scale;
-                    const offset = currentDimensions.offset * scale;
+                    const bottomWidth = currentDimensions.bottomWidth;
+                    const topWidth = currentDimensions.topWidth;
+                    const offset = currentDimensions.offset;
+                    const autoHeight = Math.max(bottomWidth, topWidth) * 0.6;
                     
-                    // Automatische Höhe basierend auf Breiten (Standard-Verhältnis)
-                    const autoHeight = Math.max(bottomWidth, topWidth) * 0.6; // 60% der größeren Breite
-                    
-                    // Korrigierte Geometrie: Versatz verschiebt nur die obere Kante
-                    shapeSVG = `<polygon points="${-bottomWidth/2},${autoHeight/2} ${bottomWidth/2},${autoHeight/2} ${topWidth/2+offset},${-autoHeight/2} ${-topWidth/2+offset},${-autoHeight/2}" 
-                               fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                    
-                    // Bemaßung für Viereck
-                    dimensionsSVG = `
-                        <!-- Untere Breite -->
-                        <line x1="${250-bottomWidth/2}" y1="${250+autoHeight/2+30}" x2="${250+bottomWidth/2}" y2="${250+autoHeight/2+30}" 
-                              stroke="#ff6b6b" stroke-width="2" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-                        <text x="250" y="${250+autoHeight/2+50}" text-anchor="middle" fill="#ff6b6b" font-weight="bold">
-                            Unten: ${currentDimensions.bottomWidth}m
-                        </text>
-                        
-                        <!-- Obere Breite -->
-                        <line x1="${250-topWidth/2+offset}" y1="${250-autoHeight/2-30}" x2="${250+topWidth/2+offset}" y2="${250-autoHeight/2-30}" 
-                              stroke="#28a745" stroke-width="2" marker-start="url(#arrowhead-green)" marker-end="url(#arrowhead-green)"/>
-                        <text x="${250+offset}" y="${250-autoHeight/2-15}" text-anchor="middle" fill="#28a745" font-weight="bold">
-                            Oben: ${currentDimensions.topWidth}m
-                        </text>
-                        
-                        <!-- Versatz (nur wenn != 0) -->
-                        ${Math.abs(currentDimensions.offset) > 0.1 ? `
-                        <line x1="250" y1="${250-autoHeight/2-60}" x2="${250+offset}" y2="${250-autoHeight/2-60}" 
-                              stroke="#ffc107" stroke-width="2" stroke-dasharray="5,5" marker-end="url(#arrowhead-yellow)"/>
-                        <text x="${250+offset/2}" y="${250-autoHeight/2-70}" text-anchor="middle" fill="#ffc107" font-weight="bold">
-                            Versatz: ${currentDimensions.offset}m
-                        </text>
-                        ` : ''}
-                        
-                        <!-- Berechnete Höhe anzeigen -->
-                        <line x1="${250-Math.max(bottomWidth,topWidth+Math.abs(offset))/2-50}" y1="${250-autoHeight/2}" x2="${250-Math.max(bottomWidth,topWidth+Math.abs(offset))/2-50}" y2="${250+autoHeight/2}" 
-                              stroke="#007bff" stroke-width="2" marker-start="url(#arrowhead-blue)" marker-end="url(#arrowhead-blue)"/>
-                        <text x="${250-Math.max(bottomWidth,topWidth+Math.abs(offset))/2-70}" y="250" text-anchor="middle" fill="#007bff" font-weight="bold" 
-                              transform="rotate(-90 ${250-Math.max(bottomWidth,topWidth+Math.abs(offset))/2-70} 250)">
-                            H: ${(autoHeight/scale).toFixed(1)}m
-                        </text>
-                    `;
+                    originalPoints = [
+                        { x: -bottomWidth*scale/2, y: autoHeight*scale/2 },
+                        { x: bottomWidth*scale/2, y: autoHeight*scale/2 },
+                        { x: topWidth*scale/2 + offset*scale, y: -autoHeight*scale/2 },
+                        { x: -topWidth*scale/2 + offset*scale, y: -autoHeight*scale/2 }
+                    ];
                     break;
 
                 case '5': // Fünfeck
                     const radius5 = currentDimensions.radius * scale;
-                    let points5 = [];
                     for (let i = 0; i < 5; i++) {
                         const angle = (i * 2 * Math.PI / 5) - Math.PI/2;
-                        points5.push(`${radius5 * Math.cos(angle)},${radius5 * Math.sin(angle)}`);
+                        originalPoints.push({
+                            x: radius5 * Math.cos(angle),
+                            y: radius5 * Math.sin(angle)
+                        });
                     }
-                    shapeSVG = `<polygon points="${points5.join(' ')}" 
-                               fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
                     break;
 
                 case '6': // Sechseck
                     const radius6 = currentDimensions.radius * scale;
-                    let points6 = [];
                     for (let i = 0; i < 6; i++) {
                         const angle = (i * 2 * Math.PI / 6);
-                        points6.push(`${radius6 * Math.cos(angle)},${radius6 * Math.sin(angle)}`);
+                        originalPoints.push({
+                            x: radius6 * Math.cos(angle),
+                            y: radius6 * Math.sin(angle)
+                        });
                     }
-                    shapeSVG = `<polygon points="${points6.join(' ')}" 
-                               fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
                     break;
 
                 case 'special': // L-Form
@@ -736,23 +638,52 @@
                     const cw = currentDimensions.cutWidth * scale;
                     const ch = currentDimensions.cutHeight * scale;
                     
-                    shapeSVG = `<polygon points="${-tw/2},${-th/2} ${tw/2},${-th/2} ${tw/2},${-th/2+ch} ${-tw/2+cw},${-th/2+ch} ${-tw/2+cw},${th/2} ${-tw/2},${th/2}" 
-                               fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                    originalPoints = [
+                        { x: -tw/2, y: -th/2 },
+                        { x: tw/2, y: -th/2 },
+                        { x: tw/2, y: -th/2+ch },
+                        { x: -tw/2+cw, y: -th/2+ch },
+                        { x: -tw/2+cw, y: th/2 },
+                        { x: -tw/2, y: th/2 }
+                    ];
                     break;
             }
 
+            // Rotation anwenden
+            const rotatedPoints = originalPoints.map(point => {
+                const rad = currentRotation * Math.PI / 180;
+                const cos = Math.cos(rad);
+                const sin = Math.sin(rad);
+                return {
+                    x: point.x * cos - point.y * sin,
+                    y: point.x * sin + point.y * cos
+                };
+            });
+
+            // Form zeichnen
+            let shapeSVG = '';
+            if (selectedCorners === '0') {
+                const rx = currentDimensions.radiusX * scale;
+                const ry = currentDimensions.radiusY * scale;
+                shapeSVG = `<ellipse cx="0" cy="0" rx="${rx}" ry="${ry}" 
+                           fill="url(#shapeGradient)" stroke="#333" stroke-width="3"
+                           transform="rotate(${currentRotation})"/>`;
+            } else {
+                const pointsStr = rotatedPoints.map(p => `${p.x},${p.y}`).join(' ');
+                shapeSVG = `<polygon points="${pointsStr}" 
+                           fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+            }
+
+            checkOrientation(rotatedPoints);
             shapeGroup.innerHTML = shapeSVG;
-            dimensionsGroup.innerHTML = dimensionsSVG;
         }
 
-        // Orientierung prüfen und anzeigen
+        // Orientierung prüfen
         function checkOrientation(points) {
-            const tolerance = 2; // 2 Grad Toleranz
+            const tolerance = 2;
             let horizontalSides = 0;
             let verticalSides = 0;
-            let orientationText = '';
 
-            // Prüfe jede Kante
             for (let i = 0; i < points.length; i++) {
                 const p1 = points[i];
                 const p2 = points[(i + 1) % points.length];
@@ -761,44 +692,33 @@
                 const dy = p2.y - p1.y;
                 const angle = Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI;
                 
-                // Prüfe auf horizontal (0° ± tolerance)
                 if (angle < tolerance) {
                     horizontalSides++;
-                    // Kante grün färben
-                    const svg = document.querySelector('#shape-group polygon, #shape-group ellipse');
-                    if (svg) {
-                        // Zusätzliche Linie für horizontale Kante
-                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        line.setAttribute('x1', 250 + p1.x);
-                        line.setAttribute('y1', 250 + p1.y);
-                        line.setAttribute('x2', 250 + p2.x);
-                        line.setAttribute('y2', 250 + p2.y);
-                        line.setAttribute('stroke', '#28a745');
-                        line.setAttribute('stroke-width', '6');
-                        document.getElementById('shape-group').appendChild(line);
-                    }
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', p1.x);
+                    line.setAttribute('y1', p1.y);
+                    line.setAttribute('x2', p2.x);
+                    line.setAttribute('y2', p2.y);
+                    line.setAttribute('stroke', '#28a745');
+                    line.setAttribute('stroke-width', '6');
+                    document.getElementById('shape-group').appendChild(line);
                 }
-                // Prüfe auf vertikal (90° ± tolerance)
                 else if (Math.abs(angle - 90) < tolerance) {
                     verticalSides++;
-                    // Kante blau färben
-                    const svg = document.querySelector('#shape-group polygon, #shape-group ellipse');
-                    if (svg) {
-                        // Zusätzliche Linie für vertikale Kante
-                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        line.setAttribute('x1', 250 + p1.x);
-                        line.setAttribute('y1', 250 + p1.y);
-                        line.setAttribute('x2', 250 + p2.x);
-                        line.setAttribute('y2', 250 + p2.y);
-                        line.setAttribute('stroke', '#007bff');
-                        line.setAttribute('stroke-width', '6');
-                        document.getElementById('shape-group').appendChild(line);
-                    }
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', p1.x);
+                    line.setAttribute('y1', p1.y);
+                    line.setAttribute('x2', p2.x);
+                    line.setAttribute('y2', p2.y);
+                    line.setAttribute('stroke', '#007bff');
+                    line.setAttribute('stroke-width', '6');
+                    document.getElementById('shape-group').appendChild(line);
                 }
             }
 
-            // Orientierung anzeigen
             const orientationInfo = document.getElementById('orientation-info');
+            let orientationText = '';
+            
             if (horizontalSides > 0 || verticalSides > 0) {
                 orientationInfo.className = 'orientation-info';
                 orientationText = `
@@ -831,66 +751,61 @@
             document.getElementById('rotation-display').textContent = `Drehung: 0°`;
             updatePreview();
         }
+
+        // Berechnungen
+        function updateCalculations() {
             if (!selectedCorners) return;
 
             let area = 0;
             let perimeter = 0;
 
             switch (selectedCorners) {
-                case '0': // Ellipse
+                case '0':
                     const rx = currentDimensions.radiusX;
                     const ry = currentDimensions.radiusY;
                     area = Math.PI * rx * ry;
                     perimeter = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
                     break;
 
-                case '3': // Dreieck
+                case '3':
                     const sideA = currentDimensions.sideA;
                     const sideB = currentDimensions.sideB; 
                     const sideC = currentDimensions.sideC;
                     
-                    // Heronsche Formel für Flächenberechnung
                     const s = (sideA + sideB + sideC) / 2;
                     area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
                     perimeter = sideA + sideB + sideC;
                     
-                    // Prüfung auf gültiges Dreieck
                     if (sideA + sideB <= sideC || sideA + sideC <= sideB || sideB + sideC <= sideA) {
-                        area = 0; // Ungültiges Dreieck
+                        area = 0;
                     }
                     break;
 
-                case '4': // Viereck
+                case '4':
                     const bottomWidth = currentDimensions.bottomWidth;
                     const topWidth = currentDimensions.topWidth;
                     const offset = currentDimensions.offset;
-                    
-                    // Automatische Höhe basierend auf Breiten
                     const autoHeight = Math.max(bottomWidth, topWidth) * 0.6;
                     
-                    // Trapezfläche: (a + b) * h / 2
                     area = (bottomWidth + topWidth) * autoHeight / 2;
-                    
-                    // Seitenlängen für Umfang
                     const widthDiff = Math.abs(bottomWidth - topWidth) / 2;
                     const sideLength = Math.sqrt(autoHeight * autoHeight + (widthDiff + Math.abs(offset)) * (widthDiff + Math.abs(offset)));
-                    
                     perimeter = bottomWidth + topWidth + 2 * sideLength;
                     break;
 
-                case '5': // Fünfeck
+                case '5':
                     const r5 = currentDimensions.radius;
                     area = 1.25 * r5 * r5 * Math.sqrt(10 + 2 * Math.sqrt(5));
                     perimeter = 10 * r5 * Math.sin(Math.PI / 5);
                     break;
 
-                case '6': // Sechseck
+                case '6':
                     const r6 = currentDimensions.radius;
                     area = 1.5 * Math.sqrt(3) * r6 * r6;
                     perimeter = 6 * r6;
                     break;
 
-                case 'special': // L-Form
+                case 'special':
                     const totalArea = currentDimensions.totalWidth * currentDimensions.totalHeight;
                     const cutArea = currentDimensions.cutWidth * currentDimensions.cutHeight;
                     area = totalArea - cutArea;
@@ -918,7 +833,6 @@
         }
 
         function continueToCalculation() {
-            // Speichern
             const shapeData = {
                 corners: selectedCorners,
                 dimensions: currentDimensions,
