@@ -211,7 +211,7 @@
             border-left: 5px solid #ffc107;
         }
 
-        /* Vereinfachte Eingabefeld-Styles - ohne Pfeile */
+        /* Vereinfachte Eingabefeld-Styles - mit sichtbaren Browser-Spinnern */
         .dimension-input-container-simple {
             display: flex;
             align-items: center;
@@ -224,23 +224,46 @@
             height: 30px;
         }
 
-        .dimension-input-container-simple .dimension-input {
-            width: 60px;
+        .dimension-input-container-simple .dimension-input.browser-spinner {
+            width: 70px;
             height: 22px;
             font-size: 14px;
             text-align: center;
-            border: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             outline: none;
             font-weight: bold;
             color: #2c3e50;
-            background: transparent;
+            background: white;
+            /* Browser-Spinner explizit aktivieren */
+            -webkit-appearance: textfield;
+            -moz-appearance: textfield;
+        }
+
+        /* Browser-Spinner Styles für WebKit (Chrome, Safari, Edge) */
+        .dimension-input.browser-spinner::-webkit-outer-spin-button,
+        .dimension-input.browser-spinner::-webkit-inner-spin-button {
+            -webkit-appearance: inner-spin-button;
+            opacity: 1;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* Firefox Spinner */
+        .dimension-input.browser-spinner[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .dimension-input.browser-spinner:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
         }
 
         .dimension-input-container-simple .dimension-unit {
             font-size: 11px;
             color: #007bff;
             font-weight: bold;
-            margin-left: 4px;
+            margin-left: 6px;
         }
 
         .preview-panel {
