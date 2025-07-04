@@ -580,42 +580,60 @@
                 // Seitenlänge berechnen
                 const dx = p2.x - p1.x;
                 const dy = p2.y - p1.y;
-                const length = Math.sqrt(dx * dx + dy * dy) / 50; // Zurück zu Metern
+                const length = Math.sqrt(dx * dx + dy * dy) / 50;
                 
-                // Normale zur Seite für Textposition (deutlich weiter außen)
-                const normalLength = Math.sqrt(dx * dx + dy * dy);
-                const normalX = (-dy / normalLength) * 60; // Verdoppelt von 30 auf 60
-                const normalY = (dx / normalLength) * 60;
+                // INTELLIGENTE POSITIONIERUNG - je nach Seite
+                let textX, textY;
                 
-                const textX = midX + normalX;
-                const textY = midY + normalY;
+                // Bestimme Position basierend auf Seitenwinkel
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                const normalizedAngle = ((angle + 360) % 360);
                 
-                // Maßlinie zur besseren Sichtbarkeit
+                if (normalizedAngle >= 315 || normalizedAngle < 45) {
+                    // Rechte Seite
+                    textX = Math.max(...points.map(p => p.x)) + 80;
+                    textY = midY;
+                } else if (normalizedAngle >= 45 && normalizedAngle < 135) {
+                    // Untere Seite
+                    textX = midX;
+                    textY = Math.max(...points.map(p => p.y)) + 60;
+                } else if (normalizedAngle >= 135 && normalizedAngle < 225) {
+                    // Linke Seite
+                    textX = Math.min(...points.map(p => p.x)) - 80;
+                    textY = midY;
+                } else {
+                    // Obere Seite
+                    textX = midX;
+                    textY = Math.min(...points.map(p => p.y)) - 60;
+                }
+                
+                // Kleiner Punkt an der Seitenmitte
                 dimensionsSVG += `
-                    <line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" 
-                          stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5"/>
+                    <circle cx="${midX}" cy="${midY}" r="4" fill="#007bff"/>
                     <line x1="${midX}" y1="${midY}" x2="${textX}" y2="${textY}" 
-                          stroke="#ff6b6b" stroke-width="2"/>
-                    <circle cx="${textX}" cy="${textY}" r="4" fill="#ff6b6b"/>
+                          stroke="#007bff" stroke-width="1" stroke-dasharray="2,2" opacity="0.6"/>
                 `;
                 
-                // Eingabefeld als foreignObject - größer und besser positioniert
+                // Eingabefeld - GARANTIERT außerhalb
                 const sideKey = getSideKey(i, selectedCorners);
                 const currentValue = getSideValue(sideKey, i, length);
                 
                 dimensionsSVG += `
-                    <foreignObject x="${textX - 35}" y="${textY - 15}" width="70" height="30">
-                        <input type="number" 
-                               value="${currentValue.toFixed(1)}" 
-                               style="width: 68px; height: 28px; font-size: 13px; text-align: center; 
-                                      border: 3px solid #ff6b6b; border-radius: 6px; background: white;
-                                      font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"
-                               onchange="updateSideLength(${i}, '${sideKey}', this.value)"
-                               step="0.1" min="0.1" max="100"/>
+                    <foreignObject x="${textX - 45}" y="${textY - 20}" width="90" height="40">
+                        <div style="display: flex; flex-direction: column; align-items: center; background: white; 
+                                    border-radius: 10px; padding: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                            <input type="number" 
+                                   value="${currentValue.toFixed(1)}" 
+                                   style="width: 70px; height: 24px; font-size: 12px; text-align: center; 
+                                          border: 2px solid #007bff; border-radius: 6px; margin-bottom: 2px;
+                                          font-weight: bold;"
+                                   onchange="updateSideLength(${i}, '${sideKey}', this.value)"
+                                   step="0.1" min="0.1" max="100"/>
+                            <span style="font-size: 10px; color: #007bff; font-weight: bold;">
+                                ${getSideLabel(sideKey, i)}
+                            </span>
+                        </div>
                     </foreignObject>
-                    <text x="${textX}" y="${textY + 25}" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b6b">
-                        ${getSideLabel(sideKey, i)}
-                    </text>
                 `;
             }
             
