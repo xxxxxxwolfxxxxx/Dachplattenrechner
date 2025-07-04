@@ -296,58 +296,50 @@ function drawPlateLayout() {
                 roofCtx.fillRect(ueberlappungX, centerY - height/2, seitenueberlappung * scale, height);
             }
             
-            // Überstände berechnen und rot markieren
+            // Überstände berechnen und rot markieren (VEREINFACHT)
             
-            // 1. Überstand links (erste Platte)
-            if (i === 0 && startX < leftDachEdge) {
-                const leftOverhang = leftDachEdge - startX;
-                roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)'; // Rot für Verschnitt
-                roofCtx.fillRect(startX, centerY - height/2, leftOverhang, height);
+            // 1. LINKER Überstand (erste Platte)
+            if (i === 0) {
+                // Die erste Platte beginnt immer am linken Dachrand oder etwas darüber hinaus
+                const dachStart = leftDachEdge;
+                if (startX < dachStart) {
+                    const leftOverhang = dachStart - startX;
+                    roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)'; // Rot für Verschnitt
+                    roofCtx.fillRect(startX, centerY - height/2, leftOverhang, height);
+                }
             }
             
-            // 2. Überstand rechts (letzte Platte)
-            if (startX + plattenbreite > rightDachEdge) {
-                const rightOverhang = (startX + plattenbreite) - rightDachEdge;
+            // 2. RECHTER Überstand (alle Platten die über den rechten Dachrand hinausragen)
+            const dachEnd = rightDachEdge;
+            if (startX + plattenbreite > dachEnd) {
+                const rightOverhang = (startX + plattenbreite) - dachEnd;
                 roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)';
-                roofCtx.fillRect(rightDachEdge, centerY - height/2, rightOverhang, height);
+                roofCtx.fillRect(dachEnd, centerY - height/2, rightOverhang, height);
             }
             
-            // 3. Trapezförmige Verschnitte oben
-            const trapezRatio = topBase / bottomBase;
-            const platteStartRelativ = Math.max(0, (startX - leftDachEdge) / bottomBase);
-            const platteEndRelativ = Math.min(1, (startX + plattenbreite - leftDachEdge) / bottomBase);
-            
-            const topPlatteStart = topLeftDachEdge + (platteStartRelativ * topBase);
-            const topPlatteEnd = topLeftDachEdge + (platteEndRelativ * topBase);
+            // 3. OBERE Verschnitte (trapezförmig)
+            // Vereinfachte Berechnung: Alles was über die oberen Kanten hinausragt
+            const oberePlatteBreite = plattenbreite * (topBase / bottomBase);
+            const oberePlatteStart = leftDachEdge + ((startX - leftDachEdge) * (topBase / bottomBase));
+            const oberePlatteEnd = oberePlatteStart + oberePlatteBreite;
             
             // Linker oberer Verschnitt
-            if (startX < leftDachEdge || topPlatteStart < topLeftDachEdge) {
-                const verschnittBreite = Math.max(0, leftDachEdge - startX);
-                if (verschnittBreite > 0) {
-                    roofCtx.beginPath();
-                    roofCtx.moveTo(startX, centerY - height/2);
-                    roofCtx.lineTo(leftDachEdge, centerY - height/2);
-                    roofCtx.lineTo(topLeftDachEdge, centerY - height/2);
-                    roofCtx.lineTo(startX + verschnittBreite * trapezRatio, centerY - height/2);
-                    roofCtx.closePath();
-                    roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)';
-                    roofCtx.fill();
-                }
+            if (oberePlatteStart < topLeftDachEdge) {
+                const verschnittBreite = topLeftDachEdge - oberePlatteStart;
+                const verschnittHoehe = height * 0.3; // 30% der Höhe als Verschnitt-Indikator
+                
+                roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)';
+                roofCtx.fillRect(startX, centerY - height/2, verschnittBreite * (bottomBase / topBase), verschnittHoehe);
             }
             
             // Rechter oberer Verschnitt
-            if (startX + plattenbreite > rightDachEdge || topPlatteEnd > topRightDachEdge) {
-                const verschnittBreite = Math.max(0, (startX + plattenbreite) - rightDachEdge);
-                if (verschnittBreite > 0) {
-                    roofCtx.beginPath();
-                    roofCtx.moveTo(rightDachEdge, centerY - height/2);
-                    roofCtx.lineTo(startX + plattenbreite, centerY - height/2);
-                    roofCtx.lineTo(startX + plattenbreite - verschnittBreite * trapezRatio, centerY - height/2);
-                    roofCtx.lineTo(topRightDachEdge, centerY - height/2);
-                    roofCtx.closePath();
-                    roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)';
-                    roofCtx.fill();
-                }
+            if (oberePlatteEnd > topRightDachEdge) {
+                const verschnittBreite = oberePlatteEnd - topRightDachEdge;
+                const verschnittHoehe = height * 0.3; // 30% der Höhe als Verschnitt-Indikator
+                const verschnittStart = startX + plattenbreite - (verschnittBreite * (bottomBase / topBase));
+                
+                roofCtx.fillStyle = 'rgba(220, 53, 69, 0.7)';
+                roofCtx.fillRect(verschnittStart, centerY - height/2, verschnittBreite * (bottomBase / topBase), verschnittHoehe);
             }
             
             // Plattennummer
