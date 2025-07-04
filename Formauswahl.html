@@ -301,14 +301,28 @@
         let katheteA = 4;
         let katheteB = 5;
 
-        // Zeichnung aktualisieren
+        // Zeichnung aktualisieren - KORREKTE PROPORTIONALE SKALIERUNG
         function updateDrawing() {
-            const scale = 100; // Skalierung für große Darstellung
             const shapeGroup = document.getElementById('shape-group');
             const dimensionsGroup = document.getElementById('dimensions-group');
             
+            // FESTE Gesamtgröße - die längste Seite wird immer auf 200px gesetzt
+            const maxDisplaySize = 200;
+            
+            // Die längere der beiden Katheten bestimmt die Skalierung
+            const longerSide = Math.max(katheteA, katheteB);
+            const scaleFactor = maxDisplaySize / longerSide;
+            
+            // BEIDE Seiten mit dem GLEICHEN Faktor skalieren
+            const displayA = katheteA * scaleFactor;  // Proportional zur echten Größe
+            const displayB = katheteB * scaleFactor;  // Proportional zur echten Größe
+            
+            console.log(`Kathete A: ${katheteA}m -> ${displayA}px`);
+            console.log(`Kathete B: ${katheteB}m -> ${displayB}px`);
+            console.log(`Skalierungsfaktor: ${scaleFactor}`);
+            
             // Form zeichnen
-            const points = `0,0 ${katheteA * scale},0 0,${-katheteB * scale}`;
+            const points = `0,0 ${displayA},0 0,${-displayB}`;
             shapeGroup.innerHTML = `
                 <polygon points="${points}" 
                          fill="url(#shapeGradient)" 
@@ -317,31 +331,31 @@
                          filter="url(#shadowEffect)"/>
             `;
             
-            // Bemaßung zeichnen
-            const offset = 150;
+            // Bemaßung - angepasst an die tatsächlich gezeichnete Größe
+            const offset = 80;
             dimensionsGroup.innerHTML = `
                 <!-- Kathete A (horizontal) -->
-                <line x1="500" y1="${500 + offset}" x2="${500 + katheteA * scale}" y2="${500 + offset}" 
+                <line x1="500" y1="${500 + offset}" x2="${500 + displayA}" y2="${500 + offset}" 
                       stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
                       marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-                <text x="${500 + (katheteA * scale) / 2}" y="${500 + offset + 25}" 
+                <text x="${500 + displayA / 2}" y="${500 + offset + 25}" 
                       text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b">${katheteA}m</text>
                 <line x1="500" y1="500" x2="500" y2="${500 + offset}" stroke="#ff6b6b" stroke-width="2"/>
-                <line x1="${500 + katheteA * scale}" y1="500" x2="${500 + katheteA * scale}" y2="${500 + offset}" stroke="#ff6b6b" stroke-width="2"/>
+                <line x1="${500 + displayA}" y1="500" x2="${500 + displayA}" y2="${500 + offset}" stroke="#ff6b6b" stroke-width="2"/>
                 
                 <!-- Kathete B (vertikal) -->
-                <line x1="${500 - offset}" y1="500" x2="${500 - offset}" y2="${500 - katheteB * scale}" 
+                <line x1="${500 - offset}" y1="500" x2="${500 - offset}" y2="${500 - displayB}" 
                       stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" 
                       marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
-                <text x="${500 - offset - 25}" y="${500 - (katheteB * scale) / 2}" 
+                <text x="${500 - offset - 25}" y="${500 - displayB / 2}" 
                       text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b" 
-                      transform="rotate(-90 ${500 - offset - 25} ${500 - (katheteB * scale) / 2})">${katheteB}m</text>
+                      transform="rotate(-90 ${500 - offset - 25} ${500 - displayB / 2})">${katheteB}m</text>
                 <line x1="500" y1="500" x2="${500 - offset}" y2="500" stroke="#ff6b6b" stroke-width="2"/>
-                <line x1="500" y1="${500 - katheteB * scale}" x2="${500 - offset}" y2="${500 - katheteB * scale}" stroke="#ff6b6b" stroke-width="2"/>
+                <line x1="500" y1="${500 - displayB}" x2="${500 - offset}" y2="${500 - displayB}" stroke="#ff6b6b" stroke-width="2"/>
                 
                 <!-- Rechter Winkel -->
-                <path d="M 540 500 L 540 460 L 500 460" stroke="#007bff" stroke-width="4" fill="none"/>
-                <text x="550" y="450" font-size="16" fill="#007bff">90°</text>
+                <path d="M 530 500 L 530 470 L 500 470" stroke="#007bff" stroke-width="4" fill="none"/>
+                <text x="540" y="460" font-size="16" fill="#007bff">90°</text>
             `;
         }
 
