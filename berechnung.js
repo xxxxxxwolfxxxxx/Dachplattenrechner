@@ -249,24 +249,79 @@ function drawPlateLayout() {
     if (!calculationResults.bahnenAnzahl) return;
     
     const profile = projectData.profile;
-    if (!profile) return;
+    const geometry = projectData.geometry;
+    if (!profile || !geometry) return;
     
     const deckbreite = profile.deckbreite / 1000; // in Meter
+    const nutzbreite = deckbreite - (profile.seitenueberlappung / 1000);
     const scale = 50;
     const centerX = roofCanvas.width / 2;
     const centerY = roofCanvas.height / 2;
     
-    // Vereinfachte Platten-Darstellung
+    // Platten-Darstellung für verschiedene Geometrien
     roofCtx.strokeStyle = '#28a745';
     roofCtx.lineWidth = 2;
     roofCtx.setLineDash([5, 5]);
     
-    for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
-        const x = centerX - (calculationResults.bahnenAnzahl * deckbreite * scale) / 2 + (i * deckbreite * scale);
-        roofCtx.beginPath();
-        roofCtx.moveTo(x, centerY - 100);
-        roofCtx.lineTo(x, centerY + 100);
-        roofCtx.stroke();
+    if (geometry.variant === 'trapez') {
+        // Trapez: Platten werden schmaler nach oben
+        const bottomBase = (geometry.dimensions.bottomBase || 8) * scale;
+        const topBase = (geometry.dimensions.topBase || 6) * scale;
+        const height = (geometry.dimensions.height || 4) * scale;
+        
+        for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
+            // Lineare Interpolation für trapezförmige Plattenverteilung
+            const bottomX = centerX - bottomBase/2 + (i * bottomBase / calculationResults.bahnenAnzahl);
+            const topX = centerX - topBase/2 + (i * topBase / calculationResults.bahnenAnzahl);
+            
+            // Plattengrenzen zeichnen
+            roofCtx.beginPath();
+            roofCtx.moveTo(bottomX, centerY + height/2);
+            roofCtx.lineTo(topX, centerY - height/2);
+            roofCtx.stroke();
+            
+            // Plattennummer
+            const midX = (bottomX + topX) / 2;
+            const midY = centerY;
+            roofCtx.fillStyle = '#28a745';
+            roofCtx.font = '12px Arial';
+            roofCtx.textAlign = 'center';
+            roofCtx.fillText(i + 1, midX, midY);
+        }
+        
+    } else if (geometry.variant === 'rechtwinklig') {
+        // Rechtwinkliges Dreieck: Platten werden kürzer nach oben
+        const katheteA = (geometry.dimensions.katheteA || 4) * scale;
+        const katheteB = (geometry.dimensions.katheteB || 5) * scale;
+        
+        for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
+            const x = centerX - katheteA/2 + (i * katheteA / calculationResults.bahnenAnzahl);
+            
+            // Dreieck-spezifische Höhenberechnung
+            const relativePosition = i / calculationResults.bahnenAnzahl;
+            const plattenHoehe = katheteB * (1 - relativePosition);
+            
+            roofCtx.beginPath();
+            roofCtx.moveTo(x, centerY + katheteB/2);
+            roofCtx.lineTo(x, centerY + katheteB/2 - plattenHoehe);
+            roofCtx.stroke();
+            
+            // Plattennummer
+            roofCtx.fillStyle = '#28a745';
+            roofCtx.font = '12px Arial';
+            roofCtx.textAlign = 'center';
+            roofCtx.fillText(i + 1, x + 10, centerY);
+        }
+        
+    } else {
+        // Standard-Rechteck: Gleichmäßige Plattenverteilung
+        for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
+            const x = centerX - (calculationResults.bahnenAnzahl * deckbreite * scale) / 2 + (i * deckbreite * scale);
+            roofCtx.beginPath();
+            roofCtx.moveTo(x, centerY - 100);
+            roofCtx.lineTo(x, centerY + 100);
+            roofCtx.stroke();
+        }
     }
     
     roofCtx.setLineDash([]);
@@ -290,12 +345,31 @@ function calculateLengths() {
     const seitenueberlappung = (profile.seitenueberlappung || 50) / 1000; // in Meter
     const nutzbreite = deckbreite - seitenueberlappung;
     
-    // Anzahl Bahnen berechnen
+    // Anzahl Bahnen berechnen - KORRIGIERT für Trapez und Dreieck
     let bahnenAnzahl;
-    if (geometry.variant === 'rechtwinklig' || geometry.variant === 'trapez') {
-        // Für Dreiecke und Trapeze: Über die Basis
-        const basis = geometry.dimensions.katheteA || geometry.dimensions.bottomBase || 8;
+    if (geometry.variant === 'trapez') {
+        // Für Trapeze: Berechnung basierend auf der breiteren Basis (unten)
+        // Da wir von der breiteren Seite starten, benötigen wir weniger Platten
+        const bottomBase = geometry.dimensions.bottomBase || 8;
+        const topBase = geometry.dimensions.topBase || 6;
+        
+        // Mittlere Breite für realistischere Berechnung
+        const averageWidth = (bottomBase + topBase) / 2;
+        bahnenAnzahl = Math.ceil(averageWidth / nutzbreite);
+        
+        console.log(`Trapez-Berechnung: Unten ${bottomBase}m, Oben ${topBase}m, Mittel ${averageWidth}m, Bahnen: ${bahnenAnzahl}`);
+        
+    } else if (geometry.variant === 'rechtwinklig') {
+        // Für rechtwinklige Dreiecke: Über die längere Kathete
+        const katheteA = geometry.dimensions.katheteA || 4;
+        const katheteB = geometry.dimensions.katheteB || 5;
+        
+        // Die Basis ist die horizontale Kathete
+        const basis = katheteA;
         bahnenAnzahl = Math.ceil(basis / nutzbreite);
+        
+        console.log(`Dreieck-Berechnung: Basis ${basis}m, Bahnen: ${bahnenAnzahl}`);
+        
     } else if (geometry.variant === 'rechteck') {
         // Für Rechtecke: Über die Breite
         const width = geometry.dimensions.width || 5;
@@ -397,11 +471,41 @@ function displayResults() {
             <li><strong>Dachfläche:</strong> ${calculationResults.dachflaeche.toFixed(2)} m²</li>
             <li><strong>Deckbreite:</strong> ${projectData.profile.deckbreite} mm</li>
             <li><strong>Nutzbreite:</strong> ${projectData.profile.deckbreite - projectData.profile.seitenueberlappung} mm (nach Abzug Seitenüberlappung)</li>
-            <li><strong>Anzahl Bahnen:</strong> ${calculationResults.bahnenAnzahl} (aufgerundet)</li>
+            <li><strong>Geometrie-spezifische Berechnung:</strong> ${getCalculationMethod()}</li>
+            <li><strong>Anzahl Bahnen:</strong> ${calculationResults.bahnenAnzahl} (optimiert für Geometrie)</li>
             <li><strong>Verlegerichtung:</strong> ${calculationResults.richtung === 'laengs' ? 'Längs' : 'Quer'} zur Wasserlaufrichtung</li>
         </ol>
         <p><strong>Empfehlung:</strong> Bestellen Sie ${calculationResults.verschnitt}% Verschnitt zusätzlich für Zuschnitte und Reserve.</p>
+        <p><strong>Hinweis:</strong> Bei trapezförmigen Dächern wird von der breiteren Seite aus begonnen, wodurch weniger Platten benötigt werden.</p>
     `;
+    
+    // Continue-Button aktivieren
+    document.getElementById('continue-btn').disabled = false;
+    
+    // Visualisierung aktualisieren
+    visualizeRoof();
+}
+
+// Hilfsfunktion für Berechnungsmethode
+function getCalculationMethod() {
+    const geometry = projectData.geometry;
+    if (!geometry) return 'Standard';
+    
+    switch (geometry.variant) {
+        case 'trapez':
+            const bottomBase = geometry.dimensions.bottomBase || 8;
+            const topBase = geometry.dimensions.topBase || 6;
+            const average = (bottomBase + topBase) / 2;
+            return `Trapez: Mittlere Breite (${bottomBase}m + ${topBase}m) ÷ 2 = ${average.toFixed(1)}m`;
+        case 'rechtwinklig':
+            const katheteA = geometry.dimensions.katheteA || 4;
+            return `Rechtwinkliges Dreieck: Basis ${katheteA}m`;
+        case 'rechteck':
+            const width = geometry.dimensions.width || 5;
+            return `Rechteck: Breite ${width}m`;
+        default:
+            return 'Standard-Berechnung';
+    }
     
     // Continue-Button aktivieren
     document.getElementById('continue-btn').disabled = false;
