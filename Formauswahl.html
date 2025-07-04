@@ -8,7 +8,7 @@
     <style>
         .form-editor-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 2.5fr;
             gap: 30px;
             margin-bottom: 30px;
         }
@@ -45,7 +45,7 @@
         .shape-preview-svg {
             width: 100%;
             max-width: 100%;
-            height: 800px; /* NOCH GRÖSSER für bessere Sichtbarkeit */
+            height: 900px; /* MAXIMALE GRÖSSE */
             background: linear-gradient(135deg, #f8f9fa, #ffffff);
             border: 3px solid #e9ecef;
             border-radius: 12px;
@@ -221,15 +221,15 @@
                 <p>Geben Sie die genauen Abmessungen für Ihre gewählte Dachform ein:</p>
 
                 <div class="form-editor-container">
-                    <!-- Form-Vorschau -->
+                    <!-- Form-Vorschau - VERGRÖSSERT -->
                     <div class="shape-preview-section">
                         <div class="selected-shape-display">
-                            <div class="shape-title" id="shape-title">Rechteck</div>
-                            <div class="shape-description" id="shape-description">Klassische rechteckige Dachform</div>
+                            <div class="shape-title" id="shape-title">Rechtwinkliges Dreieck</div>
+                            <div class="shape-description" id="shape-description">Dreieck mit rechtem Winkel</div>
                         </div>
                         
                         <h3>Vorschau</h3>
-                        <svg class="shape-preview-svg" id="shape-preview-svg" viewBox="0 0 800 800">
+                        <svg class="shape-preview-svg" id="shape-preview-svg" viewBox="0 0 1000 1000">
                             <defs>
                                 <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
                                     <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="1"/>
@@ -244,27 +244,51 @@
                                 <filter id="shadowEffect">
                                     <feDropShadow dx="3" dy="3" stdDeviation="3" flood-opacity="0.3"/>
                                 </filter>
+                                
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#ff6b6b" />
+                                </marker>
                             </defs>
                             
                             <!-- Grid Background -->
                             <rect width="100%" height="100%" fill="url(#grid)" />
                             
                             <!-- Center Lines -->
-                            <line x1="400" y1="0" x2="400" y2="800" stroke="#ccc" stroke-width="2" stroke-dasharray="5,5"/>
-                            <line x1="0" y1="400" x2="800" y2="400" stroke="#ccc" stroke-width="2" stroke-dasharray="5,5"/>
+                            <line x1="500" y1="0" x2="500" y2="1000" stroke="#ccc" stroke-width="2" stroke-dasharray="5,5"/>
+                            <line x1="0" y1="500" x2="1000" y2="500" stroke="#ccc" stroke-width="2" stroke-dasharray="5,5"/>
                             
                             <!-- Shape wird hier gezeichnet -->
-                            <g id="shape-group" transform="translate(400,400)">
-                                <!-- Placeholder -->
-                                <rect x="-60" y="-40" width="120" height="80" 
-                                      fill="url(#shapeGradient)" 
-                                      stroke="#007bff" 
-                                      stroke-width="4"
-                                      filter="url(#shadowEffect)"/>
+                            <g id="shape-group" transform="translate(500,500)">
+                                <!-- Rechtwinkliges Dreieck als Standard -->
+                                <polygon points="0,0 320,0 0,-400" 
+                                         fill="url(#shapeGradient)" 
+                                         stroke="#007bff" 
+                                         stroke-width="5"
+                                         filter="url(#shadowEffect)"/>
                             </g>
                             
                             <!-- Bemaßung wird hier hinzugefügt -->
-                            <g id="dimensions-group"></g>
+                            <g id="dimensions-group">
+                                <!-- Kathete A - Maßlinie (horizontal) -->
+                                <line x1="500" y1="650" x2="820" y2="650" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+                                <!-- Kathete A - Text -->
+                                <text x="660" y="675" text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b">4m</text>
+                                <!-- Kathete A - Verbindungslinien -->
+                                <line x1="500" y1="500" x2="500" y2="650" stroke="#ff6b6b" stroke-width="2"/>
+                                <line x1="820" y1="500" x2="820" y2="650" stroke="#ff6b6b" stroke-width="2"/>
+                                
+                                <!-- Kathete B - Maßlinie (vertikal) -->
+                                <line x1="350" y1="500" x2="350" y2="100" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="5,5" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+                                <!-- Kathete B - Text (gedreht) -->
+                                <text x="320" y="300" text-anchor="middle" font-size="18" font-weight="bold" fill="#ff6b6b" transform="rotate(-90 320 300)">5m</text>
+                                <!-- Kathete B - Verbindungslinien -->
+                                <line x1="500" y1="500" x2="350" y2="500" stroke="#ff6b6b" stroke-width="2"/>
+                                <line x1="500" y1="100" x2="350" y2="100" stroke="#ff6b6b" stroke-width="2"/>
+                                
+                                <!-- Rechter Winkel Symbol -->
+                                <path d="M 530 500 L 530 470 L 500 470" stroke="#007bff" stroke-width="4" fill="none"/>
+                                <text x="540" y="460" font-size="16" fill="#007bff">90°</text>
+                            </g>
                         </svg>
                         
                         <!-- Berechnung Vorschau -->
@@ -272,11 +296,11 @@
                             <div class="calculation-title">Berechnete Werte</div>
                             <div class="calculation-item">
                                 <span>Fläche:</span>
-                                <span class="calculation-value" id="calc-area">40.0 m²</span>
+                                <span class="calculation-value" id="calc-area">10.0 m²</span>
                             </div>
                             <div class="calculation-item">
                                 <span>Umfang:</span>
-                                <span class="calculation-value" id="calc-perimeter">26.0 m</span>
+                                <span class="calculation-value" id="calc-perimeter">15.4 m</span>
                             </div>
                         </div>
                     </div>
@@ -285,7 +309,22 @@
                     <div class="dimensions-section">
                         <h3>Abmessungen eingeben</h3>
                         <div class="dimensions-grid" id="dimensions-grid">
-                            <!-- Wird dynamisch gefüllt -->
+                            <!-- Für rechtwinkliges Dreieck -->
+                            <div class="dimension-input">
+                                <label class="dimension-label">Kathete A</label>
+                                <div style="display: flex; align-items: center;">
+                                    <input type="number" class="dimension-value" data-dimension="katheteA" value="4" min="1" max="50" step="0.1">
+                                    <span class="dimension-unit">m</span>
+                                </div>
+                            </div>
+                            
+                            <div class="dimension-input">
+                                <label class="dimension-label">Kathete B</label>
+                                <div style="display: flex; align-items: center;">
+                                    <input type="number" class="dimension-value" data-dimension="katheteB" value="5" min="1" max="50" step="0.1">
+                                    <span class="dimension-unit">m</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
