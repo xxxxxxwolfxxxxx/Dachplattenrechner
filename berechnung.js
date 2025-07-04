@@ -24,16 +24,82 @@ function saveData() {
 }
 
 function loadData() {
+    console.log('=== ERWEITERTE DATEN-SUCHE ===');
+    
+    // 1. Standard localStorage/sessionStorage
+    let savedData = {};
     try {
         let saved = localStorage.getItem('dachplattenrechner_data');
         if (!saved) {
             saved = sessionStorage.getItem('dachplattenrechner_data');
         }
-        return saved ? JSON.parse(saved) : {};
+        if (saved) {
+            savedData = JSON.parse(saved);
+            console.log('📦 Standard Storage gefunden:', savedData);
+        }
     } catch (e) {
-        console.error('Laden fehlgeschlagen:', e);
-        return {};
+        console.error('Fehler beim Standard-Laden:', e);
     }
+    
+    // 2. Suche nach ALLEN möglichen Storage-Keys
+    const possibleKeys = [
+        'dachplattenrechner_data',
+        'dachplatten_data', 
+        'roof_data',
+        'formauswahl_data',
+        'geometry_data',
+        'project_data'
+    ];
+    
+    for (const key of possibleKeys) {
+        try {
+            const data = localStorage.getItem(key) || sessionStorage.getItem(key);
+            if (data) {
+                const parsed = JSON.parse(data);
+                console.log(`📦 Gefunden unter ${key}:`, parsed);
+                if (parsed.geometry || parsed.roofShape) {
+                    Object.assign(savedData, parsed);
+                }
+            }
+        } catch (e) {
+            // Ignoriere Fehler
+        }
+    }
+    
+    // 3. Durchsuche ALLE localStorage Einträge
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.includes('dach') || key.includes('roof') || key.includes('form'))) {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    if (data && (data.geometry || data.roofShape || data.dimensions)) {
+                        console.log(`📦 Wildcard-Suche gefunden in ${key}:`, data);
+                        Object.assign(savedData, data);
+                    }
+                } catch (e) {
+                    // Ignoriere Parser-Fehler
+                }
+            }
+        }
+    } catch (e) {
+        console.log('localStorage-Durchsuchung fehlgeschlagen:', e);
+    }
+    
+    // 4. URL-Parameter prüfen (falls Daten über URL übertragen werden)
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('data')) {
+            const urlData = JSON.parse(decodeURIComponent(urlParams.get('data')));
+            console.log('📦 URL-Parameter gefunden:', urlData);
+            Object.assign(savedData, urlData);
+        }
+    } catch (e) {
+        // Ignoriere URL-Fehler
+    }
+    
+    console.log('🎯 FINAL zusammengeführte Daten:', savedData);
+    return savedData;
 }
 
 // Hilfsfunktionen für Datenvalidierung
@@ -776,4 +842,50 @@ window.debugCalculation = () => {
     console.log('Canvas:', roofCanvas);
 };
 
-console.log('✅ berechnung.js vollständig geladen');
+// Manuelle Maß-Eingabe Funktion
+function applyManualDimensions() {
+    const bottomBase = parseFloat(document.getElementById('manual-bottom').value);
+    const topBase = parseFloat(document.getElementById('manual-top').value);
+    const height = parseFloat(document.getElementById('manual-height').value);
+    
+    if (!bottomBase || !topBase || !height) {
+        alert('Bitte alle drei Maße eingeben!');
+        return;
+    }
+    
+    if (bottomBase <= 0 || topBase <= 0 || height <= 0) {
+        alert('Alle Maße müssen größer als 0 sein!');
+        return;
+    }
+    
+    console.log('🔧 MANUELLE MASZE ANGEWENDET:', { bottomBase, topBase, height });
+    
+    // Aktualisiere projectData mit manuellen Maßen
+    projectData.geometry = {
+        variant: 'trapez',
+        dimensions: {
+            bottomBase: bottomBase,
+            topBase: topBase,
+            height: height
+        },
+        area: ((bottomBase + topBase) / 2) * height
+    };
+    
+    // Speichere die neuen Daten
+    saveData();
+    
+    // Verstecke Debug-Box
+    const debugInfo = document.getElementById('debug-info');
+    if (debugInfo) {
+        debugInfo.style.display = 'none';
+    }
+    
+    // Führe neue Berechnung durch
+    displayProjectInfo();
+    calculateLengths();
+    
+    console.log('✅ Manuelle Maße erfolgreich angewendet');
+}
+
+// Global verfügbar machen
+window.applyManualDimensions = applyManualDimensions;
