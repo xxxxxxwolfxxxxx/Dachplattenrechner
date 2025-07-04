@@ -73,8 +73,17 @@ function usesDefaultValues(geometry) {
     const dims = geometry.dimensions;
     const defaults = getDefaultDimensions(geometry.variant);
     
-    // Prüfe ob die Werte den Standardwerten entsprechen
-    return Object.keys(defaults).every(key => dims[key] === defaults[key]);
+    // Prüfe ob die Werte den EXAKTEN Standardwerten entsprechen
+    // Nur dann zeige Debug-Warnung
+    if (geometry.variant === 'trapez') {
+        return dims.bottomBase === 8 && dims.topBase === 6 && dims.height === 4;
+    } else if (geometry.variant === 'rechteck') {
+        return dims.length === 8 && dims.width === 5;
+    } else if (geometry.variant === 'rechtwinklig') {
+        return dims.katheteA === 4 && dims.katheteB === 5;
+    }
+    
+    return false; // Bei allen anderen Fällen keine Warnung
 }
 
 // Projekt-Info anzeigen
@@ -319,6 +328,8 @@ function drawPlateLayout() {
         const topBase = (geometry.dimensions.topBase || 6) * scale;
         const height = (geometry.dimensions.height || 4) * scale;
         
+        console.log(`TRAPEZ VISUALISIERUNG: Bottom=${geometry.dimensions.bottomBase}m (${bottomBase}px), Top=${geometry.dimensions.topBase}m (${topBase}px), Height=${geometry.dimensions.height}m (${height}px)`);
+        
         // SCHRITT 1: Alle Platten ROT zeichnen (Verschnitt)
         for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
             const startX = centerX - bottomBase/2 + (i * deckbreite * scale);
@@ -327,12 +338,6 @@ function drawPlateLayout() {
             // Komplette Platte als VERSCHNITT (rot)
             roofCtx.fillStyle = 'rgba(220, 53, 69, 0.8)'; // Verschnitt-Rot
             roofCtx.fillRect(startX, centerY - height/2, plattenbreite, height);
-            
-            // Plattennummer in weiß (auf rotem Hintergrund)
-            roofCtx.fillStyle = '#fff';
-            roofCtx.font = 'bold 14px Arial';
-            roofCtx.textAlign = 'center';
-            roofCtx.fillText(i + 1, startX + plattenbreite/2, centerY + 5);
         }
         
         // SCHRITT 2: Trapez-Form als GRÜNE MASKE drüber zeichnen
@@ -349,10 +354,8 @@ function drawPlateLayout() {
         for (let i = 1; i < calculationResults.bahnenAnzahl; i++) { // Ab Platte 2
             const startX = centerX - bottomBase/2 + (i * deckbreite * scale);
             const ueberlappungX = startX - (seitenueberlappung * scale);
-            const plattenbreite = lieferbreite * scale;
             
             // Überlappungsbereich (nur innerhalb der Trapez-Form)
-            // Clip auf Trapez-Form
             roofCtx.save();
             roofCtx.beginPath();
             roofCtx.moveTo(centerX - bottomBase/2, centerY + height/2);
@@ -369,14 +372,13 @@ function drawPlateLayout() {
             roofCtx.restore();
         }
         
-        // SCHRITT 4: Plattennummern neu zeichnen (auf grünem Hintergrund)
+        // SCHRITT 4: Plattennummern zeichnen (schwarz auf grünem Hintergrund)
+        roofCtx.fillStyle = '#000';
+        roofCtx.font = 'bold 14px Arial';
+        roofCtx.textAlign = 'center';
         for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
             const startX = centerX - bottomBase/2 + (i * deckbreite * scale);
             const plattenbreite = lieferbreite * scale;
-            
-            roofCtx.fillStyle = '#000';
-            roofCtx.font = 'bold 14px Arial';
-            roofCtx.textAlign = 'center';
             roofCtx.fillText(i + 1, startX + plattenbreite/2, centerY + 5);
         }
         
@@ -659,6 +661,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button onclick="window.location.href='formauswahl.html'" class="btn btn-warning">Zurück zur Bemaßung</button>
             `;
         }
+    } else {
+        // DEBUG-INFO VERSTECKEN wenn echte Daten vorhanden
+        const debugInfo = document.getElementById('debug-info');
+        if (debugInfo) {
+            debugInfo.style.display = 'none';
+        }
+        console.log('✅ Echte Geometrie-Daten erkannt - Debug-Warnung ausgeblendet');
     }
     
     // Canvas setup
