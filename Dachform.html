@@ -1301,7 +1301,7 @@
             }
         }
 
-        // Orientierung prüfen - PRÄZISE 1cm Toleranz
+        // Orientierung prüfen - PRÄZISE 1cm Toleranz FÜR ALLE FORMEN
         function checkOrientation(points) {
             const tolerance = 0.1; // 0.1° = ca. 1cm bei 6m Länge (sehr präzise!)
             let horizontalSides = 0;
@@ -1323,25 +1323,24 @@
                 }
             }
 
-            if (selectedCorners !== '3') {
-                const orientationInfo = document.getElementById('orientation-info');
-                if (horizontalSides > 0 || verticalSides > 0) {
-                    orientationInfo.className = 'orientation-info';
-                    orientationInfo.innerHTML = `
-                        <strong>✅ Exakte Orientierung!</strong><br>
-                        ${horizontalSides > 0 ? `🟢 ${horizontalSides} exakt waagerechte Seite(n)<br>` : ''}
-                        ${verticalSides > 0 ? `🔵 ${verticalSides} exakt senkrechte Seite(n)<br>` : ''}
-                        Perfekt für Wasserlaufrichtung!<br>
-                        <small>Toleranz: ±0.1° (≈1cm bei 6m)</small>
-                    `;
-                } else {
-                    orientationInfo.className = 'orientation-info orientation-warning';
-                    orientationInfo.innerHTML = `
-                        <strong>⚠️ Keine exakte Orientierung</strong><br>
-                        Drehen Sie die Form präzise so, dass mindestens eine Seite exakt waagerecht (0°) oder senkrecht (90°) liegt.<br>
-                        <small>Aktuelle Rotation: ${currentRotation}° | Toleranz: ±0.1° (≈1cm bei 6m)</small>
-                    `;
-                }
+            // ORIENTIERUNGSPRÜFUNG FÜR ALLE FORMEN (auch Dreiecke)
+            const orientationInfo = document.getElementById('orientation-info');
+            if (horizontalSides > 0 || verticalSides > 0) {
+                orientationInfo.className = 'orientation-info';
+                orientationInfo.innerHTML = `
+                    <strong>✅ Exakte Orientierung!</strong><br>
+                    ${horizontalSides > 0 ? `🟢 ${horizontalSides} exakt waagerechte Seite(n)<br>` : ''}
+                    ${verticalSides > 0 ? `🔵 ${verticalSides} exakt senkrechte Seite(n)<br>` : ''}
+                    Perfekt für Wasserlaufrichtung!<br>
+                    <small>Toleranz: ±0.1° (≈1cm bei 6m)</small>
+                `;
+            } else {
+                orientationInfo.className = 'orientation-info orientation-warning';
+                orientationInfo.innerHTML = `
+                    <strong>⚠️ Keine exakte Orientierung</strong><br>
+                    Drehen Sie die Form präzise so, dass mindestens eine Seite exakt waagerecht (0°) oder senkrecht (90°) liegt.<br>
+                    <small>Aktuelle Rotation: ${currentRotation}° | Toleranz: ±0.1° (≈1cm bei 6m)</small>
+                `;
             }
         }
 
