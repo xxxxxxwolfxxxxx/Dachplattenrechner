@@ -822,7 +822,7 @@
                     }
                     break;
 
-                case '3': // ROBUSTES Dreieck - funktioniert mit jeder Seitenkombination
+                case '3': // STABILES Dreieck - dreht sich nicht bei Wertänderungen
                     const sideA = currentDimensions.sideA || 8;
                     const sideB = currentDimensions.sideB || 6;
                     const sideC = currentDimensions.sideC || 7;
@@ -843,38 +843,32 @@
                         ];
                     } else {
                         try {
-                            // NEUE METHODE: Sortiere Seiten für stabile Darstellung
-                            const sides = [sideA, sideB, sideC].sort((a, b) => b - a); // Größte zuerst
-                            const [longest, middle, shortest] = sides;
+                            // FIXE ANORDNUNG: A=unten, B=links-oben, C=rechts-oben
+                            // Das Dreieck behält immer diese Orientierung bei
                             
-                            // Verwende immer die längste Seite als Basis (unten)
-                            const baseLength = longest;
-                            const leftSide = middle;
-                            const rightSide = shortest;
+                            // Berechne Höhe mit Heron'scher Formel
+                            const s = (sideA + sideB + sideC) / 2;
+                            const area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
+                            const height = (2 * area) / sideA; // Höhe zur Seite A
                             
-                            // Berechne Höhe mit Heron'scher Formel für Fläche
-                            const s = (baseLength + leftSide + rightSide) / 2;
-                            const area = Math.sqrt(s * (s - baseLength) * (s - leftSide) * (s - rightSide));
-                            const height = (2 * area) / baseLength;
+                            // Berechne x-Position von Punkt C mit Kosinussatz
+                            // Winkel bei Punkt B (wo sideA und sideC aufeinandertreffen)
+                            const cosB = (sideA * sideA + sideC * sideC - sideB * sideB) / (2 * sideA * sideC);
+                            const safeCosB = Math.max(-1, Math.min(1, cosB));
+                            const xC = sideC * safeCosB;
                             
-                            // Berechne Position des oberen Punkts
-                            // Verwende Kosinussatz für x-Position
-                            const cosAngle = (baseLength * baseLength + leftSide * leftSide - rightSide * rightSide) / (2 * baseLength * leftSide);
-                            const safeConsAngle = Math.max(-1, Math.min(1, cosAngle));
-                            const xOffset = leftSide * safeConsAngle;
-                            
-                            // Skalierung für Anzeige
-                            const maxSide = Math.max(baseLength, leftSide, rightSide);
+                            // Skalierung für einheitliche Darstellung
+                            const maxSide = Math.max(sideA, sideB, sideC);
                             const scale = (triangleScale * 6) / maxSide;
                             
-                            // Dreieck-Punkte: Basis unten, Spitze oben
+                            // FIXE Dreieck-Punkte (stabile Anordnung):
                             originalPoints = [
-                                // Basis: links unten
-                                { x: -baseLength * scale / 2, y: height * scale / 2 },
-                                // Basis: rechts unten  
-                                { x: baseLength * scale / 2, y: height * scale / 2 },
-                                // Spitze: oben (x-Position basierend auf Winkelberechnung)
-                                { x: (xOffset - baseLength / 2) * scale, y: -height * scale / 2 }
+                                // Punkt A: links unten (Start der Seite A)
+                                { x: -sideA * scale / 2, y: height * scale / 2 },
+                                // Punkt B: rechts unten (Ende der Seite A) 
+                                { x: sideA * scale / 2, y: height * scale / 2 },
+                                // Punkt C: oben (gegenüber der Seite A)
+                                { x: (xC - sideA / 2) * scale, y: -height * scale / 2 }
                             ];
                             
                         } catch (error) {
@@ -1119,27 +1113,12 @@
         }
 
         // KORRIGIERTE Hilfsfunktionen für Viereck
-        // KORRIGIERTE getSideKey für richtige Dreieck-Zuordnung  
+        // VEREINFACHTE Dreieck-Zuordnung - fixe Anordnung
         function getSideKey(index, corners) {
             switch (corners) {
                 case '3':
-                    // Für Dreiecke: Mapping basierend auf Sortierung
-                    const sideA = currentDimensions.sideA || 8;
-                    const sideB = currentDimensions.sideB || 6;
-                    const sideC = currentDimensions.sideC || 7;
-                    
-                    const sides = [
-                        { original: 'sideA', length: sideA },
-                        { original: 'sideB', length: sideB },
-                        { original: 'sideC', length: sideC }
-                    ];
-                    
-                    // Sortiere nach Länge (wie in der Darstellung)
-                    sides.sort((a, b) => b.length - a.length);
-                    
-                    // Index 0=Basis (längste), 1=links (mittlere), 2=rechts (kürzeste)
-                    return sides[index]?.original || 'sideA';
-                    
+                    // FIXE Zuordnung: 0=sideA (unten), 1=sideB (links-oben), 2=sideC (rechts-oben)
+                    return ['sideA', 'sideB', 'sideC'][index];
                 case '4':
                     return ['width', 'rightSide', 'topWidth', 'leftSide'][index];
                 default:
