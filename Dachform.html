@@ -1119,12 +1119,28 @@
         }
 
         // KORRIGIERTE Hilfsfunktionen für Viereck
+        // KORRIGIERTE getSideKey für richtige Dreieck-Zuordnung  
         function getSideKey(index, corners) {
             switch (corners) {
                 case '3':
-                    return ['sideA', 'sideB', 'sideC'][index];
+                    // Für Dreiecke: Mapping basierend auf Sortierung
+                    const sideA = currentDimensions.sideA || 8;
+                    const sideB = currentDimensions.sideB || 6;
+                    const sideC = currentDimensions.sideC || 7;
+                    
+                    const sides = [
+                        { original: 'sideA', length: sideA },
+                        { original: 'sideB', length: sideB },
+                        { original: 'sideC', length: sideC }
+                    ];
+                    
+                    // Sortiere nach Länge (wie in der Darstellung)
+                    sides.sort((a, b) => b.length - a.length);
+                    
+                    // Index 0=Basis (längste), 1=links (mittlere), 2=rechts (kürzeste)
+                    return sides[index]?.original || 'sideA';
+                    
                 case '4':
-                    // Viereck: 0=unten, 1=rechts, 2=oben, 3=links
                     return ['width', 'rightSide', 'topWidth', 'leftSide'][index];
                 default:
                     return `side${index + 1}`;
