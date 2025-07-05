@@ -605,10 +605,10 @@
                 { key: 'sideC', label: 'Seite C', default: 7, unit: 'm' }
             ],
             4: [ 
-                { key: 'width', label: 'Breite (unten)', default: 10, unit: 'm' },
-                { key: 'height', label: 'Höhe', default: 6, unit: 'm' },
-                { key: 'topWidth', label: 'Breite (oben)', default: 8, unit: 'm' },
-                { key: 'offsetX', label: 'Versatz X', default: 0, unit: 'm', help: 'Horizontaler Versatz der oberen Kante' }
+                { key: 'width', label: 'Breite (unten)', default: 10, unit: 'm', min: 0.1 },
+                { key: 'height', label: 'Höhe', default: 6, unit: 'm', min: 0.1 },
+                { key: 'topWidth', label: 'Breite (oben)', default: 8, unit: 'm', min: 0.1 },
+                { key: 'offsetX', label: 'Versatz X', default: 0, unit: 'm', min: -50, max: 50, help: 'Horizontaler Versatz der oberen Kante (+ nach rechts, - nach links)' }
             ],
             5: [ 
                 { key: 'radius', label: 'Radius', default: 6, unit: 'm' }
@@ -674,6 +674,9 @@
                 const formGroup = document.createElement('div');
                 formGroup.className = 'form-group';
                 
+                const minAttr = input.min !== undefined ? `min="${input.min}"` : 'min="0.01"';
+                const maxAttr = input.max !== undefined ? `max="${input.max}"` : 'max="100"';
+                
                 formGroup.innerHTML = `
                     <label for="struct-${input.key}">
                         ${input.label}
@@ -684,8 +687,8 @@
                            class="form-control"
                            value="${currentDimensions[input.key] || input.default}" 
                            step="0.01" 
-                           min="0.01" 
-                           max="100"
+                           ${minAttr}
+                           ${maxAttr}
                            oninput="updateDimensionFromPanel('${input.key}', this.value)"/>
                 `;
                 
@@ -693,14 +696,21 @@
             });
         }
 
-        // Update von Panel-Eingaben
+        // SICHERE Update-Funktion für Panel-Eingaben
         function updateDimensionFromPanel(key, value) {
             const numValue = parseFloat(value);
-            if (!isNaN(numValue) && numValue > 0) {
+            const inputSpecs = getInputSpecs(key, selectedCorners);
+            
+            if (!isNaN(numValue) && numValue >= inputSpecs.min && numValue <= inputSpecs.max) {
                 currentDimensions[key] = numValue;
-                updatePreview();
-                updateCalculations();
-                validateTriangle();
+                
+                try {
+                    updatePreview();
+                    updateCalculations();
+                    validateTriangle();
+                } catch (error) {
+                    console.warn('Panel-Update-Fehler abgefangen:', error);
+                }
             }
         }
 
@@ -812,34 +822,59 @@
                     }
                     break;
 
-                case '3': // Dreieck
-                    const sideA = currentDimensions.sideA;
-                    const sideB = currentDimensions.sideB;
-                    const sideC = currentDimensions.sideC;
+                case '3': // ABGESICHERTES Dreieck - verhindert Crashes
+                    const sideA = currentDimensions.sideA || 8;
+                    const sideB = currentDimensions.sideB || 6;
+                    const sideC = currentDimensions.sideC || 7;
                     
                     const triangleScale = 20;
                     
-                    if ((sideA + sideB <= sideC) || (sideA + sideC <= sideB) || (sideB + sideC <= sideA)) {
+                    // Sicherheitscheck: Gültiges Dreieck?
+                    const isValidTriangle = (sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA) && 
+                                          sideA > 0.01 && sideB > 0.01 && sideC > 0.01;
+                    
+                    if (!isValidTriangle) {
+                        // Fallback: Sicheres Standard-Dreieck anzeigen
+                        console.warn('Ungültiges Dreieck, verwende Fallback');
                         originalPoints = [
                             { x: 0, y: -80 },
                             { x: 120, y: 80 },
                             { x: -120, y: 80 }
                         ];
                     } else {
-                        const maxSide = Math.max(sideA, sideB, sideC);
-                        const normA = (sideA / maxSide) * 6;
-                        const normB = (sideB / maxSide) * 6;
-                        const normC = (sideC / maxSide) * 6;
-                        
-                        const angle = Math.acos((normA*normA + normB*normB - normC*normC) / (2*normA*normB));
-                        const height = normB * Math.sin(angle);
-                        const baseOffset = normB * Math.cos(angle);
-                        
-                        originalPoints = [
-                            { x: 0, y: -height*triangleScale/2 },
-                            { x: normA*triangleScale/2, y: height*triangleScale/2 },
-                            { x: (baseOffset-normA/2)*triangleScale, y: height*triangleScale/2 }
-                        ];
+                        try {
+                            // Sichere Berechnung mit try-catch
+                            const maxSide = Math.max(sideA, sideB, sideC);
+                            const normA = (sideA / maxSide) * 6;
+                            const normB = (sideB / maxSide) * 6;
+                            const normC = (sideC / maxSide) * 6;
+                            
+                            // Sicherer Kosinus-Bereich [-1, 1]
+                            const cosValue = (normA*normA + normB*normB - normC*normC) / (2*normA*normB);
+                            const safeCosValue = Math.max(-1, Math.min(1, cosValue));
+                            const angle = Math.acos(safeCosValue);
+                            
+                            if (isNaN(angle)) {
+                                throw new Error('Ungültige Winkelberechnung');
+                            }
+                            
+                            const height = normB * Math.sin(angle);
+                            const baseOffset = normB * Math.cos(angle);
+                            
+                            originalPoints = [
+                                { x: 0, y: -height*triangleScale/2 },
+                                { x: normA*triangleScale/2, y: height*triangleScale/2 },
+                                { x: (baseOffset-normA/2)*triangleScale, y: height*triangleScale/2 }
+                            ];
+                        } catch (error) {
+                            console.warn('Dreieck-Berechnung fehlgeschlagen:', error);
+                            // Fallback bei Berechnungsfehlern
+                            originalPoints = [
+                                { x: 0, y: -80 },
+                                { x: 120, y: 80 },
+                                { x: -120, y: 80 }
+                            ];
+                        }
                     }
                     break;
 
@@ -991,9 +1026,10 @@
                     `;
                 }
                 
-                // Eingabefeld mit korrekten Werten für Viereck
+                // Eingabefeld mit korrekten Min/Max-Werten
                 const sideKey = getSideKey(i, selectedCorners);
                 const currentValue = getSideValue(sideKey, i, 5);
+                const inputSpecs = getInputSpecs(sideKey, selectedCorners);
                 
                 dimensionsSVG += `
                     <foreignObject x="${position.x - 55}" y="${position.y - 15}" width="110" height="30">
@@ -1003,7 +1039,9 @@
                                    value="${currentValue.toFixed(2)}" 
                                    data-side-index="${i}"
                                    data-side-key="${sideKey}"
-                                   step="0.01" min="0.01" max="100"
+                                   step="0.01" 
+                                   min="${inputSpecs.min}" 
+                                   max="${inputSpecs.max}"
                                    oninput="updateDimensionFromSVG('${sideKey}', this.value)"/>
                             <span class="dimension-unit">m</span>
                         </div>
@@ -1053,6 +1091,22 @@
             return { x: textX, y: textY, midX, midY };
         }
 
+        // NEUE Funktion: Input-Spezifikationen für Min/Max-Werte
+        function getInputSpecs(sideKey, corners) {
+            const inputsForShape = shapeInputs[corners] || [];
+            const spec = inputsForShape.find(inp => inp.key === sideKey);
+            
+            if (spec) {
+                return {
+                    min: spec.min !== undefined ? spec.min : 0.01,
+                    max: spec.max !== undefined ? spec.max : 100
+                };
+            }
+            
+            // Fallback für berechnete Seiten
+            return { min: 0.01, max: 100 };
+        }
+
         // KORRIGIERTE Hilfsfunktionen für Viereck
         function getSideKey(index, corners) {
             switch (corners) {
@@ -1088,11 +1142,14 @@
             return fallback;
         }
 
-        // Update-Funktion für SVG-Eingabefelder
+        // SICHERE Update-Funktion für SVG-Eingabefelder
         function updateDimensionFromSVG(key, value) {
             const numValue = parseFloat(value);
             
-            if (!isNaN(numValue) && numValue > 0) {
+            // Validierung basierend auf Input-Spezifikationen
+            const inputSpecs = getInputSpecs(key, selectedCorners);
+            
+            if (!isNaN(numValue) && numValue >= inputSpecs.min && numValue <= inputSpecs.max) {
                 currentDimensions[key] = numValue;
                 
                 // Panel-Eingaben synchronisieren
@@ -1101,9 +1158,16 @@
                     panelInput.value = numValue.toFixed(2);
                 }
                 
-                updatePreview();
-                updateCalculations();
-                validateTriangle();
+                // Sichere Updates mit try-catch
+                try {
+                    updatePreview();
+                    updateCalculations();
+                    validateTriangle();
+                } catch (error) {
+                    console.warn('Update-Fehler abgefangen:', error);
+                    // Bei Fehlern: Vorherigen gültigen Wert wiederherstellen
+                    // (implementiere Rollback falls nötig)
+                }
             }
         }
 
