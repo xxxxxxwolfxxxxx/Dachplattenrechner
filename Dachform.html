@@ -1301,12 +1301,13 @@
             }
         }
 
-        // Orientierung prüfen - ALLE SEITEN für alle Formen
+        // Orientierung prüfen - PRAKTISCHE Toleranz für manuelle Bedienung
         function checkOrientation(points) {
-            const tolerance = 0.1; // 0.1° = ca. 1cm bei 6m Länge (sehr präzise!)
+            const tolerance = 1.0; // 1.0° = praktische Toleranz für manuelle Bedienung
             let horizontalSides = 0;
             let verticalSides = 0;
             let sideDetails = [];
+            let alignedSides = [];
 
             for (let i = 0; i < points.length; i++) {
                 const p1 = points[i];
@@ -1316,7 +1317,7 @@
                 const dy = p2.y - p1.y;
                 const angle = Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI;
                 
-                // Debug: Seiten-Info sammeln
+                // Seiten-Info sammeln
                 let sideName = '';
                 if (selectedCorners === '3') {
                     sideName = ['Seite C', 'Seite A', 'Seite B'][i];
@@ -1331,43 +1332,101 @@
                     angle: angle.toFixed(1)
                 });
                 
+                // Prüfe auf Ausrichtung
                 if (angle < tolerance) {
                     horizontalSides++;
+                    alignedSides.push(`${sideName} (waagerecht)`);
                 }
                 else if (Math.abs(angle - 90) < tolerance) {
                     verticalSides++;
+                    alignedSides.push(`${sideName} (senkrecht)`);
                 }
             }
 
-            // DETAILLIERTE ORIENTIERUNGSPRÜFUNG FÜR ALLE FORMEN
+            // PRAKTISCHE ORIENTIERUNGSPRÜFUNG
             const orientationInfo = document.getElementById('orientation-info');
             
             if (horizontalSides > 0 || verticalSides > 0) {
                 orientationInfo.className = 'orientation-info';
                 orientationInfo.innerHTML = `
-                    <strong>✅ Exakte Orientierung!</strong><br>
-                    ${horizontalSides > 0 ? `🟢 ${horizontalSides} exakt waagerechte Seite(n)<br>` : ''}
-                    ${verticalSides > 0 ? `🔵 ${verticalSides} exakt senkrechte Seite(n)<br>` : ''}
-                    Perfekt für Wasserlaufrichtung!<br>
-                    <small>Toleranz: ±0.1° (≈1cm bei 6m)</small>
+                    <strong>✅ Gute Orientierung!</strong><br>
+                    ${alignedSides.map(side => `🎯 ${side}`).join('<br>')}<br>
+                    <small>Toleranz: ±1.0° (praktisch für Bedienung)</small><br>
+                    <details style="margin-top: 8px;">
+                        <summary style="cursor: pointer; color: #28a745; font-size: 12px;">🎯 Snap-Hilfe anzeigen</summary>
+                        <div style="font-size: 11px; color: #666; margin-top: 4px;">
+                            <button onclick="snapToNearestAlignment()" style="padding: 4px 8px; font-size: 10px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                                🎯 Zur nächsten exakten Ausrichtung
+                            </button>
+                        </div>
+                    </details>
                 `;
             } else {
-                // Debug-Info: Zeige alle Winkel
-                const angleInfo = sideDetails.map(side => `${side.name}: ${side.angle}°`).join('<br>');
+                // Berechne nächste mögliche Ausrichtungen
+                const nextAlignments = calculateNextAlignments();
                 
                 orientationInfo.className = 'orientation-info orientation-warning';
                 orientationInfo.innerHTML = `
-                    <strong>⚠️ Keine exakte Orientierung</strong><br>
-                    Drehen Sie die Form präzise so, dass mindestens eine Seite exakt waagerecht (0°) oder senkrecht (90°) liegt.<br>
+                    <strong>⚠️ Keine gute Orientierung</strong><br>
+                    <small>Drehen Sie zu einer der optimalen Stellungen:</small><br>
+                    ${nextAlignments.map(align => 
+                        `<button onclick="snapToAngle(${align.angle})" style="margin: 2px; padding: 4px 8px; font-size: 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                            📐 ${align.description} (${align.angle}°)
+                        </button>`
+                    ).join('')}
                     <details style="margin-top: 8px;">
                         <summary style="cursor: pointer; color: #666; font-size: 12px;">Aktuelle Winkel anzeigen</summary>
                         <div style="font-size: 11px; color: #666; margin-top: 4px;">
-                            ${angleInfo}<br>
-                            <small>Rotation: ${currentRotation}° | Toleranz: ±0.1°</small>
+                            ${sideDetails.map(side => `${side.name}: ${side.angle}°`).join('<br>')}<br>
+                            <small>Rotation: ${currentRotation}° | Toleranz: ±1.0°</small>
                         </div>
                     </details>
                 `;
             }
+        }
+
+        // NEUE Funktion: Berechne nächste mögliche Ausrichtungen
+        function calculateNextAlignments() {
+            if (selectedCorners !== '3') {
+                // Für andere Formen: Standard 0°, 90°
+                return [
+                    { angle: 0, description: 'Waagerecht' },
+                    { angle: 90, description: 'Senkrecht' }
+                ];
+            }
+            
+            // Für Dreiecke: Berechne alle drei möglichen Ausrichtungen
+            const sideA = currentDimensions.sideA || 8;
+            const sideB = currentDimensions.sideB || 6;
+            const sideC = currentDimensions.sideC || 7;
+            
+            // Berechne Winkel der drei Eckpunkte mit Kosinussatz
+            const angleA = Math.acos((sideB*sideB + sideC*sideC - sideA*sideA) / (2*sideB*sideC)) * 180 / Math.PI;
+            const angleB = Math.acos((sideA*sideA + sideC*sideC - sideB*sideB) / (2*sideA*sideC)) * 180 / Math.PI;
+            const angleC = 180 - angleA - angleB;
+            
+            return [
+                { angle: 0, description: 'Seite C waagerecht' },
+                { angle: angleC, description: 'Seite A waagerecht' },
+                { angle: angleC + angleA, description: 'Seite B waagerecht' }
+            ];
+        }
+
+        // NEUE Funktion: Snap zur nächsten Ausrichtung
+        function snapToNearestAlignment() {
+            const alignments = calculateNextAlignments();
+            let bestAlignment = alignments[0];
+            let smallestDiff = Math.abs(currentRotation - alignments[0].angle);
+            
+            alignments.forEach(align => {
+                const diff = Math.abs(currentRotation - align.angle);
+                if (diff < smallestDiff) {
+                    smallestDiff = diff;
+                    bestAlignment = align;
+                }
+            });
+            
+            snapToAngle(bestAlignment.angle);
         }
 
         // Rotation
