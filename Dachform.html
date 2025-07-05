@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -261,47 +260,44 @@
             margin-bottom: 20px;
         }
 
-        /* Controls unter dem SVG */
-        .dimension-controls {
-            margin-top: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border: 2px solid #007bff;
-        }
-
-        .dimension-row {
+        /* Eingabefeld-Styles - direkt am SVG ohne blaue Pfeile */
+        .dimension-input-container-simple {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            gap: 10px;
-        }
-
-        .dimension-label {
-            min-width: 80px;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .dimension-input {
-            width: 100px;
-            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            padding: 4px 8px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
             border: 2px solid #007bff;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
+            min-width: 110px;
+            height: 30px;
+        }
+
+        .dimension-input-container-simple .dimension-input {
+            width: 75px;
+            height: 22px;
+            font-size: 14px;
             text-align: center;
-        }
-
-        .dimension-input:focus {
+            border: 1px solid #ccc;
+            border-radius: 4px;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+            font-weight: bold;
+            color: #2c3e50;
+            background: white;
+            padding: 2px 4px;
         }
 
-        .dimension-unit {
+        .dimension-input-container-simple .dimension-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+
+        .dimension-input-container-simple .dimension-unit {
+            font-size: 12px;
             color: #007bff;
             font-weight: bold;
-            margin-left: 5px;
+            margin-left: 6px;
+            white-space: nowrap;
         }
 
         /* Hinweis für fehlende Maße */
@@ -550,7 +546,7 @@
                     <!-- Vorschau -->
                     <div class="preview-panel">
                         <h3>📏 Live-Bemaßung (1cm Präzision)</h3>
-                        <p style="color: #666; margin-bottom: 20px;">Ändern Sie die Maße in den Eingabefeldern unten. Die Form passt sich automatisch an.</p>
+                        <p style="color: #666; margin-bottom: 20px;">Eingabefelder sind direkt an den Seiten positioniert. Browser-Spinner funktionieren für 1cm-Schritte.</p>
                         <svg class="preview-svg" id="preview-svg" viewBox="0 0 600 600">
                             <defs>
                                 <linearGradient id="shapeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -570,14 +566,6 @@
                                 </text>
                             </g>
                         </svg>
-
-                        <!-- Einfache Controls unter dem SVG -->
-                        <div class="dimension-controls" id="dimension-controls" style="display: none;">
-                            <h4 style="margin-bottom: 15px; color: #007bff;">📐 Maße eingeben:</h4>
-                            <div id="dimension-inputs">
-                                <!-- Eingabefelder werden hier eingefügt -->
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -656,11 +644,10 @@
             `;
             
             createInputs();
-            createDimensionControls();
             document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Eingabefelder erstellen
+        // Eingabefelder erstellen - ohne separate Controls unter SVG
         function createInputs() {
             const inputs = shapeInputs[selectedCorners];
             currentDimensions = {};
@@ -673,36 +660,9 @@
             updateCalculations();
         }
 
-        // NEUE: Einfache Dimension Controls unter dem SVG
-        function createDimensionControls() {
-            const controlsDiv = document.getElementById('dimension-controls');
-            const inputsDiv = document.getElementById('dimension-inputs');
-            
-            controlsDiv.style.display = 'block';
-            inputsDiv.innerHTML = '';
+        // ENTFERNT: createDimensionControls Funktion nicht mehr nötig
 
-            const inputs = shapeInputs[selectedCorners];
-            
-            inputs.forEach((input, index) => {
-                const row = document.createElement('div');
-                row.className = 'dimension-row';
-                
-                row.innerHTML = `
-                    <span class="dimension-label">${input.label}:</span>
-                    <input type="number" 
-                           class="dimension-input"
-                           id="dim-${input.key}"
-                           value="${input.default.toFixed(2)}" 
-                           step="0.01" min="0.01" max="100"
-                           oninput="updateDimension('${input.key}', this.value)">
-                    <span class="dimension-unit">${input.unit}</span>
-                `;
-                
-                inputsDiv.appendChild(row);
-            });
-        }
-
-        // NEUE: Einfache Update-Funktion
+        // Update-Funktionen
         function updateDimension(key, value) {
             const numValue = parseFloat(value);
             if (!isNaN(numValue) && numValue > 0) {
@@ -740,7 +700,7 @@
             }
         }
 
-        // Vorschau zeichnen
+        // ZURÜCK zur ursprünglichen Lösung - Eingabefelder an den Seiten
         function updatePreview() {
             const shapeGroup = document.getElementById('shape-group');
             
@@ -750,92 +710,133 @@
             let originalPoints = [];
             
             switch (selectedCorners) {
-                case '0': // Rund
+                case '0': // Rund - FESTE Größe
                     const rx = currentDimensions.radiusX;
                     const ry = currentDimensions.radiusY;
+                    
+                    // Normalisierte Radien (feste Basis-Größe)
+                    const baseRadius = 80;
+                    const normRx = Math.max(0.5, Math.min(3, rx)) * (baseRadius / 3);
+                    const normRy = Math.max(0.5, Math.min(3, ry)) * (baseRadius / 3);
                     
                     for (let i = 0; i < 32; i++) {
                         const angle = (i * 2 * Math.PI) / 32;
                         originalPoints.push({
-                            x: rx * Math.cos(angle) * scale,
-                            y: ry * Math.sin(angle) * scale
+                            x: normRx * Math.cos(angle),
+                            y: normRy * Math.sin(angle)
                         });
                     }
                     break;
 
-                case '3': // Dreieck
+                case '3': // Dreieck - FESTE Größe
                     const sideA = currentDimensions.sideA;
                     const sideB = currentDimensions.sideB;
                     const sideC = currentDimensions.sideC;
                     
+                    // FESTE Skalierung für Dreiecke
+                    const triangleScale = 20;
+                    
                     if ((sideA + sideB <= sideC) || (sideA + sideC <= sideB) || (sideB + sideC <= sideA)) {
+                        // Ungültiges Dreieck - feste Form
                         originalPoints = [
                             { x: 0, y: -80 },
                             { x: 120, y: 80 },
                             { x: -120, y: 80 }
                         ];
                     } else {
-                        const angle = Math.acos((sideA*sideA + sideB*sideB - sideC*sideC) / (2*sideA*sideB));
-                        const height = sideB * Math.sin(angle);
-                        const baseOffset = sideB * Math.cos(angle);
+                        // Gültiges Dreieck - normalisierte Proportionen
+                        const maxSide = Math.max(sideA, sideB, sideC);
+                        const normA = (sideA / maxSide) * 6; // Normalisiert auf max 6
+                        const normB = (sideB / maxSide) * 6;
+                        const normC = (sideC / maxSide) * 6;
+                        
+                        const angle = Math.acos((normA*normA + normB*normB - normC*normC) / (2*normA*normB));
+                        const height = normB * Math.sin(angle);
+                        const baseOffset = normB * Math.cos(angle);
                         
                         originalPoints = [
-                            { x: 0, y: -height*scale/2 },
-                            { x: sideA*scale/2, y: height*scale/2 },
-                            { x: (baseOffset-sideA/2)*scale, y: height*scale/2 }
+                            { x: 0, y: -height*triangleScale/2 },
+                            { x: normA*triangleScale/2, y: height*triangleScale/2 },
+                            { x: (baseOffset-normA/2)*triangleScale, y: height*triangleScale/2 }
                         ];
                     }
                     break;
 
-                case '4': // Viereck
+                case '4': // Viereck/Trapez - FESTE Größe, nur Form ändert sich
                     const bottomWidth = currentDimensions.bottomWidth;
                     const topWidth = currentDimensions.topWidth;
                     const offset = currentDimensions.offset;
-                    const autoHeight = Math.max(bottomWidth, topWidth) * 0.6;
+                    
+                    // FESTE Skalierung - unabhängig von den echten Maßen
+                    const fixedScale = 15; // Fester Skalierungsfaktor
+                    const fixedHeight = 4 * fixedScale; // Feste Höhe in Pixeln
+                    
+                    // Normalisierte Breiten (immer zwischen 2-12 für schöne Darstellung)
+                    const normalizedBottom = Math.max(2, Math.min(12, bottomWidth));
+                    const normalizedTop = Math.max(1, Math.min(10, topWidth));
+                    const normalizedOffset = Math.max(-3, Math.min(3, offset));
                     
                     originalPoints = [
-                        { x: -bottomWidth*scale/2, y: autoHeight*scale/2 },
-                        { x: bottomWidth*scale/2, y: autoHeight*scale/2 },
-                        { x: topWidth*scale/2 + offset*scale, y: -autoHeight*scale/2 },
-                        { x: -topWidth*scale/2 + offset*scale, y: -autoHeight*scale/2 }
+                        // Untere Seite (breit)
+                        { x: -normalizedBottom*fixedScale/2, y: fixedHeight/2 },
+                        { x: normalizedBottom*fixedScale/2, y: fixedHeight/2 },
+                        // Obere Seite (schmal, mit Offset)
+                        { x: normalizedTop*fixedScale/2 + normalizedOffset*fixedScale, y: -fixedHeight/2 },
+                        { x: -normalizedTop*fixedScale/2 + normalizedOffset*fixedScale, y: -fixedHeight/2 }
                     ];
                     break;
 
-                case '5': // Fünfeck
-                    const radius5 = currentDimensions.radius * scale;
+                case '5': // Fünfeck - FESTE Größe
+                    const radius5 = currentDimensions.radius;
+                    const fixedRadius5 = 90; // Feste Größe
+                    
                     for (let i = 0; i < 5; i++) {
                         const angle = (i * 2 * Math.PI / 5) - Math.PI/2;
                         originalPoints.push({
-                            x: radius5 * Math.cos(angle),
-                            y: radius5 * Math.sin(angle)
+                            x: fixedRadius5 * Math.cos(angle),
+                            y: fixedRadius5 * Math.sin(angle)
                         });
                     }
                     break;
 
-                case '6': // Sechseck
-                    const radius6 = currentDimensions.radius * scale;
+                case '6': // Sechseck - FESTE Größe
+                    const radius6 = currentDimensions.radius;
+                    const fixedRadius6 = 90; // Feste Größe
+                    
                     for (let i = 0; i < 6; i++) {
                         const angle = (i * 2 * Math.PI / 6);
                         originalPoints.push({
-                            x: radius6 * Math.cos(angle),
-                            y: radius6 * Math.sin(angle)
+                            x: fixedRadius6 * Math.cos(angle),
+                            y: fixedRadius6 * Math.sin(angle)
                         });
                     }
                     break;
 
-                case 'special': // L-Form
-                    const tw = currentDimensions.totalWidth * scale;
-                    const th = currentDimensions.totalHeight * scale;
-                    const cw = currentDimensions.cutWidth * scale;
-                    const ch = currentDimensions.cutHeight * scale;
+                case 'special': // L-Form - FESTE Größe
+                    const tw = currentDimensions.totalWidth;
+                    const th = currentDimensions.totalHeight;
+                    const cw = currentDimensions.cutWidth;
+                    const ch = currentDimensions.cutHeight;
+                    
+                    // Feste Basis-Größe für L-Form
+                    const lScale = 8;
+                    const fixedTw = lScale * 12;
+                    const fixedTh = lScale * 10;
+                    
+                    // Proportionale Ausschnitte (aber begrenzt)
+                    const cutWidthRatio = Math.max(0.2, Math.min(0.8, cw / tw));
+                    const cutHeightRatio = Math.max(0.2, Math.min(0.8, ch / th));
+                    
+                    const fixedCw = fixedTw * cutWidthRatio;
+                    const fixedCh = fixedTh * cutHeightRatio;
                     
                     originalPoints = [
-                        { x: -tw/2, y: -th/2 },
-                        { x: tw/2, y: -th/2 },
-                        { x: tw/2, y: -th/2+ch },
-                        { x: -tw/2+cw, y: -th/2+ch },
-                        { x: -tw/2+cw, y: th/2 },
-                        { x: -tw/2, y: th/2 }
+                        { x: -fixedTw/2, y: -fixedTh/2 },
+                        { x: fixedTw/2, y: -fixedTh/2 },
+                        { x: fixedTw/2, y: -fixedTh/2+fixedCh },
+                        { x: -fixedTw/2+fixedCw, y: -fixedTh/2+fixedCh },
+                        { x: -fixedTw/2+fixedCw, y: fixedTh/2 },
+                        { x: -fixedTw/2, y: fixedTh/2 }
                     ];
                     break;
             }
@@ -865,8 +866,160 @@
                            fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
             }
 
+            // NEUE: Eingabefelder direkt am SVG zeichnen (ohne blaue Pfeile)
+            shapeSVG += drawSideDimensions(rotatedPoints);
+
             checkOrientation(rotatedPoints);
             shapeGroup.innerHTML = shapeSVG;
+        }
+
+        // Neue Funktion: Eingabefelder direkt an den Seiten
+        function drawSideDimensions(points) {
+            let dimensionsSVG = '';
+            
+            for (let i = 0; i < points.length; i++) {
+                const p1 = points[i];
+                const p2 = points[(i + 1) % points.length];
+                
+                // Position für Eingabefeld berechnen
+                const position = getSidePosition(points, i);
+                
+                // Blauer Punkt an der Seitenmitte
+                dimensionsSVG += `
+                    <circle cx="${position.midX}" cy="${position.midY}" r="4" fill="#007bff" stroke="white" stroke-width="1"/>
+                `;
+                
+                // Kurze Verbindungslinie
+                const lineLength = 25;
+                const dirX = position.x - position.midX;
+                const dirY = position.y - position.midY;
+                const dirLength = Math.sqrt(dirX * dirX + dirY * dirY);
+                
+                if (dirLength > 0) {
+                    const unitDirX = dirX / dirLength;
+                    const unitDirY = dirY / dirLength;
+                    
+                    const lineEndX = position.midX + unitDirX * lineLength;
+                    const lineEndY = position.midY + unitDirY * lineLength;
+                    
+                    dimensionsSVG += `
+                        <line x1="${position.midX}" y1="${position.midY}" x2="${lineEndX}" y2="${lineEndY}" 
+                              stroke="#007bff" stroke-width="2" opacity="0.8"/>
+                    `;
+                }
+                
+                // Eingabefeld - NUR Input + Einheit, KEINE Pfeile
+                const sideKey = getSideKey(i, selectedCorners);
+                const currentValue = getSideValue(sideKey, i, 5);
+                
+                dimensionsSVG += `
+                    <foreignObject x="${position.x - 55}" y="${position.y - 15}" width="110" height="30">
+                        <div class="dimension-input-container-simple">
+                            <input type="number" 
+                                   class="dimension-input"
+                                   value="${currentValue.toFixed(2)}" 
+                                   data-side-index="${i}"
+                                   data-side-key="${sideKey}"
+                                   step="0.01" min="0.01" max="100"
+                                   oninput="updateDimensionFromSVG('${sideKey}', this.value)"/>
+                            <span class="dimension-unit">m</span>
+                        </div>
+                    </foreignObject>
+                `;
+            }
+            
+            return dimensionsSVG;
+        }
+
+        // Positionsberechnung für Eingabefelder
+        function getSidePosition(points, sideIndex) {
+            const p1 = points[sideIndex];
+            const p2 = points[(sideIndex + 1) % points.length];
+            
+            const midX = (p1.x + p2.x) / 2;
+            const midY = (p1.y + p2.y) / 2;
+            
+            // Normale zur Seite (nach außen)
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const normalX = -dy;
+            const normalY = dx;
+            
+            const length = Math.sqrt(normalX * normalX + normalY * normalY);
+            if (length === 0) return { x: midX, y: midY - 40, midX, midY };
+            
+            const unitNormalX = normalX / length;
+            const unitNormalY = normalY / length;
+            
+            // Zentrum der Form
+            const centerX = points.reduce((sum, p) => sum + p.x, 0) / points.length;
+            const centerY = points.reduce((sum, p) => sum + p.y, 0) / points.length;
+            
+            const toCenterX = centerX - midX;
+            const toCenterY = centerY - midY;
+            
+            const dotProduct = unitNormalX * toCenterX + unitNormalY * toCenterY;
+            
+            const finalNormalX = dotProduct > 0 ? -unitNormalX : unitNormalX;
+            const finalNormalY = dotProduct > 0 ? -unitNormalY : unitNormalY;
+            
+            const offsetDistance = 40;
+            const textX = midX + finalNormalX * offsetDistance;
+            const textY = midY + finalNormalY * offsetDistance;
+            
+            return { x: textX, y: textY, midX, midY };
+        }
+
+        // Hilfsfunktionen - KORRIGIERT für Trapez
+        function getSideKey(index, corners) {
+            switch (corners) {
+                case '3':
+                    return ['sideA', 'sideB', 'sideC'][index];
+                case '4':
+                    return ['bottomWidth', 'topWidth', 'leftSide', 'rightSide'][index % 4];
+                default:
+                    return `side${index + 1}`;
+            }
+        }
+
+        function getSideValue(sideKey, index, fallback) {
+            if (currentDimensions[sideKey] !== undefined) {
+                return currentDimensions[sideKey];
+            }
+            
+            // Spezielle Behandlung für Trapez-Seiten
+            if (sideKey === 'leftSide' || sideKey === 'rightSide') {
+                // Für die schrägen Seiten berechnen wir die Länge
+                const bottomWidth = currentDimensions.bottomWidth || 10;
+                const topWidth = currentDimensions.topWidth || 8;
+                const offset = currentDimensions.offset || 1;
+                const height = 6;
+                
+                const widthDiff = Math.abs(bottomWidth - topWidth) / 2;
+                const sideLength = Math.sqrt(height * height + (widthDiff + Math.abs(offset)) * (widthDiff + Math.abs(offset)));
+                return sideLength;
+            }
+            
+            return fallback;
+        }
+
+        // Update-Funktion für SVG-Eingabefelder - mit Debug
+        function updateDimensionFromSVG(key, value) {
+            const numValue = parseFloat(value);
+            console.log('updateDimensionFromSVG called:', key, '=', numValue);
+            
+            if (!isNaN(numValue) && numValue > 0) {
+                currentDimensions[key] = numValue;
+                console.log('Updated dimension from SVG:', key, '=', numValue);
+                console.log('Current dimensions:', currentDimensions);
+                
+                // Sofort neu zeichnen
+                updatePreview();
+                updateCalculations();
+                validateTriangle();
+            } else {
+                console.warn('Invalid value:', value);
+            }
         }
 
         // Orientierung prüfen
@@ -966,11 +1119,11 @@
                     const bottomWidth = currentDimensions.bottomWidth;
                     const topWidth = currentDimensions.topWidth;
                     const offset = currentDimensions.offset;
-                    const autoHeight = Math.max(bottomWidth, topWidth) * 0.6;
+                    const height = 6; // Feste Höhe
                     
-                    area = (bottomWidth + topWidth) * autoHeight / 2;
+                    area = (bottomWidth + topWidth) * height / 2;
                     const widthDiff = Math.abs(bottomWidth - topWidth) / 2;
-                    const sideLength = Math.sqrt(autoHeight * autoHeight + (widthDiff + Math.abs(offset)) * (widthDiff + Math.abs(offset)));
+                    const sideLength = Math.sqrt(height * height + (widthDiff + Math.abs(offset)) * (widthDiff + Math.abs(offset)));
                     perimeter = bottomWidth + topWidth + 2 * sideLength;
                     break;
 
@@ -1007,6 +1160,12 @@
                     selectCorners(corners);
                 });
             });
+            
+            // Global verfügbar machen
+            window.updateDimensionFromSVG = updateDimensionFromSVG;
+            window.rotateShape = rotateShape;
+            window.resetRotation = resetRotation;
+            window.snapToAngle = snapToAngle;
         });
 
         function goBack() {
