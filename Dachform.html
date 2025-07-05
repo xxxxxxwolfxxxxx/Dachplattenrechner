@@ -822,7 +822,7 @@
                     }
                     break;
 
-                case '3': // ABGESICHERTES Dreieck - verhindert Crashes
+                case '3': // ROBUSTES Dreieck - funktioniert mit jeder Seitenkombination
                     const sideA = currentDimensions.sideA || 8;
                     const sideB = currentDimensions.sideB || 6;
                     const sideC = currentDimensions.sideC || 7;
@@ -843,29 +843,40 @@
                         ];
                     } else {
                         try {
-                            // Sichere Berechnung mit try-catch
-                            const maxSide = Math.max(sideA, sideB, sideC);
-                            const normA = (sideA / maxSide) * 6;
-                            const normB = (sideB / maxSide) * 6;
-                            const normC = (sideC / maxSide) * 6;
+                            // NEUE METHODE: Sortiere Seiten für stabile Darstellung
+                            const sides = [sideA, sideB, sideC].sort((a, b) => b - a); // Größte zuerst
+                            const [longest, middle, shortest] = sides;
                             
-                            // Sicherer Kosinus-Bereich [-1, 1]
-                            const cosValue = (normA*normA + normB*normB - normC*normC) / (2*normA*normB);
-                            const safeCosValue = Math.max(-1, Math.min(1, cosValue));
-                            const angle = Math.acos(safeCosValue);
+                            // Verwende immer die längste Seite als Basis (unten)
+                            const baseLength = longest;
+                            const leftSide = middle;
+                            const rightSide = shortest;
                             
-                            if (isNaN(angle)) {
-                                throw new Error('Ungültige Winkelberechnung');
-                            }
+                            // Berechne Höhe mit Heron'scher Formel für Fläche
+                            const s = (baseLength + leftSide + rightSide) / 2;
+                            const area = Math.sqrt(s * (s - baseLength) * (s - leftSide) * (s - rightSide));
+                            const height = (2 * area) / baseLength;
                             
-                            const height = normB * Math.sin(angle);
-                            const baseOffset = normB * Math.cos(angle);
+                            // Berechne Position des oberen Punkts
+                            // Verwende Kosinussatz für x-Position
+                            const cosAngle = (baseLength * baseLength + leftSide * leftSide - rightSide * rightSide) / (2 * baseLength * leftSide);
+                            const safeConsAngle = Math.max(-1, Math.min(1, cosAngle));
+                            const xOffset = leftSide * safeConsAngle;
                             
+                            // Skalierung für Anzeige
+                            const maxSide = Math.max(baseLength, leftSide, rightSide);
+                            const scale = (triangleScale * 6) / maxSide;
+                            
+                            // Dreieck-Punkte: Basis unten, Spitze oben
                             originalPoints = [
-                                { x: 0, y: -height*triangleScale/2 },
-                                { x: normA*triangleScale/2, y: height*triangleScale/2 },
-                                { x: (baseOffset-normA/2)*triangleScale, y: height*triangleScale/2 }
+                                // Basis: links unten
+                                { x: -baseLength * scale / 2, y: height * scale / 2 },
+                                // Basis: rechts unten  
+                                { x: baseLength * scale / 2, y: height * scale / 2 },
+                                // Spitze: oben (x-Position basierend auf Winkelberechnung)
+                                { x: (xOffset - baseLength / 2) * scale, y: -height * scale / 2 }
                             ];
+                            
                         } catch (error) {
                             console.warn('Dreieck-Berechnung fehlgeschlagen:', error);
                             // Fallback bei Berechnungsfehlern
@@ -1171,9 +1182,9 @@
             }
         }
 
-        // Orientierung prüfen
+        // Orientierung prüfen - PRÄZISE 1cm Toleranz
         function checkOrientation(points) {
-            const tolerance = 0.1;
+            const tolerance = 0.1; // 0.1° = ca. 1cm bei 6m Länge (sehr präzise!)
             let horizontalSides = 0;
             let verticalSides = 0;
 
@@ -1201,14 +1212,15 @@
                         <strong>✅ Exakte Orientierung!</strong><br>
                         ${horizontalSides > 0 ? `🟢 ${horizontalSides} exakt waagerechte Seite(n)<br>` : ''}
                         ${verticalSides > 0 ? `🔵 ${verticalSides} exakt senkrechte Seite(n)<br>` : ''}
-                        Perfekt für Wasserlaufrichtung!
+                        Perfekt für Wasserlaufrichtung!<br>
+                        <small>Toleranz: ±0.1° (≈1cm bei 6m)</small>
                     `;
                 } else {
                     orientationInfo.className = 'orientation-info orientation-warning';
                     orientationInfo.innerHTML = `
                         <strong>⚠️ Keine exakte Orientierung</strong><br>
                         Drehen Sie die Form präzise so, dass mindestens eine Seite exakt waagerecht (0°) oder senkrecht (90°) liegt.<br>
-                        <small>Aktuelle Rotation: ${currentRotation}°</small>
+                        <small>Aktuelle Rotation: ${currentRotation}° | Toleranz: ±0.1° (≈1cm bei 6m)</small>
                     `;
                 }
             }
