@@ -1026,62 +1026,156 @@
             shapeGroup.innerHTML = shapeSVG;
         }
 
-        // KORRIGIERTE drawSideDimensions für Viereck
+        // ABSOLUT FIXE Eingabefeld-Darstellung für Dreieck - MIT ROTATION
         function drawSideDimensions(points) {
             let dimensionsSVG = '';
             
-            for (let i = 0; i < points.length; i++) {
-                const p1 = points[i];
-                const p2 = points[(i + 1) % points.length];
+            if (selectedCorners === '3') {
+                // SPEZIAL-BEHANDLUNG für Dreieck: Fixe Positionen MIT Rotation
+                const sideA = currentDimensions.sideA || 8;
+                const sideB = currentDimensions.sideB || 6;
+                const sideC = currentDimensions.sideC || 7;
                 
-                // Position für Eingabefeld berechnen
-                const position = getSidePosition(points, i);
+                // BASIS-Positionen (vor Rotation)
+                const baseInputs = [
+                    // Seite C (unten, horizontal A-B)
+                    { 
+                        key: 'sideC', 
+                        value: sideC,
+                        x: 0, y: 100,        // Unten Mitte
+                        midX: 0, midY: 80    // Verbindungspunkt
+                    },
+                    // Seite A (rechts schräg, B-C)  
+                    { 
+                        key: 'sideA', 
+                        value: sideA,
+                        x: 80, y: 0,         // Rechts oben
+                        midX: 60, midY: 20   // Verbindungspunkt
+                    },
+                    // Seite B (links schräg, C-A)
+                    { 
+                        key: 'sideB', 
+                        value: sideB,
+                        x: -80, y: 0,        // Links oben  
+                        midX: -60, midY: 20  // Verbindungspunkt
+                    }
+                ];
                 
-                // Blauer Punkt an der Seitenmitte
-                dimensionsSVG += `
-                    <circle cx="${position.midX}" cy="${position.midY}" r="4" fill="#007bff" stroke="white" stroke-width="1"/>
-                `;
+                // ROTATION ANWENDEN auf alle Positionen
+                const rad = currentRotation * Math.PI / 180;
+                const cos = Math.cos(rad);
+                const sin = Math.sin(rad);
                 
-                // Kurze Verbindungslinie
-                const lineLength = 25;
-                const dirX = position.x - position.midX;
-                const dirY = position.y - position.midY;
-                const dirLength = Math.sqrt(dirX * dirX + dirY * dirY);
+                const rotatedInputs = baseInputs.map(input => ({
+                    ...input,
+                    // Rotiere Eingabefeld-Position
+                    x: input.x * cos - input.y * sin,
+                    y: input.x * sin + input.y * cos,
+                    // Rotiere Verbindungspunkt
+                    midX: input.midX * cos - input.midY * sin,
+                    midY: input.midX * sin + input.midY * cos
+                }));
                 
-                if (dirLength > 0) {
-                    const unitDirX = dirX / dirLength;
-                    const unitDirY = dirY / dirLength;
+                rotatedInputs.forEach(input => {
+                    // Blauer Punkt an der Seitenmitte
+                    dimensionsSVG += `
+                        <circle cx="${input.midX}" cy="${input.midY}" r="4" fill="#007bff" stroke="white" stroke-width="1"/>
+                    `;
                     
-                    const lineEndX = position.midX + unitDirX * lineLength;
-                    const lineEndY = position.midY + unitDirY * lineLength;
+                    // Kurze Verbindungslinie
+                    const lineLength = 25;
+                    const dirX = input.x - input.midX;
+                    const dirY = input.y - input.midY;
+                    const dirLength = Math.sqrt(dirX * dirX + dirY * dirY);
+                    
+                    if (dirLength > 0) {
+                        const unitDirX = dirX / dirLength;
+                        const unitDirY = dirY / dirLength;
+                        
+                        const lineEndX = input.midX + unitDirX * lineLength;
+                        const lineEndY = input.midY + unitDirY * lineLength;
+                        
+                        dimensionsSVG += `
+                            <line x1="${input.midX}" y1="${input.midY}" x2="${lineEndX}" y2="${lineEndY}" 
+                                  stroke="#007bff" stroke-width="2" opacity="0.8"/>
+                        `;
+                    }
+                    
+                    // ROTIERTE Eingabefelder
+                    const inputSpecs = getInputSpecs(input.key, selectedCorners);
                     
                     dimensionsSVG += `
-                        <line x1="${position.midX}" y1="${position.midY}" x2="${lineEndX}" y2="${lineEndY}" 
-                              stroke="#007bff" stroke-width="2" opacity="0.8"/>
+                        <foreignObject x="${input.x - 55}" y="${input.y - 15}" width="110" height="30">
+                            <div class="dimension-input-container-simple">
+                                <input type="number" 
+                                       class="dimension-input"
+                                       value="${input.value.toFixed(2)}" 
+                                       data-side-key="${input.key}"
+                                       step="0.01" 
+                                       min="${inputSpecs.min}" 
+                                       max="${inputSpecs.max}"
+                                       oninput="updateDimensionFromSVG('${input.key}', this.value)"/>
+                                <span class="dimension-unit">m</span>
+                            </div>
+                        </foreignObject>
+                    `;
+                });
+                
+            } else {
+                // Normale Behandlung für alle anderen Formen
+                for (let i = 0; i < points.length; i++) {
+                    const p1 = points[i];
+                    const p2 = points[(i + 1) % points.length];
+                    
+                    // Position für Eingabefeld berechnen
+                    const position = getSidePosition(points, i);
+                    
+                    // Blauer Punkt an der Seitenmitte
+                    dimensionsSVG += `
+                        <circle cx="${position.midX}" cy="${position.midY}" r="4" fill="#007bff" stroke="white" stroke-width="1"/>
+                    `;
+                    
+                    // Kurze Verbindungslinie
+                    const lineLength = 25;
+                    const dirX = position.x - position.midX;
+                    const dirY = position.y - position.midY;
+                    const dirLength = Math.sqrt(dirX * dirX + dirY * dirY);
+                    
+                    if (dirLength > 0) {
+                        const unitDirX = dirX / dirLength;
+                        const unitDirY = dirY / dirLength;
+                        
+                        const lineEndX = position.midX + unitDirX * lineLength;
+                        const lineEndY = position.midY + unitDirY * lineLength;
+                        
+                        dimensionsSVG += `
+                            <line x1="${position.midX}" y1="${position.midY}" x2="${lineEndX}" y2="${lineEndY}" 
+                                  stroke="#007bff" stroke-width="2" opacity="0.8"/>
+                        `;
+                    }
+                    
+                    // Eingabefeld mit korrekten Min/Max-Werten
+                    const sideKey = getSideKey(i, selectedCorners);
+                    const currentValue = getSideValue(sideKey, i, 5);
+                    const inputSpecs = getInputSpecs(sideKey, selectedCorners);
+                    
+                    dimensionsSVG += `
+                        <foreignObject x="${position.x - 55}" y="${position.y - 15}" width="110" height="30">
+                            <div class="dimension-input-container-simple">
+                                <input type="number" 
+                                       class="dimension-input"
+                                       value="${currentValue.toFixed(2)}" 
+                                       data-side-index="${i}"
+                                       data-side-key="${sideKey}"
+                                       step="0.01" 
+                                       min="${inputSpecs.min}" 
+                                       max="${inputSpecs.max}"
+                                       oninput="updateDimensionFromSVG('${sideKey}', this.value)"/>
+                                <span class="dimension-unit">m</span>
+                            </div>
+                        </foreignObject>
                     `;
                 }
-                
-                // Eingabefeld mit korrekten Min/Max-Werten
-                const sideKey = getSideKey(i, selectedCorners);
-                const currentValue = getSideValue(sideKey, i, 5);
-                const inputSpecs = getInputSpecs(sideKey, selectedCorners);
-                
-                dimensionsSVG += `
-                    <foreignObject x="${position.x - 55}" y="${position.y - 15}" width="110" height="30">
-                        <div class="dimension-input-container-simple">
-                            <input type="number" 
-                                   class="dimension-input"
-                                   value="${currentValue.toFixed(2)}" 
-                                   data-side-index="${i}"
-                                   data-side-key="${sideKey}"
-                                   step="0.01" 
-                                   min="${inputSpecs.min}" 
-                                   max="${inputSpecs.max}"
-                                   oninput="updateDimensionFromSVG('${sideKey}', this.value)"/>
-                            <span class="dimension-unit">m</span>
-                        </div>
-                    </foreignObject>
-                `;
             }
             
             return dimensionsSVG;
