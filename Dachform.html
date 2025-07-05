@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -155,7 +156,7 @@
             gap: 25px;
         }
 
-        .rotation-controls, .dimensions-panel {
+        .rotation-controls, .dimensions-panel, .input-mode-panel {
             background: white;
             border-radius: 15px;
             padding: 25px;
@@ -260,7 +261,37 @@
             margin-bottom: 20px;
         }
 
-        /* Eingabefeld-Styles - direkt am SVG ohne blaue Pfeile */
+        /* Eingabemodi */
+        .input-mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .mode-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .mode-btn:hover:not(.active) {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        /* Eingabefeld-Styles für direkte SVG-Eingabe */
         .dimension-input-container-simple {
             display: flex;
             align-items: center;
@@ -300,66 +331,35 @@
             white-space: nowrap;
         }
 
-        /* Hinweis für fehlende Maße */
-        .missing-dimension-hint {
-            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
-            border: 2px solid #ffc107;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: center;
+        /* Panel-Eingaben für strukturierte Eingabe */
+        .structured-inputs {
+            display: grid;
+            gap: 15px;
         }
 
-        .missing-dimension-hint h4 {
-            color: #856404;
-            margin-bottom: 12px;
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-control {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
             font-size: 16px;
+            transition: border-color 0.3s ease;
         }
 
-        .missing-dimension-hint p {
-            color: #856404;
-            margin-bottom: 15px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .calc-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
-            color: white;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
-            margin: 10px 0;
-        }
-
-        .calc-link:hover {
-            background: linear-gradient(135deg, #ff8c00 0%, #ffc107 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
-            color: white;
-            text-decoration: none;
-        }
-
-        .external-icon {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        .hint-text {
-            margin-top: 8px;
-            margin-bottom: 0;
-        }
-
-        .hint-text small {
-            color: #6c757d;
-            font-style: italic;
+        .form-control:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
         }
 
         .btn {
@@ -482,6 +482,24 @@
                 <div class="editor-container">
                     <!-- Eingaben und Rotation -->
                     <div class="controls-panel">
+                        <!-- Eingabemodus -->
+                        <div class="input-mode-panel">
+                            <h3>🎛️ Eingabemodus</h3>
+                            <div class="input-mode-toggle">
+                                <button class="mode-btn active" data-mode="svg" onclick="setInputMode('svg')">
+                                    📏 Live am Plan
+                                </button>
+                                <button class="mode-btn" data-mode="panel" onclick="setInputMode('panel')">
+                                    📋 Strukturiert
+                                </button>
+                            </div>
+                            
+                            <!-- Strukturierte Eingaben (versteckt) -->
+                            <div class="structured-inputs" id="structured-inputs" style="display: none;">
+                                <!-- Werden je nach Form dynamisch erstellt -->
+                            </div>
+                        </div>
+
                         <!-- Rotation -->
                         <div class="rotation-controls">
                             <h3>🔄 Rotation</h3>
@@ -527,26 +545,13 @@
                                     <span class="info-value" id="calc-perimeter">0 m</span>
                                 </div>
                             </div>
-
-                            <!-- Hinweis für fehlende Maße -->
-                            <div class="missing-dimension-hint">
-                                <h4>💡 Maß vergessen zu messen?</h4>
-                                <p>Nicht immer hat man alle Maße zur Hand. Ein fehlendes Dreieck-Maß können Sie berechnen:</p>
-                                <a href="https://www.dreieck-berechnen.de" target="_blank" rel="noopener noreferrer" class="calc-link">
-                                    🧮 Dreieck-Rechner öffnen
-                                    <span class="external-icon">↗</span>
-                                </a>
-                                <p class="hint-text">
-                                    <small>💻 Öffnet in neuem Tab - diese Seite bleibt offen</small>
-                                </p>
-                            </div>
                         </div>
                     </div>
 
                     <!-- Vorschau -->
                     <div class="preview-panel">
-                        <h3>📏 Live-Bemaßung (1cm Präzision)</h3>
-                        <p style="color: #666; margin-bottom: 20px;">Eingabefelder sind direkt an den Seiten positioniert. Browser-Spinner funktionieren für 1cm-Schritte.</p>
+                        <h3 id="preview-title">📏 Live-Bemaßung (1cm Präzision)</h3>
+                        <p id="preview-description" style="color: #666; margin-bottom: 20px;">Eingabefelder sind direkt an den Seiten positioniert. Browser-Spinner funktionieren für 1cm-Schritte.</p>
                         <svg class="preview-svg" id="preview-svg" viewBox="0 0 600 600">
                             <defs>
                                 <linearGradient id="shapeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -586,8 +591,9 @@
         let selectedCorners = null;
         let currentDimensions = {};
         let currentRotation = 0;
+        let inputMode = 'svg'; // 'svg' oder 'panel'
 
-        // Standard-Eingaben je nach Eckenanzahl
+        // KORRIGIERTE Viereck-Eingaben mit besserem Versatz-System
         const shapeInputs = {
             0: [ 
                 { key: 'radiusX', label: 'Breite-Radius', default: 5, unit: 'm' },
@@ -599,9 +605,10 @@
                 { key: 'sideC', label: 'Seite C', default: 7, unit: 'm' }
             ],
             4: [ 
-                { key: 'bottomWidth', label: 'Untere Breite', default: 10, unit: 'm' },
-                { key: 'topWidth', label: 'Obere Breite', default: 8, unit: 'm' },
-                { key: 'offset', label: 'Seitversatz', default: 1, unit: 'm' }
+                { key: 'width', label: 'Breite (unten)', default: 10, unit: 'm' },
+                { key: 'height', label: 'Höhe', default: 6, unit: 'm' },
+                { key: 'topWidth', label: 'Breite (oben)', default: 8, unit: 'm' },
+                { key: 'offsetX', label: 'Versatz X', default: 0, unit: 'm', help: 'Horizontaler Versatz der oberen Kante' }
             ],
             5: [ 
                 { key: 'radius', label: 'Radius', default: 6, unit: 'm' }
@@ -620,11 +627,82 @@
         const shapeInfos = {
             0: "Mit 2 Radien können Sie Kreise, Ovale und Langlöcher erstellen",
             3: "Mit 3 Seiten entstehen automatisch alle Dreiecksarten - rechtwinklig, gleichschenklig oder ungleichseitig",
-            4: "Untere/obere Breite + Seitversatz = Rechteck, Trapez, Parallelogramm oder Rhombus",
+            4: "Viereck: Breite unten/oben + Höhe + X-Versatz = Rechteck, Trapez oder Parallelogramm",
             5: "Ein regelmäßiges Fünfeck mit einstellbarem Radius",
             6: "Ein regelmäßiges Sechseck mit einstellbarem Radius", 
             special: "L-Form durch Gesamtmaße minus Ausschnitt"
         };
+
+        // Eingabemodus wechseln
+        function setInputMode(mode) {
+            inputMode = mode;
+            
+            // Buttons aktualisieren
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+            
+            // Strukturierte Eingaben ein-/ausblenden
+            const structuredInputs = document.getElementById('structured-inputs');
+            const previewTitle = document.getElementById('preview-title');
+            const previewDescription = document.getElementById('preview-description');
+            
+            if (mode === 'panel') {
+                structuredInputs.style.display = 'block';
+                previewTitle.textContent = '👁️ Form-Vorschau';
+                previewDescription.textContent = 'Nutzen Sie die Eingabefelder links für präzise Werte.';
+                createStructuredInputs();
+            } else {
+                structuredInputs.style.display = 'none';
+                previewTitle.textContent = '📏 Live-Bemaßung (1cm Präzision)';
+                previewDescription.textContent = 'Eingabefelder sind direkt an den Seiten positioniert. Browser-Spinner funktionieren für 1cm-Schritte.';
+            }
+            
+            updatePreview();
+        }
+
+        // Strukturierte Eingaben erstellen
+        function createStructuredInputs() {
+            if (!selectedCorners) return;
+            
+            const container = document.getElementById('structured-inputs');
+            container.innerHTML = '';
+            
+            const inputs = shapeInputs[selectedCorners];
+            inputs.forEach(input => {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                
+                formGroup.innerHTML = `
+                    <label for="struct-${input.key}">
+                        ${input.label}
+                        ${input.help ? `<small style="color: #666; font-weight: normal;"> (${input.help})</small>` : ''}
+                    </label>
+                    <input type="number" 
+                           id="struct-${input.key}"
+                           class="form-control"
+                           value="${currentDimensions[input.key] || input.default}" 
+                           step="0.01" 
+                           min="0.01" 
+                           max="100"
+                           oninput="updateDimensionFromPanel('${input.key}', this.value)"/>
+                `;
+                
+                container.appendChild(formGroup);
+            });
+        }
+
+        // Update von Panel-Eingaben
+        function updateDimensionFromPanel(key, value) {
+            const numValue = parseFloat(value);
+            if (!isNaN(numValue) && numValue > 0) {
+                currentDimensions[key] = numValue;
+                updatePreview();
+                updateCalculations();
+                validateTriangle();
+            }
+        }
 
         // Ecken-Auswahl
         function selectCorners(corners) {
@@ -647,7 +725,7 @@
             document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Eingabefelder erstellen - ohne separate Controls unter SVG
+        // Eingabefelder erstellen
         function createInputs() {
             const inputs = shapeInputs[selectedCorners];
             currentDimensions = {};
@@ -656,18 +734,26 @@
                 currentDimensions[input.key] = input.default;
             });
 
+            if (inputMode === 'panel') {
+                createStructuredInputs();
+            }
+
             updatePreview();
             updateCalculations();
         }
-
-        // ENTFERNT: createDimensionControls Funktion nicht mehr nötig
 
         // Update-Funktionen
         function updateDimension(key, value) {
             const numValue = parseFloat(value);
             if (!isNaN(numValue) && numValue > 0) {
                 currentDimensions[key] = numValue;
-                console.log('Updated dimension:', key, '=', numValue);
+                
+                // Auch Panel-Eingaben synchronisieren
+                const panelInput = document.getElementById(`struct-${key}`);
+                if (panelInput) {
+                    panelInput.value = numValue.toFixed(2);
+                }
+                
                 updatePreview();
                 updateCalculations();
                 validateTriangle();
@@ -700,21 +786,19 @@
             }
         }
 
-        // ZURÜCK zur ursprünglichen Lösung - Eingabefelder an den Seiten
+        // KORRIGIERTE updatePreview mit richtigem Viereck
         function updatePreview() {
             const shapeGroup = document.getElementById('shape-group');
             
             if (!selectedCorners) return;
 
-            const scale = 40;
             let originalPoints = [];
             
             switch (selectedCorners) {
-                case '0': // Rund - FESTE Größe
+                case '0': // Rund
                     const rx = currentDimensions.radiusX;
                     const ry = currentDimensions.radiusY;
                     
-                    // Normalisierte Radien (feste Basis-Größe)
                     const baseRadius = 80;
                     const normRx = Math.max(0.5, Math.min(3, rx)) * (baseRadius / 3);
                     const normRy = Math.max(0.5, Math.min(3, ry)) * (baseRadius / 3);
@@ -728,25 +812,22 @@
                     }
                     break;
 
-                case '3': // Dreieck - FESTE Größe
+                case '3': // Dreieck
                     const sideA = currentDimensions.sideA;
                     const sideB = currentDimensions.sideB;
                     const sideC = currentDimensions.sideC;
                     
-                    // FESTE Skalierung für Dreiecke
                     const triangleScale = 20;
                     
                     if ((sideA + sideB <= sideC) || (sideA + sideC <= sideB) || (sideB + sideC <= sideA)) {
-                        // Ungültiges Dreieck - feste Form
                         originalPoints = [
                             { x: 0, y: -80 },
                             { x: 120, y: 80 },
                             { x: -120, y: 80 }
                         ];
                     } else {
-                        // Gültiges Dreieck - normalisierte Proportionen
                         const maxSide = Math.max(sideA, sideB, sideC);
-                        const normA = (sideA / maxSide) * 6; // Normalisiert auf max 6
+                        const normA = (sideA / maxSide) * 6;
                         const normB = (sideB / maxSide) * 6;
                         const normC = (sideC / maxSide) * 6;
                         
@@ -762,33 +843,35 @@
                     }
                     break;
 
-                case '4': // Viereck/Trapez - FESTE Größe, nur Form ändert sich
-                    const bottomWidth = currentDimensions.bottomWidth;
-                    const topWidth = currentDimensions.topWidth;
-                    const offset = currentDimensions.offset;
+                case '4': // KORRIGIERTES Viereck mit richtigem Versatz
+                    const width = currentDimensions.width || 10;        // Breite unten
+                    const height = currentDimensions.height || 6;       // Höhe
+                    const topWidth = currentDimensions.topWidth || 8;   // Breite oben
+                    const offsetX = currentDimensions.offsetX || 0;     // X-Versatz der oberen Kante
                     
-                    // FESTE Skalierung - unabhängig von den echten Maßen
-                    const fixedScale = 15; // Fester Skalierungsfaktor
-                    const fixedHeight = 4 * fixedScale; // Feste Höhe in Pixeln
+                    // Feste Skalierung für einheitliche Darstellung
+                    const quadScale = 12;
+                    const fixedHeight = height * quadScale;
+                    const fixedWidth = width * quadScale;
+                    const fixedTopWidth = topWidth * quadScale;
+                    const fixedOffsetX = offsetX * quadScale;
                     
-                    // Normalisierte Breiten (immer zwischen 2-12 für schöne Darstellung)
-                    const normalizedBottom = Math.max(2, Math.min(12, bottomWidth));
-                    const normalizedTop = Math.max(1, Math.min(10, topWidth));
-                    const normalizedOffset = Math.max(-3, Math.min(3, offset));
-                    
+                    // Viereck-Punkte berechnen (im Uhrzeigersinn, unten links beginnend)
                     originalPoints = [
-                        // Untere Seite (breit)
-                        { x: -normalizedBottom*fixedScale/2, y: fixedHeight/2 },
-                        { x: normalizedBottom*fixedScale/2, y: fixedHeight/2 },
-                        // Obere Seite (schmal, mit Offset)
-                        { x: normalizedTop*fixedScale/2 + normalizedOffset*fixedScale, y: -fixedHeight/2 },
-                        { x: -normalizedTop*fixedScale/2 + normalizedOffset*fixedScale, y: -fixedHeight/2 }
+                        // Unten links
+                        { x: -fixedWidth/2, y: fixedHeight/2 },
+                        // Unten rechts
+                        { x: fixedWidth/2, y: fixedHeight/2 },
+                        // Oben rechts (mit Versatz)
+                        { x: fixedTopWidth/2 + fixedOffsetX, y: -fixedHeight/2 },
+                        // Oben links (mit Versatz)
+                        { x: -fixedTopWidth/2 + fixedOffsetX, y: -fixedHeight/2 }
                     ];
                     break;
 
-                case '5': // Fünfeck - FESTE Größe
+                case '5': // Fünfeck
                     const radius5 = currentDimensions.radius;
-                    const fixedRadius5 = 90; // Feste Größe
+                    const fixedRadius5 = 90;
                     
                     for (let i = 0; i < 5; i++) {
                         const angle = (i * 2 * Math.PI / 5) - Math.PI/2;
@@ -799,9 +882,9 @@
                     }
                     break;
 
-                case '6': // Sechseck - FESTE Größe
+                case '6': // Sechseck
                     const radius6 = currentDimensions.radius;
-                    const fixedRadius6 = 90; // Feste Größe
+                    const fixedRadius6 = 90;
                     
                     for (let i = 0; i < 6; i++) {
                         const angle = (i * 2 * Math.PI / 6);
@@ -812,18 +895,16 @@
                     }
                     break;
 
-                case 'special': // L-Form - FESTE Größe
+                case 'special': // L-Form
                     const tw = currentDimensions.totalWidth;
                     const th = currentDimensions.totalHeight;
                     const cw = currentDimensions.cutWidth;
                     const ch = currentDimensions.cutHeight;
                     
-                    // Feste Basis-Größe für L-Form
                     const lScale = 8;
                     const fixedTw = lScale * 12;
                     const fixedTh = lScale * 10;
                     
-                    // Proportionale Ausschnitte (aber begrenzt)
                     const cutWidthRatio = Math.max(0.2, Math.min(0.8, cw / tw));
                     const cutHeightRatio = Math.max(0.2, Math.min(0.8, ch / th));
                     
@@ -855,8 +936,8 @@
             // Form zeichnen
             let shapeSVG = '';
             if (selectedCorners === '0') {
-                const rx = currentDimensions.radiusX * scale;
-                const ry = currentDimensions.radiusY * scale;
+                const rx = Math.max(0.5, Math.min(3, currentDimensions.radiusX)) * 40;
+                const ry = Math.max(0.5, Math.min(3, currentDimensions.radiusY)) * 40;
                 shapeSVG = `<ellipse cx="0" cy="0" rx="${rx}" ry="${ry}" 
                            fill="url(#shapeGradient)" stroke="#333" stroke-width="3"
                            transform="rotate(${currentRotation})"/>`;
@@ -866,14 +947,16 @@
                            fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
             }
 
-            // NEUE: Eingabefelder direkt am SVG zeichnen (ohne blaue Pfeile)
-            shapeSVG += drawSideDimensions(rotatedPoints);
+            // Eingabefelder nur im SVG-Modus zeichnen
+            if (inputMode === 'svg') {
+                shapeSVG += drawSideDimensions(rotatedPoints);
+            }
 
             checkOrientation(rotatedPoints);
             shapeGroup.innerHTML = shapeSVG;
         }
 
-        // Neue Funktion: Eingabefelder direkt an den Seiten
+        // KORRIGIERTE drawSideDimensions für Viereck
         function drawSideDimensions(points) {
             let dimensionsSVG = '';
             
@@ -908,7 +991,7 @@
                     `;
                 }
                 
-                // Eingabefeld - NUR Input + Einheit, KEINE Pfeile
+                // Eingabefeld mit korrekten Werten für Viereck
                 const sideKey = getSideKey(i, selectedCorners);
                 const currentValue = getSideValue(sideKey, i, 5);
                 
@@ -970,13 +1053,14 @@
             return { x: textX, y: textY, midX, midY };
         }
 
-        // Hilfsfunktionen - KORRIGIERT für Trapez
+        // KORRIGIERTE Hilfsfunktionen für Viereck
         function getSideKey(index, corners) {
             switch (corners) {
                 case '3':
                     return ['sideA', 'sideB', 'sideC'][index];
                 case '4':
-                    return ['bottomWidth', 'topWidth', 'leftSide', 'rightSide'][index % 4];
+                    // Viereck: 0=unten, 1=rechts, 2=oben, 3=links
+                    return ['width', 'rightSide', 'topWidth', 'leftSide'][index];
                 default:
                     return `side${index + 1}`;
             }
@@ -987,38 +1071,39 @@
                 return currentDimensions[sideKey];
             }
             
-            // Spezielle Behandlung für Trapez-Seiten
-            if (sideKey === 'leftSide' || sideKey === 'rightSide') {
-                // Für die schrägen Seiten berechnen wir die Länge
-                const bottomWidth = currentDimensions.bottomWidth || 10;
+            // Spezielle Behandlung für berechnete Viereck-Seiten
+            if (selectedCorners === '4' && (sideKey === 'leftSide' || sideKey === 'rightSide')) {
+                const width = currentDimensions.width || 10;
+                const height = currentDimensions.height || 6;
                 const topWidth = currentDimensions.topWidth || 8;
-                const offset = currentDimensions.offset || 1;
-                const height = 6;
+                const offsetX = currentDimensions.offsetX || 0;
                 
-                const widthDiff = Math.abs(bottomWidth - topWidth) / 2;
-                const sideLength = Math.sqrt(height * height + (widthDiff + Math.abs(offset)) * (widthDiff + Math.abs(offset)));
+                // Berechne die Seitenlängen basierend auf der Geometrie
+                const widthDiff = Math.abs(width - topWidth) / 2;
+                const effectiveOffset = Math.abs(offsetX);
+                const sideLength = Math.sqrt(height * height + (widthDiff + effectiveOffset/2) * (widthDiff + effectiveOffset/2));
                 return sideLength;
             }
             
             return fallback;
         }
 
-        // Update-Funktion für SVG-Eingabefelder - mit Debug
+        // Update-Funktion für SVG-Eingabefelder
         function updateDimensionFromSVG(key, value) {
             const numValue = parseFloat(value);
-            console.log('updateDimensionFromSVG called:', key, '=', numValue);
             
             if (!isNaN(numValue) && numValue > 0) {
                 currentDimensions[key] = numValue;
-                console.log('Updated dimension from SVG:', key, '=', numValue);
-                console.log('Current dimensions:', currentDimensions);
                 
-                // Sofort neu zeichnen
+                // Panel-Eingaben synchronisieren
+                const panelInput = document.getElementById(`struct-${key}`);
+                if (panelInput) {
+                    panelInput.value = numValue.toFixed(2);
+                }
+                
                 updatePreview();
                 updateCalculations();
                 validateTriangle();
-            } else {
-                console.warn('Invalid value:', value);
             }
         }
 
@@ -1044,7 +1129,7 @@
                 }
             }
 
-            if (selectedCorners !== '3') { // Nicht bei Dreiecken überschreiben
+            if (selectedCorners !== '3') {
                 const orientationInfo = document.getElementById('orientation-info');
                 if (horizontalSides > 0 || verticalSides > 0) {
                     orientationInfo.className = 'orientation-info';
@@ -1086,7 +1171,7 @@
             updatePreview();
         }
 
-        // Berechnungen
+        // KORRIGIERTE Berechnungen für Viereck
         function updateCalculations() {
             if (!selectedCorners) return;
 
@@ -1115,16 +1200,26 @@
                     }
                     break;
 
-                case '4':
-                    const bottomWidth = currentDimensions.bottomWidth;
-                    const topWidth = currentDimensions.topWidth;
-                    const offset = currentDimensions.offset;
-                    const height = 6; // Feste Höhe
+                case '4': // KORRIGIERTE Viereck-Berechnung
+                    const width = currentDimensions.width || 10;
+                    const height = currentDimensions.height || 6;
+                    const topWidth = currentDimensions.topWidth || 8;
+                    const offsetX = currentDimensions.offsetX || 0;
                     
-                    area = (bottomWidth + topWidth) * height / 2;
-                    const widthDiff = Math.abs(bottomWidth - topWidth) / 2;
-                    const sideLength = Math.sqrt(height * height + (widthDiff + Math.abs(offset)) * (widthDiff + Math.abs(offset)));
-                    perimeter = bottomWidth + topWidth + 2 * sideLength;
+                    // Flächenberechnung für Trapez
+                    area = (width + topWidth) * height / 2;
+                    
+                    // Umfang: alle vier Seiten berechnen
+                    const bottomSide = width;
+                    const topSide = topWidth;
+                    
+                    // Seitenlängen basierend auf Geometrie
+                    const widthDiff = Math.abs(width - topWidth) / 2;
+                    const effectiveOffset = Math.abs(offsetX);
+                    const leftSide = Math.sqrt(height * height + (widthDiff + effectiveOffset/2) * (widthDiff + effectiveOffset/2));
+                    const rightSide = Math.sqrt(height * height + (widthDiff + effectiveOffset/2) * (widthDiff + effectiveOffset/2));
+                    
+                    perimeter = bottomSide + rightSide + topSide + leftSide;
                     break;
 
                 case '5':
@@ -1163,9 +1258,11 @@
             
             // Global verfügbar machen
             window.updateDimensionFromSVG = updateDimensionFromSVG;
+            window.updateDimensionFromPanel = updateDimensionFromPanel;
             window.rotateShape = rotateShape;
             window.resetRotation = resetRotation;
             window.snapToAngle = snapToAngle;
+            window.setInputMode = setInputMode;
         });
 
         function goBack() {
@@ -1188,6 +1285,7 @@
             }
 
             alert('✅ Form und Rotation gespeichert!\nWeiterleitung zur Berechnung...');
+            window.location.href = 'berechnung.html';
         }
     </script>
 </body>
