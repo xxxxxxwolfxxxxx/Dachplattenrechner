@@ -1301,11 +1301,12 @@
             }
         }
 
-        // Orientierung prüfen - PRÄZISE 1cm Toleranz FÜR ALLE FORMEN
+        // Orientierung prüfen - ALLE SEITEN für alle Formen
         function checkOrientation(points) {
             const tolerance = 0.1; // 0.1° = ca. 1cm bei 6m Länge (sehr präzise!)
             let horizontalSides = 0;
             let verticalSides = 0;
+            let sideDetails = [];
 
             for (let i = 0; i < points.length; i++) {
                 const p1 = points[i];
@@ -1315,6 +1316,21 @@
                 const dy = p2.y - p1.y;
                 const angle = Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI;
                 
+                // Debug: Seiten-Info sammeln
+                let sideName = '';
+                if (selectedCorners === '3') {
+                    sideName = ['Seite C', 'Seite A', 'Seite B'][i];
+                } else if (selectedCorners === '4') {
+                    sideName = ['Unten', 'Rechts', 'Oben', 'Links'][i];
+                } else {
+                    sideName = `Seite ${i + 1}`;
+                }
+                
+                sideDetails.push({
+                    name: sideName,
+                    angle: angle.toFixed(1)
+                });
+                
                 if (angle < tolerance) {
                     horizontalSides++;
                 }
@@ -1323,8 +1339,9 @@
                 }
             }
 
-            // ORIENTIERUNGSPRÜFUNG FÜR ALLE FORMEN (auch Dreiecke)
+            // DETAILLIERTE ORIENTIERUNGSPRÜFUNG FÜR ALLE FORMEN
             const orientationInfo = document.getElementById('orientation-info');
+            
             if (horizontalSides > 0 || verticalSides > 0) {
                 orientationInfo.className = 'orientation-info';
                 orientationInfo.innerHTML = `
@@ -1335,11 +1352,20 @@
                     <small>Toleranz: ±0.1° (≈1cm bei 6m)</small>
                 `;
             } else {
+                // Debug-Info: Zeige alle Winkel
+                const angleInfo = sideDetails.map(side => `${side.name}: ${side.angle}°`).join('<br>');
+                
                 orientationInfo.className = 'orientation-info orientation-warning';
                 orientationInfo.innerHTML = `
                     <strong>⚠️ Keine exakte Orientierung</strong><br>
                     Drehen Sie die Form präzise so, dass mindestens eine Seite exakt waagerecht (0°) oder senkrecht (90°) liegt.<br>
-                    <small>Aktuelle Rotation: ${currentRotation}° | Toleranz: ±0.1° (≈1cm bei 6m)</small>
+                    <details style="margin-top: 8px;">
+                        <summary style="cursor: pointer; color: #666; font-size: 12px;">Aktuelle Winkel anzeigen</summary>
+                        <div style="font-size: 11px; color: #666; margin-top: 4px;">
+                            ${angleInfo}<br>
+                            <small>Rotation: ${currentRotation}° | Toleranz: ±0.1°</small>
+                        </div>
+                    </details>
                 `;
             }
         }
