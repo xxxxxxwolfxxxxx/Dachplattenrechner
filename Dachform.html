@@ -1,3 +1,8 @@
+// Global verfügbar machen
+        window.updateDimensionFromSVG = updateDimensionFromSVG;
+        window.rotateShape = rotateShape;
+        window.resetRotation = resetRotation;
+        window.snapToAngle = snapToAngle;<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -601,7 +606,8 @@
             4: [ 
                 { key: 'bottomWidth', label: 'Untere Breite', default: 10, unit: 'm' },
                 { key: 'topWidth', label: 'Obere Breite', default: 8, unit: 'm' },
-                { key: 'offset', label: 'Seitversatz', default: 1, unit: 'm' }
+                { key: 'height', label: 'Höhe', default: 6, unit: 'm' },
+                { key: 'offset', label: 'Seitversatz', default: 0, unit: 'm' }
             ],
             5: [ 
                 { key: 'radius', label: 'Radius', default: 6, unit: 'm' }
@@ -762,27 +768,29 @@
                     }
                     break;
 
-                case '4': // Viereck/Trapez - FESTE Größe, nur Form ändert sich
+                case '4': // Viereck/Trapez - KORRIGIERT
                     const bottomWidth = currentDimensions.bottomWidth;
                     const topWidth = currentDimensions.topWidth;
+                    const height = currentDimensions.height;
                     const offset = currentDimensions.offset;
                     
-                    // FESTE Skalierung - unabhängig von den echten Maßen
-                    const fixedScale = 15; // Fester Skalierungsfaktor
-                    const fixedHeight = 4 * fixedScale; // Feste Höhe in Pixeln
+                    // FESTE Darstellungsgröße
+                    const displayScale = 12;
+                    const displayHeight = 5 * displayScale;
                     
-                    // Normalisierte Breiten (immer zwischen 2-12 für schöne Darstellung)
-                    const normalizedBottom = Math.max(2, Math.min(12, bottomWidth));
-                    const normalizedTop = Math.max(1, Math.min(10, topWidth));
-                    const normalizedOffset = Math.max(-3, Math.min(3, offset));
+                    // Normalisierte Werte für Darstellung (Verhältnisse beibehalten)
+                    const maxWidth = Math.max(bottomWidth, topWidth);
+                    const normBottom = (bottomWidth / maxWidth) * 8 * displayScale;
+                    const normTop = (topWidth / maxWidth) * 8 * displayScale;
+                    const normOffset = (offset / maxWidth) * 4 * displayScale;
                     
                     originalPoints = [
-                        // Untere Seite (breit)
-                        { x: -normalizedBottom*fixedScale/2, y: fixedHeight/2 },
-                        { x: normalizedBottom*fixedScale/2, y: fixedHeight/2 },
-                        // Obere Seite (schmal, mit Offset)
-                        { x: normalizedTop*fixedScale/2 + normalizedOffset*fixedScale, y: -fixedHeight/2 },
-                        { x: -normalizedTop*fixedScale/2 + normalizedOffset*fixedScale, y: -fixedHeight/2 }
+                        // Untere Seite (breit) - waagerecht
+                        { x: -normBottom/2, y: displayHeight/2 },
+                        { x: normBottom/2, y: displayHeight/2 },
+                        // Obere Seite (schmal) - mit Versatz - waagerecht
+                        { x: normTop/2 + normOffset, y: -displayHeight/2 },
+                        { x: -normTop/2 + normOffset, y: -displayHeight/2 }
                     ];
                     break;
 
@@ -970,13 +978,14 @@
             return { x: textX, y: textY, midX, midY };
         }
 
-        // Hilfsfunktionen - KORRIGIERT für Trapez
+        // Hilfsfunktionen - KORRIGIERT für bessere Trapez-Zuordnung
         function getSideKey(index, corners) {
             switch (corners) {
                 case '3':
                     return ['sideA', 'sideB', 'sideC'][index];
                 case '4':
-                    return ['bottomWidth', 'topWidth', 'leftSide', 'rightSide'][index % 4];
+                    // Korrekte Zuordnung: unten, rechts, oben, links
+                    return ['bottomWidth', 'height', 'topWidth', 'offset'][index % 4];
                 default:
                     return `side${index + 1}`;
             }
@@ -986,20 +995,6 @@
             if (currentDimensions[sideKey] !== undefined) {
                 return currentDimensions[sideKey];
             }
-            
-            // Spezielle Behandlung für Trapez-Seiten
-            if (sideKey === 'leftSide' || sideKey === 'rightSide') {
-                // Für die schrägen Seiten berechnen wir die Länge
-                const bottomWidth = currentDimensions.bottomWidth || 10;
-                const topWidth = currentDimensions.topWidth || 8;
-                const offset = currentDimensions.offset || 1;
-                const height = 6;
-                
-                const widthDiff = Math.abs(bottomWidth - topWidth) / 2;
-                const sideLength = Math.sqrt(height * height + (widthDiff + Math.abs(offset)) * (widthDiff + Math.abs(offset)));
-                return sideLength;
-            }
-            
             return fallback;
         }
 
@@ -1118,10 +1113,13 @@
                 case '4':
                     const bottomWidth = currentDimensions.bottomWidth;
                     const topWidth = currentDimensions.topWidth;
+                    const height = currentDimensions.height;
                     const offset = currentDimensions.offset;
-                    const height = 6; // Feste Höhe
                     
+                    // Echte Trapez-Fläche mit den eingegebenen Werten
                     area = (bottomWidth + topWidth) * height / 2;
+                    
+                    // Seitenlängen berechnen
                     const widthDiff = Math.abs(bottomWidth - topWidth) / 2;
                     const sideLength = Math.sqrt(height * height + (widthDiff + Math.abs(offset)) * (widthDiff + Math.abs(offset)));
                     perimeter = bottomWidth + topWidth + 2 * sideLength;
