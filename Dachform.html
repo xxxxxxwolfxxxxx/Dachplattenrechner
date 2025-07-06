@@ -126,12 +126,36 @@
                             <h3>🔄 Rotation</h3>
                             <div class="rotation-display" id="rotation-display">Drehung: 0°</div>
                             <div class="rotation-buttons">
-                                <button class="rotate-btn" onclick="rotateShape(-15)">↺ -15°</button>
-                                <button class="rotate-btn" onclick="rotateShape(-5)">↺ -5°</button>
-                                <button class="rotate-btn" onclick="rotateShape(-1)">↺ -1°</button>
-                                <button class="rotate-btn" onclick="rotateShape(1)">↻ +1°</button>
-                                <button class="rotate-btn" onclick="rotateShape(5)">↻ +5°</button>
-                                <button class="rotate-btn" onclick="rotateShape(15)">↻ +15°</button>
+                                <button class="rotate-btn" 
+                                        onmousedown="startContinuousRotation(-15)" 
+                                        onmouseup="stopRotation()" 
+                                        onmouseleave="stopRotation()"
+                                        onclick="rotateShape(-15)">↺ -15°</button>
+                                <button class="rotate-btn" 
+                                        onmousedown="startContinuousRotation(-5)" 
+                                        onmouseup="stopRotation()" 
+                                        onmouseleave="stopRotation()"
+                                        onclick="rotateShape(-5)">↺ -5°</button>
+                                <button class="rotate-btn" 
+                                        onmousedown="startContinuousRotation(-1)" 
+                                        onmouseup="stopRotation()" 
+                                        onmouseleave="stopRotation()"
+                                        onclick="rotateShape(-1)">↺ -1°</button>
+                                <button class="rotate-btn" 
+                                        onmousedown="startContinuousRotation(1)" 
+                                        onmouseup="stopRotation()" 
+                                        onmouseleave="stopRotation()"
+                                        onclick="rotateShape(1)">↻ +1°</button>
+                                <button class="rotate-btn" 
+                                        onmousedown="startContinuousRotation(5)" 
+                                        onmouseup="stopRotation()" 
+                                        onmouseleave="stopRotation()"
+                                        onclick="rotateShape(5)">↻ +5°</button>
+                                <button class="rotate-btn" 
+                                        onmousedown="startContinuousRotation(15)" 
+                                        onmouseup="stopRotation()" 
+                                        onmouseleave="stopRotation()"
+                                        onclick="rotateShape(15)">↻ +15°</button>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                                 <button class="rotate-btn" onclick="snapToAngle(0)" style="background: #28a745; color: white;">⟷ 0° (Waagerecht)</button>
@@ -204,6 +228,8 @@
         let selectedCorners = null;
         let currentDimensions = {};
         let currentRotation = 0;
+        let rotationInterval = null;
+        let isRotating = false;
 
         // Konfiguration
         const shapeInputs = {
@@ -436,7 +462,12 @@
 
             // Eingabefelder hinzufügen
             shapeSVG += drawSideDimensions(rotatedPoints);
-            checkOrientation(rotatedPoints);
+            const hasAlignedSides = checkOrientation(rotatedPoints);
+            
+            // Wenn beim automatischen Drehen eine Seite ausgerichtet wird, stoppen
+            if (isRotating && hasAlignedSides) {
+                stopRotation();
+            }
             
             shapeGroup.innerHTML = shapeSVG;
             console.log('✅ Preview aktualisiert');
@@ -453,8 +484,32 @@
                 const exactMidX = (p1.x + p2.x) / 2;
                 const exactMidY = (p1.y + p2.y) / 2;
                 
-                // Blauer Punkt EXAKT auf der Seitenmitte
-                dimensionsSVG += '<circle cx="' + exactMidX + '" cy="' + exactMidY + '" r="5" fill="#007bff" stroke="white" stroke-width="2"/>';
+                // Prüfen ob diese Seite ausgerichtet ist
+                const dx = p2.x - p1.x;
+                const dy = p2.y - p1.y;
+                const angle = Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI;
+                const tolerance = 0.5; // Etwas größere Toleranz für besseres Feedback
+                const isHorizontal = angle < tolerance;
+                const isVertical = Math.abs(angle - 90) < tolerance;
+                const isAligned = isHorizontal || isVertical;
+                
+                // Seite zeichnen (aufleuchtend wenn ausgerichtet)
+                if (isAligned) {
+                    const lineColor = isHorizontal ? '#28a745' : '#007bff'; // Grün für horizontal, Blau für vertikal
+                    dimensionsSVG += '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" ' +
+                        'stroke="' + lineColor + '" stroke-width="6" opacity="0.8">' +
+                        '<animate attributeName="opacity" values="0.4;1;0.4" dur="1s" repeatCount="indefinite"/>' +
+                        '</line>';
+                }
+                
+                // Blauer Punkt EXAKT auf der Seitenmitte (größer wenn ausgerichtet)
+                const pointRadius = isAligned ? 7 : 5;
+                const pointColor = isAligned ? (isHorizontal ? '#28a745' : '#007bff') : '#007bff';
+                dimensionsSVG += '<circle cx="' + exactMidX + '" cy="' + exactMidY + '" r="' + pointRadius + '" fill="' + pointColor + '" stroke="white" stroke-width="2">';
+                if (isAligned) {
+                    dimensionsSVG += '<animate attributeName="r" values="' + pointRadius + ';' + (pointRadius + 2) + ';' + pointRadius + '" dur="1s" repeatCount="indefinite"/>';
+                }
+                dimensionsSVG += '</circle>';
                 
                 // Normale zur Seite berechnen
                 const sideVectorX = p2.x - p1.x;
@@ -477,11 +532,12 @@
                 const outwardNormalX = dotProduct > 0 ? -unitNormalX : unitNormalX;
                 const outwardNormalY = dotProduct > 0 ? -unitNormalY : unitNormalY;
                 
-                // Verbindungslinie
+                // Verbindungslinie (heller wenn ausgerichtet)
                 const lineLength = 30;
                 const lineEndX = exactMidX + outwardNormalX * lineLength;
                 const lineEndY = exactMidY + outwardNormalY * lineLength;
-                dimensionsSVG += '<line x1="' + exactMidX + '" y1="' + exactMidY + '" x2="' + lineEndX + '" y2="' + lineEndY + '" stroke="#007bff" stroke-width="2" opacity="0.8"/>';
+                const lineColor = isAligned ? (isHorizontal ? '#28a745' : '#007bff') : '#007bff';
+                dimensionsSVG += '<line x1="' + exactMidX + '" y1="' + exactMidY + '" x2="' + lineEndX + '" y2="' + lineEndY + '" stroke="' + lineColor + '" stroke-width="2" opacity="0.8"/>';
                 
                 // Eingabefeld-Position
                 const inputDistance = 45;
@@ -492,8 +548,9 @@
                 const sideKey = getSideKey(i, selectedCorners);
                 const currentValue = getSideValue(sideKey, i, 5);
                 
-                // Eingabefeld zeichnen
-                dimensionsSVG += '<foreignObject x="' + (inputX - 55) + '" y="' + (inputY - 15) + '" width="110" height="30">' +
+                // Eingabefeld zeichnen (mit Glow-Effekt wenn ausgerichtet)
+                const inputStyle = isAligned ? 'filter: drop-shadow(0 0 8px ' + lineColor + ');' : '';
+                dimensionsSVG += '<foreignObject x="' + (inputX - 55) + '" y="' + (inputY - 15) + '" width="110" height="30" style="' + inputStyle + '">' +
                     '<div class="dimension-input-container-simple">' +
                         '<input type="number" class="dimension-input" value="' + currentValue.toFixed(2) + '" ' +
                                'data-side-index="' + i + '" data-side-key="' + sideKey + '" ' +
@@ -571,9 +628,10 @@
         }
 
         function checkOrientation(points) {
-            const tolerance = 0.1;
+            const tolerance = 0.5;
             let horizontalSides = 0;
             let verticalSides = 0;
+            let hasAlignedSides = false;
 
             for (let i = 0; i < points.length; i++) {
                 const p1 = points[i];
@@ -584,8 +642,10 @@
                 
                 if (angle < tolerance) {
                     horizontalSides++;
+                    hasAlignedSides = true;
                 } else if (Math.abs(angle - 90) < tolerance) {
                     verticalSides++;
+                    hasAlignedSides = true;
                 }
             }
 
@@ -604,9 +664,11 @@
                     }
                 }
             }
+            
+            return hasAlignedSides;
         }
 
-        // Rotationsfunktionen
+        // Rotationsfunktionen mit Auto-Rotation
         function rotateShape(degrees) {
             console.log('✅ rotateShape:', degrees);
             currentRotation = (currentRotation + degrees) % 360;
@@ -619,8 +681,28 @@
             updatePreview();
         }
 
+        function startContinuousRotation(degrees) {
+            console.log('✅ startContinuousRotation:', degrees);
+            if (isRotating) return;
+            
+            isRotating = true;
+            rotationInterval = setInterval(function() {
+                rotateShape(degrees > 0 ? 1 : -1); // 1° Schritte für sanfte Rotation
+            }, 50); // 50ms = 20 FPS für flüssige Animation
+        }
+
+        function stopRotation() {
+            console.log('✅ stopRotation');
+            if (rotationInterval) {
+                clearInterval(rotationInterval);
+                rotationInterval = null;
+            }
+            isRotating = false;
+        }
+
         function resetRotation() {
             console.log('✅ resetRotation');
+            stopRotation();
             currentRotation = 0;
             const displayElement = document.getElementById('rotation-display');
             if (displayElement) {
@@ -631,6 +713,7 @@
 
         function snapToAngle(targetAngle) {
             console.log('✅ snapToAngle:', targetAngle);
+            stopRotation();
             currentRotation = targetAngle % 360;
             const displayElement = document.getElementById('rotation-display');
             if (displayElement) {
@@ -778,6 +861,8 @@
         // Globale Funktionen
         window.updateDimensionFromSVG = updateDimensionFromSVG;
         window.rotateShape = rotateShape;
+        window.startContinuousRotation = startContinuousRotation;
+        window.stopRotation = stopRotation;
         window.resetRotation = resetRotation;
         window.snapToAngle = snapToAngle;
         window.goBack = goBack;
