@@ -204,11 +204,13 @@
             3: [{key: 'sideA', label: 'Seite A', default: 8}, {key: 'sideB', label: 'Seite B', default: 6}, {key: 'sideC', label: 'Seite C', default: 7}],
             4: [
                 {key: 'bottomWidth', label: 'Untere Breite', default: 10}, 
-                {key: 'topWidth', label: 'Obere Breite', default: 8}, 
+                {key: 'topWidth', label: 'Obere Breite', default: 8},
+                {key: 'leftSide', label: 'Seite links', default: 6},
+                {key: 'rightSide', label: 'Seite rechts', default: 6},
                 {key: 'offset', label: 'Seitversatz', default: 0}
             ],
-            5: [{key: 'radius', label: 'Radius', default: 6}],
-            6: [{key: 'radius', label: 'Radius', default: 6}]
+            5: [{key: 'sideLength', label: 'Seitenlänge', default: 6}],
+            6: [{key: 'sideLength', label: 'Seitenlänge', default: 6}]
         };
 
         function selectCorners(corners) {
@@ -340,14 +342,19 @@
                                        drawInputField((points[2].x + points[0].x)/2 - 60, (points[2].y + points[0].y)/2, 'sideB', 'Seite B');
                         } else { shapeSVG = `<polygon points="0,-120 150,100 -150,100" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>` +
                                            drawInputField(75, -60, 'sideA', 'Seite A') + drawInputField(-75, -60, 'sideB', 'Seite B') + drawInputField(0, 130, 'sideC', 'Seite C'); } break;
-                    case '4': const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8, offset = currentDimensions.offset || 0;
-                        const scale4 = 20, height = 120;
+                    case '4': const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8, leftSide = currentDimensions.leftSide || 6, rightSide = currentDimensions.rightSide || 6, offset = currentDimensions.offset || 0;
+                        const scale4 = 20, height = leftSide * scale4;
                         const points4 = [[-bottomWidth*scale4/2 + offset*scale4, height/2], [bottomWidth*scale4/2 + offset*scale4, height/2], [topWidth*scale4/2 + offset*scale4, -height/2], [-topWidth*scale4/2 + offset*scale4, -height/2]];
                         shapeSVG = `<polygon points="${points4.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(offset*scale4, height/2 + 60, 'bottomWidth', 'Untere Breite') + drawInputField(offset*scale4, -height/2 - 60, 'topWidth', 'Obere Breite') + drawInputField(bottomWidth*scale4/2 + 80 + offset*scale4, 0, 'offset', 'Versatz'); break;
-                    case '5': case '6': const sides = parseInt(selectedCorners), radius = currentDimensions.radius || 6, r = Math.max(80, Math.min(140, radius * 20));
-                        let points = []; for (let i = 0; i < sides; i++) { const angle = (i * 2 * Math.PI / sides) - Math.PI/2; points.push(`${r * Math.cos(angle)},${r * Math.sin(angle)}`); }
-                        shapeSVG = `<polygon points="${points.join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>` + drawInputField(0, -r-60, 'radius', 'Radius'); break;
+                        shapeSVG += drawInputField(offset*scale4, height/2 + 60, 'bottomWidth', 'Untere Breite') + drawInputField(offset*scale4, -height/2 - 60, 'topWidth', 'Obere Breite') + 
+                                   drawInputField(-bottomWidth*scale4/2 - 80 + offset*scale4, 0, 'leftSide', 'Seite links') + drawInputField(bottomWidth*scale4/2 + 80 + offset*scale4, 0, 'rightSide', 'Seite rechts') +
+                                   drawInputField(bottomWidth*scale4/2 + 120 + offset*scale4, height/4, 'offset', 'Versatz'); break;
+                    case '5': case '6': const sides = parseInt(selectedCorners), sideLength = currentDimensions.sideLength || 6;
+                        // Berechne Radius aus Seitenlänge: r = s / (2 * sin(π/n))
+                        const r = sideLength / (2 * Math.sin(Math.PI / sides)) * 20;
+                        const displayR = Math.max(80, Math.min(140, r));
+                        let points = []; for (let i = 0; i < sides; i++) { const angle = (i * 2 * Math.PI / sides) - Math.PI/2; points.push(`${displayR * Math.cos(angle)},${displayR * Math.sin(angle)}`); }
+                        shapeSVG = `<polygon points="${points.join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>` + drawInputField(0, -displayR-60, 'sideLength', 'Seitenlänge'); break;
                 }
             }
             shapeGroup.innerHTML = shapeSVG;
@@ -432,9 +439,16 @@
                 switch (selectedCorners) {
                     case '3': const sideA = currentDimensions.sideA || 8, sideB = currentDimensions.sideB || 6, sideC = currentDimensions.sideC || 7, s = (sideA + sideB + sideC) / 2;
                         if ((sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA)) { area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC)); perimeter = sideA + sideB + sideC; } break;
-                    case '4': const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8; area = (bottomWidth + topWidth) * 6 / 2; break;
-                    case '5': const r5 = currentDimensions.radius || 6; area = 1.25 * r5 * r5 * Math.sqrt(10 + 2 * Math.sqrt(5)); break;
-                    case '6': const r6 = currentDimensions.radius || 6; area = 1.5 * Math.sqrt(3) * r6 * r6; break;
+                    case '4': const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8, leftSide = currentDimensions.leftSide || 6, rightSide = currentDimensions.rightSide || 6; 
+                        // Trapez-Fläche: ((a + c) * h) / 2, wobei h die durchschnittliche Seitenhöhe ist
+                        const avgHeight = (leftSide + rightSide) / 2;
+                        area = (bottomWidth + topWidth) * avgHeight / 2; break;
+                    case '5': const sideLength5 = currentDimensions.sideLength || 6; 
+                        // Pentagon-Fläche: (1/4) * √(25 + 10√5) * s²
+                        area = 0.25 * Math.sqrt(25 + 10 * Math.sqrt(5)) * sideLength5 * sideLength5; break;
+                    case '6': const sideLength6 = currentDimensions.sideLength || 6; 
+                        // Hexagon-Fläche: (3√3/2) * s²
+                        area = (3 * Math.sqrt(3) / 2) * sideLength6 * sideLength6; break;
                 }
             }
             document.getElementById('calc-area').textContent = area.toFixed(2) + ' m²';
