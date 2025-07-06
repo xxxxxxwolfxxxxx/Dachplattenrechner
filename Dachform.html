@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -37,6 +36,18 @@
         .round-label { font-weight: 600; color: #495057; font-size: 1.1em; margin-bottom: 5px; }
         .round-description { font-size: 0.9em; color: #6c757d; margin-top: 5px; }
         .round-inputs { font-size: 0.8em; color: #007bff; font-weight: 500; margin-top: 8px; }
+
+        /* Komplex-Formen Auswahl */
+        .complex-selector { display: none; background: white; border-radius: 15px; padding: 25px; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .complex-selector h3 { color: #2c3e50; margin-bottom: 20px; text-align: center; font-size: 1.5em; }
+        .complex-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        .complex-option { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s ease; text-align: center; }
+        .complex-option:hover { border-color: #28a745; background: #e8f5e8; transform: translateY(-3px); }
+        .complex-option.selected { border-color: #28a745; background: #e8f5e8; box-shadow: 0 4px 12px rgba(40,167,69,0.3); }
+        .complex-icon { font-size: 2.5em; margin-bottom: 10px; display: block; }
+        .complex-label { font-weight: 600; color: #495057; font-size: 1.1em; margin-bottom: 5px; }
+        .complex-description { font-size: 0.9em; color: #6c757d; margin-top: 5px; }
+        .complex-inputs { font-size: 0.75em; color: #28a745; font-weight: 500; margin-top: 8px; line-height: 1.3; }
 
         .editor-area { display: none; background: #f8f9fa; border-radius: 15px; padding: 30px; margin-top: 30px; }
         .editor-container { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; }
@@ -167,6 +178,49 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Neue Komplex-Formen Auswahl -->
+                <div class="complex-selector" id="complex-selector">
+                    <h3>Welche komplexe Form haben Sie?</h3>
+                    <div class="complex-options">
+                        <div class="complex-option" data-complex-type="lform">
+                            <div class="complex-icon">📐</div>
+                            <div class="complex-label">L-Form</div>
+                            <div class="complex-description">Klassische L-Form</div>
+                            <div class="complex-inputs">→ 4 Eingaben: Ges.Breite, Ges.Höhe, Auss.Breite, Auss.Höhe</div>
+                        </div>
+                        <div class="complex-option" data-complex-type="tform">
+                            <div class="complex-icon">🔤</div>
+                            <div class="complex-label">T-Form</div>
+                            <div class="complex-description">T-förmiges Dach</div>
+                            <div class="complex-inputs">→ 4 Eingaben: Kopf-Breite, Kopf-Höhe, Stamm-Breite, Stamm-Höhe</div>
+                        </div>
+                        <div class="complex-option" data-complex-type="uform">
+                            <div class="complex-icon">🔄</div>
+                            <div class="complex-label">U-Form</div>
+                            <div class="complex-description">U-förmiges Dach</div>
+                            <div class="complex-inputs">→ 4 Eingaben: Außen-Breite, Außen-Höhe, Innen-Breite, Innen-Höhe</div>
+                        </div>
+                        <div class="complex-option" data-complex-type="cform">
+                            <div class="complex-icon">🌙</div>
+                            <div class="complex-label">C-Form</div>
+                            <div class="complex-description">C-förmiges Dach</div>
+                            <div class="complex-inputs">→ 5 Eingaben: Außen-Breite, Außen-Höhe, Öffnung-Breite, Wand-Dicke</div>
+                        </div>
+                        <div class="complex-option" data-complex-type="plusform">
+                            <div class="complex-icon">➕</div>
+                            <div class="complex-label">Plus-Form</div>
+                            <div class="complex-description">Kreuzförmiges Dach</div>
+                            <div class="complex-inputs">→ 4 Eingaben: Breite-1, Höhe-1, Breite-2, Höhe-2</div>
+                        </div>
+                        <div class="complex-option" data-complex-type="custom">
+                            <div class="complex-icon">🎯</div>
+                            <div class="complex-label">Benutzerdefiniert</div>
+                            <div class="complex-description">Freie Eingabe der Eckpunkte</div>
+                            <div class="complex-inputs">→ Variable Eingaben: Nach Bedarf</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="editor-area" id="editor-area">
@@ -245,6 +299,7 @@
         // Globale Variablen
         let selectedCorners = null;
         let selectedRoundType = null;
+        let selectedComplexType = null;
         let currentDimensions = {};
         let currentRotation = 0;
 
@@ -268,6 +323,41 @@
             'viertelkreis': [
                 { key: 'radius', label: 'Radius', default: 5, unit: 'm' }
             ],
+
+            // Komplexe Formen
+            'lform': [
+                { key: 'totalWidth', label: 'Gesamtbreite', default: 12, unit: 'm' },
+                { key: 'totalHeight', label: 'Gesamthöhe', default: 10, unit: 'm' },
+                { key: 'cutWidth', label: 'Ausschnitt Breite', default: 5, unit: 'm' },
+                { key: 'cutHeight', label: 'Ausschnitt Höhe', default: 4, unit: 'm' }
+            ],
+            'tform': [
+                { key: 'headWidth', label: 'Kopf-Breite', default: 12, unit: 'm' },
+                { key: 'headHeight', label: 'Kopf-Höhe', default: 3, unit: 'm' },
+                { key: 'stemWidth', label: 'Stamm-Breite', default: 4, unit: 'm' },
+                { key: 'stemHeight', label: 'Stamm-Höhe', default: 8, unit: 'm' }
+            ],
+            'uform': [
+                { key: 'outerWidth', label: 'Außen-Breite', default: 12, unit: 'm' },
+                { key: 'outerHeight', label: 'Außen-Höhe', default: 10, unit: 'm' },
+                { key: 'innerWidth', label: 'Innen-Breite', default: 8, unit: 'm' },
+                { key: 'innerHeight', label: 'Innen-Höhe', default: 6, unit: 'm' }
+            ],
+            'cform': [
+                { key: 'outerWidth', label: 'Außen-Breite', default: 12, unit: 'm' },
+                { key: 'outerHeight', label: 'Außen-Höhe', default: 10, unit: 'm' },
+                { key: 'openingWidth', label: 'Öffnung-Breite', default: 6, unit: 'm' },
+                { key: 'wallThickness', label: 'Wand-Dicke', default: 2, unit: 'm' }
+            ],
+            'plusform': [
+                { key: 'width1', label: 'Breite-1 (horizontal)', default: 12, unit: 'm' },
+                { key: 'height1', label: 'Höhe-1 (horizontal)', default: 4, unit: 'm' },
+                { key: 'width2', label: 'Breite-2 (vertikal)', default: 4, unit: 'm' },
+                { key: 'height2', label: 'Höhe-2 (vertikal)', default: 12, unit: 'm' }
+            ],
+            'custom': [
+                { key: 'area', label: 'Geschätzte Fläche', default: 50, unit: 'm²' }
+            ],
             
             // Andere Formen bleiben gleich
             3: [
@@ -285,12 +375,6 @@
             ],
             6: [
                 { key: 'radius', label: 'Radius', default: 6, unit: 'm' }
-            ],
-            special: [
-                { key: 'totalWidth', label: 'Gesamtbreite', default: 12, unit: 'm' },
-                { key: 'totalHeight', label: 'Gesamthöhe', default: 10, unit: 'm' },
-                { key: 'cutWidth', label: 'Ausschnitt Breite', default: 5, unit: 'm' },
-                { key: 'cutHeight', label: 'Ausschnitt Höhe', default: 4, unit: 'm' }
             ]
         };
 
@@ -300,11 +384,16 @@
             'langloch': "Rechteck mit halbrunden Enden",
             'halbkreis': "Halber Kreis - nur ein Radius nötig",
             'viertelkreis': "Viertel Kreis - nur ein Radius nötig",
+            'lform': "L-Form durch Gesamtmaße minus rechteckigen Ausschnitt",
+            'tform': "T-Form mit Kopf- und Stammbereich",
+            'uform': "U-Form durch Außenmaße minus Innenausschnitt",
+            'cform': "C-Form mit Öffnung an einer Seite",
+            'plusform': "Plus/Kreuz-Form mit zwei sich kreuzenden Rechtecken",
+            'custom': "Benutzerdefinierte Form - schätzen Sie die Gesamtfläche",
             3: "Dreieck mit drei Seitenlängen",
             4: "Viereck als Trapez oder Rechteck",
             5: "Regelmäßiges Fünfeck",
-            6: "Regelmäßiges Sechseck",
-            special: "L-Form durch Gesamtmaße minus Ausschnitt"
+            6: "Regelmäßiges Sechseck"
         };
 
         // Hauptfunktionen
@@ -317,16 +406,27 @@
             
             selectedCorners = corners;
             selectedRoundType = null;
+            selectedComplexType = null;
             
-            // Rund-Selektor anzeigen oder verstecken
+            // Selektoren anzeigen oder verstecken
             const roundSelector = document.getElementById('round-selector');
+            const complexSelector = document.getElementById('complex-selector');
+            
             if (corners === '0') {
                 roundSelector.style.display = 'block';
+                complexSelector.style.display = 'none';
                 document.getElementById('editor-area').style.display = 'none';
                 document.getElementById('continue-btn').style.display = 'none';
                 document.querySelectorAll('.round-option').forEach(opt => opt.classList.remove('selected'));
+            } else if (corners === 'special') {
+                roundSelector.style.display = 'none';
+                complexSelector.style.display = 'block';
+                document.getElementById('editor-area').style.display = 'none';
+                document.getElementById('continue-btn').style.display = 'none';
+                document.querySelectorAll('.complex-option').forEach(opt => opt.classList.remove('selected'));
             } else {
                 roundSelector.style.display = 'none';
+                complexSelector.style.display = 'none';
                 showEditor();
             }
         }
@@ -338,6 +438,18 @@
             document.querySelector('[data-round-type="' + roundType + '"]').classList.add('selected');
             
             selectedRoundType = roundType;
+            selectedComplexType = null;
+            showEditor();
+        }
+
+        function selectComplexType(complexType) {
+            console.log('✅ selectComplexType:', complexType);
+            
+            document.querySelectorAll('.complex-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector('[data-complex-type="' + complexType + '"]').classList.add('selected');
+            
+            selectedComplexType = complexType;
+            selectedRoundType = null;
             showEditor();
         }
 
@@ -376,7 +488,7 @@
             const shapeGroup = document.getElementById('shape-group');
             if (!shapeGroup) return;
 
-            const inputKey = selectedRoundType || selectedCorners;
+            const inputKey = selectedRoundType || selectedComplexType || selectedCorners;
             let shapeSVG = '';
             
             // Runde Formen
@@ -425,6 +537,138 @@
                         const vr = Math.max(50, Math.min(150, vRadius * 25));
                         shapeSVG = `<path d="M 0 0 L ${vr} 0 A ${vr} ${vr} 0 0 1 0 ${vr} Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
                         shapeSVG += drawInputField(vr/2, -30, 'radius', 'Radius');
+                        break;
+                }
+            }
+            // Komplexe Formen
+            else if (selectedComplexType) {
+                const scale = 15;
+                switch (selectedComplexType) {
+                    case 'lform':
+                        const tw = currentDimensions.totalWidth || 12;
+                        const th = currentDimensions.totalHeight || 10;
+                        const cw = currentDimensions.cutWidth || 5;
+                        const ch = currentDimensions.cutHeight || 4;
+                        
+                        const lPoints = [
+                            { x: -tw*scale/2, y: -th*scale/2 },
+                            { x: tw*scale/2, y: -th*scale/2 },
+                            { x: tw*scale/2, y: -th*scale/2 + ch*scale },
+                            { x: -tw*scale/2 + cw*scale, y: -th*scale/2 + ch*scale },
+                            { x: -tw*scale/2 + cw*scale, y: th*scale/2 },
+                            { x: -tw*scale/2, y: th*scale/2 }
+                        ];
+                        
+                        const lPointsStr = lPoints.map(p => `${p.x},${p.y}`).join(' ');
+                        shapeSVG = `<polygon points="${lPointsStr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        
+                        shapeSVG += drawInputField(0, -th*scale/2-40, 'totalWidth', 'Ges.Breite');
+                        shapeSVG += drawInputField(-tw*scale/2-60, 0, 'totalHeight', 'Ges.Höhe');
+                        shapeSVG += drawInputField(-tw*scale/4, -th*scale/4, 'cutWidth', 'Auss.B');
+                        shapeSVG += drawInputField(-tw*scale/4+40, -th*scale/4+20, 'cutHeight', 'Auss.H');
+                        break;
+
+                    case 'tform':
+                        const headW = currentDimensions.headWidth || 12;
+                        const headH = currentDimensions.headHeight || 3;
+                        const stemW = currentDimensions.stemWidth || 4;
+                        const stemH = currentDimensions.stemHeight || 8;
+                        
+                        const tPoints = [
+                            { x: -headW*scale/2, y: -headH*scale/2 },
+                            { x: headW*scale/2, y: -headH*scale/2 },
+                            { x: headW*scale/2, y: headH*scale/2 },
+                            { x: stemW*scale/2, y: headH*scale/2 },
+                            { x: stemW*scale/2, y: headH*scale/2 + stemH*scale },
+                            { x: -stemW*scale/2, y: headH*scale/2 + stemH*scale },
+                            { x: -stemW*scale/2, y: headH*scale/2 },
+                            { x: -headW*scale/2, y: headH*scale/2 }
+                        ];
+                        
+                        const tPointsStr = tPoints.map(p => `${p.x},${p.y}`).join(' ');
+                        shapeSVG = `<polygon points="${tPointsStr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        
+                        shapeSVG += drawInputField(0, -headH*scale/2-40, 'headWidth', 'Kopf-B');
+                        shapeSVG += drawInputField(-headW*scale/2-50, 0, 'headHeight', 'Kopf-H');
+                        shapeSVG += drawInputField(stemW*scale/2+50, headH*scale/2 + stemH*scale/2, 'stemWidth', 'Stamm-B');
+                        shapeSVG += drawInputField(0, headH*scale/2 + stemH*scale + 30, 'stemHeight', 'Stamm-H');
+                        break;
+
+                    case 'uform':
+                        const outerW = currentDimensions.outerWidth || 12;
+                        const outerH = currentDimensions.outerHeight || 10;
+                        const innerW = currentDimensions.innerWidth || 8;
+                        const innerH = currentDimensions.innerHeight || 6;
+                        const wallThick = (outerW - innerW) / 2;
+                        
+                        const uPoints = [
+                            { x: -outerW*scale/2, y: -outerH*scale/2 },
+                            { x: outerW*scale/2, y: -outerH*scale/2 },
+                            { x: outerW*scale/2, y: outerH*scale/2 },
+                            { x: outerW*scale/2 - wallThick*scale, y: outerH*scale/2 },
+                            { x: outerW*scale/2 - wallThick*scale, y: -outerH*scale/2 + (outerH - innerH)*scale },
+                            { x: -outerW*scale/2 + wallThick*scale, y: -outerH*scale/2 + (outerH - innerH)*scale },
+                            { x: -outerW*scale/2 + wallThick*scale, y: outerH*scale/2 },
+                            { x: -outerW*scale/2, y: outerH*scale/2 }
+                        ];
+                        
+                        const uPointsStr = uPoints.map(p => `${p.x},${p.y}`).join(' ');
+                        shapeSVG = `<polygon points="${uPointsStr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        
+                        shapeSVG += drawInputField(0, -outerH*scale/2-40, 'outerWidth', 'Außen-B');
+                        shapeSVG += drawInputField(-outerW*scale/2-60, 0, 'outerHeight', 'Außen-H');
+                        shapeSVG += drawInputField(0, -outerH*scale/4, 'innerWidth', 'Innen-B');
+                        shapeSVG += drawInputField(0, -outerH*scale/4+30, 'innerHeight', 'Innen-H');
+                        break;
+
+                    case 'cform':
+                        const cOuterW = currentDimensions.outerWidth || 12;
+                        const cOuterH = currentDimensions.outerHeight || 10;
+                        const openW = currentDimensions.openingWidth || 6;
+                        const wallT = currentDimensions.wallThickness || 2;
+                        
+                        const cPoints = [
+                            { x: -cOuterW*scale/2, y: -cOuterH*scale/2 },
+                            { x: cOuterW*scale/2, y: -cOuterH*scale/2 },
+                            { x: cOuterW*scale/2, y: -cOuterH*scale/2 + wallT*scale },
+                            { x: -cOuterW*scale/2 + wallT*scale, y: -cOuterH*scale/2 + wallT*scale },
+                            { x: -cOuterW*scale/2 + wallT*scale, y: cOuterH*scale/2 - wallT*scale },
+                            { x: cOuterW*scale/2, y: cOuterH*scale/2 - wallT*scale },
+                            { x: cOuterW*scale/2, y: cOuterH*scale/2 },
+                            { x: -cOuterW*scale/2, y: cOuterH*scale/2 }
+                        ];
+                        
+                        const cPointsStr = cPoints.map(p => `${p.x},${p.y}`).join(' ');
+                        shapeSVG = `<polygon points="${cPointsStr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        
+                        shapeSVG += drawInputField(0, -cOuterH*scale/2-40, 'outerWidth', 'Außen-B');
+                        shapeSVG += drawInputField(-cOuterW*scale/2-60, 0, 'outerHeight', 'Außen-H');
+                        shapeSVG += drawInputField(cOuterW*scale/4, 0, 'openingWidth', 'Öffnung');
+                        shapeSVG += drawInputField(0, cOuterH*scale/2+30, 'wallThickness', 'Wand-D');
+                        break;
+
+                    case 'plusform':
+                        const w1 = currentDimensions.width1 || 12;
+                        const h1 = currentDimensions.height1 || 4;
+                        const w2 = currentDimensions.width2 || 4;
+                        const h2 = currentDimensions.height2 || 12;
+                        
+                        // Horizontaler Balken
+                        shapeSVG += `<rect x="${-w1*scale/2}" y="${-h1*scale/2}" width="${w1*scale}" height="${h1*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        // Vertikaler Balken
+                        shapeSVG += `<rect x="${-w2*scale/2}" y="${-h2*scale/2}" width="${w2*scale}" height="${h2*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        
+                        shapeSVG += drawInputField(-w1*scale/2-50, 0, 'width1', 'Breite-1');
+                        shapeSVG += drawInputField(0, -h1*scale/2-30, 'height1', 'Höhe-1');
+                        shapeSVG += drawInputField(w2*scale/2+50, 0, 'width2', 'Breite-2');
+                        shapeSVG += drawInputField(0, h2*scale/2+30, 'height2', 'Höhe-2');
+                        break;
+
+                    case 'custom':
+                        // Einfaches Rechteck als Platzhalter für benutzerdefinierte Form
+                        shapeSVG = `<rect x="-80" y="-60" width="160" height="120" fill="url(#shapeGradient)" stroke="#333" stroke-width="3" stroke-dasharray="10,5"/>`;
+                        shapeSVG += `<text x="0" y="0" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Benutzerdefiniert</text>`;
+                        shapeSVG += drawInputField(0, -80, 'area', 'Geschätzte Fläche (m²)');
                         break;
                 }
             }
@@ -502,6 +746,26 @@
                             points5.push(`${r5 * Math.cos(angle)},${r5 * Math.sin(angle)}`);
                         }
                         shapeSVG = `<polygon points="${points5.join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        shapeSVG += drawInputField(0, -r5-40, 'radius', 'Radius');
+                        break;
+
+                    case '6': // Sechseck
+                        const radius6 = currentDimensions.radius || 6;
+                        const r6 = Math.max(80, Math.min(140, radius6 * 20));
+                        let points6 = [];
+                        for (let i = 0; i < 6; i++) {
+                            const angle = i * 2 * Math.PI / 6;
+                            points6.push(`${r6 * Math.cos(angle)},${r6 * Math.sin(angle)}`);
+                        }
+                        shapeSVG = `<polygon points="${points6.join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        shapeSVG += drawInputField(0, -r6-40, 'radius', 'Radius');
+                        break;
+                }
+            }
+            
+            shapeGroup.innerHTML = shapeSVG;
+            console.log('✅ Preview aktualisiert');
+        }-width="3"/>`;
                         shapeSVG += drawInputField(0, -r5-40, 'radius', 'Radius');
                         break;
 
@@ -595,7 +859,7 @@
         }
 
         function updateCalculations() {
-            const inputKey = selectedRoundType || selectedCorners;
+            const inputKey = selectedRoundType || selectedComplexType || selectedCorners;
             if (!inputKey) return;
 
             let area = 0;
@@ -631,6 +895,59 @@
                         const vr = currentDimensions.radius || 5;
                         area = (Math.PI * vr * vr) / 4;
                         perimeter = (Math.PI * vr) / 2 + 2 * vr;
+                        break;
+                }
+            }
+            // Komplexe Formen
+            else if (selectedComplexType) {
+                switch (selectedComplexType) {
+                    case 'lform':
+                        const tw = currentDimensions.totalWidth || 12;
+                        const th = currentDimensions.totalHeight || 10;
+                        const cw = currentDimensions.cutWidth || 5;
+                        const ch = currentDimensions.cutHeight || 4;
+                        area = tw * th - cw * ch;
+                        perimeter = 2 * (tw + th) + 2 * (cw + ch);
+                        break;
+                    case 'tform':
+                        const headW = currentDimensions.headWidth || 12;
+                        const headH = currentDimensions.headHeight || 3;
+                        const stemW = currentDimensions.stemWidth || 4;
+                        const stemH = currentDimensions.stemHeight || 8;
+                        area = headW * headH + stemW * stemH;
+                        perimeter = 2 * headW + 2 * headH + 2 * stemH + 2 * (stemW - headW);
+                        break;
+                    case 'uform':
+                        const outerW = currentDimensions.outerWidth || 12;
+                        const outerH = currentDimensions.outerHeight || 10;
+                        const innerW = currentDimensions.innerWidth || 8;
+                        const innerH = currentDimensions.innerHeight || 6;
+                        area = outerW * outerH - innerW * innerH;
+                        perimeter = 2 * (outerW + outerH) + 2 * (innerW + innerH);
+                        break;
+                    case 'cform':
+                        const cOuterW = currentDimensions.outerWidth || 12;
+                        const cOuterH = currentDimensions.outerHeight || 10;
+                        const openW = currentDimensions.openingWidth || 6;
+                        const wallT = currentDimensions.wallThickness || 2;
+                        const innerW = cOuterW - 2 * wallT;
+                        const innerH = cOuterH - wallT;
+                        area = cOuterW * cOuterH - innerW * innerH;
+                        perimeter = 2 * cOuterW + 2 * cOuterH + 2 * innerW + innerH;
+                        break;
+                    case 'plusform':
+                        const w1 = currentDimensions.width1 || 12;
+                        const h1 = currentDimensions.height1 || 4;
+                        const w2 = currentDimensions.width2 || 4;
+                        const h2 = currentDimensions.height2 || 12;
+                        // Überlappung abziehen
+                        const overlap = Math.min(w1, w2) * Math.min(h1, h2);
+                        area = w1 * h1 + w2 * h2 - overlap;
+                        perimeter = 2 * (w1 + h1 + w2 + h2) - 4 * Math.min(w1, w2) - 4 * Math.min(h1, h2);
+                        break;
+                    case 'custom':
+                        area = currentDimensions.area || 50;
+                        perimeter = 4 * Math.sqrt(area); // Grobe Schätzung
                         break;
                 }
             }
@@ -670,15 +987,6 @@
                         area = 1.5 * Math.sqrt(3) * r6 * r6;
                         perimeter = 6 * r6;
                         break;
-
-                    case 'special':
-                        const totalWidth = currentDimensions.totalWidth || 12;
-                        const totalHeight = currentDimensions.totalHeight || 10;
-                        const cutWidth = currentDimensions.cutWidth || 5;
-                        const cutHeight = currentDimensions.cutHeight || 4;
-                        area = totalWidth * totalHeight - cutWidth * cutHeight;
-                        perimeter = 2 * (totalWidth + totalHeight) + 2 * (cutWidth + cutHeight);
-                        break;
                 }
             }
 
@@ -709,7 +1017,7 @@
         }
 
         function continueToCalculation() {
-            if (!selectedCorners && !selectedRoundType) {
+            if (!selectedCorners && !selectedRoundType && !selectedComplexType) {
                 alert('Bitte wählen Sie zuerst eine Form aus!');
                 return;
             }
@@ -728,6 +1036,7 @@
             const shapeData = {
                 corners: selectedCorners,
                 roundType: selectedRoundType,
+                complexType: selectedComplexType,
                 dimensions: currentDimensions,
                 rotation: currentRotation,
                 area: parseFloat(areaText.replace(' m²', '')),
@@ -748,7 +1057,7 @@
                 } catch(e) {}
                 
                 mainData.geometry = {
-                    variant: selectedRoundType || selectedCorners,
+                    variant: selectedRoundType || selectedComplexType || selectedCorners,
                     dimensions: currentDimensions,
                     area: parseFloat(areaText.replace(' m²', '')),
                     rotation: currentRotation
@@ -769,7 +1078,9 @@
                 }
             }
 
-            alert('✅ Form gespeichert!\nWeiterleitung zur Berechnung...');
+            const formType = selectedRoundType ? 'runde Form' : 
+                           selectedComplexType ? 'komplexe Form' : 'Standard-Form';
+            alert(`✅ ${formType} gespeichert!\nWeiterleitung zur Berechnung...`);
             window.location.href = 'berechnung.html';
         }
 
@@ -791,6 +1102,13 @@
                 });
             });
             
+            document.querySelectorAll('.complex-option').forEach(function(option) {
+                option.addEventListener('click', function() {
+                    const complexType = this.getAttribute('data-complex-type');
+                    selectComplexType(complexType);
+                });
+            });
+            
             console.log('✅ Event Listeners erfolgreich eingerichtet');
         });
 
@@ -801,8 +1119,10 @@
         window.resetRotation = resetRotation;
         window.goBack = goBack;
         window.continueToCalculation = continueToCalculation;
+        window.selectComplexType = selectComplexType;
 
-        console.log('✅ Erweiterter Form-Editor vollständig geladen!');
+        console.log('✅ Vollständiger Form-Editor mit Rund- und Komplex-Formen geladen!');
+    </script>
     </script>
 </body>
 </html>
