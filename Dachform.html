@@ -290,13 +290,13 @@
                         shapeSVG = `<polygon points="${lPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
                         shapeSVG += drawInputField(0, -th*scale/2-60, 'totalWidth', 'Ges.Breite') + drawInputField(-tw*scale/2-80, 0, 'totalHeight', 'Ges.Höhe') + 
                                    drawInputField(tw*scale/2+80, -th*scale/4, 'cutWidth', 'Auss.B') + drawInputField(tw*scale/2+80, -th*scale/4+40, 'cutHeight', 'Auss.H') +
-                                   drawInputField(0, th*scale/2+80, 'offset', 'Versatz'); break;
+                                   drawInputField(-200, 280, 'offset', 'Versatz'); break;
                     case 'tform': const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3, stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8, tOffset = currentDimensions.offset || 0;
                         const tPoints = [[-headW*scale/2 + tOffset*scale, -headH*scale/2], [headW*scale/2 + tOffset*scale, -headH*scale/2], [headW*scale/2 + tOffset*scale, headH*scale/2], [stemW*scale/2 + tOffset*scale, headH*scale/2], [stemW*scale/2 + tOffset*scale, headH*scale/2 + stemH*scale], [-stemW*scale/2 + tOffset*scale, headH*scale/2 + stemH*scale], [-stemW*scale/2 + tOffset*scale, headH*scale/2], [-headW*scale/2 + tOffset*scale, headH*scale/2]];
                         shapeSVG = `<polygon points="${tPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
                         shapeSVG += drawInputField(tOffset*scale, -headH*scale/2-60, 'headWidth', 'Kopf-B') + drawInputField(-headW*scale/2-80+tOffset*scale, 0, 'headHeight', 'Kopf-H') + 
                                    drawInputField(stemW*scale/2+80+tOffset*scale, headH*scale/2 + stemH*scale/2, 'stemWidth', 'Stamm-B') + drawInputField(tOffset*scale, headH*scale/2 + stemH*scale + 50, 'stemHeight', 'Stamm-H') +
-                                   drawInputField(tOffset*scale + 100, 0, 'offset', 'Versatz'); break;
+                                   drawInputField(200, 280, 'offset', 'Versatz'); break;
                     case 'uform': const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10, innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6, uOffset = currentDimensions.offset || 0;
                         const wallThick = (outerW - innerW) / 2;
                         const uPoints = [[-outerW*scale/2 + uOffset*scale, -outerH*scale/2], [outerW*scale/2 + uOffset*scale, -outerH*scale/2], [outerW*scale/2 + uOffset*scale, outerH*scale/2], [outerW*scale/2 - wallThick*scale + uOffset*scale, outerH*scale/2], 
@@ -305,7 +305,7 @@
                         shapeSVG = `<polygon points="${uPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
                         shapeSVG += drawInputField(uOffset*scale, -outerH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-outerW*scale/2-80+uOffset*scale, 0, 'outerHeight', 'Außen-H') + 
                                    drawInputField(outerW*scale/2+80+uOffset*scale, -outerH*scale/4, 'innerWidth', 'Innen-B') + drawInputField(outerW*scale/2+80+uOffset*scale, -outerH*scale/4+40, 'innerHeight', 'Innen-H') +
-                                   drawInputField(uOffset*scale + 100, outerH*scale/2+60, 'offset', 'Versatz'); break;
+                                   drawInputField(-200, -280, 'offset', 'Versatz'); break;
                     case 'cform': const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10, openW = currentDimensions.openingWidth || 6, wallT = currentDimensions.wallThickness || 2, cOffset = currentDimensions.offset || 0;
                         const cPoints = [[-cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2], [cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2], [cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2 + wallT*scale], 
                                         [-cOuterW*scale/2 + wallT*scale + cOffset*scale, -cOuterH*scale/2 + wallT*scale], [-cOuterW*scale/2 + wallT*scale + cOffset*scale, cOuterH*scale/2 - wallT*scale], 
@@ -313,13 +313,13 @@
                         shapeSVG = `<polygon points="${cPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
                         shapeSVG += drawInputField(cOffset*scale, -cOuterH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-cOuterW*scale/2-80+cOffset*scale, 0, 'outerHeight', 'Außen-H') + 
                                    drawInputField(cOuterW*scale/2+80+cOffset*scale, 0, 'openingWidth', 'Öffnung') + drawInputField(cOffset*scale, cOuterH*scale/2+50, 'wallThickness', 'Wand-D') +
-                                   drawInputField(cOffset*scale + 120, 0, 'offset', 'Versatz'); break;
+                                   drawInputField(200, -280, 'offset', 'Versatz'); break;
                     case 'plusform': const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4, w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12, pOffset = currentDimensions.offset || 0;
                         shapeSVG = `<rect x="${-w1*scale/2 + pOffset*scale}" y="${-h1*scale/2}" width="${w1*scale}" height="${h1*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
                                    <rect x="${-w2*scale/2 + pOffset*scale}" y="${-h2*scale/2}" width="${w2*scale}" height="${h2*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
                         shapeSVG += drawInputField(-w1*scale/2-80+pOffset*scale, 0, 'width1', 'Breite-1') + drawInputField(pOffset*scale, -h1*scale/2-50, 'height1', 'Höhe-1') + 
                                    drawInputField(w2*scale/2+80+pOffset*scale, 0, 'width2', 'Breite-2') + drawInputField(pOffset*scale, h2*scale/2+50, 'height2', 'Höhe-2') +
-                                   drawInputField(pOffset*scale + 140, 0, 'offset', 'Versatz'); break;
+                                   drawInputField(0, 280, 'offset', 'Versatz'); break;
                     case 'custom': shapeSVG = `<rect x="-80" y="-60" width="160" height="120" fill="url(#shapeGradient)" stroke="#333" stroke-width="3" stroke-dasharray="10,5"/>` +
                         `<text x="0" y="0" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Benutzerdefiniert</text>` +
                         `<text x="0" y="20" text-anchor="middle" fill="#666" font-size="12">Schätzen Sie die Gesamtfläche</text>` +
@@ -348,7 +348,7 @@
                         shapeSVG = `<polygon points="${points4.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
                         shapeSVG += drawInputField(offset*scale4, height/2 + 60, 'bottomWidth', 'Untere Breite') + drawInputField(offset*scale4, -height/2 - 60, 'topWidth', 'Obere Breite') + 
                                    drawInputField(-bottomWidth*scale4/2 - 80 + offset*scale4, 0, 'leftSide', 'Seite links') + drawInputField(bottomWidth*scale4/2 + 80 + offset*scale4, 0, 'rightSide', 'Seite rechts') +
-                                   drawInputField(bottomWidth*scale4/2 + 120 + offset*scale4, height/4, 'offset', 'Versatz'); break;
+                                   drawInputField(-250, -250, 'offset', 'Versatz'); break;
                     case '5': case '6': const sides = parseInt(selectedCorners), sideLength = currentDimensions.sideLength || 6;
                         // Berechne Radius aus Seitenlänge: r = s / (2 * sin(π/n))
                         const r = sideLength / (2 * Math.sin(Math.PI / sides)) * 20;
