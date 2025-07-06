@@ -1,27 +1,18 @@
-<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form-Editor - Dachplattenrechner</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f5f5f5; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; min-height: 100vh; }
-        header { background: white; padding: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
-        header h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; font-size: 2.5em; }
-        .progress-nav { display: flex; justify-content: center; gap: 30px; margin-top: 20px; }
-        .step { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 10px; border-radius: 8px; }
-        .step.active { color: #007bff; } .step.completed { color: #28a745; }
-        .step-number { width: 40px; height: 40px; border-radius: 50%; background-color: #e9ecef; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 5px; transition: all 0.3s ease; }
-        .step.active .step-number { background-color: #007bff; color: white; } .step.completed .step-number { background-color: #28a745; color: white; }
-        
+        /* Spezifische Styles für Dachform-Editor */
         .corners-selector { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 40px; }
         .corner-option { background: white; border: 3px solid #e9ecef; border-radius: 15px; padding: 20px; cursor: pointer; transition: all 0.3s ease; text-align: center; min-width: 120px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .corner-option:hover { border-color: #667eea; transform: translateY(-5px); }
         .corner-option.selected { border-color: #667eea; background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%); }
         .corner-number { font-size: 2.5em; font-weight: bold; color: #667eea; margin-bottom: 10px; }
-        .corner-label { font-size: 1.1em; color: #495057; font-weight: 600; } .corner-examples { font-size: 0.9em; color: #6c757d; margin-top: 5px; }
+        .corner-label { font-size: 1.1em; color: #495057; font-weight: 600; } 
+        .corner-examples { font-size: 0.9em; color: #6c757d; margin-top: 5px; }
 
         .round-selector, .complex-selector { display: none; background: white; border-radius: 15px; padding: 25px; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .round-options, .complex-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
@@ -43,7 +34,8 @@
         .preview-panel { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; }
         .preview-svg { width: 100%; height: 600px; border: 2px solid #e9ecef; border-radius: 10px; background: radial-gradient(circle at 20px 20px, #ddd 1px, transparent 1px), radial-gradient(circle at 60px 60px, #ddd 1px, transparent 1px); background-size: 40px 40px; }
         .info-panel { background: #e8f5e8; border-radius: 10px; padding: 20px; margin-top: 20px; border-left: 5px solid #28a745; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; } .info-value { font-weight: bold; color: #28a745; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; } 
+        .info-value { font-weight: bold; color: #28a745; }
         .shape-info { background: #fff3cd; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 5px solid #ffc107; }
         
         .dimension-input-container-simple { display: flex; align-items: center; background: white; border-radius: 8px; padding: 4px 8px; box-shadow: 0 3px 12px rgba(0,0,0,0.15); border: 2px solid #007bff; min-width: 110px; height: 30px; }
@@ -51,10 +43,6 @@
         .dimension-input-container-simple .dimension-input:focus { border-color: #007bff; box-shadow: 0 0 0 2px rgba(0,123,255,0.25); }
         .dimension-input-container-simple .dimension-unit { font-size: 12px; color: #007bff; font-weight: bold; margin-left: 6px; white-space: nowrap; }
         
-        .btn { padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 500; text-decoration: none; display: inline-block; text-align: center; transition: all 0.3s ease; margin: 5px; }
-        .btn-primary { background-color: #007bff; color: white; } .btn-primary:hover { background-color: #0056b3; transform: translateY(-1px); }
-        .btn-secondary { background-color: #6c757d; color: white; } .btn-secondary:hover { background-color: #545b62; transform: translateY(-1px); }
-        .navigation-buttons { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; }
         @media (max-width: 768px) { .editor-container { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -79,7 +67,7 @@
                     <div class="corner-option" data-corners="4"><div class="corner-number">4</div><div class="corner-label">Viereck</div><div class="corner-examples">Rechteck, Trapez</div></div>
                     <div class="corner-option" data-corners="5"><div class="corner-number">5</div><div class="corner-label">Fünfeck</div><div class="corner-examples">Pentagon</div></div>
                     <div class="corner-option" data-corners="6"><div class="corner-number">6</div><div class="corner-label">Sechseck</div><div class="corner-examples">Hexagon</div></div>
-                    <div class="corner-option" data-corners="special"><div class="corner-number">L</div><div class="corner-label">L-Form</div><div class="corner-examples">T, U, Complex</div></div>
+                    <div class="corner-option" data-corners="special"><div class="corner-number">S</div><div class="corner-label">Sonderform</div><div class="corner-examples">L, T, U, C, Plus</div></div>
                 </div>
 
                 <div class="round-selector" id="round-selector">
@@ -94,14 +82,14 @@
                 </div>
 
                 <div class="complex-selector" id="complex-selector">
-                    <h3>Welche komplexe Form haben Sie?</h3>
+                    <h3>Welche Sonderform haben Sie?</h3>
                     <div class="complex-options">
                         <div class="complex-option" data-complex-type="lform"><div class="complex-icon">📐</div><div class="complex-label">L-Form</div></div>
                         <div class="complex-option" data-complex-type="tform"><div class="complex-icon">🔤</div><div class="complex-label">T-Form</div></div>
                         <div class="complex-option" data-complex-type="uform"><div class="complex-icon">🔄</div><div class="complex-label">U-Form</div></div>
                         <div class="complex-option" data-complex-type="cform"><div class="complex-icon">🌙</div><div class="complex-label">C-Form</div></div>
                         <div class="complex-option" data-complex-type="plusform"><div class="complex-icon">➕</div><div class="complex-label">Plus-Form</div></div>
-                        <div class="complex-option" data-complex-type="custom"><div class="complex-icon">🎯</div><div class="complex-label">Benutzerdefiniert</div></div>
+
                     </div>
                 </div>
             </div>
@@ -170,20 +158,55 @@
     <script>
         let selectedCorners = null, selectedRoundType = null, selectedComplexType = null, currentDimensions = {}, currentRotation = 0;
 
+        // KORRIGIERTE shapeInputs mit Versatz für alle Formen
         const shapeInputs = {
             'circle': [{key: 'radius', label: 'Radius', default: 5}],
             'oval': [{key: 'radiusX', label: 'Halbachse Breite', default: 6}, {key: 'radiusY', label: 'Halbachse Höhe', default: 4}],
             'langloch': [{key: 'length', label: 'Gesamtlänge', default: 10}, {key: 'width', label: 'Breite', default: 4}],
             'halbkreis': [{key: 'radius', label: 'Radius', default: 5}],
             'viertelkreis': [{key: 'radius', label: 'Radius', default: 5}],
-            'lform': [{key: 'totalWidth', label: 'Gesamtbreite', default: 12}, {key: 'totalHeight', label: 'Gesamthöhe', default: 10}, {key: 'cutWidth', label: 'Ausschnitt Breite', default: 5}, {key: 'cutHeight', label: 'Ausschnitt Höhe', default: 4}],
-            'tform': [{key: 'headWidth', label: 'Kopf-Breite', default: 12}, {key: 'headHeight', label: 'Kopf-Höhe', default: 3}, {key: 'stemWidth', label: 'Stamm-Breite', default: 4}, {key: 'stemHeight', label: 'Stamm-Höhe', default: 8}],
-            'uform': [{key: 'outerWidth', label: 'Außen-Breite', default: 12}, {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, {key: 'innerWidth', label: 'Innen-Breite', default: 8}, {key: 'innerHeight', label: 'Innen-Höhe', default: 6}],
-            'cform': [{key: 'outerWidth', label: 'Außen-Breite', default: 12}, {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, {key: 'openingWidth', label: 'Öffnung-Breite', default: 6}, {key: 'wallThickness', label: 'Wand-Dicke', default: 2}],
-            'plusform': [{key: 'width1', label: 'Breite-1', default: 12}, {key: 'height1', label: 'Höhe-1', default: 4}, {key: 'width2', label: 'Breite-2', default: 4}, {key: 'height2', label: 'Höhe-2', default: 12}],
+            'lform': [
+                {key: 'totalWidth', label: 'Gesamtbreite', default: 12}, 
+                {key: 'totalHeight', label: 'Gesamthöhe', default: 10}, 
+                {key: 'cutWidth', label: 'Ausschnitt Breite', default: 5}, 
+                {key: 'cutHeight', label: 'Ausschnitt Höhe', default: 4},
+                {key: 'offset', label: 'Versatz', default: 0}
+            ],
+            'tform': [
+                {key: 'headWidth', label: 'Kopf-Breite', default: 12}, 
+                {key: 'headHeight', label: 'Kopf-Höhe', default: 3}, 
+                {key: 'stemWidth', label: 'Stamm-Breite', default: 4}, 
+                {key: 'stemHeight', label: 'Stamm-Höhe', default: 8},
+                {key: 'offset', label: 'Versatz', default: 0}
+            ],
+            'uform': [
+                {key: 'outerWidth', label: 'Außen-Breite', default: 12}, 
+                {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, 
+                {key: 'innerWidth', label: 'Innen-Breite', default: 8}, 
+                {key: 'innerHeight', label: 'Innen-Höhe', default: 6},
+                {key: 'offset', label: 'Versatz', default: 0}
+            ],
+            'cform': [
+                {key: 'outerWidth', label: 'Außen-Breite', default: 12}, 
+                {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, 
+                {key: 'openingWidth', label: 'Öffnung-Breite', default: 6}, 
+                {key: 'wallThickness', label: 'Wand-Dicke', default: 2},
+                {key: 'offset', label: 'Versatz', default: 0}
+            ],
+            'plusform': [
+                {key: 'width1', label: 'Breite-1', default: 12}, 
+                {key: 'height1', label: 'Höhe-1', default: 4}, 
+                {key: 'width2', label: 'Breite-2', default: 4}, 
+                {key: 'height2', label: 'Höhe-2', default: 12},
+                {key: 'offset', label: 'Versatz', default: 0}
+            ],
             'custom': [{key: 'area', label: 'Geschätzte Fläche', default: 50}],
             3: [{key: 'sideA', label: 'Seite A', default: 8}, {key: 'sideB', label: 'Seite B', default: 6}, {key: 'sideC', label: 'Seite C', default: 7}],
-            4: [{key: 'bottomWidth', label: 'Untere Breite', default: 10}, {key: 'topWidth', label: 'Obere Breite', default: 8}, {key: 'offset', label: 'Seitversatz', default: 1}],
+            4: [
+                {key: 'bottomWidth', label: 'Untere Breite', default: 10}, 
+                {key: 'topWidth', label: 'Obere Breite', default: 8}, 
+                {key: 'offset', label: 'Seitversatz', default: 0}
+            ],
             5: [{key: 'radius', label: 'Radius', default: 6}],
             6: [{key: 'radius', label: 'Radius', default: 6}]
         };
@@ -260,36 +283,41 @@
             } else if (selectedComplexType) {
                 const scale = 15;
                 switch (selectedComplexType) {
-                    case 'lform': const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10, cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4;
-                        const lPoints = [[-tw*scale/2, -th*scale/2], [tw*scale/2, -th*scale/2], [tw*scale/2, -th*scale/2 + ch*scale], [-tw*scale/2 + cw*scale, -th*scale/2 + ch*scale], [-tw*scale/2 + cw*scale, th*scale/2], [-tw*scale/2, th*scale/2]];
+                    case 'lform': const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10, cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4, offset = currentDimensions.offset || 0;
+                        const lPoints = [[-tw*scale/2 + offset*scale, -th*scale/2], [tw*scale/2 + offset*scale, -th*scale/2], [tw*scale/2 + offset*scale, -th*scale/2 + ch*scale], [-tw*scale/2 + cw*scale + offset*scale, -th*scale/2 + ch*scale], [-tw*scale/2 + cw*scale + offset*scale, th*scale/2], [-tw*scale/2 + offset*scale, th*scale/2]];
                         shapeSVG = `<polygon points="${lPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
                         shapeSVG += drawInputField(0, -th*scale/2-60, 'totalWidth', 'Ges.Breite') + drawInputField(-tw*scale/2-80, 0, 'totalHeight', 'Ges.Höhe') + 
-                                   drawInputField(tw*scale/2+80, -th*scale/4, 'cutWidth', 'Auss.B') + drawInputField(tw*scale/2+80, -th*scale/4+40, 'cutHeight', 'Auss.H'); break;
-                    case 'tform': const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3, stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8;
-                        const tPoints = [[-headW*scale/2, -headH*scale/2], [headW*scale/2, -headH*scale/2], [headW*scale/2, headH*scale/2], [stemW*scale/2, headH*scale/2], [stemW*scale/2, headH*scale/2 + stemH*scale], [-stemW*scale/2, headH*scale/2 + stemH*scale], [-stemW*scale/2, headH*scale/2], [-headW*scale/2, headH*scale/2]];
+                                   drawInputField(tw*scale/2+80, -th*scale/4, 'cutWidth', 'Auss.B') + drawInputField(tw*scale/2+80, -th*scale/4+40, 'cutHeight', 'Auss.H') +
+                                   drawInputField(0, th*scale/2+80, 'offset', 'Versatz'); break;
+                    case 'tform': const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3, stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8, tOffset = currentDimensions.offset || 0;
+                        const tPoints = [[-headW*scale/2 + tOffset*scale, -headH*scale/2], [headW*scale/2 + tOffset*scale, -headH*scale/2], [headW*scale/2 + tOffset*scale, headH*scale/2], [stemW*scale/2 + tOffset*scale, headH*scale/2], [stemW*scale/2 + tOffset*scale, headH*scale/2 + stemH*scale], [-stemW*scale/2 + tOffset*scale, headH*scale/2 + stemH*scale], [-stemW*scale/2 + tOffset*scale, headH*scale/2], [-headW*scale/2 + tOffset*scale, headH*scale/2]];
                         shapeSVG = `<polygon points="${tPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -headH*scale/2-60, 'headWidth', 'Kopf-B') + drawInputField(-headW*scale/2-80, 0, 'headHeight', 'Kopf-H') + 
-                                   drawInputField(stemW*scale/2+80, headH*scale/2 + stemH*scale/2, 'stemWidth', 'Stamm-B') + drawInputField(0, headH*scale/2 + stemH*scale + 50, 'stemHeight', 'Stamm-H'); break;
-                    case 'uform': const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10, innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6;
+                        shapeSVG += drawInputField(tOffset*scale, -headH*scale/2-60, 'headWidth', 'Kopf-B') + drawInputField(-headW*scale/2-80+tOffset*scale, 0, 'headHeight', 'Kopf-H') + 
+                                   drawInputField(stemW*scale/2+80+tOffset*scale, headH*scale/2 + stemH*scale/2, 'stemWidth', 'Stamm-B') + drawInputField(tOffset*scale, headH*scale/2 + stemH*scale + 50, 'stemHeight', 'Stamm-H') +
+                                   drawInputField(tOffset*scale + 100, 0, 'offset', 'Versatz'); break;
+                    case 'uform': const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10, innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6, uOffset = currentDimensions.offset || 0;
                         const wallThick = (outerW - innerW) / 2;
-                        const uPoints = [[-outerW*scale/2, -outerH*scale/2], [outerW*scale/2, -outerH*scale/2], [outerW*scale/2, outerH*scale/2], [outerW*scale/2 - wallThick*scale, outerH*scale/2], 
-                                        [outerW*scale/2 - wallThick*scale, -outerH*scale/2 + (outerH - innerH)*scale], [-outerW*scale/2 + wallThick*scale, -outerH*scale/2 + (outerH - innerH)*scale], 
-                                        [-outerW*scale/2 + wallThick*scale, outerH*scale/2], [-outerW*scale/2, outerH*scale/2]];
+                        const uPoints = [[-outerW*scale/2 + uOffset*scale, -outerH*scale/2], [outerW*scale/2 + uOffset*scale, -outerH*scale/2], [outerW*scale/2 + uOffset*scale, outerH*scale/2], [outerW*scale/2 - wallThick*scale + uOffset*scale, outerH*scale/2], 
+                                        [outerW*scale/2 - wallThick*scale + uOffset*scale, -outerH*scale/2 + (outerH - innerH)*scale], [-outerW*scale/2 + wallThick*scale + uOffset*scale, -outerH*scale/2 + (outerH - innerH)*scale], 
+                                        [-outerW*scale/2 + wallThick*scale + uOffset*scale, outerH*scale/2], [-outerW*scale/2 + uOffset*scale, outerH*scale/2]];
                         shapeSVG = `<polygon points="${uPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -outerH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-outerW*scale/2-80, 0, 'outerHeight', 'Außen-H') + 
-                                   drawInputField(outerW*scale/2+80, -outerH*scale/4, 'innerWidth', 'Innen-B') + drawInputField(outerW*scale/2+80, -outerH*scale/4+40, 'innerHeight', 'Innen-H'); break;
-                    case 'cform': const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10, openW = currentDimensions.openingWidth || 6, wallT = currentDimensions.wallThickness || 2;
-                        const cPoints = [[-cOuterW*scale/2, -cOuterH*scale/2], [cOuterW*scale/2, -cOuterH*scale/2], [cOuterW*scale/2, -cOuterH*scale/2 + wallT*scale], 
-                                        [-cOuterW*scale/2 + wallT*scale, -cOuterH*scale/2 + wallT*scale], [-cOuterW*scale/2 + wallT*scale, cOuterH*scale/2 - wallT*scale], 
-                                        [cOuterW*scale/2, cOuterH*scale/2 - wallT*scale], [cOuterW*scale/2, cOuterH*scale/2], [-cOuterW*scale/2, cOuterH*scale/2]];
+                        shapeSVG += drawInputField(uOffset*scale, -outerH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-outerW*scale/2-80+uOffset*scale, 0, 'outerHeight', 'Außen-H') + 
+                                   drawInputField(outerW*scale/2+80+uOffset*scale, -outerH*scale/4, 'innerWidth', 'Innen-B') + drawInputField(outerW*scale/2+80+uOffset*scale, -outerH*scale/4+40, 'innerHeight', 'Innen-H') +
+                                   drawInputField(uOffset*scale + 100, outerH*scale/2+60, 'offset', 'Versatz'); break;
+                    case 'cform': const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10, openW = currentDimensions.openingWidth || 6, wallT = currentDimensions.wallThickness || 2, cOffset = currentDimensions.offset || 0;
+                        const cPoints = [[-cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2], [cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2], [cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2 + wallT*scale], 
+                                        [-cOuterW*scale/2 + wallT*scale + cOffset*scale, -cOuterH*scale/2 + wallT*scale], [-cOuterW*scale/2 + wallT*scale + cOffset*scale, cOuterH*scale/2 - wallT*scale], 
+                                        [cOuterW*scale/2 + cOffset*scale, cOuterH*scale/2 - wallT*scale], [cOuterW*scale/2 + cOffset*scale, cOuterH*scale/2], [-cOuterW*scale/2 + cOffset*scale, cOuterH*scale/2]];
                         shapeSVG = `<polygon points="${cPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -cOuterH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-cOuterW*scale/2-80, 0, 'outerHeight', 'Außen-H') + 
-                                   drawInputField(cOuterW*scale/2+80, 0, 'openingWidth', 'Öffnung') + drawInputField(0, cOuterH*scale/2+50, 'wallThickness', 'Wand-D'); break;
-                    case 'plusform': const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4, w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12;
-                        shapeSVG = `<rect x="${-w1*scale/2}" y="${-h1*scale/2}" width="${w1*scale}" height="${h1*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <rect x="${-w2*scale/2}" y="${-h2*scale/2}" width="${w2*scale}" height="${h2*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(-w1*scale/2-80, 0, 'width1', 'Breite-1') + drawInputField(0, -h1*scale/2-50, 'height1', 'Höhe-1') + 
-                                   drawInputField(w2*scale/2+80, 0, 'width2', 'Breite-2') + drawInputField(0, h2*scale/2+50, 'height2', 'Höhe-2'); break;
+                        shapeSVG += drawInputField(cOffset*scale, -cOuterH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-cOuterW*scale/2-80+cOffset*scale, 0, 'outerHeight', 'Außen-H') + 
+                                   drawInputField(cOuterW*scale/2+80+cOffset*scale, 0, 'openingWidth', 'Öffnung') + drawInputField(cOffset*scale, cOuterH*scale/2+50, 'wallThickness', 'Wand-D') +
+                                   drawInputField(cOffset*scale + 120, 0, 'offset', 'Versatz'); break;
+                    case 'plusform': const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4, w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12, pOffset = currentDimensions.offset || 0;
+                        shapeSVG = `<rect x="${-w1*scale/2 + pOffset*scale}" y="${-h1*scale/2}" width="${w1*scale}" height="${h1*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                   <rect x="${-w2*scale/2 + pOffset*scale}" y="${-h2*scale/2}" width="${w2*scale}" height="${h2*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        shapeSVG += drawInputField(-w1*scale/2-80+pOffset*scale, 0, 'width1', 'Breite-1') + drawInputField(pOffset*scale, -h1*scale/2-50, 'height1', 'Höhe-1') + 
+                                   drawInputField(w2*scale/2+80+pOffset*scale, 0, 'width2', 'Breite-2') + drawInputField(pOffset*scale, h2*scale/2+50, 'height2', 'Höhe-2') +
+                                   drawInputField(pOffset*scale + 140, 0, 'offset', 'Versatz'); break;
                     case 'custom': shapeSVG = `<rect x="-80" y="-60" width="160" height="120" fill="url(#shapeGradient)" stroke="#333" stroke-width="3" stroke-dasharray="10,5"/>` +
                         `<text x="0" y="0" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Benutzerdefiniert</text>` +
                         `<text x="0" y="20" text-anchor="middle" fill="#666" font-size="12">Schätzen Sie die Gesamtfläche</text>` +
@@ -312,11 +340,11 @@
                                        drawInputField((points[2].x + points[0].x)/2 - 60, (points[2].y + points[0].y)/2, 'sideB', 'Seite B');
                         } else { shapeSVG = `<polygon points="0,-120 150,100 -150,100" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>` +
                                            drawInputField(75, -60, 'sideA', 'Seite A') + drawInputField(-75, -60, 'sideB', 'Seite B') + drawInputField(0, 130, 'sideC', 'Seite C'); } break;
-                    case '4': const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8, offset = currentDimensions.offset || 1;
+                    case '4': const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8, offset = currentDimensions.offset || 0;
                         const scale4 = 20, height = 120;
-                        const points4 = [[-bottomWidth*scale4/2, height/2], [bottomWidth*scale4/2, height/2], [topWidth*scale4/2 + offset*scale4, -height/2], [-topWidth*scale4/2 + offset*scale4, -height/2]];
+                        const points4 = [[-bottomWidth*scale4/2 + offset*scale4, height/2], [bottomWidth*scale4/2 + offset*scale4, height/2], [topWidth*scale4/2 + offset*scale4, -height/2], [-topWidth*scale4/2 + offset*scale4, -height/2]];
                         shapeSVG = `<polygon points="${points4.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, height/2 + 60, 'bottomWidth', 'Untere Breite') + drawInputField(offset*scale4, -height/2 - 60, 'topWidth', 'Obere Breite') + drawInputField(bottomWidth*scale4/2 + 80, 0, 'offset', 'Versatz'); break;
+                        shapeSVG += drawInputField(offset*scale4, height/2 + 60, 'bottomWidth', 'Untere Breite') + drawInputField(offset*scale4, -height/2 - 60, 'topWidth', 'Obere Breite') + drawInputField(bottomWidth*scale4/2 + 80 + offset*scale4, 0, 'offset', 'Versatz'); break;
                     case '5': case '6': const sides = parseInt(selectedCorners), radius = currentDimensions.radius || 6, r = Math.max(80, Math.min(140, radius * 20));
                         let points = []; for (let i = 0; i < sides; i++) { const angle = (i * 2 * Math.PI / sides) - Math.PI/2; points.push(`${r * Math.cos(angle)},${r * Math.sin(angle)}`); }
                         shapeSVG = `<polygon points="${points.join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>` + drawInputField(0, -r-60, 'radius', 'Radius'); break;
@@ -325,11 +353,21 @@
             shapeGroup.innerHTML = shapeSVG;
         }
 
+        // KORRIGIERTE drawInputField Funktion mit erweiterten Bereichen für Versatz
         function drawInputField(x, y, key, label) {
             const currentValue = currentDimensions[key] || 0;
+            let min = "0.01", max = "100", step = "0.01";
+            
+            // Spezielle Einstellungen für Versatz
+            if (key === 'offset') {
+                min = "-100";
+                max = "100";
+                step = "0.1";
+            }
+            
             return `<foreignObject x="${x - 55}" y="${y - 15}" width="110" height="30">
                       <div class="dimension-input-container-simple">
-                        <input type="number" class="dimension-input" value="${currentValue.toFixed(2)}" data-key="${key}" step="0.01" min="0.01" max="100" oninput="updateDimensionFromSVG('${key}', this.value)"/>
+                        <input type="number" class="dimension-input" value="${currentValue.toFixed(2)}" data-key="${key}" step="${step}" min="${min}" max="${max}" oninput="updateDimensionFromSVG('${key}', this.value)"/>
                         <span class="dimension-unit">m</span>
                       </div>
                     </foreignObject>
@@ -338,8 +376,14 @@
 
         function updateDimensionFromSVG(key, value) {
             const numValue = parseFloat(value);
-            if (!isNaN(numValue) && numValue > 0) {
-                currentDimensions[key] = numValue; updatePreview(); updateCalculations(); validateTriangle();
+            if (!isNaN(numValue)) {
+                // Für Versatz sind negative Werte erlaubt
+                if (key === 'offset' || numValue > 0) {
+                    currentDimensions[key] = numValue; 
+                    updatePreview(); 
+                    updateCalculations(); 
+                    validateTriangle();
+                }
             }
         }
 
@@ -417,7 +461,7 @@
                     sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
                 } catch (e2) { alert('Fehler beim Speichern der Daten!'); return; }
             }
-            const formType = selectedRoundType ? 'runde Form' : selectedComplexType ? 'komplexe Form' : 'Standard-Form';
+            const formType = selectedRoundType ? 'runde Form' : selectedComplexType ? 'Sonderform' : 'Standard-Form';
             alert(`✅ ${formType} gespeichert!\nWeiterleitung zur Berechnung...`); window.location.href = 'berechnung.html';
         }
 
