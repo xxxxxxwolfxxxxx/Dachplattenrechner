@@ -172,93 +172,101 @@
 
         // ERWEITERTE Eingabefelder mit Versatz-Optionen
         const shapeInputs = {
-            'circle': [{key: 'radius', label: 'Radius', default: 5}],
+            'circle': [
+                {key: 'radius', label: 'Radius', default: 5},
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+            ],
             'oval': [
                 {key: 'radiusX', label: 'Halbachse Breite', default: 6}, 
                 {key: 'radiusY', label: 'Halbachse Höhe', default: 4},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ],
             'langloch': [
                 {key: 'length', label: 'Gesamtlänge', default: 10}, 
                 {key: 'width', label: 'Breite', default: 4},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ],
             'halbkreis': [
                 {key: 'radius', label: 'Radius', default: 5},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ],
             'viertelkreis': [
                 {key: 'radius', label: 'Radius', default: 5},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ],
             'lform': [
                 {key: 'totalWidth', label: 'Gesamtbreite', default: 12}, 
                 {key: 'totalHeight', label: 'Gesamthöhe', default: 10}, 
                 {key: 'cutWidth', label: 'Ausschnitt Breite', default: 5}, 
                 {key: 'cutHeight', label: 'Ausschnitt Höhe', default: 4},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ],
             'tform': [
                 {key: 'headWidth', label: 'Kopf-Breite', default: 12}, 
                 {key: 'headHeight', label: 'Kopf-Höhe', default: 3}, 
                 {key: 'stemWidth', label: 'Stamm-Breite', default: 4}, 
                 {key: 'stemHeight', label: 'Stamm-Höhe', default: 8},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ],
             'uform': [
                 {key: 'outerWidth', label: 'Außen-Breite', default: 12}, 
                 {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, 
                 {key: 'innerWidth', label: 'Innen-Breite', default: 8}, 
                 {key: 'innerHeight', label: 'Innen-Höhe', default: 6},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ],
             'cform': [
                 {key: 'outerWidth', label: 'Außen-Breite', default: 12}, 
                 {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, 
                 {key: 'openingWidth', label: 'Öffnung-Breite', default: 6}, 
                 {key: 'wallThickness', label: 'Wand-Dicke', default: 2},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ],
             'plusform': [
                 {key: 'width1', label: 'Breite-1', default: 12}, 
                 {key: 'height1', label: 'Höhe-1', default: 4}, 
                 {key: 'width2', label: 'Breite-2', default: 4}, 
                 {key: 'height2', label: 'Höhe-2', default: 12},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ],
-            'custom': [{key: 'area', label: 'Geschätzte Fläche', default: 50}],
+            'custom': [
+                {key: 'area', label: 'Geschätzte Fläche', default: 50},
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+            ],
             3: [
                 {key: 'sideA', label: 'Seite A', default: 8}, 
                 {key: 'sideB', label: 'Seite B', default: 6}, 
                 {key: 'sideC', label: 'Seite C', default: 7},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ],
             4: [
                 {key: 'bottomWidth', label: 'Untere Breite', default: 10}, 
                 {key: 'topWidth', label: 'Obere Breite', default: 8}, 
-                {key: 'offset', label: 'Seitversatz', default: 0, min: -100, max: 100}, // Hier ist der Fix!
-                {key: 'offsetX', label: 'Zusatz Versatz X', default: 0},
-                {key: 'offsetY', label: 'Zusatz Versatz Y', default: 0}
+                {key: 'offset', label: 'Seitversatz', default: 0, min: -100, max: 100},
+                {key: 'offsetX', label: 'Zusatz Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Zusatz Versatz Y', default: 0, min: -100, max: 100}
             ],
             5: [
                 {key: 'radius', label: 'Radius', default: 6},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ],
             6: [
                 {key: 'radius', label: 'Radius', default: 6},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
+                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
             ]
         };
 
@@ -368,277 +376,4 @@
         window.updateDimensionFromSVG = updateDimensionFromSVG; window.rotateShape = rotateShape; window.snapToAngle = snapToAngle; window.resetRotation = resetRotation; window.goBack = goBack; window.continueToCalculation = continueToCalculation;
     </script>
 </body>
-</html>'circle': 
-                        const r = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
-                        shapeSVG = `<circle cx="${baseOffsetX}" cy="${baseOffsetY}" r="${r}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(baseOffsetX, -r-60+baseOffsetY, 'radius', 'Radius');
-                        if (baseOffsetX !== 0 || baseOffsetY !== 0) {
-                            shapeSVG += drawInputField(baseOffsetX-80, baseOffsetY-30, 'offsetX', 'Versatz X');
-                            shapeSVG += drawInputField(baseOffsetX+80, baseOffsetY-30, 'offsetY', 'Versatz Y');
-                        }
-                        break;
-                    case 'oval': 
-                        const rx = Math.max(40, Math.min(150, (currentDimensions.radiusX || 6) * 20));
-                        const ry = Math.max(30, Math.min(120, (currentDimensions.radiusY || 4) * 20));
-                        shapeSVG = `<ellipse cx="${baseOffsetX}" cy="${baseOffsetY}" rx="${rx}" ry="${ry}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(-rx-80+baseOffsetX, baseOffsetY, 'radiusX', 'Breite');
-                        shapeSVG += drawInputField(baseOffsetX, -ry-60+baseOffsetY, 'radiusY', 'Höhe');
-                        shapeSVG += drawInputField(baseOffsetX-100, baseOffsetY+50, 'offsetX', 'Versatz X');
-                        shapeSVG += drawInputField(baseOffsetX+100, baseOffsetY+50, 'offsetY', 'Versatz Y');
-                        break;
-                    case 'langloch': 
-                        const length = currentDimensions.length || 10, width = currentDimensions.width || 4;
-                        const lw = Math.max(100, Math.min(200, length * 15)), lh = Math.max(40, Math.min(80, width * 15)), lr = lh / 2;
-                        shapeSVG = `<rect x="${-lw/2 + lr + baseOffsetX}" y="${-lh/2 + baseOffsetY}" width="${lw - 2*lr}" height="${lh}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <circle cx="${-lw/2 + lr + baseOffsetX}" cy="${baseOffsetY}" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <circle cx="${lw/2 - lr + baseOffsetX}" cy="${baseOffsetY}" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(baseOffsetX, -lh/2-60+baseOffsetY, 'length', 'Länge');
-                        shapeSVG += drawInputField(-lw/2-80+baseOffsetX, baseOffsetY, 'width', 'Breite');
-                        shapeSVG += drawInputField(baseOffsetX-120, baseOffsetY+80, 'offsetX', 'Versatz X');
-                        shapeSVG += drawInputField(baseOffsetX+120, baseOffsetY+80, 'offsetY', 'Versatz Y');
-                        break;
-                    case 'halbkreis': 
-                        const hr = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
-                        shapeSVG = `<path d="M ${-hr + baseOffsetX} ${baseOffsetY} A ${hr} ${hr} 0 0 1 ${hr + baseOffsetX} ${baseOffsetY} Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(baseOffsetX, -hr/2-50+baseOffsetY, 'radius', 'Radius');
-                        shapeSVG += drawInputField(baseOffsetX-100, baseOffsetY+60, 'offsetX', 'Versatz X');
-                        shapeSVG += drawInputField(baseOffsetX+100, baseOffsetY+60, 'offsetY', 'Versatz Y');
-                        break;
-                    case 'viertelkreis': 
-                        const vr = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
-                        shapeSVG = `<path d="M ${baseOffsetX} ${baseOffsetY} L ${vr + baseOffsetX} ${baseOffsetY} A ${vr} ${vr} 0 0 1 ${baseOffsetX} ${vr + baseOffsetY} Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(vr/2+baseOffsetX, -50+baseOffsetY, 'radius', 'Radius');
-                        shapeSVG += drawInputField(baseOffsetX-80, baseOffsetY+vr+60, 'offsetX', 'Versatz X');
-                        shapeSVG += drawInputField(baseOffsetX+vr+60, baseOffsetY+80, 'offsetY', 'Versatz Y');
-                        break;
-                }
-            } else if (selectedComplexType) {
-                const scale = 15;
-                switch (selectedComplexType) {
-                    case 'lform': 
-                        const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10;
-                        const cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4;
-                        const lPoints = [
-                            [-tw*scale/2 + baseOffsetX, -th*scale/2 + baseOffsetY], 
-                            [tw*scale/2 + baseOffsetX, -th*scale/2 + baseOffsetY], 
-                            [tw*scale/2 + baseOffsetX, -th*scale/2 + ch*scale + baseOffsetY], 
-                            [-tw*scale/2 + cw*scale + baseOffsetX, -th*scale/2 + ch*scale + baseOffsetY], 
-                            [-tw*scale/2 + cw*scale + baseOffsetX, th*scale/2 + baseOffsetY], 
-                            [-tw*scale/2 + baseOffsetX, th*scale/2 + baseOffsetY]
-                        ];
-                        shapeSVG = `<polygon points="${lPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(baseOffsetX, -th*scale/2-60+baseOffsetY, 'totalWidth', 'Ges.Breite');
-                        shapeSVG += drawInputField(-tw*scale/2-80+baseOffsetX, baseOffsetY, 'totalHeight', 'Ges.Höhe');
-                        shapeSVG += drawInputField(tw*scale/2+80+baseOffsetX, -th*scale/4+baseOffsetY, 'cutWidth', 'Auss.B');
-                        shapeSVG += drawInputField(tw*scale/2+80+baseOffsetX, -th*scale/4+40+baseOffsetY, 'cutHeight', 'Auss.H');
-                        shapeSVG += drawInputField(baseOffsetX-140, baseOffsetY+th*scale/2+60, 'offsetX', 'Versatz X');
-                        shapeSVG += drawInputField(baseOffsetX+140, baseOffsetY+th*scale/2+60, 'offsetY', 'Versatz Y');
-                        break;
-                    case 'tform': 
-                        const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3;
-                        const stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8;
-                        const tPoints = [
-                            [-headW*scale/2 + baseOffsetX, -headH*scale/2 + baseOffsetY], 
-                            [headW*scale/2 + baseOffsetX, -headH*scale/2 + baseOffsetY], 
-                            [headW*scale/2 + baseOffsetX, headH*scale/2 + baseOffsetY], 
-                            [stemW*scale/2 + baseOffsetX, headH*scale/2 + baseOffsetY], 
-                            [stemW*scale/2 + baseOffsetX, headH*scale/2 + stemH*scale + baseOffsetY], 
-                            [-stemW*scale/2 + baseOffsetX, headH*scale/2 + stemH*scale + baseOffsetY], 
-                            [-stemW*scale/2 + baseOffsetX, headH*scale/2 + baseOffsetY], 
-                            [-headW*scale/2 + baseOffsetX, headH*scale/2 + baseOffsetY]
-                        ];
-                        shapeSVG = `<polygon points="${tPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(baseOffsetX, -headH*scale/2-60+baseOffsetY, 'headWidth', 'Kopf-B');
-                        shapeSVG += drawInputField(-headW*scale/2-80+baseOffsetX, baseOffsetY, 'headHeight', 'Kopf-H');
-                        shapeSVG += drawInputField(stemW*scale/2+80+baseOffsetX, headH*scale/2 + stemH*scale/2+baseOffsetY, 'stemWidth', 'Stamm-B');
-                        shapeSVG += drawInputField(baseOffsetX, headH*scale/2 + stemH*scale + 50+baseOffsetY, 'stemHeight', 'Stamm-H');
-                        shapeSVG += drawInputField(baseOffsetX-150, headH*scale/2 + stemH*scale + 80+baseOffsetY, 'offsetX', 'Versatz X');
-                        shapeSVG += drawInputField(baseOffsetX+150, headH*scale/2 + stemH*scale + 80+baseOffsetY, 'offsetY', 'Versatz Y');
-                        break;
-                    case 'uform': 
-                        const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10;
-                        const innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6;
-                        const wallThick = (outerW - innerW) / 2;
-                        const uPoints = [
-                            [-outerW*scale/2 + baseOffsetX, -outerH*scale/2 + baseOffsetY], 
-                            [outerW*scale/2 + baseOffsetX, -outerH*scale/2 + baseOffsetY], 
-                            [outerW*scale/2 + baseOffsetX, outerH*scale/2 + baseOffsetY], 
-                            [outerW*scale/2 - wallThick*scale + baseOffsetX, outerH*scale/2 + baseOffsetY], 
-                            [outerW*scale/2 - wallThick*scale + baseOffsetX, -outerH*scale/2 + (outerH - innerH)*scale + baseOffsetY], 
-                            [-outerW*scale/2 + wallThick*scale + baseOffsetX, -outerH*scale/2 + (outerH - innerH)*scale + baseOffsetY], 
-                            [-outerW*scale/2 + wallThick*scale + baseOffsetX, outerH*scale/2 + baseOffsetY], 
-                            [-outerW*scale/2 + baseOffsetX, outerH*scale/2 + baseOffsetY]
-                        ];
-                        shapeSVG = `<polygon points="${uPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(baseOffsetX, -outerH*scale/2-60+baseOffsetY, 'outerWidth', 'Außen-B');
-                        shapeSVG += drawInputField(-outerW*scale/2-80+baseOffsetX, baseOffsetY, 'outerHeight', 'Außen-H');
-                        shapeSVG += drawInputField(outerW*scale/2+80+baseOffsetX, -outerH*scale/4+baseOffsetY, 'innerWidth', 'Innen-B');
-                        shapeSVG += drawInputField(outerW*scale/2+80+baseOffsetX, -outerH*scale/4+40+baseOffsetY, 'innerHeight', 'Innen-H');
-                        shapeSVG += drawInputField(baseOffsetX-140, outerH*scale/2+80+baseOffsetY, 'offsetX', 'Versatz X');
-                        shapeSVG += drawInputField(baseOffsetX+140, outerH*scale/2+80+baseOffsetY, 'offsetY', 'Versatz Y');
-                        break;
-                    case 'cform': 
-                        const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10;
-                        const openW = currentDimensions.openingWidth || 6, wallT = currentDimensions.wallThickness || 2;
-                        const cPoints = [
-                            [-cOuterW*scale/2 + baseOffsetX, -cOuterH*scale/2 + baseOffsetY], 
-                            [cOuterW*scale/2 + baseOffsetX, -cOuterH*scale/2 + baseOffsetY], 
-                            [cOuterW*scale/2 + baseOffsetX, -cOuterH*scale/2 + wallT*scale + baseOffsetY], 
-                            [-cOuterW*scale/2 + wallT*scale + baseOffsetX, -cOuterH*scale/2 + wallT*scale + baseOffsetY], 
-                            [-cOuterW*scale/2 + wallT*scale + baseOffsetX, cOuterH*scale/2 - wallT*scale + baseOffsetY], 
-                            [cOuterW*scale/2 + baseOffsetX, cOuterH*scale/2 - wallT*scale + baseOffsetY], 
-                            [cOuterW*scale/2 + baseOffsetX, cOuterH*scale/2 + baseOffsetY], 
-                            [-cOuterW*scale/2 + baseOffsetX, cOuterH*scale/2 + baseOffsetY]
-                        ];
-                        shapeSVG = `<polygon points="${cPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(baseOffsetX, -cOuterH*scale/2-60+baseOffsetY, 'outerWidth', 'Außen-B');
-                        shapeSVG += drawInputField(-cOuterW*scale/2-80+baseOffsetX, baseOffsetY, 'outerHeight', 'Außen-H');
-                        shapeSVG += drawInputField(cOuterW*scale/2+80+baseOffsetX, baseOffsetY, 'openingWidth', 'Öffnung');
-                        shapeSVG += drawInputField(baseOffsetX, cOuterH*scale/2+50+baseOffsetY, 'wallThickness', 'Wand-D');
-                        shapeSVG += drawInputField(baseOffsetX-140, cOuterH*scale/2+80+baseOffsetY, 'offsetX', 'Versatz X');
-                        shapeSVG += drawInputField(baseOffsetX+140, cOuterH*scale/2+80+baseOffsetY, 'offsetY', 'Versatz Y');
-                        break;
-                    case 'plusform': 
-                        const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4;
-                        const w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12;
-                        shapeSVG = `<rect x="${-w1*scale/2 + baseOffsetX}" y="${-h1*scale/2 + baseOffsetY}" width="${w1*scale}" height="${h1*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <rect x="${-w2*scale/2 + baseOffsetX}" y="${-h2*scale/2 + baseOffsetY}" width="${w2*scale}" height="${h2*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(-w1*scale/2-80+baseOffsetX, baseOffsetY, 'width1', 'Breite-1');
-                        shapeSVG += drawInputField(baseOffsetX, -h1*scale/2-50+baseOffsetY, 'height1', 'Höhe-1');
-                        shapeSVG += drawInputField(w2*scale/2+80+baseOffsetX, baseOffsetY, 'width2', 'Breite-2');
-                        shapeSVG += drawInputField(baseOffsetX, h2*scale/2+50+baseOffsetY, 'height2', 'Höhe-2');
-                        shapeSVG += drawInputField(baseOffsetX-160, h2*scale/2+80+baseOffsetY, 'offsetX', 'Versatz X');
-                        shapeSVG += drawInputField(baseOffsetX+160, h2*scale/2+80+baseOffsetY, 'offsetY', 'Versatz Y');
-                        break;
-                    case 'custom': 
-                        shapeSVG = `<rect x="${-80 + baseOffsetX}" y="${-60 + baseOffsetY}" width="160" height="120" fill="url(#shapeGradient)" stroke="#333" stroke-width="3" stroke-dasharray="10,5"/>` +
-                        `<text x="${baseOffsetX}" y="${baseOffsetY}" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Benutzerdefiniert</text>` +
-                        `<text x="${baseOffsetX}" y="${20 + baseOffsetY}" text-anchor="middle" fill="#666" font-size="12">Schätzen Sie die Gesamtfläche</text>` +
-                        `<text x="${baseOffsetX}" y="${35 + baseOffsetY}" text-anchor="middle" fill="#666" font-size="12">Ihres komplexen Dachs</text>` +
-                        drawInputField(baseOffsetX, -120+baseOffsetY, 'area', 'Geschätzte Fläche (m²)');
-                        break;
-                }
-            } else {
-                switch (selectedCorners) {
-                    case '3': 
-                        const sideA = currentDimensions.sideA || 8, sideB = currentDimensions.sideB || 6, sideC = currentDimensions.sideC || 7;
-                        if ((sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA)) {
-                            const scale = 25, A = {x: baseOffsetX, y: baseOffsetY}, B = {x: sideC * scale + baseOffsetX, y: baseOffsetY};
-                            const cosA = (sideB * sideB + sideC * sideC - sideA * sideA) / (2 * sideB * sideC);
-                            const angleA = Math.acos(Math.max(-1, Math.min(1, cosA)));
-                            const C = {x: sideB * scale * Math.cos(angleA) + baseOffsetX, y: sideB * scale * Math.sin(angleA) + baseOffsetY};
-                            const centerX = (A.x + B.x + C.x) / 3, centerY = (A.y + B.y + C.y) / 3;
-                            const points = [{x: A.x - centerX, y: A.y - centerY}, {x: B.x - centerX, y: B.y - centerY}, {x: C.x - centerX, y: C.y - centerY}];
-                            shapeSVG = `<polygon points="${points.map(p => `${p.x},${p.y}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                            shapeSVG += drawInputField((points[0].x + points[1].x)/2, (points[0].y + points[1].y)/2 - 50, 'sideC', 'Seite C');
-                            shapeSVG += drawInputField((points[1].x + points[2].x)/2 + 60, (points[1].y + points[2].y)/2, 'sideA', 'Seite A');
-                            shapeSVG += drawInputField((points[2].x + points[0].x)/2 - 60, (points[2].y + points[0].y)/2, 'sideB', 'Seite B');
-                            shapeSVG += drawInputField(-150, 150, 'offsetX', 'Versatz X');
-                            shapeSVG += drawInputField(150, 150, 'offsetY', 'Versatz Y');
-                        } else { 
-                            shapeSVG = `<polygon points="${baseOffsetX},${-120+baseOffsetY} ${150+baseOffsetX},${100+baseOffsetY} ${-150+baseOffsetX},${100+baseOffsetY}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>` +
-                                       drawInputField(75+baseOffsetX, -60+baseOffsetY, 'sideA', 'Seite A') + 
-                                       drawInputField(-75+baseOffsetX, -60+baseOffsetY, 'sideB', 'Seite B') + 
-                                       drawInputField(baseOffsetX, 130+baseOffsetY, 'sideC', 'Seite C') +
-                                       drawInputField(baseOffsetX-120, 180+baseOffsetY, 'offsetX', 'Versatz X') +
-                                       drawInputField(baseOffsetX+120, 180+baseOffsetY, 'offsetY', 'Versatz Y');
-                        } 
-                        break;
-                    case '4': 
-                        const bottomWidth = currentDimensions.bottomWidth || 10;
-                        const topWidth = currentDimensions.topWidth || 8;
-                        const offset = currentDimensions.offset || 0; // JETZT kann es 0 oder negativ sein!
-                        const scale4 = 20, height = 120;
-                        const points4 = [
-                            [-bottomWidth*scale4/2 + baseOffsetX, height/2 + baseOffsetY], 
-                            [bottomWidth*scale4/2 + baseOffsetX, height/2 + baseOffsetY], 
-                            [topWidth*scale4/2 + offset*scale4 + baseOffsetX, -height/2 + baseOffsetY], 
-                            [-topWidth*scale4/2 + offset*scale4 + baseOffsetX, -height/2 + baseOffsetY]
-                        ];
-                        shapeSVG = `<polygon points="${points4.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(baseOffsetX, height/2 + 60 + baseOffsetY, 'bottomWidth', 'Untere Breite');
-                        shapeSVG += drawInputField(offset*scale4 + baseOffsetX, -height/2 - 60 + baseOffsetY, 'topWidth', 'Obere Breite');
-                        shapeSVG += drawInputField(bottomWidth*scale4/2 + 80 + baseOffsetX, baseOffsetY, 'offset', 'Seitversatz');
-                        shapeSVG += drawInputField(baseOffsetX-140, height/2 + 100 + baseOffsetY, 'offsetX', 'Zusatz Versatz X');
-                        shapeSVG += drawInputField(baseOffsetX+140, height/2 + 100 + baseOffsetY, 'offsetY', 'Zusatz Versatz Y');
-                        break;
-                    case '5': 
-                    case '6': 
-                        const sides = parseInt(selectedCorners), radius = currentDimensions.radius || 6;
-                        const r = Math.max(80, Math.min(140, radius * 20));
-                        let points = []; 
-                        for (let i = 0; i < sides; i++) { 
-                            const angle = (i * 2 * Math.PI / sides) - Math.PI/2; 
-                            points.push(`${r * Math.cos(angle) + baseOffsetX},${r * Math.sin(angle) + baseOffsetY}`); 
-                        }
-                        shapeSVG = `<polygon points="${points.join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(baseOffsetX, -r-60+baseOffsetY, 'radius', 'Radius');
-                        shapeSVG += drawInputField(baseOffsetX-100, r+80+baseOffsetY, 'offsetX', 'Versatz X');
-                        shapeSVG += drawInputField(baseOffsetX+100, r+80+baseOffsetY, 'offsetY', 'Versatz Y');
-                        break;
-                }
-            }
-            shapeGroup.innerHTML = shapeSVG;
-        }
-
-        function drawInputField(x, y, key, label) {
-            const currentValue = currentDimensions[key] || 0;
-            const input = shapeInputs[selectedRoundType || selectedComplexType || selectedCorners]?.find(i => i.key === key);
-            const minVal = input?.min !== undefined ? input.min : (key.includes('offset') ? -100 : 0.01);
-            const maxVal = input?.max !== undefined ? input.max : (key.includes('offset') ? 100 : 100);
-            
-            return `<foreignObject x="${x - 55}" y="${y - 15}" width="110" height="30">
-                      <div class="dimension-input-container-simple">
-                        <input type="number" class="dimension-input" value="${currentValue.toFixed(2)}" data-key="${key}" step="0.01" min="${minVal}" max="${maxVal}" oninput="updateDimensionFromSVG('${key}', this.value)"/>
-                        <span class="dimension-unit">m</span>
-                      </div>
-                    </foreignObject>
-                    <text x="${x}" y="${y - 20}" text-anchor="middle" fill="#007bff" font-size="12" font-weight="bold">${label}</text>`;
-        }
-
-        function updateDimensionFromSVG(key, value) {
-            const numValue = parseFloat(value);
-            const input = shapeInputs[selectedRoundType || selectedComplexType || selectedCorners]?.find(i => i.key === key);
-            const minVal = input?.min !== undefined ? input.min : (key.includes('offset') ? -100 : 0.01);
-            
-            if (!isNaN(numValue) && numValue >= minVal) {
-                currentDimensions[key] = numValue; updatePreview(); updateCalculations(); validateTriangle();
-            }
-        }
-
-        function validateTriangle() {
-            if (selectedCorners === '3') {
-                const a = currentDimensions.sideA || 5, b = currentDimensions.sideB || 5, c = currentDimensions.sideC || 5;
-                const isValidTriangle = (a + b > c) && (a + c > b) && (b + c > a);
-                const orientationInfo = document.getElementById('orientation-info');
-                if (!isValidTriangle) {
-                    orientationInfo.className = 'orientation-info orientation-warning';
-                    orientationInfo.innerHTML = '<strong>⚠️ Ungültiges Dreieck</strong><br>A=' + a.toFixed(2) + 'm, B=' + b.toFixed(2) + 'm, C=' + c.toFixed(2) + 'm<br><small>Die Summe zweier Seiten muss größer als die dritte sein.</small>';
-                } else {
-                    orientationInfo.className = 'orientation-info';
-                    orientationInfo.innerHTML = '<strong>✅ Gültiges Dreieck!</strong><br>A=' + a.toFixed(2) + 'm, B=' + b.toFixed(2) + 'm, C=' + c.toFixed(2) + 'm';
-                }
-            }
-        }
-
-        function updateCalculations() {
-            let area = 0, perimeter = 0;
-            if (selectedRoundType) {
-                switch (selectedRoundType) {
-                    case 'circle': const r = currentDimensions.radius || 5; area = Math.PI * r * r; perimeter = 2 * Math.PI * r; break;
-                    case 'oval': const rx = currentDimensions.radiusX || 6, ry = currentDimensions.radiusY || 4;
-                        area = Math.PI * rx * ry; perimeter = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry))); break;
-                    case 'langloch': const length = currentDimensions.length || 10, width = currentDimensions.width || 4, radius = width / 2;
-                        area = (length - width) * width + Math.PI * radius * radius; perimeter = 2 * (length - width) + 2 * Math.PI * radius; break;
-                    case 'halbkreis': const hr = currentDimensions.radius || 5; area = (Math.PI * hr * hr) / 2; perimeter = Math.PI * hr + 2 * hr; break;
-                    case 'viertelkreis': const vr = currentDimensions.radius || 5; area = (Math.PI * vr * vr) / 4; perimeter = (Math.PI * vr) / 2 + 2 * vr; break;
-                }
-            } else if (selectedComplexType) {
-                switch (selectedComplexType) {
-                    case 'lform': const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10, cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4;
-                        area = tw * th - cw * ch; break;
-                    case 'tform': const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3, stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8;
-                        area = headW * headH + stemW * stemH; break;
-                    case 'uform': const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10, innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6;
-                        area = outerW * outerH - innerW * innerH; break;
-                    case
+</html>
