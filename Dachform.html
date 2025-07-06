@@ -198,7 +198,8 @@
                 {key: 'height1', label: 'Höhe-1', default: 4}, 
                 {key: 'width2', label: 'Breite-2', default: 4}, 
                 {key: 'height2', label: 'Höhe-2', default: 12},
-                {key: 'offset', label: 'Versatz', default: 0}
+                {key: 'offsetX', label: 'Versatz X', default: 0},
+                {key: 'offsetY', label: 'Versatz Y', default: 0}
             ],
             'custom': [{key: 'area', label: 'Geschätzte Fläche', default: 50}],
             3: [{key: 'sideA', label: 'Seite A', default: 8}, {key: 'sideB', label: 'Seite B', default: 6}, {key: 'sideC', label: 'Seite C', default: 7}],
@@ -314,12 +315,12 @@
                         shapeSVG += drawInputField(cOffset*scale, -cOuterH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-cOuterW*scale/2-80+cOffset*scale, 0, 'outerHeight', 'Außen-H') + 
                                    drawInputField(cOuterW*scale/2+80+cOffset*scale, 0, 'openingWidth', 'Öffnung') + drawInputField(cOffset*scale, cOuterH*scale/2+50, 'wallThickness', 'Wand-D') +
                                    drawInputField(200, -280, 'offset', 'Versatz'); break;
-                    case 'plusform': const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4, w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12, pOffset = currentDimensions.offset || 0;
-                        shapeSVG = `<rect x="${-w1*scale/2 + pOffset*scale}" y="${-h1*scale/2}" width="${w1*scale}" height="${h1*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <rect x="${-w2*scale/2 + pOffset*scale}" y="${-h2*scale/2}" width="${w2*scale}" height="${h2*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(-w1*scale/2-80+pOffset*scale, 0, 'width1', 'Breite-1') + drawInputField(pOffset*scale, -h1*scale/2-50, 'height1', 'Höhe-1') + 
-                                   drawInputField(w2*scale/2+80+pOffset*scale, 0, 'width2', 'Breite-2') + drawInputField(pOffset*scale, h2*scale/2+50, 'height2', 'Höhe-2') +
-                                   drawInputField(0, 280, 'offset', 'Versatz'); break;
+                    case 'plusform': const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4, w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12, pOffsetX = currentDimensions.offsetX || 0, pOffsetY = currentDimensions.offsetY || 0;
+                        shapeSVG = `<rect x="${-w1*scale/2 + pOffsetX*scale}" y="${-h1*scale/2 + pOffsetY*scale}" width="${w1*scale}" height="${h1*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                   <rect x="${-w2*scale/2 + pOffsetX*scale}" y="${-h2*scale/2 + pOffsetY*scale}" width="${w2*scale}" height="${h2*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        shapeSVG += drawInputField(-w1*scale/2-80+pOffsetX*scale, pOffsetY*scale, 'width1', 'Breite-1') + drawInputField(pOffsetX*scale, -h1*scale/2-50+pOffsetY*scale, 'height1', 'Höhe-1') + 
+                                   drawInputField(w2*scale/2+80+pOffsetX*scale, pOffsetY*scale, 'width2', 'Breite-2') + drawInputField(pOffsetX*scale, h2*scale/2+50+pOffsetY*scale, 'height2', 'Höhe-2') +
+                                   drawInputField(-250, 280, 'offsetX', 'Versatz X') + drawInputField(250, 280, 'offsetY', 'Versatz Y'); break;
                     case 'custom': shapeSVG = `<rect x="-80" y="-60" width="160" height="120" fill="url(#shapeGradient)" stroke="#333" stroke-width="3" stroke-dasharray="10,5"/>` +
                         `<text x="0" y="0" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Benutzerdefiniert</text>` +
                         `<text x="0" y="20" text-anchor="middle" fill="#666" font-size="12">Schätzen Sie die Gesamtfläche</text>` +
@@ -360,22 +361,48 @@
             shapeGroup.innerHTML = shapeSVG;
         }
 
-        // KORRIGIERTE drawInputField Funktion mit erweiterten Bereichen für Versatz
+        // Einfache, funktionierende Eingabefelder - Browser-Spin-Buttons akzeptieren
         function drawInputField(x, y, key, label) {
             const currentValue = currentDimensions[key] || 0;
             let min = "0.01", max = "100", step = "0.01";
             
             // Spezielle Einstellungen für Versatz
-            if (key === 'offset') {
+            if (key === 'offset' || key === 'offsetX' || key === 'offsetY') {
                 min = "-100";
                 max = "100";
                 step = "0.1";
             }
             
             return `<foreignObject x="${x - 55}" y="${y - 15}" width="110" height="30">
-                      <div class="dimension-input-container-simple">
-                        <input type="number" class="dimension-input" value="${currentValue.toFixed(2)}" data-key="${key}" step="${step}" min="${min}" max="${max}" oninput="updateDimensionFromSVG('${key}', this.value)"/>
-                        <span class="dimension-unit">m</span>
+                      <div xmlns="http://www.w3.org/1999/xhtml" style="
+                        display: flex; 
+                        align-items: center; 
+                        background: white; 
+                        border-radius: 8px; 
+                        padding: 4px 8px; 
+                        box-shadow: 0 3px 12px rgba(0,0,0,0.15); 
+                        border: 2px solid #007bff; 
+                        width: 110px; 
+                        height: 30px;
+                        box-sizing: border-box;
+                      ">
+                        <input type="number" value="${currentValue.toFixed(2)}" data-key="${key}" step="${step}" min="${min}" max="${max}" 
+                               oninput="updateDimensionFromSVG('${key}', this.value)"
+                               style="
+                                 width: 70px; 
+                                 height: 22px; 
+                                 font-size: 14px; 
+                                 text-align: center; 
+                                 border: 1px solid #ccc; 
+                                 border-radius: 4px; 
+                                 outline: none; 
+                                 font-weight: bold; 
+                                 color: #2c3e50; 
+                                 background: white; 
+                                 padding: 2px;
+                                 box-sizing: border-box;
+                               "/>
+                        <span style="font-size: 12px; color: #007bff; font-weight: bold; margin-left: 6px;">m</span>
                       </div>
                     </foreignObject>
                     <text x="${x}" y="${y - 20}" text-anchor="middle" fill="#007bff" font-size="12" font-weight="bold">${label}</text>`;
@@ -385,7 +412,7 @@
             const numValue = parseFloat(value);
             if (!isNaN(numValue)) {
                 // Für Versatz sind negative Werte erlaubt
-                if (key === 'offset' || numValue > 0) {
+                if (key === 'offset' || key === 'offsetX' || key === 'offsetY' || numValue > 0) {
                     currentDimensions[key] = numValue; 
                     updatePreview(); 
                     updateCalculations(); 
