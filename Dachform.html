@@ -168,133 +168,123 @@
     </div>
 
     <script>
-        let selectedCorners = null, selectedRoundType = null, selectedComplexType = null, currentDimensions = {}, currentRotation = 0;
+        let selectedCorners = null;
+        let selectedRoundType = null;
+        let selectedComplexType = null;
+        let currentDimensions = {};
+        let currentRotation = 0;
 
-        // ERWEITERTE Eingabefelder mit Versatz-Optionen
+        // KORRIGIERTE Eingabefelder mit Versatz-Optionen
         const shapeInputs = {
             'circle': [
-                {key: 'radius', label: 'Radius', default: 5},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'radius', label: 'Radius', default: 5}
             ],
             'oval': [
                 {key: 'radiusX', label: 'Halbachse Breite', default: 6}, 
-                {key: 'radiusY', label: 'Halbachse Höhe', default: 4},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'radiusY', label: 'Halbachse Höhe', default: 4}
             ],
             'langloch': [
                 {key: 'length', label: 'Gesamtlänge', default: 10}, 
-                {key: 'width', label: 'Breite', default: 4},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'width', label: 'Breite', default: 4}
             ],
             'halbkreis': [
-                {key: 'radius', label: 'Radius', default: 5},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'radius', label: 'Radius', default: 5}
             ],
             'viertelkreis': [
-                {key: 'radius', label: 'Radius', default: 5},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'radius', label: 'Radius', default: 5}
             ],
             'lform': [
                 {key: 'totalWidth', label: 'Gesamtbreite', default: 12}, 
                 {key: 'totalHeight', label: 'Gesamthöhe', default: 10}, 
                 {key: 'cutWidth', label: 'Ausschnitt Breite', default: 5}, 
-                {key: 'cutHeight', label: 'Ausschnitt Höhe', default: 4},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'cutHeight', label: 'Ausschnitt Höhe', default: 4}
             ],
             'tform': [
                 {key: 'headWidth', label: 'Kopf-Breite', default: 12}, 
                 {key: 'headHeight', label: 'Kopf-Höhe', default: 3}, 
                 {key: 'stemWidth', label: 'Stamm-Breite', default: 4}, 
-                {key: 'stemHeight', label: 'Stamm-Höhe', default: 8},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'stemHeight', label: 'Stamm-Höhe', default: 8}
             ],
             'uform': [
                 {key: 'outerWidth', label: 'Außen-Breite', default: 12}, 
                 {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, 
                 {key: 'innerWidth', label: 'Innen-Breite', default: 8}, 
-                {key: 'innerHeight', label: 'Innen-Höhe', default: 6},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'innerHeight', label: 'Innen-Höhe', default: 6}
             ],
             'cform': [
                 {key: 'outerWidth', label: 'Außen-Breite', default: 12}, 
                 {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, 
                 {key: 'openingWidth', label: 'Öffnung-Breite', default: 6}, 
-                {key: 'wallThickness', label: 'Wand-Dicke', default: 2},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'wallThickness', label: 'Wand-Dicke', default: 2}
             ],
             'plusform': [
                 {key: 'width1', label: 'Breite-1', default: 12}, 
                 {key: 'height1', label: 'Höhe-1', default: 4}, 
                 {key: 'width2', label: 'Breite-2', default: 4}, 
-                {key: 'height2', label: 'Höhe-2', default: 12},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'height2', label: 'Höhe-2', default: 12}
             ],
             'custom': [
-                {key: 'area', label: 'Geschätzte Fläche', default: 50},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'area', label: 'Geschätzte Fläche', default: 50}
             ],
             3: [
                 {key: 'sideA', label: 'Seite A', default: 8}, 
                 {key: 'sideB', label: 'Seite B', default: 6}, 
-                {key: 'sideC', label: 'Seite C', default: 7},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'sideC', label: 'Seite C', default: 7}
             ],
             4: [
                 {key: 'bottomWidth', label: 'Untere Breite', default: 10}, 
                 {key: 'topWidth', label: 'Obere Breite', default: 8}, 
-                {key: 'offset', label: 'Seitversatz', default: 0, min: -100, max: 100},
-                {key: 'offsetX', label: 'Zusatz Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Zusatz Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'height', label: 'Höhe', default: 6}
             ],
             5: [
-                {key: 'radius', label: 'Radius', default: 6},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'radius', label: 'Radius', default: 6}
             ],
             6: [
-                {key: 'radius', label: 'Radius', default: 6},
-                {key: 'offsetX', label: 'Versatz X', default: 0, min: -100, max: 100},
-                {key: 'offsetY', label: 'Versatz Y', default: 0, min: -100, max: 100}
+                {key: 'radius', label: 'Radius', default: 6}
             ]
         };
 
         function selectCorners(corners) {
             document.querySelectorAll('.corner-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector('[data-corners="' + corners + '"]').classList.add('selected');
-            selectedCorners = corners; selectedRoundType = null; selectedComplexType = null;
+            selectedCorners = corners; 
+            selectedRoundType = null; 
+            selectedComplexType = null;
             
-            const roundSelector = document.getElementById('round-selector'), complexSelector = document.getElementById('complex-selector');
+            const roundSelector = document.getElementById('round-selector');
+            const complexSelector = document.getElementById('complex-selector');
+            
             if (corners === '0') {
-                roundSelector.style.display = 'block'; complexSelector.style.display = 'none'; hideEditor();
+                roundSelector.style.display = 'block'; 
+                complexSelector.style.display = 'none'; 
+                hideEditor();
                 document.querySelectorAll('.round-option').forEach(opt => opt.classList.remove('selected'));
             } else if (corners === 'special') {
-                roundSelector.style.display = 'none'; complexSelector.style.display = 'block'; hideEditor();
+                roundSelector.style.display = 'none'; 
+                complexSelector.style.display = 'block'; 
+                hideEditor();
                 document.querySelectorAll('.complex-option').forEach(opt => opt.classList.remove('selected'));
-            } else { roundSelector.style.display = 'none'; complexSelector.style.display = 'none'; showEditor(); }
+            } else { 
+                roundSelector.style.display = 'none'; 
+                complexSelector.style.display = 'none'; 
+                showEditor(); 
+            }
         }
 
         function selectRoundType(roundType) {
             document.querySelectorAll('.round-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector('[data-round-type="' + roundType + '"]').classList.add('selected');
-            selectedRoundType = roundType; selectedComplexType = null; showEditor();
+            selectedRoundType = roundType; 
+            selectedComplexType = null; 
+            showEditor();
         }
 
         function selectComplexType(complexType) {
             document.querySelectorAll('.complex-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector('[data-complex-type="' + complexType + '"]').classList.add('selected');
-            selectedComplexType = complexType; selectedRoundType = null; showEditor();
+            selectedComplexType = complexType; 
+            selectedRoundType = null; 
+            showEditor();
         }
 
         function hideEditor() {
@@ -306,74 +296,237 @@
             document.getElementById('editor-area').style.display = 'block';
             document.getElementById('continue-btn').style.display = 'inline-block';
             document.getElementById('shape-info').innerHTML = '<strong>Gewählt:</strong> Form ausgewählt';
-            createInputs(); document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
+            createInputs(); 
+            document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
         }
 
         function createInputs() {
-            const inputKey = selectedRoundType || selectedComplexType || selectedCorners, inputs = shapeInputs[inputKey];
-            if (!inputs) return; currentDimensions = {}; inputs.forEach(input => currentDimensions[input.key] = input.default);
-            updatePreview(); updateCalculations();
+            const inputKey = selectedRoundType || selectedComplexType || selectedCorners;
+            const inputs = shapeInputs[inputKey];
+            if (!inputs) return; 
+            
+            currentDimensions = {};
+            inputs.forEach(input => currentDimensions[input.key] = input.default);
+            updatePreview(); 
+            updateCalculations();
         }
 
         function updatePreview() {
-            const shapeGroup = document.getElementById('shape-group'); if (!shapeGroup) return; let shapeSVG = '';
+            // Vereinfachte Vorschau - zeigt nur Platzhalter-Text
+            const shapeGroup = document.getElementById('shape-group');
+            if (!shapeGroup) return;
             
-            // Basis-Versätze aus den Eingaben
-            const baseOffsetX = (currentDimensions.offsetX || 0) * 20; // Skalierung für SVG
-            const baseOffsetY = (currentDimensions.offsetY || 0) * 20;
-            
+            let shapeType = selectedRoundType || selectedComplexType || `${selectedCorners}-Eck`;
+            shapeGroup.innerHTML = `<text y="0" text-anchor="middle" fill="#007bff" font-size="18">Form: ${shapeType}</text>`;
+        }
+
+        function updateCalculations() {
+            let area = 0;
+            let perimeter = 0;
+
             if (selectedRoundType) {
                 switch (selectedRoundType) {
-'cform': const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10, wallT = currentDimensions.wallThickness || 2;
-                        const cInnerW = cOuterW - 2 * wallT, cInnerH = cOuterH - wallT; area = cOuterW * cOuterH - cInnerW * cInnerH; break;
-                    case 'plusform': const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4, w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12;
-                        const overlap = Math.min(w1, w2) * Math.min(h1, h2); area = w1 * h1 + w2 * h2 - overlap; break;
-                    case 'custom': area = currentDimensions.area || 50; break;
+                    case 'circle':
+                        const radius = currentDimensions.radius || 5;
+                        area = Math.PI * radius * radius;
+                        perimeter = 2 * Math.PI * radius;
+                        break;
+                    case 'oval':
+                        const radiusX = currentDimensions.radiusX || 6;
+                        const radiusY = currentDimensions.radiusY || 4;
+                        area = Math.PI * radiusX * radiusY;
+                        perimeter = Math.PI * (3 * (radiusX + radiusY) - Math.sqrt((3 * radiusX + radiusY) * (radiusX + 3 * radiusY)));
+                        break;
+                    case 'langloch':
+                        const length = currentDimensions.length || 10;
+                        const width = currentDimensions.width || 4;
+                        area = length * width;
+                        perimeter = 2 * (length + width);
+                        break;
+                    case 'halbkreis':
+                        const r = currentDimensions.radius || 5;
+                        area = (Math.PI * r * r) / 2;
+                        perimeter = Math.PI * r + 2 * r;
+                        break;
+                    case 'viertelkreis':
+                        const rv = currentDimensions.radius || 5;
+                        area = (Math.PI * rv * rv) / 4;
+                        perimeter = (Math.PI * rv) / 2 + 2 * rv;
+                        break;
+                }
+            } else if (selectedComplexType) {
+                switch (selectedComplexType) {
+                    case 'lform':
+                        const totalWidth = currentDimensions.totalWidth || 12;
+                        const totalHeight = currentDimensions.totalHeight || 10;
+                        const cutWidth = currentDimensions.cutWidth || 5;
+                        const cutHeight = currentDimensions.cutHeight || 4;
+                        area = (totalWidth * totalHeight) - (cutWidth * cutHeight);
+                        break;
+                    case 'tform':
+                        const headWidth = currentDimensions.headWidth || 12;
+                        const headHeight = currentDimensions.headHeight || 3;
+                        const stemWidth = currentDimensions.stemWidth || 4;
+                        const stemHeight = currentDimensions.stemHeight || 8;
+                        area = headWidth * headHeight + stemWidth * stemHeight;
+                        break;
+                    case 'uform':
+                        const outerWidth = currentDimensions.outerWidth || 12;
+                        const outerHeight = currentDimensions.outerHeight || 10;
+                        const innerWidth = currentDimensions.innerWidth || 8;
+                        const innerHeight = currentDimensions.innerHeight || 6;
+                        area = outerWidth * outerHeight - innerWidth * innerHeight;
+                        break;
+                    case 'cform':
+                        const cOuterW = currentDimensions.outerWidth || 12;
+                        const cOuterH = currentDimensions.outerHeight || 10;
+                        const wallT = currentDimensions.wallThickness || 2;
+                        const cInnerW = cOuterW - 2 * wallT;
+                        const cInnerH = cOuterH - wallT;
+                        area = cOuterW * cOuterH - cInnerW * cInnerH;
+                        break;
+                    case 'plusform':
+                        const w1 = currentDimensions.width1 || 12;
+                        const h1 = currentDimensions.height1 || 4;
+                        const w2 = currentDimensions.width2 || 4;
+                        const h2 = currentDimensions.height2 || 12;
+                        const overlap = Math.min(w1, w2) * Math.min(h1, h2);
+                        area = w1 * h1 + w2 * h2 - overlap;
+                        break;
+                    case 'custom':
+                        area = currentDimensions.area || 50;
+                        break;
                 }
             } else if (selectedCorners) {
                 switch (selectedCorners) {
-                    case '3': const sideA = currentDimensions.sideA || 8, sideB = currentDimensions.sideB || 6, sideC = currentDimensions.sideC || 7, s = (sideA + sideB + sideC) / 2;
-                        if ((sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA)) { area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC)); perimeter = sideA + sideB + sideC; } break;
-                    case '4': const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8; area = (bottomWidth + topWidth) * 6 / 2; break;
-                    case '5': const r5 = currentDimensions.radius || 6; area = 1.25 * r5 * r5 * Math.sqrt(10 + 2 * Math.sqrt(5)); break;
-                    case '6': const r6 = currentDimensions.radius || 6; area = 1.5 * Math.sqrt(3) * r6 * r6; break;
+                    case '3':
+                        const sideA = currentDimensions.sideA || 8;
+                        const sideB = currentDimensions.sideB || 6;
+                        const sideC = currentDimensions.sideC || 7;
+                        const s = (sideA + sideB + sideC) / 2;
+                        if ((sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA)) {
+                            area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
+                            perimeter = sideA + sideB + sideC;
+                        }
+                        break;
+                    case '4':
+                        const bottomWidth = currentDimensions.bottomWidth || 10;
+                        const topWidth = currentDimensions.topWidth || 8;
+                        const height = currentDimensions.height || 6;
+                        area = (bottomWidth + topWidth) * height / 2;
+                        perimeter = bottomWidth + topWidth + 2 * Math.sqrt(Math.pow((bottomWidth - topWidth) / 2, 2) + height * height);
+                        break;
+                    case '5':
+                        const r5 = currentDimensions.radius || 6;
+                        area = 1.25 * r5 * r5 * Math.sqrt(10 + 2 * Math.sqrt(5));
+                        perimeter = 5 * 2 * r5 * Math.sin(Math.PI / 5);
+                        break;
+                    case '6':
+                        const r6 = currentDimensions.radius || 6;
+                        area = 1.5 * Math.sqrt(3) * r6 * r6;
+                        perimeter = 6 * r6;
+                        break;
                 }
             }
+
             document.getElementById('calc-area').textContent = area.toFixed(2) + ' m²';
             document.getElementById('calc-perimeter').textContent = perimeter.toFixed(2) + ' m';
         }
 
-        function rotateShape(degrees) { currentRotation = (currentRotation + degrees) % 360; if (currentRotation < 0) currentRotation += 360; document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; }
-        function snapToAngle(targetAngle) { currentRotation = targetAngle % 360; document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; }
-        function resetRotation() { currentRotation = 0; document.getElementById('rotation-display').textContent = 'Drehung: 0°'; }
-        function goBack() { window.location.href = 'profil.html'; }
-
-        function continueToCalculation() {
-            if (!selectedCorners && !selectedRoundType && !selectedComplexType) { alert('Bitte wählen Sie zuerst eine Form aus!'); return; }
-            const areaText = document.getElementById('calc-area').textContent;
-            const shapeData = { corners: selectedCorners, roundType: selectedRoundType, complexType: selectedComplexType, dimensions: currentDimensions, rotation: currentRotation, area: parseFloat(areaText.replace(' m²', '')) };
-            
-            try {
-                let mainData = {}; try { const existing = localStorage.getItem('dachplattenrechner_data'); if (existing) mainData = JSON.parse(existing); } catch(e) {}
-                mainData.geometry = { variant: selectedRoundType || selectedComplexType || selectedCorners, dimensions: currentDimensions, area: parseFloat(areaText.replace(' m²', '')) };
-                localStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
-            } catch (e) {
-                try { let mainData = {}; const existing = sessionStorage.getItem('dachplattenrechner_data'); if (existing) mainData = JSON.parse(existing);
-                    mainData.geometry = { variant: selectedRoundType || selectedComplexType || selectedCorners, dimensions: currentDimensions, area: parseFloat(areaText.replace(' m²', '')) };
-                    sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
-                } catch (e2) { alert('Fehler beim Speichern der Daten!'); return; }
-            }
-            const formType = selectedRoundType ? 'runde Form' : selectedComplexType ? 'komplexe Form' : 'Standard-Form';
-            alert(`✅ ${formType} mit Versatz-Einstellungen gespeichert!\nWeiterleitung zur Berechnung...`); window.location.href = 'berechnung.html';
+        function rotateShape(degrees) { 
+            currentRotation = (currentRotation + degrees) % 360; 
+            if (currentRotation < 0) currentRotation += 360; 
+            document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; 
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.corner-option').forEach(opt => opt.addEventListener('click', function() { selectCorners(this.getAttribute('data-corners')); }));
-            document.querySelectorAll('.round-option').forEach(opt => opt.addEventListener('click', function() { selectRoundType(this.getAttribute('data-round-type')); }));
-            document.querySelectorAll('.complex-option').forEach(opt => opt.addEventListener('click', function() { selectComplexType(this.getAttribute('data-complex-type')); }));
-        });
+        function snapToAngle(targetAngle) { 
+            currentRotation = targetAngle % 360; 
+            document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; 
+        }
 
-        window.updateDimensionFromSVG = updateDimensionFromSVG; window.rotateShape = rotateShape; window.snapToAngle = snapToAngle; window.resetRotation = resetRotation; window.goBack = goBack; window.continueToCalculation = continueToCalculation;
+        function resetRotation() { 
+            currentRotation = 0; 
+            document.getElementById('rotation-display').textContent = 'Drehung: 0°'; 
+        }
+
+        function goBack() { 
+            window.location.href = 'profil.html'; 
+        }
+
+        function continueToCalculation() {
+            if (!selectedCorners && !selectedRoundType && !selectedComplexType) { 
+                alert('Bitte wählen Sie zuerst eine Form aus!'); 
+                return; 
+            }
+
+            const areaText = document.getElementById('calc-area').textContent;
+            const shapeData = { 
+                corners: selectedCorners, 
+                roundType: selectedRoundType, 
+                complexType: selectedComplexType, 
+                dimensions: currentDimensions, 
+                rotation: currentRotation, 
+                area: parseFloat(areaText.replace(' m²', '')) 
+            };
+            
+            try {
+                let mainData = {}; 
+                try { 
+                    const existing = localStorage.getItem('dachplattenrechner_data'); 
+                    if (existing) mainData = JSON.parse(existing); 
+                } catch(e) {}
+                
+                mainData.geometry = { 
+                    variant: selectedRoundType || selectedComplexType || selectedCorners, 
+                    dimensions: currentDimensions, 
+                    area: parseFloat(areaText.replace(' m²', '')) 
+                };
+                
+                localStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
+            } catch (e) {
+                try { 
+                    let mainData = {}; 
+                    const existing = sessionStorage.getItem('dachplattenrechner_data'); 
+                    if (existing) mainData = JSON.parse(existing);
+                    
+                    mainData.geometry = { 
+                        variant: selectedRoundType || selectedComplexType || selectedCorners, 
+                        dimensions: currentDimensions, 
+                        area: parseFloat(areaText.replace(' m²', '')) 
+                    };
+                    
+                    sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
+                } catch (e2) { 
+                    alert('Fehler beim Speichern der Daten!'); 
+                    return; 
+                }
+            }
+            
+            const formType = selectedRoundType ? 'runde Form' : selectedComplexType ? 'komplexe Form' : 'Standard-Form';
+            alert(`✅ ${formType} gespeichert!\nWeiterleitung zur Berechnung...`); 
+            window.location.href = 'berechnung.html';
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.corner-option').forEach(opt => 
+                opt.addEventListener('click', function() { 
+                    selectCorners(this.getAttribute('data-corners')); 
+                })
+            );
+            
+            document.querySelectorAll('.round-option').forEach(opt => 
+                opt.addEventListener('click', function() { 
+                    selectRoundType(this.getAttribute('data-round-type')); 
+                })
+            );
+            
+            document.querySelectorAll('.complex-option').forEach(opt => 
+                opt.addEventListener('click', function() { 
+                    selectComplexType(this.getAttribute('data-complex-type')); 
+                })
+            );
+        });
     </script>
 </body>
 </html>
