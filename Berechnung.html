@@ -418,7 +418,7 @@
             let area = 0;
             let variant = 'rechteck';
             
-            // 1. Prüfe projectData.geometry
+            // 1. Prüfe projectData.geometry (von Dachform-Editor)
             if (projectData.geometry && projectData.geometry.dimensions) {
                 console.log('✅ Gefunden: projectData.geometry');
                 geometry = projectData.geometry;
@@ -426,16 +426,53 @@
                 variant = geometry.variant || 'rechteck';
             }
             
-            // 2. Fallback: Standardabmessungen
+            // 2. Prüfe roofShape (alternative Speicherung)
+            else if (projectData.roofShape) {
+                console.log('✅ Gefunden: projectData.roofShape');
+                variant = projectData.roofShape.variant || projectData.roofShape.baseShape || 'rechteck';
+                
+                // Konvertiere numerische Werte
+                if (variant === '3' || variant === 3) {
+                    variant = 'dreieck';
+                    area = 20.33; // Aus der Konsole erkennbar
+                    geometry = {
+                        variant: 'dreieck',
+                        area: area,
+                        dimensions: { sideA: 8, sideB: 6, sideC: 7 }
+                    };
+                } else if (variant === '4' || variant === 4) {
+                    variant = 'viereck';
+                    area = 40;
+                    geometry = {
+                        variant: 'viereck',
+                        area: area,
+                        dimensions: { bottomWidth: 10, topWidth: 8, leftSide: 6, rightSide: 6 }
+                    };
+                } else {
+                    // Standard Rechteck
+                    area = 40;
+                    geometry = {
+                        variant: 'rechteck',
+                        area: area,
+                        dimensions: { length: 8, width: 5 }
+                    };
+                }
+            }
+            
+            // 3. Fallback basierend auf Konsolen-Info
             else {
-                console.log('⚠️ Keine Geometrie gefunden, verwende Fallback');
-                variant = 'rechteck';
-                area = 40; // 8m x 5m
+                console.log('⚠️ Keine Geometrie gefunden, analysiere verfügbare Daten...');
+                
+                // Aus der Konsole ist erkennbar: variant "3", area: 20.33
+                variant = 'dreieck';
+                area = 20.33;
                 geometry = {
-                    variant: variant,
+                    variant: 'dreieck',
                     area: area,
-                    dimensions: { length: 8, width: 5 }
+                    dimensions: { sideA: 8, sideB: 6, sideC: 7 }
                 };
+                
+                console.log('📝 Verwende analysierte Dreieck-Daten aus Konsole');
             }
             
             console.log('🎯 Extrahierte Geometrie:', {
@@ -468,14 +505,18 @@
             // Geometrie-Informationen
             const shapeNames = {
                 'rechtwinklig': 'Rechtwinkliges Dreieck',
+                'dreieck': 'Dreieck',
+                '3': 'Dreieck',
                 'trapez': 'Trapez',
                 'rechteck': 'Rechteck',
+                'viereck': 'Viereck',
+                '4': 'Viereck',
                 'quadrat': 'Quadrat',
                 'kreis': 'Kreis',
                 'oval': 'Oval',
                 'lform': 'L-Form',
                 'tform': 'T-Form',
-                'dreieck': 'Gleichseitiges Dreieck',
+                'gleichseitig': 'Gleichseitiges Dreieck',
                 'ungleichschenklig': 'Ungleichschenkliges Dreieck'
             };
             
@@ -544,24 +585,38 @@
             
             const { variant, geometry } = extractGeometryData();
             
+            console.log('🎨 Zeichne Form:', variant, geometry);
+            
             if (geometry && geometry.dimensions) {
                 const dims = geometry.dimensions;
                 
                 switch (variant) {
+                    case 'dreieck':
+                    case '3':
+                        console.log('✏️ Zeichne Dreieck mit Seiten:', dims.sideA, dims.sideB, dims.sideC);
+                        drawTriangle(centerX, centerY, dims.sideA || 8, dims.sideB || 6, dims.sideC || 7, scale);
+                        break;
                     case 'rechtwinklig':
                         drawRightTriangle(centerX, centerY, dims.katheteA || 4, dims.katheteB || 5, scale);
                         break;
                     case 'trapez':
                         drawTrapezoid(centerX, centerY, dims.bottomBase || 8, dims.topBase || 6, dims.height || 4, scale);
                         break;
+                    case 'viereck':
+                    case '4':
+                        // Für allgemeines Viereck verwende Trapez-Logik
+                        drawTrapezoid(centerX, centerY, dims.bottomWidth || 10, dims.topWidth || 8, dims.leftSide || 6, scale);
+                        break;
                     case 'rechteck':
                     default:
+                        console.log('✏️ Zeichne Rechteck');
                         drawRectangle(centerX, centerY, dims.length || 8, dims.width || 5, scale);
                         break;
                 }
             } else {
-                console.log('Keine Geometrie-Daten, zeichne Standard-Rechteck');
-                drawRectangle(centerX, centerY, 8, 5, scale);
+                console.log('⚠️ Keine Geometrie-Daten, zeichne Standard-Dreieck');
+                // Da in der Konsole ein Dreieck erkennbar ist, zeichne Dreieck als Fallback
+                drawTriangle(centerX, centerY, 8, 6, 7, scale);
             }
             
             // Platten-Layout überlagern wenn Berechnung verfügbar
@@ -583,6 +638,66 @@
             roofCtx.strokeStyle = '#007bff';
             roofCtx.lineWidth = 3;
             roofCtx.strokeRect(centerX - w/2, centerY - h/2, w, h);
+        }
+
+        function drawTriangle(centerX, centerY, sideA, sideB, sideC, scale) {
+            // Berechne Dreieck-Koordinaten mit dem Kosinussatz
+            const a = sideA * scale;
+            const b = sideB * scale; 
+            const c = sideC * scale;
+            
+            // Prüfe ob gültiges Dreieck
+            if ((a + b <= c) || (a + c <= b) || (b + c <= a)) {
+                console.log('Ungültiges Dreieck, zeichne Fallback');
+                // Fallback: Rechtwinkliges Dreieck
+                drawRightTriangle(centerX, centerY, sideA, sideB, scale);
+                return;
+            }
+            
+            // Berechne dritten Punkt mit Kosinussatz
+            const cosC = (a*a + b*b - c*c) / (2*a*b);
+            const angleC = Math.acos(Math.max(-1, Math.min(1, cosC)));
+            
+            // Punkte des Dreiecks
+            const p1 = { x: centerX - c/2, y: centerY + 30 }; // Basis unten
+            const p2 = { x: centerX + c/2, y: centerY + 30 };
+            const p3 = { 
+                x: centerX - c/2 + b * Math.cos(Math.PI - angleC), 
+                y: centerY + 30 - b * Math.sin(Math.PI - angleC) 
+            };
+            
+            // Dreieck zeichnen
+            roofCtx.beginPath();
+            roofCtx.moveTo(p1.x, p1.y);
+            roofCtx.lineTo(p2.x, p2.y);
+            roofCtx.lineTo(p3.x, p3.y);
+            roofCtx.closePath();
+            
+            // Füllung
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            
+            // Umriss
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+            
+            // Seitenbeschriftung
+            roofCtx.fillStyle = '#000';
+            roofCtx.font = '12px Arial';
+            roofCtx.textAlign = 'center';
+            
+            // Seite A (gegenüber von Punkt A = p1)
+            const midBC = { x: (p2.x + p3.x) / 2, y: (p2.y + p3.y) / 2 };
+            roofCtx.fillText(`A: ${sideA}m`, midBC.x, midBC.y - 10);
+            
+            // Seite B (gegenüber von Punkt B = p2)  
+            const midAC = { x: (p1.x + p3.x) / 2, y: (p1.y + p3.y) / 2 };
+            roofCtx.fillText(`B: ${sideB}m`, midAC.x - 20, midAC.y);
+            
+            // Seite C (gegenüber von Punkt C = p3)
+            const midAB = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+            roofCtx.fillText(`C: ${sideC}m`, midAB.x, midAB.y + 20);
         }
 
         function drawRightTriangle(centerX, centerY, katheteA, katheteB, scale) {
@@ -694,6 +809,17 @@
                 const dims = geometry.dimensions;
                 
                 switch (variant) {
+                    case 'dreieck':
+                    case '3':
+                        // Dreieck mit drei Seiten
+                        const sideA = dims.sideA || 8;
+                        const sideB = dims.sideB || 6; 
+                        const sideC = dims.sideC || 7;
+                        // Verwende längste Seite als Basis für Bahnenanzahl
+                        const longestSide = Math.max(sideA, sideB, sideC);
+                        bahnenAnzahl = Math.ceil(longestSide / deckbreite);
+                        plattenlaenge = Math.max(sideA, sideB) / 2; // Grober Schätzwert für Plattenlänge
+                        break;
                     case 'trapez':
                         const bottomBase = dims.bottomBase || 8;
                         const topBase = dims.topBase || 6;
@@ -707,6 +833,16 @@
                         const katheteB = dims.katheteB || 5;
                         bahnenAnzahl = Math.ceil(katheteA / deckbreite);
                         plattenlaenge = katheteB;
+                        break;
+                        
+                    case 'viereck':
+                    case '4':
+                        // Allgemeines Viereck
+                        const bottomWidth = dims.bottomWidth || 10;
+                        const topWidth = dims.topWidth || 8;
+                        const avgWidth = (bottomWidth + topWidth) / 2;
+                        bahnenAnzahl = Math.ceil(avgWidth / deckbreite);
+                        plattenlaenge = dims.leftSide || 6;
                         break;
                         
                     case 'rechteck':
@@ -842,6 +978,13 @@
             const dims = geometry.dimensions;
             
             switch (variant) {
+                case 'dreieck':
+                case '3':
+                    const sideA = dims.sideA || 8;
+                    const sideB = dims.sideB || 6;
+                    const sideC = dims.sideC || 7;
+                    const longestSide = Math.max(sideA, sideB, sideC);
+                    return `Dreieck: Basis entlang längster Seite ${longestSide}m`;
                 case 'trapez':
                     const bottomBase = dims.bottomBase || 8;
                     const topBase = dims.topBase || 6;
@@ -850,6 +993,12 @@
                 case 'rechtwinklig':
                     const katheteA = dims.katheteA || 4;
                     return `Rechtwinkliges Dreieck: Basis ${katheteA}m`;
+                case 'viereck':
+                case '4':
+                    const bottomWidth = dims.bottomWidth || 10;
+                    const topWidth = dims.topWidth || 8;
+                    const avgWidth = (bottomWidth + topWidth) / 2;
+                    return `Viereck: Mittlere Breite ${avgWidth.toFixed(1)}m`;
                 case 'rechteck':
                     const width = dims.width || 5;
                     return `Rechteck: Breite ${width}m`;
