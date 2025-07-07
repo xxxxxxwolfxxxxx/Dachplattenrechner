@@ -343,6 +343,9 @@
         function updatePreview() {
             const shapeGroup = document.getElementById('shape-group'); if (!shapeGroup) return; let shapeSVG = '';
             
+            // Rotation anwenden
+            shapeGroup.setAttribute('transform', `translate(300,300) rotate(${currentRotation})`);
+            
             if (selectedRoundType) {
                 switch (selectedRoundType) {
                     case 'circle': const r = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
@@ -577,9 +580,22 @@
             document.getElementById('calc-perimeter').textContent = perimeter.toFixed(2) + ' m';
         }
 
-        function rotateShape(degrees) { currentRotation = (currentRotation + degrees) % 360; if (currentRotation < 0) currentRotation += 360; document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; }
-        function snapToAngle(targetAngle) { currentRotation = targetAngle % 360; document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; }
-        function resetRotation() { currentRotation = 0; document.getElementById('rotation-display').textContent = 'Drehung: 0°'; }
+        function rotateShape(degrees) { 
+            currentRotation = (currentRotation + degrees) % 360; 
+            if (currentRotation < 0) currentRotation += 360; 
+            document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; 
+            updatePreview(); // Vorschau nach Rotation aktualisieren
+        }
+        function snapToAngle(targetAngle) { 
+            currentRotation = targetAngle % 360; 
+            document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; 
+            updatePreview(); // Vorschau nach Snap aktualisieren
+        }
+        function resetRotation() { 
+            currentRotation = 0; 
+            document.getElementById('rotation-display').textContent = 'Drehung: 0°'; 
+            updatePreview(); // Vorschau nach Reset aktualisieren
+        }
         function goBack() { window.location.href = 'profil.html'; }
 
         function continueToCalculation() {
