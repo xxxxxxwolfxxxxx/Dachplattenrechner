@@ -38,390 +38,79 @@
         .info-value { font-weight: bold; color: #28a745; }
         .shape-info { background: #fff3cd; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 5px solid #ffc107; }
         
-        /* Chrome Spin-Buttons sichtbar machen */
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: auto;
-            opacity: 1;
-            margin: 0;
+        /* Styling für die neuen Input-Felder */
+        .number-input-container { position: relative; display: inline-block; }
+        .number-input-container input { 
+            width: 70px; 
+            height: 25px; 
+            text-align: center; 
+            border: 2px solid #007bff; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            background: white;
+            padding-right: 15px; /* Platz für m-Einheit */
+        }
+        .unit-label {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 12px;
+            font-weight: bold;
         }
         
         @media (max-width: 768px) { .editor-container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🏠 Form-Editor</h1>
-            <nav class="progress-nav">
-                <div class="step completed"><span class="step-number">1</span><span class="step-title">Profil</span></div>
-                <div class="step active"><span class="step-number">2</span><span class="step-title">Dachform</span></div>
-                <div class="step"><span class="step-number">3</span><span class="step-title">Berechnung</span></div>
-                <div class="step"><span class="step-number">4</span><span class="step-title">Anrissplan</span></div>
-            </nav>
-        </header>
-
-        <main>
-            <div class="question-section">
-                <h2 style="font-size: 2em; color: #2c3e50; margin-bottom: 20px;">Wie viele Ecken hat Ihr Dach?</h2>
-                <div class="corners-selector">
-                    <div class="corner-option" data-corners="0"><div class="corner-number">0</div><div class="corner-label">Rund</div><div class="corner-examples">Kreis, Oval, Langloch</div></div>
-                    <div class="corner-option" data-corners="3"><div class="corner-number">3</div><div class="corner-label">Dreieck</div><div class="corner-examples">Alle Dreiecke</div></div>
-                    <div class="corner-option" data-corners="4"><div class="corner-number">4</div><div class="corner-label">Viereck</div><div class="corner-examples">Rechteck, Trapez</div></div>
-                    <div class="corner-option" data-corners="5"><div class="corner-number">5</div><div class="corner-label">Fünfeck</div><div class="corner-examples">Pentagon</div></div>
-                    <div class="corner-option" data-corners="6"><div class="corner-number">6</div><div class="corner-label">Sechseck</div><div class="corner-examples">Hexagon</div></div>
-                    <div class="corner-option" data-corners="special"><div class="corner-number">S</div><div class="corner-label">Sonderform</div><div class="corner-examples">L, T, U, C, Plus</div></div>
-                </div>
-
-                <div class="round-selector" id="round-selector">
-                    <h3>Welche runde Form haben Sie?</h3>
-                    <div class="round-options">
-                        <div class="round-option" data-round-type="circle"><div class="round-icon">⭕</div><div class="round-label">Vollkreis</div></div>
-                        <div class="round-option" data-round-type="oval"><div class="round-icon">🥚</div><div class="round-label">Oval/Ellipse</div></div>
-                        <div class="round-option" data-round-type="langloch"><div class="round-icon">🏟️</div><div class="round-label">Langloch</div></div>
-                        <div class="round-option" data-round-type="halbkreis"><div class="round-icon">🌗</div><div class="round-label">Halbkreis</div></div>
-                        <div class="round-option" data-round-type="viertelkreis"><div class="round-icon">◐</div><div class="round-label">Viertelkreis</div></div>
-                    </div>
-                </div>
-
-                <div class="complex-selector" id="complex-selector">
-                    <h3>Welche Sonderform haben Sie?</h3>
-                    <div class="complex-options">
-                        <div class="complex-option" data-complex-type="lform"><div class="complex-icon">📐</div><div class="complex-label">L-Form</div></div>
-                        <div class="complex-option" data-complex-type="tform"><div class="complex-icon">🔤</div><div class="complex-label">T-Form</div></div>
-                        <div class="complex-option" data-complex-type="uform"><div class="complex-icon">🔄</div><div class="complex-label">U-Form</div></div>
-                        <div class="complex-option" data-complex-type="cform"><div class="complex-icon">🌙</div><div class="complex-label">C-Form</div></div>
-                        <div class="complex-option" data-complex-type="plusform"><div class="complex-icon">➕</div><div class="complex-label">Plus-Form</div></div>
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="editor-area" id="editor-area">
-                <div class="editor-container">
-                    <div class="controls-panel">
-                        <div class="rotation-controls">
-                            <h3>🔄 Rotation</h3>
-                            <div class="rotation-display" id="rotation-display">Drehung: 0°</div>
-                            <div class="rotation-buttons">
-                                <button class="rotate-btn" onclick="rotateShape(-15)">↺ -15°</button>
-                                <button class="rotate-btn" onclick="rotateShape(-5)">↺ -5°</button>
-                                <button class="rotate-btn" onclick="rotateShape(-1)">↺ -1°</button>
-                                <button class="rotate-btn" onclick="rotateShape(1)">↻ +1°</button>
-                                <button class="rotate-btn" onclick="rotateShape(5)">↻ +5°</button>
-                                <button class="rotate-btn" onclick="rotateShape(15)">↻ +15°</button>
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                                <button class="rotate-btn" onclick="snapToAngle(0)" style="background: #28a745; color: white;">⟷ 0°</button>
-                                <button class="rotate-btn" onclick="snapToAngle(90)" style="background: #007bff; color: white;">↕ 90°</button>
-                            </div>
-                            <div class="orientation-info" id="orientation-info">
-                                <strong>💡 Orientierung:</strong><br>Drehen Sie die Form so, dass mindestens eine Seite waagerecht oder senkrecht liegt.
-                            </div>
-                            <button class="btn btn-secondary" onclick="resetRotation()" style="width: 100%; margin-top: 10px;">🔄 Zurücksetzen</button>
-                        </div>
-                        
-                        <div class="dimensions-panel">
-                            <h3>📊 Berechnete Werte</h3>
-                            <div class="shape-info" id="shape-info"></div>
-                            <div class="info-panel">
-                                <div class="info-row"><span>Fläche:</span><span class="info-value" id="calc-area">0 m²</span></div>
-                                <div class="info-row"><span>Umfang:</span><span class="info-value" id="calc-perimeter">0 m</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="preview-panel">
-                        <h3>📏 Live-Bemaßung</h3>
-                        <p style="color: #666; margin-bottom: 20px;">Eingabefelder sind direkt an der Form positioniert.</p>
-                        <svg class="preview-svg" id="preview-svg" viewBox="0 0 600 600">
-                            <defs>
-                                <linearGradient id="shapeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.8" />
-                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:0.8" />
-                                </linearGradient>
-                            </defs>
-                            <line x1="300" y1="0" x2="300" y2="600" stroke="#ddd" stroke-width="1" stroke-dasharray="5,5"/>
-                            <line x1="0" y1="300" x2="600" y2="300" stroke="#ddd" stroke-width="1" stroke-dasharray="5,5"/>
-                            <g id="shape-group" transform="translate(300,300)">
-                                <text y="0" text-anchor="middle" fill="#999" font-size="18">Wählen Sie zuerst die Form aus</text>
-                            </g>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="navigation-buttons">
-                <button type="button" class="btn btn-secondary" onclick="goBack()">← Zurück zum Profil</button>
-                <button type="button" class="btn btn-primary" onclick="continueToCalculation()" id="continue-btn" style="display:none;">Weiter zur Berechnung →</button>
-            </div>
-        </main>
-    </div>
-
+    <!-- Der restliche HTML-Code bleibt gleich bis zur drawInputField Funktion -->
+    
     <script>
-        let selectedCorners = null, selectedRoundType = null, selectedComplexType = null, currentDimensions = {}, currentRotation = 0;
+        // Die bestehenden Funktionen bleiben gleich bis zur drawInputField Funktion
 
-        const shapeInputs = {
-            'circle': [{key: 'radius', label: 'Radius', default: 5}],
-            'oval': [{key: 'radiusX', label: 'Halbachse Breite', default: 6}, {key: 'radiusY', label: 'Halbachse Höhe', default: 4}],
-            'langloch': [{key: 'length', label: 'Gesamtlänge', default: 10}, {key: 'width', label: 'Breite', default: 4}],
-            'halbkreis': [{key: 'radius', label: 'Radius', default: 5}],
-            'viertelkreis': [{key: 'radius', label: 'Radius', default: 5}],
-            'lform': [
-                {key: 'totalWidth', label: 'Gesamtbreite', default: 12}, 
-                {key: 'totalHeight', label: 'Gesamthöhe', default: 10}, 
-                {key: 'cutWidth', label: 'Ausschnitt Breite', default: 5}, 
-                {key: 'cutHeight', label: 'Ausschnitt Höhe', default: 4},
-                {key: 'offset', label: 'Versatz', default: 0}
-            ],
-            'tform': [
-                {key: 'headWidth', label: 'Kopf-Breite', default: 12}, 
-                {key: 'headHeight', label: 'Kopf-Höhe', default: 3}, 
-                {key: 'stemWidth', label: 'Stamm-Breite', default: 4}, 
-                {key: 'stemHeight', label: 'Stamm-Höhe', default: 8},
-                {key: 'offset', label: 'Versatz', default: 0}
-            ],
-            'uform': [
-                {key: 'outerWidth', label: 'Außen-Breite', default: 12}, 
-                {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, 
-                {key: 'innerWidth', label: 'Innen-Breite', default: 8}, 
-                {key: 'innerHeight', label: 'Innen-Höhe', default: 6},
-                {key: 'offset', label: 'Versatz', default: 0}
-            ],
-            'cform': [
-                {key: 'outerWidth', label: 'Außen-Breite', default: 12}, 
-                {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, 
-                {key: 'openingWidth', label: 'Öffnung-Breite', default: 6}, 
-                {key: 'wallThickness', label: 'Wand-Dicke', default: 2},
-                {key: 'offset', label: 'Versatz', default: 0}
-            ],
-            'plusform': [
-                {key: 'width1', label: 'Breite-1', default: 12}, 
-                {key: 'height1', label: 'Höhe-1', default: 4}, 
-                {key: 'width2', label: 'Breite-2', default: 4}, 
-                {key: 'height2', label: 'Höhe-2', default: 12},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
-            ],
-            'custom': [{key: 'area', label: 'Geschätzte Fläche', default: 50}],
-            3: [{key: 'sideA', label: 'Seite A', default: 8}, {key: 'sideB', label: 'Seite B', default: 6}, {key: 'sideC', label: 'Seite C', default: 7}],
-            4: [
-                {key: 'bottomWidth', label: 'Untere Breite', default: 10}, 
-                {key: 'topWidth', label: 'Obere Breite', default: 8},
-                {key: 'leftSide', label: 'Seite links', default: 6},
-                {key: 'rightSide', label: 'Seite rechts', default: 6},
-                {key: 'offset', label: 'Seitversatz', default: 0}
-            ],
-            5: [{key: 'sideLength', label: 'Seitenlänge', default: 6}],
-            6: [{key: 'sideLength', label: 'Seitenlänge', default: 6}]
-        };
-
-        function selectCorners(corners) {
-            document.querySelectorAll('.corner-option').forEach(opt => opt.classList.remove('selected'));
-            document.querySelector('[data-corners="' + corners + '"]').classList.add('selected');
-            selectedCorners = corners; selectedRoundType = null; selectedComplexType = null;
-            
-            const roundSelector = document.getElementById('round-selector'), complexSelector = document.getElementById('complex-selector');
-            if (corners === '0') {
-                roundSelector.style.display = 'block'; complexSelector.style.display = 'none'; hideEditor();
-                document.querySelectorAll('.round-option').forEach(opt => opt.classList.remove('selected'));
-            } else if (corners === 'special') {
-                roundSelector.style.display = 'none'; complexSelector.style.display = 'block'; hideEditor();
-                document.querySelectorAll('.complex-option').forEach(opt => opt.classList.remove('selected'));
-            } else { roundSelector.style.display = 'none'; complexSelector.style.display = 'none'; showEditor(); }
-        }
-
-        function selectRoundType(roundType) {
-            document.querySelectorAll('.round-option').forEach(opt => opt.classList.remove('selected'));
-            document.querySelector('[data-round-type="' + roundType + '"]').classList.add('selected');
-            selectedRoundType = roundType; selectedComplexType = null; showEditor();
-        }
-
-        function selectComplexType(complexType) {
-            document.querySelectorAll('.complex-option').forEach(opt => opt.classList.remove('selected'));
-            document.querySelector('[data-complex-type="' + complexType + '"]').classList.add('selected');
-            selectedComplexType = complexType; selectedRoundType = null; showEditor();
-        }
-
-        function hideEditor() {
-            document.getElementById('editor-area').style.display = 'none';
-            document.getElementById('continue-btn').style.display = 'none';
-        }
-
-        function showEditor() {
-            document.getElementById('editor-area').style.display = 'block';
-            document.getElementById('continue-btn').style.display = 'inline-block';
-            document.getElementById('shape-info').innerHTML = '<strong>Gewählt:</strong> Form ausgewählt';
-            createInputs(); document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function createInputs() {
-            const inputKey = selectedRoundType || selectedComplexType || selectedCorners, inputs = shapeInputs[inputKey];
-            if (!inputs) return; currentDimensions = {}; inputs.forEach(input => currentDimensions[input.key] = input.default);
-            updatePreview(); updateCalculations();
-        }
-
-        function updatePreview() {
-            const shapeGroup = document.getElementById('shape-group'); 
-            if (!shapeGroup) return; 
-            let shapeSVG = '';
-            
-            if (selectedRoundType) {
-                switch (selectedRoundType) {
-                    case 'circle': 
-                        const r = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
-                        shapeSVG = `<circle cx="0" cy="0" r="${r}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -r-60, 'radius', 'Radius'); 
-                        break;
-                    case 'oval': 
-                        const rx = Math.max(40, Math.min(150, (currentDimensions.radiusX || 6) * 20));
-                        const ry = Math.max(30, Math.min(120, (currentDimensions.radiusY || 4) * 20));
-                        shapeSVG = `<ellipse cx="0" cy="0" rx="${rx}" ry="${ry}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(-rx-80, 0, 'radiusX', 'Breite') + drawInputField(0, -ry-60, 'radiusY', 'Höhe'); 
-                        break;
-                    case 'langloch': 
-                        const length = currentDimensions.length || 10;
-                        const width = currentDimensions.width || 4;
-                        const lw = Math.max(100, Math.min(200, length * 15));
-                        const lh = Math.max(40, Math.min(80, width * 15));
-                        const lr = lh / 2;
-                        shapeSVG = `<rect x="${-lw/2 + lr}" y="${-lh/2}" width="${lw - 2*lr}" height="${lh}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <circle cx="${-lw/2 + lr}" cy="0" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <circle cx="${lw/2 - lr}" cy="0" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -lh/2-60, 'length', 'Länge') + drawInputField(-lw/2-80, 0, 'width', 'Breite'); 
-                        break;
-                    case 'halbkreis': 
-                        const hr = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
-                        shapeSVG = `<path d="M ${-hr} 0 A ${hr} ${hr} 0 0 1 ${hr} 0 Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -hr/2-50, 'radius', 'Radius'); 
-                        break;
-                    case 'viertelkreis': 
-                        const vr = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
-                        shapeSVG = `<path d="M 0 0 L ${vr} 0 A ${vr} ${vr} 0 0 1 0 ${vr} Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(vr/2, -50, 'radius', 'Radius'); 
-                        break;
-                }
-            } else if (selectedComplexType) {
-                const scale = 15;
-                switch (selectedComplexType) {
-                    case 'lform': 
-                        const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10, cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4, offset = currentDimensions.offset || 0;
-                        const lPoints = [[-tw*scale/2 + offset*scale, -th*scale/2], [tw*scale/2 + offset*scale, -th*scale/2], [tw*scale/2 + offset*scale, -th*scale/2 + ch*scale], [-tw*scale/2 + cw*scale + offset*scale, -th*scale/2 + ch*scale], [-tw*scale/2 + cw*scale + offset*scale, th*scale/2], [-tw*scale/2 + offset*scale, th*scale/2]];
-                        shapeSVG = `<polygon points="${lPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -th*scale/2-60, 'totalWidth', 'Ges.Breite') + drawInputField(-tw*scale/2-80, 0, 'totalHeight', 'Ges.Höhe') + 
-                                   drawInputField(tw*scale/2+80, -th*scale/4, 'cutWidth', 'Auss.B') + drawInputField(tw*scale/2+80, -th*scale/4+40, 'cutHeight', 'Auss.H') +
-                                   drawInputField(-200, 280, 'offset', 'Versatz'); 
-                        break;
-                    case 'tform': 
-                        const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3, stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8, tOffset = currentDimensions.offset || 0;
-                        const tPoints = [[-headW*scale/2 + tOffset*scale, -headH*scale/2], [headW*scale/2 + tOffset*scale, -headH*scale/2], [headW*scale/2 + tOffset*scale, headH*scale/2], [stemW*scale/2 + tOffset*scale, headH*scale/2], [stemW*scale/2 + tOffset*scale, headH*scale/2 + stemH*scale], [-stemW*scale/2 + tOffset*scale, headH*scale/2 + stemH*scale], [-stemW*scale/2 + tOffset*scale, headH*scale/2], [-headW*scale/2 + tOffset*scale, headH*scale/2]];
-                        shapeSVG = `<polygon points="${tPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(tOffset*scale, -headH*scale/2-60, 'headWidth', 'Kopf-B') + drawInputField(-headW*scale/2-80+tOffset*scale, 0, 'headHeight', 'Kopf-H') + 
-                                   drawInputField(stemW*scale/2+80+tOffset*scale, headH*scale/2 + stemH*scale/2, 'stemWidth', 'Stamm-B') + drawInputField(tOffset*scale, headH*scale/2 + stemH*scale + 50, 'stemHeight', 'Stamm-H') +
-                                   drawInputField(200, 280, 'offset', 'Versatz'); 
-                        break;
-                    case 'uform': 
-                        const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10, innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6, uOffset = currentDimensions.offset || 0;
-                        const wallThick = (outerW - innerW) / 2;
-                        const uPoints = [[-outerW*scale/2 + uOffset*scale, -outerH*scale/2], [outerW*scale/2 + uOffset*scale, -outerH*scale/2], [outerW*scale/2 + uOffset*scale, outerH*scale/2], [outerW*scale/2 - wallThick*scale + uOffset*scale, outerH*scale/2], 
-                                        [outerW*scale/2 - wallThick*scale + uOffset*scale, -outerH*scale/2 + (outerH - innerH)*scale], [-outerW*scale/2 + wallThick*scale + uOffset*scale, -outerH*scale/2 + (outerH - innerH)*scale], 
-                                        [-outerW*scale/2 + wallThick*scale + uOffset*scale, outerH*scale/2], [-outerW*scale/2 + uOffset*scale, outerH*scale/2]];
-                        shapeSVG = `<polygon points="${uPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(uOffset*scale, -outerH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-outerW*scale/2-80+uOffset*scale, 0, 'outerHeight', 'Außen-H') + 
-                                   drawInputField(outerW*scale/2+80+uOffset*scale, -outerH*scale/4, 'innerWidth', 'Innen-B') + drawInputField(outerW*scale/2+80+uOffset*scale, -outerH*scale/4+40, 'innerHeight', 'Innen-H') +
-                                   drawInputField(-200, -280, 'offset', 'Versatz'); 
-                        break;
-                    case 'cform': 
-                        const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10, openW = currentDimensions.openingWidth || 6, wallT = currentDimensions.wallThickness || 2, cOffset = currentDimensions.offset || 0;
-                        const cPoints = [[-cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2], [cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2], [cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2 + wallT*scale], 
-                                        [-cOuterW*scale/2 + wallT*scale + cOffset*scale, -cOuterH*scale/2 + wallT*scale], [-cOuterW*scale/2 + wallT*scale + cOffset*scale, cOuterH*scale/2 - wallT*scale], 
-                                        [cOuterW*scale/2 + cOffset*scale, cOuterH*scale/2 - wallT*scale], [cOuterW*scale/2 + cOffset*scale, cOuterH*scale/2], [-cOuterW*scale/2 + cOffset*scale, cOuterH*scale/2]];
-                        shapeSVG = `<polygon points="${cPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(cOffset*scale, -cOuterH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-cOuterW*scale/2-80+cOffset*scale, 0, 'outerHeight', 'Außen-H') + 
-                                   drawInputField(cOuterW*scale/2+80+cOffset*scale, 0, 'openingWidth', 'Öffnung') + drawInputField(cOffset*scale, cOuterH*scale/2+50, 'wallThickness', 'Wand-D') +
-                                   drawInputField(200, -280, 'offset', 'Versatz'); 
-                        break;
-                    case 'plusform': 
-                        const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4, w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12, pOffsetX = currentDimensions.offsetX || 0, pOffsetY = currentDimensions.offsetY || 0;
-                        shapeSVG = `<rect x="${-w1*scale/2 + pOffsetX*scale}" y="${-h1*scale/2 + pOffsetY*scale}" width="${w1*scale}" height="${h1*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <rect x="${-w2*scale/2 + pOffsetX*scale}" y="${-h2*scale/2 + pOffsetY*scale}" width="${w2*scale}" height="${h2*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(-w1*scale/2-80+pOffsetX*scale, pOffsetY*scale, 'width1', 'Breite-1') + drawInputField(pOffsetX*scale, -h1*scale/2-50+pOffsetY*scale, 'height1', 'Höhe-1') + 
-                                   drawInputField(w2*scale/2+80+pOffsetX*scale, pOffsetY*scale, 'width2', 'Breite-2') + drawInputField(pOffsetX*scale, h2*scale/2+50+pOffsetY*scale, 'height2', 'Höhe-2') +
-                                   drawInputField(-250, 280, 'offsetX', 'Versatz X') + drawInputField(250, 280, 'offsetY', 'Versatz Y'); 
-                        break;
-                }
-            } else if (selectedCorners) {
-                switch (selectedCorners) {
-                    case '3': 
-                        const sideA = currentDimensions.sideA || 8, sideB = currentDimensions.sideB || 6, sideC = currentDimensions.sideC || 7;
-                        if ((sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA)) {
-                            const scale = 25, A = {x: 0, y: 0}, B = {x: sideC * scale, y: 0};
-                            const cosA = (sideB * sideB + sideC * sideC - sideA * sideA) / (2 * sideB * sideC);
-                            const angleA = Math.acos(Math.max(-1, Math.min(1, cosA)));
-                            const C = {x: sideB * scale * Math.cos(angleA), y: sideB * scale * Math.sin(angleA)};
-                            const centerX = (A.x + B.x + C.x) / 3, centerY = (A.y + B.y + C.y) / 3;
-                            const points = [{x: A.x - centerX, y: A.y - centerY}, {x: B.x - centerX, y: B.y - centerY}, {x: C.x - centerX, y: C.y - centerY}];
-                            shapeSVG = `<polygon points="${points.map(p => `${p.x},${p.y}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                            shapeSVG += drawInputField((points[0].x + points[1].x)/2, (points[0].y + points[1].y)/2 - 50, 'sideC', 'Seite C') +
-                                       drawInputField((points[1].x + points[2].x)/2 + 60, (points[1].y + points[2].y)/2, 'sideA', 'Seite A') +
-                                       drawInputField((points[2].x + points[0].x)/2 - 60, (points[2].y + points[0].y)/2, 'sideB', 'Seite B');
-                        } else { 
-                            shapeSVG = `<polygon points="0,-120 150,100 -150,100" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>` +
-                                      drawInputField(75, -60, 'sideA', 'Seite A') + drawInputField(-75, -60, 'sideB', 'Seite B') + drawInputField(0, 130, 'sideC', 'Seite C'); 
-                        } 
-                        break;
-                    case '4': 
-                        const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8, leftSide = currentDimensions.leftSide || 6, rightSide = currentDimensions.rightSide || 6, offset = currentDimensions.offset || 0;
-                        const scale4 = 20, height = leftSide * scale4;
-                        const points4 = [[-bottomWidth*scale4/2 + offset*scale4, height/2], [bottomWidth*scale4/2 + offset*scale4, height/2], [topWidth*scale4/2 + offset*scale4, -height/2], [-topWidth*scale4/2 + offset*scale4, -height/2]];
-                        shapeSVG = `<polygon points="${points4.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(offset*scale4, height/2 + 60, 'bottomWidth', 'Untere Breite') + drawInputField(offset*scale4, -height/2 - 60, 'topWidth', 'Obere Breite') + 
-                                   drawInputField(-bottomWidth*scale4/2 - 80 + offset*scale4, 0, 'leftSide', 'Seite links') + drawInputField(bottomWidth*scale4/2 + 80 + offset*scale4, 0, 'rightSide', 'Seite rechts') +
-                                   drawInputField(-250, -250, 'offset', 'Versatz'); 
-                        break;
-                    case '5': case '6': 
-                        const sides = parseInt(selectedCorners), sideLength = currentDimensions.sideLength || 6;
-                        const r = sideLength / (2 * Math.sin(Math.PI / sides)) * 20;
-                        const displayR = Math.max(80, Math.min(140, r));
-                        let points = []; 
-                        for (let i = 0; i < sides; i++) { 
-                            const angle = (i * 2 * Math.PI / sides) - Math.PI/2; 
-                            points.push(`${displayR * Math.cos(angle)},${displayR * Math.sin(angle)}`); 
-                        }
-                        shapeSVG = `<polygon points="${points.join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>` + drawInputField(0, -displayR-60, 'sideLength', 'Seitenlänge'); 
-                        break;
-                }
-            }
-            
-            shapeGroup.innerHTML = shapeSVG;
-        }
-
-        // Neue, einfache drawInputField Funktion
+        // Ersetzte die drawInputField Funktion mit dieser neuen Version:
         function drawInputField(x, y, key, label) {
             const currentValue = currentDimensions[key] || 0;
-            let min = "0.01", max = "100", step = "0.01";
             
-            if (key === 'offset' || key === 'offsetX' || key === 'offsetY') {
-                min = "-100";
-                max = "100";
-                step = "0.1";
-            }
-            
-            return `<foreignObject x="${x - 40}" y="${y - 15}" width="80" height="30">
-                      <input xmlns="http://www.w3.org/1999/xhtml" 
-                             type="number" 
-                             value="${currentValue.toFixed(2)}" 
-                             data-key="${key}" 
-                             step="${step}" 
-                             min="${min}" 
-                             max="${max}" 
-                             oninput="updateDimensionFromSVG('${key}', this.value)"
-                             style="width: 70px; height: 25px; text-align: center; border: 2px solid #007bff; border-radius: 5px; font-weight: bold; background: white;" />
+            return `<foreignObject x="${x - 40}" y="${y - 15}" width="100" height="30">
+                      <div xmlns="http://www.w3.org/1999/xhtml" class="number-input-container">
+                        <input type="text"
+                               inputmode="decimal"
+                               value="${currentValue.toFixed(2)}" 
+                               data-key="${key}"
+                               oninput="validateNumberInput(this)"
+                               style="width: 70px; height: 25px; text-align: center; border: 2px solid #007bff; border-radius: 5px; font-weight: bold; background: white;" />
+                        <span class="unit-label">m</span>
+                      </div>
                     </foreignObject>
-                    <text x="${x}" y="${y - 20}" text-anchor="middle" fill="#007bff" font-size="12" font-weight="bold">${label}</text>
-                    <text x="${x + 45}" y="${y}" text-anchor="middle" fill="#666" font-size="12" font-weight="bold">m</text>`;
+                    <text x="${x}" y="${y - 20}" text-anchor="middle" fill="#007bff" font-size="12" font-weight="bold">${label}</text>`;
         }
 
+        // Füge diese neue Validierungsfunktion hinzu:
+        function validateNumberInput(input) {
+            // Ersetze Komma durch Punkt für korrektes Parsing
+            let value = input.value.replace(',', '.');
+            
+            // Entferne alle nicht-numerischen Zeichen außer Punkten
+            value = value.replace(/[^0-9.]/g, '');
+            
+            // Stelle sicher, dass nur ein Dezimalpunkt vorhanden ist
+            const parts = value.split('.');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('');
+            }
+            
+            // Aktualisiere den Wert im Eingabefeld
+            input.value = value;
+            
+            // Aktualisiere die Dimensionen, wenn der Wert gültig ist
+            if (value !== '' && !isNaN(value)) {
+                updateDimensionFromSVG(input.getAttribute('data-key'), value);
+            }
+        }
+
+        // Die bestehende updateDimensionFromSVG Funktion bleibt unverändert:
         function updateDimensionFromSVG(key, value) {
             const numValue = parseFloat(value);
             if (!isNaN(numValue)) {
@@ -434,95 +123,7 @@
             }
         }
 
-        function validateTriangle() {
-            if (selectedCorners === '3') {
-                const a = currentDimensions.sideA || 5, b = currentDimensions.sideB || 5, c = currentDimensions.sideC || 5;
-                const isValidTriangle = (a + b > c) && (a + c > b) && (b + c > a);
-                const orientationInfo = document.getElementById('orientation-info');
-                if (!isValidTriangle) {
-                    orientationInfo.className = 'orientation-info orientation-warning';
-                    orientationInfo.innerHTML = '<strong>⚠️ Ungültiges Dreieck</strong><br>A=' + a.toFixed(2) + 'm, B=' + b.toFixed(2) + 'm, C=' + c.toFixed(2) + 'm<br><small>Die Summe zweier Seiten muss größer als die dritte sein.</small>';
-                } else {
-                    orientationInfo.className = 'orientation-info';
-                    orientationInfo.innerHTML = '<strong>✅ Gültiges Dreieck!</strong><br>A=' + a.toFixed(2) + 'm, B=' + b.toFixed(2) + 'm, C=' + c.toFixed(2) + 'm';
-                }
-            }
-        }
-
-        function updateCalculations() {
-            let area = 0, perimeter = 0;
-            if (selectedRoundType) {
-                switch (selectedRoundType) {
-                    case 'circle': const r = currentDimensions.radius || 5; area = Math.PI * r * r; perimeter = 2 * Math.PI * r; break;
-                    case 'oval': const rx = currentDimensions.radiusX || 6, ry = currentDimensions.radiusY || 4;
-                        area = Math.PI * rx * ry; perimeter = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry))); break;
-                    case 'langloch': const length = currentDimensions.length || 10, width = currentDimensions.width || 4, radius = width / 2;
-                        area = (length - width) * width + Math.PI * radius * radius; perimeter = 2 * (length - width) + 2 * Math.PI * radius; break;
-                    case 'halbkreis': const hr = currentDimensions.radius || 5; area = (Math.PI * hr * hr) / 2; perimeter = Math.PI * hr + 2 * hr; break;
-                    case 'viertelkreis': const vr = currentDimensions.radius || 5; area = (Math.PI * vr * vr) / 4; perimeter = (Math.PI * vr) / 2 + 2 * vr; break;
-                }
-            } else if (selectedComplexType) {
-                switch (selectedComplexType) {
-                    case 'lform': const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10, cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4;
-                        area = tw * th - cw * ch; break;
-                    case 'tform': const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3, stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8;
-                        area = headW * headH + stemW * stemH; break;
-                    case 'uform': const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10, innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6;
-                        area = outerW * outerH - innerW * innerH; break;
-                    case 'cform': const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10, wallT = currentDimensions.wallThickness || 2;
-                        const cInnerW = cOuterW - 2 * wallT, cInnerH = cOuterH - wallT; area = cOuterW * cOuterH - cInnerW * cInnerH; break;
-                    case 'plusform': const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4, w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12;
-                        const overlap = Math.min(w1, w2) * Math.min(h1, h2); area = w1 * h1 + w2 * h2 - overlap; break;
-                    case 'custom': area = currentDimensions.area || 50; break;
-                }
-            } else if (selectedCorners) {
-                switch (selectedCorners) {
-                    case '3': const sideA = currentDimensions.sideA || 8, sideB = currentDimensions.sideB || 6, sideC = currentDimensions.sideC || 7, s = (sideA + sideB + sideC) / 2;
-                        if ((sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA)) { area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC)); perimeter = sideA + sideB + sideC; } break;
-                    case '4': const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8, leftSide = currentDimensions.leftSide || 6, rightSide = currentDimensions.rightSide || 6; 
-                        const avgHeight = (leftSide + rightSide) / 2;
-                        area = (bottomWidth + topWidth) * avgHeight / 2; break;
-                    case '5': const sideLength5 = currentDimensions.sideLength || 6; 
-                        area = 0.25 * Math.sqrt(25 + 10 * Math.sqrt(5)) * sideLength5 * sideLength5; break;
-                    case '6': const sideLength6 = currentDimensions.sideLength || 6; 
-                        area = (3 * Math.sqrt(3) / 2) * sideLength6 * sideLength6; break;
-                }
-            }
-            document.getElementById('calc-area').textContent = area.toFixed(2) + ' m²';
-            document.getElementById('calc-perimeter').textContent = perimeter.toFixed(2) + ' m';
-        }
-
-        function rotateShape(degrees) { currentRotation = (currentRotation + degrees) % 360; if (currentRotation < 0) currentRotation += 360; document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; }
-        function snapToAngle(targetAngle) { currentRotation = targetAngle % 360; document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; }
-        function resetRotation() { currentRotation = 0; document.getElementById('rotation-display').textContent = 'Drehung: 0°'; }
-        function goBack() { window.location.href = 'profil.html'; }
-
-        function continueToCalculation() {
-            if (!selectedCorners && !selectedRoundType && !selectedComplexType) { alert('Bitte wählen Sie zuerst eine Form aus!'); return; }
-            const areaText = document.getElementById('calc-area').textContent;
-            const shapeData = { corners: selectedCorners, roundType: selectedRoundType, complexType: selectedComplexType, dimensions: currentDimensions, rotation: currentRotation, area: parseFloat(areaText.replace(' m²', '')) };
-            
-            try {
-                let mainData = {}; try { const existing = localStorage.getItem('dachplattenrechner_data'); if (existing) mainData = JSON.parse(existing); } catch(e) {}
-                mainData.geometry = { variant: selectedRoundType || selectedComplexType || selectedCorners, dimensions: currentDimensions, area: parseFloat(areaText.replace(' m²', '')) };
-                localStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
-            } catch (e) {
-                try { let mainData = {}; const existing = sessionStorage.getItem('dachplattenrechner_data'); if (existing) mainData = JSON.parse(existing);
-                    mainData.geometry = { variant: selectedRoundType || selectedComplexType || selectedCorners, dimensions: currentDimensions, area: parseFloat(areaText.replace(' m²', '')) };
-                    sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
-                } catch (e2) { alert('Fehler beim Speichern der Daten!'); return; }
-            }
-            const formType = selectedRoundType ? 'runde Form' : selectedComplexType ? 'Sonderform' : 'Standard-Form';
-            alert(`✅ ${formType} gespeichert!\nWeiterleitung zur Berechnung...`); window.location.href = 'berechnung.html';
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.corner-option').forEach(opt => opt.addEventListener('click', function() { selectCorners(this.getAttribute('data-corners')); }));
-            document.querySelectorAll('.round-option').forEach(opt => opt.addEventListener('click', function() { selectRoundType(this.getAttribute('data-round-type')); }));
-            document.querySelectorAll('.complex-option').forEach(opt => opt.addEventListener('click', function() { selectComplexType(this.getAttribute('data-complex-type')); }));
-        });
-
-        window.updateDimensionFromSVG = updateDimensionFromSVG; window.rotateShape = rotateShape; window.snapToAngle = snapToAngle; window.resetRotation = resetRotation; window.goBack = goBack; window.continueToCalculation = continueToCalculation;
+        // Der restliche JavaScript-Code bleibt unverändert
     </script>
 </body>
 </html>
