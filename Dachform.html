@@ -617,36 +617,4 @@
         window.continueToCalculation = continueToCalculation;
     </script>
 </body>
-</html> = `<circle cx="0" cy="0" r="${r}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -r-60, 'radius', 'Radius'); break;
-                    case 'oval': const rx = Math.max(40, Math.min(150, (currentDimensions.radiusX || 6) * 20)), ry = Math.max(30, Math.min(120, (currentDimensions.radiusY || 4) * 20));
-                        shapeSVG = `<ellipse cx="0" cy="0" rx="${rx}" ry="${ry}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(-rx-80, 0, 'radiusX', 'Breite') + drawInputField(0, -ry-60, 'radiusY', 'Höhe'); break;
-                    case 'langloch': const length = currentDimensions.length || 10, width = currentDimensions.width || 4;
-                        const lw = Math.max(100, Math.min(200, length * 15)), lh = Math.max(40, Math.min(80, width * 15)), lr = lh / 2;
-                        shapeSVG = `<rect x="${-lw/2 + lr}" y="${-lh/2}" width="${lw - 2*lr}" height="${lh}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <circle cx="${-lw/2 + lr}" cy="0" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <circle cx="${lw/2 - lr}" cy="0" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -lh/2-60, 'length', 'Länge') + drawInputField(-lw/2-80, 0, 'width', 'Breite'); break;
-                    case 'halbkreis': const hr = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
-                        shapeSVG = `<path d="M ${-hr} 0 A ${hr} ${hr} 0 0 1 ${hr} 0 Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -hr/2-50, 'radius', 'Radius'); break;
-                    case 'viertelkreis': const vr = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
-                        shapeSVG = `<path d="M 0 0 L ${vr} 0 A ${vr} ${vr} 0 0 1 0 ${vr} Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(vr/2, -50, 'radius', 'Radius'); break;
-                }
-            } else if (selectedComplexType) {
-                const scale = 15;
-                switch (selectedComplexType) {
-                    case 'lform': const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10, cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4, skew = currentDimensions.skew || 0;
-                        // KORRIGIERT: Schiefe verändert nur die obere Kante
-                        const lPoints = [
-                            [-tw*scale/2, -th*scale/2 + skew*scale], 
-                            [tw*scale/2, -th*scale/2], 
-                            [tw*scale/2, -th*scale/2 + ch*scale], 
-                            [-tw*scale/2 + cw*scale, -th*scale/2 + ch*scale], 
-                            [-tw*scale/2 + cw*scale, th*scale/2], 
-                            [-tw*scale/2, th*scale/2]
-                        ];
-                        shapeSVG = `<polygon points="${lPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG
+</html>
