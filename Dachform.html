@@ -240,11 +240,11 @@
             'langloch': [{key: 'length', label: 'Gesamtlänge', default: 10}, {key: 'width', label: 'Breite', default: 4}],
             'halbkreis': [{key: 'radius', label: 'Radius', default: 5}],
             'viertelkreis': [{key: 'radius', label: 'Radius', default: 5}],
-            'lform': [{key: 'totalWidth', label: 'Gesamtbreite', default: 12}, {key: 'totalHeight', label: 'Gesamthöhe', default: 10}, {key: 'cutWidth', label: 'Ausschnitt Breite', default: 5}, {key: 'cutHeight', label: 'Ausschnitt Höhe', default: 4}, {key: 'skew', label: 'Schiefe', default: 0}],
-            'tform': [{key: 'headWidth', label: 'Kopf-Breite', default: 12}, {key: 'headHeight', label: 'Kopf-Höhe', default: 3}, {key: 'stemWidth', label: 'Stamm-Breite', default: 4}, {key: 'stemHeight', label: 'Stamm-Höhe', default: 8}, {key: 'skew', label: 'Schiefe', default: 0}],
-            'uform': [{key: 'outerWidth', label: 'Außen-Breite', default: 12}, {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, {key: 'innerWidth', label: 'Innen-Breite', default: 8}, {key: 'innerHeight', label: 'Innen-Höhe', default: 6}, {key: 'skew', label: 'Schiefe', default: 0}],
-            'cform': [{key: 'outerWidth', label: 'Außen-Breite', default: 12}, {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, {key: 'openingWidth', label: 'Öffnung-Breite', default: 6}, {key: 'wallThickness', label: 'Wand-Dicke', default: 2}, {key: 'skew', label: 'Schiefe', default: 0}],
-            'plusform': [{key: 'width1', label: 'Breite-1', default: 12}, {key: 'height1', label: 'Höhe-1', default: 4}, {key: 'width2', label: 'Breite-2', default: 4}, {key: 'height2', label: 'Höhe-2', default: 12}, {key: 'skewX', label: 'Schiefe X', default: 0}, {key: 'skewY', label: 'Schiefe Y', default: 0}],
+            'lform': [{key: 'totalWidth', label: 'Gesamtbreite', default: 12}, {key: 'totalHeight', label: 'Gesamthöhe', default: 10}, {key: 'cutWidth', label: 'Ausschnitt Breite', default: 5}, {key: 'cutHeight', label: 'Ausschnitt Höhe', default: 4}, {key: 'skew', label: 'Schiefe', default: 0}, {key: 'offsetX', label: 'Versatz X', default: 0}, {key: 'offsetY', label: 'Versatz Y', default: 0}],
+            'tform': [{key: 'headWidth', label: 'Kopf-Breite', default: 12}, {key: 'headHeight', label: 'Kopf-Höhe', default: 3}, {key: 'stemWidth', label: 'Stamm-Breite', default: 4}, {key: 'stemHeight', label: 'Stamm-Höhe', default: 8}, {key: 'skew', label: 'Schiefe', default: 0}, {key: 'offsetX', label: 'Versatz X', default: 0}, {key: 'offsetY', label: 'Versatz Y', default: 0}],
+            'uform': [{key: 'outerWidth', label: 'Außen-Breite', default: 12}, {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, {key: 'innerWidth', label: 'Innen-Breite', default: 8}, {key: 'innerHeight', label: 'Innen-Höhe', default: 6}, {key: 'skew', label: 'Schiefe', default: 0}, {key: 'offsetX', label: 'Versatz X', default: 0}, {key: 'offsetY', label: 'Versatz Y', default: 0}],
+            'cform': [{key: 'outerWidth', label: 'Außen-Breite', default: 12}, {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, {key: 'openingWidth', label: 'Öffnung-Breite', default: 6}, {key: 'wallThickness', label: 'Wand-Dicke', default: 2}, {key: 'skew', label: 'Schiefe', default: 0}, {key: 'offsetX', label: 'Versatz X', default: 0}, {key: 'offsetY', label: 'Versatz Y', default: 0}],
+            'plusform': [{key: 'width1', label: 'Breite-1', default: 12}, {key: 'height1', label: 'Höhe-1', default: 4}, {key: 'width2', label: 'Breite-2', default: 4}, {key: 'height2', label: 'Höhe-2', default: 12}, {key: 'skewX', label: 'Schiefe X', default: 0}, {key: 'skewY', label: 'Schiefe Y', default: 0}, {key: 'offsetX', label: 'Versatz X', default: 0}, {key: 'offsetY', label: 'Versatz Y', default: 0}],
             3: [{key: 'sideA', label: 'Seite A', default: 8}, {key: 'sideB', label: 'Seite B', default: 6}, {key: 'sideC', label: 'Seite C', default: 7}],
             4: [{key: 'bottomWidth', label: 'Untere Breite', default: 10}, {key: 'topWidth', label: 'Obere Breite', default: 8}, {key: 'leftSide', label: 'Seite links', default: 6}, {key: 'rightSide', label: 'Seite rechts', default: 6}, {key: 'skew', label: 'Schiefe', default: 0}],
             5: [{key: 'sideLength', label: 'Seitenlänge', default: 6}],
@@ -252,7 +252,6 @@
         };
 
         function selectCorners(corners) {
-            console.log('selectCorners called with:', corners);
             document.querySelectorAll('.corner-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector('[data-corners="' + corners + '"]').classList.add('selected');
             selectedCorners = corners; 
@@ -280,7 +279,6 @@
         }
 
         function selectRoundType(roundType) {
-            console.log('selectRoundType called with:', roundType);
             document.querySelectorAll('.round-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector('[data-round-type="' + roundType + '"]').classList.add('selected');
             selectedRoundType = roundType; 
@@ -289,7 +287,6 @@
         }
 
         function selectComplexType(complexType) {
-            console.log('selectComplexType called with:', complexType);
             document.querySelectorAll('.complex-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector('[data-complex-type="' + complexType + '"]').classList.add('selected');
             selectedComplexType = complexType; 
@@ -371,53 +368,105 @@
                     case 'lform': 
                         const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10;
                         const cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4, skew = currentDimensions.skew || 0;
+                        const offsetX = currentDimensions.offsetX || 0, offsetY = currentDimensions.offsetY || 0;
                         const lPoints = [
-                            [-tw*scale/2, -th*scale/2 + skew*scale], 
-                            [tw*scale/2, -th*scale/2], 
-                            [tw*scale/2, -th*scale/2 + ch*scale], 
-                            [-tw*scale/2 + cw*scale, -th*scale/2 + ch*scale], 
-                            [-tw*scale/2 + cw*scale, th*scale/2], 
-                            [-tw*scale/2, th*scale/2]
+                            [-tw*scale/2 + offsetX*scale, -th*scale/2 + skew*scale + offsetY*scale], 
+                            [tw*scale/2 + offsetX*scale, -th*scale/2 + offsetY*scale], 
+                            [tw*scale/2 + offsetX*scale, -th*scale/2 + ch*scale + offsetY*scale], 
+                            [-tw*scale/2 + cw*scale + offsetX*scale, -th*scale/2 + ch*scale + offsetY*scale], 
+                            [-tw*scale/2 + cw*scale + offsetX*scale, th*scale/2 + offsetY*scale], 
+                            [-tw*scale/2 + offsetX*scale, th*scale/2 + offsetY*scale]
                         ];
                         shapeSVG = `<g transform="rotate(${currentRotation})"><polygon points="${lPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>`;
                         shapeSVG += drawInputField(0, -th*scale/2-60, 'totalWidth', 'Ges.Breite') + drawInputField(-tw*scale/2-80, 0, 'totalHeight', 'Ges.Höhe') + 
                                    drawInputField(tw*scale/2+80, -th*scale/4, 'cutWidth', 'Auss.B') + drawInputField(tw*scale/2+80, -th*scale/4+40, 'cutHeight', 'Auss.H') +
-                                   drawInputField(-200, 280, 'skew', 'Schiefe'); 
+                                   drawInputField(-200, 220, 'skew', 'Schiefe') + drawInputField(-200, 260, 'offsetX', 'Vers.X') + drawInputField(-200, 300, 'offsetY', 'Vers.Y'); 
                         break;
                     case 'tform': 
                         const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3;
                         const stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8, tSkew = currentDimensions.skew || 0;
+                        const tOffsetX = currentDimensions.offsetX || 0, tOffsetY = currentDimensions.offsetY || 0;
                         const tPoints = [
-                            [-headW*scale/2 + tSkew*scale, -headH*scale/2], 
-                            [headW*scale/2 + tSkew*scale, -headH*scale/2], 
-                            [headW*scale/2, headH*scale/2], 
-                            [stemW*scale/2, headH*scale/2], 
-                            [stemW*scale/2, headH*scale/2 + stemH*scale], 
-                            [-stemW*scale/2, headH*scale/2 + stemH*scale], 
-                            [-stemW*scale/2, headH*scale/2], 
-                            [-headW*scale/2, headH*scale/2]
+                            [-headW*scale/2 + tSkew*scale + tOffsetX*scale, -headH*scale/2 + tOffsetY*scale], 
+                            [headW*scale/2 + tSkew*scale + tOffsetX*scale, -headH*scale/2 + tOffsetY*scale], 
+                            [headW*scale/2 + tOffsetX*scale, headH*scale/2 + tOffsetY*scale], 
+                            [stemW*scale/2 + tOffsetX*scale, headH*scale/2 + tOffsetY*scale], 
+                            [stemW*scale/2 + tOffsetX*scale, headH*scale/2 + stemH*scale + tOffsetY*scale], 
+                            [-stemW*scale/2 + tOffsetX*scale, headH*scale/2 + stemH*scale + tOffsetY*scale], 
+                            [-stemW*scale/2 + tOffsetX*scale, headH*scale/2 + tOffsetY*scale], 
+                            [-headW*scale/2 + tOffsetX*scale, headH*scale/2 + tOffsetY*scale]
                         ];
                         shapeSVG = `<g transform="rotate(${currentRotation})"><polygon points="${tPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>`;
                         shapeSVG += drawInputField(tSkew*scale/2, -headH*scale/2-60, 'headWidth', 'Kopf-B') + drawInputField(-headW*scale/2-80, 0, 'headHeight', 'Kopf-H') + 
                                    drawInputField(stemW*scale/2+80, headH*scale/2 + stemH*scale/2, 'stemWidth', 'Stamm-B') + drawInputField(0, headH*scale/2 + stemH*scale + 50, 'stemHeight', 'Stamm-H') +
-                                   drawInputField(200, 280, 'skew', 'Schiefe'); 
+                                   drawInputField(160, 220, 'skew', 'Schiefe') + drawInputField(160, 260, 'offsetX', 'Vers.X') + drawInputField(160, 300, 'offsetY', 'Vers.Y'); 
                         break;
                     case 'uform':
                         const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10;
                         const innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6, uSkew = currentDimensions.skew || 0;
+                        const uOffsetX = currentDimensions.offsetX || 0, uOffsetY = currentDimensions.offsetY || 0;
                         const uPoints = [
-                            [-outerW*scale/2 + uSkew*scale, -outerH*scale/2],
-                            [outerW*scale/2 + uSkew*scale, -outerH*scale/2],
-                            [outerW*scale/2, outerH*scale/2],
-                            [innerW*scale/2, outerH*scale/2],
-                            [innerW*scale/2, outerH*scale/2 - innerH*scale],
-                            [-innerW*scale/2, outerH*scale/2 - innerH*scale],
-                            [-innerW*scale/2, outerH*scale/2],
-                            [-outerW*scale/2, outerH*scale/2]
+                            [-outerW*scale/2 + uSkew*scale + uOffsetX*scale, -outerH*scale/2 + uOffsetY*scale],
+                            [outerW*scale/2 + uSkew*scale + uOffsetX*scale, -outerH*scale/2 + uOffsetY*scale],
+                            [outerW*scale/2 + uOffsetX*scale, outerH*scale/2 + uOffsetY*scale],
+                            [innerW*scale/2 + uOffsetX*scale, outerH*scale/2 + uOffsetY*scale],
+                            [innerW*scale/2 + uOffsetX*scale, outerH*scale/2 - innerH*scale + uOffsetY*scale],
+                            [-innerW*scale/2 + uOffsetX*scale, outerH*scale/2 - innerH*scale + uOffsetY*scale],
+                            [-innerW*scale/2 + uOffsetX*scale, outerH*scale/2 + uOffsetY*scale],
+                            [-outerW*scale/2 + uOffsetX*scale, outerH*scale/2 + uOffsetY*scale]
                         ];
                         shapeSVG = `<g transform="rotate(${currentRotation})"><polygon points="${uPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>`;
                         shapeSVG += drawInputField(uSkew*scale/2, -outerH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-outerW*scale/2-80, 0, 'outerHeight', 'Außen-H') + 
                                    drawInputField(0, outerH*scale/2 + 50, 'innerWidth', 'Innen-B') + drawInputField(innerW*scale/2+80, outerH*scale/2 - innerH*scale/2, 'innerHeight', 'Innen-H') +
+                                   drawInputField(160, 220, 'skew', 'Schiefe') + drawInputField(160, 260, 'offsetX', 'Vers.X') + drawInputField(160, 300, 'offsetY', 'Vers.Y');
+                        break;
+                    case 'cform':
+                        const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10;
+                        const openingW = currentDimensions.openingWidth || 6, wallThick = currentDimensions.wallThickness || 2, cSkew = currentDimensions.skew || 0;
+                        const cOffsetX = currentDimensions.offsetX || 0, cOffsetY = currentDimensions.offsetY || 0;
+                        const cPoints = [
+                            [-cOuterW*scale/2 + cSkew*scale + cOffsetX*scale, -cOuterH*scale/2 + cOffsetY*scale],
+                            [cOuterW*scale/2 + cSkew*scale + cOffsetX*scale, -cOuterH*scale/2 + cOffsetY*scale],
+                            [cOuterW*scale/2 + cOffsetX*scale, -cOuterH*scale/2 + wallThick*scale + cOffsetY*scale],
+                            [openingW*scale/2 + cOffsetX*scale, -cOuterH*scale/2 + wallThick*scale + cOffsetY*scale],
+                            [openingW*scale/2 + cOffsetX*scale, cOuterH*scale/2 - wallThick*scale + cOffsetY*scale],
+                            [cOuterW*scale/2 + cOffsetX*scale, cOuterH*scale/2 - wallThick*scale + cOffsetY*scale],
+                            [cOuterW*scale/2 + cOffsetX*scale, cOuterH*scale/2 + cOffsetY*scale],
+                            [-cOuterW*scale/2 + cOffsetX*scale, cOuterH*scale/2 + cOffsetY*scale]
+                        ];
+                        shapeSVG = `<g transform="rotate(${currentRotation})"><polygon points="${cPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>`;
+                        shapeSVG += drawInputField(cSkew*scale/2, -cOuterH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-cOuterW*scale/2-80, 0, 'outerHeight', 'Außen-H') + 
+                                   drawInputField(openingW*scale/2+80, 0, 'openingWidth', 'Öffnung-B') + drawInputField(cOuterW*scale/2+80, -cOuterH*scale/2 + wallThick*scale/2, 'wallThickness', 'Wand-D') +
+                                   drawInputField(160, 220, 'skew', 'Schiefe') + drawInputField(160, 260, 'offsetX', 'Vers.X') + drawInputField(160, 300, 'offsetY', 'Vers.Y');
+                        break;
+                    case 'plusform':
+                        const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4;
+                        const w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12;
+                        const skewX = currentDimensions.skewX || 0, skewY = currentDimensions.skewY || 0;
+                        const pOffsetX = currentDimensions.offsetX || 0, pOffsetY = currentDimensions.offsetY || 0;
+                        // Horizontal Balken
+                        const hBar = [
+                            [-w1*scale/2 + skewX*scale + pOffsetX*scale, -h1*scale/2 + skewY*scale + pOffsetY*scale],
+                            [w1*scale/2 + skewX*scale + pOffsetX*scale, -h1*scale/2 + skewY*scale + pOffsetY*scale],
+                            [w1*scale/2 + pOffsetX*scale, h1*scale/2 + pOffsetY*scale],
+                            [-w1*scale/2 + pOffsetX*scale, h1*scale/2 + pOffsetY*scale]
+                        ];
+                        // Vertikaler Balken
+                        const vBar = [
+                            [-w2*scale/2 + skewX*scale + pOffsetX*scale, -h2*scale/2 + skewY*scale + pOffsetY*scale],
+                            [w2*scale/2 + skewX*scale + pOffsetX*scale, -h2*scale/2 + skewY*scale + pOffsetY*scale],
+                            [w2*scale/2 + pOffsetX*scale, h2*scale/2 + pOffsetY*scale],
+                            [-w2*scale/2 + pOffsetX*scale, h2*scale/2 + pOffsetY*scale]
+                        ];
+                        shapeSVG = `<g transform="rotate(${currentRotation})">
+                                     <polygon points="${hBar.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                     <polygon points="${vBar.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                   </g>`;
+                        shapeSVG += drawInputField(0, -h1*scale/2-60 + skewY*scale, 'width1', 'Breite-1') + drawInputField(-w1*scale/2-80, 0, 'height1', 'Höhe-1') + 
+                                   drawInputField(w2*scale/2+80, 0, 'width2', 'Breite-2') + drawInputField(0, h2*scale/2+50, 'height2', 'Höhe-2') +
+                                   drawInputField(-250, 220, 'skewX', 'Schiefe X') + drawInputField(-250, 260, 'skewY', 'Schiefe Y') + 
+                                   drawInputField(210, 220, 'offsetX', 'Vers.X') + drawInputField(210, 260, 'offsetY', 'Vers.Y');
+                        break;d(0, outerH*scale/2 + 50, 'innerWidth', 'Innen-B') + drawInputField(innerW*scale/2+80, outerH*scale/2 - innerH*scale/2, 'innerHeight', 'Innen-H') +
                                    drawInputField(200, 280, 'skew', 'Schiefe');
                         break;
                     case 'cform':
@@ -525,16 +574,16 @@
             const currentValue = currentDimensions[key] || 0;
             let min = "0.01", max = "100", step = "0.01";
             
-            if (key === 'skew' || key === 'skewX' || key === 'skewY') {
+            if (key === 'skew' || key === 'skewX' || key === 'skewY' || key === 'offsetX' || key === 'offsetY') {
                 min = "-10"; max = "10"; step = "0.1";
             }
             
-            // Versatz-Buttons bleiben an fester Position (nicht rotiert)
-            const isSkewField = (key === 'skew' || key === 'skewX' || key === 'skewY');
+            // Versatz- und Schiefe-Buttons bleiben an fester Position (nicht rotiert)
+            const isFixedField = (key === 'skew' || key === 'skewX' || key === 'skewY' || key === 'offsetX' || key === 'offsetY');
             
             let rotatedX, rotatedY;
-            if (isSkewField) {
-                // Versatz-Felder bleiben an fester Position
+            if (isFixedField) {
+                // Versatz- und Schiefe-Felder bleiben an fester Position
                 rotatedX = x;
                 rotatedY = y;
             } else {
@@ -564,7 +613,7 @@
             const currentValue = currentDimensions[key] || 0;
             let newValue = currentValue + increment;
             
-            if (key === 'skew' || key === 'skewX' || key === 'skewY') {
+            if (key === 'skew' || key === 'skewX' || key === 'skewY' || key === 'offsetX' || key === 'offsetY') {
                 newValue = Math.max(-10, Math.min(10, newValue));
             } else {
                 newValue = Math.max(0.01, Math.min(100, newValue));
@@ -582,7 +631,7 @@
         function updateDimensionFromSVG(key, value) {
             const numValue = parseFloat(value);
             if (!isNaN(numValue)) {
-                if (key === 'skew' || key === 'skewX' || key === 'skewY' || numValue > 0) {
+                if (key === 'skew' || key === 'skewX' || key === 'skewY' || key === 'offsetX' || key === 'offsetY' || numValue > 0) {
                     currentDimensions[key] = numValue; 
                     updatePreview(); 
                     updateCalculations(); 
@@ -1024,9 +1073,9 @@
                         break;
                     case 'cform':
                         const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10;
-                        const openingW = currentDimensions.openingWidth || 6, wallThick = currentDimensions.wallThickness || 2;
-                        const innerW = openingW, innerH = cOuterH - 2 * wallThick;
-                        area = cOuterW * cOuterH - innerW * innerH;
+                        const cOpeningW = currentDimensions.openingWidth || 6, cWallThick = currentDimensions.wallThickness || 2;
+                        const cInnerW = cOpeningW, cInnerH = cOuterH - 2 * cWallThick;
+                        area = cOuterW * cOuterH - cInnerW * cInnerH;
                         break;
                     case 'plusform':
                         const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4;
@@ -1135,40 +1184,31 @@
             window.location.href = 'berechnung.html';
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Content Loaded - Setting up event listeners');
-            
+        // Event Listeners entfernt - Console-Ausgaben bereinigt
+        document.addEventListener('DOMContentLoaded', function() {            
             // Corner options
             document.querySelectorAll('.corner-option').forEach(opt => {
-                console.log('Adding corner listener to:', opt.getAttribute('data-corners'));
                 opt.addEventListener('click', function() { 
                     const corners = this.getAttribute('data-corners');
-                    console.log('Corner clicked:', corners);
                     selectCorners(corners); 
                 });
             });
             
             // Round options
             document.querySelectorAll('.round-option').forEach(opt => {
-                console.log('Adding round listener to:', opt.getAttribute('data-round-type'));
                 opt.addEventListener('click', function() { 
                     const roundType = this.getAttribute('data-round-type');
-                    console.log('Round type clicked:', roundType);
                     selectRoundType(roundType); 
                 });
             });
             
             // Complex options
             document.querySelectorAll('.complex-option').forEach(opt => {
-                console.log('Adding complex listener to:', opt.getAttribute('data-complex-type'));
                 opt.addEventListener('click', function() { 
                     const complexType = this.getAttribute('data-complex-type');
-                    console.log('Complex type clicked:', complexType);
                     selectComplexType(complexType); 
                 });
             });
-            
-            console.log('All event listeners set up successfully');
         });
 
         // Global functions for onclick handlers
