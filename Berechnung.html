@@ -358,7 +358,7 @@
         }
 
         function loadData() {
-            console.log('=== ERWEITERTE DATEN-SUCHE ===');
+            console.log('=== LADE DATEN ===');
             
             // 1. Standard localStorage/sessionStorage
             let savedData = {};
@@ -369,19 +369,36 @@
                 }
                 if (saved) {
                     savedData = JSON.parse(saved);
-                    console.log('📦 Standard Storage gefunden:', savedData);
+                    console.log('📦 Geladene Daten:', savedData);
                 }
             } catch (e) {
-                console.error('Fehler beim Standard-Laden:', e);
+                console.error('Fehler beim Laden:', e);
             }
             
-            // Fallback-Daten erstellen wenn nichts gefunden
-            if (!savedData || Object.keys(savedData).length === 0) {
-                console.log('⚠️ Keine Daten gefunden, erstelle Fallback-Daten');
-                savedData = createFallbackData();
+            // 2. Suche nach ALLEN möglichen Storage-Keys (falls Daten anders gespeichert)
+            const possibleKeys = [
+                'dachplattenrechner_data',
+                'dachplatten_data', 
+                'roof_data',
+                'formauswahl_data',
+                'geometry_data',
+                'project_data'
+            ];
+            
+            for (const key of possibleKeys) {
+                try {
+                    const data = localStorage.getItem(key) || sessionStorage.getItem(key);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        console.log(`📦 Gefunden unter ${key}:`, parsed);
+                        // Merge alle gefundenen Daten
+                        Object.assign(savedData, parsed);
+                    }
+                } catch (e) {
+                    // Ignoriere Fehler
+                }
             }
             
-            console.log('🎯 FINAL zusammengeführte Daten:', savedData);
             return savedData;
         }
 
@@ -409,79 +426,78 @@
             };
         }
 
-        // KORRIGIERTE Datenvalidierung und -extraktion
+        // VEREINFACHTE Datenvalidierung - verwendet echte Daten vom Editor
         function extractGeometryData() {
-            console.log('=== EXTRAHIERE GEOMETRIE-DATEN ===');
-            console.log('ProjectData:', projectData);
+            console.log('=== EXTRAHIERE ECHTE GEOMETRIE-DATEN ===');
             
-            let geometry = null;
-            let area = 0;
             let variant = 'rechteck';
+            let area = 40;
+            let geometry = null;
             
-            // 1. Prüfe projectData.geometry (von Dachform-Editor)
-            if (projectData.geometry && projectData.geometry.dimensions) {
-                console.log('✅ Gefunden: projectData.geometry');
+            // 1. Direkt aus projectData.geometry (von Dachform-Editor)
+            if (projectData.geometry) {
                 geometry = projectData.geometry;
-                area = geometry.area || 0;
                 variant = geometry.variant || 'rechteck';
+                area = geometry.area || 40;
+                console.log('✅ Verwende echte Geometrie-Daten:', geometry);
+                return { variant, area, geometry };
             }
             
-            // 2. Prüfe roofShape (alternative Speicherung)
-            else if (projectData.roofShape) {
-                console.log('✅ Gefunden: projectData.roofShape');
-                variant = projectData.roofShape.variant || projectData.roofShape.baseShape || 'rechteck';
+            // 2. Aus roofShape (alternative Struktur)
+            if (projectData.roofShape) {
+                const roofShape = projectData.roofShape;
                 
-                // Konvertiere numerische Werte
-                if (variant === '3' || variant === 3) {
+                // Konvertiere numerische Varianten
+                if (roofShape.variant === '3' || roofShape.variant === 3) {
                     variant = 'dreieck';
-                    area = 20.33; // Aus der Konsole erkennbar
-                    geometry = {
-                        variant: 'dreieck',
-                        area: area,
-                        dimensions: { sideA: 8, sideB: 6, sideC: 7 }
-                    };
-                } else if (variant === '4' || variant === 4) {
+                } else if (roofShape.variant === '4' || roofShape.variant === 4) {
                     variant = 'viereck';
-                    area = 40;
-                    geometry = {
-                        variant: 'viereck',
-                        area: area,
-                        dimensions: { bottomWidth: 10, topWidth: 8, leftSide: 6, rightSide: 6 }
-                    };
                 } else {
-                    // Standard Rechteck
-                    area = 40;
-                    geometry = {
-                        variant: 'rechteck',
-                        area: area,
-                        dimensions: { length: 8, width: 5 }
-                    };
+                    variant = roofShape.variant || roofShape.baseShape || 'rechteck';
                 }
-            }
-            
-            // 3. Fallback basierend auf Konsolen-Info
-            else {
-                console.log('⚠️ Keine Geometrie gefunden, analysiere verfügbare Daten...');
                 
-                // Aus der Konsole ist erkennbar: variant "3", area: 20.33
-                variant = 'dreieck';
-                area = 20.33;
+                // Verwende berechnete Fläche falls vorhanden
+                area = roofShape.area || projectData.calculatedArea || 40;
+                
+                // Erstelle Geometrie-Objekt
                 geometry = {
-                    variant: 'dreieck',
+                    variant: variant,
                     area: area,
-                    dimensions: { sideA: 8, sideB: 6, sideC: 7 }
+                    dimensions: roofShape.dimensions || getDefaultDimensionsForVariant(variant),
+                    rotation: roofShape.rotation || 0,
+                    points: roofShape.points || null
                 };
                 
-                console.log('📝 Verwende analysierte Dreieck-Daten aus Konsole');
+                console.log('✅ Verwende roofShape-Daten:', geometry);
+                return { variant, area, geometry };
             }
             
-            console.log('🎯 Extrahierte Geometrie:', {
-                variant: variant,
-                area: area,
-                geometry: geometry
-            });
+            // 3. Fallback nur wenn gar nichts da ist
+            console.log('⚠️ Keine Daten gefunden, verwende minimalen Fallback');
+            geometry = {
+                variant: 'rechteck',
+                area: 40,
+                dimensions: { length: 8, width: 5 }
+            };
             
-            return { variant, area, geometry };
+            return { variant: 'rechteck', area: 40, geometry };
+        }
+
+        function getDefaultDimensionsForVariant(variant) {
+            switch (variant) {
+                case 'dreieck':
+                case '3':
+                    return { sideA: 8, sideB: 6, sideC: 7 };
+                case 'viereck':
+                case '4':
+                    return { bottomWidth: 10, topWidth: 8, leftSide: 6, rightSide: 6 };
+                case 'trapez':
+                    return { bottomBase: 8, topBase: 6, height: 4 };
+                case 'rechtwinklig':
+                    return { katheteA: 4, katheteB: 5 };
+                default:
+                    return { length: 8, width: 5 };
+            }
         }
 
         // Projekt-Info anzeigen
@@ -565,7 +581,7 @@
             console.log('Canvas setup abgeschlossen');
         }
 
-        // Dach visualisieren
+        // VEREINFACHTE Visualisierung - verwendet echte Form-Daten
         function visualizeRoof() {
             if (!roofCtx || !roofCanvas) {
                 console.error('Canvas nicht initialisiert');
@@ -581,48 +597,119 @@
             
             const centerX = roofCanvas.width / 2;
             const centerY = roofCanvas.height / 2;
-            const scale = 50; // Pixel pro Meter
+            const scale = 30; // Reduzierte Skalierung für bessere Sicht
             
             const { variant, geometry } = extractGeometryData();
             
-            console.log('🎨 Zeichne Form:', variant, geometry);
-            
-            if (geometry && geometry.dimensions) {
-                const dims = geometry.dimensions;
-                
-                switch (variant) {
-                    case 'dreieck':
-                    case '3':
-                        console.log('✏️ Zeichne Dreieck mit Seiten:', dims.sideA, dims.sideB, dims.sideC);
-                        drawTriangle(centerX, centerY, dims.sideA || 8, dims.sideB || 6, dims.sideC || 7, scale);
-                        break;
-                    case 'rechtwinklig':
-                        drawRightTriangle(centerX, centerY, dims.katheteA || 4, dims.katheteB || 5, scale);
-                        break;
-                    case 'trapez':
-                        drawTrapezoid(centerX, centerY, dims.bottomBase || 8, dims.topBase || 6, dims.height || 4, scale);
-                        break;
-                    case 'viereck':
-                    case '4':
-                        // Für allgemeines Viereck verwende Trapez-Logik
-                        drawTrapezoid(centerX, centerY, dims.bottomWidth || 10, dims.topWidth || 8, dims.leftSide || 6, scale);
-                        break;
-                    case 'rechteck':
-                    default:
-                        console.log('✏️ Zeichne Rechteck');
-                        drawRectangle(centerX, centerY, dims.length || 8, dims.width || 5, scale);
-                        break;
-                }
+            // Verwende echte Points falls verfügbar (vom Dachform-Editor)
+            if (geometry && geometry.points && geometry.points.length > 0) {
+                console.log('🎨 Zeichne Form aus echten Punkten');
+                drawFromPoints(geometry.points, centerX, centerY, scale, geometry.rotation || 0);
+            } else if (geometry && geometry.dimensions) {
+                console.log('🎨 Zeichne Form aus Dimensionen:', variant);
+                drawFromDimensions(variant, geometry.dimensions, centerX, centerY, scale, geometry.rotation || 0);
             } else {
-                console.log('⚠️ Keine Geometrie-Daten, zeichne Standard-Dreieck');
-                // Da in der Konsole ein Dreieck erkennbar ist, zeichne Dreieck als Fallback
-                drawTriangle(centerX, centerY, 8, 6, 7, scale);
+                console.log('⚠️ Keine Geometrie-Daten, zeichne Fallback');
+                drawRectangle(centerX, centerY, 8, 5, scale);
             }
             
             // Platten-Layout überlagern wenn Berechnung verfügbar
             if (calculationResults.bahnenAnzahl) {
                 drawPlateLayout();
             }
+        }
+
+        function drawFromPoints(points, centerX, centerY, scale, rotation = 0) {
+            if (!points || points.length < 3) return;
+            
+            roofCtx.save();
+            roofCtx.translate(centerX, centerY);
+            roofCtx.rotate(rotation * Math.PI / 180);
+            
+            // Zeichne Polygon aus Punkten
+            roofCtx.beginPath();
+            points.forEach((point, index) => {
+                const x = point.x * scale;
+                const y = -point.y * scale; // Y-Achse umkehren für Canvas
+                
+                if (index === 0) {
+                    roofCtx.moveTo(x, y);
+                } else {
+                    roofCtx.lineTo(x, y);
+                }
+            });
+            roofCtx.closePath();
+            
+            // Füllung
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            
+            // Umriss
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+            
+            roofCtx.restore();
+        }
+
+        function drawFromDimensions(variant, dims, centerX, centerY, scale, rotation = 0) {
+            roofCtx.save();
+            roofCtx.translate(centerX, centerY);
+            roofCtx.rotate(rotation * Math.PI / 180);
+            
+            switch (variant) {
+                case 'dreieck':
+                case '3':
+                    drawTriangleSimple(0, 0, dims.sideA || 8, dims.sideB || 6, dims.sideC || 7, scale);
+                    break;
+                case 'viereck':
+                case '4':
+                    drawQuadrilateral(0, 0, dims, scale);
+                    break;
+                case 'trapez':
+                    drawTrapezoidSimple(0, 0, dims.bottomBase || 8, dims.topBase || 6, dims.height || 4, scale);
+                    break;
+                case 'rechtwinklig':
+                    drawRightTriangleSimple(0, 0, dims.katheteA || 4, dims.katheteB || 5, scale);
+                    break;
+                default:
+                    drawRectangleSimple(0, 0, dims.length || 8, dims.width || 5, scale);
+                    break;
+            }
+            
+            roofCtx.restore();
+        }
+
+        function drawTriangleSimple(x, y, sideA, sideB, sideC, scale) {
+            // Vereinfachtes Dreieck - gleichseitig basierend auf Durchschnitt
+            const avgSide = (sideA + sideB + sideC) / 3;
+            const height = (avgSide * Math.sqrt(3)) / 2;
+            const scaledSide = avgSide * scale;
+            const scaledHeight = height * scale;
+            
+            roofCtx.beginPath();
+            roofCtx.moveTo(x - scaledSide/2, y + scaledHeight/3);
+            roofCtx.lineTo(x + scaledSide/2, y + scaledHeight/3);
+            roofCtx.lineTo(x, y - (scaledHeight*2)/3);
+            roofCtx.closePath();
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+        }
+
+        function drawRectangleSimple(x, y, length, width, scale) {
+            const w = length * scale;
+            const h = width * scale;
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fillRect(x - w/2, y - h/2, w, h);
+            
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.strokeRect(x - w/2, y - h/2, w, h);
         }
 
         // Zeichenfunktionen
@@ -1032,24 +1119,30 @@
             window.location.href = 'Dachform.html';
         }
 
-        // Initialisierung - VERBESSERTE Datenladung
+        // Initialisierung - LÄDT ECHTE DATEN VOM EDITOR
         document.addEventListener('DOMContentLoaded', function() {
             console.log('=== BERECHNUNG-SEITE GELADEN ===');
             
             // Projektdaten laden
             projectData = loadData();
-            console.log('🔍 RAW Geladene Projektdaten:', JSON.stringify(projectData, null, 2));
+            console.log('📋 Geladene Projektdaten:', projectData);
+            
+            // Validierung - prüfe ob Profil vorhanden
+            if (!projectData.profile) {
+                console.warn('⚠️ Keine Profil-Daten - verwende Fallback');
+                projectData.profile = createFallbackData().profile;
+            }
             
             // Canvas setup
             setupCanvas();
             
-            // Info anzeigen
+            // Info anzeigen  
             displayProjectInfo();
             
-            // SOFORTIGE DEMONSTRATION mit echten oder Fallback-Daten
+            // Sofortige Berechnung und Visualisierung
             calculateLengths();
             
-            console.log('✅ Berechnung-Seite erfolgreich initialisiert');
+            console.log('✅ Berechnung-Seite initialisiert');
         });
 
         // Canvas-Größe bei Fenster-Resize anpassen
@@ -1101,8 +1194,7 @@
             console.log('✅ Demo-Daten geladen und Berechnung durchgeführt');
         };
 
-        console.log('✅ berechnung.js geladen - REPARIERTE VERSION');
-        console.log('🧪 Demo-Daten verfügbar: loadDemoData()');
+        console.log('✅ berechnung.js geladen - VERWENDET ECHTE DATEN VOM EDITOR');
     </script>
 </body>
 </html>
