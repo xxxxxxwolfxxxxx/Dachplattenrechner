@@ -252,30 +252,49 @@
         };
 
         function selectCorners(corners) {
+            console.log('selectCorners called with:', corners);
             document.querySelectorAll('.corner-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector('[data-corners="' + corners + '"]').classList.add('selected');
-            selectedCorners = corners; selectedRoundType = null; selectedComplexType = null;
+            selectedCorners = corners; 
+            selectedRoundType = null; 
+            selectedComplexType = null;
             
-            const roundSelector = document.getElementById('round-selector'), complexSelector = document.getElementById('complex-selector');
+            const roundSelector = document.getElementById('round-selector');
+            const complexSelector = document.getElementById('complex-selector');
+            
             if (corners === '0') {
-                roundSelector.style.display = 'block'; complexSelector.style.display = 'none'; hideEditor();
+                roundSelector.style.display = 'block'; 
+                complexSelector.style.display = 'none'; 
+                hideEditor();
                 document.querySelectorAll('.round-option').forEach(opt => opt.classList.remove('selected'));
             } else if (corners === 'special') {
-                roundSelector.style.display = 'none'; complexSelector.style.display = 'block'; hideEditor();
+                roundSelector.style.display = 'none'; 
+                complexSelector.style.display = 'block'; 
+                hideEditor();
                 document.querySelectorAll('.complex-option').forEach(opt => opt.classList.remove('selected'));
-            } else { roundSelector.style.display = 'none'; complexSelector.style.display = 'none'; showEditor(); }
+            } else { 
+                roundSelector.style.display = 'none'; 
+                complexSelector.style.display = 'none'; 
+                showEditor(); 
+            }
         }
 
         function selectRoundType(roundType) {
+            console.log('selectRoundType called with:', roundType);
             document.querySelectorAll('.round-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector('[data-round-type="' + roundType + '"]').classList.add('selected');
-            selectedRoundType = roundType; selectedComplexType = null; showEditor();
+            selectedRoundType = roundType; 
+            selectedComplexType = null; 
+            showEditor();
         }
 
         function selectComplexType(complexType) {
+            console.log('selectComplexType called with:', complexType);
             document.querySelectorAll('.complex-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector('[data-complex-type="' + complexType + '"]').classList.add('selected');
-            selectedComplexType = complexType; selectedRoundType = null; showEditor();
+            selectedComplexType = complexType; 
+            selectedRoundType = null; 
+            showEditor();
         }
 
         function hideEditor() {
@@ -287,13 +306,19 @@
             document.getElementById('editor-area').style.display = 'block';
             document.getElementById('continue-btn').style.display = 'inline-block';
             document.getElementById('shape-info').innerHTML = '<strong>Gewählt:</strong> Form ausgewählt';
-            createInputs(); document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
+            createInputs(); 
+            document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
         }
 
         function createInputs() {
-            const inputKey = selectedRoundType || selectedComplexType || selectedCorners, inputs = shapeInputs[inputKey];
-            if (!inputs) return; currentDimensions = {}; inputs.forEach(input => currentDimensions[input.key] = input.default);
-            updatePreview(); updateCalculations();
+            const inputKey = selectedRoundType || selectedComplexType || selectedCorners;
+            const inputs = shapeInputs[inputKey];
+            if (!inputs) return; 
+            
+            currentDimensions = {};
+            inputs.forEach(input => currentDimensions[input.key] = input.default);
+            updatePreview(); 
+            updateCalculations();
         }
 
         function updatePreview() {
@@ -324,6 +349,20 @@
                                      <circle cx="${lw/2 - lr}" cy="0" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
                                    </g>`;
                         shapeSVG += drawInputField(0, -lh/2-60, 'length', 'Länge') + drawInputField(-lw/2-80, 0, 'width', 'Breite'); 
+                        break;
+                    case 'halbkreis':
+                        const rHalf = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
+                        shapeSVG = `<g transform="rotate(${currentRotation})">
+                                     <path d="M ${-rHalf} 0 A ${rHalf} ${rHalf} 0 0 1 ${rHalf} 0 Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                   </g>`;
+                        shapeSVG += drawInputField(0, -rHalf-60, 'radius', 'Radius');
+                        break;
+                    case 'viertelkreis':
+                        const rQuarter = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
+                        shapeSVG = `<g transform="rotate(${currentRotation})">
+                                     <path d="M 0 0 L ${rQuarter} 0 A ${rQuarter} ${rQuarter} 0 0 1 0 ${rQuarter} Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                   </g>`;
+                        shapeSVG += drawInputField(rQuarter/2, -60, 'radius', 'Radius');
                         break;
                 }
             } else if (selectedComplexType) {
@@ -362,6 +401,68 @@
                         shapeSVG += drawInputField(tSkew*scale/2, -headH*scale/2-60, 'headWidth', 'Kopf-B') + drawInputField(-headW*scale/2-80, 0, 'headHeight', 'Kopf-H') + 
                                    drawInputField(stemW*scale/2+80, headH*scale/2 + stemH*scale/2, 'stemWidth', 'Stamm-B') + drawInputField(0, headH*scale/2 + stemH*scale + 50, 'stemHeight', 'Stamm-H') +
                                    drawInputField(200, 280, 'skew', 'Schiefe'); 
+                        break;
+                    case 'uform':
+                        const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10;
+                        const innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6, uSkew = currentDimensions.skew || 0;
+                        const uPoints = [
+                            [-outerW*scale/2 + uSkew*scale, -outerH*scale/2],
+                            [outerW*scale/2 + uSkew*scale, -outerH*scale/2],
+                            [outerW*scale/2, outerH*scale/2],
+                            [innerW*scale/2, outerH*scale/2],
+                            [innerW*scale/2, outerH*scale/2 - innerH*scale],
+                            [-innerW*scale/2, outerH*scale/2 - innerH*scale],
+                            [-innerW*scale/2, outerH*scale/2],
+                            [-outerW*scale/2, outerH*scale/2]
+                        ];
+                        shapeSVG = `<g transform="rotate(${currentRotation})"><polygon points="${uPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>`;
+                        shapeSVG += drawInputField(uSkew*scale/2, -outerH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-outerW*scale/2-80, 0, 'outerHeight', 'Außen-H') + 
+                                   drawInputField(0, outerH*scale/2 + 50, 'innerWidth', 'Innen-B') + drawInputField(innerW*scale/2+80, outerH*scale/2 - innerH*scale/2, 'innerHeight', 'Innen-H') +
+                                   drawInputField(200, 280, 'skew', 'Schiefe');
+                        break;
+                    case 'cform':
+                        const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10;
+                        const openingW = currentDimensions.openingWidth || 6, wallThick = currentDimensions.wallThickness || 2, cSkew = currentDimensions.skew || 0;
+                        const cPoints = [
+                            [-cOuterW*scale/2 + cSkew*scale, -cOuterH*scale/2],
+                            [cOuterW*scale/2 + cSkew*scale, -cOuterH*scale/2],
+                            [cOuterW*scale/2, -cOuterH*scale/2 + wallThick*scale],
+                            [openingW*scale/2, -cOuterH*scale/2 + wallThick*scale],
+                            [openingW*scale/2, cOuterH*scale/2 - wallThick*scale],
+                            [cOuterW*scale/2, cOuterH*scale/2 - wallThick*scale],
+                            [cOuterW*scale/2, cOuterH*scale/2],
+                            [-cOuterW*scale/2, cOuterH*scale/2]
+                        ];
+                        shapeSVG = `<g transform="rotate(${currentRotation})"><polygon points="${cPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>`;
+                        shapeSVG += drawInputField(cSkew*scale/2, -cOuterH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-cOuterW*scale/2-80, 0, 'outerHeight', 'Außen-H') + 
+                                   drawInputField(openingW*scale/2+80, 0, 'openingWidth', 'Öffnung-B') + drawInputField(cOuterW*scale/2+80, -cOuterH*scale/2 + wallThick*scale/2, 'wallThickness', 'Wand-D') +
+                                   drawInputField(200, 280, 'skew', 'Schiefe');
+                        break;
+                    case 'plusform':
+                        const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4;
+                        const w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12;
+                        const skewX = currentDimensions.skewX || 0, skewY = currentDimensions.skewY || 0;
+                        // Horizontal Balken
+                        const hBar = [
+                            [-w1*scale/2 + skewX*scale, -h1*scale/2 + skewY*scale],
+                            [w1*scale/2 + skewX*scale, -h1*scale/2 + skewY*scale],
+                            [w1*scale/2, h1*scale/2],
+                            [-w1*scale/2, h1*scale/2]
+                        ];
+                        // Vertikaler Balken
+                        const vBar = [
+                            [-w2*scale/2 + skewX*scale, -h2*scale/2 + skewY*scale],
+                            [w2*scale/2 + skewX*scale, -h2*scale/2 + skewY*scale],
+                            [w2*scale/2, h2*scale/2],
+                            [-w2*scale/2, h2*scale/2]
+                        ];
+                        shapeSVG = `<g transform="rotate(${currentRotation})">
+                                     <polygon points="${hBar.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                     <polygon points="${vBar.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                   </g>`;
+                        shapeSVG += drawInputField(0, -h1*scale/2-60 + skewY*scale, 'width1', 'Breite-1') + drawInputField(-w1*scale/2-80, 0, 'height1', 'Höhe-1') + 
+                                   drawInputField(w2*scale/2+80, 0, 'width2', 'Breite-2') + drawInputField(0, h2*scale/2+50, 'height2', 'Höhe-2') +
+                                   drawInputField(-200, 280, 'skewX', 'Schiefe X') + drawInputField(200, 280, 'skewY', 'Schiefe Y');
                         break;
                 }
             } else if (selectedCorners) {
@@ -622,6 +723,24 @@
                             { name: 'Innen Rechts', angle: 90 },
                             { name: 'Innen Oben', angle: 0 }
                         ];
+                    case 'cform':
+                        return [
+                            { name: 'Außen Oben', angle: 0 },
+                            { name: 'Außen Rechts', angle: 90 },
+                            { name: 'Außen Unten', angle: 0 },
+                            { name: 'Außen Links', angle: 90 },
+                            { name: 'Innen Oben', angle: 0 },
+                            { name: 'Innen Unten', angle: 0 },
+                            { name: 'Öffnung Links', angle: 90 },
+                            { name: 'Öffnung Rechts', angle: 90 }
+                        ];
+                    case 'plusform':
+                        return [
+                            { name: 'Horizontal Oben', angle: 0 },
+                            { name: 'Horizontal Unten', angle: 0 },
+                            { name: 'Vertikal Links', angle: 90 },
+                            { name: 'Vertikal Rechts', angle: 90 }
+                        ];
                     default:
                         return [
                             { name: 'Obere Seite', angle: 0 },
@@ -671,7 +790,7 @@
                             { name: 'Seite A', angle: 180 + sideA_angle } // +180° für Rückrichtung
                         ];
                     case '4':
-                        // Viereck/Trapez: 4 Seiten - ECHTE GEOMETRIE ERKENNEN
+                        // Viereck/Trapez: 4 Seiten - ECHTE GEOMETRISCHE BERECHNUNG ALLER SEITEN
                         const bottomWidth = currentDimensions.bottomWidth || 10;
                         const topWidth = currentDimensions.topWidth || 8;
                         const leftSide = currentDimensions.leftSide || 6;
@@ -682,56 +801,70 @@
                             bottomWidth, topWidth, leftSide, rightSide, skew
                         });
                         
-                        // ECHTE GEOMETRISCHE BERECHNUNG der Seitenwinkel
-                        // Wenn topWidth != bottomWidth → echtes Trapez
-                        const isRealTrapezoid = Math.abs(topWidth - bottomWidth) > 0.01;
-                        
-                        let leftAngle = 90;   // Standard senkrecht
-                        let rightAngle = 90;  // Standard senkrecht
-                        
-                        if (isRealTrapezoid) {
-                            // Berechne echte Winkel bei Trapez-Form
-                            const widthDiff = topWidth - bottomWidth;
-                            const halfWidthDiff = widthDiff / 2;
-                            
-                            // Winkel der schiefen Seiten berechnen
-                            const leftSideAngle = Math.atan2(leftSide, halfWidthDiff) * 180 / Math.PI;
-                            const rightSideAngle = Math.atan2(rightSide, -halfWidthDiff) * 180 / Math.PI;
-                            
-                            leftAngle = leftSideAngle;
-                            rightAngle = 180 - rightSideAngle; // Spiegelung für rechte Seite
-                            
-                            console.log('ECHTES TRAPEZ erkannt:', {
-                                widthDiff, leftAngle: leftAngle.toFixed(1), rightAngle: rightAngle.toFixed(1)
-                            });
-                        }
-                        
-                        // Zusätzlich: Schiefe-Parameter berücksichtigen
-                        if (Math.abs(skew) > 0.01) {
-                            const skewAngleDegrees = Math.atan(Math.abs(skew) / leftSide) * 180 / Math.PI;
-                            
-                            if (skew > 0) {
-                                leftAngle -= skewAngleDegrees;
-                                rightAngle += skewAngleDegrees;
-                            } else {
-                                leftAngle += skewAngleDegrees;
-                                rightAngle -= skewAngleDegrees;
-                            }
-                            
-                            console.log('SCHIEFE addiert:', {
-                                skew, finalLeftAngle: leftAngle.toFixed(1), finalRightAngle: rightAngle.toFixed(1)
-                            });
-                        }
-                        
-                        const result = [
-                            { name: 'Untere Seite', angle: 0 },          // Basis horizontal
-                            { name: 'Rechte Seite', angle: rightAngle }, // Echter geometrischer Winkel
-                            { name: 'Obere Seite', angle: 180 },        // Obere Seite horizontal
-                            { name: 'Linke Seite', angle: leftAngle }   // Echter geometrischer Winkel
+                        // BERECHNE ALLE 4 ECKPUNKTE DES VIERECKS
+                        // Basis-Koordinaten: Untere Seite horizontal
+                        const points = [
+                            { x: -bottomWidth/2, y: -leftSide/2 },           // Unten links (A)
+                            { x: bottomWidth/2, y: -rightSide/2 },           // Unten rechts (B)  
+                            { x: topWidth/2 + skew, y: leftSide/2 },         // Oben rechts (C)
+                            { x: -topWidth/2 + skew, y: rightSide/2 }        // Oben links (D)
                         ];
                         
-                        console.log('FINALE TRAPEZ-SEITEN:', result);
-                        return result;
+                        console.log('Berechnete Eckpunkte:', points);
+                        
+                        // BERECHNE WINKEL JEDER SEITE
+                        const sides = [];
+                        for (let i = 0; i < 4; i++) {
+                            const p1 = points[i];
+                            const p2 = points[(i + 1) % 4];
+                            
+                            // Vektor von p1 zu p2
+                            const dx = p2.x - p1.x;
+                            const dy = p2.y - p1.y;
+                            
+                            // Winkel in Grad (0° = horizontal nach rechts)
+                            let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                            if (angle < 0) angle += 360; // Normalisiere zu 0-360°
+                            
+                            const sideNames = ['Untere Seite', 'Rechte Seite', 'Obere Seite', 'Linke Seite'];
+                            
+                            sides.push({
+                                name: sideNames[i],
+                                angle: angle,
+                                start: p1,
+                                end: p2,
+                                length: Math.sqrt(dx*dx + dy*dy)
+                            });
+                            
+                            console.log(`${sideNames[i]}: von (${p1.x.toFixed(1)}, ${p1.y.toFixed(1)}) zu (${p2.x.toFixed(1)}, ${p2.y.toFixed(1)}) → ${angle.toFixed(1)}°`);
+                        }
+                        
+                        // SPEZIALFALL: Wenn obere und untere Seite parallel sind
+                        const bottomAngle = sides[0].angle;
+                        const topAngle = sides[2].angle;
+                        const angleDiff = Math.abs(bottomAngle - topAngle);
+                        const isParallel = angleDiff < 1 || Math.abs(angleDiff - 180) < 1;
+                        
+                        if (isParallel) {
+                            console.log('Parallele horizontale Seiten erkannt');
+                            // Setze obere Seite auf exakt parallel zur unteren
+                            sides[2].angle = (bottomAngle + 180) % 360;
+                        }
+                        
+                        // SPEZIALFALL: Wenn linke und rechte Seite parallel sind  
+                        const leftAngle = sides[3].angle;
+                        const rightAngle = sides[1].angle;
+                        const verticalDiff = Math.abs(leftAngle - rightAngle);
+                        const isVerticalParallel = Math.abs(verticalDiff - 180) < 1;
+                        
+                        if (isVerticalParallel) {
+                            console.log('Parallele vertikale Seiten erkannt');
+                            // Setze rechte Seite auf exakt parallel zur linken
+                            sides[1].angle = (leftAngle + 180) % 360;
+                        }
+                        
+                        console.log('FINALE VIERECK-SEITEN mit echten Winkeln:', sides);
+                        return sides;
                     case '5':
                         // Pentagon - 5 Seiten, jede Seite hat eine andere Richtung
                         // Erste Seite horizontal, dann jeweils 72° gedreht
@@ -861,6 +994,16 @@
                         area = (length - width) * width + Math.PI * radius * radius; 
                         perimeter = 2 * (length - width) + 2 * Math.PI * radius; 
                         break;
+                    case 'halbkreis':
+                        const rHalf = currentDimensions.radius || 5;
+                        area = (Math.PI * rHalf * rHalf) / 2;
+                        perimeter = Math.PI * rHalf + 2 * rHalf;
+                        break;
+                    case 'viertelkreis':
+                        const rQuarter = currentDimensions.radius || 5;
+                        area = (Math.PI * rQuarter * rQuarter) / 4;
+                        perimeter = (Math.PI * rQuarter) / 2 + 2 * rQuarter;
+                        break;
                 }
             } else if (selectedComplexType) {
                 switch (selectedComplexType) {
@@ -873,6 +1016,24 @@
                         const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3;
                         const stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8;
                         area = headW * headH + stemW * stemH; 
+                        break;
+                    case 'uform':
+                        const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10;
+                        const innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6;
+                        area = outerW * outerH - innerW * innerH;
+                        break;
+                    case 'cform':
+                        const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10;
+                        const openingW = currentDimensions.openingWidth || 6, wallThick = currentDimensions.wallThickness || 2;
+                        const innerW = openingW, innerH = cOuterH - 2 * wallThick;
+                        area = cOuterW * cOuterH - innerW * innerH;
+                        break;
+                    case 'plusform':
+                        const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4;
+                        const w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12;
+                        // Plus = zwei Rechtecke minus Überlappung
+                        const overlap = Math.min(w1, w2) * Math.min(h1, h2);
+                        area = w1 * h1 + w2 * h2 - overlap;
                         break;
                 }
             } else if (selectedCorners) {
@@ -975,11 +1136,42 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.corner-option').forEach(opt => opt.addEventListener('click', function() { selectCorners(this.getAttribute('data-corners')); }));
-            document.querySelectorAll('.round-option').forEach(opt => opt.addEventListener('click', function() { selectRoundType(this.getAttribute('data-round-type')); }));
-            document.querySelectorAll('.complex-option').forEach(opt => opt.addEventListener('click', function() { selectComplexType(this.getAttribute('data-complex-type')); }));
+            console.log('DOM Content Loaded - Setting up event listeners');
+            
+            // Corner options
+            document.querySelectorAll('.corner-option').forEach(opt => {
+                console.log('Adding corner listener to:', opt.getAttribute('data-corners'));
+                opt.addEventListener('click', function() { 
+                    const corners = this.getAttribute('data-corners');
+                    console.log('Corner clicked:', corners);
+                    selectCorners(corners); 
+                });
+            });
+            
+            // Round options
+            document.querySelectorAll('.round-option').forEach(opt => {
+                console.log('Adding round listener to:', opt.getAttribute('data-round-type'));
+                opt.addEventListener('click', function() { 
+                    const roundType = this.getAttribute('data-round-type');
+                    console.log('Round type clicked:', roundType);
+                    selectRoundType(roundType); 
+                });
+            });
+            
+            // Complex options
+            document.querySelectorAll('.complex-option').forEach(opt => {
+                console.log('Adding complex listener to:', opt.getAttribute('data-complex-type'));
+                opt.addEventListener('click', function() { 
+                    const complexType = this.getAttribute('data-complex-type');
+                    console.log('Complex type clicked:', complexType);
+                    selectComplexType(complexType); 
+                });
+            });
+            
+            console.log('All event listeners set up successfully');
         });
 
+        // Global functions for onclick handlers
         window.updateDimensionFromSVG = updateDimensionFromSVG; 
         window.incrementValue = incrementValue;
         window.rotateShape = rotateShape; 
