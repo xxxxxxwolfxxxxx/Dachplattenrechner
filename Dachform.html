@@ -38,10 +38,92 @@
         .info-value { font-weight: bold; color: #28a745; }
         .shape-info { background: #fff3cd; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 5px solid #ffc107; }
         
-        .dimension-input-container-simple { display: flex; align-items: center; background: white; border-radius: 8px; padding: 4px 8px; box-shadow: 0 3px 12px rgba(0,0,0,0.15); border: 2px solid #007bff; min-width: 110px; height: 30px; }
-        .dimension-input-container-simple .dimension-input { width: 75px; height: 22px; font-size: 14px; text-align: center; border: 1px solid #ccc; border-radius: 4px; outline: none; font-weight: bold; color: #2c3e50; background: white; padding: 2px 4px; }
-        .dimension-input-container-simple .dimension-input:focus { border-color: #007bff; box-shadow: 0 0 0 2px rgba(0,123,255,0.25); }
-        .dimension-input-container-simple .dimension-unit { font-size: 12px; color: #007bff; font-weight: bold; margin-left: 6px; white-space: nowrap; }
+        /* KORRIGIERTE INPUT-CONTAINER mit custom Spinbuttons */
+        .dimension-input-container-simple { 
+            display: flex; 
+            align-items: center; 
+            background: white; 
+            border-radius: 8px; 
+            padding: 4px; 
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15); 
+            border: 2px solid #007bff; 
+            min-width: 130px; 
+            height: 30px; 
+        }
+        
+        .dimension-input-container-simple .dimension-input { 
+            width: 65px; 
+            height: 22px; 
+            font-size: 14px; 
+            text-align: center; 
+            border: none; 
+            border-radius: 4px; 
+            outline: none; 
+            font-weight: bold; 
+            color: #2c3e50; 
+            background: white; 
+            padding: 2px 4px; 
+            /* Verstecke native Spinbuttons */
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+        
+        .dimension-input-container-simple .dimension-input::-webkit-outer-spin-button,
+        .dimension-input-container-simple .dimension-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .dimension-input-container-simple .dimension-input:focus { 
+            box-shadow: 0 0 0 1px rgba(0,123,255,0.5); 
+        }
+        
+        .dimension-input-container-simple .dimension-unit { 
+            font-size: 12px; 
+            color: #007bff; 
+            font-weight: bold; 
+            margin-left: 6px; 
+            white-space: nowrap; 
+        }
+        
+        /* Custom Spinbuttons */
+        .spin-buttons {
+            display: flex;
+            flex-direction: column;
+            margin-left: 4px;
+        }
+        
+        .spin-btn {
+            width: 18px;
+            height: 11px;
+            background: #007bff;
+            border: none;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        
+        .spin-btn:first-child {
+            border-radius: 3px 3px 0 0;
+            margin-bottom: 1px;
+        }
+        
+        .spin-btn:last-child {
+            border-radius: 0 0 3px 3px;
+        }
+        
+        .spin-btn:hover {
+            background: #0056b3;
+        }
+        
+        .spin-btn:active {
+            background: #004085;
+        }
         
         @media (max-width: 768px) { .editor-container { grid-template-columns: 1fr; } }
     </style>
@@ -89,7 +171,6 @@
                         <div class="complex-option" data-complex-type="uform"><div class="complex-icon">🔄</div><div class="complex-label">U-Form</div></div>
                         <div class="complex-option" data-complex-type="cform"><div class="complex-icon">🌙</div><div class="complex-label">C-Form</div></div>
                         <div class="complex-option" data-complex-type="plusform"><div class="complex-icon">➕</div><div class="complex-label">Plus-Form</div></div>
-
                     </div>
                 </div>
             </div>
@@ -158,7 +239,7 @@
     <script>
         let selectedCorners = null, selectedRoundType = null, selectedComplexType = null, currentDimensions = {}, currentRotation = 0;
 
-        // KORRIGIERTE shapeInputs mit Versatz für alle Formen
+        // KORRIGIERTE shapeInputs - Versatz macht jetzt die Form schief
         const shapeInputs = {
             'circle': [{key: 'radius', label: 'Radius', default: 5}],
             'oval': [{key: 'radiusX', label: 'Halbachse Breite', default: 6}, {key: 'radiusY', label: 'Halbachse Höhe', default: 4}],
@@ -170,36 +251,36 @@
                 {key: 'totalHeight', label: 'Gesamthöhe', default: 10}, 
                 {key: 'cutWidth', label: 'Ausschnitt Breite', default: 5}, 
                 {key: 'cutHeight', label: 'Ausschnitt Höhe', default: 4},
-                {key: 'offset', label: 'Versatz', default: 0}
+                {key: 'skew', label: 'Schiefe', default: 0}
             ],
             'tform': [
                 {key: 'headWidth', label: 'Kopf-Breite', default: 12}, 
                 {key: 'headHeight', label: 'Kopf-Höhe', default: 3}, 
                 {key: 'stemWidth', label: 'Stamm-Breite', default: 4}, 
                 {key: 'stemHeight', label: 'Stamm-Höhe', default: 8},
-                {key: 'offset', label: 'Versatz', default: 0}
+                {key: 'skew', label: 'Schiefe', default: 0}
             ],
             'uform': [
                 {key: 'outerWidth', label: 'Außen-Breite', default: 12}, 
                 {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, 
                 {key: 'innerWidth', label: 'Innen-Breite', default: 8}, 
                 {key: 'innerHeight', label: 'Innen-Höhe', default: 6},
-                {key: 'offset', label: 'Versatz', default: 0}
+                {key: 'skew', label: 'Schiefe', default: 0}
             ],
             'cform': [
                 {key: 'outerWidth', label: 'Außen-Breite', default: 12}, 
                 {key: 'outerHeight', label: 'Außen-Höhe', default: 10}, 
                 {key: 'openingWidth', label: 'Öffnung-Breite', default: 6}, 
                 {key: 'wallThickness', label: 'Wand-Dicke', default: 2},
-                {key: 'offset', label: 'Versatz', default: 0}
+                {key: 'skew', label: 'Schiefe', default: 0}
             ],
             'plusform': [
                 {key: 'width1', label: 'Breite-1', default: 12}, 
                 {key: 'height1', label: 'Höhe-1', default: 4}, 
                 {key: 'width2', label: 'Breite-2', default: 4}, 
                 {key: 'height2', label: 'Höhe-2', default: 12},
-                {key: 'offsetX', label: 'Versatz X', default: 0},
-                {key: 'offsetY', label: 'Versatz Y', default: 0}
+                {key: 'skewX', label: 'Schiefe X', default: 0},
+                {key: 'skewY', label: 'Schiefe Y', default: 0}
             ],
             'custom': [{key: 'area', label: 'Geschätzte Fläche', default: 50}],
             3: [{key: 'sideA', label: 'Seite A', default: 8}, {key: 'sideB', label: 'Seite B', default: 6}, {key: 'sideC', label: 'Seite C', default: 7}],
@@ -208,7 +289,7 @@
                 {key: 'topWidth', label: 'Obere Breite', default: 8},
                 {key: 'leftSide', label: 'Seite links', default: 6},
                 {key: 'rightSide', label: 'Seite rechts', default: 6},
-                {key: 'offset', label: 'Seitversatz', default: 0}
+                {key: 'skew', label: 'Schiefe', default: 0}
             ],
             5: [{key: 'sideLength', label: 'Seitenlänge', default: 6}],
             6: [{key: 'sideLength', label: 'Seitenlänge', default: 6}]
@@ -265,62 +346,65 @@
             if (selectedRoundType) {
                 switch (selectedRoundType) {
                     case 'circle': const r = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
-                        shapeSVG = `<circle cx="0" cy="0" r="${r}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -r-60, 'radius', 'Radius'); break;
-                    case 'oval': const rx = Math.max(40, Math.min(150, (currentDimensions.radiusX || 6) * 20)), ry = Math.max(30, Math.min(120, (currentDimensions.radiusY || 4) * 20));
-                        shapeSVG = `<ellipse cx="0" cy="0" rx="${rx}" ry="${ry}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(-rx-80, 0, 'radiusX', 'Breite') + drawInputField(0, -ry-60, 'radiusY', 'Höhe'); break;
-                    case 'langloch': const length = currentDimensions.length || 10, width = currentDimensions.width || 4;
-                        const lw = Math.max(100, Math.min(200, length * 15)), lh = Math.max(40, Math.min(80, width * 15)), lr = lh / 2;
-                        shapeSVG = `<rect x="${-lw/2 + lr}" y="${-lh/2}" width="${lw - 2*lr}" height="${lh}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <circle cx="${-lw/2 + lr}" cy="0" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <circle cx="${lw/2 - lr}" cy="0" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -lh/2-60, 'length', 'Länge') + drawInputField(-lw/2-80, 0, 'width', 'Breite'); break;
-                    case 'halbkreis': const hr = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
-                        shapeSVG = `<path d="M ${-hr} 0 A ${hr} ${hr} 0 0 1 ${hr} 0 Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(0, -hr/2-50, 'radius', 'Radius'); break;
-                    case 'viertelkreis': const vr = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
-                        shapeSVG = `<path d="M 0 0 L ${vr} 0 A ${vr} ${vr} 0 0 1 0 ${vr} Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(vr/2, -50, 'radius', 'Radius'); break;
-                }
-            } else if (selectedComplexType) {
-                const scale = 15;
-                switch (selectedComplexType) {
-                    case 'lform': const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10, cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4, offset = currentDimensions.offset || 0;
-                        const lPoints = [[-tw*scale/2 + offset*scale, -th*scale/2], [tw*scale/2 + offset*scale, -th*scale/2], [tw*scale/2 + offset*scale, -th*scale/2 + ch*scale], [-tw*scale/2 + cw*scale + offset*scale, -th*scale/2 + ch*scale], [-tw*scale/2 + cw*scale + offset*scale, th*scale/2], [-tw*scale/2 + offset*scale, th*scale/2]];
-                        shapeSVG = `<polygon points="${lPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
                         shapeSVG += drawInputField(0, -th*scale/2-60, 'totalWidth', 'Ges.Breite') + drawInputField(-tw*scale/2-80, 0, 'totalHeight', 'Ges.Höhe') + 
                                    drawInputField(tw*scale/2+80, -th*scale/4, 'cutWidth', 'Auss.B') + drawInputField(tw*scale/2+80, -th*scale/4+40, 'cutHeight', 'Auss.H') +
-                                   drawInputField(-200, 280, 'offset', 'Versatz'); break;
-                    case 'tform': const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3, stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8, tOffset = currentDimensions.offset || 0;
-                        const tPoints = [[-headW*scale/2 + tOffset*scale, -headH*scale/2], [headW*scale/2 + tOffset*scale, -headH*scale/2], [headW*scale/2 + tOffset*scale, headH*scale/2], [stemW*scale/2 + tOffset*scale, headH*scale/2], [stemW*scale/2 + tOffset*scale, headH*scale/2 + stemH*scale], [-stemW*scale/2 + tOffset*scale, headH*scale/2 + stemH*scale], [-stemW*scale/2 + tOffset*scale, headH*scale/2], [-headW*scale/2 + tOffset*scale, headH*scale/2]];
+                                   drawInputField(-200, 280, 'skew', 'Schiefe'); break;
+                    case 'tform': const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3, stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8, tSkew = currentDimensions.skew || 0;
+                        // KORRIGIERT: Schiefe macht T-Form schief
+                        const tPoints = [
+                            [-headW*scale/2 + tSkew*scale, -headH*scale/2], 
+                            [headW*scale/2 + tSkew*scale, -headH*scale/2], 
+                            [headW*scale/2, headH*scale/2], 
+                            [stemW*scale/2, headH*scale/2], 
+                            [stemW*scale/2, headH*scale/2 + stemH*scale], 
+                            [-stemW*scale/2, headH*scale/2 + stemH*scale], 
+                            [-stemW*scale/2, headH*scale/2], 
+                            [-headW*scale/2, headH*scale/2]
+                        ];
                         shapeSVG = `<polygon points="${tPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(tOffset*scale, -headH*scale/2-60, 'headWidth', 'Kopf-B') + drawInputField(-headW*scale/2-80+tOffset*scale, 0, 'headHeight', 'Kopf-H') + 
-                                   drawInputField(stemW*scale/2+80+tOffset*scale, headH*scale/2 + stemH*scale/2, 'stemWidth', 'Stamm-B') + drawInputField(tOffset*scale, headH*scale/2 + stemH*scale + 50, 'stemHeight', 'Stamm-H') +
-                                   drawInputField(200, 280, 'offset', 'Versatz'); break;
-                    case 'uform': const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10, innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6, uOffset = currentDimensions.offset || 0;
+                        shapeSVG += drawInputField(tSkew*scale/2, -headH*scale/2-60, 'headWidth', 'Kopf-B') + drawInputField(-headW*scale/2-80, 0, 'headHeight', 'Kopf-H') + 
+                                   drawInputField(stemW*scale/2+80, headH*scale/2 + stemH*scale/2, 'stemWidth', 'Stamm-B') + drawInputField(0, headH*scale/2 + stemH*scale + 50, 'stemHeight', 'Stamm-H') +
+                                   drawInputField(200, 280, 'skew', 'Schiefe'); break;
+                    case 'uform': const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10, innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6, uSkew = currentDimensions.skew || 0;
                         const wallThick = (outerW - innerW) / 2;
-                        const uPoints = [[-outerW*scale/2 + uOffset*scale, -outerH*scale/2], [outerW*scale/2 + uOffset*scale, -outerH*scale/2], [outerW*scale/2 + uOffset*scale, outerH*scale/2], [outerW*scale/2 - wallThick*scale + uOffset*scale, outerH*scale/2], 
-                                        [outerW*scale/2 - wallThick*scale + uOffset*scale, -outerH*scale/2 + (outerH - innerH)*scale], [-outerW*scale/2 + wallThick*scale + uOffset*scale, -outerH*scale/2 + (outerH - innerH)*scale], 
-                                        [-outerW*scale/2 + wallThick*scale + uOffset*scale, outerH*scale/2], [-outerW*scale/2 + uOffset*scale, outerH*scale/2]];
+                        // KORRIGIERT: Schiefe macht U-Form schief
+                        const uPoints = [
+                            [-outerW*scale/2 + uSkew*scale, -outerH*scale/2], 
+                            [outerW*scale/2 + uSkew*scale, -outerH*scale/2], 
+                            [outerW*scale/2, outerH*scale/2], 
+                            [outerW*scale/2 - wallThick*scale, outerH*scale/2], 
+                            [outerW*scale/2 - wallThick*scale, -outerH*scale/2 + (outerH - innerH)*scale], 
+                            [-outerW*scale/2 + wallThick*scale, -outerH*scale/2 + (outerH - innerH)*scale], 
+                            [-outerW*scale/2 + wallThick*scale, outerH*scale/2], 
+                            [-outerW*scale/2, outerH*scale/2]
+                        ];
                         shapeSVG = `<polygon points="${uPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(uOffset*scale, -outerH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-outerW*scale/2-80+uOffset*scale, 0, 'outerHeight', 'Außen-H') + 
-                                   drawInputField(outerW*scale/2+80+uOffset*scale, -outerH*scale/4, 'innerWidth', 'Innen-B') + drawInputField(outerW*scale/2+80+uOffset*scale, -outerH*scale/4+40, 'innerHeight', 'Innen-H') +
-                                   drawInputField(-200, -280, 'offset', 'Versatz'); break;
-                    case 'cform': const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10, openW = currentDimensions.openingWidth || 6, wallT = currentDimensions.wallThickness || 2, cOffset = currentDimensions.offset || 0;
-                        const cPoints = [[-cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2], [cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2], [cOuterW*scale/2 + cOffset*scale, -cOuterH*scale/2 + wallT*scale], 
-                                        [-cOuterW*scale/2 + wallT*scale + cOffset*scale, -cOuterH*scale/2 + wallT*scale], [-cOuterW*scale/2 + wallT*scale + cOffset*scale, cOuterH*scale/2 - wallT*scale], 
-                                        [cOuterW*scale/2 + cOffset*scale, cOuterH*scale/2 - wallT*scale], [cOuterW*scale/2 + cOffset*scale, cOuterH*scale/2], [-cOuterW*scale/2 + cOffset*scale, cOuterH*scale/2]];
+                        shapeSVG += drawInputField(uSkew*scale/2, -outerH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-outerW*scale/2-80, 0, 'outerHeight', 'Außen-H') + 
+                                   drawInputField(outerW*scale/2+80, -outerH*scale/4, 'innerWidth', 'Innen-B') + drawInputField(outerW*scale/2+80, -outerH*scale/4+40, 'innerHeight', 'Innen-H') +
+                                   drawInputField(-200, -280, 'skew', 'Schiefe'); break;
+                    case 'cform': const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10, openW = currentDimensions.openingWidth || 6, wallT = currentDimensions.wallThickness || 2, cSkew = currentDimensions.skew || 0;
+                        // KORRIGIERT: Schiefe macht C-Form schief
+                        const cPoints = [
+                            [-cOuterW*scale/2 + cSkew*scale, -cOuterH*scale/2], 
+                            [cOuterW*scale/2 + cSkew*scale, -cOuterH*scale/2], 
+                            [cOuterW*scale/2, -cOuterH*scale/2 + wallT*scale], 
+                            [-cOuterW*scale/2 + wallT*scale, -cOuterH*scale/2 + wallT*scale], 
+                            [-cOuterW*scale/2 + wallT*scale, cOuterH*scale/2 - wallT*scale], 
+                            [cOuterW*scale/2, cOuterH*scale/2 - wallT*scale], 
+                            [cOuterW*scale/2, cOuterH*scale/2], 
+                            [-cOuterW*scale/2, cOuterH*scale/2]
+                        ];
                         shapeSVG = `<polygon points="${cPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(cOffset*scale, -cOuterH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-cOuterW*scale/2-80+cOffset*scale, 0, 'outerHeight', 'Außen-H') + 
-                                   drawInputField(cOuterW*scale/2+80+cOffset*scale, 0, 'openingWidth', 'Öffnung') + drawInputField(cOffset*scale, cOuterH*scale/2+50, 'wallThickness', 'Wand-D') +
-                                   drawInputField(200, -280, 'offset', 'Versatz'); break;
-                    case 'plusform': const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4, w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12, pOffsetX = currentDimensions.offsetX || 0, pOffsetY = currentDimensions.offsetY || 0;
-                        shapeSVG = `<rect x="${-w1*scale/2 + pOffsetX*scale}" y="${-h1*scale/2 + pOffsetY*scale}" width="${w1*scale}" height="${h1*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                   <rect x="${-w2*scale/2 + pOffsetX*scale}" y="${-h2*scale/2 + pOffsetY*scale}" width="${w2*scale}" height="${h2*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(-w1*scale/2-80+pOffsetX*scale, pOffsetY*scale, 'width1', 'Breite-1') + drawInputField(pOffsetX*scale, -h1*scale/2-50+pOffsetY*scale, 'height1', 'Höhe-1') + 
-                                   drawInputField(w2*scale/2+80+pOffsetX*scale, pOffsetY*scale, 'width2', 'Breite-2') + drawInputField(pOffsetX*scale, h2*scale/2+50+pOffsetY*scale, 'height2', 'Höhe-2') +
-                                   drawInputField(-250, 280, 'offsetX', 'Versatz X') + drawInputField(250, 280, 'offsetY', 'Versatz Y'); break;
+                        shapeSVG += drawInputField(cSkew*scale/2, -cOuterH*scale/2-60, 'outerWidth', 'Außen-B') + drawInputField(-cOuterW*scale/2-80, 0, 'outerHeight', 'Außen-H') + 
+                                   drawInputField(cOuterW*scale/2+80, 0, 'openingWidth', 'Öffnung') + drawInputField(0, cOuterH*scale/2+50, 'wallThickness', 'Wand-D') +
+                                   drawInputField(200, -280, 'skew', 'Schiefe'); break;
+                    case 'plusform': const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4, w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12, pSkewX = currentDimensions.skewX || 0, pSkewY = currentDimensions.skewY || 0;
+                        // KORRIGIERT: Getrennte Schiefe für beide Rechtecke
+                        shapeSVG = `<rect x="${-w1*scale/2 + pSkewX*scale}" y="${-h1*scale/2 + pSkewY*scale}" width="${w1*scale}" height="${h1*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                   <rect x="${-w2*scale/2 + pSkewY*scale}" y="${-h2*scale/2 + pSkewX*scale}" width="${w2*scale}" height="${h2*scale}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        shapeSVG += drawInputField(-w1*scale/2-80, pSkewY*scale, 'width1', 'Breite-1') + drawInputField(pSkewX*scale, -h1*scale/2-50, 'height1', 'Höhe-1') + 
+                                   drawInputField(w2*scale/2+80, pSkewX*scale, 'width2', 'Breite-2') + drawInputField(pSkewY*scale, h2*scale/2+50, 'height2', 'Höhe-2') +
+                                   drawInputField(-250, 280, 'skewX', 'Schiefe X') + drawInputField(250, 280, 'skewY', 'Schiefe Y'); break;
                     case 'custom': shapeSVG = `<rect x="-80" y="-60" width="160" height="120" fill="url(#shapeGradient)" stroke="#333" stroke-width="3" stroke-dasharray="10,5"/>` +
                         `<text x="0" y="0" text-anchor="middle" fill="#333" font-size="14" font-weight="bold">Benutzerdefiniert</text>` +
                         `<text x="0" y="20" text-anchor="middle" fill="#666" font-size="12">Schätzen Sie die Gesamtfläche</text>` +
@@ -343,13 +427,19 @@
                                        drawInputField((points[2].x + points[0].x)/2 - 60, (points[2].y + points[0].y)/2, 'sideB', 'Seite B');
                         } else { shapeSVG = `<polygon points="0,-120 150,100 -150,100" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>` +
                                            drawInputField(75, -60, 'sideA', 'Seite A') + drawInputField(-75, -60, 'sideB', 'Seite B') + drawInputField(0, 130, 'sideC', 'Seite C'); } break;
-                    case '4': const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8, leftSide = currentDimensions.leftSide || 6, rightSide = currentDimensions.rightSide || 6, offset = currentDimensions.offset || 0;
+                    case '4': const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8, leftSide = currentDimensions.leftSide || 6, rightSide = currentDimensions.rightSide || 6, skew4 = currentDimensions.skew || 0;
                         const scale4 = 20, height = leftSide * scale4;
-                        const points4 = [[-bottomWidth*scale4/2 + offset*scale4, height/2], [bottomWidth*scale4/2 + offset*scale4, height/2], [topWidth*scale4/2 + offset*scale4, -height/2], [-topWidth*scale4/2 + offset*scale4, -height/2]];
+                        // KORRIGIERT: Schiefe macht Trapez schief
+                        const points4 = [
+                            [-bottomWidth*scale4/2, height/2], 
+                            [bottomWidth*scale4/2, height/2], 
+                            [topWidth*scale4/2 + skew4*scale4, -height/2], 
+                            [-topWidth*scale4/2 + skew4*scale4, -height/2]
+                        ];
                         shapeSVG = `<polygon points="${points4.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
-                        shapeSVG += drawInputField(offset*scale4, height/2 + 60, 'bottomWidth', 'Untere Breite') + drawInputField(offset*scale4, -height/2 - 60, 'topWidth', 'Obere Breite') + 
-                                   drawInputField(-bottomWidth*scale4/2 - 80 + offset*scale4, 0, 'leftSide', 'Seite links') + drawInputField(bottomWidth*scale4/2 + 80 + offset*scale4, 0, 'rightSide', 'Seite rechts') +
-                                   drawInputField(-250, -250, 'offset', 'Versatz'); break;
+                        shapeSVG += drawInputField(0, height/2 + 60, 'bottomWidth', 'Untere Breite') + drawInputField(skew4*scale4, -height/2 - 60, 'topWidth', 'Obere Breite') + 
+                                   drawInputField(-bottomWidth*scale4/2 - 80, 0, 'leftSide', 'Seite links') + drawInputField(bottomWidth*scale4/2 + 80, 0, 'rightSide', 'Seite rechts') +
+                                   drawInputField(-250, -250, 'skew', 'Schiefe'); break;
                     case '5': case '6': const sides = parseInt(selectedCorners), sideLength = currentDimensions.sideLength || 6;
                         // Berechne Radius aus Seitenlänge: r = s / (2 * sin(π/n))
                         const r = sideLength / (2 * Math.sin(Math.PI / sides)) * 20;
@@ -361,58 +451,63 @@
             shapeGroup.innerHTML = shapeSVG;
         }
 
-        // Einfache, funktionierende Eingabefelder - Browser-Spin-Buttons akzeptieren
+        // NEUE FUNKTION: Eingabefelder mit Custom Spinbuttons
         function drawInputField(x, y, key, label) {
             const currentValue = currentDimensions[key] || 0;
             let min = "0.01", max = "100", step = "0.01";
             
-            // Spezielle Einstellungen für Versatz
-            if (key === 'offset' || key === 'offsetX' || key === 'offsetY') {
-                min = "-100";
-                max = "100";
+            // Spezielle Einstellungen für Schiefe-Parameter
+            if (key === 'skew' || key === 'skewX' || key === 'skewY') {
+                min = "-10";
+                max = "10";
                 step = "0.1";
             }
             
-            return `<foreignObject x="${x - 55}" y="${y - 15}" width="110" height="30">
-                      <div xmlns="http://www.w3.org/1999/xhtml" style="
-                        display: flex; 
-                        align-items: center; 
-                        background: white; 
-                        border-radius: 8px; 
-                        padding: 4px 8px; 
-                        box-shadow: 0 3px 12px rgba(0,0,0,0.15); 
-                        border: 2px solid #007bff; 
-                        width: 110px; 
-                        height: 30px;
-                        box-sizing: border-box;
-                      ">
-                        <input type="number" value="${currentValue.toFixed(2)}" data-key="${key}" step="${step}" min="${min}" max="${max}" 
+            return `<foreignObject x="${x - 65}" y="${y - 15}" width="130" height="30">
+                      <div xmlns="http://www.w3.org/1999/xhtml" class="dimension-input-container-simple">
+                        <input type="number" value="${currentValue.toFixed(2)}" data-key="${key}" 
+                               step="${step}" min="${min}" max="${max}" 
                                oninput="updateDimensionFromSVG('${key}', this.value)"
-                               style="
-                                 width: 70px; 
-                                 height: 22px; 
-                                 font-size: 14px; 
-                                 text-align: center; 
-                                 border: 1px solid #ccc; 
-                                 border-radius: 4px; 
-                                 outline: none; 
-                                 font-weight: bold; 
-                                 color: #2c3e50; 
-                                 background: white; 
-                                 padding: 2px;
-                                 box-sizing: border-box;
-                               "/>
-                        <span style="font-size: 12px; color: #007bff; font-weight: bold; margin-left: 6px;">m</span>
+                               class="dimension-input"/>
+                        <div class="spin-buttons">
+                          <button type="button" class="spin-btn" onclick="incrementValue('${key}', ${step})">▲</button>
+                          <button type="button" class="spin-btn" onclick="incrementValue('${key}', -${step})">▼</button>
+                        </div>
+                        <span class="dimension-unit">m</span>
                       </div>
                     </foreignObject>
                     <text x="${x}" y="${y - 20}" text-anchor="middle" fill="#007bff" font-size="12" font-weight="bold">${label}</text>`;
         }
 
+        // NEUE FUNKTION: Werte inkrementieren/dekrementieren
+        function incrementValue(key, increment) {
+            const currentValue = currentDimensions[key] || 0;
+            let newValue = currentValue + increment;
+            
+            // Grenzen berücksichtigen
+            if (key === 'skew' || key === 'skewX' || key === 'skewY') {
+                newValue = Math.max(-10, Math.min(10, newValue));
+            } else {
+                newValue = Math.max(0.01, Math.min(100, newValue));
+            }
+            
+            currentDimensions[key] = newValue;
+            updatePreview();
+            updateCalculations();
+            validateTriangle();
+            
+            // Eingabefeld-Wert aktualisieren
+            const input = document.querySelector(`input[data-key="${key}"]`);
+            if (input) {
+                input.value = newValue.toFixed(2);
+            }
+        }
+
         function updateDimensionFromSVG(key, value) {
             const numValue = parseFloat(value);
             if (!isNaN(numValue)) {
-                // Für Versatz sind negative Werte erlaubt
-                if (key === 'offset' || key === 'offsetX' || key === 'offsetY' || numValue > 0) {
+                // Für Schiefe sind negative Werte erlaubt
+                if (key === 'skew' || key === 'skewX' || key === 'skewY' || numValue > 0) {
                     currentDimensions[key] = numValue; 
                     updatePreview(); 
                     updateCalculations(); 
@@ -512,7 +607,46 @@
             document.querySelectorAll('.complex-option').forEach(opt => opt.addEventListener('click', function() { selectComplexType(this.getAttribute('data-complex-type')); }));
         });
 
-        window.updateDimensionFromSVG = updateDimensionFromSVG; window.rotateShape = rotateShape; window.snapToAngle = snapToAngle; window.resetRotation = resetRotation; window.goBack = goBack; window.continueToCalculation = continueToCalculation;
+        // Globale Funktionen verfügbar machen
+        window.updateDimensionFromSVG = updateDimensionFromSVG; 
+        window.incrementValue = incrementValue;
+        window.rotateShape = rotateShape; 
+        window.snapToAngle = snapToAngle; 
+        window.resetRotation = resetRotation; 
+        window.goBack = goBack; 
+        window.continueToCalculation = continueToCalculation;
     </script>
 </body>
-</html>
+</html> = `<circle cx="0" cy="0" r="${r}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        shapeSVG += drawInputField(0, -r-60, 'radius', 'Radius'); break;
+                    case 'oval': const rx = Math.max(40, Math.min(150, (currentDimensions.radiusX || 6) * 20)), ry = Math.max(30, Math.min(120, (currentDimensions.radiusY || 4) * 20));
+                        shapeSVG = `<ellipse cx="0" cy="0" rx="${rx}" ry="${ry}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        shapeSVG += drawInputField(-rx-80, 0, 'radiusX', 'Breite') + drawInputField(0, -ry-60, 'radiusY', 'Höhe'); break;
+                    case 'langloch': const length = currentDimensions.length || 10, width = currentDimensions.width || 4;
+                        const lw = Math.max(100, Math.min(200, length * 15)), lh = Math.max(40, Math.min(80, width * 15)), lr = lh / 2;
+                        shapeSVG = `<rect x="${-lw/2 + lr}" y="${-lh/2}" width="${lw - 2*lr}" height="${lh}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                   <circle cx="${-lw/2 + lr}" cy="0" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                   <circle cx="${lw/2 - lr}" cy="0" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        shapeSVG += drawInputField(0, -lh/2-60, 'length', 'Länge') + drawInputField(-lw/2-80, 0, 'width', 'Breite'); break;
+                    case 'halbkreis': const hr = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
+                        shapeSVG = `<path d="M ${-hr} 0 A ${hr} ${hr} 0 0 1 ${hr} 0 Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        shapeSVG += drawInputField(0, -hr/2-50, 'radius', 'Radius'); break;
+                    case 'viertelkreis': const vr = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
+                        shapeSVG = `<path d="M 0 0 L ${vr} 0 A ${vr} ${vr} 0 0 1 0 ${vr} Z" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        shapeSVG += drawInputField(vr/2, -50, 'radius', 'Radius'); break;
+                }
+            } else if (selectedComplexType) {
+                const scale = 15;
+                switch (selectedComplexType) {
+                    case 'lform': const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10, cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4, skew = currentDimensions.skew || 0;
+                        // KORRIGIERT: Schiefe verändert nur die obere Kante
+                        const lPoints = [
+                            [-tw*scale/2, -th*scale/2 + skew*scale], 
+                            [tw*scale/2, -th*scale/2], 
+                            [tw*scale/2, -th*scale/2 + ch*scale], 
+                            [-tw*scale/2 + cw*scale, -th*scale/2 + ch*scale], 
+                            [-tw*scale/2 + cw*scale, th*scale/2], 
+                            [-tw*scale/2, th*scale/2]
+                        ];
+                        shapeSVG = `<polygon points="${lPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>`;
+                        shapeSVG
