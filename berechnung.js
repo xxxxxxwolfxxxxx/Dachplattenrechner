@@ -1,4 +1,4 @@
-// REPARIERTE berechnung.js - Vollständige Implementation mit korrekter Datenverarbeitung
+// KORRIGIERTE berechnung.js - Vollständige Implementation
 
 // Globale Variablen
 let projectData = {};
@@ -26,7 +26,6 @@ function saveData() {
 function loadData() {
     console.log('=== ERWEITERTE DATEN-SUCHE ===');
     
-    // 1. Standard localStorage/sessionStorage
     let savedData = {};
     try {
         let saved = localStorage.getItem('dachplattenrechner_data');
@@ -41,7 +40,7 @@ function loadData() {
         console.error('Fehler beim Standard-Laden:', e);
     }
     
-    // 2. Suche nach ALLEN möglichen Storage-Keys
+    // Suche nach ALLEN möglichen Storage-Keys
     const possibleKeys = [
         'dachplattenrechner_data',
         'dachplatten_data', 
@@ -141,6 +140,10 @@ function getDefaultDimensionsForVariant(variant) {
             return { radius: 4 };
         case 'lform':
             return { totalLength: 10, totalWidth: 8, cutoutLength: 4, cutoutWidth: 4 };
+        case '3':
+            return { sideA: 8, sideB: 6, sideC: 7 };
+        case '4':
+            return { bottomWidth: 10, topWidth: 8, leftSide: 6, rightSide: 6 };
         default:
             return { length: 8, width: 5 };
     }
@@ -160,6 +163,11 @@ function getDefaultAreaForVariant(variant) {
             return Math.PI * dims.radius * dims.radius;
         case 'lform':
             return (dims.totalLength * dims.totalWidth) - (dims.cutoutLength * dims.cutoutWidth);
+        case '3':
+            const s = (dims.sideA + dims.sideB + dims.sideC) / 2;
+            return Math.sqrt(s * (s - dims.sideA) * (s - dims.sideB) * (s - dims.sideC));
+        case '4':
+            return ((dims.bottomWidth + dims.topWidth) / 2) * dims.leftSide;
         default:
             return 40;
     }
@@ -207,7 +215,9 @@ function displayProjectInfo() {
         'lform': 'L-Form',
         'tform': 'T-Form',
         'dreieck': 'Gleichseitiges Dreieck',
-        'ungleichschenklig': 'Ungleichschenkliges Dreieck'
+        'ungleichschenklig': 'Ungleichschenkliges Dreieck',
+        '3': 'Dreieck',
+        '4': 'Viereck'
     };
     
     document.getElementById('info-roof-type').textContent = shapeNames[variant] || variant || 'Unbekannt';
@@ -233,23 +243,6 @@ function displayProjectInfo() {
     document.getElementById('info-neigung').textContent = '25°'; // Standardwert
     
     console.log('✅ Projekt-Info vollständig angezeigt');
-}
-
-// Wasserlaufrichtung bestimmen
-function determineWaterDirection() {
-    console.log('=== BESTIMME WASSERLAUFRICHTUNG ===');
-    
-    // Vereinfachte Logik: Immer längs zur Hauptrichtung
-    const direction = 'laengs';
-    const directionText = 'Längs (parallel zur Wasserlaufrichtung)';
-    
-    const directionElement = document.getElementById('direction-text');
-    if (directionElement) {
-        directionElement.textContent = directionText;
-    }
-    
-    console.log('Wasserlaufrichtung:', direction);
-    return direction;
 }
 
 // Canvas-Setup
@@ -310,6 +303,12 @@ function visualizeRoof() {
                 break;
             case 'lform':
                 drawLShape(centerX, centerY, dims.totalLength || 10, dims.totalWidth || 8, dims.cutoutLength || 4, dims.cutoutWidth || 4, scale);
+                break;
+            case '3':
+                drawTriangle(centerX, centerY, dims.sideA || 8, dims.sideB || 6, dims.sideC || 7, scale);
+                break;
+            case '4':
+                drawQuadrilateral(centerX, centerY, dims, scale);
                 break;
             default:
                 drawRectangle(centerX, centerY, 8, 5, scale);
@@ -425,6 +424,78 @@ function drawLShape(centerX, centerY, totalLength, totalWidth, cutoutLength, cut
     roofCtx.stroke();
 }
 
+function drawTriangle(centerX, centerY, sideA, sideB, sideC, scale) {
+    // Prüfe ob gültiges Dreieck
+    if ((sideA + sideB <= sideC) || (sideA + sideC <= sideB) || (sideB + sideC <= sideA)) {
+        console.log('Ungültiges Dreieck, zeichne Fallback');
+        drawRightTriangle(centerX, centerY, sideA, sideB, scale);
+        return;
+    }
+    
+    // Berechne Dreieck-Koordinaten mit dem Kosinussatz
+    const a = sideA * scale;
+    const b = sideB * scale; 
+    const c = sideC * scale;
+    
+    const cosC = (a*a + b*b - c*c) / (2*a*b);
+    const angleC = Math.acos(Math.max(-1, Math.min(1, cosC)));
+    
+    // Punkte des Dreiecks
+    const p1 = { x: centerX - c/2, y: centerY + 30 };
+    const p2 = { x: centerX + c/2, y: centerY + 30 };
+    const p3 = { 
+        x: centerX - c/2 + b * Math.cos(Math.PI - angleC), 
+        y: centerY + 30 - b * Math.sin(Math.PI - angleC) 
+    };
+    
+    // Dreieck zeichnen
+    roofCtx.beginPath();
+    roofCtx.moveTo(p1.x, p1.y);
+    roofCtx.lineTo(p2.x, p2.y);
+    roofCtx.lineTo(p3.x, p3.y);
+    roofCtx.closePath();
+    
+    // Füllung
+    roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+    roofCtx.fill();
+    
+    // Umriss
+    roofCtx.strokeStyle = '#007bff';
+    roofCtx.lineWidth = 3;
+    roofCtx.stroke();
+}
+
+function drawQuadrilateral(centerX, centerY, dims, scale) {
+    const bottomWidth = dims.bottomWidth || 10;
+    const topWidth = dims.topWidth || 8;
+    const leftSide = dims.leftSide || 6;
+    const rightSide = dims.rightSide || 6;
+    const skew = dims.skew || 0;
+    
+    const height = leftSide * scale;
+    
+    const points = [
+        { x: centerX - bottomWidth*scale/2, y: centerY + height/2 },
+        { x: centerX + bottomWidth*scale/2, y: centerY + height/2 },
+        { x: centerX + topWidth*scale/2 + skew*scale, y: centerY - height/2 },
+        { x: centerX - topWidth*scale/2 + skew*scale, y: centerY - height/2 }
+    ];
+    
+    roofCtx.beginPath();
+    roofCtx.moveTo(points[0].x, points[0].y);
+    roofCtx.lineTo(points[1].x, points[1].y);
+    roofCtx.lineTo(points[2].x, points[2].y);
+    roofCtx.lineTo(points[3].x, points[3].y);
+    roofCtx.closePath();
+    
+    roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+    roofCtx.fill();
+    
+    roofCtx.strokeStyle = '#007bff';
+    roofCtx.lineWidth = 3;
+    roofCtx.stroke();
+}
+
 function drawPlateLayout() {
     if (!calculationResults.bahnenAnzahl) return;
     
@@ -532,6 +603,34 @@ function calculateLengths() {
                 plattenlaenge = totalLength;
                 break;
                 
+            case '3':
+                // KORREKTE DREIECK-BERECHNUNG
+                const sideA = dims.sideA || 8;
+                const sideB = dims.sideB || 6; 
+                const sideC = dims.sideC || 7;
+                
+                // Basis ist die untere Seite (längste Seite)
+                const basis = Math.max(sideA, sideB, sideC);
+                
+                // Anzahl Bahnen = Basis geteilt durch Deckbreite
+                bahnenAnzahl = Math.ceil(basis / deckbreite);
+                
+                // Plattenlänge ist die maximale Höhe des Dreiecks
+                const dreieckHoehe = (2 * area) / basis;
+                plattenlaenge = dreieckHoehe;
+                
+                console.log(`🔺 Dreieck: Basis=${basis}m, Max.Höhe=${dreieckHoehe.toFixed(2)}m, Bahnen=${bahnenAnzahl}`);
+                break;
+                
+            case '4':
+                // Allgemeines Viereck
+                const bottomWidth = dims.bottomWidth || 10;
+                const topWidth = dims.topWidth || 8;
+                const avgWidth = (bottomWidth + topWidth) / 2;
+                bahnenAnzahl = Math.ceil(avgWidth / deckbreite);
+                plattenlaenge = dims.leftSide || 6;
+                break;
+                
             default:
                 // Standard-Berechnung
                 bahnenAnzahl = Math.ceil(Math.sqrt(area) / deckbreite);
@@ -635,7 +734,7 @@ function displayResults() {
                 <li><strong>Dachfläche:</strong> ${calculationResults.dachflaeche.toFixed(2)} m²</li>
                 <li><strong>Form:</strong> ${calculationResults.variant}</li>
                 <li><strong>Deckbreite:</strong> ${projectData.profile.deckbreite} mm</li>
-                <li><strong>Nutzbreite:</strong> ${projectData.profile.deckbreite - projectData.profile.seitenueberlappung} mm (nach Abzug Seitenüberlappung)</li>
+                <li><strong>Nutzbreite:</strong> ${projectData.profile.deckbreite - (projectData.profile.seitenueberlappung || 50)} mm (nach Abzug Seitenüberlappung)</li>
                 <li><strong>Geometrie-spezifische Berechnung:</strong> ${getCalculationMethod()}</li>
                 <li><strong>Anzahl Bahnen:</strong> ${calculationResults.bahnenAnzahl} (optimiert für Geometrie)</li>
                 <li><strong>Verlegerichtung:</strong> ${calculationResults.richtung === 'laengs' ? 'Längs' : 'Quer'} zur Wasserlaufrichtung</li>
@@ -679,6 +778,17 @@ function getCalculationMethod() {
         case 'lform':
             const totalWidth = dims.totalWidth || 8;
             return `L-Form: Gesamtbreite ${totalWidth}m`;
+        case '3':
+            const sideA = dims.sideA || 8;
+            const sideB = dims.sideB || 6;
+            const sideC = dims.sideC || 7;
+            const basis = Math.max(sideA, sideB, sideC);
+            return `Dreieck: ${calculationResults.bahnenAnzahl} Bahnen über ${basis}m Basis, variable Längen von links nach rechts`;
+        case '4':
+            const bottomWidth = dims.bottomWidth || 10;
+            const topWidth = dims.topWidth || 8;
+            const avgWidth = (bottomWidth + topWidth) / 2;
+            return `Viereck: ${calculationResults.bahnenAnzahl} Bahnen über ${avgWidth.toFixed(1)}m mittlere Breite`;
         default:
             return 'Standard-Berechnung';
     }
@@ -700,9 +810,13 @@ function saveAndContinue() {
         return;
     }
     
-    // Navigation
+    // Navigation zum Anrissplan
+    window.location.href = 'Anrissplan.html';
+}
+
+// Navigation
 function goBack() {
-    window.location.href = 'formauswahl.html';
+    window.location.href = 'Dachform.html';
 }
 
 // Initialisierung - VERBESSERTE Datenladung
@@ -726,7 +840,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!variant || area <= 0) {
         console.error('❌ KEINE GÜLTIGEN GEOMETRIE-DATEN!');
         alert('Keine gültigen Geometrie-Daten gefunden. Bitte kehren Sie zu den vorherigen Schritten zurück.');
-        window.location.href = 'formauswahl.html';
+        window.location.href = 'Dachform.html';
         return;
     }
     
@@ -741,7 +855,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Info anzeigen
     displayProjectInfo();
-    determineWaterDirection();
     
     // AUTOMATISCHE BERECHNUNG mit echten Daten
     calculateLengths();
@@ -794,6 +907,11 @@ function calculateAreaFromDimensions(variant, dims) {
             return Math.PI * dims.radius * dims.radius;
         case 'lform':
             return (dims.totalLength * dims.totalWidth) - (dims.cutoutLength * dims.cutoutWidth);
+        case '3':
+            const s = (dims.sideA + dims.sideB + dims.sideC) / 2;
+            return Math.sqrt(s * (s - dims.sideA) * (s - dims.sideB) * (s - dims.sideC));
+        case '4':
+            return ((dims.bottomWidth + dims.topWidth) / 2) * dims.leftSide;
         default:
             return 40;
     }
@@ -902,8 +1020,3 @@ console.log('📝 Beispiele:');
 console.log('  testCalculationShape("trapez", {bottomBase: 10, topBase: 8, height: 5})');
 console.log('  testCalculationShape("rechtwinklig", {katheteA: 6, katheteB: 8})');
 console.log('  testCalculationShape("lform", {totalLength: 12, totalWidth: 10, cutoutLength: 5, cutoutWidth: 5})');
- zum Anrissplan
-    window.location.href = 'Anrissplan.html';
-}
-
-// Navigation
