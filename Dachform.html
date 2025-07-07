@@ -172,12 +172,12 @@
                             <h3>🔄 Rotation</h3>
                             <div class="rotation-display" id="rotation-display">Drehung: 0°</div>
                             <div class="rotation-buttons">
-                                <button class="rotate-btn" onclick="rotateShape(-15)">↺ -15°</button>
-                                <button class="rotate-btn" onclick="rotateShape(-5)">↺ -5°</button>
-                                <button class="rotate-btn" onclick="rotateShape(-1)">↺ -1°</button>
-                                <button class="rotate-btn" onclick="rotateShape(1)">↻ +1°</button>
-                                <button class="rotate-btn" onclick="rotateShape(5)">↻ +5°</button>
-                                <button class="rotate-btn" onclick="rotateShape(15)">↻ +15°</button>
+                                <button class="rotate-btn" onmousedown="startRotation(-15)" onmouseup="stopRotation()" onmouseleave="stopRotation()">↺ -15°</button>
+                                <button class="rotate-btn" onmousedown="startRotation(-5)" onmouseup="stopRotation()" onmouseleave="stopRotation()">↺ -5°</button>
+                                <button class="rotate-btn" onmousedown="startRotation(-1)" onmouseup="stopRotation()" onmouseleave="stopRotation()">↺ -1°</button>
+                                <button class="rotate-btn" onmousedown="startRotation(1)" onmouseup="stopRotation()" onmouseleave="stopRotation()">↻ +1°</button>
+                                <button class="rotate-btn" onmousedown="startRotation(5)" onmouseup="stopRotation()" onmouseleave="stopRotation()">↻ +5°</button>
+                                <button class="rotate-btn" onmousedown="startRotation(15)" onmouseup="stopRotation()" onmouseleave="stopRotation()">↻ +15°</button>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                                 <button class="rotate-btn" onclick="snapToAngle(0)" style="background: #28a745; color: white;">⟷ 0°</button>
@@ -228,6 +228,11 @@
 
     <script>
         let selectedCorners = null, selectedRoundType = null, selectedComplexType = null, currentDimensions = {}, currentRotation = 0;
+        
+        // Rotation Control Variables
+        let rotationInterval = null;
+        let rotationDirection = 0;
+        let isRotating = false;
 
         const shapeInputs = {
             'circle': [{key: 'radius', label: 'Radius', default: 5}],
@@ -423,7 +428,22 @@
                 min = "-10"; max = "10"; step = "0.1";
             }
             
-            return `<foreignObject x="${x - 65}" y="${y - 16}" width="130" height="32">
+            // Versatz-Buttons bleiben an fester Position (nicht rotiert)
+            const isSkewField = (key === 'skew' || key === 'skewX' || key === 'skewY');
+            
+            let rotatedX, rotatedY;
+            if (isSkewField) {
+                // Versatz-Felder bleiben an fester Position
+                rotatedX = x;
+                rotatedY = y;
+            } else {
+                // Normale Eingabefelder folgen der Rotation
+                const rad = (currentRotation * Math.PI) / 180;
+                rotatedX = x * Math.cos(rad) - y * Math.sin(rad);
+                rotatedY = x * Math.sin(rad) + y * Math.cos(rad);
+            }
+            
+            return `<foreignObject x="${rotatedX - 65}" y="${rotatedY - 16}" width="130" height="32">
                       <div xmlns="http://www.w3.org/1999/xhtml" class="dimension-input-container-simple">
                         <input type="number" value="${currentValue.toFixed(2)}" data-key="${key}" 
                                step="${step}" min="${min}" max="${max}" 
@@ -436,7 +456,7 @@
                         <span class="dimension-unit">m</span>
                       </div>
                     </foreignObject>
-                    <text x="${x}" y="${y - 20}" text-anchor="middle" fill="#007bff" font-size="12" font-weight="bold">${label}</text>`;
+                    <text x="${rotatedX}" y="${rotatedY - 20}" text-anchor="middle" fill="#007bff" font-size="12" font-weight="bold">${label}</text>`;
         }
 
         function incrementValue(key, increment) {
@@ -474,22 +494,337 @@
             const orientationInfo = document.getElementById('orientation-info');
             const normalizedRotation = ((currentRotation % 360) + 360) % 360;
             
-            const isHorizontal = (normalizedRotation < 5) || (normalizedRotation > 355) || 
-                                (normalizedRotation > 175 && normalizedRotation < 185);
-            const isVertical = (normalizedRotation > 85 && normalizedRotation < 95) || 
-                              (normalizedRotation > 265 && normalizedRotation < 275);
+            // Berechne alle Seitenwinkel der aktuellen Form
+            const sideAngles = calculateAllSideAngles();
             
-            if (isHorizontal || isVertical) {
+            console.log('=== DEBUG ORIENTATION CHECK ===');
+            console.log('Current rotation:', normalizedRotation);
+            console.log('All sides:', sideAngles);
+            
+            let bestAlignment = null;
+            let bestDiff = 999;
+            
+            // Prüfe ALLE Seiten und finde die beste Ausrichtung
+            for (let side of sideAngles) {
+                console.log(`Checking side: ${side.name} (angle: ${side.angle}°)`);
+                
+                // Für jede Seite prüfen: Wann wird sie waagerecht oder senkrecht?
+                const targets = [
+                    { angle: 0, type: 'waagerecht' },
+                    { angle: 90, type: 'senkrecht' },
+                    { angle: 180, type: 'waagerecht' },
+                    { angle: 270, type: 'senkrecht' }
+                ];
+                
+                for (let target of targets) {
+                    // Berechne wann diese Seite den Zielwinkel erreicht
+                    const neededRotation = (target.angle - side.angle + 360) % 360;
+                    const rotationDiff = Math.min(
+                        Math.abs(normalizedRotation - neededRotation),
+                        Math.abs(normalizedRotation - (neededRotation + 360)),
+                        360 - Math.abs(normalizedRotation - neededRotation)
+                    );
+                    
+                    console.log(`  ${side.name} -> ${target.type} bei ${neededRotation}° (diff: ${rotationDiff.toFixed(2)}°)`);
+                    
+                    // Finde beste Ausrichtung für UI
+                    if (rotationDiff <= 1.0 && rotationDiff < bestDiff) {
+                        bestDiff = rotationDiff;
+                        bestAlignment = {
+                            side: side.name,
+                            type: target.type,
+                            rotation: neededRotation,
+                            diff: rotationDiff
+                        };
+                    }
+                    
+                    // Auto-Stop Logik
+                    if (isRotating) {
+                        let shouldStop = false;
+                        
+                        if (Math.abs(rotationDirection) === 1) {
+                            shouldStop = rotationDiff <= 0.5;
+                        } else {
+                            const prevRotation = ((currentRotation - rotationDirection) % 360 + 360) % 360;
+                            const prevRotationDiff = Math.min(
+                                Math.abs(prevRotation - neededRotation),
+                                Math.abs(prevRotation - (neededRotation + 360)),
+                                360 - Math.abs(prevRotation - neededRotation)
+                            );
+                            
+                            const crossedPerfect = (prevRotationDiff > 1 && rotationDiff <= 1) || 
+                                                  (prevRotationDiff <= rotationDiff && rotationDiff <= 2);
+                            shouldStop = crossedPerfect;
+                        }
+                        
+                        if (shouldStop) {
+                            console.log(`AUTO-STOP: ${side.name} wird ${target.type} bei ${neededRotation}°`);
+                            stopRotation();
+                            currentRotation = neededRotation;
+                            document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°';
+                            updatePreview();
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            console.log('Best alignment found:', bestAlignment);
+            
+            // UI Feedback
+            if (bestAlignment) {
                 orientationInfo.className = 'orientation-info';
                 orientationInfo.innerHTML = `<strong>✅ Perfekte Ausrichtung!</strong><br>
-                    ${isHorizontal ? 'Waagerechte' : 'Senkrechte'} Seiten bei ${normalizedRotation.toFixed(0)}°<br>
-                    <small>Optimal für die Dachplattenverlegung.</small>`;
+                    ${bestAlignment.side} ist ${bestAlignment.type} bei ${normalizedRotation.toFixed(1)}°<br>
+                    <small>Abweichung: ${bestAlignment.diff.toFixed(2)}° - optimal für die Dachplattenverlegung.</small>`;
             } else {
+                const nextAlignment = findNextAlignment(normalizedRotation, sideAngles);
                 orientationInfo.className = 'orientation-info orientation-warning';
                 orientationInfo.innerHTML = `<strong>💡 Orientierung:</strong><br>
-                    Aktuell ${normalizedRotation.toFixed(0)}° - drehen Sie die Form so, dass mindestens eine Seite waagerecht oder senkrecht liegt.<br>
-                    <small>Verwenden Sie die 0° oder 90° Buttons für schnelle Ausrichtung.</small>`;
+                    Aktuell ${normalizedRotation.toFixed(1)}° - keine Seite ist waagerecht oder senkrecht.<br>
+                    <small>Nächste Ausrichtung: ${nextAlignment.side} ${nextAlignment.type} bei ${nextAlignment.angle.toFixed(1)}°</small>`;
             }
+        }
+
+        // Berechne alle Seitenwinkel der aktuellen Form
+        function calculateAllSideAngles() {
+            const sides = [];
+            
+            if (selectedRoundType) {
+                // Runde Formen haben keine distinkten Seiten
+                return [{ name: 'Form', angle: 0 }];
+            } else if (selectedComplexType) {
+                switch (selectedComplexType) {
+                    case 'lform':
+                        return [
+                            { name: 'Obere Seite', angle: 0 },
+                            { name: 'Rechte Seite', angle: 90 },
+                            { name: 'Innere Horizontale', angle: 0 },
+                            { name: 'Innere Vertikale', angle: 90 },
+                            { name: 'Untere Seite', angle: 0 },
+                            { name: 'Linke Seite', angle: 90 }
+                        ];
+                    case 'tform':
+                        return [
+                            { name: 'Kopf Oben', angle: 0 },
+                            { name: 'Kopf Links', angle: 90 },
+                            { name: 'Kopf Rechts', angle: 90 },
+                            { name: 'Stamm Links', angle: 90 },
+                            { name: 'Stamm Rechts', angle: 90 },
+                            { name: 'Stamm Unten', angle: 0 }
+                        ];
+                    case 'uform':
+                        return [
+                            { name: 'Außen Oben', angle: 0 },
+                            { name: 'Außen Links', angle: 90 },
+                            { name: 'Außen Rechts', angle: 90 },
+                            { name: 'Innen Links', angle: 90 },
+                            { name: 'Innen Rechts', angle: 90 },
+                            { name: 'Innen Oben', angle: 0 }
+                        ];
+                    default:
+                        return [
+                            { name: 'Obere Seite', angle: 0 },
+                            { name: 'Rechte Seite', angle: 90 },
+                            { name: 'Untere Seite', angle: 0 },
+                            { name: 'Linke Seite', angle: 90 }
+                        ];
+                }
+            } else if (selectedCorners) {
+                switch (selectedCorners) {
+                    case '3':
+                        // Dreieck: Berechne die echten Seitenrichtungen
+                        const sideA = currentDimensions.sideA || 8;
+                        const sideB = currentDimensions.sideB || 6;
+                        const sideC = currentDimensions.sideC || 7;
+                        
+                        // Prüfe ob Dreieck gültig ist
+                        if (!((sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA))) {
+                            return [{ name: 'Ungültiges Dreieck', angle: 0 }];
+                        }
+                        
+                        // Dreieck-Geometrie: 
+                        // - Seite C liegt horizontal (Basis)
+                        // - Punkt A ist links unten (0,0)
+                        // - Punkt B ist rechts unten (sideC,0) 
+                        // - Punkt C ist oben
+                        
+                        // Berechne Punkt C mit Kosinussatz
+                        const cosA = (sideB*sideB + sideC*sideC - sideA*sideA) / (2*sideB*sideC);
+                        const angleAtA = Math.acos(Math.max(-1, Math.min(1, cosA))) * 180/Math.PI;
+                        
+                        // Punkt C Koordinaten
+                        const pointC_x = sideB * Math.cos(angleAtA * Math.PI / 180);
+                        const pointC_y = sideB * Math.sin(angleAtA * Math.PI / 180);
+                        
+                        // Berechne Richtungswinkel der Seiten:
+                        // Seite C: von A(0,0) zu B(sideC,0) → horizontal = 0°
+                        // Seite B: von A(0,0) zu C(pointC_x, pointC_y) → Winkel berechnen
+                        // Seite A: von B(sideC,0) zu C(pointC_x, pointC_y) → Winkel berechnen
+                        
+                        const sideB_angle = Math.atan2(pointC_y, pointC_x) * 180 / Math.PI;
+                        const sideA_angle = Math.atan2(pointC_y, pointC_x - sideC) * 180 / Math.PI;
+                        
+                        return [
+                            { name: 'Seite C (Basis)', angle: 0 },
+                            { name: 'Seite B', angle: sideB_angle },
+                            { name: 'Seite A', angle: 180 + sideA_angle } // +180° für Rückrichtung
+                        ];
+                    case '4':
+                        // Viereck/Trapez: 4 Seiten - ECHTE GEOMETRIE ERKENNEN
+                        const bottomWidth = currentDimensions.bottomWidth || 10;
+                        const topWidth = currentDimensions.topWidth || 8;
+                        const leftSide = currentDimensions.leftSide || 6;
+                        const rightSide = currentDimensions.rightSide || 6;
+                        const skew = currentDimensions.skew || 0;
+                        
+                        console.log('TRAPEZ REAL DEBUG:', {
+                            bottomWidth, topWidth, leftSide, rightSide, skew
+                        });
+                        
+                        // ECHTE GEOMETRISCHE BERECHNUNG der Seitenwinkel
+                        // Wenn topWidth != bottomWidth → echtes Trapez
+                        const isRealTrapezoid = Math.abs(topWidth - bottomWidth) > 0.01;
+                        
+                        let leftAngle = 90;   // Standard senkrecht
+                        let rightAngle = 90;  // Standard senkrecht
+                        
+                        if (isRealTrapezoid) {
+                            // Berechne echte Winkel bei Trapez-Form
+                            const widthDiff = topWidth - bottomWidth;
+                            const halfWidthDiff = widthDiff / 2;
+                            
+                            // Winkel der schiefen Seiten berechnen
+                            const leftSideAngle = Math.atan2(leftSide, halfWidthDiff) * 180 / Math.PI;
+                            const rightSideAngle = Math.atan2(rightSide, -halfWidthDiff) * 180 / Math.PI;
+                            
+                            leftAngle = leftSideAngle;
+                            rightAngle = 180 - rightSideAngle; // Spiegelung für rechte Seite
+                            
+                            console.log('ECHTES TRAPEZ erkannt:', {
+                                widthDiff, leftAngle: leftAngle.toFixed(1), rightAngle: rightAngle.toFixed(1)
+                            });
+                        }
+                        
+                        // Zusätzlich: Schiefe-Parameter berücksichtigen
+                        if (Math.abs(skew) > 0.01) {
+                            const skewAngleDegrees = Math.atan(Math.abs(skew) / leftSide) * 180 / Math.PI;
+                            
+                            if (skew > 0) {
+                                leftAngle -= skewAngleDegrees;
+                                rightAngle += skewAngleDegrees;
+                            } else {
+                                leftAngle += skewAngleDegrees;
+                                rightAngle -= skewAngleDegrees;
+                            }
+                            
+                            console.log('SCHIEFE addiert:', {
+                                skew, finalLeftAngle: leftAngle.toFixed(1), finalRightAngle: rightAngle.toFixed(1)
+                            });
+                        }
+                        
+                        const result = [
+                            { name: 'Untere Seite', angle: 0 },          // Basis horizontal
+                            { name: 'Rechte Seite', angle: rightAngle }, // Echter geometrischer Winkel
+                            { name: 'Obere Seite', angle: 180 },        // Obere Seite horizontal
+                            { name: 'Linke Seite', angle: leftAngle }   // Echter geometrischer Winkel
+                        ];
+                        
+                        console.log('FINALE TRAPEZ-SEITEN:', result);
+                        return result;
+                    case '5':
+                        // Pentagon - 5 Seiten, jede Seite hat eine andere Richtung
+                        // Erste Seite horizontal, dann jeweils 72° gedreht
+                        return Array.from({length: 5}, (_, i) => ({
+                            name: `Seite ${i+1}`,
+                            angle: i * 72
+                        }));
+                    case '6':
+                        // Hexagon - 6 Seiten, jede Seite hat eine andere Richtung  
+                        // Erste Seite horizontal, dann jeweils 60° gedreht
+                        return Array.from({length: 6}, (_, i) => ({
+                            name: `Seite ${i+1}`,
+                            angle: i * 60
+                        }));
+                    default:
+                        return [{ name: 'Seite', angle: 0 }];
+                }
+            }
+            
+            return [{ name: 'Form', angle: 0 }];
+        }
+
+        // Finde nächste mögliche Ausrichtung
+        function findNextAlignment(currentRotation, sideAngles) {
+            let closestDistance = 360;
+            let nextAlignment = { side: '', type: '', angle: 0 };
+            
+            for (let side of sideAngles) {
+                for (let target of [0, 90, 180, 270]) {
+                    const requiredRotation = (target - side.angle + 360) % 360;
+                    const distance = Math.min(
+                        Math.abs(requiredRotation - currentRotation),
+                        360 - Math.abs(requiredRotation - currentRotation)
+                    );
+                    
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        nextAlignment = {
+                            side: side.name,
+                            type: (target === 0 || target === 180) ? 'waagerecht' : 'senkrecht',
+                            angle: requiredRotation
+                        };
+                    }
+                }
+            }
+            
+            return nextAlignment;
+        }
+
+        // Finde den besten Snap-Winkel
+        function findClosestSnapAngle(currentAngle, targetAngle) {
+            const diff1 = Math.abs(currentAngle - targetAngle);
+            const diff2 = Math.abs(currentAngle - (targetAngle + 360));
+            const diff3 = Math.abs(currentAngle - (targetAngle - 360));
+            
+            if (diff1 <= diff2 && diff1 <= diff3) return targetAngle;
+            if (diff2 <= diff3) return targetAngle + 360;
+            return targetAngle - 360;
+        }
+
+        // NEUE KONTINUIERLICHE ROTATION
+        function startRotation(degrees) {
+            if (isRotating) return; // Verhindere mehrfache Starts
+            
+            isRotating = true;
+            rotationDirection = degrees;
+            
+            // Erste Rotation sofort
+            rotateShape(degrees);
+            
+            // Angepasste Intervall-Zeit basierend auf Schrittgröße
+            let intervalTime;
+            if (Math.abs(degrees) === 1) {
+                intervalTime = 150; // Langsamer für 1° Schritte
+            } else if (Math.abs(degrees) <= 5) {
+                intervalTime = 120; // Mittel für 5° Schritte
+            } else {
+                intervalTime = 80;  // Schneller für 15° Schritte
+            }
+            
+            // Kontinuierliche Rotation
+            rotationInterval = setInterval(() => {
+                rotateShape(rotationDirection);
+            }, intervalTime);
+        }
+
+        function stopRotation() {
+            if (rotationInterval) {
+                clearInterval(rotationInterval);
+                rotationInterval = null;
+            }
+            isRotating = false;
+            rotationDirection = 0;
         }
 
         function validateTriangle() {
@@ -578,12 +913,14 @@
         }
 
         function snapToAngle(targetAngle) { 
+            stopRotation(); // Stoppe laufende Rotation
             currentRotation = targetAngle % 360; 
             document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; 
             updatePreview();
         }
 
         function resetRotation() { 
+            stopRotation(); // Stoppe laufende Rotation
             currentRotation = 0; 
             document.getElementById('rotation-display').textContent = 'Drehung: 0°'; 
             updatePreview();
@@ -646,6 +983,8 @@
         window.updateDimensionFromSVG = updateDimensionFromSVG; 
         window.incrementValue = incrementValue;
         window.rotateShape = rotateShape; 
+        window.startRotation = startRotation;
+        window.stopRotation = stopRotation;
         window.snapToAngle = snapToAngle; 
         window.resetRotation = resetRotation; 
         window.goBack = goBack; 
