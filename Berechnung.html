@@ -340,7 +340,7 @@
         let roofCtx = null;
         let calculationResults = {};
 
-        // Sichere Storage-Funktionen
+        // KORRIGIERTE Speicher-Funktionen
         function saveData() {
             try {
                 localStorage.setItem('dachplattenrechner_data', JSON.stringify(projectData));
@@ -360,7 +360,6 @@
         function loadData() {
             console.log('=== LADE DATEN ===');
             
-            // 1. Standard localStorage/sessionStorage
             let savedData = {};
             try {
                 let saved = localStorage.getItem('dachplattenrechner_data');
@@ -375,129 +374,114 @@
                 console.error('Fehler beim Laden:', e);
             }
             
-            // 2. Suche nach ALLEN möglichen Storage-Keys (falls Daten anders gespeichert)
-            const possibleKeys = [
-                'dachplattenrechner_data',
-                'dachplatten_data', 
-                'roof_data',
-                'formauswahl_data',
-                'geometry_data',
-                'project_data'
-            ];
-            
-            for (const key of possibleKeys) {
-                try {
-                    const data = localStorage.getItem(key) || sessionStorage.getItem(key);
-                    if (data) {
-                        const parsed = JSON.parse(data);
-                        console.log(`📦 Gefunden unter ${key}:`, parsed);
-                        // Merge alle gefundenen Daten
-                        Object.assign(savedData, parsed);
-                    }
-                } catch (e) {
-                    // Ignoriere Fehler
-                }
-            }
-            
             return savedData;
         }
 
-        // Erstelle Demo-Daten zum Testen
-        function createFallbackData() {
-            return {
-                profile: {
-                    kategorie: 'trapezprofil',
-                    profilKey: 'TP20',
-                    deckbreite: 1000,
-                    lieferbreite: 1050,
-                    seitenueberlappung: 50,
-                    profilname: 'TP20 (20/100)',
-                    ueberstand: 50,
-                    lagerlaengen: [2000, 3000, 4000, 5000, 6000]
-                },
-                geometry: {
-                    variant: 'rechteck',
-                    dimensions: {
-                        length: 8,
-                        width: 5
-                    },
-                    area: 40
-                }
-            };
-        }
-
-        // VEREINFACHTE Datenvalidierung - verwendet echte Daten vom Editor
+        // KORRIGIERTE Datenextraktion
         function extractGeometryData() {
-            console.log('=== EXTRAHIERE ECHTE GEOMETRIE-DATEN ===');
+            console.log('=== EXTRAHIERE GEOMETRIE-DATEN ===');
+            console.log('ProjectData:', projectData);
             
-            let variant = 'rechteck';
-            let area = 40;
             let geometry = null;
+            let area = 0;
+            let variant = 'rechteck';
             
-            // 1. Direkt aus projectData.geometry (von Dachform-Editor)
-            if (projectData.geometry) {
+            // 1. Prüfe projectData.geometry (von Dachform-Editor)
+            if (projectData.geometry && projectData.geometry.dimensions) {
+                console.log('✅ Gefunden: projectData.geometry');
                 geometry = projectData.geometry;
+                area = geometry.area || 0;
                 variant = geometry.variant || 'rechteck';
-                area = geometry.area || 40;
-                console.log('✅ Verwende echte Geometrie-Daten:', geometry);
-                return { variant, area, geometry };
             }
-            
-            // 2. Aus roofShape (alternative Struktur)
-            if (projectData.roofShape) {
-                const roofShape = projectData.roofShape;
+            // 2. Prüfe projectData.roofShape
+            else if (projectData.roofShape) {
+                console.log('✅ Gefunden: projectData.roofShape');
+                variant = projectData.roofShape.variant || 'rechteck';
                 
-                // Konvertiere numerische Varianten
-                if (roofShape.variant === '3' || roofShape.variant === 3) {
-                    variant = 'dreieck';
-                } else if (roofShape.variant === '4' || roofShape.variant === 4) {
-                    variant = 'viereck';
+                if (projectData.roofShape.points && projectData.roofShape.points.length > 2) {
+                    area = calculateAreaFromPoints(projectData.roofShape.points);
                 } else {
-                    variant = roofShape.variant || roofShape.baseShape || 'rechteck';
+                    area = getDefaultAreaForVariant(variant);
                 }
                 
-                // Verwende berechnete Fläche falls vorhanden
-                area = roofShape.area || projectData.calculatedArea || 40;
-                
-                // Erstelle Geometrie-Objekt
                 geometry = {
                     variant: variant,
                     area: area,
-                    dimensions: roofShape.dimensions || getDefaultDimensionsForVariant(variant),
-                    rotation: roofShape.rotation || 0,
-                    points: roofShape.points || null
+                    dimensions: getDefaultDimensionsForVariant(variant)
                 };
-                
-                console.log('✅ Verwende roofShape-Daten:', geometry);
-                return { variant, area, geometry };
+            }
+            // 3. Fallback
+            else {
+                console.log('⚠️ Keine Geometrie gefunden, verwende Fallback');
+                variant = 'rechteck';
+                area = 40;
+                geometry = {
+                    variant: variant,
+                    area: area,
+                    dimensions: { length: 8, width: 5 }
+                };
             }
             
-            // 3. Fallback nur wenn gar nichts da ist
-            console.log('⚠️ Keine Daten gefunden, verwende minimalen Fallback');
-            geometry = {
-                variant: 'rechteck',
-                area: 40,
-                dimensions: { length: 8, width: 5 }
-            };
-            
-            return { variant: 'rechteck', area: 40, geometry };
+            console.log('🎯 Extrahierte Geometrie:', { variant, area, geometry });
+            return { variant, area, geometry };
         }
 
+        // Hilfsfunktionen
         function getDefaultDimensionsForVariant(variant) {
             switch (variant) {
-                case 'dreieck':
-                case '3':
-                    return { sideA: 8, sideB: 6, sideC: 7 };
-                case 'viereck':
-                case '4':
-                    return { bottomWidth: 10, topWidth: 8, leftSide: 6, rightSide: 6 };
                 case 'trapez':
                     return { bottomBase: 8, topBase: 6, height: 4 };
+                case 'rechteck':
+                    return { length: 8, width: 5 };
                 case 'rechtwinklig':
                     return { katheteA: 4, katheteB: 5 };
+                case 'kreis':
+                    return { radius: 4 };
+                case 'lform':
+                    return { totalLength: 10, totalWidth: 8, cutoutLength: 4, cutoutWidth: 4 };
+                case '3':
+                    return { sideA: 8, sideB: 6, sideC: 7 };
+                case '4':
+                    return { bottomWidth: 10, topWidth: 8, leftSide: 6, rightSide: 6 };
                 default:
                     return { length: 8, width: 5 };
             }
+        }
+
+        function getDefaultAreaForVariant(variant) {
+            const dims = getDefaultDimensionsForVariant(variant);
+            
+            switch (variant) {
+                case 'trapez':
+                    return ((dims.bottomBase + dims.topBase) / 2) * dims.height;
+                case 'rechteck':
+                    return dims.length * dims.width;
+                case 'rechtwinklig':
+                    return (dims.katheteA * dims.katheteB) / 2;
+                case 'kreis':
+                    return Math.PI * dims.radius * dims.radius;
+                case 'lform':
+                    return (dims.totalLength * dims.totalWidth) - (dims.cutoutLength * dims.cutoutWidth);
+                case '3':
+                    const s = (dims.sideA + dims.sideB + dims.sideC) / 2;
+                    return Math.sqrt(s * (s - dims.sideA) * (s - dims.sideB) * (s - dims.sideC));
+                case '4':
+                    return ((dims.bottomWidth + dims.topWidth) / 2) * dims.leftSide;
+                default:
+                    return 40;
+            }
+        }
+
+        function calculateAreaFromPoints(points) {
+            if (!points || points.length < 3) return 40;
+            
+            let area = 0;
+            for (let i = 0; i < points.length; i++) {
+                const j = (i + 1) % points.length;
+                area += points[i].x * points[j].y;
+                area -= points[j].x * points[i].y;
+            }
+            return Math.abs(area) / 2;
         }
 
         // Projekt-Info anzeigen
@@ -508,7 +492,6 @@
             const { variant, area, geometry } = extractGeometryData();
             
             if (profile) {
-                // Profil-Informationen
                 document.getElementById('info-profile-name').textContent = profile.profilname || 'Standard';
                 document.getElementById('info-deckbreite').textContent = (profile.deckbreite || 1000) + ' mm';
                 document.getElementById('info-lieferbreite').textContent = (profile.lieferbreite || 1050) + ' mm';
@@ -521,22 +504,22 @@
             // Geometrie-Informationen
             const shapeNames = {
                 'rechtwinklig': 'Rechtwinkliges Dreieck',
-                'dreieck': 'Dreieck',
-                '3': 'Dreieck',
                 'trapez': 'Trapez',
                 'rechteck': 'Rechteck',
-                'viereck': 'Viereck',
-                '4': 'Viereck',
                 'quadrat': 'Quadrat',
                 'kreis': 'Kreis',
                 'oval': 'Oval',
                 'lform': 'L-Form',
                 'tform': 'T-Form',
-                'gleichseitig': 'Gleichseitiges Dreieck',
-                'ungleichschenklig': 'Ungleichschenkliges Dreieck'
+                'dreieck': 'Dreieck',
+                '3': 'Dreieck',
+                '4': 'Viereck',
+                '5': 'Fünfeck',
+                '6': 'Sechseck',
+                '8': 'Achteck'
             };
             
-            document.getElementById('info-roof-type').textContent = shapeNames[variant] || variant || 'Rechteck';
+            document.getElementById('info-roof-type').textContent = shapeNames[variant] || variant || 'Unbekannt';
             document.getElementById('info-area').textContent = area.toFixed(2) + ' m²';
             
             // Abmessungen anzeigen
@@ -551,12 +534,13 @@
                     dimensionsText = `Radius: ${dims.radius}m`;
                 } else if (dims.bottomBase && dims.topBase && dims.height) {
                     dimensionsText = `${dims.bottomBase}m × ${dims.topBase}m × ${dims.height}m`;
+                } else if (dims.sideA && dims.sideB && dims.sideC) {
+                    dimensionsText = `${dims.sideA}m × ${dims.sideB}m × ${dims.sideC}m`;
                 }
             }
-            document.getElementById('info-dimensions').textContent = dimensionsText || '8m × 5m';
+            document.getElementById('info-dimensions').textContent = dimensionsText || '-';
             
-            // Dachneigung (vereinfacht)
-            document.getElementById('info-neigung').textContent = '25°'; // Standardwert
+            document.getElementById('info-neigung').textContent = '25°';
             
             console.log('✅ Projekt-Info vollständig angezeigt');
         }
@@ -571,7 +555,6 @@
             
             roofCtx = roofCanvas.getContext('2d');
             
-            // Canvas-Größe anpassen
             const container = roofCanvas.parentElement;
             if (container) {
                 roofCanvas.width = container.clientWidth - 40;
@@ -581,56 +564,40 @@
             console.log('Canvas setup abgeschlossen');
         }
 
-        // VEREINFACHTE Visualisierung - verwendet echte Form-Daten
+        // Dach visualisieren
         function visualizeRoof() {
             if (!roofCtx || !roofCanvas) {
                 console.error('Canvas nicht initialisiert');
                 return;
             }
             
-            // Canvas löschen
             roofCtx.clearRect(0, 0, roofCanvas.width, roofCanvas.height);
             
-            // Hintergrund
             roofCtx.fillStyle = '#f8f9fa';
             roofCtx.fillRect(0, 0, roofCanvas.width, roofCanvas.height);
             
             const centerX = roofCanvas.width / 2;
             const centerY = roofCanvas.height / 2;
-            const scale = 30; // Reduzierte Skalierung für bessere Sicht
+            const scale = 30;
             
             const { variant, geometry } = extractGeometryData();
             
-            // Verwende echte Points falls verfügbar (vom Dachform-Editor)
             if (geometry && geometry.points && geometry.points.length > 0) {
-                console.log('🎨 Zeichne Form aus echten Punkten');
-                drawFromPoints(geometry.points, centerX, centerY, scale, geometry.rotation || 0);
-            } else if (geometry && geometry.dimensions) {
-                console.log('🎨 Zeichne Form aus Dimensionen:', variant);
-                drawFromDimensions(variant, geometry.dimensions, centerX, centerY, scale, geometry.rotation || 0);
+                drawFromPoints(geometry.points, centerX, centerY, scale);
             } else {
-                console.log('⚠️ Keine Geometrie-Daten, zeichne Fallback');
-                drawRectangle(centerX, centerY, 8, 5, scale);
+                drawFromDimensions(variant, geometry?.dimensions, centerX, centerY, scale);
             }
             
-            // Platten-Layout überlagern wenn Berechnung verfügbar
-            if (calculationResults.bahnenAnzahl) {
-                drawPlateLayout();
-            }
+            drawPlateLayout();
         }
 
-        function drawFromPoints(points, centerX, centerY, scale, rotation = 0) {
+        function drawFromPoints(points, centerX, centerY, scale) {
             if (!points || points.length < 3) return;
             
-            roofCtx.save();
-            roofCtx.translate(centerX, centerY);
-            roofCtx.rotate(rotation * Math.PI / 180);
-            
-            // Zeichne Polygon aus Punkten
             roofCtx.beginPath();
             points.forEach((point, index) => {
-                const x = point.x * scale;
-                const y = -point.y * scale; // Y-Achse umkehren für Canvas
+                const x = centerX + point.x * scale;
+                const y = centerY - point.y * scale;
                 
                 if (index === 0) {
                     roofCtx.moveTo(x, y);
@@ -640,169 +607,69 @@
             });
             roofCtx.closePath();
             
-            // Füllung
             roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
             roofCtx.fill();
             
-            // Umriss
             roofCtx.strokeStyle = '#007bff';
             roofCtx.lineWidth = 3;
             roofCtx.stroke();
-            
-            roofCtx.restore();
         }
 
-        function drawFromDimensions(variant, dims, centerX, centerY, scale, rotation = 0) {
-            roofCtx.save();
-            roofCtx.translate(centerX, centerY);
-            roofCtx.rotate(rotation * Math.PI / 180);
-            
-            switch (variant) {
-                case 'dreieck':
-                case '3':
-                    drawTriangleSimple(0, 0, dims.sideA || 8, dims.sideB || 6, dims.sideC || 7, scale);
-                    break;
-                case 'viereck':
-                case '4':
-                    drawQuadrilateral(0, 0, dims, scale);
-                    break;
-                case 'trapez':
-                    drawTrapezoidSimple(0, 0, dims.bottomBase || 8, dims.topBase || 6, dims.height || 4, scale);
-                    break;
-                case 'rechtwinklig':
-                    drawRightTriangleSimple(0, 0, dims.katheteA || 4, dims.katheteB || 5, scale);
-                    break;
-                default:
-                    drawRectangleSimple(0, 0, dims.length || 8, dims.width || 5, scale);
-                    break;
+        function drawFromDimensions(variant, dims, centerX, centerY, scale) {
+            if (!dims) {
+                drawRectangle(centerX, centerY, 8, 5, scale);
+                return;
             }
             
-            roofCtx.restore();
+            switch (variant) {
+                case 'rechtwinklig':
+                    drawRightTriangle(centerX, centerY, dims.katheteA || 4, dims.katheteB || 5, scale);
+                    break;
+                case 'trapez':
+                    drawTrapezoid(centerX, centerY, dims.bottomBase || 8, dims.topBase || 6, dims.height || 4, scale);
+                    break;
+                case 'rechteck':
+                    drawRectangle(centerX, centerY, dims.length || 8, dims.width || 5, scale);
+                    break;
+                case 'kreis':
+                    drawCircle(centerX, centerY, dims.radius || 4, scale);
+                    break;
+                case '3':
+                    drawTriangle(centerX, centerY, dims.sideA || 8, dims.sideB || 6, dims.sideC || 7, scale);
+                    break;
+                case '4':
+                    drawQuadrilateral(centerX, centerY, dims, scale);
+                    break;
+                default:
+                    drawRectangle(centerX, centerY, 8, 5, scale);
+            }
         }
 
-        function drawTriangleSimple(x, y, sideA, sideB, sideC, scale) {
-            // Vereinfachtes Dreieck - gleichseitig basierend auf Durchschnitt
-            const avgSide = (sideA + sideB + sideC) / 3;
-            const height = (avgSide * Math.sqrt(3)) / 2;
-            const scaledSide = avgSide * scale;
-            const scaledHeight = height * scale;
-            
-            roofCtx.beginPath();
-            roofCtx.moveTo(x - scaledSide/2, y + scaledHeight/3);
-            roofCtx.lineTo(x + scaledSide/2, y + scaledHeight/3);
-            roofCtx.lineTo(x, y - (scaledHeight*2)/3);
-            roofCtx.closePath();
-            
-            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
-            roofCtx.fill();
-            roofCtx.strokeStyle = '#007bff';
-            roofCtx.lineWidth = 3;
-            roofCtx.stroke();
-        }
-
-        function drawRectangleSimple(x, y, length, width, scale) {
-            const w = length * scale;
-            const h = width * scale;
-            
-            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
-            roofCtx.fillRect(x - w/2, y - h/2, w, h);
-            
-            roofCtx.strokeStyle = '#007bff';
-            roofCtx.lineWidth = 3;
-            roofCtx.strokeRect(x - w/2, y - h/2, w, h);
-        }
-
-        // Zeichenfunktionen
         function drawRectangle(centerX, centerY, length, width, scale) {
             const w = length * scale;
             const h = width * scale;
             
-            // Dachfläche
             roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
             roofCtx.fillRect(centerX - w/2, centerY - h/2, w, h);
             
-            // Umriss
             roofCtx.strokeStyle = '#007bff';
             roofCtx.lineWidth = 3;
             roofCtx.strokeRect(centerX - w/2, centerY - h/2, w, h);
-        }
-
-        function drawTriangle(centerX, centerY, sideA, sideB, sideC, scale) {
-            // Berechne Dreieck-Koordinaten mit dem Kosinussatz
-            const a = sideA * scale;
-            const b = sideB * scale; 
-            const c = sideC * scale;
-            
-            // Prüfe ob gültiges Dreieck
-            if ((a + b <= c) || (a + c <= b) || (b + c <= a)) {
-                console.log('Ungültiges Dreieck, zeichne Fallback');
-                // Fallback: Rechtwinkliges Dreieck
-                drawRightTriangle(centerX, centerY, sideA, sideB, scale);
-                return;
-            }
-            
-            // Berechne dritten Punkt mit Kosinussatz
-            const cosC = (a*a + b*b - c*c) / (2*a*b);
-            const angleC = Math.acos(Math.max(-1, Math.min(1, cosC)));
-            
-            // Punkte des Dreiecks
-            const p1 = { x: centerX - c/2, y: centerY + 30 }; // Basis unten
-            const p2 = { x: centerX + c/2, y: centerY + 30 };
-            const p3 = { 
-                x: centerX - c/2 + b * Math.cos(Math.PI - angleC), 
-                y: centerY + 30 - b * Math.sin(Math.PI - angleC) 
-            };
-            
-            // Dreieck zeichnen
-            roofCtx.beginPath();
-            roofCtx.moveTo(p1.x, p1.y);
-            roofCtx.lineTo(p2.x, p2.y);
-            roofCtx.lineTo(p3.x, p3.y);
-            roofCtx.closePath();
-            
-            // Füllung
-            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
-            roofCtx.fill();
-            
-            // Umriss
-            roofCtx.strokeStyle = '#007bff';
-            roofCtx.lineWidth = 3;
-            roofCtx.stroke();
-            
-            // Seitenbeschriftung
-            roofCtx.fillStyle = '#000';
-            roofCtx.font = '12px Arial';
-            roofCtx.textAlign = 'center';
-            
-            // Seite A (gegenüber von Punkt A = p1)
-            const midBC = { x: (p2.x + p3.x) / 2, y: (p2.y + p3.y) / 2 };
-            roofCtx.fillText(`A: ${sideA}m`, midBC.x, midBC.y - 10);
-            
-            // Seite B (gegenüber von Punkt B = p2)  
-            const midAC = { x: (p1.x + p3.x) / 2, y: (p1.y + p3.y) / 2 };
-            roofCtx.fillText(`B: ${sideB}m`, midAC.x - 20, midAC.y);
-            
-            // Seite C (gegenüber von Punkt C = p3)
-            const midAB = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
-            roofCtx.fillText(`C: ${sideC}m`, midAB.x, midAB.y + 20);
         }
 
         function drawRightTriangle(centerX, centerY, katheteA, katheteB, scale) {
             const a = katheteA * scale;
             const b = katheteB * scale;
             
-            // Dreieck zeichnen
             roofCtx.beginPath();
             roofCtx.moveTo(centerX - a/2, centerY + b/2);
             roofCtx.lineTo(centerX + a/2, centerY + b/2);
             roofCtx.lineTo(centerX - a/2, centerY - b/2);
             roofCtx.closePath();
             
-            // Füllung
             roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
             roofCtx.fill();
             
-            // Umriss
             roofCtx.strokeStyle = '#007bff';
             roofCtx.lineWidth = 3;
             roofCtx.stroke();
@@ -813,7 +680,6 @@
             const tb = topBase * scale;
             const h = height * scale;
             
-            // Trapez zeichnen
             roofCtx.beginPath();
             roofCtx.moveTo(centerX - bb/2, centerY + h/2);
             roofCtx.lineTo(centerX + bb/2, centerY + h/2);
@@ -821,25 +687,87 @@
             roofCtx.lineTo(centerX - tb/2, centerY - h/2);
             roofCtx.closePath();
             
-            // Füllung
             roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
             roofCtx.fill();
             
-            // Umriss
             roofCtx.strokeStyle = '#007bff';
             roofCtx.lineWidth = 3;
             roofCtx.stroke();
         }
 
-        // UNIVERSELLES Plattenlayout für alle Formen
+        function drawCircle(centerX, centerY, radius, scale) {
+            const r = radius * scale;
+            
+            roofCtx.beginPath();
+            roofCtx.arc(centerX, centerY, r, 0, 2 * Math.PI);
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+        }
+
+        function drawTriangle(centerX, centerY, sideA, sideB, sideC, scale) {
+            const s = (sideA + sideB + sideC) / 2;
+            if ((sideA + sideB <= sideC) || (sideA + sideC <= sideB) || (sideB + sideC <= sideA)) {
+                drawRightTriangle(centerX, centerY, sideA, sideB, scale);
+                return;
+            }
+            
+            const area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
+            const height = (2 * area) / sideC;
+            
+            const h = height * scale;
+            const base = sideC * scale;
+            
+            roofCtx.beginPath();
+            roofCtx.moveTo(centerX - base/2, centerY + h/3);
+            roofCtx.lineTo(centerX + base/2, centerY + h/3);
+            roofCtx.lineTo(centerX, centerY - 2*h/3);
+            roofCtx.closePath();
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+        }
+
+        function drawQuadrilateral(centerX, centerY, dims, scale) {
+            const bottomWidth = dims.bottomWidth || 10;
+            const topWidth = dims.topWidth || 8;
+            const leftSide = dims.leftSide || 6;
+            const rightSide = dims.rightSide || 6;
+            const skew = dims.skew || 0;
+            
+            const height = leftSide * scale;
+            
+            roofCtx.beginPath();
+            roofCtx.moveTo(centerX - bottomWidth*scale/2, centerY + height/2);
+            roofCtx.lineTo(centerX + bottomWidth*scale/2, centerY + height/2);
+            roofCtx.lineTo(centerX + topWidth*scale/2 + skew*scale, centerY - height/2);
+            roofCtx.lineTo(centerX - topWidth*scale/2 + skew*scale, centerY - height/2);
+            roofCtx.closePath();
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+        }
+
         function drawPlateLayout() {
             if (!calculationResults.bahnenAnzahl) return;
             
             const profile = projectData.profile;
-            const { geometry, variant } = extractGeometryData();
+            const { geometry } = extractGeometryData();
             if (!profile || !geometry) return;
             
-            const deckbreite = profile.deckbreite / 1000; // in Meter
+            const deckbreite = profile.deckbreite / 1000;
             const scale = 30;
             const centerX = roofCanvas.width / 2;
             const centerY = roofCanvas.height / 2;
@@ -848,100 +776,24 @@
             roofCtx.fillStyle = 'rgba(40, 167, 69, 0.4)';
             roofCtx.lineWidth = 2;
             
-            // Verwende echte Punkte falls verfügbar
-            if (geometry.points && geometry.points.length > 0) {
-                drawPlatesFromPoints(geometry.points, calculationResults.plattenLaengen, deckbreite, scale, centerX, centerY);
-            } else {
-                // Fallback: Zeichne basierend auf Dimensionen
-                drawPlatesFromDimensions(variant, geometry.dimensions, calculationResults.plattenLaengen, deckbreite, scale, centerX, centerY);
-            }
-        }
-
-        function drawPlatesFromPoints(points, plattenLaengen, deckbreite, scale, centerX, centerY) {
-            // Finde Bounding Box
-            const minX = Math.min(...points.map(p => p.x));
-            const maxX = Math.max(...points.map(p => p.x));
-            const minY = Math.min(...points.map(p => p.y));
-            const maxY = Math.max(...points.map(p => p.y));
-            
-            // Zeichne Bahnen von links nach rechts
+            // Vereinfachte Platten-Darstellung
+            const plattenLaengen = calculationResults.plattenLaengen || [];
             for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
-                const bahnX = minX + (i + 0.5) * deckbreite; // Mitte der Bahn
-                const plattenLaenge = plattenLaengen[i] || 0;
+                const plattenLaenge = plattenLaengen[i] || calculationResults.plattenlaenge || 5;
+                const startX = centerX - (calculationResults.bahnenAnzahl * deckbreite * scale) / 2 + (i * deckbreite * scale);
+                const plattenbreite = deckbreite * scale * 0.8;
+                const plattenhoehe = plattenLaenge * scale;
                 
-                // Finde Y-Schnittpunkte mit der Form
-                const schnittpunkte = findYIntersections(points, bahnX);
+                const plattenY = centerY - plattenhoehe / 2;
                 
-                if (schnittpunkte.length >= 2) {
-                    const maxY_bahn = Math.max(...schnittpunkte);
-                    const minY_bahn = Math.min(...schnittpunkte);
-                    
-                    // Canvas-Koordinaten
-                    const canvasX = centerX + (bahnX * scale);
-                    const canvasYTop = centerY - (maxY_bahn * scale);
-                    const canvasYBottom = centerY - (minY_bahn * scale);
-                    const plattenBreite = deckbreite * scale * 0.8;
-                    
-                    // Zeichne Platte (nur innerhalb der Form)
-                    roofCtx.fillRect(canvasX - plattenBreite/2, canvasYTop, plattenBreite, canvasYBottom - canvasYTop);
-                    roofCtx.strokeRect(canvasX - plattenBreite/2, canvasYTop, plattenBreite, canvasYBottom - canvasYTop);
-                    
-                    // Plattennummer
-                    roofCtx.fillStyle = '#000';
-                    roofCtx.font = 'bold 11px Arial';
-                    roofCtx.textAlign = 'center';
-                    roofCtx.fillText(i + 1, canvasX, (canvasYTop + canvasYBottom) / 2);
-                    roofCtx.fillStyle = 'rgba(40, 167, 69, 0.4)';
-                    
-                    // Länge anzeigen (optional)
-                    if (plattenLaenge > 0.5) {
-                        roofCtx.font = '9px Arial';
-                        roofCtx.fillStyle = '#666';
-                        roofCtx.fillText(`${plattenLaenge.toFixed(1)}m`, canvasX, canvasYBottom + 15);
-                        roofCtx.fillStyle = 'rgba(40, 167, 69, 0.4)';
-                    }
-                }
-            }
-        }
-
-        function drawPlatesFromDimensions(variant, dims, plattenLaengen, deckbreite, scale, centerX, centerY) {
-            // Vereinfachte Darstellung basierend auf Dimensionen
-            let formBreite, formHoehe;
-            
-            switch (variant) {
-                case 'dreieck':
-                case '3':
-                    const basis = Math.max(dims.sideA || 8, dims.sideB || 6, dims.sideC || 7);
-                    formBreite = basis;
-                    formHoehe = plattenLaengen.length > 0 ? Math.max(...plattenLaengen) : 5;
-                    break;
-                case 'rechteck':
-                default:
-                    formBreite = dims.width || 5;
-                    formHoehe = dims.length || 8;
-                    break;
-            }
-            
-            const startX = centerX - (formBreite * scale) / 2;
-            
-            // Zeichne Bahnen
-            for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
-                const plattenLaenge = plattenLaengen[i] || formHoehe;
-                const bahnX = startX + (i * deckbreite * scale);
-                const plattenBreite = deckbreite * scale * 0.8;
-                const plattenHoehe = plattenLaenge * scale;
-                
-                // Zentriere Platte vertikal
-                const plattenY = centerY - plattenHoehe / 2;
-                
-                roofCtx.fillRect(bahnX, plattenY, plattenBreite, plattenHoehe);
-                roofCtx.strokeRect(bahnX, plattenY, plattenBreite, plattenHoehe);
+                roofCtx.fillRect(startX, plattenY, plattenbreite, plattenhoehe);
+                roofCtx.strokeRect(startX, plattenY, plattenbreite, plattenhoehe);
                 
                 // Plattennummer
                 roofCtx.fillStyle = '#000';
                 roofCtx.font = 'bold 11px Arial';
                 roofCtx.textAlign = 'center';
-                roofCtx.fillText(i + 1, bahnX + plattenBreite/2, centerY + 5);
+                roofCtx.fillText(i + 1, startX + plattenbreite/2, centerY + 5);
                 roofCtx.fillStyle = 'rgba(40, 167, 69, 0.4)';
             }
         }
@@ -960,44 +812,31 @@
             
             console.log('Berechnung für:', { variant, area, profile: profile.profilname });
             
-            const deckbreite = profile.deckbreite / 1000; // in Meter
-            const seitenueberlappung = (profile.seitenueberlappung || 50) / 1000; // in Meter
+            const deckbreite = profile.deckbreite / 1000;
+            const seitenueberlappung = (profile.seitenueberlappung || 50) / 1000;
             const nutzbreite = deckbreite - seitenueberlappung;
             
-            // Anzahl Bahnen berechnen
             let bahnenAnzahl;
             let plattenlaenge;
+            let plattenLaengen = [];
             
             if (geometry && geometry.dimensions) {
                 const dims = geometry.dimensions;
                 
                 switch (variant) {
-                    case 'dreieck':
-                    case '3':
-                        // KORREKTE DREIECK-BERECHNUNG
-                        const sideA = dims.sideA || 8;
-                        const sideB = dims.sideB || 6; 
-                        const sideC = dims.sideC || 7;
-                        
-                        // Basis ist die untere Seite (längste Seite)
-                        const basis = Math.max(sideA, sideB, sideC);
-                        
-                        // Anzahl Bahnen = Basis geteilt durch Deckbreite
-                        bahnenAnzahl = Math.ceil(basis / deckbreite);
-                        
-                        // Plattenlänge ist variabel! 
-                        // Für Bestellliste nehmen wir die maximale Länge (= Höhe des Dreiecks)
-                        const dreieckHoehe = (2 * area) / basis;
-                        plattenlaenge = dreieckHoehe;
-                        
-                        console.log(`🔺 Dreieck: Basis=${basis}m, Max.Höhe=${dreieckHoehe.toFixed(2)}m, Bahnen=${bahnenAnzahl}`);
-                        break;
                     case 'trapez':
                         const bottomBase = dims.bottomBase || 8;
                         const topBase = dims.topBase || 6;
                         const averageWidth = (bottomBase + topBase) / 2;
                         bahnenAnzahl = Math.ceil(averageWidth / deckbreite);
                         plattenlaenge = dims.height || 4;
+                        
+                        // Variable Längen für Trapez
+                        for (let i = 0; i < bahnenAnzahl; i++) {
+                            const relativePosition = i / (bahnenAnzahl - 1);
+                            const currentWidth = bottomBase + relativePosition * (topBase - bottomBase);
+                            plattenLaengen.push(dims.height || 4);
+                        }
                         break;
                         
                     case 'rechtwinklig':
@@ -1005,40 +844,91 @@
                         const katheteB = dims.katheteB || 5;
                         bahnenAnzahl = Math.ceil(katheteA / deckbreite);
                         plattenlaenge = katheteB;
+                        
+                        // Variable Längen für rechtwinkliges Dreieck
+                        for (let i = 0; i < bahnenAnzahl; i++) {
+                            const relativePosition = i / (bahnenAnzahl - 1);
+                            const currentLength = katheteB * (1 - relativePosition);
+                            plattenLaengen.push(Math.max(currentLength, 0.5));
+                        }
                         break;
                         
-                    case 'viereck':
+                    case '3':
+                        const sideA = dims.sideA || 8;
+                        const sideB = dims.sideB || 6;
+                        const sideC = dims.sideC || 7;
+                        
+                        const basis = Math.max(sideA, sideB, sideC);
+                        bahnenAnzahl = Math.ceil(basis / deckbreite);
+                        
+                        const dreieckHoehe = (2 * area) / basis;
+                        plattenlaenge = dreieckHoehe;
+                        
+                        // Variable Längen für Dreieck
+                        for (let i = 0; i < bahnenAnzahl; i++) {
+                            const relativePosition = i / (bahnenAnzahl - 1);
+                            let laengeInMetern;
+                            if (relativePosition <= 0.5) {
+                                laengeInMetern = relativePosition * 2 * dreieckHoehe;
+                            } else {
+                                laengeInMetern = (2 - relativePosition * 2) * dreieckHoehe;
+                            }
+                            plattenLaengen.push(Math.max(laengeInMetern, 0.5));
+                        }
+                        break;
+                        
                     case '4':
-                        // Allgemeines Viereck
                         const bottomWidth = dims.bottomWidth || 10;
                         const topWidth = dims.topWidth || 8;
+                        const leftSide = dims.leftSide || 6;
+                        const rightSide = dims.rightSide || 6;
+                        
                         const avgWidth = (bottomWidth + topWidth) / 2;
                         bahnenAnzahl = Math.ceil(avgWidth / deckbreite);
-                        plattenlaenge = dims.leftSide || 6;
+                        plattenlaenge = leftSide;
                         break;
                         
                     case 'rechteck':
-                    default:
                         const width = dims.width || 5;
                         const length = dims.length || 8;
                         bahnenAnzahl = Math.ceil(width / deckbreite);
                         plattenlaenge = length;
                         break;
+                        
+                    case 'kreis':
+                        const diameter = (dims.radius || 4) * 2;
+                        bahnenAnzahl = Math.ceil(diameter / deckbreite);
+                        plattenlaenge = diameter;
+                        break;
+                        
+                    case 'lform':
+                        const totalWidth = dims.totalWidth || 8;
+                        const totalLength = dims.totalLength || 10;
+                        bahnenAnzahl = Math.ceil(totalWidth / deckbreite);
+                        plattenlaenge = totalLength;
+                        break;
+                        
+                    default:
+                        bahnenAnzahl = Math.ceil(Math.sqrt(area) / deckbreite);
+                        plattenlaenge = Math.sqrt(area);
                 }
             } else {
-                // Fallback-Berechnung
                 bahnenAnzahl = Math.ceil(Math.sqrt(area) / deckbreite);
                 plattenlaenge = Math.sqrt(area);
             }
             
-            // Gesamtlänge und Verschnitt
-            const gesamtlaenge = bahnenAnzahl * plattenlaenge;
-            const verschnitt = 10; // 10% Verschnitt
+            // Fülle plattenLaengen wenn leer
+            if (plattenLaengen.length === 0) {
+                plattenLaengen = Array(bahnenAnzahl).fill(plattenlaenge);
+            }
             
-            // Ergebnisse speichern
+            const gesamtlaenge = plattenLaengen.reduce((sum, length) => sum + length, 0);
+            const verschnitt = 10;
+            
             calculationResults = {
                 bahnenAnzahl: bahnenAnzahl,
                 plattenlaenge: plattenlaenge,
+                plattenLaengen: plattenLaengen,
                 gesamtlaenge: gesamtlaenge,
                 verschnitt: verschnitt,
                 dachflaeche: area,
@@ -1048,100 +938,46 @@
             
             // Bestellliste erstellen
             const bestellliste = [];
+            const bestellLaengen = new Map();
             
-            if (variant === 'dreieck' || variant === '3') {
-                // DREIECK: Verschiedene Längen für verschiedene Positionen
-                const dims = geometry.dimensions;
-                const basis = Math.max(dims.sideA || 8, dims.sideB || 6, dims.sideC || 7);
-                const maxHoehe = (2 * area) / basis;
-                
-                // Berechne benötigte Längen für jede Bahn
-                const bestellLaengen = new Map();
-                
-                for (let i = 0; i < bahnenAnzahl; i++) {
-                    const relativePosition = i / (bahnenAnzahl - 1); // 0 bis 1
-                    
-                    let laengeInMetern;
-                    if (relativePosition <= 0.5) {
-                        // Linke Hälfte: von 0 bis maxHoehe
-                        laengeInMetern = relativePosition * 2 * maxHoehe;
-                    } else {
-                        // Rechte Hälfte: von maxHoehe bis 0
-                        laengeInMetern = (2 - relativePosition * 2) * maxHoehe;
-                    }
-                    
-                    // Auf verfügbare Lagerlängen runden
-                    let bestellLaenge;
-                    if (profile.lagerlaengen && profile.lagerlaengen.length > 0) {
-                        const benoetigteLaengeMM = laengeInMetern * 1000;
-                        bestellLaenge = profile.lagerlaengen.find(l => l >= benoetigteLaengeMM) || Math.max(...profile.lagerlaengen);
-                    } else {
-                        bestellLaenge = Math.min(Math.max(laengeInMetern * 1000, profile.minLaenge || 1000), profile.maxLaenge || 12000);
-                    }
-                    
-                    // Zähle gleiche Längen zusammen
-                    bestellLaengen.set(bestellLaenge, (bestellLaengen.get(bestellLaenge) || 0) + 1);
-                }
-                
-                // Erstelle Bestellliste
-                for (const [laenge, anzahl] of bestellLaengen) {
-                    bestellliste.push({
-                        length: laenge,
-                        quantity: anzahl,
-                        usage: `Dreieck-Bahnen (${(laenge/1000).toFixed(1)}m)`
-                    });
-                }
-                
-            } else {
-                // Standard-Bestellliste für andere Formen
+            plattenLaengen.forEach(laengeInMetern => {
+                let bestellLaenge;
                 if (profile.lagerlaengen && profile.lagerlaengen.length > 0) {
-                    const benoetigteLaenge = plattenlaenge * 1000;
-                    let besteLaenge = profile.lagerlaengen.find(l => l >= benoetigteLaenge);
-                    if (!besteLaenge) {
-                        besteLaenge = Math.max(...profile.lagerlaengen);
-                    }
-                    
-                    bestellliste.push({
-                        length: besteLaenge,
-                        quantity: bahnenAnzahl,
-                        usage: 'Hauptbahnen'
-                    });
+                    const benoetigteLaengeMM = laengeInMetern * 1000;
+                    bestellLaenge = profile.lagerlaengen.find(l => l >= benoetigteLaengeMM) || Math.max(...profile.lagerlaengen);
                 } else {
-                    const laenge = Math.min(Math.max(plattenlaenge * 1000, profile.minLaenge || 1000), profile.maxLaenge || 12000);
-                    bestellliste.push({
-                        length: laenge,
-                        quantity: bahnenAnzahl,
-                        usage: 'Hauptbahnen'
-                    });
+                    bestellLaenge = Math.min(Math.max(laengeInMetern * 1000, profile.minLaenge || 1000), profile.maxLaenge || 12000);
                 }
+                
+                bestellLaengen.set(bestellLaenge, (bestellLaengen.get(bestellLaenge) || 0) + 1);
+            });
+            
+            for (const [laenge, anzahl] of bestellLaengen) {
+                bestellliste.push({
+                    length: laenge,
+                    quantity: anzahl,
+                    usage: `${variant}-Bahnen (${(laenge/1000).toFixed(1)}m)`
+                });
             }
             
             calculationResults.bestellliste = bestellliste;
             
-            // Ergebnisse anzeigen
             displayResults();
             
             console.log('✅ Berechnung abgeschlossen:', calculationResults);
         }
 
-        // Ergebnisse anzeigen
         function displayResults() {
-            // Ergebnisse-Sektion anzeigen
             const resultsSection = document.getElementById('results-section');
             if (resultsSection) {
                 resultsSection.style.display = 'block';
             }
             
             // Summary-Werte
-            const totalRowsEl = document.getElementById('total-rows');
-            const plateLengthEl = document.getElementById('plate-length');
-            const totalLengthEl = document.getElementById('total-length');
-            const totalWasteEl = document.getElementById('total-waste');
-            
-            if (totalRowsEl) totalRowsEl.textContent = calculationResults.bahnenAnzahl;
-            if (plateLengthEl) plateLengthEl.textContent = calculationResults.plattenlaenge.toFixed(1) + ' m';
-            if (totalLengthEl) totalLengthEl.textContent = calculationResults.gesamtlaenge.toFixed(1) + ' m';
-            if (totalWasteEl) totalWasteEl.textContent = calculationResults.verschnitt.toFixed(1) + ' %';
+            document.getElementById('total-rows').textContent = calculationResults.bahnenAnzahl;
+            document.getElementById('plate-length').textContent = calculationResults.plattenlaenge.toFixed(1) + ' m';
+            document.getElementById('total-length').textContent = calculationResults.gesamtlaenge.toFixed(1) + ' m';
+            document.getElementById('total-waste').textContent = calculationResults.verschnitt.toFixed(1) + ' %';
             
             // Bestellliste
             const tbody = document.getElementById('order-tbody');
@@ -1163,18 +999,17 @@
             const explanation = document.getElementById('calculation-explanation');
             if (explanation) {
                 explanation.innerHTML = `
-                    <h5>Berechnungsverfahren:</h5>
+                    <h5>Berechnungsschritte:</h5>
                     <ol>
                         <li><strong>Dachfläche:</strong> ${calculationResults.dachflaeche.toFixed(2)} m²</li>
                         <li><strong>Form:</strong> ${calculationResults.variant}</li>
                         <li><strong>Deckbreite:</strong> ${projectData.profile.deckbreite} mm</li>
-                        <li><strong>Verlegung:</strong> Von links nach rechts, ${calculationResults.bahnenAnzahl} Bahnen</li>
-                        <li><strong>Schnittverfahren:</strong> Waagerechte Schnitte oben/unten an der Form</li>
-                        <li><strong>Längenermittlung:</strong> ${getCalculationMethod()}</li>
-                        <li><strong>Verschnitt:</strong> ${calculationResults.verschnitt}% (durch schräge Schnitte bei Trapezen/Dreiecken)</li>
+                        <li><strong>Nutzbreite:</strong> ${projectData.profile.deckbreite - (projectData.profile.seitenueberlappung || 50)} mm</li>
+                        <li><strong>Anzahl Bahnen:</strong> ${calculationResults.bahnenAnzahl}</li>
+                        <li><strong>Verlegerichtung:</strong> ${calculationResults.richtung === 'laengs' ? 'Längs' : 'Quer'}</li>
+                        <li><strong>Plattenlängen:</strong> ${calculationResults.plattenLaengen.length > 1 ? 'Variabel je nach Position' : 'Einheitlich'}</li>
                     </ol>
-                    <p><strong>Hinweis:</strong> Bei schrägen Dachformen entstehen Abschnitte durch waagerechte Schnitte. 
-                    Der Anrissplan auf der nächsten Seite zeigt die genauen Schnittlinien und Verschnittoptimierung.</p>
+                    <p><strong>Empfehlung:</strong> Bestellen Sie ${calculationResults.verschnitt}% Verschnitt zusätzlich für Zuschnitte und Reserve.</p>
                 `;
             }
             
@@ -1188,51 +1023,12 @@
             visualizeRoof();
         }
 
-        // Hilfsfunktion für Berechnungsmethode
-        function getCalculationMethod() {
-            const { variant, geometry } = extractGeometryData();
-            if (!geometry || !geometry.dimensions) return 'Standard';
-            
-            const dims = geometry.dimensions;
-            
-            switch (variant) {
-                case 'dreieck':
-                case '3':
-                    const sideA = dims.sideA || 8;
-                    const sideB = dims.sideB || 6;
-                    const sideC = dims.sideC || 7;
-                    const basis = Math.max(sideA, sideB, sideC);
-                    return `Dreieck: ${calculationResults.bahnenAnzahl} Bahnen über ${basis}m Basis, variable Längen von links nach rechts`;
-                case 'trapez':
-                    const bottomBase = dims.bottomBase || 8;
-                    const topBase = dims.topBase || 6;
-                    const average = (bottomBase + topBase) / 2;
-                    return `Trapez: ${calculationResults.bahnenAnzahl} Bahnen über ${average.toFixed(1)}m mittlere Breite`;
-                case 'rechtwinklig':
-                    const katheteA = dims.katheteA || 4;
-                    return `Rechtwinkliges Dreieck: ${calculationResults.bahnenAnzahl} Bahnen über ${katheteA}m Basis`;
-                case 'viereck':
-                case '4':
-                    const bottomWidth = dims.bottomWidth || 10;
-                    const topWidth = dims.topWidth || 8;
-                    const avgWidth = (bottomWidth + topWidth) / 2;
-                    return `Viereck: ${calculationResults.bahnenAnzahl} Bahnen über ${avgWidth.toFixed(1)}m mittlere Breite`;
-                case 'rechteck':
-                    const width = dims.width || 5;
-                    return `Rechteck: ${calculationResults.bahnenAnzahl} Bahnen über ${width}m Breite`;
-                default:
-                    return `${calculationResults.bahnenAnzahl} Bahnen, waagerechte Schnitte für optimale Materialausnutzung`;
-            }
-        }
-
-        // Speichern und weiter
         function saveAndContinue() {
             if (!calculationResults.bahnenAnzahl) {
                 alert('Bitte führen Sie zuerst die Berechnung durch!');
                 return;
             }
             
-            // Berechnungsergebnisse zu Projektdaten hinzufügen
             projectData.calculations = calculationResults;
             
             const saved = saveData();
@@ -1241,91 +1037,54 @@
                 return;
             }
             
-            // Navigation zum Anrissplan
             window.location.href = 'Anrissplan.html';
         }
 
-        // Navigation
         function goBack() {
             window.location.href = 'Dachform.html';
         }
 
-        // Initialisierung - LÄDT ECHTE DATEN VOM EDITOR
+        // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
             console.log('=== BERECHNUNG-SEITE GELADEN ===');
             
-            // Projektdaten laden
             projectData = loadData();
             console.log('📋 Geladene Projektdaten:', projectData);
             
-            // Validierung - prüfe ob Profil vorhanden
+            const { variant, area } = extractGeometryData();
+            
             if (!projectData.profile) {
-                console.warn('⚠️ Keine Profil-Daten - verwende Fallback');
-                projectData.profile = createFallbackData().profile;
+                console.error('❌ KEINE PROFIL-DATEN!');
+                alert('Keine Profil-Daten gefunden. Bitte kehren Sie zu Schritt 1 zurück.');
+                window.location.href = 'profil.html';
+                return;
             }
             
-            // Canvas setup
+            if (!variant || area <= 0) {
+                console.error('❌ KEINE GÜLTIGEN GEOMETRIE-DATEN!');
+                alert('Keine gültigen Geometrie-Daten gefunden. Bitte kehren Sie zu den vorherigen Schritten zurück.');
+                window.location.href = 'Dachform.html';
+                return;
+            }
+            
+            console.log('✅ Validierung erfolgreich:', {
+                profil: projectData.profile.profilname,
+                variant: variant,
+                area: area
+            });
+            
             setupCanvas();
-            
-            // Info anzeigen  
             displayProjectInfo();
-            
-            // Sofortige Berechnung und Visualisierung
             calculateLengths();
             
-            console.log('✅ Berechnung-Seite initialisiert');
+            console.log('✅ Berechnung-Seite erfolgreich initialisiert');
         });
 
-        // Canvas-Größe bei Fenster-Resize anpassen
+        // Canvas-Größe bei Resize anpassen
         window.addEventListener('resize', function() {
             setTimeout(setupCanvas, 100);
             setTimeout(visualizeRoof, 200);
         });
-
-        // Debug-Funktionen
-        window.debugCalculation = () => {
-            console.log('=== BERECHNUNG DEBUG ===');
-            console.log('projectData:', projectData);
-            console.log('calculationResults:', calculationResults);
-            console.log('extractedGeometry:', extractGeometryData());
-            console.log('Canvas:', roofCanvas);
-        };
-
-        // Test mit Demo-Daten
-        window.loadDemoData = () => {
-            console.log('🧪 LADE DEMO-DATEN');
-            
-            projectData = {
-                profile: {
-                    kategorie: 'trapezprofil',
-                    profilKey: 'TP20',
-                    deckbreite: 1000,
-                    lieferbreite: 1050,
-                    seitenueberlappung: 50,
-                    profilname: 'TP20 (20/100)',
-                    ueberstand: 50,
-                    lagerlaengen: [2000, 3000, 4000, 5000, 6000]
-                },
-                geometry: {
-                    variant: 'rechteck',
-                    dimensions: {
-                        length: 10,
-                        width: 6
-                    },
-                    area: 60
-                }
-            };
-            
-            saveData();
-            
-            // UI aktualisieren
-            displayProjectInfo();
-            calculateLengths();
-            
-            console.log('✅ Demo-Daten geladen und Berechnung durchgeführt');
-        };
-
-        console.log('✅ berechnung.js geladen - VERWENDET ECHTE DATEN VOM EDITOR');
     </script>
 </body>
 </html>
