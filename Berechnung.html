@@ -321,59 +321,12 @@
             }
         }
 
-        // === DEBUG-FUNKTIONEN FÜR ROTATION ===
-        function debugRotationData() {
-            console.log('=== VOLLSTÄNDIGE ROTATION-ANALYSE ===');
-            
-            const data = loadData();
-            console.log('Raw localStorage/sessionStorage:', data);
-            
-            if (data.roofShape) {
-                console.log('🔍 roofShape Objekt vollständig:');
-                console.log('  - variant:', data.roofShape.variant);
-                console.log('  - selectedCorners:', data.roofShape.selectedCorners);
-                console.log('  - selectedRoundType:', data.roofShape.selectedRoundType);
-                console.log('  - rotation:', data.roofShape.rotation);
-                console.log('  - currentRotation:', data.roofShape.currentRotation);
-                console.log('  - timestamp:', data.roofShape.timestamp);
-                console.log('  - Alle Schlüssel:', Object.keys(data.roofShape));
-            }
-            
-            if (data.geometry) {
-                console.log('🔍 geometry Objekt vollständig:');
-                console.log('  - variant:', data.geometry.variant);
-                console.log('  - rotation:', data.geometry.rotation);
-                console.log('  - source:', data.geometry.source);
-                console.log('  - Alle Schlüssel:', Object.keys(data.geometry));
-            }
-            
-            // Suche nach ALLEN Feldern die "rotation" enthalten
-            function findRotationFields(obj, path = '') {
-                const rotationFields = [];
-                for (const key in obj) {
-                    const fullPath = path ? `${path}.${key}` : key;
-                    if (key.toLowerCase().includes('rotation')) {
-                        rotationFields.push({ path: fullPath, value: obj[key] });
-                    }
-                    if (typeof obj[key] === 'object' && obj[key] !== null) {
-                        rotationFields.push(...findRotationFields(obj[key], fullPath));
-                    }
-                }
-                return rotationFields;
-            }
-            
-            const rotationFields = findRotationFields(data);
-            console.log('🔍 ALLE Felder mit "rotation":', rotationFields);
-            
-            return data;
-        }
-
-        // === DATENEXTRAKTION (MIT DEBUG-AUSGABEN) ===
+        // === KORRIGIERTE DATENEXTRAKTION MIT ROTATION-FIX ===
         function extractGeometryData() {
-            console.log('=== EXTRAHIERE GEOMETRIE-DATEN (DEBUG-VERSION) ===');
+            console.log('=== EXTRAHIERE GEOMETRIE-DATEN (ROTATION-FIX) ===');
             
-            // Erst Debug-Analyse
-            projectData = debugRotationData();
+            projectData = loadData();
+            console.log('🔍 Vollständige projektData:', projectData);
             
             let variant = 'rechteck';
             let area = 40;
@@ -381,104 +334,62 @@
             let rotation = 0;
             let dataSource = 'fallback';
             
-            // SCHRITT 1: Sammle roofShape Daten
-            let roofShapeData = null;
+            // PRIORITÄT 1: roofShape Daten (neuestes Format)
             if (projectData.roofShape) {
-                console.log('📊 Analysiere roofShape für Rotation...');
+                console.log('📊 Analysiere roofShape:', projectData.roofShape);
                 
-                // Prüfe ALLE möglichen Rotation-Felder mit detailliertem Logging
-                let foundRotation = null;
-                
-                if (projectData.roofShape.rotation !== undefined && projectData.roofShape.rotation !== null) {
-                    foundRotation = projectData.roofShape.rotation;
-                    console.log('✅ roofShape.rotation gefunden:', foundRotation, typeof foundRotation);
-                } else {
-                    console.log('❌ roofShape.rotation ist:', projectData.roofShape.rotation);
+                // Rotation extrahieren - alle möglichen Felder prüfen
+                if (typeof projectData.roofShape.rotation === 'number') {
+                    rotation = projectData.roofShape.rotation;
+                    console.log('✅ roofShape.rotation gefunden:', rotation);
+                } else if (typeof projectData.roofShape.currentRotation === 'number') {
+                    rotation = projectData.roofShape.currentRotation;
+                    console.log('✅ roofShape.currentRotation gefunden:', rotation);
+                } else if (typeof projectData.roofShape.rotationDegrees === 'number') {
+                    rotation = projectData.roofShape.rotationDegrees;
+                    console.log('✅ roofShape.rotationDegrees gefunden:', rotation);
                 }
                 
-                if (foundRotation === null && projectData.roofShape.currentRotation !== undefined && projectData.roofShape.currentRotation !== null) {
-                    foundRotation = projectData.roofShape.currentRotation;
-                    console.log('✅ roofShape.currentRotation gefunden:', foundRotation, typeof foundRotation);
-                } else {
-                    console.log('❌ roofShape.currentRotation ist:', projectData.roofShape.currentRotation);
-                }
-                
-                roofShapeData = {
-                    variant: projectData.roofShape.variant || 
-                            projectData.roofShape.selectedCorners || 
-                            projectData.roofShape.selectedRoundType || 
-                            projectData.roofShape.selectedComplexType,
-                    area: projectData.roofShape.area,
-                    dimensions: projectData.roofShape.dimensions || projectData.roofShape.currentDimensions,
-                    rotation: foundRotation !== null ? foundRotation : 0,
-                    timestamp: projectData.roofShape.timestamp
-                };
-                console.log('📊 RoofShape finale Daten:', roofShapeData);
-            }
-            
-            // SCHRITT 2: Sammle geometry Daten
-            let geometryData = null;
-            if (projectData.geometry) {
-                console.log('🔧 Analysiere geometry für Rotation...');
-                console.log('🔧 geometry.rotation:', projectData.geometry.rotation, typeof projectData.geometry.rotation);
-                
-                geometryData = {
-                    variant: projectData.geometry.variant,
-                    area: projectData.geometry.area,
-                    dimensions: projectData.geometry.dimensions,
-                    rotation: projectData.geometry.rotation || 0,
-                    source: projectData.geometry.source
-                };
-                console.log('🔧 Geometry finale Daten:', geometryData);
-            }
-            
-            // SCHRITT 3: Entscheidung treffen
-            if (roofShapeData && roofShapeData.variant && roofShapeData.area) {
-                variant = roofShapeData.variant;
-                area = roofShapeData.area;
-                dimensions = roofShapeData.dimensions || getDefaultDimensionsForVariant(variant);
-                rotation = roofShapeData.rotation;
-                dataSource = 'roofShape';
-                console.log('✅ Verwende roofShape mit Rotation:', rotation, '°');
-            }
-            else if (geometryData && geometryData.variant && geometryData.area) {
-                variant = geometryData.variant;
-                area = geometryData.area;
-                dimensions = geometryData.dimensions || getDefaultDimensionsForVariant(variant);
-                rotation = geometryData.rotation;
-                dataSource = 'geometry';
-                console.log('✅ Verwende geometry mit Rotation:', rotation, '°');
-                
-                // Überschreibe mit roofShape Rotation wenn verfügbar
-                if (roofShapeData && roofShapeData.rotation !== null && roofShapeData.rotation !== undefined) {
-                    const oldRotation = rotation;
-                    rotation = roofShapeData.rotation;
-                    console.log('🔄 Rotation überschrieben:', oldRotation, '→', rotation, '°');
+                if (projectData.roofShape.variant && projectData.roofShape.area) {
+                    variant = projectData.roofShape.variant;
+                    area = projectData.roofShape.area;
+                    dimensions = projectData.roofShape.dimensions || projectData.roofShape.currentDimensions || {};
+                    dataSource = 'roofShape';
+                    console.log('✅ Verwende roofShape-Daten');
                 }
             }
             
-            // SCHRITT 4: Manuelle Rotation-Suche falls immer noch 0
-            if (rotation === 0) {
-                console.log('⚠️ Rotation ist 0, starte manuelle Suche...');
+            // PRIORITÄT 2: geometry Daten (Fallback)
+            if (dataSource === 'fallback' && projectData.geometry) {
+                console.log('🔧 Analysiere geometry als Fallback:', projectData.geometry);
                 
-                // Durchsuche ALLE Objekte nach Rotation
-                function deepSearchRotation(obj, path = '') {
-                    for (const key in obj) {
-                        if (typeof obj[key] === 'object' && obj[key] !== null) {
-                            deepSearchRotation(obj[key], path + '.' + key);
-                        } else if (key.toLowerCase().includes('rotation') && obj[key] !== 0 && obj[key] !== null && obj[key] !== undefined) {
-                            console.log('🎯 Rotation gefunden bei', path + '.' + key, ':', obj[key]);
-                            return obj[key];
-                        }
-                    }
-                    return null;
+                if (typeof projectData.geometry.rotation === 'number') {
+                    rotation = projectData.geometry.rotation;
+                    console.log('✅ geometry.rotation gefunden:', rotation);
+                } else if (typeof projectData.geometry.rotationDegrees === 'number') {
+                    rotation = projectData.geometry.rotationDegrees;
+                    console.log('✅ geometry.rotationDegrees gefunden:', rotation);
                 }
                 
-                const foundRotation = deepSearchRotation(projectData);
-                if (foundRotation !== null) {
-                    rotation = foundRotation;
-                    console.log('🎯 Manuelle Suche erfolgreich, Rotation:', rotation, '°');
+                if (projectData.geometry.variant && projectData.geometry.area) {
+                    variant = projectData.geometry.variant;
+                    area = projectData.geometry.area;
+                    dimensions = projectData.geometry.dimensions || {};
+                    dataSource = 'geometry';
+                    console.log('✅ Verwende geometry-Daten');
                 }
+            }
+            
+            // PRIORITÄT 3: Separate rotationData
+            if (projectData.rotationData && typeof projectData.rotationData.rotation === 'number') {
+                rotation = projectData.rotationData.rotation;
+                console.log('✅ rotationData.rotation gefunden:', rotation);
+            }
+            
+            // Fallback-Dimensionen wenn nötig
+            if (!dimensions || Object.keys(dimensions).length === 0) {
+                dimensions = getDefaultDimensionsForVariant(variant);
+                console.log('⚠️ Verwende Standard-Dimensionen für', variant);
             }
             
             const geometry = {
@@ -523,64 +434,12 @@
                     return { outerWidth: 12, outerHeight: 10, openingWidth: 6, wallThickness: 2 };
                 case 'plusform':
                     return { width1: 12, height1: 4, width2: 4, height2: 12 };
-                case 'parallelogram':
-                    return { base: 10, side: 6, angle: 60 };
-                case 'rhombus':
-                    return { sideLength: 8, angle: 60 };
                 case '5':
                 case '6':
                 case '8':
                     return { sideLength: 6 };
                 default:
                     return { bottomWidth: 8, topWidth: 8, leftSide: 5, rightSide: 5, skew: 0 };
-            }
-        }
-
-        function calculateAreaFromDimensions(variant, dims) {
-            switch (variant) {
-                case 'trapez':
-                    return ((dims.bottomBase + dims.topBase) / 2) * dims.height;
-                case 'rechteck':
-                case '4':
-                    if (dims.bottomWidth && dims.leftSide) {
-                        const avgWidth = ((dims.bottomWidth || 8) + (dims.topWidth || 8)) / 2;
-                        const avgHeight = ((dims.leftSide || 5) + (dims.rightSide || 5)) / 2;
-                        return avgWidth * avgHeight;
-                    }
-                    return (dims.length || 8) * (dims.width || 5);
-                case 'rechtwinklig':
-                case '3':
-                    if (dims.sideA && dims.sideB && dims.sideC) {
-                        const s = (dims.sideA + dims.sideB + dims.sideC) / 2;
-                        return Math.sqrt(s * (s - dims.sideA) * (s - dims.sideB) * (s - dims.sideC));
-                    }
-                    return (dims.katheteA || 4) * (dims.katheteB || 5) / 2;
-                case 'circle':
-                    return Math.PI * (dims.radius || 4) * (dims.radius || 4);
-                case 'oval':
-                    return Math.PI * (dims.radiusX || 6) * (dims.radiusY || 4);
-                case 'lform':
-                    return (dims.totalWidth || 12) * (dims.totalHeight || 10) - (dims.cutWidth || 5) * (dims.cutHeight || 4);
-                case 'tform':
-                    return (dims.headWidth || 12) * (dims.headHeight || 3) + (dims.stemWidth || 4) * (dims.stemHeight || 8);
-                case 'uform':
-                    return (dims.outerWidth || 12) * (dims.outerHeight || 10) - (dims.innerWidth || 8) * (dims.innerHeight || 6);
-                case 'cform':
-                    return (dims.outerWidth || 12) * (dims.outerHeight || 10) - ((dims.outerWidth || 12) - (dims.wallThickness || 2)) * (dims.openingWidth || 6);
-                case 'plusform':
-                    return (dims.width1 || 12) * (dims.height1 || 4) + (dims.width2 || 4) * ((dims.height2 || 12) - (dims.height1 || 4));
-                case 'parallelogram':
-                    return (dims.base || 10) * (dims.side || 6) * Math.sin((dims.angle || 60) * Math.PI / 180);
-                case 'rhombus':
-                    return (dims.sideLength || 8) * (dims.sideLength || 8) * Math.sin((dims.angle || 60) * Math.PI / 180);
-                case '5':
-                    return 0.25 * Math.sqrt(25 + 10 * Math.sqrt(5)) * (dims.sideLength || 6) * (dims.sideLength || 6);
-                case '6':
-                    return (3 * Math.sqrt(3) / 2) * (dims.sideLength || 6) * (dims.sideLength || 6);
-                case '8':
-                    return 2 * (1 + Math.sqrt(2)) * (dims.sideLength || 6) * (dims.sideLength || 6);
-                default:
-                    return 40;
             }
         }
 
@@ -615,8 +474,6 @@
                 'uform': 'U-Form',
                 'cform': 'C-Form',
                 'plusform': 'Plus-Form',
-                'parallelogram': 'Parallelogramm',
-                'rhombus': 'Rhombus',
                 '3': 'Dreieck',
                 '4': 'Viereck',
                 '5': 'Fünfeck',
@@ -647,6 +504,8 @@
                 }
             }
             document.getElementById('info-dimensions').textContent = dimensionsText || '-';
+            
+            console.log('✅ Projekt-Info angezeigt mit Rotation:', rotation, '°');
         }
 
         // === CANVAS-SETUP ===
@@ -666,7 +525,7 @@
             }
         }
 
-        // === VISUALISIERUNG ===
+        // === VISUALISIERUNG MIT ROTATION ===
         function visualizeRoof() {
             if (!roofCtx || !roofCanvas) {
                 console.error('Canvas nicht initialisiert');
@@ -725,8 +584,8 @@
                 }
             }
             
-            // === FALLBACK: Canvas-Visualisierung ===
-            console.log('🎨 Verwende Canvas-Fallback');
+            // === FALLBACK: Canvas-Visualisierung MIT ROTATION ===
+            console.log('🎨 Verwende Canvas-Fallback mit Rotation');
             
             // Canvas wieder anzeigen
             roofCanvas.style.display = 'block';
@@ -751,7 +610,9 @@
             
             const { variant, geometry, rotation } = extractGeometryData();
             
-            // Zeichne Form basierend auf verfügbaren Daten
+            console.log('🔄 Zeichne Canvas mit Rotation:', rotation, '°');
+            
+            // Zeichne Form basierend auf verfügbaren Daten MIT ROTATION
             if (geometry && geometry.dimensions) {
                 drawFromDimensions(variant, geometry.dimensions, centerX, centerY, scale, rotation);
             } else {
@@ -818,7 +679,7 @@
             }
         }
 
-        // === CANVAS ZEICHENFUNKTIONEN ===
+        // === CANVAS ZEICHENFUNKTIONEN MIT ROTATION ===
         function drawFromDimensions(variant, dims, centerX, centerY, scale, rotation = 0) {
             console.log('🎨 Zeichne Form:', variant, 'mit Rotation:', rotation, '°');
             console.log('📐 Dimensionen:', dims);
@@ -892,54 +753,31 @@
             roofCtx.restore();
         }
 
-        // === NEUE ZEICHENFUNKTIONEN FÜR FEHLENDE FORMEN ===
-        function drawHalfCircle(x, y, radius, scale) {
-            const r = radius * scale;
+        function drawRectangle(centerX, centerY, length, width, scale, rotation = 0) {
+            console.log('🔳 Zeichne Rechteck mit Rotation:', rotation, '°');
             
-            roofCtx.beginPath();
-            roofCtx.arc(x, y, r, 0, Math.PI);
-            roofCtx.closePath();
+            roofCtx.save();
+            roofCtx.translate(centerX, centerY);
             
-            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
-            roofCtx.fill();
-            roofCtx.strokeStyle = '#007bff';
-            roofCtx.lineWidth = 3;
-            roofCtx.stroke();
+            // WICHTIG: Rotation korrekt anwenden
+            roofCtx.rotate((rotation || 0) * Math.PI / 180);
+            console.log('🔄 Rechteck rotiert um:', rotation, '° (', (rotation || 0) * Math.PI / 180, 'rad)');
+            
+            drawRectangleCanvas(0, 0, length, width, scale);
+            roofCtx.restore();
         }
 
-        function drawQuarterCircle(x, y, radius, scale) {
-            const r = radius * scale;
-            
-            roofCtx.beginPath();
-            roofCtx.moveTo(x, y);
-            roofCtx.arc(x, y, r, 0, Math.PI/2);
-            roofCtx.closePath();
+        // === ZEICHENFUNKTIONEN ===
+        function drawRectangleCanvas(x, y, length, width, scale) {
+            const w = length * scale;
+            const h = width * scale;
             
             roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
-            roofCtx.fill();
+            roofCtx.fillRect(x - w/2, y - h/2, w, h);
+            
             roofCtx.strokeStyle = '#007bff';
             roofCtx.lineWidth = 3;
-            roofCtx.stroke();
-        }
-
-        function drawLangloch(x, y, length, width, scale) {
-            const l = length * scale;
-            const w = width * scale;
-            const r = w / 2;
-            
-            roofCtx.beginPath();
-            // Rechteck in der Mitte
-            roofCtx.rect(x - l/2 + r, y - w/2, l - 2*r, w);
-            // Linker Halbkreis
-            roofCtx.arc(x - l/2 + r, y, r, Math.PI/2, 3*Math.PI/2);
-            // Rechter Halbkreis
-            roofCtx.arc(x + l/2 - r, y, r, -Math.PI/2, Math.PI/2);
-            
-            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
-            roofCtx.fill();
-            roofCtx.strokeStyle = '#007bff';
-            roofCtx.lineWidth = 3;
-            roofCtx.stroke();
+            roofCtx.strokeRect(x - w/2, y - h/2, w, h);
         }
 
         function drawTriangleFromDimensions(x, y, dims, scale) {
@@ -1014,18 +852,6 @@
             roofCtx.stroke();
         }
 
-        function drawRectangleCanvas(x, y, length, width, scale) {
-            const w = length * scale;
-            const h = width * scale;
-            
-            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
-            roofCtx.fillRect(x - w/2, y - h/2, w, h);
-            
-            roofCtx.strokeStyle = '#007bff';
-            roofCtx.lineWidth = 3;
-            roofCtx.strokeRect(x - w/2, y - h/2, w, h);
-        }
-
         function drawTrapezoid(x, y, bottomBase, topBase, height, scale) {
             const bb = bottomBase * scale;
             const tb = topBase * scale;
@@ -1036,23 +862,6 @@
             roofCtx.lineTo(x + bb/2, y + h/2);
             roofCtx.lineTo(x + tb/2, y - h/2);
             roofCtx.lineTo(x - tb/2, y - h/2);
-            roofCtx.closePath();
-            
-            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
-            roofCtx.fill();
-            roofCtx.strokeStyle = '#007bff';
-            roofCtx.lineWidth = 3;
-            roofCtx.stroke();
-        }
-
-        function drawRightTriangle(x, y, katheteA, katheteB, scale) {
-            const a = katheteA * scale;
-            const b = katheteB * scale;
-            
-            roofCtx.beginPath();
-            roofCtx.moveTo(x - a/2, y + b/2);
-            roofCtx.lineTo(x + a/2, y + b/2);
-            roofCtx.lineTo(x - a/2, y - b/2);
             roofCtx.closePath();
             
             roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
@@ -1081,6 +890,55 @@
             
             roofCtx.beginPath();
             roofCtx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+        }
+
+        function drawHalfCircle(x, y, radius, scale) {
+            const r = radius * scale;
+            
+            roofCtx.beginPath();
+            roofCtx.arc(x, y, r, 0, Math.PI);
+            roofCtx.closePath();
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+        }
+
+        function drawQuarterCircle(x, y, radius, scale) {
+            const r = radius * scale;
+            
+            roofCtx.beginPath();
+            roofCtx.moveTo(x, y);
+            roofCtx.arc(x, y, r, 0, Math.PI/2);
+            roofCtx.closePath();
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+        }
+
+        function drawLangloch(x, y, length, width, scale) {
+            const l = length * scale;
+            const w = width * scale;
+            const r = w / 2;
+            
+            roofCtx.beginPath();
+            // Rechteck in der Mitte
+            roofCtx.rect(x - l/2 + r, y - w/2, l - 2*r, w);
+            // Linker Halbkreis
+            roofCtx.arc(x - l/2 + r, y, r, Math.PI/2, 3*Math.PI/2);
+            // Rechter Halbkreis
+            roofCtx.arc(x + l/2 - r, y, r, -Math.PI/2, Math.PI/2);
             
             roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
             roofCtx.fill();
@@ -1133,20 +991,6 @@
             roofCtx.strokeStyle = '#007bff';
             roofCtx.lineWidth = 3;
             roofCtx.stroke();
-        }
-
-        function drawRectangle(centerX, centerY, length, width, scale, rotation = 0) {
-            console.log('🔳 Zeichne Rechteck mit Rotation:', rotation, '°');
-            
-            roofCtx.save();
-            roofCtx.translate(centerX, centerY);
-            
-            // WICHTIG: Rotation korrekt anwenden
-            roofCtx.rotate((rotation || 0) * Math.PI / 180);
-            console.log('🔄 Rechteck rotiert um:', rotation, '° (', (rotation || 0) * Math.PI / 180, 'rad)');
-            
-            drawRectangleCanvas(0, 0, length, width, scale);
-            roofCtx.restore();
         }
 
         function drawPlateLayout() {
@@ -1351,12 +1195,6 @@
                 case '3':
                     const basis = Math.max(dims.sideA || 8, dims.sideB || 6, dims.sideC || 7);
                     return `Dreieck: Basis ${basis}m (längste Seite)`;
-                case 'parallelogram':
-                    return `Parallelogramm: Basis ${dims.base || 10}m`;
-                case 'rhombus':
-                    const rAngle = (dims.angle || 60) * Math.PI / 180;
-                    const rWidth = 2 * (dims.sideLength || 8) * Math.cos(rAngle / 2);
-                    return `Rhombus: Breite ${rWidth.toFixed(1)}m`;
                 default:
                     return 'Standard-Berechnung';
             }
