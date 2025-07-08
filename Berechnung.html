@@ -321,12 +321,59 @@
             }
         }
 
-        // === DATENEXTRAKTION (MIT VERBESSERTER ROTATION) ===
-        function extractGeometryData() {
-            console.log('=== EXTRAHIERE GEOMETRIE-DATEN (ROTATIONS-FIX) ===');
+        // === DEBUG-FUNKTIONEN FÜR ROTATION ===
+        function debugRotationData() {
+            console.log('=== VOLLSTÄNDIGE ROTATION-ANALYSE ===');
             
-            projectData = loadData();
-            console.log('📋 Gesamte projectData:', JSON.stringify(projectData, null, 2));
+            const data = loadData();
+            console.log('Raw localStorage/sessionStorage:', data);
+            
+            if (data.roofShape) {
+                console.log('🔍 roofShape Objekt vollständig:');
+                console.log('  - variant:', data.roofShape.variant);
+                console.log('  - selectedCorners:', data.roofShape.selectedCorners);
+                console.log('  - selectedRoundType:', data.roofShape.selectedRoundType);
+                console.log('  - rotation:', data.roofShape.rotation);
+                console.log('  - currentRotation:', data.roofShape.currentRotation);
+                console.log('  - timestamp:', data.roofShape.timestamp);
+                console.log('  - Alle Schlüssel:', Object.keys(data.roofShape));
+            }
+            
+            if (data.geometry) {
+                console.log('🔍 geometry Objekt vollständig:');
+                console.log('  - variant:', data.geometry.variant);
+                console.log('  - rotation:', data.geometry.rotation);
+                console.log('  - source:', data.geometry.source);
+                console.log('  - Alle Schlüssel:', Object.keys(data.geometry));
+            }
+            
+            // Suche nach ALLEN Feldern die "rotation" enthalten
+            function findRotationFields(obj, path = '') {
+                const rotationFields = [];
+                for (const key in obj) {
+                    const fullPath = path ? `${path}.${key}` : key;
+                    if (key.toLowerCase().includes('rotation')) {
+                        rotationFields.push({ path: fullPath, value: obj[key] });
+                    }
+                    if (typeof obj[key] === 'object' && obj[key] !== null) {
+                        rotationFields.push(...findRotationFields(obj[key], fullPath));
+                    }
+                }
+                return rotationFields;
+            }
+            
+            const rotationFields = findRotationFields(data);
+            console.log('🔍 ALLE Felder mit "rotation":', rotationFields);
+            
+            return data;
+        }
+
+        // === DATENEXTRAKTION (MIT DEBUG-AUSGABEN) ===
+        function extractGeometryData() {
+            console.log('=== EXTRAHIERE GEOMETRIE-DATEN (DEBUG-VERSION) ===');
+            
+            // Erst Debug-Analyse
+            projectData = debugRotationData();
             
             let variant = 'rechteck';
             let area = 40;
@@ -334,20 +381,26 @@
             let rotation = 0;
             let dataSource = 'fallback';
             
-            // NEUE STRATEGIE: Schaue in BEIDEN Quellen und wähle die beste
+            // SCHRITT 1: Sammle roofShape Daten
             let roofShapeData = null;
-            let geometryData = null;
-            
-            // Sammle roofShape Daten (PRIORITÄT FÜR ROTATION)
             if (projectData.roofShape) {
-                // Prüfe ALLE möglichen Rotation-Felder
-                let foundRotation = 0;
+                console.log('📊 Analysiere roofShape für Rotation...');
+                
+                // Prüfe ALLE möglichen Rotation-Felder mit detailliertem Logging
+                let foundRotation = null;
+                
                 if (projectData.roofShape.rotation !== undefined && projectData.roofShape.rotation !== null) {
                     foundRotation = projectData.roofShape.rotation;
-                    console.log('🔄 Rotation aus roofShape.rotation:', foundRotation);
-                } else if (projectData.roofShape.currentRotation !== undefined && projectData.roofShape.currentRotation !== null) {
+                    console.log('✅ roofShape.rotation gefunden:', foundRotation, typeof foundRotation);
+                } else {
+                    console.log('❌ roofShape.rotation ist:', projectData.roofShape.rotation);
+                }
+                
+                if (foundRotation === null && projectData.roofShape.currentRotation !== undefined && projectData.roofShape.currentRotation !== null) {
                     foundRotation = projectData.roofShape.currentRotation;
-                    console.log('🔄 Rotation aus roofShape.currentRotation:', foundRotation);
+                    console.log('✅ roofShape.currentRotation gefunden:', foundRotation, typeof foundRotation);
+                } else {
+                    console.log('❌ roofShape.currentRotation ist:', projectData.roofShape.currentRotation);
                 }
                 
                 roofShapeData = {
@@ -357,14 +410,18 @@
                             projectData.roofShape.selectedComplexType,
                     area: projectData.roofShape.area,
                     dimensions: projectData.roofShape.dimensions || projectData.roofShape.currentDimensions,
-                    rotation: foundRotation,
+                    rotation: foundRotation !== null ? foundRotation : 0,
                     timestamp: projectData.roofShape.timestamp
                 };
-                console.log('📊 RoofShape Daten (mit korrigierter Rotation):', roofShapeData);
+                console.log('📊 RoofShape finale Daten:', roofShapeData);
             }
             
-            // Sammle geometry Daten
+            // SCHRITT 2: Sammle geometry Daten
+            let geometryData = null;
             if (projectData.geometry) {
+                console.log('🔧 Analysiere geometry für Rotation...');
+                console.log('🔧 geometry.rotation:', projectData.geometry.rotation, typeof projectData.geometry.rotation);
+                
                 geometryData = {
                     variant: projectData.geometry.variant,
                     area: projectData.geometry.area,
@@ -372,85 +429,55 @@
                     rotation: projectData.geometry.rotation || 0,
                     source: projectData.geometry.source
                 };
-                console.log('🔧 Geometry Daten:', geometryData);
+                console.log('🔧 Geometry finale Daten:', geometryData);
             }
             
-            // ENTSCHEIDUNGSLOGIK: Neueste und vollständigste Daten gewinnen
-            if (roofShapeData && roofShapeData.variant && roofShapeData.area && roofShapeData.dimensions) {
-                // roofShape hat vollständige Daten - verwende diese
+            // SCHRITT 3: Entscheidung treffen
+            if (roofShapeData && roofShapeData.variant && roofShapeData.area) {
                 variant = roofShapeData.variant;
                 area = roofShapeData.area;
-                dimensions = roofShapeData.dimensions;
-                rotation = roofShapeData.rotation; // WICHTIG: Verwende roofShape Rotation
+                dimensions = roofShapeData.dimensions || getDefaultDimensionsForVariant(variant);
+                rotation = roofShapeData.rotation;
                 dataSource = 'roofShape';
-                console.log('✅ Verwende vollständige roofShape Daten (inkl. Rotation:', rotation, '°)');
+                console.log('✅ Verwende roofShape mit Rotation:', rotation, '°');
             }
-            else if (geometryData && geometryData.variant && geometryData.area && geometryData.dimensions) {
-                // geometry hat vollständige Daten - verwende diese
+            else if (geometryData && geometryData.variant && geometryData.area) {
                 variant = geometryData.variant;
                 area = geometryData.area;
-                dimensions = geometryData.dimensions;
+                dimensions = geometryData.dimensions || getDefaultDimensionsForVariant(variant);
                 rotation = geometryData.rotation;
                 dataSource = 'geometry';
-                console.log('✅ Verwende vollständige geometry Daten (Rotation:', rotation, '°)');
+                console.log('✅ Verwende geometry mit Rotation:', rotation, '°');
                 
-                // ABER: Hole Rotation aus roofShape wenn verfügbar (ist neuer!)
-                if (roofShapeData && roofShapeData.rotation !== undefined && roofShapeData.rotation !== null) {
+                // Überschreibe mit roofShape Rotation wenn verfügbar
+                if (roofShapeData && roofShapeData.rotation !== null && roofShapeData.rotation !== undefined) {
+                    const oldRotation = rotation;
                     rotation = roofShapeData.rotation;
-                    console.log('🔄 Rotation aus roofShape überschrieben:', rotation, '° (neuerer Wert)');
-                }
-            }
-            else {
-                // Fallback: Kombiniere was verfügbar ist
-                console.log('⚠️ Verwende kombinierte/Fallback Daten');
-                
-                if (roofShapeData && roofShapeData.variant) {
-                    variant = roofShapeData.variant;
-                    area = roofShapeData.area || calculateAreaFromDimensions(variant, roofShapeData.dimensions || getDefaultDimensionsForVariant(variant));
-                    dimensions = roofShapeData.dimensions || getDefaultDimensionsForVariant(variant);
-                    rotation = roofShapeData.rotation; // Verwende roofShape Rotation
-                    dataSource = 'roofShape-partial';
-                    console.log('🔧 Partial roofShape mit Rotation:', rotation, '°');
-                }
-                else if (geometryData && geometryData.variant) {
-                    variant = geometryData.variant;
-                    area = geometryData.area || calculateAreaFromDimensions(variant, geometryData.dimensions || getDefaultDimensionsForVariant(variant));
-                    dimensions = geometryData.dimensions || getDefaultDimensionsForVariant(variant);
-                    rotation = geometryData.rotation;
-                    dataSource = 'geometry-partial';
-                    console.log('🔧 Partial geometry mit Rotation:', rotation, '°');
-                }
-                else {
-                    // Absoluter Fallback
-                    variant = 'rechteck';
-                    area = 40;
-                    dimensions = getDefaultDimensionsForVariant(variant);
-                    rotation = 0;
-                    dataSource = 'default';
-                    console.log('🔧 Default Fallback mit Rotation: 0°');
+                    console.log('🔄 Rotation überschrieben:', oldRotation, '→', rotation, '°');
                 }
             }
             
-            // EXTRA-CHECK: Suche nach Rotation in allen möglichen Orten
-            if (rotation === 0 || rotation === undefined || rotation === null) {
-                console.log('🔍 Rotation ist 0 oder undefined, suche in allen Feldern...');
+            // SCHRITT 4: Manuelle Rotation-Suche falls immer noch 0
+            if (rotation === 0) {
+                console.log('⚠️ Rotation ist 0, starte manuelle Suche...');
                 
-                // Prüfe alle möglichen Rotation-Felder
-                const rotationCandidates = [
-                    projectData.roofShape?.rotation,
-                    projectData.roofShape?.currentRotation,
-                    projectData.geometry?.rotation,
-                    projectData.dachform?.rotation,
-                    projectData.shape?.rotation
-                ];
-                
-                for (let i = 0; i < rotationCandidates.length; i++) {
-                    const candidate = rotationCandidates[i];
-                    if (candidate !== undefined && candidate !== null && candidate !== 0) {
-                        rotation = candidate;
-                        console.log('🎯 Rotation gefunden in Kandidat', i, ':', rotation, '°');
-                        break;
+                // Durchsuche ALLE Objekte nach Rotation
+                function deepSearchRotation(obj, path = '') {
+                    for (const key in obj) {
+                        if (typeof obj[key] === 'object' && obj[key] !== null) {
+                            deepSearchRotation(obj[key], path + '.' + key);
+                        } else if (key.toLowerCase().includes('rotation') && obj[key] !== 0 && obj[key] !== null && obj[key] !== undefined) {
+                            console.log('🎯 Rotation gefunden bei', path + '.' + key, ':', obj[key]);
+                            return obj[key];
+                        }
                     }
+                    return null;
+                }
+                
+                const foundRotation = deepSearchRotation(projectData);
+                if (foundRotation !== null) {
+                    rotation = foundRotation;
+                    console.log('🎯 Manuelle Suche erfolgreich, Rotation:', rotation, '°');
                 }
             }
             
@@ -465,7 +492,7 @@
             console.log('🎯 FINALE Geometrie-Daten:');
             console.log('   Variant:', variant);
             console.log('   Area:', area, 'm²');
-            console.log('   Rotation:', rotation, '°');
+            console.log('   🔄 ROTATION:', rotation, '°');
             console.log('   Dimensions:', dimensions);
             console.log('   Quelle:', dataSource);
             
