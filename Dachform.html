@@ -401,6 +401,7 @@
         let currentRotation = 0;
         let rotationInterval = null;
         let isRotating = false;
+        let currentPoints = []; // Für spätere Verwendung
 
         // === VOLLSTÄNDIGE FORM-DEFINITIONEN ===
         const shapeInputs = {
@@ -424,8 +425,42 @@
             8: [{key: 'sideLength', label: 'Seitenlänge', default: 6}]
         };
 
+        // === SICHERE STORAGE-FUNKTIONEN ===
+        function saveData() {
+            try {
+                const data = JSON.stringify(currentRoofData);
+                localStorage.setItem('dachplattenrechner_data', data);
+                console.log('✅ localStorage gespeichert');
+                return true;
+            } catch (e) {
+                console.log('⚠️ localStorage fehlgeschlagen, verwende sessionStorage');
+                try {
+                    sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(currentRoofData));
+                    console.log('✅ sessionStorage gespeichert');
+                    return true;
+                } catch (e2) {
+                    console.error('❌ Beide Storage-Methoden fehlgeschlagen');
+                    return false;
+                }
+            }
+        }
+
+        function loadData() {
+            try {
+                let saved = localStorage.getItem('dachplattenrechner_data');
+                if (!saved) {
+                    saved = sessionStorage.getItem('dachplattenrechner_data');
+                }
+                return saved ? JSON.parse(saved) : {};
+            } catch (e) {
+                console.error('Fehler beim Laden:', e);
+                return {};
+            }
+        }
+
         // === AUSWAHL-FUNKTIONEN ===
         function selectCorners(corners) {
+            console.log('Ecken ausgewählt:', corners);
             document.querySelectorAll('.corner-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector(`[data-corners="${corners}"]`).classList.add('selected');
             selectedCorners = corners; 
@@ -453,6 +488,7 @@
         }
 
         function selectRoundType(roundType) {
+            console.log('Runde Form ausgewählt:', roundType);
             document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector(`[data-type="${roundType}"]`).classList.add('selected');
             selectedRoundType = roundType; 
@@ -461,6 +497,7 @@
         }
 
         function selectComplexType(complexType) {
+            console.log('Komplexe Form ausgewählt:', complexType);
             document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector(`[data-type="${complexType}"]`).classList.add('selected');
             selectedComplexType = complexType; 
@@ -489,6 +526,115 @@
             inputs.forEach(input => currentDimensions[input.key] = input.default);
             updatePreview();
             updateCalculations();
+        }
+
+        // === PUNKTE GENERIERUNG FÜR BERECHNUNG ===
+        function generatePoints() {
+            const variant = selectedRoundType || selectedComplexType || selectedCorners;
+            
+            switch (variant) {
+                case 'circle':
+                    return generateCirclePoints();
+                case 'oval':
+                    return generateOvalPoints();
+                case '3':
+                    return generateTrianglePoints();
+                case '4':
+                    return generateQuadPoints();
+                case 'lform':
+                    return generateLFormPoints();
+                default:
+                    return generateDefaultPoints();
+            }
+        }
+
+        function generateCirclePoints() {
+            const radius = currentDimensions.radius || 5;
+            const points = [];
+            for (let i = 0; i < 32; i++) {
+                const angle = (i * 2 * Math.PI) / 32;
+                points.push({
+                    x: radius * Math.cos(angle),
+                    y: radius * Math.sin(angle)
+                });
+            }
+            return points;
+        }
+
+        function generateOvalPoints() {
+            const rx = currentDimensions.radiusX || 6;
+            const ry = currentDimensions.radiusY || 4;
+            const points = [];
+            for (let i = 0; i < 32; i++) {
+                const angle = (i * 2 * Math.PI) / 32;
+                points.push({
+                    x: rx * Math.cos(angle),
+                    y: ry * Math.sin(angle)
+                });
+            }
+            return points;
+        }
+
+        function generateTrianglePoints() {
+            const sideA = currentDimensions.sideA || 8;
+            const sideB = currentDimensions.sideB || 6;
+            const sideC = currentDimensions.sideC || 7;
+            
+            if ((sideA + sideB <= sideC) || (sideA + sideC <= sideB) || (sideB + sideC <= sideA)) {
+                return generateDefaultPoints();
+            }
+            
+            const A = {x: 0, y: 0};
+            const B = {x: sideC, y: 0};
+            const cosA = (sideB * sideB + sideC * sideC - sideA * sideA) / (2 * sideB * sideC);
+            const angleA = Math.acos(Math.max(-1, Math.min(1, cosA)));
+            const C = {
+                x: sideB * Math.cos(angleA),
+                y: sideB * Math.sin(angleA)
+            };
+            
+            return [A, B, C];
+        }
+
+        function generateQuadPoints() {
+            const bottomWidth = currentDimensions.bottomWidth || 10;
+            const topWidth = currentDimensions.topWidth || 8;
+            const leftSide = currentDimensions.leftSide || 6;
+            const skew = currentDimensions.skew || 0;
+            
+            return [
+                {x: -bottomWidth/2, y: -leftSide/2},
+                {x: bottomWidth/2, y: -leftSide/2},
+                {x: topWidth/2 + skew, y: leftSide/2},
+                {x: -topWidth/2 + skew, y: leftSide/2}
+            ];
+        }
+
+        function generateLFormPoints() {
+            const tw = currentDimensions.totalWidth || 12;
+            const th = currentDimensions.totalHeight || 10;
+            const cw = currentDimensions.cutWidth || 5;
+            const ch = currentDimensions.cutHeight || 4;
+            const offsetX = currentDimensions.offsetX || 0;
+            const offsetY = currentDimensions.offsetY || 0;
+            
+            return [
+                {x: -tw/2, y: -th/2},
+                {x: tw/2, y: -th/2},
+                {x: tw/2, y: -th/2 + ch + offsetY},
+                {x: -tw/2 + cw + offsetX, y: -th/2 + ch + offsetY},
+                {x: -tw/2 + cw + offsetX, y: th/2},
+                {x: -tw/2, y: th/2}
+            ];
+        }
+
+        function generateDefaultPoints() {
+            return [
+                {x: -4, y: -2.5},
+                {x: 4, y: -2.5},
+                {x: 4, y: 2.5},
+                {x: -4, y: 2.5}
+            ];
         }
 
         // === SVG-PREVIEW (VOLLSTÄNDIG) ===
@@ -721,6 +867,7 @@
             }
             
             shapeGroup.innerHTML = shapeSVG;
+            currentPoints = generatePoints(); // Punkte für Berechnung generieren
         }
 
         function drawInputField(x, y, key, label) {
@@ -964,6 +1111,9 @@
             window.location.href = 'profil.html';
         }
 
+        // === KRITISCHE SPEICHER-FUNKTION ===
+        let currentRoofData = {}; // Globale Variable für aktuelle Daten
+
         function continueToCalculation() {
             if (!selectedCorners && !selectedRoundType && !selectedComplexType) {
                 alert('Bitte wählen Sie zuerst eine Form aus!');
@@ -973,80 +1123,102 @@
             const areaText = document.getElementById('calc-area').textContent;
             const area = parseFloat(areaText.replace(' m²', ''));
             
-            console.log('=== SPEICHERE DACHFORM-DATEN ===');
+            console.log('=== SPEICHERE DACHFORM-DATEN (KORRIGIERT) ===');
             
+            // Bestehende Daten laden und ERWEITERN, nicht überschreiben
+            currentRoofData = loadData();
+            console.log('🔍 Bestehende Daten geladen:', currentRoofData);
+            
+            // Bestimme Variante
+            const variant = selectedCorners || selectedRoundType || selectedComplexType;
+            
+            // Neue Dachform-Daten hinzufügen/aktualisieren
+            currentRoofData.roofShape = {
+                baseShape: selectedCorners ? 'polygon' : (selectedRoundType ? 'round' : 'complex'),
+                variant: variant,
+                variantName: getVariantName(variant),
+                selectedCorners: selectedCorners,
+                selectedRoundType: selectedRoundType,
+                selectedComplexType: selectedComplexType,
+                dimensions: { ...currentDimensions },
+                currentDimensions: { ...currentDimensions },
+                area: area,
+                rotation: currentRotation,
+                currentRotation: currentRotation,
+                points: currentPoints,
+                timestamp: Date.now()
+            };
+            
+            // Geometry-Objekt für Backward-Kompatibilität
+            currentRoofData.geometry = {
+                variant: variant,
+                dimensions: { ...currentDimensions },
+                area: area,
+                rotation: currentRotation,
+                points: currentPoints,
+                source: 'dachform_editor'
+            };
+            
+            // SVG sicher speichern
             try {
-                // Bestehende Daten laden
-                let mainData = {};
-                try {
-                    const existing = localStorage.getItem('dachplattenrechner_data');
-                    if (existing) mainData = JSON.parse(existing);
-                } catch(e) {}
-                
-                // roofShape-Daten speichern
-                mainData.roofShape = {
-                    variant: selectedCorners || selectedRoundType || selectedComplexType,
-                    selectedCorners: selectedCorners,
-                    selectedRoundType: selectedRoundType,
-                    selectedComplexType: selectedComplexType,
-                    dimensions: currentDimensions,
-                    currentDimensions: currentDimensions,
-                    area: area,
-                    rotation: currentRotation,
-                    currentRotation: currentRotation,
-                    timestamp: Date.now()
-                };
-                
-                // SVG sicher speichern
-                try {
-                    const svgElement = document.getElementById('preview-svg');
-                    if (svgElement) {
-                        const svgClone = svgElement.cloneNode(true);
-                        svgClone.querySelectorAll('foreignObject').forEach(fo => fo.remove());
-                        mainData.roofShape.svgHTML = svgClone.outerHTML;
-                        console.log('✅ SVG gespeichert');
-                    }
-                } catch (svgError) {
-                    console.log('⚠️ SVG-Speicherung fehlgeschlagen:', svgError);
+                const svgElement = document.getElementById('preview-svg');
+                if (svgElement) {
+                    const svgClone = svgElement.cloneNode(true);
+                    // Entferne Input-Felder aus dem SVG für saubere Speicherung
+                    svgClone.querySelectorAll('foreignObject').forEach(fo => fo.remove());
+                    currentRoofData.roofShape.svgHTML = svgClone.outerHTML;
+                    console.log('✅ SVG gespeichert');
                 }
-                
-                localStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
-                console.log('✅ Daten gespeichert:', mainData);
-                
-            } catch (e) {
-                console.error('❌ localStorage fehlgeschlagen, verwende sessionStorage:', e);
-                try {
-                    let mainData = {};
-                    const existing = sessionStorage.getItem('dachplattenrechner_data');
-                    if (existing) mainData = JSON.parse(existing);
-                    
-                    mainData.roofShape = {
-                        variant: selectedCorners || selectedRoundType || selectedComplexType,
-                        selectedCorners: selectedCorners,
-                        selectedRoundType: selectedRoundType,
-                        selectedComplexType: selectedComplexType,
-                        dimensions: currentDimensions,
-                        area: area,
-                        rotation: currentRotation,
-                        timestamp: Date.now()
-                    };
-                    
-                    sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
-                    console.log('✅ Daten in sessionStorage gespeichert');
-                } catch (e2) {
-                    console.error('❌ Beide Storage-Methoden fehlgeschlagen:', e2);
-                    alert('Fehler beim Speichern der Daten!');
-                    return;
-                }
+            } catch (svgError) {
+                console.log('⚠️ SVG-Speicherung fehlgeschlagen:', svgError);
             }
             
+            console.log('📦 Finale Daten vor Speicherung:', JSON.stringify(currentRoofData, null, 2));
+            
+            // Speichern mit Fehlerbehandlung
+            const saved = saveData();
+            if (!saved) {
+                alert('Fehler beim Speichern der Daten!');
+                return;
+            }
+            
+            console.log('✅ Daten erfolgreich gespeichert');
+            
+            // Kurze Verzögerung für sicheres Speichern
             setTimeout(() => {
                 window.location.href = 'berechnung.html';
-            }, 100);
+            }, 200);
+        }
+
+        function getVariantName(variant) {
+            const names = {
+                'circle': 'Vollkreis',
+                'oval': 'Oval/Ellipse',
+                'langloch': 'Langloch',
+                'halbkreis': 'Halbkreis',
+                'viertelkreis': 'Viertelkreis',
+                'segment': 'Kreissegment',
+                'lform': 'L-Form',
+                'tform': 'T-Form',
+                'uform': 'U-Form',
+                'cform': 'C-Form',
+                'plusform': 'Plus-Form',
+                'parallelogram': 'Parallelogramm',
+                'rhombus': 'Rhombus',
+                '3': 'Dreieck',
+                '4': 'Viereck',
+                '5': 'Fünfeck',
+                '6': 'Sechseck',
+                '8': 'Achteck'
+            };
+            return names[variant] || variant;
         }
 
         // === EVENT LISTENERS ===
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== DACHFORM-SEITE GELADEN ===');
+            
+            // Event Listeners für Auswahl
             document.querySelectorAll('.corner-option').forEach(opt => {
                 opt.addEventListener('click', function() {
                     selectCorners(this.getAttribute('data-corners'));
@@ -1062,6 +1234,15 @@
                     }
                 });
             });
+            
+            // Prüfe ob bereits gespeicherte Daten vorhanden sind
+            const existingData = loadData();
+            if (existingData && existingData.roofShape) {
+                console.log('🔄 Lade bestehende Dachform-Daten:', existingData.roofShape);
+                // Hier könnte die Wiederherstellung implementiert werden
+            }
+            
+            console.log('✅ Dachform-Seite vollständig initialisiert');
         });
 
         // === GLOBALE FUNKTIONEN ===
@@ -1076,12 +1257,28 @@
 
         // Debug-Funktionen
         window.debugDachform = () => {
+            console.log('=== DACHFORM DEBUG ===');
             console.log('selectedCorners:', selectedCorners);
             console.log('selectedRoundType:', selectedRoundType);
             console.log('selectedComplexType:', selectedComplexType);
             console.log('currentDimensions:', currentDimensions);
             console.log('currentRotation:', currentRotation);
-            console.log('storage:', localStorage.getItem('dachplattenrechner_data'));
+            console.log('currentPoints:', currentPoints);
+            console.log('currentRoofData:', currentRoofData);
+            console.log('Storage:', localStorage.getItem('dachplattenrechner_data'));
+        };
+
+        window.testDachformSave = () => {
+            console.log('🧪 TEST DACHFORM SPEICHERUNG');
+            
+            // Simuliere Rechteck-Auswahl
+            selectCorners('4');
+            currentDimensions = { bottomWidth: 8, topWidth: 8, leftSide: 5, rightSide: 5, skew: 0 };
+            updateCalculations();
+            
+            setTimeout(() => {
+                continueToCalculation();
+            }, 1000);
         };
     </script>
 </body>
