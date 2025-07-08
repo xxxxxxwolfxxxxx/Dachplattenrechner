@@ -357,6 +357,14 @@
                                 <button class="rotate-btn" onclick="snapToAngle(90)" style="background: #007bff; color: white;">↕ 90°</button>
                             </div>
                             <button class="btn btn-secondary" onclick="resetRotation()" style="width: 100%; padding: 8px;">🔄 Reset</button>
+            
+            <!-- DEBUG BUTTONS -->
+            <button type="button" onclick="debugCurrentRotation()" style="background: orange; color: white; padding: 8px; width: 100%; margin-top: 5px;">
+                🐛 Debug aktuelle Rotation
+            </button>
+            <button type="button" onclick="testSaveRotation()" style="background: purple; color: white; padding: 8px; width: 100%; margin-top: 5px;">
+                💾 Test Rotation speichern
+            </button>
                         </div>
                         
                         <div class="control-card">
@@ -1108,6 +1116,52 @@
         window.resetRotation = resetRotation;
         window.goBack = goBack;
         window.continueToCalculation = continueToCalculation;
+
+        // === DEBUG-FUNKTIONEN ===
+        window.debugCurrentRotation = () => {
+            console.log('=== DEBUG AKTUELLE ROTATION ===');
+            console.log('currentRotation Variable:', currentRotation);
+            console.log('Display Text:', document.getElementById('rotation-display').textContent);
+            console.log('Display Element:', document.getElementById('rotation-display'));
+            
+            const displayText = document.getElementById('rotation-display').textContent;
+            const displayNumber = parseInt(displayText.replace('°', ''));
+            console.log('Display als Nummer:', displayNumber);
+            
+            alert(`Rotation Debug:\n- Variable: ${currentRotation}°\n- Display: ${displayText}\n- Als Nummer: ${displayNumber}°`);
+        };
+
+        window.testSaveRotation = () => {
+            console.log('=== TEST ROTATION SPEICHERN ===');
+            
+            const testRotation = currentRotation || 45; // Test mit 45° falls 0
+            
+            const testData = {
+                testRotation: testRotation,
+                roofShape: {
+                    rotation: testRotation,
+                    variant: '4'
+                },
+                timestamp: Date.now()
+            };
+            
+            console.log('Test-Daten:', testData);
+            
+            try {
+                localStorage.setItem('rotation_test', JSON.stringify(testData));
+                console.log('✅ Test-Speicherung erfolgreich');
+                
+                const retrieved = JSON.parse(localStorage.getItem('rotation_test'));
+                console.log('✅ Test-Auslesen erfolgreich:', retrieved);
+                
+                alert(`Test erfolgreich!\nGespeichert: ${testRotation}°\nAusgelesen: ${retrieved.roofShape.rotation}°`);
+                
+                localStorage.removeItem('rotation_test');
+            } catch (e) {
+                console.error('❌ Test fehlgeschlagen:', e);
+                alert('Test fehlgeschlagen: ' + e.message);
+            }
+        };
 
         // === INITIALISIERUNG ===
         document.addEventListener('DOMContentLoaded', function() {
