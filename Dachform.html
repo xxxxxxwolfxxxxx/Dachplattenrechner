@@ -1114,102 +1114,97 @@
         // === KRITISCHE SPEICHER-FUNKTION ===
         let currentRoofData = {}; // Globale Variable für aktuelle Daten
 
-        function continueToCalculation() {
-            if (!selectedCorners && !selectedRoundType && !selectedComplexType) {
-                alert('Bitte wählen Sie zuerst eine Form aus!');
-                return;
-            }
-            
-            const areaText = document.getElementById('calc-area').textContent;
-            const area = parseFloat(areaText.replace(' m²', ''));
-            
-            console.log('=== SPEICHERE DACHFORM-DATEN (KORRIGIERT) ===');
-            console.log('🔺 Gewählte Form:', {
-                selectedCorners,
-                selectedRoundType,
-                selectedComplexType,
-                currentDimensions,
-                area,
-                currentRotation
-            });
-            
-            // Bestehende Daten laden und ERWEITERN, nicht überschreiben
-            currentRoofData = loadData();
-            console.log('🔍 Bestehende Daten geladen:', currentRoofData);
-            
-            // Bestimme Variante - KORRIGIERT für Dreieck
-            let variant;
-            let baseShape;
-            if (selectedCorners) {
-                variant = selectedCorners; // "3" für Dreieck
-                baseShape = 'polygon';
-            } else if (selectedRoundType) {
-                variant = selectedRoundType;
-                baseShape = 'round';
-            } else if (selectedComplexType) {
-                variant = selectedComplexType;
-                baseShape = 'complex';
-            }
-            
-            console.log('🎯 Finale Variante:', variant, 'BaseShape:', baseShape);
-            
-            // Neue Dachform-Daten hinzufügen/aktualisieren
-            currentRoofData.roofShape = {
-                baseShape: baseShape,
-                variant: variant,
-                variantName: getVariantName(variant),
-                selectedCorners: selectedCorners,
-                selectedRoundType: selectedRoundType,
-                selectedComplexType: selectedComplexType,
-                dimensions: { ...currentDimensions },
-                currentDimensions: { ...currentDimensions },
-                area: area,
-                rotation: currentRotation,
-                currentRotation: currentRotation,
-                points: currentPoints,
-                timestamp: Date.now()
-            };
-            
-            // Geometry-Objekt für Backward-Kompatibilität - KORRIGIERT
-            currentRoofData.geometry = {
-                variant: variant,
-                dimensions: { ...currentDimensions },
-                area: area,
-                rotation: currentRotation,
-                points: currentPoints,
-                source: 'dachform_editor'
-            };
-            
-            // SVG sicher speichern
-            try {
-                const svgElement = document.getElementById('preview-svg');
-                if (svgElement) {
-                    const svgClone = svgElement.cloneNode(true);
-                    // Entferne Input-Felder aus dem SVG für saubere Speicherung
-                    svgClone.querySelectorAll('foreignObject').forEach(fo => fo.remove());
-                    currentRoofData.roofShape.svgHTML = svgClone.outerHTML;
-                    console.log('✅ SVG gespeichert');
-                }
-            } catch (svgError) {
-                console.log('⚠️ SVG-Speicherung fehlgeschlagen:', svgError);
-            }
-            
-            console.log('📦 Finale Daten vor Speicherung:', JSON.stringify(currentRoofData, null, 2));
-            
-            // Speichern mit Fehlerbehandlung
-            const saved = saveData();
-            if (!saved) {
-                alert('Fehler beim Speichern der Daten!');
-                return;
-            }
-            
-            console.log('✅ Daten erfolgreich gespeichert');
-            
-            // Kurze Verzögerung für sicheres Speichern
-            setTimeout(() => {
-                window.location.href = 'berechnung.html';
-            }, 200);
+       // === KRITISCHE SPEICHER-FUNKTION (KORRIGIERT) ===
+function continueToCalculation() {
+    if (!selectedCorners && !selectedRoundType && !selectedComplexType) {
+        alert('Bitte wählen Sie zuerst eine Form aus!');
+        return;
+    }
+    
+    const areaText = document.getElementById('calc-area').textContent;
+    const area = parseFloat(areaText.replace(' m²', ''));
+    
+    console.log('=== SPEICHERE DACHFORM-DATEN (ROTATION-FIX) ===');
+    console.log('🔄 AKTUELLE ROTATION:', currentRotation, '°'); // ← Diese Zeile ist wichtig!
+    
+    // Bestehende Daten laden und ERWEITERN, nicht überschreiben
+    currentRoofData = loadData();
+    console.log('🔍 Bestehende Daten geladen:', currentRoofData);
+    
+    // Bestimme Variante
+    let variant;
+    let baseShape;
+    if (selectedCorners) {
+        variant = selectedCorners;
+        baseShape = 'polygon';
+    } else if (selectedRoundType) {
+        variant = selectedRoundType;
+        baseShape = 'round';
+    } else if (selectedComplexType) {
+        variant = selectedComplexType;
+        baseShape = 'complex';
+    }
+    
+    console.log('🎯 Finale Variante:', variant, 'BaseShape:', baseShape);
+    
+    // KORRIGIERT: Rotation explizit in BEIDEN Objekten speichern
+    currentRoofData.roofShape = {
+        baseShape: baseShape,
+        variant: variant,
+        variantName: getVariantName(variant),
+        selectedCorners: selectedCorners,
+        selectedRoundType: selectedRoundType,
+        selectedComplexType: selectedComplexType,
+        dimensions: { ...currentDimensions },
+        currentDimensions: { ...currentDimensions },
+        area: area,
+        rotation: currentRotation,           // ← EXPLIZIT SPEICHERN
+        currentRotation: currentRotation,    // ← DOPPELT SPEICHERN ZUR SICHERHEIT
+        timestamp: Date.now()
+    };
+    
+    // KORRIGIERT: Geometry-Objekt mit korrekter Rotation
+    currentRoofData.geometry = {
+        variant: variant,
+        dimensions: { ...currentDimensions },
+        area: area,
+        rotation: currentRotation,           // ← EXPLIZIT SPEICHERN
+        points: currentPoints,
+        source: 'dachform_editor'
+    };
+    
+    console.log('📦 FINALE Daten vor Speicherung:');
+    console.log('  - roofShape.rotation:', currentRoofData.roofShape.rotation);
+    console.log('  - roofShape.currentRotation:', currentRoofData.roofShape.currentRotation);
+    console.log('  - geometry.rotation:', currentRoofData.geometry.rotation);
+    
+    // SVG sicher speichern
+    try {
+        const svgElement = document.getElementById('preview-svg');
+        if (svgElement) {
+            const svgClone = svgElement.cloneNode(true);
+            svgClone.querySelectorAll('foreignObject').forEach(fo => fo.remove());
+            currentRoofData.roofShape.svgHTML = svgClone.outerHTML;
+            console.log('✅ SVG gespeichert');
         }
+    } catch (svgError) {
+        console.log('⚠️ SVG-Speicherung fehlgeschlagen:', svgError);
+    }
+    
+    // Speichern mit Fehlerbehandlung
+    const saved = saveData();
+    if (!saved) {
+        alert('Fehler beim Speichern der Daten!');
+        return;
+    }
+    
+    console.log('✅ Daten erfolgreich gespeichert mit Rotation:', currentRotation, '°');
+    
+    // Kurze Verzögerung für sicheres Speichern
+    setTimeout(() => {
+        window.location.href = 'berechnung.html';
+    }, 200);
+}
 
         function getVariantName(variant) {
             const names = {
