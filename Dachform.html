@@ -460,7 +460,7 @@
 
         // === AUSWAHL-FUNKTIONEN ===
         function selectCorners(corners) {
-            console.log('Ecken ausgewählt:', corners);
+            console.log('🔺 Ecken ausgewählt:', corners);
             document.querySelectorAll('.corner-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector(`[data-corners="${corners}"]`).classList.add('selected');
             selectedCorners = corners; 
@@ -1124,17 +1124,38 @@
             const area = parseFloat(areaText.replace(' m²', ''));
             
             console.log('=== SPEICHERE DACHFORM-DATEN (KORRIGIERT) ===');
+            console.log('🔺 Gewählte Form:', {
+                selectedCorners,
+                selectedRoundType,
+                selectedComplexType,
+                currentDimensions,
+                area,
+                currentRotation
+            });
             
             // Bestehende Daten laden und ERWEITERN, nicht überschreiben
             currentRoofData = loadData();
             console.log('🔍 Bestehende Daten geladen:', currentRoofData);
             
-            // Bestimme Variante
-            const variant = selectedCorners || selectedRoundType || selectedComplexType;
+            // Bestimme Variante - KORRIGIERT für Dreieck
+            let variant;
+            let baseShape;
+            if (selectedCorners) {
+                variant = selectedCorners; // "3" für Dreieck
+                baseShape = 'polygon';
+            } else if (selectedRoundType) {
+                variant = selectedRoundType;
+                baseShape = 'round';
+            } else if (selectedComplexType) {
+                variant = selectedComplexType;
+                baseShape = 'complex';
+            }
+            
+            console.log('🎯 Finale Variante:', variant, 'BaseShape:', baseShape);
             
             // Neue Dachform-Daten hinzufügen/aktualisieren
             currentRoofData.roofShape = {
-                baseShape: selectedCorners ? 'polygon' : (selectedRoundType ? 'round' : 'complex'),
+                baseShape: baseShape,
                 variant: variant,
                 variantName: getVariantName(variant),
                 selectedCorners: selectedCorners,
@@ -1149,7 +1170,7 @@
                 timestamp: Date.now()
             };
             
-            // Geometry-Objekt für Backward-Kompatibilität
+            // Geometry-Objekt für Backward-Kompatibilität - KORRIGIERT
             currentRoofData.geometry = {
                 variant: variant,
                 dimensions: { ...currentDimensions },
