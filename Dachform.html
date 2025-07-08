@@ -1173,7 +1173,8 @@
         }
 
         function continueToCalculation() {
-            if (!selectedCorners && !selectedRoundType && !selectedComplexType) { 
+           mainData.roofShape = { 
+    variant: selectedCorners || selectedRoundType || selectedComplexType,  // RICHTIG
                 alert('Bitte wählen Sie zuerst eine Form aus!'); 
                 return; 
             }
