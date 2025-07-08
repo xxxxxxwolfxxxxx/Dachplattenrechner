@@ -333,24 +333,33 @@
             let dimensions = {};
             let rotation = 0;
             
-            // PRIORITÄT 1: Schaue in geometry
-            if (projectData.geometry && projectData.geometry.variant) {
-                console.log('✅ Geometry gefunden!');
+            // PRIORITÄT 1: Schaue in roofShape (neueste Daten aus Dachform-Editor)
+            if (projectData.roofShape) {
+                console.log('✅ RoofShape gefunden!');
+                
+                variant = projectData.roofShape.variant || 
+                         projectData.roofShape.selectedCorners || 
+                         projectData.roofShape.selectedRoundType || 
+                         projectData.roofShape.selectedComplexType || 'rechteck';
+                area = projectData.roofShape.area || 40;
+                dimensions = projectData.roofShape.dimensions || 
+                            projectData.roofShape.currentDimensions || 
+                            getDefaultDimensionsForVariant(variant);
+                rotation = projectData.roofShape.rotation || 
+                          projectData.roofShape.currentRotation || 0;
+                
+                console.log('🎯 ROOFSHAPE-DATEN:', {variant, area, dimensions, rotation});
+            }
+            // FALLBACK: geometry
+            else if (projectData.geometry && projectData.geometry.variant) {
+                console.log('⚠️ Fallback auf geometry');
                 
                 variant = projectData.geometry.variant;
                 area = projectData.geometry.area || 20.33;
                 dimensions = projectData.geometry.dimensions || getDefaultDimensionsForVariant(variant);
                 rotation = projectData.geometry.rotation || 0;
                 
-                console.log('🎯 GEOMETRY-DATEN:', {variant, area, dimensions, rotation});
-            }
-            // FALLBACK: roofShape
-            else if (projectData.roofShape) {
-                console.log('⚠️ Fallback auf roofShape');
-                variant = projectData.roofShape.variant || 'rechteck';
-                area = projectData.roofShape.area || 40;
-                dimensions = projectData.roofShape.dimensions || getDefaultDimensionsForVariant(variant);
-                rotation = projectData.roofShape.rotation || 0;
+                console.log('🔧 GEOMETRY-DATEN:', {variant, area, dimensions, rotation});
             }
             // LETZTER FALLBACK
             else {
@@ -369,7 +378,8 @@
                 source: 'corrected_extraction'
             };
             
-            console.log('🎯 FINALE Geometrie:', geometry);
+            console.log('🎯 FINALE Geometrie mit Rotation:', geometry);
+            console.log('🔄 Rotation-Wert:', rotation, '°');
             
             return { variant, area, rotation, geometry, points: null };
         }
@@ -695,9 +705,14 @@
 
         // === CANVAS ZEICHENFUNKTIONEN ===
         function drawFromDimensions(variant, dims, centerX, centerY, scale, rotation = 0) {
+            console.log('🎨 Zeichne Form mit Rotation:', rotation, '°');
+            
             roofCtx.save();
             roofCtx.translate(centerX, centerY);
-            roofCtx.rotate(rotation * Math.PI / 180);
+            
+            // WICHTIG: Rotation korrekt anwenden
+            roofCtx.rotate((rotation || 0) * Math.PI / 180);
+            console.log('🔄 Form rotiert um:', rotation, '° (', (rotation || 0) * Math.PI / 180, 'rad)');
             
             switch (variant) {
                 case '3':
@@ -933,9 +948,15 @@
         }
 
         function drawRectangle(centerX, centerY, length, width, scale, rotation = 0) {
+            console.log('🔳 Zeichne Rechteck mit Rotation:', rotation, '°');
+            
             roofCtx.save();
             roofCtx.translate(centerX, centerY);
-            roofCtx.rotate(rotation * Math.PI / 180);
+            
+            // WICHTIG: Rotation korrekt anwenden
+            roofCtx.rotate((rotation || 0) * Math.PI / 180);
+            console.log('🔄 Rechteck rotiert um:', rotation, '° (', (rotation || 0) * Math.PI / 180, 'rad)');
+            
             drawRectangleCanvas(0, 0, length, width, scale);
             roofCtx.restore();
         }
@@ -947,6 +968,8 @@
             const { geometry, rotation } = extractGeometryData();
             if (!profile || !geometry) return;
             
+            console.log('🔄 Zeichne Platten-Layout mit Rotation:', rotation, '°');
+            
             const deckbreite = profile.deckbreite / 1000;
             const scale = 30;
             const centerX = roofCanvas.width / 2;
@@ -954,7 +977,10 @@
             
             roofCtx.save();
             roofCtx.translate(centerX, centerY);
-            roofCtx.rotate(rotation * Math.PI / 180);
+            
+            // WICHTIG: Rotation korrekt anwenden
+            roofCtx.rotate((rotation || 0) * Math.PI / 180);
+            console.log('🎨 Canvas rotiert um:', rotation, '° (', (rotation || 0) * Math.PI / 180, 'rad)');
             
             roofCtx.strokeStyle = '#28a745';
             roofCtx.fillStyle = 'rgba(40, 167, 69, 0.4)';
