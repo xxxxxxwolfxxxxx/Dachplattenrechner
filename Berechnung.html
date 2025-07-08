@@ -321,77 +321,101 @@
             }
         }
 
-        // === DATENEXTRAKTION ===
+        // === DATENEXTRAKTION (KOMPLETT NEU) ===
         function extractGeometryData() {
-            console.log('=== EXTRAHIERE GEOMETRIE-DATEN (KORRIGIERT FÜR DREIECK) ===');
+            console.log('=== EXTRAHIERE GEOMETRIE-DATEN (VEREINHEITLICHT) ===');
             
             projectData = loadData();
-            console.log('📋 Rohe projectData:', projectData);
+            console.log('📋 Gesamte projectData:', JSON.stringify(projectData, null, 2));
             
             let variant = 'rechteck';
             let area = 40;
             let dimensions = {};
             let rotation = 0;
+            let dataSource = 'fallback';
             
-            // PRIORITÄT 1: Schaue in geometry (da ist das korrekte Dreieck!)
-            if (projectData.geometry && projectData.geometry.variant === '3') {
-                console.log('✅ KORREKTES DREIECK in geometry gefunden!');
-                
-                variant = '3';
-                area = projectData.geometry.area || 20.33;
-                dimensions = projectData.geometry.dimensions || {sideA: 6, sideB: 7, sideC: 8};
-                rotation = projectData.geometry.rotation || 0;
-                
-                console.log('🔺 DREIECK-DATEN:', {variant, area, dimensions, rotation});
+            // NEUE STRATEGIE: Schaue in BEIDEN Quellen und wähle die beste
+            let roofShapeData = null;
+            let geometryData = null;
+            
+            // Sammle roofShape Daten
+            if (projectData.roofShape) {
+                roofShapeData = {
+                    variant: projectData.roofShape.variant || 
+                            projectData.roofShape.selectedCorners || 
+                            projectData.roofShape.selectedRoundType || 
+                            projectData.roofShape.selectedComplexType,
+                    area: projectData.roofShape.area,
+                    dimensions: projectData.roofShape.dimensions || projectData.roofShape.currentDimensions,
+                    rotation: projectData.roofShape.rotation !== undefined ? projectData.roofShape.rotation : projectData.roofShape.currentRotation,
+                    timestamp: projectData.roofShape.timestamp
+                };
+                console.log('📊 RoofShape Daten:', roofShapeData);
             }
-            // PRIORITÄT 2: Schaue in roofShape für andere Formen oder Rotation
-            else if (projectData.roofShape) {
-                console.log('✅ RoofShape gefunden!');
+            
+            // Sammle geometry Daten
+            if (projectData.geometry) {
+                geometryData = {
+                    variant: projectData.geometry.variant,
+                    area: projectData.geometry.area,
+                    dimensions: projectData.geometry.dimensions,
+                    rotation: projectData.geometry.rotation,
+                    source: projectData.geometry.source
+                };
+                console.log('🔧 Geometry Daten:', geometryData);
+            }
+            
+            // ENTSCHEIDUNGSLOGIK: Neueste und vollständigste Daten gewinnen
+            if (roofShapeData && roofShapeData.variant && roofShapeData.area && roofShapeData.dimensions) {
+                // roofShape hat vollständige Daten - verwende diese
+                variant = roofShapeData.variant;
+                area = roofShapeData.area;
+                dimensions = roofShapeData.dimensions;
+                rotation = roofShapeData.rotation || 0;
+                dataSource = 'roofShape';
+                console.log('✅ Verwende vollständige roofShape Daten');
+            }
+            else if (geometryData && geometryData.variant && geometryData.area && geometryData.dimensions) {
+                // geometry hat vollständige Daten - verwende diese
+                variant = geometryData.variant;
+                area = geometryData.area;
+                dimensions = geometryData.dimensions;
+                rotation = geometryData.rotation || 0;
+                dataSource = 'geometry';
+                console.log('✅ Verwende vollständige geometry Daten');
                 
-                variant = projectData.roofShape.variant || 
-                         projectData.roofShape.selectedCorners || 
-                         projectData.roofShape.selectedRoundType || 
-                         projectData.roofShape.selectedComplexType || 'rechteck';
-                area = projectData.roofShape.area || 40;
-                dimensions = projectData.roofShape.dimensions || 
-                            projectData.roofShape.currentDimensions || 
-                            getDefaultDimensionsForVariant(variant);
-                rotation = projectData.roofShape.rotation || 
-                          projectData.roofShape.currentRotation || 0;
-                
-                console.log('🎯 ROOFSHAPE-DATEN:', {variant, area, dimensions, rotation});
-                
-                // Wenn es ein Dreieck ist, prüfe auch geometry für bessere Daten
-                if (variant === '3' && projectData.geometry && projectData.geometry.dimensions) {
-                    console.log('🔄 Kombiniere Dreieck-Daten aus geometry');
-                    dimensions = projectData.geometry.dimensions;
-                    area = projectData.geometry.area || area;
+                // Aber hole Rotation aus roofShape wenn verfügbar und neuer
+                if (roofShapeData && roofShapeData.rotation !== undefined) {
+                    rotation = roofShapeData.rotation;
+                    console.log('🔄 Rotation aus roofShape übernommen:', rotation);
                 }
             }
-            // FALLBACK: geometry
-            else if (projectData.geometry && projectData.geometry.variant) {
-                console.log('⚠️ Fallback auf geometry');
-                
-                variant = projectData.geometry.variant;
-                area = projectData.geometry.area || 20.33;
-                dimensions = projectData.geometry.dimensions || getDefaultDimensionsForVariant(variant);
-                rotation = projectData.geometry.rotation || 0;
-                
-                console.log('🔧 GEOMETRY-DATEN:', {variant, area, dimensions, rotation});
-            }
-            // LETZTER FALLBACK
             else {
-                console.log('🔧 Verwende Standard-Fallback');
-                variant = 'rechteck';
-                area = 40;
-                dimensions = getDefaultDimensionsForVariant(variant);
-                rotation = 0;
-            }
-            
-            // Spezielle Behandlung für Dreiecke: Hole Rotation aus roofShape wenn verfügbar
-            if (variant === '3' && projectData.roofShape && projectData.roofShape.rotation !== undefined) {
-                rotation = projectData.roofShape.rotation || projectData.roofShape.currentRotation || rotation;
-                console.log('🔄 Rotation für Dreieck aus roofShape übernommen:', rotation);
+                // Fallback: Kombiniere was verfügbar ist
+                console.log('⚠️ Verwende kombinierte/Fallback Daten');
+                
+                if (roofShapeData && roofShapeData.variant) {
+                    variant = roofShapeData.variant;
+                    area = roofShapeData.area || calculateAreaFromDimensions(variant, roofShapeData.dimensions || getDefaultDimensionsForVariant(variant));
+                    dimensions = roofShapeData.dimensions || getDefaultDimensionsForVariant(variant);
+                    rotation = roofShapeData.rotation || 0;
+                    dataSource = 'roofShape-partial';
+                }
+                else if (geometryData && geometryData.variant) {
+                    variant = geometryData.variant;
+                    area = geometryData.area || calculateAreaFromDimensions(variant, geometryData.dimensions || getDefaultDimensionsForVariant(variant));
+                    dimensions = geometryData.dimensions || getDefaultDimensionsForVariant(variant);
+                    rotation = geometryData.rotation || 0;
+                    dataSource = 'geometry-partial';
+                }
+                else {
+                    // Absoluter Fallback
+                    variant = 'rechteck';
+                    area = 40;
+                    dimensions = getDefaultDimensionsForVariant(variant);
+                    rotation = 0;
+                    dataSource = 'default';
+                }
             }
             
             const geometry = {
@@ -399,11 +423,15 @@
                 area: area,
                 rotation: rotation,
                 dimensions: dimensions,
-                source: 'corrected_extraction'
+                dataSource: dataSource
             };
             
-            console.log('🎯 FINALE Geometrie mit Rotation:', geometry);
-            console.log('🔄 Rotation-Wert:', rotation, '°');
+            console.log('🎯 FINALE Geometrie-Daten:');
+            console.log('   Variant:', variant);
+            console.log('   Area:', area, 'm²');
+            console.log('   Rotation:', rotation, '°');
+            console.log('   Dimensions:', dimensions);
+            console.log('   Quelle:', dataSource);
             
             return { variant, area, rotation, geometry, points: null };
         }
@@ -729,53 +757,126 @@
 
         // === CANVAS ZEICHENFUNKTIONEN ===
         function drawFromDimensions(variant, dims, centerX, centerY, scale, rotation = 0) {
-            console.log('🎨 Zeichne Form mit Rotation:', rotation, '°');
+            console.log('🎨 Zeichne Form:', variant, 'mit Rotation:', rotation, '°');
+            console.log('📐 Dimensionen:', dims);
             
             roofCtx.save();
             roofCtx.translate(centerX, centerY);
             
             // WICHTIG: Rotation korrekt anwenden
             roofCtx.rotate((rotation || 0) * Math.PI / 180);
-            console.log('🔄 Form rotiert um:', rotation, '° (', (rotation || 0) * Math.PI / 180, 'rad)');
             
             switch (variant) {
                 case '3':
+                    console.log('🔺 Zeichne Dreieck');
                     drawTriangleFromDimensions(0, 0, dims, scale);
                     break;
                 case '4':
+                    console.log('🔲 Zeichne Viereck');
                     drawQuadrilateral(0, 0, dims, scale);
                     break;
                 case 'trapez':
+                    console.log('🔶 Zeichne Trapez');
                     drawTrapezoid(0, 0, dims.bottomBase || 8, dims.topBase || 6, dims.height || 4, scale);
                     break;
                 case 'rechtwinklig':
+                    console.log('📐 Zeichne rechtwinkliges Dreieck');
                     drawRightTriangle(0, 0, dims.katheteA || 4, dims.katheteB || 5, scale);
                     break;
                 case 'circle':
+                    console.log('⭕ Zeichne Kreis');
                     drawCircle(0, 0, dims.radius || 4, scale);
                     break;
                 case 'oval':
+                    console.log('🥚 Zeichne Oval');
                     drawOval(0, 0, dims.radiusX || 6, dims.radiusY || 4, scale);
                     break;
+                case 'halbkreis':
+                    console.log('🌗 Zeichne Halbkreis');
+                    drawHalfCircle(0, 0, dims.radius || 4, scale);
+                    break;
+                case 'viertelkreis':
+                    console.log('◐ Zeichne Viertelkreis');
+                    drawQuarterCircle(0, 0, dims.radius || 4, scale);
+                    break;
+                case 'langloch':
+                    console.log('🏟️ Zeichne Langloch');
+                    drawLangloch(0, 0, dims.length || 10, dims.width || 4, scale);
+                    break;
                 case 'lform':
+                    console.log('📐 Zeichne L-Form');
                     drawLForm(0, 0, dims, scale);
                     break;
                 case '5':
+                    console.log('⬟ Zeichne Fünfeck');
                     drawRegularPolygon(0, 0, 5, dims.sideLength || 6, scale);
                     break;
                 case '6':
+                    console.log('⬡ Zeichne Sechseck');
                     drawRegularPolygon(0, 0, 6, dims.sideLength || 6, scale);
                     break;
                 case '8':
+                    console.log('⯃ Zeichne Achteck');
                     drawRegularPolygon(0, 0, 8, dims.sideLength || 6, scale);
                     break;
                 case 'rechteck':
                 default:
+                    console.log('▭ Zeichne Rechteck');
                     drawRectangleCanvas(0, 0, dims.bottomWidth || dims.length || 8, dims.leftSide || dims.width || 5, scale);
                     break;
             }
             
             roofCtx.restore();
+        }
+
+        // === NEUE ZEICHENFUNKTIONEN FÜR FEHLENDE FORMEN ===
+        function drawHalfCircle(x, y, radius, scale) {
+            const r = radius * scale;
+            
+            roofCtx.beginPath();
+            roofCtx.arc(x, y, r, 0, Math.PI);
+            roofCtx.closePath();
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+        }
+
+        function drawQuarterCircle(x, y, radius, scale) {
+            const r = radius * scale;
+            
+            roofCtx.beginPath();
+            roofCtx.moveTo(x, y);
+            roofCtx.arc(x, y, r, 0, Math.PI/2);
+            roofCtx.closePath();
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+        }
+
+        function drawLangloch(x, y, length, width, scale) {
+            const l = length * scale;
+            const w = width * scale;
+            const r = w / 2;
+            
+            roofCtx.beginPath();
+            // Rechteck in der Mitte
+            roofCtx.rect(x - l/2 + r, y - w/2, l - 2*r, w);
+            // Linker Halbkreis
+            roofCtx.arc(x - l/2 + r, y, r, Math.PI/2, 3*Math.PI/2);
+            // Rechter Halbkreis
+            roofCtx.arc(x + l/2 - r, y, r, -Math.PI/2, Math.PI/2);
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
         }
 
         function drawTriangleFromDimensions(x, y, dims, scale) {
