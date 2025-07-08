@@ -323,7 +323,7 @@
 
         // === DATENEXTRAKTION ===
         function extractGeometryData() {
-            console.log('=== EXTRAHIERE GEOMETRIE-DATEN ===');
+            console.log('=== EXTRAHIERE GEOMETRIE-DATEN (KORRIGIERT FÜR DREIECK) ===');
             
             projectData = loadData();
             console.log('📋 Rohe projectData:', projectData);
@@ -333,8 +333,19 @@
             let dimensions = {};
             let rotation = 0;
             
-            // PRIORITÄT 1: Schaue in roofShape (neueste Daten aus Dachform-Editor)
-            if (projectData.roofShape) {
+            // PRIORITÄT 1: Schaue in geometry (da ist das korrekte Dreieck!)
+            if (projectData.geometry && projectData.geometry.variant === '3') {
+                console.log('✅ KORREKTES DREIECK in geometry gefunden!');
+                
+                variant = '3';
+                area = projectData.geometry.area || 20.33;
+                dimensions = projectData.geometry.dimensions || {sideA: 6, sideB: 7, sideC: 8};
+                rotation = projectData.geometry.rotation || 0;
+                
+                console.log('🔺 DREIECK-DATEN:', {variant, area, dimensions, rotation});
+            }
+            // PRIORITÄT 2: Schaue in roofShape für andere Formen oder Rotation
+            else if (projectData.roofShape) {
                 console.log('✅ RoofShape gefunden!');
                 
                 variant = projectData.roofShape.variant || 
@@ -349,6 +360,13 @@
                           projectData.roofShape.currentRotation || 0;
                 
                 console.log('🎯 ROOFSHAPE-DATEN:', {variant, area, dimensions, rotation});
+                
+                // Wenn es ein Dreieck ist, prüfe auch geometry für bessere Daten
+                if (variant === '3' && projectData.geometry && projectData.geometry.dimensions) {
+                    console.log('🔄 Kombiniere Dreieck-Daten aus geometry');
+                    dimensions = projectData.geometry.dimensions;
+                    area = projectData.geometry.area || area;
+                }
             }
             // FALLBACK: geometry
             else if (projectData.geometry && projectData.geometry.variant) {
@@ -368,6 +386,12 @@
                 area = 40;
                 dimensions = getDefaultDimensionsForVariant(variant);
                 rotation = 0;
+            }
+            
+            // Spezielle Behandlung für Dreiecke: Hole Rotation aus roofShape wenn verfügbar
+            if (variant === '3' && projectData.roofShape && projectData.roofShape.rotation !== undefined) {
+                rotation = projectData.roofShape.rotation || projectData.roofShape.currentRotation || rotation;
+                console.log('🔄 Rotation für Dreieck aus roofShape übernommen:', rotation);
             }
             
             const geometry = {
