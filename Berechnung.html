@@ -379,7 +379,7 @@
             }
         }
 
-        // KORRIGIERTE Datenvalidierung - behält ALLE Eigenschaften der gespeicherten Form
+        // KORRIGIERTE Datenvalidierung - berücksichtigt ALLE möglichen Datenquellen
         function extractGeometryData() {
             console.log('=== EXTRAHIERE ECHTE FORM-DATEN ===');
             console.log('ProjectData:', projectData);
@@ -389,23 +389,40 @@
             let variant = 'rechteck';
             let rotation = 0;
             let points = null;
+            let dimensions = null;
             
             // 1. Prüfe roofShape (von Dachform.html) - BEVORZUGT da es die echte Form ist
             if (projectData.roofShape) {
                 console.log('✅ roofShape gefunden:', projectData.roofShape);
                 
                 const roofShape = projectData.roofShape;
-                variant = roofShape.variant || roofShape.selectedRoundType || roofShape.selectedComplexType || 'rechteck';
-                area = roofShape.area || 20.33; // Fallback auf Beispielwert
-                rotation = roofShape.rotation || 0;
+                
+                // ERWEITERTE Variant-Erkennung - berücksichtigt alle möglichen Quellen
+                variant = roofShape.variant || 
+                         roofShape.selectedRoundType || 
+                         roofShape.selectedComplexType || 
+                         roofShape.selectedCorners ||
+                         roofShape.baseShape ||
+                         'rechteck';
+                
+                // Spezial-Behandlung für Corner-basierte Formen
+                if (roofShape.selectedCorners) {
+                    variant = roofShape.selectedCorners;
+                    console.log('🔺 Corner-basierte Form erkannt:', variant);
+                }
+                
+                // Daten extrahieren
+                area = roofShape.area || calculateAreaFromRoofShape(roofShape) || 20.33;
+                rotation = roofShape.rotation || roofShape.currentRotation || 0;
                 points = roofShape.points || null;
+                dimensions = roofShape.dimensions || roofShape.currentDimensions || null;
                 
                 geometry = {
                     variant: variant,
                     area: area,
                     rotation: rotation,
                     points: points,
-                    dimensions: roofShape.dimensions || roofShape.currentDimensions || getDefaultDimensionsForVariant(variant),
+                    dimensions: dimensions || getDefaultDimensionsForVariant(variant),
                     source: 'roofShape'
                 };
                 
@@ -447,11 +464,86 @@
             return { variant, area, rotation, geometry, points };
         }
 
+        // Hilfsfunktion: Berechne Fläche aus roofShape-Daten
+        function calculateAreaFromRoofShape(roofShape) {
+            // Versuche Fläche aus verschiedenen Quellen zu berechnen
+            if (roofShape.area && roofShape.area > 0) {
+                return roofShape.area;
+            }
+            
+            // Aus Dimensionen berechnen
+            const dims = roofShape.dimensions || roofShape.currentDimensions;
+            if (dims) {
+                const variant = roofShape.variant || roofShape.selectedCorners || roofShape.selectedRoundType;
+                return calculateAreaFromDimensions(variant, dims);
+            }
+            
+            // Aus Punkten berechnen (Shoelace-Formel)
+            if (roofShape.points && roofShape.points.length >= 3) {
+                return calculateAreaFromPoints(roofShape.points);
+            }
+            
+            return null;
+        }
+
+        // Fläche aus Dimensionen berechnen
+        function calculateAreaFromDimensions(variant, dims) {
+            switch (variant) {
+                case '3':
+                case 'dreieck':
+                    if (dims.sideA && dims.sideB && dims.sideC) {
+                        // Heron'sche Formel
+                        const s = (dims.sideA + dims.sideB + dims.sideC) / 2;
+                        return Math.sqrt(s * (s - dims.sideA) * (s - dims.sideB) * (s - dims.sideC));
+                    }
+                    break;
+                case '4':
+                case 'viereck':
+                    if (dims.bottomWidth && dims.topWidth && dims.leftSide) {
+                        // Trapez-Fläche
+                        const avgHeight = dims.leftSide;
+                        return (dims.bottomWidth + dims.topWidth) * avgHeight / 2;
+                    }
+                    break;
+                case 'rechteck':
+                    if (dims.length && dims.width) {
+                        return dims.length * dims.width;
+                    }
+                    break;
+                case 'kreis':
+                case 'circle':
+                    if (dims.radius) {
+                        return Math.PI * dims.radius * dims.radius;
+                    }
+                    break;
+                case 'trapez':
+                    if (dims.bottomBase && dims.topBase && dims.height) {
+                        return (dims.bottomBase + dims.topBase) * dims.height / 2;
+                    }
+                    break;
+            }
+            return null;
+        }
+
+        // Fläche aus Punkten berechnen (Shoelace-Formel)
+        function calculateAreaFromPoints(points) {
+            if (!points || points.length < 3) return 0;
+            
+            let area = 0;
+            for (let i = 0; i < points.length; i++) {
+                const j = (i + 1) % points.length;
+                area += points[i].x * points[j].y;
+                area -= points[j].x * points[i].y;
+            }
+            return Math.abs(area) / 2;
+        }
+
         function getDefaultDimensionsForVariant(variant) {
             switch (variant) {
                 case 'trapez':
                     return { bottomBase: 8, topBase: 6, height: 4 };
                 case 'rechteck':
+                case 'quadrat':
                     return { length: 8, width: 5 };
                 case 'rechtwinklig':
                     return { katheteA: 4, katheteB: 5 };
@@ -466,7 +558,14 @@
                 case '3':
                     return { sideA: 8, sideB: 6, sideC: 7 };
                 case '4':
+                case 'viereck':
                     return { bottomWidth: 10, topWidth: 8, leftSide: 6, rightSide: 6 };
+                case '5':
+                    return { sideLength: 6 };
+                case '6':
+                    return { sideLength: 6 };
+                case '8':
+                    return { sideLength: 6 };
                 default:
                     return { length: 8, width: 5 };
             }
@@ -495,7 +594,7 @@
                 'rechtwinklig': 'Rechtwinkliges Dreieck',
                 'trapez': 'Trapez',
                 'rechteck': 'Rechteck',
-                'quadrat': 'Quadrat',
+                'quadrat': 'Rechteck/Quadrat',
                 'kreis': 'Kreis',
                 'circle': 'Kreis',
                 'oval': 'Oval',
@@ -638,6 +737,7 @@
                     drawTriangleFromDimensions(0, 0, dims, scale);
                     break;
                 case '4':
+                case 'viereck':
                     drawQuadrilateral(0, 0, dims, scale);
                     break;
                 case 'trapez':
@@ -656,6 +756,17 @@
                 case 'lform':
                     drawLFormSimple(0, 0, dims, scale);
                     break;
+                case '5':
+                    drawRegularPolygon(0, 0, 5, dims.sideLength || 6, scale);
+                    break;
+                case '6':
+                    drawRegularPolygon(0, 0, 6, dims.sideLength || 6, scale);
+                    break;
+                case '8':
+                    drawRegularPolygon(0, 0, 8, dims.sideLength || 6, scale);
+                    break;
+                case 'rechteck':
+                case 'quadrat':
                 default:
                     drawRectangleSimple(0, 0, dims.length || 8, dims.width || 5, scale);
                     break;
@@ -804,6 +915,30 @@
             roofCtx.lineTo(x - tw/2 + cw, y - th/2 + ch);
             roofCtx.lineTo(x - tw/2 + cw, y + th/2);
             roofCtx.lineTo(x - tw/2, y + th/2);
+            roofCtx.closePath();
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+        }
+
+        function drawRegularPolygon(x, y, sides, sideLength, scale) {
+            const radius = (sideLength / (2 * Math.sin(Math.PI / sides))) * scale;
+            
+            roofCtx.beginPath();
+            for (let i = 0; i < sides; i++) {
+                const angle = (i * 2 * Math.PI / sides) - Math.PI/2;
+                const px = x + radius * Math.cos(angle);
+                const py = y + radius * Math.sin(angle);
+                
+                if (i === 0) {
+                    roofCtx.moveTo(px, py);
+                } else {
+                    roofCtx.lineTo(px, py);
+                }
+            }
             roofCtx.closePath();
             
             roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
