@@ -653,12 +653,72 @@
             console.log('Canvas setup abgeschlossen');
         }
 
-        // KORRIGIERTE Visualisierung - verwendet ECHTE Daten aus roofShape
+       // KORRIGIERTE Visualisierung - verwendet ECHTE Daten aus roofShape
         function visualizeRoof() {
             if (!roofCtx || !roofCanvas) {
                 console.error('Canvas nicht initialisiert');
                 return;
             }
+            
+            // === NEU: Prüfe erst ob gespeichertes SVG vorhanden ===
+            const projectData = loadData();
+            
+            if (projectData.roofShape && projectData.roofShape.svgHTML) {
+                console.log('🎨 Verwende gespeichertes SVG aus Dachform-Editor');
+                
+                try {
+                    // Canvas-Container finden
+                    const canvasContainer = roofCanvas.parentElement;
+                    
+                    // Neues SVG-Element erstellen
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = projectData.roofShape.svgHTML;
+                    const savedSVG = tempDiv.firstElementChild;
+                    
+                    if (savedSVG && savedSVG.tagName === 'svg') {
+                        // Canvas ausblenden und SVG einfügen
+                        roofCanvas.style.display = 'none';
+                        
+                        // Prüfe ob schon ein eingefügtes SVG existiert
+                        const existingSVG = canvasContainer.querySelector('.transferred-svg');
+                        if (existingSVG) {
+                            existingSVG.remove();
+                        }
+                        
+                        // SVG für Berechnung-Seite anpassen
+                        savedSVG.classList.add('transferred-svg');
+                        savedSVG.style.width = '100%';
+                        savedSVG.style.height = '400px';
+                        savedSVG.style.border = '2px solid #e9ecef';
+                        savedSVG.style.borderRadius = '8px';
+                        savedSVG.style.background = 'white';
+                        
+                        // SVG neben Canvas einfügen
+                        canvasContainer.appendChild(savedSVG);
+                        
+                        console.log('✅ SVG erfolgreich angezeigt');
+                        
+                        // Platten-Layout hinzufügen
+                        if (calculationResults.bahnenAnzahl) {
+                            addPlateOverlayToSVG(savedSVG);
+                        }
+                        
+                        return; // Fertig!
+                        
+                    } else {
+                        console.log('⚠️ Gespeichertes SVG ungültig, verwende Fallback');
+                    }
+                    
+                } catch (svgError) {
+                    console.log('⚠️ SVG-Anzeige fehlgeschlagen, verwende Fallback:', svgError);
+                }
+            }
+            
+            // === FALLBACK: Ursprüngliche Visualisierung (UNVERÄNDERT) ===
+            console.log('🎨 Verwende ursprüngliche Canvas-Visualisierung');
+            
+            // Canvas wieder anzeigen
+            roofCanvas.style.display = 'block';
             
             // Canvas löschen
             roofCtx.clearRect(0, 0, roofCanvas.width, roofCanvas.height);
