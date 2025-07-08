@@ -1173,8 +1173,7 @@
         }
 
         function continueToCalculation() {
-           mainData.roofShape = { 
-    variant: selectedCorners || selectedRoundType || selectedComplexType,  // RICHTIG
+            if (!selectedCorners && !selectedRoundType && !selectedComplexType) {
                 alert('Bitte wählen Sie zuerst eine Form aus!'); 
                 return; 
             }
@@ -1189,10 +1188,25 @@
                 } catch(e) {}
                 
                 mainData.roofShape = { 
-    variant: selectedCorners || selectedRoundType || selectedComplexType,
+                    variant: selectedCorners || selectedRoundType || selectedComplexType,
                     dimensions: currentDimensions, 
-                    area: parseFloat(areaText.replace(' m²', '')) 
+                    area: parseFloat(areaText.replace(' m²', '')),
+                    rotation: currentRotation
                 };
+                
+                // === NEU: SVG mitnehmen (SICHER mit Fallback) ===
+                try {
+                    const svgElement = document.getElementById('preview-svg');
+                    if (svgElement) {
+                        mainData.roofShape.svgHTML = svgElement.outerHTML;
+                        console.log('✅ SVG erfolgreich gespeichert');
+                    } else {
+                        console.log('⚠️ Kein SVG gefunden, nur Basis-Daten gespeichert');
+                    }
+                } catch (svgError) {
+                    console.log('⚠️ SVG-Speicherung fehlgeschlagen, trotzdem weiter:', svgError);
+                    // Kein Problem - wir haben ja die Basis-Daten
+                }
                 
                 localStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
             } catch (e) {
@@ -1202,7 +1216,7 @@
                     if (existing) mainData = JSON.parse(existing);
                     
                     mainData.geometry = { 
-                  variant: selectedCorners || selectedRoundType || selectedComplexType,
+                        variant: selectedCorners || selectedRoundType || selectedComplexType,
                         dimensions: currentDimensions, 
                         area: parseFloat(areaText.replace(' m²', '')) 
                     };
@@ -1214,7 +1228,6 @@
                 }
             }
             
-            const formType = selectedRoundType ? 'runde Form' : selectedComplexType ? 'Sonderform' : 'Standard-Form';
             // Direkte Weiterleitung ohne Pop-up
             window.location.href = 'berechnung.html';
         }
