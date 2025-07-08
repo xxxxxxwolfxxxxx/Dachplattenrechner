@@ -1348,5 +1348,266 @@
             console.log('extractedGeometry:', extractGeometryData());
         };
     </script>
-</body>
+    <!-- Füge diesen Code in Berechnung.html ein, um die bereits gespeicherten Daten zu lesen -->
+
+<script>
+// === LESE BESTEHENDE DATEN AUS ===
+function readExistingData() {
+    console.log('=== LESE ALLE VERFÜGBAREN DATEN ===');
+    
+    let allData = {};
+    
+    // Alle Storage-Quellen durchsuchen
+    try {
+        const localStorage_data = localStorage.getItem('dachplattenrechner_data');
+        if (localStorage_data) {
+            allData.localStorage = JSON.parse(localStorage_data);
+            console.log('📦 localStorage gefunden:', allData.localStorage);
+        }
+    } catch (e) {}
+    
+    try {
+        const sessionStorage_data = sessionStorage.getItem('dachplattenrechner_data');
+        if (sessionStorage_data) {
+            allData.sessionStorage = JSON.parse(sessionStorage_data);
+            console.log('📦 sessionStorage gefunden:', allData.sessionStorage);
+        }
+    } catch (e) {}
+    
+    // Wähle die beste Datenquelle
+    const projectData = allData.localStorage || allData.sessionStorage || {};
+    console.log('🎯 Finale projectData:', projectData);
+    
+    return projectData;
+}
+
+// === ERWEITERTE DATENEXTRAKTION ===
+function extractRoofData(projectData) {
+    console.log('=== EXTRAHIERE DACH-DATEN ===');
+    
+    let roofData = {
+        type: 'rechteck',
+        area: 40,
+        dimensions: {},
+        found: false
+    };
+    
+    // 1. Prüfe roofShape
+    if (projectData.roofShape) {
+        console.log('✅ roofShape gefunden:', projectData.roofShape);
+        
+        roofData.type = projectData.roofShape.variant || 
+                       projectData.roofShape.selectedCorners || 
+                       projectData.roofShape.selectedRoundType || 
+                       projectData.roofShape.selectedComplexType;
+        roofData.area = projectData.roofShape.area || 0;
+        roofData.dimensions = projectData.roofShape.dimensions || 
+                             projectData.roofShape.currentDimensions || {};
+        roofData.rotation = projectData.roofShape.rotation || 
+                           projectData.roofShape.currentRotation || 0;
+        roofData.found = true;
+    }
+    
+    // 2. Prüfe geometry (Fallback)
+    else if (projectData.geometry) {
+        console.log('⚠️ Fallback auf geometry:', projectData.geometry);
+        roofData.type = projectData.geometry.variant;
+        roofData.area = projectData.geometry.area || 0;
+        roofData.dimensions = projectData.geometry.dimensions || {};
+        roofData.rotation = projectData.geometry.rotation || 0;
+        roofData.found = true;
+    }
+    
+    console.log('🏠 Extrahierte Dach-Daten:', roofData);
+    return roofData;
+}
+
+// === DACH-VISUALISIERUNG ===
+function visualizeRoofFromData(roofData) {
+    console.log('🎨 VISUALISIERE DACH:', roofData);
+    
+    const canvas = document.getElementById('roof-canvas');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Hintergrund
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const scale = 30;
+    
+    // Dach zeichnen basierend auf Typ
+    ctx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+    ctx.strokeStyle = '#007bff';
+    ctx.lineWidth = 3;
+    
+    if (roofData.type === '3') {
+        // DREIECK
+        const dims = roofData.dimensions;
+        if (dims.sideA && dims.sideB && dims.sideC) {
+            console.log(`🔺 Zeichne Dreieck: ${dims.sideA}m, ${dims.sideB}m, ${dims.sideC}m`);
+            
+            // Vereinfachte Dreieck-Darstellung
+            const avgSide = (dims.sideA + dims.sideB + dims.sideC) / 3;
+            const triangleSize = avgSide * scale;
+            const height = triangleSize * 0.866; // Höhe gleichseitiges Dreieck
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - height/2);
+            ctx.lineTo(centerX - triangleSize/2, centerY + height/2);
+            ctx.lineTo(centerX + triangleSize/2, centerY + height/2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // Beschriftung
+            ctx.fillStyle = '#000';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Dreieck: ${dims.sideA}m, ${dims.sideB}m, ${dims.sideC}m`, centerX, centerY + height/2 + 30);
+            ctx.fillText(`Fläche: ${roofData.area.toFixed(2)} m²`, centerX, centerY + height/2 + 50);
+        }
+    }
+    else if (roofData.type === '4') {
+        // VIERECK
+        const dims = roofData.dimensions;
+        const width = (dims.bottomWidth || dims.width || 8) * scale;
+        const height = (dims.leftSide || dims.height || 5) * scale;
+        
+        ctx.fillRect(centerX - width/2, centerY - height/2, width, height);
+        ctx.strokeRect(centerX - width/2, centerY - height/2, width, height);
+    }
+    else {
+        // STANDARD RECHTECK
+        const width = 8 * scale;
+        const height = 5 * scale;
+        
+        ctx.fillRect(centerX - width/2, centerY - height/2, width, height);
+        ctx.strokeRect(centerX - width/2, centerY - height/2, width, height);
+    }
+}
+
+// === BERECHNUNG MIT ECHTEN DATEN ===
+function calculateWithRealData(roofData, profileData) {
+    console.log('🧮 BERECHNE MIT ECHTEN DATEN');
+    
+    if (!profileData) {
+        console.log('❌ Keine Profil-Daten');
+        return;
+    }
+    
+    const deckbreite = profileData.deckbreite / 1000; // in Meter
+    let bahnen = 1;
+    let plattenlaenge = 5;
+    
+    if (roofData.type === '3' && roofData.dimensions.sideA) {
+        // DREIECK-BERECHNUNG
+        const dims = roofData.dimensions;
+        const basis = Math.max(dims.sideA, dims.sideB, dims.sideC);
+        bahnen = Math.ceil(basis / deckbreite);
+        plattenlaenge = (2 * roofData.area) / basis;
+        
+        console.log(`🔺 Dreieck berechnet: Basis=${basis}m, Höhe=${plattenlaenge.toFixed(2)}m, Bahnen=${bahnen}`);
+    }
+    else if (roofData.type === '4' && roofData.dimensions.bottomWidth) {
+        // VIERECK-BERECHNUNG  
+        const dims = roofData.dimensions;
+        const breite = dims.bottomWidth || dims.width || 8;
+        bahnen = Math.ceil(breite / deckbreite);
+        plattenlaenge = dims.leftSide || dims.height || 5;
+        
+        console.log(`◼️ Viereck berechnet: Breite=${breite}m, Länge=${plattenlaenge}m, Bahnen=${bahnen}`);
+    }
+    
+    // Ergebnisse anzeigen
+    document.getElementById('total-rows').textContent = bahnen;
+    document.getElementById('plate-length').textContent = plattenlaenge.toFixed(1) + ' m';
+    document.getElementById('total-length').textContent = (bahnen * plattenlaenge).toFixed(1) + ' m';
+    document.getElementById('total-waste').textContent = '10.0 %';
+    
+    // Bestellliste
+    const tbody = document.getElementById('order-tbody');
+    if (tbody) {
+        tbody.innerHTML = '';
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td>${Math.round(plattenlaenge * 1000)}</td>
+            <td>${bahnen}</td>
+            <td>${(plattenlaenge * bahnen).toFixed(1)}</td>
+            <td>Hauptbahnen</td>
+        `;
+    }
+    
+    // Ergebnisse-Sektion anzeigen
+    document.getElementById('results-section').style.display = 'block';
+    document.getElementById('continue-btn').disabled = false;
+    
+    return { bahnen, plattenlaenge };
+}
+
+// === HAUPTFUNKTION ===
+function loadAndDisplayRoof() {
+    console.log('🚀 LADE UND ZEIGE DACH');
+    
+    // Schritt 1: Alle Daten lesen
+    const projectData = readExistingData();
+    
+    // Schritt 2: Dach-Daten extrahieren
+    const roofData = extractRoofData(projectData);
+    
+    // Schritt 3: Info anzeigen
+    const typeNames = {
+        '3': 'Dreieck',
+        '4': 'Viereck',
+        'rechteck': 'Rechteck',
+        'circle': 'Kreis'
+    };
+    
+    document.getElementById('info-roof-type').textContent = typeNames[roofData.type] || roofData.type;
+    document.getElementById('info-area').textContent = roofData.area.toFixed(2) + ' m²';
+    document.getElementById('info-rotation').textContent = (roofData.rotation || 0) + '°';
+    
+    // Dimensionen-Text
+    let dimText = '';
+    if (roofData.type === '3' && roofData.dimensions.sideA) {
+        dimText = `Seiten: ${roofData.dimensions.sideA}m, ${roofData.dimensions.sideB}m, ${roofData.dimensions.sideC}m`;
+    }
+    document.getElementById('info-dimensions').textContent = dimText || '-';
+    
+    // Schritt 4: Visualisierung
+    visualizeRoofFromData(roofData);
+    
+    // Schritt 5: Berechnung
+    const results = calculateWithRealData(roofData, projectData.profile);
+    
+    console.log('✅ ALLES GELADEN UND ANGEZEIGT');
+    return roofData;
+}
+
+// BEIM LADEN DER SEITE AUSFÜHREN
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        loadAndDisplayRoof();
+    }, 100);
+});
+
+// DEBUG-FUNKTIONEN
+window.debugRoof = () => {
+    const data = readExistingData();
+    console.log('=== DEBUG INFO ===');
+    console.log('Alle Daten:', data);
+    console.log('RoofShape:', data.roofShape);
+    console.log('Geometry:', data.geometry);
+};
+
+window.reloadRoof = () => {
+    loadAndDisplayRoof();
+};
+</script>
+
+<!-- Hinweis: Diesen Code einfach am Ende von Berechnung.html einfügen! --></body>
 </html>
