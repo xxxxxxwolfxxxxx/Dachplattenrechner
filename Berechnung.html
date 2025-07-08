@@ -321,12 +321,12 @@
             }
         }
 
-        // === KORRIGIERTE DATENEXTRAKTION MIT ROTATION-FIX ===
+        // === SUPER-AGGRESSIVE ROTATION-EXTRAKTION ===
         function extractGeometryData() {
-            console.log('=== EXTRAHIERE GEOMETRIE-DATEN (ROTATION-FIX) ===');
+            console.log('=== SUPER-AGGRESSIVE ROTATION-EXTRAKTION ===');
             
             projectData = loadData();
-            console.log('🔍 Vollständige projektData:', projectData);
+            console.log('🔍 VOLLSTÄNDIGE projectData:', JSON.stringify(projectData, null, 2));
             
             let variant = 'rechteck';
             let area = 40;
@@ -334,21 +334,59 @@
             let rotation = 0;
             let dataSource = 'fallback';
             
-            // PRIORITÄT 1: roofShape Daten (neuestes Format)
+            // SUPER-AGGRESSIVE ROTATION-SUCHE - Durchsuche ALLE Ebenen
+            const rotationSources = [
+                // Top-Level
+                projectData.rotation,
+                projectData.currentRotation,
+                
+                // roofShape Ebene
+                projectData.roofShape?.rotation,
+                projectData.roofShape?.currentRotation,
+                projectData.roofShape?.rotationDegrees,
+                projectData.roofShape?.rotationValue,
+                
+                // geometry Ebene
+                projectData.geometry?.rotation,
+                projectData.geometry?.currentRotation,
+                projectData.geometry?.rotationDegrees,
+                projectData.geometry?.rotationValue,
+                
+                // rotationData Ebene
+                projectData.rotationData?.rotation,
+                projectData.rotationData?.degrees,
+                projectData.rotationData?.value,
+                
+                // Weitere mögliche Ebenen
+                projectData.form?.rotation,
+                projectData.shape?.rotation,
+                projectData.dach?.rotation
+            ];
+            
+            console.log('🔍 ALLE ROTATION-QUELLEN:', rotationSources);
+            
+            // Finde die erste gültige Rotation (nicht 0, null oder undefined)
+            for (let i = 0; i < rotationSources.length; i++) {
+                const rotValue = rotationSources[i];
+                if (typeof rotValue === 'number' && !isNaN(rotValue)) {
+                    rotation = rotValue;
+                    console.log(`✅ ROTATION GEFUNDEN bei Index ${i}:`, rotation, '°');
+                    break;
+                }
+            }
+            
+            // Fallback: Durchsuche recursiv ALLE Objekt-Eigenschaften
+            if (rotation === 0) {
+                console.log('⚠️ Keine Rotation gefunden, starte recursive Suche...');
+                rotation = findRotationRecursive(projectData);
+                if (rotation !== 0) {
+                    console.log('🎯 RECURSIVE ROTATION GEFUNDEN:', rotation, '°');
+                }
+            }
+            
+            // PRIORITÄT 1: roofShape Daten
             if (projectData.roofShape) {
                 console.log('📊 Analysiere roofShape:', projectData.roofShape);
-                
-                // Rotation extrahieren - alle möglichen Felder prüfen
-                if (typeof projectData.roofShape.rotation === 'number') {
-                    rotation = projectData.roofShape.rotation;
-                    console.log('✅ roofShape.rotation gefunden:', rotation);
-                } else if (typeof projectData.roofShape.currentRotation === 'number') {
-                    rotation = projectData.roofShape.currentRotation;
-                    console.log('✅ roofShape.currentRotation gefunden:', rotation);
-                } else if (typeof projectData.roofShape.rotationDegrees === 'number') {
-                    rotation = projectData.roofShape.rotationDegrees;
-                    console.log('✅ roofShape.rotationDegrees gefunden:', rotation);
-                }
                 
                 if (projectData.roofShape.variant && projectData.roofShape.area) {
                     variant = projectData.roofShape.variant;
@@ -363,14 +401,6 @@
             if (dataSource === 'fallback' && projectData.geometry) {
                 console.log('🔧 Analysiere geometry als Fallback:', projectData.geometry);
                 
-                if (typeof projectData.geometry.rotation === 'number') {
-                    rotation = projectData.geometry.rotation;
-                    console.log('✅ geometry.rotation gefunden:', rotation);
-                } else if (typeof projectData.geometry.rotationDegrees === 'number') {
-                    rotation = projectData.geometry.rotationDegrees;
-                    console.log('✅ geometry.rotationDegrees gefunden:', rotation);
-                }
-                
                 if (projectData.geometry.variant && projectData.geometry.area) {
                     variant = projectData.geometry.variant;
                     area = projectData.geometry.area;
@@ -378,12 +408,6 @@
                     dataSource = 'geometry';
                     console.log('✅ Verwende geometry-Daten');
                 }
-            }
-            
-            // PRIORITÄT 3: Separate rotationData
-            if (projectData.rotationData && typeof projectData.rotationData.rotation === 'number') {
-                rotation = projectData.rotationData.rotation;
-                console.log('✅ rotationData.rotation gefunden:', rotation);
             }
             
             // Fallback-Dimensionen wenn nötig
@@ -408,6 +432,34 @@
             console.log('   Quelle:', dataSource);
             
             return { variant, area, rotation, geometry, points: null };
+        }
+
+        // Recursive Funktion um Rotation in verschachtelten Objekten zu finden
+        function findRotationRecursive(obj, path = '', maxDepth = 5) {
+            if (maxDepth <= 0) return 0;
+            
+            for (const key in obj) {
+                const currentPath = path ? `${path}.${key}` : key;
+                
+                // Prüfe ob der Schlüssel "rotation" enthält
+                if (key.toLowerCase().includes('rotation') || key.toLowerCase().includes('rotate')) {
+                    const value = obj[key];
+                    if (typeof value === 'number' && !isNaN(value) && value !== 0) {
+                        console.log(`🎯 Rotation gefunden bei ${currentPath}:`, value);
+                        return value;
+                    }
+                }
+                
+                // Recursive in Unterobjekte
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    const foundRotation = findRotationRecursive(obj[key], currentPath, maxDepth - 1);
+                    if (foundRotation !== 0) {
+                        return foundRotation;
+                    }
+                }
+            }
+            
+            return 0;
         }
 
         function getDefaultDimensionsForVariant(variant) {
