@@ -321,95 +321,60 @@
             }
         }
 
-        // === VERBESSERTE DATEN-EXTRAKTION ===
-        function extractGeometryData() {
-            console.log('=== EXTRAHIERE GEOMETRIE-DATEN (KORRIGIERT) ===');
-            console.log('📋 Rohe projectData:', projectData);
-            
-            let geometry = null;
-            let area = 0;
-            let variant = 'rechteck';
-            let rotation = 0;
-            let points = null;
-            let dimensions = null;
-            
-            // 1. PRIORITÄT: roofShape (von Dachform-Editor)
-            if (projectData.roofShape) {
-                console.log('✅ roofShape gefunden:', projectData.roofShape);
-                
-                const roofShape = projectData.roofShape;
-                
-                // Variante bestimmen - KORRIGIERT für alle Fälle
-                variant = roofShape.variant || 
-                         roofShape.selectedRoundType || 
-                         roofShape.selectedComplexType || 
-                         roofShape.selectedCorners ||
-                         'rechteck';
-                
-                console.log('🔺 Extrahierte Variante:', variant);
-                
-                // Fläche extrahieren
-                area = roofShape.area || 0;
-                if (area <= 0 && roofShape.dimensions) {
-                    area = calculateAreaFromDimensions(variant, roofShape.dimensions);
-                    console.log('🧮 Berechnete Fläche aus Dimensionen:', area);
-                }
-                if (area <= 0) {
-                    area = getDefaultAreaForVariant(variant);
-                    console.log('🔧 Fallback-Fläche:', area);
-                }
-                
-                rotation = roofShape.rotation || roofShape.currentRotation || 0;
-                points = roofShape.points || null;
-                dimensions = roofShape.dimensions || roofShape.currentDimensions || getDefaultDimensionsForVariant(variant);
-                
-                geometry = {
-                    variant: variant,
-                    area: area,
-                    rotation: rotation,
-                    points: points,
-                    dimensions: dimensions,
-                    source: 'roofShape'
-                };
-                
-                console.log('✅ Erfolgreiche roofShape-Extraktion:', geometry);
-            }
-            // 2. Fallback auf projectData.geometry
-            else if (projectData.geometry) {
-                console.log('⚠️ Fallback auf geometry:', projectData.geometry);
-                geometry = projectData.geometry;
-                area = geometry.area || 20;
-                variant = geometry.variant || 'rechteck';
-                rotation = geometry.rotation || 0;
-                points = geometry.points || null;
-                dimensions = geometry.dimensions || getDefaultDimensionsForVariant(variant);
-            }
-            // 3. Absoluter Fallback
-            else {
-                console.log('⚠️ Verwende minimalen Fallback');
-                variant = '4'; // Viereck als Standard
-                area = 40; // 8m x 5m
-                rotation = 0;
-                dimensions = { bottomWidth: 8, topWidth: 8, leftSide: 5, rightSide: 5, skew: 0 };
-                geometry = {
-                    variant: variant,
-                    area: area,
-                    rotation: rotation,
-                    dimensions: dimensions,
-                    source: 'fallback'
-                };
-            }
-            
-            console.log('🎯 FINALE extrahierte Geometrie:', {
-                variant: variant,
-                area: area,
-                rotation: rotation,
-                geometry: geometry,
-                points: points
-            });
-            
-            return { variant, area, rotation, geometry, points };
-        }
+      <!-- Ersetze die extractGeometryData() Funktion in Berechnung.html mit dieser: -->
+
+<script>
+function extractGeometryData() {
+    console.log('=== EXTRAHIERE GEOMETRIE-DATEN (KORRIGIERT) ===');
+    
+    projectData = loadData();
+    console.log('📋 Rohe projectData:', projectData);
+    
+    let variant = 'rechteck';
+    let area = 40;
+    let dimensions = {};
+    let rotation = 0;
+    
+    // PRIORITÄT 1: Schaue in geometry (da ist das korrekte Dreieck!)
+    if (projectData.geometry && projectData.geometry.variant === '3') {
+        console.log('✅ KORREKTES DREIECK in geometry gefunden!');
+        
+        variant = '3';
+        area = projectData.geometry.area || 20.33;
+        dimensions = projectData.geometry.dimensions || {sideA: 6, sideB: 7, sideC: 8};
+        rotation = projectData.geometry.rotation || 0;
+        
+        console.log('🔺 DREIECK-DATEN:', {variant, area, dimensions, rotation});
+    }
+    // FALLBACK: roofShape
+    else if (projectData.roofShape) {
+        console.log('⚠️ Fallback auf roofShape');
+        variant = projectData.roofShape.variant || 'rechteck';
+        area = projectData.roofShape.area || 40;
+        dimensions = projectData.roofShape.dimensions || {};
+        rotation = projectData.roofShape.rotation || 0;
+    }
+    // LETZTER FALLBACK
+    else {
+        console.log('🔧 Verwende Standard-Fallback');
+        variant = 'rechteck';
+        area = 40;
+        dimensions = {length: 8, width: 5};
+        rotation = 0;
+    }
+    
+    const geometry = {
+        variant: variant,
+        area: area,
+        rotation: rotation,
+        dimensions: dimensions,
+        source: 'corrected_extraction'
+    };
+    
+    console.log('🎯 FINALE Geometrie:', geometry);
+    
+    return { variant, area, rotation, geometry, points: null };
+}
 
         function getDefaultDimensionsForVariant(variant) {
             switch (variant) {
@@ -1023,168 +988,89 @@
             roofCtx.restore();
         }
 
-        // === BERECHNUNG (KORRIGIERT) ===
-        function calculateLengths() {
-            console.log('=== BERECHNUNG STARTEN ===');
-            
-            const profile = projectData.profile;
-            const { variant, area, geometry } = extractGeometryData();
-            
-            if (!profile) {
-                alert('Unvollständige Projektdaten. Bitte kehren Sie zu den vorherigen Schritten zurück.');
-                return;
-            }
-            
-            console.log('✅ Berechnung für:', { variant, area, profile: profile.profilname });
-            
-            const deckbreite = profile.deckbreite / 1000;
-            const seitenueberlappung = (profile.seitenueberlappung || 50) / 1000;
-            const nutzbreite = deckbreite - seitenueberlappung;
-            
-            // Anzahl Bahnen und Plattenlänge berechnen
-            let bahnenAnzahl;
-            let plattenlaenge;
-            
-            if (geometry && geometry.dimensions) {
-                const dims = geometry.dimensions;
-                
-                switch (variant) {
-                    case 'trapez':
-                        const bottomBase = dims.bottomBase || 8;
-                        const topBase = dims.topBase || 6;
-                        const averageWidth = (bottomBase + topBase) / 2;
-                        bahnenAnzahl = Math.ceil(averageWidth / deckbreite);
-                        plattenlaenge = dims.height || 4;
-                        break;
-                        
-                    case 'rechtwinklig':
-                        const katheteA = dims.katheteA || 4;
-                        const katheteB = dims.katheteB || 5;
-                        bahnenAnzahl = Math.ceil(katheteA / deckbreite);
-                        plattenlaenge = katheteB;
-                        break;
-                        
-                    case 'rechteck':
-                        const width = dims.width || dims.leftSide || 5;
-                        const length = dims.length || dims.bottomWidth || 8;
-                        bahnenAnzahl = Math.ceil(width / deckbreite);
-                        plattenlaenge = length;
-                        break;
-                        
-                    case 'circle':
-                        const diameter = (dims.radius || 4) * 2;
-                        bahnenAnzahl = Math.ceil(diameter / deckbreite);
-                        plattenlaenge = diameter;
-                        break;
-                        
-                    case 'oval':
-                        const maxDiameter = Math.max(dims.radiusX || 6, dims.radiusY || 4) * 2;
-                        bahnenAnzahl = Math.ceil(maxDiameter / deckbreite);
-                        plattenlaenge = maxDiameter;
-                        break;
-                        
-                    case 'lform':
-                        const totalWidth = dims.totalWidth || 8;
-                        const totalLength = dims.totalHeight || 10;
-                        bahnenAnzahl = Math.ceil(totalWidth / deckbreite);
-                        plattenlaenge = totalLength;
-                        break;
-                        
-                    case '3':
-                        const sideA = dims.sideA || 8;
-                        const sideB = dims.sideB || 6; 
-                        const sideC = dims.sideC || 7;
-                        const basis = Math.max(sideA, sideB, sideC);
-                        bahnenAnzahl = Math.ceil(basis / deckbreite);
-                        const dreieckHoehe = (2 * area) / basis;
-                        plattenlaenge = dreieckHoehe;
-                        break;
-                        
-                    case '4':
-                        const bottomWidth = dims.bottomWidth || 10;
-                        const topWidth = dims.topWidth || 8;
-                        const leftSide = dims.leftSide || 6;
-                        const avgWidth = (bottomWidth + topWidth) / 2;
-                        bahnenAnzahl = Math.ceil(avgWidth / deckbreite);
-                        plattenlaenge = leftSide;
-                        break;
-                        
-                    case '5':
-                    case '6':
-                    case '8':
-                        const sideLength = dims.sideLength || 6;
-                        const circumRadius = sideLength / (2 * Math.sin(Math.PI / parseInt(variant)));
-                        const polygonDiameter = circumRadius * 2;
-                        bahnenAnzahl = Math.ceil(polygonDiameter / deckbreite);
-                        plattenlaenge = polygonDiameter;
-                        break;
-                        
-                    case 'parallelogram':
-                        const pBase = dims.base || 10;
-                        const pSide = dims.side || 6;
-                        bahnenAnzahl = Math.ceil(pBase / deckbreite);
-                        plattenlaenge = pSide;
-                        break;
-                        
-                    case 'rhombus':
-                        const rSide = dims.sideLength || 8;
-                        const rAngle = (dims.angle || 60) * Math.PI / 180;
-                        const rWidth = 2 * rSide * Math.cos(rAngle / 2);
-                        bahnenAnzahl = Math.ceil(rWidth / deckbreite);
-                        plattenlaenge = 2 * rSide * Math.sin(rAngle / 2);
-                        break;
-                        
-                    default:
-                        bahnenAnzahl = Math.ceil(Math.sqrt(area) / deckbreite);
-                        plattenlaenge = Math.sqrt(area);
-                }
-            } else {
-                bahnenAnzahl = Math.ceil(Math.sqrt(area) / deckbreite);
-                plattenlaenge = Math.sqrt(area);
-            }
-            
-            const gesamtlaenge = bahnenAnzahl * plattenlaenge;
-            const verschnitt = 10;
-            
-            calculationResults = {
-                bahnenAnzahl: bahnenAnzahl,
-                plattenlaenge: plattenlaenge,
-                gesamtlaenge: gesamtlaenge,
-                verschnitt: verschnitt,
-                dachflaeche: area,
-                richtung: 'laengs',
-                variant: variant
-            };
-            
-            // Bestellliste erstellen
-            const bestellliste = [];
-            if (profile.lagerlaengen && profile.lagerlaengen.length > 0) {
-                const benoetigteLaenge = plattenlaenge * 1000;
-                let besteLaenge = profile.lagerlaengen.find(l => l >= benoetigteLaenge);
-                if (!besteLaenge) {
-                    besteLaenge = Math.max(...profile.lagerlaengen);
-                }
-                
-                bestellliste.push({
-                    length: besteLaenge,
-                    quantity: bahnenAnzahl,
-                    usage: 'Hauptbahnen'
-                });
-            } else {
-                const laenge = Math.min(Math.max(plattenlaenge * 1000, profile.minLaenge || 1000), profile.maxLaenge || 12000);
-                bestellliste.push({
-                    length: laenge,
-                    quantity: bahnenAnzahl,
-                    usage: 'Hauptbahnen'
-                });
-            }
-            
-            calculationResults.bestellliste = bestellliste;
-            
-            displayResults();
-            
-            console.log('✅ Berechnung abgeschlossen:', calculationResults);
+       // Überschreibe auch die Berechnung für Dreiecke
+function calculateLengths() {
+    console.log('=== BERECHNUNG STARTEN (KORRIGIERT) ===');
+    
+    const profile = projectData.profile;
+    const { variant, area, geometry } = extractGeometryData();
+    
+    if (!profile) {
+        alert('Keine Profil-Daten gefunden!');
+        return;
+    }
+    
+    console.log('✅ Berechnung für:', { variant, area, profile: profile.profilname });
+    
+    const deckbreite = profile.deckbreite / 1000; // in Meter
+    let bahnenAnzahl = 1;
+    let plattenlaenge = 5;
+    
+    if (variant === '3' && geometry.dimensions) {
+        // SPEZIELLE DREIECK-BERECHNUNG
+        const dims = geometry.dimensions;
+        console.log('🔺 Dreieck-Dimensionen:', dims);
+        
+        // Basis = längste Seite
+        const basis = Math.max(dims.sideA || 6, dims.sideB || 7, dims.sideC || 8);
+        bahnenAnzahl = Math.ceil(basis / deckbreite);
+        
+        // Höhe aus Fläche berechnen
+        plattenlaenge = (2 * area) / basis;
+        
+        console.log(`🔺 DREIECK BERECHNET:
+            - Seiten: ${dims.sideA}m, ${dims.sideB}m, ${dims.sideC}m
+            - Basis (längste Seite): ${basis}m
+            - Fläche: ${area} m²
+            - Höhe: ${plattenlaenge.toFixed(2)}m
+            - Deckbreite: ${deckbreite}m
+            - Anzahl Bahnen: ${bahnenAnzahl}`);
+    }
+    else {
+        // Standard-Berechnung für andere Formen
+        bahnenAnzahl = Math.ceil(Math.sqrt(area) / deckbreite);
+        plattenlaenge = Math.sqrt(area);
+        console.log('📐 Standard-Berechnung für', variant);
+    }
+    
+    const gesamtlaenge = bahnenAnzahl * plattenlaenge;
+    const verschnitt = 10;
+    
+    calculationResults = {
+        bahnenAnzahl: bahnenAnzahl,
+        plattenlaenge: plattenlaenge,
+        gesamtlaenge: gesamtlaenge,
+        verschnitt: verschnitt,
+        dachflaeche: area,
+        richtung: 'laengs',
+        variant: variant
+    };
+    
+    // Bestellliste
+    const bestellliste = [{
+        length: Math.round(plattenlaenge * 1000),
+        quantity: bahnenAnzahl,
+        usage: 'Hauptbahnen'
+    }];
+    
+    calculationResults.bestellliste = bestellliste;
+    
+    displayResults();
+    console.log('✅ Berechnung abgeschlossen:', calculationResults);
+}
+
+// Starte Berechnung automatisch beim Laden
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        projectData = loadData();
+        
+        if (projectData.profile) {
+            displayProjectInfo();
+            calculateLengths(); // Automatische Berechnung
         }
+    }, 100);
+});
+</script>
 
         // === ERGEBNISSE ANZEIGEN ===
         function displayResults() {
