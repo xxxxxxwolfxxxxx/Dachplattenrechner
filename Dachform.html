@@ -1199,10 +1199,57 @@
             }
         };
 
-        // === INITIALISIERUNG ===
+        // === INITIALISIERUNG MIT ROTATION-FIX ===
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Dachform-Seite geladen');
+            console.log('=== DACHFORM-SEITE GELADEN ===');
+            
+            // WICHTIG: Rotation-Variable initialisieren
+            currentRotation = 0;
+            window.currentRotation = 0;
+            
+            console.log('✅ Rotation-Variablen initialisiert:', currentRotation);
         });
+
+        // === TEST-FUNKTION FÜR ROTATION ===
+        window.testRotationComplete = () => {
+            console.log('=== KOMPLETTER ROTATION-TEST ===');
+            
+            // 1. Setze Rotation manuell
+            currentRotation = 45;
+            window.currentRotation = 45;
+            document.getElementById('rotation-display').textContent = '45°';
+            
+            console.log('✅ Rotation manuell auf 45° gesetzt');
+            
+            // 2. Teste Speicherung sofort
+            const testData = {
+                roofShape: {
+                    variant: 'lform',
+                    rotation: currentRotation,
+                    area: 100
+                },
+                geometry: {
+                    variant: 'lform', 
+                    rotation: currentRotation,
+                    area: 100
+                }
+            };
+            
+            try {
+                localStorage.setItem('dachplattenrechner_data', JSON.stringify(testData));
+                console.log('✅ Test-Daten gespeichert:', testData);
+                
+                // 3. Sofort wieder auslesen
+                const retrieved = JSON.parse(localStorage.getItem('dachplattenrechner_data'));
+                console.log('✅ Test-Daten ausgelesen:', retrieved);
+                
+                alert(`Test erfolgreich!\nGespeichert: ${testData.roofShape.rotation}°\nAusgelesen: ${retrieved.roofShape.rotation}°`);
+                
+            } catch (e) {
+                console.error('❌ Test fehlgeschlagen:', e);
+                alert('Test fehlgeschlagen: ' + e.message);
+            }
+        };
     </script>
 </body>
 </html>
