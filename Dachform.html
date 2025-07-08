@@ -545,6 +545,10 @@
         function rotateShape(degrees) {
             currentRotation = (currentRotation + degrees) % 360;
             if (currentRotation < 0) currentRotation += 360;
+            
+            // WICHTIG: Auch global verfügbar machen
+            window.currentRotation = currentRotation;
+            
             document.getElementById('rotation-display').textContent = currentRotation + '°';
             updatePreview();
         }
@@ -552,6 +556,10 @@
         function snapToAngle(targetAngle) {
             stopRotation();
             currentRotation = targetAngle % 360;
+            
+            // WICHTIG: Auch global verfügbar machen
+            window.currentRotation = currentRotation;
+            
             document.getElementById('rotation-display').textContent = currentRotation + '°';
             updatePreview();
         }
@@ -559,6 +567,10 @@
         function resetRotation() {
             stopRotation();
             currentRotation = 0;
+            
+            // WICHTIG: Auch global verfügbar machen
+            window.currentRotation = currentRotation;
+            
             document.getElementById('rotation-display').textContent = '0°';
             updatePreview();
         }
@@ -942,35 +954,55 @@
             document.getElementById('calc-perimeter').textContent = perimeter.toFixed(2) + ' m';
         }
 
-        // === KRITISCHE SPEICHER-FUNKTION (ROTATION-FIX) ===
+        // === KRITISCHE SPEICHER-FUNKTION (ROTATION-FIX V2) ===
         function continueToCalculation() {
-            console.log('=== CONTINUE-TO-CALCULATION GESTARTET (ROTATION-FIX) ===');
+            console.log('=== CONTINUE-TO-CALCULATION GESTARTET (ROTATION-FIX V2) ===');
             
             if (!selectedCorners && !selectedRoundType && !selectedComplexType) {
                 alert('Bitte wählen Sie zuerst eine Form aus!');
                 return;
             }
             
-            // SCHRITT 1: Aktuelle Rotation aus Display lesen
-            const displayRotation = document.getElementById('rotation-display').textContent;
-            const finalRotation = parseInt(displayRotation.replace('°', '')) || 0;
+            // STEP 1: Rotation aus Display extrahieren (SICHER)
+            const displayElement = document.getElementById('rotation-display');
+            const displayText = displayElement ? displayElement.textContent : '0°';
             
-            console.log('🔍 ROTATION AUS DISPLAY:', displayRotation);
-            console.log('🔍 FINALE ROTATION (NUMMER):', finalRotation);
-            console.log('🔍 currentRotation Variable:', currentRotation);
+            console.log('🔍 Display Element:', displayElement);
+            console.log('🔍 Display Text:', displayText);
             
-            // Sicherstellen dass beide Werte übereinstimmen
-            currentRotation = finalRotation;
+            // Extrahiere Nummer aus verschiedenen möglichen Formaten
+            let finalRotation = 0;
+            
+            // Versuche verschiedene Regex-Pattern
+            const patterns = [
+                /(\d+)°/,           // "90°"
+                /(\d+)\s*°/,        // "90 °"  
+                /Drehung:\s*(\d+)/, // "Drehung: 90"
+                /(\d+)/             // Jede Nummer
+            ];
+            
+            for (const pattern of patterns) {
+                const match = displayText.match(pattern);
+                if (match) {
+                    finalRotation = parseInt(match[1]);
+                    console.log('✅ Rotation aus Pattern gefunden:', finalRotation, '°');
+                    break;
+                }
+            }
+            
+            // STEP 2: Fallback zu Variablen
+            if (finalRotation === 0) {
+                finalRotation = currentRotation || window.currentRotation || 0;
+                console.log('⚠️ Fallback zu Variable:', finalRotation, '°');
+            }
+            
+            console.log('🔄 FINALE ROTATION ZUM SPEICHERN:', finalRotation, '°');
             
             const areaText = document.getElementById('calc-area').textContent;
             const area = parseFloat(areaText.replace(' m²', ''));
             
-            console.log('=== SPEICHERE DACHFORM-DATEN (ROTATION-TRIPLE-FIX) ===');
-            console.log('🔄 FINALE ROTATION ZUM SPEICHERN:', currentRotation, '°');
-            
             // Bestehende Daten laden
             currentRoofData = loadData();
-            console.log('🔍 Bestehende Daten geladen:', currentRoofData);
             
             // Bestimme Variante
             let variant;
@@ -988,7 +1020,7 @@
             
             console.log('🎯 Finale Variante:', variant, 'BaseShape:', baseShape);
             
-            // CRITICAL: TRIPLE-SPEICHERUNG der Rotation in ALLEN möglichen Feldern
+            // ULTRA-SICHERE Rotation-Speicherung in ALLEN Feldern
             currentRoofData.roofShape = {
                 baseShape: baseShape,
                 variant: variant,
@@ -999,10 +1031,11 @@
                 dimensions: { ...currentDimensions },
                 currentDimensions: { ...currentDimensions },
                 area: area,
-                rotation: currentRotation,
-                currentRotation: currentRotation,
-                rotationDegrees: currentRotation,
-                rotationValue: currentRotation,
+                rotation: finalRotation,
+                currentRotation: finalRotation,
+                rotationDegrees: finalRotation,
+                rotationValue: finalRotation,
+                rotationFromDisplay: finalRotation,
                 timestamp: Date.now()
             };
             
@@ -1010,36 +1043,37 @@
                 variant: variant,
                 dimensions: { ...currentDimensions },
                 area: area,
-                rotation: currentRotation,
-                currentRotation: currentRotation,
-                rotationDegrees: currentRotation,
-                rotationValue: currentRotation,
+                rotation: finalRotation,
+                currentRotation: finalRotation,
+                rotationDegrees: finalRotation,
+                rotationValue: finalRotation,
+                rotationFromDisplay: finalRotation,
                 points: generatePoints(),
                 source: 'dachform_editor'
             };
             
-            // EXTRA: Separate Rotation-Daten für maximale Sicherheit
+            // EXTRA Rotation-Daten
             currentRoofData.rotationData = {
-                rotation: currentRotation,
-                degrees: currentRotation,
-                value: currentRotation,
-                radians: (currentRotation * Math.PI) / 180,
-                source: 'dachform_editor',
+                rotation: finalRotation,
+                degrees: finalRotation,
+                value: finalRotation,
+                fromDisplay: finalRotation,
+                displayText: displayText,
+                radians: (finalRotation * Math.PI) / 180,
+                source: 'dachform_editor_v2',
                 timestamp: Date.now()
             };
             
-            // EXTRA: Direkt auf Top-Level speichern
-            currentRoofData.currentRotation = currentRotation;
-            currentRoofData.rotation = currentRotation;
+            // Top-Level Rotation
+            currentRoofData.currentRotation = finalRotation;
+            currentRoofData.rotation = finalRotation;
+            currentRoofData.finalRotation = finalRotation;
             
-            console.log('📦 FINALE Daten vor Speicherung (ALLE Rotation-Felder):');
-            console.log('  - roofShape.rotation:', currentRoofData.roofShape.rotation);
-            console.log('  - roofShape.currentRotation:', currentRoofData.roofShape.currentRotation);
-            console.log('  - roofShape.rotationDegrees:', currentRoofData.roofShape.rotationDegrees);
-            console.log('  - geometry.rotation:', currentRoofData.geometry.rotation);
-            console.log('  - rotationData.rotation:', currentRoofData.rotationData.rotation);
-            console.log('  - currentRotation (top-level):', currentRoofData.currentRotation);
-            console.log('  - rotation (top-level):', currentRoofData.rotation);
+            console.log('📦 FINALE Daten vor Speicherung:');
+            console.log('  - Alle Rotation-Felder auf:', finalRotation, '°');
+            console.log('  - Display Text war:', displayText);
+            console.log('  - Variant:', variant);
+            console.log('  - Area:', area);
             
             // SVG speichern
             try {
@@ -1054,28 +1088,30 @@
                 console.log('⚠️ SVG-Speicherung fehlgeschlagen:', svgError);
             }
             
-            // Speichern mit Verifikation
+            // Speichern
             const saved = saveData();
             if (!saved) {
                 alert('Fehler beim Speichern der Daten!');
                 return;
             }
             
-            console.log('✅ Daten erfolgreich gespeichert mit Rotation:', currentRotation, '°');
+            console.log('✅ Daten gespeichert, starte Verifikation...');
             
             // SOFORTIGE Verifikation
-            const verification = loadData();
-            console.log('🔍 SOFORT-VERIFIKATION - Gespeicherte Rotation:');
-            console.log('  - roofShape.rotation:', verification.roofShape?.rotation);
-            console.log('  - geometry.rotation:', verification.geometry?.rotation);
-            console.log('  - rotationData.rotation:', verification.rotationData?.rotation);
-            console.log('  - currentRotation (top-level):', verification.currentRotation);
-            console.log('  - rotation (top-level):', verification.rotation);
-            
-            // Kurze Pause und dann weiterleiten
             setTimeout(() => {
+                const verification = loadData();
+                console.log('🔍 VERIFIKATION - Alle Rotation-Felder:');
+                console.log('  - roofShape.rotation:', verification.roofShape?.rotation);
+                console.log('  - roofShape.rotationFromDisplay:', verification.roofShape?.rotationFromDisplay);
+                console.log('  - geometry.rotation:', verification.geometry?.rotation);
+                console.log('  - rotationData.rotation:', verification.rotationData?.rotation);
+                console.log('  - currentRotation (top):', verification.currentRotation);
+                console.log('  - rotation (top):', verification.rotation);
+                console.log('  - finalRotation (top):', verification.finalRotation);
+                
+                // Weiterleitung
                 window.location.href = 'berechnung.html';
-            }, 500);
+            }, 200);
         }
 
         function generatePoints() {
