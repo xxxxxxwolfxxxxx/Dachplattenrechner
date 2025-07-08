@@ -1187,8 +1187,8 @@
                     if (existing) mainData = JSON.parse(existing); 
                 } catch(e) {}
                 
-                mainData.geometry = { 
-                    variant: selectedRoundType || selectedComplexType || selectedCorners, 
+                mainData.roofShape = { 
+    variant: selectedCorners || selectedRoundType || selectedComplexType,
                     dimensions: currentDimensions, 
                     area: parseFloat(areaText.replace(' m²', '')) 
                 };
