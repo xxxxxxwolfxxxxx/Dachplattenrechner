@@ -339,20 +339,24 @@
                 
                 const roofShape = projectData.roofShape;
                 
-                // Variante bestimmen
+                // Variante bestimmen - KORRIGIERT für alle Fälle
                 variant = roofShape.variant || 
                          roofShape.selectedRoundType || 
                          roofShape.selectedComplexType || 
                          roofShape.selectedCorners ||
                          'rechteck';
                 
+                console.log('🔺 Extrahierte Variante:', variant);
+                
                 // Fläche extrahieren
                 area = roofShape.area || 0;
                 if (area <= 0 && roofShape.dimensions) {
                     area = calculateAreaFromDimensions(variant, roofShape.dimensions);
+                    console.log('🧮 Berechnete Fläche aus Dimensionen:', area);
                 }
                 if (area <= 0) {
                     area = getDefaultAreaForVariant(variant);
+                    console.log('🔧 Fallback-Fläche:', area);
                 }
                 
                 rotation = roofShape.rotation || roofShape.currentRotation || 0;
@@ -383,7 +387,7 @@
             // 3. Absoluter Fallback
             else {
                 console.log('⚠️ Verwende minimalen Fallback');
-                variant = 'rechteck';
+                variant = '4'; // Viereck als Standard
                 area = 40; // 8m x 5m
                 rotation = 0;
                 dimensions = { bottomWidth: 8, topWidth: 8, leftSide: 5, rightSide: 5, skew: 0 };
