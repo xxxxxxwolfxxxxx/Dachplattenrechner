@@ -3,83 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form-Editor - Dachplattenrechner</title>
+    <title>Dachform - Dachplattenrechner</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Spezifische Styles für Dachform-Editor */
-        .corners-selector { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 40px; }
-        .corner-option { background: white; border: 3px solid #e9ecef; border-radius: 15px; padding: 20px; cursor: pointer; transition: all 0.3s ease; text-align: center; min-width: 120px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .corner-option:hover { border-color: #667eea; transform: translateY(-5px); }
-        .corner-option.selected { border-color: #667eea; background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%); }
-        .corner-number { font-size: 2.5em; font-weight: bold; color: #667eea; margin-bottom: 10px; }
-        .corner-label { font-size: 1.1em; color: #495057; font-weight: 600; } 
-        .corner-examples { font-size: 0.9em; color: #6c757d; margin-top: 5px; }
-
-        .round-selector, .complex-selector { display: none; background: white; border-radius: 15px; padding: 25px; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .round-options, .complex-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
-        .round-option, .complex-option { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s ease; text-align: center; }
-        .round-option:hover, .round-option.selected { border-color: #007bff; background: #e7f3ff; transform: translateY(-3px); }
-        .complex-option:hover, .complex-option.selected { border-color: #28a745; background: #e8f5e8; transform: translateY(-3px); }
-        .round-icon, .complex-icon { font-size: 2.5em; margin-bottom: 10px; }
-
-        .editor-area { display: none; background: #f8f9fa; border-radius: 15px; padding: 30px; margin-top: 30px; }
-        .editor-container { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; }
-        .controls-panel { display: flex; flex-direction: column; gap: 25px; }
-        .rotation-controls, .dimensions-panel { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .rotation-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .rotate-btn { padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; background: white; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
-        .rotate-btn:hover { border-color: #667eea; background: #f8f9ff; }
-        .rotation-display { text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 18px; font-weight: bold; color: #495057; margin-bottom: 15px; }
-        .orientation-info { background: #e8f5e8; border-radius: 8px; padding: 15px; border-left: 5px solid #28a745; }
-        .orientation-warning { background: #fff3cd; border-left: 5px solid #ffc107; }
-        .preview-panel { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; }
-        .preview-svg { width: 100%; height: 600px; border: 2px solid #e9ecef; border-radius: 10px; background: radial-gradient(circle at 20px 20px, #ddd 1px, transparent 1px), radial-gradient(circle at 60px 60px, #ddd 1px, transparent 1px); background-size: 40px 40px; }
-        .info-panel { background: #e8f5e8; border-radius: 10px; padding: 20px; margin-top: 20px; border-left: 5px solid #28a745; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; } 
-        .info-value { font-weight: bold; color: #28a745; }
-        .shape-info { background: #fff3cd; border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 5px solid #ffc107; }
+        /* Kompakte Styles für Dachform-Editor */
+        .corners-selector { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            flex-wrap: wrap; 
+            margin-bottom: 30px; 
+        }
         
-        /* Custom Input Container mit Spinbuttons */
-        .dimension-input-container-simple { 
+        .corner-option { 
+            background: white; 
+            border: 3px solid #e9ecef; 
+            border-radius: 12px; 
+            padding: 15px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            text-align: center; 
+            min-width: 100px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        
+        .corner-option:hover { 
+            border-color: #007bff; 
+            transform: translateY(-3px); 
+        }
+        
+        .corner-option.selected { 
+            border-color: #007bff; 
+            background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%); 
+        }
+        
+        .corner-number { 
+            font-size: 2em; 
+            font-weight: bold; 
+            color: #007bff; 
+            margin-bottom: 8px; 
+        }
+        
+        .corner-label { 
+            font-size: 1em; 
+            color: #495057; 
+            font-weight: 600; 
+        }
+
+        .type-selector { 
+            display: none; 
+            background: white; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin: 20px 0; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        
+        .type-options { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 12px; 
+            margin-top: 15px; 
+        }
+        
+        .type-option { 
+            background: #f8f9fa; 
+            border: 2px solid #e9ecef; 
+            border-radius: 10px; 
+            padding: 15px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            text-align: center; 
+        }
+        
+        .type-option:hover, .type-option.selected { 
+            border-color: #007bff; 
+            background: #e7f3ff; 
+            transform: translateY(-2px); 
+        }
+        
+        .type-icon { 
+            font-size: 2em; 
+            margin-bottom: 8px; 
+        }
+
+        .editor-area { 
+            display: none; 
+            background: #f8f9fa; 
+            border-radius: 15px; 
+            padding: 25px; 
+            margin-top: 25px; 
+        }
+        
+        .editor-container { 
+            display: grid; 
+            grid-template-columns: 1fr 2fr; 
+            gap: 30px; 
+        }
+        
+        .controls-panel { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+        }
+        
+        .control-card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        
+        .rotation-buttons { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 8px; 
+            margin-bottom: 15px; 
+        }
+        
+        .rotate-btn { 
+            padding: 10px; 
+            border: 2px solid #e9ecef; 
+            border-radius: 6px; 
+            background: white; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: all 0.3s ease; 
+            font-size: 12px;
+        }
+        
+        .rotate-btn:hover { 
+            border-color: #007bff; 
+            background: #f8f9ff; 
+        }
+        
+        .rotation-display { 
+            text-align: center; 
+            padding: 12px; 
+            background: #f8f9fa; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            color: #495057; 
+            margin-bottom: 15px; 
+        }
+        
+        .preview-panel { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        
+        .preview-svg { 
+            width: 100%; 
+            height: 500px; 
+            border: 2px solid #e9ecef; 
+            border-radius: 8px; 
+            background: radial-gradient(circle at 20px 20px, #ddd 1px, transparent 1px), radial-gradient(circle at 60px 60px, #ddd 1px, transparent 1px); 
+            background-size: 40px 40px; 
+        }
+        
+        .info-panel { 
+            background: #e8f5e8; 
+            border-radius: 8px; 
+            padding: 15px; 
+            margin-top: 15px; 
+            border-left: 4px solid #28a745; 
+        }
+        
+        .info-row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 8px; 
+        } 
+        
+        .info-value { 
+            font-weight: bold; 
+            color: #28a745; 
+        }
+        
+        /* KORRIGIERTE Input-Container für SVG */
+        .dimension-input-container { 
             display: flex; 
             align-items: center; 
             background: white; 
-            border-radius: 8px; 
+            border-radius: 6px; 
             padding: 4px 6px; 
-            box-shadow: 0 3px 12px rgba(0,0,0,0.15); 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15); 
             border: 2px solid #007bff; 
             width: 130px; 
             height: 32px; 
             box-sizing: border-box;
         }
         
-        .dimension-input-container-simple .dimension-input { 
+        .dimension-input { 
             width: 65px; 
             height: 22px; 
-            font-size: 14px; 
+            font-size: 13px; 
             text-align: center; 
             border: none; 
             outline: none; 
             font-weight: bold; 
             color: #2c3e50; 
             background: white; 
-            padding: 2px 4px; 
+            padding: 2px 4px;
             -webkit-appearance: none;
             -moz-appearance: textfield;
         }
         
-        .dimension-input-container-simple .dimension-input::-webkit-outer-spin-button,
-        .dimension-input-container-simple .dimension-input::-webkit-inner-spin-button {
+        .dimension-input::-webkit-outer-spin-button,
+        .dimension-input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
         
-        .dimension-input-container-simple .dimension-unit { 
-            font-size: 12px; 
+        .dimension-unit { 
+            font-size: 11px; 
             color: #007bff; 
             font-weight: bold; 
-            margin-left: 6px; 
-            white-space: nowrap; 
+            margin-left: 4px; 
+            white-space: nowrap;
         }
         
         .spin-buttons {
@@ -94,8 +238,7 @@
             background: #007bff;
             border: none;
             color: white;
-            font-size: 10px;
-            font-weight: bold;
+            font-size: 9px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -113,15 +256,18 @@
         }
         
         .spin-btn:hover { background: #0056b3; }
-        .spin-btn:active { background: #004085; }
         
-        @media (max-width: 768px) { .editor-container { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { 
+            .editor-container { grid-template-columns: 1fr; } 
+            .corners-selector { gap: 10px; }
+            .corner-option { min-width: 80px; padding: 12px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🏠 Form-Editor</h1>
+            <h1>🏠 Dachform</h1>
             <nav class="progress-nav">
                 <div class="step completed"><span class="step-number">1</span><span class="step-title">Profil</span></div>
                 <div class="step active"><span class="step-number">2</span><span class="step-title">Dachform</span></div>
@@ -132,39 +278,60 @@
 
         <main>
             <div class="question-section">
-                <h2 style="font-size: 2em; color: #2c3e50; margin-bottom: 20px;">Wie viele Ecken hat Ihr Dach?</h2>
+                <h2>Wie viele Ecken hat Ihr Dach?</h2>
                 <div class="corners-selector">
-                    <div class="corner-option" data-corners="0"><div class="corner-number">0</div><div class="corner-label">Rund</div><div class="corner-examples">Kreis, Oval, Langloch</div></div>
-                    <div class="corner-option" data-corners="3"><div class="corner-number">3</div><div class="corner-label">Dreieck</div><div class="corner-examples">Alle Dreiecke</div></div>
-                    <div class="corner-option" data-corners="4"><div class="corner-number">4</div><div class="corner-label">Viereck</div><div class="corner-examples">Rechteck, Trapez</div></div>
-                    <div class="corner-option" data-corners="5"><div class="corner-number">5</div><div class="corner-label">Fünfeck</div><div class="corner-examples">Pentagon</div></div>
-                    <div class="corner-option" data-corners="6"><div class="corner-number">6</div><div class="corner-label">Sechseck</div><div class="corner-examples">Hexagon</div></div>
-                    <div class="corner-option" data-corners="8"><div class="corner-number">8</div><div class="corner-label">Achteck</div><div class="corner-examples">Oktagon</div></div>
-                    <div class="corner-option" data-corners="special"><div class="corner-number">S</div><div class="corner-label">Sonderform</div><div class="corner-examples">L, T, U, C, Plus</div></div>
-                </div>
-
-                <div class="round-selector" id="round-selector">
-                    <h3>Welche runde Form haben Sie?</h3>
-                    <div class="round-options">
-                        <div class="round-option" data-round-type="circle"><div class="round-icon">⭕</div><div class="round-label">Vollkreis</div></div>
-                        <div class="round-option" data-round-type="oval"><div class="round-icon">🥚</div><div class="round-label">Oval/Ellipse</div></div>
-                        <div class="round-option" data-round-type="langloch"><div class="round-icon">🏟️</div><div class="round-label">Langloch</div></div>
-                        <div class="round-option" data-round-type="halbkreis"><div class="round-icon">🌗</div><div class="round-label">Halbkreis</div></div>
-                        <div class="round-option" data-round-type="viertelkreis"><div class="round-icon">◐</div><div class="round-label">Viertelkreis</div></div>
-                        <div class="round-option" data-round-type="segment"><div class="round-icon">🌙</div><div class="round-label">Kreissegment</div></div>
+                    <div class="corner-option" data-corners="0">
+                        <div class="corner-number">0</div>
+                        <div class="corner-label">Rund</div>
+                    </div>
+                    <div class="corner-option" data-corners="3">
+                        <div class="corner-number">3</div>
+                        <div class="corner-label">Dreieck</div>
+                    </div>
+                    <div class="corner-option" data-corners="4">
+                        <div class="corner-number">4</div>
+                        <div class="corner-label">Viereck</div>
+                    </div>
+                    <div class="corner-option" data-corners="5">
+                        <div class="corner-number">5</div>
+                        <div class="corner-label">Fünfeck</div>
+                    </div>
+                    <div class="corner-option" data-corners="6">
+                        <div class="corner-number">6</div>
+                        <div class="corner-label">Sechseck</div>
+                    </div>
+                    <div class="corner-option" data-corners="8">
+                        <div class="corner-number">8</div>
+                        <div class="corner-label">Achteck</div>
+                    </div>
+                    <div class="corner-option" data-corners="special">
+                        <div class="corner-number">S</div>
+                        <div class="corner-label">Sonderform</div>
                     </div>
                 </div>
 
-                <div class="complex-selector" id="complex-selector">
-                    <h3>Welche Sonderform haben Sie?</h3>
-                    <div class="complex-options">
-                        <div class="complex-option" data-complex-type="lform"><div class="complex-icon">📐</div><div class="complex-label">L-Form</div></div>
-                        <div class="complex-option" data-complex-type="tform"><div class="complex-icon">🔤</div><div class="complex-label">T-Form</div></div>
-                        <div class="complex-option" data-complex-type="uform"><div class="complex-icon">🔄</div><div class="complex-label">U-Form</div></div>
-                        <div class="complex-option" data-complex-type="cform"><div class="complex-icon">🌙</div><div class="complex-label">C-Form</div></div>
-                        <div class="complex-option" data-complex-type="plusform"><div class="complex-icon">➕</div><div class="complex-label">Plus-Form</div></div>
-                        <div class="complex-option" data-complex-type="parallelogram"><div class="complex-icon">▱</div><div class="complex-label">Parallelogramm</div></div>
-                        <div class="complex-option" data-complex-type="rhombus"><div class="complex-icon">💎</div><div class="complex-label">Rhombus</div></div>
+                <div class="type-selector" id="round-selector">
+                    <h3>Welche runde Form?</h3>
+                    <div class="type-options">
+                        <div class="type-option" data-type="circle"><div class="type-icon">⭕</div>Vollkreis</div>
+                        <div class="type-option" data-type="oval"><div class="type-icon">🥚</div>Oval/Ellipse</div>
+                        <div class="type-option" data-type="langloch"><div class="type-icon">🏟️</div>Langloch</div>
+                        <div class="type-option" data-type="halbkreis"><div class="type-icon">🌗</div>Halbkreis</div>
+                        <div class="type-option" data-type="viertelkreis"><div class="type-icon">◐</div>Viertelkreis</div>
+                        <div class="type-option" data-type="segment"><div class="type-icon">🌙</div>Kreissegment</div>
+                    </div>
+                </div>
+
+                <div class="type-selector" id="special-selector">
+                    <h3>Welche Sonderform?</h3>
+                    <div class="type-options">
+                        <div class="type-option" data-type="lform"><div class="type-icon">📐</div>L-Form</div>
+                        <div class="type-option" data-type="tform"><div class="type-icon">🔤</div>T-Form</div>
+                        <div class="type-option" data-type="uform"><div class="type-icon">🔄</div>U-Form</div>
+                        <div class="type-option" data-type="cform"><div class="type-icon">🌙</div>C-Form</div>
+                        <div class="type-option" data-type="plusform"><div class="type-icon">➕</div>Plus-Form</div>
+                        <div class="type-option" data-type="parallelogram"><div class="type-icon">▱</div>Parallelogramm</div>
+                        <div class="type-option" data-type="rhombus"><div class="type-icon">💎</div>Rhombus</div>
                     </div>
                 </div>
             </div>
@@ -172,9 +339,9 @@
             <div class="editor-area" id="editor-area">
                 <div class="editor-container">
                     <div class="controls-panel">
-                        <div class="rotation-controls">
+                        <div class="control-card">
                             <h3>🔄 Rotation</h3>
-                            <div class="rotation-display" id="rotation-display">Drehung: 0°</div>
+                            <div class="rotation-display" id="rotation-display">0°</div>
                             <div class="rotation-buttons">
                                 <button class="rotate-btn" onmousedown="startRotation(-15)" onmouseup="stopRotation()" onmouseleave="stopRotation()">↺ -15°</button>
                                 <button class="rotate-btn" onmousedown="startRotation(-5)" onmouseup="stopRotation()" onmouseleave="stopRotation()">↺ -5°</button>
@@ -183,19 +350,15 @@
                                 <button class="rotate-btn" onmousedown="startRotation(5)" onmouseup="stopRotation()" onmouseleave="stopRotation()">↻ +5°</button>
                                 <button class="rotate-btn" onmousedown="startRotation(15)" onmouseup="stopRotation()" onmouseleave="stopRotation()">↻ +15°</button>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
                                 <button class="rotate-btn" onclick="snapToAngle(0)" style="background: #28a745; color: white;">⟷ 0°</button>
                                 <button class="rotate-btn" onclick="snapToAngle(90)" style="background: #007bff; color: white;">↕ 90°</button>
                             </div>
-                            <div class="orientation-info" id="orientation-info">
-                                <strong>💡 Orientierung:</strong><br>Drehen Sie die Form so, dass mindestens eine Seite waagerecht oder senkrecht liegt.
-                            </div>
-                            <button class="btn btn-secondary" onclick="resetRotation()" style="width: 100%; margin-top: 10px;">🔄 Zurücksetzen</button>
+                            <button class="btn btn-secondary" onclick="resetRotation()" style="width: 100%; padding: 8px;">🔄 Reset</button>
                         </div>
                         
-                        <div class="dimensions-panel">
+                        <div class="control-card">
                             <h3>📊 Berechnete Werte</h3>
-                            <div class="shape-info" id="shape-info"></div>
                             <div class="info-panel">
                                 <div class="info-row"><span>Fläche:</span><span class="info-value" id="calc-area">0 m²</span></div>
                                 <div class="info-row"><span>Umfang:</span><span class="info-value" id="calc-perimeter">0 m</span></div>
@@ -205,18 +368,17 @@
 
                     <div class="preview-panel">
                         <h3>📏 Live-Bemaßung</h3>
-                        <p style="color: #666; margin-bottom: 20px;">Eingabefelder sind direkt an der Form positioniert.</p>
                         <svg class="preview-svg" id="preview-svg" viewBox="0 0 600 600">
                             <defs>
                                 <linearGradient id="shapeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.8" />
-                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:0.8" />
+                                    <stop offset="0%" style="stop-color:#007bff;stop-opacity:0.8" />
+                                    <stop offset="100%" style="stop-color:#0056b3;stop-opacity:0.8" />
                                 </linearGradient>
                             </defs>
                             <line x1="300" y1="0" x2="300" y2="600" stroke="#ddd" stroke-width="1" stroke-dasharray="5,5"/>
                             <line x1="0" y1="300" x2="600" y2="300" stroke="#ddd" stroke-width="1" stroke-dasharray="5,5"/>
                             <g id="shape-group" transform="translate(300,300)">
-                                <text y="0" text-anchor="middle" fill="#999" font-size="18">Wählen Sie zuerst die Form aus</text>
+                                <text y="0" text-anchor="middle" fill="#999" font-size="18">Form auswählen</text>
                             </g>
                         </svg>
                     </div>
@@ -224,20 +386,23 @@
             </div>
 
             <div class="navigation-buttons">
-                <button type="button" class="btn btn-secondary" onclick="goBack()">← Zurück zum Profil</button>
-                <button type="button" class="btn btn-primary" onclick="continueToCalculation()" id="continue-btn" style="display:none;">Weiter zur Berechnung →</button>
+                <button type="button" class="btn btn-secondary" onclick="goBack()">← Zurück</button>
+                <button type="button" class="btn btn-primary" onclick="continueToCalculation()" id="continue-btn" style="display:none;">Weiter →</button>
             </div>
         </main>
     </div>
 
     <script>
-        let selectedCorners = null, selectedRoundType = null, selectedComplexType = null, currentDimensions = {}, currentRotation = 0;
-        
-        // Rotation Control Variables
+        // === GLOBALE VARIABLEN ===
+        let selectedCorners = null;
+        let selectedRoundType = null; 
+        let selectedComplexType = null;
+        let currentDimensions = {};
+        let currentRotation = 0;
         let rotationInterval = null;
-        let rotationDirection = 0;
         let isRotating = false;
 
+        // === VOLLSTÄNDIGE FORM-DEFINITIONEN ===
         const shapeInputs = {
             'circle': [{key: 'radius', label: 'Radius', default: 5}],
             'oval': [{key: 'radiusX', label: 'Halbachse Breite', default: 6}, {key: 'radiusY', label: 'Halbachse Höhe', default: 4}],
@@ -259,31 +424,48 @@
             8: [{key: 'sideLength', label: 'Seitenlänge', default: 6}]
         };
 
+        // === AUSWAHL-FUNKTIONEN ===
         function selectCorners(corners) {
             document.querySelectorAll('.corner-option').forEach(opt => opt.classList.remove('selected'));
-            document.querySelector('[data-corners="' + corners + '"]').classList.add('selected');
-            selectedCorners = corners; selectedRoundType = null; selectedComplexType = null;
+            document.querySelector(`[data-corners="${corners}"]`).classList.add('selected');
+            selectedCorners = corners; 
+            selectedRoundType = null; 
+            selectedComplexType = null;
             
-            const roundSelector = document.getElementById('round-selector'), complexSelector = document.getElementById('complex-selector');
+            const roundSelector = document.getElementById('round-selector');
+            const specialSelector = document.getElementById('special-selector');
+            
             if (corners === '0') {
-                roundSelector.style.display = 'block'; complexSelector.style.display = 'none'; hideEditor();
-                document.querySelectorAll('.round-option').forEach(opt => opt.classList.remove('selected'));
+                roundSelector.style.display = 'block'; 
+                specialSelector.style.display = 'none'; 
+                hideEditor();
+                document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
             } else if (corners === 'special') {
-                roundSelector.style.display = 'none'; complexSelector.style.display = 'block'; hideEditor();
-                document.querySelectorAll('.complex-option').forEach(opt => opt.classList.remove('selected'));
-            } else { roundSelector.style.display = 'none'; complexSelector.style.display = 'none'; showEditor(); }
+                roundSelector.style.display = 'none'; 
+                specialSelector.style.display = 'block'; 
+                hideEditor();
+                document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
+            } else { 
+                roundSelector.style.display = 'none'; 
+                specialSelector.style.display = 'none'; 
+                showEditor(); 
+            }
         }
 
         function selectRoundType(roundType) {
-            document.querySelectorAll('.round-option').forEach(opt => opt.classList.remove('selected'));
-            document.querySelector('[data-round-type="' + roundType + '"]').classList.add('selected');
-            selectedRoundType = roundType; selectedComplexType = null; showEditor();
+            document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector(`[data-type="${roundType}"]`).classList.add('selected');
+            selectedRoundType = roundType; 
+            selectedComplexType = null; 
+            showEditor();
         }
 
         function selectComplexType(complexType) {
-            document.querySelectorAll('.complex-option').forEach(opt => opt.classList.remove('selected'));
-            document.querySelector('[data-complex-type="' + complexType + '"]').classList.add('selected');
-            selectedComplexType = complexType; selectedRoundType = null; showEditor();
+            document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector(`[data-type="${complexType}"]`).classList.add('selected');
+            selectedComplexType = complexType; 
+            selectedRoundType = null; 
+            showEditor();
         }
 
         function hideEditor() {
@@ -294,16 +476,22 @@
         function showEditor() {
             document.getElementById('editor-area').style.display = 'block';
             document.getElementById('continue-btn').style.display = 'inline-block';
-            document.getElementById('shape-info').innerHTML = '<strong>Gewählt:</strong> Form ausgewählt';
-            createInputs(); document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
+            createInputs();
+            document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
         }
 
         function createInputs() {
-            const inputKey = selectedRoundType || selectedComplexType || selectedCorners, inputs = shapeInputs[inputKey];
-            if (!inputs) return; currentDimensions = {}; inputs.forEach(input => currentDimensions[input.key] = input.default);
-            updatePreview(); updateCalculations();
+            const inputKey = selectedRoundType || selectedComplexType || selectedCorners;
+            const inputs = shapeInputs[inputKey];
+            if (!inputs) return;
+            
+            currentDimensions = {};
+            inputs.forEach(input => currentDimensions[input.key] = input.default);
+            updatePreview();
+            updateCalculations();
         }
 
+        // === SVG-PREVIEW (VOLLSTÄNDIG) ===
         function updatePreview() {
             const shapeGroup = document.getElementById('shape-group');
             if (!shapeGroup) return;
@@ -312,26 +500,29 @@
             
             if (selectedRoundType) {
                 switch (selectedRoundType) {
-                    case 'circle': 
+                    case 'circle':
                         const r = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
                         shapeSVG = `<g transform="rotate(${currentRotation})"><circle cx="0" cy="0" r="${r}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>`;
-                        shapeSVG += drawInputField(0, -r-60, 'radius', 'Radius'); 
+                        shapeSVG += drawInputField(0, -r-60, 'radius', 'Radius');
                         break;
-                    case 'oval': 
+                    case 'oval':
                         const rx = Math.max(40, Math.min(150, (currentDimensions.radiusX || 6) * 20));
                         const ry = Math.max(30, Math.min(120, (currentDimensions.radiusY || 4) * 20));
                         shapeSVG = `<g transform="rotate(${currentRotation})"><ellipse cx="0" cy="0" rx="${rx}" ry="${ry}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>`;
-                        shapeSVG += drawInputField(-rx-80, 0, 'radiusX', 'Breite') + drawInputField(0, -ry-60, 'radiusY', 'Höhe'); 
+                        shapeSVG += drawInputField(-rx-80, 0, 'radiusX', 'Breite') + drawInputField(0, -ry-60, 'radiusY', 'Höhe');
                         break;
-                    case 'langloch': 
-                        const length = currentDimensions.length || 10, width = currentDimensions.width || 4;
-                        const lw = Math.max(100, Math.min(200, length * 15)), lh = Math.max(40, Math.min(80, width * 15)), lr = lh / 2;
+                    case 'langloch':
+                        const length = currentDimensions.length || 10;
+                        const width = currentDimensions.width || 4;
+                        const lw = Math.max(100, Math.min(200, length * 15));
+                        const lh = Math.max(40, Math.min(80, width * 15));
+                        const lr = lh / 2;
                         shapeSVG = `<g transform="rotate(${currentRotation})">
                                      <rect x="${-lw/2 + lr}" y="${-lh/2}" width="${lw - 2*lr}" height="${lh}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
                                      <circle cx="${-lw/2 + lr}" cy="0" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
                                      <circle cx="${lw/2 - lr}" cy="0" r="${lr}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
                                    </g>`;
-                        shapeSVG += drawInputField(0, -lh/2-60, 'length', 'Länge') + drawInputField(-lw/2-80, 0, 'width', 'Breite'); 
+                        shapeSVG += drawInputField(0, -lh/2-60, 'length', 'Länge') + drawInputField(-lw/2-80, 0, 'width', 'Breite');
                         break;
                     case 'halbkreis':
                         const hr = Math.max(50, Math.min(150, (currentDimensions.radius || 5) * 25));
@@ -366,11 +557,10 @@
             } else if (selectedComplexType) {
                 const scale = 15;
                 switch (selectedComplexType) {
-                    case 'lform': 
+                    case 'lform':
                         const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10;
                         const cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4;
                         const offsetX = currentDimensions.offsetX || 0, offsetY = currentDimensions.offsetY || 0;
-                        // Hauptkörper bleibt zentriert, nur Ausschnitt wird verschoben
                         const lPoints = [
                             [-tw*scale/2, -th*scale/2], 
                             [tw*scale/2, -th*scale/2], 
@@ -382,13 +572,12 @@
                         shapeSVG = `<g transform="rotate(${currentRotation})"><polygon points="${lPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>`;
                         shapeSVG += drawInputField(0, -th*scale/2-60, 'totalWidth', 'Ges.Breite') + drawInputField(-tw*scale/2-80, 0, 'totalHeight', 'Ges.Höhe') + 
                                    drawInputField(tw*scale/2+80, -th*scale/4, 'cutWidth', 'Auss.B') + drawInputField(tw*scale/2+80, -th*scale/4+40, 'cutHeight', 'Auss.H') +
-                                   drawInputField(-200, 280, 'offsetX', 'Versatz X') + drawInputField(200, 280, 'offsetY', 'Versatz Y'); 
+                                   drawInputField(-200, 280, 'offsetX', 'Versatz X') + drawInputField(200, 280, 'offsetY', 'Versatz Y');
                         break;
-                    case 'tform': 
+                    case 'tform':
                         const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3;
                         const stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8;
                         const tOffsetX = currentDimensions.offsetX || 0, tOffsetY = currentDimensions.offsetY || 0;
-                        // Kopf bleibt zentriert, nur Stamm wird verschoben
                         const tPoints = [
                             [-headW*scale/2, -headH*scale/2], 
                             [headW*scale/2, -headH*scale/2], 
@@ -402,14 +591,13 @@
                         shapeSVG = `<g transform="rotate(${currentRotation})"><polygon points="${tPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>`;
                         shapeSVG += drawInputField(0, -headH*scale/2-60, 'headWidth', 'Kopf-B') + drawInputField(-headW*scale/2-80, 0, 'headHeight', 'Kopf-H') + 
                                    drawInputField(stemW*scale/2+80+tOffsetX*scale, headH*scale/2 + stemH*scale/2+tOffsetY*scale, 'stemWidth', 'Stamm-B') + drawInputField(tOffsetX*scale, headH*scale/2 + stemH*scale + 50+tOffsetY*scale, 'stemHeight', 'Stamm-H') +
-                                   drawInputField(-200, 280, 'offsetX', 'Versatz X') + drawInputField(200, 280, 'offsetY', 'Versatz Y'); 
+                                   drawInputField(-200, 280, 'offsetX', 'Versatz X') + drawInputField(200, 280, 'offsetY', 'Versatz Y');
                         break;
                     case 'uform':
                         const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10;
                         const innerW = currentDimensions.innerWidth || 8, innerH = currentDimensions.innerHeight || 6;
                         const uOffsetX = currentDimensions.offsetX || 0, uOffsetY = currentDimensions.offsetY || 0;
                         const thickness = (outerW - innerW) / 2;
-                        // Außenrahmen bleibt zentriert, nur Innenausschnitt wird verschoben
                         const uPoints = [
                             [-outerW*scale/2, -outerH*scale/2],
                             [outerW*scale/2, -outerH*scale/2],
@@ -429,7 +617,6 @@
                         const cOuterW = currentDimensions.outerWidth || 12, cOuterH = currentDimensions.outerHeight || 10;
                         const openingW = currentDimensions.openingWidth || 6, wallThick = currentDimensions.wallThickness || 2;
                         const cOffsetX = currentDimensions.offsetX || 0, cOffsetY = currentDimensions.offsetY || 0;
-                        // Außenrahmen bleibt zentriert, nur Öffnung wird verschoben
                         const cPoints = [
                             [-cOuterW*scale/2, -cOuterH*scale/2],
                             [cOuterW*scale/2, -cOuterH*scale/2],
@@ -449,65 +636,13 @@
                         const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4;
                         const w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12;
                         const pOffsetX = currentDimensions.offsetX || 0, pOffsetY = currentDimensions.offsetY || 0;
-                        
-                        // Echtes Plus/Kreuz: horizontaler Balken (zentriert) + vertikaler Balken (verschoben, aber vollständig)
-                        const plusPoints = [
-                            // Horizontaler Balken - oberer Rand
-                            [-w1*scale/2, -h1*scale/2], 
-                            [w1*scale/2, -h1*scale/2],
-                            
-                            // Rechte Seite bis zur Mitte des vertikalen Balkens
-                            [w1*scale/2, Math.min(h1*scale/2, -h2*scale/2 + pOffsetY*scale)],
-                            [w2*scale/2 + pOffsetX*scale, Math.min(h1*scale/2, -h2*scale/2 + pOffsetY*scale)],
-                            
-                            // Vertikaler Balken - rechte Seite
-                            [w2*scale/2 + pOffsetX*scale, h2*scale/2 + pOffsetY*scale],
-                            [-w2*scale/2 + pOffsetX*scale, h2*scale/2 + pOffsetY*scale],
-                            
-                            // Vertikaler Balken - linke Seite zurück
-                            [-w2*scale/2 + pOffsetX*scale, Math.min(h1*scale/2, -h2*scale/2 + pOffsetY*scale)],
-                            [-w1*scale/2, Math.min(h1*scale/2, -h2*scale/2 + pOffsetY*scale)],
-                            
-                            // Horizontaler Balken - linke Seite
-                            [-w1*scale/2, h1*scale/2],
-                            
-                            // Wenn vertikaler Balken über horizontalen hinausragt
-                            [Math.max(-w1*scale/2, -w2*scale/2 + pOffsetX*scale), h1*scale/2],
-                            [Math.max(-w1*scale/2, -w2*scale/2 + pOffsetX*scale), Math.max(h1*scale/2, -h2*scale/2 + pOffsetY*scale)],
-                            [Math.min(w1*scale/2, w2*scale/2 + pOffsetX*scale), Math.max(h1*scale/2, -h2*scale/2 + pOffsetY*scale)],
-                            [Math.min(w1*scale/2, w2*scale/2 + pOffsetX*scale), h1*scale/2],
-                            [w1*scale/2, h1*scale/2]
-                        ];
-                        
-                        // Vereinfachte Plus-Form: Zwei sich kreuzende Rechtecke
-                        const simplePlusPoints = [
-                            // Horizontaler Balken
-                            [-w1*scale/2, -h1*scale/2], [w1*scale/2, -h1*scale/2], [w1*scale/2, h1*scale/2], [-w1*scale/2, h1*scale/2]
-                        ];
-                        
-                        // Zeichne horizontalen Balken
                         shapeSVG = `<g transform="rotate(${currentRotation})">
-                                     <polygon points="${simplePlusPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                     <polygon points="${[-w1*scale/2, -h1*scale/2, w1*scale/2, -h1*scale/2, w1*scale/2, h1*scale/2, -w1*scale/2, h1*scale/2].join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
+                                     <polygon points="${[-w2*scale/2 + pOffsetX*scale, -h2*scale/2 + pOffsetY*scale, w2*scale/2 + pOffsetX*scale, -h2*scale/2 + pOffsetY*scale, w2*scale/2 + pOffsetX*scale, h2*scale/2 + pOffsetY*scale, -w2*scale/2 + pOffsetX*scale, h2*scale/2 + pOffsetY*scale].join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
                                    </g>`;
-                        
-                        // Zeichne vertikalen Balken (verschoben)
-                        const verticalPoints = [
-                            [-w2*scale/2 + pOffsetX*scale, -h2*scale/2 + pOffsetY*scale],
-                            [w2*scale/2 + pOffsetX*scale, -h2*scale/2 + pOffsetY*scale],
-                            [w2*scale/2 + pOffsetX*scale, h2*scale/2 + pOffsetY*scale],
-                            [-w2*scale/2 + pOffsetX*scale, h2*scale/2 + pOffsetY*scale]
-                        ];
-                        
-                        shapeSVG += `<g transform="rotate(${currentRotation})">
-                                      <polygon points="${verticalPoints.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/>
-                                    </g>`;
-                        
                         shapeSVG += drawInputField(0, -h1*scale/2-60, 'width1', 'Breite-1') + drawInputField(-w1*scale/2-80, 0, 'height1', 'Höhe-1') +
                                    drawInputField(w2*scale/2+80+pOffsetX*scale, pOffsetY*scale, 'width2', 'Breite-2') + drawInputField(pOffsetX*scale, h2*scale/2+50+pOffsetY*scale, 'height2', 'Höhe-2') +
                                    drawInputField(-250, -250, 'offsetX', 'Versatz X') + drawInputField(250, -250, 'offsetY', 'Versatz Y');
-                        break;G += drawInputField(skewX*scale, -h1*scale/2-60, 'width1', 'Breite-1') + drawInputField(-w1*scale/2-80, 0, 'height1', 'Höhe-1') +
-                                   drawInputField(w2*scale/2+80, h1*scale/2 + (h2-h1)*scale/4, 'width2', 'Breite-2') + drawInputField(0, h2*scale/2+50, 'height2', 'Höhe-2') +
-                                   drawInputField(-250, -250, 'skewX', 'Schiefe X') + drawInputField(250, -250, 'skewY', 'Schiefe Y');
                         break;
                     case 'parallelogram':
                         const pBase = currentDimensions.base || 10, pSide = currentDimensions.side || 6, pAngle = (currentDimensions.angle || 60) * Math.PI / 180;
@@ -535,7 +670,7 @@
                 }
             } else if (selectedCorners) {
                 switch (selectedCorners) {
-                    case '3': 
+                    case '3':
                         const sideA = currentDimensions.sideA || 8, sideB = currentDimensions.sideB || 6, sideC = currentDimensions.sideC || 7;
                         if ((sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA)) {
                             const scale = 25, A = {x: 0, y: 0}, B = {x: sideC * scale, y: 0};
@@ -548,12 +683,12 @@
                             shapeSVG += drawInputField((points[0].x + points[1].x)/2, (points[0].y + points[1].y)/2 - 50, 'sideC', 'Seite C') +
                                        drawInputField((points[1].x + points[2].x)/2 + 60, (points[1].y + points[2].y)/2, 'sideA', 'Seite A') +
                                        drawInputField((points[2].x + points[0].x)/2 - 60, (points[2].y + points[0].y)/2, 'sideB', 'Seite B');
-                        } else { 
+                        } else {
                             shapeSVG = `<g transform="rotate(${currentRotation})"><polygon points="0,-120 150,100 -150,100" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>` +
-                                       drawInputField(75, -60, 'sideA', 'Seite A') + drawInputField(-75, -60, 'sideB', 'Seite B') + drawInputField(0, 130, 'sideC', 'Seite C'); 
-                        } 
+                                       drawInputField(75, -60, 'sideA', 'Seite A') + drawInputField(-75, -60, 'sideB', 'Seite B') + drawInputField(0, 130, 'sideC', 'Seite C');
+                        }
                         break;
-                    case '4': 
+                    case '4':
                         const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8;
                         const leftSide = currentDimensions.leftSide || 6, rightSide = currentDimensions.rightSide || 6, skew4 = currentDimensions.skew || 0;
                         const scale4 = 20, height = leftSide * scale4;
@@ -566,28 +701,26 @@
                         shapeSVG = `<g transform="rotate(${currentRotation})"><polygon points="${points4.map(p => `${p[0]},${p[1]}`).join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>`;
                         shapeSVG += drawInputField(0, height/2 + 60, 'bottomWidth', 'Untere Breite') + drawInputField(skew4*scale4, -height/2 - 60, 'topWidth', 'Obere Breite') + 
                                    drawInputField(-bottomWidth*scale4/2 - 80, 0, 'leftSide', 'Seite links') + drawInputField(bottomWidth*scale4/2 + 80, 0, 'rightSide', 'Seite rechts') +
-                                   drawInputField(-250, -250, 'skew', 'Schiefe'); 
+                                   drawInputField(-250, -250, 'skew', 'Schiefe');
                         break;
-                    case '5': 
-                    case '6': 
+                    case '5':
+                    case '6':
                     case '8':
                         const sides = parseInt(selectedCorners), sideLength = currentDimensions.sideLength || 6;
                         const r = sideLength / (2 * Math.sin(Math.PI / sides)) * 20;
                         const displayR = Math.max(80, Math.min(140, r));
-                        let points = []; 
-                        for (let i = 0; i < sides; i++) { 
-                            const angle = (i * 2 * Math.PI / sides) - Math.PI/2; 
-                            points.push(`${displayR * Math.cos(angle)},${displayR * Math.sin(angle)}`); 
+                        let points = [];
+                        for (let i = 0; i < sides; i++) {
+                            const angle = (i * 2 * Math.PI / sides) - Math.PI/2;
+                            points.push(`${displayR * Math.cos(angle)},${displayR * Math.sin(angle)}`);
                         }
                         shapeSVG = `<g transform="rotate(${currentRotation})"><polygon points="${points.join(' ')}" fill="url(#shapeGradient)" stroke="#333" stroke-width="3"/></g>` + 
-                                   drawInputField(0, -displayR-60, 'sideLength', 'Seitenlänge'); 
+                                   drawInputField(0, -displayR-60, 'sideLength', 'Seitenlänge');
                         break;
                 }
             }
             
-            shapeGroup.setAttribute('transform', 'translate(300,300)');
             shapeGroup.innerHTML = shapeSVG;
-            checkOrientation();
         }
 
         function drawInputField(x, y, key, label) {
@@ -602,23 +735,20 @@
                 min = "10"; max = "170"; step = "1";
             }
             
-            // Versatz-Buttons bleiben an fester Position (nicht rotiert)
             const isOffsetField = (key === 'offsetX' || key === 'offsetY' || key === 'skew' || key === 'skewX' || key === 'skewY');
             
             let rotatedX, rotatedY;
             if (isOffsetField) {
-                // Versatz-Felder bleiben an fester Position
                 rotatedX = x;
                 rotatedY = y;
             } else {
-                // Normale Eingabefelder folgen der Rotation
                 const rad = (currentRotation * Math.PI) / 180;
                 rotatedX = x * Math.cos(rad) - y * Math.sin(rad);
                 rotatedY = x * Math.sin(rad) + y * Math.cos(rad);
             }
             
             return `<foreignObject x="${rotatedX - 65}" y="${rotatedY - 16}" width="130" height="32">
-                      <div xmlns="http://www.w3.org/1999/xhtml" class="dimension-input-container-simple">
+                      <div xmlns="http://www.w3.org/1999/xhtml" class="dimension-input-container">
                         <input type="number" value="${currentValue.toFixed(2)}" data-key="${key}" 
                                step="${step}" min="${min}" max="${max}" 
                                oninput="updateDimensionFromSVG('${key}', this.value)"
@@ -631,6 +761,17 @@
                       </div>
                     </foreignObject>
                     <text x="${rotatedX}" y="${rotatedY - 20}" text-anchor="middle" fill="#007bff" font-size="12" font-weight="bold">${label}</text>`;
+        }
+
+        function updateDimensionFromSVG(key, value) {
+            const numValue = parseFloat(value);
+            if (!isNaN(numValue)) {
+                if (key === 'offsetX' || key === 'offsetY' || key === 'skew' || key === 'skewX' || key === 'skewY' || key === 'angle' || numValue > 0) {
+                    currentDimensions[key] = numValue;
+                    updatePreview();
+                    updateCalculations();
+                }
+            }
         }
 
         function incrementValue(key, increment) {
@@ -650,350 +791,9 @@
             currentDimensions[key] = newValue;
             updatePreview();
             updateCalculations();
-            validateTriangle();
             
             const input = document.querySelector(`input[data-key="${key}"]`);
             if (input) input.value = newValue.toFixed(2);
-        }
-
-        function updateDimensionFromSVG(key, value) {
-            const numValue = parseFloat(value);
-            if (!isNaN(numValue)) {
-                if (key === 'offsetX' || key === 'offsetY' || key === 'skew' || key === 'skewX' || key === 'skewY' || key === 'angle' || numValue > 0) {
-                    currentDimensions[key] = numValue; 
-                    updatePreview(); 
-                    updateCalculations(); 
-                    validateTriangle();
-                }
-            }
-        }
-
-        function checkOrientation() {
-            const orientationInfo = document.getElementById('orientation-info');
-            const normalizedRotation = ((currentRotation % 360) + 360) % 360;
-            
-            // Berechne alle Seitenwinkel der aktuellen Form
-            const sideAngles = calculateAllSideAngles();
-            
-            let bestAlignment = null;
-            let bestDiff = 999;
-            
-            // Prüfe ALLE Seiten und finde die beste Ausrichtung
-            for (let side of sideAngles) {
-                // Für jede Seite prüfen: Wann wird sie waagerecht oder senkrecht?
-                const targets = [
-                    { angle: 0, type: 'waagerecht' },
-                    { angle: 90, type: 'senkrecht' },
-                    { angle: 180, type: 'waagerecht' },
-                    { angle: 270, type: 'senkrecht' }
-                ];
-                
-                for (let target of targets) {
-                    // Berechne wann diese Seite den Zielwinkel erreicht
-                    const neededRotation = (target.angle - side.angle + 360) % 360;
-                    const rotationDiff = Math.min(
-                        Math.abs(normalizedRotation - neededRotation),
-                        Math.abs(normalizedRotation - (neededRotation + 360)),
-                        360 - Math.abs(normalizedRotation - neededRotation)
-                    );
-                    
-                    // Finde beste Ausrichtung für UI
-                    if (rotationDiff <= 1.0 && rotationDiff < bestDiff) {
-                        bestDiff = rotationDiff;
-                        bestAlignment = {
-                            side: side.name,
-                            type: target.type,
-                            rotation: neededRotation,
-                            diff: rotationDiff
-                        };
-                    }
-                    
-                    // Auto-Stop Logik
-                    if (isRotating) {
-                        let shouldStop = false;
-                        
-                        if (Math.abs(rotationDirection) === 1) {
-                            shouldStop = rotationDiff <= 0.5;
-                        } else {
-                            const prevRotation = ((currentRotation - rotationDirection) % 360 + 360) % 360;
-                            const prevRotationDiff = Math.min(
-                                Math.abs(prevRotation - neededRotation),
-                                Math.abs(prevRotation - (neededRotation + 360)),
-                                360 - Math.abs(prevRotation - neededRotation)
-                            );
-                            
-                            const crossedPerfect = (prevRotationDiff > 1 && rotationDiff <= 1) || 
-                                                  (prevRotationDiff <= rotationDiff && rotationDiff <= 2);
-                            shouldStop = crossedPerfect;
-                        }
-                        
-                        if (shouldStop) {
-                            stopRotation();
-                            currentRotation = neededRotation;
-                            document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°';
-                            updatePreview();
-                            return;
-                        }
-                    }
-                }
-            }
-            
-            // UI Feedback
-            if (bestAlignment) {
-                orientationInfo.className = 'orientation-info';
-                orientationInfo.innerHTML = `<strong>✅ Perfekte Ausrichtung!</strong><br>
-                    ${bestAlignment.side} ist ${bestAlignment.type} bei ${normalizedRotation.toFixed(1)}°<br>
-                    <small>Abweichung: ${bestAlignment.diff.toFixed(2)}° - optimal für die Dachplattenverlegung.</small>`;
-            } else {
-                const nextAlignment = findNextAlignment(normalizedRotation, sideAngles);
-                orientationInfo.className = 'orientation-info orientation-warning';
-                orientationInfo.innerHTML = `<strong>💡 Orientierung:</strong><br>
-                    Aktuell ${normalizedRotation.toFixed(1)}° - keine Seite ist waagerecht oder senkrecht.<br>
-                    <small>Nächste Ausrichtung: ${nextAlignment.side} ${nextAlignment.type} bei ${nextAlignment.angle.toFixed(1)}°</small>`;
-            }
-        }
-
-        // KORRIGIERTE Berechnung aller Seitenwinkel - berücksichtigt ALLE Seiten
-        function calculateAllSideAngles() {
-            const sides = [];
-            
-            if (selectedRoundType) {
-                // Runde Formen haben keine distinkten Seiten
-                return [{ name: 'Form', angle: 0 }];
-            } else if (selectedComplexType) {
-                switch (selectedComplexType) {
-                    case 'lform':
-                        return [
-                            { name: 'Obere Seite', angle: 0 },
-                            { name: 'Rechte Seite lang', angle: 90 },
-                            { name: 'Innere Horizontale', angle: 180 },
-                            { name: 'Innere Vertikale', angle: 270 },
-                            { name: 'Untere Seite', angle: 180 },
-                            { name: 'Linke Seite', angle: 270 }
-                        ];
-                    case 'tform':
-                        return [
-                            { name: 'Kopf Oben', angle: 0 },
-                            { name: 'Kopf Rechts', angle: 90 },
-                            { name: 'Stamm Rechts', angle: 90 },
-                            { name: 'Stamm Unten', angle: 180 },
-                            { name: 'Stamm Links', angle: 270 },
-                            { name: 'Kopf Links', angle: 270 }
-                        ];
-                    case 'uform':
-                        return [
-                            { name: 'Außen Oben', angle: 0 },
-                            { name: 'Außen Rechts', angle: 90 },
-                            { name: 'Außen Unten Rechts', angle: 180 },
-                            { name: 'Innen Rechts', angle: 270 },
-                            { name: 'Innen Oben', angle: 0 },
-                            { name: 'Innen Links', angle: 90 },
-                            { name: 'Außen Unten Links', angle: 180 },
-                            { name: 'Außen Links', angle: 270 }
-                        ];
-                    case 'cform':
-                        return [
-                            { name: 'Außen Oben', angle: 0 },
-                            { name: 'Außen Rechts', angle: 90 },
-                            { name: 'Öffnung Rechts Oben', angle: 180 },
-                            { name: 'Öffnung Oben', angle: 270 },
-                            { name: 'Öffnung Links Oben', angle: 0 },
-                            { name: 'Öffnung Links Unten', angle: 180 },
-                            { name: 'Öffnung Unten', angle: 90 },
-                            { name: 'Öffnung Rechts Unten', angle: 0 },
-                            { name: 'Außen Unten', angle: 180 },
-                            { name: 'Außen Links', angle: 270 }
-                        ];
-                    case 'plusform':
-                        return [
-                            { name: 'Horizontaler Balken Oben', angle: 0 },
-                            { name: 'Vertikaler Balken Rechts', angle: 90 },
-                            { name: 'Horizontaler Balken Unten', angle: 180 },
-                            { name: 'Vertikaler Balken Links', angle: 270 }
-                        ];
-                    case 'parallelogram':
-                        const pAngle = currentDimensions.angle || 60;
-                        return [
-                            { name: 'Basis Unten', angle: 0 },
-                            { name: 'Seite Rechts', angle: pAngle },
-                            { name: 'Basis Oben', angle: 180 },
-                            { name: 'Seite Links', angle: 180 + pAngle }
-                        ];
-                    case 'rhombus':
-                        const rAngle = currentDimensions.angle || 60;
-                        return [
-                            { name: 'Seite Oben Rechts', angle: 90 - rAngle/2 },
-                            { name: 'Seite Unten Rechts', angle: 90 + rAngle/2 },
-                            { name: 'Seite Unten Links', angle: 270 - rAngle/2 },
-                            { name: 'Seite Oben Links', angle: 270 + rAngle/2 }
-                        ];
-                    default:
-                        return [
-                            { name: 'Obere Seite', angle: 0 },
-                            { name: 'Rechte Seite', angle: 90 },
-                            { name: 'Untere Seite', angle: 180 },
-                            { name: 'Linke Seite', angle: 270 }
-                        ];
-                }
-            } else if (selectedCorners) {
-                switch (selectedCorners) {
-                    case '3':
-                        // Dreieck: Berechne die echten Seitenrichtungen
-                        const sideA = currentDimensions.sideA || 8;
-                        const sideB = currentDimensions.sideB || 6;
-                        const sideC = currentDimensions.sideC || 7;
-                        
-                        // Prüfe ob Dreieck gültig ist
-                        if (!((sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA))) {
-                            return [{ name: 'Ungültiges Dreieck', angle: 0 }];
-                        }
-                        
-                        // Berechne Punkt C mit Kosinussatz
-                        const cosA = (sideB*sideB + sideC*sideC - sideA*sideA) / (2*sideB*sideC);
-                        const angleAtA = Math.acos(Math.max(-1, Math.min(1, cosA))) * 180/Math.PI;
-                        
-                        // Punkt C Koordinaten
-                        const pointC_x = sideB * Math.cos(angleAtA * Math.PI / 180);
-                        const pointC_y = sideB * Math.sin(angleAtA * Math.PI / 180);
-                        
-                        // Berechne Richtungswinkel der Seiten:
-                        const sideB_angle = Math.atan2(pointC_y, pointC_x) * 180 / Math.PI;
-                        const sideA_angle = Math.atan2(pointC_y, pointC_x - sideC) * 180 / Math.PI;
-                        
-                        return [
-                            { name: 'Seite C (Basis)', angle: 0 },
-                            { name: 'Seite B', angle: sideB_angle },
-                            { name: 'Seite A', angle: 180 + sideA_angle }
-                        ];
-                    case '4':
-                        // KORRIGIERTE 4-Eck Berechnung - berücksichtigt ALLE 4 Seiten
-                        const bottomWidth = currentDimensions.bottomWidth || 10;
-                        const topWidth = currentDimensions.topWidth || 8;
-                        const leftSide = currentDimensions.leftSide || 6;
-                        const rightSide = currentDimensions.rightSide || 6;
-                        const skew = currentDimensions.skew || 0;
-                        
-                        // ECHTE GEOMETRISCHE BERECHNUNG aller 4 Seitenwinkel
-                        const isRealTrapezoid = Math.abs(topWidth - bottomWidth) > 0.01;
-                        const hasSkew = Math.abs(skew) > 0.01;
-                        
-                        let result = [
-                            { name: 'Untere Seite', angle: 0 },    // Basis immer horizontal
-                            { name: 'Obere Seite', angle: 180 }   // Obere Seite immer horizontal (parallel zur Basis)
-                        ];
-                        
-                        // Berechne linke und rechte Seitenwinkel
-                        let leftAngle = 90;   // Standard senkrecht
-                        let rightAngle = 90;  // Standard senkrecht
-                        
-                        if (isRealTrapezoid) {
-                            // Bei echtem Trapez sind die Seiten nicht senkrecht
-                            const widthDiff = topWidth - bottomWidth;
-                            const halfWidthDiff = widthDiff / 2;
-                            
-                            // Winkel zur Vertikalen berechnen
-                            const leftAngleFromVertical = Math.atan2(Math.abs(halfWidthDiff), leftSide) * 180 / Math.PI;
-                            const rightAngleFromVertical = Math.atan2(Math.abs(halfWidthDiff), rightSide) * 180 / Math.PI;
-                            
-                            if (widthDiff > 0) {
-                                // Oben breiter als unten
-                                leftAngle = 90 - leftAngleFromVertical;   // Nach außen geneigt
-                                rightAngle = 90 + rightAngleFromVertical; // Nach außen geneigt
-                            } else {
-                                // Unten breiter als oben
-                                leftAngle = 90 + leftAngleFromVertical;   // Nach innen geneigt
-                                rightAngle = 90 - rightAngleFromVertical; // Nach innen geneigt
-                            }
-                        }
-                        
-                        // Schiefe addieren
-                        if (hasSkew) {
-                            const skewAngleDegrees = Math.atan(Math.abs(skew) / leftSide) * 180 / Math.PI;
-                            
-                            if (skew > 0) {
-                                // Positive Schiefe: obere Seite nach rechts verschoben
-                                leftAngle -= skewAngleDegrees;
-                                rightAngle += skewAngleDegrees;
-                            } else {
-                                // Negative Schiefe: obere Seite nach links verschoben
-                                leftAngle += skewAngleDegrees;
-                                rightAngle -= skewAngleDegrees;
-                            }
-                        }
-                        
-                        // Vollständige Seitenliste mit allen 4 Seiten
-                        result.push(
-                            { name: 'Linke Seite', angle: leftAngle },
-                            { name: 'Rechte Seite', angle: rightAngle }
-                        );
-                        
-                        return result;
-                    case '5':
-                        // Pentagon - 5 Seiten, jede Seite hat eine andere Richtung
-                        return Array.from({length: 5}, (_, i) => ({
-                            name: `Seite ${i+1}`,
-                            angle: i * 72
-                        }));
-                    case '6':
-                        // Hexagon - 6 Seiten, jede Seite hat eine andere Richtung  
-                        return Array.from({length: 6}, (_, i) => ({
-                            name: `Seite ${i+1}`,
-                            angle: i * 60
-                        }));
-                    case '8':
-                        // Oktagon - 8 Seiten, jede Seite hat eine andere Richtung
-                        return Array.from({length: 8}, (_, i) => ({
-                            name: `Seite ${i+1}`,
-                            angle: i * 45
-                        }));
-                    default:
-                        return [{ name: 'Seite', angle: 0 }];
-                }
-            }
-            
-            return [{ name: 'Form', angle: 0 }];
-        }
-
-        // Finde nächste mögliche Ausrichtung
-        function findNextAlignment(currentRotation, sideAngles) {
-            let closestDistance = 360;
-            let nextAlignment = { side: '', type: '', angle: 0 };
-            
-            for (let side of sideAngles) {
-                for (let target of [0, 90, 180, 270]) {
-                    const requiredRotation = (target - side.angle + 360) % 360;
-                    const distance = Math.min(
-                        Math.abs(requiredRotation - currentRotation),
-                        360 - Math.abs(requiredRotation - currentRotation)
-                    );
-                    
-                    if (distance < closestDistance) {
-                        closestDistance = distance;
-                        nextAlignment = {
-                            side: side.name,
-                            type: (target === 0 || target === 180) ? 'waagerecht' : 'senkrecht',
-                            angle: requiredRotation
-                        };
-                    }
-                }
-            }
-            
-            return nextAlignment;
-        }
-
-        function validateTriangle() {
-            if (selectedCorners === '3') {
-                const a = currentDimensions.sideA || 5, b = currentDimensions.sideB || 5, c = currentDimensions.sideC || 5;
-                const isValidTriangle = (a + b > c) && (a + c > b) && (b + c > a);
-                const orientationInfo = document.getElementById('orientation-info');
-                if (!isValidTriangle) {
-                    orientationInfo.className = 'orientation-info orientation-warning';
-                    orientationInfo.innerHTML = '<strong>⚠️ Ungültiges Dreieck</strong><br>A=' + a.toFixed(2) + 'm, B=' + b.toFixed(2) + 'm, C=' + c.toFixed(2) + 'm<br><small>Die Summe zweier Seiten muss größer als die dritte sein.</small>';
-                } else {
-                    orientationInfo.className = 'orientation-info';
-                    orientationInfo.innerHTML = '<strong>✅ Gültiges Dreieck!</strong><br>A=' + a.toFixed(2) + 'm, B=' + b.toFixed(2) + 'm, C=' + c.toFixed(2) + 'm';
-                }
-            }
         }
 
         function updateCalculations() {
@@ -1001,20 +801,20 @@
             
             if (selectedRoundType) {
                 switch (selectedRoundType) {
-                    case 'circle': 
-                        const r = currentDimensions.radius || 5; 
-                        area = Math.PI * r * r; 
-                        perimeter = 2 * Math.PI * r; 
+                    case 'circle':
+                        const r = currentDimensions.radius || 5;
+                        area = Math.PI * r * r;
+                        perimeter = 2 * Math.PI * r;
                         break;
-                    case 'oval': 
+                    case 'oval':
                         const rx = currentDimensions.radiusX || 6, ry = currentDimensions.radiusY || 4;
-                        area = Math.PI * rx * ry; 
-                        perimeter = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry))); 
+                        area = Math.PI * rx * ry;
+                        perimeter = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
                         break;
-                    case 'langloch': 
+                    case 'langloch':
                         const length = currentDimensions.length || 10, width = currentDimensions.width || 4, radius = width / 2;
-                        area = (length - width) * width + Math.PI * radius * radius; 
-                        perimeter = 2 * (length - width) + 2 * Math.PI * radius; 
+                        area = (length - width) * width + Math.PI * radius * radius;
+                        perimeter = 2 * (length - width) + 2 * Math.PI * radius;
                         break;
                     case 'halbkreis':
                         const hr = currentDimensions.radius || 5;
@@ -1035,15 +835,15 @@
                 }
             } else if (selectedComplexType) {
                 switch (selectedComplexType) {
-                    case 'lform': 
+                    case 'lform':
                         const tw = currentDimensions.totalWidth || 12, th = currentDimensions.totalHeight || 10;
                         const cw = currentDimensions.cutWidth || 5, ch = currentDimensions.cutHeight || 4;
-                        area = tw * th - cw * ch; 
+                        area = tw * th - cw * ch;
                         break;
-                    case 'tform': 
+                    case 'tform':
                         const headW = currentDimensions.headWidth || 12, headH = currentDimensions.headHeight || 3;
                         const stemW = currentDimensions.stemWidth || 4, stemH = currentDimensions.stemHeight || 8;
-                        area = headW * headH + stemW * stemH; 
+                        area = headW * headH + stemW * stemH;
                         break;
                     case 'uform':
                         const outerW = currentDimensions.outerWidth || 12, outerH = currentDimensions.outerHeight || 10;
@@ -1058,7 +858,7 @@
                     case 'plusform':
                         const w1 = currentDimensions.width1 || 12, h1 = currentDimensions.height1 || 4;
                         const w2 = currentDimensions.width2 || 4, h2 = currentDimensions.height2 || 12;
-                        area = w1 * h1 + w2 * (h2 - h1); // Horizontaler Balken + zusätzlicher vertikaler Teil
+                        area = w1 * h1 + w2 * (h2 - h1);
                         break;
                     case 'parallelogram':
                         const pBase = currentDimensions.base || 10, pSide = currentDimensions.side || 6;
@@ -1075,29 +875,29 @@
                 }
             } else if (selectedCorners) {
                 switch (selectedCorners) {
-                    case '3': 
+                    case '3':
                         const sideA = currentDimensions.sideA || 8, sideB = currentDimensions.sideB || 6, sideC = currentDimensions.sideC || 7;
                         const s = (sideA + sideB + sideC) / 2;
-                        if ((sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA)) { 
-                            area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC)); 
-                            perimeter = sideA + sideB + sideC; 
-                        } 
+                        if ((sideA + sideB > sideC) && (sideA + sideC > sideB) && (sideB + sideC > sideA)) {
+                            area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
+                            perimeter = sideA + sideB + sideC;
+                        }
                         break;
-                    case '4': 
+                    case '4':
                         const bottomWidth = currentDimensions.bottomWidth || 10, topWidth = currentDimensions.topWidth || 8;
-                        const leftSide = currentDimensions.leftSide || 6, rightSide = currentDimensions.rightSide || 6; 
+                        const leftSide = currentDimensions.leftSide || 6, rightSide = currentDimensions.rightSide || 6;
                         const avgHeight = (leftSide + rightSide) / 2;
-                        area = (bottomWidth + topWidth) * avgHeight / 2; 
+                        area = (bottomWidth + topWidth) * avgHeight / 2;
                         perimeter = bottomWidth + topWidth + leftSide + rightSide;
                         break;
-                    case '5': 
-                        const sideLength5 = currentDimensions.sideLength || 6; 
-                        area = 0.25 * Math.sqrt(25 + 10 * Math.sqrt(5)) * sideLength5 * sideLength5; 
+                    case '5':
+                        const sideLength5 = currentDimensions.sideLength || 6;
+                        area = 0.25 * Math.sqrt(25 + 10 * Math.sqrt(5)) * sideLength5 * sideLength5;
                         perimeter = 5 * sideLength5;
                         break;
-                    case '6': 
-                        const sideLength6 = currentDimensions.sideLength || 6; 
-                        area = (3 * Math.sqrt(3) / 2) * sideLength6 * sideLength6; 
+                    case '6':
+                        const sideLength6 = currentDimensions.sideLength || 6;
+                        area = (3 * Math.sqrt(3) / 2) * sideLength6 * sideLength6;
                         perimeter = 6 * sideLength6;
                         break;
                     case '8':
@@ -1112,30 +912,22 @@
             document.getElementById('calc-perimeter').textContent = perimeter.toFixed(2) + ' m';
         }
 
-        // KONTINUIERLICHE ROTATION
+        // === ROTATION ===
         function startRotation(degrees) {
-            if (isRotating) return; // Verhindere mehrfache Starts
-            
+            if (isRotating) return;
             isRotating = true;
-            rotationDirection = degrees;
-            
-            // Erste Rotation sofort
             rotateShape(degrees);
             
-            // Angepasste Intervall-Zeit basierend auf Schrittgröße
             let intervalTime;
             if (Math.abs(degrees) === 1) {
-                intervalTime = 150; // Langsamer für 1° Schritte
+                intervalTime = 150;
             } else if (Math.abs(degrees) <= 5) {
-                intervalTime = 120; // Mittel für 5° Schritte
+                intervalTime = 120;
             } else {
-                intervalTime = 80;  // Schneller für 15° Schritte
+                intervalTime = 80;
             }
             
-            // Kontinuierliche Rotation
-            rotationInterval = setInterval(() => {
-                rotateShape(rotationDirection);
-            }, intervalTime);
+            rotationInterval = setInterval(() => rotateShape(degrees), intervalTime);
         }
 
         function stopRotation() {
@@ -1144,111 +936,153 @@
                 rotationInterval = null;
             }
             isRotating = false;
-            rotationDirection = 0;
         }
 
-        function rotateShape(degrees) { 
-            currentRotation = (currentRotation + degrees) % 360; 
-            if (currentRotation < 0) currentRotation += 360; 
-            document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; 
+        function rotateShape(degrees) {
+            currentRotation = (currentRotation + degrees) % 360;
+            if (currentRotation < 0) currentRotation += 360;
+            document.getElementById('rotation-display').textContent = currentRotation + '°';
             updatePreview();
         }
 
-        function snapToAngle(targetAngle) { 
-            stopRotation(); // Stoppe laufende Rotation
-            currentRotation = targetAngle % 360; 
-            document.getElementById('rotation-display').textContent = 'Drehung: ' + currentRotation + '°'; 
+        function snapToAngle(targetAngle) {
+            stopRotation();
+            currentRotation = targetAngle % 360;
+            document.getElementById('rotation-display').textContent = currentRotation + '°';
             updatePreview();
         }
 
-        function resetRotation() { 
-            stopRotation(); // Stoppe laufende Rotation
-            currentRotation = 0; 
-            document.getElementById('rotation-display').textContent = 'Drehung: 0°'; 
+        function resetRotation() {
+            stopRotation();
+            currentRotation = 0;
+            document.getElementById('rotation-display').textContent = '0°';
             updatePreview();
         }
 
-        function goBack() { 
-            window.location.href = 'profil.html'; 
+        // === NAVIGATION ===
+        function goBack() {
+            window.location.href = 'profil.html';
         }
 
         function continueToCalculation() {
             if (!selectedCorners && !selectedRoundType && !selectedComplexType) {
-                alert('Bitte wählen Sie zuerst eine Form aus!'); 
-                return; 
+                alert('Bitte wählen Sie zuerst eine Form aus!');
+                return;
             }
             
             const areaText = document.getElementById('calc-area').textContent;
+            const area = parseFloat(areaText.replace(' m²', ''));
+            
+            console.log('=== SPEICHERE DACHFORM-DATEN ===');
             
             try {
-                let mainData = {}; 
-                try { 
-                    const existing = localStorage.getItem('dachplattenrechner_data'); 
-                    if (existing) mainData = JSON.parse(existing); 
+                // Bestehende Daten laden
+                let mainData = {};
+                try {
+                    const existing = localStorage.getItem('dachplattenrechner_data');
+                    if (existing) mainData = JSON.parse(existing);
                 } catch(e) {}
                 
-                mainData.roofShape = { 
+                // roofShape-Daten speichern
+                mainData.roofShape = {
                     variant: selectedCorners || selectedRoundType || selectedComplexType,
-                    dimensions: currentDimensions, 
-                    area: parseFloat(areaText.replace(' m²', '')),
-                    rotation: currentRotation
+                    selectedCorners: selectedCorners,
+                    selectedRoundType: selectedRoundType,
+                    selectedComplexType: selectedComplexType,
+                    dimensions: currentDimensions,
+                    currentDimensions: currentDimensions,
+                    area: area,
+                    rotation: currentRotation,
+                    currentRotation: currentRotation,
+                    timestamp: Date.now()
                 };
                 
-                // === NEU: SVG mitnehmen (SICHER mit Fallback) ===
+                // SVG sicher speichern
                 try {
                     const svgElement = document.getElementById('preview-svg');
                     if (svgElement) {
-                        mainData.roofShape.svgHTML = svgElement.outerHTML;
-                        console.log('✅ SVG erfolgreich gespeichert');
-                    } else {
-                        console.log('⚠️ Kein SVG gefunden, nur Basis-Daten gespeichert');
+                        const svgClone = svgElement.cloneNode(true);
+                        svgClone.querySelectorAll('foreignObject').forEach(fo => fo.remove());
+                        mainData.roofShape.svgHTML = svgClone.outerHTML;
+                        console.log('✅ SVG gespeichert');
                     }
                 } catch (svgError) {
-                    console.log('⚠️ SVG-Speicherung fehlgeschlagen, trotzdem weiter:', svgError);
-                    // Kein Problem - wir haben ja die Basis-Daten
+                    console.log('⚠️ SVG-Speicherung fehlgeschlagen:', svgError);
                 }
                 
                 localStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
+                console.log('✅ Daten gespeichert:', mainData);
+                
             } catch (e) {
-                try { 
-                    let mainData = {}; 
-                    const existing = sessionStorage.getItem('dachplattenrechner_data'); 
+                console.error('❌ localStorage fehlgeschlagen, verwende sessionStorage:', e);
+                try {
+                    let mainData = {};
+                    const existing = sessionStorage.getItem('dachplattenrechner_data');
                     if (existing) mainData = JSON.parse(existing);
                     
-                    mainData.geometry = { 
+                    mainData.roofShape = {
                         variant: selectedCorners || selectedRoundType || selectedComplexType,
-                        dimensions: currentDimensions, 
-                        area: parseFloat(areaText.replace(' m²', '')) 
+                        selectedCorners: selectedCorners,
+                        selectedRoundType: selectedRoundType,
+                        selectedComplexType: selectedComplexType,
+                        dimensions: currentDimensions,
+                        area: area,
+                        rotation: currentRotation,
+                        timestamp: Date.now()
                     };
                     
                     sessionStorage.setItem('dachplattenrechner_data', JSON.stringify(mainData));
-                } catch (e2) { 
-                    alert('Fehler beim Speichern der Daten!'); 
-                    return; 
+                    console.log('✅ Daten in sessionStorage gespeichert');
+                } catch (e2) {
+                    console.error('❌ Beide Storage-Methoden fehlgeschlagen:', e2);
+                    alert('Fehler beim Speichern der Daten!');
+                    return;
                 }
             }
             
-            // Direkte Weiterleitung ohne Pop-up
-            window.location.href = 'berechnung.html';
+            setTimeout(() => {
+                window.location.href = 'berechnung.html';
+            }, 100);
         }
 
-        // Event Listeners
+        // === EVENT LISTENERS ===
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.corner-option').forEach(opt => opt.addEventListener('click', function() { selectCorners(this.getAttribute('data-corners')); }));
-            document.querySelectorAll('.round-option').forEach(opt => opt.addEventListener('click', function() { selectRoundType(this.getAttribute('data-round-type')); }));
-            document.querySelectorAll('.complex-option').forEach(opt => opt.addEventListener('click', function() { selectComplexType(this.getAttribute('data-complex-type')); }));
+            document.querySelectorAll('.corner-option').forEach(opt => {
+                opt.addEventListener('click', function() {
+                    selectCorners(this.getAttribute('data-corners'));
+                });
+            });
+            
+            document.querySelectorAll('.type-option').forEach(opt => {
+                opt.addEventListener('click', function() {
+                    if (selectedCorners === '0') {
+                        selectRoundType(this.getAttribute('data-type'));
+                    } else if (selectedCorners === 'special') {
+                        selectComplexType(this.getAttribute('data-type'));
+                    }
+                });
+            });
         });
 
-        // Globale Funktionen
-        window.updateDimensionFromSVG = updateDimensionFromSVG; 
+        // === GLOBALE FUNKTIONEN ===
+        window.updateDimensionFromSVG = updateDimensionFromSVG;
         window.incrementValue = incrementValue;
-        window.rotateShape = rotateShape; 
         window.startRotation = startRotation;
         window.stopRotation = stopRotation;
-        window.snapToAngle = snapToAngle; 
-        window.resetRotation = resetRotation; 
-        window.goBack = goBack; 
+        window.snapToAngle = snapToAngle;
+        window.resetRotation = resetRotation;
+        window.goBack = goBack;
         window.continueToCalculation = continueToCalculation;
+
+        // Debug-Funktionen
+        window.debugDachform = () => {
+            console.log('selectedCorners:', selectedCorners);
+            console.log('selectedRoundType:', selectedRoundType);
+            console.log('selectedComplexType:', selectedComplexType);
+            console.log('currentDimensions:', currentDimensions);
+            console.log('currentRotation:', currentRotation);
+            console.log('storage:', localStorage.getItem('dachplattenrechner_data'));
+        };
     </script>
 </body>
 </html>
