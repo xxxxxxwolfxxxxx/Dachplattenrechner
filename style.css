@@ -26,7 +26,7 @@ body {
 header {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     color: white;
-    padding: 20px 0;
+    padding: 30px 0;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     margin-bottom: 30px;
     position: relative;
@@ -51,17 +51,17 @@ header .container {
 
 header h1 {
     text-align: center;
-    margin-bottom: 10px;
-    font-size: 2.8em;
+    margin-bottom: 8px;
+    font-size: 2.5em;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
 .header-subtitle {
     text-align: center;
-    font-size: 1.2em;
+    font-size: 1.1em;
     opacity: 0.9;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     font-weight: 300;
 }
 
@@ -69,7 +69,7 @@ header h1 {
 .nav-header {
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     color: white;
-    padding: 15px 0;
+    padding: 20px 0;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     margin-bottom: 30px;
 }
@@ -89,7 +89,7 @@ header h1 {
     color: white;
     text-decoration: none;
     font-weight: 600;
-    padding: 12px 20px;
+    padding: 10px 18px;
     border-radius: 8px;
     transition: all 0.3s ease;
     border: 2px solid rgba(255,255,255,0.3);
@@ -105,7 +105,7 @@ header h1 {
 }
 
 .nav-title {
-    font-size: 1.5em;
+    font-size: 1.4em;
     font-weight: 700;
     text-align: center;
     flex: 1;
@@ -924,11 +924,21 @@ footer::before {
     }
     
     header h1 {
-        font-size: 2.2em;
+        font-size: 2em;
     }
     
     .header-subtitle {
         font-size: 1em;
+    }
+    
+    .features {
+        gap: 15px;
+        margin: 15px 0;
+    }
+    
+    .feature {
+        padding: 8px 15px;
+        font-size: 0.9em;
     }
     
     .nav-header .container {
@@ -939,6 +949,7 @@ footer::before {
     .nav-title {
         order: -1;
         margin-bottom: 15px;
+        font-size: 1.2em;
     }
     
     .progress-nav {
@@ -1101,19 +1112,20 @@ footer::before {
 .features {
     display: flex;
     justify-content: center;
-    gap: 30px;
-    margin: 30px 0;
+    gap: 25px;
+    margin: 20px 0;
     flex-wrap: wrap;
 }
 
 .feature {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     background: rgba(255, 255, 255, 0.2);
-    padding: 12px 20px;
-    border-radius: 25px;
+    padding: 10px 18px;
+    border-radius: 20px;
     font-weight: 600;
+    font-size: 0.95em;
     color: white;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -1122,11 +1134,11 @@ footer::before {
 
 .feature:hover {
     background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 }
 
 .feature span:first-child {
-    font-size: 1.3em;
+    font-size: 1.2em;
 }
 
 /* Cookie Banner */
