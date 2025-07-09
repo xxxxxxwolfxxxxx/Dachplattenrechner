@@ -313,6 +313,161 @@
             aktuelleSchnittliste = trapezBerechnung.schnittliste;
             document.getElementById('results').style.display = 'block';
             document.getElementById('schnittliste').style.display = 'block';
+            
+            // Vorschau generieren
+            generiereVorschau(obereBreite, untereBreite, hoehe, trapezBerechnung.schnittliste);
+            document.getElementById('vorschau').style.display = 'block';
+        }
+
+        function generiereVorschau(obereBreite, untereBreite, hoehe, schnittliste) {
+            const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
+            const deckbreite = parseFloat(document.getElementById('deckbreite').value);
+            const ueberlappung = lieferbreite - deckbreite;
+            const breitenDifferenz = untereBreite - obereBreite;
+            const seitenAbstand = breitenDifferenz / 2;
+            const linkeObereEcke = seitenAbstand;
+            const rechteObereEcke = untereBreite - seitenAbstand;
+            
+            // SVG-Dimensionen
+            const svgWidth = 600;
+            const svgHeight = 400;
+            const margin = 50;
+            const trapezWidth = svgWidth - 2 * margin;
+            const trapezHeight = svgHeight - 2 * margin - 50;
+            
+            // Skalierung
+            const scaleX = trapezWidth / untereBreite;
+            const scaleY = trapezHeight / hoehe;
+            
+            let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" style="border: 1px solid #ddd; border-radius: 8px;">`;
+            
+            // Hintergrund
+            svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
+            
+            // Trapez-Outline
+            const trapezObenLinks = margin + linkeObereEcke * scaleX;
+            const trapezObenRechts = margin + rechteObereEcke * scaleX;
+            const trapezObenY = margin;
+            const trapezUntenLinks = margin;
+            const trapezUntenRechts = margin + untereBreite * scaleX;
+            const trapezUntenY = margin + trapezHeight;
+            
+            svg += `<polygon points="${trapezObenLinks},${trapezObenY} ${trapezObenRechts},${trapezObenY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Platten zeichnen
+            schnittliste.forEach((platte, index) => {
+                const plattenStart = parseFloat(platte.positionVonLinks);
+                const plattenEnde = parseFloat(platte.positionBis);
+                const plattenBreite = parseFloat(platte.plattenbreite);
+                const originalPlattenEnde = plattenStart + plattenBreite;
+                const benoetigteLaenge = parseFloat(platte.benoetigteLaenge);
+                
+                const istLetztePlatte = originalPlattenEnde > untereBreite;
+                const plattenEndeReal = istLetztePlatte ? untereBreite : originalPlattenEnde;
+                
+                // Plattenposition in SVG
+                const plattenX = margin + plattenStart * scaleX;
+                const plattenWidth = (plattenEndeReal - plattenStart) * scaleX;
+                
+                // Höhen an den Positionen berechnen
+                function hoeheAnPosition(pos) {
+                    if (pos <= linkeObereEcke) {
+                        return hoehe * (pos / linkeObereEcke);
+                    } else if (pos >= rechteObereEcke) {
+                        const abstandVonRechts = untereBreite - pos;
+                        return hoehe * (abstandVonRechts / seitenAbstand);
+                    } else {
+                        return hoehe;
+                    }
+                }
+                
+                const hoeheStart = hoeheAnPosition(plattenStart);
+                const hoeheEnde = hoeheAnPosition(plattenEndeReal);
+                
+                const startY = margin + trapezHeight - (hoeheStart * scaleY);
+                const endY = margin + trapezHeight - (hoeheEnde * scaleY);
+                
+                // Platte als Rechteck
+                const plattenHoehe = benoetigteLaenge * scaleY;
+                const plattenY = margin + trapezHeight - plattenHoehe;
+                
+                // Plattenhintergrund
+                svg += `<rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${plattenHoehe}" fill="#e9ecef" stroke="#666" stroke-width="1"/>`;
+                
+                // Nutzen-Bereich (blau) - komplexe Trapez-Logik
+                const ueberdecktLinkeEcke = plattenStart <= linkeObereEcke && plattenEndeReal >= linkeObereEcke;
+                const ueberdecktRechteEcke = plattenStart <= rechteObereEcke && plattenEndeReal >= rechteObereEcke;
+                
+                if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
+                    // Platte mit beiden oberen Ecken
+                    const linkeEckeX = margin + linkeObereEcke * scaleX;
+                    const rechteEckeX = margin + rechteObereEcke * scaleX;
+                    const oberkanteY = margin + trapezHeight - (hoehe * scaleY);
+                    
+                    svg += `<polygon points="${plattenX},${margin + trapezHeight} ${plattenX + plattenWidth},${margin + trapezHeight} ${plattenX + plattenWidth},${endY} ${rechteEckeX},${oberkanteY} ${linkeEckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    
+                    // Verschnitt (rot)
+                    svg += `<polygon points="${plattenX},${startY} ${linkeEckeX},${oberkanteY} ${rechteEckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
+                } else if (ueberdecktLinkeEcke) {
+                    // Platte mit linker oberer Ecke
+                    const eckeX = margin + linkeObereEcke * scaleX;
+                    const oberkanteY = margin + trapezHeight - (hoehe * scaleY);
+                    
+                    svg += `<polygon points="${plattenX},${margin + trapezHeight} ${plattenX + plattenWidth},${margin + trapezHeight} ${plattenX + plattenWidth},${endY} ${eckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    
+                    svg += `<polygon points="${plattenX},${startY} ${eckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
+                } else if (ueberdecktRechteEcke) {
+                    // Platte mit rechter oberer Ecke
+                    const eckeX = margin + rechteObereEcke * scaleX;
+                    const oberkanteY = margin + trapezHeight - (hoehe * scaleY);
+                    
+                    svg += `<polygon points="${plattenX},${margin + trapezHeight} ${plattenX + plattenWidth},${margin + trapezHeight} ${plattenX + plattenWidth},${endY} ${eckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    
+                    svg += `<polygon points="${plattenX},${startY} ${eckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
+                } else {
+                    // Normale Platte
+                    svg += `<polygon points="${plattenX},${margin + trapezHeight} ${plattenX + plattenWidth},${margin + trapezHeight} ${plattenX + plattenWidth},${endY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    
+                    svg += `<polygon points="${plattenX},${startY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
+                }
+                
+                // Überlappungs-Bereich (grün)
+                if (index > 0 && ueberlappung > 0) {
+                    const ueberlappungsWidth = ueberlappung * scaleX;
+                    svg += `<rect x="${plattenX}" y="${plattenY}" width="${ueberlappungsWidth}" height="${plattenHoehe}" fill="#28a745" opacity="0.5"/>`;
+                }
+                
+                // Plattennummer
+                svg += `<text x="${plattenX + plattenWidth/2}" y="${margin + trapezHeight + 20}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">${platte.plattenNr}</text>`;
+                
+                // Trapez-Ecken markieren
+                if (ueberdecktLinkeEcke) {
+                    const eckeX = margin + linkeObereEcke * scaleX;
+                    const oberkanteY = margin + trapezHeight - (hoehe * scaleY);
+                    svg += `<circle cx="${eckeX}" cy="${oberkanteY}" r="3" fill="#ffc107"/>`;
+                }
+                if (ueberdecktRechteEcke) {
+                    const eckeX = margin + rechteObereEcke * scaleX;
+                    const oberkanteY = margin + trapezHeight - (hoehe * scaleY);
+                    svg += `<circle cx="${eckeX}" cy="${oberkanteY}" r="3" fill="#ffc107"/>`;
+                }
+            });
+            
+            // Maßlinien
+            svg += `<line x1="${margin}" y1="${margin + trapezHeight + 35}" x2="${margin + untereBreite * scaleX}" y2="${margin + trapezHeight + 35}" stroke="#333" stroke-width="1"/>`;
+            svg += `<text x="${margin + (untereBreite * scaleX)/2}" y="${margin + trapezHeight + 50}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Untere Breite: ${untereBreite}m</text>`;
+            
+            // Obere Breite
+            svg += `<line x1="${margin + linkeObereEcke * scaleX}" y1="${margin - 15}" x2="${margin + rechteObereEcke * scaleX}" y2="${margin - 15}" stroke="#28a745" stroke-width="2"/>`;
+            svg += `<text x="${margin + (linkeObereEcke + rechteObereEcke) * scaleX / 2}" y="${margin - 20}" text-anchor="middle" font-size="12" font-weight="bold" fill="#28a745">Obere Breite: ${obereBreite}m</text>`;
+            
+            // Höhenmaß
+            svg += `<line x1="${margin - 20}" y1="${margin}" x2="${margin - 20}" y2="${margin + trapezHeight}" stroke="#333" stroke-width="1"/>`;
+            svg += `<text x="${margin - 30}" y="${margin + trapezHeight/2}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333" transform="rotate(-90 ${margin - 30} ${margin + trapezHeight/2})">Höhe: ${hoehe}m</text>`;
+            
+            svg += `</svg>`;
+            
+            document.getElementById('vorschau-svg').innerHTML = svg;
         }
 
         function erstelleAnrissplan() {
@@ -338,6 +493,14 @@
             html += '<div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">';
             html += '<h2 style="color: #1e3c72; margin-bottom: 10px;">Anrissplan - Trapez</h2>';
             html += '<p style="color: #666; font-size: 1.1em;">Oben: ' + obereBreite + 'm | Unten: ' + untereBreite + 'm | Höhe: ' + hoehe + 'm | Platten: ' + aktuelleSchnittliste.length + ' Stück</p>';
+            html += '</div>';
+            
+            // Vorschau für Anrissplan hinzufügen
+            html += '<div style="margin-bottom: 30px; text-align: center;">';
+            html += '<h3 style="color: #1e3c72; margin-bottom: 15px;">📐 Trapez-Übersicht</h3>';
+            html += '<div style="border: 2px solid #1e3c72; border-radius: 8px; padding: 15px; background: white; display: inline-block;">';
+            html += document.getElementById('vorschau-svg').innerHTML;
+            html += '</div>';
             html += '</div>';
             
             aktuelleSchnittliste.forEach(item => {
