@@ -1,201 +1,4 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ungleichschenkliges Dreieck - Trapezplattenrechner</title>
-    <meta name="description" content="Berechnen Sie Trapezbleche für ungleichschenklige Dreiecksflächen mit variabler Spitzenposition. Flexible Eingabemöglichkeiten.">
-    
-    <!-- Google AdSense -->
-    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
-    
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        
-        // Check if analytics cookies are accepted
-        const analyticsCookies = localStorage.getItem('analyticsCookies');
-        if (analyticsCookies === 'true') {
-            gtag('config', 'G-6NSYG8B1T9', {
-                anonymize_ip: true,
-                cookie_flags: 'SameSite=None;Secure'
-            });
-        }
-    </script>
-
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="nav-header">
-        <div class="container">
-            <a href="index.html" class="back-btn">
-                <span>←</span>
-                <span>Zurück zur Übersicht</span>
-            </a>
-            <div class="nav-title">Ungleichschenkliges Dreieck</div>
-        </div>
-    </div>
-
-    <div class="container">
-        <main>
-            <div style="text-align: center; margin-bottom: 30px;">
-                <svg width="250" height="160" viewBox="0 0 250 160" style="margin-bottom: 15px;">
-                    <!-- Ungleichschenkliges Dreieck -->
-                    <polygon points="100,15 30,130 200,130" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                    
-                    <!-- Trapezbleche (senkrecht, gleichmäßige Abstände) -->
-                    <line x1="45" y1="130" x2="45" y2="110" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                    <line x1="60" y1="130" x2="60" y2="90" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                    <line x1="75" y1="130" x2="75" y2="68" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                    <line x1="90" y1="130" x2="90" y2="40" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                    <line x1="100" y1="130" x2="100" y2="15" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
-                    <line x1="115" y1="130" x2="115" y2="35" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                    <line x1="130" y1="130" x2="130" y2="55" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                    <line x1="145" y1="130" x2="145" y2="75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                    <line x1="160" y1="130" x2="160" y2="90" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                    <line x1="175" y1="130" x2="175" y2="105" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                    
-                    <!-- Dachspitze markieren -->
-                    <circle cx="100" cy="15" r="3" fill="#dc3545"/>
-                    <text x="110" y="20" font-size="10" fill="#dc3545" font-weight="bold">Spitze</text>
-                    
-                    <!-- Linke Kantenlänge -->
-                    <text x="65" y="62" font-size="10" fill="#1976d2" font-weight="bold" text-anchor="middle" transform="rotate(-58 65 62)">Linke Kante</text>
-                    
-                    <!-- Rechte Kantenlänge -->
-                    <text x="150" y="62" font-size="10" fill="#1976d2" font-weight="bold" text-anchor="middle" transform="rotate(49 150 62)">Rechte Kante</text>
-                    
-                    <!-- Basis-Maß -->
-                    <line x1="30" y1="145" x2="200" y2="145" stroke="#333" stroke-width="1"/>
-                    <line x1="30" y1="142" x2="30" y2="148" stroke="#333" stroke-width="1"/>
-                    <line x1="200" y1="142" x2="200" y2="148" stroke="#333" stroke-width="1"/>
-                    <text x="115" y="160" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Basis-Breite</text>
-                    
-                    <!-- Höhen-Maß -->
-                    <line x1="15" y1="15" x2="15" y2="130" stroke="#333" stroke-width="1"/>
-                    <line x1="12" y1="15" x2="18" y2="15" stroke="#333" stroke-width="1"/>
-                    <line x1="12" y1="130" x2="18" y2="130" stroke="#333" stroke-width="1"/>
-                    <text x="8" y="75" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 8 75)">Höhe</text>
-                    
-                    <!-- Position der Spitze -->
-                    <line x1="30" y1="135" x2="100" y2="135" stroke="#ff6b35" stroke-width="2" stroke-dasharray="5,5"/>
-                    <text x="65" y="125" font-size="9" fill="#ff6b35" font-weight="bold">Spitzen-Position</text>
-                </svg>
-            </div>
-            
-            <h1 style="color: #1e3c72; text-align: center; margin-bottom: 30px;">Ungleichschenkliges Dreieck</h1>
-
-            <!-- Dreiecks-Geometrie -->
-            <div class="section">
-                <h2>1. Dreiecks-Geometrie</h2>
-                
-                <!-- Basis -->
-                <div class="input-row">
-                    <div class="input-group">
-                        <label for="basis-breite">Basis-Breite (m)</label>
-                        <input type="number" id="basis-breite" step="0.01" min="0" placeholder="z.B. 12.00">
-                    </div>
-                </div>
-
-                <!-- Parameter-Auswahl -->
-                <div class="parameter-switch">
-                    <button id="btn-kantenlängen" class="active" onclick="wechsleParameterModus('kantenlängen')">
-                        📏 Kantenlängen eingeben
-                    </button>
-                    <button id="btn-position" onclick="wechsleParameterModus('position')">
-                        📍 Spitzen-Position + Höhe eingeben
-                    </button>
-                </div>
-
-                <!-- Kantenlängen-Eingabe -->
-                <div id="kantenlängen-inputs">
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label for="kante-links">Linke Kantenlänge (m)</label>
-                            <input type="number" id="kante-links" step="0.01" min="0" placeholder="z.B. 7.50">
-                        </div>
-                        <div class="input-group">
-                            <label for="kante-rechts">Rechte Kantenlänge (m)</label>
-                            <input type="number" id="kante-rechts" step="0.01" min="0" placeholder="z.B. 9.20">
-                        </div>
-                    </div>
-                    <div class="info-box">
-                        <strong>💡 Kantenlängen-Modus:</strong> Geben Sie die Längen der beiden schrägen Seiten des Dreiecks ein.
-                        Die Höhe und Position der Spitze werden automatisch berechnet.
-                    </div>
-                </div>
-
-                <!-- Spitzen-Position-Eingabe -->
-                <div id="position-inputs">
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label for="spitze-position">Spitzen-Position von links (m)</label>
-                            <input type="number" id="spitze-position" step="0.01" min="0" placeholder="z.B. 4.50">
-                        </div>
-                        <div class="input-group">
-                            <label for="hoehe">Höhe (m)</label>
-                            <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 6.00">
-                        </div>
-                    </div>
-                    <div class="info-box">
-                        <strong>💡 Positions-Modus:</strong> Geben Sie an, wo die Spitze steht und wie hoch das Dreieck ist.
-                        Die Kantenlängen werden automatisch berechnet.
-                    </div>
-                </div>
-            </div>
-
-            <!-- Material -->
-            <div class="section">
-                <h2>2. Materialangaben</h2>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label for="deckbreite">Deckbreite (m)</label>
-                        <input type="number" id="deckbreite" step="0.01" min="0" value="1.00">
-                    </div>
-                    <div class="input-group">
-                        <label for="lieferbreite">Lieferbreite (m)</label>
-                        <input type="number" id="lieferbreite" step="0.01" min="0" value="1.06">
-                    </div>
-                </div>
-            </div>
-
-            <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
-
-            <div id="results" class="results" style="display: none;">
-                <div class="result-item">
-                    <span>Überlappung pro Blech:</span>
-                    <span id="ueberlappung">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Berechnete Höhe:</span>
-                    <span id="hoehe-result">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Spitzen-Position von links:</span>
-                    <span id="spitze-position-result">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Berechnete Kantenlängen:</span>
-                    <span id="hypotenusen-result">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Benötigte max. Plattenlänge:</span>
-                    <span id="benoetigte-plattenlaenge">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Benötigte Anzahl Bleche:</span>
-                    <span id="anzahl-bleche-breite">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Gesamtanzahl Bleche:</span>
-                    <span id="gesamt-bleche">-</span>
-                </div>
-                
-                <!-- Visuelles Vorschaufenster -->
-                <div id="vorschau" style="display: none; margin-top: 30px;">
+<div id="vorschau" style="display: none; margin-top: 30px;">
                     <h4 style="color: #1e3c72; font-size: 1.3em; margin-bottom: 20px;">👁️ Visuelle Vorschau</h4>
                     <div style="background: white; border: 2px solid #1e3c72; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
                         <div id="vorschau-svg" style="text-align: center; margin-bottom: 15px;"></div>
@@ -598,6 +401,14 @@
             html += `<p style="color: #666; font-size: 1.1em;">Basis: ${basisBreite}m | Höhe: ${hoehe}m | Spitze bei: ${spitzenPosition.toFixed(2)}m | Platten: ${aktuelleSchnittliste.length} Stück</p>`;
             html += `</div>`;
             
+            // Vorschau für Anrissplan hinzufügen
+            html += '<div style="margin-bottom: 30px; text-align: center;">';
+            html += '<h3 style="color: #1e3c72; margin-bottom: 15px;">📐 Dreieck-Übersicht</h3>';
+            html += '<div style="border: 2px solid #1e3c72; border-radius: 8px; padding: 15px; background: white; display: inline-block;">';
+            html += document.getElementById('vorschau-svg').innerHTML;
+            html += '</div>';
+            html += '</div>';
+            
             aktuelleSchnittliste.forEach(item => {
                 const plattenStart = parseFloat(item.positionVonLinks);
                 const plattenEnde = parseFloat(item.positionBis);
@@ -732,4 +543,202 @@
         wechsleParameterModus('kantenlängen');
     </script>
 </body>
-</html>
+</html><!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ungleichschenkliges Dreieck - Trapezplattenrechner</title>
+    <meta name="description" content="Berechnen Sie Trapezbleche für ungleichschenklige Dreiecksflächen mit variabler Spitzenposition. Flexible Eingabemöglichkeiten.">
+    
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Check if analytics cookies are accepted
+        const analyticsCookies = localStorage.getItem('analyticsCookies');
+        if (analyticsCookies === 'true') {
+            gtag('config', 'G-6NSYG8B1T9', {
+                anonymize_ip: true,
+                cookie_flags: 'SameSite=None;Secure'
+            });
+        }
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="nav-header">
+        <div class="container">
+            <a href="index.html" class="back-btn">
+                <span>←</span>
+                <span>Zurück zur Übersicht</span>
+            </a>
+            <div class="nav-title">Ungleichschenkliges Dreieck</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <main>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <svg width="250" height="160" viewBox="0 0 250 160" style="margin-bottom: 15px;">
+                    <!-- Ungleichschenkliges Dreieck -->
+                    <polygon points="100,15 30,130 200,130" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                    
+                    <!-- Trapezbleche (senkrecht, gleichmäßige Abstände) -->
+                    <line x1="45" y1="130" x2="45" y2="110" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="60" y1="130" x2="60" y2="90" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="75" y1="130" x2="75" y2="68" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="90" y1="130" x2="90" y2="40" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="100" y1="130" x2="100" y2="15" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
+                    <line x1="115" y1="130" x2="115" y2="35" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="130" y1="130" x2="130" y2="55" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="145" y1="130" x2="145" y2="75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="160" y1="130" x2="160" y2="90" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="175" y1="130" x2="175" y2="105" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    
+                    <!-- Dachspitze markieren -->
+                    <circle cx="100" cy="15" r="3" fill="#dc3545"/>
+                    <text x="110" y="20" font-size="10" fill="#dc3545" font-weight="bold">Spitze</text>
+                    
+                    <!-- Linke Kantenlänge -->
+                    <text x="65" y="62" font-size="10" fill="#1976d2" font-weight="bold" text-anchor="middle" transform="rotate(-58 65 62)">Linke Kante</text>
+                    
+                    <!-- Rechte Kantenlänge -->
+                    <text x="150" y="62" font-size="10" fill="#1976d2" font-weight="bold" text-anchor="middle" transform="rotate(49 150 62)">Rechte Kante</text>
+                    
+                    <!-- Basis-Maß -->
+                    <line x1="30" y1="145" x2="200" y2="145" stroke="#333" stroke-width="1"/>
+                    <line x1="30" y1="142" x2="30" y2="148" stroke="#333" stroke-width="1"/>
+                    <line x1="200" y1="142" x2="200" y2="148" stroke="#333" stroke-width="1"/>
+                    <text x="115" y="160" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Basis-Breite</text>
+                    
+                    <!-- Höhen-Maß -->
+                    <line x1="15" y1="15" x2="15" y2="130" stroke="#333" stroke-width="1"/>
+                    <line x1="12" y1="15" x2="18" y2="15" stroke="#333" stroke-width="1"/>
+                    <line x1="12" y1="130" x2="18" y2="130" stroke="#333" stroke-width="1"/>
+                    <text x="8" y="75" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 8 75)">Höhe</text>
+                    
+                    <!-- Position der Spitze -->
+                    <line x1="30" y1="135" x2="100" y2="135" stroke="#ff6b35" stroke-width="2" stroke-dasharray="5,5"/>
+                    <text x="65" y="125" font-size="9" fill="#ff6b35" font-weight="bold">Spitzen-Position</text>
+                </svg>
+            </div>
+            
+            <h1 style="color: #1e3c72; text-align: center; margin-bottom: 30px;">Ungleichschenkliges Dreieck</h1>
+
+            <!-- Dreiecks-Geometrie -->
+            <div class="section">
+                <h2>1. Dreiecks-Geometrie</h2>
+                
+                <!-- Basis -->
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="basis-breite">Basis-Breite (m)</label>
+                        <input type="number" id="basis-breite" step="0.01" min="0" placeholder="z.B. 12.00">
+                    </div>
+                </div>
+
+                <!-- Parameter-Auswahl -->
+                <div class="parameter-switch">
+                    <button id="btn-kantenlängen" class="active" onclick="wechsleParameterModus('kantenlängen')">
+                        📏 Kantenlängen eingeben
+                    </button>
+                    <button id="btn-position" onclick="wechsleParameterModus('position')">
+                        📍 Spitzen-Position + Höhe eingeben
+                    </button>
+                </div>
+
+                <!-- Kantenlängen-Eingabe -->
+                <div id="kantenlängen-inputs">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="kante-links">Linke Kantenlänge (m)</label>
+                            <input type="number" id="kante-links" step="0.01" min="0" placeholder="z.B. 7.50">
+                        </div>
+                        <div class="input-group">
+                            <label for="kante-rechts">Rechte Kantenlänge (m)</label>
+                            <input type="number" id="kante-rechts" step="0.01" min="0" placeholder="z.B. 9.20">
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Kantenlängen-Modus:</strong> Geben Sie die Längen der beiden schrägen Seiten des Dreiecks ein.
+                        Die Höhe und Position der Spitze werden automatisch berechnet.
+                    </div>
+                </div>
+
+                <!-- Spitzen-Position-Eingabe -->
+                <div id="position-inputs">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="spitze-position">Spitzen-Position von links (m)</label>
+                            <input type="number" id="spitze-position" step="0.01" min="0" placeholder="z.B. 4.50">
+                        </div>
+                        <div class="input-group">
+                            <label for="hoehe">Höhe (m)</label>
+                            <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 6.00">
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Positions-Modus:</strong> Geben Sie an, wo die Spitze steht und wie hoch das Dreieck ist.
+                        Die Kantenlängen werden automatisch berechnet.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Material -->
+            <div class="section">
+                <h2>2. Materialangaben</h2>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="deckbreite">Deckbreite (m)</label>
+                        <input type="number" id="deckbreite" step="0.01" min="0" value="1.00">
+                    </div>
+                    <div class="input-group">
+                        <label for="lieferbreite">Lieferbreite (m)</label>
+                        <input type="number" id="lieferbreite" step="0.01" min="0" value="1.06">
+                    </div>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
+
+            <div id="results" class="results" style="display: none;">
+                <div class="result-item">
+                    <span>Überlappung pro Blech:</span>
+                    <span id="ueberlappung">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Berechnete Höhe:</span>
+                    <span id="hoehe-result">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Spitzen-Position von links:</span>
+                    <span id="spitze-position-result">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Berechnete Kantenlängen:</span>
+                    <span id="hypotenusen-result">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Benötigte max. Plattenlänge:</span>
+                    <span id="benoetigte-plattenlaenge">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Benötigte Anzahl Bleche:</span>
+                    <span id="anzahl-bleche-breite">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Gesamtanzahl Bleche:</span>
+                    <span id="gesamt-bleche">-</span>
+                </div>
+                
+                <!-- Visuelles Vorschaufenster -->
+                <div id="vorschau" style="display: none; margin-top: 30px;">
+                    <h4 style="color: #1e3c72; font-size: 1.3em; margin-bottom: 20px;">👁️ Visuelle Vorschau</h4>
