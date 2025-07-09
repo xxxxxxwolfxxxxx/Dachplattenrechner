@@ -6,49 +6,329 @@
     <title>Gleichschenkliges Dreieck - Trapezplattenrechner</title>
     <meta name="description" content="Berechnen Sie Trapezbleche für gleichschenklige Dreiecksflächen. Ideal für Pyramidendächer und symmetrische Dachformen.">
     
-    <!-- Google AdSense -->
-    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
-    
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        
-        // Check if analytics cookies are accepted
-        const analyticsCookies = localStorage.getItem('analyticsCookies');
-        if (analyticsCookies === 'true') {
-            gtag('config', 'G-6NSYG8B1T9', {
-                anonymize_ip: true,
-                cookie_flags: 'SameSite=None;Secure'
-            });
-        }
-    </script>
-
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- Optimierte Print-Styles -->
     <style>
+        /* Reset und Basis-Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .nav-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+        }
+
+        .nav-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            text-align: center;
+            flex: 1;
+        }
+
+        /* Main Content */
+        main {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border-left: 5px solid #2a5298;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            color: #1e3c72;
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+
+        /* Input Styles */
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e3c72;
+            font-size: 1em;
+        }
+
+        .input-group input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-group input[type="number"]:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        /* Parameter Switch */
+        .parameter-switch {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .parameter-switch button {
+            padding: 12px 20px;
+            border: 2px solid #2a5298;
+            background: white;
+            color: #2a5298;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .parameter-switch button.active {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+        }
+
+        .parameter-switch button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.2);
+        }
+
+        /* Info Box */
+        .info-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e7f1ff 0%, #cce7ff 100%);
+            border-radius: 10px;
+            border-left: 5px solid #2a5298;
+            font-size: 0.95em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Calculate Button */
+        .calculate-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.3em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 30px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 6px 20px rgba(30, 60, 114, 0.3);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(30, 60, 114, 0.4);
+        }
+
+        /* Results */
+        .results {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 35px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border-left: 5px solid #2a5298;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 1.1em;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            color: #1e3c72;
+            font-size: 1.2em;
+            background: rgba(30, 60, 114, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        /* Tables */
+        .schnitt-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .schnitt-table th,
+        .schnitt-table td {
+            padding: 12px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .schnitt-table th {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.4);
+        }
+
+        .anriss-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .anriss-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        /* Anrissplan */
+        .anrissplan {
+            margin-top: 25px;
+            padding: 25px;
+            background: white;
+            border: 2px solid #2a5298;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        /* Print Styles */
         @media print {
-            /* Grundlegende Seiteneinstellungen */
             @page {
                 margin: 15mm;
                 size: A4;
             }
             
-            /* Verstecke alles außer Anrissplan */
             body * {
                 visibility: hidden;
             }
             
-            /* Zeige nur den Anrissplan */
             .anrissplan,
             .anrissplan * {
                 visibility: visible;
             }
             
-            /* Positioniere den Anrissplan für Druck */
             .anrissplan {
                 position: absolute !important;
                 left: 0 !important;
@@ -61,7 +341,6 @@
                 background: white !important;
             }
             
-            /* Verstecke Navigation und andere Elemente */
             .nav-header,
             header,
             footer,
@@ -71,7 +350,6 @@
                 display: none !important;
             }
             
-            /* Plattenkarten für Seitenumbruch optimieren */
             .platte-container {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
@@ -81,38 +359,50 @@
                 background: white !important;
             }
             
-            /* Überschrift auf jeder Seite */
-            .anrissplan h2 {
-                page-break-after: avoid !important;
-                margin-bottom: 15px !important;
-                font-size: 18pt !important;
-                color: black !important;
-            }
-            
-            /* Stelle sicher, dass Texte schwarz sind */
             * {
                 color: black !important;
                 background: white !important;
             }
             
-            /* SVG-Optimierung */
             svg {
                 max-width: 100% !important;
                 height: auto !important;
                 border: 1px solid black !important;
             }
-            
-            /* Spezielle Plattendiagramme */
-            .platte-container h3 {
-                color: black !important;
-                font-size: 14pt !important;
-                margin-bottom: 10px !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
             }
             
-            /* Anrissmaße besonders hervorheben */
-            div[style*="color: #dc3545"] {
-                color: black !important;
-                font-weight: bold !important;
+            .nav-header .container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav-title {
+                order: -1;
+                margin-bottom: 15px;
+                font-size: 1.2em;
+            }
+            
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .parameter-switch {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            main {
+                padding: 25px;
+            }
+            
+            .section {
+                padding: 20px;
             }
         }
     </style>
@@ -169,54 +459,6 @@
             </div>
             
             <h1 style="color: #1e3c72; text-align: center; margin-bottom: 30px;">Gleichschenkliges Dreieck</h1>
-
-            <!-- Dreiecks-Geometrie -->
-            <div class="section">
-                <h2>1. Dreiecks-Geometrie</h2>
-                
-                <div class="parameter-switch">
-                    <button id="btn-basis-hoehe" class="active" onclick="wechsleParameterModus('basis-hoehe')">
-                        📐 Basis + Höhe eingeben
-                    </button>
-                    <button id="btn-kantenlänge" onclick="wechsleParameterModus('kantenlaenge')">
-                        📏 Kantenlänge eingeben
-                    </button>
-                </div>
-
-                <!-- Basis + Höhe Eingabe -->
-                <div id="basis-hoehe-inputs">
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label for="basis-breite">Basis-Breite (m)</label>
-                            <input type="number" id="basis-breite" step="0.01" min="0" placeholder="z.B. 8.00" value="">
-                        </div>
-                        <div class="input-group">
-                            <label for="hoehe">Höhe (m)</label>
-                            <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 6.00" value="">
-                        </div>
-                    </div>
-                    <div class="info-box">
-                        <strong>💡 Basis + Höhe Modus:</strong> Geben Sie die Breite der Basis und die Höhe des Dreiecks ein. Die Kantenlänge wird automatisch berechnet.
-                    </div>
-                </div>
-
-                <!-- Kantenlänge Eingabe -->
-                <div id="kantenlaenge-inputs" style="display: none;">
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label for="basis-breite-kante">Basis-Breite (m)</label>
-                            <input type="number" id="basis-breite-kante" step="0.01" min="0" placeholder="z.B. 8.00" value="">
-                        </div>
-                        <div class="input-group">
-                            <label for="kantenlänge">Kantenlänge (m)</label>
-                            <input type="number" id="kantenlänge" step="0.01" min="0" placeholder="z.B. 7.50" value="">
-                        </div>
-                    </div>
-                    <div class="info-box">
-                        <strong>💡 Kantenlängen-Modus:</strong> Geben Sie die Basis-Breite und die Länge der schrägen Kante ein. Die Höhe wird automatisch berechnet.
-                    </div>
-                </div>
-            </div>
 
             <!-- Dreiecks-Geometrie -->
             <div class="section">
@@ -372,25 +614,17 @@
         let aktuelleSchnittliste = [];
         let parameterModus = 'basis-hoehe';
 
-        // Verbesserte Druckfunktion
-        function druckeAnrissplan() {
+        // Globale Funktionen für externe Aufrufe
+        window.druckeAnrissplan = function() {
             const anrissplan = document.getElementById('anrissplan');
             if (!anrissplan || anrissplan.style.display === 'none') {
                 alert('Bitte erstellen Sie zuerst einen Anrissplan!');
                 return;
             }
-            
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'print_anrissplan', {
-                    'event_category': 'gleichschenkliges_dreieck',
-                    'event_label': 'print_initiated'
-                });
-            }
-            
             window.print();
-        }
+        };
 
-        function wechsleParameterModus(modus) {
+        window.wechsleParameterModus = function(modus) {
             parameterModus = modus;
             
             // Buttons aktualisieren
@@ -411,7 +645,7 @@
                 document.getElementById('basis-hoehe-inputs').style.display = 'none';
                 document.getElementById('kantenlaenge-inputs').style.display = 'block';
             }
-        }
+        };
 
         function berechneGleichschenkligesDreieck(basisBreite, hoehe, deckbreite) {
             const schnittliste = [];
@@ -449,10 +683,6 @@
                 }
             }
 
-            return { 
-                schnittliste: schnittliste,
-                anzahlPlatten: schnittliste.length
-            };
         }
 
         function berechneHoeheAnPosition(position, basisBreite, maxHoehe) {
@@ -475,7 +705,6 @@
             return Math.sqrt(kantenlänge * kantenlänge - halbeBase * halbeBase);
         }
 
-        // Globale Funktion für berechnen - sicherstellen dass sie verfügbar ist
         window.berechnen = function() {
             let basisBreite, hoehe, kantenlänge;
             const deckbreite = parseFloat(document.getElementById('deckbreite').value);
@@ -519,14 +748,6 @@
                 }
             }
 
-            // Track calculation event for analytics
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'calculation', {
-                    'event_category': 'gleichschenkliges_dreieck',
-                    'event_label': 'form_submitted'
-                });
-            }
-
             const ueberlappung = lieferbreite - deckbreite;
             const dreieckBerechnung = berechneGleichschenkligesDreieck(basisBreite, hoehe, deckbreite);
             const maxLaenge = Math.max(...dreieckBerechnung.schnittliste.map(p => parseFloat(p.benoetigteLaenge)));
@@ -560,7 +781,7 @@
             // Vorschau generieren
             generiereVorschau(basisBreite, hoehe, dreieckBerechnung.schnittliste);
             document.getElementById('vorschau').style.display = 'block';
-        }; // Ende der berechnen-Funktion
+        };
 
         function generiereVorschau(basisBreite, hoehe, schnittliste) {
             const spitzenPosition = basisBreite / 2;
@@ -669,16 +890,8 @@
             document.getElementById('vorschau-svg').innerHTML = svg;
         }
 
-        function erstelleAnrissplan() {
+        window.erstelleAnrissplan = function() {
             if (aktuelleSchnittliste.length === 0) return;
-            
-            // Track anrissplan generation
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'anrissplan_generated', {
-                    'event_category': 'gleichschenkliges_dreieck',
-                    'event_label': 'pdf_generated'
-                });
-            }
             
             const basisBreite = parameterModus === 'basis-hoehe' ? 
                 parseFloat(document.getElementById('basis-breite').value) : 
@@ -839,55 +1052,13 @@
             
             document.getElementById('anriss-content').innerHTML = html;
             document.getElementById('anrissplan').style.display = 'block';
-        }weight: bold; color: #FF0000; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
-                    }
-                }
-                
-                // Anrisslinien
-                html += `<div style="position: absolute; bottom: 25px; left: 30px; width: 5px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 2px;"></div>`;
-                html += `<div style="position: absolute; bottom: 25px; left: ${30 + endX - 3}px; width: 5px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 2px;"></div>`;
-                
-                // Anrissmaße
-                html += `<div style="position: absolute; bottom: ${35 + plattenhoehePx}px; left: -15px; font-size: 16px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: ${35 + plattenhoehePx}px; right: -15px; font-size: 16px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: 8px; left: -35px; font-size: 15px; font-weight: bold; color: #dc3545; text-align: center; width: 60px;">${anreissLinks}cm</div>`;
-                html += `<div style="position: absolute; bottom: 8px; right: -35px; font-size: 15px; font-weight: bold; color: #dc3545; text-align: center; width: 60px;">${anreissRechts}cm</div>`;
-                
-                html += `</div>`;
-                
-                // Anleitung
-                html += `<div style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); padding: 20px; border-radius: 10px; font-size: 15px; margin-top: 25px; border-left: 5px solid #ffc107;">`;
-                html += `<strong style="color: #856404;">📏 Anzeichnen:</strong><br>`;
-                if (istLetztePlatte) {
-                    const ueberhang = originalPlattenEnde - basisBreite;
-                    if (ueberhang > 0) {
-                        html += `• <strong style="color: #FF0000;">⚠️ ZUERST: Rechts ${(ueberhang * 100).toFixed(0)}cm abschneiden!</strong><br>`;
-                    }
-                }
-                html += `• Von der Unterkante: Links bei ${anreissLinks}cm und rechts bei ${anreissRechts}cm markieren<br>`;
-                html += `• Diagonale Schnittlinie anzeichnen und oberen Teil absägen<br>`;
-                if (ueberdecktSpitze) {
-                    const spitzeVonLinks = spitzenPosition - plattenStart;
-                    html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält die Dachspitze bei ${(spitzeVonLinks * 100).toFixed(0)}cm von links!</strong><br>`;
-                }
-                if (anreissLinks === anreissRechts) {
-                    html += `• <strong style="color: #28a745;">💡 TIPP: Symmetrischer Schnitt!</strong><br>`;
-                }
-                html += `</div>`;
-                html += `</div>`;
-            });
-            
-            html += `</div>`;
-            
-            document.getElementById('anriss-content').innerHTML = html;
-            document.getElementById('anrissplan').style.display = 'block';
-        }
+        };
 
-        // Initial den Basis-Höhe-Modus aktivieren
-        wechsleParameterModus('basis-hoehe');
-        
         // Event-Listener für Enter-Taste in Eingabefeldern
         document.addEventListener('DOMContentLoaded', function() {
+            // Initial den Basis-Höhe-Modus aktivieren
+            wechsleParameterModus('basis-hoehe');
+            
             const inputs = document.querySelectorAll('input[type="number"]');
             inputs.forEach(input => {
                 input.addEventListener('keypress', function(e) {
