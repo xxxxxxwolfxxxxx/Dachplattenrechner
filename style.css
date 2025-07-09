@@ -12,12 +12,11 @@ body {
     background-color: #f5f5f5;
 }
 
-/* Hauptcontainer */
+/* Hauptcontainer - KORRIGIERT: min-height entfernt */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -1156,58 +1155,33 @@ footer::before {
     color: #1e3c72;
 }
 
-/* VERBESSERTE PRINT STYLES */
+/* KORRIGIERTE PRINT STYLES - Mehrseitige Anrisspläne */
 @media print {
     /* Grundlegende Seiteneinstellungen */
     @page {
-        margin: 15mm;
+        margin: 10mm;
         size: A4;
     }
     
-    /* Verstecke standardmäßig alles */
+    /* Verstecke standardmäßig alles außer Anrissplan */
     body * {
         visibility: hidden;
     }
     
-    /* Zeige nur den Anrissplan wenn er sichtbar ist */
+    /* Zeige nur den Anrissplan-Inhalt */
     .anrissplan,
     .anrissplan * {
         visibility: visible;
-    }
-    
-    /* Positioniere den Anrissplan am Anfang der Seite */
-    .anrissplan {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 20px !important;
-        border: none !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        background: white !important;
-        display: block !important;
-    }
-    
-    /* Verstecke alle anderen Hauptbereiche */
-    header,
-    .nav-header,
-    footer,
-    .cookie-banner,
-    .modal,
-    main > *:not(.anrissplan) {
-        display: none !important;
-        visibility: hidden !important;
     }
     
     /* Body-Optimierungen für Druck */
     body {
         background: white !important;
         color: black !important;
-        font-size: 12pt !important;
-        line-height: 1.4 !important;
+        font-size: 10pt !important;
+        line-height: 1.3 !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
     }
     
     /* Container-Optimierungen */
@@ -1218,35 +1192,92 @@ footer::before {
         background: white !important;
     }
     
-    /* Verstecke Druckbuttons im Ausdruck */
+    /* Anrissplan-Positionierung */
+    .anrissplan {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 10mm !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        background: white !important;
+        display: block !important;
+        visibility: visible !important;
+    }
+    
+    /* Verstecke alle anderen Hauptbereiche */
+    header,
+    .nav-header,
+    footer,
+    .cookie-banner,
+    .modal,
+    main > *:not(.anrissplan),
+    main > div:not(.anrissplan) {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Verstecke Buttons im Anrissplan */
     .btn,
     .calculate-btn,
     .anriss-btn,
     .print-button,
-    button[onclick*="print"],
-    button[onclick*="drucke"] {
+    button,
+    input[type="button"],
+    input[type="submit"] {
         display: none !important;
+        visibility: hidden !important;
     }
     
-    /* Plattenkarten-Optimierung */
+    /* Plattenkarten - KORRIGIERT für mehrseitige Darstellung */
     .platte-container,
     div[style*="border: 3px solid #1e3c72"] {
-        page-break-inside: avoid;
-        break-inside: avoid;
-        margin-bottom: 30px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 15mm !important;
         border: 2px solid black !important;
-        padding: 15px !important;
+        padding: 8mm !important;
+        background: white !important;
+        page-break-after: auto !important;
+    }
+    
+    /* Automatischer Seitenumbruch nach bestimmter Anzahl Platten */
+    .platte-container:nth-child(2n) {
+        page-break-after: page !important;
     }
     
     /* Text-Optimierungen für bessere Lesbarkeit */
     h1, h2, h3, h4, h5, h6 {
         color: black !important;
-        page-break-after: avoid;
+        page-break-after: avoid !important;
+        font-size: 14pt !important;
+        margin: 5mm 0 3mm 0 !important;
+    }
+    
+    h2 {
+        font-size: 16pt !important;
+        border-bottom: 1px solid black !important;
+        padding-bottom: 2mm !important;
+    }
+    
+    h3 {
+        font-size: 12pt !important;
     }
     
     p, div, span {
         color: black !important;
         background: transparent !important;
+        font-size: 9pt !important;
+        line-height: 1.2 !important;
+    }
+    
+    strong {
+        font-weight: bold !important;
+        color: black !important;
     }
     
     /* SVG-Optimierung für Druck */
@@ -1254,18 +1285,20 @@ footer::before {
         max-width: 100% !important;
         height: auto !important;
         border: 1px solid black !important;
+        background: white !important;
     }
     
     /* Tabellen-Optimierung */
     table {
         border-collapse: collapse !important;
         width: 100% !important;
-        margin: 15px 0 !important;
+        margin: 8mm 0 !important;
+        font-size: 8pt !important;
     }
     
     th, td {
         border: 1px solid black !important;
-        padding: 8px !important;
+        padding: 2mm !important;
         color: black !important;
         background: white !important;
     }
@@ -1275,42 +1308,73 @@ footer::before {
         font-weight: bold !important;
     }
     
-    /* Spezielle Anriss-Inhalte */
-    .anriss-content > div {
-        page-break-inside: avoid;
-        margin-bottom: 40px !important;
+    /* Anriss-Content spezifische Optimierungen */
+    #anriss-content {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     
-    /* Links und wichtige Texte */
-    strong {
-        font-weight: bold !important;
+    #anriss-content > div {
+        page-break-inside: avoid !important;
+        margin-bottom: 20mm !important;
+        width: 100% !important;
+    }
+    
+    /* Spezielle Markierungen für farbige Bereiche */
+    div[style*="background: linear-gradient"],
+    div[style*="background: #"] {
+        background: #f5f5f5 !important;
+        border-left: 3mm solid black !important;
+        padding: 5mm !important;
+        margin: 5mm 0 !important;
+    }
+    
+    /* Farben in Schwarz-Weiß umwandeln */
+    div[style*="color: #dc3545"],
+    span[style*="color: #dc3545"] {
         color: black !important;
+        font-weight: bold !important;
     }
     
-    /* Überschriften-Hierarchie */
+    div[style*="color: #28a745"],
+    span[style*="color: #28a745"] {
+        color: black !important;
+        font-weight: bold !important;
+    }
+    
+    div[style*="color: #ffc107"],
+    span[style*="color: #ffc107"] {
+        color: black !important;
+        font-weight: bold !important;
+    }
+    
+    /* Relative Positionierung für SVG-Container */
+    div[style*="position: relative"] {
+        position: relative !important;
+        page-break-inside: avoid !important;
+    }
+    
+    /* Überschriften-Abstände optimieren */
     .anrissplan h2 {
-        font-size: 18pt !important;
-        margin-bottom: 15px !important;
-        border-bottom: 2px solid black !important;
-        padding-bottom: 5px !important;
+        margin-top: 0 !important;
+        margin-bottom: 8mm !important;
     }
     
     .anrissplan h3 {
-        font-size: 14pt !important;
-        margin: 20px 0 10px 0 !important;
+        margin-top: 10mm !important;
+        margin-bottom: 5mm !important;
     }
     
-    .anrissplan h4 {
-        font-size: 12pt !important;
-        margin: 15px 0 8px 0 !important;
+    /* Erste Seite - Header anpassen */
+    .anrissplan > div:first-child {
+        margin-bottom: 10mm !important;
+        page-break-after: avoid !important;
     }
     
-    /* Spezielle Markierungen */
-    div[style*="background: linear-gradient"] {
-        background: #f5f5f5 !important;
-        border-left: 4px solid black !important;
-        padding: 10px !important;
-        margin: 10px 0 !important;
+    /* Links und wichtige Informationen */
+    div[style*="font-weight: bold"] {
+        font-weight: bold !important;
     }
 }
 
