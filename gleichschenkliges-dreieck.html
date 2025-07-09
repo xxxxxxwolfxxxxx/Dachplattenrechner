@@ -427,7 +427,8 @@
             return Math.sqrt(kantenlänge * kantenlänge - halbeBase * halbeBase);
         }
 
-        function berechnen() {
+        // Globale Funktion für berechnen - sicherstellen dass sie verfügbar ist
+        window.berechnen = function() {
             let basisBreite, hoehe, kantenlänge;
             const deckbreite = parseFloat(document.getElementById('deckbreite').value);
             const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
@@ -511,7 +512,7 @@
             // Vorschau generieren
             generiereVorschau(basisBreite, hoehe, dreieckBerechnung.schnittliste);
             document.getElementById('vorschau').style.display = 'block';
-        }
+        }; // Ende der berechnen-Funktion
 
         function generiereVorschau(basisBreite, hoehe, schnittliste) {
             const spitzenPosition = basisBreite / 2;
@@ -836,6 +837,18 @@
 
         // Initial den Basis-Höhe-Modus aktivieren
         wechsleParameterModus('basis-hoehe');
+        
+        // Event-Listener für Enter-Taste in Eingabefeldern
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        berechnen();
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
