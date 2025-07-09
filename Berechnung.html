@@ -681,10 +681,10 @@
             if (!profile) return;
             
             const deckbreite = profile.deckbreite / 1000;
-            const scale = variant === '3' ? 40 : 30; // Größerer Maßstab für Dreieck
+            const scale = variant === '3' ? 40 : 30;
             const centerX = roofCanvas.width / 2;
             const centerY = roofCanvas.height / 2;
-            const { rotation } = extractGeometryData();
+            const { rotation, dimensions } = extractGeometryData();
             
             roofCtx.save();
             roofCtx.translate(centerX, centerY);
@@ -694,44 +694,90 @@
             roofCtx.fillStyle = 'rgba(40, 167, 69, 0.4)';
             roofCtx.lineWidth = 2;
             
-            const effektiveBreite = dimensionData.effective.width;
-            const effektiveLaenge = dimensionData.effective.length;
-            
-            // Platten beginnen links und passen sich der Form an
-            const startX = -(effektiveBreite * scale) / 2;
-            
-            for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
-                const bahnX = startX + (i * deckbreite * scale);
-                const plattenbreite = deckbreite * scale * 0.9;
+            if (variant === '3') {
+                // SPEZIELLE DREIECK-DARSTELLUNG mit variablen Längen
+                const sideA = dimensions.sideA || 5;
+                const sideB = dimensions.sideB || 4;
+                const sideC = dimensions.sideC || 3;
                 
-                // Plattenlänge an tatsächliche Bestellung anpassen
-                let plattenhoehe;
-                if (calculationResults.bestellliste && i < calculationResults.bestellliste.length) {
-                    const bestellItem = calculationResults.bestellliste.find((item, index) => {
-                        let count = 0;
-                        for (let j = 0; j < index; j++) {
-                            count += calculationResults.bestellliste[j].quantity;
-                        }
-                        return i >= count && i < count + item.quantity;
-                    }) || calculationResults.bestellliste[0];
+                const basis = Math.max(sideA, sideB, sideC);
+                const s = (sideA + sideB + sideC) / 2;
+                const triangleArea = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
+                const hoehe = (2 * triangleArea) / basis;
+                
+                const startX = -(basis * scale) / 2;
+                const startY = -(hoehe * scale) / 2;
+                
+                for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
+                    const bahnX = startX + (i * deckbreite * scale);
+                    const plattenbreite = deckbreite * scale * 0.9;
                     
-                    plattenhoehe = (bestellItem.length / 1000) * scale * 0.8;
-                } else {
-                    plattenhoehe = effektiveLaenge * scale * 0.8;
+                    // Variable Plattenlänge je nach Position im Dreieck
+                    const bahnPosition = (i + 0.5) * deckbreite;
+                    const relativePosition = bahnPosition / basis;
+                    
+                    let laengeAnPosition;
+                    if (relativePosition <= 0.5) {
+                        laengeAnPosition = (relativePosition * 2) * hoehe;
+                    } else {
+                        laengeAnPosition = (2 - relativePosition * 2) * hoehe;
+                    }
+                    
+                    const plattenhoehe = laengeAnPosition * scale;
+                    
+                    // Platte zeichnen
+                    roofCtx.fillRect(bahnX, startY, plattenbreite, plattenhoehe);
+                    roofCtx.strokeRect(bahnX, startY, plattenbreite, plattenhoehe);
+                    
+                    // Plattennummer
+                    roofCtx.fillStyle = '#000';
+                    roofCtx.font = 'bold 10px Arial';
+                    roofCtx.textAlign = 'center';
+                    roofCtx.fillText(i + 1, bahnX + plattenbreite/2, startY + 15);
+                    
+                    // Länge anzeigen
+                    roofCtx.font = 'bold 8px Arial';
+                    const displayLaenge = Math.ceil((laengeAnPosition + 0.05) * 10) / 10;
+                    roofCtx.fillText(displayLaenge + 'm', bahnX + plattenbreite/2, startY + plattenhoehe - 5);
+                    
+                    roofCtx.fillStyle = 'rgba(40, 167, 69, 0.4)';
                 }
+            } else {
+                // Standard-Rechteck-Darstellung
+                const effektiveBreite = dimensionData.effective.width;
+                const effektiveLaenge = dimensionData.effective.length;
+                const startX = -(effektiveBreite * scale) / 2;
                 
-                // Platten beginnen oben (Wasserlauf nach unten)
-                const startY = -(effektiveLaenge * scale) / 2;
-                
-                roofCtx.fillRect(bahnX, startY, plattenbreite, plattenhoehe);
-                roofCtx.strokeRect(bahnX, startY, plattenbreite, plattenhoehe);
-                
-                // Plattennummer
-                roofCtx.fillStyle = '#000';
-                roofCtx.font = 'bold 12px Arial';
-                roofCtx.textAlign = 'center';
-                roofCtx.fillText(i + 1, bahnX + plattenbreite/2, startY + 20);
-                roofCtx.fillStyle = 'rgba(40, 167, 69, 0.4)';
+                for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
+                    const bahnX = startX + (i * deckbreite * scale);
+                    const plattenbreite = deckbreite * scale * 0.9;
+                    
+                    let plattenhoehe;
+                    if (calculationResults.bestellliste && i < calculationResults.bestellliste.length) {
+                        const bestellItem = calculationResults.bestellliste.find((item, index) => {
+                            let count = 0;
+                            for (let j = 0; j < index; j++) {
+                                count += calculationResults.bestellliste[j].quantity;
+                            }
+                            return i >= count && i < count + item.quantity;
+                        }) || calculationResults.bestellliste[0];
+                        
+                        plattenhoehe = (bestellItem.length / 1000) * scale * 0.8;
+                    } else {
+                        plattenhoehe = effektiveLaenge * scale * 0.8;
+                    }
+                    
+                    const startY = -(effektiveLaenge * scale) / 2;
+                    
+                    roofCtx.fillRect(bahnX, startY, plattenbreite, plattenhoehe);
+                    roofCtx.strokeRect(bahnX, startY, plattenbreite, plattenhoehe);
+                    
+                    roofCtx.fillStyle = '#000';
+                    roofCtx.font = 'bold 12px Arial';
+                    roofCtx.textAlign = 'center';
+                    roofCtx.fillText(i + 1, bahnX + plattenbreite/2, startY + 20);
+                    roofCtx.fillStyle = 'rgba(40, 167, 69, 0.4)';
+                }
             }
             
             roofCtx.restore();
