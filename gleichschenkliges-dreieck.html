@@ -488,7 +488,21 @@
                 
                 // Nutzen-Bereich (blau)
                 if (ueberdecktSpitze) {
-                    const spitzeX = margin + spitzenPosition * scaleX;
+                    const spitzeVonLinks = spitzenPosition - plattenStart;
+                    html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält die Dachspitze bei ${(spitzeVonLinks * 100).toFixed(0)}cm von links!</strong><br>`;
+                }
+                if (anreissLinks === anreissRechts) {
+                    html += `• <strong style="color: #28a745;">💡 TIPP: Symmetrischer Schnitt!</strong><br>`;
+                }
+                html += `</div>`;
+                html += `</div>`;
+            });
+            
+            html += `</div>`;
+            
+            document.getElementById('anriss-content').innerHTML = html;
+            document.getElementById('anrissplan').style.display = 'block';
+        }X = margin + spitzenPosition * scaleX;
                     const spitzeRelativeX = spitzeX - plattenX;
                     svg += `<polygon points="${plattenX},${margin + dreieckHeight} ${plattenX + plattenWidth},${margin + dreieckHeight} ${plattenX + plattenWidth},${endY} ${spitzeX},${margin} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
                 } else {
@@ -681,6 +695,20 @@
                 html += `• Diagonale Schnittlinie anzeichnen und oberen Teil absägen<br>`;
                 if (ueberdecktSpitze) {
                     const spitzeVonLinks = spitzenPosition - plattenStart;
+                    html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält die Dachspitze bei ${(spitzeVonLinks * 100).toFixed(0)}cm von links!</strong><br>`;
+                }
+                if (anreissLinks === anreissRechts) {
+                    html += `• <strong style="color: #28a745;">💡 TIPP: Symmetrischer Schnitt!</strong><br>`;
+                }
+                html += `</div>`;
+                html += `</div>`;
+            });
+            
+            html += `</div>`;
+            
+            document.getElementById('anriss-content').innerHTML = html;
+            document.getElementById('anrissplan').style.display = 'block';
+        }VonLinks = spitzenPosition - plattenStart;
                     html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält die Dachspitze bei ${(spitzeVonLinks * 100).toFixed(0)}cm von links!</strong><br>`;
                 }
                 if (anreissLinks === anreissRechts) {
