@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gleichschenkliges Dreieck Trapetzblechrechner</title>
-    <meta name="description" content="Berechnen Sie Trapetzbleche für gleichschenklige Dreiecksflächen. Ideal für Pyramidendächer und Satteldachwalmflächen.">
+    <title>Ungleichschenkliges Dreieck Dachplattenrechner</title>
+    <meta name="description" content="Berechnen Sie Dachplatten für ungleichschenklige Dreiecksflächen mit variabler Spitzenposition. Flexible Eingabemöglichkeiten.">
     
     <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
@@ -136,7 +136,7 @@
             font-size: 14px;
         }
 
-        input[type="number"] {
+        input[type="number"], select {
             width: 100%;
             padding: 10px;
             border: 2px solid #ddd;
@@ -144,7 +144,7 @@
             font-size: 14px;
         }
 
-        input[type="number"]:focus {
+        input[type="number"]:focus, select:focus {
             outline: none;
             border-color: #007bff;
         }
@@ -235,6 +235,40 @@
             border-radius: 8px;
         }
 
+        .info-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e7f1ff;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+            font-size: 14px;
+        }
+
+        .parameter-switch {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .parameter-switch button {
+            padding: 8px 16px;
+            border: 2px solid #007bff;
+            background: white;
+            color: #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .parameter-switch button.active {
+            background: #007bff;
+            color: white;
+        }
+
+        #kantenlängen-inputs, #position-inputs {
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .nav-header {
                 flex-direction: column;
@@ -248,6 +282,10 @@
             h1 {
                 font-size: 2em;
             }
+            
+            .parameter-switch {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -258,62 +296,113 @@
             <span>←</span>
             <span>Zurück zur Übersicht</span>
         </a>
-        <div class="nav-title">Gleichschenkliges Dreieck</div>
+        <div class="nav-title">Ungleichschenkliges Dreieck</div>
     </div>
 
     <div class="container">
         <div style="text-align: center; margin-bottom: 20px;">
-            <svg width="200" height="140" viewBox="0 0 200 140" style="margin-bottom: 10px;">
-                <!-- Dreieck-Grundform -->
-                <polygon points="100,10 20,110 180,110" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+            <svg width="250" height="160" viewBox="0 0 250 160" style="margin-bottom: 10px;">
+                <!-- Ungleichschenkliges Dreieck -->
+                <polygon points="100,15 30,130 200,130" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
                 
-                <!-- Trapetzbleche (senkrecht, gleichmäßige Abstände) -->
-                <line x1="40" y1="110" x2="40" y2="85" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                <line x1="55" y1="110" x2="55" y2="66.25" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                <line x1="70" y1="110" x2="70" y2="47.5" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                <line x1="85" y1="110" x2="85" y2="28.75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                <line x1="100" y1="110" x2="100" y2="10" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
-                <line x1="115" y1="110" x2="115" y2="28.75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                <line x1="130" y1="110" x2="130" y2="47.5" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                <line x1="145" y1="110" x2="145" y2="66.25" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                <line x1="160" y1="110" x2="160" y2="85" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <!-- Dachplatten (senkrecht, gleichmäßige Abstände) -->
+                <line x1="45" y1="130" x2="45" y2="110" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="60" y1="130" x2="60" y2="90" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="75" y1="130" x2="75" y2="68" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="90" y1="130" x2="90" y2="40" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="100" y1="130" x2="100" y2="15" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
+                <line x1="115" y1="130" x2="115" y2="35" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="130" y1="130" x2="130" y2="55" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="145" y1="130" x2="145" y2="75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="160" y1="130" x2="160" y2="90" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                <line x1="175" y1="130" x2="175" y2="105" stroke="#666" stroke-width="1.5" opacity="0.8"/>
                 
                 <!-- Dachspitze markieren -->
-                <circle cx="100" cy="10" r="3" fill="#dc3545"/>
-                <text x="110" y="15" font-size="8" fill="#dc3545" font-weight="bold">Spitze</text>
+                <circle cx="100" cy="15" r="3" fill="#dc3545"/>
+                <text x="110" y="20" font-size="10" fill="#dc3545" font-weight="bold">Spitze</text>
+                
+                <!-- Linke Kantenlänge - Beschriftung entlang der blauen Kante -->
+                <text x="65" y="62" font-size="10" fill="#1976d2" font-weight="bold" text-anchor="middle" transform="rotate(-58 65 62)">Linke Kante</text>
+                
+                <!-- Rechte Kantenlänge - Beschriftung entlang der blauen Kante -->
+                <text x="150" y="62" font-size="10" fill="#1976d2" font-weight="bold" text-anchor="middle" transform="rotate(49 150 62)">Rechte Kante</text>
                 
                 <!-- Basis-Maß -->
-                <line x1="20" y1="125" x2="180" y2="125" stroke="#333" stroke-width="1"/>
-                <line x1="20" y1="122" x2="20" y2="128" stroke="#333" stroke-width="1"/>
-                <line x1="180" y1="122" x2="180" y2="128" stroke="#333" stroke-width="1"/>
-                <text x="100" y="140" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Basis-Breite</text>
+                <line x1="30" y1="145" x2="200" y2="145" stroke="#333" stroke-width="1"/>
+                <line x1="30" y1="142" x2="30" y2="148" stroke="#333" stroke-width="1"/>
+                <line x1="200" y1="142" x2="200" y2="148" stroke="#333" stroke-width="1"/>
+                <text x="115" y="160" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Basis-Breite</text>
                 
                 <!-- Höhen-Maß -->
-                <line x1="5" y1="10" x2="5" y2="110" stroke="#333" stroke-width="1"/>
-                <line x1="2" y1="10" x2="8" y2="10" stroke="#333" stroke-width="1"/>
-                <line x1="2" y1="110" x2="8" y2="110" stroke="#333" stroke-width="1"/>
-                <text x="15" y="60" font-size="11" fill="#333" font-weight="bold">Höhe</text>
+                <line x1="15" y1="15" x2="15" y2="130" stroke="#333" stroke-width="1"/>
+                <line x1="12" y1="15" x2="18" y2="15" stroke="#333" stroke-width="1"/>
+                <line x1="12" y1="130" x2="18" y2="130" stroke="#333" stroke-width="1"/>
+                <text x="8" y="75" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 8 75)">Höhe</text>
+                
+                <!-- Position der Spitze -->
+                <line x1="30" y1="135" x2="100" y2="135" stroke="#ff6b35" stroke-width="2" stroke-dasharray="5,5"/>
+                <text x="65" y="125" font-size="9" fill="#ff6b35" font-weight="bold">Spitzen-Position</text>
             </svg>
         </div>
         
-        <h1>Gleichschenkliges Dreieck Trapetzblechrechner</h1>
+        <h1>Ungleichschenkliges Dreieck Dachplattenrechner</h1>
 
-        <!-- Pyramiden-Maße -->
+        <!-- Dreiecks-Geometrie -->
         <div class="section">
-            <h2>1. Dreiecksfläche</h2>
+            <h2>1. Dreiecks-Geometrie</h2>
+            
+            <!-- Basis -->
             <div class="input-row">
                 <div class="input-group">
                     <label for="basis-breite">Basis-Breite (m)</label>
-                    <input type="number" id="basis-breite" step="0.01" min="0" placeholder="z.B. 10.00">
-                </div>
-                <div class="input-group">
-                    <label for="hoehe">Höhe (m)</label>
-                    <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 5.00">
+                    <input type="number" id="basis-breite" step="0.01" min="0" placeholder="z.B. 12.00">
                 </div>
             </div>
-            <div style="margin-top: 15px; padding: 10px; background: #e7f1ff; border-radius: 5px; font-size: 14px;">
-                <strong>💡 Hinweis:</strong> Berechnung für ein gleichschenkliges Dreieck. 
-                Verwendbar für Pyramiden-Dachflächen, Satteldachwalmflächen oder andere dreieckige Flächen.
+
+            <!-- Parameter-Auswahl -->
+            <div class="parameter-switch">
+                <button id="btn-kantenlängen" class="active" onclick="wechsleParameterModus('kantenlängen')">
+                    📏 Kantenlängen eingeben
+                </button>
+                <button id="btn-position" onclick="wechsleParameterModus('position')">
+                    📍 Spitzen-Position + Höhe eingeben
+                </button>
+            </div>
+
+            <!-- Kantenlängen-Eingabe -->
+            <div id="kantenlängen-inputs">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="kante-links">Linke Kantenlänge (m)</label>
+                        <input type="number" id="kante-links" step="0.01" min="0" placeholder="z.B. 7.50">
+                    </div>
+                    <div class="input-group">
+                        <label for="kante-rechts">Rechte Kantenlänge (m)</label>
+                        <input type="number" id="kante-rechts" step="0.01" min="0" placeholder="z.B. 9.20">
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>💡 Kantenlängen-Modus:</strong> Geben Sie die Längen der beiden schrägen Seiten des Dreiecks ein.
+                    Die Höhe und Position der Spitze werden automatisch berechnet.
+                </div>
+            </div>
+
+            <!-- Spitzen-Position-Eingabe -->
+            <div id="position-inputs">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="spitze-position">Spitzen-Position von links (m)</label>
+                        <input type="number" id="spitze-position" step="0.01" min="0" placeholder="z.B. 4.50">
+                    </div>
+                    <div class="input-group">
+                        <label for="hoehe">Höhe (m)</label>
+                        <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 6.00">
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>💡 Positions-Modus:</strong> Geben Sie an, wo die Spitze steht und wie hoch das Dreieck ist.
+                    Die Kantenlängen werden automatisch berechnet.
+                </div>
             </div>
         </div>
 
@@ -340,11 +429,23 @@
                 <span id="ueberlappung">-</span>
             </div>
             <div class="result-item">
-                <span>Benötigte Plattenlänge:</span>
+                <span>Berechnete Höhe:</span>
+                <span id="hoehe-result">-</span>
+            </div>
+            <div class="result-item">
+                <span>Spitzen-Position von links:</span>
+                <span id="spitze-position-result">-</span>
+            </div>
+            <div class="result-item">
+                <span>Berechnete Kantenlängen:</span>
+                <span id="hypotenusen-result">-</span>
+            </div>
+            <div class="result-item">
+                <span>Benötigte max. Plattenlänge:</span>
                 <span id="benoetigte-plattenlaenge">-</span>
             </div>
             <div class="result-item">
-                <span>Benötigte Anzahl Bleche (Breite):</span>
+                <span>Benötigte Anzahl Bleche:</span>
                 <span id="anzahl-bleche-breite">-</span>
             </div>
             <div class="result-item">
@@ -386,11 +487,64 @@
 
     <script>
         let aktuelleSchnittliste = [];
+        let parameterModus = 'kantenlängen';
+        let spitzenPosition = 0;
 
-        function berechnePyramide(basisBreite, hoehe, deckbreite) {
+        function wechsleParameterModus(modus) {
+            parameterModus = modus;
+            
+            // Buttons aktualisieren
+            document.getElementById('btn-kantenlängen').classList.remove('active');
+            document.getElementById('btn-position').classList.remove('active');
+            document.getElementById('btn-' + modus).classList.add('active');
+            
+            // Eingabe-Bereiche ein-/ausblenden
+            if (modus === 'kantenlängen') {
+                document.getElementById('kantenlängen-inputs').style.display = 'block';
+                document.getElementById('position-inputs').style.display = 'none';
+            } else {
+                document.getElementById('kantenlängen-inputs').style.display = 'none';
+                document.getElementById('position-inputs').style.display = 'block';
+            }
+        }
+
+        function berechneSpitzenPosition(basisBreite, hoehe, kanteLinks, kanteRechts) {
+            // Mit dem Kosinussatz die Position der Spitze berechnen
+            const a = kanteLinks;  // linke Kantenlänge
+            const b = kanteRechts; // rechte Kantenlänge  
+            const c = basisBreite; // Basis
+            
+            // Berechnung mit Kosinussatz: c² = a² + b² - 2ab*cos(C)
+            // Umgestellt nach der Position x der Spitze von links:
+            const x = (a * a - b * b + c * c) / (2 * c);
+            
+            return Math.max(0, Math.min(basisBreite, x));
+        }
+
+        function berechneKantenlängen(basisBreite, hoehe, spitzenPos) {
+            const linkeSeite = spitzenPos;
+            const rechteSeite = basisBreite - spitzenPos;
+            
+            const kanteLinks = Math.sqrt(linkeSeite * linkeSeite + hoehe * hoehe);
+            const kanteRechts = Math.sqrt(rechteSeite * rechteSeite + hoehe * hoehe);
+            
+            return { links: kanteLinks, rechts: kanteRechts };
+        }
+
+        function berechneHoeheAusKantenlängen(basisBreite, kanteLinks, kanteRechts) {
+            // Berechne Spitzenposition
+            const spitzenPos = berechneSpitzenPosition(basisBreite, 1, kanteLinks, kanteRechts); // Höhe = 1 als Dummy
+            
+            // Berechne Höhe mit Pythagoras aus einer der beiden Seiten
+            const linkeSeite = spitzenPos;
+            const hoehe = Math.sqrt(kanteLinks * kanteLinks - linkeSeite * linkeSeite);
+            
+            return hoehe;
+        }
+
+        function berechneUngleichschenkligesDreieck(basisBreite, hoehe, spitzenPos, deckbreite) {
             const schnittliste = [];
             const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
-            const mitte = basisBreite / 2;
             
             let anzahlPlatten = Math.ceil((basisBreite - lieferbreite + deckbreite) / deckbreite);
             
@@ -399,15 +553,16 @@
                 let positionVonLinksEnde = positionVonLinks + lieferbreite;
                 positionVonLinksEnde = Math.min(positionVonLinksEnde, basisBreite);
                 
-                // Berechnung der Plattenlänge
+                // Berechnung der Plattenlänge für ungleichschenkliges Dreieck
                 let benoetigteLaenge;
-                if (positionVonLinks <= mitte && positionVonLinksEnde >= mitte) {
-                    benoetigteLaenge = hoehe; // Platte mit Spitze
+                
+                if (positionVonLinks <= spitzenPos && positionVonLinksEnde >= spitzenPos) {
+                    // Platte enthält die Spitze
+                    benoetigteLaenge = hoehe;
                 } else {
-                    const abstandStart = Math.abs(positionVonLinks - mitte);
-                    const abstandEnde = Math.abs(positionVonLinksEnde - mitte);
-                    const hoeheStart = hoehe * Math.max(0, 1 - (abstandStart / mitte));
-                    const hoeheEnde = hoehe * Math.max(0, 1 - (abstandEnde / mitte));
+                    // Berechne Höhe an beiden Positionen
+                    const hoeheStart = berechneHoeheAnPosition(positionVonLinks, basisBreite, hoehe, spitzenPos);
+                    const hoeheEnde = berechneHoeheAnPosition(positionVonLinksEnde, basisBreite, hoehe, spitzenPos);
                     benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
                 }
                 
@@ -428,39 +583,103 @@
             };
         }
 
+        function berechneHoeheAnPosition(position, basisBreite, maxHoehe, spitzenPos) {
+            if (position <= 0) return 0;
+            if (position >= basisBreite) return 0;
+            
+            let abstand;
+            if (position <= spitzenPos) {
+                // Links von der Spitze
+                abstand = spitzenPos - position;
+                const linkeSeite = spitzenPos;
+                if (linkeSeite === 0) return maxHoehe;
+                return maxHoehe * (1 - abstand / linkeSeite);
+            } else {
+                // Rechts von der Spitze
+                abstand = position - spitzenPos;
+                const rechteSeite = basisBreite - spitzenPos;
+                if (rechteSeite === 0) return maxHoehe;
+                return maxHoehe * (1 - abstand / rechteSeite);
+            }
+        }
+
         function berechnen() {
             const basisBreite = parseFloat(document.getElementById('basis-breite').value);
-            const hoehe = parseFloat(document.getElementById('hoehe').value);
             const deckbreite = parseFloat(document.getElementById('deckbreite').value);
             const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
 
-            if (!basisBreite || !hoehe || !deckbreite || !lieferbreite) {
-                alert('Bitte füllen Sie alle Felder aus!');
+            if (!basisBreite || !deckbreite || !lieferbreite) {
+                alert('Bitte füllen Sie alle Grundfelder aus!');
                 return;
+            }
+
+            let kanteLinks, kanteRechts, hoehe;
+
+            if (parameterModus === 'kantenlängen') {
+                kanteLinks = parseFloat(document.getElementById('kante-links').value);
+                kanteRechts = parseFloat(document.getElementById('kante-rechts').value);
+                
+                if (!kanteLinks || !kanteRechts) {
+                    alert('Bitte geben Sie beide Kantenlängen ein!');
+                    return;
+                }
+                
+                // Höhe aus Kantenlängen berechnen
+                hoehe = berechneHoeheAusKantenlängen(basisBreite, kanteLinks, kanteRechts);
+                spitzenPosition = berechneSpitzenPosition(basisBreite, hoehe, kanteLinks, kanteRechts);
+                
+                // Validierung: Prüfe ob die Kantenlängen geometrisch möglich sind
+                if (hoehe <= 0 || isNaN(hoehe)) {
+                    alert('Die eingegebenen Kantenlängen sind nicht mit der Basis-Breite vereinbar! Bitte prüfen Sie Ihre Eingabe.');
+                    return;
+                }
+            } else {
+                hoehe = parseFloat(document.getElementById('hoehe').value);
+                spitzenPosition = parseFloat(document.getElementById('spitze-position').value);
+                
+                if (!hoehe || spitzenPosition === null || spitzenPosition === undefined || isNaN(spitzenPosition)) {
+                    alert('Bitte geben Sie Höhe und Spitzen-Position ein!');
+                    return;
+                }
+                
+                if (spitzenPosition < 0 || spitzenPosition > basisBreite) {
+                    alert('Die Spitzen-Position muss zwischen 0 und der Basis-Breite liegen!');
+                    return;
+                }
+                
+                const berechneteKanten = berechneKantenlängen(basisBreite, hoehe, spitzenPosition);
+                kanteLinks = berechneteKanten.links;
+                kanteRechts = berechneteKanten.rechts;
             }
 
             // Track calculation event for analytics
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'calculation', {
-                    'event_category': 'gleichschenkliges_dreieck',
+                    'event_category': 'ungleichschenkliges_dreieck',
                     'event_label': 'form_submitted'
                 });
             }
 
             const ueberlappung = lieferbreite - deckbreite;
-            const pyramideBerechnung = berechnePyramide(basisBreite, hoehe, deckbreite);
-            const maxLaenge = Math.max(...pyramideBerechnung.schnittliste.map(p => parseFloat(p.benoetigteLaenge)));
+            const dreieckBerechnung = berechneUngleichschenkligesDreieck(basisBreite, hoehe, spitzenPosition, deckbreite);
+            const maxLaenge = Math.max(...dreieckBerechnung.schnittliste.map(p => parseFloat(p.benoetigteLaenge)));
 
             document.getElementById('ueberlappung').textContent = ueberlappung.toFixed(2) + ' m';
+            document.getElementById('spitze-position-result').textContent = spitzenPosition.toFixed(2) + ' m';
+            document.getElementById('hypotenusen-result').textContent = 
+                `Links: ${kanteLinks.toFixed(2)}m | Rechts: ${kanteRechts.toFixed(2)}m`;
             document.getElementById('benoetigte-plattenlaenge').textContent = maxLaenge.toFixed(2) + ' m';
-            document.getElementById('anzahl-bleche-breite').textContent = pyramideBerechnung.anzahlPlatten + ' Stück';
-            document.getElementById('gesamt-bleche').textContent = pyramideBerechnung.anzahlPlatten + ' Stück';
+            document.getElementById('anzahl-bleche-breite').textContent = dreieckBerechnung.anzahlPlatten + ' Stück';
+            document.getElementById('gesamt-bleche').textContent = dreieckBerechnung.anzahlPlatten + ' Stück';
+            
+            // Höhe in den Ergebnissen anzeigen
+            document.getElementById('hoehe-result').textContent = hoehe.toFixed(2) + ' m';
 
             // Schnittliste anzeigen
             const tbody = document.getElementById('schnitt-details');
             tbody.innerHTML = '';
             
-            pyramideBerechnung.schnittliste.forEach(item => {
+            dreieckBerechnung.schnittliste.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${item.plattenNr}</td>
@@ -471,7 +690,7 @@
                 tbody.appendChild(row);
             });
 
-            aktuelleSchnittliste = pyramideBerechnung.schnittliste;
+            aktuelleSchnittliste = dreieckBerechnung.schnittliste;
             document.getElementById('results').style.display = 'block';
             document.getElementById('schnittliste').style.display = 'block';
         }
@@ -482,19 +701,18 @@
             // Track anrissplan generation
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'anrissplan_generated', {
-                    'event_category': 'gleichschenkliges_dreieck',
+                    'event_category': 'ungleichschenkliges_dreieck',
                     'event_label': 'pdf_generated'
                 });
             }
             
             const basisBreite = parseFloat(document.getElementById('basis-breite').value);
-            const hoehe = parseFloat(document.getElementById('hoehe').value);
-            const mitte = basisBreite / 2;
+            const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
             
             let html = `<div style="font-family: Arial;">`;
             html += `<div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">`;
-            html += `<h2>Anrissplan - Gleichschenkliges Dreieck</h2>`;
-            html += `<p>Basis: ${basisBreite}m | Höhe: ${hoehe}m | Platten: ${aktuelleSchnittliste.length} Stück</p>`;
+            html += `<h2>Anrissplan - Ungleichschenkliges Dreieck</h2>`;
+            html += `<p>Basis: ${basisBreite}m | Höhe: ${hoehe}m | Spitze bei: ${spitzenPosition.toFixed(2)}m | Platten: ${aktuelleSchnittliste.length} Stück</p>`;
             html += `</div>`;
             
             aktuelleSchnittliste.forEach(item => {
@@ -503,16 +721,15 @@
                 const plattenBreite = parseFloat(item.plattenbreite);
                 const originalPlattenEnde = plattenStart + plattenBreite;
                 const istLetztePlatte = originalPlattenEnde > basisBreite;
-                const ueberdecktSpitze = plattenStart <= mitte && originalPlattenEnde >= mitte;
+                const ueberdecktSpitze = plattenStart <= spitzenPosition && originalPlattenEnde >= spitzenPosition;
                 const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
                 
-                // Anreißmaße berechnen
+                // Anreißmaße berechnen - Abstand von der Unterkante der Platte
                 const plattenEndeReal = istLetztePlatte ? basisBreite : originalPlattenEnde;
-                const abstandStart = Math.abs(plattenStart - mitte);
-                const abstandEnde = Math.abs(plattenEndeReal - mitte);
-                const hoeheStart = hoehe * Math.max(0, 1 - (abstandStart / mitte));
-                const hoeheEnde = hoehe * Math.max(0, 1 - (abstandEnde / mitte));
+                const hoeheStart = berechneHoeheAnPosition(plattenStart, basisBreite, hoehe, spitzenPosition);
+                const hoeheEnde = berechneHoeheAnPosition(plattenEndeReal, basisBreite, hoehe, spitzenPosition);
                 
+                // Anrissmaß = Höhe an Position (Abstand von unten zur Schnittlinie)
                 let anreissLinks = Math.round(hoeheStart * 100);
                 let anreissRechts = Math.round(hoeheEnde * 100);
                 
@@ -541,7 +758,7 @@
                 
                 // Bereiche färben
                 if (ueberdecktSpitze) {
-                    const spitzeVonLinks = mitte - plattenStart;
+                    const spitzeVonLinks = spitzenPosition - plattenStart;
                     const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
                     
                     // Nutzen (blau) - unter der Schnittlinie
@@ -562,7 +779,7 @@
                 
                 // Schnittlinie - schwarze dicke Linie
                 if (ueberdecktSpitze) {
-                    const spitzeVonLinks = mitte - plattenStart;
+                    const spitzeVonLinks = spitzenPosition - plattenStart;
                     const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
                     html += `<line x1="0" y1="${startY}" x2="${spitzePositionPx}" y2="0" stroke="#000" stroke-width="4"/>`;
                     html += `<line x1="${spitzePositionPx}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
@@ -574,7 +791,7 @@
                 
                 // Spitze markieren
                 if (ueberdecktSpitze) {
-                    const spitzeVonLinks = mitte - plattenStart;
+                    const spitzeVonLinks = spitzenPosition - plattenStart;
                     const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
                     
                     // Rote vertikale Linie zur Spitze
@@ -619,14 +836,12 @@
                 html += `<strong>📏 Anzeichnen:</strong><br>`;
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - basisBreite;
-                    if (ueberhang > 0) {
-                        html += `• <strong style="color: #FF0000;">⚠️ ZUERST: Rechts ${(ueberhang * 100).toFixed(0)}cm abschneiden!</strong><br>`;
-                    }
+                    html += `• <strong style="color: #FF0000;">⚠️ ZUERST: Rechts ${(ueberhang * 100).toFixed(0)}cm abschneiden!</strong><br>`;
                 }
                 html += `• Von der Unterkante: Links bei ${anreissLinks}cm und rechts bei ${anreissRechts}cm markieren<br>`;
                 html += `• Diagonale Schnittlinie anzeichnen und oberen Teil absägen<br>`;
                 if (ueberdecktSpitze) {
-                    const spitzeVonLinks = mitte - plattenStart;
+                    const spitzeVonLinks = spitzenPosition - plattenStart;
                     html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält die Dachspitze bei ${(spitzeVonLinks * 100).toFixed(0)}cm von links!</strong><br>`;
                 }
                 html += `</div>`;
@@ -638,6 +853,9 @@
             document.getElementById('anriss-content').innerHTML = html;
             document.getElementById('anrissplan').style.display = 'block';
         }
+
+        // Initial den Kantenlängen-Modus aktivieren
+        wechsleParameterModus('kantenlängen');
     </script>
 </body>
 </html>
