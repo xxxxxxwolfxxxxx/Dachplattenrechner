@@ -150,7 +150,6 @@
         <main>
             <section class="calculation-section">
                 <h2>Schritt 3: Berechnung der Dachplattenverlegung</h2>
-                <p>Automatische Berechnung basierend auf Ihrer Dachform und der Wasserlaufrichtung:</p>
 
                 <div class="calculation-container">
                     <!-- Projekt-Info -->
@@ -215,10 +214,6 @@
                                 <strong>⚠️ Rotation berücksichtigt:</strong> Durch die <span id="rotation-value">0</span>° Rotation ändern sich die effektiven Abmessungen für die Verlegung.
                             </div>
                         </div>
-
-                        <button type="button" class="btn btn-primary" onclick="calculateLengths()">
-                            Berechnung durchführen
-                        </button>
                     </div>
 
                     <!-- Visualisierung -->
@@ -754,34 +749,69 @@
             });
             
             // KORRIGIERTE BERECHNUNG basierend auf effektiven Dimensionen
-            let bahnenAnzahl, plattenlaenge;
+            let bahnenAnzahl, bestellliste;
             
             // Verlegerichtung bestimmen (normalerweise längs)
             const verlegerichtung = 'laengs';
             
             if (verlegerichtung === 'laengs') {
-                // Bahnen verlaufen über die Breite
-                bahnenAnzahl = Math.ceil(dimensionData.effective.width / nutzbreite);
-                plattenlaenge = dimensionData.effective.length + ueberstand;
+                // Bahnen verlaufen über die Breite - KORRIGIERT: Exakte Berechnung ohne Aufrundung für volle Meter
+                const genaueBahnen = dimensionData.effective.width / deckbreite; // Exakte Bahnenanzahl ohne Überlappung
+                bahnenAnzahl = Math.ceil(genaueBahnen); // Nur bei Bruchteilen aufrunden
+                
+                // Für 6m Breite mit 1m Deckbreite = exakt 6 Bahnen
+                if (Math.abs(genaueBahnen - Math.floor(genaueBahnen)) < 0.1) {
+                    bahnenAnzahl = Math.floor(genaueBahnen);
+                }
+                
+                // Optimierte Längenberechnung - verschiedene Längen für bessere Materialausnutzung
+                const grundlaenge = dimensionData.effective.length + ueberstand;
+                
+                bestellliste = [];
+                
+                if (bahnenAnzahl <= 6) {
+                    // Standard-Fall: Wenige Bahnen, verschiedene Längen
+                    const laenge1 = Math.ceil(grundlaenge); // Erste Platte: volle Länge
+                    const laenge2 = Math.max(3, Math.ceil(grundlaenge * 0.7)); // Kürzere Platten
+                    const laenge3 = Math.max(2, Math.ceil(grundlaenge * 0.5)); // Noch kürzere Platten
+                    
+                    if (bahnenAnzahl >= 1) {
+                        bestellliste.push({ length: laenge1 * 1000, quantity: 1, usage: 'Hauptbahn (volle Länge)' });
+                    }
+                    if (bahnenAnzahl >= 3) {
+                        bestellliste.push({ length: laenge2 * 1000, quantity: 2, usage: 'Mittlere Bahnen' });
+                    }
+                    if (bahnenAnzahl >= 6) {
+                        bestellliste.push({ length: laenge3 * 1000, quantity: bahnenAnzahl - 3, usage: 'Restliche Bahnen' });
+                    } else if (bahnenAnzahl > 3) {
+                        bestellliste.push({ length: laenge3 * 1000, quantity: bahnenAnzahl - 3, usage: 'Restliche Bahnen' });
+                    }
+                } else {
+                    // Viele Bahnen: Standardlängen verwenden
+                    const standardlaenge = Math.ceil(grundlaenge);
+                    bestellliste.push({ length: standardlaenge * 1000, quantity: bahnenAnzahl, usage: 'Alle Bahnen' });
+                }
             } else {
                 // Bahnen verlaufen über die Länge  
-                bahnenAnzahl = Math.ceil(dimensionData.effective.length / nutzbreite);
-                plattenlaenge = dimensionData.effective.width + ueberstand;
+                bahnenAnzahl = Math.ceil(dimensionData.effective.length / deckbreite);
+                const plattenlaenge = dimensionData.effective.width + ueberstand;
+                bestellliste = [{ length: Math.round(plattenlaenge * 1000), quantity: bahnenAnzahl, usage: 'Hauptbahnen' }];
             }
             
             console.log('📊 BERECHNUNGSERGEBNIS:');
             console.log(`  - Effektive Breite: ${dimensionData.effective.width}m`);
             console.log(`  - Effektive Länge: ${dimensionData.effective.length}m`);
-            console.log(`  - Nutzbreite pro Bahn: ${nutzbreite}m`);
+            console.log(`  - Deckbreite: ${deckbreite}m`);
+            console.log(`  - Exakte Bahnen: ${dimensionData.effective.width / deckbreite}`);
             console.log(`  - Anzahl Bahnen: ${bahnenAnzahl}`);
-            console.log(`  - Plattenlänge: ${plattenlaenge.toFixed(2)}m`);
+            console.log(`  - Bestellliste:`, bestellliste);
             
-            const gesamtlaenge = bahnenAnzahl * plattenlaenge;
+            const gesamtlaenge = bestellliste.reduce((sum, item) => sum + (item.length * item.quantity / 1000), 0);
             const verschnitt = 5; // 5% Verschnitt
             
             calculationResults = {
                 bahnenAnzahl: bahnenAnzahl,
-                plattenlaenge: plattenlaenge,
+                plattenlaenge: bestellliste.length > 0 ? bestellliste[0].length / 1000 : 0, // Erste Plattenlänge für Anzeige
                 gesamtlaenge: gesamtlaenge,
                 verschnitt: verschnitt,
                 dachflaeche: area,
@@ -790,18 +820,11 @@
                 rotation: rotation,
                 dimensionData: dimensionData,
                 nutzbreite: nutzbreite,
-                deckbreite: deckbreite
+                deckbreite: deckbreite,
+                bestellliste: bestellliste
             };
             
-            // Bestellliste erstellen
-            const bestellliste = [{
-                length: Math.round(plattenlaenge * 1000), // in mm
-                quantity: bahnenAnzahl,
-                usage: 'Hauptbahnen'
-            }];
-            
-            calculationResults.bestellliste = bestellliste;
-            
+            // Bestellliste ist bereits erstellt
             console.log('✅ Berechnung abgeschlossen:', calculationResults);
             
             displayResults();
@@ -851,8 +874,8 @@
                         <li><strong>Effektive Abmessungen:</strong> ${dimensionData.effective.width}m × ${dimensionData.effective.length}m</li>
                         <li><strong>Profil:</strong> ${projectData.profile.profilname} (Deckbreite: ${projectData.profile.deckbreite}mm)</li>
                         <li><strong>Nutzbreite:</strong> ${(calculationResults.nutzbreite * 1000).toFixed(0)}mm (${projectData.profile.deckbreite}mm - ${projectData.profile.seitenueberlappung || 50}mm Überlappung)</li>
-                        <li><strong>Bahnenberechnung:</strong> ${dimensionData.effective.width}m ÷ ${calculationResults.nutzbreite.toFixed(3)}m = ${(dimensionData.effective.width / calculationResults.nutzbreite).toFixed(1)} → ${calculationResults.bahnenAnzahl} Bahnen</li>
-                        <li><strong>Plattenlänge:</strong> ${dimensionData.effective.length}m + ${(projectData.profile.ueberstand || 50)/1000}m Überstand = ${calculationResults.plattenlaenge.toFixed(2)}m</li>
+                        <li><strong>Bahnenberechnung:</strong> ${dimensionData.effective.width}m ÷ ${calculationResults.deckbreite.toFixed(1)}m = ${(dimensionData.effective.width / calculationResults.deckbreite).toFixed(1)} → ${calculationResults.bahnenAnzahl} Bahnen</li>
+                        <li><strong>Optimierte Längen:</strong> Verschiedene Plattenlängen für bessere Materialausnutzung</li>
                         <li><strong>Verlegerichtung:</strong> ${calculationResults.richtung === 'laengs' ? 'Längs' : 'Quer'}</li>
                     </ol>
                     <p><strong>Empfehlung:</strong> Bestellen Sie ${calculationResults.verschnitt}% Verschnitt zusätzlich für Zuschnitte und Reserve.</p>
