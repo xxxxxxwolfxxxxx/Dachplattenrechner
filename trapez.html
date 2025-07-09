@@ -140,6 +140,32 @@
                     <span id="gesamt-bleche">-</span>
                 </div>
                 
+                <!-- Visuelles Vorschaufenster -->
+                <div id="vorschau" style="display: none; margin-top: 30px;">
+                    <h4 style="color: #1e3c72; font-size: 1.3em; margin-bottom: 20px;">👁️ Visuelle Vorschau</h4>
+                    <div style="background: white; border: 2px solid #1e3c72; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <div id="vorschau-svg" style="text-align: center; margin-bottom: 15px;"></div>
+                        <div id="vorschau-legende" style="display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; font-size: 14px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 20px; height: 15px; background: #1e3c72; border-radius: 3px;"></div>
+                                <span>Nutzen</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 20px; height: 15px; background: #dc3545; border-radius: 3px;"></div>
+                                <span>Verschnitt</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 20px; height: 15px; background: #28a745; border-radius: 3px;"></div>
+                                <span>Überlappung</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 20px; height: 15px; background: #ffc107; border-radius: 3px;"></div>
+                                <span>Trapez-Ecken</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div id="schnittliste" style="display: none;">
                     <h4 style="margin-top: 25px; color: #1e3c72; font-size: 1.3em;">📏 Schnittliste (pro Trapezfläche):</h4>
                     <table class="schnitt-table">
