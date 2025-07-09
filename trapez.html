@@ -190,7 +190,7 @@
             <div id="anrissplan" class="anrissplan" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h4 style="color: #1e3c72; font-size: 1.4em;">🏗️ Anrissplan zum Ausdrucken</h4>
-                    <button onclick="window.print()" class="btn btn-primary">
+                    <button onclick="druckeAnrissplan()" class="btn btn-primary print-button">
                         🖨️ Drucken
                     </button>
                 </div>
@@ -201,6 +201,24 @@
 
     <script>
         let aktuelleSchnittliste = [];
+
+        // Verbesserte Druckfunktion
+        function druckeAnrissplan() {
+            const anrissplan = document.getElementById('anrissplan');
+            if (!anrissplan || anrissplan.style.display === 'none') {
+                alert('Bitte erstellen Sie zuerst einen Anrissplan!');
+                return;
+            }
+            
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'print_anrissplan', {
+                    'event_category': 'trapez',
+                    'event_label': 'print_initiated'
+                });
+            }
+            
+            window.print();
+        }
 
         function berechneTrapez(obereBreite, untereBreite, hoehe, deckbreite) {
             const schnittliste = [];
@@ -489,11 +507,11 @@
             const linkeObereEcke = seitenAbstand;
             const rechteObereEcke = untereBreite - seitenAbstand;
             
-            let html = '<div style="font-family: Arial, sans-serif;">';
-            html += '<div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">';
-            html += '<h2 style="color: #1e3c72; margin-bottom: 10px;">Anrissplan - Trapez</h2>';
-            html += '<p style="color: #666; font-size: 1.1em;">Oben: ' + obereBreite + 'm | Unten: ' + untereBreite + 'm | Höhe: ' + hoehe + 'm | Platten: ' + aktuelleSchnittliste.length + ' Stück</p>';
-            html += '</div>';
+            let html = `<div style="font-family: Arial, sans-serif;">`;
+            html += `<div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">`;
+            html += `<h2 style="color: #1e3c72; margin-bottom: 10px;">Anrissplan - Trapez</h2>`;
+            html += `<p style="color: #666; font-size: 1.1em;">Oben: ${obereBreite}m | Unten: ${untereBreite}m | Höhe: ${hoehe}m | Platten: ${aktuelleSchnittliste.length} Stück</p>`;
+            html += `</div>`;
             
             // Vorschau für Anrissplan hinzufügen
             html += '<div style="margin-bottom: 30px; text-align: center;">';
@@ -534,14 +552,14 @@
                 const ueberdecktLinkeEcke = plattenStart <= linkeObereEcke && plattenEndeReal >= linkeObereEcke;
                 const ueberdecktRechteEcke = plattenStart <= rechteObereEcke && plattenEndeReal >= rechteObereEcke;
                 
-                html += '<div style="margin-bottom: 50px; border: 3px solid #1e3c72; padding: 25px; border-radius: 12px; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">';
-                html += '<h3 style="margin: 0 0 25px 0; color: #1e3c72; font-size: 1.3em;">Platte ' + item.plattenNr + ' (Position: ' + item.positionVonLinks + 'm - ' + item.positionBis + 'm)</h3>';
+                html += `<div class="platte-container" style="margin-bottom: 50px; border: 3px solid #1e3c72; padding: 25px; border-radius: 12px; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">`;
+                html += `<h3 style="margin: 0 0 25px 0; color: #1e3c72; font-size: 1.3em;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
                 
-                html += '<div style="position: relative; height: 220px; width: 370px; background: #f8f9fa; margin: 25px auto; border-radius: 8px; border: 2px solid #e9ecef;">';
+                html += `<div style="position: relative; height: 220px; width: 370px; background: #f8f9fa; margin: 25px auto; border-radius: 8px; border: 2px solid #e9ecef;">`;
                 
                 const plattenhoehePx = Math.max(70, Math.min(170, (benoetigteLaengeM / hoehe) * 170));
                 
-                html += '<div style="position: absolute; bottom: 25px; left: 30px; width: 310px; height: ' + plattenhoehePx + 'px; background: #e9ecef; border: 2px solid #666; border-radius: 4px;"></div>';
+                html += `<div style="position: absolute; bottom: 25px; left: 30px; width: 310px; height: ${plattenhoehePx}px; background: #e9ecef; border: 2px solid #666; border-radius: 4px;"></div>`;
                 
                 let startY = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
                 let endY = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
@@ -551,7 +569,7 @@
                 
                 const endX = istLetztePlatte ? Math.min(310, (untereBreite - plattenStart) / plattenBreite * 310) : 310;
                 
-                html += '<svg style="position: absolute; bottom: 25px; left: 30px;" width="310" height="' + plattenhoehePx + '">';
+                html += `<svg style="position: absolute; bottom: 25px; left: 30px;" width="310" height="${plattenhoehePx}">`;
                 
                 // Komplexe Darstellung für Platten mit Ecken
                 if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
@@ -560,121 +578,121 @@
                     const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 310;
                     
                     // Nutzen (blau)
-                    html += '<polygon points="0,' + plattenhoehePx + ' ' + endX + ',' + plattenhoehePx + ' ' + endX + ',' + endY + ' ' + rechteEckeX + ',' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + ' ' + linkeEckeX + ',' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + ' 0,' + startY + '" fill="#1e3c72" opacity="0.7"/>';
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${rechteEckeX},${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)} ${linkeEckeX},${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
                     
                     // Abschnitt (rot)
-                    html += '<polygon points="0,' + startY + ' ' + linkeEckeX + ',' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + ' ' + rechteEckeX + ',' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + ' ' + endX + ',' + endY + ' ' + endX + ',0 0,0" fill="#dc3545" opacity="0.6"/>';
+                    html += `<polygon points="0,${startY} ${linkeEckeX},${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)} ${rechteEckeX},${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
                     
                     // Schnittlinien
-                    html += '<line x1="0" y1="' + startY + '" x2="' + linkeEckeX + '" y2="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" stroke="#000" stroke-width="4"/>';
-                    html += '<line x1="' + linkeEckeX + '" y1="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" x2="' + rechteEckeX + '" y2="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" stroke="#000" stroke-width="4"/>';
-                    html += '<line x1="' + rechteEckeX + '" y1="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" x2="' + endX + '" y2="' + endY + '" stroke="#000" stroke-width="4"/>';
+                    html += `<line x1="0" y1="${startY}" x2="${linkeEckeX}" y2="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" stroke="#000" stroke-width="4"/>`;
+                    html += `<line x1="${linkeEckeX}" y1="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" x2="${rechteEckeX}" y2="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" stroke="#000" stroke-width="4"/>`;
+                    html += `<line x1="${rechteEckeX}" y1="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                     
                     // Ecken markieren
-                    html += '<circle cx="' + linkeEckeX + '" cy="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" r="3" fill="#dc3545"/>';
-                    html += '<circle cx="' + rechteEckeX + '" cy="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" r="3" fill="#dc3545"/>';
+                    html += `<circle cx="${linkeEckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
+                    html += `<circle cx="${rechteEckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
                     
                 } else if (ueberdecktLinkeEcke) {
                     // Platte mit linker oberer Ecke
                     const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 310;
                     
-                    html += '<polygon points="0,' + plattenhoehePx + ' ' + endX + ',' + plattenhoehePx + ' ' + endX + ',' + endY + ' ' + eckeX + ',' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + ' 0,' + startY + '" fill="#1e3c72" opacity="0.7"/>';
-                    html += '<polygon points="0,' + startY + ' ' + eckeX + ',' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + ' ' + endX + ',' + endY + ' ' + endX + ',0 0,0" fill="#dc3545" opacity="0.6"/>';
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${eckeX},${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    html += `<polygon points="0,${startY} ${eckeX},${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
                     
-                    html += '<line x1="0" y1="' + startY + '" x2="' + eckeX + '" y2="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" stroke="#000" stroke-width="4"/>';
-                    html += '<line x1="' + eckeX + '" y1="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" x2="' + endX + '" y2="' + endY + '" stroke="#000" stroke-width="4"/>';
+                    html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" stroke="#000" stroke-width="4"/>`;
+                    html += `<line x1="${eckeX}" y1="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                     
-                    html += '<circle cx="' + eckeX + '" cy="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" r="3" fill="#dc3545"/>';
+                    html += `<circle cx="${eckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
                     
                 } else if (ueberdecktRechteEcke) {
                     // Platte mit rechter oberer Ecke
                     const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 310;
                     
-                    html += '<polygon points="0,' + plattenhoehePx + ' ' + endX + ',' + plattenhoehePx + ' ' + endX + ',' + endY + ' ' + eckeX + ',' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + ' 0,' + startY + '" fill="#1e3c72" opacity="0.7"/>';
-                    html += '<polygon points="0,' + startY + ' ' + eckeX + ',' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + ' ' + endX + ',' + endY + ' ' + endX + ',0 0,0" fill="#dc3545" opacity="0.6"/>';
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${eckeX},${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    html += `<polygon points="0,${startY} ${eckeX},${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
                     
-                    html += '<line x1="0" y1="' + startY + '" x2="' + eckeX + '" y2="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" stroke="#000" stroke-width="4"/>';
-                    html += '<line x1="' + eckeX + '" y1="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" x2="' + endX + '" y2="' + endY + '" stroke="#000" stroke-width="4"/>';
+                    html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" stroke="#000" stroke-width="4"/>`;
+                    html += `<line x1="${eckeX}" y1="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                     
-                    html += '<circle cx="' + eckeX + '" cy="' + (plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)) + '" r="3" fill="#dc3545"/>';
+                    html += `<circle cx="${eckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
                     
                 } else {
                     // Normale Platte ohne Ecken
-                    html += '<polygon points="0,' + plattenhoehePx + ' ' + endX + ',' + plattenhoehePx + ' ' + endX + ',' + endY + ' 0,' + startY + '" fill="#1e3c72" opacity="0.7"/>';
-                    html += '<polygon points="0,' + startY + ' ' + endX + ',' + endY + ' ' + endX + ',0 0,0" fill="#dc3545" opacity="0.6"/>';
-                    html += '<line x1="0" y1="' + startY + '" x2="' + endX + '" y2="' + endY + '" stroke="#000" stroke-width="4"/>';
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
+                    html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                 }
                 
                 // Text im blauen Bereich
-                html += '<text x="155" y="' + (plattenhoehePx * 0.8) + '" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>';
-                html += '<text x="155" y="' + (plattenhoehePx * 0.25) + '" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>';
+                html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
                 
-                html += '</svg>';
+                html += `</svg>`;
                 
                 // Letzte Platte markieren
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - untereBreite;
                     
-                    html += '<div style="position: absolute; bottom: 25px; left: ' + (30 + endX) + 'px; width: 4px; height: ' + plattenhoehePx + 'px; background: #28a745; border-radius: 2px;"></div>';
-                    html += '<div style="position: absolute; bottom: ' + (25 + plattenhoehePx/2) + 'px; left: ' + (20 + endX) + 'px; font-size: 13px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>';
+                    html += `<div style="position: absolute; bottom: 25px; left: ${30 + endX}px; width: 4px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 2px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx/2}px; left: ${20 + endX}px; font-size: 13px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
                     
                     if (ueberhang > 0) {
                         const restBreite = 310 - endX;
-                        html += '<div style="position: absolute; top: ' + (plattenhoehePx + 35) + 'px; left: ' + (30 + endX) + 'px; width: ' + restBreite + 'px; height: 3px; background: #FF0000; border-radius: 1px;"></div>';
-                        html += '<div style="position: absolute; top: ' + (plattenhoehePx + 15) + 'px; left: ' + (30 + endX + restBreite/2) + 'px; font-size: 15px; font-weight: bold; color: #FF0000; transform: translateX(-50%);">' + (ueberhang * 100).toFixed(0) + 'cm</div>';
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 35}px; left: ${30 + endX}px; width: ${restBreite}px; height: 3px; background: #FF0000; border-radius: 1px;"></div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 15}px; left: ${30 + endX + restBreite/2}px; font-size: 15px; font-weight: bold; color: #FF0000; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
                     }
                 }
                 
                 // Anrisslinien
-                html += '<div style="position: absolute; bottom: 25px; left: 30px; width: 5px; height: ' + (anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx) + 'px; background: #dc3545; border-radius: 2px;"></div>';
-                html += '<div style="position: absolute; bottom: 25px; left: ' + (30 + endX - 3) + 'px; width: 5px; height: ' + (anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx) + 'px; background: #dc3545; border-radius: 2px;"></div>';
+                html += `<div style="position: absolute; bottom: 25px; left: 30px; width: 5px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 2px;"></div>`;
+                html += `<div style="position: absolute; bottom: 25px; left: ${30 + endX - 3}px; width: 5px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 2px;"></div>`;
                 
                 // Anrissmaße
-                html += '<div style="position: absolute; bottom: ' + (35 + plattenhoehePx) + 'px; left: -15px; font-size: 16px; font-weight: bold; color: #dc3545;">↑</div>';
-                html += '<div style="position: absolute; bottom: ' + (35 + plattenhoehePx) + 'px; right: -15px; font-size: 16px; font-weight: bold; color: #dc3545;">↑</div>';
-                html += '<div style="position: absolute; bottom: 8px; left: -35px; font-size: 15px; font-weight: bold; color: #dc3545; text-align: center; width: 60px;">' + anreissLinks + 'cm</div>';
-                html += '<div style="position: absolute; bottom: 8px; right: -35px; font-size: 15px; font-weight: bold; color: #dc3545; text-align: center; width: 60px;">' + anreissRechts + 'cm</div>';
+                html += `<div style="position: absolute; bottom: ${35 + plattenhoehePx}px; left: -15px; font-size: 16px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: ${35 + plattenhoehePx}px; right: -15px; font-size: 16px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: 8px; left: -35px; font-size: 15px; font-weight: bold; color: #dc3545; text-align: center; width: 60px;">${anreissLinks}cm</div>`;
+                html += `<div style="position: absolute; bottom: 8px; right: -35px; font-size: 15px; font-weight: bold; color: #dc3545; text-align: center; width: 60px;">${anreissRechts}cm</div>`;
                 
-                html += '</div>';
+                html += `</div>`;
                 
                 // Anleitung
-                html += '<div style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); padding: 20px; border-radius: 10px; font-size: 15px; margin-top: 25px; border-left: 5px solid #ffc107;">';
-                html += '<strong style="color: #856404;">📏 Anzeichnen:</strong><br>';
+                html += `<div style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); padding: 20px; border-radius: 10px; font-size: 15px; margin-top: 25px; border-left: 5px solid #ffc107;">`;
+                html += `<strong style="color: #856404;">📏 Anzeichnen:</strong><br>`;
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - untereBreite;
                     if (ueberhang > 0) {
-                        html += '• <strong style="color: #FF0000;">⚠️ ZUERST: Rechts ' + (ueberhang * 100).toFixed(0) + 'cm abschneiden!</strong><br>';
+                        html += `• <strong style="color: #FF0000;">⚠️ ZUERST: Rechts ${(ueberhang * 100).toFixed(0)}cm abschneiden!</strong><br>`;
                     }
                 }
-                html += '• Von der Unterkante: Links bei ' + anreissLinks + 'cm und rechts bei ' + anreissRechts + 'cm markieren<br>';
+                html += `• Von der Unterkante: Links bei ${anreissLinks}cm und rechts bei ${anreissRechts}cm markieren<br>`;
                 
                 // Spezielle Hinweise für kritische Platten
                 if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
-                    html += '• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält BEIDE oberen Trapez-Ecken!</strong><br>';
+                    html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält BEIDE oberen Trapez-Ecken!</strong><br>`;
                     const linkeEckePos = linkeObereEcke - plattenStart;
                     const rechteEckePos = rechteObereEcke - plattenStart;
-                    html += '• <strong style="color: #ff6b35;">📐 KOMPLEX: Links schräg bis ' + (linkeEckePos * 100).toFixed(0) + 'cm → horizontal bis ' + (rechteEckePos * 100).toFixed(0) + 'cm → rechts schräg!</strong><br>';
-                    html += '• Schnittlinie: Links ansteigend, dann ' + hoehe + 'm horizontal, dann rechts abfallend<br>';
+                    html += `• <strong style="color: #ff6b35;">📐 KOMPLEX: Links schräg bis ${(linkeEckePos * 100).toFixed(0)}cm → horizontal bis ${(rechteEckePos * 100).toFixed(0)}cm → rechts schräg!</strong><br>`;
+                    html += `• Schnittlinie: Links ansteigend, dann ${hoehe}m horizontal, dann rechts abfallend<br>`;
                 } else if (ueberdecktLinkeEcke) {
-                    html += '• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält die LINKE obere Trapez-Ecke!</strong><br>';
+                    html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält die LINKE obere Trapez-Ecke!</strong><br>`;
                     const eckenPos = linkeObereEcke - plattenStart;
-                    html += '• <strong style="color: #ff6b35;">📐 ÜBERGANG: Schräg ansteigend bis ' + (eckenPos * 100).toFixed(0) + 'cm, dann horizontal!</strong><br>';
+                    html += `• <strong style="color: #ff6b35;">📐 ÜBERGANG: Schräg ansteigend bis ${(eckenPos * 100).toFixed(0)}cm, dann horizontal!</strong><br>`;
                 } else if (ueberdecktRechteEcke) {
-                    html += '• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält die RECHTE obere Trapez-Ecke!</strong><br>';
+                    html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält die RECHTE obere Trapez-Ecke!</strong><br>`;
                     const eckenPos = rechteObereEcke - plattenStart;
-                    html += '• <strong style="color: #ff6b35;">📐 ÜBERGANG: Horizontal bis ' + (eckenPos * 100).toFixed(0) + 'cm, dann schräg abfallend!</strong><br>';
+                    html += `• <strong style="color: #ff6b35;">📐 ÜBERGANG: Horizontal bis ${(eckenPos * 100).toFixed(0)}cm, dann schräg abfallend!</strong><br>`;
                 } else if (anreissLinks !== anreissRechts) {
-                    html += '• <strong style="color: #dc3545;">📐 ACHTUNG: Schräger Schnitt!</strong><br>';
+                    html += `• <strong style="color: #dc3545;">📐 ACHTUNG: Schräger Schnitt!</strong><br>`;
                 } else {
-                    html += '• <strong style="color: #28a745;">💡 TIPP: Horizontaler Schnitt!</strong><br>';
+                    html += `• <strong style="color: #28a745;">💡 TIPP: Horizontaler Schnitt!</strong><br>`;
                 }
                 
-                html += '• Schnittlinie anzeichnen und oberen Teil absägen<br>';
-                html += '</div>';
-                html += '</div>';
+                html += `• Schnittlinie anzeichnen und oberen Teil absägen<br>`;
+                html += `</div>`;
+                html += `</div>`;
             });
             
-            html += '</div>';
+            html += `</div>`;
             
             document.getElementById('anriss-content').innerHTML = html;
             document.getElementById('anrissplan').style.display = 'block';
