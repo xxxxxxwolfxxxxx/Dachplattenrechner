@@ -917,197 +917,6 @@ footer::before {
     z-index: 2;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .container {
-        padding: 0 15px;
-    }
-    
-    header h1 {
-        font-size: 2em;
-    }
-    
-    .header-subtitle {
-        font-size: 1em;
-    }
-    
-    .features {
-        gap: 15px;
-        margin: 15px 0;
-    }
-    
-    .feature {
-        padding: 8px 15px;
-        font-size: 0.9em;
-    }
-    
-    .nav-header .container {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .nav-title {
-        order: -1;
-        margin-bottom: 15px;
-        font-size: 1.2em;
-    }
-    
-    .progress-nav {
-        gap: 15px;
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .step {
-        width: 100%;
-        max-width: 300px;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .input-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .calculators-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .steps-overview {
-        grid-template-columns: 1fr;
-    }
-    
-    .navigation-buttons {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .parameter-switch {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .parameter-switch button {
-        text-align: center;
-    }
-    
-    main {
-        padding: 25px;
-    }
-    
-    .section {
-        padding: 20px;
-    }
-    
-    .card {
-        padding: 20px;
-    }
-    
-    .calculator-card {
-        padding: 25px;
-    }
-    
-    .results {
-        padding: 25px;
-    }
-    
-    .anrissplan {
-        padding: 20px;
-    }
-    
-    .result-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-    }
-    
-    .result-item:last-child {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .footer-content {
-        grid-template-columns: 1fr;
-        gap: 30px;
-    }
-}
-
-@media (max-width: 480px) {
-    header h1 {
-        font-size: 1.8em;
-    }
-    
-    .header-subtitle {
-        font-size: 0.9em;
-    }
-    
-    .nav-title {
-        font-size: 1.2em;
-    }
-    
-    .btn {
-        padding: 12px 20px;
-        font-size: 14px;
-    }
-    
-    .calculate-btn {
-        padding: 18px;
-        font-size: 1.1em;
-    }
-    
-    .form-control {
-        padding: 10px 15px;
-        font-size: 14px;
-    }
-    
-    .input-group input[type="number"], 
-    .input-group select {
-        padding: 10px 12px;
-        font-size: 14px;
-    }
-    
-    .card-title {
-        font-size: 1.3em;
-        height: auto;
-        min-height: 60px;
-    }
-    
-    .card-description {
-        height: auto;
-        min-height: 80px;
-    }
-    
-    .cta-button {
-        padding: 15px;
-        font-size: 1em;
-    }
-    
-    .table th,
-    .table td {
-        padding: 10px;
-        font-size: 14px;
-    }
-    
-    .schnitt-table th,
-    .schnitt-table td {
-        padding: 8px;
-        font-size: 13px;
-    }
-    
-    .result-item {
-        font-size: 1em;
-    }
-    
-    .result-item:last-child {
-        font-size: 1.1em;
-        padding: 15px;
-    }
-}
-
-/* Zusätzliche Schwedenbleche-spezifische Styles */
-
 /* Features Section */
 .features {
     display: flex;
@@ -1347,8 +1156,281 @@ footer::before {
     color: #1e3c72;
 }
 
-/* Responsive Cookie Banner */
+/* VERBESSERTE PRINT STYLES */
+@media print {
+    /* Grundlegende Seiteneinstellungen */
+    @page {
+        margin: 15mm;
+        size: A4;
+    }
+    
+    /* Verstecke standardmäßig alles */
+    body * {
+        visibility: hidden;
+    }
+    
+    /* Zeige nur den Anrissplan wenn er sichtbar ist */
+    .anrissplan,
+    .anrissplan * {
+        visibility: visible;
+    }
+    
+    /* Positioniere den Anrissplan am Anfang der Seite */
+    .anrissplan {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        background: white !important;
+        display: block !important;
+    }
+    
+    /* Verstecke alle anderen Hauptbereiche */
+    header,
+    .nav-header,
+    footer,
+    .cookie-banner,
+    .modal,
+    main > *:not(.anrissplan) {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Body-Optimierungen für Druck */
+    body {
+        background: white !important;
+        color: black !important;
+        font-size: 12pt !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* Container-Optimierungen */
+    .container {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+    
+    /* Verstecke Druckbuttons im Ausdruck */
+    .btn,
+    .calculate-btn,
+    .anriss-btn,
+    .print-button,
+    button[onclick*="print"],
+    button[onclick*="drucke"] {
+        display: none !important;
+    }
+    
+    /* Plattenkarten-Optimierung */
+    .platte-container,
+    div[style*="border: 3px solid #1e3c72"] {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        margin-bottom: 30px !important;
+        border: 2px solid black !important;
+        padding: 15px !important;
+    }
+    
+    /* Text-Optimierungen für bessere Lesbarkeit */
+    h1, h2, h3, h4, h5, h6 {
+        color: black !important;
+        page-break-after: avoid;
+    }
+    
+    p, div, span {
+        color: black !important;
+        background: transparent !important;
+    }
+    
+    /* SVG-Optimierung für Druck */
+    svg {
+        max-width: 100% !important;
+        height: auto !important;
+        border: 1px solid black !important;
+    }
+    
+    /* Tabellen-Optimierung */
+    table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        margin: 15px 0 !important;
+    }
+    
+    th, td {
+        border: 1px solid black !important;
+        padding: 8px !important;
+        color: black !important;
+        background: white !important;
+    }
+    
+    th {
+        background: #f0f0f0 !important;
+        font-weight: bold !important;
+    }
+    
+    /* Spezielle Anriss-Inhalte */
+    .anriss-content > div {
+        page-break-inside: avoid;
+        margin-bottom: 40px !important;
+    }
+    
+    /* Links und wichtige Texte */
+    strong {
+        font-weight: bold !important;
+        color: black !important;
+    }
+    
+    /* Überschriften-Hierarchie */
+    .anrissplan h2 {
+        font-size: 18pt !important;
+        margin-bottom: 15px !important;
+        border-bottom: 2px solid black !important;
+        padding-bottom: 5px !important;
+    }
+    
+    .anrissplan h3 {
+        font-size: 14pt !important;
+        margin: 20px 0 10px 0 !important;
+    }
+    
+    .anrissplan h4 {
+        font-size: 12pt !important;
+        margin: 15px 0 8px 0 !important;
+    }
+    
+    /* Spezielle Markierungen */
+    div[style*="background: linear-gradient"] {
+        background: #f5f5f5 !important;
+        border-left: 4px solid black !important;
+        padding: 10px !important;
+        margin: 10px 0 !important;
+    }
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .header-subtitle {
+        font-size: 1em;
+    }
+    
+    .features {
+        gap: 15px;
+        margin: 15px 0;
+    }
+    
+    .feature {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+    
+    .nav-header .container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .nav-title {
+        order: -1;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+    }
+    
+    .progress-nav {
+        gap: 15px;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .step {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .input-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .calculators-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .steps-overview {
+        grid-template-columns: 1fr;
+    }
+    
+    .navigation-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .parameter-switch {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .parameter-switch button {
+        text-align: center;
+    }
+    
+    main {
+        padding: 25px;
+    }
+    
+    .section {
+        padding: 20px;
+    }
+    
+    .card {
+        padding: 20px;
+    }
+    
+    .calculator-card {
+        padding: 25px;
+    }
+    
+    .results {
+        padding: 25px;
+    }
+    
+    .anrissplan {
+        padding: 20px;
+    }
+    
+    .result-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .result-item:last-child {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    /* Responsive Cookie Banner */
     .cookie-content {
         flex-direction: column;
         text-align: center;
@@ -1364,41 +1446,74 @@ footer::before {
     }
 }
 
-/* Print Styles */
-@media print {
-    header,
-    .nav-header,
-    footer,
-    .cookie-banner,
-    .modal {
-        display: none !important;
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.8em;
     }
     
-    body {
-        background: white !important;
-        color: black !important;
+    .header-subtitle {
+        font-size: 0.9em;
     }
     
-    .container {
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
+    .nav-title {
+        font-size: 1.2em;
     }
     
-    main {
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
+    .btn {
+        padding: 12px 20px;
+        font-size: 14px;
     }
     
-    .anrissplan {
-        border: 2px solid #333 !important;
-        background: white !important;
+    .calculate-btn {
+        padding: 18px;
+        font-size: 1.1em;
     }
     
-    .btn,
-    .calculate-btn,
-    .anriss-btn {
-        display: none !important;
+    .form-control {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .input-group input[type="number"], 
+    .input-group select {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+    
+    .card-title {
+        font-size: 1.3em;
+        height: auto;
+        min-height: 60px;
+    }
+    
+    .card-description {
+        height: auto;
+        min-height: 80px;
+    }
+    
+    .cta-button {
+        padding: 15px;
+        font-size: 1em;
+    }
+    
+    .table th,
+    .table td {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .schnitt-table th,
+    .schnitt-table td {
+        padding: 8px;
+        font-size: 13px;
+    }
+    
+    .result-item {
+        font-size: 1em;
+    }
+    
+    .result-item:last-child {
+        font-size: 1.1em;
+        padding: 15px;
     }
 }
