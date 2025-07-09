@@ -244,7 +244,7 @@
             <div id="anrissplan" class="anrissplan" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h4 style="color: #1e3c72; font-size: 1.4em;">🏗️ Anrissplan zum Ausdrucken</h4>
-                    <button onclick="window.print()" class="btn btn-primary">
+                    <button onclick="druckeAnrissplan()" class="btn btn-primary print-button">
                         🖨️ Drucken
                     </button>
                 </div>
@@ -257,6 +257,24 @@
         let aktuelleSchnittliste = [];
         let parameterModus = 'kantenlängen';
         let spitzenPosition = 0;
+
+        // Verbesserte Druckfunktion
+        function druckeAnrissplan() {
+            const anrissplan = document.getElementById('anrissplan');
+            if (!anrissplan || anrissplan.style.display === 'none') {
+                alert('Bitte erstellen Sie zuerst einen Anrissplan!');
+                return;
+            }
+            
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'print_anrissplan', {
+                    'event_category': 'ungleichschenkliges_dreieck',
+                    'event_label': 'print_initiated'
+                });
+            }
+            
+            window.print();
+        }
 
         function wechsleParameterModus(modus) {
             parameterModus = modus;
@@ -592,9 +610,11 @@
             const basisBreite = parseFloat(document.getElementById('basis-breite').value);
             const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
             
-            let html = `<h2 style="color: #1e3c72; margin-bottom: 10px;">Anrissplan - Ungleichschenkliges Dreieck</h2>`;
+            let html = `<div style="font-family: Arial, sans-serif;">`;
+            html += `<div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">`;
+            html += `<h2 style="color: #1e3c72; margin-bottom: 10px;">Anrissplan - Ungleichschenkliges Dreieck</h2>`;
             html += `<p style="color: #666; font-size: 1.1em;">Basis: ${basisBreite}m | Höhe: ${hoehe}m | Spitze bei: ${spitzenPosition.toFixed(2)}m | Platten: ${aktuelleSchnittliste.length} Stück</p>`;
-            html += '<div style="margin-bottom: 30px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;"></div>';
+            html += `</div>`;
             
             // Vorschau für Anrissplan hinzufügen
             html += '<div style="margin-bottom: 30px; text-align: center;">';
@@ -621,7 +641,7 @@
                 let anreissLinks = Math.round(hoeheStart * 100);
                 let anreissRechts = Math.round(hoeheEnde * 100);
                 
-                html += `<div style="margin-bottom: 50px; border: 3px solid #1e3c72; padding: 25px; border-radius: 12px; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">`;
+                html += `<div class="platte-container" style="margin-bottom: 50px; border: 3px solid #1e3c72; padding: 25px; border-radius: 12px; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">`;
                 html += `<h3 style="margin: 0 0 25px 0; color: #1e3c72; font-size: 1.3em;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
                 
                 html += `<div style="position: relative; height: 220px; width: 370px; background: #f8f9fa; margin: 25px auto; border-radius: 8px; border: 2px solid #e9ecef;">`;
@@ -727,6 +747,8 @@
                 html += `</div>`;
                 html += `</div>`;
             });
+            
+            html += `</div>`;
             
             document.getElementById('anriss-content').innerHTML = html;
             document.getElementById('anrissplan').style.display = 'block';
