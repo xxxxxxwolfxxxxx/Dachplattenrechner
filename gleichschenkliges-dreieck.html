@@ -188,6 +188,54 @@
                     <div class="input-row">
                         <div class="input-group">
                             <label for="basis-breite">Basis-Breite (m)</label>
+                            <input type="number" id="basis-breite" step="0.01" min="0" placeholder="z.B. 8.00" value="">
+                        </div>
+                        <div class="input-group">
+                            <label for="hoehe">Höhe (m)</label>
+                            <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 6.00" value="">
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Basis + Höhe Modus:</strong> Geben Sie die Breite der Basis und die Höhe des Dreiecks ein. Die Kantenlänge wird automatisch berechnet.
+                    </div>
+                </div>
+
+                <!-- Kantenlänge Eingabe -->
+                <div id="kantenlaenge-inputs" style="display: none;">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="basis-breite-kante">Basis-Breite (m)</label>
+                            <input type="number" id="basis-breite-kante" step="0.01" min="0" placeholder="z.B. 8.00" value="">
+                        </div>
+                        <div class="input-group">
+                            <label for="kantenlänge">Kantenlänge (m)</label>
+                            <input type="number" id="kantenlänge" step="0.01" min="0" placeholder="z.B. 7.50" value="">
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Kantenlängen-Modus:</strong> Geben Sie die Basis-Breite und die Länge der schrägen Kante ein. Die Höhe wird automatisch berechnet.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dreiecks-Geometrie -->
+            <div class="section">
+                <h2>1. Dreiecks-Geometrie</h2>
+                
+                <div class="parameter-switch">
+                    <button id="btn-basis-hoehe" class="active" onclick="wechsleParameterModus('basis-hoehe')">
+                        📐 Basis + Höhe eingeben
+                    </button>
+                    <button id="btn-kantenlänge" onclick="wechsleParameterModus('kantenlaenge')">
+                        📏 Kantenlänge eingeben
+                    </button>
+                </div>
+
+                <!-- Basis + Höhe Eingabe -->
+                <div id="basis-hoehe-inputs">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="basis-breite">Basis-Breite (m)</label>
                             <input type="number" id="basis-breite" step="0.01" min="0" placeholder="z.B. 8.00">
                         </div>
                         <div class="input-group">
