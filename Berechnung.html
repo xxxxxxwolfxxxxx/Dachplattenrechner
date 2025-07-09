@@ -539,9 +539,9 @@
                 return;
             }
             
-            // SVG verwenden falls verfügbar
+            // SVG verwenden falls verfügbar, aber Eingabefelder entfernen
             if (projectData.roofShape && projectData.roofShape.svgHTML) {
-                console.log('🎨 Verwende gespeichertes SVG');
+                console.log('🎨 Verwende gespeichertes SVG (bereinigt)');
                 
                 try {
                     const canvasContainer = document.getElementById('visualization-container');
@@ -556,6 +556,17 @@
                     
                     if (savedSVG && savedSVG.tagName === 'svg') {
                         roofCanvas.style.display = 'none';
+                        
+                        // WICHTIG: Alle Eingabefelder und Texte entfernen
+                        savedSVG.querySelectorAll('foreignObject').forEach(fo => fo.remove());
+                        savedSVG.querySelectorAll('text').forEach(text => {
+                            // Nur Beschriftungs-Texte entfernen, nicht die Form selbst
+                            if (text.textContent.includes('m') || text.textContent.includes('°') || 
+                                text.textContent.includes('Seite') || text.textContent.includes('Breite') ||
+                                text.textContent.includes('Höhe') || text.textContent.includes('Länge')) {
+                                text.remove();
+                            }
+                        });
                         
                         savedSVG.classList.add('transferred-svg');
                         savedSVG.style.width = '100%';
@@ -578,7 +589,7 @@
                 }
             }
             
-            // Canvas-Fallback
+            // Canvas-Fallback mit korrigierter Dreieck-Darstellung
             roofCanvas.style.display = 'block';
             const canvasContainer = document.getElementById('visualization-container');
             const existingSVG = canvasContainer.querySelector('.transferred-svg');
@@ -592,19 +603,138 @@
             
             const centerX = roofCanvas.width / 2;
             const centerY = roofCanvas.height / 2;
-            const scale = 30;
             
             const { variant, rotation, dimensions } = extractGeometryData();
             const dimensionData = calculateEffectiveDimensions(dimensions, variant, rotation);
             
-            drawRectangleWithRotation(centerX, centerY, 
-                dimensionData.original.width, 
-                dimensionData.original.length, 
-                scale, rotation);
+            if (variant === '3') {
+                drawTriangleCorrect(centerX, centerY, dimensions, rotation);
+            } else {
+                drawRectangleWithRotation(centerX, centerY, 
+                    dimensionData.original.width, 
+                    dimensionData.original.length, 
+                    30, rotation);
+            }
             
             if (calculationResults.bahnenAnzahl) {
-                drawPlateLayout(dimensionData);
+                drawPlateLayoutCorrect(dimensionData, variant);
             }
+        }
+
+        function drawTriangleCorrect(centerX, centerY, dimensions, rotation) {
+            const sideA = dimensions.sideA || 5;
+            const sideB = dimensions.sideB || 4; 
+            const sideC = dimensions.sideC || 3;
+            
+            console.log('🔺 Zeichne Dreieck:', { sideA, sideB, sideC });
+            
+            // Prüfe Dreiecksungleichung
+            if ((sideA + sideB <= sideC) || (sideA + sideC <= sideB) || (sideB + sideC <= sideA)) {
+                console.warn('Ungültiges Dreieck, verwende Fallback');
+                drawRectangleWithRotation(centerX, centerY, 8, 5, 30, rotation);
+                return;
+            }
+            
+            // Größerer Maßstab für bessere Sichtbarkeit
+            const scale = 40;
+            
+            // Dreieck berechnen mit Kosinussatz
+            const A = {x: 0, y: 0};
+            const B = {x: sideC * scale, y: 0};
+            
+            // Winkel bei A berechnen
+            const cosA = (sideB * sideB + sideC * sideC - sideA * sideA) / (2 * sideB * sideC);
+            const angleA = Math.acos(Math.max(-1, Math.min(1, cosA)));
+            
+            const C = {
+                x: sideB * scale * Math.cos(angleA),
+                y: sideB * scale * Math.sin(angleA)
+            };
+            
+            // Schwerpunkt für Zentrierung
+            const centerTriangleX = (A.x + B.x + C.x) / 3;
+            const centerTriangleY = (A.y + B.y + C.y) / 3;
+            
+            roofCtx.save();
+            roofCtx.translate(centerX, centerY);
+            roofCtx.rotate((rotation || 0) * Math.PI / 180);
+            
+            roofCtx.beginPath();
+            roofCtx.moveTo(A.x - centerTriangleX, A.y - centerTriangleY);
+            roofCtx.lineTo(B.x - centerTriangleX, B.y - centerTriangleY);
+            roofCtx.lineTo(C.x - centerTriangleX, C.y - centerTriangleY);
+            roofCtx.closePath();
+            
+            roofCtx.fillStyle = 'rgba(0, 123, 255, 0.3)';
+            roofCtx.fill();
+            roofCtx.strokeStyle = '#007bff';
+            roofCtx.lineWidth = 3;
+            roofCtx.stroke();
+            
+            roofCtx.restore();
+        }
+
+        function drawPlateLayoutCorrect(dimensionData, variant) {
+            if (!calculationResults.bahnenAnzahl) return;
+            
+            const profile = projectData.profile;
+            if (!profile) return;
+            
+            const deckbreite = profile.deckbreite / 1000;
+            const scale = variant === '3' ? 40 : 30; // Größerer Maßstab für Dreieck
+            const centerX = roofCanvas.width / 2;
+            const centerY = roofCanvas.height / 2;
+            const { rotation } = extractGeometryData();
+            
+            roofCtx.save();
+            roofCtx.translate(centerX, centerY);
+            roofCtx.rotate((rotation || 0) * Math.PI / 180);
+            
+            roofCtx.strokeStyle = '#28a745';
+            roofCtx.fillStyle = 'rgba(40, 167, 69, 0.4)';
+            roofCtx.lineWidth = 2;
+            
+            const effektiveBreite = dimensionData.effective.width;
+            const effektiveLaenge = dimensionData.effective.length;
+            
+            // Platten beginnen links und passen sich der Form an
+            const startX = -(effektiveBreite * scale) / 2;
+            
+            for (let i = 0; i < calculationResults.bahnenAnzahl; i++) {
+                const bahnX = startX + (i * deckbreite * scale);
+                const plattenbreite = deckbreite * scale * 0.9;
+                
+                // Plattenlänge an tatsächliche Bestellung anpassen
+                let plattenhoehe;
+                if (calculationResults.bestellliste && i < calculationResults.bestellliste.length) {
+                    const bestellItem = calculationResults.bestellliste.find((item, index) => {
+                        let count = 0;
+                        for (let j = 0; j < index; j++) {
+                            count += calculationResults.bestellliste[j].quantity;
+                        }
+                        return i >= count && i < count + item.quantity;
+                    }) || calculationResults.bestellliste[0];
+                    
+                    plattenhoehe = (bestellItem.length / 1000) * scale * 0.8;
+                } else {
+                    plattenhoehe = effektiveLaenge * scale * 0.8;
+                }
+                
+                // Platten beginnen oben (Wasserlauf nach unten)
+                const startY = -(effektiveLaenge * scale) / 2;
+                
+                roofCtx.fillRect(bahnX, startY, plattenbreite, plattenhoehe);
+                roofCtx.strokeRect(bahnX, startY, plattenbreite, plattenhoehe);
+                
+                // Plattennummer
+                roofCtx.fillStyle = '#000';
+                roofCtx.font = 'bold 12px Arial';
+                roofCtx.textAlign = 'center';
+                roofCtx.fillText(i + 1, bahnX + plattenbreite/2, startY + 20);
+                roofCtx.fillStyle = 'rgba(40, 167, 69, 0.4)';
+            }
+            
+            roofCtx.restore();
         }
 
         function drawRectangleWithRotation(centerX, centerY, width, length, scale, rotation) {
