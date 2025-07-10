@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -661,8 +660,8 @@
                     html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                 }
                 
-                // Text VEREINFACHT - nur "Nutzen" für alle Platten
-                html += `<text x="155" y="${plattenhoehePx - 30}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                // Text VEREINFACHT - "Nutzen" in der MITTE der Platte
+                html += `<text x="155" y="${plattenhoehePx/2 + 25}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
                 
                 html += `</svg>`;
                 
