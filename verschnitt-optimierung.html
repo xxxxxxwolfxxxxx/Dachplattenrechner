@@ -154,10 +154,17 @@
                         <input type="number" id="schnittblatt-breite" step="0.1" min="0" value="3.0" placeholder="z.B. 3.0">
                     </div>
                 </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="toleranz">Toleranz pro Platte (mm)</label>
+                        <input type="number" id="toleranz" step="0.1" min="0" value="5.0" placeholder="z.B. 5.0">
+                    </div>
+                </div>
                 <div class="info-box">
                     <strong>⚙️ Optimierung:</strong> 
                     <strong>Minimaler Verschnitt:</strong> Spart Material, aber möglicherweise mehr Sägeschnitte.<br>
-                    <strong>Wenigste Schnitte:</strong> Spart Zeit beim Sägen, aber möglicherweise mehr Verschnitt.
+                    <strong>Wenigste Schnitte:</strong> Spart Zeit beim Sägen, aber möglicherweise mehr Verschnitt.<br>
+                    <strong>Toleranz:</strong> Zusätzlicher Puffer pro Platte für Sägeungenauigkeiten und Sicherheit.
                 </div>
             </div>
 
@@ -360,19 +367,20 @@
             
             const modus = document.getElementById('optimierung-modus').value;
             const schnittblattBreite = parseFloat(document.getElementById('schnittblatt-breite').value) / 1000; // mm zu m
+            const toleranz = parseFloat(document.getElementById('toleranz').value) / 1000; // mm zu m
             
             let optimierung;
             if (modus === 'verschnitt') {
-                optimierung = optimiereMinimalerVerschnitt(benoetigteMasze, verfuegbareLaengen, schnittblattBreite);
+                optimierung = optimiereMinimalerVerschnitt(benoetigteMasze, verfuegbareLaengen, schnittblattBreite, toleranz);
             } else {
-                optimierung = optimiereWenigsteSchnitte(benoetigteMasze, verfuegbareLaengen, schnittblattBreite);
+                optimierung = optimiereWenigsteSchnitte(benoetigteMasze, verfuegbareLaengen, schnittblattBreite, toleranz);
             }
             
             aktuelleOptimierung = optimierung;
             zeigeOptimierungsErgebnis(optimierung, modus);
         }
 
-        function optimiereMinimalerVerschnitt(benoetigteMasze, verfuegbareLaengen, schnittblattBreite) {
+        function optimiereMinimalerVerschnitt(benoetigteMasze, verfuegbareLaengen, schnittblattBreite, toleranz) {
             // Sortiere benötigte Maße absteigend
             const masze = [...benoetigteMasze].sort((a, b) => b - a);
             const ergebnis = [];
@@ -394,8 +402,8 @@
                     if (verbrauchteAnzahl[lager.laenge] >= lager.anzahl) continue;
                     
                     // Finde optimale Kombination für diese Lagerplatte
-                    const kombination = findeOptimaleKombination(masze, lager.laenge, schnittblattBreite);
-                    const verschnitt = berechneVerschnitt(kombination, lager.laenge, schnittblattBreite);
+                    const kombination = findeOptimaleKombination(masze, lager.laenge, schnittblattBreite, toleranz);
+                    const verschnitt = berechneVerschnitt(kombination, lager.laenge, schnittblattBreite, toleranz);
                     
                     // Bewerte nach Verschnitt und Anzahl gepackter Teile
                     const effizienz = kombination.length / verschnitt + 0.001;
@@ -431,14 +439,14 @@
                     // Keine Lösung gefunden - nimm größte verfügbare Platte für kleinstes Maß
                     const kleinstesMass = Math.min(...masze);
                     const groesztePlatte = verfuegbareLaengen
-                        .filter(l => l.laenge >= kleinstesMass && verbrauchteAnzahl[l.laenge] < l.anzahl)
+                        .filter(l => l.laenge >= kleinstesMass + toleranz && verbrauchteAnzahl[l.laenge] < l.anzahl)
                         .sort((a, b) => b.laenge - a.laenge)[0];
                     
                     if (groesztePlatte) {
                         const platte = {
                             lagerlaenge: groesztePlatte.laenge,
                             masze: [kleinstesMass],
-                            verschnitt: groesztePlatte.laenge - kleinstesMass,
+                            verschnitt: groesztePlatte.laenge - kleinstesMass - toleranz,
                             anzahlSchnitte: 1
                         };
                         ergebnis.push(platte);
@@ -453,7 +461,7 @@
             return ergebnis;
         }
 
-        function findeOptimaleKombination(verfuegbareMasze, lagerlaenge, schnittblattBreite) {
+        function findeOptimaleKombination(verfuegbareMasze, lagerlaenge, schnittblattBreite, toleranz) {
             // Dynamic Programming Ansatz für optimale Bin-Packing
             const masze = [...verfuegbareMasze].sort((a, b) => b - a);
             let besteKombination = [];
@@ -473,7 +481,7 @@
                     const mass = masze[i];
                     const benoetigterPlatz = mass + (aktuelleKombination.length > 0 ? schnittblattBreite : 0);
                     
-                    if (verbleibendeCapacity >= benoetigterPlatz) {
+                    if (verbleibendeCapacity >= benoetigterPlatz + toleranz) {
                         aktuelleKombination.push(mass);
                         backtrack(aktuelleKombination, verbleibendeCapacity - benoetigterPlatz, i + 1);
                         aktuelleKombination.pop();
@@ -485,7 +493,7 @@
             return besteKombination;
         }
 
-        function optimiereWenigsteSchnitte(benoetigteMasze, verfuegbareLaengen, schnittblattBreite) {
+        function optimiereWenigsteSchnitte(benoetigteMasze, verfuegbareLaengen, schnittblattBreite, toleranz) {
             const ergebnis = [];
             let verbleibendeMapze = [...benoetigteMasze];
             const verbrauchteAnzahl = {};
@@ -507,7 +515,7 @@
                 
                 // Finde Platte mit den meisten Teilen
                 for (let lager of sortierteLager) {
-                    const kombination = findeMaximaleAnzahlTeile(verbleibendeMapze, lager.laenge, schnittblattBreite);
+                    const kombination = findeMaximaleAnzahlTeile(verbleibendeMapze, lager.laenge, schnittblattBreite, toleranz);
                     
                     if (kombination.length > besteAnzahlTeile) {
                         besteAnzahlTeile = kombination.length;
@@ -520,7 +528,7 @@
                     const plattenInfo = {
                         lagerlaenge: bestePlatte.laenge,
                         masze: besteKombination,
-                        verschnitt: berechneVerschnitt(besteKombination, bestePlatte.laenge, schnittblattBreite),
+                        verschnitt: berechneVerschnitt(besteKombination, bestePlatte.laenge, schnittblattBreite, toleranz),
                         anzahlSchnitte: besteKombination.length
                     };
                     
@@ -542,11 +550,11 @@
             return ergebnis;
         }
 
-        function findeMaximaleAnzahlTeile(verfuegbareMasze, lagerlaenge, schnittblattBreite) {
+        function findeMaximaleAnzahlTeile(verfuegbareMasze, lagerlaenge, schnittblattBreite, toleranz) {
             // Sortiere Maße aufsteigend für maximale Packung
             const masze = [...verfuegbareMasze].sort((a, b) => a - b);
             const kombination = [];
-            let verbleibendeCapacity = lagerlaenge;
+            let verbleibendeCapacity = lagerlaenge - toleranz; // Toleranz am Ende abziehen
             
             for (let mass of masze) {
                 const benoetigterPlatz = mass + (kombination.length > 0 ? schnittblattBreite : 0);
@@ -559,9 +567,10 @@
             return kombination;
         }
 
-        function berechneVerschnitt(masze, lagerlaenge, schnittblattBreite) {
+        function berechneVerschnitt(masze, lagerlaenge, schnittblattBreite, toleranz) {
             const verwendeteCapacity = masze.reduce((sum, mass) => sum + mass, 0) + 
-                                      (masze.length > 1 ? (masze.length - 1) * schnittblattBreite : 0);
+                                      (masze.length > 1 ? (masze.length - 1) * schnittblattBreite : 0) +
+                                      toleranz; // Toleranz hinzufügen
             return lagerlaenge - verwendeteCapacity;
         }
 
@@ -700,12 +709,13 @@
             }
             
             const schnittblattBreite = parseFloat(document.getElementById('schnittblatt-breite').value);
+            const toleranz = parseFloat(document.getElementById('toleranz').value);
             const optimierungsModus = document.getElementById('optimierung-modus').value;
             
             let html = `<div style="font-family: Arial, sans-serif;">`;
             html += `<div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">`;
             html += `<h2 style="color: #1e3c72; margin-bottom: 10px;">Detaillierter Sägeplan</h2>`;
-            html += `<p style="color: #666; font-size: 1.1em;">Optimierung: ${optimierungsModus === 'verschnitt' ? 'Minimaler Verschnitt' : 'Wenigste Schnitte'} | Schnittblatt: ${schnittblattBreite}mm | Platten: ${aktuelleOptimierung.length} Stück</p>`;
+            html += `<p style="color: #666; font-size: 1.1em;">Optimierung: ${optimierungsModus === 'verschnitt' ? 'Minimaler Verschnitt' : 'Wenigste Schnitte'} | Schnittblatt: ${schnittblattBreite}mm | Toleranz: ${toleranz}mm | Platten: ${aktuelleOptimierung.length} Stück</p>`;
             html += `</div>`;
             
             // Zusammenfassung
@@ -815,6 +825,7 @@
                 html += `<div><strong>Lagerplatte:</strong> ${platte.lagerlaenge.toFixed(1)}m</div>`;
                 html += `<div><strong>Anzahl Schnitte:</strong> ${platte.anzahlSchnitte}</div>`;
                 html += `<div><strong>Schnittblatt:</strong> ${schnittblattBreite}mm</div>`;
+                html += `<div><strong>Toleranz:</strong> ${toleranz}mm</div>`;
                 html += `<div><strong>Effizienz:</strong> ${((platte.lagerlaenge - platte.verschnitt)/platte.lagerlaenge*100).toFixed(1)}%</div>`;
                 html += `</div>`;
                 html += `</div>`;
