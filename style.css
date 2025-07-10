@@ -1228,37 +1228,22 @@ footer::before {
         visibility: hidden !important;
     }
     
-    /* Plattenkarten kompakt für 2-3 pro Seite */
+    /* Plattenkarten für mehrseitige Darstellung optimieren */
     .platte-container,
     div[style*="border: 3px solid #1e3c72"] {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        margin-bottom: 8mm !important;
-        border: 1px solid black !important;
-        padding: 4mm !important;
+        margin-bottom: 12mm !important;
+        border: 2px solid black !important;
+        padding: 8mm !important;
         background: white !important;
         width: 100% !important;
         box-sizing: border-box !important;
-        transform: scale(0.7) !important;
-        transform-origin: top left !important;
-        margin-top: -5mm !important;
     }
     
-    /* Kompakte Plattendarstellung */
-    .platte-container div[style*="height: 220px"] {
-        height: 150px !important;
-        width: 250px !important;
-        margin: 15px auto !important;
-    }
-    
-    /* Seitenumbruch nach jeder 3. Platte */
-    .platte-container:nth-child(3n) {
+    /* Seitenumbruch nach jeder 2. Platte */
+    .platte-container:nth-child(even) {
         page-break-after: page !important;
-    }
-    
-    /* Erste Platte pro Seite - Reset für korrekten Abstand */
-    .platte-container:nth-child(3n+1) {
-        margin-top: 0 !important;
     }
     
     /* Text-Optimierungen für bessere Lesbarkeit */
@@ -1277,29 +1262,21 @@ footer::before {
     }
     
     .anrissplan h3 {
-        font-size: 10pt !important;
-        margin: 4mm 0 2mm 0 !important;
+        font-size: 12pt !important;
+        margin: 8mm 0 3mm 0 !important;
         page-break-after: avoid !important;
     }
     
     .anrissplan h4 {
-        font-size: 9pt !important;
-        margin: 3mm 0 1mm 0 !important;
+        font-size: 10pt !important;
+        margin: 5mm 0 2mm 0 !important;
     }
     
-    /* Kompakte Text-Größen für mehr Inhalt pro Seite */
     p, div, span {
         color: black !important;
         background: transparent !important;
-        font-size: 7pt !important;
-        line-height: 1.1 !important;
-    }
-    
-    /* Anweisungsboxen kompakter */
-    div[style*="background: linear-gradient(135deg, #fff3cd"] {
-        padding: 2mm !important;
-        margin: 2mm 0 !important;
-        font-size: 7pt !important;
+        font-size: 9pt !important;
+        line-height: 1.2 !important;
     }
     
     strong {
@@ -1307,29 +1284,27 @@ footer::before {
         color: black !important;
     }
     
-    /* SVG-Optimierung für kompakten Druck */
+    /* SVG-Optimierung für Druck */
     svg {
-        max-width: 60% !important;
+        max-width: 100% !important;
         height: auto !important;
         border: 1px solid black !important;
         background: white !important;
         page-break-inside: avoid !important;
-        margin: 2mm auto !important;
-        display: block !important;
     }
     
-    /* Tabellen kompakter */
+    /* Tabellen-Optimierung */
     table {
         border-collapse: collapse !important;
         width: 100% !important;
-        margin: 3mm 0 !important;
-        font-size: 6pt !important;
+        margin: 5mm 0 !important;
+        font-size: 8pt !important;
         page-break-inside: avoid !important;
     }
     
     th, td {
         border: 1px solid black !important;
-        padding: 1mm !important;
+        padding: 2mm !important;
         color: black !important;
         background: white !important;
     }
