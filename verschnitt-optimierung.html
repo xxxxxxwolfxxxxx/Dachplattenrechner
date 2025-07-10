@@ -31,7 +31,13 @@
     <!-- Print-spezifische CSS-Korrekturen -->
     <style>
         @media print {
-            /* Korrigiere zu restriktive Print-Styles */
+            /* Grundlegende Seiteneinstellungen */
+            @page {
+                margin: 15mm;
+                size: A4 portrait;
+            }
+            
+            /* Body-Reset für Druck */
             body {
                 background: white !important;
                 color: black !important;
@@ -41,9 +47,37 @@
                 padding: 0 !important;
                 height: auto !important;
                 min-height: auto !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
             }
             
-            /* Zeige den detaillierten Sägeplan */
+            /* Container-Optimierung */
+            .container {
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+            
+            /* Verstecke normale Seitenelemente */
+            header,
+            .nav-header,
+            footer,
+            .cookie-banner,
+            .modal,
+            .section,
+            .calculate-btn,
+            main > h1,
+            main > div:not(#detailsaegeplan),
+            .results:not(#detailsaegeplan):not(#detailsaegeplan *),
+            #results:not(#detailsaegeplan):not(#detailsaegeplan *) {
+                display: none !important;
+                visibility: hidden !important;
+            }
+            
+            /* Zeige NUR den detaillierten Sägeplan */
             #detailsaegeplan,
             #detailsaegeplan *,
             #saegeplan-content,
@@ -54,17 +88,27 @@
                 color: black !important;
             }
             
-            /* Verstecke alles andere beim Drucken */
-            body > *:not(#detailsaegeplan) {
-                display: none !important;
-            }
-            
-            /* Stelle sicher, dass Container richtig angezeigt werden */
-            .container {
-                max-width: none !important;
+            /* Sägeplan-Container */
+            #detailsaegeplan {
                 margin: 0 !important;
                 padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
                 background: white !important;
+                border-radius: 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+            }
+            
+            /* Verstecke nur Druck-Buttons */
+            #detailsaegeplan button,
+            #detailsaegeplan .btn,
+            button[onclick*="print"],
+            button[onclick*="drucken"],
+            *[onclick*="window.print"],
+            .print-button {
+                display: none !important;
+                visibility: hidden !important;
             }
             
             /* Plattenkarten für Seitenumbruch */
@@ -74,21 +118,14 @@
                 margin-bottom: 10mm !important;
             }
             
-            /* Seitenumbruch nach jeder Platte außer der letzten */
+            /* Seitenumbruch nach jeder Platte */
             #saegeplan-content > div:not(:last-child) {
                 page-break-after: page !important;
             }
             
-            /* Verstecke Print-Buttons */
-            button[onclick*="print"],
-            button[onclick*="drucken"],
-            *[onclick*="window.print"],
-            .print-button {
-                display: none !important;
-            }
-            
             /* Farberhaltung für bessere Lesbarkeit */
-            * {
+            #detailsaegeplan *,
+            #saegeplan-content * {
                 -webkit-print-color-adjust: exact !important;
                 color-adjust: exact !important;
             }
