@@ -349,7 +349,7 @@
         let aktuelleSchnittliste = [];
         let parameterModus = 'basis-hoehe';
 
-        // KORRIGIERTE Download-Funktionen
+        // VOLLSTÄNDIG KORRIGIERTE Download-Funktionen
         async function downloadAnrissplanAsImage() {
             const element = document.getElementById('anriss-content');
             if (!element || document.getElementById('anrissplan').style.display === 'none') {
@@ -358,43 +358,74 @@
             }
 
             try {
-                // Backup der ursprünglichen Button-Zustände
-                const buttons = document.querySelectorAll('#anrissplan button, #anrissplan .btn');
-                const originalStates = Array.from(buttons).map(btn => ({
-                    element: btn,
-                    display: btn.style.display
-                }));
-
-                // Buttons temporär verstecken
-                buttons.forEach(btn => {
-                    btn.style.display = 'none';
+                // Erstelle temporären Container für sauberes Rendering
+                const tempContainer = document.createElement('div');
+                tempContainer.style.position = 'absolute';
+                tempContainer.style.left = '-9999px';
+                tempContainer.style.top = '0';
+                tempContainer.style.width = element.scrollWidth + 'px';
+                tempContainer.style.height = 'auto';
+                tempContainer.style.backgroundColor = '#ffffff';
+                tempContainer.style.fontFamily = 'Arial, sans-serif';
+                tempContainer.style.fontSize = '14px';
+                tempContainer.style.lineHeight = '1.4';
+                tempContainer.style.color = '#000000';
+                
+                // Kopiere den Inhalt ohne Buttons
+                const clonedContent = element.cloneNode(true);
+                
+                // Entferne alle Buttons aus dem Clone
+                const buttonsInClone = clonedContent.querySelectorAll('button, .btn, [onclick]');
+                buttonsInClone.forEach(btn => btn.remove());
+                
+                // Optimiere Styles für Screenshot
+                const allElements = clonedContent.querySelectorAll('*');
+                allElements.forEach(el => {
+                    if (el.style) {
+                        el.style.webkitPrintColorAdjust = 'exact';
+                        el.style.colorAdjust = 'exact';
+                        el.style.printColorAdjust = 'exact';
+                    }
                 });
+                
+                tempContainer.appendChild(clonedContent);
+                document.body.appendChild(tempContainer);
 
-                // Warte kurz für DOM-Update
-                await new Promise(resolve => setTimeout(resolve, 100));
+                // Warte für vollständiges Rendering
+                await new Promise(resolve => setTimeout(resolve, 500));
 
-                const canvas = await html2canvas(element, {
+                const canvas = await html2canvas(tempContainer, {
                     scale: 2,
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff',
-                    width: element.scrollWidth,
-                    height: element.scrollHeight,
+                    width: tempContainer.scrollWidth,
+                    height: tempContainer.scrollHeight,
                     logging: false,
-                    removeContainer: false
+                    removeContainer: true,
+                    letterRendering: true,
+                    imageTimeout: 0,
+                    onclone: function(clonedDoc) {
+                        // Zusätzliche Optimierungen im geklonten Dokument
+                        const clonedElements = clonedDoc.querySelectorAll('*');
+                        clonedElements.forEach(el => {
+                            if (el.style) {
+                                el.style.webkitPrintColorAdjust = 'exact';
+                                el.style.colorAdjust = 'exact';
+                            }
+                        });
+                    }
                 });
 
-                // Buttons wieder anzeigen mit ursprünglichen Zuständen
-                originalStates.forEach(state => {
-                    state.element.style.display = state.display;
-                });
+                // Cleanup: Entferne temporären Container
+                document.body.removeChild(tempContainer);
 
                 // Download erstellen
                 const link = document.createElement('a');
                 link.download = 'anrissplan-gleichschenkliges-dreieck.png';
-                link.href = canvas.toDataURL('image/png');
+                link.href = canvas.toDataURL('image/png', 1.0);
                 
-                // Link temporär zum DOM hinzufügen und klicken
+                // Trigger Download
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -408,13 +439,7 @@
                 }
             } catch (error) {
                 console.error('Fehler beim Erstellen des Screenshots:', error);
-                alert('Fehler beim Erstellen des Bildes. Bitte versuchen Sie es erneut oder nutzen Sie die Druckfunktion.');
-                
-                // Sicherheitshalber Buttons wieder anzeigen
-                const buttons = document.querySelectorAll('#anrissplan button, #anrissplan .btn');
-                buttons.forEach(btn => {
-                    btn.style.display = '';
-                });
+                alert('Fehler beim Erstellen des Bildes. Bitte versuchen Sie die Druckfunktion (Strg+P) und "Als PDF speichern".');
             }
         }
 
@@ -426,60 +451,91 @@
             }
 
             try {
-                // Backup der ursprünglichen Button-Zustände
-                const buttons = document.querySelectorAll('#anrissplan button, #anrissplan .btn');
-                const originalStates = Array.from(buttons).map(btn => ({
-                    element: btn,
-                    display: btn.style.display
-                }));
-
-                // Buttons temporär verstecken
-                buttons.forEach(btn => {
-                    btn.style.display = 'none';
+                // Erstelle temporären Container für sauberes Rendering
+                const tempContainer = document.createElement('div');
+                tempContainer.style.position = 'absolute';
+                tempContainer.style.left = '-9999px';
+                tempContainer.style.top = '0';
+                tempContainer.style.width = '210mm'; // A4 Breite
+                tempContainer.style.height = 'auto';
+                tempContainer.style.backgroundColor = '#ffffff';
+                tempContainer.style.fontFamily = 'Arial, sans-serif';
+                tempContainer.style.fontSize = '12px';
+                tempContainer.style.lineHeight = '1.3';
+                tempContainer.style.color = '#000000';
+                tempContainer.style.padding = '15mm';
+                tempContainer.style.boxSizing = 'border-box';
+                
+                // Kopiere den Inhalt ohne Buttons
+                const clonedContent = element.cloneNode(true);
+                
+                // Entferne alle Buttons aus dem Clone
+                const buttonsInClone = clonedContent.querySelectorAll('button, .btn, [onclick]');
+                buttonsInClone.forEach(btn => btn.remove());
+                
+                // Optimiere für PDF-Format
+                const allElements = clonedContent.querySelectorAll('*');
+                allElements.forEach(el => {
+                    if (el.style) {
+                        el.style.webkitPrintColorAdjust = 'exact';
+                        el.style.colorAdjust = 'exact';
+                        el.style.printColorAdjust = 'exact';
+                        // Optimiere Schriftgrößen für PDF
+                        if (el.style.fontSize) {
+                            const currentSize = parseFloat(el.style.fontSize);
+                            if (currentSize > 0) {
+                                el.style.fontSize = Math.max(currentSize * 0.9, 10) + 'px';
+                            }
+                        }
+                    }
                 });
+                
+                tempContainer.appendChild(clonedContent);
+                document.body.appendChild(tempContainer);
 
-                // Warte kurz für DOM-Update
-                await new Promise(resolve => setTimeout(resolve, 100));
+                // Warte für vollständiges Rendering
+                await new Promise(resolve => setTimeout(resolve, 500));
 
-                const canvas = await html2canvas(element, {
+                const canvas = await html2canvas(tempContainer, {
                     scale: 1.5,
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff',
-                    width: element.scrollWidth,
-                    height: element.scrollHeight,
+                    width: tempContainer.scrollWidth,
+                    height: tempContainer.scrollHeight,
                     logging: false,
-                    removeContainer: false
+                    removeContainer: true,
+                    letterRendering: true,
+                    imageTimeout: 0
                 });
 
-                // Buttons wieder anzeigen mit ursprünglichen Zuständen
-                originalStates.forEach(state => {
-                    state.element.style.display = state.display;
-                });
+                // Cleanup: Entferne temporären Container
+                document.body.removeChild(tempContainer);
 
                 // PDF erstellen
-                const imgData = canvas.toDataURL('image/png');
+                const imgData = canvas.toDataURL('image/png', 1.0);
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 
                 const pdfWidth = 210; // A4 Breite in mm
                 const pdfHeight = 297; // A4 Höhe in mm
-                const imgWidth = pdfWidth;
+                const margin = 10; // Margin
+                const imgWidth = pdfWidth - (2 * margin);
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
                 let heightLeft = imgHeight;
-                let position = 0;
+                let position = margin;
 
                 // Erste Seite
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pdfHeight;
+                pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+                heightLeft -= (pdfHeight - 2 * margin);
 
                 // Weitere Seiten bei Bedarf
                 while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
+                    position = heightLeft - imgHeight + margin;
                     pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pdfHeight;
+                    pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+                    heightLeft -= (pdfHeight - 2 * margin);
                 }
 
                 // PDF speichern
@@ -494,13 +550,7 @@
                 }
             } catch (error) {
                 console.error('Fehler beim Erstellen des PDFs:', error);
-                alert('Fehler beim Erstellen des PDFs. Bitte versuchen Sie es erneut oder nutzen Sie die Druckfunktion.');
-                
-                // Sicherheitshalber Buttons wieder anzeigen
-                const buttons = document.querySelectorAll('#anrissplan button, #anrissplan .btn');
-                buttons.forEach(btn => {
-                    btn.style.display = '';
-                });
+                alert('Fehler beim Erstellen des PDFs. Bitte versuchen Sie die Druckfunktion (Strg+P) und "Als PDF speichern".');
             }
         }
 
