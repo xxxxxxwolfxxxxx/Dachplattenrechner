@@ -1305,9 +1305,40 @@ footer::before {
         color: black !important;
     }
     
-    /* SVG-Ersatz durch einfache Rechtecke */
+    /* SVG für Druck optimieren statt verstecken */
     #anrissplan svg {
-        display: none !important;
+        max-width: 100% !important;
+        height: auto !important;
+        border: 1pt solid black !important;
+        background: white !important;
+        page-break-inside: avoid !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    /* SVG-Inhalte für Druck optimieren */
+    #anrissplan svg * {
+        stroke: black !important;
+        fill: white !important;
+    }
+    
+    /* Farbige SVG-Bereiche */
+    #anrissplan svg polygon[fill="#1e3c72"] {
+        fill: #e0e0e0 !important;
+        stroke: black !important;
+        stroke-width: 1 !important;
+    }
+    
+    #anrissplan svg polygon[fill="#dc3545"] {
+        fill: #d0d0d0 !important;
+        stroke: black !important;
+        stroke-width: 1 !important;
+    }
+    
+    #anrissplan svg polygon[fill="#28a745"] {
+        fill: #f0f0f0 !important;
+        stroke: black !important;
+        stroke-width: 1 !important;
     }
     
     /* Ersetze SVG durch druckfreundliche Darstellung */
