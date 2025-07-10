@@ -26,7 +26,28 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Windows 95 Stil für Lagerlängen */
+        .lager-item:active {
+            border: 1px inset #c0c0c0 !important;
+        }
+        
+        /* Responsive Design für Mobile */
+        @media (max-width: 768px) {
+            #materialangaben-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            #lager-container {
+                height: 200px;
+                width: 140px;
+            }
+            
+            #benoetigte-masze {
+                rows: 10;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="nav-header">
@@ -95,12 +116,36 @@
             
             <h1 style="color: #1e3c72; text-align: center; margin-bottom: 30px;">Verschnitt-Optimierung</h1>
 
-            <!-- Benötigte Längen -->
+            <!-- Eingabe-Layout: Lagerlängen links, Schneidlängen rechts -->
             <div class="section">
-                <h2>1. Benötigte Sägemaße</h2>
-                <div class="input-group">
-                    <label for="benoetigte-masze">Benötigte Längen (m) - eine pro Zeile</label>
-                    <textarea id="benoetigte-masze" rows="8" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px; font-family: monospace; resize: vertical;" placeholder="Beispiel:
+                <h2>1. Materialangaben</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;" id="materialangaben-grid">
+                    
+                    <!-- Lagerbestände -->
+                    <div>
+                        <h3 style="color: #1e3c72; margin-bottom: 15px; font-size: 1.2em;">🏭 Verfügbare Lagerlängen</h3>
+                        <div class="info-box" style="margin-bottom: 15px; font-size: 0.9em;">
+                            <strong>Auswahl:</strong> Aktivieren Sie verfügbare Längen. Leeres Feld = unbegrenzt verfügbar.
+                        </div>
+                        
+                        <div style="display: flex; justify-content: flex-start;">
+                            <div id="lager-container" style="background: #c0c0c0; border: 2px inset #c0c0c0; padding: 8px; width: 160px; height: 220px; font-family: 'MS Sans Serif', sans-serif;">
+                                <div id="lager-grid" style="display: flex; gap: 8px; height: 100%;">
+                                    <!-- Wird mit JavaScript gefüllt -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Benötigte Längen -->
+                    <div>
+                        <h3 style="color: #1e3c72; margin-bottom: 15px; font-size: 1.2em;">📏 Benötigte Sägemaße</h3>
+                        <div class="info-box" style="margin-bottom: 15px; font-size: 0.9em;">
+                            <strong>Eingabe:</strong> Jede Länge in einer neuen Zeile (z.B. 2.50 für 2,50m).
+                        </div>
+                        
+                        <div class="input-group">
+                            <textarea id="benoetigte-masze" rows="15" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px; font-family: monospace; resize: vertical;" placeholder="Beispiel:
 2.50
 1.80
 1.50
@@ -109,29 +154,14 @@
 1.50
 3.10
 1.75"></textarea>
-                </div>
-                <div class="info-box">
-                    <strong>💡 Eingabe:</strong> Geben Sie jede benötigte Länge in einer neuen Zeile ein. 
-                    Verwenden Sie Punkt als Dezimaltrennzeichen (z.B. 2.50 für 2,50m).
-                </div>
-            </div>
-
-            <!-- Lagerbestände -->
-            <div class="section">
-                <h2>2. Verfügbare Lagerlängen</h2>
-                <div class="info-box" style="margin-bottom: 20px;">
-                    <strong>🏭 Lagerbestand:</strong> Aktivieren Sie verfügbare Längen und geben Sie die Anzahl ein. 
-                    Leeres Feld = unbegrenzt verfügbar.
-                </div>
-                
-                <div id="lager-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <!-- Wird mit JavaScript gefüllt -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Optimierungseinstellungen -->
             <div class="section">
-                <h2>3. Optimierungseinstellungen</h2>
+                <h2>2. Optimierungseinstellungen</h2>
                 <div class="input-row">
                     <div class="input-group">
                         <label for="optimierung-modus">Optimierungsmodus</label>
@@ -249,26 +279,34 @@
             standardLaengen.push(3.1);
             standardLaengen.sort((a, b) => a - b);
             
-            standardLaengen.forEach(laenge => {
+            // Erstelle 2 Spalten
+            const spalte1 = document.createElement('div');
+            const spalte2 = document.createElement('div');
+            spalte1.style.cssText = 'display: flex; flex-direction: column; gap: 2px;';
+            spalte2.style.cssText = 'display: flex; flex-direction: column; gap: 2px;';
+            
+            standardLaengen.forEach((laenge, index) => {
                 const lagerItem = document.createElement('div');
                 lagerItem.className = 'lager-item';
                 lagerItem.style.cssText = `
                     display: flex;
                     align-items: center;
-                    gap: 12px;
-                    padding: 15px;
-                    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                    border-radius: 8px;
-                    border: 2px solid #e9ecef;
-                    transition: all 0.3s ease;
+                    gap: 4px;
+                    padding: 2px 4px;
+                    background: #c0c0c0;
+                    border: 1px outset #c0c0c0;
+                    font-size: 11px;
+                    min-height: 18px;
+                    font-family: "MS Sans Serif", sans-serif;
                 `;
                 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = `lager-${laenge}`;
                 checkbox.style.cssText = `
-                    transform: scale(1.3);
-                    accent-color: #2a5298;
+                    width: 12px;
+                    height: 12px;
+                    margin: 0;
                 `;
                 checkbox.addEventListener('change', updateVerfuegbareLaengen);
                 
@@ -276,11 +314,13 @@
                 label.htmlFor = `lager-${laenge}`;
                 label.textContent = `${laenge.toFixed(1)}m`;
                 label.style.cssText = `
-                    font-weight: 600;
-                    color: #1e3c72;
+                    font-weight: normal;
+                    color: black;
                     cursor: pointer;
-                    flex: 1;
-                    min-width: 60px;
+                    font-size: 11px;
+                    width: 32px;
+                    margin: 0;
+                    font-family: "MS Sans Serif", sans-serif;
                 `;
                 
                 const input = document.createElement('input');
@@ -290,12 +330,14 @@
                 input.step = '1';
                 input.placeholder = '∞';
                 input.style.cssText = `
-                    width: 60px;
-                    padding: 8px;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
+                    width: 24px;
+                    height: 14px;
+                    padding: 0;
+                    border: 1px inset #c0c0c0;
                     text-align: center;
-                    font-size: 14px;
+                    font-size: 10px;
+                    margin: 0;
+                    font-family: "MS Sans Serif", sans-serif;
                 `;
                 input.addEventListener('change', updateVerfuegbareLaengen);
                 
@@ -303,19 +345,29 @@
                 lagerItem.appendChild(label);
                 lagerItem.appendChild(input);
                 
-                lagerGrid.appendChild(lagerItem);
+                // Verteile auf 2 Spalten
+                if (index < Math.ceil(standardLaengen.length / 2)) {
+                    spalte1.appendChild(lagerItem);
+                } else {
+                    spalte2.appendChild(lagerItem);
+                }
                 
-                // Hover-Effekt
+                // Hover-Effekt (Windows 95 Style)
                 lagerItem.addEventListener('mouseenter', () => {
-                    lagerItem.style.borderColor = '#2a5298';
-                    lagerItem.style.transform = 'translateY(-2px)';
+                    lagerItem.style.background = '#316ac5';
+                    lagerItem.style.color = 'white';
+                    label.style.color = 'white';
                 });
                 
                 lagerItem.addEventListener('mouseleave', () => {
-                    lagerItem.style.borderColor = '#e9ecef';
-                    lagerItem.style.transform = 'translateY(0)';
+                    lagerItem.style.background = '#c0c0c0';
+                    lagerItem.style.color = 'black';
+                    label.style.color = 'black';
                 });
             });
+            
+            lagerGrid.appendChild(spalte1);
+            lagerGrid.appendChild(spalte2);
         }
 
         function updateVerfuegbareLaengen() {
@@ -387,7 +439,7 @@
         }
 
         function optimiereMinimalerVerschnitt(benoetigteMasze, verfuegbareLaengen, schnittblattBreite) {
-            // Sortiere benötigte Maße absteigend für bessere Packung
+            // Sortiere benötigte Maße absteigend
             const masze = [...benoetigteMasze].sort((a, b) => b - a);
             const ergebnis = [];
             const verbrauchteAnzahl = {};
@@ -397,57 +449,106 @@
                 verbrauchteAnzahl[lager.laenge] = 0;
             });
             
-            // Greedy-Algorithmus: Für jedes Maß die beste Lagerplatte finden
-            for (let mass of masze) {
-                let besteLagerplatte = null;
+            // Verbesserte Bin-Packing mit First-Fit-Decreasing
+            while (masze.length > 0) {
+                let bestePlatte = null;
+                let besteKombination = [];
                 let besterVerschnitt = Infinity;
                 
-                // Prüfe alle verfügbaren Lagerplatten
+                // Teste alle verfügbaren Lagerplatten
                 for (let lager of verfuegbareLaengen) {
                     if (verbrauchteAnzahl[lager.laenge] >= lager.anzahl) continue;
-                    if (lager.laenge < mass) continue;
                     
-                    const verschnitt = lager.laenge - mass;
-                    if (verschnitt < besterVerschnitt) {
+                    // Finde optimale Kombination für diese Lagerplatte
+                    const kombination = findeOptimaleKombination(masze, lager.laenge, schnittblattBreite);
+                    const verschnitt = berechneVerschnitt(kombination, lager.laenge, schnittblattBreite);
+                    
+                    // Bewerte nach Verschnitt und Anzahl gepackter Teile
+                    const effizienz = kombination.length / verschnitt + 0.001;
+                    const aktuelleEffizienz = besteKombination.length / besterVerschnitt + 0.001;
+                    
+                    if (verschnitt < besterVerschnitt || 
+                        (Math.abs(verschnitt - besterVerschnitt) < 0.01 && kombination.length > besteKombination.length)) {
                         besterVerschnitt = verschnitt;
-                        besteLagerplatte = lager;
+                        besteKombination = kombination;
+                        bestePlatte = lager;
                     }
                 }
                 
-                if (besteLagerplatte) {
-                    // Versuche weitere Maße auf die gleiche Platte zu packen
-                    let platte = {
-                        lagerlaenge: besteLagerplatte.laenge,
-                        masze: [mass],
-                        verschnitt: 0,
-                        anzahlSchnitte: 0
+                if (bestePlatte && besteKombination.length > 0) {
+                    const platte = {
+                        lagerlaenge: bestePlatte.laenge,
+                        masze: besteKombination,
+                        verschnitt: besterVerschnitt,
+                        anzahlSchnitte: besteKombination.length
                     };
                     
-                    let verbleibendeCapacity = besteLagerplatte.laenge - mass;
-                    
-                    // Suche weitere passende Maße
-                    for (let i = masze.indexOf(mass) + 1; i < masze.length; i++) {
-                        const weiteresMass = masze[i];
-                        if (verbleibendeCapacity >= weiteresMass + schnittblattBreite) {
-                            platte.masze.push(weiteresMass);
-                            verbleibendeCapacity -= (weiteresMass + schnittblattBreite);
-                            masze.splice(i, 1);
-                            i--;
-                        }
-                    }
-                    
-                    platte.verschnitt = verbleibendeCapacity;
-                    platte.anzahlSchnitte = platte.masze.length;
-                    
                     ergebnis.push(platte);
-                    verbrauchteAnzahl[besteLagerplatte.laenge]++;
+                    verbrauchteAnzahl[bestePlatte.laenge]++;
                     
-                    // Entferne das verarbeitete Maß
-                    masze.splice(masze.indexOf(mass), 1);
+                    // Entferne verwendete Maße
+                    besteKombination.forEach(mass => {
+                        const index = masze.findIndex(m => Math.abs(m - mass) < 0.001);
+                        if (index > -1) {
+                            masze.splice(index, 1);
+                        }
+                    });
+                } else {
+                    // Keine Lösung gefunden - nimm größte verfügbare Platte für kleinstes Maß
+                    const kleinstesMass = Math.min(...masze);
+                    const groesztePlatte = verfuegbareLaengen
+                        .filter(l => l.laenge >= kleinstesMass && verbrauchteAnzahl[l.laenge] < l.anzahl)
+                        .sort((a, b) => b.laenge - a.laenge)[0];
+                    
+                    if (groesztePlatte) {
+                        const platte = {
+                            lagerlaenge: groesztePlatte.laenge,
+                            masze: [kleinstesMass],
+                            verschnitt: groesztePlatte.laenge - kleinstesMass,
+                            anzahlSchnitte: 1
+                        };
+                        ergebnis.push(platte);
+                        verbrauchteAnzahl[groesztePlatte.laenge]++;
+                        masze.splice(masze.indexOf(kleinstesMass), 1);
+                    } else {
+                        break; // Keine Lösung möglich
+                    }
                 }
             }
             
             return ergebnis;
+        }
+
+        function findeOptimaleKombination(verfuegbareMasze, lagerlaenge, schnittblattBreite) {
+            // Dynamic Programming Ansatz für optimale Bin-Packing
+            const masze = [...verfuegbareMasze].sort((a, b) => b - a);
+            let besteKombination = [];
+            let besterVerschnitt = lagerlaenge;
+            
+            // Greedy mit Backtracking für bessere Ergebnisse
+            function backtrack(aktuelleKombination, verbleibendeCapacity, startIndex) {
+                const verschnitt = verbleibendeCapacity;
+                
+                if (verschnitt < besterVerschnitt || 
+                    (Math.abs(verschnitt - besterVerschnitt) < 0.01 && aktuelleKombination.length > besteKombination.length)) {
+                    besterVerschnitt = verschnitt;
+                    besteKombination = [...aktuelleKombination];
+                }
+                
+                for (let i = startIndex; i < masze.length; i++) {
+                    const mass = masze[i];
+                    const benoetigterPlatz = mass + (aktuelleKombination.length > 0 ? schnittblattBreite : 0);
+                    
+                    if (verbleibendeCapacity >= benoetigterPlatz) {
+                        aktuelleKombination.push(mass);
+                        backtrack(aktuelleKombination, verbleibendeCapacity - benoetigterPlatz, i + 1);
+                        aktuelleKombination.pop();
+                    }
+                }
+            }
+            
+            backtrack([], lagerlaenge, 0);
+            return besteKombination;
         }
 
         function optimiereWenigsteSchnitte(benoetigteMasze, verfuegbareLaengen, schnittblattBreite) {
@@ -462,41 +563,44 @@
             
             while (verbleibendeMapze.length > 0) {
                 let bestePlatte = null;
-                let bestePlattenInfo = null;
                 let besteKombination = [];
+                let besteAnzahlTeile = 0;
                 
-                // Prüfe alle verfügbaren Lagerplatten
-                for (let lager of verfuegbareLaengen) {
-                    if (verbrauchteAnzahl[lager.laenge] >= lager.anzahl) continue;
+                // Sortiere Lagerplatten nach Größe (größte zuerst für mehr Teile)
+                const sortierteLager = verfuegbareLaengen
+                    .filter(lager => verbrauchteAnzahl[lager.laenge] < lager.anzahl)
+                    .sort((a, b) => b.laenge - a.laenge);
+                
+                // Finde Platte mit den meisten Teilen
+                for (let lager of sortierteLager) {
+                    const kombination = findeMaximaleAnzahlTeile(verbleibendeMapze, lager.laenge, schnittblattBreite);
                     
-                    // Finde beste Kombination für diese Lagerplatte
-                    const kombination = findeBestePlattenKombination(verbleibendeMapze, lager.laenge, schnittblattBreite);
-                    
-                    if (kombination.length > besteKombination.length) {
+                    if (kombination.length > besteAnzahlTeile) {
+                        besteAnzahlTeile = kombination.length;
                         besteKombination = kombination;
                         bestePlatte = lager;
-                        bestePlattenInfo = {
-                            lagerlaenge: lager.laenge,
-                            masze: kombination,
-                            verschnitt: berechneVerschnitt(kombination, lager.laenge, schnittblattBreite),
-                            anzahlSchnitte: kombination.length
-                        };
                     }
                 }
                 
                 if (bestePlatte && besteKombination.length > 0) {
-                    ergebnis.push(bestePlattenInfo);
+                    const plattenInfo = {
+                        lagerlaenge: bestePlatte.laenge,
+                        masze: besteKombination,
+                        verschnitt: berechneVerschnitt(besteKombination, bestePlatte.laenge, schnittblattBreite),
+                        anzahlSchnitte: besteKombination.length
+                    };
+                    
+                    ergebnis.push(plattenInfo);
                     verbrauchteAnzahl[bestePlatte.laenge]++;
                     
                     // Entferne verwendete Maße
                     besteKombination.forEach(mass => {
-                        const index = verbleibendeMapze.indexOf(mass);
+                        const index = verbleibendeMapze.findIndex(m => Math.abs(m - mass) < 0.001);
                         if (index > -1) {
                             verbleibendeMapze.splice(index, 1);
                         }
                     });
                 } else {
-                    // Keine Lösung gefunden
                     break;
                 }
             }
@@ -504,9 +608,9 @@
             return ergebnis;
         }
 
-        function findeBestePlattenKombination(verfuegbareMasze, lagerlaenge, schnittblattBreite) {
-            // Sortiere Maße absteigend
-            const masze = [...verfuegbareMasze].sort((a, b) => b - a);
+        function findeMaximaleAnzahlTeile(verfuegbareMasze, lagerlaenge, schnittblattBreite) {
+            // Sortiere Maße aufsteigend für maximale Packung
+            const masze = [...verfuegbareMasze].sort((a, b) => a - b);
             const kombination = [];
             let verbleibendeCapacity = lagerlaenge;
             
