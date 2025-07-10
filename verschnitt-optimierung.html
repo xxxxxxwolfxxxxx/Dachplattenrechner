@@ -581,14 +581,14 @@
                     // Keine Lösung gefunden - nimm größte verfügbare Platte für kleinstes Maß
                     const kleinstesMass = Math.min(...masze);
                     const groesztePlatte = verfuegbareLaengen
-                        .filter(l => l.laenge >= kleinstesMass + toleranz && verbrauchteAnzahl[l.laenge] < l.anzahl)
+                        .filter(l => l.laenge >= (kleinstesMass - toleranz) && verbrauchteAnzahl[l.laenge] < l.anzahl)
                         .sort((a, b) => b.laenge - a.laenge)[0];
                     
                     if (groesztePlatte) {
                         const platte = {
                             lagerlaenge: groesztePlatte.laenge,
                             masze: [kleinstesMass],
-                            verschnitt: groesztePlatte.laenge - kleinstesMass - toleranz,
+                            verschnitt: groesztePlatte.laenge - (kleinstesMass - toleranz), // Toleranz abziehen
                             anzahlSchnitte: 1
                         };
                         ergebnis.push(platte);
@@ -611,7 +611,10 @@
             
             // Greedy mit Backtracking für bessere Ergebnisse
             function backtrack(aktuelleKombination, verbleibendeCapacity, startIndex) {
-                const verschnitt = verbleibendeCapacity;
+                // Berechne aktuellen Verschnitt (mit Toleranz-Einsparung)
+                const benoetigtesMaterial = aktuelleKombination.reduce((sum, mass) => sum + mass - toleranz, 0);
+                const benoetigteSchnitte = aktuelleKombination.length > 1 ? (aktuelleKombination.length - 1) * schnittblattBreite : 0;
+                const verschnitt = lagerlaenge - benoetigtesMaterial - benoetigteSchnitte;
                 
                 if (verschnitt < besterVerschnitt || 
                     (Math.abs(verschnitt - besterVerschnitt) < 0.01 && aktuelleKombination.length > besteKombination.length)) {
@@ -621,9 +624,10 @@
                 
                 for (let i = startIndex; i < masze.length; i++) {
                     const mass = masze[i];
-                    const benoetigterPlatz = mass + (aktuelleKombination.length > 0 ? schnittblattBreite : 0);
+                    // Benötigter Platz = Material - Toleranz + Schnittblatt
+                    const benoetigterPlatz = (mass - toleranz) + (aktuelleKombination.length > 0 ? schnittblattBreite : 0);
                     
-                    if (verbleibendeCapacity >= benoetigterPlatz + toleranz) {
+                    if (verbleibendeCapacity >= benoetigterPlatz) {
                         aktuelleKombination.push(mass);
                         backtrack(aktuelleKombination, verbleibendeCapacity - benoetigterPlatz, i + 1);
                         aktuelleKombination.pop();
@@ -696,10 +700,11 @@
             // Sortiere Maße aufsteigend für maximale Packung
             const masze = [...verfuegbareMasze].sort((a, b) => a - b);
             const kombination = [];
-            let verbleibendeCapacity = lagerlaenge - toleranz; // Toleranz am Ende abziehen
+            let verbleibendeCapacity = lagerlaenge;
             
             for (let mass of masze) {
-                const benoetigterPlatz = mass + (kombination.length > 0 ? schnittblattBreite : 0);
+                // Benötigter Platz = Material - Toleranz + Schnittblatt
+                const benoetigterPlatz = (mass - toleranz) + (kombination.length > 0 ? schnittblattBreite : 0);
                 if (verbleibendeCapacity >= benoetigterPlatz) {
                     kombination.push(mass);
                     verbleibendeCapacity -= benoetigterPlatz;
@@ -710,10 +715,11 @@
         }
 
         function berechneVerschnitt(masze, lagerlaenge, schnittblattBreite, toleranz) {
-            const verwendeteCapacity = masze.reduce((sum, mass) => sum + mass, 0) + 
-                                      (masze.length > 1 ? (masze.length - 1) * schnittblattBreite : 0) +
-                                      toleranz; // Toleranz hinzufügen
-            return lagerlaenge - verwendeteCapacity;
+            // Benötigtes Material = Summe aller Maße MINUS Toleranz pro Teil
+            const benoetigtesMaterial = masze.reduce((sum, mass) => sum + mass - toleranz, 0);
+            const benoetigteSchnitte = (masze.length > 1 ? (masze.length - 1) * schnittblattBreite : 0);
+            const gesamtBenoetigte = benoetigtesMaterial + benoetigteSchnitte;
+            return lagerlaenge - gesamtBenoetigte;
         }
 
         function zeigeOptimierungsErgebnis(optimierung, modus) {
