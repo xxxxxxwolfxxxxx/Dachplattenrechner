@@ -245,7 +245,7 @@
         let aktuelleSchnittliste = [];
         let parameterModus = 'basis-hoehe';
 
-        // Download-Funktionen
+        // Download-Funktionen - Verbesserte Version
         async function downloadAnrissplanAsImage() {
             const element = document.getElementById('anriss-content');
             if (!element) {
@@ -258,16 +258,30 @@
                 const buttons = element.querySelectorAll('button');
                 buttons.forEach(btn => btn.style.display = 'none');
 
+                // Warte kurz damit das Layout sich setzt
+                await new Promise(resolve => setTimeout(resolve, 100));
+
                 const canvas = await html2canvas(element, {
                     scale: 2,
                     useCORS: true,
-                    allowTaint: true,
+                    allowTaint: false,
                     backgroundColor: '#ffffff',
                     width: element.scrollWidth,
                     height: element.scrollHeight,
-                    ignoreElements: (element) => {
-                        // Verstecke alle Buttons
-                        return element.tagName === 'BUTTON';
+                    logging: false,
+                    removeContainer: true,
+                    foreignObjectRendering: true,
+                    onclone: function(clonedDoc) {
+                        // Stelle sicher, dass alle Farben korrekt sind
+                        const clonedElement = clonedDoc.getElementById('anriss-content');
+                        if (clonedElement) {
+                            // Verstecke alle Buttons im geklonten Dokument
+                            const clonedButtons = clonedElement.querySelectorAll('button');
+                            clonedButtons.forEach(btn => {
+                                btn.style.display = 'none';
+                                btn.remove();
+                            });
+                        }
                     }
                 });
 
@@ -276,7 +290,7 @@
 
                 const link = document.createElement('a');
                 link.download = 'anrissplan-gleichschenkliges-dreieck.png';
-                link.href = canvas.toDataURL();
+                link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
 
                 // Analytics
@@ -304,20 +318,38 @@
                 const buttons = element.querySelectorAll('button');
                 buttons.forEach(btn => btn.style.display = 'none');
 
+                // Warte kurz damit das Layout sich setzt
+                await new Promise(resolve => setTimeout(resolve, 100));
+
                 const canvas = await html2canvas(element, {
                     scale: 1.5,
                     useCORS: true,
-                    allowTaint: true,
+                    allowTaint: false,
                     backgroundColor: '#ffffff',
                     width: element.scrollWidth,
-                    height: element.scrollHeight
+                    height: element.scrollHeight,
+                    logging: false,
+                    removeContainer: true,
+                    foreignObjectRendering: true,
+                    onclone: function(clonedDoc) {
+                        // Stelle sicher, dass alle Farben korrekt sind
+                        const clonedElement = clonedDoc.getElementById('anriss-content');
+                        if (clonedElement) {
+                            // Verstecke alle Buttons im geklonten Dokument
+                            const clonedButtons = clonedElement.querySelectorAll('button');
+                            clonedButtons.forEach(btn => {
+                                btn.style.display = 'none';
+                                btn.remove();
+                            });
+                        }
+                    }
                 });
 
                 // Buttons wieder anzeigen
                 buttons.forEach(btn => btn.style.display = '');
 
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jspdf.jsPDF();
+                const imgData = canvas.toDataURL('image/png', 1.0);
+                const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
                 
                 const imgWidth = 210; // A4 Breite in mm
                 const pageHeight = 295; // A4 Höhe in mm
