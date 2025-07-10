@@ -407,9 +407,14 @@
             <div id="detailsaegeplan" class="anrissplan" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h4 style="color: #1e3c72; font-size: 1.4em;">🪚 Detaillierter Sägeplan zum Ausdrucken</h4>
-                    <button onclick="window.print()" class="btn btn-primary">
-                        🖨️ Drucken
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="window.print()" class="btn btn-primary">
+                            🖨️ Drucken
+                        </button>
+                        <button onclick="druckeSaegeplanInNeuemFenster()" class="btn btn-secondary">
+                            📄 Neues Fenster
+                        </button>
+                    </div>
                 </div>
                 <div id="saegeplan-content"></div>
             </div>
@@ -973,6 +978,82 @@
             
             document.getElementById('saegeplan-content').innerHTML = html;
             document.getElementById('detailsaegeplan').style.display = 'block';
+        }
+
+        // Alternative Druckfunktion in neuem Fenster
+        function druckeSaegeplanInNeuemFenster() {
+            if (aktuelleOptimierung.length === 0) {
+                alert('Bitte erstellen Sie zuerst einen Sägeplan!');
+                return;
+            }
+            
+            const content = document.getElementById('saegeplan-content').innerHTML;
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Sägeplan - Verschnitt-Optimierung</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            margin: 20px; 
+                            font-size: 11pt; 
+                            line-height: 1.4;
+                        }
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            margin: 15px 0; 
+                        }
+                        th, td { 
+                            border: 1px solid #333; 
+                            padding: 8px; 
+                            text-align: left; 
+                        }
+                        th { 
+                            background: #1e3c72; 
+                            color: white; 
+                            font-weight: bold; 
+                        }
+                        h2 { 
+                            color: #1e3c72; 
+                            border-bottom: 2px solid #1e3c72; 
+                            padding-bottom: 5px; 
+                        }
+                        .grid { 
+                            display: grid; 
+                            grid-template-columns: repeat(3, 1fr); 
+                            gap: 15px; 
+                            margin: 15px 0; 
+                        }
+                        .grid > div { 
+                            text-align: center; 
+                            padding: 10px; 
+                            background: #f8f9fa; 
+                            border-radius: 5px; 
+                        }
+                        @media print {
+                            body { margin: 0; font-size: 10pt; }
+                            table { page-break-inside: auto; }
+                            tr { page-break-inside: avoid; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${content}
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Automatisch drucken nach kurzer Verzögerung
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
         }
 
         // Initialisierung beim Laden der Seite
