@@ -27,9 +27,79 @@
     </script>
 
     <style>
-        /* Windows 95 Stil für Lagerlängen */
-        .lager-item:active {
-            border: 1px inset #c0c0c0 !important;
+        /* Lagerlängen-Box im modernen Design */
+        .lager-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px;
+            width: 180px;
+            border-left: 4px solid #1e3c72;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .lager-grid {
+            display: flex;
+            gap: 6px;
+            height: 100%;
+        }
+        
+        .lager-spalte {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+        }
+        
+        .lager-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 6px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 12px;
+            min-height: 24px;
+            transition: all 0.2s ease;
+        }
+        
+        .lager-item:hover {
+            border-color: #1e3c72;
+            background: #f0f7ff;
+            transform: translateY(-1px);
+        }
+        
+        .lager-checkbox {
+            width: 14px;
+            height: 14px;
+            margin: 0;
+            accent-color: #1e3c72;
+        }
+        
+        .lager-label {
+            font-weight: 600;
+            color: #1e3c72;
+            cursor: pointer;
+            font-size: 12px;
+            width: 34px;
+            margin: 0;
+        }
+        
+        .lager-input {
+            width: 28px;
+            height: 18px;
+            padding: 1px 3px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            text-align: center;
+            font-size: 11px;
+            margin: 0;
+        }
+        
+        .lager-input:focus {
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 2px rgba(30, 60, 114, 0.1);
         }
         
         /* Responsive Design für Mobile */
@@ -38,9 +108,8 @@
                 grid-template-columns: 1fr !important;
             }
             
-            #lager-container {
-                height: 200px;
-                width: 140px;
+            .lager-container {
+                width: 160px;
             }
             
             #benoetigte-masze {
@@ -129,8 +198,8 @@
                         </div>
                         
                         <div style="display: flex; justify-content: flex-start;">
-                            <div id="lager-container" style="background: #c0c0c0; border: 2px inset #c0c0c0; padding: 8px; width: 160px; height: 220px; font-family: 'MS Sans Serif', sans-serif;">
-                                <div id="lager-grid" style="display: flex; gap: 8px; height: 100%;">
+                            <div id="lager-container" class="lager-container">
+                                <div id="lager-grid" class="lager-grid">
                                     <!-- Wird mit JavaScript gefüllt -->
                                 </div>
                             </div>
@@ -282,46 +351,23 @@
             // Erstelle 2 Spalten
             const spalte1 = document.createElement('div');
             const spalte2 = document.createElement('div');
-            spalte1.style.cssText = 'display: flex; flex-direction: column; gap: 2px;';
-            spalte2.style.cssText = 'display: flex; flex-direction: column; gap: 2px;';
+            spalte1.className = 'lager-spalte';
+            spalte2.className = 'lager-spalte';
             
             standardLaengen.forEach((laenge, index) => {
                 const lagerItem = document.createElement('div');
                 lagerItem.className = 'lager-item';
-                lagerItem.style.cssText = `
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                    padding: 2px 4px;
-                    background: #c0c0c0;
-                    border: 1px outset #c0c0c0;
-                    font-size: 11px;
-                    min-height: 18px;
-                    font-family: "MS Sans Serif", sans-serif;
-                `;
                 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = `lager-${laenge}`;
-                checkbox.style.cssText = `
-                    width: 12px;
-                    height: 12px;
-                    margin: 0;
-                `;
+                checkbox.className = 'lager-checkbox';
                 checkbox.addEventListener('change', updateVerfuegbareLaengen);
                 
                 const label = document.createElement('label');
                 label.htmlFor = `lager-${laenge}`;
                 label.textContent = `${laenge.toFixed(1)}m`;
-                label.style.cssText = `
-                    font-weight: normal;
-                    color: black;
-                    cursor: pointer;
-                    font-size: 11px;
-                    width: 32px;
-                    margin: 0;
-                    font-family: "MS Sans Serif", sans-serif;
-                `;
+                label.className = 'lager-label';
                 
                 const input = document.createElement('input');
                 input.type = 'number';
@@ -329,16 +375,7 @@
                 input.min = '0';
                 input.step = '1';
                 input.placeholder = '∞';
-                input.style.cssText = `
-                    width: 24px;
-                    height: 14px;
-                    padding: 0;
-                    border: 1px inset #c0c0c0;
-                    text-align: center;
-                    font-size: 10px;
-                    margin: 0;
-                    font-family: "MS Sans Serif", sans-serif;
-                `;
+                input.className = 'lager-input';
                 input.addEventListener('change', updateVerfuegbareLaengen);
                 
                 lagerItem.appendChild(checkbox);
@@ -351,19 +388,6 @@
                 } else {
                     spalte2.appendChild(lagerItem);
                 }
-                
-                // Hover-Effekt (Windows 95 Style)
-                lagerItem.addEventListener('mouseenter', () => {
-                    lagerItem.style.background = '#316ac5';
-                    lagerItem.style.color = 'white';
-                    label.style.color = 'white';
-                });
-                
-                lagerItem.addEventListener('mouseleave', () => {
-                    lagerItem.style.background = '#c0c0c0';
-                    lagerItem.style.color = 'black';
-                    label.style.color = 'black';
-                });
             });
             
             lagerGrid.appendChild(spalte1);
