@@ -27,6 +27,73 @@
     </script>
 
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Print-spezifische CSS-Korrekturen -->
+    <style>
+        @media print {
+            /* Korrigiere zu restriktive Print-Styles */
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 11pt !important;
+                line-height: 1.4 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
+            
+            /* Zeige den detaillierten Sägeplan */
+            #detailsaegeplan,
+            #detailsaegeplan *,
+            #saegeplan-content,
+            #saegeplan-content * {
+                display: block !important;
+                visibility: visible !important;
+                background: white !important;
+                color: black !important;
+            }
+            
+            /* Verstecke alles andere beim Drucken */
+            body > *:not(#detailsaegeplan) {
+                display: none !important;
+            }
+            
+            /* Stelle sicher, dass Container richtig angezeigt werden */
+            .container {
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+            }
+            
+            /* Plattenkarten für Seitenumbruch */
+            #saegeplan-content > div {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin-bottom: 10mm !important;
+            }
+            
+            /* Seitenumbruch nach jeder Platte außer der letzten */
+            #saegeplan-content > div:not(:last-child) {
+                page-break-after: page !important;
+            }
+            
+            /* Verstecke Print-Buttons */
+            button[onclick*="print"],
+            button[onclick*="drucken"],
+            *[onclick*="window.print"],
+            .print-button {
+                display: none !important;
+            }
+            
+            /* Farberhaltung für bessere Lesbarkeit */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="nav-header">
