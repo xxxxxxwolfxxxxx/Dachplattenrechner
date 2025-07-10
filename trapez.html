@@ -661,9 +661,18 @@
                     html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                 }
                 
-                // Text im blauen Bereich - EXAKT wie bei den Dreiecken
-                html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
-                html += `<text x="155" y="${Math.min(startY, endY)/2 + 10}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                // Text im blauen Bereich - INTELLIGENTE Positionierung
+                if (anreissLinks === anreissRechts) {
+                    // Horizontaler Schnitt - nur "Nutzen" Text
+                    html += `<text x="155" y="${plattenhoehePx - 30}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                } else {
+                    // Schräger Schnitt - beide Texte, aber besser positioniert
+                    const nutzenY = Math.max(plattenhoehePx - 40, plattenhoehePx * 0.75);
+                    const abschnittY = Math.min(50, Math.max(startY, endY) * 0.4);
+                    
+                    html += `<text x="155" y="${nutzenY}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                    html += `<text x="155" y="${abschnittY}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                }
                 
                 html += `</svg>`;
                 
