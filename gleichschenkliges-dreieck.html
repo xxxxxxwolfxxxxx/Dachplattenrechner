@@ -27,6 +27,11 @@
     </script>
 
     <link rel="stylesheet" href="style.css">
+    
+    <!-- HTML2Canvas für Screenshot-Funktion -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF für PDF-Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="nav-header">
@@ -220,11 +225,16 @@
             </div>
 
             <div id="anrissplan" class="anrissplan" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h4 style="color: #1e3c72; font-size: 1.4em;">🏗️ Anrissplan zum Ausdrucken</h4>
-                    <button onclick="window.print()" class="btn btn-primary">
-                        🖨️ Drucken
-                    </button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                    <h4 style="color: #1e3c72; font-size: 1.4em;">🏗️ Anrissplan</h4>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="downloadAnrissplanAsImage()" class="btn btn-primary">
+                            🖼️ Als Bild herunterladen
+                        </button>
+                        <button onclick="downloadAnrissplanAsPDF()" class="btn btn-success">
+                            📄 Als PDF herunterladen
+                        </button>
+                    </div>
                 </div>
                 <div id="anriss-content"></div>
             </div>
@@ -234,6 +244,108 @@
     <script>
         let aktuelleSchnittliste = [];
         let parameterModus = 'basis-hoehe';
+
+        // Download-Funktionen - Zurück zur funktionierenden Version
+        async function downloadAnrissplanAsImage() {
+            const element = document.getElementById('anriss-content');
+            if (!element) {
+                alert('Bitte erstellen Sie zuerst einen Anrissplan!');
+                return;
+            }
+
+            try {
+                // Temporär alle Buttons verstecken
+                const buttons = element.querySelectorAll('button');
+                buttons.forEach(btn => btn.style.display = 'none');
+
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: element.scrollWidth,
+                    height: element.scrollHeight
+                });
+
+                // Buttons wieder anzeigen
+                buttons.forEach(btn => btn.style.display = '');
+
+                const link = document.createElement('a');
+                link.download = 'anrissplan-gleichschenkliges-dreieck.png';
+                link.href = canvas.toDataURL();
+                link.click();
+
+                // Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'download_image', {
+                        'event_category': 'gleichschenkliges_dreieck',
+                        'event_label': 'anrissplan_image'
+                    });
+                }
+            } catch (error) {
+                console.error('Fehler beim Erstellen des Screenshots:', error);
+                alert('Fehler beim Erstellen des Bildes. Bitte versuchen Sie es erneut.');
+            }
+        }
+
+        async function downloadAnrissplanAsPDF() {
+            const element = document.getElementById('anriss-content');
+            if (!element) {
+                alert('Bitte erstellen Sie zuerst einen Anrissplan!');
+                return;
+            }
+
+            try {
+                // Temporär alle Buttons verstecken
+                const buttons = element.querySelectorAll('button');
+                buttons.forEach(btn => btn.style.display = 'none');
+
+                const canvas = await html2canvas(element, {
+                    scale: 1.5,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: element.scrollWidth,
+                    height: element.scrollHeight
+                });
+
+                // Buttons wieder anzeigen
+                buttons.forEach(btn => btn.style.display = '');
+
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF();
+                
+                const imgWidth = 210; // A4 Breite in mm
+                const pageHeight = 295; // A4 Höhe in mm
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save('anrissplan-gleichschenkliges-dreieck.pdf');
+
+                // Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'download_pdf', {
+                        'event_category': 'gleichschenkliges_dreieck',
+                        'event_label': 'anrissplan_pdf'
+                    });
+                }
+            } catch (error) {
+                console.error('Fehler beim Erstellen des PDFs:', error);
+                alert('Fehler beim Erstellen des PDFs. Bitte versuchen Sie es erneut.');
+            }
+        }
 
         function wechsleParameterModus(modus) {
             parameterModus = modus;
@@ -531,7 +643,7 @@
             const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
             const spitzenPosition = basisBreite / 2;
             
-            let html = `<div style="font-family: Arial, sans-serif;">`;
+            let html = `<div style="font-family: Arial, sans-serif; background: white; padding: 30px; border-radius: 12px;">`;
             html += `<div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">`;
             html += `<h2 style="color: #1e3c72; margin-bottom: 10px;">Anrissplan - Gleichschenkliges Dreieck</h2>`;
             html += `<p style="color: #666; font-size: 1.1em;">Basis: ${basisBreite}m | Höhe: ${hoehe}m | Spitze mittig | Platten: ${aktuelleSchnittliste.length} Stück</p>`;
@@ -587,11 +699,19 @@
                     
                     // Nutzen (blau)
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${spitzePositionPx},0 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
-                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                    
+                    // Text nur anzeigen wenn genug Platz
+                    if (plattenhoehePx > 50) {
+                        html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Nutzen</text>`;
+                    }
                     
                     // Abschnitt (rot)
-                    html += `<polygon points="0,${startY} ${spitzePositionPx},0 ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
-                    html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                    html += `<polygon points="0,${startY} ${spitzePositionPx},0 ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.7"/>`;
+                    
+                    // Text nur anzeigen wenn genug Platz
+                    if (plattenhoehePx > 50) {
+                        html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Abschnitt</text>`;
+                    }
                     
                     // Schnittlinien
                     html += `<line x1="0" y1="${startY}" x2="${spitzePositionPx}" y2="0" stroke="#000" stroke-width="4"/>`;
@@ -599,10 +719,18 @@
                 } else {
                     // Normale Platte
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
-                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
                     
-                    html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
-                    html += `<text x="155" y="${Math.min(startY, endY)/2 + 10}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                    // Text nur anzeigen wenn genug Platz
+                    if (plattenhoehePx > 50) {
+                        html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Nutzen</text>`;
+                    }
+                    
+                    html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.7"/>`;
+                    
+                    // Text nur anzeigen wenn genug Platz
+                    if (plattenhoehePx > 50) {
+                        html += `<text x="155" y="${Math.min(startY, endY)/2 + 10}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Abschnitt</text>`;
+                    }
                     
                     html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                 }
