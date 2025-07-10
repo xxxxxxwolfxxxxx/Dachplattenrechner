@@ -650,9 +650,9 @@
                     html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                 }
                 
-                // Text im blauen Bereich
-                html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
-                html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                // Text im blauen Bereich - INNERHALB der Platte positioniert
+                html += `<text x="155" y="${plattenhoehePx - 20}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                html += `<text x="155" y="40" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
                 
                 html += `</svg>`;
                 
