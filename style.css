@@ -1155,7 +1155,7 @@ footer::before {
     color: #1e3c72;
 }
 
-/* KORRIGIERTE PRINT STYLES - Mehrseitige Anrisspläne */
+/* KORRIGIERTE PRINT STYLES - Mehrseitige Anrisspläne funktionsfähig */
 @media print {
     /* Grundlegende Seiteneinstellungen */
     @page {
@@ -1163,18 +1163,21 @@ footer::before {
         size: A4;
     }
     
-    /* Verstecke standardmäßig alles außer Anrissplan */
-    body * {
-        visibility: hidden;
+    /* NUR bestimmte Bereiche verstecken, NICHT den ganzen Body */
+    header,
+    .nav-header,
+    footer,
+    .cookie-banner,
+    .modal,
+    main > .section,
+    main > .calculate-btn,
+    main > h1,
+    main > div:not(#anrissplan):not(.anrissplan),
+    main > .results:not(.anrissplan) {
+        display: none !important;
     }
     
-    /* Zeige nur den Anrissplan-Inhalt */
-    .anrissplan,
-    .anrissplan * {
-        visibility: visible;
-    }
-    
-    /* Body-Optimierungen für Druck */
+    /* Body und Container für Druck optimieren */
     body {
         background: white !important;
         color: black !important;
@@ -1184,7 +1187,6 @@ footer::before {
         color-adjust: exact !important;
     }
     
-    /* Container-Optimierungen */
     .container {
         max-width: none !important;
         margin: 0 !important;
@@ -1192,61 +1194,55 @@ footer::before {
         background: white !important;
     }
     
-    /* Anrissplan-Positionierung */
+    /* Anrissplan sichtbar machen und optimieren */
     .anrissplan {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
+        display: block !important;
+        visibility: visible !important;
+        position: static !important;
         width: 100% !important;
         max-width: none !important;
         margin: 0 !important;
-        padding: 10mm !important;
+        padding: 0 !important;
         border: none !important;
         box-shadow: none !important;
         border-radius: 0 !important;
         background: white !important;
-        display: block !important;
+    }
+    
+    /* Anrissplan-Inhalte sichtbar */
+    .anrissplan,
+    .anrissplan *,
+    #anriss-content,
+    #anriss-content * {
         visibility: visible !important;
+        display: block !important;
     }
     
-    /* Verstecke alle anderen Hauptbereiche */
-    header,
-    .nav-header,
-    footer,
-    .cookie-banner,
-    .modal,
-    main > *:not(.anrissplan),
-    main > div:not(.anrissplan) {
-        display: none !important;
-        visibility: hidden !important;
-    }
-    
-    /* Verstecke Buttons im Anrissplan */
-    .btn,
-    .calculate-btn,
-    .anriss-btn,
+    /* Verstecke nur Buttons */
+    .anrissplan button,
+    .anrissplan .btn,
     .print-button,
-    button,
-    input[type="button"],
-    input[type="submit"] {
+    button[onclick*="print"],
+    button[onclick*="drucke"] {
         display: none !important;
         visibility: hidden !important;
     }
     
-    /* Plattenkarten - KORRIGIERT für mehrseitige Darstellung */
+    /* Plattenkarten für mehrseitige Darstellung optimieren */
     .platte-container,
     div[style*="border: 3px solid #1e3c72"] {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        margin-bottom: 15mm !important;
+        margin-bottom: 12mm !important;
         border: 2px solid black !important;
         padding: 8mm !important;
         background: white !important;
-        page-break-after: auto !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
     
-    /* Automatischer Seitenumbruch nach bestimmter Anzahl Platten */
-    .platte-container:nth-child(2n) {
+    /* Seitenumbruch nach jeder 2. Platte */
+    .platte-container:nth-child(even) {
         page-break-after: page !important;
     }
     
@@ -1254,18 +1250,26 @@ footer::before {
     h1, h2, h3, h4, h5, h6 {
         color: black !important;
         page-break-after: avoid !important;
-        font-size: 14pt !important;
-        margin: 5mm 0 3mm 0 !important;
+        margin: 3mm 0 2mm 0 !important;
     }
     
-    h2 {
-        font-size: 16pt !important;
+    .anrissplan h2 {
+        font-size: 14pt !important;
         border-bottom: 1px solid black !important;
         padding-bottom: 2mm !important;
+        margin-bottom: 5mm !important;
+        page-break-after: avoid !important;
     }
     
-    h3 {
+    .anrissplan h3 {
         font-size: 12pt !important;
+        margin: 8mm 0 3mm 0 !important;
+        page-break-after: avoid !important;
+    }
+    
+    .anrissplan h4 {
+        font-size: 10pt !important;
+        margin: 5mm 0 2mm 0 !important;
     }
     
     p, div, span {
@@ -1286,14 +1290,16 @@ footer::before {
         height: auto !important;
         border: 1px solid black !important;
         background: white !important;
+        page-break-inside: avoid !important;
     }
     
     /* Tabellen-Optimierung */
     table {
         border-collapse: collapse !important;
         width: 100% !important;
-        margin: 8mm 0 !important;
+        margin: 5mm 0 !important;
         font-size: 8pt !important;
+        page-break-inside: avoid !important;
     }
     
     th, td {
@@ -1317,7 +1323,7 @@ footer::before {
     
     #anriss-content > div {
         page-break-inside: avoid !important;
-        margin-bottom: 20mm !important;
+        margin-bottom: 15mm !important;
         width: 100% !important;
     }
     
@@ -1326,8 +1332,8 @@ footer::before {
     div[style*="background: #"] {
         background: #f5f5f5 !important;
         border-left: 3mm solid black !important;
-        padding: 5mm !important;
-        margin: 5mm 0 !important;
+        padding: 3mm !important;
+        margin: 3mm 0 !important;
     }
     
     /* Farben in Schwarz-Weiß umwandeln */
@@ -1349,32 +1355,28 @@ footer::before {
         font-weight: bold !important;
     }
     
-    /* Relative Positionierung für SVG-Container */
+    div[style*="color: #1e3c72"],
+    span[style*="color: #1e3c72"] {
+        color: black !important;
+        font-weight: bold !important;
+    }
+    
+    /* Relative Positionierung erhalten */
     div[style*="position: relative"] {
         position: relative !important;
         page-break-inside: avoid !important;
     }
     
-    /* Überschriften-Abstände optimieren */
-    .anrissplan h2 {
-        margin-top: 0 !important;
-        margin-bottom: 8mm !important;
-    }
-    
-    .anrissplan h3 {
-        margin-top: 10mm !important;
-        margin-bottom: 5mm !important;
-    }
-    
-    /* Erste Seite - Header anpassen */
+    /* Erste Seite - Header optimieren */
     .anrissplan > div:first-child {
-        margin-bottom: 10mm !important;
+        margin-bottom: 8mm !important;
         page-break-after: avoid !important;
     }
     
-    /* Links und wichtige Informationen */
-    div[style*="font-weight: bold"] {
-        font-weight: bold !important;
+    /* Plattenkarten-Container */
+    .anrissplan > div > div[style*="margin-bottom: 50px"] {
+        margin-bottom: 12mm !important;
+        page-break-inside: avoid !important;
     }
 }
 
