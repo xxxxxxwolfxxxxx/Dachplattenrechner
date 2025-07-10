@@ -592,6 +592,17 @@
                     html += `<circle cx="${linkeEckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
                     html += `<circle cx="${rechteEckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
                     
+                    // HINZUGEFÜGTE MASSLINIEN für beide Ecken
+                    html += `<line x1="30" y1="${plattenhoehePx + 45}" x2="${30 + linkeEckeX}" y2="${plattenhoehePx + 45}" stroke="#666" stroke-width="1"/>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 25}px; left: ${15 + linkeEckeX/2}px; font-size: 12px; font-weight: bold; color: #666; transform: translateX(-50%);">${(linkeObereEcke - plattenStart).toFixed(2)}m</div>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 40}px; left: ${25}px; font-size: 10px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 40}px; left: ${25 + linkeEckeX}px; font-size: 10px; color: #666;">|</div>`;
+                    
+                    html += `<line x1="${30 + rechteEckeX}" y1="${plattenhoehePx + 45}" x2="${30 + endX}" y2="${plattenhoehePx + 45}" stroke="#666" stroke-width="1"/>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 25}px; left: ${30 + rechteEckeX + (endX - rechteEckeX)/2}px; font-size: 12px; font-weight: bold; color: #666; transform: translateX(-50%);">${(plattenEndeReal - rechteObereEcke).toFixed(2)}m</div>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 40}px; left: ${25 + rechteEckeX}px; font-size: 10px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 40}px; left: ${25 + endX}px; font-size: 10px; color: #666;">|</div>`;
+                    
                 } else if (ueberdecktLinkeEcke) {
                     // Platte mit linker oberer Ecke
                     const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 310;
@@ -604,6 +615,12 @@
                     
                     html += `<circle cx="${eckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
                     
+                    // HINZUGEFÜGTE MASSLINIE für linke Ecke
+                    html += `<line x1="30" y1="${plattenhoehePx + 45}" x2="${30 + eckeX}" y2="${plattenhoehePx + 45}" stroke="#666" stroke-width="1"/>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 25}px; left: ${15 + eckeX/2}px; font-size: 12px; font-weight: bold; color: #666; transform: translateX(-50%);">${(linkeObereEcke - plattenStart).toFixed(2)}m</div>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 40}px; left: ${25}px; font-size: 10px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 40}px; left: ${25 + eckeX}px; font-size: 10px; color: #666;">|</div>`;
+                    
                 } else if (ueberdecktRechteEcke) {
                     // Platte mit rechter oberer Ecke
                     const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 310;
@@ -615,6 +632,12 @@
                     html += `<line x1="${eckeX}" y1="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                     
                     html += `<circle cx="${eckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
+                    
+                    // HINZUGEFÜGTE MASSLINIE für rechte Ecke
+                    html += `<line x1="${30 + eckeX}" y1="${plattenhoehePx + 45}" x2="${30 + endX}" y2="${plattenhoehePx + 45}" stroke="#666" stroke-width="1"/>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 25}px; left: ${30 + eckeX + (endX - eckeX)/2}px; font-size: 12px; font-weight: bold; color: #666; transform: translateX(-50%);">${(plattenEndeReal - rechteObereEcke).toFixed(2)}m</div>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 40}px; left: ${25 + eckeX}px; font-size: 10px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: ${plattenhoehePx + 40}px; left: ${25 + endX}px; font-size: 10px; color: #666;">|</div>`;
                     
                 } else {
                     // Normale Platte ohne Ecken
