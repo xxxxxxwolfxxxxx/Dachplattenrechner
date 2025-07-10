@@ -592,18 +592,23 @@
                     html += `<circle cx="${linkeEckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
                     html += `<circle cx="${rechteEckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
                     
-                    // KORRIGIERTE MASSLINIEN für beide Ecken - NOCH HÖHER über der Platte
-                    html += `<line x1="30" y1="-15" x2="${30 + linkeEckeX}" y2="-15" stroke="#ff6b35" stroke-width="2"/>`;
-                    html += `<div style="position: absolute; top: -38px; left: ${15 + linkeEckeX/2}px; font-size: 13px; font-weight: bold; color: #ff6b35; transform: translateX(-50%);">${((linkeObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
-                    html += `<div style="position: absolute; top: -20px; left: ${25}px; font-size: 12px; color: #ff6b35;">|</div>`;
-                    html += `<div style="position: absolute; top: -20px; left: ${25 + linkeEckeX}px; font-size: 12px; color: #ff6b35;">|</div>`;
-                    html += `<div style="position: absolute; top: -55px; left: ${15 + linkeEckeX/2}px; font-size: 10px; color: #ff6b35; transform: translateX(-50%);">L-Ecke</div>`;
+                    // KORRIGIERTE MASSLINIEN für beide Ecken - WIE BEI DEN DREIECKEN
+                    const spitzeVonLinksL = linkeObereEcke - plattenStart;
+                    const spitzePositionPxL = (spitzeVonLinksL / plattenBreite) * 310;
+                    const spitzeVonLinksR = rechteObereEcke - plattenStart;
+                    const spitzePositionPxR = (spitzeVonLinksR / plattenBreite) * 310;
                     
-                    html += `<line x1="${30 + rechteEckeX}" y1="-35" x2="${30 + endX}" y2="-35" stroke="#ff6b35" stroke-width="2"/>`;
-                    html += `<div style="position: absolute; top: -58px; left: ${30 + rechteEckeX + (endX - rechteEckeX)/2}px; font-size: 13px; font-weight: bold; color: #ff6b35; transform: translateX(-50%);">${((plattenEndeReal - rechteObereEcke) * 100).toFixed(0)}cm</div>`;
-                    html += `<div style="position: absolute; top: -40px; left: ${25 + rechteEckeX}px; font-size: 12px; color: #ff6b35;">|</div>`;
-                    html += `<div style="position: absolute; top: -40px; left: ${25 + endX}px; font-size: 12px; color: #ff6b35;">|</div>`;
-                    html += `<div style="position: absolute; top: -75px; left: ${30 + rechteEckeX + (endX - rechteEckeX)/2}px; font-size: 10px; color: #ff6b35; transform: translateX(-50%);">R-Ecke</div>`;
+                    // Bemaßung zur linken Ecke
+                    html += `<div style="position: absolute; top: 8px; left: 30px; width: ${spitzePositionPxL}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; top: -8px; left: ${30 + spitzePositionPxL/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${(spitzeVonLinksL * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: 25px; font-size: 12px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${25 + spitzePositionPxL}px; font-size: 12px; color: #666;">|</div>`;
+                    
+                    // Bemaßung zur rechten Ecke
+                    html += `<div style="position: absolute; top: 20px; left: ${30 + spitzePositionPxR}px; width: ${310 - spitzePositionPxR}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; top: 4px; left: ${30 + spitzePositionPxR + (310 - spitzePositionPxR)/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${((plattenEndeReal - rechteObereEcke) * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: 10px; left: ${25 + spitzePositionPxR}px; font-size: 12px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: 10px; left: ${25 + 310}px; font-size: 12px; color: #666;">|</div>`;
                     
                 } else if (ueberdecktLinkeEcke) {
                     // Platte mit linker oberer Ecke
@@ -617,12 +622,15 @@
                     
                     html += `<circle cx="${eckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
                     
-                    // KORRIGIERTE MASSLINIE für linke Ecke - NOCH HÖHER über der Platte
-                    html += `<line x1="30" y1="-15" x2="${30 + eckeX}" y2="-15" stroke="#ff6b35" stroke-width="2"/>`;
-                    html += `<div style="position: absolute; top: -38px; left: ${15 + eckeX/2}px; font-size: 13px; font-weight: bold; color: #ff6b35; transform: translateX(-50%);">${((linkeObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
-                    html += `<div style="position: absolute; top: -20px; left: ${25}px; font-size: 12px; color: #ff6b35;">|</div>`;
-                    html += `<div style="position: absolute; top: -20px; left: ${25 + eckeX}px; font-size: 12px; color: #ff6b35;">|</div>`;
-                    html += `<div style="position: absolute; top: -55px; left: ${15 + eckeX/2}px; font-size: 10px; color: #ff6b35; transform: translateX(-50%);">L-Ecke</div>`;
+                    // KORRIGIERTE MASSLINIE für linke Ecke - WIE BEI DEN DREIECKEN
+                    const spitzeVonLinks = linkeObereEcke - plattenStart;
+                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
+                    
+                    // Bemaßung zur Ecke
+                    html += `<div style="position: absolute; top: 8px; left: 30px; width: ${spitzePositionPx}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; top: -8px; left: ${30 + spitzePositionPx/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${(spitzeVonLinks * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: 25px; font-size: 12px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${25 + spitzePositionPx}px; font-size: 12px; color: #666;">|</div>`;
                     
                 } else if (ueberdecktRechteEcke) {
                     // Platte mit rechter oberer Ecke
@@ -636,12 +644,15 @@
                     
                     html += `<circle cx="${eckeX}" cy="${plattenhoehePx - (hoehe / benoetigteLaengeM * plattenhoehePx)}" r="3" fill="#dc3545"/>`;
                     
-                    // KORRIGIERTE MASSLINIE für rechte Ecke - NOCH HÖHER über der Platte
-                    html += `<line x1="${30 + eckeX}" y1="-15" x2="${30 + endX}" y2="-15" stroke="#ff6b35" stroke-width="2"/>`;
-                    html += `<div style="position: absolute; top: -38px; left: ${30 + eckeX + (endX - eckeX)/2}px; font-size: 13px; font-weight: bold; color: #ff6b35; transform: translateX(-50%);">${((plattenEndeReal - rechteObereEcke) * 100).toFixed(0)}cm</div>`;
-                    html += `<div style="position: absolute; top: -20px; left: ${25 + eckeX}px; font-size: 12px; color: #ff6b35;">|</div>`;
-                    html += `<div style="position: absolute; top: -20px; left: ${25 + endX}px; font-size: 12px; color: #ff6b35;">|</div>`;
-                    html += `<div style="position: absolute; top: -55px; left: ${30 + eckeX + (endX - eckeX)/2}px; font-size: 10px; color: #ff6b35; transform: translateX(-50%);">R-Ecke</div>`;
+                    // KORRIGIERTE MASSLINIE für rechte Ecke - WIE BEI DEN DREIECKEN
+                    const spitzeVonLinks = rechteObereEcke - plattenStart;
+                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
+                    
+                    // Bemaßung zur Ecke
+                    html += `<div style="position: absolute; top: 8px; left: ${30 + spitzePositionPx}px; width: ${310 - spitzePositionPx}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; top: -8px; left: ${30 + spitzePositionPx + (310 - spitzePositionPx)/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${((plattenEndeReal - rechteObereEcke) * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${25 + spitzePositionPx}px; font-size: 12px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${25 + 310}px; font-size: 12px; color: #666;">|</div>`;
                     
                 } else {
                     // Normale Platte ohne Ecken
@@ -650,9 +661,9 @@
                     html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                 }
                 
-                // Text im blauen Bereich - INNERHALB der Platte positioniert
-                html += `<text x="155" y="${plattenhoehePx - 20}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
-                html += `<text x="155" y="40" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                // Text im blauen Bereich - EXAKT wie bei den Dreiecken
+                html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                html += `<text x="155" y="${Math.min(startY, endY)/2 + 10}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
                 
                 html += `</svg>`;
                 
