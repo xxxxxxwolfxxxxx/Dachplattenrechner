@@ -391,17 +391,24 @@
             
             lagerlängen.forEach(laenge => {
                 const checkbox = document.getElementById(`lager-${laenge}`);
+                console.log(`🔍 Prüfe Lager ${laenge}m: Checkbox gefunden: ${!!checkbox}, Checked: ${checkbox ? checkbox.checked : 'N/A'}`);
+                
                 if (checkbox && checkbox.checked) {
                     const anzahlInput = document.getElementById(`anzahl-${laenge}`);
                     const anzahl = anzahlInput.value === '' ? Infinity : parseInt(anzahlInput.value);
+                    
+                    console.log(`✅ Lager ${laenge}m aktiv: Anzahl = ${anzahl}`);
                     
                     verfuegbar.push({
                         laenge: laenge,
                         anzahl: Math.max(0, anzahl || Infinity)
                     });
+                } else {
+                    console.log(`❌ Lager ${laenge}m nicht aktiv`);
                 }
             });
             
+            console.log('📦 Finale verfügbare Längen:', verfuegbar);
             return verfuegbar.sort((a, b) => b.laenge - a.laenge); // Größte zuerst
         }
 
@@ -521,27 +528,25 @@
         }
 
         function findeOptimaleKombination(masze, lagerlaenge, schnittblattBreite, toleranz) {
-            // Spezialfall: Viele identische Teile - berechne optimale Anzahl
+            // Spezialfall: Viele identische Teile - berechne optimale Anzahl direkt
             const gleicheTeile = {};
             masze.forEach(mass => {
                 gleicheTeile[mass] = (gleicheTeile[mass] || 0) + 1;
             });
             
-            // Wenn mehr als 80% der Teile gleich sind, nutze spezielle Optimierung
+            // Finde das häufigste Teil
             const haeufigstesTeile = Object.entries(gleicheTeile).sort((a,b) => b[1] - a[1])[0];
             if (haeufigstesTeile && haeufigstesTeile[1] / masze.length > 0.8) {
                 const teilLaenge = parseFloat(haeufigstesTeile[0]);
-                const verfuegbareAnzahl = haeufigstesTeile[1];
                 
-                // KORRIGIERT: Toleranz wird ABGEZOGEN (kürzere Schnitte für Passgenauigkeit)
+                // KORRIGIERT: Toleranz wird ABGEZOGEN
                 const nettoTeilLaenge = teilLaenge - toleranz;
                 
                 if (nettoTeilLaenge <= 0) {
-                    // Toleranz größer als Teillänge - nicht machbar
                     return [];
                 }
                 
-                // Berechne maximale Anzahl identischer Teile pro Platte
+                // Berechne MAXIMALE Anzahl für diese Lagerlänge (unabhängig von verbleibenden Teilen)
                 let maxAnzahl = Math.floor(lagerlaenge / nettoTeilLaenge);
                 
                 // Berücksichtige Schnittblattbreite zwischen den Teilen
@@ -553,7 +558,33 @@
                     maxAnzahl--;
                 }
                 
-                // Erstelle Kombination mit identischen Teilen - KEINE BEGRENZUNG auf verfügbare Anzahl hier
+                console.log(`📏 Lager ${lagerlaenge}m: Max ${maxAnzahl} Teile à ${nettoTeilLaenge}m möglich`);
+                
+                // Erstelle Kombination mit der maximalen Anzahl
+                if (maxAnzahl > 0) {
+                    const kombination = [];
+                    for (let i = 0; i < maxAnzahl; i++) {
+                        kombination.push(teilLaenge);
+                    }
+                    return kombination;
+                }
+            }
+            
+            // Normale Optimierung für gemischte Teile
+            const kombinationGreedy = greedyKombination(masze, lagerlaenge, schnittblattBreite, toleranz);
+            const kombinationBestFit = bestFitKombination(masze, lagerlaenge, schnittblattBreite, toleranz);
+            
+            // Wähle die bessere Kombination
+            const verschnittGreedy = lagerlaenge - kombinationGreedy.reduce((s,m) => s + (m - toleranz), 0) - Math.max(0, kombinationGreedy.length - 1) * schnittblattBreite;
+            const verschnittBestFit = lagerlaenge - kombinationBestFit.reduce((s,m) => s + (m - toleranz), 0) - Math.max(0, kombinationBestFit.length - 1) * schnittblattBreite;
+            
+            if (kombinationBestFit.length > kombinationGreedy.length || 
+                (kombinationBestFit.length === kombinationGreedy.length && verschnittBestFit < verschnittGreedy)) {
+                return kombinationBestFit;
+            }
+            
+            return kombinationGreedy;
+        }EGRENZUNG auf verfügbare Anzahl hier
                 // Das wird später in der Hauptschleife gemacht
                 if (maxAnzahl > 0) {
                     const kombination = [];
