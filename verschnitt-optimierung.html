@@ -233,24 +233,29 @@
 
         function getVerfuegbareLaengen() {
             const verfuegbar = [];
-            const lagerlängen = [3.1, 6.0]; // Nur die beiden Test-Längen
             
-            lagerlängen.forEach(laenge => {
-                const checkbox = document.getElementById(`lager-${laenge}`);
-                console.log(`🔍 Prüfe Lager ${laenge}m: Checkbox gefunden: ${!!checkbox}, Checked: ${checkbox ? checkbox.checked : 'N/A'}`);
+            // KORRIGIERT: Direkte ID-Prüfung für die beiden Test-Checkboxen
+            const checkboxen = [
+                { id: 'lager-3.1', laenge: 3.1 },
+                { id: 'lager-6.0', laenge: 6.0 }
+            ];
+            
+            checkboxen.forEach(item => {
+                const checkbox = document.getElementById(item.id);
+                console.log(`🔍 Prüfe Lager ${item.laenge}m (ID: ${item.id}): Checkbox gefunden: ${!!checkbox}, Checked: ${checkbox ? checkbox.checked : 'N/A'}`);
                 
                 if (checkbox && checkbox.checked) {
-                    const anzahlInput = document.getElementById(`anzahl-${laenge}`);
-                    const anzahl = anzahlInput.value === '' ? Infinity : parseInt(anzahlInput.value);
+                    const anzahlInput = document.getElementById(`anzahl-${item.laenge}`);
+                    const anzahl = anzahlInput && anzahlInput.value !== '' ? parseInt(anzahlInput.value) : Infinity;
                     
-                    console.log(`✅ Lager ${laenge}m aktiv: Anzahl = ${anzahl}`);
+                    console.log(`✅ Lager ${item.laenge}m aktiv: Anzahl = ${anzahl}`);
                     
                     verfuegbar.push({
-                        laenge: laenge,
+                        laenge: item.laenge,
                         anzahl: Math.max(0, anzahl || Infinity)
                     });
                 } else {
-                    console.log(`❌ Lager ${laenge}m nicht aktiv`);
+                    console.log(`❌ Lager ${item.laenge}m nicht aktiv`);
                 }
             });
             
