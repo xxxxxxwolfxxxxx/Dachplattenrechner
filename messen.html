@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blechdach richtig vermessen - Praxisleitfaden für Heimwerker und Profis</title>
+    <meta name="description" content="Kompletter Praxisleitfaden: Blechdach richtig vermessen. Von Dachformen erkennen bis zur Flächenberechnung - Schritt für Schritt erklärt.">
+    
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        const analyticsCookies = localStorage.getItem('analyticsCookies');
+        if (analyticsCookies === 'true') {
+            gtag('config', 'G-6NSYG8B1T9', {
+                anonymize_ip: true,
+                cookie_flags: 'SameSite=None;Secure'
+            });
+        }
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Parallax Container */
+        .parallax-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        /* Hintergrundbilder mit Parallax */
+        .parallax-bg {
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 120%;
+            height: 140%;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            will-change: transform;
+            z-index: -1;
+        }
+        
+        /* Echte Hintergrundbilder mit Parallax */
+        .bg-hero {
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.5)),
+                        url('images/roof-worker-safety.jpg') no-repeat center center;
+        }
+        
+        .bg-safety {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.7), rgba(255, 138, 101, 0.5)),
+                        url('images/roof-measurement.jpg') no-repeat center center;
+        }
+        
+        .bg-dachformen {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.7), rgba(32, 201, 151, 0.5)),
+                        url('images/roof-construction.jpg') no-repeat center center;
+        }
+        
+        .bg-masse {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.7), rgba(255, 107, 53, 0.5)),
+                        url('images/roof-measurement.jpg') no-repeat center center;
+        }
+        
+        .bg-neigung {
+            background: linear-gradient(135deg, rgba(111, 66, 193, 0.7), rgba(142, 68, 173, 0.5)),
+                        url('images/roof-worker-safety.jpg') no-repeat center center;
+        }
+        
+        .bg-flaeche {
+            background: linear-gradient(135deg, rgba(23, 162, 184, 0.7), rgba(32, 201, 151, 0.5)),
+                        url('images/metal-roof.jpg') no-repeat center center;
+        }
+        
+        .bg-alternativen {
+            background: linear-gradient(135deg, rgba(108, 117, 125, 0.7), rgba(73, 80, 87, 0.5)),
+                        url('images/metal-roof.jpg') no-repeat center center;
+        } rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.5)),
+                        url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABAAGQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr//2Q==') no-repeat center center;
+        }
+        
+        .bg-safety {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.7), rgba(255, 138, 101, 0.5)),
+                        url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABAAGQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr//2Q==') no-repeat center center;
+        }
+        
+        .bg-dachformen {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.7), rgba(32, 201, 151, 0.5)),
+                        url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABAAGQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr//2Q==') no-repeat center center;
+        }
+        
+        .bg-masse {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.7), rgba(255, 107, 53, 0.5)),
+                        url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABAAGQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr//2Q==') no-repeat center center;
+        }
+        
+        .bg-neigung {
+            background: linear-gradient(135deg, rgba(111, 66, 193, 0.7), rgba(142, 68, 173, 0.5)),
+                        url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABAAGQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr//2Q==') no-repeat center center;
+        }
+        
+        .bg-flaeche {
+            background: linear-gradient(135deg, rgba(23, 162, 184, 0.7), rgba(32, 201, 151, 0.5)),
+                        url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABAAGQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr//2Q==') no-repeat center center;
+        }
+        
+        .bg-alternativen {
+            background: linear-gradient(135deg, rgba(108, 117, 125, 0.7), rgba(73, 80, 87, 0.5)),
+                        url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABAAGQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr//2Q==') no-repeat center center;
+        }
+        
+        /* Content Container */
+        .content-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 80px 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Typography */
+        .hero-title {
+            font-size: 3.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #1e3c72, #2a5298, #ffc107);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 30px;
+            line-height: 1.2;
+        }
+        
+        .content-text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+        
+        .content-text strong {
+            color: #1e3c72;
+            font-weight: 700;
+        }
+        
+        /* Hauptüberschriften */
+        h2 {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #1e3c72;
+            margin: 50px 0 25px 0;
+            border-left: 5px solid #ffc107;
+            padding-left: 20px;
+        }
+        
+        h3 {
+            font-size: 1.6em;
+            font-weight: 600;
+            color: #2a5298;
+            margin: 35px 0 20px 0;
+        }
+        
+        /* Listen */
+        ul {
+            padding-left: 25px;
+            margin: 20px 0;
+        }
+        
+        li {
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        
+        li strong {
+            color: #1e3c72;
+        }
+        
+        /* Bild-Platzhalter */
+        .image-placeholder {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 3px dashed #6c757d;
+            border-radius: 15px;
+            padding: 50px 30px;
+            text-align: center;
+            margin: 30px 0;
+            color: #6c757d;
+            font-style: italic;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .image-placeholder::before {
+            content: '📷';
+            font-size: 4em;
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        .image-placeholder:hover {
+            transform: scale(1.02);
+            border-color: #2a5298;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        }
+        
+        /* Spezielle Boxen */
+        .tip-box {
+            background: linear-gradient(135deg, #e7f1ff, #cce7ff);
+            border: 2px solid #2a5298;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            position: relative;
+        }
+        
+        .tip-box::before {
+            content: '👉 ';
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2a5298;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 3px solid #ffc107;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .warning-box::before {
+            content: '👉 ';
+            font-size: 1.5em;
+            color: #856404;
+            margin-right: 10px;
+        }
+        
+        .calculation-example {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #6c757d;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.05em;
+        }
+        
+        /* Scroll Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Navigation */
+        .nav-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(30, 60, 114, 0.95);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-header.scrolled {
+            background: rgba(30, 60, 114, 0.98);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1e3c72, #ffc107);
+            z-index: 1001;
+            transition: width 0.1s ease;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5em;
+            }
+            
+            .content-container {
+                margin: 20px;
+                padding: 40px 20px;
+            }
+            
+            .parallax-bg {
+                background-attachment: scroll;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2em;
+            }
+            
+            .content-container {
+                margin: 10px;
+                padding: 30px 15px;
+            }
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <!-- Navigation -->
+    <div class="nav-header" id="navHeader">
+        <div class="container">
+            <a href="index.html" class="back-btn">
+                <span>←</span>
+                <span>Zurück zur Übersicht</span>
+            </a>
+            <div class="nav-title">Blechdach richtig vermessen</div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="parallax-section">
+        <div class="parallax-bg bg-hero" data-speed="0.5"></div>
+        <div class="content-container fade-in">
+            <h1 class="hero-title">Blechdach richtig vermessen – Praxisleitfaden für Heimwerker und Profis</h1>
+            
+            <p class="content-text">
+                Eine präzise Vermessung ist die Grundlage für jedes Blechdach – egal ob Neubau oder Sanierung. Denn nur mit korrekten Maßen können Materialbedarf, Zuschnitt und Montage optimal geplant werden. Hier zeigen wir dir Schritt für Schritt, wie du dein Dach richtig aufnimmst – speziell mit Blick auf Blechdächer.
+            </p>
+        </div>
+    </section>
+
+    <!-- Sicherheit Section -->
+    <section class="parallax-section">
+        <div class="parallax-bg bg-safety" data-speed="0.3"></div>
+        <div class="content-container fade-in">
+            <h2>Sicherheit geht vor</h2>
+            
+            <p class="content-text">
+                Bevor du loslegst: <strong>Nie allein aufs Dach!</strong><br>
+                Trage rutschfeste Schuhe, verwende eine Sicherung (z. B. Dachhaken oder Gurt) und arbeite nach Möglichkeit vom Gerüst oder aus der Arbeitsbühne. Alternativ kannst du Maße auch vom Boden oder per Drohne ermitteln (siehe unten).
+            </p>
+        </div>
+    </section>
+
+    <!-- Dachformen Section -->
+    <section class="parallax-section">
+        <div class="parallax-bg bg-dachformen" data-speed="0.4"></div>
+        <div class="content-container fade-in">
+            <h2>1. Dachform erkennen</h2>
+            
+            <p class="content-text">
+                Bei Blechdächern sind folgende Formen am häufigsten:
+            </p>
+            
+            <ul>
+                <li><strong>Satteldach</strong> – zwei geneigte Flächen</li>
+                <li><strong>Walmdach</strong> – zusätzliche schräge Flächen an den Giebelseiten</li>
+                <li><strong>Pultdach</strong> – eine geneigte Fläche</li>
+            </ul>
+            
+            <div class="image-placeholder">
+                <div>
+                    <strong>Bild 1:</strong> Beispielhafte Skizzen von Sattel-, Walm- und Pultdach
+                </div>
+            </div>
+            
+            <p class="content-text">
+                Je nach Form verändert sich der Aufwand und die Berechnung der Flächen – besonders bei Walmdächern (mehr dazu weiter unten).
+            </p>
+        </div>
+    </section>
+
+    <!-- Die wichtigsten Maße Section -->
+    <section class="parallax-section">
+        <div class="parallax-bg bg-masse" data-speed="0.6"></div>
+        <div class="content-container fade-in">
+            <h2>2. Die wichtigsten Maße</h2>
+            
+            <p class="content-text">
+                Für eine Materialkalkulation brauchst du:
+            </p>
+            
+            <ul>
+                <li><strong>Trauflänge</strong> – Länge der unteren Dachkante</li>
+                <li><strong>Dachschräge</strong> – schräg gemessen von Traufe bis First</li>
+                <li><strong>Dachüberstand</strong> – wie weit das Dach über die Wand hinausgeht</li>
+                <li><strong>Neigung</strong> – in Grad (für Wasserrinnen und Blechlängen relevant)</li>
+            </ul>
+            
+            <div class="tip-box">
+                <strong>Tipp</strong>: Einfache Skizze machen und Maße direkt eintragen.
+            </div>
+            
+            <div class="image-placeholder">
+                <div>
+                    <strong>Bild 2:</strong> Skizze mit eingezeichneten Maßen
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dachneigung Section -->
+    <section class="parallax-section">
+        <div class="parallax-bg bg-neigung" data-speed="0.3"></div>
+        <div class="content-container fade-in">
+            <h2>3. Dachneigung bestimmen</h2>
+            
+            <p class="content-text">
+                Die Neigung (in Grad) ist bei Blechdächern besonders wichtig, da sie die Wasserführung und das Verlegesystem beeinflusst.
+            </p>
+            
+            <h3>Zwei Methoden:</h3>
+            
+            <div class="calculation-example">
+                <strong>Klassisch mit Maßband</strong>:<br>
+                Miss die Höhe vom First zur Traufe und teile durch die halbe Hausbreite.<br>
+                Formel: tan(α) = Dachhöhe / halbe Spannweite
+            </div>
+            
+            <div class="calculation-example">
+                <strong>Per Foto & Zollstock</strong>:<br>
+                Wer's modern mag: Klapp einen Zollstock auf ca. 1 m, leg ihn aufs Dach und fotografiere ihn mit einer Drohne. Aus dem Foto lässt sich mit Software oder Maßstab die Dachneigung berechnen.
+            </div>
+            
+            <div class="image-placeholder">
+                <div>
+                    <strong>Bild 3:</strong> Drohnenaufnahme mit Zollstock als Maßhilfe
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flächenberechnung Section -->
+    <section class="parallax-section">
+        <div class="parallax-bg bg-flaeche" data-speed="0.5"></div>
+        <div class="content-container fade-in">
+            <h2>4. Fläche berechnen – mit Zusatz bei Blech</h2>
+            
+            <p class="content-text">
+                Für Blechdächer wird <strong>nicht nur die Grundfläche</strong>, sondern oft auch ein <strong>Materialzuschlag</strong> für Überlappung, Lattung und Blechüberstände benötigt. Das gilt besonders bei Walmdächern mit vielen Ecken und Kehlen.
+            </p>
+            
+            <div class="calculation-example">
+                <strong>Beispiel Satteldach:</strong><br><br>
+                • Schräge (Dachbreite) = 4,5 m<br>
+                • Länge (Traufe) = 10 m<br>
+                → Fläche je Seite = 45 m²<br>
+                → Gesamtfläche = 90 m²<br><br>
+                <strong>+10–15 % Zuschlag</strong> einplanen, je nach Decksystem und Lattungsaufbau.
+            </div>
+            
+            <div class="image-placeholder">
+                <div>
+                    <strong>Bild 4:</strong> Flächenberechnung mit Markierung von Überlappungen
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                <strong>Achtung bei Walmdächern</strong>:<br>
+                Durch schräge Walmflächen, Schnittkanten und Verschnitt kann sich der Materialbedarf <strong>deutlich erhöhen</strong> – teils um bis zu 25 %. Plane hier großzügig.
+            </div>
+        </div>
+    </section>
+
+    <!-- Alternativen Section -->
+    <section class="parallax-section">
+        <div class="parallax-bg bg-alternativen" data-speed="0.4"></div>
+        <div class="content-container fade-in">
+            <h2>5. Alternativen zur Handvermessung</h2>
+            
+            <p class="content-text">
+                Wenn der Zugang schwierig ist oder du Zeit sparen willst:
+            </p>
+            
+            <ul>
+                <li><strong>Drohnenvermessung mit Maßreferenz (z. B. Zollstock)</strong></li>
+                <li><strong>Laser-Distanzmessung vom Boden (bei geringer Traufhöhe)</strong></li>
+                <li><strong>Foto mit bekannter Dachlattenbreite als Maßhilfe</strong></li>
+            </ul>
+            
+            <div class="image-placeholder">
+                <div>
+                    <strong>Bild 5:</strong> Zollstock, Dachlatten & Maßvergleich im Foto
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fazit Section -->
+    <section class="parallax-section">
+        <div class="parallax-bg bg-hero" data-speed="0.2"></div>
+        <div class="content-container fade-in">
+            <h2>Fazit</h2>
+            
+            <p class="content-text">
+                Die richtige Vermessung deines Dachs ist entscheidend – vor allem bei Blechdächern, wo jeder Zentimeter zählt. Mit einfachen Mitteln, klarem Plan und etwas Vorsicht bekommst du alle nötigen Daten für eine erfolgreiche Dachsanierung oder Neueindeckung. Und denk dran: Lieber einmal mehr nachgemessen – als zu knapp bestellt!
+            </p>
+            
+            <div style="text-align: center; margin-top: 40px;">
+                <div style="background: linear-gradient(135deg, #1e3c72, #2a5298); padding: 30px; border-radius: 15px; color: white;">
+                    <h3 style="margin-bottom: 20px;">Jetzt Materialverbrauch berechnen!</h3>
+                    <p style="margin-bottom: 25px;">Mit den gemessenen Werten können Sie jetzt den genauen Materialbedarf ermitteln:</p>
+                    <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                        <a href="gleichschenkliges-dreieck.html" class="btn btn-primary" style="text-decoration: none;">
+                            📐 Dreieck berechnen
+                        </a>
+                        <a href="trapez.html" class="btn btn-primary" style="text-decoration: none;">
+                            🔷 Trapez berechnen
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Parallax Effect
+        function updateParallax() {
+            const scrollTop = window.pageYOffset;
+            const parallaxElements = document.querySelectorAll('.parallax-bg');
+            
+            parallaxElements.forEach(element => {
+                const speed = parseFloat(element.dataset.speed) || 0.5;
+                const yPos = -(scrollTop * speed);
+                element.style.transform = `translate3d(0, ${yPos}px, 0)`;
+            });
+        }
+
+        // Progress Bar
+        function updateProgressBar() {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.body.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            document.getElementById('progressBar').style.width = scrollPercent + '%';
+        }
+
+        // Navigation Header
+        function updateNavHeader() {
+            const navHeader = document.getElementById('navHeader');
+            const scrollTop = window.pageYOffset;
+            
+            if (scrollTop > 100) {
+                navHeader.classList.add('scrolled');
+            } else {
+                navHeader.classList.remove('scrolled');
+            }
+        }
+
+        // Scroll Animations
+        function updateScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-in');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // Performance optimized scroll handler
+        let ticking = false;
+        function handleScroll() {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    updateParallax();
+                    updateProgressBar();
+                    updateNavHeader();
+                    updateScrollAnimations();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+
+        // Mobile optimizations
+        function initMobileOptimizations() {
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                document.querySelectorAll('.parallax-bg').forEach(bg => {
+                    bg.style.backgroundAttachment = 'scroll';
+                });
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initMobileOptimizations();
+            window.addEventListener('scroll', handleScroll);
+            updateScrollAnimations();
+            updateNavHeader();
+            
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_view', {
+                    'event_category': 'messen_guide',
+                    'event_label': 'guide_loaded'
+                });
+            }
+        });
+    </script>
+</body>
+</html>
