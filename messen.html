@@ -60,40 +60,40 @@
             z-index: -1;
         }
         
-        /* Echte Hintergrundbilder mit Parallax */
+        /* Optimierte Hintergrundbilder - 4 Bilder mit verschiedenen Parallax-Geschwindigkeiten */
         .bg-hero {
-            background: linear-gradient(135deg, rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.5)),
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.8), rgba(42, 82, 152, 0.6)),
                         url('images/roof-worker-safety.jpg') no-repeat center center;
         }
         
         .bg-safety {
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.7), rgba(255, 138, 101, 0.5)),
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.8), rgba(255, 138, 101, 0.6)),
                         url('images/roof-measurement.jpg') no-repeat center center;
         }
         
         .bg-dachformen {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.7), rgba(32, 201, 151, 0.5)),
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.8), rgba(32, 201, 151, 0.6)),
                         url('images/roof-construction.jpg') no-repeat center center;
         }
         
         .bg-masse {
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.7), rgba(255, 107, 53, 0.5)),
-                        url('images/roof-measurement.jpg') no-repeat center center;
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.8), rgba(255, 107, 53, 0.6)),
+                        url('images/metal-roof.jpg') no-repeat center center;
         }
         
         .bg-neigung {
-            background: linear-gradient(135deg, rgba(111, 66, 193, 0.7), rgba(142, 68, 173, 0.5)),
+            background: linear-gradient(135deg, rgba(111, 66, 193, 0.8), rgba(142, 68, 173, 0.6)),
                         url('images/roof-worker-safety.jpg') no-repeat center center;
         }
         
         .bg-flaeche {
-            background: linear-gradient(135deg, rgba(23, 162, 184, 0.7), rgba(32, 201, 151, 0.5)),
-                        url('images/metal-roof.jpg') no-repeat center center;
+            background: linear-gradient(135deg, rgba(23, 162, 184, 0.8), rgba(32, 201, 151, 0.6)),
+                        url('images/roof-measurement.jpg') no-repeat center center;
         }
         
         .bg-alternativen {
-            background: linear-gradient(135deg, rgba(108, 117, 125, 0.7), rgba(73, 80, 87, 0.5)),
-                        url('images/metal-roof.jpg') no-repeat center center;
+            background: linear-gradient(135deg, rgba(108, 117, 125, 0.8), rgba(73, 80, 87, 0.6)),
+                        url('images/roof-construction.jpg') no-repeat center center;
         } rgba(30, 60, 114, 0.7), rgba(42, 82, 152, 0.5)),
                         url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABAAGQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr//2Q==') no-repeat center center;
         }
@@ -561,7 +561,7 @@
     </section>
 
     <script>
-        // Parallax Effect
+        // Einfaches, elegantes Parallax mit verschiedenen Geschwindigkeiten
         function updateParallax() {
             const scrollTop = window.pageYOffset;
             const parallaxElements = document.querySelectorAll('.parallax-bg');
@@ -570,6 +570,71 @@
                 const speed = parseFloat(element.dataset.speed) || 0.5;
                 const yPos = -(scrollTop * speed);
                 element.style.transform = `translate3d(0, ${yPos}px, 0)`;
+            });
+        }
+
+        // Scroll Animations
+        function updateScrollAnimations() {
+            const elements = document.querySelectorAll('.fade-in');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // Intelligente Bildrotation für mehr Abwechslung
+        function rotateBackgrounds() {
+            const backgrounds = document.querySelectorAll('.parallax-bg');
+            let currentIndex = 0;
+            
+            setInterval(() => {
+                const bg = backgrounds[currentIndex];
+                if (bg && bg.getBoundingClientRect().top < window.innerHeight && bg.getBoundingClientRect().bottom > 0) {
+                    // Sanfter Übergang zu alternativem Bild
+                    bg.style.transition = 'all 1.5s ease-in-out';
+                    bg.classList.toggle('alt-image');
+                }
+                currentIndex = (currentIndex + 1) % backgrounds.length;
+            }, 8000); // Alle 8 Sekunden
+        }
+
+        // Dynamische Filter basierend auf Scroll-Position
+        function updateDynamicFilters() {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.body.scrollHeight - window.innerHeight;
+            const scrollPercent = scrollTop / docHeight;
+            
+            document.querySelectorAll('.parallax-bg').forEach((bg, index) => {
+                const sectionProgress = (scrollPercent * 7) - index; // 7 Sektionen
+                
+                if (sectionProgress >= 0 && sectionProgress <= 1) {
+                    // Dynamische Filter während der Sektion
+                    const brightness = 0.9 + (sectionProgress * 0.2);
+                    const contrast = 1 + (sectionProgress * 0.1);
+                    const saturate = 1 + (Math.sin(sectionProgress * Math.PI) * 0.2);
+                    
+                    bg.style.filter = `brightness(${brightness}) contrast(${contrast}) saturate(${saturate})`;
+                }
+            });
+        }
+
+        // Preload aller Bilder für nahtlose Übergänge
+        function preloadImages() {
+            const images = [
+                'images/roof-worker-safety.jpg',
+                'images/roof-measurement.jpg', 
+                'images/roof-construction.jpg',
+                'images/metal-roof.jpg'
+            ];
+            
+            images.forEach(src => {
+                const img = new Image();
+                img.src = src;
             });
         }
 
