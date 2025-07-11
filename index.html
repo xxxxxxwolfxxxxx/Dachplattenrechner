@@ -6,35 +6,44 @@
     <title>Trapezplattenrechner - Professionelle Dachplatten-Berechnung</title>
     <meta name="description" content="Professioneller Trapezplattenrechner für verschiedene Dachformen. Berechnen Sie Materialverbrauch und erstellen Sie Anrisspläne für Dreiecksdächer, Pyramiden und mehr.">
     
-    <!-- Google AdSense -->
+    <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    <script>
+        // AdSense nur laden wenn Marketing-Cookies akzeptiert sind
+        function loadAdSense() {
+            if (localStorage.getItem('marketingCookies') === 'true') {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
+                script.crossOrigin = 'anonymous';
+                document.head.appendChild(script);
+                
+                // AdSense Auto-Ads aktivieren
+                window.adsbygoogle = window.adsbygoogle || [];
+                window.adsbygoogle.push({
+                    google_ad_client: 'ca-pub-8687929894744033',
+                    enable_page_level_ads: true
+                });
+            }
+        }
+    </script>
     
-    <!-- Google tag (gtag.js) -->
+    <!-- Google Analytics - wird nur geladen wenn Analyse-Cookies akzeptiert -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         
-        // Global tracking initialization function
-        window.initializeTracking = function() {
-            const analyticsCookies = localStorage.getItem('analyticsCookies');
-            if (analyticsCookies === 'true' || localStorage.getItem('cookieConsent') === 'all') {
+        // Analytics nur laden wenn Analyse-Cookies akzeptiert sind
+        function loadAnalytics() {
+            if (localStorage.getItem('analyticsCookies') === 'true') {
                 gtag('config', 'G-6NSYG8B1T9', {
                     anonymize_ip: true,
                     cookie_flags: 'SameSite=None;Secure'
                 });
-                console.log('Google Analytics aktiviert');
             }
-        };
-        
-        // Global opt-out function
-        window.gaOptout = function() {
-            document.cookie = 'ga-disable-G-6NSYG8B1T9=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
-            window['ga-disable-G-6NSYG8B1T9'] = true;
-            localStorage.setItem('analyticsCookies', 'false');
-            alert('Google Analytics wurde deaktiviert');
-        };
+        }
     </script>
     
     <link rel="stylesheet" href="style.css">
@@ -67,6 +76,15 @@
 
     <div class="container">
         <main>
+            <!-- AdSense Anzeigenplatz - wird nur angezeigt wenn Marketing-Cookies akzeptiert -->
+            <div id="top-ad-container" style="display: none; text-align: center; margin: 20px 0;">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="auto"
+                     data-ad-format="auto"></ins>
+            </div>
+
             <div class="calculators-grid">
                 <!-- Gleichschenkliges Dreieck -->
                 <a href="gleichschenkliges-dreieck.html" class="calculator-card">
@@ -126,6 +144,15 @@
                     <span class="cta-button">Jetzt berechnen</span>
                 </a>
 
+                <!-- AdSense Anzeige zwischen den Karten -->
+                <div id="middle-ad-container" style="display: none; grid-column: 1 / -1; text-align: center; margin: 20px 0;">
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+
                 <!-- Trapez -->
                 <a href="trapez.html" class="calculator-card">
                     <div class="card-icon">
@@ -158,31 +185,24 @@
                 <a href="verschnitt-optimierung.html" class="calculator-card">
                     <div class="card-icon">
                         <svg width="120" height="80" viewBox="0 0 120 80">
-                            <!-- Lagerplatte 1 -->
                             <rect x="15" y="15" width="90" height="12" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                            <!-- Segmente -->
                             <rect x="15" y="15" width="30" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
                             <rect x="46" y="15" width="25" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
                             <rect x="72" y="15" width="20" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
                             <rect x="93" y="15" width="12" height="12" fill="#dc3545" stroke="#fff" stroke-width="1"/>
-                            <!-- Schnittlinien -->
                             <line x1="45" y1="15" x2="45" y2="27" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
                             <line x1="71" y1="15" x2="71" y2="27" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
                             <line x1="92" y1="15" x2="92" y2="27" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
                             
-                            <!-- Lagerplatte 2 -->
                             <rect x="15" y="35" width="90" height="12" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                            <!-- Segmente -->
                             <rect x="15" y="35" width="35" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
                             <rect x="51" y="35" width="30" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
                             <rect x="82" y="35" width="15" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
                             <rect x="98" y="35" width="7" height="12" fill="#dc3545" stroke="#fff" stroke-width="1"/>
-                            <!-- Schnittlinien -->
                             <line x1="50" y1="35" x2="50" y2="47" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
                             <line x1="81" y1="35" x2="81" y2="47" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
                             <line x1="97" y1="35" x2="97" y2="47" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
                             
-                            <!-- Optimierungsicon -->
                             <circle cx="60" cy="60" r="8" fill="#ffc107" stroke="#fff" stroke-width="2"/>
                             <text x="60" y="65" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">⚡</text>
                         </svg>
@@ -199,7 +219,15 @@
                     </ul>
                     <span class="cta-button">Jetzt optimieren</span>
                 </a>
+            </div>
 
+            <!-- AdSense Anzeige am Ende -->
+            <div id="bottom-ad-container" style="display: none; text-align: center; margin: 40px 0;">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="auto"
+                     data-ad-format="auto"></ins>
             </div>
         </main>
     </div>
@@ -247,15 +275,16 @@
         </div>
     </footer>
 
-    <!-- Cookie Banner -->
+    <!-- Verbessertes Cookie-Banner -->
     <div id="cookieBanner" class="cookie-banner">
         <div class="cookie-content">
             <div class="cookie-text">
-                <p><strong>🍪 Cookie-Hinweis:</strong> Diese Website verwendet Cookies und ähnliche Technologien zur Verbesserung der Nutzererfahrung. Mit Google Analytics analysieren wir die Nutzung und optimieren unsere Inhalte. Durch Klick auf "Alle akzeptieren" stimmen Sie der Verwendung aller Cookies zu.</p>
+                <h3 style="margin: 0 0 10px 0; color: white;">🍪 Cookie-Einstellungen</h3>
+                <p>Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung zu bieten. Dazu gehören essentielle Cookies für die Funktionalität, Analyse-Cookies für die Optimierung und Marketing-Cookies für personalisierte Werbung.</p>
             </div>
             <div class="cookie-buttons">
-                <button class="cookie-btn accept" onclick="acceptCookies()">Alle akzeptieren</button>
-                <button class="cookie-btn decline" onclick="declineCookies()">Ablehnen</button>
+                <button class="cookie-btn accept" onclick="acceptAllCookies()">Alle akzeptieren</button>
+                <button class="cookie-btn decline" onclick="acceptOnlyEssential()">Nur Essentielle</button>
                 <button class="cookie-btn settings" onclick="openModal('cookies')">Einstellungen</button>
             </div>
         </div>
@@ -270,35 +299,55 @@
     </div>
 
     <script>
-        // Cookie Management
+        // Cookie Management System
         function showCookieBanner() {
-            if (!localStorage.getItem('cookieConsent')) {
+            const cookieConsent = localStorage.getItem('cookieConsent');
+            if (!cookieConsent) {
                 document.getElementById('cookieBanner').classList.add('show');
             }
         }
 
-        function acceptCookies() {
+        function acceptAllCookies() {
             localStorage.setItem('cookieConsent', 'all');
             localStorage.setItem('analyticsCookies', 'true');
             localStorage.setItem('marketingCookies', 'true');
             
-            if (typeof gtag !== 'undefined') {
-                gtag('config', 'G-6NSYG8B1T9', {
-                    anonymize_ip: true,
-                    cookie_flags: 'SameSite=None;Secure'
-                });
-            }
+            loadAnalytics();
+            loadAdSense();
+            showAds();
             
             document.getElementById('cookieBanner').classList.remove('show');
         }
 
-        function declineCookies() {
+        function acceptOnlyEssential() {
             localStorage.setItem('cookieConsent', 'essential');
             localStorage.setItem('analyticsCookies', 'false');
             localStorage.setItem('marketingCookies', 'false');
             
-            window['ga-disable-G-6NSYG8B1T9'] = true;
             document.getElementById('cookieBanner').classList.remove('show');
+        }
+
+        function showAds() {
+            if (localStorage.getItem('marketingCookies') === 'true') {
+                // Zeige AdSense-Container
+                document.getElementById('top-ad-container').style.display = 'block';
+                document.getElementById('middle-ad-container').style.display = 'block';
+                document.getElementById('bottom-ad-container').style.display = 'block';
+                
+                // Lade AdSense-Anzeigen
+                if (window.adsbygoogle) {
+                    try {
+                        const ads = document.querySelectorAll('.adsbygoogle');
+                        ads.forEach(ad => {
+                            if (!ad.getAttribute('data-ad-status')) {
+                                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                            }
+                        });
+                    } catch (e) {
+                        console.log('AdSense loading error:', e);
+                    }
+                }
+            }
         }
 
         // Modal Management
@@ -346,23 +395,38 @@
                     
                     <h4>Datenerfassung auf dieser Website</h4>
                     <p><strong>Wer ist verantwortlich für die Datenerfassung auf dieser Website?</strong><br>
-                    Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Abschnitt „Hinweis zur Verantwortlichen Stelle" in dieser Datenschutzerklärung entnehmen.</p>
-                    
-                    <p><strong>Wie erfassen wir Ihre Daten?</strong><br>
-                    Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen. Hierbei kann es sich z. B. um Daten handeln, die Sie in ein Kontaktformular eingeben. Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Website durch unsere IT-Systeme erfasst. Das sind vor allem technische Daten (z. B. Internetbrowser, Betriebssystem oder Uhrzeit des Seitenaufrufs).</p>
+                    Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Impressum entnehmen.</p>
                     
                     <h3>2. Hosting</h3>
-                    <p>Wir hosten die Inhalte unserer Website bei einem externen Dienstleister. Die personenbezogenen Daten, die auf dieser Website erfasst werden, werden auf den Servern des Hosters gespeichert. Hierbei kann es sich v. a. um IP-Adressen, Kontaktanfragen, Meta- und Kommunikationsdaten, Vertragsdaten, Kontaktdaten, Namen, Websitezugriffe und sonstige Daten handeln.</p>
+                    <p>Wir hosten die Inhalte unserer Website bei einem externen Dienstleister. Die personenbezogenen Daten, die auf dieser Website erfasst werden, werden auf den Servern des Hosters gespeichert.</p>
                     
                     <h3>3. Google Analytics</h3>
-                    <p>Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited („Google"), Gordon House, Barrow Street, Dublin 4, Irland.</p>
+                    <p>Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
                     
-                    <p>Google Analytics ermöglicht es dem Websitebetreiber, das Verhalten der Websitebesucher zu analysieren. Hierbei erhält der Websitebetreiber verschiedene Nutzungsdaten, wie z. B. Seitenaufrufe, Verweildauer, verwendete Betriebssysteme und Herkunft des Nutzers.</p>
+                    <p>Google Analytics ermöglicht es dem Websitebetreiber, das Verhalten der Websitebesucher zu analysieren. Die IP-Adresse wird anonymisiert übertragen.</p>
                     
-                    <p>Die Nutzung von Google Analytics erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat ein berechtigtes Interesse an der Analyse des Nutzerverhaltens, um sowohl sein Webangebot als auch seine Werbung zu optimieren. Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.</p>
+                    <p><strong>Rechtsgrundlage:</strong> Die Nutzung von Google Analytics erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.</p>
                     
-                    <h3>4. Ihre Rechte</h3>
+                    <h3>4. Google AdSense</h3>
+                    <p>Diese Website verwendet Google AdSense, einen Dienst zum Einbinden von Werbeanzeigen der Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
+                    
+                    <p><strong>Datenverarbeitung:</strong> Google AdSense verwendet Cookies und ähnliche Technologien, um Ihnen personalisierte Werbung anzuzeigen. Dabei werden Informationen über Ihre Website-Besuche gesammelt.</p>
+                    
+                    <p><strong>Zweck:</strong> Die Datenverarbeitung dient der Finanzierung dieser kostenlosen Website durch Werbeeinnahmen und der Bereitstellung relevanter Werbung.</p>
+                    
+                    <p><strong>Rechtsgrundlage:</strong> Die Nutzung von Google AdSense erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.</p>
+                    
+                    <p><strong>Widerspruch:</strong> Sie können der Verwendung von Cookies für personalisierte Werbung jederzeit widersprechen. Besuchen Sie dazu die <a href="https://adssettings.google.com" target="_blank">Google Ads-Einstellungen</a>.</p>
+                    
+                    <h3>5. Verwendete Cookies</h3>
+                    <p><strong>Essentielle Cookies:</strong> Für die Grundfunktionalität der Website (Cookie-Einstellungen, Session-Verwaltung)</p>
+                    <p><strong>Analyse-Cookies:</strong> Google Analytics (_ga, _gat, _gid) - Speicherdauer: bis zu 26 Monate</p>
+                    <p><strong>Marketing-Cookies:</strong> Google AdSense (verschiedene Cookies) - Speicherdauer: bis zu 24 Monate</p>
+                    
+                    <h3>6. Ihre Rechte</h3>
                     <p>Sie haben jederzeit das Recht unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein Recht, die Berichtigung oder Löschung dieser Daten zu verlangen.</p>
+                    
+                    <p><strong>Widerruf der Einwilligung:</strong> Sie können Ihre Einwilligung zur Datenverarbeitung jederzeit widerrufen. Dies hat jedoch keinen Einfluss auf die Rechtmäßigkeit der aufgrund der Einwilligung bis zum Widerruf erfolgten Verarbeitung.</p>
                     
                     <p><strong>Kontakt:</strong><br>
                     Bei Fragen zum Datenschutz wenden Sie sich bitte an: <span id="email-privacy"></span></p>
@@ -372,7 +436,7 @@
                     <h2>Allgemeine Geschäftsbedingungen (AGB)</h2>
                     
                     <h3>1. Geltungsbereich</h3>
-                    <p>Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung des Trapezplattenrechners, einer kostenlosen Webanwendung zur Berechnung von Materialverbrauch und Anrissplänen für Dachplatten.</p>
+                    <p>Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung des Trapezplattenrechners, einer kostenlosen Webanwendung zur Berechnung von Materialverbrauch und Anrissplänen für Dachplatten. Die Website wird durch Werbeeinnahmen finanziert.</p>
                     
                     <h3>2. Leistungsbeschreibung</h3>
                     <p>Der Trapezplattenrechner bietet verschiedene Berechnungstools für:</p>
@@ -382,23 +446,25 @@
                         <li>Trapezflächen</li>
                         <li>Verschnitt-Optimierung</li>
                     </ul>
-                    <p>Die Berechnungen erfolgen nach mathematischen Grundlagen und bewährten Praktiken der Dachdeckerbranche.</p>
                     
                     <h3>3. Nutzung und Verfügbarkeit</h3>
-                    <p>Die Nutzung des Trapezplattenrechners ist kostenlos. Wir bemühen uns um eine möglichst hohe Verfügbarkeit, können jedoch keine Garantie für eine ununterbrochene Erreichbarkeit geben.</p>
+                    <p>Die Nutzung des Trapezplattenrechners ist kostenlos. Die Finanzierung erfolgt durch Werbeeinnahmen. Wir behalten uns das Recht vor, Werbung auf der Website zu schalten.</p>
                     
-                    <h3>4. Haftungsausschluss</h3>
+                    <h3>4. Werbung</h3>
+                    <p>Zur Finanzierung der kostenlosen Nutzung werden auf der Website Werbeanzeigen geschaltet. Diese werden von Google AdSense bereitgestellt und können personalisiert sein, sofern Sie der Verwendung von Marketing-Cookies zugestimmt haben.</p>
+                    
+                    <h3>5. Haftungsausschluss</h3>
                     <p><strong>Wichtiger Hinweis:</strong> Die Berechnungen des Trapezplattenrechners dienen als Planungshilfe und erfolgen ohne Gewähr. Eine Haftung für die Richtigkeit der Berechnungen oder daraus entstehende Schäden wird ausgeschlossen.</p>
                     
                     <p>Alle Berechnungen sollten vor der praktischen Umsetzung von qualifizierten Fachkräften überprüft werden. Der Nutzer trägt die Verantwortung für die ordnungsgemäße Anwendung der Berechnungsergebnisse.</p>
                     
-                    <h3>5. Geistiges Eigentum</h3>
+                    <h3>6. Geistiges Eigentum</h3>
                     <p>Alle Inhalte des Trapezplattenrechners, einschließlich Design, Berechnungsalgorithmen und Texte, sind urheberrechtlich geschützt. Eine Vervielfältigung oder kommerzielle Nutzung ohne ausdrückliche Genehmigung ist untersagt.</p>
                     
-                    <h3>6. Änderungen</h3>
-                    <p>Wir behalten uns das Recht vor, diese AGB jederzeit zu ändern. Nutzer werden über Änderungen informiert.</p>
+                    <h3>7. Änderungen</h3>
+                    <p>Wir behalten uns das Recht vor, diese AGB jederzeit zu ändern. Nutzer werden über wesentliche Änderungen informiert.</p>
                     
-                    <h3>7. Anwendbares Recht</h3>
+                    <h3>8. Anwendbares Recht</h3>
                     <p>Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts.</p>
                 `;
             } else if (type === 'cookies') {
@@ -408,22 +474,53 @@
                     <h3>Was sind Cookies?</h3>
                     <p>Cookies sind kleine Textdateien, die beim Besuch einer Website auf Ihrem Gerät gespeichert werden. Sie helfen dabei, die Website funktionsfähig zu machen und die Nutzererfahrung zu verbessern.</p>
                     
-                    <h3>Verwendete Cookies</h3>
+                    <h3>Cookie-Kategorien</h3>
                     
                     <div class="cookie-settings">
                         <h4>Essentielle Cookies</h4>
-                        <p>Diese Cookies sind für die grundlegende Funktionalität der Website erforderlich.</p>
+                        <p>Diese Cookies sind für die grundlegende Funktionalität der Website erforderlich und können nicht deaktiviert werden.</p>
+                        <div class="cookie-option">
+                            <input type="checkbox" id="essentialCookies" checked disabled>
+                            <label for="essentialCookies">Essentielle Cookies (immer aktiv)</label>
+                        </div>
+                        
+                        <h4>Analyse-Cookies (Google Analytics)</h4>
+                        <p>Diese Cookies helfen uns zu verstehen, wie Besucher mit der Website interagieren, indem sie Informationen anonym sammeln und melden.</p>
                         <div class="cookie-option">
                             <input type="checkbox" id="analyticsCookies">
                             <label for="analyticsCookies">Analyse-Cookies (Google Analytics)</label>
+                        </div>
+                        
+                        <h4>Marketing-Cookies (Google AdSense)</h4>
+                        <p>Diese Cookies werden verwendet, um Ihnen relevante Werbeanzeigen zu zeigen und die Finanzierung dieser kostenlosen Website zu ermöglichen.</p>
+                        <div class="cookie-option">
+                            <input type="checkbox" id="marketingCookies">
+                            <label for="marketingCookies">Marketing-Cookies (Google AdSense)</label>
                         </div>
                     </div>
                     
                     <button class="save-button" onclick="saveCookieSettings()">Einstellungen speichern</button>
                     
-                    <h3>Cookie-Details</h3>
-                    <p><strong>Google Analytics:</strong> Sammelt Informationen über die Nutzung der Website, um die Leistung und Benutzerfreundlichkeit zu verbessern. Die IP-Adresse wird anonymisiert.</p>
-                    <p><strong>Speicherdauer:</strong> Cookies werden maximal 26 Monate gespeichert.</p>
+                    <h3>Detaillierte Cookie-Informationen</h3>
+                    
+                    <h4>Essentielle Cookies</h4>
+                    <p><strong>cookieConsent:</strong> Speichert Ihre Cookie-Einstellungen<br>
+                    <strong>Speicherdauer:</strong> Permanent (bis zur Änderung)</p>
+                    
+                    <h4>Google Analytics Cookies</h4>
+                    <p><strong>_ga:</strong> Eindeutige Benutzer-ID für Statistiken<br>
+                    <strong>_gat:</strong> Anfragerate begrenzen<br>
+                    <strong>_gid:</strong> Eindeutige Benutzer-ID für 24h<br>
+                    <strong>Speicherdauer:</strong> 1 Tag bis 26 Monate</p>
+                    
+                    <h4>Google AdSense Cookies</h4>
+                    <p><strong>Verschiedene Cookies:</strong> Für personalisierte Werbung und Anzeigenauslieferung<br>
+                    <strong>Speicherdauer:</strong> 1 Tag bis 24 Monate<br>
+                    <strong>Anbieter:</strong> Google Ireland Limited</p>
+                    
+                    <h3>Externe Links</h3>
+                    <p><strong>Google Ads-Einstellungen:</strong> <a href="https://adssettings.google.com" target="_blank">adssettings.google.com</a><br>
+                    <strong>Google Analytics Opt-out:</strong> <a href="https://tools.google.com/dlpage/gaoptout" target="_blank">tools.google.com/dlpage/gaoptout</a></p>
                 `;
             } else if (type === 'hilfe') {
                 content = `
@@ -432,40 +529,43 @@
                     <h3>Häufig gestellte Fragen</h3>
                     
                     <h4>🔧 Wie verwende ich den Trapezplattenrechner?</h4>
-                    <p><strong>1. Rechner wählen:</strong> Wählen Sie auf der Startseite den passenden Rechner für Ihre Dachform (Dreieck, Trapez oder Verschnitt-Optimierung).</p>
-                    <p><strong>2. Maße eingeben:</strong> Geben Sie die Abmessungen Ihrer Dachfläche ein. Je nach Rechner können Sie verschiedene Eingabemodi nutzen.</p>
+                    <p><strong>1. Rechner wählen:</strong> Wählen Sie auf der Startseite den passenden Rechner für Ihre Dachform.</p>
+                    <p><strong>2. Maße eingeben:</strong> Geben Sie die Abmessungen Ihrer Dachfläche ein.</p>
                     <p><strong>3. Materialangaben:</strong> Tragen Sie Deckbreite und Lieferbreite Ihrer Trapezbleche ein.</p>
-                    <p><strong>4. Berechnen:</strong> Klicken Sie auf "Berechnen" um die Schnittliste und Visualisierung zu erhalten.</p>
-                    <p><strong>5. Anrissplan:</strong> Erstellen Sie einen detaillierten, druckbaren Anrissplan für die Werkstatt.</p>
+                    <p><strong>4. Berechnen:</strong> Klicken Sie auf "Berechnen" um die Schnittliste zu erhalten.</p>
+                    <p><strong>5. Anrissplan:</strong> Erstellen Sie einen druckbaren Anrissplan.</p>
                     
                     <h4>📏 Was bedeuten Deckbreite und Lieferbreite?</h4>
-                    <p><strong>Deckbreite:</strong> Die nutzbare Breite des Trapezbleches nach Abzug der Überlappung (meist 1,00m).</p>
-                    <p><strong>Lieferbreite:</strong> Die tatsächliche Breite des gelieferten Bleches (meist 1,06m).</p>
-                    <p><strong>Überlappung:</strong> Differenz zwischen Liefer- und Deckbreite, sorgt für dichte Verbindungen.</p>
+                    <p><strong>Deckbreite:</strong> Die nutzbare Breite des Trapezbleches (meist 1,00m).</p>
+                    <p><strong>Lieferbreite:</strong> Die tatsächliche Breite des Bleches (meist 1,06m).</p>
+                    <p><strong>Überlappung:</strong> Differenz zwischen Liefer- und Deckbreite.</p>
                     
-                    <h4>🔺 Welchen Rechner soll ich verwenden?</h4>
-                    <p><strong>Gleichschenkliges Dreieck:</strong> Für symmetrische Dreiecke (Pyramidendächer, Walme)</p>
-                    <p><strong>Ungleichschenkliges Dreieck:</strong> Für asymmetrische Dreiecke mit verschobener Spitze</p>
-                    <p><strong>Trapez:</strong> Für trapezförmige Flächen (Pultdächer, Mansarden)</p>
-                    <p><strong>Verschnitt-Optimierung:</strong> Für optimale Aufteilung vorhandener Lagerlängen</p>
+                    <h4>🔺 Welchen Rechner verwenden?</h4>
+                    <p><strong>Gleichschenkliges Dreieck:</strong> Für symmetrische Dreiecke</p>
+                    <p><strong>Ungleichschenkliges Dreieck:</strong> Für asymmetrische Dreiecke</p>
+                    <p><strong>Trapez:</strong> Für trapezförmige Flächen</p>
+                    <p><strong>Verschnitt-Optimierung:</strong> Für optimale Materialaufteilung</p>
                     
                     <h4>🎯 Wie genau sind die Berechnungen?</h4>
-                    <p>Die Berechnungen basieren auf mathematischen Grundlagen und sind sehr präzise. Dennoch sollten alle Ergebnisse vor der Umsetzung von Fachkräften überprüft werden. Eine Toleranz von 2-5mm pro Schnitt sollte eingeplant werden.</p>
+                    <p>Die Berechnungen basieren auf mathematischen Grundlagen und sind sehr präzise. Dennoch sollten alle Ergebnisse von Fachkräften überprüft werden.</p>
                     
                     <h4>🖨️ Wie drucke ich die Anrisspläne?</h4>
-                    <p>Klicken Sie auf "Anrissplan erstellen" und dann auf "Drucken". Die Pläne sind für DIN A4 optimiert. Stellen Sie sicher, dass Ihr Browser auf 100% Zoom steht für beste Ergebnisse.</p>
+                    <p>Klicken Sie auf "Anrissplan erstellen" und dann auf "Drucken". Die Pläne sind für DIN A4 optimiert.</p>
                     
-                    <h4>📱 Funktioniert der Rechner auf dem Smartphone?</h4>
-                    <p>Ja! Der Trapezplattenrechner ist vollständig responsive und funktioniert auf Smartphones, Tablets und Desktop-Computern. Die Druckfunktion funktioniert am besten auf Desktop-Geräten.</p>
+                    <h4>📱 Funktioniert es auf dem Smartphone?</h4>
+                    <p>Ja! Der Rechner ist vollständig responsive und funktioniert auf allen Geräten.</p>
+                    
+                    <h4>💰 Warum sehe ich Werbung?</h4>
+                    <p>Die Website ist kostenlos und wird durch Werbung finanziert. Sie können in den Cookie-Einstellungen personalisierte Werbung deaktivieren.</p>
+                    
+                    <h4>🍪 Was sind Cookies?</h4>
+                    <p>Cookies sind kleine Dateien, die die Funktionalität verbessern. Sie können Ihre Cookie-Einstellungen jederzeit anpassen.</p>
                     
                     <h4>💾 Werden meine Daten gespeichert?</h4>
-                    <p>Nein, alle Berechnungen erfolgen lokal in Ihrem Browser. Ihre Eingaben werden nicht auf unseren Servern gespeichert. Nur anonyme Nutzungsstatistiken werden über Google Analytics erfasst (falls zugestimmt).</p>
-                    
-                    <h4>⚠️ Haftung und Gewährleistung</h4>
-                    <p>Der Trapezplattenrechner dient als Planungshilfe. Alle Berechnungen erfolgen ohne Gewähr. Die praktische Umsetzung sollte immer durch qualifizierte Fachkräfte erfolgen und überprüft werden.</p>
+                    <p>Nein, alle Berechnungen erfolgen lokal in Ihrem Browser. Nur anonyme Statistiken werden erfasst (falls zugestimmt).</p>
                     
                     <h3>Weitere Unterstützung</h3>
-                    <p>Bei weiteren Fragen oder Problemen wenden Sie sich gerne an: <span id="email-support"></span></p>
+                    <p>Bei weiteren Fragen wenden Sie sich an: <span id="email-support"></span></p>
                 `;
             } else if (type === 'kontakt') {
                 content = `
@@ -490,17 +590,14 @@
                     <p>Für Fragen, Anregungen oder technische Probleme stehen wir Ihnen gerne zur Verfügung:</p>
                     
                     <ul>
-                        <li><strong>Technischer Support:</strong> Bei Problemen mit den Berechnungen oder der Website</li>
-                        <li><strong>Feature-Anfragen:</strong> Vorschläge für neue Funktionen oder Verbesserungen</li>
-                        <li><strong>Geschäftliche Anfragen:</strong> Kooperationen oder kommerzielle Nutzung</li>
-                        <li><strong>Datenschutz:</strong> Fragen zum Umgang mit Ihren Daten</li>
+                        <li><strong>Technischer Support:</strong> Bei Problemen mit den Berechnungen</li>
+                        <li><strong>Feature-Anfragen:</strong> Vorschläge für neue Funktionen</li>
+                        <li><strong>Geschäftliche Anfragen:</strong> Kooperationen oder Werbung</li>
+                        <li><strong>Datenschutz:</strong> Fragen zum Umgang mit Daten</li>
                     </ul>
                     
-                    <h3>Feedback</h3>
-                    <p>Ihre Meinung ist uns wichtig! Teilen Sie uns mit, wie wir den Trapezplattenrechner verbessern können. Besonders wertvoll sind Rückmeldungen von Praktikern aus der Dachdeckerbranche.</p>
-                    
                     <h3>Antwortzeiten</h3>
-                    <p>Wir bemühen uns, alle Anfragen innerhalb von 24-48 Stunden zu beantworten. Bei technischen Problemen werden wir schnellstmöglich eine Lösung bereitstellen.</p>
+                    <p>Wir bemühen uns, alle Anfragen innerhalb von 24-48 Stunden zu beantworten.</p>
                 `;
             }
             
@@ -509,7 +606,9 @@
             // Load current cookie settings if opening cookie modal
             if (type === 'cookies') {
                 const analyticsCookies = localStorage.getItem('analyticsCookies') === 'true';
+                const marketingCookies = localStorage.getItem('marketingCookies') === 'true';
                 document.getElementById('analyticsCookies').checked = analyticsCookies;
+                document.getElementById('marketingCookies').checked = marketingCookies;
             }
             
             modal.style.display = 'block';
@@ -526,25 +625,39 @@
 
         function saveCookieSettings() {
             const analyticsCookies = document.getElementById('analyticsCookies').checked;
+            const marketingCookies = document.getElementById('marketingCookies').checked;
+            
             localStorage.setItem('cookieConsent', 'custom');
             localStorage.setItem('analyticsCookies', analyticsCookies.toString());
+            localStorage.setItem('marketingCookies', marketingCookies.toString());
             
-            if (analyticsCookies && typeof gtag !== 'undefined') {
-                gtag('config', 'G-6NSYG8B1T9', {
-                    anonymize_ip: true,
-                    cookie_flags: 'SameSite=None;Secure'
-                });
+            // Analytics laden/entladen
+            if (analyticsCookies) {
+                loadAnalytics();
             } else {
                 window['ga-disable-G-6NSYG8B1T9'] = true;
+            }
+            
+            // AdSense laden/entladen
+            if (marketingCookies) {
+                loadAdSense();
+                showAds();
+            } else {
+                hideAds();
             }
             
             closeModal();
             alert('Cookie-Einstellungen gespeichert!');
         }
 
+        function hideAds() {
+            document.getElementById('top-ad-container').style.display = 'none';
+            document.getElementById('middle-ad-container').style.display = 'none';
+            document.getElementById('bottom-ad-container').style.display = 'none';
+        }
+
         // Email protection
         function setupEmailProtection() {
-            // Verwende die angegebene E-Mail-Adresse
             const email = 'xxxxwolfxxxx@me.com';
             const emailElements = ['email-contact', 'email-privacy', 'email-display', 'email-footer', 'email-support'];
             
@@ -571,16 +684,22 @@
             }
         }
 
-        // Initialize
+        // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
-            showCookieBanner();
             setupEmailProtection();
             
-            // Initialize tracking if consent was already given
+            // Initialize tracking and ads based on existing consent
             const cookieConsent = localStorage.getItem('cookieConsent');
-            if ((cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') && window.initializeTracking) {
-                window.initializeTracking();
+            if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
+                loadAnalytics();
             }
+            if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
+                loadAdSense();
+                showAds();
+            }
+            
+            // Show cookie banner for first-time visitors
+            showCookieBanner();
         });
     </script>
 </body>
