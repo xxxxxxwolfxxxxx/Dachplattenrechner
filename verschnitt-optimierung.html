@@ -114,7 +114,8 @@
                 color-adjust: exact !important;
             }
             
-            body {
+            /* Body und Container mit hoher Spezifität */
+            body.body {
                 background: white !important;
                 color: black !important;
                 font-size: 10pt !important;
@@ -123,21 +124,33 @@
                 padding: 0 !important;
             }
             
-            /* Verstecke alles außer dem Sägeplan-Inhalt */
-            body > *:not(.container) {
+            /* Verstecke alles außer dem Sägeplan mit hoher Spezifität */
+            body .nav-header,
+            body header,
+            body footer,
+            body .cookie-banner,
+            body .modal,
+            body .section,
+            body .calculate-btn,
+            body main > h1,
+            body main > div:not(#detailsaegeplan) {
                 display: none !important;
+                visibility: hidden !important;
             }
             
-            .container > *:not(main) {
-                display: none !important;
+            /* Container mit hoher Spezifität */
+            body .container {
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                width: 100% !important;
             }
             
-            main > *:not(#detailsaegeplan) {
-                display: none !important;
-            }
-            
-            /* Sägeplan sichtbar machen */
-            #detailsaegeplan {
+            /* Sägeplan sichtbar machen mit hoher Spezifität */
+            body #detailsaegeplan {
                 display: block !important;
                 visibility: visible !important;
                 margin: 0 !important;
@@ -145,52 +158,79 @@
                 border: none !important;
                 box-shadow: none !important;
                 background: white !important;
+                color: black !important;
             }
             
-            #saegeplan-content {
+            body #saegeplan-content {
                 display: block !important;
                 visibility: visible !important;
+                color: black !important;
             }
             
-            #saegeplan-content * {
-                display: block !important;
-                visibility: visible !important;
+            body #saegeplan-content * {
+                color: black !important;
+                background: white !important;
             }
             
-            /* Buttons verstecken */
-            button {
+            /* Buttons verstecken mit hoher Spezifität */
+            body button,
+            body .btn {
                 display: none !important;
+                visibility: hidden !important;
             }
             
-            /* Tabellen optimieren */
-            table {
+            /* Tabellen optimieren mit hoher Spezifität */
+            body table {
                 width: 100% !important;
                 border-collapse: collapse !important;
                 font-size: 9pt !important;
                 margin: 10px 0 !important;
+                color: black !important;
+                background: white !important;
             }
             
-            table th,
-            table td {
+            body table th,
+            body table td {
                 padding: 4px 6px !important;
                 border: 1px solid #333 !important;
                 font-size: 9pt !important;
                 page-break-inside: avoid !important;
+                color: black !important;
+                background: white !important;
             }
             
-            table thead {
+            body table thead {
                 display: table-header-group !important;
             }
             
-            /* Grid für Zusammenfassung */
-            div[style*="grid-template-columns"] {
-                display: grid !important;
+            body table th {
+                background: #1e3c72 !important;
+                color: white !important;
             }
             
-            /* Überschriften */
-            h1, h2, h3, h4 {
+            /* Grid für Zusammenfassung mit hoher Spezifität */
+            body div[style*="grid-template-columns"] {
+                display: grid !important;
+                color: black !important;
+            }
+            
+            /* Überschriften mit hoher Spezifität */
+            body h1, 
+            body h2, 
+            body h3, 
+            body h4 {
                 page-break-after: avoid !important;
                 margin: 10px 0 5px 0 !important;
+                color: black !important;
+                background: white !important;
+            }
+            
+            /* Text-Elemente mit hoher Spezifität */
+            body p,
+            body div,
+            body span {
+                color: black !important;
+                background: white !important;
             }
         }
     </style>
@@ -1041,7 +1081,7 @@
                         }
                     </style>
                 </head>
-                <body>
+                <body class="body">
                     ${content}
                 </body>
                 </html>
