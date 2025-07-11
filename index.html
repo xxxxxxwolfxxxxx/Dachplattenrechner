@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trapezplattenrechner - Professionelle Dachplatten-Berechnung</title>
+    <meta name="description" content="Professioneller Trapezplattenrechner für verschiedene Dachformen. Berechnen Sie Materialverbrauch und erstellen Sie Anrisspläne für Dreiecksdächer, Pyramiden und mehr.">
+    
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Global tracking initialization function
+        window.initializeTracking = function() {
+            const analyticsCookies = localStorage.getItem('analyticsCookies');
+            if (analyticsCookies === 'true' || localStorage.getItem('cookieConsent') === 'all') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+                console.log('Google Analytics aktiviert');
+            }
+        };
+        
+        // Global opt-out function
+        window.gaOptout = function() {
+            document.cookie = 'ga-disable-G-6NSYG8B1T9=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
+            window['ga-disable-G-6NSYG8B1T9'] = true;
+            localStorage.setItem('analyticsCookies', 'false');
+            alert('Google Analytics wurde deaktiviert');
+        };
+    </script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Trapezplattenrechner</h1>
+            <p class="header-subtitle">Professionelle Berechnung für Trapezbleche und Dachplatten</p>
+            <div class="features">
+                <div class="feature">
+                    <span>📏</span>
+                    <span>Präzise Berechnungen</span>
+                </div>
+                <div class="feature">
+                    <span>📐</span>
+                    <span>Detaillierte Anrisspläne</span>
+                </div>
+                <div class="feature">
+                    <span>🎯</span>
+                    <span>Materialoptimierung</span>
+                </div>
+                <div class="feature">
+                    <span>🖨️</span>
+                    <span>Druckfertige Pläne</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <main>
+            <div class="calculators-grid">
+                <!-- Gleichschenkliges Dreieck -->
+                <a href="gleichschenkliges-dreieck.html" class="calculator-card">
+                    <div class="card-icon">
+                        <svg width="120" height="80" viewBox="0 0 120 80">
+                            <polygon points="60,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                            <line x1="30" y1="70" x2="30" y2="55" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="40" y1="70" x2="40" y2="40" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="50" y1="70" x2="50" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="60" y1="70" x2="60" y2="10" stroke="#dc3545" stroke-width="2"/>
+                            <line x1="70" y1="70" x2="70" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="80" y1="70" x2="80" y2="40" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="90" y1="70" x2="90" y2="55" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <circle cx="60" cy="10" r="2" fill="#dc3545"/>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Gleichschenkliges Dreieck</h2>
+                    <p class="card-description">
+                        Ideal für Pyramidendächer, Satteldachwalmflächen und symmetrische Dreiecksflächen.
+                    </p>
+                    <ul class="card-features">
+                        <li>Symmetrische Dreiecksberechnung</li>
+                        <li>Automatische Spitzenerkennung</li>
+                        <li>Optimierte Materialverteilung</li>
+                        <li>Detaillierte Schnittliste</li>
+                    </ul>
+                    <span class="cta-button">Jetzt berechnen</span>
+                </a>
+
+                <!-- Ungleichschenkliges Dreieck -->
+                <a href="ungleichschenkliges-dreieck.html" class="calculator-card">
+                    <div class="card-icon">
+                        <svg width="120" height="80" viewBox="0 0 120 80">
+                            <polygon points="75,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                            <line x1="28" y1="70" x2="28" y2="62" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="36" y1="70" x2="36" y2="54" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="44" y1="70" x2="44" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="52" y1="70" x2="52" y2="38" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="60" y1="70" x2="60" y2="30" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="68" y1="70" x2="68" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="75" y1="70" x2="75" y2="10" stroke="#dc3545" stroke-width="2"/>
+                            <line x1="82" y1="70" x2="82" y2="26" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="90" y1="70" x2="90" y2="42" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <circle cx="75" cy="10" r="2" fill="#dc3545"/>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Ungleichschenkliges Dreieck</h2>
+                    <p class="card-description">
+                        Für asymmetrische Dachflächen mit verschobener Spitze. Flexible Eingabemöglichkeiten.
+                    </p>
+                    <ul class="card-features">
+                        <li>Variable Spitzenposition</li>
+                        <li>Kantenlängen oder Position/Höhe</li>
+                        <li>Geometrische Validierung</li>
+                        <li>Präzise Winkelberechnungen</li>
+                    </ul>
+                    <span class="cta-button">Jetzt berechnen</span>
+                </a>
+
+                <!-- Trapez -->
+                <a href="trapez.html" class="calculator-card">
+                    <div class="card-icon">
+                        <svg width="120" height="80" viewBox="0 0 120 80">
+                            <polygon points="40,20 80,20 95,60 25,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                            <line x1="32" y1="60" x2="32" y2="44" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="40" y1="60" x2="40" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="48" y1="60" x2="48" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="56" y1="60" x2="56" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="64" y1="60" x2="64" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="72" y1="60" x2="72" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="80" y1="60" x2="80" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="88" y1="60" x2="88" y2="44" stroke="#666" stroke-width="1" opacity="0.8"/>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Trapez</h2>
+                    <p class="card-description">
+                        Für trapezförmige Dachflächen mit parallelen oberen und unteren Kanten.
+                    </p>
+                    <ul class="card-features">
+                        <li>Parallele Oberkanten</li>
+                        <li>Variable Neigungswinkel</li>
+                        <li>Optimierte Schnittführung</li>
+                        <li>Materialersparnis</li>
+                    </ul>
+                    <span class="cta-button">Jetzt berechnen</span>
+                </a>
+
+                <!-- Verschnitt-Optimierung -->
+                <a href="verschnitt-optimierung.html" class="calculator-card">
+                    <div class="card-icon">
+                        <svg width="120" height="80" viewBox="0 0 120 80">
+                            <!-- Lagerplatte 1 -->
+                            <rect x="15" y="15" width="90" height="12" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                            <!-- Segmente -->
+                            <rect x="15" y="15" width="30" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
+                            <rect x="46" y="15" width="25" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
+                            <rect x="72" y="15" width="20" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
+                            <rect x="93" y="15" width="12" height="12" fill="#dc3545" stroke="#fff" stroke-width="1"/>
+                            <!-- Schnittlinien -->
+                            <line x1="45" y1="15" x2="45" y2="27" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="71" y1="15" x2="71" y2="27" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="92" y1="15" x2="92" y2="27" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
+                            
+                            <!-- Lagerplatte 2 -->
+                            <rect x="15" y="35" width="90" height="12" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                            <!-- Segmente -->
+                            <rect x="15" y="35" width="35" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
+                            <rect x="51" y="35" width="30" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
+                            <rect x="82" y="35" width="15" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
+                            <rect x="98" y="35" width="7" height="12" fill="#dc3545" stroke="#fff" stroke-width="1"/>
+                            <!-- Schnittlinien -->
+                            <line x1="50" y1="35" x2="50" y2="47" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="81" y1="35" x2="81" y2="47" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
+                            <line x1="97" y1="35" x2="97" y2="47" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
+                            
+                            <!-- Optimierungsicon -->
+                            <circle cx="60" cy="60" r="8" fill="#ffc107" stroke="#fff" stroke-width="2"/>
+                            <text x="60" y="65" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">⚡</text>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Verschnitt-Optimierung</h2>
+                    <p class="card-description">
+                        Intelligente Materialoptimierung für minimalen Verschnitt oder optimale Sägezeit.
+                    </p>
+                    <ul class="card-features">
+                        <li>Minimaler Verschnitt</li>
+                        <li>Wenigste Schnitte</li>
+                        <li>Lagerbestandsverwaltung</li>
+                        <li>Detaillierte Sägepläne</li>
+                    </ul>
+                    <span class="cta-button">Jetzt optimieren</span>
+                </a>
+
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Trapezplattenrechner</h3>
+                    <p>Professionelle Berechnungstools für die Dachdeckerbranche. Präzise, schnell und benutzerfreundlich.</p>
+                    <p style="margin-top: 15px;">
+                        <strong>Kontakt:</strong><br>
+                        <span id="email-footer"></span>
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h3>Rechtliches</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="openModal('impressum')">Impressum</a></li>
+                        <li><a href="#" onclick="openModal('datenschutz')">Datenschutz</a></li>
+                        <li><a href="#" onclick="openModal('agb')">AGB</a></li>
+                        <li><a href="#" onclick="openModal('cookies')">Cookie-Einstellungen</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Rechner</h3>
+                    <ul class="footer-links">
+                        <li><a href="gleichschenkliges-dreieck.html">Gleichschenkliges Dreieck</a></li>
+                        <li><a href="ungleichschenkliges-dreieck.html">Ungleichschenkliges Dreieck</a></li>
+                        <li><a href="trapez.html">Trapez</a></li>
+                        <li><a href="verschnitt-optimierung.html">Verschnitt-Optimierung</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="openModal('hilfe')">Hilfe & FAQ</a></li>
+                        <li><a href="#" onclick="openModal('kontakt')">Kontakt</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Trapezplattenrechner. Alle Rechte vorbehalten.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cookie Banner -->
+    <div id="cookieBanner" class="cookie-banner">
+        <div class="cookie-content">
+            <div class="cookie-text">
+                <p><strong>🍪 Cookie-Hinweis:</strong> Diese Website verwendet Cookies und ähnliche Technologien zur Verbesserung der Nutzererfahrung. Mit Google Analytics analysieren wir die Nutzung und optimieren unsere Inhalte. Durch Klick auf "Alle akzeptieren" stimmen Sie der Verwendung aller Cookies zu.</p>
+            </div>
+            <div class="cookie-buttons">
+                <button class="cookie-btn accept" onclick="acceptCookies()">Alle akzeptieren</button>
+                <button class="cookie-btn decline" onclick="declineCookies()">Ablehnen</button>
+                <button class="cookie-btn settings" onclick="openModal('cookies')">Einstellungen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // Cookie Management
+        function showCookieBanner() {
+            if (!localStorage.getItem('cookieConsent')) {
+                document.getElementById('cookieBanner').classList.add('show');
+            }
+        }
+
+        function acceptCookies() {
+            localStorage.setItem('cookieConsent', 'all');
+            localStorage.setItem('analyticsCookies', 'true');
+            localStorage.setItem('marketingCookies', 'true');
+            
+            if (typeof gtag !== 'undefined') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+            }
+            
+            document.getElementById('cookieBanner').classList.remove('show');
+        }
+
+        function declineCookies() {
+            localStorage.setItem('cookieConsent', 'essential');
+            localStorage.setItem('analyticsCookies', 'false');
+            localStorage.setItem('marketingCookies', 'false');
+            
+            window['ga-disable-G-6NSYG8B1T9'] = true;
+            document.getElementById('cookieBanner').classList.remove('show');
+        }
+
+        // Modal Management
+        function openModal(type) {
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modal-body');
+            
+            let content = '';
+            
+            if (type === 'impressum') {
+                content = `
+                    <h2>Impressum</h2>
+                    <h3>Angaben gemäß § 5 TMG</h3>
+                    <div class="contact-info">
+                        <p><strong>Trapezplattenrechner</strong><br>
+                        Matthias Dührkop<br>
+                        Rhedewiesen 1<br>
+                        19258 Boizenburg/Elbe<br>
+                        Deutschland</p>
+                        
+                        <p><strong>Kontakt:</strong><br>
+                        E-Mail: <span id="email-contact"></span></p>
+                        
+                        <p><strong>Umsatzsteuer-ID:</strong><br>
+                        DE08721403093</p>
+                    </div>
+                    
+                    <h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
+                    <p>Matthias Dührkop<br>
+                    Rhedewiesen 1<br>
+                    19258 Boizenburg/Elbe</p>
+                    
+                    <h3>Haftungsausschluss</h3>
+                    <p><strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Die Berechnungen des Trapezplattenrechners erfolgen nach bestem Wissen und Gewissen, jedoch ohne Gewähr für die Richtigkeit.</p>
+                    
+                    <p><strong>Haftung für Links:</strong> Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.</p>
+                `;
+            }
+            
+            modalBody.innerHTML = content;
+            
+            // Load current cookie settings if opening cookie modal
+            if (type === 'cookies') {
+                const analyticsCookies = localStorage.getItem('analyticsCookies') === 'true';
+                document.getElementById('analyticsCookies').checked = analyticsCookies;
+            }
+            
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Setup email protection after modal content is loaded
+            setupEmailProtection();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function saveCookieSettings() {
+            const analyticsCookies = document.getElementById('analyticsCookies').checked;
+            localStorage.setItem('cookieConsent', 'custom');
+            localStorage.setItem('analyticsCookies', analyticsCookies.toString());
+            
+            if (analyticsCookies && typeof gtag !== 'undefined') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+            } else {
+                window['ga-disable-G-6NSYG8B1T9'] = true;
+            }
+            
+            closeModal();
+            alert('Cookie-Einstellungen gespeichert!');
+        }
+
+        // Email protection
+        function setupEmailProtection() {
+            const email = 'info@trapezplattenrechner.de';
+            const emailElements = ['email-contact', 'email-privacy', 'email-display', 'email-footer'];
+            
+            emailElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.innerHTML = `<span class="email-protection" onclick="revealEmail('${id}', '${email}')">E-Mail anzeigen</span>`;
+                }
+            });
+        }
+
+        function revealEmail(elementId, email) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<a href="mailto:${email}" style="color: inherit;">${email}</a>`;
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showCookieBanner();
+            setupEmailProtection();
+            
+            // Initialize tracking if consent was already given
+            const cookieConsent = localStorage.getItem('cookieConsent');
+            if ((cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') && window.initializeTracking) {
+                window.initializeTracking();
+            }
+        });
+    </script>
+</body>
+</html>} else if (type === 'datenschutz') {
+                content = `
+                    <h2>Datenschutzerklärung</h2>
+                    <h3>1. Datenschutz auf einen Blick</h3>
+                    <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.</p>
+                    
+                    <h3>2. Allgemeine Hinweise und Pflichtinformationen</h3>
+                    <p><strong>Datenschutz:</strong> Die Betreiber dieser Seiten nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.</p>
+                    
+                    <h3>3. Datenerfassung auf dieser Website</h3>
+                    <p><strong>Cookies:</strong> Unsere Internetseiten verwenden so genannte „Cookies". Cookies sind kleine Textdateien und richten auf Ihrem Endgerät keinen Schaden an. Sie werden entweder vorübergehend für die Dauer einer Sitzung (Session-Cookies) oder dauerhaft (dauerhafte Cookies) auf Ihrem Endgerät gespeichert.</p>
+                    
+                    <h3>4. Google Analytics</h3>
+                    <p>Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited („Google"), Gordon House, Barrow Street, Dublin 4, Irland. Die Nutzung erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO. Sie können Ihre Einwilligung jederzeit widerrufen.</p>
+                    
+                    <h3>5. Ihre Rechte</h3>
+                    <p>Sie haben das Recht auf Auskunft, Berichtigung, Löschung oder Einschränkung der Verarbeitung Ihrer Daten sowie ein Widerspruchsrecht gegen die Verarbeitung und das Recht auf Datenübertragbarkeit.</p>
+                    
+                    <h3>6. Kontakt</h3>
+                    <p>Bei Fragen zum Datenschutz wenden Sie sich bitte an:<br>
+                    <span id="email-privacy"></span></p>
+                `;
+            } else if (type === 'agb') {
+                content = `
+                    <h2>Allgemeine Geschäftsbedingungen</h2>
+                    <h3>1. Geltungsbereich</h3>
+                    <p>Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung des Trapezplattenrechners.</p>
+                    
+                    <h3>2. Nutzung des Rechners</h3>
+                    <p>Der Trapezplattenrechner steht Ihnen kostenfrei zur Verfügung. Die Berechnungen erfolgen nach bestem Wissen und Gewissen, jedoch ohne Gewähr für die Richtigkeit der Ergebnisse. Wir empfehlen, die Ergebnisse durch einen Fachmann überprüfen zu lassen.</p>
+                    
+                    <h3>3. Haftungsausschluss</h3>
+                    <p>Es wird keine Haftung für Schäden übernommen, die durch die Nutzung des Trapezplattenrechners oder durch falsche Berechnungen entstehen könnten.</p>
+                    
+                    <h3>4. Urheberrecht</h3>
+                    <p>Der Trapezplattenrechner und alle damit verbundenen Inhalte sind urheberrechtlich geschützt. Eine Vervielfältigung oder Weitergabe ohne schriftliche Genehmigung ist nicht gestattet.</p>
+                    
+                    <h3>5. Änderungen</h3>
+                    <p>Wir behalten uns vor, diese AGB jederzeit ohne Vorankündigung zu ändern. Die aktuelle Version ist stets auf dieser Website abrufbar.</p>
+                `;
+            } else if (type === 'cookies') {
+                content = `
+                    <h2>Cookie-Einstellungen</h2>
+                    <p>Diese Website verwendet Cookies zur Verbesserung der Nutzererfahrung und zur Analyse des Datenverkehrs.</p>
+                    
+                    <h3>Was sind Cookies?</h3>
+                    <p>Cookies sind kleine Textdateien, die auf Ihrem Gerät gespeichert werden und bestimmte Informationen enthalten. Sie ermöglichen es uns, Ihre Präferenzen zu speichern und die Website-Nutzung zu analysieren.</p>
+                    
+                    <div class="cookie-settings">
+                        <div class="cookie-option">
+                            <input type="checkbox" id="essentialCookies" checked disabled>
+                            <label for="essentialCookies">Notwendige Cookies (immer aktiv)</label>
+                        </div>
+                        <div class="cookie-option">
+                            <input type="checkbox" id="analyticsCookies">
+                            <label for="analyticsCookies">Analytics-Cookies (Google Analytics)</label>
+                        </div>
+                    </div>
+                    
+                    <h3>Cookie-Details</h3>
+                    <p><strong>Notwendige Cookies:</strong> Diese Cookies sind für das Funktionieren der Website erforderlich und können nicht deaktiviert werden.</p>
+                    <p><strong>Analytics-Cookies:</strong> Diese Cookies helfen uns zu verstehen, wie Besucher mit der Website interagieren, und ermöglichen es uns, die Benutzererfahrung zu verbessern.</p>
+                    
+                    <button class="save-button" onclick="saveCookieSettings()">Einstellungen speichern</button>
+                `;
+            } else if (type === 'hilfe') {
+                content = `
+                    <h2>Hilfe & FAQ</h2>
+                    <h3>🔧 Wie funktioniert der Trapezplattenrechner?</h3>
+                    <p>Wählen Sie die gewünschte Dachform aus und geben Sie die entsprechenden Maße ein. Der Rechner berechnet automatisch die benötigte Anzahl Trapezbleche und erstellt eine detaillierte Schnittliste.</p>
+                    
+                    <h3>📏 Welche Dachformen werden unterstützt?</h3>
+                    <p>Aktuell unterstützen wir gleichschenklige und ungleichschenklige Dreiecke, Trapeze sowie eine Verschnitt-Optimierung. Weitere Formen sind in Planung.</p>
+                    
+                    <h3>🎯 Wie genau sind die Berechnungen?</h3>
+                    <p>Die Berechnungen basieren auf mathematischen Formeln und sind sehr präzise. Dennoch empfehlen wir, einen Fachmann zu konsultieren, bevor Sie Material bestellen.</p>
+                    
+                    <h3>🖨️ Kann ich die Ergebnisse ausdrucken?</h3>
+                    <p>Ja, Sie können sowohl die Schnittliste als auch den detaillierten Anrissplan ausdrucken. Nutzen Sie dafür die Drucken-Buttons in den jeweiligen Bereichen.</p>
+                    
+                    <h3>📞 Weitere Fragen?</h3>
+                    <p>Bei weiteren Fragen kontaktieren Sie uns gerne unter 038847 / 58120 oder per E-Mail.</p>
+                `;
+            } else if (type === 'kontakt') {
+                content = `
+                    <h2>Kontakt</h2>
+                    <div class="contact-info">
+                        <h3>📧 E-Mail</h3>
+                        <p id="email-display"></p>
+                        
+                        <h3>📍 Adresse</h3>
+                        <p>Matthias Dührkop<br>
+                        Rhedewiesen 1<br>
+                        19258 Boizenburg/Elbe<br>
+                        Deutschland</p>
+                    </div>
+                    
+                    <h3>Über den Trapezplattenrechner</h3>
+                    <p>Diese Anwendung hilft Ihnen bei der präzisen Berechnung von Trapezblechen für verschiedene Dachformen. Die Berechnungen basieren auf bewährten mathematischen Formeln und liefern detaillierte Schnittlisten und Anrisspläne.</p>
+                `;
