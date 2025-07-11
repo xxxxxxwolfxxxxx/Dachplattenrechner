@@ -188,6 +188,7 @@
                                 <th>Zu sägende Längen</th>
                                 <th>Verschnitt</th>
                                 <th>Anzahl Schnitte</th>
+                                <th>Optimierung</th>
                             </tr>
                         </thead>
                         <tbody id="saegeplan-details">
@@ -327,9 +328,14 @@
                     
                     if (kombination.length === 0) continue;
                     
-                    const genutztesMateria = kombination.reduce((sum, mass) => sum + (mass - toleranz), 0);
-                    const genutzteschnitte = kombination.length > 1 ? (kombination.length - 1) * schnittblattBreite : 0;
-                    const verschnitt = lager.laenge - genutztesMateria - genutzteschnitte;
+                    // KORRIGIERTE BERECHNUNG
+                    const genutztesMateria = kombination.reduce((sum, mass) => sum + mass, 0); // Originallängen
+                    const benoetigteSchnitte = kombination.length > 1 ? (kombination.length - 1) * schnittblattBreite : 0;
+                    const gesamtToleranz = kombination.length * toleranz; // Toleranz pro Teil
+                    const verschnitt = lager.laenge - genutztesMateria - benoetigteSchnitte - gesamtToleranz;
+                    
+                    // Prüfe ob überhaupt machbar
+                    if (verschnitt < 0) continue;
                     
                     let istBesser = false;
                     if (modus === 'verschnitt') {
@@ -360,16 +366,27 @@
                 }
                 
                 // Berechne finalen Verschnitt
-                const genutztesMateria = besteKombination.reduce((sum, mass) => sum + (mass - toleranz), 0);
-                const genutzteschnitte = besteKombination.length > 1 ? (besteKombination.length - 1) * schnittblattBreite : 0;
-                const verschnitt = bestePlatte.laenge - genutztesMateria - genutzteschnitte;
+                const genutztesMateria = besteKombination.reduce((sum, mass) => sum + mass, 0);
+                const benoetigteSchnitte = besteKombination.length > 1 ? (besteKombination.length - 1) * schnittblattBreite : 0;
+                const gesamtToleranz = besteKombination.length * toleranz;
+                const verschnitt = bestePlatte.laenge - genutztesMateria - benoetigteSchnitte - gesamtToleranz;
+                
+                // Optimierungsvorschlag für kleinen Verschnitt
+                let vorschlag = '';
+                if (verschnitt > 0 && verschnitt <= 0.05) { // Weniger als 5cm Verschnitt
+                    const mehrlaengeProTeil = verschnitt / besteKombination.length * 1000; // in mm
+                    if (mehrlaengeProTeil <= 20) { // Max 2cm länger schneiden
+                        vorschlag = ` (Tipp: +${mehrlaengeProTeil.toFixed(1)}mm pro Teil → kein Verschnitt)`;
+                    }
+                }
                 
                 ergebnis.push({
                     plattenNr: plattenNr++,
                     lagerlaenge: bestePlatte.laenge,
                     masze: [...besteKombination],
                     verschnitt: Math.max(0, verschnitt),
-                    anzahlSchnitte: besteKombination.length > 0 ? besteKombination.length - 1 : 0
+                    anzahlSchnitte: besteKombination.length > 0 ? besteKombination.length - 1 : 0,
+                    optimierungsvorschlag: vorschlag
                 });
                 
                 // Verbrauch markieren
@@ -395,14 +412,12 @@
             const sortierteMasze = [...masze].sort((a, b) => b - a);
             
             for (let mass of sortierteMasze) {
-                if (mass - toleranz > 0) {
-    const benoetigterPlatz = (mass - toleranz) + (kombination.length > 0 ? schnittblattBreite : 0);
-
-    if (verbleibendelaenge + 1e-6 >= benoetigterPlatz) { // kleiner Spielraum wegen Fließkomma
-        kombination.push(mass);
-        verbleibendelaenge -= benoetigterPlatz;
-    }
-}
+                const benoetigterPlatz = mass + toleranz + (kombination.length > 0 ? schnittblattBreite : 0);
+                
+                if (verbleibendelaenge >= benoetigterPlatz) {
+                    kombination.push(mass);
+                    verbleibendelaenge -= benoetigterPlatz;
+                }
             }
             
             return kombination;
@@ -433,6 +448,7 @@
                     <td>${platte.masze.map(m => m.toFixed(2) + 'm').join(', ')}</td>
                     <td>${platte.verschnitt.toFixed(2)}m</td>
                     <td>${platte.anzahlSchnitte}</td>
+                    <td style="font-size: 12px; color: #28a745;">${platte.optimierungsvorschlag || '-'}</td>
                 `;
                 tbody.appendChild(row);
             });
