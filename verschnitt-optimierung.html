@@ -521,12 +521,43 @@
         }
 
         function findeOptimaleKombination(masze, lagerlaenge, schnittblattBreite, toleranz) {
-            // Erweiterte Kombinationssuche mit mehreren Strategien
+            // Spezialfall: Viele identische Teile - berechne optimale Anzahl
+            const gleicheTeile = {};
+            masze.forEach(mass => {
+                gleicheTeile[mass] = (gleicheTeile[mass] || 0) + 1;
+            });
             
-            // Strategie 1: Greedy - größte Teile zuerst
+            // Wenn mehr als 80% der Teile gleich sind, nutze spezielle Optimierung
+            const haeufigstesTeile = Object.entries(gleicheTeile).sort((a,b) => b[1] - a[1])[0];
+            if (haeufigstesTeile && haeufigstesTeile[1] / masze.length > 0.8) {
+                const teilLaenge = parseFloat(haeufigstesTeile[0]);
+                const verfuegbareAnzahl = haeufigstesTeile[1];
+                
+                // Berechne maximale Anzahl identischer Teile pro Platte
+                let maxAnzahl = Math.floor(lagerlaenge / teilLaenge);
+                
+                // Berücksichtige Schnittblattbreite
+                while (maxAnzahl > 1) {
+                    const benoetigterPlatz = maxAnzahl * teilLaenge + (maxAnzahl - 1) * schnittblattBreite;
+                    if (benoetigterPlatz <= lagerlaenge) {
+                        break;
+                    }
+                    maxAnzahl--;
+                }
+                
+                // Erstelle Kombination mit identischen Teilen
+                const anzahlFuerPlatte = Math.min(maxAnzahl, verfuegbareAnzahl);
+                if (anzahlFuerPlatte > 0) {
+                    const kombination = [];
+                    for (let i = 0; i < anzahlFuerPlatte; i++) {
+                        kombination.push(teilLaenge);
+                    }
+                    return kombination;
+                }
+            }
+            
+            // Normale Optimierung für gemischte Teile
             const kombinationGreedy = greedyKombination(masze, lagerlaenge, schnittblattBreite, toleranz);
-            
-            // Strategie 2: Best Fit - am besten passende Kombination
             const kombinationBestFit = bestFitKombination(masze, lagerlaenge, schnittblattBreite, toleranz);
             
             // Wähle die bessere Kombination
@@ -922,17 +953,16 @@
 
         // Beispieldaten beim Laden setzen
         document.addEventListener('DOMContentLoaded', function() {
-            // Realistische Beispieldaten
-            document.getElementById('benoetigte-masze').value = `2.50
-1.80
-50x0.30
-2x2.20
-1.50
-0.75
-3x1.25
-4x0.60
-2.80
-1.20`;
+            // Ihr Beispiel: 100x0.3m mit 3,1m und 6m Platten
+            document.getElementById('benoetigte-masze').value = `100x0.3`;
+            
+            // Alle Checkboxen deaktivieren
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            
+            // Nur 3,1m und 6m aktivieren
+            document.getElementById('lager-3.1').checked = true;
+            document.getElementById('lager-6.0').checked = true;
         });
     </script>
 </body>
