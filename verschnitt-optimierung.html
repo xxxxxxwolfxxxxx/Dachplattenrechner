@@ -944,10 +944,10 @@
             html += `</div>`;
             
             // Kompakte Zusammenfassung
-            html += `<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; font-size: 0.9em;">`;
-            html += `<div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 5px;"><strong>Material:</strong><br>${gesamtMaterial.toFixed(1)}m</div>`;
-            html += `<div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 5px;"><strong>Verschnitt:</strong><br>${gesamtVerschnitt.toFixed(2)}m</div>`;
-            html += `<div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 5px;"><strong>Effizienz:</strong><br>${effizienz.toFixed(1)}%</div>`;
+            html += `<div class="grid-summary">`;
+            html += `<div class="grid-item"><strong>Material:</strong><br>${gesamtMaterial.toFixed(1)}m</div>`;
+            html += `<div class="grid-item"><strong>Verschnitt:</strong><br>${gesamtVerschnitt.toFixed(2)}m</div>`;
+            html += `<div class="grid-item"><strong>Effizienz:</strong><br>${effizienz.toFixed(1)}%</div>`;
             html += `</div>`;
             
             // Kompakte Haupttabelle
@@ -994,7 +994,7 @@
             html += `</table>`;
             
             // Legende
-            html += `<div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #1e3c72;">`;
+            html += `<div class="work-instructions">`;
             html += `<h4 style="margin: 0 0 10px 0; color: #1e3c72;">📋 Arbeitsanleitung:</h4>`;
             html += `<div style="font-size: 0.9em; line-height: 1.5;">`;
             html += `<strong>1. Lagerplatten bereitstellen:</strong> Entsprechend der Lagerlängen-Spalte<br>`;
@@ -1005,7 +1005,7 @@
             html += `</div>`;
             
             // Footer mit Zusammenfassung
-            html += `<div style="margin-top: 15px; text-align: center; font-size: 0.8em; color: #666;">`;
+            html += `<div class="footer-summary">`;
             html += `Gesamt: ${aktuelleOptimierung.length} Lagerplatten • ${gesamtSchnitte} Sägeschnitte • ${effizienz.toFixed(1)}% Materialeffizienz`;
             html += `</div>`;
             
