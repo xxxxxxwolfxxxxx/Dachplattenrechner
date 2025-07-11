@@ -395,13 +395,14 @@
             const sortierteMasze = [...masze].sort((a, b) => b - a);
             
             for (let mass of sortierteMasze) {
-                const materialMitToleranz = mass - toleranz;
-                const benoetigterPlatz = materialMitToleranz + (kombination.length > 0 ? schnittblattBreite : 0);
-                
-                if (verbleibendelaenge >= benoetigterPlatz && materialMitToleranz > 0) {
-                    kombination.push(mass);
-                    verbleibendelaenge -= benoetigterPlatz;
-                }
+                if (mass - toleranz > 0) {
+    const benoetigterPlatz = (mass - toleranz) + (kombination.length > 0 ? schnittblattBreite : 0);
+
+    if (verbleibendelaenge + 1e-6 >= benoetigterPlatz) { // kleiner Spielraum wegen Fließkomma
+        kombination.push(mass);
+        verbleibendelaenge -= benoetigterPlatz;
+    }
+}
             }
             
             return kombination;
