@@ -195,19 +195,29 @@
                     <div>
                         <h3 style="color: #1e3c72; margin-bottom: 15px; font-size: 1.2em;">📏 Benötigte Sägemaße</h3>
                         <div class="info-box" style="margin-bottom: 15px; font-size: 0.9em;">
-                            <strong>Eingabe:</strong> Jede Länge in einer neuen Zeile (z.B. 2.50 für 2,50m).
+                            <strong>Eingabe:</strong> Verschiedene Formate möglich:<br>
+                            • <strong>Einfach:</strong> 2.50 (für 2,50m)<br>
+                            • <strong>Wiederholung:</strong> 100x0.3 (für 100 Stück à 0,3m)<br>
+                            • <strong>Addition:</strong> 2.5+0.1 (für 2,6m)<br>
+                            • <strong>Liste:</strong> 3x(2.5+0.1) (für 3 Stück à 2,6m)
                         </div>
                         
                         <div class="input-group">
-                            <textarea id="benoetigte-masze" rows="15" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px; font-family: monospace; resize: vertical;" placeholder="Beispiel:
+                            <textarea id="benoetigte-masze" rows="15" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px; font-family: monospace; resize: vertical;" placeholder="Beispiele:
 2.50
-1.80
-1.50
-2.20
-2.20
-1.50
-3.10
-1.75"></textarea>
+100x0.3
+3x2.20
+5x(1.5+0.2)
+2.8+0.15
+10x1.75
+1.80"></textarea>
+                        </div>
+                        
+                        <div style="margin-top: 10px;">
+                            <button type="button" class="btn btn-secondary" onclick="zeigeBerechneteAnzahl()" style="padding: 8px 15px; font-size: 14px;">
+                                🧮 Eingabe prüfen
+                            </button>
+                            <span id="eingabe-info" style="margin-left: 15px; color: #666; font-size: 14px;"></span>
                         </div>
                     </div>
                 </div>
@@ -401,18 +411,173 @@
             const text = document.getElementById('benoetigte-masze').value;
             const lines = text.split('\n');
             const masze = [];
+            let parseErrors = [];
             
-            for (let line of lines) {
-                line = line.trim();
-                if (line && !isNaN(parseFloat(line))) {
-                    const mass = parseFloat(line);
-                    if (mass > 0) {
-                        masze.push(mass);
-                    }
+            for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+                let line = lines[lineIndex].trim();
+                if (!line) continue; // Leere Zeilen überspringen
+                
+                try {
+                    const parsedMasze = parseEingabezeile(line, lineIndex + 1);
+                    masze.push(...parsedMasze);
+                } catch (error) {
+                    parseErrors.push(`Zeile ${lineIndex + 1}: ${error.message}`);
                 }
             }
             
+            if (parseErrors.length > 0) {
+                alert('Eingabefehler gefunden:\n\n' + parseErrors.join('\n') + '\n\nBitte korrigieren Sie die Eingabe.');
+                return [];
+            }
+            
             return masze;
+        }
+
+        function parseEingabezeile(line, lineNumber) {
+            // Entferne Leerzeichen und ersetze Kommas durch Punkte
+            line = line.replace(/\s/g, '').replace(/,/g, '.');
+            
+            // Wiederholung: 100x0.3 oder 3x(2.5+0.1)
+            const wiederholungMatch = line.match(/^(\d+)x(.+)$/);
+            if (wiederholungMatch) {
+                const anzahl = parseInt(wiederholungMatch[1]);
+                const formelOderWert = wiederholungMatch[2];
+                
+                if (anzahl <= 0 || anzahl > 10000) {
+                    throw new Error(`Ungültige Anzahl: ${anzahl} (muss zwischen 1 und 10000 sein)`);
+                }
+                
+                let einzelwert;
+                if (formelOderWert.includes('(') && formelOderWert.includes(')')) {
+                    // Klammern: 3x(2.5+0.1)
+                    const klammerInhalt = formelOderWert.match(/^\((.+)\)$/);
+                    if (!klammerInhalt) {
+                        throw new Error(`Ungültige Klammerformel: ${formelOderWert}`);
+                    }
+                    einzelwert = berechneFormel(klammerInhalt[1]);
+                } else if (formelOderWert.includes('+') || formelOderWert.includes('-')) {
+                    // Einfache Formel: 100x2.5+0.1
+                    einzelwert = berechneFormel(formelOderWert);
+                } else {
+                    // Einfacher Wert: 100x0.3
+                    einzelwert = parseFloat(formelOderWert);
+                    if (isNaN(einzelwert)) {
+                        throw new Error(`Ungültiger Wert: ${formelOderWert}`);
+                    }
+                }
+                
+                if (einzelwert <= 0) {
+                    throw new Error(`Länge muss größer als 0 sein: ${einzelwert}`);
+                }
+                
+                // Erstelle Array mit wiederholten Werten
+                return new Array(anzahl).fill(einzelwert);
+            }
+            
+            // Einfache Formel: 2.5+0.1 oder 3.2-0.1
+            if (line.includes('+') || line.includes('-')) {
+                const ergebnis = berechneFormel(line);
+                if (ergebnis <= 0) {
+                    throw new Error(`Berechnetes Ergebnis muss größer als 0 sein: ${ergebnis}`);
+                }
+                return [ergebnis];
+            }
+            
+            // Einfacher Wert: 2.50
+            const wert = parseFloat(line);
+            if (isNaN(wert)) {
+                throw new Error(`Kann nicht als Zahl interpretiert werden: ${line}`);
+            }
+            if (wert <= 0) {
+                throw new Error(`Länge muss größer als 0 sein: ${wert}`);
+            }
+            
+            return [wert];
+        }
+
+        function berechneFormel(formel) {
+            // Einfache Formel-Auswertung (nur + und -)
+            // Sicherheitscheck: Nur Zahlen, Punkte, + und - erlaubt
+            if (!/^[\d\.\+\-]+$/.test(formel)) {
+                throw new Error(`Ungültige Zeichen in Formel: ${formel}`);
+            }
+            
+            try {
+                // Sichere Auswertung nur für Addition und Subtraktion
+                let ergebnis = 0;
+                let aktuellezahl = '';
+                let operation = '+';
+                
+                for (let i = 0; i < formel.length; i++) {
+                    const char = formel[i];
+                    
+                    if (char === '+' || char === '-') {
+                        if (aktuellezahl) {
+                            const zahl = parseFloat(aktuellezahl);
+                            if (isNaN(zahl)) {
+                                throw new Error(`Ungültige Zahl in Formel: ${aktuellezahl}`);
+                            }
+                            
+                            if (operation === '+') {
+                                ergebnis += zahl;
+                            } else {
+                                ergebnis -= zahl;
+                            }
+                        }
+                        aktuellezahl = '';
+                        operation = char;
+                    } else {
+                        aktuellezahl += char;
+                    }
+                }
+                
+                // Letzte Zahl verarbeiten
+                if (aktuellezahl) {
+                    const zahl = parseFloat(aktuellezahl);
+                    if (isNaN(zahl)) {
+                        throw new Error(`Ungültige Zahl in Formel: ${aktuellezahl}`);
+                    }
+                    
+                    if (operation === '+') {
+                        ergebnis += zahl;
+                    } else {
+                        ergebnis -= zahl;
+                    }
+                }
+                
+                return ergebnis;
+            } catch (error) {
+                throw new Error(`Fehler beim Berechnen der Formel '${formel}': ${error.message}`);
+            }
+        }
+
+        function zeigeBerechneteAnzahl() {
+            const masze = parseBenoetigteMasze();
+            const infoElement = document.getElementById('eingabe-info');
+            
+            if (masze.length === 0) {
+                infoElement.textContent = '❌ Keine gültigen Eingaben gefunden';
+                infoElement.style.color = '#dc3545';
+                return;
+            }
+            
+            // Gruppiere gleiche Längen
+            const gruppiert = {};
+            masze.forEach(mass => {
+                const gerundet = Math.round(mass * 100) / 100; // Auf 2 Dezimalstellen runden
+                gruppiert[gerundet] = (gruppiert[gerundet] || 0) + 1;
+            });
+            
+            const zusammenfassung = Object.entries(gruppiert)
+                .sort(([a], [b]) => parseFloat(b) - parseFloat(a))
+                .map(([laenge, anzahl]) => `${anzahl}x ${laenge}m`)
+                .slice(0, 5) // Nur erste 5 anzeigen
+                .join(', ');
+            
+            const mehrText = Object.keys(gruppiert).length > 5 ? ', ...' : '';
+            
+            infoElement.innerHTML = `✅ <strong>${masze.length} Teile:</strong> ${zusammenfassung}${mehrText}`;
+            infoElement.style.color = '#28a745';
         }
 
         function optimiereVerschnitt() {
@@ -1030,15 +1195,14 @@
             initializeLager();
             updateVerfuegbareLaengen();
             
-            // Beispiel-Daten vorab ausfüllen
+            // Beispiel-Daten mit verschiedenen Eingabeformaten
             const beispielMasze = `2.50
-1.80
-1.50
-2.20
-2.20
-1.50
-3.10
-1.75`;
+100x0.3
+3x2.20
+5x(1.5+0.2)
+2.8+0.15
+10x1.75
+1.80`;
             document.getElementById('benoetigte-masze').value = beispielMasze;
             
             // Häufige Lagerlängen vorauswählen
