@@ -553,11 +553,11 @@
                     maxAnzahl--;
                 }
                 
-                // Erstelle Kombination mit identischen Teilen
-                const anzahlFuerPlatte = Math.min(maxAnzahl, verfuegbareAnzahl);
-                if (anzahlFuerPlatte > 0) {
+                // Erstelle Kombination mit identischen Teilen - KEINE BEGRENZUNG auf verfügbare Anzahl hier
+                // Das wird später in der Hauptschleife gemacht
+                if (maxAnzahl > 0) {
                     const kombination = [];
-                    for (let i = 0; i < anzahlFuerPlatte; i++) {
+                    for (let i = 0; i < maxAnzahl; i++) {
                         kombination.push(teilLaenge); // Originallänge für Anzeige, aber intern mit Toleranz gerechnet
                     }
                     return kombination;
