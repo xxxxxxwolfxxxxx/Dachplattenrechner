@@ -421,13 +421,20 @@
                     const parsedMasze = parseEingabezeile(line, lineIndex + 1);
                     masze.push(...parsedMasze);
                 } catch (error) {
-                    parseErrors.push(`Zeile ${lineIndex + 1}: ${error.message}`);
+                    // Bei Fehlern: Versuche einfache Zahl zu parsen (Fallback)
+                    const einfacheZahl = parseFloat(line.replace(',', '.'));
+                    if (!isNaN(einfacheZahl) && einfacheZahl > 0) {
+                        masze.push(einfacheZahl);
+                    } else {
+                        parseErrors.push(`Zeile ${lineIndex + 1}: ${error.message}`);
+                    }
                 }
             }
             
-            if (parseErrors.length > 0) {
-                alert('Eingabefehler gefunden:\n\n' + parseErrors.join('\n') + '\n\nBitte korrigieren Sie die Eingabe.');
-                return [];
+            // Nur bei vielen Fehlern Warnung anzeigen, sonst einfach weitermachen
+            if (parseErrors.length > 0 && parseErrors.length >= lines.filter(l => l.trim()).length / 2) {
+                console.warn('Eingabefehler:', parseErrors);
+                alert('Einige Eingaben konnten nicht verarbeitet werden:\n\n' + parseErrors.slice(0, 3).join('\n') + (parseErrors.length > 3 ? '\n...' : '') + '\n\nVerwende verfügbare gültige Werte.');
             }
             
             return masze;
@@ -444,30 +451,34 @@
                 const formelOderWert = wiederholungMatch[2];
                 
                 if (anzahl <= 0 || anzahl > 10000) {
-                    throw new Error(`Ungültige Anzahl: ${anzahl} (muss zwischen 1 und 10000 sein)`);
+                    throw new Error(`Ungültige Anzahl: ${anzahl}`);
                 }
                 
                 let einzelwert;
-                if (formelOderWert.includes('(') && formelOderWert.includes(')')) {
-                    // Klammern: 3x(2.5+0.1)
-                    const klammerInhalt = formelOderWert.match(/^\((.+)\)$/);
-                    if (!klammerInhalt) {
-                        throw new Error(`Ungültige Klammerformel: ${formelOderWert}`);
+                try {
+                    if (formelOderWert.includes('(') && formelOderWert.includes(')')) {
+                        // Klammern: 3x(2.5+0.1)
+                        const klammerInhalt = formelOderWert.match(/^\((.+)\)$/);
+                        if (!klammerInhalt) {
+                            throw new Error(`Ungültige Klammern`);
+                        }
+                        einzelwert = berechneFormel(klammerInhalt[1]);
+                    } else if (formelOderWert.includes('+') || formelOderWert.includes('-')) {
+                        // Einfache Formel: 100x2.5+0.1
+                        einzelwert = berechneFormel(formelOderWert);
+                    } else {
+                        // Einfacher Wert: 100x0.3
+                        einzelwert = parseFloat(formelOderWert);
+                        if (isNaN(einzelwert)) {
+                            throw new Error(`Ungültiger Wert`);
+                        }
                     }
-                    einzelwert = berechneFormel(klammerInhalt[1]);
-                } else if (formelOderWert.includes('+') || formelOderWert.includes('-')) {
-                    // Einfache Formel: 100x2.5+0.1
-                    einzelwert = berechneFormel(formelOderWert);
-                } else {
-                    // Einfacher Wert: 100x0.3
-                    einzelwert = parseFloat(formelOderWert);
-                    if (isNaN(einzelwert)) {
-                        throw new Error(`Ungültiger Wert: ${formelOderWert}`);
-                    }
+                } catch (e) {
+                    throw new Error(`Fehler bei Wiederholung: ${e.message}`);
                 }
                 
                 if (einzelwert <= 0) {
-                    throw new Error(`Länge muss größer als 0 sein: ${einzelwert}`);
+                    throw new Error(`Länge muss größer als 0 sein`);
                 }
                 
                 // Erstelle Array mit wiederholten Werten
@@ -476,108 +487,109 @@
             
             // Einfache Formel: 2.5+0.1 oder 3.2-0.1
             if (line.includes('+') || line.includes('-')) {
-                const ergebnis = berechneFormel(line);
-                if (ergebnis <= 0) {
-                    throw new Error(`Berechnetes Ergebnis muss größer als 0 sein: ${ergebnis}`);
+                try {
+                    const ergebnis = berechneFormel(line);
+                    if (ergebnis <= 0) {
+                        throw new Error(`Ergebnis muss größer als 0 sein`);
+                    }
+                    return [ergebnis];
+                } catch (e) {
+                    throw new Error(`Formelfehler: ${e.message}`);
                 }
-                return [ergebnis];
             }
             
             // Einfacher Wert: 2.50
             const wert = parseFloat(line);
             if (isNaN(wert)) {
-                throw new Error(`Kann nicht als Zahl interpretiert werden: ${line}`);
+                throw new Error(`Keine gültige Zahl: ${line}`);
             }
             if (wert <= 0) {
-                throw new Error(`Länge muss größer als 0 sein: ${wert}`);
+                throw new Error(`Länge muss größer als 0 sein`);
             }
             
             return [wert];
         }
 
         function berechneFormel(formel) {
-            // Einfache Formel-Auswertung (nur + und -)
-            // Sicherheitscheck: Nur Zahlen, Punkte, + und - erlaubt
-            if (!/^[\d\.\+\-]+$/.test(formel)) {
-                throw new Error(`Ungültige Zeichen in Formel: ${formel}`);
-            }
-            
+            // Vereinfachte und sichere Formel-Auswertung
             try {
-                // Sichere Auswertung nur für Addition und Subtraktion
+                // Entferne alle Leerzeichen
+                formel = formel.replace(/\s/g, '');
+                
+                // Sicherheitscheck: Nur erlaubte Zeichen
+                if (!/^[\d\.\+\-]+$/.test(formel)) {
+                    throw new Error(`Ungültige Zeichen`);
+                }
+                
+                // Einfache Auswertung von links nach rechts
                 let ergebnis = 0;
-                let aktuellezahl = '';
+                let aktuelleZahl = '';
                 let operation = '+';
                 
-                for (let i = 0; i < formel.length; i++) {
-                    const char = formel[i];
+                for (let i = 0; i <= formel.length; i++) {
+                    const char = i < formel.length ? formel[i] : null;
                     
-                    if (char === '+' || char === '-') {
-                        if (aktuellezahl) {
-                            const zahl = parseFloat(aktuellezahl);
+                    if (char === '+' || char === '-' || char === null) {
+                        if (aktuelleZahl) {
+                            const zahl = parseFloat(aktuelleZahl);
                             if (isNaN(zahl)) {
-                                throw new Error(`Ungültige Zahl in Formel: ${aktuellezahl}`);
+                                throw new Error(`Ungültige Zahl: ${aktuelleZahl}`);
                             }
                             
                             if (operation === '+') {
                                 ergebnis += zahl;
-                            } else {
+                            } else if (operation === '-') {
                                 ergebnis -= zahl;
                             }
+                            
+                            aktuelleZahl = '';
                         }
-                        aktuellezahl = '';
                         operation = char;
                     } else {
-                        aktuellezahl += char;
-                    }
-                }
-                
-                // Letzte Zahl verarbeiten
-                if (aktuellezahl) {
-                    const zahl = parseFloat(aktuellezahl);
-                    if (isNaN(zahl)) {
-                        throw new Error(`Ungültige Zahl in Formel: ${aktuellezahl}`);
-                    }
-                    
-                    if (operation === '+') {
-                        ergebnis += zahl;
-                    } else {
-                        ergebnis -= zahl;
+                        aktuelleZahl += char;
                     }
                 }
                 
                 return ergebnis;
             } catch (error) {
-                throw new Error(`Fehler beim Berechnen der Formel '${formel}': ${error.message}`);
+                throw new Error(`Formelberechnung fehlgeschlagen`);
             }
         }
 
         function zeigeBerechneteAnzahl() {
-            const masze = parseBenoetigteMasze();
-            const infoElement = document.getElementById('eingabe-info');
-            
-            if (masze.length === 0) {
-                infoElement.textContent = '❌ Keine gültigen Eingaben gefunden';
+            try {
+                const masze = parseBenoetigteMasze();
+                const infoElement = document.getElementById('eingabe-info');
+                
+                if (masze.length === 0) {
+                    infoElement.textContent = '❌ Keine gültigen Eingaben gefunden';
+                    infoElement.style.color = '#dc3545';
+                    return;
+                }
+                
+                // Gruppiere gleiche Längen
+                const gruppiert = {};
+                masze.forEach(mass => {
+                    const gerundet = Math.round(mass * 100) / 100; // Auf 2 Dezimalstellen runden
+                    gruppiert[gerundet] = (gruppiert[gerundet] || 0) + 1;
+                });
+                
+                const zusammenfassung = Object.entries(gruppiert)
+                    .sort(([a], [b]) => parseFloat(b) - parseFloat(a))
+                    .map(([laenge, anzahl]) => `${anzahl}x ${laenge}m`)
+                    .slice(0, 5) // Nur erste 5 anzeigen
+                    .join(', ');
+                
+                const mehrText = Object.keys(gruppiert).length > 5 ? ', ...' : '';
+                
+                infoElement.innerHTML = `✅ <strong>${masze.length} Teile:</strong> ${zusammenfassung}${mehrText}`;
+                infoElement.style.color = '#28a745';
+            } catch (error) {
+                console.error('Fehler bei Eingabeprüfung:', error);
+                const infoElement = document.getElementById('eingabe-info');
+                infoElement.textContent = '❌ Fehler bei der Eingabeprüfung';
                 infoElement.style.color = '#dc3545';
-                return;
             }
-            
-            // Gruppiere gleiche Längen
-            const gruppiert = {};
-            masze.forEach(mass => {
-                const gerundet = Math.round(mass * 100) / 100; // Auf 2 Dezimalstellen runden
-                gruppiert[gerundet] = (gruppiert[gerundet] || 0) + 1;
-            });
-            
-            const zusammenfassung = Object.entries(gruppiert)
-                .sort(([a], [b]) => parseFloat(b) - parseFloat(a))
-                .map(([laenge, anzahl]) => `${anzahl}x ${laenge}m`)
-                .slice(0, 5) // Nur erste 5 anzeigen
-                .join(', ');
-            
-            const mehrText = Object.keys(gruppiert).length > 5 ? ', ...' : '';
-            
-            infoElement.innerHTML = `✅ <strong>${masze.length} Teile:</strong> ${zusammenfassung}${mehrText}`;
-            infoElement.style.color = '#28a745';
         }
 
         function optimiereVerschnitt() {
