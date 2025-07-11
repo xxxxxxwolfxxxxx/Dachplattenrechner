@@ -572,10 +572,18 @@
                 tbody.appendChild(row);
                 
                 // Prüfe ob Verschnitt durch Toleranz-Anpassung eliminiert werden kann
-                if (platte.verschnitt > 0.001 && platte.verschnitt <= toleranz) {
-                    const zusaetzlicheToleranz = platte.verschnitt / platte.masze.length * 1000; // in mm pro Teil
-                    if (zusaetzlicheToleranz <= 5) { // Max 5mm zusätzlich pro Teil
-                        verschnittOptimierungsTipp += `<strong>Platte ${platte.plattenNr}:</strong> Statt ${(toleranz * 1000).toFixed(0)}mm Toleranz nur ${((toleranz - platte.verschnitt / platte.masze.length) * 1000).toFixed(1)}mm verwenden → <strong>Kein Verschnitt!</strong><br>`;
+                if (platte.verschnitt > 0.001) {
+                    // Berechne wie viel länger jedes Teil geschnitten werden könnte
+                    const zusaetzlicheLaengeProTeil = platte.verschnitt / platte.masze.length * 1000; // in mm pro Teil
+                    const aktuelleToleranz = toleranz * 1000; // in mm
+                    
+                    // Wenn die zusätzliche Länge innerhalb der Toleranz liegt
+                    if (zusaetzlicheLaengeProTeil <= aktuelleToleranz) {
+                        const neueSchnittlaenge = (platte.masze[0] - toleranz + platte.verschnitt / platte.masze.length) * 1000; // in mm
+                        const originalSchnittlaenge = (platte.masze[0] - toleranz) * 1000; // in mm
+                        
+                        verschnittOptimierungsTipp += `<strong>Platte ${platte.plattenNr}:</strong> Statt ${originalSchnittlaenge.toFixed(1)}mm → <strong>${neueSchnittlaenge.toFixed(1)}mm</strong> schneiden (${zusaetzlicheLaengeProTeil.toFixed(1)}mm länger pro Teil)<br>`;
+                        verschnittOptimierungsTipp += `→ <strong>Kein Verschnitt</strong> + <strong>1 Schnitt gespart</strong> (Verschnitt-Abtrennung entfällt)<br><br>`;
                     }
                 }
             });
@@ -583,7 +591,11 @@
             // Zeige Verschnitt-Optimierungstipp
             if (verschnittOptimierungsTipp) {
                 document.getElementById('optimierung-text').innerHTML = verschnittOptimierungsTipp + 
-                    '<br><em>💡 Durch geringere Toleranz können Sie den Verschnitt komplett vermeiden und Material sparen!</em>';
+                    '<strong>💰 Vorteile:</strong><br>' +
+                    '• Kein Materialverschnitt<br>' +
+                    '• Weniger Sägeschnitte (spart Zeit)<br>' +
+                    '• Teile sind noch innerhalb der Toleranz<br>' +
+                    '<em>💡 Längere Teile sind oft sogar besser als zu kurze!</em>';
                 document.getElementById('verschnitt-optimierung').style.display = 'block';
             } else {
                 document.getElementById('verschnitt-optimierung').style.display = 'none';
