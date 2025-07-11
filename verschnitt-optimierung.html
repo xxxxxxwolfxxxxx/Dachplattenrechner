@@ -232,7 +232,7 @@
                     <strong>⚡ Wenigste Schnitte:</strong> Spart Zeit beim Sägen, aber möglicherweise mehr Verschnitt.<br><br>
                     <strong>🔧 Technische Einstellungen:</strong><br>
                     <strong>Schnittblattbreite:</strong> Verlust pro Schnitt (meist 2-4mm).<br>
-                    <strong>Toleranz:</strong> Zusätzlicher Puffer pro Platte für Sägeungenauigkeiten.
+                    <strong>Toleranz:</strong> Wird von der Teillänge ABGEZOGEN für Passgenauigkeit (5mm Toleranz = 5mm kürzere Schnitte).
                 </div>
             </div>
 
@@ -533,12 +533,20 @@
                 const teilLaenge = parseFloat(haeufigstesTeile[0]);
                 const verfuegbareAnzahl = haeufigstesTeile[1];
                 
-                // Berechne maximale Anzahl identischer Teile pro Platte
-                let maxAnzahl = Math.floor(lagerlaenge / teilLaenge);
+                // KORRIGIERT: Toleranz wird ABGEZOGEN (kürzere Schnitte für Passgenauigkeit)
+                const nettoTeilLaenge = teilLaenge - toleranz;
                 
-                // Berücksichtige Schnittblattbreite
+                if (nettoTeilLaenge <= 0) {
+                    // Toleranz größer als Teillänge - nicht machbar
+                    return [];
+                }
+                
+                // Berechne maximale Anzahl identischer Teile pro Platte
+                let maxAnzahl = Math.floor(lagerlaenge / nettoTeilLaenge);
+                
+                // Berücksichtige Schnittblattbreite zwischen den Teilen
                 while (maxAnzahl > 1) {
-                    const benoetigterPlatz = maxAnzahl * teilLaenge + (maxAnzahl - 1) * schnittblattBreite;
+                    const benoetigterPlatz = maxAnzahl * nettoTeilLaenge + (maxAnzahl - 1) * schnittblattBreite;
                     if (benoetigterPlatz <= lagerlaenge) {
                         break;
                     }
@@ -550,7 +558,7 @@
                 if (anzahlFuerPlatte > 0) {
                     const kombination = [];
                     for (let i = 0; i < anzahlFuerPlatte; i++) {
-                        kombination.push(teilLaenge);
+                        kombination.push(teilLaenge); // Originallänge für Anzeige, aber intern mit Toleranz gerechnet
                     }
                     return kombination;
                 }
@@ -561,8 +569,8 @@
             const kombinationBestFit = bestFitKombination(masze, lagerlaenge, schnittblattBreite, toleranz);
             
             // Wähle die bessere Kombination
-            const verschnittGreedy = lagerlaenge - kombinationGreedy.reduce((s,m) => s + m, 0) - Math.max(0, kombinationGreedy.length - 1) * schnittblattBreite;
-            const verschnittBestFit = lagerlaenge - kombinationBestFit.reduce((s,m) => s + m, 0) - Math.max(0, kombinationBestFit.length - 1) * schnittblattBreite;
+            const verschnittGreedy = lagerlaenge - kombinationGreedy.reduce((s,m) => s + (m - toleranz), 0) - Math.max(0, kombinationGreedy.length - 1) * schnittblattBreite;
+            const verschnittBestFit = lagerlaenge - kombinationBestFit.reduce((s,m) => s + (m - toleranz), 0) - Math.max(0, kombinationBestFit.length - 1) * schnittblattBreite;
             
             if (kombinationBestFit.length > kombinationGreedy.length || 
                 (kombinationBestFit.length === kombinationGreedy.length && verschnittBestFit < verschnittGreedy)) {
@@ -580,9 +588,11 @@
             const sortierteMasze = [...masze].sort((a, b) => b - a);
             
             for (let mass of sortierteMasze) {
-                const benoetigterPlatz = mass + (kombination.length > 0 ? schnittblattBreite : 0);
+                // KORRIGIERT: Toleranz wird ABGEZOGEN
+                const nettoMass = mass - toleranz;
+                const benoetigterPlatz = nettoMass + (kombination.length > 0 ? schnittblattBreite : 0);
                 
-                if (verbleibendelaenge >= benoetigterPlatz && mass > 0) {
+                if (verbleibendelaenge >= benoetigterPlatz && nettoMass > 0) {
                     kombination.push(mass);
                     verbleibendelaenge -= benoetigterPlatz;
                 }
@@ -611,11 +621,13 @@
                     
                     for (let j = 0; j < tempMasze.length; j++) {
                         const mass = tempMasze[j];
-                        const benoetigterPlatz = mass + (kombination.length > 0 ? schnittblattBreite : 0);
+                        // KORRIGIERT: Toleranz wird ABGEZOGEN
+                        const nettoMass = mass - toleranz;
+                        const benoetigterPlatz = nettoMass + (kombination.length > 0 ? schnittblattBreite : 0);
                         
-                        if (verbleibendelaenge >= benoetigterPlatz) {
+                        if (verbleibendelaenge >= benoetigterPlatz && nettoMass > 0) {
                             // Bevorzuge Teile, die gut in den verbleibenden Platz passen
-                            const effizienz = mass / benoetigterPlatz;
+                            const effizienz = nettoMass / benoetigterPlatz;
                             if (effizienz > besterWert) {
                                 besterWert = effizienz;
                                 besterIndex = j;
@@ -627,11 +639,13 @@
                     
                     const mass = tempMasze[besterIndex];
                     kombination.push(mass);
-                    verbleibendelaenge -= mass + (kombination.length > 1 ? schnittblattBreite : 0);
+                    // KORRIGIERT: Verwende Netto-Maß für Platzberechnung
+                    const nettoMass = mass - toleranz;
+                    verbleibendelaenge -= nettoMass + (kombination.length > 1 ? schnittblattBreite : 0);
                     tempMasze.splice(besterIndex, 1);
                 }
                 
-                const verschnitt = lagerlaenge - kombination.reduce((s,m) => s + m, 0) - Math.max(0, kombination.length - 1) * schnittblattBreite;
+                const verschnitt = lagerlaenge - kombination.reduce((s,m) => s + (m - toleranz), 0) - Math.max(0, kombination.length - 1) * schnittblattBreite;
                 
                 if (kombination.length > besteKombination.length || 
                     (kombination.length === besteKombination.length && verschnitt < geringsterVerschnitt)) {
