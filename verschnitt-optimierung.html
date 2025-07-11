@@ -41,52 +41,6 @@
 
     <div class="container">
         <main>
-            <div style="text-align: center; margin-bottom: 30px;">
-                <svg width="300" height="160" viewBox="0 0 300 160" style="margin-bottom: 15px;">
-                    <!-- Erste Lagerplatte -->
-                    <rect x="20" y="20" width="260" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                    <rect x="20" y="20" width="80" height="25" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                    <rect x="101" y="20" width="60" height="25" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                    <rect x="162" y="20" width="50" height="25" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                    <rect x="213" y="20" width="40" height="25" fill="#dc3545" stroke="#fff" stroke-width="1"/>
-                    <text x="150" y="10" text-anchor="middle" font-size="12" fill="#1976d2" font-weight="bold">Platte 1: 3 Teile + Verschnitt</text>
-                    
-                    <!-- Trennlinien -->
-                    <line x1="100" y1="20" x2="100" y2="45" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                    <line x1="161" y1="20" x2="161" y2="45" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                    <line x1="212" y1="20" x2="212" y2="45" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                    
-                    <!-- Zweite Lagerplatte -->
-                    <rect x="20" y="60" width="260" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                    <rect x="20" y="60" width="90" height="25" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                    <rect x="111" y="60" width="70" height="25" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                    <rect x="182" y="60" width="60" height="25" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                    <rect x="243" y="60" width="37" height="25" fill="#dc3545" stroke="#fff" stroke-width="1"/>
-                    <text x="150" y="55" text-anchor="middle" font-size="12" fill="#1976d2" font-weight="bold">Platte 2: 3 Teile + weniger Verschnitt</text>
-                    
-                    <!-- Trennlinien -->
-                    <line x1="110" y1="60" x2="110" y2="85" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                    <line x1="181" y1="60" x2="181" y2="85" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                    <line x1="242" y1="60" x2="242" y2="85" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                    
-                    <!-- Dritte Lagerplatte -->
-                    <rect x="20" y="100" width="260" height="25" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                    <rect x="20" y="100" width="120" height="25" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                    <rect x="141" y="100" width="120" height="25" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                    <rect x="262" y="100" width="18" height="25" fill="#ffc107" stroke="#fff" stroke-width="1"/>
-                    <text x="150" y="95" text-anchor="middle" font-size="12" fill="#1976d2" font-weight="bold">Platte 3: 2 große Teile + minimaler Rest</text>
-                    
-                    <!-- Trennlinien -->
-                    <line x1="140" y1="100" x2="140" y2="125" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                    <line x1="261" y1="100" x2="261" y2="125" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                    
-                    <!-- Optimierungs-Symbol -->
-                    <circle cx="150" cy="140" r="12" fill="#ffc107" stroke="#fff" stroke-width="2"/>
-                    <text x="150" y="145" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">⚡</text>
-                    <text x="150" y="157" text-anchor="middle" font-size="10" fill="#666" font-weight="bold">Optimiert</text>
-                </svg>
-            </div>
-            
             <h1 style="color: #1e3c72; text-align: center; margin-bottom: 30px;">Verschnitt-Optimierung</h1>
 
             <!-- Einfache Eingabe -->
@@ -101,14 +55,8 @@
                 
                 <div class="input-group">
                     <label for="benoetigte-masze">Benötigte Längen (eine pro Zeile)</label>
-                    <textarea id="benoetigte-masze" rows="10" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px; font-family: monospace;" placeholder="Beispiel:
-2.50
-1.80
-100x0.3
-3x2.20
-1.50
-0.75
-4x1.25"></textarea>
+                    <textarea id="benoetigte-masze" rows="8" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px; font-family: monospace;" placeholder="Beispiel:
+100x0.3"></textarea>
                 </div>
             </div>
 
@@ -122,84 +70,14 @@
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-2.0" value="2.0">
-                        <label for="lager-2.0" style="flex: 1; font-weight: 500;">2,0m</label>
-                        <input type="number" id="anzahl-2.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-2.5" value="2.5">
-                        <label for="lager-2.5" style="flex: 1; font-weight: 500;">2,5m</label>
-                        <input type="number" id="anzahl-2.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-3.0" value="3.0" checked>
-                        <label for="lager-3.0" style="flex: 1; font-weight: 500;">3,0m</label>
-                        <input type="number" id="anzahl-3.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-3.1" value="3.1">
+                        <input type="checkbox" id="lager-3.1" value="3.1" checked>
                         <label for="lager-3.1" style="flex: 1; font-weight: 500;">3,1m</label>
                         <input type="number" id="anzahl-3.1" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-3.5" value="3.5">
-                        <label for="lager-3.5" style="flex: 1; font-weight: 500;">3,5m</label>
-                        <input type="number" id="anzahl-3.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-4.0" value="4.0" checked>
-                        <label for="lager-4.0" style="flex: 1; font-weight: 500;">4,0m</label>
-                        <input type="number" id="anzahl-4.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-4.5" value="4.5">
-                        <label for="lager-4.5" style="flex: 1; font-weight: 500;">4,5m</label>
-                        <input type="number" id="anzahl-4.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-5.0" value="5.0" checked>
-                        <label for="lager-5.0" style="flex: 1; font-weight: 500;">5,0m</label>
-                        <input type="number" id="anzahl-5.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-5.5" value="5.5">
-                        <label for="lager-5.5" style="flex: 1; font-weight: 500;">5,5m</label>
-                        <input type="number" id="anzahl-5.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-6.0" value="6.0" checked>
                         <label for="lager-6.0" style="flex: 1; font-weight: 500;">6,0m</label>
                         <input type="number" id="anzahl-6.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-6.5" value="6.5">
-                        <label for="lager-6.5" style="flex: 1; font-weight: 500;">6,5m</label>
-                        <input type="number" id="anzahl-6.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-7.0" value="7.0">
-                        <label for="lager-7.0" style="flex: 1; font-weight: 500;">7,0m</label>
-                        <input type="number" id="anzahl-7.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-7.5" value="7.5">
-                        <label for="lager-7.5" style="flex: 1; font-weight: 500;">7,5m</label>
-                        <input type="number" id="anzahl-7.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-8.0" value="8.0">
-                        <label for="lager-8.0" style="flex: 1; font-weight: 500;">8,0m</label>
-                        <input type="number" id="anzahl-8.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-8.5" value="8.5">
-                        <label for="lager-8.5" style="flex: 1; font-weight: 500;">8,5m</label>
-                        <input type="number" id="anzahl-8.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
-                        <input type="checkbox" id="lager-9.0" value="9.0">
-                        <label for="lager-9.0" style="flex: 1; font-weight: 500;">9,0m</label>
-                        <input type="number" id="anzahl-9.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
                     </div>
                 </div>
             </div>
@@ -225,14 +103,6 @@
                         <label for="toleranz">Toleranz pro Platte (mm)</label>
                         <input type="number" id="toleranz" value="5.0" step="0.1" min="0" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px;">
                     </div>
-                </div>
-                <div class="info-box">
-                    <strong>⚙️ Optimierungsstrategien:</strong><br>
-                    <strong>🎯 Minimaler Verschnitt:</strong> Spart Material, aber möglicherweise mehr Sägeschnitte.<br>
-                    <strong>⚡ Wenigste Schnitte:</strong> Spart Zeit beim Sägen, aber möglicherweise mehr Verschnitt.<br><br>
-                    <strong>🔧 Technische Einstellungen:</strong><br>
-                    <strong>Schnittblattbreite:</strong> Verlust pro Schnitt (meist 2-4mm).<br>
-                    <strong>Toleranz:</strong> Wird von der Teillänge ABGEZOGEN für Passgenauigkeit (5mm Toleranz = 5mm kürzere Schnitte).
                 </div>
             </div>
 
@@ -266,15 +136,6 @@
                     <span id="effizienz">-</span>
                 </div>
                 
-                <!-- Visueller Fortschrittsbalken -->
-                <div style="margin: 25px 0;">
-                    <h4 style="color: #1e3c72; margin-bottom: 10px;">📈 Materialverwendung</h4>
-                    <div style="background: #e9ecef; border-radius: 10px; height: 30px; position: relative; overflow: hidden;">
-                        <div id="effizienz-balken" style="background: linear-gradient(90deg, #28a745 0%, #20c997 100%); height: 100%; border-radius: 10px; transition: width 0.8s ease;"></div>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);" id="effizienz-text">-</div>
-                    </div>
-                </div>
-                
                 <div id="saegeplan" style="margin-top: 25px;">
                     <h4 style="color: #1e3c72; margin-bottom: 15px;">🪚 Detaillierter Sägeplan</h4>
                     <div style="overflow-x: auto;">
@@ -286,18 +147,11 @@
                                     <th>Zu sägende Längen</th>
                                     <th>Verschnitt</th>
                                     <th>Anzahl Schnitte</th>
-                                    <th>Optimierungstipp</th>
                                 </tr>
                             </thead>
                             <tbody id="saegeplan-details">
                             </tbody>
                         </table>
-                    </div>
-                    
-                    <div style="margin-top: 20px; text-align: center; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
-                        <button class="btn btn-primary" onclick="druckeSaegeplan()">🖨️ Sägeplan drucken</button>
-                        <button class="btn btn-success" onclick="exportText()">📄 Als Text exportieren</button>
-                        <button class="btn btn-secondary" onclick="neueOptimierung()">🔄 Neue Optimierung</button>
                     </div>
                 </div>
             </div>
@@ -311,14 +165,6 @@
             console.log('🔧 Start Optimierung...');
             
             try {
-                // Track calculation event for analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'calculation', {
-                        'event_category': 'verschnitt_optimierung',
-                        'event_label': 'optimization_started'
-                    });
-                }
-                
                 // 1. Eingabe parsen
                 const benoetigteMasze = parseEinfacheEingabe();
                 console.log('📏 Benötigte Maße:', benoetigteMasze);
@@ -387,7 +233,7 @@
 
         function getVerfuegbareLaengen() {
             const verfuegbar = [];
-            const lagerlängen = [2.0, 2.5, 3.0, 3.1, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0];
+            const lagerlängen = [3.1, 6.0]; // Nur die beiden Test-Längen
             
             lagerlängen.forEach(laenge => {
                 const checkbox = document.getElementById(`lager-${laenge}`);
@@ -419,6 +265,9 @@
             const toleranz = parseFloat(document.getElementById('toleranz').value) / 1000;
             const modus = document.getElementById('optimierung-modus').value;
             
+            console.log(`🎯 Optimierungsmodus: ${modus}`);
+            console.log(`🔧 Schnittblattbreite: ${schnittblattBreite}m, Toleranz: ${toleranz}m`);
+            
             // Verbrauchszähler für begrenzte Lagerlängen
             const verbrauchteAnzahl = {};
             verfuegbareLaengen.forEach(lager => {
@@ -427,84 +276,79 @@
             
             let plattenNr = 1;
             
-            while (verbleibendeMapze.length > 0 && plattenNr <= 1000) {
+            while (verbleibendeMapze.length > 0 && plattenNr <= 100) {
                 let bestePlatte = null;
                 let besteKombination = [];
-                let besterWert = modus === 'verschnitt' ? Infinity : 0;
+                let besterWert = modus === 'verschnitt' ? Infinity : -1;
+                
+                console.log(`🔄 Platte ${plattenNr}: Verbleibende Teile: ${verbleibendeMapze.length}`);
                 
                 // Teste jede verfügbare Lagerlänge
                 for (let lager of verfuegbareLaengen) {
                     // Prüfe ob noch verfügbar
                     if (verbrauchteAnzahl[lager.laenge] >= lager.anzahl) {
+                        console.log(`⏭️ Lager ${lager.laenge}m: Keine mehr verfügbar`);
                         continue;
                     }
                     
-                    const kombination = findeOptimaleKombination(verbleibendeMapze, lager.laenge, schnittblattBreite, toleranz);
+                    const kombination = berechneKombination(verbleibendeMapze, lager.laenge, schnittblattBreite, toleranz);
                     
-                    if (kombination.length === 0) continue;
+                    if (kombination.length === 0) {
+                        console.log(`❌ Lager ${lager.laenge}m: Keine Kombination möglich`);
+                        continue;
+                    }
                     
-                    // Berechne Materialverbrauch
-                    const nettoMaterial = kombination.reduce((sum, mass) => sum + mass, 0);
+                    // Berechne Materialverbrauch - Toleranz abziehen
+                    const nettoMaterial = kombination.reduce((sum, mass) => sum + (mass - toleranz), 0);
                     const benoetigteSchnitte = kombination.length > 1 ? (kombination.length - 1) * schnittblattBreite : 0;
                     const verschnitt = lager.laenge - nettoMaterial - benoetigteSchnitte;
                     
+                    console.log(`🔍 Lager ${lager.laenge}m: ${kombination.length} Teile, Netto: ${nettoMaterial.toFixed(3)}m, Schnitte: ${benoetigteSchnitte.toFixed(3)}m, Verschnitt: ${verschnitt.toFixed(3)}m`);
+                    
                     // Prüfe ob überhaupt machbar
-                    if (verschnitt < 0) continue;
+                    if (verschnitt < 0) {
+                        console.log(`❌ Lager ${lager.laenge}m: Nicht machbar (negativer Verschnitt)`);
+                        continue;
+                    }
                     
                     let istBesser = false;
                     if (modus === 'verschnitt') {
-                        // Minimaler Verschnitt, bei gleichem Verschnitt mehr Teile bevorzugen
-                        istBesser = verschnitt < besterWert || 
-                                   (Math.abs(verschnitt - besterWert) < 0.001 && kombination.length > besteKombination.length);
+                        // KORRIGIERT: Minimaler Verschnitt - kleinster Verschnitt gewinnt
+                        istBesser = verschnitt < besterWert;
                         if (istBesser) besterWert = verschnitt;
+                        console.log(`🎯 VERSCHNITT-Modus: ${verschnitt.toFixed(3)}m ${istBesser ? '< ' + besterWert.toFixed(3) + 'm → BESSER' : '≥ aktuell bester'}`);
                     } else {
-                        // Wenigste Schnitte (= meiste Teile pro Platte)
-                        istBesser = kombination.length > besterWert ||
-                                   (kombination.length === besterWert && verschnitt < (bestePlatte ? bestePlatte.laenge - besteKombination.reduce((s,m) => s + m, 0) - (besteKombination.length - 1) * schnittblattBreite : Infinity));
+                        // KORRIGIERT: Wenigste Schnitte - meiste Teile pro Platte gewinnt
+                        istBesser = kombination.length > besterWert;
                         if (istBesser) besterWert = kombination.length;
+                        console.log(`⚡ SCHNITTE-Modus: ${kombination.length} Teile ${istBesser ? '> ' + besterWert + ' → BESSER' : '≤ aktuell beste'}`);
                     }
                     
                     if (istBesser) {
                         besteKombination = kombination;
                         bestePlatte = lager;
+                        console.log(`✅ NEUE BESTE: ${lager.laenge}m mit ${kombination.length} Teilen, Verschnitt: ${verschnitt.toFixed(3)}m`);
                     }
                 }
                 
                 if (!bestePlatte || besteKombination.length === 0) {
-                    // Fallback: Nimm kleinstes verbleibendes Teil mit größter verfügbarer Platte
-                    const verfuegbarePlatten = verfuegbareLaengen.filter(l => verbrauchteAnzahl[l.laenge] < l.anzahl);
-                    if (verfuegbarePlatten.length === 0) {
-                        console.warn('⚠️ Keine Platten mehr verfügbar für:', verbleibendeMapze);
-                        break;
-                    }
-                    
-                    bestePlatte = verfuegbarePlatten[0];
-                    besteKombination = [verbleibendeMapze[0]];
+                    console.warn('⚠️ Keine optimale Platte gefunden - Fallback');
+                    break;
                 }
                 
                 // Berechne finalen Verschnitt
-                const nettoMaterial = besteKombination.reduce((sum, mass) => sum + mass, 0);
+                const nettoMaterial = besteKombination.reduce((sum, mass) => sum + (mass - toleranz), 0);
                 const benoetigteSchnitte = besteKombination.length > 1 ? (besteKombination.length - 1) * schnittblattBreite : 0;
                 const verschnitt = bestePlatte.laenge - nettoMaterial - benoetigteSchnitte;
                 
-                // Optimierungsvorschlag für kleinen Verschnitt
-                let vorschlag = '';
-                if (verschnitt > 0 && verschnitt <= 0.05) { // Weniger als 5cm Verschnitt
-                    const mehrlaengeProTeil = verschnitt / besteKombination.length * 1000; // in mm
-                    if (mehrlaengeProTeil <= 20) { // Max 2cm länger schneiden
-                        vorschlag = `Tipp: +${mehrlaengeProTeil.toFixed(1)}mm pro Teil → kein Verschnitt`;
-                    }
-                } else if (verschnitt <= 0.002) { // Unter 2mm
-                    vorschlag = 'Perfekte Ausnutzung! 🎯';
-                }
+                console.log(`✅ Platte ${plattenNr}: ${bestePlatte.laenge}m mit ${besteKombination.length} Teilen, Verschnitt: ${verschnitt.toFixed(3)}m`);
                 
                 ergebnis.push({
                     plattenNr: plattenNr++,
                     lagerlaenge: bestePlatte.laenge,
                     masze: [...besteKombination],
                     verschnitt: Math.max(0, verschnitt),
-                    anzahlSchnitte: besteKombination.length > 0 ? besteKombination.length - 1 : 0,
-                    optimierungsvorschlag: vorschlag
+                    anzahlSchnitte: besteKombination.length > 0 ? besteKombination.length - 1 : 0
                 });
                 
                 // Verbrauch markieren
@@ -519,34 +363,18 @@
                 });
             }
             
-            // Warnung falls nicht alles geschnitten werden konnte
-            if (verbleibendeMapze.length > 0) {
-                console.warn(`⚠️ ${verbleibendeMapze.length} Teile konnten nicht optimiert werden:`, verbleibendeMapze);
-            }
-            
             return ergebnis;
         }
 
-        function findeOptimaleKombination(masze, lagerlaenge, schnittblattBreite, toleranz) {
-            // Spezialfall: Viele identische Teile - berechne optimale Anzahl direkt
-            const gleicheTeile = {};
-            masze.forEach(mass => {
-                gleicheTeile[mass] = (gleicheTeile[mass] || 0) + 1;
-            });
-            
-            // Finde das häufigste Teil
-            const haeufigstesTeile = Object.entries(gleicheTeile).sort((a,b) => b[1] - a[1])[0];
-            if (haeufigstesTeile && haeufigstesTeile[1] / masze.length > 0.8) {
-                const teilLaenge = parseFloat(haeufigstesTeile[0]);
-                
-                // KORRIGIERT: Toleranz wird ABGEZOGEN
+        function berechneKombination(masze, lagerlaenge, schnittblattBreite, toleranz) {
+            // Einfache Berechnung für identische Teile
+            if (masze.length > 0 && masze.every(m => Math.abs(m - masze[0]) < 0.001)) {
+                const teilLaenge = masze[0];
                 const nettoTeilLaenge = teilLaenge - toleranz;
                 
-                if (nettoTeilLaenge <= 0) {
-                    return [];
-                }
+                if (nettoTeilLaenge <= 0) return [];
                 
-                // Berechne MAXIMALE Anzahl für diese Lagerlänge (unabhängig von verbleibenden Teilen)
+                // Berechne maximale Anzahl
                 let maxAnzahl = Math.floor(lagerlaenge / nettoTeilLaenge);
                 
                 // Berücksichtige Schnittblattbreite zwischen den Teilen
@@ -558,67 +386,20 @@
                     maxAnzahl--;
                 }
                 
-                console.log(`📏 Lager ${lagerlaenge}m: Max ${maxAnzahl} Teile à ${nettoTeilLaenge}m möglich`);
+                const kombination = [];
+                for (let i = 0; i < Math.min(maxAnzahl, masze.length); i++) {
+                    kombination.push(teilLaenge);
+                }
                 
-                // Erstelle Kombination mit der maximalen Anzahl
-                if (maxAnzahl > 0) {
-                    const kombination = [];
-                    for (let i = 0; i < maxAnzahl; i++) {
-                        kombination.push(teilLaenge);
-                    }
-                    return kombination;
-                }
+                return kombination;
             }
             
-            // Normale Optimierung für gemischte Teile
-            const kombinationGreedy = greedyKombination(masze, lagerlaenge, schnittblattBreite, toleranz);
-            const kombinationBestFit = bestFitKombination(masze, lagerlaenge, schnittblattBreite, toleranz);
-            
-            // Wähle die bessere Kombination
-            const verschnittGreedy = lagerlaenge - kombinationGreedy.reduce((s,m) => s + (m - toleranz), 0) - Math.max(0, kombinationGreedy.length - 1) * schnittblattBreite;
-            const verschnittBestFit = lagerlaenge - kombinationBestFit.reduce((s,m) => s + (m - toleranz), 0) - Math.max(0, kombinationBestFit.length - 1) * schnittblattBreite;
-            
-            if (kombinationBestFit.length > kombinationGreedy.length || 
-                (kombinationBestFit.length === kombinationGreedy.length && verschnittBestFit < verschnittGreedy)) {
-                return kombinationBestFit;
-            }
-            
-            return kombinationGreedy;
-                // Das wird später in der Hauptschleife gemacht
-                if (maxAnzahl > 0) {
-                    const kombination = [];
-                    for (let i = 0; i < maxAnzahl; i++) {
-                        kombination.push(teilLaenge); // Originallänge für Anzeige, aber intern mit Toleranz gerechnet
-                    }
-                    return kombination;
-                }
-            }
-            
-            // Normale Optimierung für gemischte Teile
-            const kombinationGreedy = greedyKombination(masze, lagerlaenge, schnittblattBreite, toleranz);
-            const kombinationBestFit = bestFitKombination(masze, lagerlaenge, schnittblattBreite, toleranz);
-            
-            // Wähle die bessere Kombination
-            const verschnittGreedy = lagerlaenge - kombinationGreedy.reduce((s,m) => s + (m - toleranz), 0) - Math.max(0, kombinationGreedy.length - 1) * schnittblattBreite;
-            const verschnittBestFit = lagerlaenge - kombinationBestFit.reduce((s,m) => s + (m - toleranz), 0) - Math.max(0, kombinationBestFit.length - 1) * schnittblattBreite;
-            
-            if (kombinationBestFit.length > kombinationGreedy.length || 
-                (kombinationBestFit.length === kombinationGreedy.length && verschnittBestFit < verschnittGreedy)) {
-                return kombinationBestFit;
-            }
-            
-            return kombinationGreedy;
-        }
-
-        function greedyKombination(masze, lagerlaenge, schnittblattBreite, toleranz) {
+            // Greedy für gemischte Teile
             const kombination = [];
             let verbleibendelaenge = lagerlaenge;
-            
-            // Sortiere Maße absteigend für bessere Packung
             const sortierteMasze = [...masze].sort((a, b) => b - a);
             
             for (let mass of sortierteMasze) {
-                // KORRIGIERT: Toleranz wird ABGEZOGEN
                 const nettoMass = mass - toleranz;
                 const benoetigterPlatz = nettoMass + (kombination.length > 0 ? schnittblattBreite : 0);
                 
@@ -631,69 +412,13 @@
             return kombination;
         }
 
-        function bestFitKombination(masze, lagerlaenge, schnittblattBreite, toleranz) {
-            // Versuche verschiedene Kombinationen und finde die mit dem geringsten Verschnitt
-            let besteKombination = [];
-            let geringsterVerschnitt = Infinity;
-            
-            // Begrenzte Suche für Performance
-            const maxKombinationen = Math.min(100, Math.pow(2, Math.min(masze.length, 10)));
-            
-            for (let i = 0; i < maxKombinationen; i++) {
-                const kombination = [];
-                let verbleibendelaenge = lagerlaenge;
-                let tempMasze = [...masze];
-                
-                // Zufällige Auswahl für Diversität
-                while (tempMasze.length > 0 && kombination.length < 10) {
-                    let besterIndex = -1;
-                    let besterWert = 0;
-                    
-                    for (let j = 0; j < tempMasze.length; j++) {
-                        const mass = tempMasze[j];
-                        // KORRIGIERT: Toleranz wird ABGEZOGEN
-                        const nettoMass = mass - toleranz;
-                        const benoetigterPlatz = nettoMass + (kombination.length > 0 ? schnittblattBreite : 0);
-                        
-                        if (verbleibendelaenge >= benoetigterPlatz && nettoMass > 0) {
-                            // Bevorzuge Teile, die gut in den verbleibenden Platz passen
-                            const effizienz = nettoMass / benoetigterPlatz;
-                            if (effizienz > besterWert) {
-                                besterWert = effizienz;
-                                besterIndex = j;
-                            }
-                        }
-                    }
-                    
-                    if (besterIndex === -1) break;
-                    
-                    const mass = tempMasze[besterIndex];
-                    kombination.push(mass);
-                    // KORRIGIERT: Verwende Netto-Maß für Platzberechnung
-                    const nettoMass = mass - toleranz;
-                    verbleibendelaenge -= nettoMass + (kombination.length > 1 ? schnittblattBreite : 0);
-                    tempMasze.splice(besterIndex, 1);
-                }
-                
-                const verschnitt = lagerlaenge - kombination.reduce((s,m) => s + (m - toleranz), 0) - Math.max(0, kombination.length - 1) * schnittblattBreite;
-                
-                if (kombination.length > besteKombination.length || 
-                    (kombination.length === besteKombination.length && verschnitt < geringsterVerschnitt)) {
-                    besteKombination = [...kombination];
-                    geringsterVerschnitt = verschnitt;
-                }
-            }
-            
-            return besteKombination;
-        }
-
         function zeigeErgebnisse(optimierung) {
             aktuelleOptimierung = optimierung;
             
             const gesamtVerschnitt = optimierung.reduce((sum, p) => sum + p.verschnitt, 0);
             const gesamtMaterial = optimierung.reduce((sum, p) => sum + p.lagerlaenge, 0);
             
-            // KORRIGIERT: Tatsächlich benötigtes Material = Netto-Material (mit abgezogener Toleranz)
+            // Tatsächlich benötigtes Material = Netto-Material (mit abgezogener Toleranz)
             const toleranz = parseFloat(document.getElementById('toleranz').value) / 1000;
             const schnittblattBreite = parseFloat(document.getElementById('schnittblatt-breite').value) / 1000;
             
@@ -709,9 +434,9 @@
                 const schnittblattVerluste = platte.anzahlSchnitte * schnittblattBreite;
                 tatsaechlichBenoetigtesMaterial += schnittblattVerluste;
                 
-                // KORRIGIERT: Verschnitt-Schnitt hinzufügen (wenn Verschnitt > 1mm)
+                // Verschnitt-Schnitt hinzufügen (wenn Verschnitt > 1mm)
                 let schnittePlatten = platte.anzahlSchnitte;
-                if (platte.verschnitt > 0.001) { // Verschnitt > 1mm wird abgeschnitten
+                if (platte.verschnitt > 0.001) {
                     schnittePlatten += 1;
                 }
                 gesamtSchnitte += schnittePlatten;
@@ -727,24 +452,6 @@
             document.getElementById('gesamt-schnitte').textContent = gesamtSchnitte + ' Stück';
             document.getElementById('effizienz').textContent = effizienz.toFixed(1) + '%';
             
-            // Effizienzbalken animieren
-            const effizienzBalken = document.getElementById('effizienz-balken');
-            const effizienzText = document.getElementById('effizienz-text');
-            
-            setTimeout(() => {
-                effizienzBalken.style.width = effizienz + '%';
-                effizienzText.textContent = effizienz.toFixed(1) + '% Effizienz';
-                
-                // Farbwechsel je nach Effizienz
-                if (effizienz >= 90) {
-                    effizienzBalken.style.background = 'linear-gradient(90deg, #28a745 0%, #20c997 100%)';
-                } else if (effizienz >= 80) {
-                    effizienzBalken.style.background = 'linear-gradient(90deg, #ffc107 0%, #fd7e14 100%)';
-                } else {
-                    effizienzBalken.style.background = 'linear-gradient(90deg, #dc3545 0%, #e55353 100%)';
-                }
-            }, 200);
-            
             // Tabelle füllen
             const tbody = document.getElementById('saegeplan-details');
             tbody.innerHTML = '';
@@ -752,290 +459,28 @@
             optimierung.forEach(platte => {
                 const row = document.createElement('tr');
                 
-                // KORRIGIERT: Verschnitt-Schnitt hinzufügen
+                // Verschnitt-Schnitt hinzufügen
                 let anzahlSchnitte = platte.anzahlSchnitte;
-                if (platte.verschnitt > 0.001) { // Verschnitt > 1mm wird abgeschnitten
+                if (platte.verschnitt > 0.001) {
                     anzahlSchnitte += 1;
                 }
-                
-                // Farbkodierung für Verschnitt
-                let verschnittColor = '#28a745'; // Grün für wenig Verschnitt
-                if (platte.verschnitt > 0.1) verschnittColor = '#ffc107'; // Gelb für mittleren Verschnitt
-                if (platte.verschnitt > 0.3) verschnittColor = '#dc3545'; // Rot für viel Verschnitt
                 
                 row.innerHTML = `
                     <td><strong>P${platte.plattenNr}</strong></td>
                     <td style="font-weight: bold; color: #1e3c72;">${platte.lagerlaenge.toFixed(1)}m</td>
-                    <td>${platte.masze.map(m => `${m.toFixed(2)}m (netto: ${(m - toleranz).toFixed(3)}m)`).join(', ')}</td>
-                    <td style="font-weight: bold; color: ${verschnittColor};">${platte.verschnitt.toFixed(2)}m</td>
+                    <td>${platte.masze.map(m => `${m.toFixed(2)}m`).join(', ')}</td>
+                    <td style="font-weight: bold; color: #28a745;">${platte.verschnitt.toFixed(3)}m</td>
                     <td style="text-align: center;">${anzahlSchnitte}</td>
-                    <td style="font-size: 12px; color: #28a745; font-style: italic;">${platte.optimierungsvorschlag || '—'}</td>
                 `;
                 tbody.appendChild(row);
             });
             
             document.getElementById('results').style.display = 'block';
-            
-            // Smooth scroll zu den Ergebnissen
-            document.getElementById('results').scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-            });
-            
-            // Track successful calculation
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'calculation_completed', {
-                    'event_category': 'verschnitt_optimierung',
-                    'event_label': `${optimierung.length}_platten_${effizienz.toFixed(0)}_prozent_effizienz`
-                });
-            }
-        }
-
-        function druckeSaegeplan() {
-            if (aktuelleOptimierung.length === 0) {
-                alert('❌ Bitte führen Sie zuerst eine Optimierung durch!');
-                return;
-            }
-            
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'print_saegeplan', {
-                    'event_category': 'verschnitt_optimierung',
-                    'event_label': 'print_initiated'
-                });
-            }
-            
-            const printContent = erstelleDruckHTML();
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(printContent);
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => printWindow.print(), 500);
-        }
-
-        function exportText() {
-            if (aktuelleOptimierung.length === 0) {
-                alert('❌ Bitte führen Sie zuerst eine Optimierung durch!');
-                return;
-            }
-            
-            const gesamtVerschnitt = aktuelleOptimierung.reduce((sum, p) => sum + p.verschnitt, 0);
-            const gesamtMaterial = aktuelleOptimierung.reduce((sum, p) => sum + p.lagerlaenge, 0);
-            const nutzenMaterial = gesamtMaterial - gesamtVerschnitt;
-            const gesamtSchnitte = aktuelleOptimierung.reduce((sum, p) => sum + p.anzahlSchnitte, 0);
-            const effizienz = ((nutzenMaterial) / gesamtMaterial * 100);
-            
-            let text = 'SÄGEPLAN - VERSCHNITT-OPTIMIERUNG\n';
-            text += '='.repeat(60) + '\n';
-            text += `Erstellt: ${new Date().toLocaleDateString('de-DE')} um ${new Date().toLocaleTimeString('de-DE')}\n\n`;
-            
-            text += 'ZUSAMMENFASSUNG:\n';
-            text += '-'.repeat(20) + '\n';
-            text += `Benötigte Platten: ${aktuelleOptimierung.length} Stück\n`;
-            text += `Gesamtmaterial: ${gesamtMaterial.toFixed(2)}m\n`;
-            text += `Nutzen: ${nutzenMaterial.toFixed(2)}m\n`;
-            text += `Verschnitt: ${gesamtVerschnitt.toFixed(2)}m\n`;
-            text += `Anzahl Schnitte: ${gesamtSchnitte}\n`;
-            text += `Materialeffizienz: ${effizienz.toFixed(1)}%\n\n`;
-            
-            text += 'DETAILLIERTER SÄGEPLAN:\n';
-            text += '-'.repeat(30) + '\n';
-            
-            aktuelleOptimierung.forEach(platte => {
-                text += `\nPlatte ${platte.plattenNr} (${platte.lagerlaenge}m Lagerlänge):\n`;
-                text += `  Zu sägen: ${platte.masze.map(m => m.toFixed(2) + 'm').join(', ')}\n`;
-                text += `  Verschnitt: ${platte.verschnitt.toFixed(2)}m\n`;
-                text += `  Anzahl Schnitte: ${platte.anzahlSchnitte}\n`;
-                if (platte.optimierungsvorschlag) {
-                    text += `  Tipp: ${platte.optimierungsvorschlag}\n`;
-                }
-            });
-            
-            text += '\n' + '='.repeat(60) + '\n';
-            text += 'Erstellt mit: Trapezplattenrechner\n';
-            text += 'Web: trapezplattenrechner.de\n';
-            
-            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `Saegeplan_${new Date().toISOString().slice(0,10)}.txt`;
-            link.click();
-            
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'export_text', {
-                    'event_category': 'verschnitt_optimierung',
-                    'event_label': 'text_export'
-                });
-            }
-        }
-
-        function neueOptimierung() {
-            document.getElementById('results').style.display = 'none';
-            aktuelleOptimierung = [];
-            document.getElementById('benoetigte-masze').focus();
-            
-            // Scroll nach oben
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function erstelleDruckHTML() {
-            const gesamtVerschnitt = aktuelleOptimierung.reduce((sum, p) => sum + p.verschnitt, 0);
-            const gesamtMaterial = aktuelleOptimierung.reduce((sum, p) => sum + p.lagerlaenge, 0);
-            const nutzenMaterial = gesamtMaterial - gesamtVerschnitt;
-            const effizienz = ((nutzenMaterial) / gesamtMaterial * 100);
-            
-            return `
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <title>Sägeplan - Verschnitt-Optimierung</title>
-    <meta charset="UTF-8">
-    <style>
-        @page { margin: 15mm; size: A4 portrait; }
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 0;
-            font-size: 11pt;
-            line-height: 1.4;
-            color: #333;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 25px;
-            border-bottom: 3px solid #1e3c72;
-            padding-bottom: 15px;
-        }
-        .header h1 {
-            color: #1e3c72;
-            margin: 0 0 10px 0;
-            font-size: 24pt;
-        }
-        .summary {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            border-left: 5px solid #1e3c72;
-        }
-        .summary h3 {
-            margin: 0 0 15px 0;
-            color: #1e3c72;
-        }
-        .summary-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 10pt;
-        }
-        th, td {
-            border: 1px solid #333;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background: #1e3c72;
-            color: white;
-            font-weight: bold;
-        }
-        tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px solid #ddd;
-            color: #666;
-            font-size: 9pt;
-        }
-        .page-break {
-            page-break-before: always;
-        }
-        .effizienz-hoch { color: #28a745; font-weight: bold; }
-        .effizienz-mittel { color: #ffc107; font-weight: bold; }
-        .effizienz-niedrig { color: #dc3545; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Sägeplan - Verschnitt-Optimierung</h1>
-        <p style="color: #666; font-size: 12pt;">Erstellt: ${new Date().toLocaleDateString('de-DE')} um ${new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'})}</p>
-    </div>
-    
-    <div class="summary">
-        <h3>📊 Optimierungsergebnisse</h3>
-        <div class="summary-grid">
-            <div>
-                <p><strong>Benötigte Platten:</strong> ${aktuelleOptimierung.length} Stück</p>
-                <p><strong>Gesamtmaterial:</strong> ${gesamtMaterial.toFixed(2)} m</p>
-                <p><strong>Nutzen:</strong> ${nutzenMaterial.toFixed(2)} m</p>
-            </div>
-            <div>
-                <p><strong>Verschnitt:</strong> ${gesamtVerschnitt.toFixed(2)} m</p>
-                <p><strong>Anzahl Schnitte:</strong> ${aktuelleOptimierung.reduce((sum, p) => sum + p.anzahlSchnitte, 0)}</p>
-                <p class="${effizienz >= 90 ? 'effizienz-hoch' : effizienz >= 80 ? 'effizienz-mittel' : 'effizienz-niedrig'}"><strong>Effizienz:</strong> ${effizienz.toFixed(1)}%</p>
-            </div>
-        </div>
-    </div>
-
-    <h3 style="color: #1e3c72; margin-bottom: 15px;">🪚 Detaillierter Sägeplan</h3>
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 10%;">Platte Nr.</th>
-                <th style="width: 15%;">Lagerlänge</th>
-                <th style="width: 35%;">Zu sägende Längen</th>
-                <th style="width: 15%;">Verschnitt</th>
-                <th style="width: 10%;">Schnitte</th>
-                <th style="width: 15%;">Hinweis</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${aktuelleOptimierung.map((platte, index) => {
-                const verschnittClass = platte.verschnitt <= 0.05 ? 'effizienz-hoch' : 
-                                       platte.verschnitt <= 0.2 ? 'effizienz-mittel' : 'effizienz-niedrig';
-                const pageBreak = index > 0 && index % 25 === 0 ? 'class="page-break"' : '';
-                
-                return `
-                <tr ${pageBreak}>
-                    <td style="text-align: center; font-weight: bold;">P${platte.plattenNr}</td>
-                    <td style="text-align: center; font-weight: bold;">${platte.lagerlaenge.toFixed(1)}m</td>
-                    <td>${platte.masze.map(m => m.toFixed(2) + 'm').join(', ')}</td>
-                    <td style="text-align: center;" class="${verschnittClass}">${platte.verschnitt.toFixed(2)}m</td>
-                    <td style="text-align: center;">${platte.anzahlSchnitte}</td>
-                    <td style="font-size: 9pt; font-style: italic;">${platte.optimierungsvorschlag || '—'}</td>
-                </tr>`;
-            }).join('')}
-        </tbody>
-    </table>
-    
-    <div class="footer">
-        <p><strong>Erstellt mit:</strong> Trapezplattenrechner | <strong>Web:</strong> trapezplattenrechner.de</p>
-        <p style="font-size: 8pt; margin-top: 10px;">
-            Alle Berechnungen ohne Gewähr. Bitte prüfen Sie die Maße vor dem Sägen.
-        </p>
-    </div>
-</body>
-</html>`;
         }
 
         // Beispieldaten beim Laden setzen
         document.addEventListener('DOMContentLoaded', function() {
-            // Ihr Beispiel: 100x0.3m mit 3,1m und 6m Platten
-            document.getElementById('benoetigte-masze').value = `100x0.3`;
-            
-            // Alle Checkboxen deaktivieren
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(cb => cb.checked = false);
-            
-            // Nur 3,1m und 6m aktivieren
-            document.getElementById('lager-3.1').checked = true;
-            document.getElementById('lager-6.0').checked = true;
+            document.getElementById('benoetigte-masze').value = '100x0.3';
         });
     </script>
 </body>
