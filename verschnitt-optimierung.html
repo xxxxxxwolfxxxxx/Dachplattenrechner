@@ -328,11 +328,10 @@
                     
                     if (kombination.length === 0) continue;
                     
-                    // KORRIGIERTE BERECHNUNG
-                    const genutztesMateria = kombination.reduce((sum, mass) => sum + mass, 0); // Originallängen
+                    // KORRIGIERTE BERECHNUNG: Toleranz wird ABGEZOGEN
+                    const benoetigtesMateria = kombination.reduce((sum, mass) => sum + (mass - toleranz), 0); // Material MINUS Toleranz
                     const benoetigteSchnitte = kombination.length > 1 ? (kombination.length - 1) * schnittblattBreite : 0;
-                    const gesamtToleranz = kombination.length * toleranz; // Toleranz pro Teil
-                    const verschnitt = lager.laenge - genutztesMateria - benoetigteSchnitte - gesamtToleranz;
+                    const verschnitt = lager.laenge - benoetigtesMateria - benoetigteSchnitte;
                     
                     // Prüfe ob überhaupt machbar
                     if (verschnitt < 0) continue;
@@ -366,10 +365,9 @@
                 }
                 
                 // Berechne finalen Verschnitt
-                const genutztesMateria = besteKombination.reduce((sum, mass) => sum + mass, 0);
+                const benoetigtesMateria = besteKombination.reduce((sum, mass) => sum + (mass - toleranz), 0);
                 const benoetigteSchnitte = besteKombination.length > 1 ? (besteKombination.length - 1) * schnittblattBreite : 0;
-                const gesamtToleranz = besteKombination.length * toleranz;
-                const verschnitt = bestePlatte.laenge - genutztesMateria - benoetigteSchnitte - gesamtToleranz;
+                const verschnitt = bestePlatte.laenge - benoetigtesMateria - benoetigteSchnitte;
                 
                 // Optimierungsvorschlag für kleinen Verschnitt
                 let vorschlag = '';
@@ -412,9 +410,11 @@
             const sortierteMasze = [...masze].sort((a, b) => b - a);
             
             for (let mass of sortierteMasze) {
-                const benoetigterPlatz = mass + toleranz + (kombination.length > 0 ? schnittblattBreite : 0);
+                // KORRIGIERT: Benötigter Platz = (Mass - Toleranz) + Schnittblatt
+                const materialOhneToleran = mass - toleranz; // Kürzeres Stück ist OK
+                const benoetigterPlatz = materialOhneToleran + (kombination.length > 0 ? schnittblattBreite : 0);
                 
-                if (verbleibendelaenge >= benoetigterPlatz) {
+                if (verbleibendelaenge >= benoetigterPlatz && materialOhneToleran > 0) {
                     kombination.push(mass);
                     verbleibendelaenge -= benoetigterPlatz;
                 }
