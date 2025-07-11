@@ -239,17 +239,7 @@
                 </div>
             </div>
 
-            <!-- Druckbare Version (versteckt) -->
-            <div id="druck-content" style="display: none;">
-                <div style="font-family: Arial, sans-serif;">
-                    <div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">
-                        <h2 style="color: #1e3c72; margin-bottom: 10px;">Sägeplan - Verschnitt-Optimierung</h2>
-                        <div id="druck-zusammenfassung" style="color: #666; font-size: 1.1em;"></div>
-                    </div>
-                    <div id="druck-tabelle"></div>
-                    <div id="druck-optimierungstipp"></div>
-                </div>
-            </div>
+            <!-- Druckbare Version (versteckt) - NICHT MEHR BENÖTIGT -->
         </main>
     </div>
 
@@ -270,29 +260,115 @@
                 });
             }
             
-            // Zusammenfassung für Druckversion
+            // Erstelle druckbaren Inhalt
             const gesamtVerschnitt = aktuelleOptimierung.reduce((sum, p) => sum + p.verschnitt, 0);
             const gesamtMaterial = aktuelleOptimierung.reduce((sum, p) => sum + p.lagerlaenge, 0);
             const effizienz = document.getElementById('effizienz').textContent;
             const gesamtSchnitte = document.getElementById('gesamt-schnitte').textContent;
             
-            document.getElementById('druck-zusammenfassung').innerHTML = 
-                `Platten: ${aktuelleOptimierung.length} Stück | Material: ${gesamtMaterial.toFixed(2)}m | ` +
-                `Verschnitt: ${gesamtVerschnitt.toFixed(2)}m | Effizienz: ${effizienz} | Schnitte: ${gesamtSchnitte}`;
+            let druckHTML = `
+                <div style="font-family: Arial, sans-serif; padding: 20px;">
+                    <div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">
+                        <h2 style="color: #1e3c72; margin-bottom: 10px;">Sägeplan - Verschnitt-Optimierung</h2>
+                        <p style="color: #666; font-size: 1.1em;">
+                            Platten: ${aktuelleOptimierung.length} Stück | Material: ${gesamtMaterial.toFixed(2)}m | 
+                            Verschnitt: ${gesamtVerschnitt.toFixed(2)}m | Effizienz: ${effizienz} | Schnitte: ${gesamtSchnitte}
+                        </p>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="background: #f0f0f0;">
+                                <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold;">Platte Nr.</th>
+                                <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold;">Lagerlänge</th>
+                                <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold;">Zu sägende Längen</th>
+                                <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold;">Verschnitt</th>
+                                <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold;">Anzahl Schnitte</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
             
-            // Tabelle klonen
-            const originalTabelle = document.querySelector('#saegeplan .schnitt-table');
-            document.getElementById('druck-tabelle').innerHTML = originalTabelle.outerHTML;
+            // Tabellendaten hinzufügen
+            aktuelleOptimierung.forEach(platte => {
+                let anzahlSchnitte = platte.anzahlSchnitte;
+                if (platte.verschnitt > 0.001) {
+                    anzahlSchnitte += 1;
+                }
+                
+                druckHTML += `
+                    <tr>
+                        <td style="border: 1px solid #333; padding: 8px; text-align: center;"><strong>P${platte.plattenNr}</strong></td>
+                        <td style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold; color: #1e3c72;">${platte.lagerlaenge.toFixed(1)}m</td>
+                        <td style="border: 1px solid #333; padding: 8px; text-align: center;">${platte.masze.map(m => `${m.toFixed(2)}m`).join(', ')}</td>
+                        <td style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold; color: #28a745;">${platte.verschnitt.toFixed(3)}m</td>
+                        <td style="border: 1px solid #333; padding: 8px; text-align: center;">${anzahlSchnitte}</td>
+                    </tr>`;
+            });
             
-            // Optimierungstipp klonen
+            druckHTML += `</tbody></table>`;
+            
+            // Optimierungstipp hinzufügen falls vorhanden
             const optimierungElement = document.getElementById('verschnitt-optimierung');
-            if (optimierungElement.style.display !== 'none') {
-                document.getElementById('druck-optimierungstipp').innerHTML = optimierungElement.outerHTML;
-            } else {
-                document.getElementById('druck-optimierungstipp').innerHTML = '';
+            if (optimierungElement && optimierungElement.style.display !== 'none') {
+                const toleranz = parseFloat(document.getElementById('toleranz').value) / 1000;
+                let verschnittOptimierungsTipp = '';
+                
+                aktuelleOptimierung.forEach(platte => {
+                    if (platte.verschnitt > 0.001) {
+                        const zusaetzlicheLaengeProTeil = platte.verschnitt / platte.masze.length * 1000;
+                        const aktuelleToleranz = toleranz * 1000;
+                        
+                        if (zusaetzlicheLaengeProTeil <= aktuelleToleranz) {
+                            const neueSchnittlaenge = (platte.masze[0] - toleranz + platte.verschnitt / platte.masze.length) * 1000;
+                            const originalSchnittlaenge = (platte.masze[0] - toleranz) * 1000;
+                            
+                            verschnittOptimierungsTipp += `<strong>Platte ${platte.plattenNr}:</strong> Statt ${originalSchnittlaenge.toFixed(1)}mm → <strong>${neueSchnittlaenge.toFixed(1)}mm</strong> schneiden (${zusaetzlicheLaengeProTeil.toFixed(1)}mm länger pro Teil)<br>`;
+                            verschnittOptimierungsTipp += `→ <strong>Kein Verschnitt</strong> + <strong>1 Schnitt gespart</strong> (Verschnitt-Abtrennung entfällt)<br><br>`;
+                        }
+                    }
+                });
+                
+                if (verschnittOptimierungsTipp) {
+                    druckHTML += `
+                        <div style="background: #fffbf0; border: 2px solid #ffc107; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                            <h4 style="color: #856404; margin-bottom: 15px;">💡 Verschnitt-Optimierungstipp</h4>
+                            <div>${verschnittOptimierungsTipp}</div>
+                            <strong>💰 Vorteile:</strong><br>
+                            • Kein Materialverschnitt<br>
+                            • Weniger Sägeschnitte (spart Zeit)<br>
+                            • Teile sind noch innerhalb der Toleranz<br>
+                            <em>💡 Längere Teile sind oft sogar besser als zu kurze!</em>
+                        </div>`;
+                }
             }
             
-            window.print();
+            druckHTML += `</div>`;
+            
+            // Neues Fenster öffnen und drucken
+            const druckFenster = window.open('', '_blank');
+            druckFenster.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Sägeplan - Verschnitt-Optimierung</title>
+                    <style>
+                        @media print {
+                            body { margin: 15mm; }
+                            table { page-break-inside: avoid; }
+                            div { page-break-inside: avoid; }
+                        }
+                        body { font-family: Arial, sans-serif; font-size: 11pt; }
+                    </style>
+                </head>
+                <body>
+                    ${druckHTML}
+                </body>
+                </html>
+            `);
+            druckFenster.document.close();
+            druckFenster.focus();
+            druckFenster.print();
+            druckFenster.close();
         }
 
         function berechneOptimierung() {
@@ -664,70 +740,5 @@
         }
 
     </script>
-    
-    <style>
-        /* Spezielle Print-Styles für Verschnitt-Optimierung */
-        @media print {
-            /* Verstecke alle Elemente außer dem Druckinhalt */
-            body * {
-                visibility: hidden;
-            }
-            
-            #druck-content,
-            #druck-content * {
-                visibility: visible;
-            }
-            
-            #druck-content {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                background: white !important;
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
-            }
-            
-            /* Tabellen-Optimierung für Druck */
-            .schnitt-table {
-                width: 100% !important;
-                border-collapse: collapse !important;
-                font-size: 11pt !important;
-                margin-bottom: 20px !important;
-            }
-            
-            .schnitt-table th,
-            .schnitt-table td {
-                border: 1px solid #333 !important;
-                padding: 8px !important;
-                text-align: center !important;
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
-            }
-            
-            .schnitt-table th {
-                background: #f0f0f0 !important;
-                font-weight: bold !important;
-                color: #000 !important;
-            }
-            
-            /* Optimierungstipp für Druck */
-            #druck-optimierungstipp > div {
-                background: #fffbf0 !important;
-                border: 2px solid #ffc107 !important;
-                padding: 15px !important;
-                border-radius: 8px !important;
-                margin-top: 20px !important;
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
-            }
-            
-            /* Seitenumbruch vermeiden */
-            .schnitt-table,
-            #druck-optimierungstipp {
-                page-break-inside: avoid !important;
-            }
-        }
-    </style>
 </body>
 </html>
