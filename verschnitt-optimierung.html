@@ -662,14 +662,37 @@
             
             const gesamtVerschnitt = optimierung.reduce((sum, p) => sum + p.verschnitt, 0);
             const gesamtMaterial = optimierung.reduce((sum, p) => sum + p.lagerlaenge, 0);
-            const nutzenMaterial = gesamtMaterial - gesamtVerschnitt;
-            const gesamtSchnitte = optimierung.reduce((sum, p) => sum + p.anzahlSchnitte, 0);
-            const effizienz = gesamtMaterial > 0 ? ((nutzenMaterial) / gesamtMaterial * 100) : 0;
+            
+            // KORRIGIERT: Tatsächlich benötigtes Material = Netto-Material (mit abgezogener Toleranz)
+            const toleranz = parseFloat(document.getElementById('toleranz').value) / 1000;
+            const schnittblattBreite = parseFloat(document.getElementById('schnittblatt-breite').value) / 1000;
+            
+            let tatsaechlichBenoetigtesMaterial = 0;
+            let gesamtSchnitte = 0;
+            
+            optimierung.forEach(platte => {
+                // Netto-Material: Original-Längen minus Toleranz
+                const nettoMaterialPlatte = platte.masze.reduce((sum, mass) => sum + (mass - toleranz), 0);
+                tatsaechlichBenoetigtesMaterial += nettoMaterialPlatte;
+                
+                // Schnittblatt-Verluste
+                const schnittblattVerluste = platte.anzahlSchnitte * schnittblattBreite;
+                tatsaechlichBenoetigtesMaterial += schnittblattVerluste;
+                
+                // KORRIGIERT: Verschnitt-Schnitt hinzufügen (wenn Verschnitt > 1mm)
+                let schnittePlatten = platte.anzahlSchnitte;
+                if (platte.verschnitt > 0.001) { // Verschnitt > 1mm wird abgeschnitten
+                    schnittePlatten += 1;
+                }
+                gesamtSchnitte += schnittePlatten;
+            });
+            
+            const effizienz = gesamtMaterial > 0 ? (tatsaechlichBenoetigtesMaterial / gesamtMaterial * 100) : 0;
             
             // Ergebnisse anzeigen
             document.getElementById('lager-anzahl').textContent = optimierung.length + ' Stück';
             document.getElementById('gesamt-material').textContent = gesamtMaterial.toFixed(2) + ' m';
-            document.getElementById('nutzen-material').textContent = nutzenMaterial.toFixed(2) + ' m';
+            document.getElementById('nutzen-material').textContent = tatsaechlichBenoetigtesMaterial.toFixed(2) + ' m';
             document.getElementById('gesamt-verschnitt').textContent = gesamtVerschnitt.toFixed(2) + ' m';
             document.getElementById('gesamt-schnitte').textContent = gesamtSchnitte + ' Stück';
             document.getElementById('effizienz').textContent = effizienz.toFixed(1) + '%';
@@ -699,6 +722,12 @@
             optimierung.forEach(platte => {
                 const row = document.createElement('tr');
                 
+                // KORRIGIERT: Verschnitt-Schnitt hinzufügen
+                let anzahlSchnitte = platte.anzahlSchnitte;
+                if (platte.verschnitt > 0.001) { // Verschnitt > 1mm wird abgeschnitten
+                    anzahlSchnitte += 1;
+                }
+                
                 // Farbkodierung für Verschnitt
                 let verschnittColor = '#28a745'; // Grün für wenig Verschnitt
                 if (platte.verschnitt > 0.1) verschnittColor = '#ffc107'; // Gelb für mittleren Verschnitt
@@ -707,9 +736,9 @@
                 row.innerHTML = `
                     <td><strong>P${platte.plattenNr}</strong></td>
                     <td style="font-weight: bold; color: #1e3c72;">${platte.lagerlaenge.toFixed(1)}m</td>
-                    <td>${platte.masze.map(m => m.toFixed(2) + 'm').join(', ')}</td>
+                    <td>${platte.masze.map(m => `${m.toFixed(2)}m (netto: ${(m - toleranz).toFixed(3)}m)`).join(', ')}</td>
                     <td style="font-weight: bold; color: ${verschnittColor};">${platte.verschnitt.toFixed(2)}m</td>
-                    <td style="text-align: center;">${platte.anzahlSchnitte}</td>
+                    <td style="text-align: center;">${anzahlSchnitte}</td>
                     <td style="font-size: 12px; color: #28a745; font-style: italic;">${platte.optimierungsvorschlag || '—'}</td>
                 `;
                 tbody.appendChild(row);
