@@ -28,7 +28,7 @@
 
     <link rel="stylesheet" href="style.css">
     
-    <!-- Print-spezifische CSS-Korrekturen -->
+    <!-- Einfache Print CSS -->
     <style>
         /* Lager-Container Styles */
         .lager-container {
@@ -99,138 +99,6 @@
             .lager-grid {
                 flex-direction: column;
                 gap: 10px;
-            }
-        }
-        
-        @media print {
-            /* Grundlegende Druckeinstellungen */
-            @page {
-                margin: 15mm;
-                size: A4 portrait;
-            }
-            
-            * {
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
-            }
-            
-            /* Body und Container mit hoher Spezifität */
-            body.body {
-                background: white !important;
-                color: black !important;
-                font-size: 10pt !important;
-                line-height: 1.3 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            /* Verstecke alles außer dem Sägeplan mit hoher Spezifität */
-            body .nav-header,
-            body header,
-            body footer,
-            body .cookie-banner,
-            body .modal,
-            body .section,
-            body .calculate-btn,
-            body main > h1,
-            body main > div:not(#detailsaegeplan) {
-                display: none !important;
-                visibility: hidden !important;
-            }
-            
-            /* Container mit hoher Spezifität */
-            body .container {
-                max-width: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                background: white !important;
-                box-shadow: none !important;
-                border-radius: 0 !important;
-                width: 100% !important;
-            }
-            
-            /* Sägeplan sichtbar machen mit hoher Spezifität */
-            body #detailsaegeplan {
-                display: block !important;
-                visibility: visible !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
-                box-shadow: none !important;
-                background: white !important;
-                color: black !important;
-            }
-            
-            body #saegeplan-content {
-                display: block !important;
-                visibility: visible !important;
-                color: black !important;
-            }
-            
-            body #saegeplan-content * {
-                color: black !important;
-                background: white !important;
-            }
-            
-            /* Buttons verstecken mit hoher Spezifität */
-            body button,
-            body .btn {
-                display: none !important;
-                visibility: hidden !important;
-            }
-            
-            /* Tabellen optimieren mit hoher Spezifität */
-            body table {
-                width: 100% !important;
-                border-collapse: collapse !important;
-                font-size: 9pt !important;
-                margin: 10px 0 !important;
-                color: black !important;
-                background: white !important;
-            }
-            
-            body table th,
-            body table td {
-                padding: 4px 6px !important;
-                border: 1px solid #333 !important;
-                font-size: 9pt !important;
-                page-break-inside: avoid !important;
-                color: black !important;
-                background: white !important;
-            }
-            
-            body table thead {
-                display: table-header-group !important;
-            }
-            
-            body table th {
-                background: #1e3c72 !important;
-                color: white !important;
-            }
-            
-            /* Grid für Zusammenfassung mit hoher Spezifität */
-            body div[style*="grid-template-columns"] {
-                display: grid !important;
-                color: black !important;
-            }
-            
-            /* Überschriften mit hoher Spezifität */
-            body h1, 
-            body h2, 
-            body h3, 
-            body h4 {
-                page-break-after: avoid !important;
-                margin: 10px 0 5px 0 !important;
-                color: black !important;
-                background: white !important;
-            }
-            
-            /* Text-Elemente mit hoher Spezifität */
-            body p,
-            body div,
-            body span {
-                color: black !important;
-                background: white !important;
             }
         }
     </style>
@@ -440,18 +308,14 @@
                     <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
                         <strong>Hinweis:</strong> Schnittblattbreite ist bereits berücksichtigt
                     </div>
-                    <button class="anriss-btn" onclick="druckeSaegeplanInNeuemFenster()">🖨️ Drucken</button>
+                    
+                    <!-- Einfache Druck/Export Buttons -->
+                    <div style="margin-top: 20px; text-align: center; gap: 15px; display: flex; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="druckeSaegeplan()">🖨️ Als PDF drucken</button>
+                        <button class="btn btn-success" onclick="exportAlsText()">📄 Als Text exportieren</button>
+                        <button class="btn btn-secondary" onclick="kopiereInZwischenablage()">📋 In Zwischenablage kopieren</button>
+                    </div>
                 </div>
-            </div>
-
-            <div id="detailsaegeplan" class="anrissplan" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h4 style="color: #1e3c72; font-size: 1.4em;">🪚 Detaillierter Sägeplan zum Ausdrucken</h4>
-                    <button onclick="druckeSaegeplanInNeuemFenster()" class="btn btn-primary">
-                        🖨️ Drucken
-                    </button>
-                </div>
-                <div id="saegeplan-content"></div>
             </div>
         </main>
     </div>
@@ -825,11 +689,11 @@
         }
 
         function generiereOptimierungsVisualisierung(optimierung) {
-            const svgWidth = 700; // Reduziert für besseren Druck
-            const svgHeight = Math.max(250, optimierung.length * 40 + 80); // Kompakter
-            const margin = 30; // Kleinerer Margin
-            const plattenHeight = 35; // Kleinere Plattenhöhe
-            const plattenSpacing = 8; // Weniger Abstand
+            const svgWidth = 700;
+            const svgHeight = Math.max(250, optimierung.length * 40 + 80);
+            const margin = 30;
+            const plattenHeight = 35;
+            const plattenSpacing = 8;
             
             // Finde maximale Lagerlänge für Skalierung
             const maxLaenge = Math.max(...optimierung.map(p => p.lagerlaenge));
@@ -898,7 +762,7 @@
             const scaleY = margin + 25 + optimierung.length * (plattenHeight + plattenSpacing) + 15;
             svg += `<line x1="${margin}" y1="${scaleY}" x2="${margin + maxLaenge * scale}" y2="${scaleY}" stroke="#666" stroke-width="1"/>`;
             
-            // Skala-Markierungen (weniger, um Platz zu sparen)
+            // Skala-Markierungen
             for (let i = 0; i <= Math.ceil(maxLaenge); i += 1) {
                 const x = margin + i * scale;
                 svg += `<line x1="${x}" y1="${scaleY - 3}" x2="${x}" y2="${scaleY + 3}" stroke="#666" stroke-width="1"/>`;
@@ -910,185 +774,255 @@
             document.getElementById('optimierungs-svg').innerHTML = svg;
         }
 
-        function erstelleSaegeplan() {
-            if (aktuelleOptimierung.length === 0) return;
-            
-            // Track sägeplan generation
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'saegeplan_generated', {
-                    'event_category': 'verschnitt_optimierung',
-                    'event_label': 'detail_plan_created'
-                });
-            }
-            
-            const schnittblattBreite = parseFloat(document.getElementById('schnittblatt-breite').value);
-            const toleranz = parseFloat(document.getElementById('toleranz').value);
-            const optimierungsModus = document.getElementById('optimierung-modus').value;
-            
-            // Zusammenfassung berechnen
-            const gesamtVerschnitt = aktuelleOptimierung.reduce((sum, platte) => sum + platte.verschnitt, 0);
-            const gesamtSchnitte = aktuelleOptimierung.reduce((sum, platte) => sum + platte.anzahlSchnitte, 0);
-            const gesamtMaterial = aktuelleOptimierung.reduce((sum, platte) => sum + platte.lagerlaenge, 0);
-            const gesamtNutzen = gesamtMaterial - gesamtVerschnitt;
-            const effizienz = gesamtMaterial > 0 ? (gesamtNutzen / gesamtMaterial * 100) : 0;
-            
-            let html = `<div style="font-family: Arial, sans-serif; max-width: 210mm; margin: 0 auto;">`;
-            
-            // Kompakter Header
-            html += `<div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1e3c72; padding-bottom: 10px;">`;
-            html += `<h2 style="color: #1e3c72; margin: 0 0 8px 0; font-size: 1.5em;">Sägeplan - Verschnitt-Optimierung</h2>`;
-            html += `<div style="color: #666; font-size: 0.9em;">`;
-            html += `${optimierungsModus === 'verschnitt' ? 'Minimaler Verschnitt' : 'Wenigste Schnitte'} | `;
-            html += `Schnittblatt: ${schnittblattBreite}mm | Toleranz: ${toleranz}mm`;
-            html += `</div>`;
-            html += `</div>`;
-            
-            // Kompakte Zusammenfassung
-            html += `<div class="grid-summary">`;
-            html += `<div class="grid-item"><strong>Material:</strong><br>${gesamtMaterial.toFixed(1)}m</div>`;
-            html += `<div class="grid-item"><strong>Verschnitt:</strong><br>${gesamtVerschnitt.toFixed(2)}m</div>`;
-            html += `<div class="grid-item"><strong>Effizienz:</strong><br>${effizienz.toFixed(1)}%</div>`;
-            html += `</div>`;
-            
-            // Kompakte Haupttabelle
-            html += `<table style="width: 100%; border-collapse: collapse; font-size: 11pt; margin-bottom: 20px;">`;
-            html += `<thead style="background: #1e3c72; color: white;">`;
-            html += `<tr>`;
-            html += `<th style="border: 1px solid #333; padding: 8px; text-align: center;">Platte</th>`;
-            html += `<th style="border: 1px solid #333; padding: 8px; text-align: center;">Lagerlänge</th>`;
-            html += `<th style="border: 1px solid #333; padding: 8px; text-align: left;">Sägeschnitte (cm)</th>`;
-            html += `<th style="border: 1px solid #333; padding: 8px; text-align: left;">Ergebnis (m)</th>`;
-            html += `<th style="border: 1px solid #333; padding: 8px; text-align: center;">Verschnitt</th>`;
-            html += `</tr>`;
-            html += `</thead>`;
-            html += `<tbody>`;
-            
-            const schnittblattBreiteM = schnittblattBreite / 1000;
-            
-            aktuelleOptimierung.forEach((platte, index) => {
-                // Schnittpositionem berechnen
-                let position = 0;
-                const schnittPositionen = [];
-                
-                platte.masze.forEach((mass, massIndex) => {
-                    if (massIndex > 0) {
-                        position += schnittblattBreiteM;
-                        schnittPositionen.push((position * 100).toFixed(1));
-                    }
-                    position += mass;
-                });
-                
-                const schnittText = schnittPositionen.length > 0 ? schnittPositionen.join('cm, ') + 'cm' : 'Keine Schnitte';
-                const ergebnisText = platte.masze.map(m => m.toFixed(2)).join('m, ') + 'm';
-                
-                html += `<tr style="${index % 2 === 0 ? 'background: #f9f9f9;' : 'background: white;'}">`;
-                html += `<td style="border: 1px solid #ddd; padding: 6px; text-align: center; font-weight: bold;">P${index + 1}</td>`;
-                html += `<td style="border: 1px solid #ddd; padding: 6px; text-align: center; font-weight: bold; color: #1e3c72;">${platte.lagerlaenge.toFixed(1)}m</td>`;
-                html += `<td style="border: 1px solid #ddd; padding: 6px; color: #dc3545; font-weight: bold;">${schnittText}</td>`;
-                html += `<td style="border: 1px solid #ddd; padding: 6px; color: #28a745; font-weight: bold;">${ergebnisText}</td>`;
-                html += `<td style="border: 1px solid #ddd; padding: 6px; text-align: center; color: #dc3545;">${platte.verschnitt.toFixed(2)}m</td>`;
-                html += `</tr>`;
-            });
-            
-            html += `</tbody>`;
-            html += `</table>`;
-            
-            // Legende
-            html += `<div class="work-instructions">`;
-            html += `<h4 style="margin: 0 0 10px 0; color: #1e3c72;">📋 Arbeitsanleitung:</h4>`;
-            html += `<div style="font-size: 0.9em; line-height: 1.5;">`;
-            html += `<strong>1. Lagerplatten bereitstellen:</strong> Entsprechend der Lagerlängen-Spalte<br>`;
-            html += `<strong>2. Sägeschnitte markieren:</strong> An den angegebenen cm-Positionen von einem Ende<br>`;
-            html += `<strong>3. Sägen:</strong> Mit ${schnittblattBreite}mm Schnittblatt und ${toleranz}mm Toleranz<br>`;
-            html += `<strong>4. Kontrolle:</strong> Fertige Teile entsprechend der Ergebnis-Spalte prüfen`;
-            html += `</div>`;
-            html += `</div>`;
-            
-            // Footer mit Zusammenfassung
-            html += `<div class="footer-summary">`;
-            html += `Gesamt: ${aktuelleOptimierung.length} Lagerplatten • ${gesamtSchnitte} Sägeschnitte • ${effizienz.toFixed(1)}% Materialeffizienz`;
-            html += `</div>`;
-            
-            html += `</div>`;
-            
-            document.getElementById('saegeplan-content').innerHTML = html;
-            document.getElementById('detailsaegeplan').style.display = 'block';
-        }
+        // EINFACHE DRUCKFUNKTIONEN - Funktionieren garantiert!
 
-        // Alternative Druckfunktion in neuem Fenster
-        function druckeSaegeplanInNeuemFenster() {
+        function druckeSaegeplan() {
             if (aktuelleOptimierung.length === 0) {
                 alert('Bitte erstellen Sie zuerst einen Sägeplan!');
                 return;
             }
             
-            const content = document.getElementById('saegeplan-content').innerHTML;
-            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            const printContent = erstelleSaegeplanHTML();
+            const printWindow = window.open('', '_blank');
             
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Sägeplan - Verschnitt-Optimierung</title>
-                    <style>
-                        body { 
-                            font-family: Arial, sans-serif; 
-                            margin: 20px; 
-                            font-size: 11pt; 
-                            line-height: 1.4;
-                        }
-                        table { 
-                            width: 100%; 
-                            border-collapse: collapse; 
-                            margin: 15px 0; 
-                        }
-                        th, td { 
-                            border: 1px solid #333; 
-                            padding: 8px; 
-                            text-align: left; 
-                        }
-                        th { 
-                            background: #1e3c72; 
-                            color: white; 
-                            font-weight: bold; 
-                        }
-                        h2 { 
-                            color: #1e3c72; 
-                            border-bottom: 2px solid #1e3c72; 
-                            padding-bottom: 5px; 
-                        }
-                        .grid { 
-                            display: grid; 
-                            grid-template-columns: repeat(3, 1fr); 
-                            gap: 15px; 
-                            margin: 15px 0; 
-                        }
-                        .grid > div { 
-                            text-align: center; 
-                            padding: 10px; 
-                            background: #f8f9fa; 
-                            border-radius: 5px; 
-                        }
-                        @media print {
-                            body { margin: 0; font-size: 10pt; }
-                            table { page-break-inside: auto; }
-                            tr { page-break-inside: avoid; }
-                        }
-                    </style>
-                </head>
-                <body class="body">
-                    ${content}
-                </body>
-                </html>
-            `);
-            
+            printWindow.document.write(printContent);
             printWindow.document.close();
             printWindow.focus();
             
-            // Automatisch drucken nach kurzer Verzögerung
             setTimeout(() => {
                 printWindow.print();
             }, 500);
+        }
+
+        function exportAlsText() {
+            if (aktuelleOptimierung.length === 0) {
+                alert('Bitte erstellen Sie zuerst einen Sägeplan!');
+                return;
+            }
+            
+            const textContent = erstelleSaegeplanText();
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'Saegeplan_Verschnitt-Optimierung.txt';
+            link.click();
+        }
+
+        function kopiereInZwischenablage() {
+            if (aktuelleOptimierung.length === 0) {
+                alert('Bitte erstellen Sie zuerst einen Sägeplan!');
+                return;
+            }
+            
+            const textContent = erstelleSaegeplanText();
+            navigator.clipboard.writeText(textContent).then(() => {
+                alert('Sägeplan wurde in die Zwischenablage kopiert!');
+            }).catch(() => {
+                // Fallback für ältere Browser
+                const textarea = document.createElement('textarea');
+                textarea.value = textContent;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Sägeplan wurde in die Zwischenablage kopiert!');
+            });
+        }
+
+        function erstelleSaegeplanHTML() {
+            const schnittblattBreite = parseFloat(document.getElementById('schnittblatt-breite').value);
+            const toleranz = parseFloat(document.getElementById('toleranz').value);
+            const optimierungsModus = document.getElementById('optimierung-modus').value;
+            
+            const gesamtVerschnitt = aktuelleOptimierung.reduce((sum, platte) => sum + platte.verschnitt, 0);
+            const gesamtSchnitte = aktuelleOptimierung.reduce((sum, platte) => sum + platte.anzahlSchnitte, 0);
+            const gesamtMaterial = aktuelleOptimierung.reduce((sum, platte) => sum + platte.lagerlaenge, 0);
+            const effizienz = gesamtMaterial > 0 ? (((gesamtMaterial - gesamtVerschnitt) / gesamtMaterial) * 100) : 0;
+            
+            return `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sägeplan - Verschnitt-Optimierung</title>
+    <meta charset="utf-8">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            font-size: 12pt; 
+            line-height: 1.4;
+            color: black;
+        }
+        h1 { 
+            color: #1e3c72; 
+            border-bottom: 3px solid #1e3c72; 
+            padding-bottom: 10px; 
+            text-align: center;
+        }
+        .summary { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 20px 0; 
+            border-left: 5px solid #1e3c72;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0; 
+        }
+        th, td { 
+            border: 1px solid #333; 
+            padding: 10px; 
+            text-align: left; 
+        }
+        th { 
+            background: #1e3c72; 
+            color: white; 
+            font-weight: bold; 
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        @media print {
+            body { margin: 10mm; font-size: 10pt; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Sägeplan - Verschnitt-Optimierung</h1>
+    
+    <div class="summary">
+        <h3>Zusammenfassung</h3>
+        <p><strong>Optimierungsmodus:</strong> ${optimierungsModus === 'verschnitt' ? 'Minimaler Verschnitt' : 'Wenigste Schnitte'}</p>
+        <p><strong>Platten benötigt:</strong> ${aktuelleOptimierung.length} Stück</p>
+        <p><strong>Gesamtmaterial:</strong> ${gesamtMaterial.toFixed(2)}m</p>
+        <p><strong>Gesamtverschnitt:</strong> ${gesamtVerschnitt.toFixed(2)}m</p>
+        <p><strong>Materialeffizienz:</strong> ${effizienz.toFixed(1)}%</p>
+        <p><strong>Anzahl Sägeschnitte:</strong> ${gesamtSchnitte}</p>
+        <p><strong>Schnittblattbreite:</strong> ${schnittblattBreite}mm | <strong>Toleranz:</strong> ${toleranz}mm</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Platte Nr.</th>
+                <th>Lagerlänge</th>
+                <th>Zu sägende Längen</th>
+                <th>Verschnitt</th>
+                <th>Anzahl Schnitte</th>
+                <th>Schnittpositionen (cm von links)</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${aktuelleOptimierung.map((platte, index) => {
+                // Berechne Schnittpositionen
+                let position = 0;
+                const schnittPositionen = [];
+                const schnittblattBreiteM = schnittblattBreite / 1000;
+                
+                platte.masze.forEach((mass, massIndex) => {
+                    if (massIndex > 0) {
+                        position += schnittblattBreiteM;
+                        schnittPositionen.push((position * 100).toFixed(0));
+                    }
+                    position += mass;
+                });
+                
+                const schnittText = schnittPositionen.length > 0 ? schnittPositionen.join(', ') : 'Keine';
+                
+                return `
+                <tr>
+                    <td><strong>P${index + 1}</strong></td>
+                    <td>${platte.lagerlaenge.toFixed(1)}m</td>
+                    <td>${platte.masze.map(m => m.toFixed(2)).join(', ')}m</td>
+                    <td>${platte.verschnitt.toFixed(2)}m</td>
+                    <td>${platte.anzahlSchnitte}</td>
+                    <td>${schnittText}</td>
+                </tr>`;
+            }).join('')}
+        </tbody>
+    </table>
+
+    <div class="instructions">
+        <h3>📋 Arbeitsanleitung:</h3>
+        <ol>
+            <li><strong>Lagerplatten bereitstellen:</strong> Entsprechend der Lagerlängen-Spalte</li>
+            <li><strong>Schnittmarkierungen:</strong> An den angegebenen cm-Positionen von einem Ende markieren</li>
+            <li><strong>Sägen:</strong> Mit ${schnittblattBreite}mm Schnittblatt, ${toleranz}mm Toleranz einhalten</li>
+            <li><strong>Kontrolle:</strong> Fertige Teile entsprechend der "Zu sägende Längen" prüfen</li>
+        </ol>
+        <p><strong>Hinweis:</strong> Toleranz und Schnittblattbreite sind bereits in der Berechnung berücksichtigt.</p>
+    </div>
+    
+    <div style="margin-top: 30px; text-align: center; font-size: 10pt; color: #666;">
+        Erstellt mit Trapezplattenrechner | ${new Date().toLocaleDateString('de-DE')}
+    </div>
+</body>
+</html>`;
+        }
+
+        function erstelleSaegeplanText() {
+            const schnittblattBreite = parseFloat(document.getElementById('schnittblatt-breite').value);
+            const toleranz = parseFloat(document.getElementById('toleranz').value);
+            const optimierungsModus = document.getElementById('optimierung-modus').value;
+            
+            const gesamtVerschnitt = aktuelleOptimierung.reduce((sum, platte) => sum + platte.verschnitt, 0);
+            const gesamtSchnitte = aktuelleOptimierung.reduce((sum, platte) => sum + platte.anzahlSchnitte, 0);
+            const gesamtMaterial = aktuelleOptimierung.reduce((sum, platte) => sum + platte.lagerlaenge, 0);
+            const effizienz = gesamtMaterial > 0 ? (((gesamtMaterial - gesamtVerschnitt) / gesamtMaterial) * 100) : 0;
+            
+            let text = `SÄGEPLAN - VERSCHNITT-OPTIMIERUNG\n`;
+            text += `${'='.repeat(50)}\n\n`;
+            
+            text += `ZUSAMMENFASSUNG:\n`;
+            text += `Optimierungsmodus: ${optimierungsModus === 'verschnitt' ? 'Minimaler Verschnitt' : 'Wenigste Schnitte'}\n`;
+            text += `Platten benötigt: ${aktuelleOptimierung.length} Stück\n`;
+            text += `Gesamtmaterial: ${gesamtMaterial.toFixed(2)}m\n`;
+            text += `Gesamtverschnitt: ${gesamtVerschnitt.toFixed(2)}m\n`;
+            text += `Materialeffizienz: ${effizienz.toFixed(1)}%\n`;
+            text += `Anzahl Sägeschnitte: ${gesamtSchnitte}\n`;
+            text += `Schnittblattbreite: ${schnittblattBreite}mm | Toleranz: ${toleranz}mm\n\n`;
+            
+            text += `SÄGEPLAN:\n`;
+            text += `${'-'.repeat(80)}\n`;
+            
+            aktuelleOptimierung.forEach((platte, index) => {
+                // Berechne Schnittpositionen
+                let position = 0;
+                const schnittPositionen = [];
+                const schnittblattBreiteM = schnittblattBreite / 1000;
+                
+                platte.masze.forEach((mass, massIndex) => {
+                    if (massIndex > 0) {
+                        position += schnittblattBreiteM;
+                        schnittPositionen.push((position * 100).toFixed(0) + 'cm');
+                    }
+                    position += mass;
+                });
+                
+                text += `\nPlatte ${index + 1}:\n`;
+                text += `  Lagerlänge: ${platte.lagerlaenge.toFixed(1)}m\n`;
+                text += `  Zu sägen: ${platte.masze.map(m => m.toFixed(2) + 'm').join(', ')}\n`;
+                text += `  Schnitte bei: ${schnittPositionen.length > 0 ? schnittPositionen.join(', ') : 'Keine Schnitte'}\n`;
+                text += `  Verschnitt: ${platte.verschnitt.toFixed(2)}m\n`;
+            });
+            
+            text += `\n${'-'.repeat(80)}\n`;
+            text += `ARBEITSANLEITUNG:\n`;
+            text += `1. Lagerplatten entsprechend bereitstellen\n`;
+            text += `2. Schnittmarkierungen an den cm-Positionen setzen\n`;
+            text += `3. Mit ${schnittblattBreite}mm Schnittblatt sägen\n`;
+            text += `4. Toleranz ${toleranz}mm beachten\n`;
+            text += `5. Fertige Teile kontrollieren\n\n`;
+            
+            text += `Erstellt: ${new Date().toLocaleDateString('de-DE')} | Trapezplattenrechner\n`;
+            
+            return text;
         }
 
         // Initialisierung beim Laden der Seite
