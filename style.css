@@ -522,6 +522,41 @@ main::before {
     margin-right: auto;
 }
 
+/* KORREKTUR: Versteckte Ad-Container sollen keinen Platz einnehmen */
+#top-ad-container[style*="display: none"],
+#middle-ad-container[style*="display: none"],
+#bottom-ad-container[style*="display: none"] {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    grid-column: unset !important;
+}
+
+/* Ad-Container nur sichtbar wenn aktiv */
+#middle-ad-container {
+    display: none; /* Standard versteckt */
+    grid-column: 1 / -1;
+    text-align: center;
+    margin: 20px 0;
+}
+
+#middle-ad-container.show {
+    display: block; /* Nur anzeigen wenn explizit aktiviert */
+}
+
+#top-ad-container,
+#bottom-ad-container {
+    display: none; /* Standard versteckt */
+    text-align: center;
+    margin: 20px 0;
+}
+
+#top-ad-container.show,
+#bottom-ad-container.show {
+    display: block; /* Nur anzeigen wenn explizit aktiviert */
+}
+
 .card-icon {
     text-align: center;
     margin-bottom: 20px;
@@ -1370,6 +1405,16 @@ svg {
         grid-template-columns: 1fr;
         gap: 20px;
         min-width: 0;
+    }
+    
+    /* Versteckte Ad-Container komplett entfernen */
+    #top-ad-container,
+    #middle-ad-container,
+    #bottom-ad-container {
+        display: none !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     
     .steps-overview {
