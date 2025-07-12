@@ -581,12 +581,12 @@
                 
                 html += `<svg style="position: absolute; bottom: 25px; left: 30px;" width="310" height="${plattenhoehePx}">`;
                 
-                // KORRIGIERT: Spezielle Darstellung für Trapez-auf-Rechteck (KEINE Spitze!)
+                // KORRIGIERT: Exakt wie trapez.html - komplexe Trapez-Logik mit BEIDEN Ecken als Spitzen
                 if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
-                    // Platte mit beiden oberen Ecken - WAAGERECHTE Oberkante zwischen den Ecken
+                    // Platte mit beiden oberen Ecken
                     const linkeEckeX = (linkeObereEcke - plattenStart) / plattenBreite * 310;
                     const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 310;
-                    const oberkanteY = plattenhoehePx - (gesamtHoehe / benoetigteLaengeM * plattenhoehePx);
+                    const oberkanteY = plattenhoehePx - (gesamtHoehe / benoetigteLaengeM) * plattenhoehePx;
                     
                     // Nutzen (blau)
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${rechteEckeX},${oberkanteY} ${linkeEckeX},${oberkanteY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
@@ -596,15 +596,37 @@
                     html += `<polygon points="0,${startY} ${linkeEckeX},${oberkanteY} ${rechteEckeX},${oberkanteY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
                     html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
                     
-                    // Schnittlinien: Links schräg → waagerecht → rechts schräg
+                    // Schnittlinien
                     html += `<line x1="0" y1="${startY}" x2="${linkeEckeX}" y2="${oberkanteY}" stroke="#000" stroke-width="4"/>`;
                     html += `<line x1="${linkeEckeX}" y1="${oberkanteY}" x2="${rechteEckeX}" y2="${oberkanteY}" stroke="#000" stroke-width="4"/>`;
                     html += `<line x1="${rechteEckeX}" y1="${oberkanteY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                     
+                    // Ecken markieren
+                    html += `<circle cx="${linkeEckeX}" cy="${oberkanteY}" r="3" fill="#dc3545"/>`;
+                    html += `<circle cx="${rechteEckeX}" cy="${oberkanteY}" r="3" fill="#dc3545"/>`;
+                    
+                    // KORRIGIERTE MASSLINIEN für beide Ecken - WIE BEI TRAPEZ.HTML
+                    const spitzeVonLinksL = linkeObereEcke - plattenStart;
+                    const spitzePositionPxL = (spitzeVonLinksL / plattenBreite) * 310;
+                    const spitzeVonLinksR = rechteObereEcke - plattenStart;
+                    const spitzePositionPxR = (spitzeVonLinksR / plattenBreite) * 310;
+                    
+                    // Bemaßung zur linken Ecke
+                    html += `<div style="position: absolute; top: 8px; left: 30px; width: ${spitzePositionPxL}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; top: -8px; left: ${30 + spitzePositionPxL/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${(spitzeVonLinksL * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: 25px; font-size: 12px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${25 + spitzePositionPxL}px; font-size: 12px; color: #666;">|</div>`;
+                    
+                    // Bemaßung zur rechten Ecke
+                    html += `<div style="position: absolute; top: 20px; left: ${30 + spitzePositionPxR}px; width: ${310 - spitzePositionPxR}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; top: 4px; left: ${30 + spitzePositionPxR + (310 - spitzePositionPxR)/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${((plattenEndeReal - rechteObereEcke) * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: 10px; left: ${25 + spitzePositionPxR}px; font-size: 12px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: 10px; left: ${25 + 310}px; font-size: 12px; color: #666;">|</div>`;
+                    
                 } else if (ueberdecktLinkeEcke) {
                     // Platte mit linker oberer Ecke
                     const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 310;
-                    const oberkanteY = plattenhoehePx - (gesamtHoehe / benoetigteLaengeM * plattenhoehePx);
+                    const oberkanteY = plattenhoehePx - (gesamtHoehe / benoetigteLaengeM) * plattenhoehePx;
                     
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${eckeX},${oberkanteY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
                     html += `<polygon points="0,${startY} ${eckeX},${oberkanteY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
@@ -612,12 +634,22 @@
                     html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="${oberkanteY}" stroke="#000" stroke-width="4"/>`;
                     html += `<line x1="${eckeX}" y1="${oberkanteY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                     
-                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Übergang</text>`;
+                    html += `<circle cx="${eckeX}" cy="${oberkanteY}" r="3" fill="#dc3545"/>`;
+                    
+                    // KORRIGIERTE MASSLINIE für linke Ecke
+                    const spitzeVonLinks = linkeObereEcke - plattenStart;
+                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
+                    
+                    // Bemaßung zur Ecke
+                    html += `<div style="position: absolute; top: 8px; left: 30px; width: ${spitzePositionPx}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; top: -8px; left: ${30 + spitzePositionPx/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${(spitzeVonLinks * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: 25px; font-size: 12px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${25 + spitzePositionPx}px; font-size: 12px; color: #666;">|</div>`;
                     
                 } else if (ueberdecktRechteEcke) {
                     // Platte mit rechter oberer Ecke
                     const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 310;
-                    const oberkanteY = plattenhoehePx - (gesamtHoehe / benoetigteLaengeM * plattenhoehePx);
+                    const oberkanteY = plattenhoehePx - (gesamtHoehe / benoetigteLaengeM) * plattenhoehePx;
                     
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${eckeX},${oberkanteY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
                     html += `<polygon points="0,${startY} ${eckeX},${oberkanteY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
@@ -625,31 +657,28 @@
                     html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="${oberkanteY}" stroke="#000" stroke-width="4"/>`;
                     html += `<line x1="${eckeX}" y1="${oberkanteY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
                     
-                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Übergang</text>`;
+                    html += `<circle cx="${eckeX}" cy="${oberkanteY}" r="3" fill="#dc3545"/>`;
                     
-                } else if (istImMittleren) {
-                    // Platte vollständig im mittleren Bereich - WAAGERECHTER Schnitt
-                    const oberkanteY = plattenhoehePx - (gesamtHoehe / benoetigteLaengeM * plattenhoehePx);
+                    // KORRIGIERTE MASSLINIE für rechte Ecke
+                    const spitzeVonLinks = rechteObereEcke - plattenStart;
+                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
                     
-                    // Nutzen (blau) - Rechteck unten + Trapez oben
-                    html += `<rect x="0" y="${oberkanteY}" width="${endX}" height="${plattenhoehePx - oberkanteY}" fill="#1e3c72" opacity="0.7"/>`;
-                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
-                    
-                    // Verschnitt (rot) - nur oben
-                    html += `<rect x="0" y="0" width="${endX}" height="${oberkanteY}" fill="#dc3545" opacity="0.6"/>`;
-                    html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
-                    
-                    // WAAGERECHTE Schnittlinie
-                    html += `<line x1="0" y1="${oberkanteY}" x2="${endX}" y2="${oberkanteY}" stroke="#000" stroke-width="4"/>`;
+                    // Bemaßung zur Ecke
+                    html += `<div style="position: absolute; top: 8px; left: ${30 + spitzePositionPx}px; width: ${310 - spitzePositionPx}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; top: -8px; left: ${30 + spitzePositionPx + (310 - spitzePositionPx)/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${((plattenEndeReal - rechteObereEcke) * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${25 + spitzePositionPx}px; font-size: 12px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${25 + 310}px; font-size: 12px; color: #666;">|</div>`;
                     
                 } else {
-                    // Normale Platte ohne Ecken - schräger Schnitt
+                    // Normale Platte ohne Ecken
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
                     html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
                     html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
-                    
-                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
-                    html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                }
+                
+                // Text nur bei normalen Platten OHNE Ecken
+                if (!ueberdecktLinkeEcke && !ueberdecktRechteEcke) {
+                    html += `<text x="155" y="${plattenhoehePx/2 + 25}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
                 }
                 
                 html += `</svg>`;
