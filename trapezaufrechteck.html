@@ -498,14 +498,16 @@
             svg += `<line x1="${margin - 20}" y1="${margin}" x2="${margin - 20}" y2="${margin + dachHeight}" stroke="#333" stroke-width="1"/>`;
             svg += `<text x="${margin - 30}" y="${margin + dachHeight/2}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333" transform="rotate(-90 ${margin - 30} ${margin + dachHeight/2})">Gesamt: ${gesamtHoehe.toFixed(1)}m</text>`;
             
-            // Trapez-Höhe rechts - KORRIGIERT: Verschoben nach rechts
+            // Trapez-Höhe und Rechteck-Höhe rechts - KORRIGIERT: Auf gleicher Linie
             const trapezHoeheY = margin + trapezHoehe * scaleY;
+            
+            // Trapez-Höhe (oben)
             svg += `<line x1="${margin + dachWidth + 20}" y1="${margin}" x2="${margin + dachWidth + 20}" y2="${trapezHoeheY}" stroke="#ff6b35" stroke-width="2"/>`;
             svg += `<text x="${margin + dachWidth + 30}" y="${margin + (trapezHoehe * scaleY)/2}" text-anchor="middle" font-size="10" font-weight="bold" fill="#ff6b35" transform="rotate(-90 ${margin + dachWidth + 30} ${margin + (trapezHoehe * scaleY)/2})">Trapez: ${trapezHoehe}m</text>`;
             
-            // Rechteck-Höhe rechts - von trapezHoeheY bis zum Ende
-            svg += `<line x1="${margin + dachWidth + 35}" y1="${trapezHoeheY}" x2="${margin + dachWidth + 35}" y2="${margin + dachHeight}" stroke="#6f42c1" stroke-width="2"/>`;
-            svg += `<text x="${margin + dachWidth + 45}" y="${trapezHoeheY + (rechteckHoehe * scaleY)/2}" text-anchor="middle" font-size="10" font-weight="bold" fill="#6f42c1" transform="rotate(-90 ${margin + dachWidth + 45} ${trapezHoeheY + (rechteckHoehe * scaleY)/2})">Rechteck: ${rechteckHoehe}m</text>`;
+            // Rechteck-Höhe (unten) - KORRIGIERT: Auf gleicher X-Position
+            svg += `<line x1="${margin + dachWidth + 20}" y1="${trapezHoeheY}" x2="${margin + dachWidth + 20}" y2="${margin + dachHeight}" stroke="#6f42c1" stroke-width="2"/>`;
+            svg += `<text x="${margin + dachWidth + 30}" y="${trapezHoeheY + (rechteckHoehe * scaleY)/2}" text-anchor="middle" font-size="10" font-weight="bold" fill="#6f42c1" transform="rotate(-90 ${margin + dachWidth + 30} ${trapezHoeheY + (rechteckHoehe * scaleY)/2})">Rechteck: ${rechteckHoehe}m</text>`;
             
             svg += `</svg>`;
             
@@ -804,13 +806,4 @@
         }
     </script>
 </body>
-</html> ${plattenX + plattenWidth},${endY} ${rechteEckeX},${oberkanteY} ${linkeEckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
-                    
-                    // Verschnitt-Bereich (rot)
-                    svg += `<polygon points="${plattenX},${startY} ${linkeEckeX},${oberkanteY} ${rechteEckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
-                } else if (ueberdecktLinkeEcke) {
-                    // Platte mit linker oberer Ecke - Linie zur oberen Kante
-                    const eckeX = margin + linkeObereEcke * scaleX;
-                    const oberkanteY = margin; // GANZ OBEN
-                    
-                    svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight}
+</html> 
