@@ -451,31 +451,31 @@
                 // Plattenhintergrund
                 svg += `<rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${plattenHoehe}" fill="#e9ecef" stroke="#666" stroke-width="1"/>`;
                 
-                // KORRIGIERT: Nutzen-Bereich mit korrekten Trapez-Ecken (Spitzen nach OBEN!)
+                // KORRIGIERT: Exakt wie trapez.html - einfache Linien zu den Ecken der BESTEHENDEN waagerechten Linie
                 const ueberdecktLinkeEcke = plattenStart <= linkeObereEcke && plattenEndeReal >= linkeObereEcke;
                 const ueberdecktRechteEcke = plattenStart <= rechteObereEcke && plattenEndeReal >= rechteObereEcke;
                 
                 if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
-                    // Platte mit beiden oberen Ecken
+                    // Platte mit beiden oberen Ecken - Linien zu BEIDEN Enden der waagerechten Linie
                     const linkeEckeX = margin + linkeObereEcke * scaleX;
                     const rechteEckeX = margin + rechteObereEcke * scaleX;
-                    const oberkanteY = margin + trapezHoehe * scaleY; // Oberkante des Trapez-Bereichs
+                    const oberkanteY = margin + trapezHoehe * scaleY; // Y-Position der waagerechten Linie
                     
                     svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${rechteEckeX},${oberkanteY} ${linkeEckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
                     
                     // Verschnitt-Bereich (rot)
                     svg += `<polygon points="${plattenX},${startY} ${linkeEckeX},${oberkanteY} ${rechteEckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
                 } else if (ueberdecktLinkeEcke) {
-                    // Platte mit linker oberer Ecke
+                    // Platte mit linker oberer Ecke - Linie zum linken Ende der waagerechten Linie
                     const eckeX = margin + linkeObereEcke * scaleX;
-                    const oberkanteY = margin + trapezHoehe * scaleY; // Oberkante des Trapez-Bereichs
+                    const oberkanteY = margin + trapezHoehe * scaleY;
                     
                     svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${eckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
                     svg += `<polygon points="${plattenX},${startY} ${eckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
                 } else if (ueberdecktRechteEcke) {
-                    // Platte mit rechter oberer Ecke
+                    // Platte mit rechter oberer Ecke - Linie zum rechten Ende der waagerechten Linie
                     const eckeX = margin + rechteObereEcke * scaleX;
-                    const oberkanteY = margin + trapezHoehe * scaleY; // Oberkante des Trapez-Bereichs
+                    const oberkanteY = margin + trapezHoehe * scaleY;
                     
                     svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${eckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
                     svg += `<polygon points="${plattenX},${startY} ${eckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
