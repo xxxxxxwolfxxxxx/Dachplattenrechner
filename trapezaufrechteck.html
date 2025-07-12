@@ -451,27 +451,34 @@
                 // Plattenhintergrund
                 svg += `<rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${plattenHoehe}" fill="#e9ecef" stroke="#666" stroke-width="1"/>`;
                 
-                // KORRIGIERT: Obere Kante ist ganz OBEN (margin), nicht bei trapezHoehe!
+                // KORRIGIERT: Komplexe Darstellung für Platten mit Ecken
                 const ueberdecktLinkeEcke = plattenStart <= linkeObereEcke && plattenEndeReal >= linkeObereEcke;
                 const ueberdecktRechteEcke = plattenStart <= rechteObereEcke && plattenEndeReal >= rechteObereEcke;
                 
                 if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
-                    // Platte mit beiden oberen Ecken - Linien zur waagerechten OBEREN Kante
+                    // Platte mit beiden oberen Ecken
                     const linkeEckeX = margin + linkeObereEcke * scaleX;
                     const rechteEckeX = margin + rechteObereEcke * scaleX;
                     const oberkanteY = margin; // GANZ OBEN - die waagerechte obere Kante
                     
+                    svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${rechteEckeX},${oberkanteY} ${linkeEckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    svg += `<polygon points="${plattenX},${startY} ${linkeEckeX},${oberkanteY} ${rechteEckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
+                } else if (ueberdecktLinkeEcke) {
+                    // Platte mit linker oberer Ecke
+                    const eckeX = margin + linkeObereEcke * scaleX;
+                    const oberkanteY = margin; // GANZ OBEN
+                    
                     svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${eckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
                     svg += `<polygon points="${plattenX},${startY} ${eckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
                 } else if (ueberdecktRechteEcke) {
-                    // Platte mit rechter oberer Ecke - Linie zur oberen Kante
+                    // Platte mit rechter oberer Ecke
                     const eckeX = margin + rechteObereEcke * scaleX;
                     const oberkanteY = margin; // GANZ OBEN
                     
                     svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${eckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
                     svg += `<polygon points="${plattenX},${startY} ${eckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
                 } else {
-                    // Normale Platte - vereinfachte Darstellung
+                    // Normale Platte ohne Ecken
                     svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
                     svg += `<polygon points="${plattenX},${startY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
                 }
@@ -740,6 +747,7 @@
                     html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx/2}px; left: ${20 + endX}px; font-size: 13px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
                     
                     if (ueberhang > 0) {
+                        const restBreite = 310 - endX; // KORRIGIERT: Variable definiert
                         html += `<div style="position: absolute; top: ${plattenhoehePx + 35}px; left: ${30 + endX}px; width: ${restBreite}px; height: 3px; background: #FF0000; border-radius: 1px;"></div>`;
                         html += `<div style="position: absolute; top: ${plattenhoehePx + 15}px; left: ${30 + endX + restBreite/2}px; font-size: 15px; font-weight: bold; color: #FF0000; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
                     }
@@ -806,4 +814,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
