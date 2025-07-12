@@ -47,6 +47,114 @@
     </script>
     
     <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* Elegante Werbecontainer */
+        .ad-container, .ad-container-middle {
+            margin: 30px auto;
+            max-width: 800px;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .ad-container-middle {
+            grid-column: 1 / -1;
+            margin: 40px auto;
+        }
+        
+        .ad-placeholder {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px dashed #dee2e6;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .ad-placeholder:hover {
+            border-color: #2a5298;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+        
+        .ad-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .ad-content-horizontal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .ad-text-block {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        
+        .ad-text-block strong {
+            color: #2a5298;
+            font-size: 1.1em;
+            margin-bottom: 4px;
+        }
+        
+        .ad-text-block span {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .ad-icon {
+            font-size: 1.5em;
+            opacity: 0.8;
+        }
+        
+        .ad-text {
+            font-size: 0.95em;
+        }
+        
+        .ad-content-real {
+            min-height: 100px;
+            display: block;
+        }
+        
+        /* Werbung aktiv - verstecke Placeholder */
+        .ad-container.ads-active .ad-placeholder,
+        .ad-container-middle.ads-active .ad-placeholder {
+            display: none;
+        }
+        
+        .ad-container.ads-active .ad-content-real,
+        .ad-container-middle.ads-active .ad-content-real {
+            display: block !important;
+        }
+        
+        /* Mobile Optimierung */
+        @media (max-width: 768px) {
+            .ad-container, .ad-container-middle {
+                margin: 20px 15px;
+            }
+            
+            .ad-placeholder {
+                padding: 15px;
+            }
+            
+            .ad-content-horizontal {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .ad-text-block {
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -76,10 +184,15 @@
 
     <div class="container">
         <main>
-            <!-- AdSense Anzeigenplatz - wird nur angezeigt wenn Marketing-Cookies akzeptiert -->
-            <div id="top-ad-container" style="display: none; text-align: center; margin: 20px 0;">
-                <ins class="adsbygoogle"
-                     style="display:block"
+            <!-- Eleganter Werbeplatz oben -->
+            <div class="ad-container" id="top-ad-container">
+                <div class="ad-placeholder">
+                    <div class="ad-content">
+                        <span class="ad-icon">📢</span>
+                        <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
+                    </div>
+                </div>
+                <ins class="adsbygoogle ad-content-real" style="display:none"
                      data-ad-client="ca-pub-8687929894744033"
                      data-ad-slot="auto"
                      data-ad-format="auto"></ins>
@@ -211,10 +324,18 @@
                     <span class="cta-button">Jetzt berechnen</span>
                 </a>
 
-                <!-- AdSense Anzeige zwischen den Karten -->
-                <div id="middle-ad-container" style="display: none; grid-column: 1 / -1; text-align: center; margin: 20px 0;">
-                    <ins class="adsbygoogle"
-                         style="display:block"
+                <!-- Eleganter Werbeplatz zwischen den Karten -->
+                <div class="ad-container-middle" id="middle-ad-container">
+                    <div class="ad-placeholder">
+                        <div class="ad-content-horizontal">
+                            <span class="ad-icon">💡</span>
+                            <div class="ad-text-block">
+                                <strong>Professionelle Dachtools</strong>
+                                <span>Weitere hilfreiche Ressourcen für Dachdecker und Heimwerker</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ins class="adsbygoogle ad-content-real" style="display:none"
                          data-ad-client="ca-pub-8687929894744033"
                          data-ad-slot="auto"
                          data-ad-format="auto"></ins>
@@ -260,10 +381,15 @@
                 </a>
             </div>
 
-            <!-- AdSense Anzeige am Ende -->
-            <div id="bottom-ad-container" style="display: none; text-align: center; margin: 40px 0;">
-                <ins class="adsbygoogle"
-                     style="display:block"
+            <!-- Eleganter Werbeplatz am Ende -->
+            <div class="ad-container" id="bottom-ad-container">
+                <div class="ad-placeholder">
+                    <div class="ad-content">
+                        <span class="ad-icon">🛠️</span>
+                        <span class="ad-text">Mehr professionelle Tools für Dachdecker</span>
+                    </div>
+                </div>
+                <ins class="adsbygoogle ad-content-real" style="display:none"
                      data-ad-client="ca-pub-8687929894744033"
                      data-ad-slot="auto"
                      data-ad-format="auto"></ins>
