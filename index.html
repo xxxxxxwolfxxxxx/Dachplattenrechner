@@ -144,15 +144,6 @@
                     <span class="cta-button">Jetzt berechnen</span>
                 </a>
 
-                <!-- AdSense Anzeige zwischen den Karten -->
-                <div id="middle-ad-container" style="display: none; grid-column: 1 / -1; text-align: center; margin: 20px 0;">
-                    <ins class="adsbygoogle"
-                         style="display:block"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
-                </div>
-
                 <!-- Trapez -->
                 <a href="trapez.html" class="calculator-card">
                     <div class="card-icon">
@@ -180,6 +171,54 @@
                     </ul>
                     <span class="cta-button">Jetzt berechnen</span>
                 </a>
+
+                <!-- NEUE KARTE: Trapez auf Rechteck -->
+                <a href="trapezaufrechteck.html" class="calculator-card">
+                    <div class="card-icon">
+                        <svg width="120" height="80" viewBox="0 0 120 80">
+                            <!-- Rechteckiger Bereich (unten) -->
+                            <rect x="25" y="40" width="70" height="30" fill="#e8f4fd" stroke="#1976d2" stroke-width="2"/>
+                            
+                            <!-- Trapezförmiger Bereich (oben) -->
+                            <polygon points="40,15 80,15 95,40 25,40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                            
+                            <!-- Trapezbleche (senkrecht, über beide Bereiche) -->
+                            <line x1="35" y1="70" x2="35" y2="30" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="45" y1="70" x2="45" y2="15" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="55" y1="70" x2="55" y2="15" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="65" y1="70" x2="65" y2="15" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="75" y1="70" x2="75" y2="15" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            <line x1="85" y1="70" x2="85" y2="30" stroke="#666" stroke-width="1" opacity="0.8"/>
+                            
+                            <!-- Markiere Übergangszone -->
+                            <line x1="25" y1="40" x2="95" y2="40" stroke="#ffc107" stroke-width="2" opacity="0.8"/>
+                            
+                            <!-- Kleine Beschriftungen -->
+                            <text x="60" y="10" text-anchor="middle" font-size="8" fill="#28a745" font-weight="bold">Trapez</text>
+                            <text x="60" y="58" text-anchor="middle" font-size="8" fill="#6f42c1" font-weight="bold">Rechteck</text>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Trapez auf Rechteck</h2>
+                    <p class="card-description">
+                        Für Walmdächer und Krüppelwalmdächer mit trapezförmigem oberen und rechteckigem unteren Bereich.
+                    </p>
+                    <ul class="card-features">
+                        <li>Walmdach-Berechnung</li>
+                        <li>Kombinierte Geometrie</li>
+                        <li>Durchgehende Platten</li>
+                        <li>Komplexe Anrisspläne</li>
+                    </ul>
+                    <span class="cta-button">Jetzt berechnen</span>
+                </a>
+
+                <!-- AdSense Anzeige zwischen den Karten -->
+                <div id="middle-ad-container" style="display: none; grid-column: 1 / -1; text-align: center; margin: 20px 0;">
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
 
                 <!-- Verschnitt-Optimierung -->
                 <a href="verschnitt-optimierung.html" class="calculator-card">
@@ -258,6 +297,7 @@
                         <li><a href="gleichschenkliges-dreieck.html">Gleichschenkliges Dreieck</a></li>
                         <li><a href="ungleichschenkliges-dreieck.html">Ungleichschenkliges Dreieck</a></li>
                         <li><a href="trapez.html">Trapez</a></li>
+                        <li><a href="trapezaufrechteck.html">Trapez auf Rechteck</a></li>
                         <li><a href="verschnitt-optimierung.html">Verschnitt-Optimierung</a></li>
                     </ul>
                 </div>
@@ -444,6 +484,7 @@
                         <li>Gleichschenklige Dreiecke</li>
                         <li>Ungleichschenklige Dreiecke</li>
                         <li>Trapezflächen</li>
+                        <li>Trapez auf Rechteck Flächen</li>
                         <li>Verschnitt-Optimierung</li>
                     </ul>
                     
@@ -544,6 +585,7 @@
                     <p><strong>Gleichschenkliges Dreieck:</strong> Für symmetrische Dreiecke</p>
                     <p><strong>Ungleichschenkliges Dreieck:</strong> Für asymmetrische Dreiecke</p>
                     <p><strong>Trapez:</strong> Für trapezförmige Flächen</p>
+                    <p><strong>Trapez auf Rechteck:</strong> Für Walmdächer und Krüppelwalmdächer</p>
                     <p><strong>Verschnitt-Optimierung:</strong> Für optimale Materialaufteilung</p>
                     
                     <h4>🎯 Wie genau sind die Berechnungen?</h4>
