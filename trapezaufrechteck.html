@@ -581,13 +581,76 @@
                 
                 html += `<svg style="position: absolute; bottom: 25px; left: 30px;" width="310" height="${plattenhoehePx}">`;
                 
-                // KORRIGIERT: Vereinfachte Darstellung für durchgehende Platten - wie bei trapez.html
-                html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
-                html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
-                html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
-                
-                html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
-                html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                // KORRIGIERT: Spezielle Darstellung für Trapez-auf-Rechteck (KEINE Spitze!)
+                if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
+                    // Platte mit beiden oberen Ecken - WAAGERECHTE Oberkante zwischen den Ecken
+                    const linkeEckeX = (linkeObereEcke - plattenStart) / plattenBreite * 310;
+                    const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 310;
+                    const oberkanteY = plattenhoehePx - (gesamtHoehe / benoetigteLaengeM * plattenhoehePx);
+                    
+                    // Nutzen (blau)
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${rechteEckeX},${oberkanteY} ${linkeEckeX},${oberkanteY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                    
+                    // Abschnitt (rot)
+                    html += `<polygon points="0,${startY} ${linkeEckeX},${oberkanteY} ${rechteEckeX},${oberkanteY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
+                    html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                    
+                    // Schnittlinien: Links schräg → waagerecht → rechts schräg
+                    html += `<line x1="0" y1="${startY}" x2="${linkeEckeX}" y2="${oberkanteY}" stroke="#000" stroke-width="4"/>`;
+                    html += `<line x1="${linkeEckeX}" y1="${oberkanteY}" x2="${rechteEckeX}" y2="${oberkanteY}" stroke="#000" stroke-width="4"/>`;
+                    html += `<line x1="${rechteEckeX}" y1="${oberkanteY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
+                    
+                } else if (ueberdecktLinkeEcke) {
+                    // Platte mit linker oberer Ecke
+                    const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 310;
+                    const oberkanteY = plattenhoehePx - (gesamtHoehe / benoetigteLaengeM * plattenhoehePx);
+                    
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${eckeX},${oberkanteY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    html += `<polygon points="0,${startY} ${eckeX},${oberkanteY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
+                    
+                    html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="${oberkanteY}" stroke="#000" stroke-width="4"/>`;
+                    html += `<line x1="${eckeX}" y1="${oberkanteY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
+                    
+                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Übergang</text>`;
+                    
+                } else if (ueberdecktRechteEcke) {
+                    // Platte mit rechter oberer Ecke
+                    const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 310;
+                    const oberkanteY = plattenhoehePx - (gesamtHoehe / benoetigteLaengeM * plattenhoehePx);
+                    
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${eckeX},${oberkanteY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    html += `<polygon points="0,${startY} ${eckeX},${oberkanteY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
+                    
+                    html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="${oberkanteY}" stroke="#000" stroke-width="4"/>`;
+                    html += `<line x1="${eckeX}" y1="${oberkanteY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
+                    
+                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Übergang</text>`;
+                    
+                } else if (istImMittleren) {
+                    // Platte vollständig im mittleren Bereich - WAAGERECHTER Schnitt
+                    const oberkanteY = plattenhoehePx - (gesamtHoehe / benoetigteLaengeM * plattenhoehePx);
+                    
+                    // Nutzen (blau) - Rechteck unten + Trapez oben
+                    html += `<rect x="0" y="${oberkanteY}" width="${endX}" height="${plattenhoehePx - oberkanteY}" fill="#1e3c72" opacity="0.7"/>`;
+                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                    
+                    // Verschnitt (rot) - nur oben
+                    html += `<rect x="0" y="0" width="${endX}" height="${oberkanteY}" fill="#dc3545" opacity="0.6"/>`;
+                    html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                    
+                    // WAAGERECHTE Schnittlinie
+                    html += `<line x1="0" y1="${oberkanteY}" x2="${endX}" y2="${oberkanteY}" stroke="#000" stroke-width="4"/>`;
+                    
+                } else {
+                    // Normale Platte ohne Ecken - schräger Schnitt
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
+                    html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
+                    
+                    html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                    html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                }
                 
                 html += `</svg>`;
                 
@@ -655,23 +718,22 @@
                 // Spezielle Hinweise für verschiedene Bereiche
                 if (istImMittleren) {
                     html += `• <strong style="color: #28a745;">✅ EINFACH: Diese Platte ist vollständig im Mittelbereich!</strong><br>`;
+                    html += `• <strong style="color: #28a745;">💡 WAAGERECHTER Schnitt bei ${gesamtHoehe}m Höhe!</strong><br>`;
                     html += `• Rechteck-Bereich: ${rechteckHoehe}m (unten) + Trapez-Bereich: ${trapezHoehe}m (oben)<br>`;
-                    if (anreissLinks === anreissRechts) {
-                        html += `• <strong style="color: #28a745;">💡 TIPP: Gerader Schnitt - kein Winkel!</strong><br>`;
-                    }
                 } else if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
                     html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte überdeckt BEIDE Trapez-Ecken!</strong><br>`;
                     const linkeEckePos = linkeObereEcke - plattenStart;
                     const rechteEckePos = rechteObereEcke - plattenStart;
-                    html += `• <strong style="color: #ff6b35;">📐 KOMPLEX: Links schräg bis ${(linkeEckePos * 100).toFixed(0)}cm → horizontal bis ${(rechteEckePos * 100).toFixed(0)}cm → rechts schräg!</strong><br>`;
+                    html += `• <strong style="color: #ff6b35;">📐 KOMPLEX: Links schräg bis ${(linkeEckePos * 100).toFixed(0)}cm → WAAGERECHT bis ${(rechteEckePos * 100).toFixed(0)}cm → rechts schräg!</strong><br>`;
+                    html += `• <strong style="color: #1e3c72;">🏗️ KEINE Spitze - waagerechte Oberkante bei ${gesamtHoehe}m!</strong><br>`;
                 } else if (ueberdecktLinkeEcke) {
                     html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte überdeckt die LINKE Trapez-Ecke!</strong><br>`;
                     const eckenPos = linkeObereEcke - plattenStart;
-                    html += `• <strong style="color: #ff6b35;">📐 ÜBERGANG: Schräg ansteigend bis ${(eckenPos * 100).toFixed(0)}cm, dann horizontal!</strong><br>`;
+                    html += `• <strong style="color: #ff6b35;">📐 ÜBERGANG: Schräg ansteigend bis ${(eckenPos * 100).toFixed(0)}cm, dann waagerecht!</strong><br>`;
                 } else if (ueberdecktRechteEcke) {
                     html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte überdeckt die RECHTE Trapez-Ecke!</strong><br>`;
                     const eckenPos = rechteObereEcke - plattenStart;
-                    html += `• <strong style="color: #ff6b35;">📐 ÜBERGANG: Horizontal bis ${(eckenPos * 100).toFixed(0)}cm, dann schräg abfallend!</strong><br>`;
+                    html += `• <strong style="color: #ff6b35;">📐 ÜBERGANG: Waagerecht bis ${(eckenPos * 100).toFixed(0)}cm, dann schräg abfallend!</strong><br>`;
                 } else if (anreissLinks !== anreissRechts) {
                     html += `• <strong style="color: #dc3545;">📐 ACHTUNG: Schräger Schnitt!</strong><br>`;
                 } else {
