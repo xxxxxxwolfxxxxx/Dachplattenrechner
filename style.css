@@ -1157,10 +1157,15 @@ footer::before {
 
 /* ===== KORRIGIERTE MOBILE RESPONSIVE DESIGN ===== */
 
-/* SVG und Anrissplan Korrekturen für mobile Geräte */
+/* ===== AUTOMATISCHE SVG-SKALIERUNG FÜR ALLE GERÄTE ===== */
+
+/* Basis SVG-Skalierung - funktioniert auf allen Geräten */
 svg {
     max-width: 100% !important;
+    width: 100% !important;
     height: auto !important;
+    display: block !important;
+    margin: 0 auto !important;
     overflow: visible !important;
 }
 
@@ -1168,8 +1173,46 @@ svg {
 #vorschau-svg,
 .svg-container {
     max-width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: visible !important;
+    overflow: visible !important;
+    width: 100% !important;
+    display: block !important;
+}
+
+/* Hauptseiten-SVG (oben in den Rechnern) */
+main > div[style*="text-align: center"] {
+    overflow: visible !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    display: block !important;
+}
+
+main > div[style*="text-align: center"] svg {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    margin: 0 auto !important;
+}
+
+/* Vorschau-Container Skalierung */
+#vorschau {
+    overflow: visible !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+#vorschau > div {
+    overflow: visible !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+#vorschau-svg svg {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    margin: 0 auto !important;
 }
 
 /* Anrissplan Container Korrekturen */
@@ -1422,17 +1465,44 @@ svg {
         margin: 10% auto;
     }
     
-    /* KRITISCHE SVG UND ANRISSPLAN KORREKTUREN */
+    /* KRITISCHE SVG UND ANRISSPLAN KORREKTUREN - AUTOMATISCHE SKALIERUNG */
     svg {
-        max-width: calc(100vw - 50px) !important;
-        width: auto !important;
+        max-width: 100% !important;
+        width: 100% !important;
         height: auto !important;
+        display: block !important;
+        margin: 0 auto !important;
+    }
+    
+    #vorschau-svg {
+        width: 100% !important;
+        overflow: visible !important;
+        display: block !important;
     }
     
     #vorschau-svg svg {
-        max-width: calc(100vw - 50px) !important;
-        width: auto !important;
+        max-width: 100% !important;
+        width: 100% !important;
         height: auto !important;
+        display: block !important;
+        margin: 0 auto !important;
+    }
+    
+    /* Container für SVG-Bereiche */
+    .section div[style*="text-align: center"] {
+        overflow: visible !important;
+        max-width: 100% !important;
+    }
+    
+    /* Vorschau-Container */
+    #vorschau {
+        overflow: visible !important;
+        max-width: 100% !important;
+    }
+    
+    #vorschau > div {
+        overflow: visible !important;
+        max-width: 100% !important;
     }
     
     /* Anrissplan-Container für Mobile */
@@ -1546,22 +1616,37 @@ svg {
         padding: 15px;
     }
     
-    /* KRITISCHE MOBILE KORREKTUREN FÜR SEHR KLEINE BILDSCHIRME */
+    /* KRITISCHE MOBILE KORREKTUREN FÜR SEHR KLEINE BILDSCHIRME - AUTOMATISCHE SKALIERUNG */
     svg {
-        max-width: calc(100vw - 30px) !important;
-        min-width: 280px !important;
+        max-width: 100% !important;
+        width: 100% !important;
         height: auto !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
     
     #vorschau-svg {
-        overflow-x: auto !important;
+        overflow: visible !important;
         max-width: 100% !important;
+        width: 100% !important;
+        display: block !important;
     }
     
     #vorschau-svg svg {
-        max-width: calc(100vw - 30px) !important;
-        min-width: 280px !important;
+        max-width: 100% !important;
+        width: 100% !important;
         height: auto !important;
+        display: block !important;
+        margin: 0 auto !important;
+    }
+    
+    /* Hauptseiten-SVG (in den Rechnern oben) */
+    main > div[style*="text-align: center"] svg {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: auto !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
     
     /* Anrissplan Container sehr kleine Bildschirme */
@@ -1599,7 +1684,7 @@ svg {
 
 /* Samsung Galaxy Z Fold spezifische Korrekturen */
 
-/* Galaxy Z Fold gefaltet (320px) */
+/* Galaxy Z Fold gefaltet (320px) - AUTOMATISCHE SKALIERUNG */
 @media only screen and (max-width: 320px) {
     .container {
         padding: 0 10px !important;
@@ -1615,18 +1700,21 @@ svg {
         gap: 10px !important;
     }
     
+    /* AUTOMATISCHE SVG-SKALIERUNG für sehr schmale Bildschirme */
     svg {
         max-width: 100% !important;
+        width: 100% !important;
         height: auto !important;
-        min-width: 280px !important;
-        width: 280px !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
     
     #vorschau-svg svg {
         max-width: 100% !important;
+        width: 100% !important;
         height: auto !important;
-        min-width: 280px !important;
-        width: 280px !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
     
     .schnitt-table {
