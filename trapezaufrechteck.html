@@ -449,20 +449,8 @@
                 // Plattenhintergrund
                 svg += `<rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${plattenHoehe}" fill="#e9ecef" stroke="#666" stroke-width="1"/>`;
                 
-                // Nutzen-Bereich (blau) - komplexe Logik für Trapez-auf-Rechteck
-                const ueberdecktLinkeEcke = plattenStart <= linkeObereEcke && plattenEndeReal >= linkeObereEcke;
-                const ueberdecktRechteEcke = plattenStart <= rechteObereEcke && plattenEndeReal >= rechteObereEcke;
-                const istImMittleren = plattenStart >= linkeObereEcke && plattenEndeReal <= rechteObereEcke;
-                
-                if (istImMittleren) {
-                    // Platte vollständig im mittleren Bereich - Rechteck + Trapez
-                    const oberkanteY = margin;
-                    svg += `<rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${rechteckHoehe * scaleY}" fill="#1e3c72" opacity="0.7"/>`;
-                    svg += `<rect x="${plattenX}" y="${margin}" width="${plattenWidth}" height="${trapezHoehe * scaleY}" fill="#1e3c72" opacity="0.7"/>`;
-                } else {
-                    // Komplexere Formen für Übergangsbereiche
-                    svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
-                }
+                // Nutzen-Bereich (blau) - vereinfachte Darstellung für durchgehende Platten
+                svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
                 
                 // Verschnitt-Bereich (rot)
                 svg += `<polygon points="${plattenX},${startY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
@@ -475,12 +463,6 @@
                 
                 // Plattennummer
                 svg += `<text x="${plattenX + plattenWidth/2}" y="${margin + dachHeight + 20}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">${platte.plattenNr}</text>`;
-                
-                // Übergangszone markieren (gelb) - wo Trapez auf Rechteck trifft
-                if (ueberdecktLinkeEcke || ueberdecktRechteEcke) {
-                    const uebergangsY = margin + trapezHoehe * scaleY;
-                    svg += `<line x1="${plattenX}" y1="${uebergangsY}" x2="${plattenX + plattenWidth}" y2="${uebergangsY}" stroke="#ffc107" stroke-width="3" opacity="0.8"/>`;
-                }
             });
             
             // Maßlinien
@@ -589,13 +571,49 @@
                 
                 html += `<div style="position: absolute; bottom: 25px; left: 30px; width: 310px; height: ${plattenhoehePx}px; background: #e9ecef; border: 2px solid #666; border-radius: 4px;"></div>`;
                 
-                // Übergangszone zwischen Trapez und Rechteck markieren
-                const uebergangsY = plattenhoehePx - rechteckAnteilPx;
-                html += `<div style="position: absolute; bottom: ${25 + rechteckAnteilPx}px; left: 30px; width: 310px; height: 3px; background: #ffc107; border-radius: 1px;"></div>`;
-                html += `<div style="position: absolute; bottom: ${25 + rechteckAnteilPx + 8}px; left: 340px; font-size: 11px; font-weight: bold; color: #ffc107;">Trapez/Rechteck</div>`;
-                
                 let startY = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
                 let endY = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
+                
+                startY = Math.max(0, Math.min(plattenhoehePx, startY));
+                endY = Math.max(0, Math.min(plattenhoehePx, endY));
+                
+                const endX = istLetztePlatte ? Math.min(310, (untereBreite - plattenStart) / plattenBreite * 310) : 310;
+                
+                html += `<svg style="position: absolute; bottom: 25px; left: 30px;" width="310" height="${plattenhoehePx}">`;
+                
+                // Vereinfachte Darstellung für durchgehende Platten
+                html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#dc3545" opacity="0.6"/>`;
+                html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="4"/>`;
+                
+                html += `<text x="155" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                html += `<text x="155" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                
+                html += `</svg>`;
+                
+                // Ecken-Bereiche markieren mit Bemaßung
+                if (ueberdecktLinkeEcke) {
+                    const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 310;
+                    html += `<div style="position: absolute; bottom: 25px; left: ${30 + eckeX}px; width: 4px; height: ${plattenhoehePx}px; background: #dc3545; border-radius: 2px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx + 8}px; left: ${25 + eckeX}px; font-size: 13px; font-weight: bold; color: #dc3545; text-align: center;">LINKE<br>ECKE<br>${gesamtHoehe}m</div>`;
+                    
+                    // Bemaßung zur linken Ecke
+                    html += `<div style="position: absolute; top: 8px; left: 30px; width: ${eckeX}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; top: -8px; left: ${30 + eckeX/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${((linkeObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: 25px; font-size: 12px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${25 + eckeX}px; font-size: 12px; color: #666;">|</div>`;
+                }
+                if (ueberdecktRechteEcke) {
+                    const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 310;
+                    html += `<div style="position: absolute; bottom: 25px; left: ${30 + eckeX}px; width: 4px; height: ${plattenhoehePx}px; background: #dc3545; border-radius: 2px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx + 8}px; left: ${25 + eckeX}px; font-size: 13px; font-weight: bold; color: #dc3545; text-align: center;">RECHTE<br>ECKE<br>${gesamtHoehe}m</div>`;
+                    
+                    // Bemaßung zur rechten Ecke
+                    html += `<div style="position: absolute; top: 20px; left: ${30 + eckeX}px; width: ${310 - eckeX}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; top: 4px; left: ${30 + eckeX + (310 - eckeX)/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${((plattenEndeReal - rechteObereEcke) * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: 10px; left: ${25 + eckeX}px; font-size: 12px; color: #666;">|</div>`;
+                    html += `<div style="position: absolute; top: 10px; left: ${25 + 310}px; font-size: 12px; color: #666;">|</div>`;
+                }tenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
                 
                 startY = Math.max(0, Math.min(plattenhoehePx, startY));
                 endY = Math.max(0, Math.min(plattenhoehePx, endY));
@@ -631,18 +649,6 @@
                 }
                 
                 html += `</svg>`;
-                
-                // Ecken-Bereiche markieren
-                if (ueberdecktLinkeEcke) {
-                    const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 310;
-                    html += `<div style="position: absolute; bottom: ${25 + rechteckAnteilPx}px; left: ${30 + eckeX}px; width: 4px; height: ${trapezAnteilPx}px; background: #dc3545; border-radius: 2px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx + 8}px; left: ${25 + eckeX}px; font-size: 13px; font-weight: bold; color: #dc3545; text-align: center;">LINKE<br>ECKE</div>`;
-                }
-                if (ueberdecktRechteEcke) {
-                    const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 310;
-                    html += `<div style="position: absolute; bottom: ${25 + rechteckAnteilPx}px; left: ${30 + eckeX}px; width: 4px; height: ${trapezAnteilPx}px; background: #dc3545; border-radius: 2px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx + 8}px; left: ${25 + eckeX}px; font-size: 13px; font-weight: bold; color: #dc3545; text-align: center;">RECHTE<br>ECKE</div>`;
-                }
                 
                 // Letzte Platte markieren
                 if (istLetztePlatte) {
@@ -690,13 +696,17 @@
                     }
                 } else if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
                     html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte überdeckt BEIDE Trapez-Ecken!</strong><br>`;
-                    html += `• <strong style="color: #ff6b35;">📐 KOMPLEX: Übergang von Rechteck zu Trapez beachten!</strong><br>`;
+                    const linkeEckePos = linkeObereEcke - plattenStart;
+                    const rechteEckePos = rechteObereEcke - plattenStart;
+                    html += `• <strong style="color: #ff6b35;">📐 KOMPLEX: Links schräg bis ${(linkeEckePos * 100).toFixed(0)}cm → horizontal bis ${(rechteEckePos * 100).toFixed(0)}cm → rechts schräg!</strong><br>`;
                 } else if (ueberdecktLinkeEcke) {
                     html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte überdeckt die LINKE Trapez-Ecke!</strong><br>`;
-                    html += `• <strong style="color: #ff6b35;">📐 ÜBERGANG: Von Rechteck zu Trapez!</strong><br>`;
+                    const eckenPos = linkeObereEcke - plattenStart;
+                    html += `• <strong style="color: #ff6b35;">📐 ÜBERGANG: Schräg ansteigend bis ${(eckenPos * 100).toFixed(0)}cm, dann horizontal!</strong><br>`;
                 } else if (ueberdecktRechteEcke) {
                     html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte überdeckt die RECHTE Trapez-Ecke!</strong><br>`;
-                    html += `• <strong style="color: #ff6b35;">📐 ÜBERGANG: Von Rechteck zu Trapez!</strong><br>`;
+                    const eckenPos = rechteObereEcke - plattenStart;
+                    html += `• <strong style="color: #ff6b35;">📐 ÜBERGANG: Horizontal bis ${(eckenPos * 100).toFixed(0)}cm, dann schräg abfallend!</strong><br>`;
                 } else if (anreissLinks !== anreissRechts) {
                     html += `• <strong style="color: #dc3545;">📐 ACHTUNG: Schräger Schnitt!</strong><br>`;
                 } else {
@@ -704,7 +714,7 @@
                 }
                 
                 html += `• Schnittlinie anzeichnen und oberen Teil absägen<br>`;
-                html += `• <strong style="color: #ffc107;">🏗️ WICHTIG: Übergang Trapez/Rechteck bei ${(rechteckHoehe * 100).toFixed(0)}cm von unten beachten!</strong><br>`;
+                html += `• <strong style="color: #1e3c72;">🏗️ INFO: Durchgehende Platte über Rechteck (${rechteckHoehe}m) + Trapez (${trapezHoehe}m) = ${gesamtHoehe}m Gesamt</strong><br>`;
                 html += `</div>`;
                 html += `</div>`;
             });
