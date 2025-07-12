@@ -529,6 +529,17 @@ main::before {
     display: flex;
     align-items: center;
     justify-content: center;
+    
+    /* KORREKTUR: Begrenze SVG-Größe in Karten */
+    max-width: 120px;
+    margin: 0 auto 20px auto;
+}
+
+.card-icon svg {
+    /* Begrenze Karten-SVGs auf ursprüngliche Größe */
+    max-width: 120px !important;
+    width: auto !important;
+    height: 80px !important;
 }
 
 .card-title {
@@ -1454,6 +1465,13 @@ svg {
         height: auto !important;
         display: block !important;
         margin: 0 auto !important;
+    }
+    
+    /* KARTEN-SVGs: Behalte originale Größe */
+    .card-icon svg {
+        max-width: 120px !important;
+        width: auto !important;
+        height: 80px !important;
     }
     
     /* ANRISSPLÄNE: Behalte originale Größen bei */
