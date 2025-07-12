@@ -383,10 +383,10 @@
             const rechteObereEcke = untereBreite - seitenAbstand;
             const gesamtHoehe = trapezHoehe + rechteckHoehe;
             
-            // SVG-Dimensionen
-            const svgWidth = 600;
+            // SVG-Dimensionen angepasst für bessere Darstellung
+            const svgWidth = 650;
             const svgHeight = 450;
-            const margin = 50;
+            const margin = 70;
             const dachWidth = svgWidth - 2 * margin;
             const dachHeight = svgHeight - 2 * margin - 50;
             
@@ -482,18 +482,18 @@
             svg += `<line x1="${margin + linkeObereEcke * scaleX}" y1="${margin - 15}" x2="${margin + rechteObereEcke * scaleX}" y2="${margin - 15}" stroke="#28a745" stroke-width="2"/>`;
             svg += `<text x="${margin + (linkeObereEcke + rechteObereEcke) * scaleX / 2}" y="${margin - 20}" text-anchor="middle" font-size="12" font-weight="bold" fill="#28a745">Obere Breite: ${obereBreite}m</text>`;
             
-            // Höhenmaße
+            // Höhenmaße mit besserer Positionierung
             svg += `<line x1="${margin - 20}" y1="${margin}" x2="${margin - 20}" y2="${margin + dachHeight}" stroke="#333" stroke-width="1"/>`;
             svg += `<text x="${margin - 30}" y="${margin + dachHeight/2}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333" transform="rotate(-90 ${margin - 30} ${margin + dachHeight/2})">Gesamt: ${gesamtHoehe.toFixed(1)}m</text>`;
             
-            // Trapez-Höhe
+            // Trapez-Höhe links
             const trapezHoeheY = margin + trapezHoehe * scaleY;
             svg += `<line x1="${margin - 35}" y1="${margin}" x2="${margin - 35}" y2="${trapezHoeheY}" stroke="#ff6b35" stroke-width="2"/>`;
             svg += `<text x="${margin - 45}" y="${margin + (trapezHoehe * scaleY)/2}" text-anchor="middle" font-size="10" font-weight="bold" fill="#ff6b35" transform="rotate(-90 ${margin - 45} ${margin + (trapezHoehe * scaleY)/2})">Trapez: ${trapezHoehe}m</text>`;
             
-            // Rechteck-Höhe
-            svg += `<line x1="${margin - 50}" y1="${trapezHoeheY}" x2="${margin - 50}" y2="${margin + dachHeight}" stroke="#6f42c1" stroke-width="2"/>`;
-            svg += `<text x="${margin - 60}" y="${trapezHoeheY + (rechteckHoehe * scaleY)/2}" text-anchor="middle" font-size="10" font-weight="bold" fill="#6f42c1" transform="rotate(-90 ${margin - 60} ${trapezHoeheY + (rechteckHoehe * scaleY)/2})">Rechteck: ${rechteckHoehe}m</text>`;
+            // Rechteck-Höhe rechts
+            svg += `<line x1="${margin + dachWidth + 35}" y1="${trapezHoeheY}" x2="${margin + dachWidth + 35}" y2="${margin + dachHeight}" stroke="#6f42c1" stroke-width="2"/>`;
+            svg += `<text x="${margin + dachWidth + 45}" y="${trapezHoeheY + (rechteckHoehe * scaleY)/2}" text-anchor="middle" font-size="10" font-weight="bold" fill="#6f42c1" transform="rotate(-90 ${margin + dachWidth + 45} ${trapezHoeheY + (rechteckHoehe * scaleY)/2})">Rechteck: ${rechteckHoehe}m</text>`;
             
             svg += `</svg>`;
             
