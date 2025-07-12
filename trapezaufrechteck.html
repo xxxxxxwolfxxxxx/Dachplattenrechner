@@ -451,11 +451,39 @@
                 // Plattenhintergrund
                 svg += `<rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${plattenHoehe}" fill="#e9ecef" stroke="#666" stroke-width="1"/>`;
                 
-                // Nutzen-Bereich (blau) - vereinfachte Darstellung für durchgehende Platten
-                svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                // KORRIGIERT: Nutzen-Bereich mit korrekten Trapez-Ecken (wie trapez.html)
+                const ueberdecktLinkeEcke = plattenStart <= linkeObereEcke && plattenEndeReal >= linkeObereEcke;
+                const ueberdecktRechteEcke = plattenStart <= rechteObereEcke && plattenEndeReal >= rechteObereEcke;
                 
-                // Verschnitt-Bereich (rot)
-                svg += `<polygon points="${plattenX},${startY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
+                if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
+                    // Platte mit beiden oberen Ecken
+                    const linkeEckeX = margin + linkeObereEcke * scaleX;
+                    const rechteEckeX = margin + rechteObereEcke * scaleX;
+                    const oberkanteY = margin + (trapezHoehe * scaleY);
+                    
+                    svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${rechteEckeX},${oberkanteY} ${linkeEckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    
+                    // Verschnitt-Bereich (rot)
+                    svg += `<polygon points="${plattenX},${startY} ${linkeEckeX},${oberkanteY} ${rechteEckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
+                } else if (ueberdecktLinkeEcke) {
+                    // Platte mit linker oberer Ecke
+                    const eckeX = margin + linkeObereEcke * scaleX;
+                    const oberkanteY = margin + (trapezHoehe * scaleY);
+                    
+                    svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${eckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    svg += `<polygon points="${plattenX},${startY} ${eckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
+                } else if (ueberdecktRechteEcke) {
+                    // Platte mit rechter oberer Ecke
+                    const eckeX = margin + rechteObereEcke * scaleX;
+                    const oberkanteY = margin + (trapezHoehe * scaleY);
+                    
+                    svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${eckeX},${oberkanteY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    svg += `<polygon points="${plattenX},${startY} ${eckeX},${oberkanteY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
+                } else {
+                    // Normale Platte - vereinfachte Darstellung
+                    svg += `<polygon points="${plattenX},${margin + dachHeight} ${plattenX + plattenWidth},${margin + dachHeight} ${plattenX + plattenWidth},${endY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.7"/>`;
+                    svg += `<polygon points="${plattenX},${startY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.6"/>`;
+                }
                 
                 // Überlappungs-Bereich (grün)
                 if (index > 0 && ueberlappung > 0) {
@@ -617,11 +645,13 @@
                     html += `<div style="position: absolute; top: -2px; left: 25px; font-size: 12px; color: #666;">|</div>`;
                     html += `<div style="position: absolute; top: -2px; left: ${25 + spitzePositionPxL}px; font-size: 12px; color: #666;">|</div>`;
                     
-                    // Bemaßung zur rechten Ecke
-                    html += `<div style="position: absolute; top: 20px; left: ${30 + spitzePositionPxR}px; width: ${310 - spitzePositionPxR}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; top: 4px; left: ${30 + spitzePositionPxR + (310 - spitzePositionPxR)/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${((plattenEndeReal - rechteObereEcke) * 100).toFixed(0)}cm</div>`;
-                    html += `<div style="position: absolute; top: 10px; left: ${25 + spitzePositionPxR}px; font-size: 12px; color: #666;">|</div>`;
-                    html += `<div style="position: absolute; top: 10px; left: ${25 + 310}px; font-size: 12px; color: #666;">|</div>`;
+                    // Bemaßung zur rechten Ecke - KORRIGIERT: Nur einmal beschriften
+                    if (endX < 310) { // Nur wenn nicht die letzte Platte
+                        html += `<div style="position: absolute; top: 20px; left: ${30 + spitzePositionPxR}px; width: ${310 - spitzePositionPxR}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                        html += `<div style="position: absolute; top: 4px; left: ${30 + spitzePositionPxR + (310 - spitzePositionPxR)/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${((plattenEndeReal - rechteObereEcke) * 100).toFixed(0)}cm</div>`;
+                        html += `<div style="position: absolute; top: 10px; left: ${25 + spitzePositionPxR}px; font-size: 12px; color: #666;">|</div>`;
+                        html += `<div style="position: absolute; top: 10px; left: ${25 + 310}px; font-size: 12px; color: #666;">|</div>`;
+                    }
                     
                 } else if (ueberdecktLinkeEcke) {
                     // Platte mit linker oberer Ecke
@@ -663,11 +693,13 @@
                     const spitzeVonLinks = rechteObereEcke - plattenStart;
                     const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 310;
                     
-                    // Bemaßung zur Ecke
-                    html += `<div style="position: absolute; top: 8px; left: ${30 + spitzePositionPx}px; width: ${310 - spitzePositionPx}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; top: -8px; left: ${30 + spitzePositionPx + (310 - spitzePositionPx)/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${((plattenEndeReal - rechteObereEcke) * 100).toFixed(0)}cm</div>`;
-                    html += `<div style="position: absolute; top: -2px; left: ${25 + spitzePositionPx}px; font-size: 12px; color: #666;">|</div>`;
-                    html += `<div style="position: absolute; top: -2px; left: ${25 + 310}px; font-size: 12px; color: #666;">|</div>`;
+                    // Bemaßung zur rechten Ecke - KORRIGIERT: Nur wenn Platte noch Platz hat
+                    if (endX < 310) { // Nur wenn nicht die letzte Platte
+                        html += `<div style="position: absolute; top: 8px; left: ${30 + spitzePositionPx}px; width: ${310 - spitzePositionPx}px; height: 2px; background: #666; border-radius: 1px;"></div>`;
+                        html += `<div style="position: absolute; top: -8px; left: ${30 + spitzePositionPx + (310 - spitzePositionPx)/2}px; font-size: 13px; font-weight: bold; color: #666; transform: translateX(-50%);">${((plattenEndeReal - rechteObereEcke) * 100).toFixed(0)}cm</div>`;
+                        html += `<div style="position: absolute; top: -2px; left: ${25 + spitzePositionPx}px; font-size: 12px; color: #666;">|</div>`;
+                        html += `<div style="position: absolute; top: -2px; left: ${25 + 310}px; font-size: 12px; color: #666;">|</div>`;
+                    }
                     
                 } else {
                     // Normale Platte ohne Ecken
