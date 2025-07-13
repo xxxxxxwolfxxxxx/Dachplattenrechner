@@ -533,7 +533,7 @@ main::before {
     grid-column: unset !important;
 }
 
-/* Elegante Werbecontainer - EINFACHE ZENTRIERUNG */
+/* Elegante Werbecontainer - OHNE PLACEHOLDER */
 .ad-container, .ad-container-middle {
     margin: 30px auto !important;
     max-width: 800px !important;
@@ -544,6 +544,26 @@ main::before {
     text-align: center !important;
     width: 100% !important;
     display: block !important;
+    position: relative;
+}
+
+/* Werbung-Label */
+.ad-container::before,
+.ad-container-middle::before {
+    content: "Werbung";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(108, 117, 125, 0.8);
+    color: white;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 10;
+    pointer-events: none;
 }
 
 .ad-container-middle {
@@ -563,69 +583,9 @@ main::before {
     align-self: center !important;
 }
 
+/* Entferne alle Placeholder-Styles */
 .ad-placeholder {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border: 2px dashed #dee2e6;
-    padding: 20px;
-    text-align: center !important;
-    transition: all 0.3s ease;
-    margin: 0 auto !important;
-    width: 100% !important;
-}
-
-.ad-placeholder:hover {
-    border-color: #2a5298;
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-}
-
-.ad-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    color: #6c757d;
-    font-weight: 500;
-    text-align: center !important;
-    width: 100% !important;
-}
-
-.ad-content-horizontal {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    text-align: center !important;
-    width: 100% !important;
-}
-
-.ad-text-block {
-    display: flex;
-    flex-direction: column;
-    text-align: center !important;
-    width: 100% !important;
-}
-
-.ad-text-block strong {
-    color: #2a5298;
-    font-size: 1.1em;
-    margin-bottom: 4px;
-    text-align: center !important;
-}
-
-.ad-text-block span {
-    color: #6c757d;
-    font-size: 0.9em;
-    text-align: center !important;
-}
-
-.ad-icon {
-    font-size: 1.5em;
-    opacity: 0.8;
-}
-
-.ad-text {
-    font-size: 0.95em;
-    text-align: center !important;
+    display: none !important;
 }
 
 .ad-content-real {
@@ -634,17 +594,23 @@ main::before {
     text-align: center !important;
     margin: 0 auto !important;
     width: 100% !important;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 10px;
 }
 
-/* AdSense spezifische Zentrierung - EINFACH */
+/* AdSense spezifische Zentrierung */
 .adsbygoogle {
     text-align: center !important;
     margin: 0 auto !important;
     display: block !important;
     width: 100% !important;
+    min-height: 90px;
+    background: transparent;
 }
 
-/* Container in index.html spezifisch - OHNE TRANSFORM */
+/* Container in index.html spezifisch */
 #top-ad-container,
 #middle-ad-container,
 #bottom-ad-container {
@@ -664,13 +630,13 @@ main::before {
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
-    justify-items: center; /* Das könnte der Schlüssel sein */
+    justify-items: center;
 }
 
-/* Werbung aktiv - verstecke Placeholder */
+/* Entferne alte Placeholder-Regeln */
 .ad-container.ads-active .ad-placeholder,
 .ad-container-middle.ads-active .ad-placeholder {
-    display: none;
+    display: none !important;
 }
 
 .ad-container.ads-active .ad-content-real,
