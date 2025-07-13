@@ -533,7 +533,7 @@ main::before {
     grid-column: unset !important;
 }
 
-/* Elegante Werbecontainer - KORRIGIERT: Vollständige Zentrierung */
+/* Elegante Werbecontainer - EINFACHE ZENTRIERUNG */
 .ad-container, .ad-container-middle {
     margin: 30px auto !important;
     max-width: 800px !important;
@@ -544,9 +544,6 @@ main::before {
     text-align: center !important;
     width: 100% !important;
     display: block !important;
-    position: relative !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
 }
 
 .ad-container-middle {
@@ -555,19 +552,15 @@ main::before {
     text-align: center !important;
     width: 100% !important;
     display: block !important;
-    position: relative !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
 }
 
-/* Spezielle Zentrierung für Index-Seite */
+/* Spezielle Zentrierung für Grid-Layout */
 .calculators-grid .ad-container-middle {
-    position: relative !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
     width: 100% !important;
     max-width: 800px !important;
     margin: 40px auto !important;
+    justify-self: center !important;
+    align-self: center !important;
 }
 
 .ad-placeholder {
@@ -641,21 +634,17 @@ main::before {
     text-align: center !important;
     margin: 0 auto !important;
     width: 100% !important;
-    position: relative !important;
 }
 
-/* AdSense spezifische Zentrierung - VERSTÄRKT */
+/* AdSense spezifische Zentrierung - EINFACH */
 .adsbygoogle {
     text-align: center !important;
     margin: 0 auto !important;
     display: block !important;
     width: 100% !important;
-    position: relative !important;
-    left: 0 !important;
-    right: 0 !important;
 }
 
-/* Container in index.html spezifisch */
+/* Container in index.html spezifisch - OHNE TRANSFORM */
 #top-ad-container,
 #middle-ad-container,
 #bottom-ad-container {
@@ -664,19 +653,18 @@ main::before {
     width: 100% !important;
     max-width: 800px !important;
     display: block !important;
-    position: relative !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
 }
 
-/* Inline-Style Überschreibung */
-div[style*="text-align: center"] .ad-container,
-div[style*="text-align: center"] .ad-container-middle {
-    text-align: center !important;
-    margin: 0 auto !important;
-    position: relative !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
+/* Grid-Container spezielle Behandlung */
+.calculators-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    justify-items: center; /* Das könnte der Schlüssel sein */
 }
 
 /* Werbung aktiv - verstecke Placeholder */
