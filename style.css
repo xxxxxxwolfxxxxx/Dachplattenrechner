@@ -533,6 +533,112 @@ main::before {
     grid-column: unset !important;
 }
 
+/* Elegante Werbecontainer */
+.ad-container, .ad-container-middle {
+    margin: 30px auto;
+    max-width: 800px;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center !important;
+    width: 100% !important;
+    display: block !important;
+}
+
+.ad-container-middle {
+    grid-column: 1 / -1;
+    margin: 40px auto;
+    text-align: center !important;
+    width: 100% !important;
+}
+
+.ad-placeholder {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #dee2e6;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    margin: 0 auto;
+}
+
+.ad-placeholder:hover {
+    border-color: #2a5298;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.ad-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #6c757d;
+    font-weight: 500;
+    text-align: center;
+}
+
+.ad-content-horizontal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.ad-text-block {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.ad-text-block strong {
+    color: #2a5298;
+    font-size: 1.1em;
+    margin-bottom: 4px;
+}
+
+.ad-text-block span {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.ad-icon {
+    font-size: 1.5em;
+    opacity: 0.8;
+}
+
+.ad-text {
+    font-size: 0.95em;
+}
+
+.ad-content-real {
+    min-height: 100px;
+    display: block;
+    text-align: center !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+}
+
+/* AdSense spezifische Zentrierung */
+.adsbygoogle {
+    text-align: center !important;
+    margin: 0 auto !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+/* Werbung aktiv - verstecke Placeholder */
+.ad-container.ads-active .ad-placeholder,
+.ad-container-middle.ads-active .ad-placeholder {
+    display: none;
+}
+
+.ad-container.ads-active .ad-content-real,
+.ad-container-middle.ads-active .ad-content-real {
+    display: block !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+}
+
 /* Ad-Container nur sichtbar wenn aktiv */
 #middle-ad-container {
     display: none; /* Standard versteckt */
@@ -1346,6 +1452,32 @@ svg {
 }
 
 /* ===== MOBILE RESPONSIVE DESIGN ===== */
+
+/* Mobile Optimierung für Ad-Container */
+@media (max-width: 768px) {
+    .ad-container, .ad-container-middle {
+        margin: 20px 15px;
+        text-align: center !important;
+    }
+    
+    .ad-placeholder {
+        padding: 15px;
+    }
+    
+    .ad-content-horizontal {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .ad-text-block {
+        text-align: center;
+    }
+    
+    .adsbygoogle {
+        text-align: center !important;
+        margin: 0 auto !important;
+    }
+}
 
 /* Basis Mobile Korrekturen für alle kleinen Bildschirme */
 @media (max-width: 768px) {
