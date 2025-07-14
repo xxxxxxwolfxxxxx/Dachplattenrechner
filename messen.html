@@ -48,201 +48,113 @@
         body {
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+            line-height: 1.7;
             color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
         }
         
-        /* Parallax Container - NEUE STRUKTUR */
-        .parallax-section {
+        /* Einfacher Parallax Container */
+        .parallax-container {
             position: relative;
-            min-height: 120vh; /* Höher für besseren Scroll-Effekt */
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-        }
-        
-        /* Hintergrundbilder mit echtem Parallax - KORRIGIERT */
-        .parallax-bg {
-            position: absolute; /* ZURÜCK zu absolute statt fixed */
-            top: -20%;
-            left: 0;
-            width: 100vw;
-            height: 120vh; /* Größer für besseren Effekt */
+            background-attachment: fixed;
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
-            will-change: transform;
-            z-index: -1;
+            min-height: 150vh;
         }
         
-        /* Alle 4 Hintergrundbilder übereinander - JPG aus images-Ordner */
-        .bg-hero {
-            background: url('images/metal-roof.jpg') no-repeat center center;
-            background-size: cover;
-            z-index: -4; /* Unterstes Bild */
-        }
+        /* 4 Hintergrundbilder nacheinander */
+        .bg-1 { background-image: url('images/metal-roof.jpg'); }
+        .bg-2 { background-image: url('images/roof-worker-safety.jpg'); }
+        .bg-3 { background-image: url('images/roof-measurement.jpg'); }
+        .bg-4 { background-image: url('images/roof-construction.jpg'); }
         
-        .bg-sicherheit {
-            background: url('images/roof-worker-safety.jpg') no-repeat center center;
-            background-size: cover;
-            z-index: -3;
-            opacity: 0; /* Startet unsichtbar */
-        }
-        
-        .bg-werkzeuge {
-            background: url('images/roof-measurement.jpg') no-repeat center center;
-            background-size: cover;
-            z-index: -2;
-            opacity: 0; /* Startet unsichtbar */
-        }
-        
-        .bg-messung {
-            background: url('images/roof-construction.jpg') no-repeat center center;
-            background-size: cover;
-            z-index: -1; /* Oberstes Bild */
-            opacity: 0; /* Startet unsichtbar */
-        }
-        
-        /* Overlay für bessere Lesbarkeit */
-        .parallax-bg::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.3); /* Weniger dunkel */
-            z-index: 1;
-        }
-        
-        /* Content Container - ANGEPASST für bessere Sichtbarkeit */
-        .content-container {
+        /* Content Container - schlicht */
+        .content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 0 auto;
+            max-width: 900px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             position: relative;
             z-index: 10;
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 80px 40px;
-            background: rgba(255, 255, 255, 0.92); /* Weniger transparent */
-            backdrop-filter: blur(20px); /* Stärker */
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3); /* Stärker */
-            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
-        /* Typography */
-        .hero-title {
-            font-size: 3.5em;
-            font-weight: 900;
-            background: linear-gradient(135deg, #1e3c72, #2a5298, #ffc107);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* Typography - sauberer */
+        h1 {
+            font-size: 3em;
+            font-weight: 800;
+            color: #2c3e50;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             line-height: 1.2;
         }
         
-        .content-text {
-            font-size: 1.1em;
-            line-height: 1.8;
-            margin-bottom: 25px;
-        }
-        
-        .content-text strong {
-            color: #1e3c72;
-            font-weight: 700;
-        }
-        
         h2 {
-            font-size: 2.2em;
+            font-size: 2em;
             font-weight: 700;
-            color: #1e3c72;
-            margin: 50px 0 25px 0;
-            border-left: 5px solid #ffc107;
-            padding-left: 20px;
+            color: #34495e;
+            margin: 60px 0 30px 0;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
         }
         
         h3 {
-            font-size: 1.6em;
+            font-size: 1.4em;
             font-weight: 600;
-            color: #2a5298;
-            margin: 35px 0 20px 0;
+            color: #2c3e50;
+            margin: 40px 0 20px 0;
         }
         
+        p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        /* Listen - einfacher */
         ul {
-            padding-left: 25px;
             margin: 20px 0;
+            padding-left: 0;
         }
         
         li {
-            margin-bottom: 12px;
-            font-size: 1.1em;
-            line-height: 1.6;
-        }
-        
-        li strong {
-            color: #1e3c72;
-        }
-        
-        .tip-box {
-            background: linear-gradient(135deg, #e7f1ff, #cce7ff);
-            border: 2px solid #2a5298;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 25px 0;
+            list-style: none;
+            padding: 12px 0;
+            padding-left: 30px;
             position: relative;
+            font-size: 1.05em;
+            color: #555;
         }
         
-        .tip-box::before {
-            content: '💡 ';
-            font-size: 1.2em;
+        li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #3498db;
             font-weight: bold;
-            color: #2a5298;
+            font-size: 1.2em;
+        }
+        
+        /* Info-Boxen - minimal */
+        .info-box {
+            background: linear-gradient(135deg, #e8f6ff, #cce7ff);
+            border-left: 4px solid #3498db;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+            font-size: 1.05em;
         }
         
         .warning-box {
             background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-            border: 3px solid #ffc107;
-            border-radius: 15px;
+            border-left: 4px solid #f39c12;
             padding: 25px;
             margin: 30px 0;
-            position: relative;
-        }
-        
-        .warning-box::before {
-            content: '⚠️ ';
-            font-size: 1.5em;
-            color: #856404;
-            margin-right: 10px;
-        }
-        
-        .equipment-box {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: 2px solid #6c757d;
-            border-radius: 12px;
-            padding: 25px;
-            margin: 30px 0;
+            border-radius: 8px;
             font-size: 1.05em;
-        }
-        
-        .equipment-box h4 {
-            color: #1e3c72;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-        
-        /* Progress Bar */
-        .progress-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #1e3c72, #ffc107);
-            z-index: 1001;
-            transition: width 0.1s ease;
         }
         
         /* Navigation */
@@ -252,68 +164,97 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background: rgba(30, 60, 114, 0.95);
+            background: rgba(44, 62, 80, 0.95);
             backdrop-filter: blur(10px);
+            padding: 20px 0;
+        }
+        
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+        }
+        
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
         }
         
-        .nav-header.scrolled {
-            background: rgba(30, 60, 114, 0.98);
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
         
-        /* Scroll Animations */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(50px);
-            transition: all 0.8s ease;
+        .nav-title {
+            color: white;
+            font-size: 1.3em;
+            font-weight: 700;
         }
         
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
+        /* Dachformen-Galerie - sauberer */
+        .roof-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .roof-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .roof-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .roof-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        
+        .roof-card-title {
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        /* Mess-Skizze */
+        .measurement-diagram {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         
         /* Ad-Container */
         .ad-container {
-            margin: 40px auto;
+            margin: 50px auto;
             max-width: 800px;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             text-align: center;
         }
         
         .ad-placeholder {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 2px dashed #dee2e6;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px dashed #ddd;
             padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .ad-placeholder:hover {
-            border-color: #2a5298;
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        }
-        
-        .ad-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: #6c757d;
-            font-weight: 500;
-        }
-        
-        .ad-icon {
-            font-size: 1.5em;
-            opacity: 0.8;
-        }
-        
-        .ad-text {
-            font-size: 0.95em;
+            border-radius: 8px;
+            color: #666;
         }
         
         .ad-content-real {
@@ -321,81 +262,95 @@
             display: block;
         }
         
+        /* CTA Bereich */
+        .cta-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 50px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 60px 0;
+            color: white;
+        }
+        
+        .cta-section h3 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+        
+        .cta-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5em;
-            }
-            
-            .content-container {
+            .content {
                 margin: 20px;
-                padding: 40px 20px;
+                padding: 40px 25px;
             }
             
-            .parallax-bg {
-                background-attachment: scroll;
+            h1 {
+                font-size: 2.2em;
             }
             
             h2 {
-                font-size: 1.8em;
+                font-size: 1.6em;
             }
             
-            .ad-container {
-                margin: 20px 15px;
+            .nav-content {
+                padding: 0 20px;
             }
             
-            .ad-placeholder {
-                padding: 15px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .hero-title {
-                font-size: 2em;
+            .roof-gallery {
+                grid-template-columns: 1fr;
             }
             
-            .content-container {
-                margin: 10px;
-                padding: 30px 15px;
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Progress Bar -->
-    <div class="progress-bar" id="progressBar"></div>
-    
     <!-- Navigation -->
-    <div class="nav-header" id="navHeader">
-        <div class="container">
-            <a href="index.html" class="back-btn">
-                <span>←</span>
-                <span>Zurück zur Übersicht</span>
-            </a>
+    <div class="nav-header">
+        <div class="nav-content">
+            <a href="index.html" class="back-btn">← Zurück zur Übersicht</a>
             <div class="nav-title">Blechdach richtig vermessen</div>
         </div>
     </div>
 
-    <!-- Alle Hintergrundbilder wieder zu Hero Section -->
-    <section class="parallax-section">
-        <div class="parallax-bg bg-hero" data-speed="0.3"></div>
-        <div class="content-container fade-in">
-            <h1 class="hero-title">Blechdach richtig vermessen – Der Praxisleitfaden</h1>
-            
-            <p class="content-text">
-                <strong>Präzision ist alles!</strong> Eine exakte Vermessung entscheidet über Erfolg oder Misserfolg bei der Blechdach-Montage. 
-                Hier erfährst du, wie Profis messen und welche bewährten Tricks und Werkzeuge den Unterschied machen.
-            </p>
+    <!-- Parallax Hintergrund 1 -->
+    <div class="parallax-container bg-1">
+        <div class="content">
+            <h1>Blechdach richtig vermessen</h1>
+            <p><strong>Präzision ist alles!</strong> Eine exakte Vermessung entscheidet über Erfolg oder Misserfolg bei der Blechdach-Montage. Hier erfährst du, wie Profis messen und welche bewährten Tricks den Unterschied machen.</p>
         </div>
-    </section>
+    </div>
 
     <!-- Ad Container 1 -->
-    <div class="ad-container" id="top-ad-container">
+    <div class="ad-container">
         <div class="ad-placeholder">
-            <div class="ad-content">
-                <span class="ad-icon">📢</span>
-                <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
-            </div>
+            Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools
         </div>
         <ins class="adsbygoogle ad-content-real" style="display:none"
              data-ad-client="ca-pub-8687929894744033"
@@ -403,74 +358,55 @@
              data-ad-format="auto"></ins>
     </div>
 
-    <!-- Sicherheit Section -->
-    <section class="parallax-section">
-        <div class="parallax-bg bg-sicherheit" data-speed="0.4"></div>
-        <div class="content-container fade-in">
+    <!-- Parallax Hintergrund 2 -->
+    <div class="parallax-container bg-2">
+        <div class="content">
             <h2>Sicherheit beim Dachmessen</h2>
             
             <div class="warning-box">
-                <strong>Niemals ohne Sicherung!</strong> Jeder Profi weiß: Beim Dachmessen geht Sicherheit vor Geschwindigkeit.
-                Arbeite nur bei trockenem Wetter – nasse oder vereiste Dächer sind lebensgefährlich!
+                <strong>⚠️ Niemals ohne Sicherung!</strong> Jeder Profi weiß: Beim Dachmessen geht Sicherheit vor Geschwindigkeit. Arbeite nur bei trockenem Wetter – nasse oder vereiste Dächer sind lebensgefährlich!
             </div>
             
-            <div class="equipment-box">
-                <h4>🛡️ Grundausrüstung Sicherheit:</h4>
-                <ul>
-                    <li><strong>Dachhaken mit Sicherheitsleine</strong> – Fest in die Dachkonstruktion eingehängt</li>
-                    <li><strong>Sicherheitsgurt/Klettergurt</strong> – EN 361 zertifiziert</li>
-                    <li><strong>Falldämpfer</strong> – Reduziert Sturzkraft auf unter 6 kN</li>
-                    <li><strong>Karabinerhaken</strong> – Mindestens 20 kN Bruchfestigkeit</li>
-                    <li><strong>Rutschfeste Arbeitsschuhe</strong> – Mit Profilsohle</li>
-                </ul>
-            </div>
+            <h3>🛡️ Grundausrüstung Sicherheit</h3>
+            <ul>
+                <li>Dachhaken mit Sicherheitsleine – Fest in die Dachkonstruktion eingehängt</li>
+                <li>Sicherheitsgurt/Klettergurt – EN 361 zertifiziert</li>
+                <li>Falldämpfer – Reduziert Sturzkraft auf unter 6 kN</li>
+                <li>Karabinerhaken – Mindestens 20 kN Bruchfestigkeit</li>
+                <li>Rutschfeste Arbeitsschuhe – Mit Profilsohle</li>
+            </ul>
             
-            <div class="tip-box">
-                <strong>Alternative ohne Dachhaken:</strong> Wirf die Sicherheitsleine über den First und befestige sie 
-                auf der anderen Dachseite an einem stabilen Punkt (Schornstein, Lüftungsrohr). 
-                Achte darauf, dass die Leine nicht über scharfe Kanten scheuert!
+            <div class="info-box">
+                <strong>💡 Alternative ohne Dachhaken:</strong> Wirf die Sicherheitsleine über den First und befestige sie auf der anderen Dachseite an einem stabilen Punkt (Schornstein, Lüftungsrohr). Achte darauf, dass die Leine nicht über scharfe Kanten scheuert!
             </div>
-            
-            <p class="content-text">
-                <strong>Profi-Tipp:</strong> Installiere die Sicherung VOR dem ersten Schritt aufs Dach. 
-                Bei steilen Dächern (>30°) ist eine Sicherung Pflicht – bei jedem Wetter!
-            </p>
         </div>
-    </section>
+    </div>
 
-    <!-- Werkzeuge Section -->
-    <section class="parallax-section">
-        <div class="parallax-bg bg-werkzeuge" data-speed="0.5"></div>
-        <div class="content-container fade-in">
+    <!-- Parallax Hintergrund 3 -->
+    <div class="parallax-container bg-3">
+        <div class="content">
             <h2>Die richtigen Messwerkzeuge</h2>
             
-            <div class="equipment-box">
-                <h4>📏 Profi-Messausrüstung:</h4>
-                <ul>
-                    <li><strong>Rollbandmaß 8-10m</strong> – Stabiles Stahlband mit Magnetspitze</li>
-                    <li><strong>Teleskop-Maßstab 10m</strong> – Für präzise Dachmessungen</li>
-                    <li><strong>Wasserwaage 1m</strong> – Mit Magnetfüßen für Metalldächer</li>
-                    <li><strong>Winkelmesser/Schmiege</strong> – Für Dachneigungen und Schrägen</li>
-                    <li><strong>Kreide/wasserfester Marker</strong> – Zum Markieren der Messpunkte</li>
-                    <li><strong>Klemmbrett mit Bleistift</strong> – Für Notizen der Maße</li>
-                </ul>
-            </div>
+            <h3>📏 Profi-Messausrüstung</h3>
+            <ul>
+                <li>Rollbandmaß 8-10m – Stabiles Stahlband mit Magnetspitze</li>
+                <li>Teleskop-Maßstab 10m – Für präzise Dachmessungen</li>
+                <li>Wasserwaage 1m – Mit Magnetfüßen für Metalldächer</li>
+                <li>Winkelmesser/Schmiege – Für Dachneigungen und Schrägen</li>
+                <li>Kreide/wasserfester Marker – Zum Markieren der Messpunkte</li>
+                <li>Klemmbrett mit Bleistift – Für Notizen der Maße</li>
+            </ul>
             
-            <div class="tip-box">
-                <strong>Der 3-4-5 Meter Trick:</strong> Mit einem 5m-Rollbandmaß kannst du perfekte rechte Winkel prüfen! 
-                Miss 3m in eine Richtung, 4m in die andere – die Diagonale muss exakt 5m betragen. 
-                Dieser uralte Zimmerer-Trick funktioniert immer!
+            <div class="info-box">
+                <strong>💡 Der 3-4-5 Meter Trick:</strong> Mit einem 5m-Rollbandmaß kannst du perfekte rechte Winkel prüfen! Miss 3m in eine Richtung, 4m in die andere – die Diagonale muss exakt 5m betragen. Dieser uralte Zimmerer-Trick funktioniert immer!
             </div>
         </div>
-    </section>
+    </div>
 
     <!-- Ad Container 2 -->
-    <div class="ad-container" id="middle-ad-container">
+    <div class="ad-container">
         <div class="ad-placeholder">
-            <div class="ad-content">
-                <span class="ad-icon">💡</span>
-                <span class="ad-text">Professionelle Messtools für präzise Dacharbeit</span>
-            </div>
+            Professionelle Messtools für präzise Dacharbeit
         </div>
         <ins class="adsbygoogle ad-content-real" style="display:none"
              data-ad-client="ca-pub-8687929894744033"
@@ -478,131 +414,99 @@
              data-ad-format="auto"></ins>
     </div>
 
-    <!-- Messung Section -->
-    <section class="parallax-section">
-        <div class="parallax-bg bg-messung" data-speed="0.6"></div>
-        <div class="content-container fade-in">
+    <!-- Parallax Hintergrund 4 -->
+    <div class="parallax-container bg-4">
+        <div class="content">
             <h2>Systematisch messen – Schritt für Schritt</h2>
             
             <h3>1. Dachform bestimmen</h3>
             
-            <!-- Pinnwand-Style Fotos - PNG aus images-Ordner -->
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; position: relative; border: 1px solid #ddd;">
-                <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
-                    <!-- Pultdach Foto -->
-                    <div style="background: white; padding: 8px; border-radius: 8px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); transform: rotate(-1deg); border: 1px solid #ccc;">
-                        <img src="images/Pultdach.PNG" alt="Pultdach mit Trapezblech" style="width: 120px; height: 80px; object-fit: cover; border-radius: 4px;">
-                        <div style="text-align: center; margin-top: 8px; font-size: 11px; color: #333; font-weight: bold;">Pultdach</div>
-                        <div style="position: absolute; top: -5px; right: -5px; width: 12px; height: 12px; background: #dc3545; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
-                    </div>
-                    
-                    <!-- Satteldach Foto -->
-                    <div style="background: white; padding: 8px; border-radius: 8px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); transform: rotate(2deg); border: 1px solid #ccc;">
-                        <img src="images/Satteldach.PNG" alt="Satteldach mit Trapezblech" style="width: 120px; height: 80px; object-fit: cover; border-radius: 4px;">
-                        <div style="text-align: center; margin-top: 8px; font-size: 11px; color: #333; font-weight: bold;">Satteldach</div>
-                        <div style="position: absolute; top: -5px; right: -5px; width: 12px; height: 12px; background: #dc3545; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
-                    </div>
-                    
-                    <!-- Walmdach Foto -->
-                    <div style="background: white; padding: 8px; border-radius: 8px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); transform: rotate(-0.5deg); border: 1px solid #ccc;">
-                        <img src="images/Walmdach.PNG" alt="Walmdach mit Ziegeln" style="width: 120px; height: 80px; object-fit: cover; border-radius: 4px;">
-                        <div style="text-align: center; margin-top: 8px; font-size: 11px; color: #333; font-weight: bold;">Walmdach</div>
-                        <div style="position: absolute; top: -5px; right: -5px; width: 12px; height: 12px; background: #dc3545; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
-                    </div>
+            <div class="roof-gallery">
+                <div class="roof-card">
+                    <img src="images/Pultdach.PNG" alt="Pultdach">
+                    <div class="roof-card-title">Pultdach</div>
                 </div>
-                <!-- Pinnwand-Nadeln -->
-                <div style="position: absolute; top: 10px; left: 15px; width: 8px; height: 8px; background: #dc3545; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
-                <div style="position: absolute; top: 10px; right: 15px; width: 8px; height: 8px; background: #dc3545; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
+                <div class="roof-card">
+                    <img src="images/Satteldach.PNG" alt="Satteldach">
+                    <div class="roof-card-title">Satteldach</div>
+                </div>
+                <div class="roof-card">
+                    <img src="images/Walmdach.PNG" alt="Walmdach">
+                    <div class="roof-card-title">Walmdach</div>
+                </div>
             </div>
             
-            <p class="content-text">
-                Erkenne die Grundform: <strong>Satteldach, Walmdach oder Pultdach?</strong> 
-                Dies bestimmt die Mess-Strategie und die benötigten Berechnungen.
-            </p>
+            <p>Erkenne die Grundform: <strong>Satteldach, Walmdach oder Pultdach?</strong> Dies bestimmt die Mess-Strategie und die benötigten Berechnungen.</p>
             
             <h3>2. Grundmaße erfassen</h3>
             
-            <!-- Mess-Skizze wie Foto auf Pinnwand -->
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 20px 0; position: relative;">
-                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); transform: rotate(1deg); border: 1px solid #ccc; max-width: 300px; margin: 0 auto;">
-                    <svg width="260" height="160" viewBox="0 0 260 160">
-                        <!-- Dach-Outline -->
-                        <polygon points="130,20 50,120 210,120" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                        
-                        <!-- Maßlinien -->
-                        <line x1="50" y1="135" x2="210" y2="135" stroke="#dc3545" stroke-width="2"/>
-                        <text x="130" y="150" text-anchor="middle" font-size="12" fill="#dc3545" font-weight="bold">Trauflänge</text>
-                        
-                        <line x1="35" y1="20" x2="35" y2="120" stroke="#28a745" stroke-width="2"/>
-                        <text x="15" y="70" font-size="10" fill="#28a745" font-weight="bold" transform="rotate(-90 15 70)">Dachhöhe</text>
-                        
-                        <line x1="130" y1="20" x2="210" y2="120" stroke="#ffc107" stroke-width="3"/>
-                        <text x="170" y="80" font-size="11" fill="#ffc107" font-weight="bold" transform="rotate(45 170 80)">Dachschräge</text>
-                    </svg>
-                    <div style="text-align: center; margin-top: 10px; font-size: 12px; color: #666; font-style: italic;">Wichtige Messmaße</div>
-                    <!-- Pinnwand-Nadel -->
-                    <div style="position: absolute; top: -5px; left: 50%; width: 12px; height: 12px; background: #dc3545; border-radius: 50%; transform: translateX(-50%);"></div>
-                </div>
+            <div class="measurement-diagram">
+                <svg width="300" height="180" viewBox="0 0 300 180">
+                    <!-- Dach-Outline -->
+                    <polygon points="150,30 70,140 230,140" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                    
+                    <!-- Maßlinien mit korrekten Beschriftungen -->
+                    <line x1="70" y1="155" x2="230" y2="155" stroke="#dc3545" stroke-width="2"/>
+                    <text x="150" y="170" text-anchor="middle" font-size="12" fill="#dc3545" font-weight="bold">Basis-Breite</text>
+                    
+                    <line x1="50" y1="30" x2="50" y2="140" stroke="#28a745" stroke-width="2"/>
+                    <text x="35" y="85" font-size="10" fill="#28a745" font-weight="bold" transform="rotate(-90 35 85)">Höhe</text>
+                    
+                    <line x1="150" y1="30" x2="230" y2="140" stroke="#ffc107" stroke-width="3"/>
+                    <text x="190" y="95" font-size="11" fill="#ffc107" font-weight="bold" transform="rotate(45 190 95)">Schräge Dachkante</text>
+                </svg>
+                <p style="font-style: italic; color: #666; margin-top: 15px;">Wichtige Messmaße am Dach</p>
             </div>
             
-            <div class="equipment-box">
-                <h4>🎯 Reihenfolge der Messung:</h4>
-                <ul>
-                    <li><strong>Trauflänge</strong> – Länge der unteren Dachkante</li>
-                    <li><strong>Dachschräge</strong> – Von Traufe bis First messen (nicht horizontal!)</li>
-                    <li><strong>Dachüberstand</strong> – Auskragung über die Gebäudewand</li>
-                    <li><strong>Firstlänge</strong> – Bei Satteldächern die obere Kante</li>
-                </ul>
-            </div>
+            <h3>🎯 Reihenfolge der Messung</h3>
+            <ul>
+                <li>Basis-Breite – Länge der unteren Dachkante</li>
+                <li>Schräge Dachkante – Von Traufe bis First messen (nicht horizontal!)</li>
+                <li>Dachüberstand – Auskragung über die Gebäudewand</li>
+                <li>Firstlänge – Bei Satteldächern die obere Kante</li>
+            </ul>
             
             <h3>3. Typische Messfehler vermeiden</h3>
             <div class="warning-box">
                 <strong>Häufige Fehler und wie du sie vermeidest:</strong><br><br>
-                <strong>❌ Horizontal statt schräg messen:</strong> Die Dachfläche ist IMMER schräg zu messen!<br>
-                <strong>❌ Maßband durchhängen lassen:</strong> Immer straff halten oder Helfer einsetzen<br>
-                <strong>❌ Überstände vergessen:</strong> Dachüberstände gehören zur Materialberechnung<br>
-                <strong>❌ Nur eine Seite messen:</strong> Dachseiten können unterschiedlich sein!
+                ❌ Horizontal statt schräg messen: Die Dachfläche ist IMMER schräg zu messen!<br>
+                ❌ Maßband durchhängen lassen: Immer straff halten oder Helfer einsetzen<br>
+                ❌ Überstände vergessen: Dachüberstände gehören zur Materialberechnung<br>
+                ❌ Nur eine Seite messen: Dachseiten können unterschiedlich sein!
             </div>
             
-            <h3>4. Profi-Messtricks</h3>
-            <div class="tip-box">
-                <strong>Magnetspitze nutzen:</strong> Hänge das Rollbandmaß an Dachrinnen oder Metallteile – 
-                spart einen Helfer und ist präziser als halten lassen.
+            <h3>4. Dachneigung messen</h3>
+            <p><strong>Einfache Methode:</strong> Lege eine 1m-Wasserwaage an die Dachfläche. Miss am Ende der Wasserwaage den senkrechten Abstand zur Dachfläche. Bei 1m Wasserwaage und 20cm Höhenunterschied hast du 20° Dachneigung.</p>
+            
+            <div class="info-box">
+                <strong>📐 Neigungsberechnung:</strong><br>
+                Formel: Neigung (%) = (Höhenunterschied / Länge) × 100<br>
+                Beispiel: 30cm Höhe auf 1m Länge = 30% = ca. 17°<br>
+                Faustregel: 100% = 45°, 50% = 27°, 25% = 14°
             </div>
             
-            <div class="tip-box">
-                <strong>Symmetrie prüfen:</strong> Bei symmetrischen Dächern beide Seiten messen. 
-                Abweichungen über 2cm deuten auf Baufehler hin!
+            <h2>Zusammenfassung: Perfekt vermessen</h2>
+            <p>Mit der richtigen Sicherheitsausrüstung, professionellen Messwerkzeugen und bewährten Techniken wird die Dachvermessung zur Routine. Der 3-4-5m-Trick für rechte Winkel, systematisches Vorgehen und die Vermeidung typischer Fehler sind der Schlüssel zum Erfolg.</p>
+            
+            <div class="info-box">
+                <strong>💡 Goldene Regel:</strong> Lieber dreimal messen als einmal falsch bestellen! Zeit beim Messen gespart ist Geld beim Material verloren.
             </div>
             
-            <div class="tip-box">
-                <strong>Wind beachten:</strong> Bei starkem Wind klappt das Rollbandmaß von selbst ein. 
-                Nutze kürzere Messabschnitte und das Teleskop-Maßband.
-            </div>
-            
-            <h3>5. Dachneigung messen</h3>
-            <p class="content-text">
-                <strong>Einfache Methode:</strong> Lege eine 1m-Wasserwaage an die Dachfläche. 
-                Miss am Ende der Wasserwaage den senkrechten Abstand zur Dachfläche. 
-                Bei 1m Wasserwaage und 20cm Höhenunterschied hast du 20° Dachneigung.
-            </p>
-            
-            <div class="equipment-box">
-                <h4>📐 Neigungsberechnung:</h4>
-                <p><strong>Formel:</strong> Neigung (%) = (Höhenunterschied / Länge) × 100</p>
-                <p><strong>Beispiel:</strong> 30cm Höhe auf 1m Länge = 30% = ca. 17°</p>
-                <p><strong>Faustregel:</strong> 100% = 45°, 50% = 27°, 25% = 14°</p>
+            <div class="cta-section">
+                <h3>Jetzt Materialverbrauch berechnen!</h3>
+                <p>Mit den gemessenen Werten können Sie jetzt den genauen Materialbedarf ermitteln:</p>
+                <div class="cta-buttons">
+                    <a href="gleichschenkliges-dreieck.html" class="cta-btn">📐 Dreieck berechnen</a>
+                    <a href="trapez.html" class="cta-btn">🔷 Trapez berechnen</a>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
 
     <!-- Ad Container 3 -->
-    <div class="ad-container" id="bottom-ad-container">
+    <div class="ad-container">
         <div class="ad-placeholder">
-            <div class="ad-content">
-                <span class="ad-icon">🛠️</span>
-                <span class="ad-text">Präzise Messwerkzeuge für Dachprofis</span>
-            </div>
+            Präzise Messwerkzeuge für Dachprofis
         </div>
         <ins class="adsbygoogle ad-content-real" style="display:none"
              data-ad-client="ca-pub-8687929894744033"
@@ -610,100 +514,14 @@
              data-ad-format="auto"></ins>
     </div>
 
-    <!-- Fazit Section -->
-    <section class="parallax-section">
-        <div class="parallax-bg bg-hero" data-speed="0.2"></div>
-        <div class="content-container fade-in">
-            <h2>Zusammenfassung: Perfekt vermessen</h2>
-            
-            <p class="content-text">
-                Mit der richtigen Sicherheitsausrüstung, professionellen Messwerkzeugen und bewährten Techniken 
-                wird die Dachvermessung zur Routine. Der 3-4-5m-Trick für rechte Winkel, 
-                systematisches Vorgehen und die Vermeidung typischer Fehler sind der Schlüssel zum Erfolg.
-            </p>
-            
-            <div class="tip-box">
-                <strong>Goldene Regel:</strong> Lieber dreimal messen als einmal falsch bestellen! 
-                Zeit beim Messen gespart ist Geld beim Material verloren.
-            </div>
-            
-            <div style="text-align: center; margin-top: 40px;">
-                <div style="background: linear-gradient(135deg, #1e3c72, #2a5298); padding: 30px; border-radius: 15px; color: white;">
-                    <h3 style="margin-bottom: 20px;">Jetzt Materialverbrauch berechnen!</h3>
-                    <p style="margin-bottom: 25px;">Mit den gemessenen Werten können Sie jetzt den genauen Materialbedarf ermitteln:</p>
-                    <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                        <a href="gleichschenkliges-dreieck.html" class="btn btn-primary" style="text-decoration: none;">
-                            📐 Dreieck berechnen
-                        </a>
-                        <a href="trapez.html" class="btn btn-primary" style="text-decoration: none;">
-                            🔷 Trapez berechnen
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <script>
-        // Verbesserte Parallax-Funktion - alle Bilder sichtbar machen
-        function updateParallax() {
-            const scrollTop = window.pageYOffset;
-            const parallaxElements = document.querySelectorAll('.parallax-bg');
-            
-            // Standard Parallax für alle Elemente
-            parallaxElements.forEach(element => {
-                const speed = parseFloat(element.dataset.speed) || 0.5;
-                const yPos = -(scrollTop * speed);
-                element.style.transform = `translate3d(0, ${yPos}px, 0)`;
-                
-                // Alle Bilder sichtbar machen
-                element.style.opacity = 1;
-            });
-            
-            // Debug: Log um zu sehen welche Bilder gefunden werden
-            console.log(`Gefundene Parallax-Elemente: ${parallaxElements.length}`);
-        }
-
-        // Progress Bar
-        function updateProgressBar() {
-            const scrollTop = window.pageYOffset;
-            const docHeight = document.body.scrollHeight - window.innerHeight;
-            const scrollPercent = (scrollTop / docHeight) * 100;
-            document.getElementById('progressBar').style.width = scrollPercent + '%';
-        }
-
-        // Navigation Header
-        function updateNavHeader() {
-            const navHeader = document.getElementById('navHeader');
-            const scrollTop = window.pageYOffset;
-            
-            if (scrollTop > 100) {
-                navHeader.classList.add('scrolled');
-            } else {
-                navHeader.classList.remove('scrolled');
-            }
-        }
-
-        // Scroll Animations
-        function updateScrollAnimations() {
-            const elements = document.querySelectorAll('.fade-in');
-            
-            elements.forEach(element => {
-                const elementTop = element.getBoundingClientRect().top;
-                const elementVisible = 150;
-                
-                if (elementTop < window.innerHeight - elementVisible) {
-                    element.classList.add('visible');
-                }
-            });
-        }
-
         // AdSense Loading
         function showAds() {
             if (localStorage.getItem('marketingCookies') === 'true') {
-                document.getElementById('top-ad-container').style.display = 'block';
-                document.getElementById('middle-ad-container').style.display = 'block';
-                document.getElementById('bottom-ad-container').style.display = 'block';
+                const containers = document.querySelectorAll('.ad-container');
+                containers.forEach(container => {
+                    container.style.display = 'block';
+                });
                 
                 if (window.adsbygoogle) {
                     try {
@@ -720,42 +538,9 @@
             }
         }
 
-        // Performance optimized scroll handler
-        let ticking = false;
-        function handleScroll() {
-            if (!ticking) {
-                requestAnimationFrame(() => {
-                    updateParallax();
-                    updateProgressBar();
-                    updateNavHeader();
-                    updateScrollAnimations();
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        }
-
-        // Mobile optimizations
-        function initMobileOptimizations() {
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                document.querySelectorAll('.parallax-bg').forEach(bg => {
-                    bg.style.backgroundAttachment = 'scroll';
-                });
-            }
-        }
-
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            initMobileOptimizations();
-            window.addEventListener('scroll', handleScroll);
-            updateScrollAnimations();
-            updateNavHeader();
-            
-            // Initialize tracking and ads based on existing consent
             const cookieConsent = localStorage.getItem('cookieConsent');
-            if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
-                // Analytics already loaded in head
-            }
             if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
                 loadAdSense();
                 showAds();
