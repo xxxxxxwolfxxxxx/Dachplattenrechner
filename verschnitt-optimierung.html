@@ -6,8 +6,27 @@
     <title>Verschnitt-Optimierung - Trapezplattenrechner</title>
     <meta name="description" content="Intelligente Materialoptimierung für minimalen Verschnitt oder optimale Sägezeit.">
     
-    <!-- Google AdSense -->
+    <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    <script>
+        // AdSense nur laden wenn Marketing-Cookies akzeptiert sind
+        function loadAdSense() {
+            if (localStorage.getItem('marketingCookies') === 'true') {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
+                script.crossOrigin = 'anonymous';
+                document.head.appendChild(script);
+                
+                // AdSense Auto-Ads aktivieren
+                window.adsbygoogle = window.adsbygoogle || [];
+                window.adsbygoogle.push({
+                    google_ad_client: 'ca-pub-8687929894744033',
+                    enable_page_level_ads: true
+                });
+            }
+        }
+    </script>
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
@@ -15,6 +34,16 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
+        
+        // Analytics nur laden wenn Analyse-Cookies akzeptiert sind
+        function loadAnalytics() {
+            if (localStorage.getItem('analyticsCookies') === 'true') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+            }
+        }
         
         // Check if analytics cookies are accepted
         const analyticsCookies = localStorage.getItem('analyticsCookies');
@@ -27,6 +56,113 @@
     </script>
 
     <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* Elegante Werbecontainer */
+        .ad-container, .ad-container-middle {
+            margin: 30px auto;
+            max-width: 800px;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .ad-container-middle {
+            margin: 40px auto;
+        }
+        
+        .ad-placeholder {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px dashed #dee2e6;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .ad-placeholder:hover {
+            border-color: #2a5298;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+        
+        .ad-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .ad-content-horizontal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .ad-text-block {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        
+        .ad-text-block strong {
+            color: #2a5298;
+            font-size: 1.1em;
+            margin-bottom: 4px;
+        }
+        
+        .ad-text-block span {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .ad-icon {
+            font-size: 1.5em;
+            opacity: 0.8;
+        }
+        
+        .ad-text {
+            font-size: 0.95em;
+        }
+        
+        .ad-content-real {
+            min-height: 100px;
+            display: block;
+        }
+        
+        /* Werbung aktiv - verstecke Placeholder */
+        .ad-container.ads-active .ad-placeholder,
+        .ad-container-middle.ads-active .ad-placeholder {
+            display: none;
+        }
+        
+        .ad-container.ads-active .ad-content-real,
+        .ad-container-middle.ads-active .ad-content-real {
+            display: block !important;
+        }
+        
+        /* Mobile Optimierung */
+        @media (max-width: 768px) {
+            .ad-container, .ad-container-middle {
+                margin: 20px 15px;
+            }
+            
+            .ad-placeholder {
+                padding: 15px;
+            }
+            
+            .ad-content-horizontal {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .ad-text-block {
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="nav-header">
@@ -41,6 +177,22 @@
 
     <div class="container">
         <main>
+            <!-- Eleganter Werbeplatz oben -->
+            <div class="ad-container" id="top-ad-container" style="text-align: center;">
+                <div class="ad-placeholder">
+                    <div class="ad-content">
+                        <span class="ad-icon">📢</span>
+                        <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
+                    </div>
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+            </div>
+
             <h1 style="color: #1e3c72; text-align: center; margin-bottom: 30px;">Verschnitt-Optimierung</h1>
 
             <!-- Einfache Eingabe -->
@@ -57,6 +209,25 @@
                     <label for="benoetigte-masze">Benötigte Längen (eine pro Zeile)</label>
                     <textarea id="benoetigte-masze" rows="8" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px; font-family: monospace;" placeholder="Beispiel:
 100x0.3"></textarea>
+                </div>
+            </div>
+
+            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
+            <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
+                <div class="ad-placeholder">
+                    <div class="ad-content-horizontal">
+                        <span class="ad-icon">💡</span>
+                        <div class="ad-text-block">
+                            <strong>Professionelle Optimierungstools</strong>
+                            <span>Intelligente Materialplanung für Handwerk und Industrie</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
                 </div>
             </div>
 
@@ -239,12 +410,83 @@
                 </div>
             </div>
 
-            <!-- Druckbare Version (versteckt) - NICHT MEHR BENÖTIGT -->
+            <!-- Eleganter Werbeplatz am Ende -->
+            <div class="ad-container" id="bottom-ad-container" style="text-align: center;">
+                <div class="ad-placeholder">
+                    <div class="ad-content">
+                        <span class="ad-icon">🛠️</span>
+                        <span class="ad-text">Mehr professionelle Optimierungstools verfügbar</span>
+                    </div>
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+            </div>
         </main>
     </div>
 
     <script>
         let aktuelleOptimierung = [];
+
+        // Cookie Management System
+        function showCookieBanner() {
+            const cookieConsent = localStorage.getItem('cookieConsent');
+            if (!cookieConsent) {
+                document.getElementById('cookieBanner').classList.add('show');
+            }
+        }
+
+        function acceptAllCookies() {
+            localStorage.setItem('cookieConsent', 'all');
+            localStorage.setItem('analyticsCookies', 'true');
+            localStorage.setItem('marketingCookies', 'true');
+            
+            loadAnalytics();
+            loadAdSense();
+            showAds();
+            
+            document.getElementById('cookieBanner').classList.remove('show');
+        }
+
+        function acceptOnlyEssential() {
+            localStorage.setItem('cookieConsent', 'essential');
+            localStorage.setItem('analyticsCookies', 'false');
+            localStorage.setItem('marketingCookies', 'false');
+            
+            document.getElementById('cookieBanner').classList.remove('show');
+        }
+
+        function showAds() {
+            if (localStorage.getItem('marketingCookies') === 'true') {
+                // Zeige AdSense-Container
+                document.getElementById('top-ad-container').style.display = 'block';
+                document.getElementById('middle-ad-container').style.display = 'block';
+                document.getElementById('bottom-ad-container').style.display = 'block';
+                
+                // Lade AdSense-Anzeigen
+                if (window.adsbygoogle) {
+                    try {
+                        const ads = document.querySelectorAll('.adsbygoogle');
+                        ads.forEach(ad => {
+                            if (!ad.getAttribute('data-ad-status')) {
+                                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                            }
+                        });
+                    } catch (e) {
+                        console.log('AdSense loading error:', e);
+                    }
+                }
+            }
+        }
+
+        function hideAds() {
+            document.getElementById('top-ad-container').style.display = 'none';
+            document.getElementById('middle-ad-container').style.display = 'none';
+            document.getElementById('bottom-ad-container').style.display = 'none';
+        }
 
         // Verbesserte Druckfunktion
         function druckeSaegeplan() {
@@ -739,6 +981,18 @@
             document.getElementById('results').style.display = 'block';
         }
 
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize tracking and ads based on existing consent
+            const cookieConsent = localStorage.getItem('cookieConsent');
+            if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
+                loadAnalytics();
+            }
+            if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
+                loadAdSense();
+                showAds();
+            }
+        });
     </script>
 </body>
 </html>
