@@ -63,13 +63,13 @@
             overflow: hidden;
         }
         
-        /* Hintergrundbilder mit echtem Parallax - ÜBEREINANDER GESTAPELT */
+        /* Hintergrundbilder mit echtem Parallax - KORRIGIERT */
         .parallax-bg {
-            position: fixed; /* FIXED statt absolute für echten Parallax */
-            top: 0;
+            position: absolute; /* ZURÜCK zu absolute statt fixed */
+            top: -20%;
             left: 0;
             width: 100vw;
-            height: 100vh;
+            height: 120vh; /* Größer für besseren Effekt */
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -88,18 +88,21 @@
             background: url('images/roof-worker-safety.jpg') no-repeat center center;
             background-size: cover;
             z-index: -3;
+            opacity: 0; /* Startet unsichtbar */
         }
         
         .bg-werkzeuge {
             background: url('images/roof-measurement.jpg') no-repeat center center;
             background-size: cover;
             z-index: -2;
+            opacity: 0; /* Startet unsichtbar */
         }
         
         .bg-messung {
             background: url('images/roof-construction.jpg') no-repeat center center;
             background-size: cover;
             z-index: -1; /* Oberstes Bild */
+            opacity: 0; /* Startet unsichtbar */
         }
         
         /* Overlay für bessere Lesbarkeit */
@@ -110,7 +113,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.4); /* Dunkler Overlay */
+            background: rgba(0, 0, 0, 0.3); /* Weniger dunkel */
             z-index: 1;
         }
         
@@ -373,14 +376,9 @@
         </div>
     </div>
 
-    <!-- Alle 4 Hintergrundbilder für Parallax-Effekt -->
-    <div class="parallax-bg bg-hero" data-speed="0.3"></div>
-    <div class="parallax-bg bg-sicherheit" data-speed="0.4"></div>
-    <div class="parallax-bg bg-werkzeuge" data-speed="0.5"></div>
-    <div class="parallax-bg bg-messung" data-speed="0.6"></div>
-
-    <!-- Hero Section -->
+    <!-- Alle Hintergrundbilder wieder zu Hero Section -->
     <section class="parallax-section">
+        <div class="parallax-bg bg-hero" data-speed="0.3"></div>
         <div class="content-container fade-in">
             <h1 class="hero-title">Blechdach richtig vermessen – Der Praxisleitfaden</h1>
             
@@ -407,6 +405,7 @@
 
     <!-- Sicherheit Section -->
     <section class="parallax-section">
+        <div class="parallax-bg bg-sicherheit" data-speed="0.4"></div>
         <div class="content-container fade-in">
             <h2>Sicherheit beim Dachmessen</h2>
             
@@ -441,6 +440,7 @@
 
     <!-- Werkzeuge Section -->
     <section class="parallax-section">
+        <div class="parallax-bg bg-werkzeuge" data-speed="0.5"></div>
         <div class="content-container fade-in">
             <h2>Die richtigen Messwerkzeuge</h2>
             
@@ -480,6 +480,7 @@
 
     <!-- Messung Section -->
     <section class="parallax-section">
+        <div class="parallax-bg bg-messung" data-speed="0.6"></div>
         <div class="content-container fade-in">
             <h2>Systematisch messen – Schritt für Schritt</h2>
             
@@ -643,43 +644,42 @@
     </section>
 
     <script>
-        // Verbesserter Parallax Effect - verschiedene Scroll-Geschwindigkeiten
+        // Sanfterer Parallax Effect mit Section-basiertem Bildwechsel
         function updateParallax() {
             const scrollTop = window.pageYOffset;
-            const windowHeight = window.innerHeight;
-            const bodyHeight = document.body.scrollHeight;
-            
-            // Berechne Scroll-Progress (0 bis 1)
-            const scrollProgress = scrollTop / (bodyHeight - windowHeight);
-            
             const parallaxElements = document.querySelectorAll('.parallax-bg');
             
-            parallaxElements.forEach((element, index) => {
+            // Standard Parallax für alle Elemente
+            parallaxElements.forEach(element => {
                 const speed = parseFloat(element.dataset.speed) || 0.5;
+                const yPos = -(scrollTop * speed);
+                element.style.transform = `translate3d(0, ${yPos}px, 0)`;
+            });
+            
+            // Sanfte Opacity-Änderungen basierend auf Scroll-Position
+            const windowHeight = window.innerHeight;
+            const sections = document.querySelectorAll('.parallax-section');
+            
+            sections.forEach((section, index) => {
+                const rect = section.getBoundingClientRect();
+                const sectionTop = rect.top;
+                const sectionHeight = rect.height;
                 
-                // Verschiedene Transformationen für jeden Hintergrund
-                let yPos = 0;
-                
-                switch(index) {
-                    case 0: // Erstes Bild (metal-roof)
-                        yPos = -(scrollTop * speed);
-                        element.style.opacity = Math.max(0, 1 - scrollProgress * 1.5);
-                        break;
-                    case 1: // Zweites Bild (roof-worker-safety)
-                        yPos = -(scrollTop * speed) + windowHeight * 0.3;
-                        element.style.opacity = Math.max(0, Math.min(1, (scrollProgress - 0.2) * 3));
-                        break;
-                    case 2: // Drittes Bild (roof-measurement)
-                        yPos = -(scrollTop * speed) + windowHeight * 0.6;
-                        element.style.opacity = Math.max(0, Math.min(1, (scrollProgress - 0.5) * 3));
-                        break;
-                    case 3: // Viertes Bild (roof-construction)
-                        yPos = -(scrollTop * speed) + windowHeight * 0.9;
-                        element.style.opacity = Math.max(0, scrollProgress - 0.7);
-                        break;
+                // Berechne Sichtbarkeit der Section (0-1)
+                let visibility = 0;
+                if (sectionTop < windowHeight && sectionTop + sectionHeight > 0) {
+                    if (sectionTop <= 0) {
+                        visibility = Math.min(1, (sectionHeight + sectionTop) / sectionHeight);
+                    } else {
+                        visibility = Math.min(1, (windowHeight - sectionTop) / windowHeight);
+                    }
                 }
                 
-                element.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                // Ändere Opacity basierend auf Section-Sichtbarkeit
+                const bgElement = section.querySelector('.parallax-bg');
+                if (bgElement) {
+                    bgElement.style.opacity = Math.max(0.3, visibility); // Mindest-Opacity 0.3
+                }
             });
         }
 
