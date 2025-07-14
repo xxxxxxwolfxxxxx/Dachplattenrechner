@@ -244,28 +244,32 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         
-        /* Ad-Container - KORREKT OHNE LILA RAND */
+        /* Ad-Container - KOMPLETT OHNE LILA BALKEN */
         .ad-container {
             margin: 50px auto;
             max-width: 800px;
             text-align: center;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background: transparent; /* Kein Hintergrund */
+            border: none; /* Kein Rand */
+            padding: 0; /* Kein Padding */
+            box-shadow: none; /* Kein Schatten */
         }
         
         .ad-placeholder {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             border: 2px dashed #ddd;
             padding: 20px;
             border-radius: 8px;
             color: #666;
+            margin: 0 auto;
         }
         
         .ad-content-real {
             min-height: 100px;
             display: block;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 10px;
         }
         
         /* CTA Bereich */
@@ -465,8 +469,9 @@
                     <line x1="50" y1="30" x2="50" y2="140" stroke="#28a745" stroke-width="2"/>
                     <text x="35" y="85" font-size="10" fill="#28a745" font-weight="bold" transform="rotate(-90 35 85)">Höhe</text>
                     
+                    <!-- KORRIGIERT: Schräge Linie und parallel ausgerichteter Text -->
                     <line x1="150" y1="30" x2="230" y2="140" stroke="#ffc107" stroke-width="3"/>
-                    <text x="195" y="75" font-size="11" fill="#ffc107" font-weight="bold" transform="rotate(45 195 75)">Schräge Dachkante</text>
+                    <text x="190" y="80" font-size="11" fill="#ffc107" font-weight="bold" transform="rotate(35 190 80)">Schräge Dachkante</text>
                 </svg>
                 <p style="font-style: italic; color: #666; margin-top: 15px;">Wichtige Messmaße am Dach</p>
             </div>
