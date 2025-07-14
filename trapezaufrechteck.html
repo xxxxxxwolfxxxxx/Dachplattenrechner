@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trapezplattenrechner - Professionelle Dachplatten-Berechnung</title>
-    <meta name="description" content="Professioneller Trapezplattenrechner für verschiedene Dachformen. Berechnen Sie Materialverbrauch und erstellen Sie Anrisspläne für Dreiecksdächer, Pyramiden und mehr.">
+    <title>Trapez auf Rechteck - Trapezplattenrechner</title>
+    <meta name="description" content="Berechnen Sie Trapezbleche für Walmdächer und Krüppelwalmdächer mit kombinierter Geometrie. Durchgehende Platten für komplexe Dachformen.">
     
     <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
@@ -157,30 +157,15 @@
     </style>
 </head>
 <body>
-    <header>
+    <div class="nav-header">
         <div class="container">
-            <h1>Trapezplattenrechner</h1>
-            <p class="header-subtitle">Professionelle Berechnung für Trapezbleche und Dachplatten</p>
-            <div class="features">
-                <div class="feature">
-                    <span>📏</span>
-                    <span>Präzise Berechnungen</span>
-                </div>
-                <div class="feature">
-                    <span>📐</span>
-                    <span>Detaillierte Anrisspläne</span>
-                </div>
-                <div class="feature">
-                    <span>🎯</span>
-                    <span>Materialoptimierung</span>
-                </div>
-                <div class="feature">
-                    <span>🖨️</span>
-                    <span>Druckfertige Pläne</span>
-                </div>
-            </div>
+            <a href="index.html" class="back-btn">
+                <span>←</span>
+                <span>Zurück zur Übersicht</span>
+            </a>
+            <div class="nav-title">Trapez auf Rechteck</div>
         </div>
-    </header>
+    </div>
 
     <div class="container">
         <main>
@@ -200,189 +185,181 @@
                 </div>
             </div>
 
-            <div class="calculators-grid">
-                <!-- Gleichschenkliges Dreieck -->
-                <a href="gleichschenkliges-dreieck.html" class="calculator-card">
-                    <div class="card-icon">
-                        <svg width="120" height="80" viewBox="0 0 120 80">
-                            <polygon points="60,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                            <line x1="30" y1="70" x2="30" y2="55" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="40" y1="70" x2="40" y2="40" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="50" y1="70" x2="50" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="60" y1="70" x2="60" y2="10" stroke="#dc3545" stroke-width="2"/>
-                            <line x1="70" y1="70" x2="70" y2="25" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="80" y1="70" x2="80" y2="40" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="90" y1="70" x2="90" y2="55" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <circle cx="60" cy="10" r="2" fill="#dc3545"/>
-                        </svg>
-                    </div>
-                    <h2 class="card-title">Gleichschenkliges Dreieck</h2>
-                    <p class="card-description">
-                        Ideal für Pyramidendächer, Satteldachwalmflächen und symmetrische Dreiecksflächen.
-                    </p>
-                    <ul class="card-features">
-                        <li>Symmetrische Dreiecksberechnung</li>
-                        <li>Automatische Spitzenerkennung</li>
-                        <li>Optimierte Materialverteilung</li>
-                        <li>Detaillierte Schnittliste</li>
-                    </ul>
-                    <span class="cta-button">Jetzt berechnen</span>
-                </a>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <svg width="280" height="180" viewBox="0 0 280 180" style="margin-bottom: 15px;">
+                    <!-- Rechteckiger Bereich (unten) -->
+                    <rect x="50" y="90" width="180" height="60" fill="#e8f4fd" stroke="#1976d2" stroke-width="2"/>
+                    
+                    <!-- Trapezförmiger Bereich (oben) -->
+                    <polygon points="90,30 190,30 230,90 50,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                    
+                    <!-- Trapezbleche (senkrecht, über beide Bereiche) -->
+                    <line x1="70" y1="150" x2="70" y2="75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="90" y1="150" x2="90" y2="30" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="110" y1="150" x2="110" y2="30" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="130" y1="150" x2="130" y2="30" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="140" y1="150" x2="140" y2="30" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
+                    <line x1="150" y1="150" x2="150" y2="30" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="170" y1="150" x2="170" y2="30" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="190" y1="150" x2="190" y2="30" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    <line x1="210" y1="150" x2="210" y2="75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                    
+                    <!-- Markiere Übergangszone -->
+                    <line x1="50" y1="90" x2="230" y2="90" stroke="#ffc107" stroke-width="3" opacity="0.8"/>
+                    
+                    <!-- Beschriftungen -->
+                    <text x="140" y="25" text-anchor="middle" font-size="12" fill="#28a745" font-weight="bold">Trapez-Bereich</text>
+                    <text x="140" y="125" text-anchor="middle" font-size="12" fill="#6f42c1" font-weight="bold">Rechteck-Bereich</text>
+                    <text x="140" y="86" text-anchor="middle" font-size="10" fill="#ffc107" font-weight="bold">Übergang</text>
+                    
+                    <!-- Maße -->
+                    <line x1="50" y1="165" x2="230" y2="165" stroke="#333" stroke-width="1"/>
+                    <line x1="50" y1="162" x2="50" y2="168" stroke="#333" stroke-width="1"/>
+                    <line x1="230" y1="162" x2="230" y2="168" stroke="#333" stroke-width="1"/>
+                    <text x="140" y="178" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Gesamtbreite</text>
+                </svg>
+            </div>
+            
+            <h1 style="color: #1e3c72; text-align: center; margin-bottom: 30px;">Trapez auf Rechteck Dachplattenrechner</h1>
 
-                <!-- Ungleichschenkliges Dreieck -->
-                <a href="ungleichschenkliges-dreieck.html" class="calculator-card">
-                    <div class="card-icon">
-                        <svg width="120" height="80" viewBox="0 0 120 80">
-                            <polygon points="75,10 20,70 100,70" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                            <line x1="28" y1="70" x2="28" y2="62" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="36" y1="70" x2="36" y2="54" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="44" y1="70" x2="44" y2="46" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="52" y1="70" x2="52" y2="38" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="60" y1="70" x2="60" y2="30" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="68" y1="70" x2="68" y2="22" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="75" y1="70" x2="75" y2="10" stroke="#dc3545" stroke-width="2"/>
-                            <line x1="82" y1="70" x2="82" y2="26" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="90" y1="70" x2="90" y2="42" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <circle cx="75" cy="10" r="2" fill="#dc3545"/>
-                        </svg>
+            <!-- Geometrie-Eingabe -->
+            <div class="section">
+                <h2>1. Dachgeometrie - Trapez auf Rechteck</h2>
+                
+                <h3 style="color: #28a745; margin-bottom: 15px;">Trapez-Bereich (oben)</h3>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="trapez-obere-breite">Obere Breite Trapez (m)</label>
+                        <input type="number" id="trapez-obere-breite" step="0.01" min="0" placeholder="z.B. 6.00">
                     </div>
-                    <h2 class="card-title">Ungleichschenkliges Dreieck</h2>
-                    <p class="card-description">
-                        Für asymmetrische Dachflächen mit verschobener Spitze. Flexible Eingabemöglichkeiten.
-                    </p>
-                    <ul class="card-features">
-                        <li>Variable Spitzenposition</li>
-                        <li>Kantenlängen oder Position/Höhe</li>
-                        <li>Geometrische Validierung</li>
-                        <li>Präzise Winkelberechnungen</li>
-                    </ul>
-                    <span class="cta-button">Jetzt berechnen</span>
-                </a>
-
-                <!-- Trapez -->
-                <a href="trapez.html" class="calculator-card">
-                    <div class="card-icon">
-                        <svg width="120" height="80" viewBox="0 0 120 80">
-                            <polygon points="40,20 80,20 95,60 25,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                            <line x1="32" y1="60" x2="32" y2="44" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="40" y1="60" x2="40" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="48" y1="60" x2="48" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="56" y1="60" x2="56" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="64" y1="60" x2="64" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="72" y1="60" x2="72" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="80" y1="60" x2="80" y2="20" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="88" y1="60" x2="88" y2="44" stroke="#666" stroke-width="1" opacity="0.8"/>
-                        </svg>
+                    <div class="input-group">
+                        <label for="trapez-hoehe">Höhe Trapez (m)</label>
+                        <input type="number" id="trapez-hoehe" step="0.01" min="0" placeholder="z.B. 3.00">
                     </div>
-                    <h2 class="card-title">Trapez</h2>
-                    <p class="card-description">
-                        Für trapezförmige Dachflächen mit parallelen oberen und unteren Kanten.
-                    </p>
-                    <ul class="card-features">
-                        <li>Parallele Oberkanten</li>
-                        <li>Variable Neigungswinkel</li>
-                        <li>Optimierte Schnittführung</li>
-                        <li>Materialersparnis</li>
-                    </ul>
-                    <span class="cta-button">Jetzt berechnen</span>
-                </a>
-
-                <!-- NEUE KARTE: Trapez auf Rechteck -->
-                <a href="trapezaufrechteck.html" class="calculator-card">
-                    <div class="card-icon">
-                        <svg width="120" height="80" viewBox="0 0 120 80">
-                            <!-- Rechteckiger Bereich (unten) -->
-                            <rect x="25" y="40" width="70" height="30" fill="#e8f4fd" stroke="#1976d2" stroke-width="2"/>
-                            
-                            <!-- Trapezförmiger Bereich (oben) -->
-                            <polygon points="40,15 80,15 95,40 25,40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                            
-                            <!-- Trapezbleche (senkrecht, über beide Bereiche) -->
-                            <line x1="35" y1="70" x2="35" y2="30" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="45" y1="70" x2="45" y2="15" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="55" y1="70" x2="55" y2="15" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="65" y1="70" x2="65" y2="15" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="75" y1="70" x2="75" y2="15" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            <line x1="85" y1="70" x2="85" y2="30" stroke="#666" stroke-width="1" opacity="0.8"/>
-                            
-                            <!-- Markiere Übergangszone -->
-                            <line x1="25" y1="40" x2="95" y2="40" stroke="#ffc107" stroke-width="2" opacity="0.8"/>
-                            
-                            <!-- Kleine Beschriftungen -->
-                            <text x="60" y="10" text-anchor="middle" font-size="8" fill="#28a745" font-weight="bold">Trapez</text>
-                            <text x="60" y="58" text-anchor="middle" font-size="8" fill="#6f42c1" font-weight="bold">Rechteck</text>
-                        </svg>
+                </div>
+                
+                <h3 style="color: #6f42c1; margin-bottom: 15px; margin-top: 25px;">Rechteck-Bereich (unten)</h3>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="rechteck-breite">Breite Rechteck (m)</label>
+                        <input type="number" id="rechteck-breite" step="0.01" min="0" placeholder="z.B. 12.00">
                     </div>
-                    <h2 class="card-title">Trapez auf Rechteck</h2>
-                    <p class="card-description">
-                        Für Walmdächer und Krüppelwalmdächer mit trapezförmigem oberen und rechteckigem unteren Bereich.
-                    </p>
-                    <ul class="card-features">
-                        <li>Walmdach-Berechnung</li>
-                        <li>Kombinierte Geometrie</li>
-                        <li>Durchgehende Platten</li>
-                        <li>Komplexe Anrisspläne</li>
-                    </ul>
-                    <span class="cta-button">Jetzt berechnen</span>
-                </a>
+                    <div class="input-group">
+                        <label for="rechteck-hoehe">Höhe Rechteck (m)</label>
+                        <input type="number" id="rechteck-hoehe" step="0.01" min="0" placeholder="z.B. 4.00">
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Trapez auf Rechteck:</strong> Ideal für Walmdächer und Krüppelwalmdächer.
+                    Der obere trapezförmige Bereich sitzt auf einem rechteckigen unteren Bereich.
+                    Die Bleche verlaufen durchgehend von unten nach oben über beide Bereiche.
+                </div>
+            </div>
 
-                <!-- Eleganter Werbeplatz zwischen den Karten -->
-                <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
-                    <div class="ad-placeholder">
-                        <div class="ad-content-horizontal">
-                            <span class="ad-icon">💡</span>
-                            <div class="ad-text-block">
-                                <strong>Professionelle Dachtools</strong>
-                                <span>Weitere hilfreiche Ressourcen für Dachdecker und Heimwerker</span>
+            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
+            <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
+                <div class="ad-placeholder">
+                    <div class="ad-content-horizontal">
+                        <span class="ad-icon">💡</span>
+                        <div class="ad-text-block">
+                            <strong>Professionelle Dachtools</strong>
+                            <span>Weitere hilfreiche Ressourcen für Dachdecker und Heimwerker</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+            </div>
+
+            <!-- Material -->
+            <div class="section">
+                <h2>2. Materialangaben</h2>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="deckbreite">Deckbreite (m)</label>
+                        <input type="number" id="deckbreite" step="0.01" min="0" value="1.00">
+                    </div>
+                    <div class="input-group">
+                        <label for="lieferbreite">Lieferbreite (m)</label>
+                        <input type="number" id="lieferbreite" step="0.01" min="0" value="1.06">
+                    </div>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
+
+            <div id="results" class="results" style="display: none;">
+                <div class="result-item">
+                    <span>Überlappung pro Blech:</span>
+                    <span id="ueberlappung">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Gesamthöhe:</span>
+                    <span id="gesamt-hoehe">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Benötigte max. Plattenlänge:</span>
+                    <span id="benoetigte-plattenlaenge">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Benötigte Anzahl Bleche:</span>
+                    <span id="anzahl-bleche-breite">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Gesamtanzahl Bleche:</span>
+                    <span id="gesamt-bleche">-</span>
+                </div>
+                
+                <!-- Visuelles Vorschaufenster -->
+                <div id="vorschau" style="display: none; margin-top: 30px;">
+                    <h4 style="color: #1e3c72; font-size: 1.3em; margin-bottom: 20px;">👁️ Visuelle Vorschau</h4>
+                    <div style="background: white; border: 2px solid #1e3c72; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <div id="vorschau-svg" style="text-align: center; margin-bottom: 15px;"></div>
+                        <div id="vorschau-legende" style="display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; font-size: 14px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 20px; height: 15px; background: #1e3c72; border-radius: 3px;"></div>
+                                <span>Nutzen</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 20px; height: 15px; background: #dc3545; border-radius: 3px;"></div>
+                                <span>Verschnitt</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 20px; height: 15px; background: #28a745; border-radius: 3px;"></div>
+                                <span>Überlappung</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 20px; height: 15px; background: #ffc107; border-radius: 3px;"></div>
+                                <span>Übergang</span>
                             </div>
                         </div>
                     </div>
-                    <div style="text-align: center; width: 100%;">
-                        <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
-                             data-ad-client="ca-pub-8687929894744033"
-                             data-ad-slot="auto"
-                             data-ad-format="auto"></ins>
-                    </div>
                 </div>
-
-                <!-- Verschnitt-Optimierung -->
-                <a href="verschnitt-optimierung.html" class="calculator-card">
-                    <div class="card-icon">
-                        <svg width="120" height="80" viewBox="0 0 120 80">
-                            <rect x="15" y="15" width="90" height="12" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                            <rect x="15" y="15" width="30" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                            <rect x="46" y="15" width="25" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                            <rect x="72" y="15" width="20" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                            <rect x="93" y="15" width="12" height="12" fill="#dc3545" stroke="#fff" stroke-width="1"/>
-                            <line x1="45" y1="15" x2="45" y2="27" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                            <line x1="71" y1="15" x2="71" y2="27" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                            <line x1="92" y1="15" x2="92" y2="27" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                            
-                            <rect x="15" y="35" width="90" height="12" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                            <rect x="15" y="35" width="35" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                            <rect x="51" y="35" width="30" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                            <rect x="82" y="35" width="15" height="12" fill="#28a745" stroke="#fff" stroke-width="1"/>
-                            <rect x="98" y="35" width="7" height="12" fill="#dc3545" stroke="#fff" stroke-width="1"/>
-                            <line x1="50" y1="35" x2="50" y2="47" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                            <line x1="81" y1="35" x2="81" y2="47" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                            <line x1="97" y1="35" x2="97" y2="47" stroke="#666" stroke-width="1" stroke-dasharray="2,2"/>
-                            
-                            <circle cx="60" cy="60" r="8" fill="#ffc107" stroke="#fff" stroke-width="2"/>
-                            <text x="60" y="65" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">⚡</text>
-                        </svg>
+                
+                <div id="schnittliste" style="display: none;">
+                    <h4 style="margin-top: 25px; color: #1e3c72; font-size: 1.3em;">📏 Schnittliste (pro Dachfläche):</h4>
+                    <table class="schnitt-table">
+                        <thead>
+                            <tr>
+                                <th>Platte Nr.</th>
+                                <th>Position von links (m)</th>
+                                <th>Plattenbreite (m)</th>
+                                <th>Benötigte Länge (m)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schnitt-details">
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
+                        <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (unten → oben)
                     </div>
-                    <h2 class="card-title">Verschnitt-Optimierung</h2>
-                    <p class="card-description">
-                        Intelligente Materialoptimierung für minimalen Verschnitt oder optimale Sägezeit.
-                    </p>
-                    <ul class="card-features">
-                        <li>Minimaler Verschnitt</li>
-                        <li>Wenigste Schnitte</li>
-                        <li>Lagerbestandsverwaltung</li>
-                        <li>Detaillierte Sägepläne</li>
-                    </ul>
-                    <span class="cta-button">Jetzt optimieren</span>
-                </a>
+                    <button class="anriss-btn" onclick="erstelleAnrissplan()">📐 Anrissplan erstellen</button>
+                </div>
             </div>
 
             <!-- Eleganter Werbeplatz am Ende -->
@@ -400,77 +377,22 @@
                          data-ad-format="auto"></ins>
                 </div>
             </div>
+
+            <div id="anrissplan" class="anrissplan" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h4 style="color: #1e3c72; font-size: 1.4em;">🏗️ Anrissplan zum Ausdrucken</h4>
+                    <button onclick="druckeAnrissplan()" class="btn btn-primary print-button">
+                        🖨️ Drucken
+                    </button>
+                </div>
+                <div id="anriss-content"></div>
+            </div>
         </main>
     </div>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Trapezplattenrechner</h3>
-                    <p>Professionelle Berechnungstools für die Dachdeckerbranche. Präzise, schnell und benutzerfreundlich.</p>
-                    <p style="margin-top: 15px;">
-                        <strong>Kontakt:</strong><br>
-                        <span id="email-footer"></span>
-                    </p>
-                </div>
-                <div class="footer-section">
-                    <h3>Rechtliches</h3>
-                    <ul class="footer-links">
-                        <li><a href="#" onclick="openModal('impressum')">Impressum</a></li>
-                        <li><a href="#" onclick="openModal('datenschutz')">Datenschutz</a></li>
-                        <li><a href="#" onclick="openModal('agb')">AGB</a></li>
-                        <li><a href="#" onclick="openModal('cookies')">Cookie-Einstellungen</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Rechner</h3>
-                    <ul class="footer-links">
-                        <li><a href="gleichschenkliges-dreieck.html">Gleichschenkliges Dreieck</a></li>
-                        <li><a href="ungleichschenkliges-dreieck.html">Ungleichschenkliges Dreieck</a></li>
-                        <li><a href="trapez.html">Trapez</a></li>
-                        <li><a href="trapezaufrechteck.html">Trapez auf Rechteck</a></li>
-                        <li><a href="verschnitt-optimierung.html">Verschnitt-Optimierung</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Support</h3>
-                    <ul class="footer-links">
-                        <li><a href="#" onclick="openModal('hilfe')">Hilfe & FAQ</a></li>
-                        <li><a href="#" onclick="openModal('kontakt')">Kontakt</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Trapezplattenrechner. Alle Rechte vorbehalten.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Verbessertes Cookie-Banner -->
-    <div id="cookieBanner" class="cookie-banner">
-        <div class="cookie-content">
-            <div class="cookie-text">
-                <h3 style="margin: 0 0 10px 0; color: white;">🍪 Cookie-Einstellungen</h3>
-                <p>Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung zu bieten. Dazu gehören essentielle Cookies für die Funktionalität, Analyse-Cookies für die Optimierung und Marketing-Cookies für personalisierte Werbung.</p>
-            </div>
-            <div class="cookie-buttons">
-                <button class="cookie-btn accept" onclick="acceptAllCookies()">Alle akzeptieren</button>
-                <button class="cookie-btn decline" onclick="acceptOnlyEssential()">Nur Essentielle</button>
-                <button class="cookie-btn settings" onclick="openModal('cookies')">Einstellungen</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modals -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="modal-body"></div>
-        </div>
-    </div>
-
     <script>
+        let aktuelleSchnittliste = [];
+
         // Cookie Management System
         function showCookieBanner() {
             const cookieConsent = localStorage.getItem('cookieConsent');
@@ -522,346 +444,410 @@
             }
         }
 
-        // Modal Management
-        function openModal(type) {
-            const modal = document.getElementById('modal');
-            const modalBody = document.getElementById('modal-body');
-            
-            let content = '';
-            
-            if (type === 'impressum') {
-                content = `
-                    <h2>Impressum</h2>
-                    <h3>Angaben gemäß § 5 TMG</h3>
-                    <div class="contact-info">
-                        <p><strong>Trapezplattenrechner</strong><br>
-                        Matthias Dührkop<br>
-                        Rhedewiesen 1<br>
-                        19258 Boizenburg/Elbe<br>
-                        Deutschland</p>
-                        
-                        <p><strong>Kontakt:</strong><br>
-                        E-Mail: <span id="email-contact"></span></p>
-                        
-                        <p><strong>Umsatzsteuer-ID:</strong><br>
-                        DE08721403093</p>
-                    </div>
-                    
-                    <h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
-                    <p>Matthias Dührkop<br>
-                    Rhedewiesen 1<br>
-                    19258 Boizenburg/Elbe</p>
-                    
-                    <h3>Haftungsausschluss</h3>
-                    <p><strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Die Berechnungen des Trapezplattenrechners erfolgen nach bestem Wissen und Gewissen, jedoch ohne Gewähr für die Richtigkeit.</p>
-                    
-                    <p><strong>Haftung für Links:</strong> Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.</p>
-                `;
-            } else if (type === 'datenschutz') {
-                content = `
-                    <h2>Datenschutzerklärung</h2>
-                    
-                    <h3>1. Datenschutz auf einen Blick</h3>
-                    <h4>Allgemeine Hinweise</h4>
-                    <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.</p>
-                    
-                    <h4>Datenerfassung auf dieser Website</h4>
-                    <p><strong>Wer ist verantwortlich für die Datenerfassung auf dieser Website?</strong><br>
-                    Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Impressum entnehmen.</p>
-                    
-                    <h3>2. Hosting</h3>
-                    <p>Wir hosten die Inhalte unserer Website bei einem externen Dienstleister. Die personenbezogenen Daten, die auf dieser Website erfasst werden, werden auf den Servern des Hosters gespeichert.</p>
-                    
-                    <h3>3. Google Analytics</h3>
-                    <p>Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
-                    
-                    <p>Google Analytics ermöglicht es dem Websitebetreiber, das Verhalten der Websitebesucher zu analysieren. Die IP-Adresse wird anonymisiert übertragen.</p>
-                    
-                    <p><strong>Rechtsgrundlage:</strong> Die Nutzung von Google Analytics erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.</p>
-                    
-                    <h3>4. Google AdSense</h3>
-                    <p>Diese Website verwendet Google AdSense, einen Dienst zum Einbinden von Werbeanzeigen der Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
-                    
-                    <p><strong>Datenverarbeitung:</strong> Google AdSense verwendet Cookies und ähnliche Technologien, um Ihnen personalisierte Werbung anzuzeigen. Dabei werden Informationen über Ihre Website-Besuche gesammelt.</p>
-                    
-                    <p><strong>Zweck:</strong> Die Datenverarbeitung dient der Finanzierung dieser kostenlosen Website durch Werbeeinnahmen und der Bereitstellung relevanter Werbung.</p>
-                    
-                    <p><strong>Rechtsgrundlage:</strong> Die Nutzung von Google AdSense erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.</p>
-                    
-                    <p><strong>Widerspruch:</strong> Sie können der Verwendung von Cookies für personalisierte Werbung jederzeit widersprechen. Besuchen Sie dazu die <a href="https://adssettings.google.com" target="_blank">Google Ads-Einstellungen</a>.</p>
-                    
-                    <h3>5. Verwendete Cookies</h3>
-                    <p><strong>Essentielle Cookies:</strong> Für die Grundfunktionalität der Website (Cookie-Einstellungen, Session-Verwaltung)</p>
-                    <p><strong>Analyse-Cookies:</strong> Google Analytics (_ga, _gat, _gid) - Speicherdauer: bis zu 26 Monate</p>
-                    <p><strong>Marketing-Cookies:</strong> Google AdSense (verschiedene Cookies) - Speicherdauer: bis zu 24 Monate</p>
-                    
-                    <h3>6. Ihre Rechte</h3>
-                    <p>Sie haben jederzeit das Recht unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein Recht, die Berichtigung oder Löschung dieser Daten zu verlangen.</p>
-                    
-                    <p><strong>Widerruf der Einwilligung:</strong> Sie können Ihre Einwilligung zur Datenverarbeitung jederzeit widerrufen. Dies hat jedoch keinen Einfluss auf die Rechtmäßigkeit der aufgrund der Einwilligung bis zum Widerruf erfolgten Verarbeitung.</p>
-                    
-                    <p><strong>Kontakt:</strong><br>
-                    Bei Fragen zum Datenschutz wenden Sie sich bitte an: <span id="email-privacy"></span></p>
-                `;
-            } else if (type === 'agb') {
-                content = `
-                    <h2>Allgemeine Geschäftsbedingungen (AGB)</h2>
-                    
-                    <h3>1. Geltungsbereich</h3>
-                    <p>Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung des Trapezplattenrechners, einer kostenlosen Webanwendung zur Berechnung von Materialverbrauch und Anrissplänen für Dachplatten. Die Website wird durch Werbeeinnahmen finanziert.</p>
-                    
-                    <h3>2. Leistungsbeschreibung</h3>
-                    <p>Der Trapezplattenrechner bietet verschiedene Berechnungstools für:</p>
-                    <ul>
-                        <li>Gleichschenklige Dreiecke</li>
-                        <li>Ungleichschenklige Dreiecke</li>
-                        <li>Trapezflächen</li>
-                        <li>Trapez auf Rechteck Flächen</li>
-                        <li>Verschnitt-Optimierung</li>
-                    </ul>
-                    
-                    <h3>3. Nutzung und Verfügbarkeit</h3>
-                    <p>Die Nutzung des Trapezplattenrechners ist kostenlos. Die Finanzierung erfolgt durch Werbeeinnahmen. Wir behalten uns das Recht vor, Werbung auf der Website zu schalten.</p>
-                    
-                    <h3>4. Werbung</h3>
-                    <p>Zur Finanzierung der kostenlosen Nutzung werden auf der Website Werbeanzeigen geschaltet. Diese werden von Google AdSense bereitgestellt und können personalisiert sein, sofern Sie der Verwendung von Marketing-Cookies zugestimmt haben.</p>
-                    
-                    <h3>5. Haftungsausschluss</h3>
-                    <p><strong>Wichtiger Hinweis:</strong> Die Berechnungen des Trapezplattenrechners dienen als Planungshilfe und erfolgen ohne Gewähr. Eine Haftung für die Richtigkeit der Berechnungen oder daraus entstehende Schäden wird ausgeschlossen.</p>
-                    
-                    <p>Alle Berechnungen sollten vor der praktischen Umsetzung von qualifizierten Fachkräften überprüft werden. Der Nutzer trägt die Verantwortung für die ordnungsgemäße Anwendung der Berechnungsergebnisse.</p>
-                    
-                    <h3>6. Geistiges Eigentum</h3>
-                    <p>Alle Inhalte des Trapezplattenrechners, einschließlich Design, Berechnungsalgorithmen und Texte, sind urheberrechtlich geschützt. Eine Vervielfältigung oder kommerzielle Nutzung ohne ausdrückliche Genehmigung ist untersagt.</p>
-                    
-                    <h3>7. Änderungen</h3>
-                    <p>Wir behalten uns das Recht vor, diese AGB jederzeit zu ändern. Nutzer werden über wesentliche Änderungen informiert.</p>
-                    
-                    <h3>8. Anwendbares Recht</h3>
-                    <p>Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts.</p>
-                `;
-            } else if (type === 'cookies') {
-                content = `
-                    <h2>Cookie-Einstellungen</h2>
-                    
-                    <h3>Was sind Cookies?</h3>
-                    <p>Cookies sind kleine Textdateien, die beim Besuch einer Website auf Ihrem Gerät gespeichert werden. Sie helfen dabei, die Website funktionsfähig zu machen und die Nutzererfahrung zu verbessern.</p>
-                    
-                    <h3>Cookie-Kategorien</h3>
-                    
-                    <div class="cookie-settings">
-                        <h4>Essentielle Cookies</h4>
-                        <p>Diese Cookies sind für die grundlegende Funktionalität der Website erforderlich und können nicht deaktiviert werden.</p>
-                        <div class="cookie-option">
-                            <input type="checkbox" id="essentialCookies" checked disabled>
-                            <label for="essentialCookies">Essentielle Cookies (immer aktiv)</label>
-                        </div>
-                        
-                        <h4>Analyse-Cookies (Google Analytics)</h4>
-                        <p>Diese Cookies helfen uns zu verstehen, wie Besucher mit der Website interagieren, indem sie Informationen anonym sammeln und melden.</p>
-                        <div class="cookie-option">
-                            <input type="checkbox" id="analyticsCookies">
-                            <label for="analyticsCookies">Analyse-Cookies (Google Analytics)</label>
-                        </div>
-                        
-                        <h4>Marketing-Cookies (Google AdSense)</h4>
-                        <p>Diese Cookies werden verwendet, um Ihnen relevante Werbeanzeigen zu zeigen und die Finanzierung dieser kostenlosen Website zu ermöglichen.</p>
-                        <div class="cookie-option">
-                            <input type="checkbox" id="marketingCookies">
-                            <label for="marketingCookies">Marketing-Cookies (Google AdSense)</label>
-                        </div>
-                    </div>
-                    
-                    <button class="save-button" onclick="saveCookieSettings()">Einstellungen speichern</button>
-                    
-                    <h3>Detaillierte Cookie-Informationen</h3>
-                    
-                    <h4>Essentielle Cookies</h4>
-                    <p><strong>cookieConsent:</strong> Speichert Ihre Cookie-Einstellungen<br>
-                    <strong>Speicherdauer:</strong> Permanent (bis zur Änderung)</p>
-                    
-                    <h4>Google Analytics Cookies</h4>
-                    <p><strong>_ga:</strong> Eindeutige Benutzer-ID für Statistiken<br>
-                    <strong>_gat:</strong> Anfragerate begrenzen<br>
-                    <strong>_gid:</strong> Eindeutige Benutzer-ID für 24h<br>
-                    <strong>Speicherdauer:</strong> 1 Tag bis 26 Monate</p>
-                    
-                    <h4>Google AdSense Cookies</h4>
-                    <p><strong>Verschiedene Cookies:</strong> Für personalisierte Werbung und Anzeigenauslieferung<br>
-                    <strong>Speicherdauer:</strong> 1 Tag bis 24 Monate<br>
-                    <strong>Anbieter:</strong> Google Ireland Limited</p>
-                    
-                    <h3>Externe Links</h3>
-                    <p><strong>Google Ads-Einstellungen:</strong> <a href="https://adssettings.google.com" target="_blank">adssettings.google.com</a><br>
-                    <strong>Google Analytics Opt-out:</strong> <a href="https://tools.google.com/dlpage/gaoptout" target="_blank">tools.google.com/dlpage/gaoptout</a></p>
-                `;
-            } else if (type === 'hilfe') {
-                content = `
-                    <h2>Hilfe & FAQ</h2>
-                    
-                    <h3>Häufig gestellte Fragen</h3>
-                    
-                    <h4>🔧 Wie verwende ich den Trapezplattenrechner?</h4>
-                    <p><strong>1. Rechner wählen:</strong> Wählen Sie auf der Startseite den passenden Rechner für Ihre Dachform.</p>
-                    <p><strong>2. Maße eingeben:</strong> Geben Sie die Abmessungen Ihrer Dachfläche ein.</p>
-                    <p><strong>3. Materialangaben:</strong> Tragen Sie Deckbreite und Lieferbreite Ihrer Trapezbleche ein.</p>
-                    <p><strong>4. Berechnen:</strong> Klicken Sie auf "Berechnen" um die Schnittliste zu erhalten.</p>
-                    <p><strong>5. Anrissplan:</strong> Erstellen Sie einen druckbaren Anrissplan.</p>
-                    
-                    <h4>📏 Was bedeuten Deckbreite und Lieferbreite?</h4>
-                    <p><strong>Deckbreite:</strong> Die nutzbare Breite des Trapezbleches (meist 1,00m).</p>
-                    <p><strong>Lieferbreite:</strong> Die tatsächliche Breite des Bleches (meist 1,06m).</p>
-                    <p><strong>Überlappung:</strong> Differenz zwischen Liefer- und Deckbreite.</p>
-                    
-                    <h4>🔺 Welchen Rechner verwenden?</h4>
-                    <p><strong>Gleichschenkliges Dreieck:</strong> Für symmetrische Dreiecke</p>
-                    <p><strong>Ungleichschenkliges Dreieck:</strong> Für asymmetrische Dreiecke</p>
-                    <p><strong>Trapez:</strong> Für trapezförmige Flächen</p>
-                    <p><strong>Trapez auf Rechteck:</strong> Für Walmdächer und Krüppelwalmdächer</p>
-                    <p><strong>Verschnitt-Optimierung:</strong> Für optimale Materialaufteilung</p>
-                    
-                    <h4>🎯 Wie genau sind die Berechnungen?</h4>
-                    <p>Die Berechnungen basieren auf mathematischen Grundlagen und sind sehr präzise. Dennoch sollten alle Ergebnisse von Fachkräften überprüft werden.</p>
-                    
-                    <h4>🖨️ Wie drucke ich die Anrisspläne?</h4>
-                    <p>Klicken Sie auf "Anrissplan erstellen" und dann auf "Drucken". Die Pläne sind für DIN A4 optimiert.</p>
-                    
-                    <h4>📱 Funktioniert es auf dem Smartphone?</h4>
-                    <p>Ja! Der Rechner ist vollständig responsive und funktioniert auf allen Geräten.</p>
-                    
-                    <h4>💰 Warum sehe ich Werbung?</h4>
-                    <p>Die Website ist kostenlos und wird durch Werbung finanziert. Sie können in den Cookie-Einstellungen personalisierte Werbung deaktivieren.</p>
-                    
-                    <h4>🍪 Was sind Cookies?</h4>
-                    <p>Cookies sind kleine Dateien, die die Funktionalität verbessern. Sie können Ihre Cookie-Einstellungen jederzeit anpassen.</p>
-                    
-                    <h4>💾 Werden meine Daten gespeichert?</h4>
-                    <p>Nein, alle Berechnungen erfolgen lokal in Ihrem Browser. Nur anonyme Statistiken werden erfasst (falls zugestimmt).</p>
-                    
-                    <h3>Weitere Unterstützung</h3>
-                    <p>Bei weiteren Fragen wenden Sie sich an: <span id="email-support"></span></p>
-                `;
-            } else if (type === 'kontakt') {
-                content = `
-                    <h2>Kontakt</h2>
-                    
-                    <div class="contact-info">
-                        <h3>Trapezplattenrechner</h3>
-                        <p>
-                            <strong>Matthias Dührkop</strong><br>
-                            Rhedewiesen 1<br>
-                            19258 Boizenburg/Elbe<br>
-                            Deutschland
-                        </p>
-                        
-                        <p>
-                            <strong>E-Mail:</strong> <span id="email-display"></span><br>
-                            <strong>Website:</strong> trapezplattenrechner.de
-                        </p>
-                    </div>
-                    
-                    <h3>Anfragen und Support</h3>
-                    <p>Für Fragen, Anregungen oder technische Probleme stehen wir Ihnen gerne zur Verfügung:</p>
-                    
-                    <ul>
-                        <li><strong>Technischer Support:</strong> Bei Problemen mit den Berechnungen</li>
-                        <li><strong>Feature-Anfragen:</strong> Vorschläge für neue Funktionen</li>
-                        <li><strong>Geschäftliche Anfragen:</strong> Kooperationen oder Werbung</li>
-                        <li><strong>Datenschutz:</strong> Fragen zum Umgang mit Daten</li>
-                    </ul>
-                    
-                    <h3>Antwortzeiten</h3>
-                    <p>Wir bemühen uns, alle Anfragen innerhalb von 24-48 Stunden zu beantworten.</p>
-                `;
-            }
-            
-            modalBody.innerHTML = content;
-            
-            // Load current cookie settings if opening cookie modal
-            if (type === 'cookies') {
-                const analyticsCookies = localStorage.getItem('analyticsCookies') === 'true';
-                const marketingCookies = localStorage.getItem('marketingCookies') === 'true';
-                document.getElementById('analyticsCookies').checked = analyticsCookies;
-                document.getElementById('marketingCookies').checked = marketingCookies;
-            }
-            
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            
-            // Setup email protection after modal content is loaded
-            setupEmailProtection();
-        }
-
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-
-        function saveCookieSettings() {
-            const analyticsCookies = document.getElementById('analyticsCookies').checked;
-            const marketingCookies = document.getElementById('marketingCookies').checked;
-            
-            localStorage.setItem('cookieConsent', 'custom');
-            localStorage.setItem('analyticsCookies', analyticsCookies.toString());
-            localStorage.setItem('marketingCookies', marketingCookies.toString());
-            
-            // Analytics laden/entladen
-            if (analyticsCookies) {
-                loadAnalytics();
-            } else {
-                window['ga-disable-G-6NSYG8B1T9'] = true;
-            }
-            
-            // AdSense laden/entladen
-            if (marketingCookies) {
-                loadAdSense();
-                showAds();
-            } else {
-                hideAds();
-            }
-            
-            closeModal();
-            alert('Cookie-Einstellungen gespeichert!');
-        }
-
         function hideAds() {
             document.getElementById('top-ad-container').style.display = 'none';
             document.getElementById('middle-ad-container').style.display = 'none';
             document.getElementById('bottom-ad-container').style.display = 'none';
         }
 
-        // Email protection
-        function setupEmailProtection() {
-            const email = 'xxxxwolfxxxx@me.com';
-            const emailElements = ['email-contact', 'email-privacy', 'email-display', 'email-footer', 'email-support'];
+        // Verbesserte Druckfunktion
+        function druckeAnrissplan() {
+            const anrissplan = document.getElementById('anrissplan');
+            if (!anrissplan || anrissplan.style.display === 'none') {
+                alert('Bitte erstellen Sie zuerst einen Anrissplan!');
+                return;
+            }
             
-            emailElements.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.innerHTML = `<span class="email-protection" onclick="revealEmail('${id}', '${email}')">E-Mail anzeigen</span>`;
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'print_anrissplan', {
+                    'event_category': 'trapez_auf_rechteck',
+                    'event_label': 'print_initiated'
+                });
+            }
+            
+            window.print();
+        }
+
+        function berechneTrapezAufRechteck(trapezObereBreite, trapezHoehe, rechteckBreite, rechteckHoehe, deckbreite) {
+            const schnittliste = [];
+            const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
+            const gesamtBreite = rechteckBreite; // Die Gesamtbreite ist die Rechteckbreite
+            const trapezSeitenAbstand = (rechteckBreite - trapezObereBreite) / 2; // Abstand von Kante zu Trapez-Beginn
+            
+            let anzahlPlatten = Math.ceil((gesamtBreite - lieferbreite + deckbreite) / deckbreite);
+            
+            for (let i = 0; i < anzahlPlatten; i++) {
+                let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+                let positionVonLinksEnde = positionVonLinks + lieferbreite;
+                positionVonLinksEnde = Math.min(positionVonLinksEnde, gesamtBreite);
+                
+                // Berechnung der Plattenlänge
+                let benoetigteLaenge;
+                
+                // Prüfe ob die Platte im Trapez-Bereich liegt
+                if (positionVonLinks >= trapezSeitenAbstand && positionVonLinksEnde <= (gesamtBreite - trapezSeitenAbstand)) {
+                    // Platte liegt vollständig im Trapez-Bereich
+                    benoetigteLaenge = rechteckHoehe + trapezHoehe;
+                } else if (positionVonLinksEnde <= trapezSeitenAbstand || positionVonLinks >= (gesamtBreite - trapezSeitenAbstand)) {
+                    // Platte liegt vollständig außerhalb des Trapez-Bereichs (nur Rechteck)
+                    benoetigteLaenge = rechteckHoehe;
+                } else {
+                    // Platte liegt teilweise im Trapez-Bereich
+                    // Berechne die Höhen an beiden Positionen und nimm das Maximum
+                    const hoeheStart = berechneHoeheAnPositionTrapezRechteck(positionVonLinks, trapezSeitenAbstand, gesamtBreite - trapezSeitenAbstand, rechteckHoehe, trapezHoehe);
+                    const hoeheEnde = berechneHoeheAnPositionTrapezRechteck(positionVonLinksEnde, trapezSeitenAbstand, gesamtBreite - trapezSeitenAbstand, rechteckHoehe, trapezHoehe);
+                    benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
                 }
+                
+                if (benoetigteLaenge > 0 && positionVonLinks < gesamtBreite) {
+                    schnittliste.push({
+                        plattenNr: i + 1,
+                        positionVonLinks: positionVonLinks.toFixed(2),
+                        positionBis: positionVonLinksEnde.toFixed(2),
+                        benoetigteLaenge: benoetigteLaenge.toFixed(2),
+                        plattenbreite: lieferbreite.toFixed(2)
+                    });
+                }
+            }
+
+            return { 
+                schnittliste: schnittliste,
+                anzahlPlatten: schnittliste.length
+            };
+        }
+
+        function berechneHoeheAnPositionTrapezRechteck(position, trapezStart, trapezEnde, rechteckHoehe, trapezHoehe) {
+            if (position >= trapezStart && position <= trapezEnde) {
+                // Position liegt im Trapez-Bereich
+                return rechteckHoehe + trapezHoehe;
+            } else {
+                // Position liegt nur im Rechteck-Bereich
+                return rechteckHoehe;
+            }
+        }
+
+        function berechnen() {
+            const trapezObereBreite = parseFloat(document.getElementById('trapez-obere-breite').value);
+            const trapezHoehe = parseFloat(document.getElementById('trapez-hoehe').value);
+            const rechteckBreite = parseFloat(document.getElementById('rechteck-breite').value);
+            const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
+            const deckbreite = parseFloat(document.getElementById('deckbreite').value);
+            const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
+
+            if (!trapezObereBreite || !trapezHoehe || !rechteckBreite || !rechteckHoehe || !deckbreite || !lieferbreite) {
+                alert('Bitte füllen Sie alle Felder aus!');
+                return;
+            }
+
+            if (trapezObereBreite >= rechteckBreite) {
+                alert('Die obere Trapez-Breite muss kleiner als die Rechteck-Breite sein!');
+                return;
+            }
+
+            // Track calculation event for analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'calculation', {
+                    'event_category': 'trapez_auf_rechteck',
+                    'event_label': 'form_submitted'
+                });
+            }
+
+            const ueberlappung = lieferbreite - deckbreite;
+            const kombinierteBerechnung = berechneTrapezAufRechteck(trapezObereBreite, trapezHoehe, rechteckBreite, rechteckHoehe, deckbreite);
+            const maxLaenge = Math.max(...kombinierteBerechnung.schnittliste.map(p => parseFloat(p.benoetigteLaenge)));
+            const gesamtHoehe = rechteckHoehe + trapezHoehe;
+
+            document.getElementById('ueberlappung').textContent = ueberlappung.toFixed(2) + ' m';
+            document.getElementById('gesamt-hoehe').textContent = gesamtHoehe.toFixed(2) + ' m';
+            document.getElementById('benoetigte-plattenlaenge').textContent = maxLaenge.toFixed(2) + ' m';
+            document.getElementById('anzahl-bleche-breite').textContent = kombinierteBerechnung.anzahlPlatten + ' Stück';
+            document.getElementById('gesamt-bleche').textContent = kombinierteBerechnung.anzahlPlatten + ' Stück';
+
+            // Schnittliste anzeigen
+            const tbody = document.getElementById('schnitt-details');
+            tbody.innerHTML = '';
+            
+            kombinierteBerechnung.schnittliste.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.plattenNr}</td>
+                    <td>${item.positionVonLinks} - ${item.positionBis}</td>
+                    <td style="font-weight: bold; color: #28a745;">${item.plattenbreite}</td>
+                    <td style="font-weight: bold; color: #1e3c72;">${item.benoetigteLaenge}</td>
+                `;
+                tbody.appendChild(row);
             });
+
+            aktuelleSchnittliste = kombinierteBerechnung.schnittliste;
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('schnittliste').style.display = 'block';
+            
+            // Vorschau generieren
+            generiereVorschau(trapezObereBreite, trapezHoehe, rechteckBreite, rechteckHoehe, kombinierteBerechnung.schnittliste);
+            document.getElementById('vorschau').style.display = 'block';
         }
 
-        function revealEmail(elementId, email) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.innerHTML = `<a href="mailto:${email}" style="color: inherit;">${email}</a>`;
-            }
+        function generiereVorschau(trapezObereBreite, trapezHoehe, rechteckBreite, rechteckHoehe, schnittliste) {
+            const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
+            const deckbreite = parseFloat(document.getElementById('deckbreite').value);
+            const ueberlappung = lieferbreite - deckbreite;
+            const trapezSeitenAbstand = (rechteckBreite - trapezObereBreite) / 2;
+            const gesamtHoehe = rechteckHoehe + trapezHoehe;
+            
+            // SVG-Dimensionen
+            const svgWidth = 600;
+            const svgHeight = 400;
+            const margin = 50;
+            const gesamtWidth = svgWidth - 2 * margin;
+            const gesamtHeightPx = svgHeight - 2 * margin - 50;
+            
+            // Skalierung
+            const scaleX = gesamtWidth / rechteckBreite;
+            const scaleY = gesamtHeightPx / gesamtHoehe;
+            
+            let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" style="border: 1px solid #ddd; border-radius: 8px;">`;
+            
+            // Hintergrund
+            svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
+            
+            // Rechteck-Bereich (unten)
+            const rechteckY = margin + gesamtHeightPx - (rechteckHoehe * scaleY);
+            svg += `<rect x="${margin}" y="${rechteckY}" width="${rechteckBreite * scaleX}" height="${rechteckHoehe * scaleY}" fill="#e8f4fd" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Trapez-Bereich (oben)
+            const trapezObenLinks = margin + trapezSeitenAbstand * scaleX;
+            const trapezObenRechts = margin + (rechteckBreite - trapezSeitenAbstand) * scaleX;
+            const trapezObenY = margin;
+            const trapezUntenLinks = margin;
+            const trapezUntenRechts = margin + rechteckBreite * scaleX;
+            const trapezUntenY = margin + trapezHoehe * scaleY;
+            
+            svg += `<polygon points="${trapezObenLinks},${trapezObenY} ${trapezObenRechts},${trapezObenY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Übergangszone markieren
+            svg += `<line x1="${margin}" y1="${trapezUntenY}" x2="${margin + rechteckBreite * scaleX}" y2="${trapezUntenY}" stroke="#ffc107" stroke-width="3" opacity="0.8"/>`;
+            
+            // Platten zeichnen
+            schnittliste.forEach((platte, index) => {
+                const plattenStart = parseFloat(platte.positionVonLinks);
+                const plattenEnde = parseFloat(platte.positionBis);
+                const plattenBreite = parseFloat(platte.plattenbreite);
+                const originalPlattenEnde = plattenStart + plattenBreite;
+                const benoetigteLaenge = parseFloat(platte.benoetigteLaenge);
+                
+                const istLetztePlatte = originalPlattenEnde > rechteckBreite;
+                const plattenEndeReal = istLetztePlatte ? rechteckBreite : originalPlattenEnde;
+                
+                // Plattenposition in SVG
+                const plattenX = margin + plattenStart * scaleX;
+                const plattenWidth = (plattenEndeReal - plattenStart) * scaleX;
+                
+                // Platte als Rechteck
+                const plattenHoehe = benoetigteLaenge * scaleY;
+                const plattenY = margin + gesamtHeightPx - plattenHoehe;
+                
+                // Plattenhintergrund
+                svg += `<rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${plattenHoehe}" fill="#e9ecef" stroke="#666" stroke-width="1"/>`;
+                
+                // Nutzen-Bereich bestimmen
+                let nutzenHoehe = rechteckHoehe * scaleY; // Mindestens Rechteck-Höhe
+                
+                // Prüfe ob Platte im Trapez-Bereich liegt
+                if (plattenStart >= trapezSeitenAbstand && plattenEndeReal <= (rechteckBreite - trapezSeitenAbstand)) {
+                    // Vollständig im Trapez - volle Höhe
+                    nutzenHoehe = gesamtHoehe * scaleY;
+                } else if (!(plattenEndeReal <= trapezSeitenAbstand || plattenStart >= (rechteckBreite - trapezSeitenAbstand))) {
+                    // Teilweise im Trapez
+                    nutzenHoehe = gesamtHoehe * scaleY;
+                }
+                
+                const nutzenY = margin + gesamtHeightPx - nutzenHoehe;
+                
+                // Nutzen-Bereich (blau)
+                svg += `<rect x="${plattenX}" y="${nutzenY}" width="${plattenWidth}" height="${nutzenHoehe}" fill="#1e3c72" opacity="0.7"/>`;
+                
+                // Verschnitt-Bereich (rot)
+                if (plattenHoehe > nutzenHoehe) {
+                    const verschnittHoehe = plattenHoehe - nutzenHoehe;
+                    svg += `<rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${verschnittHoehe}" fill="#dc3545" opacity="0.6"/>`;
+                }
+                
+                // Überlappungs-Bereich (grün) - nur wenn nicht erste Platte
+                if (index > 0 && ueberlappung > 0) {
+                    const ueberlappungsWidth = ueberlappung * scaleX;
+                    svg += `<rect x="${plattenX}" y="${plattenY}" width="${ueberlappungsWidth}" height="${plattenHoehe}" fill="#28a745" opacity="0.5"/>`;
+                }
+                
+                // Plattennummer
+                svg += `<text x="${plattenX + plattenWidth/2}" y="${margin + gesamtHeightPx + 20}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">${platte.plattenNr}</text>`;
+            });
+            
+            // Maßlinien
+            svg += `<line x1="${margin}" y1="${margin + gesamtHeightPx + 35}" x2="${margin + rechteckBreite * scaleX}" y2="${margin + gesamtHeightPx + 35}" stroke="#333" stroke-width="1"/>`;
+            svg += `<text x="${margin + (rechteckBreite * scaleX)/2}" y="${margin + gesamtHeightPx + 50}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${rechteckBreite}m</text>`;
+            
+            // Höhenmaße
+            svg += `<line x1="${margin - 20}" y1="${margin}" x2="${margin - 20}" y2="${margin + gesamtHeightPx}" stroke="#333" stroke-width="1"/>`;
+            svg += `<text x="${margin - 30}" y="${margin + gesamtHeightPx/2}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333" transform="rotate(-90 ${margin - 30} ${margin + gesamtHeightPx/2})">Gesamt: ${gesamtHoehe}m</text>`;
+            
+            // Trapez-Bereich markieren
+            svg += `<text x="${margin + (rechteckBreite * scaleX)/2}" y="${margin + (trapezHoehe * scaleY)/2}" text-anchor="middle" font-size="12" font-weight="bold" fill="#28a745">Trapez</text>`;
+            svg += `<text x="${margin + (rechteckBreite * scaleX)/2}" y="${rechteckY + (rechteckHoehe * scaleY)/2}" text-anchor="middle" font-size="12" font-weight="bold" fill="#6f42c1">Rechteck</text>`;
+            
+            svg += `</svg>`;
+            
+            document.getElementById('vorschau-svg').innerHTML = svg;
         }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('modal');
-            if (event.target === modal) {
-                closeModal();
+        function erstelleAnrissplan() {
+            if (aktuelleSchnittliste.length === 0) return;
+            
+            // Track anrissplan generation
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'anrissplan_generated', {
+                    'event_category': 'trapez_auf_rechteck',
+                    'event_label': 'pdf_generated'
+                });
             }
+            
+            const trapezObereBreite = parseFloat(document.getElementById('trapez-obere-breite').value);
+            const trapezHoehe = parseFloat(document.getElementById('trapez-hoehe').value);
+            const rechteckBreite = parseFloat(document.getElementById('rechteck-breite').value);
+            const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
+            const gesamtHoehe = rechteckHoehe + trapezHoehe;
+            const trapezSeitenAbstand = (rechteckBreite - trapezObereBreite) / 2;
+            
+            let html = `<div style="font-family: Arial, sans-serif;">`;
+            html += `<div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">`;
+            html += `<h2 style="color: #1e3c72; margin-bottom: 10px;">Anrissplan - Trapez auf Rechteck</h2>`;
+            html += `<p style="color: #666; font-size: 1.1em;">Rechteck: ${rechteckBreite}×${rechteckHoehe}m | Trapez: ${trapezObereBreite}×${trapezHoehe}m | Gesamt: ${gesamtHoehe}m | Platten: ${aktuelleSchnittliste.length} Stück</p>`;
+            html += `</div>`;
+            
+            // Vorschau für Anrissplan hinzufügen
+            html += '<div style="margin-bottom: 30px; text-align: center;">';
+            html += '<h3 style="color: #1e3c72; margin-bottom: 15px;">📐 Dach-Übersicht</h3>';
+            html += '<div style="border: 2px solid #1e3c72; border-radius: 8px; padding: 15px; background: white; display: inline-block;">';
+            html += document.getElementById('vorschau-svg').innerHTML;
+            html += '</div>';
+            html += '</div>';
+            
+            aktuelleSchnittliste.forEach(item => {
+                const plattenStart = parseFloat(item.positionVonLinks);
+                const plattenEnde = parseFloat(item.positionBis);
+                const plattenBreite = parseFloat(item.plattenbreite);
+                const originalPlattenEnde = plattenStart + plattenBreite;
+                const istLetztePlatte = originalPlattenEnde > rechteckBreite;
+                const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
+                
+                // Bestimme ob Platte im Trapez-Bereich liegt
+                const plattenEndeReal = istLetztePlatte ? rechteckBreite : originalPlattenEnde;
+                const istImTrapez = !(plattenEndeReal <= trapezSeitenAbstand || plattenStart >= (rechteckBreite - trapezSeitenAbstand));
+                
+                let anreissHoehe = rechteckHoehe; // Standard: nur Rechteck
+                if (istImTrapez) {
+                    anreissHoehe = gesamtHoehe; // Trapez + Rechteck
+                }
+                
+                let anreiss = Math.round(anreissHoehe * 100);
+                
+                html += `<div style="margin-bottom: 50px; border: 3px solid #1e3c72; padding: 25px; border-radius: 12px; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">`;
+                html += `<h3 style="margin: 0 0 25px 0; color: #1e3c72; font-size: 1.3em;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
+                
+                html += `<div style="position: relative; height: 280px; width: 370px; background: #f8f9fa; margin: 25px auto; border-radius: 8px; border: 2px solid #e9ecef;">`;
+                
+                const plattenhoehePx = Math.max(100, Math.min(200, (benoetigteLaengeM / gesamtHoehe) * 200));
+                
+                html += `<div style="position: absolute; bottom: 25px; left: 30px; width: 310px; height: ${plattenhoehePx}px; background: #e9ecef; border: 2px solid #666; border-radius: 4px;"></div>`;
+                
+                const endX = istLetztePlatte ? Math.min(310, (rechteckBreite - plattenStart) / plattenBreite * 310) : 310;
+                
+                html += `<svg style="position: absolute; bottom: 25px; left: 30px;" width="310" height="${plattenhoehePx}">`;
+                
+                // Nutzen-Bereich
+                const nutzenHoehe = (anreissHoehe / benoetigteLaengeM) * plattenhoehePx;
+                const nutzenY = plattenhoehePx - nutzenHoehe;
+                
+                html += `<rect x="0" y="${nutzenY}" width="${endX}" height="${nutzenHoehe}" fill="#1e3c72" opacity="0.7"/>`;
+                html += `<text x="155" y="${plattenhoehePx - nutzenHoehe/2}" text-anchor="middle" fill="white" font-weight="bold" font-size="16">Nutzen</text>`;
+                
+                // Verschnitt-Bereich (falls vorhanden)
+                if (nutzenY > 0) {
+                    html += `<rect x="0" y="0" width="${endX}" height="${nutzenY}" fill="#dc3545" opacity="0.6"/>`;
+                    html += `<text x="155" y="${nutzenY/2}" text-anchor="middle" fill="white" font-weight="bold" font-size="14">Abschnitt</text>`;
+                    
+                    // Schnittlinie
+                    html += `<line x1="0" y1="${nutzenY}" x2="${endX}" y2="${nutzenY}" stroke="#000" stroke-width="4"/>`;
+                }
+                
+                html += `</svg>`;
+                
+                // Spezielle Markierungen für Trapez-Bereich
+                if (istImTrapez) {
+                    html += `<div style="position: absolute; top: 8px; left: 135px; font-size: 13px; font-weight: bold; color: #28a745; text-align: center;">TRAPEZ-BEREICH<br>Volle Höhe</div>`;
+                    
+                    // Übergangszone markieren
+                    const uebergangsY = 25 + plattenhoehePx - (rechteckHoehe / benoetigteLaengeM * plattenhoehePx);
+                    html += `<div style="position: absolute; bottom: ${uebergangsY}px; left: 20px; width: 350px; height: 2px; background: #ffc107; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${uebergangsY + 5}px; right: 10px; font-size: 11px; font-weight: bold; color: #ffc107;">Übergang</div>`;
+                } else {
+                    html += `<div style="position: absolute; top: 8px; left: 135px; font-size: 13px; font-weight: bold; color: #6f42c1; text-align: center;">NUR RECHTECK<br>Normale Höhe</div>`;
+                }
+                
+                // Letzte Platte markieren
+                if (istLetztePlatte) {
+                    const ueberhang = originalPlattenEnde - rechteckBreite;
+                    
+                    html += `<div style="position: absolute; bottom: 25px; left: ${30 + endX}px; width: 4px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 2px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx/2}px; left: ${20 + endX}px; font-size: 13px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
+                    
+                    if (ueberhang > 0) {
+                        const restBreite = 310 - endX;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 35}px; left: ${30 + endX}px; width: ${restBreite}px; height: 3px; background: #FF0000; border-radius: 1px;"></div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 15}px; left: ${30 + endX + restBreite/2}px; font-size: 15px; font-weight: bold; color: #FF0000; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
+                    }
+                }
+                
+                // Anrisslinie
+                html += `<div style="position: absolute; bottom: 25px; left: 30px; width: 5px; height: ${nutzenHoehe}px; background: #dc3545; border-radius: 2px;"></div>`;
+                html += `<div style="position: absolute; bottom: 25px; left: ${30 + endX - 3}px; width: 5px; height: ${nutzenHoehe}px; background: #dc3545; border-radius: 2px;"></div>`;
+                
+                // Anrissmaße
+                html += `<div style="position: absolute; bottom: ${35 + plattenhoehePx}px; left: -15px; font-size: 16px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: ${35 + plattenhoehePx}px; right: -15px; font-size: 16px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: 8px; left: -35px; font-size: 15px; font-weight: bold; color: #dc3545; text-align: center; width: 60px;">${anreiss}cm</div>`;
+                html += `<div style="position: absolute; bottom: 8px; right: -35px; font-size: 15px; font-weight: bold; color: #dc3545; text-align: center; width: 60px;">${anreiss}cm</div>`;
+                
+                html += `</div>`;
+                
+                // Anleitung
+                html += `<div style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); padding: 20px; border-radius: 10px; font-size: 15px; margin-top: 25px; border-left: 5px solid #ffc107;">`;
+                html += `<strong style="color: #856404;">📏 Anzeichnen:</strong><br>`;
+                if (istLetztePlatte) {
+                    const ueberhang = originalPlattenEnde - rechteckBreite;
+                    if (ueberhang > 0) {
+                        html += `• <strong style="color: #FF0000;">⚠️ ZUERST: Rechts ${(ueberhang * 100).toFixed(0)}cm abschneiden!</strong><br>`;
+                    }
+                }
+                html += `• Von der Unterkante: Bei ${anreiss}cm markieren und horizontal schneiden<br>`;
+                if (istImTrapez) {
+                    html += `• <strong style="color: #28a745;">🏗️ WALMDACH: Diese Platte durchläuft Rechteck- UND Trapez-Bereich!</strong><br>`;
+                    html += `• Gesamthöhe: ${gesamtHoehe}m (Rechteck: ${rechteckHoehe}m + Trapez: ${trapezHoehe}m)<br>`;
+                } else {
+                    html += `• <strong style="color: #6f42c1;">📐 NUR RECHTECK: Diese Platte bleibt im rechteckigen Bereich</strong><br>`;
+                    html += `• Höhe: ${rechteckHoehe}m<br>`;
+                }
+                html += `</div>`;
+                html += `</div>`;
+            });
+            
+            html += `</div>`;
+            
+            document.getElementById('anriss-content').innerHTML = html;
+            document.getElementById('anrissplan').style.display = 'block';
         }
 
         // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
-            setupEmailProtection();
-            
             // Initialize tracking and ads based on existing consent
             const cookieConsent = localStorage.getItem('cookieConsent');
             if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
@@ -871,9 +857,6 @@
                 loadAdSense();
                 showAds();
             }
-            
-            // Show cookie banner for first-time visitors
-            showCookieBanner();
         });
     </script>
 </body>
