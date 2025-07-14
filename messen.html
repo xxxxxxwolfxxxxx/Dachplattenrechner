@@ -244,33 +244,42 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         
-        /* Ad-Container - BLAU WIE DER OBERE BALKEN */
+        /* Ad-Container - BLAU WIE DER OBERE BALKEN - MIT !IMPORTANT */
         .ad-container {
-            margin: 50px auto;
-            max-width: 800px;
-            text-align: center;
-            background: rgba(44, 62, 80, 0.95); /* Gleiche Farbe wie nav-header */
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+            margin: 50px auto !important;
+            max-width: 800px !important;
+            text-align: center !important;
+            background: rgba(44, 62, 80, 0.95) !important; /* Gleiche Farbe wie nav-header */
+            border-radius: 12px !important;
+            padding: 20px !important;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            border: none !important; /* Kein Border */
+            overflow: hidden !important;
+            transition: all 0.3s ease !important;
         }
         
         .ad-placeholder {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            padding: 20px;
-            border-radius: 8px;
-            color: rgba(255, 255, 255, 0.8);
-            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 2px dashed rgba(255, 255, 255, 0.3) !important;
+            padding: 20px !important;
+            border-radius: 8px !important;
+            color: rgba(255, 255, 255, 0.8) !important;
+            margin: 0 auto !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .ad-placeholder:hover {
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            background: rgba(255, 255, 255, 0.2) !important;
         }
         
         .ad-content-real {
-            min-height: 100px;
-            display: block;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 8px;
-            padding: 10px;
+            min-height: 100px !important;
+            display: block !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-radius: 8px !important;
+            padding: 10px !important;
         }
         
         /* CTA Bereich */
