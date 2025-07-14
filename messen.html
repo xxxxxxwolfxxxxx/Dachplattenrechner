@@ -42,8 +42,6 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css">
-    
     <style>
         body {
             margin: 0;
@@ -244,44 +242,6 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         
-        /* Ad-Container - BLAU WIE DER OBERE BALKEN - MIT !IMPORTANT */
-        .ad-container {
-            margin: 50px auto !important;
-            max-width: 800px !important;
-            text-align: center !important;
-            background: rgba(44, 62, 80, 0.95) !important; /* Gleiche Farbe wie nav-header */
-            border-radius: 12px !important;
-            padding: 20px !important;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
-            backdrop-filter: blur(10px) !important;
-            border: none !important; /* Kein Border */
-            overflow: hidden !important;
-            transition: all 0.3s ease !important;
-        }
-        
-        .ad-placeholder {
-            background: rgba(255, 255, 255, 0.1) !important;
-            border: 2px dashed rgba(255, 255, 255, 0.3) !important;
-            padding: 20px !important;
-            border-radius: 8px !important;
-            color: rgba(255, 255, 255, 0.8) !important;
-            margin: 0 auto !important;
-            transition: all 0.3s ease !important;
-        }
-        
-        .ad-placeholder:hover {
-            border-color: rgba(255, 255, 255, 0.5) !important;
-            background: rgba(255, 255, 255, 0.2) !important;
-        }
-        
-        .ad-content-real {
-            min-height: 100px !important;
-            display: block !important;
-            background: rgba(255, 255, 255, 0.95) !important;
-            border-radius: 8px !important;
-            padding: 10px !important;
-        }
-        
         /* CTA Bereich */
         .cta-section {
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -354,6 +314,50 @@
                 flex-direction: column;
                 align-items: center;
             }
+        }
+    </style>
+    
+    <!-- STYLE.CSS NACH UNSEREM STYLE LADEN -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- OVERRIDE-STYLES NACH STYLE.CSS -->
+    <style>
+        /* Ad-Container - BLAU WIE DER OBERE BALKEN - NACH style.css */
+        body .ad-container {
+            margin: 50px auto !important;
+            max-width: 800px !important;
+            text-align: center !important;
+            background: rgba(44, 62, 80, 0.95) !important;
+            border-radius: 12px !important;
+            padding: 20px !important;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+            backdrop-filter: blur(10px) !important;
+            border: none !important;
+            overflow: hidden !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        body .ad-placeholder {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 2px dashed rgba(255, 255, 255, 0.3) !important;
+            padding: 20px !important;
+            border-radius: 8px !important;
+            color: rgba(255, 255, 255, 0.8) !important;
+            margin: 0 auto !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        body .ad-placeholder:hover {
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
+        
+        body .ad-content-real {
+            min-height: 100px !important;
+            display: block !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-radius: 8px !important;
+            padding: 10px !important;
         }
     </style>
 </head>
