@@ -612,6 +612,7 @@
 
     <!-- Fazit Section -->
     <section class="parallax-section">
+        <div class="parallax-bg bg-hero" data-speed="0.2"></div>
         <div class="content-container fade-in">
             <h2>Zusammenfassung: Perfekt vermessen</h2>
             
@@ -644,7 +645,7 @@
     </section>
 
     <script>
-        // Sanfterer Parallax Effect mit Section-basiertem Bildwechsel
+        // Verbesserte Parallax-Funktion - alle Bilder sichtbar machen
         function updateParallax() {
             const scrollTop = window.pageYOffset;
             const parallaxElements = document.querySelectorAll('.parallax-bg');
@@ -654,33 +655,13 @@
                 const speed = parseFloat(element.dataset.speed) || 0.5;
                 const yPos = -(scrollTop * speed);
                 element.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                
+                // Alle Bilder sichtbar machen
+                element.style.opacity = 1;
             });
             
-            // Sanfte Opacity-Änderungen basierend auf Scroll-Position
-            const windowHeight = window.innerHeight;
-            const sections = document.querySelectorAll('.parallax-section');
-            
-            sections.forEach((section, index) => {
-                const rect = section.getBoundingClientRect();
-                const sectionTop = rect.top;
-                const sectionHeight = rect.height;
-                
-                // Berechne Sichtbarkeit der Section (0-1)
-                let visibility = 0;
-                if (sectionTop < windowHeight && sectionTop + sectionHeight > 0) {
-                    if (sectionTop <= 0) {
-                        visibility = Math.min(1, (sectionHeight + sectionTop) / sectionHeight);
-                    } else {
-                        visibility = Math.min(1, (windowHeight - sectionTop) / windowHeight);
-                    }
-                }
-                
-                // Ändere Opacity basierend auf Section-Sichtbarkeit
-                const bgElement = section.querySelector('.parallax-bg');
-                if (bgElement) {
-                    bgElement.style.opacity = Math.max(0.3, visibility); // Mindest-Opacity 0.3
-                }
-            });
+            // Debug: Log um zu sehen welche Bilder gefunden werden
+            console.log(`Gefundene Parallax-Elemente: ${parallaxElements.length}`);
         }
 
         // Progress Bar
