@@ -324,6 +324,76 @@
                     <span class="cta-button">Jetzt berechnen</span>
                 </a>
 
+                <!-- Richtig Messen -->
+                <a href="messen.html" class="calculator-card">
+                    <div class="card-icon">
+                        <svg width="120" height="80" viewBox="0 0 120 80">
+                            <!-- Rollbandmaß (links oben nach rechts unten) -->
+                            <g transform="rotate(-30 30 30)">
+                                <!-- Rollbandmaß-Gehäuse -->
+                                <rect x="20" y="25" width="20" height="15" rx="3" fill="#e74c3c" stroke="#c0392b" stroke-width="1"/>
+                                <!-- Maßband ausgefahren -->
+                                <rect x="40" y="28" width="25" height="3" fill="#f1c40f" stroke="#f39c12" stroke-width="0.5"/>
+                                <rect x="65" y="28" width="8" height="3" fill="#34495e" stroke="#2c3e50" stroke-width="0.5"/>
+                                <!-- Markierungen auf dem Band -->
+                                <line x1="45" y1="28" x2="45" y2="31" stroke="#2c3e50" stroke-width="0.5"/>
+                                <line x1="50" y1="28" x2="50" y2="31" stroke="#2c3e50" stroke-width="0.5"/>
+                                <line x1="55" y1="28" x2="55" y2="31" stroke="#2c3e50" stroke-width="0.5"/>
+                                <line x1="60" y1="28" x2="60" y2="31" stroke="#2c3e50" stroke-width="0.5"/>
+                            </g>
+                            
+                            <!-- Zollstock (rechts oben nach links unten) -->
+                            <g transform="rotate(30 90 30)">
+                                <!-- Zollstock-Segmente -->
+                                <rect x="75" y="25" width="20" height="4" fill="#f39c12" stroke="#d68910" stroke-width="1"/>
+                                <rect x="95" y="25" width="20" height="4" fill="#f1c40f" stroke="#d68910" stroke-width="1"/>
+                                <!-- Gelenk zwischen Segmenten -->
+                                <circle cx="95" cy="27" r="2" fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+                                <!-- Markierungen -->
+                                <line x1="80" y1="25" x2="80" y2="29" stroke="#2c3e50" stroke-width="0.5"/>
+                                <line x1="85" y1="25" x2="85" y2="29" stroke="#2c3e50" stroke-width="0.5"/>
+                                <line x1="90" y1="25" x2="90" y2="29" stroke="#2c3e50" stroke-width="0.5"/>
+                                <line x1="100" y1="25" x2="100" y2="29" stroke="#2c3e50" stroke-width="0.5"/>
+                                <line x1="105" y1="25" x2="105" y2="29" stroke="#2c3e50" stroke-width="0.5"/>
+                                <line x1="110" y1="25" x2="110" y2="29" stroke="#2c3e50" stroke-width="0.5"/>
+                            </g>
+                            
+                            <!-- Klemmbrett als "Schädel" -->
+                            <g transform="translate(60,15)">
+                                <!-- Klemmbrett -->
+                                <rect x="-12" y="0" width="24" height="32" rx="2" fill="#8b4513" stroke="#654321" stroke-width="1"/>
+                                <!-- Papier -->
+                                <rect x="-10" y="2" width="20" height="28" fill="#ffffff" stroke="#e0e0e0" stroke-width="0.5"/>
+                                <!-- Klemme -->
+                                <rect x="-8" y="-2" width="16" height="6" rx="1" fill="#95a5a6" stroke="#7f8c8d" stroke-width="1"/>
+                                <!-- Papier-Linien -->
+                                <line x1="-8" y1="8" x2="8" y2="8" stroke="#bdc3c7" stroke-width="0.5"/>
+                                <line x1="-8" y1="12" x2="8" y2="12" stroke="#bdc3c7" stroke-width="0.5"/>
+                                <line x1="-8" y1="16" x2="8" y2="16" stroke="#bdc3c7" stroke-width="0.5"/>
+                                <line x1="-8" y1="20" x2="8" y2="20" stroke="#bdc3c7" stroke-width="0.5"/>
+                                <line x1="-8" y1="24" x2="8" y2="24" stroke="#bdc3c7" stroke-width="0.5"/>
+                                <!-- Stift -->
+                                <circle cx="6" cy="26" r="2" fill="#e74c3c" stroke="#c0392b" stroke-width="0.5"/>
+                                <line x1="6" y1="24" x2="6" y2="28" stroke="#2c3e50" stroke-width="1"/>
+                            </g>
+                            
+                            <!-- Schatten für Tiefenwirkung -->
+                            <ellipse cx="60" cy="70" rx="35" ry="8" fill="#000000" opacity="0.1"/>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Richtig Messen</h2>
+                    <p class="card-description">
+                        Professioneller Leitfaden für die präzise Vermessung von Dachflächen. Von der Sicherheit bis zur Geometrie.
+                    </p>
+                    <ul class="card-features">
+                        <li>Sicherheit beim Dachmessen</li>
+                        <li>Richtige Messwerkzeuge</li>
+                        <li>Dachformen erkennen</li>
+                        <li>Typische Messfehler vermeiden</li>
+                    </ul>
+                    <span class="cta-button">Jetzt lernen</span>
+                </a>
+
                 <!-- Eleganter Werbeplatz zwischen den Karten -->
                 <div class="ad-container-middle" id="middle-ad-container">
                     <div class="ad-placeholder">
@@ -401,29 +471,13 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Trapezplattenrechner</h3>
-                    <p>Professionelle Berechnungstools für die Dachdeckerbranche. Präzise, schnell und benutzerfreundlich.</p>
-                    <p style="margin-top: 15px;">
-                        <strong>Kontakt:</strong><br>
-                        <span id="email-footer"></span>
-                    </p>
-                </div>
-                <div class="footer-section">
-                    <h3>Rechtliches</h3>
-                    <ul class="footer-links">
-                        <li><a href="#" onclick="openModal('impressum')">Impressum</a></li>
-                        <li><a href="#" onclick="openModal('datenschutz')">Datenschutz</a></li>
-                        <li><a href="#" onclick="openModal('agb')">AGB</a></li>
-                        <li><a href="#" onclick="openModal('cookies')">Cookie-Einstellungen</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
                     <h3>Rechner</h3>
                     <ul class="footer-links">
                         <li><a href="gleichschenkliges-dreieck.html">Gleichschenkliges Dreieck</a></li>
                         <li><a href="ungleichschenkliges-dreieck.html">Ungleichschenkliges Dreieck</a></li>
                         <li><a href="trapez.html">Trapez</a></li>
                         <li><a href="trapezaufrechteck.html">Trapez auf Rechteck</a></li>
+                        <li><a href="messen.html">Richtig Messen</a></li>
                         <li><a href="verschnitt-optimierung.html">Verschnitt-Optimierung</a></li>
                     </ul>
                 </div>
