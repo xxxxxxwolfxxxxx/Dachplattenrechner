@@ -279,9 +279,9 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         
-        /* CTA Bereich */
+        /* CTA Bereich - KORRIGIERT: Blau statt Lila */
         .cta-section {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
             padding: 50px;
             border-radius: 15px;
             text-align: center;
@@ -292,6 +292,11 @@
         .cta-section h3 {
             color: white;
             margin-bottom: 20px;
+        }
+        
+        .cta-section p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
         }
         
         .cta-buttons {
@@ -415,17 +420,18 @@
             color: #8a4100;
         }
         
-        /* 5-Schritte Zusammenfassung */
+        /* 5-Schritte Zusammenfassung - KORRIGIERT: Heller Hintergrund */
         .steps-summary {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #333;
             padding: 40px;
             border-radius: 15px;
             margin: 50px 0;
+            border-left: 5px solid #2a5298;
         }
         
         .steps-summary h3 {
-            color: white;
+            color: #1e3c72;
             text-align: center;
             margin-bottom: 30px;
         }
@@ -441,7 +447,8 @@
         }
         
         .step-number {
-            background: rgba(255,255,255,0.2);
+            background: #2a5298;
+            color: white;
             border-radius: 50%;
             width: 60px;
             height: 60px;
@@ -454,12 +461,12 @@
         }
         
         .step-item h4 {
-            color: white;
+            color: #1e3c72;
             margin-bottom: 10px;
         }
         
         .step-item p {
-            opacity: 0.9;
+            color: #555;
             font-size: 0.9em;
         }
         
@@ -636,17 +643,16 @@
                     <div class="roof-card-content">
                         <div class="roof-card-title">Pultdach</div>
                         <div class="roof-measurements">
-                            <h4>🔧 Benötigte Maße:</h4>
+                            <h4>🔧 Benötigte Dachmaße:</h4>
                             <ul>
-                                <li><strong>Gebäude-Breite:</strong> Horizontale Dachausdehnung</li>
-                                <li><strong>Höhe h1 & h2:</strong> Wandhöhen an beiden Seiten</li>
+                                <li><strong>Dachbreite:</strong> Breite der Dachfläche (inkl. Überstand)</li>
+                                <li><strong>Dachneigung:</strong> Winkel oder Höhendifferenz</li>
                                 <li><strong>Dachflächen-Länge:</strong> Schräge Messung der Dachfläche</li>
-                                <li><strong>Neigungswinkel:</strong> Für Materialberechnung</li>
-                                <li><strong>Trauflänge:</strong> Länge des Daches</li>
+                                <li><strong>Trauflänge:</strong> Länge der Dachkante</li>
                             </ul>
                         </div>
                         <div class="measurement-tip">
-                            <strong>📐 Achtung:</strong> Bei Pultdächern die schräge Fläche messen, nicht die horizontale Projektion!
+                            <strong>📐 Für Rechner:</strong> Bei Pultdächern die schräge Dachfläche messen - das ist die Länge, die wir für die Materialberechnung brauchen!
                         </div>
                     </div>
                 </div>
@@ -656,17 +662,16 @@
                     <div class="roof-card-content">
                         <div class="roof-card-title">Satteldach</div>
                         <div class="roof-measurements">
-                            <h4>🔧 Benötigte Maße:</h4>
+                            <h4>🔧 Benötigte Dachmaße:</h4>
                             <ul>
-                                <li><strong>Gebäude-Breite:</strong> Abstand der Außenwände</li>
-                                <li><strong>Firsthöhe:</strong> Vom Boden bis zur höchsten Stelle</li>
+                                <li><strong>Dachbreite:</strong> Breite der Dachfläche (inkl. Überstand)</li>
+                                <li><strong>Firsthöhe:</strong> Höhe der Dachspitze</li>
                                 <li><strong>Dachflächen-Länge:</strong> Schräge Messung von Traufe bis First</li>
-                                <li><strong>Trauflänge:</strong> Länge des Daches</li>
-                                <li><strong>Dachüberstand:</strong> Auskragung über die Wand</li>
+                                <li><strong>Trauflänge:</strong> Länge der Dachkante</li>
                             </ul>
                         </div>
                         <div class="measurement-tip">
-                            <strong>💡 Messtipp:</strong> Beide Dachseiten separat messen - sie können unterschiedlich sein!
+                            <strong>💡 Für Rechner:</strong> Beide Dachseiten separat messen - für unsere Berechnungen brauchen wir die tatsächlichen Dachflächen-Abmessungen!
                         </div>
                     </div>
                 </div>
@@ -676,9 +681,9 @@
                     <div class="roof-card-content">
                         <div class="roof-card-title">Walmdach</div>
                         <div class="roof-measurements">
-                            <h4>🔧 Benötigte Maße:</h4>
+                            <h4>🔧 Benötigte Dachmaße:</h4>
                             <ul>
-                                <li><strong>Gebäude-Länge & -Breite:</strong> Grundriss-Abmessungen</li>
+                                <li><strong>Dach-Länge & -Breite:</strong> Komplette Dachflächen-Abmessungen</li>
                                 <li><strong>Firstlänge:</strong> Länge des waagerechten Firsts</li>
                                 <li><strong>Gratlinien:</strong> Schräge Kanten zu den Ecken</li>
                                 <li><strong>Walm-Dreiecke:</strong> Dreiecksflächen an den Giebelseiten</li>
@@ -686,7 +691,7 @@
                             </ul>
                         </div>
                         <div class="measurement-tip">
-                            <strong>⚠️ Wichtig:</strong> Walmdächer haben verschiedene Flächenformen - jede separat vermessen!
+                            <strong>⚠️ Für Rechner:</strong> Walmdächer haben verschiedene Flächenformen - jede Teilfläche separat vermessen für unsere Berechnungen!
                         </div>
                     </div>
                 </div>
@@ -735,12 +740,12 @@
                 <p style="font-style: italic; color: #666; margin-top: 15px;">Wichtige Messmaße am Dach</p>
             </div>
             
-            <h3>🎯 Reihenfolge der Messung</h3>
+            <h3>🎯 Relevante Dachmaße erfassen</h3>
             <ul>
-                <li>Basis-Breite – Länge der unteren Dachkante</li>
-                <li>Schräge Dachkante – Von Traufe bis First messen (nicht horizontal!)</li>
-                <li>Dachüberstand – Auskragung über die Gebäudewand</li>
-                <li>Firstlänge – Bei Satteldächern die obere Kante</li>
+                <li>Dach-Breite – Breite der kompletten Dachfläche</li>
+                <li>Schräge Dachkanten – Alle Kanten der Dachfläche messen</li>
+                <li>Dachneigung – Winkel oder Höhendifferenz</li>
+                <li>Kantenlängen – Alle Seiten für Dreieck-, Trapez- oder Rechteck-Berechnungen</li>
             </ul>
             
             <h3>3. Typische Messfehler vermeiden</h3>
@@ -769,34 +774,34 @@
                 
                 <div style="display: flex; align-items: center; gap: 30px; margin: 20px 0; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 300px;">
-                        <svg width="300" height="200" viewBox="0 0 300 200">
+                        <svg width="300" height="200" viewBox="0 0 300 200" style="display: block; margin: 0 auto;">
                             <!-- Rechteck (Gebäude von oben) -->
-                            <rect x="50" y="80" width="180" height="100" fill="#f0f0f0" stroke="#333" stroke-width="2"/>
+                            <rect x="75" y="60" width="150" height="80" fill="#f0f0f0" stroke="#333" stroke-width="2"/>
                             
                             <!-- 3m Seite -->
-                            <line x1="50" y1="80" x2="50" y2="140" stroke="#dc3545" stroke-width="4"/>
-                            <text x="30" y="115" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 30 115)">3,00m</text>
+                            <line x1="75" y1="60" x2="75" y2="110" stroke="#dc3545" stroke-width="4"/>
+                            <text x="68" y="105" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 68 105)">3,00m</text>
                             
                             <!-- 4m Seite -->
-                            <line x1="50" y1="80" x2="110" y2="80" stroke="#28a745" stroke-width="4"/>
-                            <text x="80" y="70" text-anchor="middle" font-size="14" fill="#28a745" font-weight="bold">4,00m</text>
+                            <line x1="75" y1="60" x2="125" y2="60" stroke="#28a745" stroke-width="4"/>
+                            <text x="100" y="50" text-anchor="middle" font-size="14" fill="#28a745" font-weight="bold">4,00m</text>
                             
-                            <!-- 5m Diagonale -->
-                            <line x1="50" y1="80" x2="110" y2="140" stroke="#ff6b35" stroke-width="4" stroke-dasharray="8,4"/>
-                            <text x="75" y="115" font-size="14" fill="#ff6b35" font-weight="bold" transform="rotate(37 75 115)">5,00m</text>
+                            <!-- 5m Diagonale - KORRIGIERT: Von Ende 3m-Linie zu Ende 4m-Linie -->
+                            <line x1="75" y1="110" x2="125" y2="60" stroke="#ff6b35" stroke-width="4" stroke-dasharray="8,4"/>
+                            <text x="95" y="115" font-size="14" fill="#ff6b35" font-weight="bold" transform="rotate(-51 95 115)">5,00m</text>
                             
                             <!-- Rechter Winkel Symbol -->
-                            <path d="M 50 80 L 60 80 L 60 90 L 50 90" fill="none" stroke="#1976d2" stroke-width="2"/>
-                            <text x="65" y="95" font-size="12" fill="#1976d2" font-weight="bold">90°</text>
+                            <path d="M 75 60 L 85 60 L 85 70 L 75 70" fill="none" stroke="#1976d2" stroke-width="2"/>
+                            <text x="90" y="75" font-size="12" fill="#1976d2" font-weight="bold">90°</text>
                             
                             <!-- Maßlinien -->
-                            <line x1="45" y1="80" x2="45" y2="140" stroke="#333" stroke-width="1"/>
-                            <line x1="42" y1="80" x2="48" y2="80" stroke="#333" stroke-width="1"/>
-                            <line x1="42" y1="140" x2="48" y2="140" stroke="#333" stroke-width="1"/>
+                            <line x1="70" y1="60" x2="70" y2="110" stroke="#333" stroke-width="1"/>
+                            <line x1="67" y1="60" x2="73" y2="60" stroke="#333" stroke-width="1"/>
+                            <line x1="67" y1="110" x2="73" y2="110" stroke="#333" stroke-width="1"/>
                             
-                            <line x1="50" y1="75" x2="110" y2="75" stroke="#333" stroke-width="1"/>
-                            <line x1="50" y1="72" x2="50" y2="78" stroke="#333" stroke-width="1"/>
-                            <line x1="110" y1="72" x2="110" y2="78" stroke="#333" stroke-width="1"/>
+                            <line x1="75" y1="55" x2="125" y2="55" stroke="#333" stroke-width="1"/>
+                            <line x1="75" y1="52" x2="75" y2="58" stroke="#333" stroke-width="1"/>
+                            <line x1="125" y1="52" x2="125" y2="58" stroke="#333" stroke-width="1"/>
                         </svg>
                     </div>
                     
@@ -842,9 +847,9 @@
                 </div>
                 
                 <div class="tip-card tip-red">
-                    <h4>📐 Dachüberstand nicht vergessen</h4>
-                    <p><strong>Wichtig:</strong> Der Dachüberstand gehört zur Dachfläche dazu! Messen Sie vom äußersten Punkt der Dachkante, nicht nur bis zur Hauswand.</p>
-                    <p class="tip-subtitle">Typische Überstände: 30-50cm bei Wohnhäusern.</p>
+                    <h4>📐 Alle Dachkanten vermessen</h4>
+                    <p><strong>Wichtig:</strong> Messen Sie alle Kanten der Dachflächen - nicht die Gebäudegrundfläche! Für die Materialberechnung sind nur die tatsächlichen Dachflächen-Abmessungen relevant.</p>
+                    <p class="tip-subtitle">Dachüberstand ist bereits in der Dachfläche enthalten.</p>
                 </div>
                 
                 <div class="tip-card tip-purple">
@@ -867,7 +872,7 @@
                 <strong>💡 Goldene Regel:</strong> Lieber dreimal messen als einmal falsch bestellen! Zeit beim Messen gespart ist Geld beim Material verloren.
             </div>
 
-            <!-- 5-Schritte Zusammenfassung -->
+            <!-- 5-Schritte Zusammenfassung - KORRIGIERT: Heller Hintergrund -->
             <div class="steps-summary">
                 <h3>🎯 Perfekt vermessen in 5 Schritten</h3>
                 <div class="steps-grid">
@@ -903,9 +908,7 @@
                 <h3>Jetzt Materialverbrauch berechnen!</h3>
                 <p>Mit den gemessenen Werten können Sie jetzt den genauen Materialbedarf ermitteln:</p>
                 <div class="cta-buttons">
-                    <a href="gleichschenkliges-dreieck.html" class="cta-btn">📐 Dreieck berechnen</a>
-                    <a href="trapez.html" class="cta-btn">🔷 Trapez berechnen</a>
-                    <a href="trapezaufrechteck.html" class="cta-btn">🏠 Walmdach berechnen</a>
+                    <a href="index.html" class="cta-btn">🔧 Zu den Trapezplattenrechnern</a>
                 </div>
             </div>
         </div>
