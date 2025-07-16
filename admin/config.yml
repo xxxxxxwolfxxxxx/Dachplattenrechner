@@ -1,78 +1,78 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trapezplattenrechner Admin</title>
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-</head>
-<body>
-  <!-- Include the script that builds the page and powers Decap CMS -->
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-  
-  <script>
-    // Konfiguration für Ihr CMS
-    CMS.registerPreviewStyle('/style.css');
-    
-    // Custom Widget für Farbauswahl
-    CMS.registerWidget('color', {
-      controlComponent: ({ value, onChange }) => {
-        return React.createElement('input', {
-          type: 'color',
-          value: value || '#1e3c72',
-          onChange: (e) => onChange(e.target.value),
-          style: { width: '100%', height: '40px', border: 'none', borderRadius: '4px' }
-        });
-      }
-    });
-    
-    // Live-Vorschau für Styling-Änderungen
-    CMS.registerPreviewTemplate('style', ({ entry }) => {
-      const data = entry.getIn(['data']).toJS();
-      return React.createElement('div', {
-        style: {
-          padding: '20px',
-          background: data.primary_color,
-          color: 'white',
-          fontFamily: 'Arial, sans-serif'
-        }
-      }, [
-        React.createElement('h1', { key: 'title' }, 'Trapezplattenrechner'),
-        React.createElement('button', {
-          key: 'button',
-          style: {
-            background: data.secondary_color,
-            color: 'white',
-            padding: '10px 20px',
-            border: 'none',
-            borderRadius: '5px',
-            margin: '10px 0'
-          }
-        }, 'Beispiel Button'),
-        React.createElement('div', {
-          key: 'accent',
-          style: {
-            background: data.accent_color,
-            padding: '10px',
-            borderRadius: '5px',
-            marginTop: '10px'
-          }
-        }, 'Akzent Bereich')
-      ]);
-    });
-  </script>
-  
-  <script>
-    // Netlify Identity für Authentifizierung
-    if (window.netlifyIdentity) {
-      window.netlifyIdentity.on("init", user => {
-        if (!user) {
-          window.netlifyIdentity.on("login", () => {
-            document.location.href = "/admin/";
-          });
-        }
-      });
-    }
-  </script>
-</body>
-</html>
+# Erstellen Sie diese Datei als admin/config.yml in Ihrem GitHub Repository
+
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "images"
+public_folder: "/images"
+
+collections:
+  - name: "pages"
+    label: "Seiten"
+    files:
+      - name: "index"
+        label: "Startseite"
+        file: "index.html"
+        fields:
+          - label: "Seitentitel"
+            name: "title"
+            widget: "string"
+            default: "Trapezplattenrechner"
+          - label: "Header Farbe"
+            name: "header_color"
+            widget: "color"
+            default: "#1e3c72"
+          - label: "Sekundäre Farbe"
+            name: "secondary_color"
+            widget: "color"
+            default: "#2a5298"
+          - label: "Features"
+            name: "features"
+            widget: "list"
+            fields:
+              - {label: "Icon", name: "icon", widget: "string"}
+              - {label: "Text", name: "text", widget: "string"}
+      
+      - name: "style"
+        label: "Styling"
+        file: "style.css"
+        fields:
+          - label: "Primäre Farbe"
+            name: "primary_color"
+            widget: "color"
+            default: "#1e3c72"
+          - label: "Sekundäre Farbe"
+            name: "secondary_color"
+            widget: "color"
+            default: "#2a5298"
+          - label: "Akzent Farbe"
+            name: "accent_color"
+            widget: "color"
+            default: "#28a745"
+          - label: "Warnung Farbe"
+            name: "warning_color"
+            widget: "color"
+            default: "#ffc107"
+
+  - name: "rechner"
+    label: "Rechner-Seiten"
+    folder: "."
+    filter: {field: "layout", value: "rechner"}
+    create: false
+    fields:
+      - label: "Titel"
+        name: "title"
+        widget: "string"
+      - label: "Beschreibung"
+        name: "description"
+        widget: "text"
+      - label: "Hauptfarbe"
+        name: "main_color"
+        widget: "color"
+      - label: "Button Farbe"
+        name: "button_color"
+        widget: "color"
+
+# Live-Vorschau aktivieren
+local_backend: true
