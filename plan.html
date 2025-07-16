@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dach-Vorbereitung für Hausbesitzer - Gut geplant ist halb gewonnen!</title>
-    <meta name="description" content="Dach sanieren leicht gemacht: Planung, Vorbereitung und worauf Hausbesitzer achten sollten. Mit Humor und ohne Fachchinesisch erklärt.">
+    <title>Blechdach richtig vermessen - Praxisleitfaden für Heimwerker und Profis</title>
+    <meta name="description" content="Kompletter Praxisleitfaden: Blechdach richtig vermessen. Von der Sicherheit bis zur Geometrie - Schritt für Schritt erklärt.">
     
     <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
@@ -53,10 +53,10 @@
             min-height: 100vh;
         }
         
-        /* Vollbild Parallax Sections */
+        /* Hero Section */
         .hero-section {
             height: 100vh;
-            background-image: url('images/pexels-alex-conchillos-3724595.jpg');
+            background-image: url('images/metal-roof.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -73,7 +73,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(1px);
         }
         
@@ -164,7 +164,7 @@
             font-weight: 700;
         }
         
-        /* Inhalt-Sections mit viel Freiraum */
+        /* Content Sections */
         .content-section {
             min-height: 100vh;
             display: flex;
@@ -173,26 +173,26 @@
             padding: 100px 0;
         }
         
-        .bg-1 { 
-            background-image: url('images/pexels-david-mcbee-1546168.jpg');
+        .bg-safety { 
+            background-image: url('images/roof-worker-safety.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
-        .bg-2 { 
-            background-image: url('images/pexels-dom-j-7304-45987.jpg');
+        .bg-tools { 
+            background-image: url('images/roof-measurement.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
-        .bg-3 { 
-            background-image: url('images/pexels-pixabay-280229.jpg');
+        .bg-method { 
+            background-image: url('images/roof-construction.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
-        .bg-4 { 
-            background-image: url('images/pexels-prasanth-inturi-1232302.jpg');
+        .bg-tips { 
+            background-image: url('images/pexels-alex-conchillos-3724595.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -239,6 +239,67 @@
             margin-bottom: 30px;
         }
         
+        /* Dachformen Gallery - Clean */
+        .roof-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .roof-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .roof-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .roof-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .roof-card-content {
+            padding: 25px;
+        }
+        
+        .roof-card-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .roof-measurements {
+            background: linear-gradient(135deg, #e7f1ff 0%, #cce7ff 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #2a5298;
+        }
+        
+        .roof-measurements h4 {
+            margin: 0 0 15px 0;
+            color: #1e3c72;
+            font-size: 1.1em;
+        }
+        
+        .measurement-tip {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #ffc107;
+            font-size: 0.95em;
+        }
+        
         /* Elegante Listen */
         .elegant-list {
             list-style: none;
@@ -260,24 +321,23 @@
         }
         
         .elegant-list li::before {
-            content: "✓";
+            content: "📏";
             position: absolute;
             left: 0;
             top: 50%;
             transform: translateY(-50%);
             background: #1e3c72;
             color: white;
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
         }
         
-        /* Minimale Info-Boxen */
+        /* Info-Boxen */
         .info-card {
             background: linear-gradient(135deg, #e7f1ff 0%, #cce7ff 100%);
             border-left: 5px solid #1e3c72;
@@ -305,7 +365,48 @@
             font-size: 1.1em;
         }
         
-        /* Finale CTA Section */
+        /* 3-4-5 Trick Sektion */
+        .trick-showcase {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin: 60px 0;
+            text-align: center;
+        }
+        
+        .trick-title {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 30px;
+        }
+        
+        .trick-svg {
+            margin: 30px 0;
+        }
+        
+        .trick-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .trick-step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #1e3c72;
+        }
+        
+        .trick-step h4 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+        
+        /* Finale CTA */
         .final-cta {
             background: rgba(30, 60, 114, 0.95);
             backdrop-filter: blur(20px);
@@ -328,13 +429,6 @@
             opacity: 0.95;
         }
         
-        .cta-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-        
         .cta-btn {
             background: rgba(255, 255, 255, 0.15);
             color: white;
@@ -346,6 +440,8 @@
             border: 2px solid rgba(255, 255, 255, 0.3);
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            display: inline-block;
+            margin: 10px;
         }
         
         .cta-btn:hover {
@@ -374,22 +470,27 @@
                 padding: 0 20px;
             }
             
-            .content-card {
+            .content-card, .trick-showcase {
                 padding: 40px 30px;
                 margin: 40px 0;
             }
             
-            .content-title {
+            .content-title, .trick-title {
                 font-size: 2em;
+            }
+            
+            .roof-gallery {
+                grid-template-columns: 1fr;
             }
             
             .final-cta {
                 padding: 60px 40px;
             }
             
-            .cta-buttons {
-                flex-direction: column;
-                align-items: center;
+            .elegant-list li::before {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
             }
         }
         
@@ -418,7 +519,7 @@
     <div class="nav-header">
         <div class="nav-content">
             <a href="index.html" class="back-btn">← Zurück zur Übersicht</a>
-            <div class="nav-title">Dach-Vorbereitung leicht gemacht</div>
+            <div class="nav-title">Blechdach richtig vermessen</div>
         </div>
     </div>
 
@@ -426,124 +527,266 @@
     <section class="hero-section">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1 class="hero-title">Gut geplant ist halb gewonnen!</h1>
-            <p class="hero-subtitle">Dach sanieren ohne Kopfschmerzen – wir zeigen Ihnen wie</p>
-            <a href="#start" class="hero-cta">Los geht's! 🚀</a>
+            <h1 class="hero-title">Präzision ist alles! 📏</h1>
+            <p class="hero-subtitle">Wie Profis messen – ohne Fachchinesisch und mit bewährten Tricks</p>
+            <a href="#sicherheit" class="hero-cta">Los messen! 🚀</a>
         </div>
     </section>
 
-    <!-- Section 1: Wetter -->
-    <section class="content-section bg-1" id="start">
+    <!-- Section 1: Sicherheit -->
+    <section class="content-section bg-safety" id="sicherheit">
         <div class="content-overlay"></div>
         <div class="content-container">
             <div class="content-card fade-in">
-                <h2 class="content-title">🌤️ Das Wetter ist Ihr Freund</h2>
+                <h2 class="content-title">🛡️ Sicherheit geht vor!</h2>
                 <p class="content-text">
                     <strong>Mal ehrlich:</strong> Niemand hat Lust, pitschnass vom Dach zu rutschen! 
-                    Das wichtigste beim Dach decken ist das richtige Wetter.
+                    Jeder Profi weiß: Beim Dachmessen geht Sicherheit vor Geschwindigkeit.
                 </p>
                 
                 <div class="warning-card">
-                    <strong>Die goldene Regel:</strong> Wenn Sie sich draußen unwohl fühlen, 
-                    fühlt sich Ihr Dach auch unwohl. Warten Sie auf besseres Wetter – Ihr Dach läuft nicht weg!
+                    <strong>⚠️ Niemals ohne Sicherung!</strong><br>
+                    Arbeiten Sie nur bei trockenem Wetter. Nasse oder vereiste Dächer sind lebensgefährlich!
                 </div>
                 
                 <ul class="elegant-list">
-                    <li><strong>Perfekt:</strong> Sonnig und windstill = Lust auf Dach!</li>
-                    <li><strong>Nein danke:</strong> Regen = Netflix Tag</li>
-                    <li><strong>Gefährlich:</strong> Starker Wind = Lieber nicht</li>
-                    <li><strong>Lebensgefahr:</strong> Frost, Eis = Garantiert Rutschpartie</li>
+                    <li><strong>Dachhaken mit Sicherheitsleine:</strong> Fest in die Dachkonstruktion</li>
+                    <li><strong>Sicherheitsgurt/Klettergurt:</strong> EN 361 zertifiziert</li>
+                    <li><strong>Falldämpfer:</strong> Reduziert Sturzkraft auf unter 6 kN</li>
+                    <li><strong>Rutschfeste Arbeitsschuhe:</strong> Mit Profilsohle</li>
                 </ul>
                 
                 <div class="info-card">
-                    <strong>Pro-Tipp:</strong> Schauen Sie 3 Tage voraus. Nichts ist ärgerlicher, 
-                    als mitten im Projekt vom Regen überrascht zu werden!
+                    <strong>💡 Alternative ohne Dachhaken:</strong> Sicherheitsleine über den First werfen 
+                    und auf der anderen Seite befestigen. Achten Sie darauf, dass die Leine nicht scheuert!
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Section 2: Material -->
-    <section class="content-section bg-2">
+    <!-- Section 2: Werkzeuge -->
+    <section class="content-section bg-tools">
         <div class="content-overlay"></div>
         <div class="content-container">
             <div class="content-card fade-in">
-                <h2 class="content-title">🛠️ Was Sie wirklich brauchen</h2>
+                <h2 class="content-title">🔧 Die richtigen Werkzeuge</h2>
                 <p class="content-text">
-                    Keine Lust auf Baumarkt-Odyssee? Hier ist die Liste ohne Schnickschnack:
+                    Kein Quatsch, sondern nur das was Sie wirklich brauchen:
                 </p>
                 
                 <ul class="elegant-list">
-                    <li><strong>Trapezbleche:</strong> Die Hauptsache! Besser 10% mehr bestellen</li>
-                    <li><strong>Schrauben mit Dichtung:</strong> Sonst tropft es später rein</li>
-                    <li><strong>Leiter/Gerüst:</strong> Sicherheit geht vor!</li>
-                    <li><strong>Werkzeug:</strong> Akkuschrauber, Blechschere, Maßband</li>
-                    <li><strong>Sicherheitsausrüstung:</strong> Ihr Leben ist unbezahlbar!</li>
-                    <li><strong>Gute Laune:</strong> Kaffee, Pausensnack und Geduld</li>
+                    <li><strong>Rollbandmaß 8-10m:</strong> Stabiles Stahlband mit Magnetspitze</li>
+                    <li><strong>Teleskop-Maßstab:</strong> Für präzise Dachmessungen</li>
+                    <li><strong>Wasserwaage 1m:</strong> Mit Magnetfüßen für Metalldächer</li>
+                    <li><strong>Winkelmesser:</strong> Für Dachneigungen und Schrägen</li>
+                    <li><strong>Kreide/Marker:</strong> Zum Markieren der Messpunkte</li>
+                    <li><strong>Klemmbrett:</strong> Für Notizen der Maße</li>
                 </ul>
                 
                 <div class="success-card">
-                    <strong>Geld-Spar-Tipp:</strong> Bestellen Sie alles auf einmal. 
-                    Viele Händler geben Mengenrabatt!
+                    <strong>💡 Der 3-4-5 Meter Trick:</strong> Mit einem 5m-Rollbandmaß können Sie perfekte 
+                    rechte Winkel prüfen! Dieser uralte Zimmerer-Trick funktioniert immer!
+                </div>
+
+                <!-- Dachformen Übersicht -->
+                <h3 style="color: #1e3c72; margin-top: 50px; margin-bottom: 30px; text-align: center; font-size: 1.8em;">
+                    📐 Wichtigste Dachformen
+                </h3>
+                
+                <div class="roof-gallery">
+                    <div class="roof-card">
+                        <img src="images/Pultdach.PNG" alt="Pultdach">
+                        <div class="roof-card-content">
+                            <div class="roof-card-title">Pultdach</div>
+                            <div class="roof-measurements">
+                                <h4>🔧 Benötigte Maße:</h4>
+                                <p>• Dachbreite (inkl. Überstand)<br>
+                                • Dachneigung (Winkel/Höhe)<br>
+                                • Schräge Dachflächen-Länge<br>
+                                • Trauflänge</p>
+                            </div>
+                            <div class="measurement-tip">
+                                <strong>📐 Wichtig:</strong> Die schräge Dachfläche messen - das brauchen wir für die Berechnung!
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="roof-card">
+                        <img src="images/Satteldach.PNG" alt="Satteldach">
+                        <div class="roof-card-content">
+                            <div class="roof-card-title">Satteldach</div>
+                            <div class="roof-measurements">
+                                <h4>🔧 Benötigte Maße:</h4>
+                                <p>• Dachbreite (inkl. Überstand)<br>
+                                • Firsthöhe<br>
+                                • Schräge Länge (Traufe bis First)<br>
+                                • Trauflänge</p>
+                            </div>
+                            <div class="measurement-tip">
+                                <strong>💡 Tipp:</strong> Beide Dachseiten separat messen - die können unterschiedlich sein!
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="roof-card">
+                        <img src="images/Walmdach.PNG" alt="Walmdach">
+                        <div class="roof-card-content">
+                            <div class="roof-card-title">Walmdach</div>
+                            <div class="roof-measurements">
+                                <h4>🔧 Benötigte Maße:</h4>
+                                <p>• Dach-Länge & -Breite<br>
+                                • Firstlänge<br>
+                                • Gratlinien (schräge Kanten)<br>
+                                • Walm-Dreiecke & Hauptflächen</p>
+                            </div>
+                            <div class="measurement-tip">
+                                <strong>⚠️ Komplex:</strong> Jede Teilfläche separat vermessen!
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Section 3: Vorgehen -->
-    <section class="content-section bg-3">
+    <!-- Section 3: Der 3-4-5 Trick -->
+    <section class="content-section">
+        <div class="content-container">
+            <div class="trick-showcase fade-in">
+                <h2 class="trick-title">📐 Der magische 3-4-5 Meter Trick</h2>
+                <p class="content-text">
+                    <strong>Wie prüfen Sie, ob Ihr Dach wirklich rechtwinklig ist?</strong><br>
+                    Mit diesem uralten Zimmerer-Trick funktioniert es immer!
+                </p>
+                
+                <div style="display: flex; align-items: center; gap: 30px; margin: 20px 0; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <svg width="300" height="200" viewBox="0 0 300 200" style="display: block; margin: 0 auto;">
+                            <!-- Rechteck (Gebäude von oben) -->
+                            <rect x="75" y="60" width="150" height="80" fill="#f0f0f0" stroke="#333" stroke-width="2"/>
+                            
+                            <!-- 3m Seite -->
+                            <line x1="75" y1="60" x2="75" y2="110" stroke="#dc3545" stroke-width="4"/>
+                            <text x="68" y="105" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 68 105)">3,00m</text>
+                            
+                            <!-- 4m Seite -->
+                            <line x1="75" y1="60" x2="125" y2="60" stroke="#28a745" stroke-width="4"/>
+                            <text x="100" y="50" text-anchor="middle" font-size="14" fill="#28a745" font-weight="bold">4,00m</text>
+                            
+                            <!-- 5m Diagonale - KORRIGIERT: Von Ende 3m-Linie zu Ende 4m-Linie -->
+                            <line x1="75" y1="110" x2="125" y2="60" stroke="#ff6b35" stroke-width="4" stroke-dasharray="8,4"/>
+                            <text x="95" y="115" font-size="14" fill="#ff6b35" font-weight="bold" transform="rotate(-51 95 115)">5,00m</text>
+                            
+                            <!-- Rechter Winkel Symbol -->
+                            <path d="M 75 60 L 85 60 L 85 70 L 75 70" fill="none" stroke="#1976d2" stroke-width="2"/>
+                            <text x="90" y="75" font-size="12" fill="#1976d2" font-weight="bold">90°</text>
+                            
+                            <!-- Maßlinien -->
+                            <line x1="70" y1="60" x2="70" y2="110" stroke="#333" stroke-width="1"/>
+                            <line x1="67" y1="60" x2="73" y2="60" stroke="#333" stroke-width="1"/>
+                            <line x1="67" y1="110" x2="73" y2="110" stroke="#333" stroke-width="1"/>
+                            
+                            <line x1="75" y1="55" x2="125" y2="55" stroke="#333" stroke-width="1"/>
+                            <line x1="75" y1="52" x2="75" y2="58" stroke="#333" stroke-width="1"/>
+                            <line x1="125" y1="52" x2="125" y2="58" stroke="#333" stroke-width="1"/>
+                        </svg>
+                    </div>
+                    
+                    <div style="flex: 1; min-width: 250px;">
+                        <h4 style="color: #1e3c72; margin-bottom: 15px;">🎯 So geht's:</h4>
+                        <ol style="line-height: 1.8;">
+                            <li>Von einer Ecke <strong style="color: #dc3545;">3,00m</strong> in eine Richtung messen</li>
+                            <li>Von derselben Ecke <strong style="color: #28a745;">4,00m</strong> im rechten Winkel dazu</li>
+                            <li>Die <strong style="color: #ff6b35;">Diagonale</strong> zwischen den Endpunkten messen</li>
+                            <li><strong>Ergebnis:</strong> Ist die Diagonale exakt <strong style="color: #ff6b35;">5,00m</strong>, dann ist der Winkel perfekt 90°</li>
+                        </ol>
+                        
+                        <div style="background: #e7f1ff; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <strong style="color: #1e3c72;">💡 Varianten:</strong><br>
+                            • Bei kleinen Flächen: 1,5m - 2,0m - 2,5m<br>
+                            • Bei großen Flächen: 6,0m - 8,0m - 10,0m<br>
+                            • Hauptsache das Verhältnis 3:4:5 stimmt!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Profi-Tipps -->
+    <section class="content-section bg-tips">
         <div class="content-overlay"></div>
         <div class="content-container">
             <div class="content-card fade-in">
-                <h2 class="content-title">📋 So gehen Sie vor</h2>
+                <h2 class="content-title">🎯 Die Profi-Geheimnisse</h2>
                 <p class="content-text">
-                    Step by Step zum perfekten Dach – ohne Stress und böse Überraschungen:
+                    Was die Profis niemals vergessen – und Sie ab sofort auch nicht mehr:
                 </p>
                 
                 <ul class="elegant-list">
-                    <li><strong>1. Dach anschauen:</strong> Messen Sie alles aus – zweimal!</li>
-                    <li><strong>2. Material bestellen:</strong> Alles was Sie brauchen + 10% extra</li>
-                    <li><strong>3. Arbeitsplatz einrichten:</strong> Gerüst, Werkzeug, Sicherheit</li>
-                    <li><strong>4. Bleche zuschneiden:</strong> Messen Sie nochmal nach</li>
-                    <li><strong>5. Loslegen:</strong> Von unten nach oben arbeiten</li>
+                    <li><strong>Immer schräg messen!</strong> Dachflächen niemals horizontal messen</li>
+                    <li><strong>Maßband straff halten:</strong> Durchhängen verfälscht das Ergebnis</li>
+                    <li><strong>Kontrollmessung:</strong> Jedes wichtige Maß zweimal messen</li>
+                    <li><strong>Alle Dachkanten vermessen:</strong> Nicht die Gebäudegrundfläche!</li>
+                    <li><strong>Sofort notieren:</strong> Mit Skizze und wasserfestem Stift</li>
+                    <li><strong>Materialausdehnung beachten:</strong> Metall dehnt sich bei Wärme aus</li>
                 </ul>
-                
-                <div class="info-card">
-                    <strong>Zeitplanung für Realisten:</strong><br>
-                    Samstag: Vorbereitung | Sonntag: Arbeiten | Montag: Puffertag<br>
-                    <em>Erfahrungswert: Alles dauert doppelt so lange wie geplant!</em>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section 4: Überraschungen -->
-    <section class="content-section bg-4">
-        <div class="content-overlay"></div>
-        <div class="content-container">
-            <div class="content-card fade-in">
-                <h2 class="content-title">😱 Böse Überraschungen</h2>
-                <p class="content-text">
-                    Sie haben das alte Dach runtergenommen und stehen vor einem Trümmerfeld? 
-                    Willkommen im Club! Das passiert öfter als gedacht.
-                </p>
                 
                 <div class="warning-card">
-                    <strong>Was Sie finden könnten:</strong><br>
-                    Morsches Holz, undichte Stellen, Schimmel oder ungebetene Untermieter. 
-                    Keine Panik – lieber jetzt richtig machen als in 5 Jahren nochmal!
+                    <strong>Die häufigsten Messfehler:</strong><br>
+                    ❌ Horizontal statt schräg messen<br>
+                    ❌ Maßband durchhängen lassen<br>
+                    ❌ Überstände vergessen<br>
+                    ❌ Nur eine Seite messen
                 </div>
                 
-                <ul class="elegant-list">
-                    <li><strong>Morsches Holz:</strong> Zimmerermann rufen oder selber ran</li>
-                    <li><strong>Undichte Stellen:</strong> Erst trocknen, dann sanieren</li>
-                    <li><strong>Schimmel:</strong> Das Problem richtig lösen</li>
-                    <li><strong>Schädlinge:</strong> Zeit für den Fachmann</li>
-                </ul>
-                
                 <div class="success-card">
-                    <strong>Positiv denken:</strong> Jede Sanierung ist wie eine Zeitreise. 
-                    Manchmal gibt's sogar Überraschungen – vergessene Schnapsflaschen inklusive!
+                    <strong>💡 Goldene Regel:</strong> Lieber dreimal messen als einmal falsch bestellen! 
+                    Zeit beim Messen gespart ist Geld beim Material verloren.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Zusammenfassung -->
+    <section class="content-section">
+        <div class="content-container">
+            <div class="content-card fade-in">
+                <h2 class="content-title">✅ Perfekt vermessen in 5 Schritten</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; margin: 40px 0;">
+                    <div style="text-align: center;">
+                        <div style="width: 60px; height: 60px; background: #1e3c72; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; font-weight: bold;">1</div>
+                        <h4 style="color: #1e3c72; margin-bottom: 10px;">Dachform erkennen</h4>
+                        <p style="color: #555; font-size: 0.9em;">Satteldach, Walmdach oder andere Form bestimmen</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 60px; height: 60px; background: #1e3c72; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; font-weight: bold;">2</div>
+                        <h4 style="color: #1e3c72; margin-bottom: 10px;">Sicherheit prüfen</h4>
+                        <p style="color: #555; font-size: 0.9em;">Nur bei trockenem Wetter mit Sicherheitsausrüstung</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 60px; height: 60px; background: #1e3c72; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; font-weight: bold;">3</div>
+                        <h4 style="color: #1e3c72; margin-bottom: 10px;">Schräg messen</h4>
+                        <p style="color: #555; font-size: 0.9em;">Maßband folgt der Dachneigung, nie horizontal</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 60px; height: 60px; background: #1e3c72; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; font-weight: bold;">4</div>
+                        <h4 style="color: #1e3c72; margin-bottom: 10px;">Rechte Winkel prüfen</h4>
+                        <p style="color: #555; font-size: 0.9em;">3-4-5 Meter Trick für Kontrolle nutzen</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 60px; height: 60px; background: #1e3c72; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; font-weight: bold;">5</div>
+                        <h4 style="color: #1e3c72; margin-bottom: 10px;">Material berechnen</h4>
+                        <p style="color: #555; font-size: 0.9em;">Mit den Maßen zum Trapezplattenrechner</p>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <strong>🎯 Das Wichtigste in Kürze:</strong><br>
+                    Mit der richtigen Sicherheitsausrüstung, professionellen Messwerkzeugen und bewährten Techniken 
+                    wird die Dachvermessung zur Routine. Der 3-4-5m-Trick für rechte Winkel und systematisches 
+                    Vorgehen sind der Schlüssel zum Erfolg.
                 </div>
             </div>
         </div>
@@ -553,13 +796,9 @@
     <section class="content-section">
         <div class="content-container">
             <div class="final-cta fade-in">
-                <h3>Jetzt sind Sie bereit! 🎯</h3>
-                <p>Mit der richtigen Vorbereitung wird Ihr Dach-Projekt zum Erfolg. 
-                Nutzen Sie unsere kostenlosen Rechner für die genaue Materialberechnung:</p>
-                <div class="cta-buttons">
-                    <a href="index.html" class="cta-btn">🔧 Zu den Rechnern</a>
-                    <a href="messen.html" class="cta-btn">📏 Richtig messen</a>
-                </div>
+                <h3>Jetzt Material berechnen! 🎯</h3>
+                <p>Mit den gemessenen Werten können Sie jetzt den genauen Materialbedarf ermitteln:</p>
+                <a href="index.html" class="cta-btn">🔧 Zu den Trapezplattenrechnern</a>
             </div>
         </div>
     </section>
@@ -626,7 +865,7 @@
             
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'page_view', {
-                    'event_category': 'vorbereitung_guide',
+                    'event_category': 'messen_guide',
                     'event_label': 'guide_loaded'
                 });
             }
