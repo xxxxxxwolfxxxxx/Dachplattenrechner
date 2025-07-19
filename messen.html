@@ -34,7 +34,7 @@
             background-attachment: fixed;
             z-index: 1;
             opacity: 0;
-            transition: opacity 0.8s ease-in-out;
+            transition: opacity 0.8s ease-in-out, transform 0.1s ease-out;
         }
 
         /* Background images from your /images folder */
@@ -83,15 +83,15 @@
 
         .section-title h1,
         .section-title h2 {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(20px);
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             color: white;
             padding: 25px 40px;
             margin: 0;
-            background: linear-gradient(45deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            display: inline-block;
         }
 
         .section-title h1 {
@@ -119,11 +119,11 @@
             transform: translateX(-50%);
             max-width: min(800px, 90vw);
             padding: 40px 30px;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
             color: white;
             margin: 0 20px;
             z-index: 10;
@@ -214,7 +214,7 @@
             75% { transform: translate(20vw, 80vh); }
         }
 
-        /* Section 2 - Blitz-Effekte */
+        /* Section 2 - Sanftere Blitz-Effekte */
         .section2 .background::before {
             content: '';
             position: absolute;
@@ -224,15 +224,15 @@
             height: 100%;
             background: rgba(255, 255, 255, 0);
             z-index: 1;
-            animation: lightning 5s ease-in-out infinite;
+            animation: lightningSubtle 6s ease-in-out infinite;
         }
 
-        @keyframes lightning {
-            0%, 85%, 100% { background: rgba(255, 255, 255, 0); }
-            5% { background: rgba(255, 255, 255, 0.4); }
+        @keyframes lightningSubtle {
+            0%, 90%, 100% { background: rgba(255, 255, 255, 0); }
+            5% { background: rgba(255, 255, 255, 0.15); }
             7% { background: rgba(255, 255, 255, 0); }
-            12% { background: rgba(255, 255, 255, 0.6); }
-            14% { background: rgba(255, 255, 255, 0.1); }
+            12% { background: rgba(255, 255, 255, 0.25); }
+            14% { background: rgba(255, 255, 255, 0.05); }
             16% { background: rgba(255, 255, 255, 0); }
         }
 
@@ -600,6 +600,15 @@
             const scrollTop = window.pageYOffset;
             const windowHeight = window.innerHeight;
             
+            // Parallax effect for backgrounds
+            backgrounds.forEach((bg, index) => {
+                if (bg && bg.classList.contains('active')) {
+                    const parallaxSpeed = 0.5;
+                    const yPos = scrollTop * parallaxSpeed;
+                    bg.style.transform = `translateY(${yPos}px)`;
+                }
+            });
+            
             sections.forEach((section, index) => {
                 const sectionTop = section.offsetTop;
                 const sectionHeight = section.offsetHeight;
@@ -708,6 +717,7 @@
             
             const lightningBg = backgrounds[1];
             if (lightningBg && lightningBg.classList.contains('active')) {
+                // Create subtle lightning flash
                 const flash = document.createElement('div');
                 flash.style.cssText = `
                     position: fixed;
@@ -715,30 +725,34 @@
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background: rgba(255, 255, 255, 0.8);
+                    background: rgba(255, 255, 255, 0.15);
                     z-index: 3;
                     pointer-events: none;
+                    opacity: 0;
                 `;
                 document.body.appendChild(flash);
                 
+                // Quick fade in/out
+                flash.style.transition = 'opacity 0.1s';
+                flash.style.opacity = '1';
+                
                 setTimeout(() => {
                     flash.style.opacity = '0';
-                    flash.style.transition = 'opacity 0.3s';
                     setTimeout(() => {
                         if (document.body.contains(flash)) {
                             document.body.removeChild(flash);
                         }
-                    }, 300);
-                }, 100);
+                    }, 100);
+                }, 50);
             }
         }
 
-        // Random lightning when section 2 is active (desktop only)
+        // Random subtle lightning when section 2 is active (desktop only)
         setInterval(() => {
-            if (currentSection === 2 && Math.random() < 0.3 && window.innerWidth > 768) {
+            if (currentSection === 2 && Math.random() < 0.15 && window.innerWidth > 768) {
                 addLightningEffects();
             }
-        }, 3000);
+        }, 4000);
 
         // Initialize
         updateBackground(1);
