@@ -19,7 +19,7 @@
 
         .section {
             position: relative;
-            height: 400vh; /* 4x viewport height for full cycle */
+            height: 300vh; /* Reduced for mobile */
             overflow: hidden;
         }
 
@@ -31,9 +31,31 @@
             height: 100vh;
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             z-index: 1;
             opacity: 0;
             transition: opacity 0.8s ease-in-out;
+        }
+
+        /* Default gradient backgrounds for when images don't load */
+        .background {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6741 100%);
+        }
+
+        .section1-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .section2-bg {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .section3-bg {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .section4-bg {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
         }
 
         .background.active {
@@ -43,13 +65,15 @@
         /* Title that appears first */
         .section-title {
             position: absolute;
-            top: 30vh;
+            top: 25vh;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
             z-index: 10;
             opacity: 0;
             transition: all 0.8s ease-out;
+            padding: 0 20px;
+            max-width: 90vw;
         }
 
         .section-title.visible {
@@ -69,13 +93,13 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             color: white;
-            padding: 30px 50px;
+            padding: 25px 40px;
             margin: 0;
             background: linear-gradient(45deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
         }
 
         .section-title h1 {
-            font-size: 3rem;
+            font-size: clamp(1.8rem, 4vw, 3rem);
             background: linear-gradient(45deg, #fff, #e0e0e0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -84,7 +108,7 @@
         }
 
         .section-title h2 {
-            font-size: 2.5rem;
+            font-size: clamp(1.5rem, 3.5vw, 2.5rem);
             background: linear-gradient(45deg, #fff, #e0e0e0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -94,11 +118,11 @@
         /* Content that scrolls up from bottom */
         .content {
             position: absolute;
-            top: 100vh; /* Start from bottom of screen */
+            top: 100vh;
             left: 50%;
             transform: translateX(-50%);
-            max-width: 800px;
-            padding: 60px 40px;
+            max-width: min(800px, 90vw);
+            padding: 40px 30px;
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(20px);
             border-radius: 20px;
@@ -107,7 +131,7 @@
             color: white;
             margin: 0 20px;
             z-index: 10;
-            min-height: 150vh; /* Tall enough to fill screen + scroll */
+            min-height: 120vh;
         }
 
         .glass-overlay {
@@ -131,7 +155,7 @@
         }
 
         h1 {
-            font-size: 2.8rem;
+            font-size: clamp(2rem, 4vw, 2.8rem);
             margin-bottom: 1.5rem;
             text-align: center;
             background: linear-gradient(45deg, #fff, #e0e0e0);
@@ -142,7 +166,7 @@
         }
 
         h2 {
-            font-size: 2.2rem;
+            font-size: clamp(1.7rem, 3.5vw, 2.2rem);
             margin-bottom: 1.5rem;
             text-align: center;
             background: linear-gradient(45deg, #fff, #e0e0e0);
@@ -152,7 +176,7 @@
         }
 
         h3 {
-            font-size: 1.6rem;
+            font-size: clamp(1.3rem, 2.5vw, 1.6rem);
             margin: 2rem 0 1rem 0;
             color: #f0f0f0;
             border-left: 4px solid rgba(255, 255, 255, 0.6);
@@ -161,14 +185,14 @@
 
         p {
             margin-bottom: 1.4rem;
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 2vw, 1.1rem);
             text-align: justify;
             color: #e0e0e0;
             line-height: 1.7;
         }
 
         .intro-text {
-            font-size: 1.3rem;
+            font-size: clamp(1.1rem, 2.2vw, 1.3rem);
             text-align: center;
             margin-bottom: 2rem;
             color: #f0f0f0;
@@ -176,15 +200,11 @@
         }
 
         /* Section 1 - Header mit beweglichem Licht */
-        .section1 .background {
-            background-image: url('images/messen-1.jpg');
-        }
-
         .section1 .background::before {
             content: '';
             position: absolute;
-            width: 300px;
-            height: 300px;
+            width: clamp(150px, 20vw, 300px);
+            height: clamp(150px, 20vw, 300px);
             background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%);
             border-radius: 50%;
             animation: lightMove 12s ease-in-out infinite;
@@ -199,10 +219,6 @@
         }
 
         /* Section 2 - Blitz-Effekte */
-        .section2 .background {
-            background-image: url('images/messen-2.jpg');
-        }
-
         .section2 .background::before {
             content: '';
             position: absolute;
@@ -225,10 +241,6 @@
         }
 
         /* Section 3 - Ziehende Wolken */
-        .section3 .background {
-            background-image: url('images/messen-3.png');
-        }
-
         .section3 .background::before {
             content: '';
             position: absolute;
@@ -252,10 +264,6 @@
         }
 
         /* Section 4 - Lichtschein auf Maßband */
-        .section4 .background {
-            background-image: url('images/messen-4.jpg');
-        }
-
         .section4 .background::before {
             content: '';
             position: absolute;
@@ -279,68 +287,145 @@
             80% { transform: translateY(-400%); opacity: 0.3; }
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .content {
-                padding: 40px 20px;
-                margin: 0 10px;
-                max-width: 95%;
-            }
-            
-            .section-title h1 {
-                font-size: 2.5rem;
-                padding: 25px 35px;
-            }
-            
-            .section-title h2 {
-                font-size: 2rem;
-                padding: 25px 35px;
-            }
-            
-            h1 {
-                font-size: 2.2rem;
-            }
-            
-            h2 {
-                font-size: 1.8rem;
-            }
-            
-            h3 {
-                font-size: 1.4rem;
-            }
-            
-            p {
-                font-size: 1rem;
-            }
+        /* Touch-friendly navigation */
+        .nav-dots {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
-            .intro-text {
-                font-size: 1.1rem;
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-dot.active {
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.3);
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .section {
+                height: 250vh; /* Shorter sections on mobile */
+            }
+            
+            .content {
+                padding: 30px 20px;
+                margin: 0 10px;
+                max-width: 95vw;
+                min-height: 100vh;
+            }
+            
+            .section-title {
+                top: 20vh;
+                max-width: 95vw;
+            }
+            
+            .section-title h1,
+            .section-title h2 {
+                padding: 20px 25px;
+            }
+            
+            /* Disable background-attachment: fixed on mobile for better performance */
+            .background {
+                background-attachment: scroll;
+            }
+            
+            /* Reduce animation complexity on mobile */
+            .section1 .background::before,
+            .section2 .background::before,
+            .section3 .background::before,
+            .section4 .background::before {
+                display: none;
+            }
+            
+            .nav-dots {
+                right: 10px;
+                gap: 10px;
+            }
+            
+            .nav-dot {
+                width: 10px;
+                height: 10px;
             }
         }
 
         @media (max-width: 480px) {
+            .section {
+                height: 200vh;
+            }
+            
             .content {
-                padding: 30px 15px;
+                padding: 25px 15px;
+                margin: 0 5px;
             }
             
-            .section-title h1 {
-                font-size: 2rem;
-                padding: 20px 25px;
+            .section-title {
+                top: 15vh;
             }
             
+            .section-title h1,
             .section-title h2 {
-                font-size: 1.6rem;
-                padding: 20px 25px;
+                padding: 15px 20px;
+            }
+        }
+
+        /* High contrast mode for accessibility */
+        @media (prefers-contrast: high) {
+            .content {
+                background: rgba(0, 0, 0, 0.95);
+                border: 2px solid white;
+            }
+            
+            .section-title h1,
+            .section-title h2 {
+                background: rgba(0, 0, 0, 0.95);
+                border: 2px solid white;
+            }
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            .background,
+            .section-title,
+            .content {
+                transition: none;
+            }
+            
+            .section1 .background::before,
+            .section2 .background::before,
+            .section3 .background::before,
+            .section4 .background::before {
+                animation: none;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Navigation dots -->
+    <div class="nav-dots">
+        <div class="nav-dot active" data-section="1"></div>
+        <div class="nav-dot" data-section="2"></div>
+        <div class="nav-dot" data-section="3"></div>
+        <div class="nav-dot" data-section="4"></div>
+    </div>
+
     <!-- Background containers -->
-    <div class="background section1-bg" style="background-image: url('messen-1.jpg');"></div>
-    <div class="background section2-bg" style="background-image: url('messen-2.jpg');"></div>
-    <div class="background section3-bg" style="background-image: url('messen-3.png');"></div>
-    <div class="background section4-bg" style="background-image: url('messen-4.jpg');"></div>
+    <div class="background section1-bg"></div>
+    <div class="background section2-bg"></div>
+    <div class="background section3-bg"></div>
+    <div class="background section4-bg"></div>
     
     <!-- Glass overlay -->
     <div class="glass-overlay"></div>
@@ -388,33 +473,33 @@
             
             <h3>1. Satteldach</h3>
             <p>Das klassische Satteldach besteht aus zwei rechteckigen Flächen mit identischer Neigung, die sich an der Firstlinie treffen.</p>
-            <p>Geometrische Körper: Zwei Rechtecke mit Neigung</p>
-            <p>Messpunkte: Traufkante, Firstkante, Sparrenlänge, Dachneigung</p>
-            <p>Flächenberechnung: Rechteckige Fläche + Neigungswinkel</p>
+            <p><strong>Geometrische Körper:</strong> Zwei Rechtecke mit Neigung</p>
+            <p><strong>Messpunkte:</strong> Traufkante, Firstkante, Sparrenlänge, Dachneigung</p>
+            <p><strong>Flächenberechnung:</strong> Rechteckige Fläche + Neigungswinkel</p>
             
             <h3>2. Walmdach</h3>
             <p>Beim Walmdach sind auch die Stirnseiten geneigt. Es entstehen vier geneigte Flächen.</p>
-            <p>Geometrische Körper: Zwei Trapeze (vorn & hinten), zwei Rechtecke (links & rechts)</p>
-            <p>Messpunkte: First, Traufe, Gratlinien, Eckpunkte der Schrägen</p>
-            <p>Flächenberechnung: Trapezflächen + Rechteckflächen</p>
+            <p><strong>Geometrische Körper:</strong> Zwei Trapeze (vorn & hinten), zwei Rechtecke (links & rechts)</p>
+            <p><strong>Messpunkte:</strong> First, Traufe, Gratlinien, Eckpunkte der Schrägen</p>
+            <p><strong>Flächenberechnung:</strong> Trapezflächen + Rechteckflächen</p>
             
             <h3>3. Pultdach</h3>
             <p>Ein Pultdach ist eine einseitig geneigte Fläche – simpel und effizient.</p>
-            <p>Geometrische Körper: Ein einzelnes Rechteck mit Neigung</p>
-            <p>Messpunkte: Traufe, Firstkante, Länge und Breite</p>
-            <p>Flächenberechnung: Rechteck unter Berücksichtigung der Neigung</p>
+            <p><strong>Geometrische Körper:</strong> Ein einzelnes Rechteck mit Neigung</p>
+            <p><strong>Messpunkte:</strong> Traufe, Firstkante, Länge und Breite</p>
+            <p><strong>Flächenberechnung:</strong> Rechteck unter Berücksichtigung der Neigung</p>
             
             <h3>4. Mansarddach</h3>
             <p>Hier unterteilt sich jede Dachseite in zwei unterschiedlich geneigte Flächen.</p>
-            <p>Geometrische Körper: Pro Seite zwei Trapez- oder Rechteckflächen</p>
-            <p>Messpunkte: Traufe, Mansardenknick, First, Gratlinien</p>
-            <p>Flächenberechnung: Einzelberechnung je Fläche, addieren der Teilflächen</p>
+            <p><strong>Geometrische Körper:</strong> Pro Seite zwei Trapez- oder Rechteckflächen</p>
+            <p><strong>Messpunkte:</strong> Traufe, Mansardenknick, First, Gratlinien</p>
+            <p><strong>Flächenberechnung:</strong> Einzelberechnung je Fläche, addieren der Teilflächen</p>
             
             <h3>5. Zeltdach</h3>
             <p>Ein Zeltdach besteht aus vier dreieckigen Dachflächen, die sich in einem zentralen Punkt – der Firstspitze – treffen.</p>
-            <p>Geometrische Körper: Vier gleichschenklige Dreiecke</p>
-            <p>Messpunkte: Basislänge, Seitenlängen, Firsthöhe</p>
-            <p>Flächenberechnung: Dreiecksfläche je Seite</p>
+            <p><strong>Geometrische Körper:</strong> Vier gleichschenklige Dreiecke</p>
+            <p><strong>Messpunkte:</strong> Basislänge, Seitenlängen, Firsthöhe</p>
+            <p><strong>Flächenberechnung:</strong> Dreiecksfläche je Seite</p>
             
             <h3>Vermessung leicht gemacht</h3>
             <p>Für jede Dachfläche sind die exakte Kantenlänge und die Neigungswinkel essenziell. Mithilfe eines digitalen Winkelmessers und Maßbands lassen sich die geometrischen Daten vor Ort erfassen. Diese Werte bilden die Grundlage für Materialkalkulation, Schnittführung und späteres Verlegen der Dachdeckung.</p>
@@ -435,34 +520,34 @@
             <h3>Messgeräte im Überblick</h3>
             
             <h3>Zollstock</h3>
-            <p>Einsatz: Für kürzere Messstrecken und punktuelle Maße an Sparren, Traufe oder Latten.</p>
-            <p>Vorteil: Schnell zur Hand, kompakt und stabil.</p>
-            <p>Tipp: Besonders gut für Kontrollmessungen oder Innenmaße im Dachstuhl.</p>
+            <p><strong>Einsatz:</strong> Für kürzere Messstrecken und punktuelle Maße an Sparren, Traufe oder Latten.</p>
+            <p><strong>Vorteil:</strong> Schnell zur Hand, kompakt und stabil.</p>
+            <p><strong>Tipp:</strong> Besonders gut für Kontrollmessungen oder Innenmaße im Dachstuhl.</p>
             
             <h3>Maßband</h3>
-            <p>Einsatz: Universell einsetzbar zur Messung von Trauflängen, Dachseiten und größeren Flächen.</p>
-            <p>Vorteil: Flexibel, lang, ideal für größere Distanzen.</p>
-            <p>Tipp: Am besten mit zwei Personen verwenden: einer hält das Maßband am Fixpunkt, der andere misst und notiert.</p>
+            <p><strong>Einsatz:</strong> Universell einsetzbar zur Messung von Trauflängen, Dachseiten und größeren Flächen.</p>
+            <p><strong>Vorteil:</strong> Flexibel, lang, ideal für größere Distanzen.</p>
+            <p><strong>Tipp:</strong> Am besten mit zwei Personen verwenden: einer hält das Maßband am Fixpunkt, der andere misst und notiert.</p>
             
             <h3>Teleskopmessstab</h3>
-            <p>Einsatz: Für Höhenmessung bis zur Firstspitze oder schwer zugängliche Stellen.</p>
-            <p>Vorteil: Ausziehbar, stabil, präzise Höhenmessung ohne Gerüst.</p>
-            <p>Tipp: Ideal für schnelle Höhenkontrollen bei Pult- oder Satteldächern.</p>
+            <p><strong>Einsatz:</strong> Für Höhenmessung bis zur Firstspitze oder schwer zugängliche Stellen.</p>
+            <p><strong>Vorteil:</strong> Ausziehbar, stabil, präzise Höhenmessung ohne Gerüst.</p>
+            <p><strong>Tipp:</strong> Ideal für schnelle Höhenkontrollen bei Pult- oder Satteldächern.</p>
             
             <h3>Zusätzliche Hilfsmittel für effiziente Arbeit</h3>
             
             <h3>Schnur & Marker</h3>
-            <p>Einsatz: Abstecken von geraden Linien, Markieren von Punkten oder Flächen.</p>
-            <p>Tipp: Eine gespannte Schnur hilft beim Ausrichten von Dachflächen oder Gratlinien.</p>
+            <p><strong>Einsatz:</strong> Abstecken von geraden Linien, Markieren von Punkten oder Flächen.</p>
+            <p><strong>Tipp:</strong> Eine gespannte Schnur hilft beim Ausrichten von Dachflächen oder Gratlinien.</p>
             
             <h3>Leiter, Gerüst oder Hebebühne</h3>
-            <p>Einsatz: Sicheres Arbeiten in Höhen, Zugang zur Dachfläche.</p>
-            <p>Vorteil: Je nach Situation – flexibel mit der Leiter, stabil mit dem Gerüst, komfortabel mit der Hebebühne.</p>
-            <p>Sicherheit: Niemals ohne feste Sicherung arbeiten – Dachvermessung findet oft in gefährlicher Höhe statt!</p>
+            <p><strong>Einsatz:</strong> Sicheres Arbeiten in Höhen, Zugang zur Dachfläche.</p>
+            <p><strong>Vorteil:</strong> Je nach Situation – flexibel mit der Leiter, stabil mit dem Gerüst, komfortabel mit der Hebebühne.</p>
+            <p><strong>Sicherheit:</strong> Niemals ohne feste Sicherung arbeiten – Dachvermessung findet oft in gefährlicher Höhe statt!</p>
             
             <h3>Helfer</h3>
-            <p>Einsatz: Halten von Maßbändern, Teleskopstäben oder Schnüren; Notieren von Werten.</p>
-            <p>Tipp: Zu zweit oder dritt arbeitet man nicht nur schneller – auch sicherer und präziser.</p>
+            <p><strong>Einsatz:</strong> Halten von Maßbändern, Teleskopstäben oder Schnüren; Notieren von Werten.</p>
+            <p><strong>Tipp:</strong> Zu zweit oder dritt arbeitet man nicht nur schneller – auch sicherer und präziser.</p>
             
             <h3>Fazit: Gutes Werkzeug, sicheres Messen</h3>
             <p>Ob für die exakte Berechnung der Dachfläche oder zur Planung der Materialmenge – die Wahl der richtigen Messgeräte macht den Unterschied. Mit einfachen Hilfsmitteln und verlässlicher Technik gelingt die Dachvermessung effizient und sicher. Für jeden Typ Dachfläche empfehlen sich unterschiedliche Werkzeuge – eine Übersicht dazu findest du in den jeweiligen Dachform-Skizzen auf dieser Seite.</p>
@@ -472,37 +557,45 @@
     <script>
         let currentSection = 1;
         let isScrolling = false;
+        let touchStartY = 0;
+        let touchEndY = 0;
 
-        // Background elements
-        const backgrounds = {
-            1: document.querySelector('.section1-bg'),
-            2: document.querySelector('.section2-bg'),
-            3: document.querySelector('.section3-bg'),
-            4: document.querySelector('.section4-bg')
-        };
-
-        // Add animation classes to backgrounds
-        backgrounds[1].classList.add('section1');
-        backgrounds[2].classList.add('section2');
-        backgrounds[3].classList.add('section3');
-        backgrounds[4].classList.add('section4');
+        // DOM elements
+        const backgrounds = [
+            document.querySelector('.section1-bg'),
+            document.querySelector('.section2-bg'),
+            document.querySelector('.section3-bg'),
+            document.querySelector('.section4-bg')
+        ];
 
         const glassOverlay = document.querySelector('.glass-overlay');
         const sections = document.querySelectorAll('.section');
         const sectionTitles = document.querySelectorAll('.section-title');
         const contents = document.querySelectorAll('.content');
+        const navDots = document.querySelectorAll('.nav-dot');
+
+        // Add animation classes to backgrounds
+        backgrounds[0].classList.add('section1');
+        backgrounds[1].classList.add('section2');
+        backgrounds[2].classList.add('section3');
+        backgrounds[3].classList.add('section4');
 
         function updateBackground(sectionNum) {
             // Hide all backgrounds
-            Object.values(backgrounds).forEach(bg => {
+            backgrounds.forEach(bg => {
                 bg.classList.remove('active');
             });
             
             // Show current background
-            if (backgrounds[sectionNum]) {
-                backgrounds[sectionNum].classList.add('active');
+            if (backgrounds[sectionNum - 1]) {
+                backgrounds[sectionNum - 1].classList.add('active');
                 glassOverlay.classList.add('active');
             }
+
+            // Update navigation dots
+            navDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === sectionNum - 1);
+            });
         }
 
         function handleScroll() {
@@ -543,7 +636,7 @@
                         
                         // Calculate content position for natural scrolling
                         const contentOffset = (sectionProgress - 0.35) / 0.65; // Normalize to 0-1
-                        const scrollAmount = contentOffset * windowHeight * 2; // Allow content to scroll up and out
+                        const scrollAmount = contentOffset * windowHeight * 1.5; // Allow content to scroll up
                         content.style.transform = `translateX(-50%) translateY(${windowHeight - scrollAmount}px)`;
                     }
                 } else {
@@ -552,6 +645,35 @@
                     content.style.transform = 'translateX(-50%) translateY(100vh)';
                 }
             });
+        }
+
+        // Navigation dot clicks
+        navDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                const targetSection = sections[index];
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Touch navigation for mobile
+        function handleTouchStart(e) {
+            touchStartY = e.touches[0].clientY;
+        }
+
+        function handleTouchEnd(e) {
+            touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+            const threshold = 50; // Minimum swipe distance
+
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0 && currentSection < 4) {
+                    // Swipe up - next section
+                    sections[currentSection].scrollIntoView({ behavior: 'smooth' });
+                } else if (diff < 0 && currentSection > 1) {
+                    // Swipe down - previous section
+                    sections[currentSection - 2].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
         }
 
         // Smooth scroll handling
@@ -569,13 +691,26 @@
             }
         });
 
-        // Initialize
-        updateBackground(1);
-        handleScroll();
+        // Touch events
+        document.addEventListener('touchstart', handleTouchStart, { passive: true });
+        document.addEventListener('touchend', handleTouchEnd, { passive: true });
 
-        // Enhanced animations for specific backgrounds
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' && currentSection < 4) {
+                e.preventDefault();
+                sections[currentSection].scrollIntoView({ behavior: 'smooth' });
+            } else if (e.key === 'ArrowUp' && currentSection > 1) {
+                e.preventDefault();
+                sections[currentSection - 2].scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        // Enhanced animations for specific backgrounds (only on desktop)
         function addLightningEffects() {
-            const lightningBg = backgrounds[2];
+            if (window.innerWidth <= 768) return; // Skip on mobile
+            
+            const lightningBg = backgrounds[1];
             if (lightningBg && lightningBg.classList.contains('active')) {
                 const flash = document.createElement('div');
                 flash.style.cssText = `
@@ -593,28 +728,58 @@
                 setTimeout(() => {
                     flash.style.opacity = '0';
                     flash.style.transition = 'opacity 0.3s';
-                    setTimeout(() => document.body.removeChild(flash), 300);
+                    setTimeout(() => {
+                        if (document.body.contains(flash)) {
+                            document.body.removeChild(flash);
+                        }
+                    }, 300);
                 }, 100);
             }
         }
 
-        // Random lightning when section 2 is active
+        // Random lightning when section 2 is active (desktop only)
         setInterval(() => {
-            if (currentSection === 2 && Math.random() < 0.3) {
+            if (currentSection === 2 && Math.random() < 0.3 && window.innerWidth > 768) {
                 addLightningEffects();
             }
         }, 3000);
 
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown' && currentSection < 4) {
-                const nextSection = sections[currentSection];
-                nextSection.scrollIntoView({ behavior: 'smooth' });
-            } else if (e.key === 'ArrowUp' && currentSection > 1) {
-                const prevSection = sections[currentSection - 2];
-                prevSection.scrollIntoView({ behavior: 'smooth' });
-            }
+        // Initialize
+        updateBackground(1);
+        handleScroll();
+
+        // Performance optimization for mobile
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                handleScroll();
+            }, 250);
         });
+
+        // Intersection Observer for better performance
+        if ('IntersectionObserver' in window) {
+            const observerOptions = {
+                threshold: [0, 0.25, 0.5, 0.75, 1],
+                rootMargin: '0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const sectionIndex = Array.from(sections).indexOf(entry.target);
+                        if (sectionIndex !== -1 && currentSection !== sectionIndex + 1) {
+                            currentSection = sectionIndex + 1;
+                            updateBackground(currentSection);
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        }
     </script>
 </body>
 </html>
