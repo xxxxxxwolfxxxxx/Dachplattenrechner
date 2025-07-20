@@ -517,7 +517,7 @@
         function updateParallax() {
             const scrolled = window.pageYOffset;
             const parallax = document.querySelector('.parallax-container');
-            const speed = scrolled * 0.2; // Reduzierte Geschwindigkeit
+            const speed = scrolled * -0.3; // Negative Geschwindigkeit für entgegengesetzte Richtung
             
             parallax.style.transform = `translateY(${speed}px)`;
         }
