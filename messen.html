@@ -44,19 +44,19 @@
         }
 
         .background-image:nth-child(1) {
-            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/images/messen-1.jpg');
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-1.jpg');
         }
 
         .background-image:nth-child(2) {
-            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/images/messen-2.jpg');
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('/images/messen-2.jpg');
         }
 
         .background-image:nth-child(3) {
-            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/images/messen-3.png');
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-3.png');
         }
 
         .background-image:nth-child(4) {
-            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/images/messen-4.jpg');
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-4.jpg');
         }
 
         .light-overlay {
@@ -488,8 +488,9 @@
         
         function updateScrollIndicator() {
             const scrollPosition = window.scrollY;
-            const windowHeight = window.innerHeight;
-            const sectionIndex = Math.floor((scrollPosition + windowHeight / 2) / windowHeight);
+            const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = scrollPosition / documentHeight;
+            const sectionIndex = Math.floor(scrollPercent * (sections.length - 0.001)); // Verhindert Index-Überschreitung
             const clampedIndex = Math.max(0, Math.min(sectionIndex, sections.length - 1));
             
             scrollDots.forEach((dot, index) => {
@@ -499,7 +500,7 @@
             if (clampedIndex !== currentBackground) {
                 currentBackground = clampedIndex;
                 switchBackground(currentBackground);
-                console.log('Switching to background:', clampedIndex); // Debug
+                console.log('Switching to background:', clampedIndex, 'at scroll:', Math.round(scrollPercent * 100) + '%');
             }
         }
 
@@ -517,7 +518,7 @@
         function updateParallax() {
             const scrolled = window.pageYOffset;
             const parallax = document.querySelector('.parallax-container');
-            const speed = scrolled * -0.3; // Negative Geschwindigkeit für entgegengesetzte Richtung
+            const speed = scrolled * -0.1; // Noch langsamere Bewegung
             
             parallax.style.transform = `translateY(${speed}px)`;
         }
