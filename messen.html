@@ -888,7 +888,7 @@
                 ));
                 
                 // Bewege das Hintergrundbild horizontal (da es rotiert ist, verwenden wir Y-Position)
-                const bgPosition = 50 + (sectionProgress * 50); // Von 50% bis 100% (center nach rechts)
+                const bgPosition = 50 - (sectionProgress * 50); // Von 50% bis 0% (center nach links)
                 
                 // Update CSS custom property für die Hintergrund-Position
                 document.documentElement.style.setProperty('--ruler-bg-position', `center ${bgPosition}%`);
