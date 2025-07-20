@@ -30,33 +30,70 @@
 
         .background-image {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 110%;
+            height: 110%;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            transition: all 0.8s ease;
+            transition: opacity 1s ease;
             opacity: 0;
+            top: -5%;
+            left: -5%;
         }
 
         .background-image.active {
             opacity: 1;
         }
 
+        /* Spezielle Effekte für jedes Bild */
         .background-image:nth-child(1) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-1.jpg');
+            animation: tapeGlow 4s ease-in-out infinite;
         }
 
         .background-image:nth-child(2) {
             background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('/images/messen-2.jpg');
+            animation: lightningFlash 3s ease-in-out infinite;
         }
 
         .background-image:nth-child(3) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-3.png');
+            animation: houseGlow 5s ease-in-out infinite;
         }
 
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-4.jpg');
+            animation: rulerShine 6s linear infinite;
+        }
+
+        @keyframes tapeGlow {
+            0%, 100% { filter: brightness(1) contrast(1); }
+            50% { filter: brightness(1.2) contrast(1.1) saturate(1.2); }
+        }
+
+        @keyframes lightningFlash {
+            0%, 85%, 100% { filter: brightness(1) contrast(1); }
+            87%, 89%, 91% { filter: brightness(1.8) contrast(1.3) saturate(0.8); }
+        }
+
+        @keyframes houseGlow {
+            0%, 100% { filter: brightness(1) contrast(1) hue-rotate(0deg); }
+            50% { filter: brightness(1.1) contrast(1.1) hue-rotate(5deg); }
+        }
+
+        @keyframes rulerShine {
+            0% { 
+                filter: brightness(1) contrast(1);
+                background-position: center bottom;
+            }
+            50% { 
+                filter: brightness(1.3) contrast(1.2) saturate(1.1);
+                background-position: center center;
+            }
+            100% { 
+                filter: brightness(1) contrast(1);
+                background-position: center top;
+            }
         }
 
         .light-overlay {
@@ -488,19 +525,33 @@
         
         function updateScrollIndicator() {
             const scrollPosition = window.scrollY;
-            const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const scrollPercent = scrollPosition / documentHeight;
-            const sectionIndex = Math.floor(scrollPercent * (sections.length - 0.001)); // Verhindert Index-Überschreitung
-            const clampedIndex = Math.max(0, Math.min(sectionIndex, sections.length - 1));
+            const windowHeight = window.innerHeight;
             
-            scrollDots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === clampedIndex);
+            // Berechne welche Sektion gerade sichtbar ist basierend auf Scroll-Position
+            let activeSection = 0;
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                // Wenn mehr als 30% der Sektion sichtbar ist, aktiviere sie
+                if (scrollPosition >= sectionTop - windowHeight * 0.7) {
+                    activeSection = index;
+                }
             });
             
-            if (clampedIndex !== currentBackground) {
-                currentBackground = clampedIndex;
+            // Begrenze auf verfügbare Sektionen
+            activeSection = Math.max(0, Math.min(activeSection, sections.length - 1));
+            
+            // Update scroll indicator dots
+            scrollDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === activeSection);
+            });
+            
+            // Switch background only when section changes
+            if (activeSection !== currentBackground) {
+                currentBackground = activeSection;
                 switchBackground(currentBackground);
-                console.log('Switching to background:', clampedIndex, 'at scroll:', Math.round(scrollPercent * 100) + '%');
+                console.log('Switched to section:', activeSection);
             }
         }
 
@@ -514,11 +565,11 @@
             });
         });
 
-        // Parallax effect
+        // Parallax effect - minimal movement to stay within bounds
         function updateParallax() {
             const scrolled = window.pageYOffset;
             const parallax = document.querySelector('.parallax-container');
-            const speed = scrolled * -0.1; // Noch langsamere Bewegung
+            const speed = scrolled * -0.02; // Sehr minimale Bewegung
             
             parallax.style.transform = `translateY(${speed}px)`;
         }
