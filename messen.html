@@ -47,7 +47,7 @@
 
         /* Spezielle Effekte für jedes Bild */
         .background-image:nth-child(1) {
-            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-1.jpg');
+            background-image: url('/images/messen-1.jpg');
             animation: tapeGlow 4s ease-in-out infinite;
         }
 
@@ -63,7 +63,7 @@
 
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-4.jpg');
-            animation: rulerShine 6s linear infinite;
+            animation: rulerShine 12s ease-in-out infinite;
         }
 
         @keyframes tapeGlow {
@@ -82,17 +82,21 @@
         }
 
         @keyframes rulerShine {
-            0% { 
+            0%, 100% { 
                 filter: brightness(1) contrast(1);
-                background-position: center bottom;
-            }
-            50% { 
-                filter: brightness(1.3) contrast(1.2) saturate(1.1);
                 background-position: center center;
             }
-            100% { 
-                filter: brightness(1) contrast(1);
-                background-position: center top;
+            25% { 
+                filter: brightness(1.1) contrast(1.05);
+                background-position: center 60%;
+            }
+            50% { 
+                filter: brightness(1.2) contrast(1.1) saturate(1.1);
+                background-position: center 40%;
+            }
+            75% { 
+                filter: brightness(1.1) contrast(1.05);
+                background-position: center 60%;
             }
         }
 
