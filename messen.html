@@ -37,7 +37,7 @@
             background-repeat: no-repeat;
             transition: opacity 2s ease-in-out;
             opacity: 0;
-            top: 5%;
+            top: -3%;
             left: -2.5%;
         }
 
@@ -626,7 +626,7 @@
         function updateParallax() {
             const scrolled = window.pageYOffset;
             const parallax = document.querySelector('.parallax-container');
-            const speed = scrolled * -0.01; // Zurück zur ursprünglichen Richtung, aber langsamer
+            const speed = scrolled * 0.008; // Positive Wert für Bewegung nach unten
             
             parallax.style.transform = `translateY(${speed}px)`;
         }
