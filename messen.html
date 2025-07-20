@@ -35,9 +35,9 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            transition: opacity 1s ease;
+            transition: opacity 2s ease-in-out;
             opacity: 0;
-            top: 2%;
+            top: 5%;
             left: -2.5%;
         }
 
@@ -94,7 +94,7 @@
 
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-4.jpg');
-            position: relative;
+            position: absolute;
         }
 
         .background-image:nth-child(4)::before {
@@ -169,7 +169,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 20px;
+            padding: 45vh 20px;
             position: relative;
         }
 
@@ -559,14 +559,21 @@
             observer.observe(panel);
         });
 
-        // Background image switching
+        // Background image switching with crossfade
         let currentBackground = 0;
         const backgrounds = document.querySelectorAll('.background-image');
         const sections = document.querySelectorAll('.section');
         
         function switchBackground(index) {
+            // Sanfter Übergang: Erst neues Bild einblenden, dann altes ausblenden
             backgrounds.forEach((bg, i) => {
-                bg.classList.toggle('active', i === index);
+                if (i === index) {
+                    bg.style.opacity = '1';
+                    bg.style.zIndex = '2';
+                } else {
+                    bg.style.opacity = '0';
+                    bg.style.zIndex = '1';
+                }
             });
         }
 
@@ -583,8 +590,8 @@
                 const sectionTop = section.offsetTop;
                 const sectionHeight = section.offsetHeight;
                 
-                // Wenn mehr als 30% der Sektion sichtbar ist, aktiviere sie
-                if (scrollPosition >= sectionTop - windowHeight * 0.7) {
+                // Früher wechseln für sanftere Übergänge
+                if (scrollPosition >= sectionTop - windowHeight * 0.8) {
                     activeSection = index;
                 }
             });
