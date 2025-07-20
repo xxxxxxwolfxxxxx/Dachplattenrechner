@@ -84,8 +84,10 @@
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-4.jpg');
             position: absolute;
             top: 3%;
-            transform: rotate(90deg) scale(1.5); /* Rotation bleibt richtig */
+            transform: rotate(90deg) scale(1.5);
             transform-origin: center center;
+            background-position: var(--ruler-bg-position, center center);
+            transition: background-position 0.1s linear;
         }
 
         .background-image:nth-child(4)::before {
@@ -865,16 +867,31 @@
             const scrolled = window.pageYOffset;
             const parallax = document.querySelector('.parallax-container');
             
-            // Normale vertikale Parallax-Bewegung für alle Bilder außer dem Lineal
+            // Normale vertikale Parallax-Bewegung für den Container
             const speed = scrolled * -0.008;
             parallax.style.transform = `translateY(${speed}px)`;
+        }
+
+        // Separate Funktion für Lineal-Hintergrund-Bewegung
+        function updateRulerBackground() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
             
-            // Spezielle horizontale Bewegung für das Lineal-Bild
-            const rulerImage = document.querySelector('.background-image:nth-child(4)');
-            if (rulerImage) {
-                // Horizontale Bewegung statt vertikale für das rotierte Lineal
-                const horizontalSpeed = scrolled * 0.005; // Positive Werte für Links-nach-Rechts
-                rulerImage.style.transform = `rotate(90deg) scale(1.5) translateX(${horizontalSpeed}px)`;
+            // Wenn wir in Section 4 sind (Lineal)
+            const section4Top = sections[3].offsetTop;
+            const section4Bottom = section4Top + sections[3].offsetHeight;
+            
+            if (scrollPosition >= section4Top - windowHeight && scrollPosition <= section4Bottom) {
+                // Berechne den lokalen Fortschritt innerhalb von Section 4
+                const sectionProgress = Math.max(0, Math.min(1, 
+                    (scrollPosition - (section4Top - windowHeight)) / (sections[3].offsetHeight + windowHeight)
+                ));
+                
+                // Bewege das Hintergrundbild horizontal (da es rotiert ist, verwenden wir Y-Position)
+                const bgPosition = 50 + (sectionProgress * 50); // Von 50% bis 100% (center nach rechts)
+                
+                // Update CSS custom property für die Hintergrund-Position
+                document.documentElement.style.setProperty('--ruler-bg-position', `center ${bgPosition}%`);
             }
         }
 
@@ -884,6 +901,7 @@
             updateParallax();
             updateVideoProgress();
             updateRulerLight();
+            updateRulerBackground();
         });
 
         window.addEventListener('resize', updateScrollIndicator);
