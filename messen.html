@@ -93,22 +93,23 @@
         .background-image:nth-child(4)::before {
             content: '';
             position: absolute;
-            left: var(--ruler-light-position, -100%); /* Links-nach-rechts Bewegung */
-            top: 0;
-            bottom: 0;
-            width: 20%; /* Schmaler vertikaler Strahl */
-            height: 100%;
-            background: linear-gradient(to right, 
+            bottom: var(--ruler-light-position, 100%); /* Unten-nach-oben Bewegung */
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 15%; /* Horizontaler Strahl */
+            background: linear-gradient(to top, 
                 transparent 0%, 
-                rgba(255,255,255,0.3) 20%, 
-                rgba(255,255,255,0.6) 50%, 
-                rgba(255,255,255,0.3) 80%, 
+                rgba(255,255,255,0.4) 20%, 
+                rgba(255,255,255,0.8) 50%, 
+                rgba(255,255,255,0.4) 80%, 
                 transparent 100%);
-            opacity: 0.8;
-            transition: left 0.1s linear;
+            opacity: 0.9;
+            transition: bottom 0.05s linear;
             z-index: 2;
-            filter: blur(2px);
-            /* Kein transform - der Lichteffekt soll sich normal von links nach rechts bewegen */
+            filter: blur(1px);
+            transform: rotate(90deg); /* Lichtkegel um 90° drehen */
+            transform-origin: center center;
         }
 
         @keyframes tapeGlow {
@@ -795,10 +796,10 @@
                     (scrollPosition - (section4Top - windowHeight)) / (sections[3].offsetHeight + windowHeight)
                 ));
                 
-                // Bewege das Licht von -100% bis 100% (oben nach unten im rotierten Koordinatensystem = links nach rechts visuell)
-                const lightPosition = -100 + (sectionProgress * 200); // Von -100% bis +100%
+                // Bewege das Licht von 100% bis -100% (unten nach oben)
+                const lightPosition = 100 - (sectionProgress * 200); // Von 100% bis -100%
                 
-                // Update CSS custom property für die Licht-Position
+                // Update CSS custom property für die horizontale Licht-Position
                 document.documentElement.style.setProperty('--ruler-light-position', lightPosition + '%');
             }
         }
