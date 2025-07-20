@@ -825,8 +825,8 @@
                 ));
                 
                 // Bewege das Hintergrundbild von oben nach unten
-                // Start: center top (0%), Ende: center bottom (-50% wegen 150% size)
-                const bgPositionY = 0 - (sectionProgress * 50); // Von 0% bis -50%
+                // Start: center top (0%), Ende: center bottom (50% nach unten)
+                const bgPositionY = 0 + (sectionProgress * 50); // Von 0% bis +50%
                 document.documentElement.style.setProperty('--community-bg-position', `center ${bgPositionY}%`);
             }
         }
