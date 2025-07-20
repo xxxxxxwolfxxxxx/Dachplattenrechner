@@ -396,6 +396,62 @@
             text-shadow: 0 1px 3px rgba(0,0,0,0.6);
         }
 
+        /* Dachformen Layout mit Bildern */
+        .roof-type {
+            margin: 30px 0;
+            padding: 25px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .roof-type:first-of-type {
+            border-top: none;
+        }
+
+        .roof-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .roof-text {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .roof-image {
+            flex: 1;
+            min-width: 200px;
+            max-width: 250px;
+            text-align: center;
+        }
+
+        .roof-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+        }
+
+        .roof-image img:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .roof-type h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
         @media (max-width: 768px) {
             .glass-panel {
                 padding: 40px 30px;
@@ -424,6 +480,16 @@
                 width: 100%;
                 justify-content: center;
                 padding: 18px 25px;
+            }
+
+            .roof-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .roof-image {
+                max-width: 100%;
+                align-self: center;
             }
         }
     </style>
@@ -497,45 +563,56 @@
                 
                 <p>Die Form eines Daches ist mehr als nur ein stilistisches Element – sie beeinflusst entscheidend Statik, Materialbedarf und Handhabung beim Decken. Um die Dachfläche exakt zu planen und vermessen zu können, empfiehlt es sich, jede Dachform in ihre einzelnen geometrischen Flächen zu zerlegen. So lässt sich jede Kante messen und jede Fläche effizient berechnen.</p>
 
-                <h3>1. Satteldach</h3>
-                <p>Das klassische Satteldach besteht aus zwei rechteckigen Flächen mit identischer Neigung, die sich an der Firstlinie treffen.</p>
-                <ul>
-                    <li>Geometrische Körper: Zwei Rechtecke mit Neigung</li>
-                    <li>Messpunkte: Traufkante, Firstkante, Sparrenlänge, Dachneigung</li>
-                    <li>Flächenberechnung: Rechteckige Fläche + Neigungswinkel</li>
-                </ul>
+                <div class="roof-type">
+                    <div class="roof-content">
+                        <div class="roof-text">
+                            <h3>1. Pultdach</h3>
+                            <p>Ein Pultdach ist eine einseitig geneigte Fläche – simpel und effizient.</p>
+                            <ul>
+                                <li>Geometrische Körper: Ein einzelnes Rechteck mit Neigung</li>
+                                <li>Messpunkte: Traufe, Firstkante, Länge und Breite</li>
+                                <li>Flächenberechnung: Rechteck unter Berücksichtigung der Neigung</li>
+                            </ul>
+                        </div>
+                        <div class="roof-image">
+                            <img src="/images/pultdach.png" alt="Pultdach Schema" />
+                        </div>
+                    </div>
+                </div>
 
-                <h3>2. Walmdach</h3>
-                <p>Beim Walmdach sind auch die Stirnseiten geneigt. Es entstehen vier geneigte Flächen.</p>
-                <ul>
-                    <li>Geometrische Körper: Zwei Trapeze (vorn & hinten), zwei Rechtecke (links & rechts)</li>
-                    <li>Messpunkte: First, Traufe, Gratlinien, Eckpunkte der Schrägen</li>
-                    <li>Flächenberechnung: Trapezflächen + Rechteckflächen</li>
-                </ul>
+                <div class="roof-type">
+                    <div class="roof-content">
+                        <div class="roof-text">
+                            <h3>2. Satteldach</h3>
+                            <p>Das klassische Satteldach besteht aus zwei rechteckigen Flächen mit identischer Neigung, die sich an der Firstlinie treffen.</p>
+                            <ul>
+                                <li>Geometrische Körper: Zwei Rechtecke mit Neigung</li>
+                                <li>Messpunkte: Traufkante, Firstkante, Sparrenlänge, Dachneigung</li>
+                                <li>Flächenberechnung: Rechteckige Fläche + Neigungswinkel</li>
+                            </ul>
+                        </div>
+                        <div class="roof-image">
+                            <img src="/images/satteldach.png" alt="Satteldach Schema" />
+                        </div>
+                    </div>
+                </div>
 
-                <h3>3. Pultdach</h3>
-                <p>Ein Pultdach ist eine einseitig geneigte Fläche – simpel und effizient.</p>
-                <ul>
-                    <li>Geometrische Körper: Ein einzelnes Rechteck mit Neigung</li>
-                    <li>Messpunkte: Traufe, Firstkante, Länge und Breite</li>
-                    <li>Flächenberechnung: Rechteck unter Berücksichtigung der Neigung</li>
-                </ul>
-
-                <h3>4. Mansarddach</h3>
-                <p>Hier unterteilt sich jede Dachseite in zwei unterschiedlich geneigte Flächen.</p>
-                <ul>
-                    <li>Geometrische Körper: Pro Seite zwei Trapez- oder Rechteckflächen</li>
-                    <li>Messpunkte: Traufe, Mansardenknick, First, Gratlinien</li>
-                    <li>Flächenberechnung: Einzelberechnung je Fläche, addieren der Teilflächen</li>
-                </ul>
-
-                <h3>5. Zeltdach</h3>
-                <p>Ein Zeltdach besteht aus vier dreieckigen Dachflächen, die sich in einem zentralen Punkt – der Firstspitze – treffen.</p>
-                <ul>
-                    <li>Geometrische Körper: Vier gleichschenklige Dreiecke</li>
-                    <li>Messpunkte: Basislänge, Seitenlängen, Firsthöhe</li>
-                    <li>Flächenberechnung: Dreiecksfläche je Seite</li>
-                </ul>
+                <div class="roof-type">
+                    <div class="roof-content">
+                        <div class="roof-text">
+                            <h3>3. Walmdach</h3>
+                            <p>Beim Walmdach sind auch die Stirnseiten geneigt. Es entstehen vier geneigte Flächen.</p>
+                            <ul>
+                                <li>Geometrische Körper: Zwei Trapeze (vorn & hinten), zwei Rechtecke (links & rechts)</li>
+                                <li>Messpunkte: First, Traufe, Gratlinien, Eckpunkte der Schrägen</li>
+                                <li>Flächenberechnung: Trapezflächen + Rechteckflächen</li>
+                            </ul>
+                        </div>
+                        <div class="roof-image">
+                            <img src="/images/walmdach.png" alt="Walmdach Schema" />
+                        </div>
+                    </div>
+                </div>
 
                 <h3>Vermessung leicht gemacht</h3>
                 <p>Für jede Dachfläche sind die exakte Kantenlänge und die Neigungswinkel essenziell. Mithilfe eines digitalen Winkelmessers und Maßbands lassen sich die geometrischen Daten vor Ort erfassen. Diese Werte bilden die Grundlage für Materialkalkulation, Schnittführung und späteres Verlegen der Dachdeckung.</p>
