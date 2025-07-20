@@ -31,7 +31,7 @@
         .background-image {
             position: absolute;
             width: 105%;
-            height: 120%;
+            height: 105%;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -49,6 +49,7 @@
         .background-image:nth-child(1) {
             background-image: url('/images/messen-1.jpg');
             animation: tapeGlow 4s ease-in-out infinite;
+            background-position: center 70%;
         }
 
         .background-image:nth-child(2) {
@@ -85,19 +86,18 @@
                 radial-gradient(ellipse 11% 65% at 75% 35%, rgba(255,255,255,0.5) 0%, transparent 70%);
             opacity: 0;
             animation: lightningStrike2 6s ease-in-out infinite;
-            top: -13%;
         }
 
         .background-image:nth-child(3) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-3.png');
             animation: houseGlow 5s ease-in-out infinite;
-            top: 20%;
+            top: 3%;
         }
 
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-4.jpg');
             position: absolute;
-            top: 25%;
+            top: 3%;
         }
 
         .background-image:nth-child(4)::before {
