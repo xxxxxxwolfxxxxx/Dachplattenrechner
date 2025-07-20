@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dachvermessung - Grundlage für Planung und Präzision</title>
+    <title>Dachvermessung - Präzision und Planung</title>
     <style>
         * {
             margin: 0;
@@ -12,784 +12,526 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial', sans-serif;
             line-height: 1.6;
             overflow-x: hidden;
+            background: #000;
         }
 
-        .section {
-            position: relative;
-            height: 300vh; /* Reduced for mobile */
+        .parallax-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
             overflow: hidden;
         }
 
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
+        .background-image {
+            position: absolute;
+            width: 120%;
+            height: 120%;
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            z-index: 1;
+            transition: all 0.8s ease;
             opacity: 0;
-            transition: opacity 0.8s ease-in-out, transform 0.1s ease-out;
         }
 
-        /* Background images from your /images folder */
-        .section1-bg {
-            background-image: url('images/messen-1.jpg');
-        }
-
-        .section2-bg {
-            background-image: url('images/messen-2.jpg');
-        }
-
-        .section3-bg {
-            background-image: url('images/messen-3.png');
-        }
-
-        .section4-bg {
-            background-image: url('images/messen-4.jpg');
-        }
-
-        .background.active {
+        .background-image.active {
             opacity: 1;
         }
 
-        /* Title that appears first */
-        .section-title {
+        .background-image:nth-child(1) {
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><radialGradient id="tape"><stop offset="0%" stop-color="%23ffd700"/><stop offset="100%" stop-color="%23ff8c00"/></radialGradient></defs><rect fill="%23000" width="1200" height="800"/><g transform="translate(600,400)"><path d="M-500,-200 Q0,-100 500,-200 Q0,100 -500,-200" fill="url(%23tape)" opacity="0.8"/><path d="M-400,-150 Q0,-50 400,-150 Q0,50 -400,-150" fill="url(%23tape)" opacity="0.6"/></g></svg>');
+        }
+
+        .background-image:nth-child(2) {
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23000" width="1200" height="800"/><g opacity="0.7"><path d="M100,700 L200,100 L300,700 M400,700 L500,100 L600,700 M700,700 L800,100 L900,700 M1000,700 L1100,100 L1200,700" stroke="%23fff" stroke-width="3" fill="none"><animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/></path></g></svg>');
+        }
+
+        .background-image:nth-child(3) {
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23000" width="1200" height="800"/><polygon points="300,200 500,200 600,400 500,600 300,600 200,400" fill="%23ff4500" opacity="0.8"/><rect x="250" y="450" width="100" height="150" fill="%238b4513"/><rect x="320" y="380" width="40" height="40" fill="%23000"/><rect x="390" y="380" width="40" height="40" fill="%23000"/></svg>');
+        }
+
+        .background-image:nth-child(4) {
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23000" width="1200" height="800"/><rect x="400" y="300" width="400" height="20" fill="%23ffd700" opacity="0.9"/><text x="600" y="315" text-anchor="middle" fill="%23000" font-size="12">0 1 2 3 4 5 6 7 8 9 10</text></svg>');
+        }
+
+        .light-overlay {
             position: absolute;
-            top: 25vh;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            z-index: 10;
-            opacity: 0;
-            transition: all 0.8s ease-out;
-            padding: 0 20px;
-            max-width: 90vw;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
         }
 
-        .section-title.visible {
-            opacity: 1;
-        }
-
-        .section-title.hidden {
-            opacity: 0;
-            transform: translateX(-50%) translateY(-50px);
-        }
-
-        .section-title h1,
-        .section-title h2 {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(20px);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            color: white;
-            padding: 25px 40px;
-            margin: 0;
-            display: inline-block;
-        }
-
-        .section-title h1 {
-            font-size: clamp(1.8rem, 4vw, 3rem);
-            background: linear-gradient(45deg, #fff, #e0e0e0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-        }
-
-        .section-title h2 {
-            font-size: clamp(1.5rem, 3.5vw, 2.5rem);
-            background: linear-gradient(45deg, #fff, #e0e0e0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Content that scrolls up from bottom */
         .content {
-            position: absolute;
-            top: 100vh;
-            left: 50%;
-            transform: translateX(-50%);
-            max-width: min(800px, 90vw);
-            padding: 40px 30px;
-            background: rgba(0, 0, 0, 0.6);
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        .section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            position: relative;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-            color: white;
-            margin: 0 20px;
-            z-index: 10;
-            min-height: 120vh;
-        }
-
-        .glass-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.05) 0%,
-                rgba(255, 255, 255, 0.02) 50%,
-                rgba(255, 255, 255, 0.01) 100%);
-            backdrop-filter: blur(2px);
-            z-index: 2;
+            padding: 60px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform: translateY(50px);
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: all 0.8s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .glass-overlay.active {
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            border-radius: 22px;
+            z-index: -1;
+        }
+
+        .glass-panel.visible {
+            transform: translateY(0);
             opacity: 1;
         }
 
-        h1 {
-            font-size: clamp(2rem, 4vw, 2.8rem);
-            margin-bottom: 1.5rem;
+        .glass-panel h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            color: #fff;
             text-align: center;
-            background: linear-gradient(45deg, #fff, #e0e0e0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-        }
-
-        h2 {
-            font-size: clamp(1.7rem, 3.5vw, 2.2rem);
-            margin-bottom: 1.5rem;
-            text-align: center;
-            background: linear-gradient(45deg, #fff, #e0e0e0);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #fff, #e0e0e0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        h3 {
-            font-size: clamp(1.3rem, 2.5vw, 1.6rem);
-            margin: 2rem 0 1rem 0;
+        .glass-panel h2 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
             color: #f0f0f0;
-            border-left: 4px solid rgba(255, 255, 255, 0.6);
-            padding-left: 15px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        p {
-            margin-bottom: 1.4rem;
-            font-size: clamp(1rem, 2vw, 1.1rem);
-            text-align: justify;
+        .glass-panel h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
             color: #e0e0e0;
-            line-height: 1.7;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
         }
 
-        .intro-text {
-            font-size: clamp(1.1rem, 2.2vw, 1.3rem);
-            text-align: center;
-            margin-bottom: 2rem;
-            color: #f0f0f0;
-            font-style: italic;
+        .glass-panel p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #d0d0d0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            line-height: 1.8;
         }
 
-        /* Section 1 - Header mit beweglichem Licht */
-        .section1 .background::before {
-            content: '';
+        .glass-panel ul {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .glass-panel li {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #d0d0d0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            line-height: 1.8;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .glass-panel li::before {
+            content: '▶';
             position: absolute;
-            width: clamp(150px, 20vw, 300px);
-            height: clamp(150px, 20vw, 300px);
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%);
+            left: 0;
+            color: #4CAF50;
+            font-size: 0.8em;
+        }
+
+        .intro-section {
+            background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(0,0,0,0.6));
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255,255,255,0.6);
             border-radius: 50%;
-            animation: lightMove 12s ease-in-out infinite;
-            z-index: 1;
+            animation: float 6s infinite linear;
         }
 
-        @keyframes lightMove {
-            0%, 100% { transform: translate(10vw, 10vh); }
-            25% { transform: translate(70vw, 20vh); }
-            50% { transform: translate(80vw, 70vh); }
-            75% { transform: translate(20vw, 80vh); }
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
         }
 
-        /* Section 2 - Sanftere Blitz-Effekte */
-        .section2 .background::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0);
-            z-index: 1;
-            animation: lightningSubtle 6s ease-in-out infinite;
-        }
-
-        @keyframes lightningSubtle {
-            0%, 90%, 100% { background: rgba(255, 255, 255, 0); }
-            5% { background: rgba(255, 255, 255, 0.15); }
-            7% { background: rgba(255, 255, 255, 0); }
-            12% { background: rgba(255, 255, 255, 0.25); }
-            14% { background: rgba(255, 255, 255, 0.05); }
-            16% { background: rgba(255, 255, 255, 0); }
-        }
-
-        /* Section 3 - Ziehende Wolken */
-        .section3 .background::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 300%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 255, 255, 0.15) 20%, 
-                rgba(255, 255, 255, 0.25) 40%, 
-                rgba(255, 255, 255, 0.15) 60%, 
-                transparent 80%);
-            animation: clouds 18s linear infinite;
-            z-index: 1;
-        }
-
-        @keyframes clouds {
-            0% { transform: translateX(-50%); }
-            100% { transform: translateX(100%); }
-        }
-
-        /* Section 4 - Lichtschein auf Maßband */
-        .section4 .background::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 30%;
-            background: linear-gradient(0deg, 
-                rgba(255, 215, 0, 0.6) 0%, 
-                rgba(255, 215, 0, 0.4) 30%, 
-                rgba(255, 215, 0, 0.2) 60%, 
-                transparent 100%);
-            animation: lightSweep 8s ease-in-out infinite;
-            z-index: 1;
-        }
-
-        @keyframes lightSweep {
-            0%, 100% { transform: translateY(100%); opacity: 0; }
-            20% { transform: translateY(80%); opacity: 0.5; }
-            50% { transform: translateY(-200%); opacity: 1; }
-            80% { transform: translateY(-400%); opacity: 0.3; }
-        }
-
-        /* Touch-friendly navigation */
-        .nav-dots {
+        .scroll-indicator {
             position: fixed;
-            right: 20px;
             top: 50%;
+            right: 30px;
             transform: translateY(-50%);
             z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
         }
 
-        .nav-dot {
+        .scroll-dot {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255,255,255,0.3);
+            margin: 10px 0;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(255,255,255,0.5);
         }
 
-        .nav-dot.active {
-            background: rgba(255, 255, 255, 0.9);
+        .scroll-dot.active {
+            background: rgba(255,255,255,0.8);
             transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(255,255,255,0.6);
         }
 
-        /* Mobile optimizations */
         @media (max-width: 768px) {
+            .glass-panel {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+            
+            .glass-panel h1 {
+                font-size: 2.2em;
+            }
+            
+            .glass-panel h2 {
+                font-size: 1.8em;
+            }
+            
             .section {
-                height: 250vh; /* Shorter sections on mobile */
-            }
-            
-            .content {
-                padding: 30px 20px;
-                margin: 0 10px;
-                max-width: 95vw;
-                min-height: 100vh;
-            }
-            
-            .section-title {
-                top: 20vh;
-                max-width: 95vw;
-            }
-            
-            .section-title h1,
-            .section-title h2 {
-                padding: 20px 25px;
-            }
-            
-            /* Disable background-attachment: fixed on mobile for better performance */
-            .background {
-                background-attachment: scroll;
-            }
-            
-            /* Reduce animation complexity on mobile */
-            .section1 .background::before,
-            .section2 .background::before,
-            .section3 .background::before,
-            .section4 .background::before {
-                display: none;
-            }
-            
-            .nav-dots {
-                right: 10px;
-                gap: 10px;
-            }
-            
-            .nav-dot {
-                width: 10px;
-                height: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .section {
-                height: 200vh;
-            }
-            
-            .content {
-                padding: 25px 15px;
-                margin: 0 5px;
-            }
-            
-            .section-title {
-                top: 15vh;
-            }
-            
-            .section-title h1,
-            .section-title h2 {
-                padding: 15px 20px;
-            }
-        }
-
-        /* High contrast mode for accessibility */
-        @media (prefers-contrast: high) {
-            .content {
-                background: rgba(0, 0, 0, 0.95);
-                border: 2px solid white;
-            }
-            
-            .section-title h1,
-            .section-title h2 {
-                background: rgba(0, 0, 0, 0.95);
-                border: 2px solid white;
-            }
-        }
-
-        /* Reduced motion for accessibility */
-        @media (prefers-reduced-motion: reduce) {
-            .background,
-            .section-title,
-            .content {
-                transition: none;
-            }
-            
-            .section1 .background::before,
-            .section2 .background::before,
-            .section3 .background::before,
-            .section4 .background::before {
-                animation: none;
+                padding: 40px 10px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation dots -->
-    <div class="nav-dots">
-        <div class="nav-dot active" data-section="1"></div>
-        <div class="nav-dot" data-section="2"></div>
-        <div class="nav-dot" data-section="3"></div>
-        <div class="nav-dot" data-section="4"></div>
+    <div class="parallax-container">
+        <div class="background-image active"></div>
+        <div class="background-image"></div>
+        <div class="background-image"></div>
+        <div class="background-image"></div>
+        <div class="light-overlay"></div>
     </div>
 
-    <!-- Background containers -->
-    <div class="background section1-bg"></div>
-    <div class="background section2-bg"></div>
-    <div class="background section3-bg"></div>
-    <div class="background section4-bg"></div>
-    
-    <!-- Glass overlay -->
-    <div class="glass-overlay"></div>
+    <div class="floating-elements"></div>
 
-    <!-- Section 1: Header -->
-    <section class="section section1" id="section1">
-        <div class="section-title">
-            <h1>Dachvermessung<br><span style="font-size: 0.7em; opacity: 0.8;">Grundlage für Planung und Präzision</span></h1>
-        </div>
-        <div class="content">
-            <p>Die Vermessung eines Daches ist der erste und entscheidende Schritt für eine fachgerechte Eindeckung. Sie liefert alle relevanten Maße zur Berechnung von Fläche, Materialbedarf und Schnittführung. Dabei ist nicht nur die Kenntnis der Dachform von Bedeutung, sondern auch die genaue Erfassung jeder einzelnen Dachfläche, Kante und Neigung.</p>
-            <p>Diese Seite bietet praxisnahe Informationen zur sicheren Vermessung:</p>
-            <p>Hinweise für sicheres Arbeiten bei unterschiedlichen Wetterlagen, Methoden zur Bestimmung der Dachform und deren geometrischer Zerlegung, Übersicht der Messgeräte und ihrer Anwendung vor Ort. Abgerundet wird das Ganze durch fertige Skizzen zum Download, die typische Dachformen visualisieren und die Vermessung erleichtern.</p>
-        </div>
-    </section>
+    <div class="scroll-indicator">
+        <div class="scroll-dot active" data-section="0"></div>
+        <div class="scroll-dot" data-section="1"></div>
+        <div class="scroll-dot" data-section="2"></div>
+        <div class="scroll-dot" data-section="3"></div>
+    </div>
 
-    <!-- Section 2: Wetter und Sicherheit -->
-    <section class="section section2" id="section2">
-        <div class="section-title">
-            <h2>Wetter und Sicherheit beim Dachdecken und Ausmessen</h2>
-        </div>
-        <div class="content">
-            <p>Wer sich freiwillig aufs Dach begibt, verdient Respekt – oder zumindest einen guten Helm. Denn Dachdecken ist kein Sonntagsspaziergang, sondern eine Mischung aus Handwerk, Hochseilakt und Wetterlotterie. Und genau deshalb sollte man sich vorher überlegen, ob man lieber Held der Heimwerker oder Patient der Notaufnahme sein will.</p>
-            
-            <h3>Das Wetter – dein bester Freund oder schlimmster Feind</h3>
-            <p>Ein Dach deckt man nicht bei Sturm, Regen oder wenn die Sonne brennt wie ein Backofen auf Stufe „Hölle". Warum? Weil nasse Dachlatten rutschiger sind als eine frisch geölte Bowlingbahn. Weil Wind nicht nur die Dachpappe, sondern auch dich in Richtung Nachbars Garten befördern kann. Und weil Hitze nicht nur den Teer weich macht, sondern auch dein Hirn.</p>
-            <p>Die goldene Regel lautet: Wenn du beim Blick aus dem Fenster denkst „Ach, geht schon", dann geht's wahrscheinlich nicht. Plane dein Projekt für trockene, windstille Tage mit moderaten Temperaturen. Und nein, „nur ein bisschen Nieselregen" ist keine gute Idee – es sei denn, du willst dein Werkzeug in der Dachrinne suchen.</p>
-            
-            <h3>Sicherheit – kein Luxus, sondern Überlebensstrategie</h3>
-            <p>Ein Dach ist hoch. Der Boden ist hart. Dazwischen liegt deine Gesundheit. Deshalb: Absturzsicherung, festes Schuhwerk, Helm, Handschuhe – alles, was dich davon abhält, als unfreiwilliger Flugakrobat in die Lokalzeitung zu kommen. Und bitte keine Turnübungen auf wackeligen Leitern oder improvisierten Gerüsten aus Bierkisten und Hoffnung.</p>
-            <p>Wenn du ausmisst, tu es mit Ruhe und Präzision. Ein schiefes Maß kann später zu einem Dach führen, das aussieht wie ein Origami-Unfall. Und das willst du nicht. Also: Maßband, Wasserwaage, Notizblock – und keine Hektik. Wer langsam misst, deckt schneller.</p>
-            
-            <h3>Fazit: Dachdecken ist kein Abenteuerurlaub</h3>
-            <p>Es ist ein ernstes Projekt, das Planung, Vorsicht und ein bisschen Demut vor dem Wettergott verlangt. Aber mit gesundem Menschenverstand, der richtigen Ausrüstung und einem Blick auf die Wetter-App kann es sogar Spaß machen. Und wenn du am Ende auf deinem perfekt gedeckten Dach stehst, ohne gebrochene Knochen und mit Stolz in den Augen – dann weißt du: Du hast alles richtig gemacht.</p>
-        </div>
-    </section>
+    <div class="content">
+        <section class="section intro-section">
+            <div class="glass-panel">
+                <h1>Dachvermessung</h1>
+                <h2>Grundlage für Planung und Präzision</h2>
+                <p>Die Vermessung eines Daches ist der erste und entscheidende Schritt für eine fachgerechte Eindeckung. Sie liefert alle relevanten Maße zur Berechnung von Fläche, Materialbedarf und Schnittführung. Dabei ist nicht nur die Kenntnis der Dachform von Bedeutung, sondern auch die genaue Erfassung jeder einzelnen Dachfläche, Kante und Neigung.</p>
+                
+                <p>Diese Seite bietet praxisnahe Informationen zur sicheren Vermessung:</p>
+                <ul>
+                    <li>Hinweise für sicheres Arbeiten bei unterschiedlichen Wetterlagen</li>
+                    <li>Methoden zur Bestimmung der Dachform und deren geometrischer Zerlegung</li>
+                    <li>Übersicht der Messgeräte und ihrer Anwendung vor Ort</li>
+                </ul>
+                
+                <p>Abgerundet wird das Ganze durch fertige Skizzen zum Download, die typische Dachformen visualisieren und die Vermessung erleichtern.</p>
+            </div>
+        </section>
 
-    <!-- Section 3: Dachformen -->
-    <section class="section section3" id="section3">
-        <div class="section-title">
-            <h2>Dachformen im Detail:<br><span style="font-size: 0.8em;">Geometrie und Vermessung</span></h2>
-        </div>
-        <div class="content">
-            <p>Die Form eines Daches ist mehr als nur ein stilistisches Element – sie beeinflusst entscheidend Statik, Materialbedarf und Handhabung beim Decken. Um die Dachfläche exakt zu planen und vermessen zu können, empfiehlt es sich, jede Dachform in ihre einzelnen geometrischen Flächen zu zerlegen. So lässt sich jede Kante messen und jede Fläche effizient berechnen.</p>
-            
-            <h3>1. Satteldach</h3>
-            <p>Das klassische Satteldach besteht aus zwei rechteckigen Flächen mit identischer Neigung, die sich an der Firstlinie treffen.</p>
-            <p><strong>Geometrische Körper:</strong> Zwei Rechtecke mit Neigung</p>
-            <p><strong>Messpunkte:</strong> Traufkante, Firstkante, Sparrenlänge, Dachneigung</p>
-            <p><strong>Flächenberechnung:</strong> Rechteckige Fläche + Neigungswinkel</p>
-            
-            <h3>2. Walmdach</h3>
-            <p>Beim Walmdach sind auch die Stirnseiten geneigt. Es entstehen vier geneigte Flächen.</p>
-            <p><strong>Geometrische Körper:</strong> Zwei Trapeze (vorn & hinten), zwei Rechtecke (links & rechts)</p>
-            <p><strong>Messpunkte:</strong> First, Traufe, Gratlinien, Eckpunkte der Schrägen</p>
-            <p><strong>Flächenberechnung:</strong> Trapezflächen + Rechteckflächen</p>
-            
-            <h3>3. Pultdach</h3>
-            <p>Ein Pultdach ist eine einseitig geneigte Fläche – simpel und effizient.</p>
-            <p><strong>Geometrische Körper:</strong> Ein einzelnes Rechteck mit Neigung</p>
-            <p><strong>Messpunkte:</strong> Traufe, Firstkante, Länge und Breite</p>
-            <p><strong>Flächenberechnung:</strong> Rechteck unter Berücksichtigung der Neigung</p>
-            
-            <h3>4. Mansarddach</h3>
-            <p>Hier unterteilt sich jede Dachseite in zwei unterschiedlich geneigte Flächen.</p>
-            <p><strong>Geometrische Körper:</strong> Pro Seite zwei Trapez- oder Rechteckflächen</p>
-            <p><strong>Messpunkte:</strong> Traufe, Mansardenknick, First, Gratlinien</p>
-            <p><strong>Flächenberechnung:</strong> Einzelberechnung je Fläche, addieren der Teilflächen</p>
-            
-            <h3>5. Zeltdach</h3>
-            <p>Ein Zeltdach besteht aus vier dreieckigen Dachflächen, die sich in einem zentralen Punkt – der Firstspitze – treffen.</p>
-            <p><strong>Geometrische Körper:</strong> Vier gleichschenklige Dreiecke</p>
-            <p><strong>Messpunkte:</strong> Basislänge, Seitenlängen, Firsthöhe</p>
-            <p><strong>Flächenberechnung:</strong> Dreiecksfläche je Seite</p>
-            
-            <h3>Vermessung leicht gemacht</h3>
-            <p>Für jede Dachfläche sind die exakte Kantenlänge und die Neigungswinkel essenziell. Mithilfe eines digitalen Winkelmessers und Maßbands lassen sich die geometrischen Daten vor Ort erfassen. Diese Werte bilden die Grundlage für Materialkalkulation, Schnittführung und späteres Verlegen der Dachdeckung.</p>
-            
-            <h3>Fertige Skizzen zum Download</h3>
-            <p>Für die meistverbauten Dachformen stehen dir am Ende dieser Seite praktische Downloadlinks zu fertigen Skizzen bereit – inklusive Maßhilfen für jede Fläche. Einfach runterladen, ausdrucken und direkt beim Messen verwenden.</p>
-        </div>
-    </section>
+        <section class="section">
+            <div class="glass-panel">
+                <h2>Wetter und Sicherheit beim Dachdecken und Ausmessen</h2>
+                <h3>Wie man nicht vom Dach fliegt</h3>
+                
+                <p>Wer sich freiwillig aufs Dach begibt, verdient Respekt – oder zumindest einen guten Helm. Denn Dachdecken ist kein Sonntagsspaziergang, sondern eine Mischung aus Handwerk, Hochseilakt und Wetterlotterie. Und genau deshalb sollte man sich vorher überlegen, ob man lieber Held der Heimwerker oder Patient der Notaufnahme sein will.</p>
 
-    <!-- Section 4: Werkzeuge -->
-    <section class="section section4" id="section4">
-        <div class="section-title">
-            <h2>Präzise Dachvermessung:<br><span style="font-size: 0.8em;">Werkzeuge & Hilfsmittel</span></h2>
-        </div>
-        <div class="content">
-            <p>Wer ein Dach professionell vermessen möchte, braucht mehr als nur ein gutes Auge. Für exakte Kantenlängen, Winkel und Höhen sind zuverlässige Messgeräte und praktische Hilfsmittel unverzichtbar. Im Folgenden findest du eine Übersicht der gängigen Werkzeuge, deren Anwendung und nützlicher Tipps aus der Praxis.</p>
-            
-            <h3>Messgeräte im Überblick</h3>
-            
-            <h3>Zollstock</h3>
-            <p><strong>Einsatz:</strong> Für kürzere Messstrecken und punktuelle Maße an Sparren, Traufe oder Latten.</p>
-            <p><strong>Vorteil:</strong> Schnell zur Hand, kompakt und stabil.</p>
-            <p><strong>Tipp:</strong> Besonders gut für Kontrollmessungen oder Innenmaße im Dachstuhl.</p>
-            
-            <h3>Maßband</h3>
-            <p><strong>Einsatz:</strong> Universell einsetzbar zur Messung von Trauflängen, Dachseiten und größeren Flächen.</p>
-            <p><strong>Vorteil:</strong> Flexibel, lang, ideal für größere Distanzen.</p>
-            <p><strong>Tipp:</strong> Am besten mit zwei Personen verwenden: einer hält das Maßband am Fixpunkt, der andere misst und notiert.</p>
-            
-            <h3>Teleskopmessstab</h3>
-            <p><strong>Einsatz:</strong> Für Höhenmessung bis zur Firstspitze oder schwer zugängliche Stellen.</p>
-            <p><strong>Vorteil:</strong> Ausziehbar, stabil, präzise Höhenmessung ohne Gerüst.</p>
-            <p><strong>Tipp:</strong> Ideal für schnelle Höhenkontrollen bei Pult- oder Satteldächern.</p>
-            
-            <h3>Zusätzliche Hilfsmittel für effiziente Arbeit</h3>
-            
-            <h3>Schnur & Marker</h3>
-            <p><strong>Einsatz:</strong> Abstecken von geraden Linien, Markieren von Punkten oder Flächen.</p>
-            <p><strong>Tipp:</strong> Eine gespannte Schnur hilft beim Ausrichten von Dachflächen oder Gratlinien.</p>
-            
-            <h3>Leiter, Gerüst oder Hebebühne</h3>
-            <p><strong>Einsatz:</strong> Sicheres Arbeiten in Höhen, Zugang zur Dachfläche.</p>
-            <p><strong>Vorteil:</strong> Je nach Situation – flexibel mit der Leiter, stabil mit dem Gerüst, komfortabel mit der Hebebühne.</p>
-            <p><strong>Sicherheit:</strong> Niemals ohne feste Sicherung arbeiten – Dachvermessung findet oft in gefährlicher Höhe statt!</p>
-            
-            <h3>Helfer</h3>
-            <p><strong>Einsatz:</strong> Halten von Maßbändern, Teleskopstäben oder Schnüren; Notieren von Werten.</p>
-            <p><strong>Tipp:</strong> Zu zweit oder dritt arbeitet man nicht nur schneller – auch sicherer und präziser.</p>
-            
-            <h3>Fazit: Gutes Werkzeug, sicheres Messen</h3>
-            <p>Ob für die exakte Berechnung der Dachfläche oder zur Planung der Materialmenge – die Wahl der richtigen Messgeräte macht den Unterschied. Mit einfachen Hilfsmitteln und verlässlicher Technik gelingt die Dachvermessung effizient und sicher. Für jeden Typ Dachfläche empfehlen sich unterschiedliche Werkzeuge – eine Übersicht dazu findest du in den jeweiligen Dachform-Skizzen auf dieser Seite.</p>
-        </div>
-    </section>
+                <h3>Das Wetter – dein bester Freund oder schlimmster Feind</h3>
+                <p>Ein Dach deckt man nicht bei Sturm, Regen oder wenn die Sonne brennt wie ein Backofen auf Stufe „Hölle". Warum? Weil nasse Dachlatten rutschiger sind als eine frisch geölte Bowlingbahn. Weil Wind nicht nur die Dachpappe, sondern auch dich in Richtung Nachbars Garten befördern kann. Und weil Hitze nicht nur den Teer weich macht, sondern auch dein Hirn.</p>
+
+                <p>Die goldene Regel lautet: Wenn du beim Blick aus dem Fenster denkst „Ach, geht schon", dann geht's wahrscheinlich nicht. Plane dein Projekt für trockene, windstille Tage mit moderaten Temperaturen. Und nein, „nur ein bisschen Nieselregen" ist keine gute Idee – es sei denn, du willst dein Werkzeug in der Dachrinne suchen.</p>
+
+                <h3>Sicherheit – kein Luxus, sondern Überlebensstrategie</h3>
+                <p>Ein Dach ist hoch. Der Boden ist hart. Dazwischen liegt deine Gesundheit. Deshalb: Absturzsicherung, festes Schuhwerk, Helm, Handschuhe – alles, was dich davon abhält, als unfreiwilliger Flugakrobat in die Lokalzeitung zu kommen. Und bitte keine Turnübungen auf wackeligen Leitern oder improvisierten Gerüsten aus Bierkisten und Hoffnung.</p>
+
+                <p>Wenn du ausmisst, tu es mit Ruhe und Präzision. Ein schiefes Maß kann später zu einem Dach führen, das aussieht wie ein Origami-Unfall. Und das willst du nicht. Also: Maßband, Wasserwaage, Notizblock – und keine Hektik. Wer langsam misst, deckt schneller.</p>
+
+                <h3>Fazit: Dachdecken ist kein Abenteuerurlaub</h3>
+                <p>Es ist ein ernstes Projekt, das Planung, Vorsicht und ein bisschen Demut vor dem Wettergott verlangt. Aber mit gesundem Menschenverstand, der richtigen Ausrüstung und einem Blick auf die Wetter-App kann es sogar Spaß machen. Und wenn du am Ende auf deinem perfekt gedeckten Dach stehst, ohne gebrochene Knochen und mit Stolz in den Augen – dann weißt du: Du hast alles richtig gemacht.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="glass-panel">
+                <h2>Dachformen im Detail</h2>
+                <h3>Geometrie und Vermessung jeder einzelnen Fläche</h3>
+                
+                <p>Die Form eines Daches ist mehr als nur ein stilistisches Element – sie beeinflusst entscheidend Statik, Materialbedarf und Handhabung beim Decken. Um die Dachfläche exakt zu planen und vermessen zu können, empfiehlt es sich, jede Dachform in ihre einzelnen geometrischen Flächen zu zerlegen. So lässt sich jede Kante messen und jede Fläche effizient berechnen.</p>
+
+                <h3>1. Satteldach</h3>
+                <p>Das klassische Satteldach besteht aus zwei rechteckigen Flächen mit identischer Neigung, die sich an der Firstlinie treffen.</p>
+                <ul>
+                    <li>Geometrische Körper: Zwei Rechtecke mit Neigung</li>
+                    <li>Messpunkte: Traufkante, Firstkante, Sparrenlänge, Dachneigung</li>
+                    <li>Flächenberechnung: Rechteckige Fläche + Neigungswinkel</li>
+                </ul>
+
+                <h3>2. Walmdach</h3>
+                <p>Beim Walmdach sind auch die Stirnseiten geneigt. Es entstehen vier geneigte Flächen.</p>
+                <ul>
+                    <li>Geometrische Körper: Zwei Trapeze (vorn & hinten), zwei Rechtecke (links & rechts)</li>
+                    <li>Messpunkte: First, Traufe, Gratlinien, Eckpunkte der Schrägen</li>
+                    <li>Flächenberechnung: Trapezflächen + Rechteckflächen</li>
+                </ul>
+
+                <h3>3. Pultdach</h3>
+                <p>Ein Pultdach ist eine einseitig geneigte Fläche – simpel und effizient.</p>
+                <ul>
+                    <li>Geometrische Körper: Ein einzelnes Rechteck mit Neigung</li>
+                    <li>Messpunkte: Traufe, Firstkante, Länge und Breite</li>
+                    <li>Flächenberechnung: Rechteck unter Berücksichtigung der Neigung</li>
+                </ul>
+
+                <h3>4. Mansarddach</h3>
+                <p>Hier unterteilt sich jede Dachseite in zwei unterschiedlich geneigte Flächen.</p>
+                <ul>
+                    <li>Geometrische Körper: Pro Seite zwei Trapez- oder Rechteckflächen</li>
+                    <li>Messpunkte: Traufe, Mansardenknick, First, Gratlinien</li>
+                    <li>Flächenberechnung: Einzelberechnung je Fläche, addieren der Teilflächen</li>
+                </ul>
+
+                <h3>5. Zeltdach</h3>
+                <p>Ein Zeltdach besteht aus vier dreieckigen Dachflächen, die sich in einem zentralen Punkt – der Firstspitze – treffen.</p>
+                <ul>
+                    <li>Geometrische Körper: Vier gleichschenklige Dreiecke</li>
+                    <li>Messpunkte: Basislänge, Seitenlängen, Firsthöhe</li>
+                    <li>Flächenberechnung: Dreiecksfläche je Seite</li>
+                </ul>
+
+                <h3>Vermessung leicht gemacht</h3>
+                <p>Für jede Dachfläche sind die exakte Kantenlänge und die Neigungswinkel essenziell. Mithilfe eines digitalen Winkelmessers und Maßbands lassen sich die geometrischen Daten vor Ort erfassen. Diese Werte bilden die Grundlage für Materialkalkulation, Schnittführung und späteres Verlegen der Dachdeckung.</p>
+
+                <h3>Fertige Skizzen zum Download</h3>
+                <p>Für die meistverbauten Dachformen stehen dir am Ende dieser Seite praktische Downloadlinks zu fertigen Skizzen bereit – inklusive Maßhilfen für jede Fläche. Einfach runterladen, ausdrucken und direkt beim Messen verwenden.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="glass-panel">
+                <h2>Präzise Dachvermessung</h2>
+                <h3>Werkzeuge & Hilfsmittel für exakte Maße</h3>
+                
+                <p>Wer ein Dach professionell vermessen möchte, braucht mehr als nur ein gutes Auge. Für exakte Kantenlängen, Winkel und Höhen sind zuverlässige Messgeräte und praktische Hilfsmittel unverzichtbar. Im Folgenden findest du eine Übersicht der gängigen Werkzeuge, deren Anwendung und nützlicher Tipps aus der Praxis.</p>
+
+                <h3>Messgeräte im Überblick</h3>
+                
+                <h3>Zollstock</h3>
+                <ul>
+                    <li>Einsatz: Für kürzere Messstrecken und punktuelle Maße an Sparren, Traufe oder Latten.</li>
+                    <li>Vorteil: Schnell zur Hand, kompakt und stabil.</li>
+                    <li>Tipp: Besonders gut für Kontrollmessungen oder Innenmaße im Dachstuhl.</li>
+                </ul>
+
+                <h3>Maßband</h3>
+                <ul>
+                    <li>Einsatz: Universell einsetzbar zur Messung von Trauflängen, Dachseiten und größeren Flächen.</li>
+                    <li>Vorteil: Flexibel, lang, ideal für größere Distanzen.</li>
+                    <li>Tipp: Am besten mit zwei Personen verwenden: einer hält das Maßband am Fixpunkt, der andere misst und notiert.</li>
+                </ul>
+
+                <h3>Teleskopmessstab</h3>
+                <ul>
+                    <li>Einsatz: Für Höhenmessung bis zur Firstspitze oder schwer zugängliche Stellen.</li>
+                    <li>Vorteil: Ausziehbar, stabil, präzise Höhenmessung ohne Gerüst.</li>
+                    <li>Tipp: Ideal für schnelle Höhenkontrollen bei Pult- oder Satteldächern.</li>
+                </ul>
+
+                <h3>Zusätzliche Hilfsmittel für effiziente Arbeit</h3>
+
+                <h3>Schnur & Marker</h3>
+                <ul>
+                    <li>Einsatz: Abstecken von geraden Linien, Markieren von Punkten oder Flächen.</li>
+                    <li>Tipp: Eine gespannte Schnur hilft beim Ausrichten von Dachflächen oder Gratlinien.</li>
+                </ul>
+
+                <h3>Leiter, Gerüst oder Hebebühne</h3>
+                <ul>
+                    <li>Einsatz: Sicheres Arbeiten in Höhen, Zugang zur Dachfläche.</li>
+                    <li>Vorteil: Je nach Situation – flexibel mit der Leiter, stabil mit dem Gerüst, komfortabel mit der Hebebühne.</li>
+                    <li>Sicherheit: Niemals ohne feste Sicherung arbeiten – Dachvermessung findet oft in gefährlicher Höhe statt!</li>
+                </ul>
+
+                <h3>Helfer</h3>
+                <ul>
+                    <li>Einsatz: Halten von Maßbändern, Teleskopstäben oder Schnüren; Notieren von Werten.</li>
+                    <li>Tipp: Zu zweit oder dritt arbeitet man nicht nur schneller – auch sicherer und präziser.</li>
+                </ul>
+
+                <h3>Fazit: Gutes Werkzeug, sicheres Messen</h3>
+                <p>Ob für die exakte Berechnung der Dachfläche oder zur Planung der Materialmenge – die Wahl der richtigen Messgeräte macht den Unterschied. Mit einfachen Hilfsmitteln und verlässlicher Technik gelingt die Dachvermessung effizient und sicher. Für jeden Typ Dachfläche empfehlen sich unterschiedliche Werkzeuge – eine Übersicht dazu findest du in den jeweiligen Dachform-Skizzen auf dieser Seite.</p>
+            </div>
+        </section>
+    </div>
 
     <script>
-        let currentSection = 1;
-        let isScrolling = false;
-        let touchStartY = 0;
-        let touchEndY = 0;
+        // Floating particles
+        function createFloatingElements() {
+            const container = document.querySelector('.floating-elements');
+            const elementCount = 50;
+            
+            for (let i = 0; i < elementCount; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 6 + 's';
+                element.style.animationDuration = (6 + Math.random() * 4) + 's';
+                container.appendChild(element);
+            }
+        }
 
-        // DOM elements
-        const backgrounds = [
-            document.querySelector('.section1-bg'),
-            document.querySelector('.section2-bg'),
-            document.querySelector('.section3-bg'),
-            document.querySelector('.section4-bg')
-        ];
+        // Mouse move effect
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
+            
+            document.documentElement.style.setProperty('--mouse-x', x + '%');
+            document.documentElement.style.setProperty('--mouse-y', y + '%');
+        });
 
-        const glassOverlay = document.querySelector('.glass-overlay');
+        // Intersection Observer for glass panels
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.glass-panel').forEach(panel => {
+            observer.observe(panel);
+        });
+
+        // Background image switching
+        let currentBackground = 0;
+        const backgrounds = document.querySelectorAll('.background-image');
         const sections = document.querySelectorAll('.section');
-        const sectionTitles = document.querySelectorAll('.section-title');
-        const contents = document.querySelectorAll('.content');
-        const navDots = document.querySelectorAll('.nav-dot');
-
-        // Add animation classes to backgrounds
-        backgrounds[0].classList.add('section1');
-        backgrounds[1].classList.add('section2');
-        backgrounds[2].classList.add('section3');
-        backgrounds[3].classList.add('section4');
-
-        function updateBackground(sectionNum) {
-            // Hide all backgrounds
-            backgrounds.forEach(bg => {
-                bg.classList.remove('active');
-            });
-            
-            // Show current background
-            if (backgrounds[sectionNum - 1]) {
-                backgrounds[sectionNum - 1].classList.add('active');
-                glassOverlay.classList.add('active');
-            }
-
-            // Update navigation dots
-            navDots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === sectionNum - 1);
+        
+        function switchBackground(index) {
+            backgrounds.forEach((bg, i) => {
+                bg.classList.toggle('active', i === index);
             });
         }
 
-        function handleScroll() {
-            if (isScrolling) return;
-            
-            const scrollTop = window.pageYOffset;
+        // Scroll indicator and background switching
+        const scrollDots = document.querySelectorAll('.scroll-dot');
+        
+        function updateScrollIndicator() {
+            const scrollPosition = window.scrollY;
             const windowHeight = window.innerHeight;
+            const sectionIndex = Math.floor(scrollPosition / windowHeight);
+            const clampedIndex = Math.max(0, Math.min(sectionIndex, sections.length - 1));
             
-            // Parallax effect for backgrounds
-            backgrounds.forEach((bg, index) => {
-                if (bg && bg.classList.contains('active')) {
-                    const parallaxSpeed = 0.5;
-                    const yPos = scrollTop * parallaxSpeed;
-                    bg.style.transform = `translateY(${yPos}px)`;
-                }
+            scrollDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === clampedIndex);
             });
             
-            sections.forEach((section, index) => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.offsetHeight;
-                const sectionProgress = (scrollTop - sectionTop) / sectionHeight;
-                
-                const title = sectionTitles[index];
-                const content = contents[index];
-                
-                // Determine which background should be active
-                if (scrollTop >= sectionTop && scrollTop < sectionTop + sectionHeight) {
-                    if (currentSection !== index + 1) {
-                        currentSection = index + 1;
-                        updateBackground(currentSection);
-                    }
-                    
-                    // Phase 1: Show title (0-25% of section)
-                    if (sectionProgress >= 0 && sectionProgress < 0.25) {
-                        title.classList.add('visible');
-                        title.classList.remove('hidden');
-                    }
-                    // Phase 2: Hide title (25-35% of section)
-                    else if (sectionProgress >= 0.25 && sectionProgress < 0.35) {
-                        title.classList.remove('visible');
-                        title.classList.add('hidden');
-                    }
-                    // Phase 3: Show content and let it scroll naturally (35-100% of section)
-                    else if (sectionProgress >= 0.35) {
-                        title.classList.remove('visible');
-                        title.classList.add('hidden');
-                        
-                        // Calculate content position for natural scrolling
-                        const contentOffset = (sectionProgress - 0.35) / 0.65; // Normalize to 0-1
-                        const scrollAmount = contentOffset * windowHeight * 1.5; // Allow content to scroll up
-                        content.style.transform = `translateX(-50%) translateY(${windowHeight - scrollAmount}px)`;
-                    }
-                } else {
-                    // Reset when not in view
-                    title.classList.remove('visible', 'hidden');
-                    content.style.transform = 'translateX(-50%) translateY(100vh)';
-                }
-            });
+            if (clampedIndex !== currentBackground) {
+                currentBackground = clampedIndex;
+                switchBackground(currentBackground);
+            }
         }
 
-        // Navigation dot clicks
-        navDots.forEach((dot, index) => {
+        // Scroll to section
+        scrollDots.forEach((dot, index) => {
             dot.addEventListener('click', () => {
-                const targetSection = sections[index];
-                targetSection.scrollIntoView({ behavior: 'smooth' });
+                window.scrollTo({
+                    top: index * window.innerHeight,
+                    behavior: 'smooth'
+                });
             });
         });
 
-        // Touch navigation for mobile
-        function handleTouchStart(e) {
-            touchStartY = e.touches[0].clientY;
+        // Parallax effect
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.parallax-container');
+            const speed = scrolled * 0.5;
+            
+            parallax.style.transform = `translateY(${speed}px)`;
         }
 
-        function handleTouchEnd(e) {
-            touchEndY = e.changedTouches[0].clientY;
-            const diff = touchStartY - touchEndY;
-            const threshold = 50; // Minimum swipe distance
-
-            if (Math.abs(diff) > threshold) {
-                if (diff > 0 && currentSection < 4) {
-                    // Swipe up - next section
-                    sections[currentSection].scrollIntoView({ behavior: 'smooth' });
-                } else if (diff < 0 && currentSection > 1) {
-                    // Swipe down - previous section
-                    sections[currentSection - 2].scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-        }
-
-        // Smooth scroll handling
-        let scrollTimeout;
+        // Event listeners
         window.addEventListener('scroll', () => {
-            if (scrollTimeout) clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                isScrolling = false;
-                handleScroll();
-            }, 16); // ~60fps
-            
-            if (!isScrolling) {
-                isScrolling = true;
-                handleScroll();
-            }
+            updateScrollIndicator();
+            updateParallax();
         });
 
-        // Touch events
-        document.addEventListener('touchstart', handleTouchStart, { passive: true });
-        document.addEventListener('touchend', handleTouchEnd, { passive: true });
-
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown' && currentSection < 4) {
-                e.preventDefault();
-                sections[currentSection].scrollIntoView({ behavior: 'smooth' });
-            } else if (e.key === 'ArrowUp' && currentSection > 1) {
-                e.preventDefault();
-                sections[currentSection - 2].scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-
-        // Enhanced animations for specific backgrounds (only on desktop)
-        function addLightningEffects() {
-            if (window.innerWidth <= 768) return; // Skip on mobile
-            
-            const lightningBg = backgrounds[1];
-            if (lightningBg && lightningBg.classList.contains('active')) {
-                // Create subtle lightning flash
-                const flash = document.createElement('div');
-                flash.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(255, 255, 255, 0.15);
-                    z-index: 3;
-                    pointer-events: none;
-                    opacity: 0;
-                `;
-                document.body.appendChild(flash);
-                
-                // Quick fade in/out
-                flash.style.transition = 'opacity 0.1s';
-                flash.style.opacity = '1';
-                
-                setTimeout(() => {
-                    flash.style.opacity = '0';
-                    setTimeout(() => {
-                        if (document.body.contains(flash)) {
-                            document.body.removeChild(flash);
-                        }
-                    }, 100);
-                }, 50);
-            }
-        }
-
-        // Random subtle lightning when section 2 is active (desktop only)
-        setInterval(() => {
-            if (currentSection === 2 && Math.random() < 0.15 && window.innerWidth > 768) {
-                addLightningEffects();
-            }
-        }, 4000);
+        window.addEventListener('resize', updateScrollIndicator);
 
         // Initialize
-        updateBackground(1);
-        handleScroll();
-
-        // Performance optimization for mobile
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            if (resizeTimeout) clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                handleScroll();
-            }, 250);
-        });
-
-        // Intersection Observer for better performance
-        if ('IntersectionObserver' in window) {
-            const observerOptions = {
-                threshold: [0, 0.25, 0.5, 0.75, 1],
-                rootMargin: '0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const sectionIndex = Array.from(sections).indexOf(entry.target);
-                        if (sectionIndex !== -1 && currentSection !== sectionIndex + 1) {
-                            currentSection = sectionIndex + 1;
-                            updateBackground(currentSection);
-                        }
-                    }
-                });
-            }, observerOptions);
-
-            sections.forEach(section => {
-                observer.observe(section);
-            });
-        }
+        createFloatingElements();
+        updateScrollIndicator();
     </script>
 </body>
 </html>
