@@ -351,7 +351,11 @@
 <body>
     <div class="parallax-container">
         <div class="background-image active"></div>
-        <div class="background-image"></div>
+        <div class="background-image">
+            <video id="stormVideo" muted playsinline>
+                <source src="/images/messen-2.mp4" type="video/mp4">
+            </video>
+        </div>
         <div class="background-image"></div>
         <div class="background-image"></div>
         <div class="light-overlay"></div>
@@ -633,10 +637,46 @@
             parallax.style.transform = `translateY(${speed}px)`;
         }
 
+        // Video scrubbing functionality
+        const stormVideo = document.getElementById('stormVideo');
+        let videoDuration = 5; // 5 Sekunden Video
+        
+        function updateVideoProgress() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            
+            // Berechne den Scroll-Fortschritt (0 bis 1)
+            const scrollProgress = scrollPosition / (documentHeight - windowHeight);
+            
+            // Wenn wir in Section 2 sind (Gewitter-Video)
+            const section2Top = sections[1].offsetTop;
+            const section2Bottom = section2Top + sections[1].offsetHeight;
+            
+            if (scrollPosition >= section2Top - windowHeight && scrollPosition <= section2Bottom) {
+                // Berechne den lokalen Fortschritt innerhalb von Section 2
+                const sectionProgress = Math.max(0, Math.min(1, 
+                    (scrollPosition - (section2Top - windowHeight)) / (sections[1].offsetHeight + windowHeight)
+                ));
+                
+                // Setze Video-Zeit basierend auf Scroll-Position
+                if (stormVideo && stormVideo.duration) {
+                    stormVideo.currentTime = sectionProgress * stormVideo.duration;
+                }
+            }
+        }
+
+        // Video laden
+        stormVideo.addEventListener('loadedmetadata', () => {
+            videoDuration = stormVideo.duration;
+            console.log('Video geladen, Dauer:', videoDuration);
+        });
+
         // Event listeners
         window.addEventListener('scroll', () => {
             updateScrollIndicator();
             updateParallax();
+            updateVideoProgress();
         });
 
         window.addEventListener('resize', updateScrollIndicator);
