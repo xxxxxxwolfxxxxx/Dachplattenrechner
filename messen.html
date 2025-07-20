@@ -79,28 +79,34 @@
             top: 3%;
         }
 
-        /* Bild 4: Lineal */
+        /* Bild 4: Lineal mit horizontaler Bewegung */
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-4.jpg');
             position: absolute;
             top: 3%;
+            transform: rotate(90deg);
+            transform-origin: center center;
         }
 
         .background-image:nth-child(4)::before {
             content: '';
             position: absolute;
             top: 0;
-            left: 0;
+            left: var(--ruler-light-position, -100%);
             right: 0;
             bottom: 0;
-            background: linear-gradient(to top, 
+            width: 20%;
+            background: linear-gradient(to right, 
                 transparent 0%, 
-                rgba(255,255,255,0.1) 20%, 
-                rgba(255,255,255,0.2) 40%, 
-                rgba(255,255,255,0.1) 60%, 
+                rgba(255,255,255,0.3) 20%, 
+                rgba(255,255,255,0.6) 50%, 
+                rgba(255,255,255,0.3) 80%, 
                 transparent 100%);
-            opacity: 0;
-            animation: rulerLightSweep 8s ease-in-out infinite;
+            opacity: 0.8;
+            transition: left 0.1s linear;
+            z-index: 2;
+            border-radius: 50%;
+            filter: blur(2px);
         }
 
         @keyframes tapeGlow {
@@ -113,12 +119,7 @@
             50% { filter: brightness(1.1) contrast(1.1) hue-rotate(5deg); }
         }
 
-        @keyframes rulerLightSweep {
-            0%, 100% { opacity: 0; }
-            25% { opacity: 0.3; }
-            50% { opacity: 0.6; }
-            75% { opacity: 0.2; }
-        }
+        /* Entfernt die alte rulerLightSweep Animation */
 
         .light-overlay {
             position: absolute;
@@ -777,6 +778,36 @@
             }
         }
 
+        // Lineal-Licht Bewegung basierend auf Scroll
+        function updateRulerLight() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Wenn wir in Section 4 sind (Lineal)
+            const section4Top = sections[3].offsetTop;
+            const section4Bottom = section4Top + sections[3].offsetHeight;
+            
+            if (scrollPosition >= section4Top - windowHeight && scrollPosition <= section4Bottom) {
+                // Berechne den lokalen Fortschritt innerhalb von Section 4
+                const sectionProgress = Math.max(0, Math.min(1, 
+                    (scrollPosition - (section4Top - windowHeight)) / (sections[3].offsetHeight + windowHeight)
+                ));
+                
+                // Bewege das Licht von -100% bis 100% (links nach rechts)
+                const lightPosition = -100 + (sectionProgress * 200); // Von -100% bis +100%
+                
+                // Update CSS custom property für die Licht-Position
+                const rulerBackground = document.querySelector('.background-image:nth-child(4)');
+                if (rulerBackground) {
+                    const beforeElement = rulerBackground.querySelector('::before') || rulerBackground;
+                    rulerBackground.style.setProperty('--light-position', lightPosition + '%');
+                    
+                    // Direkte Manipulation des ::before Elements über CSS Variable
+                    document.documentElement.style.setProperty('--ruler-light-position', lightPosition + '%');
+                }
+            }
+        }
+
         // Video laden
         stormVideo.addEventListener('loadedmetadata', () => {
             videoDuration = stormVideo.duration;
@@ -842,6 +873,7 @@
             updateScrollIndicator();
             updateParallax();
             updateVideoProgress();
+            updateRulerLight();
         });
 
         window.addEventListener('resize', updateScrollIndicator);
