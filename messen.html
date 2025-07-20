@@ -45,55 +45,41 @@
             opacity: 1;
         }
 
-        /* Spezielle Effekte für jedes Bild */
+        /* Bild 1: Maßband */
         .background-image:nth-child(1) {
             background-image: url('/images/messen-1.jpg');
             animation: tapeGlow 4s ease-in-out infinite;
             background-position: center 70%;
         }
 
+        /* Bild 2: VIDEO statt Bild! */
         .background-image:nth-child(2) {
-            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('/images/messen-2.jpg');
+            background: none;
             position: relative;
+            overflow: hidden;
         }
 
-        .background-image:nth-child(2)::before {
-            content: '';
+        .background-image:nth-child(2) video {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(ellipse 8% 60% at 15% 20%, rgba(255,255,255,0.4) 0%, transparent 70%),
-                radial-gradient(ellipse 6% 80% at 35% 10%, rgba(255,255,255,0.3) 0%, transparent 70%),
-                radial-gradient(ellipse 10% 70% at 60% 25%, rgba(255,255,255,0.5) 0%, transparent 70%),
-                radial-gradient(ellipse 7% 90% at 80% 15%, rgba(255,255,255,0.3) 0%, transparent 70%);
-            opacity: 0;
-            animation: lightningStrike 6s ease-in-out infinite;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            z-index: 1;
         }
 
-        .background-image:nth-child(2)::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(ellipse 9% 75% at 25% 30%, rgba(255,255,255,0.3) 0%, transparent 70%),
-                radial-gradient(ellipse 8% 85% at 45% 20%, rgba(255,255,255,0.4) 0%, transparent 70%),
-                radial-gradient(ellipse 11% 65% at 75% 35%, rgba(255,255,255,0.5) 0%, transparent 70%);
-            opacity: 0;
-            animation: lightningStrike2 6s ease-in-out infinite;
-        }
-
+        /* Bild 3: Haus */
         .background-image:nth-child(3) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-3.png');
             animation: houseGlow 5s ease-in-out infinite;
             top: 3%;
         }
 
+        /* Bild 4: Lineal */
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-4.jpg');
             position: absolute;
@@ -120,24 +106,6 @@
         @keyframes tapeGlow {
             0%, 100% { filter: brightness(1) contrast(1); }
             50% { filter: brightness(1.2) contrast(1.1) saturate(1.2); }
-        }
-
-        /* HIER WAREN DIE FEHLENDEN KEYFRAMES! */
-        @keyframes lightningStrike {
-            0%, 85%, 100% { opacity: 0; }
-            87% { opacity: 0.8; }
-            89% { opacity: 0.2; }
-            91% { opacity: 0.9; }
-            93% { opacity: 0; }
-        }
-
-        @keyframes lightningStrike2 {
-            0%, 80%, 100% { opacity: 0; }
-            82% { opacity: 0.6; }
-            84% { opacity: 0.1; }
-            86% { opacity: 0.7; }
-            88% { opacity: 0.3; }
-            90% { opacity: 0; }
         }
 
         @keyframes houseGlow {
@@ -571,7 +539,6 @@
         const sections = document.querySelectorAll('.section');
         
         function switchBackground(index) {
-            // Sanfter Übergang: Erst neues Bild einblenden, dann altes ausblenden
             backgrounds.forEach((bg, i) => {
                 if (i === index) {
                     bg.style.opacity = '1';
@@ -582,6 +549,38 @@
                 }
             });
         }
+
+        // Video scrubbing functionality
+        const stormVideo = document.getElementById('stormVideo');
+        let videoDuration = 5; // 5 Sekunden Video
+        
+        function updateVideoProgress() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            
+            // Wenn wir in Section 2 sind (Gewitter-Video)
+            const section2Top = sections[1].offsetTop;
+            const section2Bottom = section2Top + sections[1].offsetHeight;
+            
+            if (scrollPosition >= section2Top - windowHeight && scrollPosition <= section2Bottom) {
+                // Berechne den lokalen Fortschritt innerhalb von Section 2
+                const sectionProgress = Math.max(0, Math.min(1, 
+                    (scrollPosition - (section2Top - windowHeight)) / (sections[1].offsetHeight + windowHeight)
+                ));
+                
+                // Setze Video-Zeit basierend auf Scroll-Position
+                if (stormVideo && stormVideo.duration) {
+                    stormVideo.currentTime = sectionProgress * stormVideo.duration;
+                }
+            }
+        }
+
+        // Video laden
+        stormVideo.addEventListener('loadedmetadata', () => {
+            videoDuration = stormVideo.duration;
+            console.log('Video geladen, Dauer:', videoDuration);
+        });
 
         // Scroll indicator and background switching
         const scrollDots = document.querySelectorAll('.scroll-dot');
@@ -636,41 +635,6 @@
             
             parallax.style.transform = `translateY(${speed}px)`;
         }
-
-        // Video scrubbing functionality
-        const stormVideo = document.getElementById('stormVideo');
-        let videoDuration = 5; // 5 Sekunden Video
-        
-        function updateVideoProgress() {
-            const scrollPosition = window.scrollY;
-            const windowHeight = window.innerHeight;
-            const documentHeight = document.documentElement.scrollHeight;
-            
-            // Berechne den Scroll-Fortschritt (0 bis 1)
-            const scrollProgress = scrollPosition / (documentHeight - windowHeight);
-            
-            // Wenn wir in Section 2 sind (Gewitter-Video)
-            const section2Top = sections[1].offsetTop;
-            const section2Bottom = section2Top + sections[1].offsetHeight;
-            
-            if (scrollPosition >= section2Top - windowHeight && scrollPosition <= section2Bottom) {
-                // Berechne den lokalen Fortschritt innerhalb von Section 2
-                const sectionProgress = Math.max(0, Math.min(1, 
-                    (scrollPosition - (section2Top - windowHeight)) / (sections[1].offsetHeight + windowHeight)
-                ));
-                
-                // Setze Video-Zeit basierend auf Scroll-Position
-                if (stormVideo && stormVideo.duration) {
-                    stormVideo.currentTime = sectionProgress * stormVideo.duration;
-                }
-            }
-        }
-
-        // Video laden
-        stormVideo.addEventListener('loadedmetadata', () => {
-            videoDuration = stormVideo.duration;
-            console.log('Video geladen, Dauer:', videoDuration);
-        });
 
         // Event listeners
         window.addEventListener('scroll', () => {
