@@ -63,7 +63,8 @@
         .background-image:nth-child(3) {
             background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/plan-3.jpg');
             position: relative;
-            background-position: var(--wood-bg-position, center center);
+            background-position: var(--wood-bg-position, center top);
+            background-size: 120%;
             transition: background-position 0.1s linear;
         }
 
@@ -71,8 +72,9 @@
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/plan-4.png');
             animation: communityGlow 6s ease-in-out infinite;
-            background-position: center top;
-            background-size: cover;
+            background-position: var(--community-bg-position, center 0%);
+            background-size: 110%;
+            transition: background-position 0.1s linear;
         }
 
         @keyframes planningGlow {
@@ -110,26 +112,7 @@
             }
         }
 
-        /* Holz-Textur Animation */
-        .background-image:nth-child(3)::before {
-            content: '';
-            position: absolute;
-            top: var(--wood-light-position, -100%);
-            left: 0;
-            width: 100%;
-            height: 20%;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255,255,255,0.1) 20%, 
-                rgba(255,255,255,0.2) 50%, 
-                rgba(255,255,255,0.1) 80%, 
-                transparent 100%);
-            opacity: 0.8;
-            transition: top 0.1s linear;
-            z-index: 2;
-            filter: blur(1px);
-            transform: skewY(-2deg);
-        }
+
 
         .light-overlay {
             position: absolute;
@@ -805,8 +788,8 @@
             parallax.style.transform = `translateY(${speed}px)`;
         }
 
-        // Holz-Lichteffekt basierend auf Scroll
-        function updateWoodLight() {
+        // Holz-Scrolleffekt für vergrößerte Ansicht
+        function updateWoodScroll() {
             const scrollPosition = window.scrollY;
             const windowHeight = window.innerHeight;
             
@@ -820,15 +803,30 @@
                     (scrollPosition - (section3Top - windowHeight)) / (sections[2].offsetHeight + windowHeight)
                 ));
                 
-                // Bewege das Licht von -100% bis 120% (oben nach unten)
-                const lightPosition = -100 + (sectionProgress * 220); // Von -100% bis 120%
+                // Bewege das Hintergrundbild für längere Scrollstrecke
+                const bgPositionY = 0 + (sectionProgress * 20); // Von 0% bis 20%
+                document.documentElement.style.setProperty('--wood-bg-position', `center ${bgPositionY}%`);
+            }
+        }
+
+        // Community-Scrolleffekt für das letzte Bild
+        function updateCommunityScroll() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Wenn wir in Section 4 sind (Helfer)
+            const section4Top = sections[3].offsetTop;
+            const section4Bottom = section4Top + sections[3].offsetHeight;
+            
+            if (scrollPosition >= section4Top - windowHeight && scrollPosition <= section4Bottom) {
+                // Berechne den lokalen Fortschritt innerhalb von Section 4
+                const sectionProgress = Math.max(0, Math.min(1, 
+                    (scrollPosition - (section4Top - windowHeight)) / (sections[3].offsetHeight + windowHeight)
+                ));
                 
-                // Update CSS custom property für die Holz-Licht-Position
-                document.documentElement.style.setProperty('--wood-light-position', lightPosition + '%');
-                
-                // Zusätzlich leichte Hintergrund-Bewegung für mehr Dynamik
-                const bgPosition = 50 + (sectionProgress * 10 - 5); // Von 45% bis 55%
-                document.documentElement.style.setProperty('--wood-bg-position', `center ${bgPosition}%`);
+                // Bewege das Hintergrundbild von oben nach unten
+                const bgPositionY = 0 - (sectionProgress * 10); // Von 0% bis -10%
+                document.documentElement.style.setProperty('--community-bg-position', `center ${bgPositionY}%`);
             }
         }
 
@@ -836,7 +834,8 @@
         window.addEventListener('scroll', () => {
             updateScrollIndicator();
             updateParallax();
-            updateWoodLight();
+            updateWoodScroll();
+            updateCommunityScroll();
         });
 
         window.addEventListener('resize', updateScrollIndicator);
