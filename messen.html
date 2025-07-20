@@ -93,23 +93,22 @@
         .background-image:nth-child(4)::before {
             content: '';
             position: absolute;
-            left: var(--ruler-light-position, -100%); /* Zurück zu left für horizontale Bewegung */
-            top: 0;
-            bottom: 0;
-            width: 20%;
-            height: 100%;
-            background: linear-gradient(to right, 
+            top: var(--ruler-light-position, -100%); /* Zurück zu top für vertikale Bewegung */
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 20%;
+            background: linear-gradient(to bottom, 
                 transparent 0%, 
                 rgba(255,255,255,0.3) 20%, 
                 rgba(255,255,255,0.6) 50%, 
                 rgba(255,255,255,0.3) 80%, 
                 transparent 100%);
             opacity: 0.8;
-            transition: left 0.1s linear;
+            transition: top 0.1s linear; /* Zurück zu top */
             z-index: 2;
             filter: blur(2px);
-            transform: rotate(90deg); /* Lichteffekt selbst rotieren */
-            transform-origin: center center;
+            /* Keine zusätzliche Rotation - das Bild ist bereits rotiert */
         }
 
         @keyframes tapeGlow {
@@ -796,18 +795,11 @@
                     (scrollPosition - (section4Top - windowHeight)) / (sections[3].offsetHeight + windowHeight)
                 ));
                 
-                // Bewege das Licht von -100% bis 100% (links nach rechts)
+                // Bewege das Licht von -100% bis 100% (oben nach unten im rotierten Koordinatensystem = links nach rechts visuell)
                 const lightPosition = -100 + (sectionProgress * 200); // Von -100% bis +100%
                 
                 // Update CSS custom property für die Licht-Position
-                const rulerBackground = document.querySelector('.background-image:nth-child(4)');
-                if (rulerBackground) {
-                    const beforeElement = rulerBackground.querySelector('::before') || rulerBackground;
-                    rulerBackground.style.setProperty('--light-position', lightPosition + '%');
-                    
-                    // Direkte Manipulation des ::before Elements über CSS Variable
-                    document.documentElement.style.setProperty('--ruler-light-position', lightPosition + '%');
-                }
+                document.documentElement.style.setProperty('--ruler-light-position', lightPosition + '%');
             }
         }
 
