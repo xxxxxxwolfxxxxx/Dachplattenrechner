@@ -37,7 +37,7 @@
             background-repeat: no-repeat;
             transition: opacity 1s ease;
             opacity: 0;
-            top: -5%;
+            top: 2%;
             left: -5%;
         }
 
@@ -63,7 +63,24 @@
 
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-4.jpg');
-            animation: rulerShine 12s ease-in-out infinite;
+            position: relative;
+        }
+
+        .background-image:nth-child(4)::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, 
+                transparent 0%, 
+                rgba(255,255,255,0.1) 20%, 
+                rgba(255,255,255,0.2) 40%, 
+                rgba(255,255,255,0.1) 60%, 
+                transparent 100%);
+            opacity: 0;
+            animation: rulerLightSweep 8s ease-in-out infinite;
         }
 
         @keyframes tapeGlow {
@@ -571,7 +588,7 @@
         function updateParallax() {
             const scrolled = window.pageYOffset;
             const parallax = document.querySelector('.parallax-container');
-            const speed = scrolled * -0.02; // Sehr minimale Bewegung
+            const speed = scrolled * 0.01; // Sehr minimale Bewegung nach unten
             
             parallax.style.transform = `translateY(${speed}px)`;
         }
