@@ -72,8 +72,8 @@
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/plan-4.png');
             animation: communityGlow 6s ease-in-out infinite;
-            background-position: var(--community-bg-position, center 0%);
-            background-size: 110%;
+            background-position: var(--community-bg-position, center top);
+            background-size: 150%;
             transition: background-position 0.1s linear;
         }
 
@@ -825,7 +825,8 @@
                 ));
                 
                 // Bewege das Hintergrundbild von oben nach unten
-                const bgPositionY = 0 - (sectionProgress * 10); // Von 0% bis -10%
+                // Start: center top (0%), Ende: center bottom (-50% wegen 150% size)
+                const bgPositionY = 0 - (sectionProgress * 50); // Von 0% bis -50%
                 document.documentElement.style.setProperty('--community-bg-position', `center ${bgPositionY}%`);
             }
         }
