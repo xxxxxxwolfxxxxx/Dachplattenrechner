@@ -3,873 +3,846 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blechdach richtig vermessen - Praxisleitfaden für Heimwerker und Profis</title>
-    <meta name="description" content="Kompletter Praxisleitfaden: Blechdach richtig vermessen. Von der Sicherheit bis zur Geometrie - Schritt für Schritt erklärt.">
-    
-    <!-- Google AdSense -->
-    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
-    <script>
-        function loadAdSense() {
-            if (localStorage.getItem('marketingCookies') === 'true') {
-                const script = document.createElement('script');
-                script.async = true;
-                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
-                script.crossOrigin = 'anonymous';
-                document.head.appendChild(script);
-                
-                window.adsbygoogle = window.adsbygoogle || [];
-                window.adsbygoogle.push({
-                    google_ad_client: 'ca-pub-8687929894744033',
-                    enable_page_level_ads: true
-                });
-            }
-        }
-    </script>
-    
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        
-        const analyticsCookies = localStorage.getItem('analyticsCookies');
-        if (analyticsCookies === 'true') {
-            gtag('config', 'G-6NSYG8B1T9', {
-                anonymize_ip: true,
-                cookie_flags: 'SameSite=None;Secure'
-            });
-        }
-    </script>
-
+    <title>Dachplanung - Statik, Material und Organisation</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.7;
-            color: #333;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);
-            min-height: 100vh;
+            box-sizing: border-box;
         }
-        
-        /* Hero Section */
-        .hero-section {
-            height: 100vh;
-            background-image: url('images/metal-roof.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            color: white;
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background: #000;
         }
-        
-        .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(1px);
-        }
-        
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            max-width: 800px;
-            padding: 0 40px;
-        }
-        
-        .hero-title {
-            font-size: 4em;
-            font-weight: 800;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-            line-height: 1.1;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.5em;
-            font-weight: 300;
-            margin-bottom: 40px;
-            opacity: 0.95;
-            text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
-        }
-        
-        .hero-cta {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 20px 40px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.2em;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        
-        .hero-cta:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        
-        /* Navigation */
-        .nav-header {
+
+        .parallax-container {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(30, 60, 114, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 20px 0;
-            transition: all 0.3s ease;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
         }
-        
-        .nav-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 40px;
+
+        .background-image {
+            position: absolute;
+            width: 105%;
+            height: 105%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: opacity 2s ease-in-out;
+            opacity: 0;
+            top: 0%;
+            left: -2.5%;
         }
-        
-        .back-btn {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 10px 20px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
+
+        .background-image.active {
+            opacity: 1;
         }
-        
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
+
+        /* Bild 1: Bauplanung - Hausmodell und Baupläne */
+        .background-image:nth-child(1) {
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/plan-1.jpg');
+            animation: planningGlow 4s ease-in-out infinite;
+            background-position: center center;
         }
-        
-        .nav-title {
-            color: white;
-            font-size: 1.3em;
-            font-weight: 700;
+
+        /* Bild 2: Statik - Schnee- und Windlast Schilder */
+        .background-image:nth-child(2) {
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/plan-2.jpg');
+            animation: staticLoadAnimation 5s ease-in-out infinite;
+            background-position: center 60%;
         }
-        
-        /* Content Sections */
-        .content-section {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
+
+        /* Bild 3: Material - Holzmaserung */
+        .background-image:nth-child(3) {
+            background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/plan-3.jpg');
             position: relative;
-            padding: 100px 0;
+            background-position: var(--wood-bg-position, center center);
+            transition: background-position 0.1s linear;
         }
-        
-        .bg-safety { 
-            background-image: url('images/roof-worker-safety.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+
+        /* Bild 4: Helfer - Gemeinschaftliches Bauen mit Grill */
+        .background-image:nth-child(4) {
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/plan-4.jpg');
+            animation: communityGlow 6s ease-in-out infinite;
+            background-position: center 70%;
         }
-        .bg-tools { 
-            background-image: url('images/roof-measurement.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+
+        @keyframes planningGlow {
+            0%, 100% { 
+                filter: brightness(1) contrast(1) saturate(1);
+                transform: scale(1);
+            }
+            50% { 
+                filter: brightness(1.1) contrast(1.1) saturate(1.2);
+                transform: scale(1.02);
+            }
         }
-        .bg-method { 
-            background-image: url('images/roof-construction.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+
+        @keyframes staticLoadAnimation {
+            0%, 100% { 
+                filter: brightness(1) contrast(1) hue-rotate(0deg);
+            }
+            25% { 
+                filter: brightness(1.1) contrast(1.1) hue-rotate(2deg);
+            }
+            75% { 
+                filter: brightness(0.95) contrast(1.05) hue-rotate(-2deg);
+            }
         }
-        .bg-tips { 
-            background-image: url('images/pexels-alex-conchillos-3724595.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+
+        @keyframes communityGlow {
+            0%, 100% { 
+                filter: brightness(1) contrast(1) saturate(1);
+            }
+            33% { 
+                filter: brightness(1.05) contrast(1.05) saturate(1.1);
+            }
+            66% { 
+                filter: brightness(1.1) contrast(1.1) saturate(1.2);
+            }
         }
-        
-        .content-overlay {
+
+        /* Holz-Textur Animation */
+        .background-image:nth-child(3)::before {
+            content: '';
+            position: absolute;
+            top: var(--wood-light-position, -100%);
+            left: 0;
+            width: 100%;
+            height: 20%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255,255,255,0.1) 20%, 
+                rgba(255,255,255,0.2) 50%, 
+                rgba(255,255,255,0.1) 80%, 
+                transparent 100%);
+            opacity: 0.8;
+            transition: top 0.1s linear;
+            z-index: 2;
+            filter: blur(1px);
+            transform: skewY(-2deg);
+        }
+
+        .light-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        .section {
+            min-height: 190vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 45vh 20px;
+            position: relative;
+        }
+
+        .glass-panel {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 60px;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                0 0 0 1px rgba(0, 0, 0, 0.3);
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            border-radius: 22px;
+            z-index: -1;
+        }
+
+        .glass-panel::after {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.15);
-        }
-        
-        .content-container {
-            position: relative;
-            z-index: 10;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 40px;
-        }
-        
-        .content-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 60px;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, transparent 70%);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            margin: 60px 0;
+            z-index: -1;
+            pointer-events: none;
         }
-        
-        .content-title {
-            font-size: 2.5em;
-            font-weight: 700;
-            color: #1e3c72;
-            text-align: center;
-            margin-bottom: 40px;
+
+        .glass-panel.visible {
+            transform: translateY(0);
+            opacity: 1;
         }
-        
-        .content-text {
-            font-size: 1.2em;
-            line-height: 1.8;
-            color: #555;
+
+        .glass-panel h1 {
+            font-size: 3em;
             margin-bottom: 30px;
-        }
-        
-        /* Dachformen Gallery - Clean */
-        .roof-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin: 40px 0;
-        }
-        
-        .roof-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .roof-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .roof-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-        
-        .roof-card-content {
-            padding: 25px;
-        }
-        
-        .roof-card-title {
-            font-size: 1.4em;
-            font-weight: 600;
-            color: #1e3c72;
-            margin-bottom: 15px;
+            color: #fff;
             text-align: center;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        .roof-measurements {
-            background: linear-gradient(135deg, #e7f1ff 0%, #cce7ff 100%);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border-left: 4px solid #2a5298;
+
+        .glass-panel h2 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            color: #f0f0f0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
-        
-        .roof-measurements h4 {
-            margin: 0 0 15px 0;
-            color: #1e3c72;
+
+        .glass-panel h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+        }
+
+        .glass-panel p {
             font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #d0d0d0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            line-height: 1.8;
         }
-        
-        .measurement-tip {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            border-left: 4px solid #ffc107;
-            font-size: 0.95em;
-        }
-        
-        /* Elegante Listen */
-        .elegant-list {
+
+        .glass-panel ul {
             list-style: none;
-            padding: 0;
-            margin: 30px 0;
+            margin-bottom: 20px;
         }
-        
-        .elegant-list li {
-            padding: 15px 0;
-            padding-left: 50px;
-            position: relative;
+
+        .glass-panel li {
             font-size: 1.1em;
-            color: #555;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+            color: #d0d0d0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            line-height: 1.8;
+            padding-left: 25px;
+            position: relative;
         }
-        
-        .elegant-list li:last-child {
-            border-bottom: none;
-        }
-        
-        .elegant-list li::before {
-            content: "📏";
+
+        .glass-panel li::before {
+            content: '🔧';
             position: absolute;
             left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #1e3c72;
-            color: white;
-            width: 35px;
-            height: 35px;
+            font-size: 0.9em;
+            text-shadow: 
+                0 0 8px rgba(0,255,136,0.6),
+                0 1px 3px rgba(0,0,0,0.8);
+            filter: drop-shadow(0 0 4px rgba(0,255,136,0.4));
+        }
+
+        /* Spezielle Icons für verschiedene Bereiche */
+        .statik-list li::before {
+            content: '📐';
+        }
+
+        .material-list li::before {
+            content: '🪵';
+        }
+
+        .helper-list li::before {
+            content: '👥';
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255,255,255,0.6);
             border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        .scroll-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+
+        .scroll-dot.active {
+            background: rgba(255,255,255,0.8);
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(255,255,255,0.6);
+        }
+
+        /* Navigation Buttons */
+        .navigation-buttons {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+
+        .nav-button {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-        
-        /* Info-Boxen */
-        .info-card {
-            background: linear-gradient(135deg, #e7f1ff 0%, #cce7ff 100%);
-            border-left: 5px solid #1e3c72;
-            padding: 30px;
-            margin: 40px 0;
-            border-radius: 15px;
-            font-size: 1.1em;
-        }
-        
-        .warning-card {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            border-left: 5px solid #ffc107;
-            padding: 30px;
-            margin: 40px 0;
-            border-radius: 15px;
-            font-size: 1.1em;
-        }
-        
-        .success-card {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            border-left: 5px solid #28a745;
-            padding: 30px;
-            margin: 40px 0;
-            border-radius: 15px;
-            font-size: 1.1em;
-        }
-        
-        /* 3-4-5 Trick Sektion */
-        .trick-showcase {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            margin: 60px 0;
-            text-align: center;
-        }
-        
-        .trick-title {
-            font-size: 2.2em;
-            font-weight: 700;
-            color: #1e3c72;
-            margin-bottom: 30px;
-        }
-        
-        .trick-svg {
-            margin: 30px 0;
-        }
-        
-        .trick-steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
-        }
-        
-        .trick-step {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
-            border-left: 4px solid #1e3c72;
-        }
-        
-        .trick-step h4 {
-            color: #1e3c72;
-            margin-bottom: 10px;
-        }
-        
-        /* Finale CTA */
-        .final-cta {
-            background: rgba(30, 60, 114, 0.95);
-            backdrop-filter: blur(20px);
-            color: white;
-            padding: 80px 60px;
-            border-radius: 20px;
-            text-align: center;
-            margin: 60px 0;
-        }
-        
-        .final-cta h3 {
-            font-size: 2.5em;
-            font-weight: 700;
-            margin-bottom: 30px;
-        }
-        
-        .final-cta p {
-            font-size: 1.3em;
-            margin-bottom: 40px;
-            opacity: 0.95;
-        }
-        
-        .cta-btn {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 20px 40px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1em;
+            gap: 12px;
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
             border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            display: inline-block;
-            margin: 10px;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
         }
-        
-        .cta-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
         }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5em;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.2em;
-            }
-            
-            .nav-content {
-                padding: 0 20px;
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .content-container {
-                padding: 0 20px;
-            }
-            
-            .content-card, .trick-showcase {
-                padding: 40px 30px;
-                margin: 40px 0;
-            }
-            
-            .content-title, .trick-title {
-                font-size: 2em;
-            }
-            
-            .roof-gallery {
-                grid-template-columns: 1fr;
-            }
-            
-            .final-cta {
-                padding: 60px 40px;
-            }
-            
-            .elegant-list li::before {
-                width: 30px;
-                height: 30px;
-                font-size: 14px;
-            }
+
+        .nav-button:hover::before {
+            left: 100%;
         }
-        
-        /* Smooth Scrolling */
-        html {
-            scroll-behavior: smooth;
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.1);
         }
-        
-        /* Fade-in Animation */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease;
-        }
-        
-        .fade-in.visible {
-            opacity: 1;
+
+        .nav-button:active {
             transform: translateY(0);
         }
+
+        .nav-icon {
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-back:hover .nav-icon {
+            transform: translateX(-3px);
+        }
+
+        .nav-forward:hover .nav-icon {
+            transform: translateX(3px);
+        }
+
+        .nav-text {
+            font-size: 1em;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        }
+
+        /* Highlight Boxen für wichtige Infos */
+        .highlight-box {
+            background: rgba(0, 100, 200, 0.2);
+            border: 1px solid rgba(0, 150, 255, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .highlight-box h4 {
+            color: #7dd3fc;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .calculation-table {
+            background: rgba(50, 50, 50, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .calculation-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .calculation-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            color: #e0e0e0;
+        }
+
+        .calculation-table td:first-child {
+            font-weight: bold;
+            color: #7dd3fc;
+        }
+
+        @media (max-width: 768px) {
+            .glass-panel {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+            
+            .glass-panel h1 {
+                font-size: 2.2em;
+            }
+            
+            .glass-panel h2 {
+                font-size: 1.8em;
+            }
+            
+            .section {
+                padding: 40px 10px;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 15px;
+                padding: 30px 20px;
+            }
+
+            .nav-button {
+                width: 100%;
+                justify-content: center;
+                padding: 18px 25px;
+            }
+        }
     </style>
-    
-    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <div class="nav-header">
-        <div class="nav-content">
-            <a href="index.html" class="back-btn">← Zurück zur Übersicht</a>
-            <div class="nav-title">Blechdach richtig vermessen</div>
-        </div>
+    <div class="parallax-container">
+        <div class="background-image active"></div>
+        <div class="background-image"></div>
+        <div class="background-image"></div>
+        <div class="background-image"></div>
+        <div class="light-overlay"></div>
     </div>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1 class="hero-title">Präzision ist alles! 📏</h1>
-            <p class="hero-subtitle">Wie Profis messen – ohne Fachchinesisch und mit bewährten Tricks</p>
-            <a href="#sicherheit" class="hero-cta">Los messen! 🚀</a>
-        </div>
-    </section>
+    <div class="floating-elements"></div>
 
-    <!-- Section 1: Sicherheit -->
-    <section class="content-section bg-safety" id="sicherheit">
-        <div class="content-overlay"></div>
-        <div class="content-container">
-            <div class="content-card fade-in">
-                <h2 class="content-title">🛡️ Sicherheit geht vor!</h2>
-                <p class="content-text">
-                    <strong>Mal ehrlich:</strong> Niemand hat Lust, pitschnass vom Dach zu rutschen! 
-                    Jeder Profi weiß: Beim Dachmessen geht Sicherheit vor Geschwindigkeit.
-                </p>
+    <div class="scroll-indicator">
+        <div class="scroll-dot active" data-section="0"></div>
+        <div class="scroll-dot" data-section="1"></div>
+        <div class="scroll-dot" data-section="2"></div>
+        <div class="scroll-dot" data-section="3"></div>
+    </div>
+
+    <div class="content">
+        <!-- Einleitung -->
+        <section class="section intro-section">
+            <div class="glass-panel">
+                <h1>Dachplanung</h1>
+                <h2>Statik, Material und Organisation</h2>
+                <p>Ein Dachprojekt steht an – und du willst es selbst in die Hand nehmen? Großartig! Ob Sanierung, Neuaufbau oder einfach frischer Wind auf dem alten Schuppen: Ein Blechdach ist eine clevere Wahl. Leicht, langlebig und optisch aufgeräumt – aber ganz ohne Planung geht's nicht.</p>
                 
-                <div class="warning-card">
-                    <strong>⚠️ Niemals ohne Sicherung!</strong><br>
-                    Arbeiten Sie nur bei trockenem Wetter. Nasse oder vereiste Dächer sind lebensgefährlich!
+                <p>Keine Sorge: Wir führen dich durch die wichtigsten Themen – von Wetter und Sicherheit über Statik und Materialwahl bis hin zur perfekten Organisation mit Freunden, Nachbarn und dem Getränkehändler deines Vertrauens. Mit Humor, mit Erfahrung – und mit dem festen Glauben daran, dass du das hinkriegst.</p>
+                
+                <div class="highlight-box">
+                    <h4>Was dich erwartet:</h4>
+                    <ul class="statik-list">
+                        <li>Statische Grundlagen und Schneelastberechnungen</li>
+                        <li>Materialwahl für Unterkonstruktion und Blecheindeckung</li>
+                        <li>Zeitplanung und Organisation deiner Helfer</li>
+                    </ul>
                 </div>
+            </div>
+        </section>
+
+        <!-- Teil 1: Statik und Sanierung -->
+        <section class="section">
+            <div class="glass-panel">
+                <h2>🛠️ Statik, Sanierung und Planung</h2>
+                <h3>Dein Blechdach nimmt Form an</h3>
                 
-                <ul class="elegant-list">
-                    <li><strong>Dachhaken mit Sicherheitsleine:</strong> Fest in die Dachkonstruktion</li>
-                    <li><strong>Sicherheitsgurt/Klettergurt:</strong> EN 361 zertifiziert</li>
-                    <li><strong>Falldämpfer:</strong> Reduziert Sturzkraft auf unter 6 kN</li>
-                    <li><strong>Rutschfeste Arbeitsschuhe:</strong> Mit Profilsohle</li>
+                <p>Du willst dein Dach sanieren – vielleicht das alte Garagendach, den Schuppen oder das Carport? Und du denkst: „Ein Blechdach wär doch was!" Gute Idee. Blechdächer sind leicht, langlebig und sehen aus, als hätte man sich wirklich Gedanken gemacht.</p>
+
+                <p>Keine Sorge: Du brauchst kein Ingenieursstudium, um das hinzubekommen. Nur ein bisschen Planung, ein paar Grundregeln – und am besten ein paar helfende Hände. Denn gemeinsam geht's nicht nur schneller, sondern auch sicherer und mit deutlich weniger Frust.</p>
+
+                <h3>🏚️ Sanierung statt Neubau</h3>
+                <p>Die meisten unserer Kunden sanieren ein bestehendes Dach. Kein Bauantrag, kein Architekt – einfach ran an die Substanz. Und das ist oft einfacher, als man denkt. Du musst nur wissen, was dein Dach tragen kann. Zwei Augen sehen mehr, vier Hände arbeiten schneller – und sechs Schultern tragen auch mal eine Dachplatte mehr.</p>
+
+                <h3>📐 Statik – heute stabil, morgen solarbereit</h3>
+                <p>Ein Blechdach ist angenehm leicht – meist zwischen 5 und 8 kg/m². Dazu kommt die Unterkonstruktion, Trennlage, ggf. Dämmung – sagen wir insgesamt rund 25 kg/m². Dann kommt die Schneelast. Die ist regional unterschiedlich, aber du kannst sie ganz einfach online nachschauen – z. B. über die Schneelastkarte Deutschland.</p>
+
+                <div class="calculation-table">
+                    <h4>🔍 Beispielrechnung:</h4>
+                    <table>
+                        <tr><td>Schneelastzone 2:</td><td>ca. 85 kg/m²</td></tr>
+                        <tr><td>Eigengewicht Dach + Unterbau:</td><td>ca. 25 kg/m²</td></tr>
+                        <tr><td><strong>Gesamtlast:</strong></td><td><strong>ca. 110 kg/m²</strong></td></tr>
+                    </table>
+                </div>
+
+                <h3>📊 Zukunftsplanung: Solar auf dem Dach</h3>
+                <p>Wenn du später eine Photovoltaik- oder Solarthermieanlage aufs Dach setzen willst, solltest du gleich mitdenken:</p>
+
+                <div class="calculation-table">
+                    <table>
+                        <tr><td>Photovoltaik:</td><td>ca. 12–14 kg/m²</td></tr>
+                        <tr><td>Solarthermie:</td><td>ca. 20–30 kg/m²</td></tr>
+                        <tr><td><strong>Gesamtlast mit PV:</strong></td><td><strong>125–140 kg/m²</strong></td></tr>
+                    </table>
+                </div>
+
+                <p>Je nach Wahl bist du dann bei 125–140 kg/m² – für viele ältere Dächer kein Problem, besonders wenn sie mal Ziegel getragen haben. Aber lieber einmal mit dem Fachmann rechnen.</p>
+
+                <h3>🔩 Lattenabstände – kein Ratespiel</h3>
+                <p>Wie weit die Latten auseinanderliegen dürfen, hängt vom Blechprofil ab. Dein Plattendealer verrät dir, wie groß der Abstand zwischen den Traglatten sein darf, ohne dass sich das Blech durchbiegt. Wenn du die Lattung enger setzt als nötig, bekommst du obendrein ein Dach, das bei Regen leiser ist – ein echter Komfortgewinn bei Carports oder Gartenhäusern direkt am Wohnhaus.</p>
+
+                <h3>➕ Konterlattung – einfach & flexibel</h3>
+                <p>Die Konterlatten müssen nur die Sparren abdecken. Hier darf gestückelt werden – solange die Auflagefläche durchgängig ist. Du brauchst also keine durchgehenden Balken, sondern kannst auch mit kürzeren Elementen arbeiten.</p>
+
+                <h3>🧑‍🔧 Zugänge – vorausschauend planen</h3>
+                <p>Auch Schornsteinfeger oder Wartungspersonal müssen mal aufs Dach. Mit Dachsteg oder Leiter bist du nicht nur vorbereitet – in vielen Fällen bist du auch rechtlich auf der sicheren Seite.</p>
+            </div>
+        </section>
+
+        <!-- Teil 2: Materialwahl -->
+        <section class="section">
+            <div class="glass-panel">
+                <h2>🧰 Materialwahl für dein Blechdach</h2>
+                <h3>Blechfreundlich, bewährt, belastbar</h3>
+                
+                <p>Jetzt geht's ans Eingemachte: Wenn du weißt, was dein Dach tragen kann und wie du es einteilen willst, kommt die Frage nach dem „Womit?" Denn nicht nur das Blech selbst muss passen – sondern auch das, was darunter liegt.</p>
+
+                <h3>🪵 Holz – bewährt, tragfähig, langlebig</h3>
+                <p>Für die Unterkonstruktion braucht es kein exotisches Material, sondern solides Holz:</p>
+                
+                <ul class="material-list">
+                    <li><strong>Konstruktionsvollholz (KVH):</strong> Natürlich, formstabil und tragfähig</li>
+                    <li><strong>Brettschichtholz (BSH):</strong> Besonders geeignet bei höheren Spannweiten oder wenn du auf extra Maßhaltigkeit setzt</li>
                 </ul>
-                
-                <div class="info-card">
-                    <strong>💡 Alternative ohne Dachhaken:</strong> Sicherheitsleine über den First werfen 
-                    und auf der anderen Seite befestigen. Achten Sie darauf, dass die Leine nicht scheuert!
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Section 2: Werkzeuge -->
-    <section class="content-section bg-tools">
-        <div class="content-overlay"></div>
-        <div class="content-container">
-            <div class="content-card fade-in">
-                <h2 class="content-title">🔧 Die richtigen Werkzeuge</h2>
-                <p class="content-text">
-                    Kein Quatsch, sondern nur das was Sie wirklich brauchen:
-                </p>
+                <p>Beide Holzarten sind bestens geeignet, um dein Dach zuverlässig zu tragen – auch auf lange Sicht.</p>
+
+                <h3>🧼 Trennlage – schützt Holz und Metall</h3>
+                <p>Zwischen Holz und Metall muss eine Trennlage – zum Beispiel eine diffusionsoffene Unterspannbahn. Sie verhindert Feuchtigkeitsstau und schützt das Dach vor unerwünschten chemischen Reaktionen. So bleibt dein Aufbau nicht nur intakt, sondern auch langlebig.</p>
+
+                <div class="highlight-box">
+                    <h4>Warum eine Trennlage wichtig ist:</h4>
+                    <ul class="material-list">
+                        <li>Verhindert Korrosion durch direkten Holz-Metall-Kontakt</li>
+                        <li>Schützt vor Feuchtigkeitsstau und Schimmelbildung</li>
+                        <li>Erhöht die Lebensdauer von Holz und Blech</li>
+                    </ul>
+                </div>
+
+                <h3>🔩 Verbindungstechnik – was hält, muss auch passen</h3>
+                <p>Je nach Profil und Aufbau brauchst du:</p>
                 
-                <ul class="elegant-list">
-                    <li><strong>Rollbandmaß 8-10m:</strong> Stabiles Stahlband mit Magnetspitze</li>
-                    <li><strong>Teleskop-Maßstab:</strong> Für präzise Dachmessungen</li>
-                    <li><strong>Wasserwaage 1m:</strong> Mit Magnetfüßen für Metalldächer</li>
-                    <li><strong>Winkelmesser:</strong> Für Dachneigungen und Schrägen</li>
-                    <li><strong>Kreide/Marker:</strong> Zum Markieren der Messpunkte</li>
-                    <li><strong>Klemmbrett:</strong> Für Notizen der Maße</li>
+                <ul class="material-list">
+                    <li>Passende Schrauben mit Dichtungselementen</li>
+                    <li>Profilbleche, ggf. mit Anti-Kondensbeschichtung</li>
+                    <li>Randprofile, Ortgangabschlüsse und Firstelemente</li>
                 </ul>
+
+                <p>Achte darauf, dass alles zueinander passt – sonst kann die schöne Idee schnell undicht werden.</p>
+
+                <h3>🔁 Fazit: Gut gewählt ist halb gewonnen</h3>
+                <p>Ein gutes Dach lebt vom Zusammenspiel: Statik, Konstruktion, Material. Du musst kein Profi sein – aber wissen, wo du gute Materialien bekommst und was zusammen harmoniert. Mit etwas Recherche, Beratung und einem klaren Plan steht dein Projekt auf stabilen Füßen. Und wer weiß: Vielleicht liefert dir das neue Blechdach bald auch Sonnenstrom.</p>
+            </div>
+        </section>
+
+        <!-- Teil 3: Zeitpunkt & Helfer -->
+        <section class="section">
+            <div class="glass-panel">
+                <h2>⏰ Zeitpunkt & Helfer</h2>
+                <h3>Oder: Wie man ein Dach deckt, ohne den Verstand zu verlieren</h3>
                 
-                <div class="success-card">
-                    <strong>💡 Der 3-4-5 Meter Trick:</strong> Mit einem 5m-Rollbandmaß können Sie perfekte 
-                    rechte Winkel prüfen! Dieser uralte Zimmerer-Trick funktioniert immer!
+                <p>Ein gutes Dachprojekt beginnt nicht mit dem ersten Hammerschlag, sondern mit dem richtigen Zeitpunkt. Und mit Menschen, die mit anpacken. Denn auch wenn du das Gefühl hast, du könntest das alles allein stemmen – spätestens beim zweiten Sparren merkst du: Vier Hände sind besser als zwei. Und sechs sind noch besser, solange nicht alle gleichzeitig diskutieren.</p>
+
+                <h3>🌤️ Der perfekte Zeitpunkt – Planung ist halbes Dach</h3>
+                <p>Bevor ihr loslegt, sollte eins klar sein: Das Material muss vollständig da sein. Nicht „fast alles", nicht „kommt morgen noch was" – sondern wirklich alles. Denn nichts bremst ein Bauprojekt so zuverlässig wie fehlende Schrauben oder die Erkenntnis, dass die Bleche noch beim Händler auf Abholung warten.</p>
+
+                <p>Und dann ist da noch das Wetter. Ein Blechdach deckt man nicht bei Sturm, Regen oder wenn die Sonne das Werkzeug weichkocht. Ideal sind trockene, milde Tage – und davon gibt's in Mitteleuropa überraschend wenige, wenn man gerade bauen will.</p>
+
+                <div class="highlight-box">
+                    <h4>Die drei Etappen deines Dachprojekts:</h4>
+                    <ul class="helper-list">
+                        <li><strong>Aufmaß & Planung:</strong> Messen, rechnen, Material bestellen. Klingt trocken, ist aber die Grundlage für alles.</li>
+                        <li><strong>Altdach entfernen & Unterkonstruktion:</strong> Inklusive Unterspannbahn. Damit ist das Dach erstmal wettergeschützt.</li>
+                        <li><strong>Blecheindeckung:</strong> Der finale Akt. Hier zeigt sich, ob ihr vorher gut geplant habt.</li>
+                    </ul>
                 </div>
 
-                <!-- Dachformen Übersicht -->
-                <h3 style="color: #1e3c72; margin-top: 50px; margin-bottom: 30px; text-align: center; font-size: 1.8em;">
-                    📐 Wichtigste Dachformen
-                </h3>
-                
-                <div class="roof-gallery">
-                    <div class="roof-card">
-                        <img src="images/Pultdach.PNG" alt="Pultdach">
-                        <div class="roof-card-content">
-                            <div class="roof-card-title">Pultdach</div>
-                            <div class="roof-measurements">
-                                <h4>🔧 Benötigte Maße:</h4>
-                                <p>• Dachbreite (inkl. Überstand)<br>
-                                • Dachneigung (Winkel/Höhe)<br>
-                                • Schräge Dachflächen-Länge<br>
-                                • Trauflänge</p>
-                            </div>
-                            <div class="measurement-tip">
-                                <strong>📐 Wichtig:</strong> Die schräge Dachfläche messen - das brauchen wir für die Berechnung!
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="roof-card">
-                        <img src="images/Satteldach.PNG" alt="Satteldach">
-                        <div class="roof-card-content">
-                            <div class="roof-card-title">Satteldach</div>
-                            <div class="roof-measurements">
-                                <h4>🔧 Benötigte Maße:</h4>
-                                <p>• Dachbreite (inkl. Überstand)<br>
-                                • Firsthöhe<br>
-                                • Schräge Länge (Traufe bis First)<br>
-                                • Trauflänge</p>
-                            </div>
-                            <div class="measurement-tip">
-                                <strong>💡 Tipp:</strong> Beide Dachseiten separat messen - die können unterschiedlich sein!
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="roof-card">
-                        <img src="images/Walmdach.PNG" alt="Walmdach">
-                        <div class="roof-card-content">
-                            <div class="roof-card-title">Walmdach</div>
-                            <div class="roof-measurements">
-                                <h4>🔧 Benötigte Maße:</h4>
-                                <p>• Dach-Länge & -Breite<br>
-                                • Firstlänge<br>
-                                • Gratlinien (schräge Kanten)<br>
-                                • Walm-Dreiecke & Hauptflächen</p>
-                            </div>
-                            <div class="measurement-tip">
-                                <strong>⚠️ Komplex:</strong> Jede Teilfläche separat vermessen!
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+                <p>Zwischen Etappe zwei und drei können locker ein bis zwei Monate liegen – je nach Wetter, Zeit und Lust. Und das ist okay. Hauptsache, die Unterkonstruktion ist dicht und stabil.</p>
 
-    <!-- Section 3: Der 3-4-5 Trick -->
-    <section class="content-section">
-        <div class="content-container">
-            <div class="trick-showcase fade-in">
-                <h2 class="trick-title">📐 Der magische 3-4-5 Meter Trick</h2>
-                <p class="content-text">
-                    <strong>Wie prüfen Sie, ob Ihr Dach wirklich rechtwinklig ist?</strong><br>
-                    Mit diesem uralten Zimmerer-Trick funktioniert es immer!
-                </p>
-                
-                <div style="display: flex; align-items: center; gap: 30px; margin: 20px 0; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 300px;">
-                        <svg width="300" height="200" viewBox="0 0 300 200" style="display: block; margin: 0 auto;">
-                            <!-- Rechteck (Gebäude von oben) -->
-                            <rect x="75" y="60" width="150" height="80" fill="#f0f0f0" stroke="#333" stroke-width="2"/>
-                            
-                            <!-- 3m Seite -->
-                            <line x1="75" y1="60" x2="75" y2="110" stroke="#dc3545" stroke-width="4"/>
-                            <text x="68" y="105" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 68 105)">3,00m</text>
-                            
-                            <!-- 4m Seite -->
-                            <line x1="75" y1="60" x2="125" y2="60" stroke="#28a745" stroke-width="4"/>
-                            <text x="100" y="50" text-anchor="middle" font-size="14" fill="#28a745" font-weight="bold">4,00m</text>
-                            
-                            <!-- 5m Diagonale - KORRIGIERT: Von Ende 3m-Linie zu Ende 4m-Linie -->
-                            <line x1="75" y1="110" x2="125" y2="60" stroke="#ff6b35" stroke-width="4" stroke-dasharray="8,4"/>
-                            <text x="95" y="115" font-size="14" fill="#ff6b35" font-weight="bold" transform="rotate(-51 95 115)">5,00m</text>
-                            
-                            <!-- Rechter Winkel Symbol -->
-                            <path d="M 75 60 L 85 60 L 85 70 L 75 70" fill="none" stroke="#1976d2" stroke-width="2"/>
-                            <text x="90" y="75" font-size="12" fill="#1976d2" font-weight="bold">90°</text>
-                            
-                            <!-- Maßlinien -->
-                            <line x1="70" y1="60" x2="70" y2="110" stroke="#333" stroke-width="1"/>
-                            <line x1="67" y1="60" x2="73" y2="60" stroke="#333" stroke-width="1"/>
-                            <line x1="67" y1="110" x2="73" y2="110" stroke="#333" stroke-width="1"/>
-                            
-                            <line x1="75" y1="55" x2="125" y2="55" stroke="#333" stroke-width="1"/>
-                            <line x1="75" y1="52" x2="75" y2="58" stroke="#333" stroke-width="1"/>
-                            <line x1="125" y1="52" x2="125" y2="58" stroke="#333" stroke-width="1"/>
-                        </svg>
-                    </div>
-                    
-                    <div style="flex: 1; min-width: 250px;">
-                        <h4 style="color: #1e3c72; margin-bottom: 15px;">🎯 So geht's:</h4>
-                        <ol style="line-height: 1.8;">
-                            <li>Von einer Ecke <strong style="color: #dc3545;">3,00m</strong> in eine Richtung messen</li>
-                            <li>Von derselben Ecke <strong style="color: #28a745;">4,00m</strong> im rechten Winkel dazu</li>
-                            <li>Die <strong style="color: #ff6b35;">Diagonale</strong> zwischen den Endpunkten messen</li>
-                            <li><strong>Ergebnis:</strong> Ist die Diagonale exakt <strong style="color: #ff6b35;">5,00m</strong>, dann ist der Winkel perfekt 90°</li>
-                        </ol>
-                        
-                        <div style="background: #e7f1ff; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                            <strong style="color: #1e3c72;">💡 Varianten:</strong><br>
-                            • Bei kleinen Flächen: 1,5m - 2,0m - 2,5m<br>
-                            • Bei großen Flächen: 6,0m - 8,0m - 10,0m<br>
-                            • Hauptsache das Verhältnis 3:4:5 stimmt!
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+                <h3>👥 Helfer – die seltenste Ressource auf dem Bau</h3>
+                <p>Jetzt zum wichtigsten Punkt: Wer hilft dir eigentlich? Handwerker sind teuer. Und rar. So rar, dass man sie inzwischen in die Liste der sagenumwobenen Wesen aufnehmen könnte – irgendwo zwischen Yeti und Beamter mit Schweißperlen. Wenn du einen findest, der Zeit hat, dann gratuliere dir selbst. Du hast etwas geschafft, was andere für unmöglich halten.</p>
 
-    <!-- Section 4: Profi-Tipps -->
-    <section class="content-section bg-tips">
-        <div class="content-overlay"></div>
-        <div class="content-container">
-            <div class="content-card fade-in">
-                <h2 class="content-title">🎯 Die Profi-Geheimnisse</h2>
-                <p class="content-text">
-                    Was die Profis niemals vergessen – und Sie ab sofort auch nicht mehr:
-                </p>
-                
-                <ul class="elegant-list">
-                    <li><strong>Immer schräg messen!</strong> Dachflächen niemals horizontal messen</li>
-                    <li><strong>Maßband straff halten:</strong> Durchhängen verfälscht das Ergebnis</li>
-                    <li><strong>Kontrollmessung:</strong> Jedes wichtige Maß zweimal messen</li>
-                    <li><strong>Alle Dachkanten vermessen:</strong> Nicht die Gebäudegrundfläche!</li>
-                    <li><strong>Sofort notieren:</strong> Mit Skizze und wasserfestem Stift</li>
-                    <li><strong>Materialausdehnung beachten:</strong> Metall dehnt sich bei Wärme aus</li>
-                </ul>
-                
-                <div class="warning-card">
-                    <strong>Die häufigsten Messfehler:</strong><br>
-                    ❌ Horizontal statt schräg messen<br>
-                    ❌ Maßband durchhängen lassen<br>
-                    ❌ Überstände vergessen<br>
-                    ❌ Nur eine Seite messen
-                </div>
-                
-                <div class="success-card">
-                    <strong>💡 Goldene Regel:</strong> Lieber dreimal messen als einmal falsch bestellen! 
-                    Zeit beim Messen gespart ist Geld beim Material verloren.
-                </div>
-            </div>
-        </div>
-    </section>
+                <p>Aber keine Sorge: Es gibt eine bewährte Alternative zur bezahlten Fachkraft. Sie nennt sich Freundschaftsdienst. Früher nannte man das Fronarbeit, heute klingt's freundlicher – und ist genauso effektiv, wenn man's richtig macht.</p>
 
-    <!-- Section 5: Zusammenfassung -->
-    <section class="content-section">
-        <div class="content-container">
-            <div class="content-card fade-in">
-                <h2 class="content-title">✅ Perfekt vermessen in 5 Schritten</h2>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; margin: 40px 0;">
-                    <div style="text-align: center;">
-                        <div style="width: 60px; height: 60px; background: #1e3c72; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; font-weight: bold;">1</div>
-                        <h4 style="color: #1e3c72; margin-bottom: 10px;">Dachform erkennen</h4>
-                        <p style="color: #555; font-size: 0.9em;">Satteldach, Walmdach oder andere Form bestimmen</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="width: 60px; height: 60px; background: #1e3c72; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; font-weight: bold;">2</div>
-                        <h4 style="color: #1e3c72; margin-bottom: 10px;">Sicherheit prüfen</h4>
-                        <p style="color: #555; font-size: 0.9em;">Nur bei trockenem Wetter mit Sicherheitsausrüstung</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="width: 60px; height: 60px; background: #1e3c72; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; font-weight: bold;">3</div>
-                        <h4 style="color: #1e3c72; margin-bottom: 10px;">Schräg messen</h4>
-                        <p style="color: #555; font-size: 0.9em;">Maßband folgt der Dachneigung, nie horizontal</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="width: 60px; height: 60px; background: #1e3c72; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; font-weight: bold;">4</div>
-                        <h4 style="color: #1e3c72; margin-bottom: 10px;">Rechte Winkel prüfen</h4>
-                        <p style="color: #555; font-size: 0.9em;">3-4-5 Meter Trick für Kontrolle nutzen</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="width: 60px; height: 60px; background: #1e3c72; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px; font-weight: bold;">5</div>
-                        <h4 style="color: #1e3c72; margin-bottom: 10px;">Material berechnen</h4>
-                        <p style="color: #555; font-size: 0.9em;">Mit den Maßen zum Trapezplattenrechner</p>
-                    </div>
+                <div class="highlight-box">
+                    <h4>Die Mathematik der Freundschaft:</h4>
+                    <p>Im Schnitt hat jeder Mensch rund 150 Freunde. Außer man braucht Hilfe. Dann sind's plötzlich nur noch zwei – und einer davon ist oft nicht die hellste Kerze auf der Torte. Aber hey: Er ist da. Und das zählt.</p>
                 </div>
-                
-                <div class="info-card">
-                    <strong>🎯 Das Wichtigste in Kürze:</strong><br>
-                    Mit der richtigen Sicherheitsausrüstung, professionellen Messwerkzeugen und bewährten Techniken 
-                    wird die Dachvermessung zur Routine. Der 3-4-5m-Trick für rechte Winkel und systematisches 
-                    Vorgehen sind der Schlüssel zum Erfolg.
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Finale CTA -->
-    <section class="content-section">
-        <div class="content-container">
-            <div class="final-cta fade-in">
-                <h3>Jetzt Material berechnen! 🎯</h3>
-                <p>Mit den gemessenen Werten können Sie jetzt den genauen Materialbedarf ermitteln:</p>
-                <a href="index.html" class="cta-btn">🔧 Zu den Trapezplattenrechnern</a>
+                <p>Also: Führt die Berechnungen lieber selbst durch, aber nehmt jede helfende Hand dankbar an. Denn auch wenn nicht jeder Helfer ein Statiker ist – gemeinsam kommt ihr weiter als allein.</p>
+
+                <h3>🍺 Die Helfer-Motivation – bewährte Rezepte</h3>
+                <p>Und wer Nachbarn hat, kann sie mit einem altbewährten Lockstoff ködern: Eine Mischung aus Hopfen, Malz, Gerste und Wasser hat schon viele Bauprojekte gerettet. Das Mischungsverhältnis variiert regional – euer Getränkehändler kennt die gängigen Rezepte und hat sie sogar kästenweise fertig angerührt.</p>
+
+                <div class="highlight-box">
+                    <h4>⚠️ Wichtiger Dosierungshinweis:</h4>
+                    <ul class="helper-list">
+                        <li><strong>Zu wenig:</strong> Die Helfer laufen einfach weg</li>
+                        <li><strong>Zu viel:</strong> Sie bleiben zwar, aber nicht mehr aufrecht</li>
+                        <li><strong>Optimal:</strong> Großteil für den Etappenabschluss aufheben</li>
+                    </ul>
+                    <p>Denn unterm Tisch ist die Fallhöhe deutlich geringer als auf dem Dach.</p>
+                </div>
+
+                <h3>🎯 Fazit: Organisation ist alles</h3>
+                <p>Ein Dachprojekt ist Teamwork – auch wenn du der Kapitän bist. Mit der richtigen Planung, motivierten Helfern und einer gesunden Portion Realismus wird aus dem Traum vom neuen Dach eine erfolgreiche Baustelle. Und am Ende steht ihr alle zusammen da, schaut auf euer Werk und denkt: „Das haben wir gut gemacht!"</p>
+
+                <p>Dann ist es Zeit für die wohlverdiente Belohnung – aber erst, wenn alle sicher wieder unten sind.</p>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+        <a href="index.html" class="nav-button nav-back">
+            <span class="nav-icon">←</span>
+            <span class="nav-text">Zurück zur Übersicht</span>
+        </a>
+        <a href="messen.html" class="nav-button nav-forward">
+            <span class="nav-text">Zur Dachvermessung</span>
+            <span class="nav-icon">→</span>
+        </a>
+    </div>
 
     <script>
-        // AdSense Loading
-        function showAds() {
-            if (localStorage.getItem('marketingCookies') === 'true') {
-                if (window.adsbygoogle) {
-                    try {
-                        const ads = document.querySelectorAll('.adsbygoogle');
-                        ads.forEach(ad => {
-                            if (!ad.getAttribute('data-ad-status')) {
-                                (window.adsbygoogle = window.adsbygoogle || []).push({});
-                            }
-                        });
-                    } catch (e) {
-                        console.log('AdSense loading error:', e);
-                    }
-                }
+        // Floating particles
+        function createFloatingElements() {
+            const container = document.querySelector('.floating-elements');
+            const elementCount = 50;
+            
+            for (let i = 0; i < elementCount; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 6 + 's';
+                element.style.animationDuration = (6 + Math.random() * 4) + 's';
+                container.appendChild(element);
             }
         }
 
-        // Fade-in Animation beim Scrollen
-        function handleScrollAnimation() {
-            const elements = document.querySelectorAll('.fade-in');
+        // Mouse move effect
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
             
-            elements.forEach(element => {
-                const elementTop = element.getBoundingClientRect().top;
-                const windowHeight = window.innerHeight;
-                
-                if (elementTop < windowHeight * 0.8) {
-                    element.classList.add('visible');
+            document.documentElement.style.setProperty('--mouse-x', x + '%');
+            document.documentElement.style.setProperty('--mouse-y', y + '%');
+        });
+
+        // Intersection Observer for glass panels
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.glass-panel').forEach(panel => {
+            observer.observe(panel);
+        });
+
+        // Background image switching
+        let currentBackground = 0;
+        const backgrounds = document.querySelectorAll('.background-image');
+        const sections = document.querySelectorAll('.section');
+        
+        function switchBackground(index) {
+            backgrounds.forEach((bg, i) => {
+                if (i === index) {
+                    bg.style.opacity = '1';
+                    bg.style.zIndex = '2';
+                } else {
+                    bg.style.opacity = '0';
+                    bg.style.zIndex = '1';
                 }
             });
         }
 
-        // Navigation background change
-        function handleNavigation() {
-            const nav = document.querySelector('.nav-header');
-            if (window.scrollY > 100) {
-                nav.style.background = 'rgba(30, 60, 114, 0.98)';
-            } else {
-                nav.style.background = 'rgba(30, 60, 114, 0.95)';
+        // Scroll indicator and background switching
+        const scrollDots = document.querySelectorAll('.scroll-dot');
+        
+        function updateScrollIndicator() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Berechne welche Sektion gerade sichtbar ist
+            let activeSection = 0;
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop - windowHeight * 0.8) {
+                    activeSection = index;
+                }
+            });
+            
+            // Begrenze auf verfügbare Sektionen
+            activeSection = Math.max(0, Math.min(activeSection, sections.length - 1));
+            
+            // Update scroll indicator dots
+            scrollDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === activeSection);
+            });
+            
+            // Switch background when section changes
+            if (activeSection !== currentBackground) {
+                currentBackground = activeSection;
+                switchBackground(currentBackground);
             }
         }
+
+        // Scroll to section
+        scrollDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                window.scrollTo({
+                    top: index * window.innerHeight,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Parallax effect
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.parallax-container');
+            
+            const speed = scrolled * -0.008;
+            parallax.style.transform = `translateY(${speed}px)`;
+        }
+
+        // Holz-Lichteffekt basierend auf Scroll
+        function updateWoodLight() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Wenn wir in Section 3 sind (Materialwahl - Holz)
+            const section3Top = sections[2].offsetTop;
+            const section3Bottom = section3Top + sections[2].offsetHeight;
+            
+            if (scrollPosition >= section3Top - windowHeight && scrollPosition <= section3Bottom) {
+                // Berechne den lokalen Fortschritt innerhalb von Section 3
+                const sectionProgress = Math.max(0, Math.min(1, 
+                    (scrollPosition - (section3Top - windowHeight)) / (sections[2].offsetHeight + windowHeight)
+                ));
+                
+                // Bewege das Licht von -100% bis 120% (oben nach unten)
+                const lightPosition = -100 + (sectionProgress * 220); // Von -100% bis 120%
+                
+                // Update CSS custom property für die Holz-Licht-Position
+                document.documentElement.style.setProperty('--wood-light-position', lightPosition + '%');
+                
+                // Zusätzlich leichte Hintergrund-Bewegung für mehr Dynamik
+                const bgPosition = 50 + (sectionProgress * 10 - 5); // Von 45% bis 55%
+                document.documentElement.style.setProperty('--wood-bg-position', `center ${bgPosition}%`);
+            }
+        }
+
+        // Event listeners
+        window.addEventListener('scroll', () => {
+            updateScrollIndicator();
+            updateParallax();
+            updateWoodLight();
+        });
+
+        window.addEventListener('resize', updateScrollIndicator);
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            const cookieConsent = localStorage.getItem('cookieConsent');
-            if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
-                loadAdSense();
-                showAds();
-            }
-            
-            // Scroll animations
-            window.addEventListener('scroll', () => {
-                handleScrollAnimation();
-                handleNavigation();
-            });
-            
-            // Initial animation check
-            handleScrollAnimation();
-            
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'page_view', {
-                    'event_category': 'messen_guide',
-                    'event_label': 'guide_loaded'
-                });
-            }
-        });
+        createFloatingElements();
+        updateScrollIndicator();
     </script>
 </body>
 </html>
