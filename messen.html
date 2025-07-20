@@ -315,6 +315,87 @@
             box-shadow: 0 0 15px rgba(255,255,255,0.6);
         }
 
+        /* Navigation Buttons */
+        .navigation-buttons {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .nav-button:hover::before {
+            left: 100%;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-button:active {
+            transform: translateY(0);
+        }
+
+        .nav-icon {
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-back:hover .nav-icon {
+            transform: translateX(-3px);
+        }
+
+        .nav-forward:hover .nav-icon {
+            transform: translateX(3px);
+        }
+
+        .nav-text {
+            font-size: 1em;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        }
+
         @media (max-width: 768px) {
             .glass-panel {
                 padding: 40px 30px;
@@ -331,6 +412,18 @@
             
             .section {
                 padding: 40px 10px;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 15px;
+                padding: 30px 20px;
+            }
+
+            .nav-button {
+                width: 100%;
+                justify-content: center;
+                padding: 18px 25px;
             }
         }
     </style>
@@ -507,6 +600,18 @@
                 <p>Ob für die exakte Berechnung der Dachfläche oder zur Planung der Materialmenge – die Wahl der richtigen Messgeräte macht den Unterschied. Mit einfachen Hilfsmitteln und verlässlicher Technik gelingt die Dachvermessung effizient und sicher. Für jeden Typ Dachfläche empfehlen sich unterschiedliche Werkzeuge – eine Übersicht dazu findest du in den jeweiligen Dachform-Skizzen auf dieser Seite.</p>
             </div>
         </section>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+        <a href="plan.html" class="nav-button nav-back">
+            <span class="nav-icon">←</span>
+            <span class="nav-text">Zurück</span>
+        </a>
+        <a href="uk.html" class="nav-button nav-forward">
+            <span class="nav-text">Weiter</span>
+            <span class="nav-icon">→</span>
+        </a>
     </div>
 
     <script>
