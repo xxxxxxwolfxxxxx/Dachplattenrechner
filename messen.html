@@ -30,15 +30,15 @@
 
         .background-image {
             position: absolute;
-            width: 110%;
-            height: 110%;
+            width: 105%;
+            height: 105%;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             transition: opacity 1s ease;
             opacity: 0;
             top: 2%;
-            left: -5%;
+            left: -2.5%;
         }
 
         .background-image.active {
@@ -53,7 +53,38 @@
 
         .background-image:nth-child(2) {
             background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('/images/messen-2.jpg');
-            animation: lightningFlash 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .background-image:nth-child(2)::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse 8% 60% at 15% 20%, rgba(255,255,255,0.4) 0%, transparent 70%),
+                radial-gradient(ellipse 6% 80% at 35% 10%, rgba(255,255,255,0.3) 0%, transparent 70%),
+                radial-gradient(ellipse 10% 70% at 60% 25%, rgba(255,255,255,0.5) 0%, transparent 70%),
+                radial-gradient(ellipse 7% 90% at 80% 15%, rgba(255,255,255,0.3) 0%, transparent 70%);
+            opacity: 0;
+            animation: lightningStrike 6s ease-in-out infinite;
+        }
+
+        .background-image:nth-child(2)::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse 9% 75% at 25% 30%, rgba(255,255,255,0.3) 0%, transparent 70%),
+                radial-gradient(ellipse 8% 85% at 45% 20%, rgba(255,255,255,0.4) 0%, transparent 70%),
+                radial-gradient(ellipse 11% 65% at 75% 35%, rgba(255,255,255,0.5) 0%, transparent 70%);
+            opacity: 0;
+            animation: lightningStrike2 6s ease-in-out infinite;
         }
 
         .background-image:nth-child(3) {
@@ -588,7 +619,7 @@
         function updateParallax() {
             const scrolled = window.pageYOffset;
             const parallax = document.querySelector('.parallax-container');
-            const speed = scrolled * 0.01; // Sehr minimale Bewegung nach unten
+            const speed = scrolled * -0.01; // Zurück zur ursprünglichen Richtung, aber langsamer
             
             parallax.style.transform = `translateY(${speed}px)`;
         }
