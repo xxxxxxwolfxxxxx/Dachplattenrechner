@@ -48,8 +48,52 @@
         /* Bild 1: Minecraft-Holzkonstruktion (Eiche) */
         .background-image:nth-child(1) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/uk-1.jpg');
-            animation: minecraftGlow 4s ease-in-out infinite;
             background-position: center 40%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Aerogel-Schleier für Sektion 1 */
+        .background-image:nth-child(1)::before {
+            content: '';
+            position: absolute;
+            top: var(--aerogel-top, 80%);
+            left: var(--aerogel-left, -30%);
+            width: 60%;
+            height: 40%;
+            background: linear-gradient(135deg, 
+                rgba(173, 216, 230, 0.3) 0%, 
+                rgba(135, 206, 235, 0.4) 20%, 
+                rgba(176, 224, 230, 0.2) 40%, 
+                rgba(173, 216, 230, 0.3) 60%, 
+                rgba(135, 206, 235, 0.1) 80%, 
+                transparent 100%);
+            border-radius: 20% 80% 60% 40%;
+            opacity: 0.8;
+            transition: top 0.1s linear, left 0.1s linear;
+            filter: blur(8px);
+            transform: rotate(-15deg);
+        }
+
+        /* Zusätzlicher Aerogel-Schleier */
+        .background-image:nth-child(1)::after {
+            content: '';
+            position: absolute;
+            top: var(--aerogel-top-2, 60%);
+            left: var(--aerogel-left-2, -40%);
+            width: 80%;
+            height: 50%;
+            background: linear-gradient(120deg, 
+                transparent 0%, 
+                rgba(176, 224, 230, 0.2) 30%, 
+                rgba(173, 216, 230, 0.3) 50%, 
+                rgba(135, 206, 235, 0.2) 70%, 
+                transparent 100%);
+            border-radius: 60% 40% 80% 20%;
+            opacity: 0.6;
+            transition: top 0.1s linear, left 0.1s linear;
+            filter: blur(12px);
+            transform: rotate(10deg);
         }
 
         /* Bild 2: Gekrümmte Bäume (Kiefer) */
@@ -73,17 +117,6 @@
             animation: toolGlow 3s ease-in-out infinite;
             background-position: var(--tool-bg-position, center center);
             transition: background-position 0.1s linear;
-        }
-
-        @keyframes minecraftGlow {
-            0%, 100% { 
-                filter: brightness(1) contrast(1) saturate(1);
-                transform: scale(1);
-            }
-            50% { 
-                filter: brightness(1.1) contrast(1.1) saturate(1.2);
-                transform: scale(1.01);
-            }
         }
 
         @keyframes curvedTreesAnimation {
@@ -383,36 +416,6 @@
         }
 
         /* Highlight Boxen für wichtige Infos */
-        .highlight-box {
-            background: rgba(0, 100, 200, 0.2);
-            border: 1px solid rgba(0, 150, 255, 0.4);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 25px 0;
-            backdrop-filter: blur(10px);
-        }
-
-        .highlight-box h4 {
-            color: #7dd3fc;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-
-        .warning-box {
-            background: rgba(255, 100, 0, 0.2);
-            border: 1px solid rgba(255, 150, 0, 0.4);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 25px 0;
-            backdrop-filter: blur(10px);
-        }
-
-        .warning-box h4 {
-            color: #ffa500;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-
         .technical-table {
             background: rgba(50, 50, 50, 0.8);
             border-radius: 8px;
@@ -656,21 +659,6 @@
     </div>
 
     <script>
-        // Floating particles
-        function createFloatingElements() {
-            const container = document.querySelector('.floating-elements');
-            const elementCount = 50;
-            
-            for (let i = 0; i < elementCount; i++) {
-                const element = document.createElement('div');
-                element.className = 'floating-element';
-                element.style.left = Math.random() * 100 + '%';
-                element.style.animationDelay = Math.random() * 6 + 's';
-                element.style.animationDuration = (6 + Math.random() * 4) + 's';
-                container.appendChild(element);
-            }
-        }
-
         // Mouse move effect
         document.addEventListener('mousemove', (e) => {
             const x = (e.clientX / window.innerWidth) * 100;
@@ -767,7 +755,34 @@
             parallax.style.transform = `translateY(${speed}px)`;
         }
 
-        // Holz-Scrolleffekt für vergrößerte Ansicht (Section 3)
+        // Aerogel-Scrolleffekt für Section 1
+        function updateAerogelScroll() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Wenn wir in Section 1 sind (Einleitung)
+            const section1Top = sections[0].offsetTop;
+            const section1Bottom = section1Top + sections[0].offsetHeight;
+            
+            if (scrollPosition >= section1Top - windowHeight && scrollPosition <= section1Bottom) {
+                // Berechne den lokalen Fortschritt innerhalb von Section 1
+                const sectionProgress = Math.max(0, Math.min(1, 
+                    (scrollPosition - (section1Top - windowHeight)) / (sections[0].offsetHeight + windowHeight)
+                ));
+                
+                // Bewege die Aerogel-Schleier diagonal von unten-links nach oben-rechts
+                const aerogelTop1 = 80 - (sectionProgress * 120); // Von 80% nach -40%
+                const aerogelLeft1 = -30 + (sectionProgress * 80); // Von -30% nach 50%
+                
+                const aerogelTop2 = 60 - (sectionProgress * 100); // Von 60% nach -40%
+                const aerogelLeft2 = -40 + (sectionProgress * 90); // Von -40% nach 50%
+                
+                document.documentElement.style.setProperty('--aerogel-top', aerogelTop1 + '%');
+                document.documentElement.style.setProperty('--aerogel-left', aerogelLeft1 + '%');
+                document.documentElement.style.setProperty('--aerogel-top-2', aerogelTop2 + '%');
+                document.documentElement.style.setProperty('--aerogel-left-2', aerogelLeft2 + '%');
+            }
+        }
         function updateWoodScroll() {
             const scrollPosition = window.scrollY;
             const windowHeight = window.innerHeight;
@@ -814,6 +829,7 @@
         window.addEventListener('scroll', () => {
             updateScrollIndicator();
             updateParallax();
+            updateAerogelScroll();
             updateWoodScroll();
             updateToolScroll();
         });
@@ -821,7 +837,6 @@
         window.addEventListener('resize', updateScrollIndicator);
 
         // Initialize
-        createFloatingElements();
         updateScrollIndicator();
     </script>
 </body>
