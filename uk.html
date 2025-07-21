@@ -122,7 +122,7 @@
         /* Bild 3: Tempel im Morgenrot */
         .background-image:nth-child(3) {
             background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/uk-3.png');
-            background-position: var(--temple-bg-position, center -100%);
+            background-position: var(--temple-bg-position, center 0%);
             background-size: 120% auto;
             transition: background-position 0.1s linear;
             filter: brightness(1.1) contrast(1.05) saturate(1.2);
@@ -869,8 +869,8 @@
                     (scrollPosition - (section3Top - windowHeight)) / (sections[2].offsetHeight + windowHeight)
                 ));
                 
-                // Bewege das Tempelbild dramatisch von oben nach unten für vollständige Sichtbarkeit
-                const bgPositionY = -100 + (sectionProgress * 200); // Von -100% bis +100%
+                // Bewege das Tempelbild von oben (0%) nach unten (100%) für vollständige Sichtbarkeit
+                const bgPositionY = 0 + (sectionProgress * 100); // Von 0% bis +100%
                 document.documentElement.style.setProperty('--temple-bg-position', `center ${bgPositionY}%`);
             }
         }
