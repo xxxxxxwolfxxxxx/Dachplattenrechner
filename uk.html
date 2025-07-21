@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unterkonstruktion - Das Fundament des Daches</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background: #000;
+        }
+
+        .parallax-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .background-image {
+            position: absolute;
+            width: 105%;
+            height: 105%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: opacity 2s ease-in-out;
+            opacity: 0;
+            top: 0%;
+            left: -2.5%;
+        }
+
+        .background-image.active {
+            opacity: 1;
+        }
+
+        /* Bild 1: Minecraft-Holzkonstruktion (Eiche) */
+        .background-image:nth-child(1) {
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/uk-1.jpg');
+            animation: minecraftGlow 4s ease-in-out infinite;
+            background-position: center 40%;
+        }
+
+        /* Bild 2: Gekrümmte Bäume (Kiefer) */
+        .background-image:nth-child(2) {
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('/images/uk-2.png');
+            animation: curvedTreesAnimation 5s ease-in-out infinite;
+            background-position: center 60%;
+        }
+
+        /* Bild 3: Holzstapel mit Maserung */
+        .background-image:nth-child(3) {
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/uk-3.png');
+            background-position: var(--wood-bg-position, center center);
+            background-size: 120%;
+            transition: background-position 0.1s linear;
+        }
+
+        /* Bild 4: Lattenknecht/Werkzeug */
+        .background-image:nth-child(4) {
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/uk-4.jpg');
+            animation: toolGlow 3s ease-in-out infinite;
+            background-position: var(--tool-bg-position, center center);
+            transition: background-position 0.1s linear;
+        }
+
+        @keyframes minecraftGlow {
+            0%, 100% { 
+                filter: brightness(1) contrast(1) saturate(1);
+                transform: scale(1);
+            }
+            50% { 
+                filter: brightness(1.1) contrast(1.1) saturate(1.2);
+                transform: scale(1.01);
+            }
+        }
+
+        @keyframes curvedTreesAnimation {
+            0%, 100% { 
+                filter: brightness(1) contrast(1) hue-rotate(0deg);
+            }
+            25% { 
+                filter: brightness(1.1) contrast(1.05) hue-rotate(2deg);
+            }
+            75% { 
+                filter: brightness(0.95) contrast(1.1) hue-rotate(-2deg);
+            }
+        }
+
+        @keyframes toolGlow {
+            0%, 100% { 
+                filter: brightness(1) contrast(1);
+            }
+            50% { 
+                filter: brightness(1.2) contrast(1.2) saturate(1.3);
+            }
+        }
+
+        .light-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        .section {
+            min-height: 190vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 45vh 20px;
+            position: relative;
+        }
+
+        .glass-panel {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 60px;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                0 0 0 1px rgba(0, 0, 0, 0.3);
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            border-radius: 22px;
+            z-index: -1;
+        }
+
+        .glass-panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, transparent 70%);
+            border-radius: 20px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .glass-panel.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .glass-panel h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            color: #fff;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-panel h2 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            color: #f0f0f0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .glass-panel h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+        }
+
+        .glass-panel p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #d0d0d0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            line-height: 1.8;
+        }
+
+        .glass-panel ul {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .glass-panel li {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #d0d0d0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            line-height: 1.8;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .glass-panel li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #00ff88;
+            font-size: 0.8em;
+            text-shadow: 
+                0 0 8px rgba(0,255,136,0.6),
+                0 1px 3px rgba(0,0,0,0.8);
+            filter: drop-shadow(0 0 4px rgba(0,255,136,0.4));
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        .scroll-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+
+        .scroll-dot.active {
+            background: rgba(255,255,255,0.8);
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(255,255,255,0.6);
+        }
+
+        /* Navigation Buttons */
+        .navigation-buttons {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .nav-button:hover::before {
+            left: 100%;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-button:active {
+            transform: translateY(0);
+        }
+
+        .nav-icon {
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-back:hover .nav-icon {
+            transform: translateX(-3px);
+        }
+
+        .nav-forward:hover .nav-icon {
+            transform: translateX(3px);
+        }
+
+        .nav-text {
+            font-size: 1em;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        }
+
+        /* Highlight Boxen für wichtige Infos */
+        .highlight-box {
+            background: rgba(0, 100, 200, 0.2);
+            border: 1px solid rgba(0, 150, 255, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .highlight-box h4 {
+            color: #7dd3fc;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .warning-box {
+            background: rgba(255, 100, 0, 0.2);
+            border: 1px solid rgba(255, 150, 0, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .warning-box h4 {
+            color: #ffa500;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .technical-table {
+            background: rgba(50, 50, 50, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .technical-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .technical-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            color: #e0e0e0;
+        }
+
+        .technical-table td:first-child {
+            font-weight: bold;
+            color: #7dd3fc;
+        }
+
+        @media (max-width: 768px) {
+            .glass-panel {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+            
+            .glass-panel h1 {
+                font-size: 2.2em;
+            }
+            
+            .glass-panel h2 {
+                font-size: 1.8em;
+            }
+            
+            .section {
+                padding: 40px 10px;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 15px;
+                padding: 30px 20px;
+            }
+
+            .nav-button {
+                width: 100%;
+                justify-content: center;
+                padding: 18px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="parallax-container">
+        <div class="background-image active"></div>
+        <div class="background-image"></div>
+        <div class="background-image"></div>
+        <div class="background-image"></div>
+        <div class="light-overlay"></div>
+    </div>
+
+    <div class="floating-elements"></div>
+
+    <div class="scroll-indicator">
+        <div class="scroll-dot active" data-section="0"></div>
+        <div class="scroll-dot" data-section="1"></div>
+        <div class="scroll-dot" data-section="2"></div>
+        <div class="scroll-dot" data-section="3"></div>
+    </div>
+
+    <div class="content">
+        <!-- Einleitung -->
+        <section class="section intro-section">
+            <div class="glass-panel">
+                <h1>Unterkonstruktion</h1>
+                <h2>Die Basis fürs Dach – mehr als nur Balken</h2>
+                <p>Bevor wir ans Decken denken, muss das Dach tragen können. Die Unterkonstruktion ist das Rückgrat – sie entscheidet, wie stabil und langlebig ein Dach ist. Holz, Stahl oder Aluminium? Die Wahl hat Einfluss auf Dämmung, Belüftung und Baupraxis. Wer hier sauber plant und klug auswählt, legt den Grundstein dafür, dass oben alles dicht bleibt und unten niemand nacharbeiten muss.</p>
+                
+                <h3>Was eine gute Unterkonstruktion ausmacht:</h3>
+                <ul>
+                    <li>Richtige Materialwahl für Tragkraft und Langlebigkeit</li>
+                    <li>Durchdachte Dämmung und Belüftung</li>
+                    <li>Präzise Ausführung mit dem richtigen Werkzeug</li>
+                    <li>Schutz vor Feuchtigkeit und Korrosion</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Teil 1: Materialwahl -->
+        <section class="section">
+            <div class="glass-panel">
+                <h2>Materialwahl und Schutz</h2>
+                <h3>Holz, Stahl oder Alu?</h3>
+                
+                <p>Im Dachbau kommt es nicht nur auf Tragkraft an – sondern darauf, wie gut das Material geschützt ist und wie sinnvoll es eingebaut wird:</p>
+
+                <h3>Holz – Der Klassiker</h3>
+                <p><strong>Holz</strong> ist der Klassiker und das meistverbaute Material im deutschen Dachbau. Es lässt sich flexibel einsetzen: ganz ohne Dämmung, mit Zwischensparrendämmung oder als Aufdachdämmung. Verwendet wird meist Konstruktionsvollholz (KVH) nach DIN EN 14080, mit CE-Kennzeichnung und zuverlässig verfügbar.</p>
+                
+                <ul>
+                    <li>Flexibel einsetzbar bei verschiedenen Dämmkonzepten</li>
+                    <li>Konstruktionsvollholz (KVH) nach DIN EN 14080</li>
+                    <li>CE-Kennzeichnung garantiert Qualität</li>
+                    <li>Bewährt, verfügbar und handwerklich gut beherrschbar</li>
+                </ul>
+
+                <h3>Stahl – Für große Spannweiten</h3>
+                <p><strong>Stahl</strong> überzeugt mit hoher Tragkraft, besonders bei großen Spannweiten. Als sehr guter Wärmeleiter wird er fast ausschließlich mit Aufdachdämmung kombiniert. Wichtig: Ein wirksamer Korrosionsschutz muss vor dem Einbau drauf – denn wenn wir's richtig machen, kommen wir da im Guten nicht mehr wieder ran. Verzinkung nach DIN EN ISO 1461 ist hier Standard.</p>
+
+                <ul>
+                    <li>Hohe Tragkraft bei großen Spannweiten</li>
+                    <li>Verzinkung nach DIN EN ISO 1461 als Standard</li>
+                    <li>Meist mit Aufdachdämmung kombiniert</li>
+                    <li>Korrosionsschutz vor Einbau unbedingt erforderlich</li>
+                </ul>
+
+                <h3>Aluminium – Leicht und korrosionsbeständig</h3>
+                <p><strong>Aluminium</strong> ist leicht, korrosionsbeständig und findet seinen Platz in Konstruktionen, wo keine Dämmung gebraucht wird oder die Optik im Vordergrund steht – zum Beispiel bei Carports oder Sichtkonstruktionen. Bei gemischten Metallen ist Kontaktkorrosion zu vermeiden. Der Nachteil: Aluminium ist deutlich teurer als Holz oder Stahl und wird daher auf der Baustelle nur sehr sparsam und gezielt eingesetzt.</p>
+
+                <ul>
+                    <li>Leicht und korrosionsbeständig</li>
+                    <li>Ideal für Carports und Sichtkonstruktionen</li>
+                    <li>Kontaktkorrosion bei Metallmix vermeiden</li>
+                    <li>Optik oft im Vordergrund</li>
+                    <li>Deutlich teurer – daher sparsame Verwendung</li>
+                </ul>
+
+                <p>Das Hintergrundbild zeigt die typische Realität auf der Baustelle: Eine Mischkonstruktion aus Holz als Hauptträger, Stahl für kritische Verbindungen und Aluminium nur dort, wo es wirklich notwendig ist. So entsteht ein wirtschaftlich sinnvoller Materialmix, der Kosten und Nutzen optimal abwägt.</p>
+            </div>
+        </section>
+
+        <!-- Teil 2: Dämmung und Aufbau -->
+        <section class="section">
+            <div class="glass-panel">
+                <h2>Dämmung, Belüftung und Aufbau</h2>
+                <h3>Trockene Konstruktion hält länger</h3>
+                
+                <p>Ein Dach schützt nicht nur von außen – sondern muss auch im Inneren funktionieren. Die richtige Dämmung, eine durchdachte Belüftung und ein handwerklich sauberer Aufbau entscheiden, ob die Konstruktion dauerhaft trocken bleibt:</p>
+
+                <p><strong>Aufdachdämmung</strong> sorgt für lückenlosen Schutz, besonders bei Stahlkonstruktionen mit hohem Wärmefluss. Da diese Dämmung meist nicht diffusionsoffen ist, muss die Hinterlüftung technisch gelöst werden – zum Beispiel über Gebläse und Rohrleitungen, die für kontrollierten Luftaustausch sorgen.</p>
+
+                <p><strong>Zwischensparrendämmung</strong> ist einfach umzusetzen und passt gut zur klassischen Holzkonstruktion. Hier kann die natürliche Belüftung über die Sparrenzwischenräume erfolgen.</p>
+
+                <div class="technical-table">
+                    <h4>Dämmkonzepte im Vergleich:</h4>
+                    <table>
+                        <tr><td>Aufdachdämmung:</td><td>Lückenloser Schutz, meist nicht diffusionsoffen - Hinterlüftung über Gebläse und Rohrleitung</td></tr>
+                        <tr><td>Zwischensparrendämmung:</td><td>Einfach umsetzbar, passt zur Holzkonstruktion, natürliche Belüftung möglich</td></tr>
+                        <tr><td>Feuchtemanagement:</td><td>Gefälle, Belüftung, klare Linienführung</td></tr>
+                    </table>
+                </div>
+
+                <h3>Aufbau in der Praxis</h3>
+                <p>Die tragende Konstruktion beginnt beim Sparren – meist aus Holz, kombiniert mit Zwischensparrendämmung:</p>
+
+                <ul>
+                    <li>Sparren als tragende Konstruktion (meist Holz)</li>
+                    <li>Zwischensparrendämmung für Wärmeschutz</li>
+                    <li>Unterspannbahn gegen Wind und Nässe</li>
+                    <li>Konterlatten punktuell mit verzinkten Nägeln fixiert</li>
+                    <li>Hauptbefestigung durch Verschraubung bei Lattenmontage</li>
+                </ul>
+
+                <div class="warning-box">
+                    <h4>Wichtiger Hinweis:</h4>
+                    <p><strong>Keine Nägel zur Hauptbefestigung!</strong> Nägel halten erst sicher, wenn sie angerostet sind. Bis dahin können sich durch Windlast, Materialverzug oder Eigenspannung ganze Reihen wieder lösen.</p>
+                    <p><em>Negativbeispiel:</em> Jetzt versuchen Sie mal, eine gerade Dachrinne nach DIN EN 612 an so ein Konstrukt zu bringen – da wird man verrückt bei.</p>
+                </div>
+
+                <h3>Feuchtemanagement – Das A und O</h3>
+                <p>Wichtig ist ein funktionierender Feuchtemanager: Also keine geschlossenen Ecken, stehendes Wasser oder fehlende Lüftungsebenen. Die Konstruktion braucht Gefälle, Belüftung und eine klare Linienführung. Nur wenn Restfeuchte entweichen kann, bleibt das Holz gesund.</p>
+            </div>
+        </section>
+
+        <!-- Teil 3: Realität auf der Baustelle -->
+        <section class="section">
+            <div class="glass-panel">
+                <h2>Realität auf der Baustelle</h2>
+                <h3>Holz, Lattenknecht und Schrauben mit Verstand</h3>
+                
+                <p>Am Anfang träumt man von bestem Baustoff. Zum Beispiel von der KVH-Eiche: CE-zertifiziert nach DIN EN 14080, konstruktionsvoll, gerade gewachsen, stabil und langlebig. So beliebt, dass sie es in ein berühmtes Computerspiel geschafft hat – als Symbol für Qualität und Dauerhaftigkeit.</p>
+
+                <p>Aber wer glaubt, dass auf deutschen Baustellen fleißig aus dieser Eiche geschnitten wird, liegt falsch. Der Großteil wandert ins Ausland. Der Rest wird:</p>
+                
+                <ul>
+                    <li>zu Baumarktprospekten verarbeitet,</li>
+                    <li>als Feuerholz nach DIN EN ISO 17225-5 verheizt,</li>
+                    <li>oder als Hobelspäne auf die Einstreu von Rennpferden verteilt.</li>
+                </ul>
+
+                <div style="display: flex; gap: 30px; margin: 30px 0; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px; text-align: center;">
+                        <img src="/images/eiche.png" alt="Hochwertige Eiche" style="width: 100%; max-width: 200px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);" />
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #b0b0b0;">Die Traumeiche - meist nur im Computerspiel</p>
+                    </div>
+                    <div style="flex: 1; min-width: 250px; text-align: center;">
+                        <img src="/images/Kiefer.png" alt="Krumme Kiefer" style="width: 100%; max-width: 200px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);" />
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #b0b0b0;">Die Baustellenrealität - aber machbar</p>
+                    </div>
+                </div>
+
+                <p>Die Realität zeigt stattdessen die Wahrheit: Die „tschechische Schlangenkiefer" – krumm gewachsen, windschief, aber günstig. Und genau daraus wird das Lattenholz geschnitten, mit dem wir Tag für Tag arbeiten. Keine Normträume – sondern Baustellenrealität.</p>
+
+                <h3>Der Lattenknecht – Präzision mit Hand und Herz</h3>
+                <p>Zum Glück gibt es den Lattenknecht: ein einfaches, aber geniales Werkzeug bestehend aus zwei geraden Holzlatten, deren Länge genau dem Abstand zwischen zwei Dachlatten entspricht.</p>
+
+                <h3>So funktioniert der Lattenknecht:</h3>
+                <ul>
+                    <li>Zuerst wird die unterste Reihe exakt nach gespannter Schnur ausgerichtet und verschraubt</li>
+                    <li>Dann legt man den Lattenknecht auf – und erhält damit das exakte Maß für die nächste Latte</li>
+                    <li>Die wird von einem Helfer kräftig nach unten oder oben gedrückt, bis sie auf dem Lattenknecht aufliegt</li>
+                    <li>Parallel wird sie mit Justierschrauben befestigt – nicht genagelt</li>
+                    <li>Diese Schrauben nach DIN 1052 / DIN EN 1995-1-1 ermöglichen millimetergenaue Ausrichtung</li>
+                </ul>
+
+                <p>Die Justierschrauben können am Ende leicht zurückgedreht werden, um die Latte perfekt ins Lot zu bringen. So entsteht auch aus krummem Material eine präzise Unterkonstruktion – Handwerk und Technik im perfekten Zusammenspiel.</p>
+
+                <h3>Fazit: Qualität trotz Realität</h3>
+                <p>Auch wenn das Material nicht immer perfekt ist – mit dem richtigen Werkzeug, durchdachter Technik und handwerklichem Geschick lassen sich auch aus weniger idealen Ausgangsstoffen solide Konstruktionen bauen. Der Lattenknecht ist dabei nur ein Beispiel für clevere Lösungen, die den Unterschied zwischen „geht so" und „perfekt" machen.</p>
+
+                <h3>Praxis-Tipp:</h3>
+                <p>Investiert Zeit in die erste Latte – sie ist die Referenz für alle anderen. Eine krumme Startlinie führt zu einem welligen Dach, das später beim Blechverlegen zum Problem wird. Lieber einmal mehr messen und ausrichten, als später die ganze Konstruktion korrigieren zu müssen.</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+        <a href="messen.html" class="nav-button nav-back">
+            <span class="nav-icon">←</span>
+            <span class="nav-text">Zurück zur Vermessung</span>
+        </a>
+        <a href="index.html" class="nav-button nav-forward">
+            <span class="nav-text">Zur Übersicht</span>
+            <span class="nav-icon">→</span>
+        </a>
+    </div>
+
+    <script>
+        // Floating particles
+        function createFloatingElements() {
+            const container = document.querySelector('.floating-elements');
+            const elementCount = 50;
+            
+            for (let i = 0; i < elementCount; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 6 + 's';
+                element.style.animationDuration = (6 + Math.random() * 4) + 's';
+                container.appendChild(element);
+            }
+        }
+
+        // Mouse move effect
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
+            
+            document.documentElement.style.setProperty('--mouse-x', x + '%');
+            document.documentElement.style.setProperty('--mouse-y', y + '%');
+        });
+
+        // Intersection Observer for glass panels
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.glass-panel').forEach(panel => {
+            observer.observe(panel);
+        });
+
+        // Background image switching
+        let currentBackground = 0;
+        const backgrounds = document.querySelectorAll('.background-image');
+        const sections = document.querySelectorAll('.section');
+        
+        function switchBackground(index) {
+            backgrounds.forEach((bg, i) => {
+                if (i === index) {
+                    bg.style.opacity = '1';
+                    bg.style.zIndex = '2';
+                } else {
+                    bg.style.opacity = '0';
+                    bg.style.zIndex = '1';
+                }
+            });
+        }
+
+        // Scroll indicator and background switching
+        const scrollDots = document.querySelectorAll('.scroll-dot');
+        
+        function updateScrollIndicator() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Berechne welche Sektion gerade sichtbar ist
+            let activeSection = 0;
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop - windowHeight * 0.8) {
+                    activeSection = index;
+                }
+            });
+            
+            // Begrenze auf verfügbare Sektionen
+            activeSection = Math.max(0, Math.min(activeSection, sections.length - 1));
+            
+            // Update scroll indicator dots
+            scrollDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === activeSection);
+            });
+            
+            // Switch background when section changes
+            if (activeSection !== currentBackground) {
+                currentBackground = activeSection;
+                switchBackground(currentBackground);
+            }
+        }
+
+        // Scroll to section
+        scrollDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                window.scrollTo({
+                    top: index * window.innerHeight,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Parallax effect
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.parallax-container');
+            
+            const speed = scrolled * -0.008;
+            parallax.style.transform = `translateY(${speed}px)`;
+        }
+
+        // Holz-Scrolleffekt für vergrößerte Ansicht (Section 3)
+        function updateWoodScroll() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Wenn wir in Section 3 sind (Holzstapel)
+            const section3Top = sections[2].offsetTop;
+            const section3Bottom = section3Top + sections[2].offsetHeight;
+            
+            if (scrollPosition >= section3Top - windowHeight && scrollPosition <= section3Bottom) {
+                // Berechne den lokalen Fortschritt innerhalb von Section 3
+                const sectionProgress = Math.max(0, Math.min(1, 
+                    (scrollPosition - (section3Top - windowHeight)) / (sections[2].offsetHeight + windowHeight)
+                ));
+                
+                // Bewege das Hintergrundbild für längere Scrollstrecke
+                const bgPositionY = 0 + (sectionProgress * 30); // Von 0% bis 30%
+                document.documentElement.style.setProperty('--wood-bg-position', `center ${bgPositionY}%`);
+            }
+        }
+
+        // Lattenknecht-Scrolleffekt für das Werkzeugbild (Section 4)
+        function updateToolScroll() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Wenn wir in Section 4 sind (Lattenknecht)
+            const section4Top = sections[3].offsetTop;
+            const section4Bottom = section4Top + sections[3].offsetHeight;
+            
+            if (scrollPosition >= section4Top - windowHeight && scrollPosition <= section4Bottom) {
+                // Berechne den lokalen Fortschritt innerhalb von Section 4
+                const sectionProgress = Math.max(0, Math.min(1, 
+                    (scrollPosition - (section4Top - windowHeight)) / (sections[3].offsetHeight + windowHeight)
+                ));
+                
+                // Bewege das Hintergrundbild horizontal und vertikal für dynamischen Effekt
+                const bgPositionX = 50 + (Math.sin(sectionProgress * Math.PI * 2) * 10); // Sinus-Bewegung
+                const bgPositionY = 50 + (sectionProgress * 20); // Von 50% bis 70%
+                document.documentElement.style.setProperty('--tool-bg-position', `${bgPositionX}% ${bgPositionY}%`);
+            }
+        }
+
+        // Event listeners
+        window.addEventListener('scroll', () => {
+            updateScrollIndicator();
+            updateParallax();
+            updateWoodScroll();
+            updateToolScroll();
+        });
+
+        window.addEventListener('resize', updateScrollIndicator);
+
+        // Initialize
+        createFloatingElements();
+        updateScrollIndicator();
+    </script>
+</body>
+</html>
