@@ -62,11 +62,11 @@
             transition: background-position 0.1s linear;
         }
 
-        /* Bild 3: Handwerker auf Trapezblech - bleibt oben stehen, nur Wolken bewegen sich seitlich */
+        /* Bild 3: Handwerker auf Trapezblech - größeres Bild für sichtbare Seitenbewegung */
         .background-image:nth-child(3) {
             background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/blech-3.jpg');
             background-position: var(--bg-pos-3, center 30%);
-            background-size: cover;
+            background-size: 150% auto; /* Größer als Container für sichtbare Bewegung */
             transition: background-position 0.1s linear;
         }
 
