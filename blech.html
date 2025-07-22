@@ -45,29 +45,33 @@
             opacity: 1;
         }
 
-        /* Bild 1: Schnurspannung - Präzision beim Start */
+        /* Bild 1: Metallkuppel - weniger gezoomt */
         .background-image:nth-child(1) {
             background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/blech-1.jpg');
-            background-position: center 30%;
+            background-position: center center;
+            background-size: 90%;
         }
 
-        /* Bild 2: Lattenknecht und Schnurspannung */
+        /* Bild 2: Lattenknecht - deutlich weniger gezoomt */
         .background-image:nth-child(2) {
             background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/blech-2.png');
             background-position: center center;
+            background-size: 75%;
             filter: brightness(1.1) contrast(1.05);
         }
 
-        /* Bild 3: Handwerker auf Trapezblech */
+        /* Bild 3: Handwerker auf Trapezblech - weniger gezoomt */
         .background-image:nth-child(3) {
             background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/blech-3.jpg');
             background-position: center center;
+            background-size: 85%;
         }
 
         /* Bild 4: Schraubbild Detail */
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.25)), url('/images/blech-4.png');
-            background-position: center 40%;
+            background-position: center center;
+            background-size: contain;
             filter: brightness(1.2) contrast(1.1) saturate(1.1);
         }
 
@@ -393,6 +397,7 @@
         <div class="background-image active"></div>
         <div class="background-image"></div>
         <div class="background-image"></div>
+        <div class="background-image"></div>
         <div class="light-overlay"></div>
     </div>
 
@@ -402,6 +407,7 @@
         <div class="scroll-dot active" data-section="0"></div>
         <div class="scroll-dot" data-section="1"></div>
         <div class="scroll-dot" data-section="2"></div>
+        <div class="scroll-dot" data-section="3"></div>
     </div>
 
     <div class="content">
