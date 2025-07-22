@@ -740,9 +740,13 @@
                     
                     // Für Sektion 3 (index 2) - Wolken bewegen sich seitlich
                     if (index === 2) {
-                        // Horizontale Bewegung der Wolken: von links (-20%) nach rechts (+20%)
-                        const bgPositionX = -20 + (sectionProgress * 40);
-                        document.documentElement.style.setProperty(`--bg-pos-3`, `${bgPositionX}% top`);
+                        // Horizontale Bewegung der Wolken: von links (-30%) nach rechts (+30%)
+                        const bgPositionX = -30 + (sectionProgress * 60);
+                        document.documentElement.style.setProperty(`--bg-pos-3`, `${bgPositionX}% 20%`);
+                    } else if (index === 3) {
+                        // Für Sektion 4 (Bild 4) - nur 50% der normalen Scrollbewegung
+                        const bgPositionY = (sectionProgress * 50);
+                        document.documentElement.style.setProperty(`--bg-pos-4`, `center ${bgPositionY}%`);
                     } else {
                         // Für alle anderen Sektionen: Vertikale Bewegung von oben nach unten
                         const bgPositionY = (sectionProgress * 100);
