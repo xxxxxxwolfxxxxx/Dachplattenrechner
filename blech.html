@@ -62,10 +62,10 @@
             transition: background-position 0.1s linear;
         }
 
-        /* Bild 3: Handwerker auf Trapezblech - bleibt oben, Wolken bewegen sich seitlich */
+        /* Bild 3: Handwerker auf Trapezblech - bleibt oben stehen, nur Wolken bewegen sich seitlich */
         .background-image:nth-child(3) {
             background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/blech-3.jpg');
-            background-position: var(--bg-pos-3, center top);
+            background-position: var(--bg-pos-3, center 30%);
             background-size: cover;
             transition: background-position 0.1s linear;
         }
@@ -740,9 +740,11 @@
                     
                     // Für Sektion 3 (index 2) - Wolken bewegen sich nur seitlich, Y bleibt konstant
                     if (index === 2) {
-                        // Horizontale Bewegung der Wolken: von links (-40%) nach rechts (+40%)
-                        const bgPositionX = -40 + (sectionProgress * 80);
-                        document.documentElement.style.setProperty(`--bg-pos-3`, `${bgPositionX}% 30%`);
+                        // NUR horizontale Bewegung: von links (-50%) nach rechts (+50%)
+                        const bgPositionX = -50 + (sectionProgress * 100);
+                        // Y-Position bleibt IMMER bei 30%
+                        document.documentElement.style.setProperty('--bg-pos-3', `${bgPositionX}% 30%`);
+                        console.log(`Bild 3: X=${bgPositionX}%, Y=30%`); // Debug
                     } else if (index === 3) {
                         // Für Sektion 4 (Bild 4) - nur 50% der normalen Scrollbewegung
                         const bgPositionY = 25 + (sectionProgress * 25); // Von 25% bis 50%
