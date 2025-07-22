@@ -62,11 +62,11 @@
             transition: background-position 0.1s linear;
         }
 
-        /* Bild 3: Handwerker auf Trapezblech - größeres Bild für sichtbare Seitenbewegung */
+        /* Bild 3: Handwerker fest, nur Himmel bewegt sich */
         .background-image:nth-child(3) {
             background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/blech-3.jpg');
-            background-position: var(--bg-pos-3, center 30%);
-            background-size: 150% auto; /* Größer als Container für sichtbare Bewegung */
+            background-position: var(--bg-pos-3, right top);
+            background-size: cover;
             transition: background-position 0.1s linear;
         }
 
@@ -620,8 +620,8 @@
             <span class="nav-icon">←</span>
             <span class="nav-text">Zurück zur Unterkonstruktion</span>
         </a>
-        <a href="finish.html" class="nav-button nav-forward">
-            <span class="nav-text">Zu den Abschlüssen</span>
+        <a href="winkel.html" class="nav-button nav-forward">
+            <span class="nav-text">Zu den Winkeln</span>
             <span class="nav-icon">→</span>
         </a>
     </div>
@@ -738,13 +738,13 @@
                         (scrollPosition - (sectionTop - windowHeight * 0.5)) / (section.offsetHeight + windowHeight * 0.5)
                     ));
                     
-                    // Für Sektion 3 (index 2) - Wolken bewegen sich nur seitlich, Y bleibt konstant
+                    // Für Sektion 3 (index 2) - nur Himmel bewegt sich seitlich
                     if (index === 2) {
-                        // NUR horizontale Bewegung: von links (-50%) nach rechts (+50%)
-                        const bgPositionX = -50 + (sectionProgress * 100);
-                        // Y-Position bleibt IMMER bei 30%
-                        document.documentElement.style.setProperty('--bg-pos-3', `${bgPositionX}% 30%`);
-                        console.log(`Bild 3: X=${bgPositionX}%, Y=30%`); // Debug
+                        // Startet rechts oben und bewegt sich nach rechts (Himmel zieht vorbei)
+                        const bgPositionX = 100 + (sectionProgress * 50); // Von 100% bis 150%
+                        // Y bleibt immer oben
+                        document.documentElement.style.setProperty('--bg-pos-3', `${bgPositionX}% top`);
+                        console.log(`Bild 3: X=${bgPositionX}%, Y=top`); // Debug
                     } else if (index === 3) {
                         // Für Sektion 4 (Bild 4) - nur 50% der normalen Scrollbewegung
                         const bgPositionY = 25 + (sectionProgress * 25); // Von 25% bis 50%
