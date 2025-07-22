@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dachblechverlegung - Fachgerecht und dauerhaft</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background: #000;
+        }
+
+        .parallax-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .background-image {
+            position: absolute;
+            width: 105%;
+            height: 105%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: opacity 2s ease-in-out;
+            opacity: 0;
+            top: 0%;
+            left: -2.5%;
+        }
+
+        .background-image.active {
+            opacity: 1;
+        }
+
+        /* Bild 1: Schnurspannung - Präzision beim Start */
+        .background-image:nth-child(1) {
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/blech-1.jpg');
+            background-position: center 30%;
+        }
+
+        /* Bild 2: Lattenknecht und Schnurspannung */
+        .background-image:nth-child(2) {
+            background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/blech-2.png');
+            background-position: center center;
+            filter: brightness(1.1) contrast(1.05);
+        }
+
+        /* Bild 3: Handwerker auf Trapezblech */
+        .background-image:nth-child(3) {
+            background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/blech-3.jpg');
+            background-position: center center;
+        }
+
+        /* Bild 4: Schraubbild Detail */
+        .background-image:nth-child(4) {
+            background-image: linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.25)), url('/images/blech-4.png');
+            background-position: center 40%;
+            filter: brightness(1.2) contrast(1.1) saturate(1.1);
+        }
+
+        .light-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        .section {
+            min-height: 250vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 75vh 20px;
+            position: relative;
+        }
+
+        .glass-panel {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 60px;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                0 0 0 1px rgba(0, 0, 0, 0.3);
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            border-radius: 22px;
+            z-index: -1;
+        }
+
+        .glass-panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, transparent 70%);
+            border-radius: 20px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .glass-panel.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .glass-panel h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            color: #fff;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-panel h2 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            color: #f0f0f0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .glass-panel h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+        }
+
+        .glass-panel p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #d0d0d0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            line-height: 1.8;
+        }
+
+        .glass-panel ul {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .glass-panel li {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #d0d0d0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            line-height: 1.8;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .glass-panel li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: #00ff88;
+            font-size: 0.8em;
+            text-shadow: 
+                0 0 8px rgba(0,255,136,0.6),
+                0 1px 3px rgba(0,0,0,0.8);
+            filter: drop-shadow(0 0 4px rgba(0,255,136,0.4));
+        }
+
+
+
+        .scroll-indicator {
+            position: fixed;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        .scroll-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+
+        .scroll-dot.active {
+            background: rgba(255,255,255,0.8);
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(255,255,255,0.6);
+        }
+
+        /* Navigation Buttons */
+        .navigation-buttons {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .nav-button:hover::before {
+            left: 100%;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-button:active {
+            transform: translateY(0);
+        }
+
+        .nav-icon {
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-back:hover .nav-icon {
+            transform: translateX(-3px);
+        }
+
+        .nav-forward:hover .nav-icon {
+            transform: translateX(3px);
+        }
+
+        .nav-text {
+            font-size: 1em;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        }
+
+
+
+        /* Tabelle für Verschraubungsvergleich */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comparison-table th {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            color: #d0d0d0;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        @media (max-width: 768px) {
+            .glass-panel {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+            
+            .glass-panel h1 {
+                font-size: 2.2em;
+            }
+            
+            .glass-panel h2 {
+                font-size: 1.8em;
+            }
+            
+            .section {
+                padding: 40px 10px;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 15px;
+                padding: 30px 20px;
+            }
+
+            .nav-button {
+                width: 100%;
+                justify-content: center;
+                padding: 18px 25px;
+            }
+
+            .comparison-table {
+                font-size: 0.9em;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="parallax-container">
+        <div class="background-image active"></div>
+        <div class="background-image"></div>
+        <div class="background-image"></div>
+        <div class="light-overlay"></div>
+    </div>
+
+
+
+    <div class="scroll-indicator">
+        <div class="scroll-dot active" data-section="0"></div>
+        <div class="scroll-dot" data-section="1"></div>
+        <div class="scroll-dot" data-section="2"></div>
+    </div>
+
+    <div class="content">
+        <!-- Einleitung -->
+        <section class="section intro-section">
+            <div class="glass-panel">
+                <h1>Dachblechverlegung</h1>
+                <h2>Fachgerecht und dauerhaft – von der ersten Schnur bis zur letzten Schraube</h2>
+                <p>Ein Dach aus Blech ist nur so gut wie seine Verlegung. Die richtige Technik beim Spannen der Schnüre, die durchdachte Verschraubung und ein sauberes Schraubbild entscheiden über Stabilität, Dichtigkeit und Optik. Wer hier präzise arbeitet und die Grundlagen beherrscht, baut Dächer, die Jahrzehnte halten – ohne Klappergeräusche, ohne Undichtigkeiten und ohne nachträgliche Korrekturen.</p>
+                
+                <h3>Was eine professionelle Blechverlegung ausmacht:</h3>
+                <ul>
+                    <li>Präzise Ausrichtung mit gespannten Schnüren und dem 3-4-5-Meter-Trick</li>
+                    <li>Fachgerechte Verschraubung im Tal oder Berg – je nach System</li>
+                    <li>Durchdachtes Schraubbild für gleichmäßige Lastverteilung</li>
+                    <li>Saubere Nacharbeit ohne Rostspäne und Beschädigungen</li>
+                </ul>
+                
+                <p>Die erste Platte bestimmt die gesamte Fläche. Wer hier schludert, kämpft bis zur letzten Schraube mit den Folgen. Lieber fünf Minuten länger messen und ausrichten, als später das ganze Dach korrigieren zu müssen.</p>
+            </div>
+        </section>
+
+        <!-- Teil 1: Schnurgerade starten -->
+        <section class="section">
+            <div class="glass-panel">
+                <h2>Schnurgerade starten – mit dem 3-4-5-Meter-Trick</h2>
+                <h3>Die erste Platte entscheidet über alles</h3>
+                
+                <p>Damit das Dachblech gerade verläuft, muss die erste Platte perfekt ausgerichtet sein. Eine gespannte Schnur hilft, eine präzise Linie entlang der Traufe zu setzen – sie bildet die Basis für alle weiteren Schritte. Aber Vorsicht: Die Schnur ist ein Werkzeug, kein Wunderding.</p>
+
+                <h3>Die richtige Schnurspannung</h3>
+                <p>Die Schnur darf weder durchhängen noch überspannt sein:</p>
+                
+                <ul>
+                    <li><strong>Zu locker:</strong> Die Schnur hängt durch, die Ausrichtung wird ungenau</li>
+                    <li><strong>Zu straff:</strong> Die Schnur kann sich verziehen oder einseitig abheben</li>
+                    <li><strong>Richtig:</strong> Gleichmäßig gespannt – straff, aber ohne übermäßige Kraft</li>
+                </ul>
+
+                <p><strong>Praxis-Tipp zur Schnurspannung:</strong> Eine richtig gespannte Schnur sollte sich bei leichtem Antippen etwa 2-3 cm bewegen lassen, ohne dabei komplett aus der Position zu rutschen. Das ist die optimale Spannung für präzise Arbeit.</p>
+
+                <h3>Rechtwinklig arbeiten mit dem 3-4-5-Trick</h3>
+                <p>Um sicherzustellen, dass die Bleche rechtwinklig verlegt werden, nutzt man den bewährten 3-4-5-Meter-Trick aus der Geometrie:</p>
+
+                <ul>
+                    <li>Miss von einem Punkt <strong>3 m</strong> entlang der ersten Schnur</li>
+                    <li>Dann <strong>4 m</strong> senkrecht dazu (zweite Schnur)</li>
+                    <li>Die Diagonale sollte <strong>5 m</strong> ergeben – so entsteht ein präziser rechter Winkel</li>
+                    <li>Bei anderen Maßen gilt: 3² + 4² = 5² (Pythagoras lässt grüßen)</li>
+                </ul>
+
+                <h3>Die erste Platte verlegen</h3>
+                <p>Jetzt kommt der entscheidende Moment:</p>
+
+                <ul>
+                    <li>Leg die erste Platte exakt an beide Schnüre an</li>
+                    <li>Kontrolliere nochmals die Lage – jede Abweichung überträgt sich auf die gesamte Fläche</li>
+                    <li>Verschraube erst, wenn die Position stimmt</li>
+                    <li>Die anderen Platten orientieren sich an dieser ersten – sie wird zur Referenz</li>
+                </ul>
+
+                <p><strong>Häufiger Fehler:</strong> Viele denken, sie könnten kleine Ungenauigkeiten bei der ersten Platte später "rausarbeiten". Das Gegenteil ist der Fall: Jeder Millimeter Abweichung addiert sich über die gesamte Dachfläche und wird zum Ende hin immer deutlicher sichtbar.</p>
+            </div>
+        </section>
+
+        <!-- Teil 2: Tal- und Bergverschraubung -->
+        <section class="section">
+            <div class="glass-panel">
+                <h2>Tal- und Bergverschraubung mit Kalotten</h2>
+                <h3>Unterschiede verstehen und richtig anwenden</h3>
+                
+                <p>Bei der Verschraubung von Trapez- oder Wellblechen kommt es darauf an, wo und wie du die Schrauben setzt: im Tal oder auf dem Berg. Beide Methoden haben ihre Berechtigung – je nach Bauteil und Vorgaben des Herstellers. Kalotten kommen meist bei der Bergverschraubung zum Einsatz und dienen als Dichtung und Druckverteiler.</p>
+
+                <h3>Vergleich der Verschraubungsarten</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Verschraubung</th>
+                            <th>Position</th>
+                            <th>Eigenschaften</th>
+                            <th>Anwendung</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Talverschraubung</strong></td>
+                            <td>Wellental</td>
+                            <td>weniger sichtbar, kostengünstiger (kurze Schrauben, keine Kalotten)</td>
+                            <td>oft bei Holzunterkonstruktionen</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bergverschraubung</strong></td>
+                            <td>Wellenberg</td>
+                            <td>deutlich sichtbar, teurer (längere Schrauben & Kalotten)</td>
+                            <td>bessere Abdichtung, oft bei Stahlunterkonstruktion</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Wichtiger Hinweis:</strong> Mehr Schrauben werden bei der Bergverschraubung in der Regel nicht verwendet – es geht um deren Position und Zubehör. Die optische Wirkung ist bei der Bergverschraubung deutlich stärker – sie ragt sichtbar hervor.</p>
+
+                <h3>Häufige Fehlerquellen bei der Verschraubung</h3>
+
+                <h3>1. Schiefe Schrauben</h3>
+                <p>Führen zu Undichtigkeiten und beschädigen die Kalotten. Die Schraube muss senkrecht zur Blechoberfläche stehen, nicht senkrecht zum Boden.</p>
+
+                <h3>2. Überdrehen</h3>
+                <p>Quetscht die Kalotten und beeinträchtigt die Abdichtung. Die Gummidichtung sollte nur leicht zusammengedrückt werden – nicht plattgequetscht.</p>
+
+                <h3>3. Unterdrehen</h3>
+                <p>Führt zu klappernden Blechen und unnötiger Bewegung bei Wind. Das Blech muss fest, aber nicht überspannt sitzen.</p>
+
+                <p><strong>Profi-Tipp:</strong> Akkuschrauber mit einstellbarem Drehmoment verwenden und bei jedem Blech die Verschraubung kontrollieren. Das optimale Drehmoment liegt meist zwischen 8-12 Nm – lieber ein kurzer Blick mehr als späteres Reparieren!</p>
+
+                <h3>Kalotten richtig verwenden</h3>
+                <p>Kalotten sind nicht nur Dichtung, sondern auch Druckverteiler:</p>
+
+                <ul>
+                    <li>Sie verhindern das Eindrücken des Blechs um das Schraubenloch</li>
+                    <li>Die Gummidichtung sorgt für Wasserdichtigkeit</li>
+                    <li>Bei UV-Strahlung und Temperaturwechseln bleiben sie flexibel</li>
+                    <li>Verschiedene Farben für optimale optische Integration verfügbar</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Teil 3: Schraubbild & Bohrspäne -->
+        <section class="section">
+            <div class="glass-panel">
+                <h2>Schraubbild & Bohrspäne</h2>
+                <h3>Für Funktion, Optik und Langzeitqualität</h3>
+                
+                <p>Ein gutes Schraubbild sorgt nicht nur für die nötige Stabilität, sondern auch für eine gleichmäßige Lastverteilung und ein ruhiges Dach bei Wind. Gleichzeitig dürfen die Bohrspäne nicht unterschätzt werden – sie sind kleine Rostschleudern mit großer Wirkung.</p>
+
+                <h3>Schraubbild – durchdacht statt starr</h3>
+                <p>Ein professionelles Schraubbild folgt klaren Regeln:</p>
+
+                <ul>
+                    <li>Die Schrauben sollten in gleichmäßigen Abständen sitzen</li>
+                    <li>Dabei nicht immer dieselbe Welle verwenden – je höher man kommt, sollte das Schraubbild eine Welle weiter springen</li>
+                    <li>So wird jeder Wellenberg und jedes Wellental einmal getroffen und das Dach klappert nicht bei Wind</li>
+                    <li>In der untersten und obersten Blechreihe empfiehlt es sich, besonders viele Schrauben zu setzen</li>
+                    <li>Dort wirken die größten Kräfte bei Sturm und Windböen</li>
+                </ul>
+
+                <p><strong>Warum das Schraubbild springt:</strong> Wenn alle Schrauben in derselben Welle sitzen, entstehen "tote" Bereiche im Blech, die bei Wind flattern können. Durch das versetzte Schraubbild wird das gesamte Blech gleichmäßig gehalten – wie bei einer gut gespannten Plane.</p>
+
+                <h3>Abstände und Verteilung</h3>
+                <p>Typische Schraubenabstände je nach Blechart und Windlast:</p>
+
+                <ul>
+                    <li><strong>Traufbereich:</strong> alle 20-30 cm (höchste Belastung)</li>
+                    <li><strong>Mittlerer Bereich:</strong> alle 40-50 cm (normale Belastung)</li>
+                    <li><strong>Firstbereich:</strong> alle 20-30 cm (hohe Sogbelastung)</li>
+                    <li><strong>Seitenränder:</strong> alle 30 cm (Windangriffsfläche)</li>
+                </ul>
+
+                <h3>Bohrspäne entfernen – jetzt oder nie</h3>
+                <p>Nach dem Bohren entstehen Metallspäne, die oft unterschätzt werden. Diese kleinen Teile sind aber echte Rostschleudern:</p>
+
+                <p><strong>Zeitfaktor beachten:</strong> Bohrspäne rosten bereits nach wenigen Stunden an und hinterlassen dann dauerhafte Rostflecken auf dem Blech. Was am ersten Tag noch einfach zu entfernen ist, wird nach einer Woche zum Problem.</p>
+
+                <h3>Richtige Späne-Entfernung</h3>
+
+                <h3>Sofort nach dem Bohren:</h3>
+                <ul>
+                    <li>Ein Magnet funktioniert auf dem Dachblech oft schlecht – besser ist ein Handfeger mit festen Borsten</li>
+                    <li>Nach dem Verlegen kann man mit Wasser nachspülen, z. B. mit dem Gartenschlauch</li>
+                    <li>Arbeitsrichtung: immer von oben nach unten, damit die Späne nicht in Überlappungen sammeln</li>
+                </ul>
+
+                <h3>Am nächsten Tag:</h3>
+                <ul>
+                    <li>Erkennt man die rostbraunen Rückstände deutlich – jetzt lassen sie sich noch mit einem Schwamm entfernen</li>
+                    <li>Warmes Wasser und etwas Spülmittel helfen beim Lösen</li>
+                    <li>Mit klarem Wasser nachspülen</li>
+                </ul>
+
+                <h3>Nach 2 Wochen:</h3>
+                <ul>
+                    <li>Sind sie so fest, dass man nur noch mit Hammer und Meißel weiterkommt</li>
+                    <li>Dabei wird womöglich das Blech beschädigt</li>
+                    <li>Rostflecken sind dauerhaft und beeinträchtigen die Optik</li>
+                </ul>
+
+                <p><strong>Profi-Trick:</strong> Plane jeden Arbeitstag so, dass 15 Minuten für die Späne-Entfernung bleiben. Ein kurzer Gang über das Dach mit Handfeger und Wasserschlauch spart später Stunden von Nacharbeit und verhindert Reklamationen.</p>
+
+                <h3>Qualitätskontrolle vor Übergabe</h3>
+                <p>Bevor das Dach als fertig gilt:</p>
+
+                <ul>
+                    <li>Alle Schrauben auf korrekten Sitz prüfen</li>
+                    <li>Blechflächen auf Späne und Kratzer kontrollieren</li>
+                    <li>Überlappungen auf Dichtigkeit prüfen</li>
+                    <li>Traufkante begehen – sie zeigt die Qualität der gesamten Arbeit</li>
+                </ul>
+            </div>
+        </section>
+
+
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+        <a href="unterkonstruktion.html" class="nav-button nav-back">
+            <span class="nav-icon">←</span>
+            <span class="nav-text">Zurück zur Unterkonstruktion</span>
+        </a>
+        <a href="finish.html" class="nav-button nav-forward">
+            <span class="nav-text">Zu den Abschlüssen</span>
+            <span class="nav-icon">→</span>
+        </a>
+    </div>
+
+    <script>
+        // Mouse move effect
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
+            
+            document.documentElement.style.setProperty('--mouse-x', x + '%');
+            document.documentElement.style.setProperty('--mouse-y', y + '%');
+        });
+
+        // Intersection Observer for glass panels
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.glass-panel').forEach(panel => {
+            observer.observe(panel);
+        });
+
+        // Background image switching
+        let currentBackground = 0;
+        const backgrounds = document.querySelectorAll('.background-image');
+        const sections = document.querySelectorAll('.section');
+        
+        function switchBackground(index) {
+            backgrounds.forEach((bg, i) => {
+                if (i === index) {
+                    bg.style.opacity = '1';
+                    bg.style.zIndex = '2';
+                } else {
+                    bg.style.opacity = '0';
+                    bg.style.zIndex = '1';
+                }
+            });
+        }
+
+        // Scroll indicator and background switching
+        const scrollDots = document.querySelectorAll('.scroll-dot');
+        
+        function updateScrollIndicator() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Berechne welche Sektion gerade sichtbar ist
+            let activeSection = 0;
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop - windowHeight * 0.8) {
+                    activeSection = index;
+                }
+            });
+            
+            // Begrenze auf verfügbare Sektionen
+            activeSection = Math.max(0, Math.min(activeSection, sections.length - 1));
+            
+            // Update scroll indicator dots
+            scrollDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === activeSection);
+            });
+            
+            // Switch background when section changes
+            if (activeSection !== currentBackground) {
+                currentBackground = activeSection;
+                switchBackground(currentBackground);
+            }
+        }
+
+        // Scroll to section
+        scrollDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                window.scrollTo({
+                    top: index * window.innerHeight,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Parallax effect
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.parallax-container');
+            
+            const speed = scrolled * -0.008;
+            parallax.style.transform = `translateY(${speed}px)`;
+        }
+
+        // Event listeners
+        window.addEventListener('scroll', () => {
+            updateScrollIndicator();
+            updateParallax();
+        });
+
+        window.addEventListener('resize', updateScrollIndicator);
+
+        // Initialize
+        updateScrollIndicator();
+
+
+    </script>
+</body>
+</html>
