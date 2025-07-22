@@ -723,9 +723,9 @@
                         const bgPositionY = -10 + (sectionProgress * 80); // Von -10% bis 70%
                         document.documentElement.style.setProperty(`--bg-pos-3`, `center ${bgPositionY}%`);
                     } else if (index === 3) {
-                        // Sektion 4: First - stärkere diagonale Bewegung links oben nach rechts unten mit Zoom
-                        const bgPositionX = -30 + (sectionProgress * 160); // Von -30% bis 130% (größerer Bereich)
-                        const bgPositionY = -10 + (sectionProgress * 80); // Von -10% bis 70%
+                        // Sektion 4: First - diagonale Bewegung mit tieferem Startpunkt
+                        const bgPositionX = -30 + (sectionProgress * 160); // Von -30% bis 130% (bleibt gleich)
+                        const bgPositionY = 40 + (sectionProgress * 30); // Von 40% bis 70% (50% tiefer gestartet)
                         document.documentElement.style.setProperty(`--bg-pos-4`, `${bgPositionX}% ${bgPositionY}%`);
                     }
                 }
