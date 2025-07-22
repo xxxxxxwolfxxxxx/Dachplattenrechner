@@ -96,11 +96,11 @@
         }
 
         .section {
-            min-height: 250vh;
+            min-height: 300vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 75vh 20px;
+            padding: 100vh 20px;
             position: relative;
         }
 
@@ -684,7 +684,7 @@
                 const sectionTop = section.offsetTop;
                 const sectionHeight = section.offsetHeight;
                 
-                if (scrollPosition >= sectionTop - windowHeight * 0.8) {
+                if (scrollPosition >= sectionTop - windowHeight * 1.2) {
                     activeSection = index;
                 }
             });
@@ -735,17 +735,17 @@
                 if (scrollPosition >= sectionTop - windowHeight && scrollPosition <= sectionBottom) {
                     // Berechne den lokalen Fortschritt innerhalb der Sektion
                     const sectionProgress = Math.max(0, Math.min(1, 
-                        (scrollPosition - (sectionTop - windowHeight)) / (section.offsetHeight + windowHeight)
+                        (scrollPosition - (sectionTop - windowHeight * 0.5)) / (section.offsetHeight + windowHeight * 0.5)
                     ));
                     
-                    // Für Sektion 3 (index 2) - Wolken bewegen sich seitlich
+                    // Für Sektion 3 (index 2) - Wolken bewegen sich nur seitlich, Y bleibt konstant
                     if (index === 2) {
-                        // Horizontale Bewegung der Wolken: von links (-30%) nach rechts (+30%)
-                        const bgPositionX = -30 + (sectionProgress * 60);
-                        document.documentElement.style.setProperty(`--bg-pos-3`, `${bgPositionX}% 20%`);
+                        // Horizontale Bewegung der Wolken: von links (-40%) nach rechts (+40%)
+                        const bgPositionX = -40 + (sectionProgress * 80);
+                        document.documentElement.style.setProperty(`--bg-pos-3`, `${bgPositionX}% 30%`);
                     } else if (index === 3) {
                         // Für Sektion 4 (Bild 4) - nur 50% der normalen Scrollbewegung
-                        const bgPositionY = (sectionProgress * 50);
+                        const bgPositionY = 25 + (sectionProgress * 25); // Von 25% bis 50%
                         document.documentElement.style.setProperty(`--bg-pos-4`, `center ${bgPositionY}%`);
                     } else {
                         // Für alle anderen Sektionen: Vertikale Bewegung von oben nach unten
