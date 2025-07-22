@@ -30,15 +30,15 @@
 
         .background-image {
             position: absolute;
-            width: 105%;
-            height: 105%;
+            width: 120%;
+            height: 120%;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             transition: opacity 2s ease-in-out;
             opacity: 0;
-            top: 0%;
-            left: -2.5%;
+            top: -10%;
+            left: -10%;
         }
 
         .background-image.active {
@@ -719,13 +719,13 @@
                         const bgPositionX = (sectionProgress * 100);
                         document.documentElement.style.setProperty(`--bg-pos-2`, `${bgPositionX}% center`);
                     } else if (index === 2) {
-                        // Sektion 3: Ortgang Detail - horizontale Bewegung von links nach rechts
-                        const bgPositionX = (sectionProgress * 100);
+                        // Sektion 3: Ortgang Detail - verstärkte horizontale Bewegung
+                        const bgPositionX = -20 + (sectionProgress * 140); // Von -20% bis 120%
                         document.documentElement.style.setProperty(`--bg-pos-3`, `${bgPositionX}% center`);
                     } else if (index === 3) {
-                        // Sektion 4: First - diagonale Bewegung
-                        const bgPositionX = 100 + (sectionProgress * 50);
-                        const bgPositionY = (sectionProgress * 30);
+                        // Sektion 4: First - verstärkte diagonale Bewegung
+                        const bgPositionX = -30 + (sectionProgress * 160); // Von -30% bis 130%
+                        const bgPositionY = -20 + (sectionProgress * 120); // Von -20% bis 100%
                         document.documentElement.style.setProperty(`--bg-pos-4`, `${bgPositionX}% ${bgPositionY}%`);
                     }
                 }
