@@ -1009,37 +1009,59 @@
                     return;
             }
             
-            // Öffne die Skizze in einem neuen Fenster zum direkten Drucken
+            // Öffne die Skizze in einem neuen Fenster und starte automatisch den Druck
             try {
                 const printWindow = window.open(filename, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
                 
                 if (printWindow) {
-                    // Warte bis die Seite geladen ist, dann zeige Druckdialog
-                    printWindow.onload = function() {
+                    // Warte bis die Seite vollständig geladen ist
+                    printWindow.addEventListener('load', function() {
+                        // Kleiner Timeout um sicherzustellen, dass alles gerendert ist
                         setTimeout(() => {
-                            // Zeige Druckanweisung
-                            if (confirm(`${title} wurde geöffnet.\n\nMöchten Sie die Skizze jetzt drucken?\n\n✓ Klicken Sie "OK" für sofortigen Druck\n✓ Klicken Sie "Abbrechen" um die Skizze erst zu betrachten\n\nTipp: Wählen Sie beim Drucken "Als PDF speichern" um eine PDF-Datei zu erstellen.`)) {
+                            try {
+                                // Starte den Druckdialog automatisch
                                 printWindow.print();
+                                
+                                // Optional: Schließe das Fenster nach dem Drucken/Abbrechen
+                                printWindow.addEventListener('afterprint', function() {
+                                    printWindow.close();
+                                });
+                                
+                            } catch (printError) {
+                                console.log('Druckdialog konnte nicht automatisch gestartet werden:', printError);
+                                alert(`${title} wurde geöffnet.\n\nBitte drücken Sie Strg+P um den Druckdialog zu öffnen.\n\nTipp: Wählen Sie "Als PDF speichern" um eine PDF-Datei zu erstellen.`);
                             }
-                        }, 500);
-                    };
+                        }, 800);
+                    });
                     
-                    // Fallback falls onload nicht funktioniert
+                    // Fallback für ältere Browser
                     setTimeout(() => {
-                        if (printWindow.document.readyState === 'complete') {
-                            // Seite ist bereits geladen
+                        if (printWindow.document && printWindow.document.readyState === 'complete') {
+                            try {
+                                printWindow.print();
+                                printWindow.addEventListener('afterprint', function() {
+                                    printWindow.close();
+                                });
+                            } catch (e) {
+                                console.log('Fallback: Druckdialog nicht automatisch startbar');
+                            }
                         }
-                    }, 1000);
+                    }, 1500);
                     
                 } else {
                     // Popup wurde blockiert
-                    alert('Popup wurde blockiert!\n\nBitte erlauben Sie Popups für diese Website oder öffnen Sie die Skizze manuell:\n\n' + filename + '\n\nDort können Sie dann über Strg+P oder das Druckmenü die Skizze drucken.');
+                    alert('Popup wurde blockiert!\n\nBitte erlauben Sie Popups für diese Website.\n\nAlternativ können Sie die Skizze manuell öffnen: ' + filename);
+                    // Fallback: Öffne in gleichem Tab
+                    window.open(filename, '_blank');
                 }
                 
             } catch (error) {
                 console.error('Fehler beim Öffnen der Skizze:', error);
-                // Fallback: Versuche normalen Link
-                window.open(filename, '_blank');
+                // Letzter Fallback: Normaler Link
+                const link = document.createElement('a');
+                link.href = filename;
+                link.target = '_blank';
+                link.click();
             }
         }
 
