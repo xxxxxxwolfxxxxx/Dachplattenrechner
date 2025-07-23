@@ -654,15 +654,15 @@
                     </div>
                     <h2 class="card-title">Bemaßungsskizzen</h2>
                     <p class="card-description">
-                        Professionelle DIN A4 Skizzen für alle Dachformen zum Download als PDF.
+                        Professionelle DIN A4 Skizzen für alle Dachformen - direkt drucken oder als PDF speichern.
                     </p>
                     <ul class="card-features">
                         <li>DIN A4 Format</li>
                         <li>Alle Dachtypen verfügbar</li>
-                        <li>Druckfertige Qualität</li>
-                        <li>Sofortiger PDF-Download</li>
+                        <li>Direkt druckbereit</li>
+                        <li>Als PDF speicherbar</li>
                     </ul>
-                    <span class="cta-button">Skizzen herunterladen</span>
+                    <span class="cta-button">Skizzen drucken</span>
                 </a>
 
                 <!-- Verschnitt-Optimierung -->
@@ -805,7 +805,7 @@
                     </div>
                     <div class="sketch-title">Pultdach</div>
                     <div class="sketch-description">Einfache rechteckige Dachfläche mit Neigung</div>
-                    <div class="sketch-download-btn">📥</div>
+                    <div class="sketch-download-btn">🖨️</div>
                 </div>
                 
                 <!-- Satteldach -->
@@ -901,8 +901,9 @@
             </div>
             
             <div class="sketch-info">
-                <strong>Hinweis:</strong> Alle Skizzen werden im DIN A4 Format als PDF heruntergeladen. 
-                Die Bemaßungslinien können individuell ausgefüllt werden. Perfekt für die Baustellendokumentation!
+                <strong>So funktioniert's:</strong> Klicken Sie auf eine Dachform um die Skizze zu öffnen. 
+                Die Bemaßungsskizze öffnet sich in einem neuen Fenster und kann direkt gedruckt werden. 
+                <strong>Tipp:</strong> Wählen Sie beim Drucken "Als PDF speichern" um eine PDF-Datei zu erstellen!
             </div>
         </div>
     </div>
@@ -980,49 +981,65 @@
         
         function downloadSketch(sketchType) {
             let filename = '';
+            let title = '';
             
             switch(sketchType) {
                 case 'pultdach':
                     filename = 'pultdach.html';
+                    title = 'Pultdach Bemaßungsskizze';
                     break;
                 case 'satteldach':
                     filename = 'Satteldach.html';
+                    title = 'Satteldach Bemaßungsskizze';
                     break;
                 case 'walmdach':
                     filename = 'walmdach.html';
+                    title = 'Walmdach Bemaßungsskizze';
                     break;
                 case 'krueppelwalm':
                     filename = 'krüppelwalm.html';
+                    title = 'Krüppelwalmdach Bemaßungsskizze';
                     break;
                 case 'pyramidendach':
                     filename = 'pyramidendach.html';
+                    title = 'Pyramidendach Bemaßungsskizze';
                     break;
                 default:
                     console.error('Unknown sketch type:', sketchType);
                     return;
             }
             
-            // Erstelle temporären Link zum Download der HTML-Datei
-            const link = document.createElement('a');
-            link.href = filename;
-            link.download = filename.replace('.html', '_Bemaßungsskizze.html');
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            
-            // Versuche den Download zu starten
+            // Öffne die Skizze in einem neuen Fenster zum direkten Drucken
             try {
-                link.click();
+                const printWindow = window.open(filename, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
                 
-                // Zeige Erfolgsbenachrichtigung
-                setTimeout(() => {
-                    alert(`Die Bemaßungsskizze "${filename.replace('.html', '')}" wurde heruntergeladen.\n\nTipp: Öffnen Sie die HTML-Datei in Ihrem Browser und drucken Sie sie als PDF (Strg+P → "Als PDF speichern").`);
-                }, 500);
+                if (printWindow) {
+                    // Warte bis die Seite geladen ist, dann zeige Druckdialog
+                    printWindow.onload = function() {
+                        setTimeout(() => {
+                            // Zeige Druckanweisung
+                            if (confirm(`${title} wurde geöffnet.\n\nMöchten Sie die Skizze jetzt drucken?\n\n✓ Klicken Sie "OK" für sofortigen Druck\n✓ Klicken Sie "Abbrechen" um die Skizze erst zu betrachten\n\nTipp: Wählen Sie beim Drucken "Als PDF speichern" um eine PDF-Datei zu erstellen.`)) {
+                                printWindow.print();
+                            }
+                        }, 500);
+                    };
+                    
+                    // Fallback falls onload nicht funktioniert
+                    setTimeout(() => {
+                        if (printWindow.document.readyState === 'complete') {
+                            // Seite ist bereits geladen
+                        }
+                    }, 1000);
+                    
+                } else {
+                    // Popup wurde blockiert
+                    alert('Popup wurde blockiert!\n\nBitte erlauben Sie Popups für diese Website oder öffnen Sie die Skizze manuell:\n\n' + filename + '\n\nDort können Sie dann über Strg+P oder das Druckmenü die Skizze drucken.');
+                }
                 
             } catch (error) {
-                console.error('Download fehlergeschlagen:', error);
-                alert('Download konnte nicht gestartet werden. Bitte versuchen Sie es erneut.');
-            } finally {
-                document.body.removeChild(link);
+                console.error('Fehler beim Öffnen der Skizze:', error);
+                // Fallback: Versuche normalen Link
+                window.open(filename, '_blank');
             }
         }
 
