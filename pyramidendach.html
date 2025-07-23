@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pyramidendach Skizze</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+        
+        body {
+            margin: 0;
+            padding: 15px;
+            font-family: Arial, sans-serif;
+            background: white;
+        }
+        
+        .container {
+            width: 180mm;
+            height: 148.5mm; /* Obere Hälfte von A4 hochkant */
+            position: relative;
+            background: white;
+            margin: 0 auto;
+        }
+        
+        .sketch-area {
+            position: relative;
+            width: 160mm;
+            height: 85mm;
+            margin: 15mm auto 0;
+            background: white;
+        }
+        
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 20px;
+            color: rgba(0, 0, 0, 0.08);
+            font-weight: bold;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        /* Pyramidendach komplett in SVG */
+        .pyramidendach-svg {
+            position: absolute;
+            top: 5mm;
+            left: 30mm;
+            width: 100mm;
+            height: 110mm;
+        }
+        
+        .dimension-line {
+            position: absolute;
+            border-top: 1px solid #000;
+        }
+        
+        .dimension-tick {
+            position: absolute;
+            background: #000;
+        }
+        
+        /* Horizontale Bemaßung oben */
+        .dim-top {
+            top: -5mm;
+            left: 30mm;
+            width: 100mm;
+        }
+        
+        .tick-top-left {
+            top: -7mm;
+            left: 30mm;
+            width: 1px;
+            height: 4mm;
+        }
+        
+        .tick-top-right {
+            top: -7mm;
+            left: 130mm;
+            width: 1px;
+            height: 4mm;
+        }
+        
+        /* Horizontale Bemaßung unten */
+        .dim-bottom {
+            top: 125mm;
+            left: 30mm;
+            width: 100mm;
+        }
+        
+        .tick-bottom-left {
+            top: 123mm;
+            left: 30mm;
+            width: 1px;
+            height: 4mm;
+        }
+        
+        .tick-bottom-right {
+            top: 123mm;
+            left: 130mm;
+            width: 1px;
+            height: 4mm;
+        }
+        
+        /* Vertikale Bemaßung links */
+        .dim-left {
+            top: 5mm;
+            left: 20mm;
+            width: 1px;
+            height: 110mm;
+            border-left: 1px solid #000;
+            border-top: none;
+        }
+        
+        .tick-left-top {
+            top: 5mm;
+            left: 18mm;
+            width: 4mm;
+            height: 1px;
+        }
+        
+        .tick-left-bottom {
+            top: 115mm;
+            left: 18mm;
+            width: 4mm;
+            height: 1px;
+        }
+        
+        /* Vertikale Bemaßung rechts */
+        .dim-right {
+            top: 5mm;
+            left: 140mm;
+            width: 1px;
+            height: 110mm;
+            border-left: 1px solid #000;
+            border-top: none;
+        }
+        
+        .tick-right-top {
+            top: 5mm;
+            left: 138mm;
+            width: 4mm;
+            height: 1px;
+        }
+        
+        .tick-right-bottom {
+            top: 115mm;
+            left: 138mm;
+            width: 4mm;
+            height: 1px;
+        }
+        
+        .legend {
+            position: absolute;
+            bottom: -20mm;
+            left: 10mm;
+            right: 10mm;
+            font-size: 10px;
+        }
+        
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 11px;
+        }
+        
+        .legend-grid {
+            display: grid;
+            grid-template-columns: 25mm 35mm 1fr 25mm;
+            gap: 2mm;
+            align-items: center;
+        }
+        
+        .legend-item {
+            display: contents;
+        }
+        
+        .legend-symbol {
+            width: 20mm;
+            height: 12px;
+            border: 1px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            background: white;
+        }
+        
+        .legend-text {
+            font-size: 10px;
+        }
+        
+        .legend-line {
+            border-bottom: 1px solid #ccc;
+            height: 1px;
+        }
+        
+        .legend-measure {
+            font-size: 8px;
+            color: #666;
+        }
+        
+        /* Symbole für die Legende */
+        .symbol-window::before { content: "□"; font-size: 10px; }
+        .symbol-walkway::before { content: "═"; font-size: 10px; }
+        .symbol-ladder::before { content: "|||"; font-size: 7px; }
+        .symbol-pipe::before { content: "○"; font-size: 10px; }
+        .symbol-cable::before { content: "◊"; font-size: 8px; }
+        .symbol-chimney::before { content: "▬"; font-size: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sketch-area">
+            <div class="watermark">Dachplattenrechner.de</div>
+            
+            <!-- Pyramidendach: 4 Dreiecke treffen sich in der Mitte -->
+            <svg class="pyramidendach-svg" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+                <!-- Rechteck-Umriss -->
+                <rect x="0" y="0" width="100" height="110" fill="rgba(240, 240, 240, 0.05)" stroke="black" stroke-width="1.5"/>
+                
+                <!-- 4 Gratlinien: von jeder Ecke zum zentralen Punkt (50,55) -->
+                <!-- Ecke oben-links (0,0) → Zentrum (50,55) -->
+                <line x1="0" y1="0" x2="50" y2="55" stroke="black" stroke-width="0.8"/>
+                <!-- Ecke oben-rechts (100,0) → Zentrum (50,55) -->
+                <line x1="100" y1="0" x2="50" y2="55" stroke="black" stroke-width="0.8"/>
+                <!-- Ecke unten-links (0,110) → Zentrum (50,55) -->
+                <line x1="0" y1="110" x2="50" y2="55" stroke="black" stroke-width="0.8"/>
+                <!-- Ecke unten-rechts (100,110) → Zentrum (50,55) -->
+                <line x1="100" y1="110" x2="50" y2="55" stroke="black" stroke-width="0.8"/>
+            </svg>
+            
+            <!-- Bemaßungslinien oben -->
+            <div class="dimension-line dim-top"></div>
+            <div class="dimension-tick tick-top-left"></div>
+            <div class="dimension-tick tick-top-right"></div>
+            
+            <!-- Bemaßungslinien unten -->
+            <div class="dimension-line dim-bottom"></div>
+            <div class="dimension-tick tick-bottom-left"></div>
+            <div class="dimension-tick tick-bottom-right"></div>
+            
+            <!-- Bemaßungslinien links -->
+            <div class="dimension-line dim-left"></div>
+            <div class="dimension-tick tick-left-top"></div>
+            <div class="dimension-tick tick-left-bottom"></div>
+            
+            <!-- Bemaßungslinien rechts -->
+            <div class="dimension-line dim-right"></div>
+            <div class="dimension-tick tick-right-top"></div>
+            <div class="dimension-tick tick-right-bottom"></div>
+        </div>
+        
+        <!-- Legende -->
+        <div class="legend">
+            <div class="legend-title">Legende:</div>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-window"></div>
+                    <div class="legend-text">Dachfenster</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">B: ___mm H: ___mm</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-walkway"></div>
+                    <div class="legend-text">Dachsteg</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">L: ___mm B: ___mm</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-ladder"></div>
+                    <div class="legend-text">Dachleiter</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">L: ___mm Abst: ___mm</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-pipe"></div>
+                    <div class="legend-text">Rohrdurchführung</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">Ø: ___mm Abst: ___mm</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-cable"></div>
+                    <div class="legend-text">Kabeldurchführung</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">Ø: ___mm Abst: ___mm</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-chimney"></div>
+                    <div class="legend-text">Schornstein</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">B: ___mm T: ___mm</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
