@@ -1009,26 +1009,65 @@
                     return;
             }
             
-            // Öffne die HTML-Datei direkt im Druckvorschau-Fenster
-            const printWindow = window.open(filename, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+            // Erstelle ein verstecktes iframe für die Druckvorschau
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.style.position = 'absolute';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = 'none';
             
-            if (printWindow) {
-                // Warte bis das Fenster geladen ist, dann öffne automatisch die Druckvorschau
-                printWindow.onload = function() {
-                    setTimeout(() => {
-                        try {
-                            printWindow.print();
-                        } catch (error) {
-                            console.log('Automatisches Drucken nicht möglich:', error);
+            document.body.appendChild(iframe);
+            
+            // Lade die HTML-Datei im iframe
+            iframe.src = filename;
+            
+            iframe.onload = function() {
+                setTimeout(() => {
+                    try {
+                        // Öffne Druckvorschau direkt vom iframe
+                        iframe.contentWindow.print();
+                        
+                        // Entferne iframe nach dem Drucken
+                        setTimeout(() => {
+                            if (iframe.parentNode) {
+                                document.body.removeChild(iframe);
+                            }
+                        }, 3000);
+                        
+                    } catch (error) {
+                        console.log('Iframe-Druck nicht möglich, versuche Popup:', error);
+                        
+                        // Fallback: Minimiertes, verstecktes Popup
+                        const printWindow = window.open(filename, '_blank', 'width=1,height=1,left=-2000,top=-2000,toolbar=no,menubar=no,scrollbars=no,resizable=no');
+                        
+                        if (printWindow) {
+                            printWindow.onload = function() {
+                                setTimeout(() => {
+                                    printWindow.print();
+                                    setTimeout(() => {
+                                        printWindow.close();
+                                    }, 2000);
+                                }, 1000);
+                            };
                         }
-                    }, 1000);
-                };
-                
-                // Fokussiere das neue Fenster
-                printWindow.focus();
-            } else {
-                alert('Popup wurde blockiert. Bitte erlauben Sie Popups für diese Website oder öffnen Sie die Datei manuell: ' + filename);
-            }
+                        
+                        // Cleanup iframe
+                        if (iframe.parentNode) {
+                            document.body.removeChild(iframe);
+                        }
+                    }
+                }, 1500);
+            };
+            
+            // Fehler beim Laden des iframe
+            iframe.onerror = function() {
+                console.error('Fehler beim Laden der Skizze');
+                if (iframe.parentNode) {
+                    document.body.removeChild(iframe);
+                }
+                alert('Fehler beim Laden der Skizze: ' + filename);
+            };
         }
 
         // Modal Management
