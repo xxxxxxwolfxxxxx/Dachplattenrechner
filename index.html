@@ -147,10 +147,93 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
-            margin-bottom: 30px; /* Reduziert, da unterer Ad-Container mehr Abstand hat */
+            margin-bottom: 30px;
             max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
+        }
+        
+        /* Calculator Card Styles - sicherstelle einheitliche Größen */
+        .calculator-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            height: auto;
+            min-height: 400px;
+        }
+        
+        .calculator-card:hover {
+            border-color: #2a5298;
+            box-shadow: 0 8px 25px rgba(42, 82, 152, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        .card-icon {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .card-description {
+            font-size: 0.95em;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .card-features {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .card-features li {
+            padding: 5px 0;
+            font-size: 0.9em;
+            color: #555;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .card-features li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #2a5298 0%, #1e3d72 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background: linear-gradient(135deg, #1e3d72 0%, #2a5298 100%);
+            transform: translateY(-1px);
         }
         
         /* Sketch Modal Styles */
@@ -348,166 +431,36 @@
                 margin: 20px 15px;
             }
             
-            // OPTIMIERTE Druckfunktion - verhindert unnötige Extra-Fenster
-            // Erstelle verstecktes iframe für sauberes Drucken
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.style.position = 'absolute';
-            iframe.style.left = '-9999px';
-            iframe.style.top = '-9999px';
-            iframe.style.width = '1px';
-            iframe.style.height = '1px';
-            iframe.style.border = 'none';
+        // VEREINFACHTE Druckfunktion - zurück zum Basis-Ansatz
+        function downloadSketch(sketchType) {
+            let filename = '';
             
-            document.body.appendChild(iframe);
+            switch(sketchType) {
+                case 'pultdach':
+                    filename = 'pultdach.html';
+                    break;
+                case 'satteldach':
+                    filename = 'Satteldach.html';
+                    break;
+                case 'walmdach':
+                    filename = 'walmdach.html';
+                    break;
+                case 'krueppelwalm':
+                    filename = 'krüppelwalm.html';
+                    break;
+                case 'pyramidendach':
+                    filename = 'pyramidendach.html';
+                    break;
+                default:
+                    console.error('Unknown sketch type:', sketchType);
+                    return;
+            }
             
-            // Lade die Skizze im versteckten iframe
-            iframe.src = filename;
+            // Einfache Lösung: Öffne in neuem Tab zum Drucken
+            const printWindow = window.open(filename, '_blank');
             
-            iframe.onload = function() {
-                try {
-                    // Versuche direkten iframe-Druck (beste Option)
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    
-                    if (iframeDoc) {
-                        // Füge Druck-optimierte CSS-Regeln hinzu
-                        const style = iframeDoc.createElement('style');
-                        style.textContent = `
-                            @page {
-                                size: A4 portrait;
-                                margin: 8mm !important;
-                            }
-                            
-                            body {
-                                margin: 0 !important;
-                                padding: 3mm !important;
-                                transform: scale(0.96) !important;
-                                transform-origin: top left !important;
-                            }
-                            
-                            .container {
-                                width: 194mm !important;
-                                height: 280mm !important;
-                                position: relative !important;
-                                margin: 0 auto !important;
-                            }
-                            
-                            .sketch-area {
-                                margin-top: 12mm !important;
-                                height: 145mm !important;
-                            }
-                            
-                            .legend {
-                                bottom: 45mm !important;
-                                position: absolute !important;
-                            }
-                            
-                            .watermark {
-                                font-size: 18px !important;
-                                opacity: 0.08 !important;
-                            }
-                            
-                            /* Verbesserte Linienstärken für Druck */
-                            .dimension-line, .dimension-tick {
-                                border-width: 1.2px !important;
-                            }
-                            
-                            svg line, svg rect {
-                                stroke-width: 1.5 !important;
-                            }
-                            
-                            /* Bessere Lesbarkeit der Texte */
-                            .legend-text, .legend-title {
-                                font-size: 11px !important;
-                                font-weight: 500 !important;
-                            }
-                        `;
-                        
-                        iframeDoc.head.appendChild(style);
-                        
-                        // Aktualisiere Watermark
-                        const watermark = iframeDoc.querySelector('.watermark');
-                        if (watermark) {
-                            watermark.textContent = 'Dachplattenrechner.de';
-                        }
-                        
-                        // Warte kurz und drucke dann
-                        setTimeout(() => {
-                            try {
-                                iframe.contentWindow.print();
-                                
-                                // Entferne iframe nach dem Drucken
-                                setTimeout(() => {
-                                    if (iframe.parentNode) {
-                                        document.body.removeChild(iframe);
-                                    }
-                                }, 3000);
-                                
-                            } catch (printError) {
-                                console.log('Iframe-Druck fehlgeschlagen:', printError);
-                                fallbackPrint();
-                            }
-                        }, 1000);
-                        
-                    } else {
-                        // Falls kein Zugriff auf iframe-Dokument möglich
-                        fallbackPrint();
-                    }
-                    
-                } catch (error) {
-                    console.log('Iframe-Zugriff nicht möglich:', error);
-                    fallbackPrint();
-                }
-            };
-            
-            iframe.onerror = function() {
-                console.error('Fehler beim Laden der Skizze:', filename);
-                fallbackPrint();
-            };
-            
-            // Fallback-Funktion für den Fall, dass iframe nicht funktioniert
-            function fallbackPrint() {
-                // Cleanup iframe
-                if (iframe.parentNode) {
-                    document.body.removeChild(iframe);
-                }
-                
-                // Öffne neues Fenster nur als letzter Ausweg
-                // Aber versteckt außerhalb des sichtbaren Bereichs
-                const printWindow = window.open(
-                    filename, 
-                    '_blank', 
-                    'width=10,height=10,left=-1000,top=-1000,scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no'
-                );
-                
-                if (printWindow) {
-                    printWindow.onload = function() {
-                        // Warte bis Dokument geladen ist
-                        setTimeout(() => {
-                            try {
-                                printWindow.print();
-                                // Schließe Fenster nach kurzer Zeit
-                                setTimeout(() => {
-                                    printWindow.close();
-                                }, 1500);
-                            } catch (e) {
-                                console.log('Fallback-Druck fehlgeschlagen:', e);
-                                printWindow.close();
-                                alert('Drucken nicht möglich. Bitte öffnen Sie die Skizze manuell: ' + filename);
-                            }
-                        }, 800);
-                    };
-                    
-                    // Falls das Fenster nicht lädt
-                    setTimeout(() => {
-                        if (printWindow && !printWindow.closed) {
-                            printWindow.close();
-                        }
-                    }, 5000);
-                } else {
-                    // Popup wurde blockiert
-                    alert('Popup wurde blockiert. Bitte erlauben Sie Popups für diese Seite oder öffnen Sie die Skizze manuell: ' + filename);
-                }
+            if (!printWindow) {
+                alert('Popup wurde blockiert. Bitte erlauben Sie Popups für diese Seite.');
             }
         }
 
