@@ -1015,49 +1015,28 @@
             if (printWindow) {
                 // Warte bis das Fenster geladen ist
                 printWindow.onload = function() {
-                    // CSS für 3cm Abstand oben hinzufügen
+                    // Kurz warten, dann drucken
                     setTimeout(() => {
                         try {
-                            // Füge CSS-Regel für 3cm Abstand oben hinzu
-                            const printDoc = printWindow.document;
-                            const style = printDoc.createElement('style');
-                            style.textContent = `
-                                @page {
-                                    margin-top: 30mm !important;
-                                }
-                                body {
-                                    margin-top: 30mm !important;
-                                }
-                                .container {
-                                    margin-top: 30mm !important;
-                                }
-                            `;
-                            printDoc.head.appendChild(style);
+                            // Druckvorschau öffnen
+                            printWindow.print();
                             
-                            // Kurz warten, dann drucken
-                            setTimeout(() => {
-                                // Druckvorschau öffnen
-                                printWindow.print();
-                                
-                                // Fenster nach dem Drucken schließen
-                                printWindow.onafterprint = function() {
-                                    setTimeout(() => {
-                                        printWindow.close();
-                                    }, 500);
-                                };
-                                
-                                // Fallback: Fenster nach 10 Sekunden automatisch schließen
+                            // Fenster nach dem Drucken schließen
+                            printWindow.onafterprint = function() {
                                 setTimeout(() => {
-                                    if (!printWindow.closed) {
-                                        printWindow.close();
-                                    }
-                                }, 10000);
-                            }, 500);
+                                    printWindow.close();
+                                }, 500);
+                            };
+                            
+                            // Fallback: Fenster nach 10 Sekunden automatisch schließen
+                            setTimeout(() => {
+                                if (!printWindow.closed) {
+                                    printWindow.close();
+                                }
+                            }, 10000);
                             
                         } catch (error) {
-                            console.log('CSS-Anpassung oder Drucken nicht möglich:', error);
-                            // Trotzdem versuchen zu drucken
-                            printWindow.print();
+                            console.log('Drucken nicht möglich:', error);
                             // Fenster trotzdem schließen
                             setTimeout(() => {
                                 printWindow.close();
