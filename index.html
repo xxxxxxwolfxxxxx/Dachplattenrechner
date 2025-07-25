@@ -1046,15 +1046,37 @@
                         @media print {
                             @page {
                                 margin: 3cm !important;
-                                size: A4;
+                                size: A4 !important;
                             }
                             body {
                                 margin: 0 !important;
                                 padding: 0 !important;
                             }
+                            * {
+                                margin: 0 !important;
+                                padding: 0 !important;
+                                box-sizing: border-box !important;
+                            }
+                            html {
+                                margin: 0 !important;
+                                padding: 0 !important;
+                            }
+                        }
+                        @page {
+                            margin: 3cm !important;
+                            size: A4 !important;
                         }
                     `;
                     iframeDoc.head.appendChild(style);
+                    
+                    // Entferne auch bestehende Styles die Margins setzen könnten
+                    const existingStyles = iframeDoc.querySelectorAll('style, link[rel="stylesheet"]');
+                    existingStyles.forEach(styleEl => {
+                        if (styleEl.textContent && styleEl.textContent.includes('@page')) {
+                            // Überschreibe @page Regeln
+                            styleEl.textContent = styleEl.textContent.replace(/@page[^}]*}/g, '@page { margin: 3cm !important; size: A4 !important; }');
+                        }
+                    });
                     
                     // Kurz warten, dann drucken
                     setTimeout(() => {
