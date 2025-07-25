@@ -174,11 +174,11 @@
         }
 
         .section {
-            min-height: 250vh;
+            min-height: 190vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 75vh 20px;
+            padding: 45vh 20px;
             position: relative;
         }
 
@@ -510,6 +510,7 @@
         <div class="scroll-dot active" data-section="0"></div>
         <div class="scroll-dot" data-section="1"></div>
         <div class="scroll-dot" data-section="2"></div>
+        <div class="scroll-dot" data-section="3"></div>
     </div>
 
     <div class="content">
@@ -679,6 +680,21 @@
     </div>
 
     <script>
+        // Floating particles
+        function createFloatingElements() {
+            const container = document.querySelector('.floating-elements');
+            const elementCount = 50;
+            
+            for (let i = 0; i < elementCount; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 6 + 's';
+                element.style.animationDuration = (6 + Math.random() * 4) + 's';
+                container.appendChild(element);
+            }
+        }
+
         // Mouse move effect
         document.addEventListener('mousemove', (e) => {
             const x = (e.clientX / window.innerWidth) * 100;
@@ -859,6 +875,7 @@
         window.addEventListener('resize', updateScrollIndicator);
 
         // Initialize
+        createFloatingElements();
         updateScrollIndicator();
     </script>
 </body>
