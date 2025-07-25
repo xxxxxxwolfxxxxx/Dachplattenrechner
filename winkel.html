@@ -696,7 +696,7 @@
             parallax.style.transform = `translateY(${speed}px)`;
         }
 
-        // GEÄNDERTE Hintergrund-Scrolleffekte für alle Sektionen
+        // ZURÜCK ZU ORIGINALLOGIK - so wie es in winkel.html war
         function updateBackgroundScroll() {
             const scrollPosition = window.scrollY;
             const windowHeight = window.innerHeight;
@@ -705,14 +705,13 @@
                 const sectionTop = section.offsetTop;
                 const sectionBottom = sectionTop + section.offsetHeight;
                 
-                // GEÄNDERT: Früher starten - bereits 25vh vor der Sektion
-                if (scrollPosition >= sectionTop - windowHeight * 0.25 && scrollPosition <= sectionBottom) {
-                    // GEÄNDERT: Neue Berechnung die früher startet
+                if (scrollPosition >= sectionTop - windowHeight && scrollPosition <= sectionBottom) {
+                    // ORIGINAL: Berechne den lokalen Fortschritt innerhalb der Sektion
                     const sectionProgress = Math.max(0, Math.min(1, 
-                        (scrollPosition - (sectionTop - windowHeight * 0.25)) / (section.offsetHeight + windowHeight * 0.25)
+                        (scrollPosition - (sectionTop - windowHeight * 0.5)) / (section.offsetHeight + windowHeight * 0.5)
                     ));
                     
-                    // Verschiedene Effekte für verschiedene Sektionen
+                    // Verschiedene Effekte für verschiedene Sektionen (ORIGINAL)
                     if (index === 0) {
                         // Sektion 1: Traufbereich - langsame vertikale Bewegung
                         const bgPositionY = (sectionProgress * 50);
