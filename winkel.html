@@ -655,9 +655,9 @@
                 const sectionTop = section.offsetTop;
                 const sectionHeight = section.offsetHeight;
                 
-                // GEÄNDERT: Viel später wechseln - erst wenn wir bereits 50vh in die neue Sektion sind
-                // Bei padding: 50vh bedeutet das: Text ist komplett weg
-                if (scrollPosition >= sectionTop + windowHeight * 0.5) {
+                // GEÄNDERT: Perfektes Timing - wechselt genau zwischen altem Text weg und neuem Text da
+                // Bei padding: 50vh wechselt das Bild bei 25vh in die neue Sektion
+                if (scrollPosition >= sectionTop + windowHeight * 0.25) {
                     activeSection = index;
                 }
             });
