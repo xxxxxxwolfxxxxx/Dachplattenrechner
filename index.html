@@ -314,6 +314,24 @@
             visibility: hidden;
         }
         
+        .header-description {
+            max-width: 800px;
+            margin: 25px auto 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header-description p {
+            color: #ffffff;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+            text-align: center;
+        }
+        
         /* Mobile Optimierung */
         @media (max-width: 768px) {
             .ad-container, .ad-container-middle {
@@ -331,6 +349,16 @@
             
             .ad-text-block {
                 text-align: center;
+            }
+            
+            .header-description {
+                margin: 20px 15px 0;
+                padding: 15px;
+            }
+            
+            .header-description p {
+                font-size: 14px;
+                line-height: 1.5;
             }
             
             .calculators-grid {
@@ -366,23 +394,8 @@
         <div class="container">
             <h1>Dachplattenrechner.de</h1>
             <p class="header-subtitle">Professionelle Berechnung für Trapezbleche und Dachplatten</p>
-            <div class="features">
-                <div class="feature">
-                    <span>📏</span>
-                    <span>Präzise Berechnungen</span>
-                </div>
-                <div class="feature">
-                    <span>📐</span>
-                    <span>Detaillierte Anrisspläne</span>
-                </div>
-                <div class="feature">
-                    <span>🎯</span>
-                    <span>Materialoptimierung</span>
-                </div>
-                <div class="feature">
-                    <span>🖨️</span>
-                    <span>Druckfertige Pläne</span>
-                </div>
+            <div class="header-description">
+                <p>Als Hobbydachdecker stehen Sie oft vor der Herausforderung, den genauen Materialverbrauch für Ihr Dachprojekt zu berechnen. Unser kostenloser Dachplattenrechner nimmt Ihnen die komplexe Mathematik ab und erstellt präzise Schnittlisten sowie druckfertige Anrisspläne. Sparen Sie Zeit, Geld und vermeiden Sie teure Materialverschwendung – egal ob Pultdach, Satteldach oder komplexe Walmdächer.</p>
             </div>
         </div>
     </header>
@@ -1020,113 +1033,53 @@
                     return;
             }
             
-            console.log('Loading sketch file:', filename);
+            console.log('Opening sketch file:', filename);
             
-            // Erstelle ein komplett unsichtbares iframe
-            const iframe = document.createElement('iframe');
-            iframe.style.position = 'absolute';
-            iframe.style.left = '-99999px';
-            iframe.style.top = '-99999px';
-            iframe.style.width = '0px';
-            iframe.style.height = '0px';
-            iframe.style.border = 'none';
-            iframe.style.visibility = 'hidden';
-            iframe.style.opacity = '0';
-            iframe.src = filename;
+            // Öffne die Skizze direkt in einem neuen Tab
+            // Der Benutzer kann dann selbst entscheiden wann er druckt
+            const newWindow = window.open(filename, '_blank');
             
-            document.body.appendChild(iframe);
-            
-            // Warte bis das iframe geladen ist
-            iframe.onload = function() {
-                try {
-                    // Füge 3cm Margin CSS hinzu
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    const style = iframeDoc.createElement('style');
-                    style.textContent = `
-                        @media print {
-                            @page {
-                                margin: 3cm !important;
-                                size: A4 !important;
-                            }
-                            body {
-                                margin: 0 !important;
-                                padding: 0 !important;
-                            }
-                            * {
-                                margin: 0 !important;
-                                padding: 0 !important;
-                                box-sizing: border-box !important;
-                            }
-                            html {
-                                margin: 0 !important;
-                                padding: 0 !important;
-                            }
-                        }
-                        @page {
-                            margin: 3cm !important;
-                            size: A4 !important;
-                        }
+            if (newWindow) {
+                // Kurze Info-Nachricht für den Benutzer
+                setTimeout(() => {
+                    // Diese Nachricht erscheint nur kurz
+                    const notification = document.createElement('div');
+                    notification.style.position = 'fixed';
+                    notification.style.top = '20px';
+                    notification.style.right = '20px';
+                    notification.style.background = '#28a745';
+                    notification.style.color = 'white';
+                    notification.style.padding = '12px 20px';
+                    notification.style.borderRadius = '8px';
+                    notification.style.zIndex = '10000';
+                    notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    notification.style.fontSize = '14px';
+                    notification.style.fontWeight = 'bold';
+                    notification.innerHTML = `
+                        ✅ ${title} geöffnet<br>
+                        <small style="font-weight: normal;">Drücken Sie Strg+P zum Drucken</small>
                     `;
-                    iframeDoc.head.appendChild(style);
                     
-                    // Entferne auch bestehende Styles die Margins setzen könnten
-                    const existingStyles = iframeDoc.querySelectorAll('style, link[rel="stylesheet"]');
-                    existingStyles.forEach(styleEl => {
-                        if (styleEl.textContent && styleEl.textContent.includes('@page')) {
-                            // Überschreibe @page Regeln
-                            styleEl.textContent = styleEl.textContent.replace(/@page[^}]*}/g, '@page { margin: 3cm !important; size: A4 !important; }');
-                        }
-                    });
+                    document.body.appendChild(notification);
                     
-                    // Kurz warten, dann drucken
+                    // Nachricht nach 4 Sekunden automatisch entfernen
                     setTimeout(() => {
-                        try {
-                            iframe.contentWindow.focus();
-                            iframe.contentWindow.print();
-                            
-                            // iframe nach 3 Sekunden entfernen
+                        if (notification.parentNode) {
+                            notification.style.transition = 'opacity 0.5s ease';
+                            notification.style.opacity = '0';
                             setTimeout(() => {
-                                if (iframe.parentNode) {
-                                    document.body.removeChild(iframe);
+                                if (notification.parentNode) {
+                                    document.body.removeChild(notification);
                                 }
-                            }, 3000);
-                            
-                        } catch (printError) {
-                            console.error('Print error:', printError);
-                            // Fallback: Öffne in neuem Tab
-                            window.open(filename, '_blank');
-                            if (iframe.parentNode) {
-                                document.body.removeChild(iframe);
-                            }
+                            }, 500);
                         }
-                    }, 1000);
-                    
-                } catch (error) {
-                    console.error('iframe access error:', error);
-                    // Fallback: Öffne in neuem Tab
-                    window.open(filename, '_blank');
-                    if (iframe.parentNode) {
-                        document.body.removeChild(iframe);
-                    }
-                }
-            };
-            
-            iframe.onerror = function() {
-                console.error('Error loading sketch file:', filename);
-                // Fallback: Öffne in neuem Tab
-                window.open(filename, '_blank');
-                if (iframe.parentNode) {
-                    document.body.removeChild(iframe);
-                }
-            };
-            
-            // Fallback-Timer: Nach 10 Sekunden iframe entfernen
-            setTimeout(() => {
-                if (iframe.parentNode) {
-                    console.log('Timeout reached, removing iframe');
-                    document.body.removeChild(iframe);
-                }
-            }, 10000);
+                    }, 4000);
+                }, 500);
+                
+            } else {
+                // Popup wurde blockiert
+                alert('Popup wurde blockiert. Bitte erlauben Sie Popups für diese Website oder öffnen Sie die Datei manuell: ' + filename);
+            }
         }
 
         // Modal Management
