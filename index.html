@@ -303,6 +303,17 @@
             color: #0d47a1;
         }
         
+        /* Unsichtbares Druckfenster */
+        .hidden-print-window {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            visibility: hidden;
+        }
+        
         /* Mobile Optimierung */
         @media (max-width: 768px) {
             .ad-container, .ad-container-middle {
@@ -394,7 +405,7 @@
 
             <div class="calculators-grid">
                 <!-- Projekt Dach -->
-                <a href="messen.html" class="calculator-card">
+                <a href="plan.html" class="calculator-card">
                   <div class="card-icon">
                         <svg width="120" height="80" viewBox="0 0 120 80">
                             <!-- Klemmbrett DIN A4 Format -->
@@ -475,7 +486,7 @@
                         <li>Dachformen erkennen</li>
                         <li>Typische Baufehler vermeiden</li>
                     </ul>
-                    <span class="cta-button">Jetzt lernen</span>
+                    <span class="cta-button">Überblick verschaffen</span>
                 </a>
 
                 <!-- Bemaßungsskizzen -->
@@ -902,7 +913,7 @@
             
             <div class="sketch-info">
                 <strong>So funktioniert's:</strong> Klicken Sie auf eine Dachform um die Skizze zu öffnen. 
-                Die Bemaßungsskizze öffnet sich in einem neuen Fenster und kann direkt gedruckt werden. 
+                Die Bemaßungsskizze öffnet sich direkt in der Druckvorschau. 
                 <strong>Tipp:</strong> Wählen Sie beim Drucken "Als PDF speichern" um eine PDF-Datei zu erstellen!
             </div>
         </div>
@@ -979,89 +990,76 @@
             document.body.style.overflow = 'auto';
         }
         
-       function downloadSketch(sketchType) {
-    let filename = '';
-    let title = '';
-    
-    switch(sketchType) {
-        case 'pultdach':
-            filename = 'pultdach.html';
-            title = 'Pultdach Bemaßungsskizze';
-            break;
-        case 'satteldach':
-            filename = 'Satteldach.html';
-            title = 'Satteldach Bemaßungsskizze';
-            break;
-        case 'walmdach':
-            filename = 'walmdach.html';
-            title = 'Walmdach Bemaßungsskizze';
-            break;
-        case 'krueppelwalm':
-            filename = 'krüppelwalm.html';
-            title = 'Krüppelwalmdach Bemaßungsskizze';
-            break;
-        case 'pyramidendach':
-            filename = 'pyramidendach.html';
-            title = 'Pyramidendach Bemaßungsskizze';
-            break;
-        default:
-            console.error('Unknown sketch type:', sketchType);
-            return;
-    }
-    
-    // Schließe das Modal
-    closeSketchModal();
-    
-    // Navigiere direkt zur entsprechenden HTML-Datei
-    window.location.href = filename;
-}
+        function downloadSketch(sketchType) {
+            let filename = '';
+            let title = '';
             
-            // Öffne ein neues Fenster im Hintergrund (minimiert)
-            const printWindow = window.open(filename, '_blank', 'width=800,height=600,left=-1000,top=-1000,toolbar=no,menubar=no,location=no,status=no,scrollbars=yes,resizable=yes');
-            
-            if (printWindow) {
-                // Warte bis das Fenster geladen ist
-                printWindow.onload = function() {
-                    // Kurz warten, dann drucken
-                    setTimeout(() => {
-                        try {
-                            // Druckvorschau öffnen
-                            printWindow.print();
-                            
-                            // Fenster nach dem Drucken schließen
-                            printWindow.onafterprint = function() {
-                                setTimeout(() => {
-                                    printWindow.close();
-                                }, 500);
-                            };
-                            
-                            // Fallback: Fenster nach 10 Sekunden automatisch schließen
-                            setTimeout(() => {
-                                if (!printWindow.closed) {
-                                    printWindow.close();
-                                }
-                            }, 10000);
-                            
-                        } catch (error) {
-                            console.log('Drucken nicht möglich:', error);
-                            // Fenster trotzdem schließen
-                            setTimeout(() => {
-                                printWindow.close();
-                            }, 2000);
-                        }
-                    }, 1500);
-                };
-                
-                // Fehlerbehandlung
-                printWindow.onerror = function() {
-                    console.error('Fehler beim Laden der Skizze');
-                    printWindow.close();
-                };
-                
-            } else {
-                // Popup wurde blockiert
-                alert('Popup wurde blockiert. Bitte erlauben Sie Popups für diese Website.\n\nAlternativ können Sie die Datei direkt öffnen: ' + filename);
+            switch(sketchType) {
+                case 'pultdach':
+                    filename = 'pultdach.html';
+                    title = 'Pultdach Bemaßungsskizze';
+                    break;
+                case 'satteldach':
+                    filename = 'Satteldach.html';
+                    title = 'Satteldach Bemaßungsskizze';
+                    break;
+                case 'walmdach':
+                    filename = 'walmdach.html';
+                    title = 'Walmdach Bemaßungsskizze';
+                    break;
+                case 'krueppelwalm':
+                    filename = 'krüppelwalm.html';
+                    title = 'Krüppelwalmdach Bemaßungsskizze';
+                    break;
+                case 'pyramidendach':
+                    filename = 'pyramidendach.html';
+                    title = 'Pyramidendach Bemaßungsskizze';
+                    break;
+                default:
+                    console.error('Unknown sketch type:', sketchType);
+                    return;
             }
+            
+            // Erstelle ein unsichtbares iframe zum Laden der Skizze
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute';
+            iframe.style.left = '-9999px';
+            iframe.style.top = '-9999px';
+            iframe.style.width = '210mm'; // A4 Breite
+            iframe.style.height = '297mm'; // A4 Höhe
+            iframe.style.border = 'none';
+            iframe.src = filename;
+            
+            document.body.appendChild(iframe);
+            
+            // Warte bis das iframe geladen ist
+            iframe.onload = function() {
+                setTimeout(() => {
+                    try {
+                        // Öffne Druckdialog für das iframe
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                        
+                        // Entferne das iframe nach dem Drucken
+                        setTimeout(() => {
+                            document.body.removeChild(iframe);
+                        }, 2000);
+                        
+                    } catch (error) {
+                        console.log('Drucken nicht möglich:', error);
+                        // Fallback: Öffne in neuem Tab
+                        window.open(filename, '_blank');
+                        document.body.removeChild(iframe);
+                    }
+                }, 1000);
+            };
+            
+            iframe.onerror = function() {
+                console.error('Fehler beim Laden der Skizze');
+                document.body.removeChild(iframe);
+                // Fallback: Öffne in neuem Tab
+                window.open(filename, '_blank');
+            };
         }
 
         // Modal Management
@@ -1391,7 +1389,7 @@
             emailElements.forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
-                    element.innerHTML = `<span class="email-protection" onclick="revealEmail('${id}', '${email}')">E-Mail anzeigen</span>`;
+                    element.innerHTML = `<span class="email-protection" onclick="revealEmail('${id}', '${email}')" style="cursor: pointer; color: #2a5298; text-decoration: underline;">E-Mail anzeigen</span>`;
                 }
             });
         }
