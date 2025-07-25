@@ -705,10 +705,11 @@
                 const sectionTop = section.offsetTop;
                 const sectionBottom = sectionTop + section.offsetHeight;
                 
-                if (scrollPosition >= sectionTop - windowHeight && scrollPosition <= sectionBottom) {
-                    // GEÄNDERT: Einheitliche Berechnung mit sanfteren Übergängen
+                // GEÄNDERT: Früher starten - bereits 25vh vor der Sektion
+                if (scrollPosition >= sectionTop - windowHeight * 0.25 && scrollPosition <= sectionBottom) {
+                    // GEÄNDERT: Neue Berechnung die früher startet
                     const sectionProgress = Math.max(0, Math.min(1, 
-                        (scrollPosition - (sectionTop - windowHeight * 0.8)) / (section.offsetHeight + windowHeight * 0.6)
+                        (scrollPosition - (sectionTop - windowHeight * 0.25)) / (section.offsetHeight + windowHeight * 0.25)
                     ));
                     
                     // Verschiedene Effekte für verschiedene Sektionen
