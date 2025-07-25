@@ -979,35 +979,42 @@
             document.body.style.overflow = 'auto';
         }
         
-        function downloadSketch(sketchType) {
-            let filename = '';
-            let title = '';
-            
-            switch(sketchType) {
-                case 'pultdach':
-                    filename = 'pultdach.html';
-                    title = 'Pultdach Bemaßungsskizze';
-                    break;
-                case 'satteldach':
-                    filename = 'Satteldach.html';
-                    title = 'Satteldach Bemaßungsskizze';
-                    break;
-                case 'walmdach':
-                    filename = 'walmdach.html';
-                    title = 'Walmdach Bemaßungsskizze';
-                    break;
-                case 'krueppelwalm':
-                    filename = 'krüppelwalm.html';
-                    title = 'Krüppelwalmdach Bemaßungsskizze';
-                    break;
-                case 'pyramidendach':
-                    filename = 'pyramidendach.html';
-                    title = 'Pyramidendach Bemaßungsskizze';
-                    break;
-                default:
-                    console.error('Unknown sketch type:', sketchType);
-                    return;
-            }
+       function downloadSketch(sketchType) {
+    let filename = '';
+    let title = '';
+    
+    switch(sketchType) {
+        case 'pultdach':
+            filename = 'pultdach.html';
+            title = 'Pultdach Bemaßungsskizze';
+            break;
+        case 'satteldach':
+            filename = 'Satteldach.html';
+            title = 'Satteldach Bemaßungsskizze';
+            break;
+        case 'walmdach':
+            filename = 'walmdach.html';
+            title = 'Walmdach Bemaßungsskizze';
+            break;
+        case 'krueppelwalm':
+            filename = 'krüppelwalm.html';
+            title = 'Krüppelwalmdach Bemaßungsskizze';
+            break;
+        case 'pyramidendach':
+            filename = 'pyramidendach.html';
+            title = 'Pyramidendach Bemaßungsskizze';
+            break;
+        default:
+            console.error('Unknown sketch type:', sketchType);
+            return;
+    }
+    
+    // Schließe das Modal
+    closeSketchModal();
+    
+    // Navigiere direkt zur entsprechenden HTML-Datei
+    window.location.href = filename;
+}
             
             // Öffne ein neues Fenster im Hintergrund (minimiert)
             const printWindow = window.open(filename, '_blank', 'width=800,height=600,left=-1000,top=-1000,toolbar=no,menubar=no,location=no,status=no,scrollbars=yes,resizable=yes');
