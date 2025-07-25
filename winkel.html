@@ -75,7 +75,7 @@
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/winkel-4.jpg');
             background-position: var(--bg-pos-4, right top);
-            background-size: 110%; /* 10% reinzoomen */
+            background-size: 110%;
             transition: background-position 0.1s linear;
         }
 
@@ -96,11 +96,11 @@
         }
 
         .section {
-            min-height: 300vh;
+            min-height: 200vh;    /* GEÄNDERT: von 300vh auf 200vh */
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 100vh 20px;
+            padding: 50vh 20px;   /* GEÄNDERT: von 100vh auf 50vh */
             position: relative;
         }
 
@@ -642,7 +642,7 @@
             });
         }
 
-        // Scroll indicator and background switching
+        // GEÄNDERTE Scroll indicator and background switching
         const scrollDots = document.querySelectorAll('.scroll-dot');
         
         function updateScrollIndicator() {
@@ -655,6 +655,7 @@
                 const sectionTop = section.offsetTop;
                 const sectionHeight = section.offsetHeight;
                 
+                // GEÄNDERT: Einheitlicher Trigger-Punkt - später wechseln
                 if (scrollPosition >= sectionTop - windowHeight * 1.2) {
                     activeSection = index;
                 }
@@ -694,7 +695,7 @@
             parallax.style.transform = `translateY(${speed}px)`;
         }
 
-        // Hintergrund-Scrolleffekte für alle Sektionen
+        // GEÄNDERTE Hintergrund-Scrolleffekte für alle Sektionen
         function updateBackgroundScroll() {
             const scrollPosition = window.scrollY;
             const windowHeight = window.innerHeight;
@@ -704,9 +705,9 @@
                 const sectionBottom = sectionTop + section.offsetHeight;
                 
                 if (scrollPosition >= sectionTop - windowHeight && scrollPosition <= sectionBottom) {
-                    // Berechne den lokalen Fortschritt innerhalb der Sektion
+                    // GEÄNDERT: Einheitliche Berechnung mit sanfteren Übergängen
                     const sectionProgress = Math.max(0, Math.min(1, 
-                        (scrollPosition - (sectionTop - windowHeight * 0.5)) / (section.offsetHeight + windowHeight * 0.5)
+                        (scrollPosition - (sectionTop - windowHeight * 0.8)) / (section.offsetHeight + windowHeight * 0.6)
                     ));
                     
                     // Verschiedene Effekte für verschiedene Sektionen
@@ -723,9 +724,9 @@
                         const bgPositionY = -10 + (sectionProgress * 80); // Von -10% bis 70%
                         document.documentElement.style.setProperty(`--bg-pos-3`, `center ${bgPositionY}%`);
                     } else if (index === 3) {
-                        // Sektion 4: First - diagonale Bewegung mit tieferem Startpunkt, Endpunkt korrigiert
-                        const bgPositionX = -30 + (sectionProgress * 160); // Von -30% bis 130% (bleibt gleich)
-                        const bgPositionY = 40 + (sectionProgress * 20); // Von 40% bis 60% (Endpunkt wieder bei 60%)
+                        // Sektion 4: First - diagonale Bewegung mit tieferem Startpunkt
+                        const bgPositionX = -30 + (sectionProgress * 160); // Von -30% bis 130%
+                        const bgPositionY = 40 + (sectionProgress * 20); // Von 40% bis 60%
                         document.documentElement.style.setProperty(`--bg-pos-4`, `${bgPositionX}% ${bgPositionY}%`);
                     }
                 }
