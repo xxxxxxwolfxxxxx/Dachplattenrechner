@@ -79,6 +79,7 @@ html {
     font-size: 16px;
 }
 
+/* CLEAN BODY - Index-Seite ohne störende Hintergrundbilder */
 body {
     font-family: var(--font-sans);
     line-height: 1.6;
@@ -90,13 +91,12 @@ body {
     overflow-x: hidden;
     min-height: 100vh;
     
-    /* Standard Industrial Background Pattern mit index.png AUS IMAGES ORDNER */
-    background-image: 
-        url('Images/index.png'),
-        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+    /* Sauberer Hintergrund für Index - nur subtile Gradienten */
+    background: 
+        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
         linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
-    background-size: cover, 400px 400px, 600px 600px, cover;
+    background-size: 400px 400px, 600px 600px, cover;
     background-attachment: fixed;
     background-repeat: no-repeat;
 }
@@ -2386,44 +2386,3 @@ button:focus {
 }
 
 /* ===== ENDE DER CSS-DATEI ===== */
-
-/* ===== DEBUG TEST CSS ===== */
-/* Füge das TEMPORÄR am Ende deiner style.css hinzu zum Testen */
-
-/* 1. TESTE ERSTMAL OB index.png ÜBERHAUPT FUNKTIONIERT */
-body {
-    background: red url('index.png') center/cover no-repeat !important;
-}
-
-/* 2. TESTE DIE RECHNER-SEITEN MIT SEHR HOHER PRIORITÄT */
-body[data-page="gleichschenkliges-dreieck"] {
-    background: blue url('Images/gleichschenkliges-dreieck.png') center/cover no-repeat !important;
-}
-
-body[data-page="ungleichschenkliges-dreieck"] {
-    background: green url('Images/ungleichschenkliges-dreieck.png') center/cover no-repeat !important;
-}
-
-body[data-page="trapez"] {
-    background: yellow url('Images/trapez.png') center/cover no-repeat !important;
-}
-
-body[data-page="trapezaufrechteck"] {
-    background: orange url('Images/trapez-rechteck.png') center/cover no-repeat !important;
-}
-
-/* 3. ENTFERNE DIE GLASPLATTE KOMPLETT FÜR DEN TEST */
-body[data-page]::before {
-    display: none !important;
-}
-
-/* 4. FALLBACK TESTS - VERSCHIEDENE PFADE PROBIEREN */
-/* Aktiviere nur EINE Zeile auf einmal zum Testen: */
-
-/* body { background: purple url('./index.png') center/cover no-repeat !important; } */
-/* body { background: purple url('../index.png') center/cover no-repeat !important; } */
-/* body { background: purple url('/index.png') center/cover no-repeat !important; } */
-
-/* body[data-page="gleichschenkliges-dreieck"] { background: cyan url('./Images/gleichschenkliges-dreieck.png') center/cover no-repeat !important; } */
-/* body[data-page="gleichschenkliges-dreieck"] { background: cyan url('../Images/gleichschenkliges-dreieck.png') center/cover no-repeat !important; } */
-/* body[data-page="gleichschenkliges-dreieck"] { background: cyan url('/Images/gleichschenkliges-dreieck.png') center/cover no-repeat !important; } */
