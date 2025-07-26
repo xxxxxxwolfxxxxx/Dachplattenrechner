@@ -97,10 +97,10 @@ header {
     margin-bottom: var(--spacing-xl);
 }
 
-/* ===== ÜBERSCHRIFT MIT EIGENEM KLEINEN RAHMEN ===== */
+/* ===== ÜBERSCHRIFT MIT EIGENEM KLEINEN RAHMEN - MITTIG ===== */
 header h1 {
-    /* Kleiner eleganter Rahmen nur für die Überschrift */
-    display: inline-block;
+    /* Kleiner eleganter Rahmen für Überschrift UND Untertitel */
+    display: block;
     background: var(--gradient-surface);
     backdrop-filter: blur(20px);
     border: 1px solid var(--border-color);
@@ -109,30 +109,25 @@ header h1 {
     box-shadow: var(--shadow-lg);
     
     /* Zentriert */
-    margin: 0 auto var(--spacing-sm);
+    margin: 0 auto var(--spacing-md);
+    max-width: fit-content;
     font-size: clamp(1.8rem, 4vw, 2.5rem);
     font-weight: 700;
     color: var(--text-primary);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     text-align: center;
-    
-    /* Position */
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-header .container {
-    text-align: center;
 }
 
 .header-subtitle {
-    text-align: center;
-    font-size: 1em;
+    /* Untertitel INNERHALB des Überschriftenkastens */
+    font-size: 0.4em; /* Relativ zur h1 Größe */
     color: var(--text-secondary);
-    margin-bottom: var(--spacing-md);
+    margin: var(--spacing-sm) 0 0 0;
     font-weight: 400;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    text-transform: none;
+    letter-spacing: normal;
+    line-height: 1.4;
 }
 
 .header-description {
