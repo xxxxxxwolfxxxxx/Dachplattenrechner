@@ -703,11 +703,10 @@
                 const sectionTop = section.offsetTop;
                 const sectionBottom = sectionTop + section.offsetHeight;
                 
-                // Später triggern - erst wenn man deutlich in die Sektion gescrollt hat
-                if (scrollPosition >= sectionTop + windowHeight * 0.3 && scrollPosition <= sectionBottom) {
+                if (scrollPosition >= sectionTop - windowHeight && scrollPosition <= sectionBottom) {
                     // Berechne den lokalen Fortschritt innerhalb der Sektion
                     const sectionProgress = Math.max(0, Math.min(1, 
-                        (scrollPosition - (sectionTop + windowHeight * 0.3)) / (section.offsetHeight - windowHeight * 0.3)
+                        (scrollPosition - (sectionTop - windowHeight * 0.5)) / (section.offsetHeight + windowHeight * 0.5)
                     ));
                     
                     // Verschiedene Effekte für verschiedene Sektionen
