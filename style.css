@@ -97,37 +97,39 @@ header {
     margin-bottom: var(--spacing-xl);
 }
 
-/* ===== ÜBERSCHRIFT MIT EIGENEM KLEINEN RAHMEN - MITTIG ===== */
-header h1 {
-    /* Kleiner eleganter Rahmen für Überschrift UND Untertitel */
-    display: block;
-    background: var(--gradient-surface);
+header .container {
+    text-align: center;
+}
+
+/* ===== ÜBERSCHRIFT MIT EIGENEM BLAUEN GLASKASTEN - MITTIG ===== */
+.header-title-box {
+    /* Blauer eleganter Glaskasten für Überschrift UND Untertitel */
+    display: inline-block;
+    background: linear-gradient(145deg, rgba(14, 165, 233, 0.2) 0%, rgba(2, 132, 199, 0.3) 100%);
     backdrop-filter: blur(20px);
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(14, 165, 233, 0.4);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg) var(--spacing-xl);
-    box-shadow: var(--shadow-lg);
-    
-    /* Zentriert */
-    margin: 0 auto var(--spacing-md);
-    max-width: fit-content;
+    box-shadow: 0 8px 32px rgba(14, 165, 233, 0.3);
+    text-align: center;
+    margin: 0 auto;
+}
+
+header h1 {
     font-size: clamp(1.8rem, 4vw, 2.5rem);
     font-weight: 700;
     color: var(--text-primary);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    text-align: center;
+    margin: 0 0 var(--spacing-sm) 0;
 }
 
 .header-subtitle {
-    /* Untertitel INNERHALB des Überschriftenkastens */
-    font-size: 0.4em; /* Relativ zur h1 Größe */
+    /* Untertitel SICHTBAR im blauen Glaskasten */
+    font-size: 1em;
     color: var(--text-secondary);
-    margin: var(--spacing-sm) 0 0 0;
+    margin: 0;
     font-weight: 400;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    text-transform: none;
-    letter-spacing: normal;
-    line-height: 1.4;
 }
 
 .header-description {
@@ -200,19 +202,19 @@ main {
     background: linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(51, 65, 85, 0.98) 100%);
 }
 
-/* Card Inhalte bleiben gleich, nur Farben angepasst */
+/* ===== GRÖSSERE CARD ICONS FÜR BESSERE ERKENNBARKEIT ===== */
 .card-icon {
     text-align: center;
     margin-bottom: var(--spacing-md);
-    height: 80px;
+    height: 140px; /* Erhöht von 80px auf 140px */
     display: flex;
     align-items: center;
     justify-content: center;
-    max-width: 120px;
+    max-width: 200px; /* Erhöht von 120px auf 200px */
     margin: 0 auto var(--spacing-md) auto;
     background: radial-gradient(circle, rgba(14, 165, 233, 0.2) 0%, transparent 70%);
     border-radius: var(--radius-md);
-    padding: var(--spacing-sm);
+    padding: var(--spacing-md); /* Mehr Padding */
     transition: all var(--transition-normal);
 }
 
@@ -222,18 +224,19 @@ main {
 }
 
 .card-icon svg {
-    max-width: 100px !important;
+    max-width: 160px !important; /* Erhöht von 100px auf 160px */
     width: auto !important;
-    height: 60px !important;
+    height: 120px !important; /* Erhöht von 60px auf 120px */
     filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.3));
 }
 
 .card-icon img {
-    max-width: 120px !important;
+    max-width: 180px !important; /* Erhöht von 120px auf 180px */
     width: auto !important;
-    height: 80px !important;
+    height: 120px !important; /* Erhöht von 80px auf 120px */
     filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.3));
     transition: all var(--transition-normal);
+    object-fit: contain; /* Sicherstellt dass Bilder nicht verzerrt werden */
 }
 
 .card-icon:hover img {
