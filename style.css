@@ -79,7 +79,9 @@ html {
     font-size: 16px;
 }
 
-/* CLEAN BODY - Index-Seite ohne störende Hintergrundbilder */
+/* ===== BODY STYLES mit korrigierten Hintergrundbildern ===== */
+
+/* Standard Body für Index-Seite */
 body {
     font-family: var(--font-sans);
     line-height: 1.6;
@@ -91,21 +93,25 @@ body {
     overflow-x: hidden;
     min-height: 100vh;
     
-    /* Sauberer Hintergrund für Index - nur subtile Gradienten */
+    /* Standard-Hintergrund für Index */
     background: 
+        url('index.png'),
         radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
         linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
-    background-size: 400px 400px, 600px 600px, cover;
+    background-size: cover, 400px 400px, 600px 600px, cover;
+    background-position: center, top left, bottom right, center;
     background-attachment: fixed;
     background-repeat: no-repeat;
 }
 
 /* ===== RECHNER-SPEZIFISCHE HINTERGRUNDBILDER ===== */
 
+/* HTML muss data-page Attribut im <body> Tag haben! */
+
 /* gleichschenkliges-dreieck.html */
 body[data-page="gleichschenkliges-dreieck"] {
-    background-image: 
+    background: 
         url('Images/gleichschenkliges-dreieck.png'),
         radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
@@ -118,7 +124,7 @@ body[data-page="gleichschenkliges-dreieck"] {
 
 /* ungleichschenkliges-dreieck.html */
 body[data-page="ungleichschenkliges-dreieck"] {
-    background-image: 
+    background: 
         url('Images/ungleichschenkliges-dreieck.png'),
         radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
@@ -131,7 +137,7 @@ body[data-page="ungleichschenkliges-dreieck"] {
 
 /* trapez.html */
 body[data-page="trapez"] {
-    background-image: 
+    background: 
         url('Images/trapez.png'),
         radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
@@ -144,7 +150,7 @@ body[data-page="trapez"] {
 
 /* trapezaufrechteck.html */
 body[data-page="trapezaufrechteck"] {
-    background-image: 
+    background: 
         url('Images/trapez-rechteck.png'),
         radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
@@ -157,7 +163,7 @@ body[data-page="trapezaufrechteck"] {
 
 /* verschnitt-optimierung.html */
 body[data-page="verschnitt-optimierung"] {
-    background-image: 
+    background: 
         url('index.png'),
         radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
@@ -170,7 +176,7 @@ body[data-page="verschnitt-optimierung"] {
 
 /* plan.html */
 body[data-page="plan"] {
-    background-image: 
+    background: 
         url('index.png'),
         radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
@@ -247,6 +253,11 @@ header h1 {
     letter-spacing: -0.02em;
 }
 
+.header-title-box {
+    position: relative;
+    z-index: 2;
+}
+
 .header-subtitle {
     text-align: center;
     font-size: 1.1em;
@@ -254,6 +265,24 @@ header h1 {
     margin-bottom: var(--spacing-md);
     font-weight: 400;
     opacity: 0.9;
+}
+
+.header-description {
+    max-width: 800px;
+    margin: 25px auto 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.header-description p {
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+    text-align: center;
 }
 
 /* Navigation Header für Unterseiten */
@@ -1716,6 +1745,16 @@ footer::before {
         font-size: 1rem;
     }
     
+    .header-description {
+        margin: 20px 15px 0;
+        padding: 15px;
+    }
+    
+    .header-description p {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
     .features {
         gap: var(--spacing-md);
         margin: var(--spacing-md) 0;
@@ -2384,5 +2423,3 @@ button:focus {
 .fade-in {
     animation: fadeIn 0.3s ease-out;
 }
-
-/* ===== ENDE DER CSS-DATEI ===== */
