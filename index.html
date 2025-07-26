@@ -535,6 +535,23 @@
                     <span class="cta-button">Skizzen drucken</span>
                 </a>
 
+                <!-- Erster Werbeplatz nach 2 Kacheln -->
+                <div class="ad-container-middle" id="middle-ad-container-1">
+                    <div class="ad-placeholder">
+                        <div class="ad-content-horizontal">
+                            <span class="ad-icon">💡</span>
+                            <div class="ad-text-block">
+                                <strong>Professionelle Dachtools</strong>
+                                <span>Weitere hilfreiche Ressourcen für Dachdecker und Heimwerker</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ins class="adsbygoogle ad-content-real" style="display:none"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+
                 <!-- Gleichschenkliges Dreieck -->
                 <a href="gleichschenkliges-dreieck.html" class="calculator-card">
                     <div class="card-icon">
@@ -571,6 +588,23 @@
                     <span class="cta-button">Jetzt berechnen</span>
                 </a>
 
+                <!-- Zweiter Werbeplatz nach 2 Kacheln -->
+                <div class="ad-container-middle" id="middle-ad-container-2">
+                    <div class="ad-placeholder">
+                        <div class="ad-content-horizontal">
+                            <span class="ad-icon">🔧</span>
+                            <div class="ad-text-block">
+                                <strong>Berechnung & Planung</strong>
+                                <span>Präzise Tools für perfekte Dachergebnisse</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ins class="adsbygoogle ad-content-real" style="display:none"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+
                 <!-- Trapez -->
                 <a href="trapez.html" class="calculator-card">
                     <div class="card-icon">
@@ -589,23 +623,6 @@
                     <span class="cta-button">Jetzt berechnen</span>
                 </a>
 
-                <!-- Eleganter Werbeplatz zwischen den Karten -->
-                <div class="ad-container-middle" id="middle-ad-container">
-                    <div class="ad-placeholder">
-                        <div class="ad-content-horizontal">
-                            <span class="ad-icon">💡</span>
-                            <div class="ad-text-block">
-                                <strong>Professionelle Dachtools</strong>
-                                <span>Weitere hilfreiche Ressourcen für Dachdecker und Heimwerker</span>
-                            </div>
-                        </div>
-                    </div>
-                    <ins class="adsbygoogle ad-content-real" style="display:none"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
-                </div>
-
                 <!-- Trapez auf Rechteck -->
                 <a href="trapezaufrechteck.html" class="calculator-card">
                     <div class="card-icon">
@@ -623,6 +640,23 @@
                     </ul>
                     <span class="cta-button">Jetzt berechnen</span>
                 </a>
+
+                <!-- Dritter Werbeplatz nach 2 Kacheln -->
+                <div class="ad-container-middle" id="middle-ad-container-3">
+                    <div class="ad-placeholder">
+                        <div class="ad-content-horizontal">
+                            <span class="ad-icon">⚙️</span>
+                            <div class="ad-text-block">
+                                <strong>Bauprofi-Tools</strong>
+                                <span>Weitere praktische Helfer für Ihre Bauprojekte</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ins class="adsbygoogle ad-content-real" style="display:none"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
 
                 <!-- Verschnitt-Optimierung -->
                 <a href="verschnitt-optimierung.html" class="calculator-card">
@@ -663,14 +697,14 @@
                     <span class="cta-button">Jetzt optimieren</span>
                 </a>
 
-                <!-- Zweiter Werbeplatz -->
-                <div class="ad-container-middle" id="middle-ad-container-2">
+                <!-- Letzter Werbeplatz nach einzelner Kachel -->
+                <div class="ad-container-middle" id="middle-ad-container-4">
                     <div class="ad-placeholder">
                         <div class="ad-content-horizontal">
-                            <span class="ad-icon">⚙️</span>
+                            <span class="ad-icon">🛠️</span>
                             <div class="ad-text-block">
-                                <strong>Bauprofi-Tools</strong>
-                                <span>Weitere praktische Helfer für Ihre Bauprojekte</span>
+                                <strong>Mehr professionelle Tools</strong>
+                                <span>Entdecken Sie weitere Lösungen für Dachdecker</span>
                             </div>
                         </div>
                     </div>
@@ -679,23 +713,6 @@
                          data-ad-slot="auto"
                          data-ad-format="auto"></ins>
                 </div>
-            </div>
-
-            <!-- Eleganter Werbeplatz zwischen den Karten -->
-            <div class="ad-container-middle" id="middle-ad-container">
-                <div class="ad-placeholder">
-                    <div class="ad-content-horizontal">
-                        <span class="ad-icon">💡</span>
-                        <div class="ad-text-block">
-                            <strong>Professionelle Dachtools</strong>
-                            <span>Weitere hilfreiche Ressourcen für Dachdecker und Heimwerker</span>
-                        </div>
-                    </div>
-                </div>
-                <ins class="adsbygoogle ad-content-real" style="display:none"
-                     data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="auto"
-                     data-ad-format="auto"></ins>
             </div>
 
             <!-- Eleganter Werbeplatz am Ende -->
@@ -941,9 +958,10 @@
         function showAds() {
             if (localStorage.getItem('marketingCookies') === 'true') {
                 // Zeige AdSense-Container
-                document.getElementById('top-ad-container').style.display = 'block';
-                document.getElementById('middle-ad-container').style.display = 'block';
+                document.getElementById('middle-ad-container-1').style.display = 'block';
                 document.getElementById('middle-ad-container-2').style.display = 'block';
+                document.getElementById('middle-ad-container-3').style.display = 'block';
+                document.getElementById('middle-ad-container-4').style.display = 'block';
                 document.getElementById('bottom-ad-container').style.display = 'block';
                 
                 // Lade AdSense-Anzeigen
@@ -1430,9 +1448,10 @@
         }
 
         function hideAds() {
-            document.getElementById('top-ad-container').style.display = 'none';
-            document.getElementById('middle-ad-container').style.display = 'none';
+            document.getElementById('middle-ad-container-1').style.display = 'none';
             document.getElementById('middle-ad-container-2').style.display = 'none';
+            document.getElementById('middle-ad-container-3').style.display = 'none';
+            document.getElementById('middle-ad-container-4').style.display = 'none';
             document.getElementById('bottom-ad-container').style.display = 'none';
         }
 
