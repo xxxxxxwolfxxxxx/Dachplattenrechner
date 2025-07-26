@@ -74,14 +74,12 @@ body {
     overflow-x: hidden;
     min-height: 100vh;
     
-    /* HELLES Hintergrundbild - minimale Overlays */
-    background-image: 
-        linear-gradient(145deg, rgba(248, 250, 252, 0.3) 0%, rgba(241, 245, 249, 0.4) 100%),
-        url('Images/index.png');
-    background-size: cover, cover;
-    background-attachment: fixed, fixed;
-    background-position: center, center;
-    background-repeat: no-repeat, no-repeat;
+    /* VOLLSTÄNDIG TRANSPARENTES Hintergrundbild - 100% sichtbar */
+    background-image: url('Images/index.png');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /* Hauptcontainer - kompakter */
