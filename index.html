@@ -52,7 +52,7 @@
         /* Elegante Werbecontainer - KORRIGIERT */
         .ad-container, .ad-container-middle {
             margin: 30px auto;
-            max-width: 800px;
+            max-width: 100%; /* Volle Breite für alle Banner */
             border-radius: 12px;
             overflow: hidden;
             transition: all 0.3s ease;
@@ -63,6 +63,7 @@
         .ad-container-middle {
             grid-column: 1 / -1;
             margin: 50px auto; /* Mehr Abstand nach oben */
+            max-width: 100%; /* Volle Breite statt 800px */
         }
         
         /* KORRIGIERT: Unterer Ad-Container mit mehr Abstand */
@@ -714,20 +715,6 @@
                          data-ad-format="auto"></ins>
                 </div>
             </div>
-
-            <!-- Eleganter Werbeplatz am Ende -->
-            <div class="ad-container" id="bottom-ad-container">
-                <div class="ad-placeholder">
-                    <div class="ad-content">
-                        <span class="ad-icon">🛠️</span>
-                        <span class="ad-text">Mehr professionelle Tools für Dachdecker</span>
-                    </div>
-                </div>
-                <ins class="adsbygoogle ad-content-real" style="display:none"
-                     data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="auto"
-                     data-ad-format="auto"></ins>
-            </div>
         </main>
     </div>
 
@@ -962,7 +949,6 @@
                 document.getElementById('middle-ad-container-2').style.display = 'block';
                 document.getElementById('middle-ad-container-3').style.display = 'block';
                 document.getElementById('middle-ad-container-4').style.display = 'block';
-                document.getElementById('bottom-ad-container').style.display = 'block';
                 
                 // Lade AdSense-Anzeigen
                 if (window.adsbygoogle) {
@@ -1452,7 +1438,6 @@
             document.getElementById('middle-ad-container-2').style.display = 'none';
             document.getElementById('middle-ad-container-3').style.display = 'none';
             document.getElementById('middle-ad-container-4').style.display = 'none';
-            document.getElementById('bottom-ad-container').style.display = 'none';
         }
 
         // Close sketch modal when clicking outside
