@@ -75,7 +75,7 @@
         .background-image:nth-child(4) {
             background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url('/images/winkel-4.jpg');
             background-position: var(--bg-pos-4, right top);
-            background-size: 110%;
+            background-size: 110%; /* 10% reinzoomen */
             transition: background-position 0.1s linear;
         }
 
@@ -95,28 +95,12 @@
             min-height: 100vh;
         }
 
-        /* ERSTE SEKTION: Text wirklich nach oben verschieben */
-        .intro-section {
-            min-height: 400vh; /* Mehr Platz für sanftere Übergänge */
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 0vh 20px 200vh 20px;
-            position: relative;
-        }
-
-        /* Der erste Glass-Panel wird nach oben verschoben */
-        .intro-section .glass-panel {
-            margin-top: -55vh; /* Noch 10% höher - von -45vh auf -55vh */
-        }
-
-        /* WEITERE SEKTIONEN: Viel Abstand für Atempausen */
         .section {
-            min-height: 500vh; /* Noch mehr Platz */
+            min-height: 190vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 200vh 20px 200vh 20px; /* 200vh oben + 200vh unten = 4x Seitenhöhe Abstand */
+            padding: 45vh 20px;
             position: relative;
         }
 
@@ -132,12 +116,11 @@
                 0 25px 50px rgba(0, 0, 0, 0.6),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3),
                 0 0 0 1px rgba(0, 0, 0, 0.3);
-            transform: translateY(0);
-            opacity: 1;
-            transition: all 1.2s ease;
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.8s ease;
             position: relative;
             overflow: hidden;
-            min-height: auto;
         }
 
         .glass-panel::before {
@@ -396,15 +379,7 @@
             }
             
             .section {
-                padding: 150vh 10px 150vh 10px;
-            }
-
-            .intro-section {
-                padding: 0vh 10px 150vh 10px;
-            }
-
-            .intro-section .glass-panel {
-                margin-top: -50vh; /* Auf Mobile auch 10% höher */
+                padding: 40px 10px;
             }
 
             .navigation-buttons {
@@ -632,19 +607,16 @@
             document.documentElement.style.setProperty('--mouse-y', y + '%');
         });
 
-        // Intersection Observer für sanftere Animationen
+        // Intersection Observer for glass panels
         const observerOptions = {
-            threshold: 0.05, // Früher triggern
-            rootMargin: '0px 0px -200px 0px' // Mehr Abstand
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
         };
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    // Verzögerung für den "von unten kommenden" Effekt
-                    setTimeout(() => {
-                        entry.target.classList.add('visible');
-                    }, 300);
+                    entry.target.classList.add('visible');
                 }
             });
         }, observerOptions);
@@ -670,20 +642,20 @@
             });
         }
 
-        // Verbesserte Scroll-Logik für mehr Atempausen
+        // Scroll indicator and background switching
         const scrollDots = document.querySelectorAll('.scroll-dot');
         
         function updateScrollIndicator() {
             const scrollPosition = window.scrollY;
             const windowHeight = window.innerHeight;
             
+            // Berechne welche Sektion gerade sichtbar ist
             let activeSection = 0;
             sections.forEach((section, index) => {
                 const sectionTop = section.offsetTop;
                 const sectionHeight = section.offsetHeight;
                 
-                // Wechsel schon bei 40vh in die neue Sektion - 10% früher als 50vh
-                if (scrollPosition >= sectionTop + windowHeight * 0.4) {
+                if (scrollPosition >= sectionTop - windowHeight * 1.2) {
                     activeSection = index;
                 }
             });
@@ -706,12 +678,8 @@
         // Scroll to section
         scrollDots.forEach((dot, index) => {
             dot.addEventListener('click', () => {
-                // Scrolle zu dem Punkt wo der Text erscheint (nicht zum Sektionsanfang)
-                const targetSection = sections[index];
-                const targetTop = targetSection.offsetTop + window.innerHeight * 0.5; // 50vh in die Sektion
-                
                 window.scrollTo({
-                    top: targetTop,
+                    top: index * window.innerHeight,
                     behavior: 'smooth'
                 });
             });
@@ -726,7 +694,7 @@
             parallax.style.transform = `translateY(${speed}px)`;
         }
 
-        // Hintergrund-Bewegungseffekte für mehr Dynamik
+        // Hintergrund-Scrolleffekte für alle Sektionen
         function updateBackgroundScroll() {
             const scrollPosition = window.scrollY;
             const windowHeight = window.innerHeight;
@@ -743,21 +711,21 @@
                     
                     // Verschiedene Effekte für verschiedene Sektionen
                     if (index === 0) {
-                        // Sektion 1: Sanfte vertikale Bewegung
-                        const bgPositionY = 50 + (sectionProgress * 30);
+                        // Sektion 1: Traufbereich - langsame vertikale Bewegung
+                        const bgPositionY = (sectionProgress * 50);
                         document.documentElement.style.setProperty(`--bg-pos-1`, `center ${bgPositionY}%`);
                     } else if (index === 1) {
-                        // Sektion 2: Traufbereich - horizontale Bewegung
-                        const bgPositionX = 20 + (sectionProgress * 60);
+                        // Sektion 2: Ortgang - horizontale Bewegung von links nach rechts
+                        const bgPositionX = (sectionProgress * 100);
                         document.documentElement.style.setProperty(`--bg-pos-2`, `${bgPositionX}% center`);
                     } else if (index === 2) {
-                        // Sektion 3: Ortgang - vertikale Bewegung nach unten
-                        const bgPositionY = -10 + (sectionProgress * 80);
+                        // Sektion 3: Ortgang Detail - nur vertikale Bewegung, mehr nach unten
+                        const bgPositionY = -10 + (sectionProgress * 80); // Von -10% bis 70%
                         document.documentElement.style.setProperty(`--bg-pos-3`, `center ${bgPositionY}%`);
                     } else if (index === 3) {
-                        // Sektion 4: First - diagonale Bewegung
-                        const bgPositionX = -20 + (sectionProgress * 140);
-                        const bgPositionY = 30 + (sectionProgress * 40);
+                        // Sektion 4: First - diagonale Bewegung mit tieferem Startpunkt, Endpunkt korrigiert
+                        const bgPositionX = -30 + (sectionProgress * 160); // Von -30% bis 130% (bleibt gleich)
+                        const bgPositionY = 40 + (sectionProgress * 20); // Von 40% bis 60% (Endpunkt wieder bei 60%)
                         document.documentElement.style.setProperty(`--bg-pos-4`, `${bgPositionX}% ${bgPositionY}%`);
                     }
                 }
