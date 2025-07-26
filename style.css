@@ -1,18 +1,17 @@
-/* ===== ELEGANTES HELLES DESIGN FÜR HINTERGRUNDBILD ===== */
-/* Dachplattenrechner.de - Elegant & Schlank */
+/* ===== DUNKLES DESIGN OHNE GROSSE RAHMEN ===== */
+/* Dachplattenrechner.de - Elegant & Direkt auf Hintergrundbild */
 
 /* CSS Custom Properties */
 :root {
-    /* Helle Theme Farben für bessere Sichtbarkeit */
-    --bg-primary: #f8fafc;
-    --bg-secondary: rgba(255, 255, 255, 0.9);
-    --bg-tertiary: rgba(255, 255, 255, 0.95);
-    --bg-overlay: rgba(248, 250, 252, 0.85);
+    /* Dunkle Theme Farben */
+    --bg-primary: #0f172a;
+    --bg-secondary: rgba(30, 41, 59, 0.9);
+    --bg-tertiary: rgba(51, 65, 85, 0.95);
     
     /* Text Farben */
-    --text-primary: #1e293b;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #e2e8f0;
+    --text-muted: #94a3b8;
     
     /* Accent Farben */
     --accent-blue: #0ea5e9;
@@ -22,15 +21,15 @@
     --accent-red: #ef4444;
     
     /* Borders & Shadows */
-    --border-color: #e2e8f0;
-    --border-light: #f1f5f9;
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --border-color: rgba(71, 85, 105, 0.3);
+    --border-light: rgba(100, 116, 139, 0.2);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
     
-    /* Gradients - viel transparenter */
+    /* Gradients */
     --gradient-primary: linear-gradient(145deg, var(--accent-blue) 0%, var(--accent-blue-hover) 100%);
-    --gradient-surface: linear-gradient(145deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+    --gradient-surface: linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.95) 100%);
     
     /* Spacing - kompakter */
     --spacing-xs: 0.25rem;
@@ -82,31 +81,49 @@ body {
     background-repeat: no-repeat;
 }
 
-/* Hauptcontainer - kompakter */
+/* Hauptcontainer - ohne großen Rahmen */
 .container {
     max-width: 1100px;
     margin: 0 auto;
     padding: 0 var(--spacing-md);
 }
 
-/* ===== KOMPAKTER HEADER ===== */
+/* ===== HEADER OHNE GROSSEN RAHMEN ===== */
 header {
-    background: var(--gradient-surface);
-    backdrop-filter: blur(20px);
+    /* KEIN großer Rahmen mehr */
+    background: none;
     color: var(--text-primary);
     padding: var(--spacing-xl) 0;
-    box-shadow: var(--shadow-md);
     margin-bottom: var(--spacing-xl);
-    border-bottom: 1px solid var(--border-color);
 }
 
+/* ===== ÜBERSCHRIFT MIT EIGENEM KLEINEN RAHMEN ===== */
 header h1 {
-    text-align: center;
-    margin-bottom: var(--spacing-sm);
+    /* Kleiner eleganter Rahmen nur für die Überschrift */
+    display: inline-block;
+    background: var(--gradient-surface);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    box-shadow: var(--shadow-lg);
+    
+    /* Zentriert */
+    margin: 0 auto var(--spacing-sm);
     font-size: clamp(1.8rem, 4vw, 2.5rem);
     font-weight: 700;
     color: var(--text-primary);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    
+    /* Position */
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+header .container {
+    text-align: center;
 }
 
 .header-subtitle {
@@ -115,16 +132,18 @@ header h1 {
     color: var(--text-secondary);
     margin-bottom: var(--spacing-md);
     font-weight: 400;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .header-description {
     max-width: 700px;
     margin: var(--spacing-lg) auto 0;
     padding: var(--spacing-lg);
-    background: rgba(255, 255, 255, 0.7);
+    background: var(--gradient-surface);
+    backdrop-filter: blur(20px);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
-    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
 }
 
 .header-description p {
@@ -135,18 +154,15 @@ header h1 {
     text-align: center;
 }
 
-/* ===== KOMPAKTES MAIN ===== */
+/* ===== MAIN OHNE GROSSEN RAHMEN ===== */
 main {
-    background: var(--gradient-surface);
-    backdrop-filter: blur(20px);
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
+    /* KEIN großer Rahmen mehr - Inhalte direkt auf Hintergrundbild */
+    background: none;
+    padding: 0;
     margin-bottom: var(--spacing-xl);
-    border: 1px solid var(--border-color);
 }
 
-/* ===== KOMPAKTE CALCULATOR GRID ===== */
+/* ===== CALCULATOR GRID DIREKT AUF HINTERGRUNDBILD ===== */
 .calculators-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -154,13 +170,13 @@ main {
     margin-bottom: var(--spacing-xl);
 }
 
-/* ===== KOMPAKTE CALCULATOR CARDS ===== */
+/* ===== CALCULATOR CARDS - EINZELN GERAHMT ===== */
 .calculator-card {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(15px);
+    background: var(--gradient-surface);
+    backdrop-filter: blur(20px);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-lg);
     text-decoration: none;
     color: inherit;
     border: 1px solid var(--border-color);
@@ -183,13 +199,13 @@ main {
 }
 
 .calculator-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
     box-shadow: var(--shadow-lg);
     border-color: var(--accent-blue);
-    background: rgba(255, 255, 255, 0.95);
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(51, 65, 85, 0.98) 100%);
 }
 
-/* ===== KOMPAKTE CARD ICONS ===== */
+/* Card Inhalte bleiben gleich, nur Farben angepasst */
 .card-icon {
     text-align: center;
     margin-bottom: var(--spacing-md);
@@ -199,7 +215,7 @@ main {
     justify-content: center;
     max-width: 120px;
     margin: 0 auto var(--spacing-md) auto;
-    background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.2) 0%, transparent 70%);
     border-radius: var(--radius-md);
     padding: var(--spacing-sm);
     transition: all var(--transition-normal);
@@ -207,29 +223,28 @@ main {
 
 .card-icon:hover {
     transform: scale(1.05);
-    background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.3) 0%, transparent 70%);
 }
 
 .card-icon svg {
     max-width: 100px !important;
     width: auto !important;
     height: 60px !important;
-    filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.2));
+    filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.3));
 }
 
 .card-icon img {
     max-width: 120px !important;
     width: auto !important;
     height: 80px !important;
-    filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.2));
+    filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.3));
     transition: all var(--transition-normal);
 }
 
 .card-icon:hover img {
-    filter: drop-shadow(0 4px 8px rgba(14, 165, 233, 0.3));
+    filter: drop-shadow(0 4px 8px rgba(14, 165, 233, 0.4));
 }
 
-/* ===== KOMPAKTE CARD INHALTE ===== */
 .card-title {
     font-size: 1.3em;
     font-weight: 700;
@@ -302,23 +317,22 @@ main {
     margin-top: auto;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2);
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
 }
 
 .cta-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+    box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
     background: linear-gradient(145deg, var(--accent-blue-hover) 0%, var(--accent-blue-dark) 100%);
 }
 
-/* ===== KOMPAKTER FOOTER ===== */
+/* ===== FOOTER OHNE GROSSEN RAHMEN ===== */
 footer {
-    background: var(--gradient-surface);
-    backdrop-filter: blur(20px);
+    /* KEIN großer Rahmen mehr */
+    background: none;
     color: var(--text-primary);
     padding: var(--spacing-xl) 0;
     margin-top: var(--spacing-xl);
-    border-top: 1px solid var(--border-color);
 }
 
 .footer-content {
@@ -326,6 +340,16 @@ footer {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
+}
+
+.footer-section {
+    /* Jede Footer-Sektion bekommt einen eigenen Rahmen */
+    background: var(--gradient-surface);
+    backdrop-filter: blur(20px);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
 }
 
 .footer-section h3 {
@@ -361,10 +385,15 @@ footer {
 
 .footer-bottom {
     text-align: center;
-    padding-top: var(--spacing-lg);
-    border-top: 1px solid var(--border-color);
-    color: var(--text-muted);
+    padding: var(--spacing-lg);
+    background: var(--gradient-surface);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    color: var(--text-secondary);
     font-size: 14px;
+    margin-top: var(--spacing-lg);
 }
 
 /* ===== COOKIE BANNER ===== */
