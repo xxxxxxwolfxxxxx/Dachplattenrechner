@@ -88,17 +88,112 @@ body {
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
+    min-height: 100vh;
     
-    /* Industrial Background Pattern */
+    /* Standard Industrial Background Pattern mit index.png */
     background-image: 
-        /* Wenn du ein Hintergrundbild hast, ersetze diese Zeile mit: */
-        /* url('pfad/zu/deinem/blechdach-bild.jpg'), */
+        url('index.png'),
         radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
         linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
-    background-size: 100% 100%, 400px 400px, 600px 600px, cover;
+    background-size: cover, 400px 400px, 600px 600px, cover;
     background-attachment: fixed;
-    min-height: 100vh;
+    background-repeat: no-repeat;
+}
+
+/* ===== RECHNER-SPEZIFISCHE HINTERGRUNDBILDER ===== */
+
+/* gleichschenkliges-dreieck.html */
+body[data-page="gleichschenkliges-dreieck"] {
+    background-image: 
+        url('Images/gleichschenkliges-dreieck.png'),
+        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
+    background-size: cover, 400px 400px, 600px 600px, cover;
+    background-position: center, top left, bottom right, center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* ungleichschenkliges-dreieck.html */
+body[data-page="ungleichschenkliges-dreieck"] {
+    background-image: 
+        url('Images/ungleichschenkliges-dreieck.png'),
+        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
+    background-size: cover, 400px 400px, 600px 600px, cover;
+    background-position: center, top left, bottom right, center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* trapez.html */
+body[data-page="trapez"] {
+    background-image: 
+        url('Images/trapez.png'),
+        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
+    background-size: cover, 400px 400px, 600px 600px, cover;
+    background-position: center, top left, bottom right, center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* trapezaufrechteck.html */
+body[data-page="trapezaufrechteck"] {
+    background-image: 
+        url('Images/trapez-rechteck.png'),
+        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
+    background-size: cover, 400px 400px, 600px 600px, cover;
+    background-position: center, top left, bottom right, center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* verschnitt-optimierung.html */
+body[data-page="verschnitt-optimierung"] {
+    background-image: 
+        url('index.png'),
+        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
+    background-size: cover, 400px 400px, 600px 600px, cover;
+    background-position: center, top left, bottom right, center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* plan.html */
+body[data-page="plan"] {
+    background-image: 
+        url('index.png'),
+        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
+    background-size: cover, 400px 400px, 600px 600px, cover;
+    background-position: center, top left, bottom right, center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* Dunkelblaue Glasplatte nur für Rechner-Seiten (nicht für Startseite) */
+body[data-page]::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(5px) saturate(1.1);
+    -webkit-backdrop-filter: blur(5px) saturate(1.1);
+    z-index: -1;
+    pointer-events: none;
 }
 
 /* Hauptcontainer */
@@ -334,6 +429,16 @@ main::before {
     height: 4px;
     background: var(--gradient-primary);
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+/* Verbesserte Lesbarkeit für Main auf Rechner-Seiten */
+body[data-page] main {
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(71, 85, 105, 0.3);
+    position: relative;
+    z-index: 5;
 }
 
 /* ===== SECTIONS ===== */
@@ -1576,229 +1681,25 @@ footer::before {
     display: block;
 }
 
-/* ===== RECHNER-SPEZIFISCHE HINTERGRUNDBILDER ===== */
-/* Ergänzung für Rechner-Seiten mit individuellen Hintergrundbildern */
-
-/* Dunkelblaue Glasplatte als Overlay für bessere Lesbarkeit */
-body[data-page]::before,
-body.page-gleichschenkliges-dreieck::before,
-body.page-ungleichschenkliges-dreieck::before,
-body.page-trapez::before,
-body.page-trapezaufrechteck::before,
-body.page-verschnitt-optimierung::before,
-body.page-plan::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(15, 23, 42, 0.75); /* Dunkelblaue Glasplatte */
-    backdrop-filter: blur(5px) saturate(1.1);
-    -webkit-backdrop-filter: blur(5px) saturate(1.1);
-    z-index: -1;
-    pointer-events: none;
-}
-
-/* Spezifische Hintergrundbilder für jede Rechner-Seite */
-
-/* gleichschenkliges-dreieck.html */
-body[data-page="gleichschenkliges-dreieck"],
-body.page-gleichschenkliges-dreieck {
-    background-image: 
-        url('Images/gleichschenkliges-dreieck.png'),
-        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
-    background-size: cover, 400px 400px, 600px 600px, cover;
-    background-position: center, top left, bottom right, center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-}
-
-/* ungleichschenkliges-dreieck.html */
-body[data-page="ungleichschenkliges-dreieck"],
-body.page-ungleichschenkliges-dreieck {
-    background-image: 
-        url('Images/ungleichschenkliges-dreieck.png'),
-        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
-    background-size: cover, 400px 400px, 600px 600px, cover;
-    background-position: center, top left, bottom right, center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-}
-
-/* trapez.html */
-body[data-page="trapez"],
-body.page-trapez {
-    background-image: 
-        url('Images/trapez.png'),
-        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
-    background-size: cover, 400px 400px, 600px 600px, cover;
-    background-position: center, top left, bottom right, center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-}
-
-/* trapezaufrechteck.html */
-body[data-page="trapezaufrechteck"],
-body.page-trapezaufrechteck {
-    background-image: 
-        url('Images/trapez-rechteck.png'),
-        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
-    background-size: cover, 400px 400px, 600px 600px, cover;
-    background-position: center, top left, bottom right, center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-}
-
-/* verschnitt-optimierung.html */
-body[data-page="verschnitt-optimierung"],
-body.page-verschnitt-optimierung {
-    background-image: 
-        /* Kein spezifisches Bild, daher nur die Standard-Gradienten */
-        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
-    background-size: 400px 400px, 600px 600px, cover;
-    background-position: top left, bottom right, center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-}
-
-/* plan.html - Projekt Dach */
-body[data-page="plan"],
-body.page-plan {
-    background-image: 
-        /* Kein spezifisches Bild, daher nur die Standard-Gradienten */
-        radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
-        linear-gradient(145deg, var(--bg-primary) 0%, #020617 100%);
-    background-size: 400px 400px, 600px 600px, cover;
-    background-position: top left, bottom right, center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-}
-
-/* ===== RESPONSIVE ANPASSUNGEN FÜR RECHNER-HINTERGRÜNDE ===== */
+/* ===== RESPONSIVE DESIGN ===== */
 
 /* Mobile Optimierung - stärkere Glasplatte für bessere Lesbarkeit */
 @media (max-width: 768px) {
-    body[data-page]::before,
-    body.page-gleichschenkliges-dreieck::before,
-    body.page-ungleichschenkliges-dreieck::before,
-    body.page-trapez::before,
-    body.page-trapezaufrechteck::before,
-    body.page-verschnitt-optimierung::before,
-    body.page-plan::before {
+    body[data-page]::before {
         background: rgba(15, 23, 42, 0.85);
         backdrop-filter: blur(8px) saturate(1.2);
         -webkit-backdrop-filter: blur(8px) saturate(1.2);
     }
     
     /* Auf Mobile: Bild als contain statt cover */
-    body[data-page],
-    body.page-gleichschenkliges-dreieck,
-    body.page-ungleichschenkliges-dreieck,
-    body.page-trapez,
-    body.page-trapezaufrechteck {
+    body[data-page="gleichschenkliges-dreieck"],
+    body[data-page="ungleichschenkliges-dreieck"],
+    body[data-page="trapez"],
+    body[data-page="trapezaufrechteck"] {
         background-size: contain, 300px 300px, 400px 400px, cover;
         background-position: top center, top left, bottom right, center;
     }
-}
 
-/* Sehr kleine Bildschirme - noch stärkere Glasplatte */
-@media (max-width: 480px) {
-    body[data-page]::before,
-    body.page-gleichschenkliges-dreieck::before,
-    body.page-ungleichschenkliges-dreieck::before,
-    body.page-trapez::before,
-    body.page-trapezaufrechteck::before,
-    body.page-verschnitt-optimierung::before,
-    body.page-plan::before {
-        background: rgba(15, 23, 42, 0.9);
-        backdrop-filter: blur(10px) saturate(1.3);
-        -webkit-backdrop-filter: blur(10px) saturate(1.3);
-    }
-}
-
-/* Browser-Kompatibilität - Fallback für ältere Browser ohne backdrop-filter */
-@supports not (backdrop-filter: blur(1px)) {
-    body[data-page]::before,
-    body.page-gleichschenkliges-dreieck::before,
-    body.page-ungleichschenkliges-dreieck::before,
-    body.page-trapez::before,
-    body.page-trapezaufrechteck::before,
-    body.page-verschnitt-optimierung::before,
-    body.page-plan::before {
-        background: rgba(15, 23, 42, 0.9);
-    }
-}
-
-/* Verbesserte Lesbarkeit für Header und Main auf Rechner-Seiten */
-body[data-page] header,
-body[data-page] .nav-header,
-body.page-gleichschenkliges-dreieck header,
-body.page-gleichschenkliges-dreieck .nav-header,
-body.page-ungleichschenkliges-dreieck header,
-body.page-ungleichschenkliges-dreieck .nav-header,
-body.page-trapez header,
-body.page-trapez .nav-header,
-body.page-trapezaufrechteck header,
-body.page-trapezaufrechteck .nav-header,
-body.page-verschnitt-optimierung header,
-body.page-verschnitt-optimierung .nav-header,
-body.page-plan header,
-body.page-plan .nav-header {
-    background: rgba(30, 41, 59, 0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
-    position: relative;
-    z-index: 10;
-}
-
-body[data-page] main,
-body.page-gleichschenkliges-dreieck main,
-body.page-ungleichschenkliges-dreieck main,
-body.page-trapez main,
-body.page-trapezaufrechteck main,
-body.page-verschnitt-optimierung main,
-body.page-plan main {
-    background: rgba(30, 41, 59, 0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(71, 85, 105, 0.3);
-    position: relative;
-    z-index: 5;
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-
-/* Tablet */
-@media (max-width: 1024px) {
-    .container {
-        padding: 0 var(--spacing-lg);
-    }
-    
-    .calculators-grid {
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: var(--spacing-lg);
-    }
-    
-    .form-row {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    }
-}
-
-/* Mobile */
-@media (max-width: 768px) {
     :root {
         font-size: 14px;
     }
@@ -1995,8 +1896,30 @@ body.page-plan main {
     }
 }
 
+/* Tablet */
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 var(--spacing-lg);
+    }
+    
+    .calculators-grid {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: var(--spacing-lg);
+    }
+    
+    .form-row {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+}
+
 /* Kleine Mobile Geräte */
 @media (max-width: 480px) {
+    body[data-page]::before {
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(10px) saturate(1.3);
+        -webkit-backdrop-filter: blur(10px) saturate(1.3);
+    }
+
     :root {
         font-size: 13px;
     }
@@ -2176,6 +2099,22 @@ body.page-plan main {
     
     .calculators-grid {
         grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    }
+}
+
+/* Browser-Kompatibilität - Fallback für ältere Browser ohne backdrop-filter */
+@supports not (backdrop-filter: blur(1px)) {
+    body[data-page]::before {
+        background: rgba(15, 23, 42, 0.9);
+    }
+    
+    body[data-page] main {
+        background: rgba(30, 41, 59, 0.98);
+    }
+    
+    body[data-page] header,
+    body[data-page] .nav-header {
+        background: rgba(30, 41, 59, 0.98);
     }
 }
 
