@@ -913,8 +913,8 @@ footer {
         padding: var(--spacing-lg) var(--spacing-md);
     }
     
-    .header-description {
-        margin-top: var(--spacing-xs); /* Noch dichter auf Mobile */
+    .header-subtitle {
+        margin-bottom: var(--spacing-xs); /* Noch dichter auf Mobile */
     }
     
     .header-description p {
