@@ -165,14 +165,17 @@
         
         /* Druckstile */
         @media print {
+            /* Verstecke alles außer dem Anrissplan */
             body * {
                 visibility: hidden;
             }
             
+            /* Zeige nur den Anrissplan */
             #anrissplan, #anrissplan * {
                 visibility: visible;
             }
             
+            /* Positioniere den Anrissplan */
             #anrissplan {
                 position: absolute;
                 left: 0;
@@ -180,27 +183,45 @@
                 width: 100%;
             }
             
+            /* Verstecke andere Elemente explizit */
             .nav-header, .ad-container, .ad-container-middle, 
-            .section, .calculate-btn, #results, .anriss-btn {
+            .section, .calculate-btn, #results .result-item,
+            #schnittliste, .anriss-btn, #vorschau {
                 display: none !important;
+                visibility: hidden !important;
             }
             
+            /* Plattencontainer für Drucklayout */
             .anriss-plate {
                 page-break-inside: avoid;
-                margin-bottom: 15mm;
-                width: 45%;
-                display: inline-block;
-                vertical-align: top;
-                margin-right: 4%;
+                margin-bottom: 10mm !important;
+                width: 47% !important;
+                display: inline-block !important;
+                vertical-align: top !important;
+                margin-right: 3% !important;
+                box-sizing: border-box !important;
             }
             
-            .anriss-plate:nth-child(2n) {
-                margin-right: 0;
+            /* Jede zweite Platte ohne rechten Rand */
+            .anriss-plate:nth-child(even) {
+                margin-right: 0 !important;
             }
             
+            /* Seitenformat */
             @page {
                 size: A4 landscape;
-                margin: 10mm;
+                margin: 8mm;
+            }
+            
+            /* Überschriften anpassen */
+            #anriss-content h2 {
+                font-size: 18px !important;
+                margin-bottom: 8mm !important;
+            }
+            
+            #anriss-content h3 {
+                font-size: 14px !important;
+                margin-bottom: 5mm !important;
             }
         }
     </style>
