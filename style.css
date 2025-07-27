@@ -908,7 +908,7 @@ footer {
         font-size: 1rem;
     }
     
-    .header-title-box {
+    .header-compact-box {
         margin: 0 15px;
         padding: var(--spacing-lg) var(--spacing-md);
     }
