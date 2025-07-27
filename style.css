@@ -1,4 +1,7 @@
-main {
+.ad-container-middle {
+        width: 100%; /* Auf Mobile volle Breite */
+        max-width: 100%;
+    }    main {
         padding: var(--spacing-lg);
     }/* ===== STYLE.CSS - NUR FÜR INDEX.HTML ===== */
 /* Industrial Dark Mode CSS für Hauptseite */
@@ -151,16 +154,17 @@ header h1 {
 }
 
 .header-description {
-    max-width: 1200px; /* VERGRÖSSERT für volle Container-Breite */
-    margin: -80px auto 0; /* NACH OBEN ERWEITERT um die Überschrift einzuschließen */
-    padding: 100px 40px 30px; /* OBEN mehr Padding für Überschrift */
-    background: var(--gradient-secondary); /* GLEICHE FARBE wie main container */
+    max-width: 1200px;
+    margin: -80px auto 0;
+    padding: 100px 40px 30px;
+    background: var(--gradient-secondary);
     border-radius: 16px;
-    border: 1px solid var(--border-color); /* GLEICHE BORDER wie main */
+    border: 1px solid var(--border-color);
     backdrop-filter: blur(15px);
-    box-shadow: var(--shadow-xl); /* GLEICHER Schatten wie main */
+    box-shadow: var(--shadow-xl);
     position: relative;
     overflow: hidden;
+    z-index: 5; /* NIEDRIGER als Überschrift aber über Hintergrund */
 }
 
 .header-description::before {
@@ -171,7 +175,7 @@ header h1 {
     right: 0;
     height: 4px;
     background: var(--gradient-primary);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    border-radius: 16px 16px 0 0;
 }
 
 .header-description p {
@@ -261,26 +265,21 @@ header h1 {
 
 /* ===== MAIN CONTENT ===== */
 main {
-    background: var(--gradient-secondary);
+    /* UNSICHTBARER Container - nur für Layout */
+    background: transparent;
     padding: var(--spacing-xxl);
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-xl);
+    box-shadow: none;
     margin-bottom: var(--spacing-xl);
     position: relative;
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-    backdrop-filter: blur(20px);
+    overflow: visible;
+    border: none;
+    backdrop-filter: none;
 }
 
+/* Entferne den blauen Balken oben */
 main::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--gradient-primary);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    display: none;
 }
 
 /* ===== CALCULATOR CARDS ===== */
@@ -443,6 +442,9 @@ main::before {
     grid-column: 1 / -1;
     margin: 50px auto;
     max-width: 100%;
+    /* BREITER MACHEN - wie 2 Kacheln */
+    width: calc(66.666% + 15px); /* 2/3 der Grid-Breite plus halber Gap */
+    max-width: 800px; /* Maximale Breite begrenzen */
 }
 
 #bottom-ad-container {
