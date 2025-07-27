@@ -913,7 +913,7 @@ footer {
         padding: var(--spacing-lg) var(--spacing-md);
     }
     
-    .header-subtitle {
+    .header-compact-box .header-subtitle {
         margin-bottom: var(--spacing-xs); /* Noch dichter auf Mobile */
     }
     
