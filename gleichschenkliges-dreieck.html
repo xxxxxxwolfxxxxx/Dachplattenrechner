@@ -691,6 +691,49 @@
             document.getElementById('vorschau').style.display = 'block';
         }
 
+            // Track calculation event for analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'calculation', {
+                    'event_category': 'gleichschenkliges_dreieck',
+                    'event_label': 'form_submitted'
+                });
+            }
+
+            const ueberlappung = lieferbreite - deckbreite;
+            const dreieckBerechnung = berechneGleichschenkligesDreieck(basisBreite, hoehe, deckbreite);
+            const maxLaenge = Math.max(...dreieckBerechnung.schnittliste.map(p => parseFloat(p.benoetigteLaenge)));
+
+            document.getElementById('ueberlappung').textContent = ueberlappung.toFixed(2) + ' m';
+            document.getElementById('kantenlänge-result').textContent = kantenlänge.toFixed(2) + ' m';
+            document.getElementById('hoehe-result').textContent = hoehe.toFixed(2) + ' m';
+            document.getElementById('benoetigte-plattenlaenge').textContent = maxLaenge.toFixed(2) + ' m';
+            document.getElementById('anzahl-bleche-breite').textContent = dreieckBerechnung.anzahlPlatten + ' Stück';
+            document.getElementById('gesamt-bleche').textContent = dreieckBerechnung.anzahlPlatten + ' Stück';
+
+            // Schnittliste anzeigen
+            const tbody = document.getElementById('schnitt-details');
+            tbody.innerHTML = '';
+            
+            dreieckBerechnung.schnittliste.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.plattenNr}</td>
+                    <td>${item.positionVonLinks} - ${item.positionBis}</td>
+                    <td style="font-weight: bold; color: #28a745;">${item.plattenbreite}</td>
+                    <td style="font-weight: bold; color: #28a745; background-color: #f8fff9; padding: 8px;">${item.benoetigteLaenge}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            aktuelleSchnittliste = dreieckBerechnung.schnittliste;
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('schnittliste').style.display = 'block';
+            
+            // Vorschau generieren
+            generiereVorschau(basisBreite, hoehe, dreieckBerechnung.schnittliste);
+            document.getElementById('vorschau').style.display = 'block';
+        }
+
         function generiereVorschau(basisBreite, hoehe, schnittliste) {
             const spitzenPosition = basisBreite / 2;
             const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
