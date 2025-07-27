@@ -1,4 +1,6 @@
-/* ===== STYLE.CSS - NUR FÜR INDEX.HTML ===== */
+main {
+        padding: var(--spacing-lg);
+    }/* ===== STYLE.CSS - NUR FÜR INDEX.HTML ===== */
 /* Industrial Dark Mode CSS für Hauptseite */
 
 /* CSS Custom Properties */
@@ -149,22 +151,62 @@ header h1 {
 }
 
 .header-description {
-    max-width: 900px; /* VERGRÖSSERT von 800px */
-    margin: 25px auto 0;
-    padding: 25px; /* VERGRÖSSERT von 20px */
-    background: rgba(30, 41, 59, 0.9); /* GEÄNDERT: weniger transparent, mehr sichtbar */
-    border-radius: 16px; /* VERGRÖSSERT von 12px */
-    border: 1px solid rgba(71, 85, 105, 0.4); /* GEÄNDERT: sichtbarere Border */
-    backdrop-filter: blur(15px); /* VERSTÄRKT */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); /* HINZUGEFÜGT: Schatten für mehr Tiefe */
+    max-width: 1200px; /* VERGRÖSSERT für volle Container-Breite */
+    margin: -80px auto 0; /* NACH OBEN ERWEITERT um die Überschrift einzuschließen */
+    padding: 100px 40px 30px; /* OBEN mehr Padding für Überschrift */
+    background: var(--gradient-secondary); /* GLEICHE FARBE wie main container */
+    border-radius: 16px;
+    border: 1px solid var(--border-color); /* GLEICHE BORDER wie main */
+    backdrop-filter: blur(15px);
+    box-shadow: var(--shadow-xl); /* GLEICHER Schatten wie main */
+    position: relative;
+    overflow: hidden;
+}
+
+.header-description::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
 .header-description p {
-    color: var(--text-secondary); /* GEÄNDERT: bessere Lesbarkeit */
+    color: var(--text-secondary);
     font-size: 16px;
     line-height: 1.6;
     margin: 0;
     text-align: center;
+}
+
+/* Header Titel und Subtitle müssen über dem Container liegen */
+header h1 {
+    text-align: center;
+    margin-bottom: var(--spacing-sm);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(145deg, var(--text-primary) 0%, var(--accent-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+    position: relative;
+    z-index: 10; /* ÜBER dem Container */
+}
+
+.header-subtitle {
+    text-align: center;
+    font-size: 1.1em;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+    font-weight: 400;
+    opacity: 0.9;
+    position: relative;
+    z-index: 10; /* ÜBER dem Container */
 }
 
 /* ===== BUTTONS ===== */
@@ -218,11 +260,27 @@ header h1 {
 }
 
 /* ===== MAIN CONTENT ===== */
-/* KOMPLETT ENTFERNT: Der große Container um alles */
 main {
-    /* ENTFERNT: alle Container-Styles */
+    background: var(--gradient-secondary);
+    padding: var(--spacing-xxl);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
     margin-bottom: var(--spacing-xl);
     position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(20px);
+}
+
+main::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
 /* ===== CALCULATOR CARDS ===== */
@@ -849,8 +907,8 @@ footer {
     }
     
     .header-description {
-        margin: 20px 15px 0;
-        padding: 20px; /* Auf Mobile wieder kleiner */
+        margin: -60px 15px 0; /* ANGEPASST für Mobile */
+        padding: 80px 20px 20px; /* ANGEPASST für Mobile */
     }
     
     .header-description p {
