@@ -667,9 +667,9 @@ main::before {
 .calculator-card {
     background: var(--gradient-surface);
     border-radius: var(--radius-xxl);
-    padding: var(--spacing-xl);
+    padding: var(--spacing-lg); /* REDUZIERT von --spacing-xl */
     box-shadow: var(--shadow-lg);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg); /* REDUZIERT von --spacing-xl */
     text-decoration: none;
     color: inherit;
     border: 2px solid var(--border-color);
@@ -701,7 +701,7 @@ main::before {
 .calculators-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-    gap: var(--spacing-xl);
+    gap: var(--spacing-lg); /* REDUZIERT von --spacing-xl */
     margin-bottom: var(--spacing-xxl);
     max-width: 1200px;
     margin-left: auto;
@@ -732,10 +732,10 @@ main::before {
 .card-title {
     font-size: 1.8em;
     font-weight: 700;
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-sm); /* REDUZIERT von --spacing-md */
     color: var(--text-primary);
     text-align: center;
-    height: 70px;
+    height: 50px; /* REDUZIERT von 70px */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -746,9 +746,9 @@ main::before {
 .card-description {
     color: var(--text-secondary);
     line-height: 1.6;
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm); /* REDUZIERT von --spacing-lg */
     text-align: center;
-    height: 90px;
+    height: 70px; /* REDUZIERT von 90px */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -756,12 +756,12 @@ main::before {
 
 .card-features {
     list-style: none;
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm); /* REDUZIERT von --spacing-lg */
     flex-grow: 1;
 }
 
 .card-features li {
-    padding: 12px 0;
+    padding: 8px 0; /* REDUZIERT von 12px */
     position: relative;
     padding-left: 35px;
     color: var(--text-secondary);
@@ -786,7 +786,7 @@ main::before {
 .cta-button {
     display: block;
     width: 100%;
-    padding: 20px;
+    padding: 16px; /* REDUZIERT von 20px */
     background: var(--gradient-primary);
     color: white;
     border: none;
