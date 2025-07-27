@@ -636,7 +636,7 @@
                     <td>${item.plattenNr}</td>
                     <td>${item.positionVonLinks} - ${item.positionBis}</td>
                     <td style="font-weight: bold; color: #28a745;">${item.plattenbreite}</td>
-                    <td style="font-weight: bold; color: #1e3c72;">${item.benoetigteLaenge}</td>
+                    <td style="font-weight: bold; color: #28a745; background-color: #f8fff9; padding: 8px;">${item.benoetigteLaenge}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -895,21 +895,21 @@
                 
                 // Anleitung
                 html += `<div style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); padding: 20px; border-radius: 10px; font-size: 15px; margin-top: 25px; border-left: 5px solid #ffc107;">`;
-                html += `<strong style="color: #856404;">📏 Anzeichnen:</strong><br>`;
+                html += `<strong style="color: #333;">📏 Anzeichnen:</strong><br>`;
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - basisBreite;
                     if (ueberhang > 0) {
-                        html += `• <strong style="color: #FF0000;">⚠️ ZUERST: Rechts ${(ueberhang * 100).toFixed(0)}cm abschneiden!</strong><br>`;
+                        html += `• <strong style="color: #d63384;">⚠️ ZUERST: Rechts ${(ueberhang * 100).toFixed(0)}cm abschneiden!</strong><br>`;
                     }
                 }
-                html += `• Von der Unterkante: Links bei ${anreissLinks}cm und rechts bei ${anreissRechts}cm markieren<br>`;
-                html += `• Diagonale Schnittlinie anzeichnen und oberen Teil absägen<br>`;
+                html += `• <span style="color: #333;">Von der Unterkante: Links bei ${anreissLinks}cm und rechts bei ${anreissRechts}cm markieren</span><br>`;
+                html += `• <span style="color: #333;">Diagonale Schnittlinie anzeichnen und oberen Teil absägen</span><br>`;
                 if (ueberdecktSpitze) {
                     const spitzeVonLinks = spitzenPosition - plattenStart;
-                    html += `• <strong style="color: #dc3545;">🔺 ACHTUNG: Diese Platte enthält die Dachspitze bei ${(spitzeVonLinks * 100).toFixed(0)}cm von links!</strong><br>`;
+                    html += `• <strong style="color: #d63384;">🔺 ACHTUNG: Diese Platte enthält die Dachspitze bei ${(spitzeVonLinks * 100).toFixed(0)}cm von links!</strong><br>`;
                 }
                 if (anreissLinks === anreissRechts) {
-                    html += `• <strong style="color: #28a745;">💡 TIPP: Symmetrischer Schnitt!</strong><br>`;
+                    html += `• <strong style="color: #198754;">💡 TIPP: Symmetrischer Schnitt!</strong><br>`;
                 }
                 html += `</div>`;
                 html += `</div>`;
