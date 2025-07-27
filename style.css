@@ -908,9 +908,13 @@ footer {
         font-size: 1rem;
     }
     
+    .header-title-box {
+        margin: 0 15px;
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+    
     .header-description {
-        margin: -60px 15px 0; /* ANGEPASST für Mobile */
-        padding: 80px 20px 20px; /* ANGEPASST für Mobile */
+        margin-top: var(--spacing-xs); /* Noch dichter auf Mobile */
     }
     
     .header-description p {
