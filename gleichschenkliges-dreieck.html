@@ -167,20 +167,28 @@
         @media print {
             /* Verstecke alles außer dem Anrissplan */
             body * {
-                visibility: hidden;
+                visibility: hidden !important;
             }
             
-            /* Zeige nur den Anrissplan */
-            #anrissplan, #anrissplan * {
-                visibility: visible;
+            /* Zeige nur den Anrissplan und seine Inhalte */
+            #anrissplan, #anrissplan *, #anriss-content, #anriss-content *,
+            .anriss-plate, .anriss-plate *, .plates-container, .plates-container * {
+                visibility: visible !important;
             }
             
             /* Positioniere den Anrissplan */
             #anrissplan {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                background: white !important;
+            }
+            
+            /* Verstecke Header und Übersicht beim Drucken */
+            .print-header, .print-overview {
+                display: none !important;
+                visibility: hidden !important;
             }
             
             /* Verstecke andere Elemente explizit */
@@ -191,15 +199,22 @@
                 visibility: hidden !important;
             }
             
+            /* Container für Platten */
+            .plates-container {
+                width: 100% !important;
+                display: block !important;
+            }
+            
             /* Plattencontainer für Drucklayout */
             .anriss-plate {
-                page-break-inside: avoid;
-                margin-bottom: 10mm !important;
-                width: 47% !important;
+                page-break-inside: avoid !important;
+                margin-bottom: 5mm !important;
+                width: 48% !important;
                 display: inline-block !important;
                 vertical-align: top !important;
-                margin-right: 3% !important;
+                margin-right: 2% !important;
                 box-sizing: border-box !important;
+                break-inside: avoid !important;
             }
             
             /* Jede zweite Platte ohne rechten Rand */
@@ -213,15 +228,19 @@
                 margin: 8mm;
             }
             
-            /* Überschriften anpassen */
-            #anriss-content h2 {
-                font-size: 18px !important;
-                margin-bottom: 8mm !important;
+            /* Platteninhalt optimieren */
+            .anriss-plate h3 {
+                font-size: 11px !important;
+                margin-bottom: 6px !important;
             }
             
-            #anriss-content h3 {
-                font-size: 14px !important;
-                margin-bottom: 5mm !important;
+            .anriss-plate > div[style*="height: 150px"] {
+                height: 110px !important;
+                width: 100% !important;
+            }
+            
+            .anriss-plate div[style*="font-size: 11px"] {
+                font-size: 9px !important;
             }
         }
     </style>
@@ -837,18 +856,21 @@
             const spitzenPosition = basisBreite / 2;
             
             let html = `<div style="font-family: Arial, sans-serif;">`;
-            html += `<div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">`;
+            html += `<div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;" class="print-header">`;
             html += `<h2 style="color: #1e3c72; margin-bottom: 10px;">Anrissplan - Gleichschenkliges Dreieck</h2>`;
             html += `<p style="color: #666; font-size: 1.1em;">Basis: ${basisBreite}m | Höhe: ${hoehe}m | Spitze mittig | Platten: ${aktuelleSchnittliste.length} Stück</p>`;
             html += `</div>`;
             
-            // Vorschau für Anrissplan hinzufügen
-            html += '<div style="margin-bottom: 30px; text-align: center;">';
+            // Vorschau für Anrissplan hinzufügen (wird beim Drucken ausgeblendet)
+            html += '<div style="margin-bottom: 30px; text-align: center;" class="print-overview">';
             html += '<h3 style="color: #1e3c72; margin-bottom: 15px;">Dreieck-Übersicht</h3>';
             html += '<div style="border: 2px solid #1e3c72; border-radius: 8px; padding: 15px; background: white; display: inline-block;">';
             html += document.getElementById('vorschau-svg').innerHTML;
             html += '</div>';
             html += '</div>';
+            
+            // Container für alle Platten
+            html += '<div class="plates-container">';
             
             aktuelleSchnittliste.forEach((item, index) => {
                 const plattenStart = parseFloat(item.positionVonLinks);
@@ -974,6 +996,9 @@
                 html += `</div>`;
                 html += `</div>`;
             });
+            
+            // Container schließen
+            html += '</div>';
             
             html += `</div>`;
             
