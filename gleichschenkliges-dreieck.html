@@ -172,20 +172,18 @@
             }
         }
         
-        /* OPTIMIERTE DRUCKSTILE - 2 PLATTEN PRO SEITE */
+        /* VERBESSERTE DRUCKSTILE - 4 Platten pro Seite */
         @media print {
             /* Seitenformat */
             @page {
                 size: A4 portrait;
-                margin: 8mm 5mm 8mm 5mm; /* Kompakte Ränder */
+                margin: 10mm;
             }
             
             /* Kein Hintergrundbild beim Drucken */
             body {
                 background: white !important;
                 font-family: Arial, sans-serif !important;
-                font-size: 12px !important;
-                line-height: 1.2 !important;
             }
             
             /* Verstecke alles außer dem Anrissplan */
@@ -222,7 +220,7 @@
                 visibility: hidden !important;
             }
             
-            /* Container für Platten - 2 pro Seite */
+            /* Container für Platten - 4 pro Seite */
             .plates-container {
                 width: 100% !important;
                 display: block !important;
@@ -230,110 +228,114 @@
                 padding: 0 !important;
             }
             
-            /* 2 Platten pro Seite - optimierte Größe */
+            /* 4 Platten pro Seite - 2x2 Grid */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 0 8mm 0 !important;
-                padding: 4mm !important;
+                width: 48% !important;
+                max-width: 48% !important;
+                margin: 1% !important;
+                padding: 8px !important;
                 box-sizing: border-box !important;
                 border: 1px solid #333 !important;
-                border-radius: 3mm !important;
+                border-radius: 4px !important;
                 background: white !important;
-                display: block !important;
+                display: inline-block !important;
+                vertical-align: top !important;
+                float: left !important;
                 position: relative !important;
                 height: auto !important;
-                min-height: 120mm !important; /* Feste Mindesthöhe */
-                max-height: 135mm !important; /* Maximale Höhe */
+                min-height: 180px !important;
             }
             
-            /* Jede 2. Platte einen Seitenumbruch */
-            .anriss-plate:nth-child(odd) {
-                clear: both !important;
+            /* Jede 4. Platte einen Seitenumbruch */
+            .anriss-plate:nth-child(4n+1) {
+                clear: left !important;
             }
             
-            .anriss-plate:nth-child(2n) {
+            .anriss-plate:nth-child(4n) {
                 page-break-after: always !important;
-                margin-bottom: 0 !important;
             }
             
             /* Plattenüberschrift kompakter */
             .anriss-plate h3 {
-                font-size: 11px !important;
-                margin: 0 0 4mm 0 !important;
+                font-size: 10px !important;
+                margin: 0 0 6px 0 !important;
                 color: #333 !important;
                 font-weight: bold !important;
                 text-align: center !important;
                 border-bottom: 1px solid #333 !important;
-                padding-bottom: 2mm !important;
+                padding-bottom: 3px !important;
                 line-height: 1.1 !important;
             }
             
             /* Plattendiagramm kompakter */
-            .anriss-plate > div[style*="height: 150px"],
-            .anriss-plate > div[style*="width: 280px"] {
-                height: 70mm !important;
+            .anriss-plate > div[style*="height: 150px"] {
+                height: 80px !important;
                 width: 100% !important;
-                max-width: 160mm !important;
-                margin: 3mm auto !important;
-                position: relative !important;
+                max-width: 140px !important;
+                margin: 5px auto !important;
             }
             
-            /* Schriftgrößen lesbar aber kompakt */
+            .anriss-plate > div[style*="width: 280px"] {
+                width: 100% !important;
+                max-width: 140px !important;
+                height: 80px !important;
+                margin: 5px auto !important;
+            }
+            
+            /* Schriftgrößen kompakter aber lesbar */
             .anriss-plate div[style*="font-size: 11px"] {
-                font-size: 9px !important;
+                font-size: 8px !important;
                 line-height: 1.2 !important;
             }
             
             .anriss-plate div[style*="font-size: 10px"] {
-                font-size: 8px !important;
+                font-size: 7px !important;
             }
             
             .anriss-plate div[style*="font-size: 9px"] {
-                font-size: 7px !important;
+                font-size: 6px !important;
             }
             
             /* SVG-Diagramme angepasst */
             .anriss-plate svg {
                 width: 100% !important;
-                max-width: 150mm !important;
-                height: 45mm !important;
+                max-width: 120px !important;
+                height: 60px !important;
             }
             
             /* Anweisungsboxen kompakter */
             .anriss-plate div[style*="padding: 12px"] {
-                padding: 3mm !important;
-                margin-top: 3mm !important;
-                font-size: 8px !important;
+                padding: 4px !important;
+                margin-top: 6px !important;
+                font-size: 7px !important;
                 line-height: 1.3 !important;
-                border-left: 2mm solid #ffc107 !important;
+                border-left: 2px solid #ffc107 !important;
                 background: #f8f9fa !important;
-                border-radius: 2mm !important;
             }
             
             .anriss-plate div[style*="padding: 12px"] strong {
-                font-size: 9px !important;
+                font-size: 8px !important;
                 color: #333 !important;
             }
             
             /* Positionsangaben kleiner */
             .anriss-plate div[style*="position: absolute"] {
                 position: relative !important;
-                font-size: 7px !important;
+                font-size: 6px !important;
                 color: #333 !important;
             }
             
             /* Maße und Anweisungen */
             .anriss-plate div[style*="color: #dc3545"] {
-                color: #dc3545 !important;
+                color: #000 !important;
                 font-weight: bold !important;
-                font-size: 8px !important;
+                font-size: 7px !important;
             }
             
             .anriss-plate div[style*="color: #333"] {
-                color: #333 !important;
-                font-size: 8px !important;
+                color: #000 !important;
+                font-size: 7px !important;
             }
             
             /* Keine Schatten beim Drucken */
@@ -341,36 +343,15 @@
                 box-shadow: none !important;
             }
             
+            /* Plattenhöhen in der Darstellung anpassen */
+            .anriss-plate div[style*="height:"] {
+                transform: scale(0.6) !important;
+                transform-origin: top left !important;
+            }
+            
             /* Text in SVGs */
             .anriss-plate svg text {
-                font-size: 7px !important;
-            }
-            
-            /* Spezielle Behandlung für ACHTUNG-Boxen */
-            .anriss-plate div[style*="background: #f8f9fa"] {
-                background: #fff3cd !important;
-                border-left: 2mm solid #ffc107 !important;
-                font-size: 8px !important;
-                padding: 2mm !important;
-                margin-top: 2mm !important;
-                border-radius: 1mm !important;
-            }
-            
-            /* Plattenvisualisierung - absolute Positionierung vermeiden */
-            .anriss-plate > div[style*="position: relative"] {
-                position: static !important;
-                height: auto !important;
-                width: 100% !important;
-                margin: 2mm auto !important;
-                text-align: center !important;
-            }
-            
-            /* Maßangaben unter den Platten */
-            .anriss-plate div[style*="bottom:"] {
-                position: static !important;
-                display: inline-block !important;
-                margin: 1mm 2mm !important;
-                font-size: 8px !important;
+                font-size: 6px !important;
             }
         }
     </style>
