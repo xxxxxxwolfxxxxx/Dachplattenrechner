@@ -58,6 +58,15 @@
     <link rel="stylesheet" href="style.css">
     
     <style>
+        /* Hintergrundbild */
+        body {
+            background-image: url('gleichschenkliges-dreieck.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+        
         /* Elegante Werbecontainer */
         .ad-container, .ad-container-middle {
             margin: 30px auto;
@@ -165,6 +174,11 @@
         
         /* Druckstile */
         @media print {
+            /* Kein Hintergrundbild beim Drucken */
+            body {
+                background: white !important;
+            }
+            
             /* Verstecke alles außer dem Anrissplan */
             body * {
                 visibility: hidden !important;
@@ -178,11 +192,11 @@
             
             /* Positioniere den Anrissplan */
             #anrissplan {
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
+                position: static !important;
                 width: 100% !important;
                 background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
             
             /* Verstecke Header und Übersicht beim Drucken */
@@ -203,18 +217,21 @@
             .plates-container {
                 width: 100% !important;
                 display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
             
-            /* Plattencontainer für Drucklayout */
+            /* Plattencontainer für Drucklayout - kleinere Platten für mehr Platz */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 5mm !important;
+                margin-bottom: 3mm !important;
                 width: 48% !important;
                 display: inline-block !important;
                 vertical-align: top !important;
                 margin-right: 2% !important;
                 box-sizing: border-box !important;
                 break-inside: avoid !important;
+                font-size: 10px !important;
             }
             
             /* Jede zweite Platte ohne rechten Rand */
@@ -222,25 +239,57 @@
                 margin-right: 0 !important;
             }
             
-            /* Seitenformat */
-            @page {
-                size: A4 landscape;
-                margin: 8mm;
+            /* Alle 4 Platten einen Seitenumbruch */
+            .anriss-plate:nth-child(4n) {
+                page-break-after: always !important;
             }
             
-            /* Platteninhalt optimieren */
+            /* Seitenformat - kleinere Ränder für mehr Platz */
+            @page {
+                size: A4 landscape;
+                margin: 5mm;
+            }
+            
+            /* Platteninhalt stark verkleinert */
             .anriss-plate h3 {
-                font-size: 11px !important;
-                margin-bottom: 6px !important;
+                font-size: 9px !important;
+                margin-bottom: 3px !important;
+                line-height: 1.1 !important;
             }
             
             .anriss-plate > div[style*="height: 150px"] {
-                height: 110px !important;
+                height: 80px !important;
                 width: 100% !important;
             }
             
+            .anriss-plate > div[style*="width: 280px"] {
+                width: 100% !important;
+                height: 80px !important;
+            }
+            
             .anriss-plate div[style*="font-size: 11px"] {
-                font-size: 9px !important;
+                font-size: 7px !important;
+                line-height: 1.1 !important;
+            }
+            
+            .anriss-plate div[style*="font-size: 10px"] {
+                font-size: 7px !important;
+            }
+            
+            .anriss-plate div[style*="font-size: 9px"] {
+                font-size: 6px !important;
+            }
+            
+            /* SVG-Diagramme verkleinern */
+            .anriss-plate svg {
+                width: 100% !important;
+                height: 60px !important;
+            }
+            
+            /* Anweisungsboxen kompakter */
+            .anriss-plate div[style*="padding: 12px"] {
+                padding: 6px !important;
+                margin-top: 8px !important;
             }
         }
     </style>
