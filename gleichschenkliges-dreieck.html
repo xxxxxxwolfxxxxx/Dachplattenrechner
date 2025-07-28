@@ -172,83 +172,81 @@
             }
         }
         
-        /* KORRIGIERTE DRUCKSTILE */
+        /* KORRIGIERTE DRUCKSTILE - Zurück zur alten Version */
         @media print {
             /* Seitenformat */
             @page {
                 size: A4 portrait;
-                margin: 15mm;
+                margin: 10mm;
             }
             
-            /* Basis-Einstellungen */
+            /* Kein Hintergrundbild beim Drucken */
             body {
                 background: white !important;
                 font-family: Arial, sans-serif !important;
-                font-size: 12px !important;
-                line-height: 1.3 !important;
             }
             
             /* Verstecke alles außer dem Anrissplan */
-            .nav-header,
-            .container > main > *:not(#anrissplan),
-            .ad-container,
-            .ad-container-middle,
-            .section,
-            .calculate-btn,
-            #results,
-            #schnittliste,
-            .anriss-btn,
-            #vorschau {
-                display: none !important;
+            body * {
+                visibility: hidden !important;
             }
             
-            /* Zeige nur den Anrissplan */
+            /* Zeige nur den Anrissplan und seine Inhalte */
+            #anrissplan, #anrissplan *, #anriss-content, #anriss-content *,
+            .anriss-plate, .anriss-plate *, .plates-container, .plates-container * {
+                visibility: visible !important;
+            }
+            
+            /* Positioniere den Anrissplan */
             #anrissplan {
-                display: block !important;
                 position: static !important;
                 width: 100% !important;
                 background: white !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                visibility: visible !important;
             }
             
-            #anrissplan,
-            #anrissplan *,
-            #anriss-content,
-            #anriss-content *,
-            .anriss-plate,
-            .anriss-plate *,
-            .plates-container,
-            .plates-container * {
-                visibility: visible !important;
+            /* Verstecke Header und Übersicht beim Drucken */
+            .print-header, .print-overview {
+                display: none !important;
+                visibility: hidden !important;
             }
             
-            /* Container für alle Platten */
+            /* Verstecke andere Elemente explizit */
+            .nav-header, .ad-container, .ad-container-middle, 
+            .section, .calculate-btn, #results .result-item,
+            #schnittliste, .anriss-btn, #vorschau {
+                display: none !important;
+                visibility: hidden !important;
+            }
+            
+            /* Container für Platten */
             .plates-container {
                 width: 100% !important;
+                display: block !important;
                 margin: 0 !important;
                 padding: 0 !important;
             }
             
-            /* Einzelne Platten - 2 pro Seite vertikal */
+            /* Einzelne Platten - größere Darstellung */
             .anriss-plate {
+                page-break-inside: avoid !important;
                 width: 100% !important;
-                max-width: none !important;
+                max-width: 100% !important;
                 margin: 0 0 15mm 0 !important;
                 padding: 8mm !important;
-                border: 1.5pt solid #000 !important;
-                border-radius: 3mm !important;
+                box-sizing: border-box !important;
+                border: 2pt solid #000 !important;
+                border-radius: 4mm !important;
                 background: white !important;
-                box-shadow: none !important;
-                page-break-inside: avoid !important;
-                position: relative !important;
-                float: none !important;
                 display: block !important;
-                min-height: 110mm !important;
+                vertical-align: top !important;
+                position: relative !important;
+                height: auto !important;
+                min-height: 120mm !important;
             }
             
-            /* Jede 2. Platte bekommt einen Seitenumbruch */
+            /* Jede 2. Platte einen Seitenumbruch */
             .anriss-plate:nth-child(2n) {
                 page-break-after: always !important;
             }
@@ -256,119 +254,114 @@
             /* Plattenüberschrift */
             .anriss-plate h3 {
                 font-size: 14pt !important;
-                margin: 0 0 8mm 0 !important;
+                margin: 0 0 6mm 0 !important;
                 color: #000 !important;
                 font-weight: bold !important;
                 text-align: center !important;
-                border-bottom: 1.5pt solid #000 !important;
+                border-bottom: 2pt solid #000 !important;
                 padding-bottom: 3mm !important;
-                line-height: 1.2 !important;
-                display: block !important;
+                line-height: 1.1 !important;
             }
             
-            /* Plattendiagramm Container - weniger restriktiv */
+            /* Plattendiagramm Container */
             .anriss-plate > div[style*="position: relative"] {
                 height: auto !important;
-                min-height: 50mm !important;
                 width: 100% !important;
-                margin: 5mm auto !important;
-                display: block !important;
-                position: relative !important;
+                max-width: 180mm !important;
+                margin: 8mm auto !important;
             }
             
-            /* SVG Elemente - behalten relative Größe */
+            /* SVG-Diagramme */
             .anriss-plate svg {
                 width: 100% !important;
-                max-width: 150mm !important;
+                max-width: 160mm !important;
                 height: auto !important;
-                min-height: 30mm !important;
-                display: block !important;
-                margin: 0 auto !important;
+                min-height: 50mm !important;
             }
             
-            /* SVG Text - helle Schrift für dunkle Hintergründe */
-            .anriss-plate svg text {
+            /* Schriftgrößen */
+            .anriss-plate div[style*="font-size: 11px"] {
                 font-size: 10pt !important;
-                fill: #fff !important;
-                font-weight: bold !important;
-                stroke: #000 !important;
-                stroke-width: 0.5pt !important;
+                line-height: 1.2 !important;
             }
             
-            /* Polygone in SVGs - bessere Kontraste */
-            .anriss-plate svg polygon,
-            .anriss-plate svg line {
-                stroke: #000 !important;
-                stroke-width: 1.5pt !important;
-            }
-            
-            /* Nutzen-Bereich (hellgrau) */
-            .anriss-plate svg polygon[fill="#4a90e2"] {
-                fill: #ddd !important;
-                stroke: #000 !important;
-            }
-            
-            /* Verschnitt-Bereich (dunkelgrau) */
-            .anriss-plate svg polygon[fill="#e74c3c"] {
-                fill: #888 !important;
-                stroke: #000 !important;
-            }
-            
-            /* Alle anderen Texte */
-            .anriss-plate div {
-                color: #000 !important;
+            .anriss-plate div[style*="font-size: 10px"] {
                 font-size: 9pt !important;
-                line-height: 1.3 !important;
+            }
+            
+            .anriss-plate div[style*="font-size: 9px"] {
+                font-size: 8pt !important;
             }
             
             /* Anweisungsboxen */
-            .anriss-plate div[style*="padding: 12px"],
-            .anriss-plate div[style*="background: #f8f9fa"] {
-                padding: 4mm !important;
-                margin-top: 4mm !important;
+            .anriss-plate div[style*="padding: 20px"] {
+                padding: 6mm !important;
+                margin-top: 6mm !important;
                 font-size: 9pt !important;
                 line-height: 1.3 !important;
-                border-left: 2pt solid #000 !important;
+                border-left: 3pt solid #000 !important;
                 background: #f0f0f0 !important;
-                display: block !important;
-                color: #000 !important;
             }
             
-            .anriss-plate div[style*="padding: 12px"] strong {
+            .anriss-plate div[style*="padding: 20px"] strong {
                 font-size: 10pt !important;
                 color: #000 !important;
-                font-weight: bold !important;
             }
             
-            /* Maßangaben - alle schwarz */
-            .anriss-plate div[style*="color: #dc3545"],
-            .anriss-plate div[style*="color: #333"],
-            .anriss-plate div[style*="color: #28a745"] {
+            /* Positionsangaben */
+            .anriss-plate div[style*="position: absolute"] {
+                position: relative !important;
+                font-size: 8pt !important;
+                color: #000 !important;
+                display: inline-block !important;
+                margin: 1mm !important;
+            }
+            
+            /* Maße und Anweisungen */
+            .anriss-plate div[style*="color: #dc3545"] {
                 color: #000 !important;
                 font-weight: bold !important;
                 font-size: 9pt !important;
             }
             
-            /* Vereinfache komplexe Positionierungen */
-            .anriss-plate div[style*="position: absolute"] {
-                position: relative !important;
-                display: inline-block !important;
-                font-size: 8pt !important;
+            .anriss-plate div[style*="color: #333"] {
                 color: #000 !important;
-                margin: 1mm !important;
-                background: white !important;
-                padding: 1mm !important;
-                border: 0.5pt solid #ccc !important;
+                font-size: 9pt !important;
             }
             
-            /* Transform-Eigenschaften entfernen */
-            .anriss-plate div[style*="transform"],
-            .anriss-plate div[style*="rotate"] {
-                transform: none !important;
-                position: relative !important;
-                display: inline-block !important;
-                margin: 1mm !important;
+            .anriss-plate div[style*="color: #28a745"] {
                 color: #000 !important;
+                font-size: 9pt !important;
+            }
+            
+            .anriss-plate div[style*="color: #666"] {
+                color: #000 !important;
+                font-size: 9pt !important;
+            }
+            
+            /* Keine Schatten beim Drucken */
+            .anriss-plate {
+                box-shadow: none !important;
+            }
+            
+            /* Text in SVGs - helle Schrift mit schwarzer Umrandung */
+            .anriss-plate svg text {
+                font-size: 10pt !important;
+                fill: #fff !important;
+                stroke: #000 !important;
+                stroke-width: 0.5pt !important;
+                font-weight: bold !important;
+            }
+            
+            /* SVG Polygone */
+            .anriss-plate svg polygon {
+                stroke: #000 !important;
+                stroke-width: 1pt !important;
+            }
+            
+            .anriss-plate svg line {
+                stroke: #000 !important;
+                stroke-width: 1pt !important;
             }
         }
     </style>
