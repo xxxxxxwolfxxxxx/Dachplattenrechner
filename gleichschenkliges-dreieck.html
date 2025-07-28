@@ -992,25 +992,31 @@
                 const ueberdecktSpitze = plattenStart <= spitzenPosition && originalPlattenEnde >= spitzenPosition;
                 const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
                 
-                // Anreißmaße berechnen
+                // Anreißmaße berechnen - korrigierte Logik
                 const plattenEndeReal = istLetztePlatte ? basisBreite : originalPlattenEnde;
                 const hoeheStart = berechneHoeheAnPosition(plattenStart, basisBreite, hoehe);
                 const hoeheEnde = berechneHoeheAnPosition(plattenEndeReal, basisBreite, hoehe);
                 
-                let anreissLinks = Math.round(hoeheStart * 100);
-                let anreissRechts = Math.round(hoeheEnde * 100);
+                // Anrissmaße: Höhe der Platte MINUS die tatsächlich benötigte Höhe an der Position
+                let anreissLinks = Math.round((benoetigteLaengeM - hoeheStart) * 100);
+                let anreissRechts = Math.round((benoetigteLaengeM - hoeheEnde) * 100);
+                
+                // Negative Werte auf 0 setzen (sollte nicht vorkommen, aber sicherheitshalber)
+                anreissLinks = Math.max(0, anreissLinks);
+                anreissRechts = Math.max(0, anreissRechts);
                 
                 html += `<div class="anriss-plate" style="margin-bottom: 30px; border: 2px solid #333; padding: 15px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
                 html += `<h3 style="margin: 0 0 15px 0; color: #333; font-size: 16px; font-weight: bold;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
                 
                 html += `<div style="position: relative; height: 150px; width: 280px; background: #f8f9fa; margin: 15px auto; border-radius: 6px; border: 1px solid #ddd;">`;
                 
-                const plattenhoehePx = Math.max(50, Math.min(120, (benoetigteLaengeM / hoehe) * 120));
+                const plattenhoehePx = Math.max(80, Math.min(140, (benoetigteLaengeM / hoehe) * 120));
                 
                 html += `<div style="position: absolute; bottom: 20px; left: 25px; width: 230px; height: ${plattenhoehePx}px; background: #e9ecef; border: 1px solid #999; border-radius: 3px;"></div>`;
                 
-                let startY = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
-                let endY = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
+                // Korrekte Berechnung der Anriss-Positionen im SVG
+                let startY = (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
+                let endY = (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
                 
                 startY = Math.max(0, Math.min(plattenhoehePx, startY));
                 endY = Math.max(0, Math.min(plattenhoehePx, endY));
@@ -1023,26 +1029,26 @@
                     const spitzeVonLinks = spitzenPosition - plattenStart;
                     const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 230;
                     
-                    // Nutzen (hellblau für besseren Kontrast)
-                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${spitzePositionPx},0 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="115" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Nutzen</text>`;
+                    // Nutzen (von unten bis zur Schnittlinie)
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${plattenhoehePx - endY} ${spitzePositionPx},${plattenhoehePx - benoetigteLaengeM/hoehe * plattenhoehePx} 0,${plattenhoehePx - startY}" fill="#4a90e2" opacity="0.8"/>`;
+                    html += `<text x="115" y="${plattenhoehePx - 15}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Nutzen</text>`;
                     
-                    // Abschnitt (hellrot für besseren Kontrast)
-                    html += `<polygon points="0,${startY} ${spitzePositionPx},0 ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="115" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="10">Abschnitt</text>`;
+                    // Abschnitt (von Schnittlinie bis oben)
+                    html += `<polygon points="0,${plattenhoehePx - startY} ${spitzePositionPx},${plattenhoehePx - benoetigteLaengeM/hoehe * plattenhoehePx} ${endX},${plattenhoehePx - endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
+                    html += `<text x="115" y="${(plattenhoehePx - startY)/2 + 8}" text-anchor="middle" fill="white" font-weight="bold" font-size="10">Abschnitt</text>`;
                     
                     // Schnittlinien
-                    html += `<line x1="0" y1="${startY}" x2="${spitzePositionPx}" y2="0" stroke="#000" stroke-width="2"/>`;
-                    html += `<line x1="${spitzePositionPx}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
+                    html += `<line x1="0" y1="${plattenhoehePx - startY}" x2="${spitzePositionPx}" y2="${plattenhoehePx - benoetigteLaengeM/hoehe * plattenhoehePx}" stroke="#000" stroke-width="2"/>`;
+                    html += `<line x1="${spitzePositionPx}" y1="${plattenhoehePx - benoetigteLaengeM/hoehe * plattenhoehePx}" x2="${endX}" y2="${plattenhoehePx - endY}" stroke="#000" stroke-width="2"/>`;
                 } else {
                     // Normale Platte
-                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="115" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Nutzen</text>`;
+                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${plattenhoehePx - endY} 0,${plattenhoehePx - startY}" fill="#4a90e2" opacity="0.8"/>`;
+                    html += `<text x="115" y="${plattenhoehePx - 15}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Nutzen</text>`;
                     
-                    html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="115" y="${Math.min(startY, endY)/2 + 8}" text-anchor="middle" fill="white" font-weight="bold" font-size="10">Abschnitt</text>`;
+                    html += `<polygon points="0,${plattenhoehePx - startY} ${endX},${plattenhoehePx - endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
+                    html += `<text x="115" y="${(plattenhoehePx - Math.max(startY, endY))/2 + 8}" text-anchor="middle" fill="white" font-weight="bold" font-size="10">Abschnitt</text>`;
                     
-                    html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
+                    html += `<line x1="0" y1="${plattenhoehePx - startY}" x2="${endX}" y2="${plattenhoehePx - endY}" stroke="#000" stroke-width="2"/>`;
                 }
                 
                 html += `</svg>`;
@@ -1074,11 +1080,11 @@
                     }
                 }
                 
-                // Anrisslinien
-                html += `<div style="position: absolute; bottom: 20px; left: 25px; width: 3px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
-                html += `<div style="position: absolute; bottom: 20px; left: ${25 + endX - 2}px; width: 3px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
+                // Anrisslinien - zeigen die Höhe der Anreißmarkierung
+                html += `<div style="position: absolute; bottom: 20px; left: 25px; width: 3px; height: ${startY}px; background: #dc3545; border-radius: 1px;"></div>`;
+                html += `<div style="position: absolute; bottom: 20px; left: ${25 + endX - 2}px; width: 3px; height: ${endY}px; background: #dc3545; border-radius: 1px;"></div>`;
                 
-                // Anrissmaße
+                // Anrissmaße - zeigen was abgeschnitten wird
                 html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx}px; left: 10px; font-size: 11px; font-weight: bold; color: #dc3545;">↑</div>`;
                 html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx}px; right: 15px; font-size: 11px; font-weight: bold; color: #dc3545;">↑</div>`;
                 html += `<div style="position: absolute; bottom: 5px; left: -20px; font-size: 11px; font-weight: bold; color: #dc3545; text-align: center; width: 40px;">${anreissLinks}cm</div>`;
