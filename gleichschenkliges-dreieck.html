@@ -188,8 +188,16 @@
                 line-height: 1.3 !important;
             }
             
-            /* Verstecke alles außer dem Anrissplan */
-            body > * {
+            /* Verstecke Navigation und Werbung */
+            .nav-header,
+            .ad-container,
+            .ad-container-middle,
+            .section,
+            .calculate-btn,
+            #results .result-item,
+            #schnittliste,
+            .anriss-btn,
+            #vorschau {
                 display: none !important;
             }
             
@@ -201,10 +209,18 @@
                 background: white !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                visibility: visible !important;
             }
             
-            #anrissplan * {
-                display: block !important;
+            #anrissplan,
+            #anrissplan *,
+            #anriss-content,
+            #anriss-content *,
+            .anriss-plate,
+            .anriss-plate *,
+            .plates-container,
+            .plates-container * {
+                visibility: visible !important;
             }
             
             /* Verstecke Print-Header und Overview beim Drucken */
@@ -224,9 +240,9 @@
             .anriss-plate {
                 width: 100% !important;
                 max-width: none !important;
-                margin: 0 0 20mm 0 !important;
+                margin: 0 0 15mm 0 !important;
                 padding: 8mm !important;
-                border: 1.5pt solid #333 !important;
+                border: 1.5pt solid #000 !important;
                 border-radius: 3mm !important;
                 background: white !important;
                 box-shadow: none !important;
@@ -234,7 +250,7 @@
                 position: relative !important;
                 float: none !important;
                 display: block !important;
-                min-height: 120mm !important;
+                min-height: 110mm !important;
             }
             
             /* Jede 2. Platte bekommt einen Seitenumbruch */
@@ -249,48 +265,78 @@
                 color: #000 !important;
                 font-weight: bold !important;
                 text-align: center !important;
-                border-bottom: 1.5pt solid #333 !important;
+                border-bottom: 1.5pt solid #000 !important;
                 padding-bottom: 3mm !important;
                 line-height: 1.2 !important;
                 display: block !important;
             }
             
-            /* Plattendiagramm Container */
-            .anriss-plate > div[style*="height: 150px"],
+            /* Plattendiagramm Container - weniger restriktiv */
             .anriss-plate > div[style*="position: relative"] {
-                height: 60mm !important;
+                height: auto !important;
+                min-height: 50mm !important;
                 width: 100% !important;
-                max-width: 150mm !important;
-                margin: 8mm auto !important;
+                margin: 5mm auto !important;
                 display: block !important;
                 position: relative !important;
             }
             
-            /* SVG Elemente */
+            /* SVG Elemente - behalten relative Größe */
             .anriss-plate svg {
                 width: 100% !important;
-                max-width: 120mm !important;
-                height: 40mm !important;
+                max-width: 150mm !important;
+                height: auto !important;
+                min-height: 30mm !important;
                 display: block !important;
+                margin: 0 auto !important;
             }
             
-            /* Text in den Platten */
-            .anriss-plate div[style*="font-size"] {
+            /* SVG Text - helle Schrift für dunkle Hintergründe */
+            .anriss-plate svg text {
                 font-size: 10pt !important;
-                line-height: 1.2 !important;
+                fill: #fff !important;
+                font-weight: bold !important;
+                stroke: #000 !important;
+                stroke-width: 0.5pt !important;
+            }
+            
+            /* Polygone in SVGs - bessere Kontraste */
+            .anriss-plate svg polygon,
+            .anriss-plate svg line {
+                stroke: #000 !important;
+                stroke-width: 1.5pt !important;
+            }
+            
+            /* Nutzen-Bereich (hellgrau) */
+            .anriss-plate svg polygon[fill="#4a90e2"] {
+                fill: #ddd !important;
+                stroke: #000 !important;
+            }
+            
+            /* Verschnitt-Bereich (dunkelgrau) */
+            .anriss-plate svg polygon[fill="#e74c3c"] {
+                fill: #888 !important;
+                stroke: #000 !important;
+            }
+            
+            /* Alle anderen Texte */
+            .anriss-plate div {
                 color: #000 !important;
+                font-size: 9pt !important;
+                line-height: 1.3 !important;
             }
             
             /* Anweisungsboxen */
             .anriss-plate div[style*="padding: 12px"],
             .anriss-plate div[style*="background: #f8f9fa"] {
-                padding: 5mm !important;
-                margin-top: 5mm !important;
+                padding: 4mm !important;
+                margin-top: 4mm !important;
                 font-size: 9pt !important;
                 line-height: 1.3 !important;
-                border-left: 2pt solid #ffc107 !important;
-                background: #f5f5f5 !important;
+                border-left: 2pt solid #000 !important;
+                background: #f0f0f0 !important;
                 display: block !important;
+                color: #000 !important;
             }
             
             .anriss-plate div[style*="padding: 12px"] strong {
@@ -299,56 +345,35 @@
                 font-weight: bold !important;
             }
             
-            /* Maßangaben und farbige Texte */
-            .anriss-plate div[style*="color: #dc3545"] {
+            /* Maßangaben - alle schwarz */
+            .anriss-plate div[style*="color: #dc3545"],
+            .anriss-plate div[style*="color: #333"],
+            .anriss-plate div[style*="color: #28a745"] {
                 color: #000 !important;
                 font-weight: bold !important;
                 font-size: 9pt !important;
             }
             
-            .anriss-plate div[style*="color: #333"] {
-                color: #000 !important;
-                font-size: 9pt !important;
-            }
-            
-            /* Positionsangaben als Inline */
+            /* Vereinfache komplexe Positionierungen */
             .anriss-plate div[style*="position: absolute"] {
-                position: static !important;
-                display: inline !important;
+                position: relative !important;
+                display: inline-block !important;
                 font-size: 8pt !important;
                 color: #000 !important;
-                margin: 0 3mm 0 0 !important;
+                margin: 1mm !important;
+                background: white !important;
+                padding: 1mm !important;
+                border: 0.5pt solid #ccc !important;
             }
             
-            /* Text in SVGs */
-            .anriss-plate svg text {
-                font-size: 8pt !important;
-                fill: #000 !important;
-            }
-            
-            /* Polygone in SVGs */
-            .anriss-plate svg polygon,
-            .anriss-plate svg line {
-                stroke: #000 !important;
-                stroke-width: 1pt !important;
-            }
-            
-            /* Spezielle Farben für besseren Kontrast */
-            .anriss-plate svg polygon[fill="#4a90e2"] {
-                fill: #cccccc !important;
-            }
-            
-            .anriss-plate svg polygon[fill="#e74c3c"] {
-                fill: #666666 !important;
-            }
-            
-            /* Verstecke komplexe Positionierungen */
+            /* Transform-Eigenschaften entfernen */
             .anriss-plate div[style*="transform"],
             .anriss-plate div[style*="rotate"] {
                 transform: none !important;
-                position: static !important;
+                position: relative !important;
                 display: inline-block !important;
-                margin: 2mm !important;
+                margin: 1mm !important;
+                color: #000 !important;
             }
         }
     </style>
@@ -1022,11 +1047,11 @@
                     
                     // Nutzen (hellblau für besseren Kontrast)
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${spitzePositionPx},0 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="115" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Nutzen</text>`;
+                    html += `<text x="115" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.5">Nutzen</text>`;
                     
                     // Abschnitt (hellrot für besseren Kontrast)
                     html += `<polygon points="0,${startY} ${spitzePositionPx},0 ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="115" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="white" font-weight="bold" font-size="10">Abschnitt</text>`;
+                    html += `<text x="115" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="10" stroke="#000" stroke-width="0.5">Abschnitt</text>`;
                     
                     // Schnittlinien
                     html += `<line x1="0" y1="${startY}" x2="${spitzePositionPx}" y2="0" stroke="#000" stroke-width="2"/>`;
@@ -1034,10 +1059,10 @@
                 } else {
                     // Normale Platte
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="115" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Nutzen</text>`;
+                    html += `<text x="115" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.5">Nutzen</text>`;
                     
                     html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="115" y="${Math.min(startY, endY)/2 + 8}" text-anchor="middle" fill="white" font-weight="bold" font-size="10">Abschnitt</text>`;
+                    html += `<text x="115" y="${Math.min(startY, endY)/2 + 8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="10" stroke="#000" stroke-width="0.5">Abschnitt</text>`;
                     
                     html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
                 }
