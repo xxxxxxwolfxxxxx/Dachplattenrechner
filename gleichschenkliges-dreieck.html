@@ -151,6 +151,66 @@
         .ad-container-middle.ads-active .ad-content-real {
             display: block !important;
         }
+
+        /* Anrissplan Button Styling */
+        .anriss-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            width: auto;
+            min-width: 200px;
+        }
+
+        .anriss-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            background: linear-gradient(135deg, #218838 0%, #1ea89c 100%);
+        }
+
+        .anriss-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+        }
+
+        /* Sicherstellen dass der Berechnen-Button das gleiche Styling hat */
+        .calculate-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            width: auto;
+            min-width: 200px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+        }
         
         /* Mobile Optimierung */
         @media (max-width: 768px) {
@@ -223,6 +283,11 @@
                 stroke: #000 !important;
                 stroke-width: 0.5pt !important;
                 font-weight: bold !important;
+            }
+            
+            /* KORREKTUR: Header Text hell machen */
+            .print-header h2, .print-header p {
+                color: #000 !important;
             }
             
             /* Alle Farben für Druck optimieren */
@@ -396,7 +461,7 @@
                     </div>
                     <div class="input-group">
                         <label for="lieferbreite">Lieferbreite (m)</label>
-                        <input type="number" id="lieferbreite" step="0.01" min="0" value="1.06">
+                        <input type="number" id="lieferbreite" step="0.01" min="0" value="1.05">
                     </div>
                 </div>
             </div>
@@ -734,6 +799,14 @@
             // Vorschau generieren
             generiereVorschau(basisBreite, hoehe, dreieckBerechnung.schnittliste);
             document.getElementById('vorschau').style.display = 'block';
+
+            // Smooth scroll zu den Ergebnissen
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }, 100);
         }
 
         function generiereVorschau(basisBreite, hoehe, schnittliste) {
@@ -1009,6 +1082,14 @@
             
             document.getElementById('anriss-content').innerHTML = html;
             document.getElementById('anrissplan').style.display = 'block';
+            
+            // Smooth scroll zum Anrissplan
+            setTimeout(() => {
+                document.getElementById('anrissplan').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }, 100);
         }
 
         // Initialize everything
