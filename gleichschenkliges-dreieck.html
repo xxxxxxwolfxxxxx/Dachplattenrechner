@@ -232,12 +232,12 @@
             }
         }
         
-        /* OPTIMIERTE DRUCKSTILE */
+        /* MAXIMAL OPTIMIERTE DRUCKSTILE */
         @media print {
             /* Seitenformat */
             @page {
                 size: A4 portrait;
-                margin: 15mm;
+                margin: 12mm;
             }
             
             /* Kein Hintergrundbild beim Drucken */
@@ -271,42 +271,48 @@
                 padding: 0 !important;
             }
             
-            /* Header des Anrissplans - kompakter */
+            /* Header des Anrissplans - sehr kompakt */
             #anrissplan > div:first-child {
-                border-bottom: 2px solid #000 !important;
-                padding-bottom: 10px !important;
-                margin-bottom: 15px !important;
+                border-bottom: 1px solid #000 !important;
+                padding-bottom: 5px !important;
+                margin-bottom: 8px !important;
             }
             
             #anrissplan h4 {
                 color: #000 !important;
-                font-size: 1.2em !important;
+                font-size: 1em !important;
                 margin: 0 !important;
             }
             
             #anrissplan p {
                 color: #333 !important;
-                font-size: 0.9em !important;
-                margin: 5px 0 0 0 !important;
+                font-size: 0.8em !important;
+                margin: 2px 0 0 0 !important;
             }
             
-            /* Draufsicht - nur auf erster Seite zeigen */
+            /* Draufsicht - kompakt auf erste Seite, aber kein Seitenumbruch */
             .print-overview {
                 display: block !important;
-                page-break-after: always !important;
-                margin-bottom: 0 !important;
+                margin-bottom: 10px !important;
+                page-break-after: avoid !important;
             }
             
             .print-overview h3 {
                 color: #000 !important;
-                font-size: 1.1em !important;
-                margin-bottom: 10px !important;
+                font-size: 0.9em !important;
+                margin: 5px 0 !important;
             }
             
             .print-overview div {
-                border: 2px solid #000 !important;
-                padding: 10px !important;
+                border: 1px solid #000 !important;
+                padding: 5px !important;
                 margin: 0 auto !important;
+            }
+            
+            /* SVG in Draufsicht kleiner machen */
+            .print-overview svg {
+                width: 200px !important;
+                height: 130px !important;
             }
             
             /* Container für alle Platten */
@@ -314,34 +320,30 @@
                 display: block !important;
             }
             
-            /* Plattenbehälter - kompakter, 2 pro Seite */
+            /* Plattenbehälter - maximal kompakt, 3 pro Seite */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 15mm !important;
-                border: 2px solid #000 !important;
-                padding: 15px !important;
-                border-radius: 8px !important;
+                margin-bottom: 8mm !important;
+                border: 1px solid #000 !important;
+                padding: 8px !important;
+                border-radius: 4px !important;
                 background: white !important;
                 box-shadow: none !important;
                 height: auto !important;
-                max-height: 35vh !important;
+                max-height: 25vh !important;
             }
             
-            /* Erste Platte nach Übersicht */
-            .anriss-plate:first-child {
-                page-break-before: auto !important;
-            }
-            
-            /* Jede zweite Platte auf neue Seite */
-            .anriss-plate:nth-child(2n+1):not(:first-child) {
+            /* Jede dritte Platte auf neue Seite (außer den ersten 2-3 auf Seite 1) */
+            .anriss-plate:nth-child(4n+1):not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
                 page-break-before: always !important;
             }
             
-            /* Plattenüberschriften - kompakter */
+            /* Plattenüberschriften - sehr kompakt */
             .anriss-plate h3 {
                 color: #000 !important;
-                font-size: 1.1em !important;
-                margin: 0 0 10px 0 !important;
+                font-size: 0.9em !important;
+                margin: 0 0 5px 0 !important;
+                line-height: 1.2 !important;
             }
             
             /* SVG-Texte für bessere Sichtbarkeit */
@@ -350,6 +352,7 @@
                 stroke: #000 !important;
                 stroke-width: 0.5pt !important;
                 font-weight: bold !important;
+                font-size: 8px !important;
             }
             
             /* Alle Farbtexte für Druck optimieren */
@@ -364,18 +367,32 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm kompakter machen */
+            /* Plattendiagramm sehr kompakt machen */
             .anriss-plate > div[style*="position: relative"] {
-                height: 120px !important;
-                width: 240px !important;
-                margin: 10px auto !important;
+                height: 80px !important;
+                width: 180px !important;
+                margin: 5px auto !important;
             }
             
-            /* Anleitung kompakter */
+            /* Anleitung sehr kompakt */
             .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 8px !important;
-                font-size: 10px !important;
-                margin-top: 8px !important;
+                padding: 4px !important;
+                font-size: 8px !important;
+                margin-top: 4px !important;
+                line-height: 1.1 !important;
+            }
+            
+            /* Maße in den Platten kleiner */
+            .anriss-plate div[style*="font-size: 11px"] {
+                font-size: 8px !important;
+            }
+            
+            .anriss-plate div[style*="font-size: 10px"] {
+                font-size: 7px !important;
+            }
+            
+            .anriss-plate div[style*="font-size: 9px"] {
+                font-size: 7px !important;
             }
         }
     </style>
