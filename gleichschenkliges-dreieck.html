@@ -1,639 +1,4 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gleichschenkliges Dreieck - Trapezplattenrechner</title>
-    <meta name="description" content="Berechnen Sie Trapezbleche für gleichschenklige Dreiecksflächen. Ideal für Pyramidendächer und symmetrische Dachformen.">
-    
-    <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
-    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
-    <script>
-        // AdSense nur laden wenn Marketing-Cookies akzeptiert sind
-        function loadAdSense() {
-            if (localStorage.getItem('marketingCookies') === 'true') {
-                const script = document.createElement('script');
-                script.async = true;
-                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
-                script.crossOrigin = 'anonymous';
-                document.head.appendChild(script);
-                
-                // AdSense Auto-Ads aktivieren
-                window.adsbygoogle = window.adsbygoogle || [];
-                window.adsbygoogle.push({
-                    google_ad_client: 'ca-pub-8687929894744033',
-                    enable_page_level_ads: true
-                });
-            }
-        }
-    </script>
-    
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        
-        // Analytics nur laden wenn Analyse-Cookies akzeptiert sind
-        function loadAnalytics() {
-            if (localStorage.getItem('analyticsCookies') === 'true') {
-                gtag('config', 'G-6NSYG8B1T9', {
-                    anonymize_ip: true,
-                    cookie_flags: 'SameSite=None;Secure'
-                });
-            }
-        }
-        
-        // Check if analytics cookies are accepted
-        const analyticsCookies = localStorage.getItem('analyticsCookies');
-        if (analyticsCookies === 'true') {
-            gtag('config', 'G-6NSYG8B1T9', {
-                anonymize_ip: true,
-                cookie_flags: 'SameSite=None;Secure'
-            });
-        }
-    </script>
-
-    <link rel="stylesheet" href="style.css">
-    
-    <style>
-        /* Hintergrundbild */
-        body {
-            background-image: url('images/gleichschenkliges-dreieck.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-        }
-        
-        /* Elegante Werbecontainer */
-        .ad-container, .ad-container-middle {
-            margin: 30px auto;
-            max-width: 800px;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        
-        .ad-container-middle {
-            margin: 40px auto;
-        }
-        
-        .ad-placeholder {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 2px dashed #dee2e6;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .ad-placeholder:hover {
-            border-color: #2a5298;
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        }
-        
-        .ad-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: #6c757d;
-            font-weight: 500;
-        }
-        
-        .ad-content-horizontal {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .ad-text-block {
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
-        
-        .ad-text-block strong {
-            color: #2a5298;
-            font-size: 1.1em;
-            margin-bottom: 4px;
-        }
-        
-        .ad-text-block span {
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-        
-        .ad-icon {
-            font-size: 1.5em;
-            opacity: 0.8;
-        }
-        
-        .ad-text {
-            font-size: 0.95em;
-        }
-        
-        .ad-content-real {
-            min-height: 100px;
-            display: block;
-        }
-        
-        /* Werbung aktiv - verstecke Placeholder */
-        .ad-container.ads-active .ad-placeholder,
-        .ad-container-middle.ads-active .ad-placeholder {
-            display: none;
-        }
-        
-        .ad-container.ads-active .ad-content-real,
-        .ad-container-middle.ads-active .ad-content-real {
-            display: block !important;
-        }
-
-        /* Anrissplan Button Styling */
-        .anriss-btn {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 20px auto;
-            display: block;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-            transition: all 0.3s ease;
-            text-decoration: none;
-            width: auto;
-            min-width: 200px;
-        }
-
-        .anriss-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-            background: linear-gradient(135deg, #218838 0%, #1ea89c 100%);
-        }
-
-        .anriss-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
-        }
-
-        /* Sicherstellen dass der Berechnen-Button das gleiche Styling hat */
-        .calculate-btn {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 20px auto;
-            display: block;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-            transition: all 0.3s ease;
-            text-decoration: none;
-            width: auto;
-            min-width: 200px;
-        }
-
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-        }
-
-        .calculate-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
-        }
-        
-        /* Mobile Optimierung */
-        @media (max-width: 768px) {
-            .ad-container, .ad-container-middle {
-                margin: 20px 15px;
-            }
-            
-            .ad-placeholder {
-                padding: 15px;
-            }
-            
-            .ad-content-horizontal {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .ad-text-block {
-                text-align: center;
-            }
-        }
-        
-        /* MAXIMAL OPTIMIERTE DRUCKSTILE */
-        @media print {
-            /* Seitenformat */
-            @page {
-                size: A4 portrait;
-                margin: 12mm;
-            }
-            
-            /* Kein Hintergrundbild beim Drucken */
-            body {
-                background: white !important;
-                font-family: Arial, sans-serif !important;
-            }
-            
-            /* Verstecke Navigation, Werbung und Eingabebereich */
-            .nav-header,
-            .ad-container,
-            .ad-container-middle,
-            .section,
-            .calculate-btn,
-            #results .result-item,
-            #vorschau,
-            #schnittliste table,
-            #schnittliste > div:not(.platte-container),
-            .anriss-btn,
-            .print-button {
-                display: none !important;
-            }
-            
-            /* Zeige nur den Anrissplan */
-            #anrissplan {
-                display: block !important;
-                position: static !important;
-                width: 100% !important;
-                background: white !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            /* Header des Anrissplans - sehr kompakt */
-            #anrissplan > div:first-child {
-                border-bottom: 1px solid #000 !important;
-                padding-bottom: 5px !important;
-                margin-bottom: 8px !important;
-            }
-            
-            #anrissplan h4 {
-                color: #000 !important;
-                font-size: 1em !important;
-                margin: 0 !important;
-            }
-            
-            #anrissplan p {
-                color: #333 !important;
-                font-size: 0.8em !important;
-                margin: 2px 0 0 0 !important;
-            }
-            
-            /* Draufsicht - kompakt auf erste Seite, aber kein Seitenumbruch */
-            .print-overview {
-                display: block !important;
-                margin-bottom: 10px !important;
-                page-break-after: avoid !important;
-            }
-            
-            .print-overview h3 {
-                color: #000 !important;
-                font-size: 0.9em !important;
-                margin: 5px 0 !important;
-            }
-            
-            .print-overview div {
-                border: 1px solid #000 !important;
-                padding: 5px !important;
-                margin: 0 auto !important;
-            }
-            
-            /* SVG in Draufsicht kleiner machen */
-            .print-overview svg {
-                width: 200px !important;
-                height: 130px !important;
-            }
-            
-            /* Container für alle Platten */
-            .plates-container {
-                display: block !important;
-            }
-            
-            /* Plattenbehälter - maximal kompakt, 3 pro Seite */
-            .anriss-plate {
-                page-break-inside: avoid !important;
-                margin-bottom: 8mm !important;
-                border: 1px solid #000 !important;
-                padding: 8px !important;
-                border-radius: 4px !important;
-                background: white !important;
-                box-shadow: none !important;
-                height: auto !important;
-                max-height: 25vh !important;
-            }
-            
-            /* Jede dritte Platte auf neue Seite (außer den ersten 2-3 auf Seite 1) */
-            .anriss-plate:nth-child(4n+1):not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
-                page-break-before: always !important;
-            }
-            
-            /* Plattenüberschriften - sehr kompakt */
-            .anriss-plate h3 {
-                color: #000 !important;
-                font-size: 0.9em !important;
-                margin: 0 0 5px 0 !important;
-                line-height: 1.2 !important;
-            }
-            
-            /* SVG-Texte für bessere Sichtbarkeit */
-            .anriss-plate svg text {
-                fill: #fff !important;
-                stroke: #000 !important;
-                stroke-width: 0.5pt !important;
-                font-weight: bold !important;
-                font-size: 8px !important;
-            }
-            
-            /* Alle Farbtexte für Druck optimieren */
-            .anriss-plate div[style*="color: #dc3545"],
-            .anriss-plate div[style*="color: #1e3c72"],
-            .anriss-plate div[style*="color: #28a745"],
-            .anriss-plate div[style*="color: #666"],
-            .anriss-plate div[style*="color: #333"],
-            .anriss-plate div[style*="color: #fff"],
-            .anriss-plate div[style*="color: #ffffff"],
-            .anriss-plate div[style*="color: white"] {
-                color: #000 !important;
-            }
-            
-            /* Plattendiagramm sehr kompakt machen */
-            .anriss-plate > div[style*="position: relative"] {
-                height: 60px !important;
-                width: 160px !important;
-                margin: 5px auto !important;
-            }
-            
-            /* Anleitung sehr kompakt */
-            .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 4px !important;
-                font-size: 8px !important;
-                margin-top: 4px !important;
-                line-height: 1.1 !important;
-            }
-            
-            /* Maße in den Platten kleiner */
-            .anriss-plate div[style*="font-size: 11px"] {
-                font-size: 8px !important;
-            }
-            
-            .anriss-plate div[style*="font-size: 10px"] {
-                font-size: 7px !important;
-            }
-            
-            .anriss-plate div[style*="font-size: 9px"] {
-                font-size: 7px !important;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="nav-header">
-        <div class="container">
-            <a href="index.html" class="back-btn">
-                <span>←</span>
-                <span>Zurück zur Übersicht</span>
-            </a>
-            <div class="nav-title">Gleichschenkliges Dreieck</div>
-        </div>
-    </div>
-
-    <div class="container">
-        <main>
-            <!-- Eleganter Werbeplatz oben -->
-            <div class="ad-container" id="top-ad-container" style="text-align: center;">
-                <div class="ad-placeholder">
-                    <div class="ad-content">
-                        <span class="ad-icon">📢</span>
-                        <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
-                    </div>
-                </div>
-                <div style="text-align: center; width: 100%;">
-                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
-                </div>
-            </div>
-
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                    <svg width="250" height="160" viewBox="0 0 250 160" style="margin-bottom: 15px;">
-                        <!-- Gleichschenkliges Dreieck -->
-                        <polygon points="125,15 50,130 200,130" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                        
-                        <!-- Trapezbleche (senkrecht, symmetrisch) -->
-                        <line x1="70" y1="130" x2="70" y2="95" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="85" y1="130" x2="85" y2="75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="100" y1="130" x2="100" y2="55" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="115" y1="130" x2="115" y2="35" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="125" y1="130" x2="125" y2="15" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
-                        <line x1="135" y1="130" x2="135" y2="35" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="150" y1="130" x2="150" y2="55" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="165" y1="130" x2="165" y2="75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="180" y1="130" x2="180" y2="95" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        
-                        <!-- Dachspitze markieren -->
-                        <circle cx="125" cy="15" r="3" fill="#dc3545"/>
-                        <text x="135" y="20" font-size="10" fill="#dc3545" font-weight="bold">Spitze</text>
-                        
-                        <!-- Kantenlängen -->
-                        <text x="85" y="62" font-size="10" fill="#1976d2" font-weight="bold" text-anchor="middle" transform="rotate(-50 85 62)">Kantenlänge</text>
-                        <text x="165" y="62" font-size="10" fill="#1976d2" font-weight="bold" text-anchor="middle" transform="rotate(50 165 62)">Kantenlänge</text>
-                        
-                        <!-- Basis-Maß -->
-                        <line x1="50" y1="145" x2="200" y2="145" stroke="#333" stroke-width="1"/>
-                        <line x1="50" y1="142" x2="50" y2="148" stroke="#333" stroke-width="1"/>
-                        <line x1="200" y1="142" x2="200" y2="148" stroke="#333" stroke-width="1"/>
-                        <text x="125" y="160" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Basis-Breite</text>
-                        
-                        <!-- Höhen-Maß -->
-                        <line x1="35" y1="15" x2="35" y2="130" stroke="#333" stroke-width="1"/>
-                        <line x1="32" y1="15" x2="38" y2="15" stroke="#333" stroke-width="1"/>
-                        <line x1="32" y1="130" x2="38" y2="130" stroke="#333" stroke-width="1"/>
-                        <text x="28" y="75" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 28 75)">Höhe</text>
-                    </svg>
-                </div>
-            </div>
-
-            <!-- Dreiecks-Geometrie -->
-            <div class="section">
-                <h2>1. Dreiecks-Geometrie</h2>
-                
-                <div class="parameter-switch">
-                    <button id="btn-basis-hoehe" class="active" onclick="wechsleParameterModus('basis-hoehe')">
-                        📐 Basis + Höhe eingeben
-                    </button>
-                    <button id="btn-kantenlänge" onclick="wechsleParameterModus('kantenlaenge')">
-                        📏 Kantenlänge eingeben
-                    </button>
-                </div>
-
-                <!-- Basis + Höhe Eingabe -->
-                <div id="basis-hoehe-inputs">
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label for="basis-breite">Basis-Breite (m)</label>
-                            <input type="number" id="basis-breite" step="0.01" min="0" placeholder="z.B. 8.00">
-                        </div>
-                        <div class="input-group">
-                            <label for="hoehe">Höhe (m)</label>
-                            <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 6.00">
-                        </div>
-                    </div>
-                    <div class="info-box">
-                        <strong>💡 Basis + Höhe Modus:</strong> Geben Sie die Breite der Basis und die Höhe des Dreiecks ein. Die Kantenlänge wird automatisch berechnet.
-                    </div>
-                </div>
-
-                <!-- Kantenlänge Eingabe -->
-                <div id="kantenlaenge-inputs" style="display: none;">
-                    <div class="input-row">
-                        <div class="input-group">
-                            <label for="basis-breite-kante">Basis-Breite (m)</label>
-                            <input type="number" id="basis-breite-kante" step="0.01" min="0" placeholder="z.B. 8.00">
-                        </div>
-                        <div class="input-group">
-                            <label for="kantenlänge">Kantenlänge (m)</label>
-                            <input type="number" id="kantenlänge" step="0.01" min="0" placeholder="z.B. 7.50">
-                        </div>
-                    </div>
-                    <div class="info-box">
-                        <strong>💡 Kantenlängen-Modus:</strong> Geben Sie die Basis-Breite und die Länge der schrägen Kante ein. Die Höhe wird automatisch berechnet.
-                    </div>
-                </div>
-            </div>
-
-            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
-            <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
-                <div class="ad-placeholder">
-                    <div class="ad-content-horizontal">
-                        <span class="ad-icon">💡</span>
-                        <div class="ad-text-block">
-                            <strong>Professionelle Dachtools</strong>
-                            <span>Weitere hilfreiche Ressourcen für Dachdecker und Heimwerker</span>
-                        </div>
-                    </div>
-                </div>
-                <div style="text-align: center; width: 100%;">
-                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
-                </div>
-            </div>
-
-            <!-- Material -->
-            <div class="section">
-                <h2>2. Materialangaben</h2>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label for="deckbreite">Deckbreite (m)</label>
-                        <input type="number" id="deckbreite" step="0.01" min="0" value="1.00">
-                    </div>
-                    <div class="input-group">
-                        <label for="lieferbreite">Lieferbreite (m)</label>
-                        <input type="number" id="lieferbreite" step="0.01" min="0" value="1.05">
-                    </div>
-                </div>
-            </div>
-
-            <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
-
-            <div id="results" class="results" style="display: none;">
-                <div class="result-item">
-                    <span>Überlappung pro Blech:</span>
-                    <span id="ueberlappung">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Berechnete Kantenlänge:</span>
-                    <span id="kantenlänge-result">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Berechnete Höhe:</span>
-                    <span id="hoehe-result">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Benötigte max. Plattenlänge:</span>
-                    <span id="benoetigte-plattenlaenge">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Benötigte Anzahl Bleche:</span>
-                    <span id="anzahl-bleche-breite">-</span>
-                </div>
-                <div class="result-item">
-                    <span>Gesamtanzahl Bleche:</span>
-                    <span id="gesamt-bleche">-</span>
-                </div>
-                
-                <!-- Visuelles Vorschaufenster (kompakter) -->
-                <div id="vorschau" style="display: none; margin-top: 25px;">
-                    <h4 style="color: #ffffff; font-size: 1.2em; margin-bottom: 15px;">Visuelle Vorschau</h4>
-                    <div style="text-align: center; margin-bottom: 15px;">
-                        <div id="vorschau-svg"></div>
-                    </div>
-                    <div id="vorschau-legende" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 13px; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <div style="width: 16px; height: 12px; background: #1e3c72; opacity: 0.4; border-radius: 2px;"></div>
-                            <span>Nutzen</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <div style="width: 16px; height: 12px; background: #dc3545; opacity: 0.3; border-radius: 2px;"></div>
-                            <span>Verschnitt</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <div style="width: 16px; height: 12px; background: #28a745; opacity: 0.25; border-radius: 2px;"></div>
-                            <span>Überlappung</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <div style="width: 16px; height: 12px; background: #ffc107; border-radius: 2px;"></div>
-                            <span>Dachspitze</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="schnittliste" style="display: none;">
-                    <h4 style="margin-top: 25px; color: #ffffff; font-size: 1.3em;">Schnittliste (pro Dreiecksfläche):</h4>
-                    <table class="schnitt-table">
-                        <thead>
-                            <tr>
-                                <th>Platte Nr.</th>
-                                <th>Position von links (m)</th>
-                                <th>Plattenbreite (m)</th>
-                                <th>Benötigte Länge (m)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="schnitt-details">
-                        </tbody>
-                    </table>
-                    <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
-                        <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (oben → unten)
-                    </div>
-                    <button class="anriss-btn" onclick="erstelleAnrissplan()">📐 Anrissplan erstellen</button>
-                </div>
-            </div>
-
-            <!-- Eleganter Werbeplatz am Ende -->
-            <div class="ad-container" id="bottom-ad-container" style="text-align: center;">
-                <div class="ad-placeholder">
-                    <div class="ad-content">
-                        <span class="ad-icon">🛠️</span>
-                        <span class="ad-text">Mehr professionelle Tools für Dachdecker</span>
-                    </div>
-                </div>
-                <div style="text-align: center; width: 100%;">
-                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
-                         data-ad-client="ca-pub-8687929894744033"
+data-ad-client="ca-pub-8687929894744033"
                          data-ad-slot="auto"
                          data-ad-format="auto"></ins>
                 </div>
@@ -1052,11 +417,12 @@
                 html += `<div class="anriss-plate" style="margin-bottom: 30px; border: 2px solid #333; padding: 15px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
                 html += `<h3 style="margin: 0 0 15px 0; color: #333; font-size: 16px; font-weight: bold;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
                 
-                html += `<div style="position: relative; height: 60px; width: 160px; background: #f8f9fa; margin: 5px auto; border-radius: 6px; border: 1px solid #ddd;">`;
+                // VERGRÖSSERTE WEBANSICHT - wird beim Drucken durch CSS kompakt gemacht
+                html += `<div style="position: relative; height: 120px; width: 280px; background: #f8f9fa; margin: 15px auto; border-radius: 6px; border: 1px solid #ddd;">`;
                 
-                const plattenhoehePx = Math.max(35, Math.min(50, (benoetigteLaengeM / hoehe) * 50));
+                const plattenhoehePx = Math.max(70, Math.min(100, (benoetigteLaengeM / hoehe) * 100));
                 
-                html += `<div style="position: absolute; bottom: 8px; left: 10px; width: 140px; height: ${plattenhoehePx}px; background: #e9ecef; border: 1px solid #999; border-radius: 3px;"></div>`;
+                html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 240px; height: ${plattenhoehePx}px; background: #e9ecef; border: 1px solid #999; border-radius: 3px;"></div>`;
                 
                 let startY = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
                 let endY = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
@@ -1064,34 +430,34 @@
                 startY = Math.max(0, Math.min(plattenhoehePx, startY));
                 endY = Math.max(0, Math.min(plattenhoehePx, endY));
                 
-                const endX = istLetztePlatte ? Math.min(140, (basisBreite - plattenStart) / plattenBreite * 140) : 140;
+                const endX = istLetztePlatte ? Math.min(240, (basisBreite - plattenStart) / plattenBreite * 240) : 240;
                 
-                html += `<svg style="position: absolute; bottom: 8px; left: 10px;" width="140" height="${plattenhoehePx}">`;
+                html += `<svg style="position: absolute; bottom: 15px; left: 20px;" width="240" height="${plattenhoehePx}">`;
                 
                 if (ueberdecktSpitze) {
                     const spitzeVonLinks = spitzenPosition - plattenStart;
-                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 140;
+                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 240;
                     
                     // Nutzen (hellblau für besseren Kontrast)
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${spitzePositionPx},0 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="70" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="10" stroke="#000" stroke-width="0.3">Nutzen</text>`;
+                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
                     
                     // Abschnitt (hellrot für besseren Kontrast)
                     html += `<polygon points="0,${startY} ${spitzePositionPx},0 ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="70" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="8" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
+                    html += `<text x="120" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
                     
                     // Schnittlinien
-                    html += `<line x1="0" y1="${startY}" x2="${spitzePositionPx}" y2="0" stroke="#000" stroke-width="1.5"/>`;
-                    html += `<line x1="${spitzePositionPx}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="1.5"/>`;
+                    html += `<line x1="0" y1="${startY}" x2="${spitzePositionPx}" y2="0" stroke="#000" stroke-width="2"/>`;
+                    html += `<line x1="${spitzePositionPx}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
                 } else {
                     // Normale Platte
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="70" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="10" stroke="#000" stroke-width="0.3">Nutzen</text>`;
+                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
                     
                     html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="70" y="${Math.min(startY, endY)/2 + 6}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="8" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
+                    html += `<text x="120" y="${Math.min(startY, endY)/2 + 8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
                     
-                    html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="1.5"/>`;
+                    html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
                 }
                 
                 html += `</svg>`;
@@ -1099,44 +465,43 @@
                 // Spitze markieren
                 if (ueberdecktSpitze) {
                     const spitzeVonLinks = spitzenPosition - plattenStart;
-                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 140;
+                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 240;
                     
-                    html += `<div style="position: absolute; bottom: 8px; left: ${10 + spitzePositionPx}px; width: 1px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${8 + plattenhoehePx + 2}px; left: ${7 + spitzePositionPx}px; font-size: 6px; font-weight: bold; color: #333; text-align: center;">SPITZE<br>${hoehe}m</div>`;
+                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + spitzePositionPx}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + spitzePositionPx}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">SPITZE<br>${hoehe}m</div>`;
                     
                     // Bemaßung zur Spitze
-                    html += `<div style="position: absolute; top: 2px; left: 10px; width: ${spitzePositionPx}px; height: 1px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: -2px; left: ${10 + spitzePositionPx/2}px; font-size: 6px; font-weight: bold; color: #333; transform: translateX(-50%);">${(spitzeVonLinks * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: 4px; left: 20px; width: ${spitzePositionPx}px; height: 2px; background: #666;"></div>`;
                 }
                 
                 // Letzte Platte markieren
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - basisBreite;
                     
-                    html += `<div style="position: absolute; bottom: 8px; left: ${10 + endX}px; width: 1px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${8 + plattenhoehePx/2}px; left: ${7 + endX}px; font-size: 5px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
+                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + endX}px; width: 2px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx/2}px; left: ${15 + endX}px; font-size: 9px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
                     
                     if (ueberhang > 0) {
-                        const restBreite = 140 - endX;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 12}px; left: ${10 + endX}px; width: ${restBreite}px; height: 1px; background: #dc3545;"></div>`;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 6}px; left: ${10 + endX + restBreite/2}px; font-size: 6px; font-weight: bold; color: #dc3545; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
+                        const restBreite = 240 - endX;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 20}px; left: ${20 + endX}px; width: ${restBreite}px; height: 2px; background: #dc3545;"></div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 10}px; left: ${20 + endX + restBreite/2}px; font-size: 10px; font-weight: bold; color: #dc3545; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
                     }
                 }
                 
                 // Anrisslinien - zentriert zur Platte
-                html += `<div style="position: absolute; bottom: 8px; left: 10px; width: 2px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
-                html += `<div style="position: absolute; bottom: 8px; left: ${10 + endX - 1}px; width: 2px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
+                html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 3px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
+                html += `<div style="position: absolute; bottom: 15px; left: ${20 + endX - 2}px; width: 3px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
                 
                 // Anrissmaße - symmetrisch zur Platte positioniert
-                html += `<div style="position: absolute; bottom: ${10 + plattenhoehePx}px; left: 6px; font-size: 7px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: ${10 + plattenhoehePx}px; left: ${154 - 6}px; font-size: 7px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: 1px; left: -7px; font-size: 7px; font-weight: bold; color: #dc3545; text-align: center; width: 26px;">${anreissLinks}cm</div>`;
-                html += `<div style="position: absolute; bottom: 1px; left: ${154 - 19}px; font-size: 7px; font-weight: bold; color: #dc3545; text-align: center; width: 26px;">${anreissRechts}cm</div>`;
+                html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx}px; left: 14px; font-size: 11px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx}px; left: ${270 - 10}px; font-size: 11px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: 2px; left: -10px; font-size: 11px; font-weight: bold; color: #dc3545; text-align: center; width: 40px;">${anreissLinks}cm</div>`;
+                html += `<div style="position: absolute; bottom: 2px; left: ${270 - 30}px; font-size: 11px; font-weight: bold; color: #dc3545; text-align: center; width: 40px;">${anreissRechts}cm</div>`;
                 
                 html += `</div>`;
                 
                 // Anleitung
-                html += `<div style="background: #f8f9fa; padding: 12px; border-radius: 6px; font-size: 11px; margin-top: 15px; border-left: 3px solid #ffc107;">`;
+                html += `<div style="background: #f8f9fa; padding: 15px; border-radius: 6px; font-size: 13px; margin-top: 20px; border-left: 3px solid #ffc107;">`;
                 html += `<strong style="color: #333;">Anzeichnen:</strong><br>`;
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - basisBreite;
@@ -1191,4 +556,639 @@
         });
     </script>
 </body>
-</html>
+</html><!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gleichschenkliges Dreieck - Trapezplattenrechner</title>
+    <meta name="description" content="Berechnen Sie Trapezbleche für gleichschenklige Dreiecksflächen. Ideal für Pyramidendächer und symmetrische Dachformen.">
+    
+    <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
+    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    <script>
+        // AdSense nur laden wenn Marketing-Cookies akzeptiert sind
+        function loadAdSense() {
+            if (localStorage.getItem('marketingCookies') === 'true') {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
+                script.crossOrigin = 'anonymous';
+                document.head.appendChild(script);
+                
+                // AdSense Auto-Ads aktivieren
+                window.adsbygoogle = window.adsbygoogle || [];
+                window.adsbygoogle.push({
+                    google_ad_client: 'ca-pub-8687929894744033',
+                    enable_page_level_ads: true
+                });
+            }
+        }
+    </script>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Analytics nur laden wenn Analyse-Cookies akzeptiert sind
+        function loadAnalytics() {
+            if (localStorage.getItem('analyticsCookies') === 'true') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+            }
+        }
+        
+        // Check if analytics cookies are accepted
+        const analyticsCookies = localStorage.getItem('analyticsCookies');
+        if (analyticsCookies === 'true') {
+            gtag('config', 'G-6NSYG8B1T9', {
+                anonymize_ip: true,
+                cookie_flags: 'SameSite=None;Secure'
+            });
+        }
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* Hintergrundbild */
+        body {
+            background-image: url('images/gleichschenkliges-dreieck.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+        
+        /* Elegante Werbecontainer */
+        .ad-container, .ad-container-middle {
+            margin: 30px auto;
+            max-width: 800px;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .ad-container-middle {
+            margin: 40px auto;
+        }
+        
+        .ad-placeholder {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px dashed #dee2e6;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .ad-placeholder:hover {
+            border-color: #2a5298;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+        
+        .ad-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .ad-content-horizontal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .ad-text-block {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        
+        .ad-text-block strong {
+            color: #2a5298;
+            font-size: 1.1em;
+            margin-bottom: 4px;
+        }
+        
+        .ad-text-block span {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .ad-icon {
+            font-size: 1.5em;
+            opacity: 0.8;
+        }
+        
+        .ad-text {
+            font-size: 0.95em;
+        }
+        
+        .ad-content-real {
+            min-height: 100px;
+            display: block;
+        }
+        
+        /* Werbung aktiv - verstecke Placeholder */
+        .ad-container.ads-active .ad-placeholder,
+        .ad-container-middle.ads-active .ad-placeholder {
+            display: none;
+        }
+        
+        .ad-container.ads-active .ad-content-real,
+        .ad-container-middle.ads-active .ad-content-real {
+            display: block !important;
+        }
+
+        /* Anrissplan Button Styling */
+        .anriss-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            width: auto;
+            min-width: 200px;
+        }
+
+        .anriss-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            background: linear-gradient(135deg, #218838 0%, #1ea89c 100%);
+        }
+
+        .anriss-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+        }
+
+        /* Sicherstellen dass der Berechnen-Button das gleiche Styling hat */
+        .calculate-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            width: auto;
+            min-width: 200px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+        }
+        
+        /* Mobile Optimierung */
+        @media (max-width: 768px) {
+            .ad-container, .ad-container-middle {
+                margin: 20px 15px;
+            }
+            
+            .ad-placeholder {
+                padding: 15px;
+            }
+            
+            .ad-content-horizontal {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .ad-text-block {
+                text-align: center;
+            }
+        }
+        
+        /* MAXIMAL OPTIMIERTE DRUCKSTILE */
+        @media print {
+            /* Seitenformat */
+            @page {
+                size: A4 portrait;
+                margin: 12mm;
+            }
+            
+            /* Kein Hintergrundbild beim Drucken */
+            body {
+                background: white !important;
+                font-family: Arial, sans-serif !important;
+            }
+            
+            /* Verstecke Navigation, Werbung und Eingabebereich */
+            .nav-header,
+            .ad-container,
+            .ad-container-middle,
+            .section,
+            .calculate-btn,
+            #results .result-item,
+            #vorschau,
+            #schnittliste table,
+            #schnittliste > div:not(.platte-container),
+            .anriss-btn,
+            .print-button {
+                display: none !important;
+            }
+            
+            /* Zeige nur den Anrissplan */
+            #anrissplan {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* Header des Anrissplans - sehr kompakt */
+            #anrissplan > div:first-child {
+                border-bottom: 1px solid #000 !important;
+                padding-bottom: 5px !important;
+                margin-bottom: 8px !important;
+            }
+            
+            #anrissplan h4 {
+                color: #000 !important;
+                font-size: 1em !important;
+                margin: 0 !important;
+            }
+            
+            #anrissplan p {
+                color: #333 !important;
+                font-size: 0.8em !important;
+                margin: 2px 0 0 0 !important;
+            }
+            
+            /* Draufsicht - kompakt auf erste Seite, aber kein Seitenumbruch */
+            .print-overview {
+                display: block !important;
+                margin-bottom: 10px !important;
+                page-break-after: avoid !important;
+            }
+            
+            .print-overview h3 {
+                color: #000 !important;
+                font-size: 0.9em !important;
+                margin: 5px 0 !important;
+            }
+            
+            .print-overview div {
+                border: 1px solid #000 !important;
+                padding: 5px !important;
+                margin: 0 auto !important;
+            }
+            
+            /* SVG in Draufsicht kleiner machen */
+            .print-overview svg {
+                width: 200px !important;
+                height: 130px !important;
+            }
+            
+            /* Container für alle Platten */
+            .plates-container {
+                display: block !important;
+            }
+            
+            /* Plattenbehälter - maximal kompakt, 3 pro Seite */
+            .anriss-plate {
+                page-break-inside: avoid !important;
+                margin-bottom: 8mm !important;
+                border: 1px solid #000 !important;
+                padding: 8px !important;
+                border-radius: 4px !important;
+                background: white !important;
+                box-shadow: none !important;
+                height: auto !important;
+                max-height: 25vh !important;
+            }
+            
+            /* Jede dritte Platte auf neue Seite (außer den ersten 2-3 auf Seite 1) */
+            .anriss-plate:nth-child(4n+1):not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
+                page-break-before: always !important;
+            }
+            
+            /* Plattenüberschriften - sehr kompakt */
+            .anriss-plate h3 {
+                color: #000 !important;
+                font-size: 0.9em !important;
+                margin: 0 0 5px 0 !important;
+                line-height: 1.2 !important;
+            }
+            
+            /* SVG-Texte für bessere Sichtbarkeit */
+            .anriss-plate svg text {
+                fill: #fff !important;
+                stroke: #000 !important;
+                stroke-width: 0.5pt !important;
+                font-weight: bold !important;
+                font-size: 8px !important;
+            }
+            
+            /* Alle Farbtexte für Druck optimieren */
+            .anriss-plate div[style*="color: #dc3545"],
+            .anriss-plate div[style*="color: #1e3c72"],
+            .anriss-plate div[style*="color: #28a745"],
+            .anriss-plate div[style*="color: #666"],
+            .anriss-plate div[style*="color: #333"],
+            .anriss-plate div[style*="color: #fff"],
+            .anriss-plate div[style*="color: #ffffff"],
+            .anriss-plate div[style*="color: white"] {
+                color: #000 !important;
+            }
+            
+            /* Plattendiagramm sehr kompakt machen - NUR FÜR DRUCK */
+            .anriss-plate > div[style*="position: relative"] {
+                height: 60px !important;
+                width: 160px !important;
+                margin: 5px auto !important;
+            }
+            
+            /* Anleitung sehr kompakt - NUR FÜR DRUCK */
+            .anriss-plate > div[style*="background: #f8f9fa"] {
+                padding: 4px !important;
+                font-size: 8px !important;
+                margin-top: 4px !important;
+                line-height: 1.1 !important;
+            }
+            
+            /* Maße in den Platten kleiner - NUR FÜR DRUCK */
+            .anriss-plate div[style*="font-size: 11px"] {
+                font-size: 8px !important;
+            }
+            
+            .anriss-plate div[style*="font-size: 10px"] {
+                font-size: 7px !important;
+            }
+            
+            .anriss-plate div[style*="font-size: 9px"] {
+                font-size: 7px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-header">
+        <div class="container">
+            <a href="index.html" class="back-btn">
+                <span>←</span>
+                <span>Zurück zur Übersicht</span>
+            </a>
+            <div class="nav-title">Gleichschenkliges Dreieck</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <main>
+            <!-- Eleganter Werbeplatz oben -->
+            <div class="ad-container" id="top-ad-container" style="text-align: center;">
+                <div class="ad-placeholder">
+                    <div class="ad-content">
+                        <span class="ad-icon">📢</span>
+                        <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
+                    </div>
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <svg width="250" height="160" viewBox="0 0 250 160" style="margin-bottom: 15px;">
+                        <!-- Gleichschenkliges Dreieck -->
+                        <polygon points="125,15 50,130 200,130" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        
+                        <!-- Trapezbleche (senkrecht, symmetrisch) -->
+                        <line x1="70" y1="130" x2="70" y2="95" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="85" y1="130" x2="85" y2="75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="100" y1="130" x2="100" y2="55" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="115" y1="130" x2="115" y2="35" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="125" y1="130" x2="125" y2="15" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
+                        <line x1="135" y1="130" x2="135" y2="35" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="150" y1="130" x2="150" y2="55" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="165" y1="130" x2="165" y2="75" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="180" y1="130" x2="180" y2="95" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        
+                        <!-- Dachspitze markieren -->
+                        <circle cx="125" cy="15" r="3" fill="#dc3545"/>
+                        <text x="135" y="20" font-size="10" fill="#dc3545" font-weight="bold">Spitze</text>
+                        
+                        <!-- Kantenlängen -->
+                        <text x="85" y="62" font-size="10" fill="#1976d2" font-weight="bold" text-anchor="middle" transform="rotate(-50 85 62)">Kantenlänge</text>
+                        <text x="165" y="62" font-size="10" fill="#1976d2" font-weight="bold" text-anchor="middle" transform="rotate(50 165 62)">Kantenlänge</text>
+                        
+                        <!-- Basis-Maß -->
+                        <line x1="50" y1="145" x2="200" y2="145" stroke="#333" stroke-width="1"/>
+                        <line x1="50" y1="142" x2="50" y2="148" stroke="#333" stroke-width="1"/>
+                        <line x1="200" y1="142" x2="200" y2="148" stroke="#333" stroke-width="1"/>
+                        <text x="125" y="160" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Basis-Breite</text>
+                        
+                        <!-- Höhen-Maß -->
+                        <line x1="35" y1="15" x2="35" y2="130" stroke="#333" stroke-width="1"/>
+                        <line x1="32" y1="15" x2="38" y2="15" stroke="#333" stroke-width="1"/>
+                        <line x1="32" y1="130" x2="38" y2="130" stroke="#333" stroke-width="1"/>
+                        <text x="28" y="75" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 28 75)">Höhe</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Dreiecks-Geometrie -->
+            <div class="section">
+                <h2>1. Dreiecks-Geometrie</h2>
+                
+                <div class="parameter-switch">
+                    <button id="btn-basis-hoehe" class="active" onclick="wechsleParameterModus('basis-hoehe')">
+                        📐 Basis + Höhe eingeben
+                    </button>
+                    <button id="btn-kantenlänge" onclick="wechsleParameterModus('kantenlaenge')">
+                        📏 Kantenlänge eingeben
+                    </button>
+                </div>
+
+                <!-- Basis + Höhe Eingabe -->
+                <div id="basis-hoehe-inputs">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="basis-breite">Basis-Breite (m)</label>
+                            <input type="number" id="basis-breite" step="0.01" min="0" placeholder="z.B. 8.00">
+                        </div>
+                        <div class="input-group">
+                            <label for="hoehe">Höhe (m)</label>
+                            <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 6.00">
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Basis + Höhe Modus:</strong> Geben Sie die Breite der Basis und die Höhe des Dreiecks ein. Die Kantenlänge wird automatisch berechnet.
+                    </div>
+                </div>
+
+                <!-- Kantenlänge Eingabe -->
+                <div id="kantenlaenge-inputs" style="display: none;">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="basis-breite-kante">Basis-Breite (m)</label>
+                            <input type="number" id="basis-breite-kante" step="0.01" min="0" placeholder="z.B. 8.00">
+                        </div>
+                        <div class="input-group">
+                            <label for="kantenlänge">Kantenlänge (m)</label>
+                            <input type="number" id="kantenlänge" step="0.01" min="0" placeholder="z.B. 7.50">
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <strong>💡 Kantenlängen-Modus:</strong> Geben Sie die Basis-Breite und die Länge der schrägen Kante ein. Die Höhe wird automatisch berechnet.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
+            <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
+                <div class="ad-placeholder">
+                    <div class="ad-content-horizontal">
+                        <span class="ad-icon">💡</span>
+                        <div class="ad-text-block">
+                            <strong>Professionelle Dachtools</strong>
+                            <span>Weitere hilfreiche Ressourcen für Dachdecker und Heimwerker</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+            </div>
+
+            <!-- Material -->
+            <div class="section">
+                <h2>2. Materialangaben</h2>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="deckbreite">Deckbreite (m)</label>
+                        <input type="number" id="deckbreite" step="0.01" min="0" value="1.00">
+                    </div>
+                    <div class="input-group">
+                        <label for="lieferbreite">Lieferbreite (m)</label>
+                        <input type="number" id="lieferbreite" step="0.01" min="0" value="1.05">
+                    </div>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
+
+            <div id="results" class="results" style="display: none;">
+                <div class="result-item">
+                    <span>Überlappung pro Blech:</span>
+                    <span id="ueberlappung">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Berechnete Kantenlänge:</span>
+                    <span id="kantenlänge-result">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Berechnete Höhe:</span>
+                    <span id="hoehe-result">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Benötigte max. Plattenlänge:</span>
+                    <span id="benoetigte-plattenlaenge">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Benötigte Anzahl Bleche:</span>
+                    <span id="anzahl-bleche-breite">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Gesamtanzahl Bleche:</span>
+                    <span id="gesamt-bleche">-</span>
+                </div>
+                
+                <!-- Visuelles Vorschaufenster (kompakter) -->
+                <div id="vorschau" style="display: none; margin-top: 25px;">
+                    <h4 style="color: #ffffff; font-size: 1.2em; margin-bottom: 15px;">Visuelle Vorschau</h4>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <div id="vorschau-svg"></div>
+                    </div>
+                    <div id="vorschau-legende" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 13px; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 16px; height: 12px; background: #1e3c72; opacity: 0.4; border-radius: 2px;"></div>
+                            <span>Nutzen</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 16px; height: 12px; background: #dc3545; opacity: 0.3; border-radius: 2px;"></div>
+                            <span>Verschnitt</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 16px; height: 12px; background: #28a745; opacity: 0.25; border-radius: 2px;"></div>
+                            <span>Überlappung</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 16px; height: 12px; background: #ffc107; border-radius: 2px;"></div>
+                            <span>Dachspitze</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="schnittliste" style="display: none;">
+                    <h4 style="margin-top: 25px; color: #ffffff; font-size: 1.3em;">Schnittliste (pro Dreiecksfläche):</h4>
+                    <table class="schnitt-table">
+                        <thead>
+                            <tr>
+                                <th>Platte Nr.</th>
+                                <th>Position von links (m)</th>
+                                <th>Plattenbreite (m)</th>
+                                <th>Benötigte Länge (m)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schnitt-details">
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
+                        <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (oben → unten)
+                    </div>
+                    <button class="anriss-btn" onclick="erstelleAnrissplan()">📐 Anrissplan erstellen</button>
+                </div>
+            </div>
+
+            <!-- Eleganter Werbeplatz am Ende -->
+            <div class="ad-container" id="bottom-ad-container" style="text-align: center;">
+                <div class="ad-placeholder">
+                    <div class="ad-content">
+                        <span class="ad-icon">🛠️</span>
+                        <span class="ad-text">Mehr professionelle Tools für Dachdecker</span>
+                    </div>
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
+                         data-ad-client="ca-pub-8687929894744
