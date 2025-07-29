@@ -1056,7 +1056,7 @@
                 
                 const plattenhoehePx = Math.max(35, Math.min(50, (benoetigteLaengeM / hoehe) * 50));
                 
-                html += `<div style="position: absolute; bottom: 8px; left: 10px; width: 140px; height: ${plattenhoehePx}px; background: #e9ecef; border: 1px solid #999; border-radius: 3px;"></div>`;
+                html += `<div style="position: absolute; bottom: 8px; left: 5px; width: 140px; height: ${plattenhoehePx}px; background: #e9ecef; border: 1px solid #999; border-radius: 3px;"></div>`;
                 
                 let startY = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
                 let endY = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
@@ -1066,7 +1066,7 @@
                 
                 const endX = istLetztePlatte ? Math.min(140, (basisBreite - plattenStart) / plattenBreite * 140) : 140;
                 
-                html += `<svg style="position: absolute; bottom: 8px; left: 10px;" width="140" height="${plattenhoehePx}">`;
+                html += `<svg style="position: absolute; bottom: 8px; left: 5px;" width="140" height="${plattenhoehePx}">`;
                 
                 if (ueberdecktSpitze) {
                     const spitzeVonLinks = spitzenPosition - plattenStart;
@@ -1101,37 +1101,37 @@
                     const spitzeVonLinks = spitzenPosition - plattenStart;
                     const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 140;
                     
-                    html += `<div style="position: absolute; bottom: 8px; left: ${10 + spitzePositionPx}px; width: 1px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${8 + plattenhoehePx + 2}px; left: ${7 + spitzePositionPx}px; font-size: 6px; font-weight: bold; color: #333; text-align: center;">SPITZE<br>${hoehe}m</div>`;
+                    html += `<div style="position: absolute; bottom: 8px; left: ${5 + spitzePositionPx}px; width: 1px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${8 + plattenhoehePx + 2}px; left: ${2 + spitzePositionPx}px; font-size: 6px; font-weight: bold; color: #333; text-align: center;">SPITZE<br>${hoehe}m</div>`;
                     
                     // Bemaßung zur Spitze
-                    html += `<div style="position: absolute; top: 2px; left: 10px; width: ${spitzePositionPx}px; height: 1px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: -2px; left: ${10 + spitzePositionPx/2}px; font-size: 6px; font-weight: bold; color: #333; transform: translateX(-50%);">${(spitzeVonLinks * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: 2px; left: 5px; width: ${spitzePositionPx}px; height: 1px; background: #666;"></div>`;
+                    html += `<div style="position: absolute; top: -2px; left: ${5 + spitzePositionPx/2}px; font-size: 6px; font-weight: bold; color: #333; transform: translateX(-50%);">${(spitzeVonLinks * 100).toFixed(0)}cm</div>`;
                 }
                 
                 // Letzte Platte markieren
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - basisBreite;
                     
-                    html += `<div style="position: absolute; bottom: 8px; left: ${10 + endX}px; width: 1px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${8 + plattenhoehePx/2}px; left: ${7 + endX}px; font-size: 5px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
+                    html += `<div style="position: absolute; bottom: 8px; left: ${5 + endX}px; width: 1px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${8 + plattenhoehePx/2}px; left: ${2 + endX}px; font-size: 5px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
                     
                     if (ueberhang > 0) {
                         const restBreite = 140 - endX;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 12}px; left: ${10 + endX}px; width: ${restBreite}px; height: 1px; background: #dc3545;"></div>`;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 6}px; left: ${10 + endX + restBreite/2}px; font-size: 6px; font-weight: bold; color: #dc3545; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 12}px; left: ${5 + endX}px; width: ${restBreite}px; height: 1px; background: #dc3545;"></div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 6}px; left: ${5 + endX + restBreite/2}px; font-size: 6px; font-weight: bold; color: #dc3545; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
                     }
                 }
                 
                 // Anrisslinien
-                html += `<div style="position: absolute; bottom: 8px; left: 10px; width: 2px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
-                html += `<div style="position: absolute; bottom: 8px; left: ${10 + endX - 1}px; width: 2px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
+                html += `<div style="position: absolute; bottom: 8px; left: 5px; width: 2px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
+                html += `<div style="position: absolute; bottom: 8px; left: ${5 + endX - 1}px; width: 2px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
                 
                 // Anrissmaße
-                html += `<div style="position: absolute; bottom: ${10 + plattenhoehePx}px; left: 6px; font-size: 7px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: ${10 + plattenhoehePx}px; right: 16px; font-size: 7px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: 1px; left: -3px; font-size: 7px; font-weight: bold; color: #dc3545; text-align: center; width: 26px;">${anreissLinks}cm</div>`;
-                html += `<div style="position: absolute; bottom: 1px; right: -3px; font-size: 7px; font-weight: bold; color: #dc3545; text-align: center; width: 26px;">${anreissRechts}cm</div>`;
+                html += `<div style="position: absolute; bottom: ${10 + plattenhoehePx}px; left: 1px; font-size: 7px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: ${10 + plattenhoehePx}px; right: 11px; font-size: 7px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: 1px; left: -8px; font-size: 7px; font-weight: bold; color: #dc3545; text-align: center; width: 26px;">${anreissLinks}cm</div>`;
+                html += `<div style="position: absolute; bottom: 1px; right: -8px; font-size: 7px; font-weight: bold; color: #dc3545; text-align: center; width: 26px;">${anreissRechts}cm</div>`;
                 
                 html += `</div>`;
                 
