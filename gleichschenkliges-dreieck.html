@@ -232,7 +232,7 @@
             }
         }
         
-        /* KORRIGIERTE DRUCKSTILE - Basierend auf trapezaufrechteck.html */
+        /* OPTIMIERTE DRUCKSTILE */
         @media print {
             /* Seitenformat */
             @page {
@@ -271,43 +271,77 @@
                 padding: 0 !important;
             }
             
-            /* Header des Anrissplans - mache Text schwarz für bessere Sichtbarkeit */
+            /* Header des Anrissplans - kompakter */
             #anrissplan > div:first-child {
-                border-bottom: 3px solid #000 !important;
-                padding-bottom: 15px !important;
-                margin-bottom: 25px !important;
+                border-bottom: 2px solid #000 !important;
+                padding-bottom: 10px !important;
+                margin-bottom: 15px !important;
             }
             
             #anrissplan h4 {
                 color: #000 !important;
-                font-size: 1.4em !important;
+                font-size: 1.2em !important;
+                margin: 0 !important;
             }
             
             #anrissplan p {
                 color: #333 !important;
+                font-size: 0.9em !important;
+                margin: 5px 0 0 0 !important;
             }
             
-            /* Plattenbehälter - wie in trapezaufrechteck.html */
+            /* Draufsicht - nur auf erster Seite zeigen */
+            .print-overview {
+                display: block !important;
+                page-break-after: always !important;
+                margin-bottom: 0 !important;
+            }
+            
+            .print-overview h3 {
+                color: #000 !important;
+                font-size: 1.1em !important;
+                margin-bottom: 10px !important;
+            }
+            
+            .print-overview div {
+                border: 2px solid #000 !important;
+                padding: 10px !important;
+                margin: 0 auto !important;
+            }
+            
+            /* Container für alle Platten */
+            .plates-container {
+                display: block !important;
+            }
+            
+            /* Plattenbehälter - kompakter, 2 pro Seite */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 30mm !important;
-                border: 3px solid #000 !important;
-                padding: 25px !important;
-                border-radius: 12px !important;
+                margin-bottom: 15mm !important;
+                border: 2px solid #000 !important;
+                padding: 15px !important;
+                border-radius: 8px !important;
                 background: white !important;
                 box-shadow: none !important;
+                height: auto !important;
+                max-height: 35vh !important;
             }
             
-            /* Jede Platte auf neue Seite */
-            .anriss-plate:not(:first-child) {
+            /* Erste Platte nach Übersicht */
+            .anriss-plate:first-child {
+                page-break-before: auto !important;
+            }
+            
+            /* Jede zweite Platte auf neue Seite */
+            .anriss-plate:nth-child(2n+1):not(:first-child) {
                 page-break-before: always !important;
             }
             
-            /* Plattenüberschriften */
+            /* Plattenüberschriften - kompakter */
             .anriss-plate h3 {
                 color: #000 !important;
-                font-size: 1.3em !important;
-                margin-bottom: 25px !important;
+                font-size: 1.1em !important;
+                margin: 0 0 10px 0 !important;
             }
             
             /* SVG-Texte für bessere Sichtbarkeit */
@@ -318,7 +352,7 @@
                 font-weight: bold !important;
             }
             
-            /* Alle Farbtexte für Druck optimieren - mache sie schwarz */
+            /* Alle Farbtexte für Druck optimieren */
             .anriss-plate div[style*="color: #dc3545"],
             .anriss-plate div[style*="color: #1e3c72"],
             .anriss-plate div[style*="color: #28a745"],
@@ -330,14 +364,18 @@
                 color: #000 !important;
             }
             
-            /* Dachflächen-Übersicht verstecken beim Drucken (nur Platten zeigen) */
-            .print-overview {
-                display: none !important;
+            /* Plattendiagramm kompakter machen */
+            .anriss-plate > div[style*="position: relative"] {
+                height: 120px !important;
+                width: 240px !important;
+                margin: 10px auto !important;
             }
             
-            /* Container für alle Platten */
-            .plates-container {
-                display: block !important;
+            /* Anleitung kompakter */
+            .anriss-plate > div[style*="background: #f8f9fa"] {
+                padding: 8px !important;
+                font-size: 10px !important;
+                margin-top: 8px !important;
             }
         }
     </style>
