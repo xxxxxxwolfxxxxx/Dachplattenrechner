@@ -344,35 +344,37 @@
                 line-height: 1.2 !important;
             }
             
-            /* FINALE KORREKTUR: Plattendiagramme komplett neu - KORREKTE GRÖßEN */
+            /* FINALE KORREKTUR: Einfachste Lösung - nur SVG und Text */
             .anriss-plate > div[style*="position: relative"] {
-                height: 80px !important;
+                height: auto !important;
                 width: 180px !important;
                 margin: 5px auto !important;
                 position: relative !important;
                 background: #f8f9fa !important;
                 border: 1px solid #ddd !important;
                 border-radius: 6px !important;
-                overflow: hidden !important;
+                overflow: visible !important;
+                min-height: auto !important;
+                max-height: none !important;
             }
             
-            /* SVG KORREKT DIMENSIONIERT - passt in Container */
+            /* SVG OPTIMAL DIMENSIONIERT */
             .anriss-plate svg {
                 display: block !important;
                 width: 170px !important;
-                height: 70px !important;
+                height: 60px !important;
                 margin: 5px auto !important;
                 border: 1px solid #ccc !important;
                 background: #fff !important;
                 position: static !important;
             }
             
-            /* ALLE ANDEREN ELEMENTE VERSTECKEN AUSSER SVG UND ANLEITUNG */
+            /* ALLE ANDEREN KOMPLEXEN ELEMENTE AUSBLENDEN */
             .anriss-plate > div[style*="position: relative"] > *:not(svg) {
                 display: none !important;
             }
             
-            /* NUR ANLEITUNG SICHTBAR MACHEN */
+            /* NUR ANLEITUNG ANZEIGEN - OHNE CSS-TRICKS */
             .anriss-plate > div[style*="background: #f8f9fa"] {
                 display: block !important;
                 padding: 4px !important;
@@ -384,15 +386,15 @@
                 color: #000 !important;
                 border-radius: 0 !important;
                 position: static !important;
+                height: auto !important;
+                min-height: auto !important;
+                max-height: none !important;
             }
             
-            /* ANRISSMASZE DIREKT IM TEXT ANZEIGEN - mit JavaScript-Inhalt */
+            /* ENTFERNEN DER PROBLEMATISCHEN CSS-TRICKS */
             .anriss-plate > div[style*="background: #f8f9fa"]:before {
-                content: "Anrissmaße aus Text extrahieren" !important;
-                display: block !important;
-                font-weight: bold !important;
-                color: #dc3545 !important;
-                margin-bottom: 2px !important;
+                display: none !important;
+                content: none !important;
             }
             
             /* SVG-Texte für bessere Sichtbarkeit im Druck */
