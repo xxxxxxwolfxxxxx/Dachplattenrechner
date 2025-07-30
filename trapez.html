@@ -288,17 +288,17 @@
                 display: block !important;
             }
             
-            /* Plattenbehälter - maximal kompakt, 3 pro Seite */
+            /* Plattenbehälter - maximal kompakt, aber höher für bessere Darstellung */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 8mm !important;
+                margin-bottom: 10mm !important;
                 border: 1px solid #000 !important;
                 padding: 8px !important;
                 border-radius: 4px !important;
                 background: white !important;
                 box-shadow: none !important;
                 height: auto !important;
-                max-height: 25vh !important;
+                min-height: 120px !important;
             }
             
             /* Jede dritte Platte auf neue Seite (außer den ersten 2-3 auf Seite 1) */
@@ -335,10 +335,10 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm sehr kompakt machen - NUR FÜR DRUCK */
+            /* Plattendiagramm kompakt aber ausreichend groß - NUR FÜR DRUCK */
             .anriss-plate > div[style*="position: relative"] {
-                height: 60px !important;
-                width: 160px !important;
+                height: 90px !important;
+                width: 180px !important;
                 margin: 5px auto !important;
             }
             
