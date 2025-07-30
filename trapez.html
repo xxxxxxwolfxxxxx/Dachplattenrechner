@@ -344,7 +344,7 @@
                 line-height: 1.2 !important;
             }
             
-            /* HAUPTKORREKTUR: Plattendiagramm kompakt für Druck - GENAU WIE GLEICHSCHENKLIGES DREIECK */
+            /* FINALE KORREKTUR: Plattendiagramme komplett neu - EINFACH UND SAUBER */
             .anriss-plate > div[style*="position: relative"] {
                 height: 60px !important;
                 width: 160px !important;
@@ -354,85 +354,59 @@
                 border: 1px solid #ddd !important;
                 border-radius: 6px !important;
                 overflow: hidden !important;
+                /* Alle Kinder zurücksetzen */
             }
             
-            /* KORRIGIERT: Alle absolut positionierten Elemente in Plattendiagrammen - EINFACH WIE BEIM DREIECK */
-            .anriss-plate > div[style*="position: relative"] > div {
-                position: absolute !important;
-                /* Proportionale Skalierung für Druck */
-                font-size: 6px !important;
-                line-height: 1 !important;
-            }
-            
-            /* KORRIGIERT: Graue Plattenhintergrund-Divs */
-            .anriss-plate > div[style*="position: relative"] > div[style*="background: #e9ecef"] {
-                position: absolute !important;
-                bottom: 3px !important;
-                left: 4px !important;
-                width: 152px !important;
-                height: auto !important;
-                max-height: 50px !important;
-                background: #e9ecef !important;
-                border: 1px solid #999 !important;
-                border-radius: 3px !important;
-            }
-            
-            /* KORRIGIERT: SVG-Container für Druck fixieren - GENAU WIE BEIM DREIECK */
-            .anriss-plate svg {
-                width: 152px !important;
-                height: 50px !important;
-                position: absolute !important;
-                bottom: 3px !important;
-                left: 4px !important;
-                overflow: hidden !important;
-                /* Keine komplexe Skalierung mehr */
-                transform: none !important;
-            }
-            
-            /* KORRIGIERT: Anrisslinien (rote Balken) */
-            .anriss-plate > div[style*="position: relative"] > div[style*="background: #dc3545"] {
-                position: absolute !important;
-                bottom: 3px !important;
-                width: 2px !important;
-                background: #dc3545 !important;
-                border-radius: 1px !important;
-            }
-            
-            /* KORRIGIERT: Grüne DACHKANTE-Linie */
-            .anriss-plate > div[style*="position: relative"] > div[style*="background: #28a745"] {
-                position: absolute !important;
-                bottom: 3px !important;
-                width: 1px !important;
-                background: #28a745 !important;
-                border-radius: 1px !important;
-            }
-            
-            /* KORRIGIERT: Alle Textangaben (Maße, Pfeile, etc.) */
-            .anriss-plate > div[style*="position: relative"] > div[style*="font-size"],
-            .anriss-plate > div[style*="position: relative"] > div[style*="color: #dc3545"],
-            .anriss-plate > div[style*="position: relative"] > div[style*="color: #28a745"],
-            .anriss-plate > div[style*="position: relative"] > div[style*="color: #333"] {
-                position: absolute !important;
-                font-size: 6px !important;
-                font-weight: bold !important;
-                color: #000 !important;
-                background: rgba(255,255,255,0.8) !important;
-                padding: 1px 2px !important;
-                border-radius: 2px !important;
-                white-space: nowrap !important;
-            }
-            
-            /* KORRIGIERT: Rote Linien und Maße */
-            .anriss-plate > div[style*="position: relative"] > div[style*="background: #dc3545"][style*="height: 2px"] {
-                position: absolute !important;
-                height: 1px !important;
-                background: #dc3545 !important;
-            }
-            
-            /* KORRIGIERT: Entfernung aller Transform-Skalierungen */
+            /* KOMPLETT ZURÜCKSETZEN: Alle Kinder-Elemente */
             .anriss-plate > div[style*="position: relative"] * {
+                position: static !important;
                 transform: none !important;
                 transform-origin: initial !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                top: auto !important;
+                left: auto !important;
+                bottom: auto !important;
+                right: auto !important;
+            }
+            
+            /* NUR SVG SICHTBAR MACHEN - wie beim gleichschenkligen Dreieck */
+            .anriss-plate > div[style*="position: relative"] > *:not(svg) {
+                display: none !important;
+            }
+            
+            /* SVG KORREKT POSITIONIEREN */
+            .anriss-plate svg {
+                display: block !important;
+                width: 152px !important;
+                height: 50px !important;
+                margin: 5px auto !important;
+                border: 1px solid #ccc !important;
+                background: #fff !important;
+                position: static !important;
+            }
+            
+            /* EINFACHE TEXT-AUSGABE: Nur die wichtigsten Maße anzeigen */
+            .anriss-plate > div[style*="background: #f8f9fa"] {
+                padding: 4px !important;
+                font-size: 8px !important;
+                margin-top: 4px !important;
+                line-height: 1.1 !important;
+                background: #f8f9fa !important;
+                border: 1px solid #ddd !important;
+                color: #000 !important;
+                border-radius: 0 !important;
+                display: block !important;
+                position: static !important;
+            }
+            
+            /* NUR DIE ANRISS-MASSE ALS TEXT DARSTELLEN */
+            .anriss-plate > div[style*="background: #f8f9fa"]:before {
+                content: "Anrissmaße: Links " attr(data-links) "cm, Rechts " attr(data-rechts) "cm" !important;
+                display: block !important;
+                font-weight: bold !important;
+                color: #dc3545 !important;
+                margin-bottom: 2px !important;
             }
             
             /* SVG-Texte für bessere Sichtbarkeit im Druck */
