@@ -277,10 +277,10 @@
                 margin: 0 auto !important;
             }
             
-            /* SVG in Draufsicht - KORRIGIERT: GENAU WIE BEIM DREIECK */
+            /* SVG in Draufsicht - KORRIGIERT: GRÖßER MACHEN */
             .print-overview svg {
-                width: 200px !important;
-                height: 130px !important;
+                width: 250px !important;
+                height: 160px !important;
             }
             
             /* Container für alle Platten */
@@ -855,7 +855,8 @@
                 
                 const plattenhoehePx = Math.max(70, Math.min(100, (benoetigteLaengeM / hoehe) * 100));
                 
-                html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 240px; height: ${plattenhoehePx}px; background: #e9ecef; border: 1px solid #999; border-radius: 3px;"></div>`;
+                // Plattengrund OHNE grauen Hintergrund - nur transparenter Rahmen
+                html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 240px; height: ${plattenhoehePx}px; background: transparent; border: 1px solid #999; border-radius: 3px;"></div>`;
                 
                 let startY = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
                 let endY = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
