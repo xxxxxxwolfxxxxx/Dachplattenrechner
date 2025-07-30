@@ -199,12 +199,12 @@
             color: white;
         }
         
-        /* OPTIMIERTE DRUCKSTILE - HAUPTVERBESSERUNG */
+        /* MAXIMAL OPTIMIERTE DRUCKSTILE - WIE GLEICHSCHENKLIGES DREIECK */
         @media print {
             /* Seitenformat */
             @page {
                 size: A4 portrait;
-                margin: 10mm;
+                margin: 12mm;
             }
             
             /* Kein Hintergrundbild beim Drucken */
@@ -274,10 +274,10 @@
                 text-align: center !important;
             }
             
-            /* Draufsicht - kompakt auf erste Seite */
+            /* KORRIGIERT: Draufsicht größer und besser positioniert */
             .print-overview {
                 display: block !important;
-                margin-bottom: 5mm !important;
+                margin-bottom: 8mm !important;
                 page-break-after: avoid !important;
                 text-align: center !important;
             }
@@ -285,24 +285,27 @@
             .print-overview h3 {
                 color: #000 !important;
                 font-size: 16px !important;
-                margin: 3mm 0 !important;
+                font-weight: bold !important;
+                margin: 3mm 0 5mm 0 !important;
                 text-align: center !important;
             }
             
-            .print-overview div {
-                border: 1px solid #000 !important;
-                padding: 3mm !important;
+            .print-overview > div {
+                border: 2px solid #000 !important;
+                padding: 8mm !important;
                 margin: 0 auto !important;
                 display: inline-block !important;
                 background: white !important;
+                border-radius: 4px !important;
             }
             
-            /* SVG in Draufsicht kleiner machen */
+            /* KORRIGIERT: SVG in Draufsicht optimal größer */
             .print-overview svg {
-                width: 150px !important;
-                height: 100px !important;
+                width: 300px !important;
+                height: 200px !important;
                 display: block !important;
                 margin: 0 auto !important;
+                border: 1px solid #ddd !important;
             }
             
             /* Container für alle Platten */
@@ -310,72 +313,77 @@
                 display: block !important;
             }
             
-            /* KRITISCHE KORREKTUR: Plattenbehälter - feste Größen für Druck */
+            /* KORRIGIERT: Plattenbehälter - genau wie beim gleichschenkligen Dreieck */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 5mm !important;
+                margin-bottom: 8mm !important;
                 border: 1px solid #000 !important;
-                padding: 4mm !important;
-                border-radius: 0 !important;
+                padding: 8px !important;
+                border-radius: 4px !important;
                 background: white !important;
                 box-shadow: none !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
-                /* Feste Höhe für bessere Kontrolle */
-                min-height: 70mm !important;
-                max-height: 80mm !important;
-                overflow: hidden !important;
+                /* Optimale Höhe wie beim gleichschenkligen Dreieck */
+                min-height: auto !important;
+                max-height: none !important;
+                height: auto !important;
+                overflow: visible !important;
             }
             
-            /* Jede dritte Platte auf neue Seite */
-            .anriss-plate:nth-child(3n+1):not(:first-child) {
+            /* Jede dritte Platte auf neue Seite (außer den ersten auf Seite 1) */
+            .anriss-plate:nth-child(4n+1):not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
                 page-break-before: always !important;
             }
             
             /* Plattenüberschriften - sehr kompakt */
             .anriss-plate h3 {
                 color: #000 !important;
-                font-size: 14px !important;
-                font-weight: bold !important;
-                margin: 0 0 3mm 0 !important;
+                font-size: 0.9em !important;
+                margin: 0 0 5px 0 !important;
                 line-height: 1.2 !important;
             }
             
-            /* HAUPTKORREKTUR: Plattendarstellung für Druck optimiert */
+            /* HAUPTKORREKTUR: Plattendiagramm kompakt für Druck - GENAU WIE GLEICHSCHENKLIGES DREIECK */
             .anriss-plate > div[style*="position: relative"] {
+                height: 60px !important;
+                width: 160px !important;
+                margin: 5px auto !important;
                 position: relative !important;
-                height: 40mm !important;
-                width: 120mm !important;
-                margin: 2mm auto !important;
-                background: #f5f5f5 !important;
-                border: 1px solid #999 !important;
-                box-sizing: border-box !important;
-                /* Wichtig: Overflow verstecken um Verschiebungen zu vermeiden */
+                background: #f8f9fa !important;
+                border: 1px solid #ddd !important;
+                border-radius: 6px !important;
                 overflow: hidden !important;
             }
             
-            /* SVG-Container für Druck fixieren */
+            /* KORRIGIERT: Alle absolut positionierten Elemente in Plattendiagrammen */
+            .anriss-plate > div[style*="position: relative"] > div[style*="position: absolute"] {
+                position: absolute !important;
+                /* Skalierung für Druck anpassen */
+                transform: scale(0.5) !important;
+                transform-origin: top left !important;
+            }
+            
+            /* KORRIGIERT: SVG-Container für Druck fixieren */
             .anriss-plate svg {
+                width: 160px !important;
+                height: 60px !important;
                 position: absolute !important;
                 top: 0 !important;
                 left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                max-width: 120mm !important;
-                max-height: 40mm !important;
-                /* Skalierung verhindern */
-                transform: none !important;
                 overflow: hidden !important;
+                /* Skalierung für bessere Darstellung */
+                transform: scale(0.67) !important;
+                transform-origin: top left !important;
             }
             
             /* SVG-Texte für bessere Sichtbarkeit im Druck */
             .anriss-plate svg text {
-                fill: #000 !important;
-                stroke: #fff !important;
-                stroke-width: 0.3pt !important;
+                fill: #fff !important;
+                stroke: #000 !important;
+                stroke-width: 0.5pt !important;
                 font-weight: bold !important;
-                font-size: 10px !important;
-                font-family: Arial, sans-serif !important;
+                font-size: 8px !important;
             }
             
             /* SVG-Formen für Druck optimieren */
@@ -389,56 +397,44 @@
                 stroke-width: 1.5pt !important;
             }
             
-            /* KORREKTUR: Absolute positionierte Elemente für Druck */
-            .anriss-plate div[style*="position: absolute"] {
-                position: absolute !important;
-                /* Sicherstellen dass sie innerhalb der Grenzen bleiben */
-                max-width: 120mm !important;
-                max-height: 40mm !important;
-                overflow: hidden !important;
-                /* Schrift für Druck anpassen */
-                font-size: 10px !important;
-                font-weight: bold !important;
+            /* KORRIGIERT: Alle Farbtexte für Druck optimieren */
+            .anriss-plate div[style*="color: #dc3545"],
+            .anriss-plate div[style*="color: #1e3c72"],
+            .anriss-plate div[style*="color: #28a745"],
+            .anriss-plate div[style*="color: #666"],
+            .anriss-plate div[style*="color: #333"],
+            .anriss-plate div[style*="color: #fff"],
+            .anriss-plate div[style*="color: #ffffff"],
+            .anriss-plate div[style*="color: white"] {
                 color: #000 !important;
-                /* Hintergrund für bessere Lesbarkeit */
-                background: rgba(255,255,255,0.8) !important;
-                padding: 1px 2px !important;
-                border-radius: 2px !important;
             }
             
-            /* Spezielle Maßangaben für Druck */
-            .anriss-plate div[style*="color: #dc3545"] {
-                color: #000 !important;
-                background: #ffcccc !important;
-                border: 1px solid #cc0000 !important;
-            }
-            
-            .anriss-plate div[style*="color: #28a745"] {
-                color: #000 !important;
-                background: #ccffcc !important;
-                border: 1px solid #00cc00 !important;
-            }
-            
-            /* Anleitung sehr kompakt - NUR FÜR DRUCK */
-            .anriss-plate > div[style*="background: #f8f9fa"], 
+            /* KORRIGIERT: Anleitung sehr kompakt - NUR FÜR DRUCK */
+            .anriss-plate > div[style*="background: #f8f9fa"],
             .anriss-plate > div[style*="background: linear-gradient"] {
+                padding: 4px !important;
+                font-size: 8px !important;
+                margin-top: 4px !important;
+                line-height: 1.1 !important;
                 background: #f8f9fa !important;
                 border: 1px solid #ddd !important;
-                padding: 2mm !important;
-                font-size: 9px !important;
-                margin-top: 2mm !important;
-                line-height: 1.2 !important;
-                border-radius: 0 !important;
                 color: #000 !important;
-                /* Maximale Höhe begrenzen */
-                max-height: 20mm !important;
-                overflow: hidden !important;
+                border-radius: 0 !important;
+                max-height: none !important;
+                overflow: visible !important;
             }
             
-            /* Alle Textelemente in Anleitung schwarz */
-            .anriss-plate > div[style*="background: #f8f9fa"] *,
-            .anriss-plate > div[style*="background: linear-gradient"] * {
-                color: #000 !important;
+            /* Maße in den Platten kleiner - NUR FÜR DRUCK */
+            .anriss-plate div[style*="font-size: 11px"] {
+                font-size: 8px !important;
+            }
+            
+            .anriss-plate div[style*="font-size: 10px"] {
+                font-size: 7px !important;
+            }
+            
+            .anriss-plate div[style*="font-size: 9px"] {
+                font-size: 7px !important;
             }
             
             /* Spezielle Farben für wichtige Hinweise */
