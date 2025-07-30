@@ -344,50 +344,37 @@
                 line-height: 1.2 !important;
             }
             
-            /* FINALE KORREKTUR: Plattendiagramme komplett neu - EINFACH UND SAUBER */
+            /* FINALE KORREKTUR: Plattendiagramme komplett neu - KORREKTE GRÖßEN */
             .anriss-plate > div[style*="position: relative"] {
-                height: 60px !important;
-                width: 160px !important;
+                height: 80px !important;
+                width: 180px !important;
                 margin: 5px auto !important;
                 position: relative !important;
                 background: #f8f9fa !important;
                 border: 1px solid #ddd !important;
                 border-radius: 6px !important;
                 overflow: hidden !important;
-                /* Alle Kinder zurücksetzen */
             }
             
-            /* KOMPLETT ZURÜCKSETZEN: Alle Kinder-Elemente */
-            .anriss-plate > div[style*="position: relative"] * {
-                position: static !important;
-                transform: none !important;
-                transform-origin: initial !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                top: auto !important;
-                left: auto !important;
-                bottom: auto !important;
-                right: auto !important;
-            }
-            
-            /* NUR SVG SICHTBAR MACHEN - wie beim gleichschenkligen Dreieck */
-            .anriss-plate > div[style*="position: relative"] > *:not(svg) {
-                display: none !important;
-            }
-            
-            /* SVG KORREKT POSITIONIEREN */
+            /* SVG KORREKT DIMENSIONIERT - passt in Container */
             .anriss-plate svg {
                 display: block !important;
-                width: 152px !important;
-                height: 50px !important;
+                width: 170px !important;
+                height: 70px !important;
                 margin: 5px auto !important;
                 border: 1px solid #ccc !important;
                 background: #fff !important;
                 position: static !important;
             }
             
-            /* EINFACHE TEXT-AUSGABE: Nur die wichtigsten Maße anzeigen */
+            /* ALLE ANDEREN ELEMENTE VERSTECKEN AUSSER SVG UND ANLEITUNG */
+            .anriss-plate > div[style*="position: relative"] > *:not(svg) {
+                display: none !important;
+            }
+            
+            /* NUR ANLEITUNG SICHTBAR MACHEN */
             .anriss-plate > div[style*="background: #f8f9fa"] {
+                display: block !important;
                 padding: 4px !important;
                 font-size: 8px !important;
                 margin-top: 4px !important;
@@ -396,13 +383,12 @@
                 border: 1px solid #ddd !important;
                 color: #000 !important;
                 border-radius: 0 !important;
-                display: block !important;
                 position: static !important;
             }
             
-            /* NUR DIE ANRISS-MASSE ALS TEXT DARSTELLEN */
+            /* ANRISSMASZE DIREKT IM TEXT ANZEIGEN - mit JavaScript-Inhalt */
             .anriss-plate > div[style*="background: #f8f9fa"]:before {
-                content: "Anrissmaße: Links " attr(data-links) "cm, Rechts " attr(data-rechts) "cm" !important;
+                content: "Anrissmaße aus Text extrahieren" !important;
                 display: block !important;
                 font-weight: bold !important;
                 color: #dc3545 !important;
@@ -1073,8 +1059,9 @@
                 
                 html += `</div>`;
                 
-                // Anleitung
+                // Anleitung - MIT ANRISSMASSEN IN TEXT
                 html += `<div style="background: #f8f9fa; padding: 15px; border-radius: 6px; font-size: 13px; margin-top: 20px; border-left: 3px solid #ffc107;">`;
+                html += `<strong style="color: #dc3545;">Anrissmaße: Links ${anreissLinks}cm, Rechts ${anreissRechts}cm</strong><br>`;
                 html += `<strong style="color: #333;">Anzeichnen:</strong><br>`;
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - untereBreite;
