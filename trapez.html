@@ -314,12 +314,14 @@
                 line-height: 1.2 !important;
             }
             
-            /* SVG-Texte für bessere Sichtbarkeit */
+            /* SVG in Plattendiagrammen für Druck verkleinern */
+            .anriss-plate svg {
+                width: 180px !important;
+                height: 60px !important;
+            }
+            
+            /* SVG-Text für Druck anpassen */
             .anriss-plate svg text {
-                fill: #fff !important;
-                stroke: #000 !important;
-                stroke-width: 0.5pt !important;
-                font-weight: bold !important;
                 font-size: 8px !important;
             }
             
