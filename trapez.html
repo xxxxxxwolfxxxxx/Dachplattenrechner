@@ -338,13 +338,16 @@
             /* Plattendiagramm kompakt aber ausreichend groß - NUR FÜR DRUCK */
             .anriss-plate > div[style*="position: relative"] {
                 height: 90px !important;
-                width: 180px !important;
+                width: 200px !important;
                 margin: 5px auto !important;
             }
             
-            /* Kleinen grauen Plattenrahmen verstecken - NUR FÜR DRUCK */
+            /* Grauen Plattenrahmen größer machen, damit SVG reinpasst - NUR FÜR DRUCK */
             .anriss-plate > div[style*="position: relative"] > div[style*="background: transparent"] {
-                display: none !important;
+                width: 180px !important;
+                height: 70px !important;
+                left: 10px !important;
+                bottom: 10px !important;
             }
             
             /* Anleitung sehr kompakt - NUR FÜR DRUCK */
