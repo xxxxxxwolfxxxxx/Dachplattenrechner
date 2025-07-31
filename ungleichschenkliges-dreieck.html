@@ -333,10 +333,17 @@
                 max-height: 25vh !important;
             }
             
-            /* Jede dritte Platte auf neue Seite (außer den ersten 2-3 auf Seite 1) */
-            .anriss-plate:nth-child(4n+1):not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
-                page-break-before: always !important;
-            }
+           /* EINHEITLICHE SEITENUMBRUCH-REGEL: Alle 3 Platten eine neue Seite */
+.anriss-plate:nth-child(4),
+.anriss-plate:nth-child(7),
+.anriss-plate:nth-child(10),
+.anriss-plate:nth-child(13),
+.anriss-plate:nth-child(16),
+.anriss-plate:nth-child(19),
+.anriss-plate:nth-child(22),
+.anriss-plate:nth-child(25) {
+    page-break-before: always !important;
+}
             
             /* Plattenüberschriften - sehr kompakt */
             .anriss-plate h3 {
