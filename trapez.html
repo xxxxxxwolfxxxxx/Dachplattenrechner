@@ -12,7 +12,8 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: #1e3c72;
+            background: url('images/trapez.png') no-repeat center center fixed;
+            background-size: cover;
             color: white;
             line-height: 1.6;
         }
@@ -199,7 +200,7 @@
             color: white;
         }
         
-        /* KORRIGIERTE DRUCKSTILE - GENAU WIE BEIM GLEICHSCHENKLIGEN DREIECK */
+        /* VERBESSERTE DRUCKSTILE - GRÖSSERE PLATTEN */
         @media print {
             /* Seitenformat */
             @page {
@@ -258,10 +259,10 @@
                 margin: 2px 0 0 0 !important;
             }
             
-            /* Draufsicht - kompakt auf erste Seite, aber kein Seitenumbruch */
+            /* Draufsicht - kompakt auf erste Seite */
             .print-overview {
                 display: block !important;
-                margin-bottom: 10px !important;
+                margin-bottom: 15px !important;
                 page-break-after: avoid !important;
             }
             
@@ -277,10 +278,10 @@
                 margin: 0 auto !important;
             }
             
-            /* SVG in Draufsicht - KORRIGIERT: GRÖßER MACHEN */
+            /* SVG in Draufsicht */
             .print-overview svg {
-                width: 250px !important;
-                height: 160px !important;
+                width: 300px !important;
+                height: 180px !important;
             }
             
             /* Container für alle Platten */
@@ -288,41 +289,56 @@
                 display: block !important;
             }
             
-            /* Plattenbehälter - maximal kompakt, aber höher für bessere Darstellung */
+            /* Plattenbehälter - GRÖSSER FÜR BESSERE LESBARKEIT */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 10mm !important;
+                margin-bottom: 15mm !important;
                 border: 1px solid #000 !important;
-                padding: 8px !important;
+                padding: 12px !important;
                 border-radius: 4px !important;
                 background: white !important;
                 box-shadow: none !important;
                 height: auto !important;
-                min-height: 120px !important;
+                min-height: 160px !important; /* VERGRÖSSERT */
             }
             
-            /* Jede dritte Platte auf neue Seite (außer den ersten 2-3 auf Seite 1) */
-            .anriss-plate:nth-child(4n+1):not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
+            /* Nur 2 Platten pro Seite (statt 3-4) für mehr Platz */
+            .anriss-plate:nth-child(3n+1):not(:first-child):not(:nth-child(2)) {
                 page-break-before: always !important;
             }
             
-            /* Plattenüberschriften - sehr kompakt */
+            /* Plattenüberschriften */
             .anriss-plate h3 {
                 color: #000 !important;
-                font-size: 0.9em !important;
-                margin: 0 0 5px 0 !important;
+                font-size: 1em !important; /* VERGRÖSSERT */
+                margin: 0 0 8px 0 !important;
                 line-height: 1.2 !important;
             }
             
-            /* SVG in Plattendiagrammen für Druck verkleinern */
+            /* Plattendiagramm - VIEL GRÖSSER */
+            .anriss-plate > div[style*="position: relative"] {
+                height: 120px !important; /* VERGRÖSSERT */
+                width: 300px !important; /* VERGRÖSSERT */
+                margin: 8px auto !important;
+            }
+            
+            /* Grauen Plattenrahmen größer machen - NUR FÜR DRUCK */
+            .anriss-plate > div[style*="position: relative"] > div[style*="background: transparent"] {
+                width: 280px !important; /* VERGRÖSSERT */
+                height: 100px !important; /* VERGRÖSSERT */
+                left: 10px !important;
+                bottom: 10px !important;
+            }
+            
+            /* SVG in Plattendiagrammen für Druck - GRÖSSER */
             .anriss-plate svg {
-                width: 180px !important;
-                height: 60px !important;
+                width: 280px !important; /* VERGRÖSSERT */
+                height: 100px !important; /* VERGRÖSSERT */
             }
             
             /* SVG-Text für Druck anpassen */
             .anriss-plate svg text {
-                font-size: 8px !important;
+                font-size: 10px !important; /* VERGRÖSSERT */
             }
             
             /* Alle Farbtexte für Druck optimieren */
@@ -337,40 +353,25 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm kompakt aber ausreichend groß - NUR FÜR DRUCK */
-            .anriss-plate > div[style*="position: relative"] {
-                height: 90px !important;
-                width: 200px !important;
-                margin: 5px auto !important;
-            }
-            
-            /* Grauen Plattenrahmen größer machen, damit SVG reinpasst - NUR FÜR DRUCK */
-            .anriss-plate > div[style*="position: relative"] > div[style*="background: transparent"] {
-                width: 180px !important;
-                height: 70px !important;
-                left: 10px !important;
-                bottom: 10px !important;
-            }
-            
-            /* Anleitung sehr kompakt - NUR FÜR DRUCK */
+            /* Anleitung kompakt aber lesbar - NUR FÜR DRUCK */
             .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 4px !important;
-                font-size: 8px !important;
-                margin-top: 4px !important;
-                line-height: 1.1 !important;
+                padding: 6px !important; /* VERGRÖSSERT */
+                font-size: 9px !important; /* VERGRÖSSERT */
+                margin-top: 6px !important;
+                line-height: 1.2 !important; /* VERGRÖSSERT */
             }
             
-            /* Maße in den Platten kleiner - NUR FÜR DRUCK */
+            /* Maße in den Platten - NUR FÜR DRUCK */
             .anriss-plate div[style*="font-size: 11px"] {
-                font-size: 8px !important;
+                font-size: 10px !important; /* VERGRÖSSERT */
             }
             
             .anriss-plate div[style*="font-size: 10px"] {
-                font-size: 7px !important;
+                font-size: 9px !important; /* VERGRÖSSERT */
             }
             
             .anriss-plate div[style*="font-size: 9px"] {
-                font-size: 7px !important;
+                font-size: 8px !important; /* VERGRÖSSERT */
             }
         }
         
@@ -545,121 +546,6 @@
         function berechneTrapez(obereBreite, untereBreite, hoehe, deckbreite) {
             const schnittliste = [];
             const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
-            const breitenDifferenz = untereBreite - obereBreite;
-            const seitenAbstand = breitenDifferenz / 2;
-            const linkeObereEcke = seitenAbstand;
-            const rechteObereEcke = untereBreite - seitenAbstand;
-            
-            let anzahlPlatten = Math.ceil((untereBreite - lieferbreite + deckbreite) / deckbreite);
-            
-            for (let i = 0; i < anzahlPlatten; i++) {
-                let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
-                let positionVonLinksEnde = positionVonLinks + lieferbreite;
-                positionVonLinksEnde = Math.min(positionVonLinksEnde, untereBreite);
-                
-                // Höhe an beiden Positionen berechnen
-                function hoeheAnPosition(pos) {
-                    if (pos <= linkeObereEcke) {
-                        return hoehe * (pos / linkeObereEcke);
-                    } else if (pos >= rechteObereEcke) {
-                        const abstandVonRechts = untereBreite - pos;
-                        return hoehe * (abstandVonRechts / seitenAbstand);
-                    } else {
-                        return hoehe;
-                    }
-                }
-                
-                const hoeheStart = hoeheAnPosition(positionVonLinks);
-                const hoeheEnde = hoeheAnPosition(positionVonLinksEnde);
-                const benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
-                
-                if (benoetigteLaenge > 0 && positionVonLinks < untereBreite) {
-                    schnittliste.push({
-                        plattenNr: i + 1,
-                        positionVonLinks: positionVonLinks.toFixed(2),
-                        positionBis: positionVonLinksEnde.toFixed(2),
-                        benoetigteLaenge: benoetigteLaenge.toFixed(2),
-                        plattenbreite: lieferbreite.toFixed(2)
-                    });
-                }
-            }
-
-            return { 
-                schnittliste: schnittliste,
-                anzahlPlatten: schnittliste.length
-            };
-        }
-
-        function berechneSeitenlängen(obereBreite, untereBreite, hoehe) {
-            const breitenDifferenz = untereBreite - obereBreite;
-            const seitenlaenge = Math.sqrt(hoehe * hoehe + (breitenDifferenz / 2) * (breitenDifferenz / 2));
-            return seitenlaenge;
-        }
-
-        function berechnen() {
-            const obereBreite = parseFloat(document.getElementById('obere-breite').value);
-            const untereBreite = parseFloat(document.getElementById('untere-breite').value);
-            const hoehe = parseFloat(document.getElementById('hoehe').value);
-            const deckbreite = parseFloat(document.getElementById('deckbreite').value);
-            const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
-
-            if (!obereBreite || !untereBreite || !hoehe || !deckbreite || !lieferbreite) {
-                alert('Bitte füllen Sie alle Felder aus!');
-                return;
-            }
-
-            if (obereBreite >= untereBreite) {
-                alert('Die obere Breite muss kleiner als die untere Breite sein!');
-                return;
-            }
-
-            const ueberlappung = lieferbreite - deckbreite;
-            const trapezBerechnung = berechneTrapez(obereBreite, untereBreite, hoehe, deckbreite);
-            const maxLaenge = Math.max(...trapezBerechnung.schnittliste.map(p => parseFloat(p.benoetigteLaenge)));
-            const seitenlaenge = berechneSeitenlängen(obereBreite, untereBreite, hoehe);
-
-            document.getElementById('ueberlappung').textContent = ueberlappung.toFixed(2) + ' m';
-            document.getElementById('seiten-result').textContent = 'Links/Rechts: ' + seitenlaenge.toFixed(2) + 'm';
-            document.getElementById('benoetigte-plattenlaenge').textContent = maxLaenge.toFixed(2) + ' m';
-            document.getElementById('anzahl-bleche-breite').textContent = trapezBerechnung.anzahlPlatten + ' Stück';
-            document.getElementById('gesamt-bleche').textContent = trapezBerechnung.anzahlPlatten + ' Stück';
-
-            // Schnittliste anzeigen
-            const tbody = document.getElementById('schnitt-details');
-            tbody.innerHTML = '';
-            
-            trapezBerechnung.schnittliste.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.plattenNr}</td>
-                    <td>${item.positionVonLinks} - ${item.positionBis}</td>
-                    <td style="font-weight: bold; color: #28a745;">${item.plattenbreite}</td>
-                    <td style="font-weight: bold; color: #28a745; background-color: #f8fff9; padding: 8px;">${item.benoetigteLaenge}</td>
-                `;
-                tbody.appendChild(row);
-            });
-
-            aktuelleSchnittliste = trapezBerechnung.schnittliste;
-            document.getElementById('results').style.display = 'block';
-            document.getElementById('schnittliste').style.display = 'block';
-            
-            // Vorschau generieren
-            generiereVorschau(obereBreite, untereBreite, hoehe, trapezBerechnung.schnittliste);
-            document.getElementById('vorschau').style.display = 'block';
-
-            // Smooth scroll zu den Ergebnissen
-            setTimeout(() => {
-                document.getElementById('results').scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
-                });
-            }, 100);
-        }
-
-        function generiereVorschau(obereBreite, untereBreite, hoehe, schnittliste) {
-            const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
-            const deckbreite = parseFloat(document.getElementById('deckbreite').value);
-            const ueberlappung = lieferbreite - deckbreite;
             const breitenDifferenz = untereBreite - obereBreite;
             const seitenAbstand = breitenDifferenz / 2;
             const linkeObereEcke = seitenAbstand;
@@ -857,16 +743,16 @@
                 const ueberdecktLinkeEcke = plattenStart <= linkeObereEcke && plattenEndeReal >= linkeObereEcke;
                 const ueberdecktRechteEcke = plattenStart <= rechteObereEcke && plattenEndeReal >= rechteObereEcke;
                 
-                html += `<div class="anriss-plate" style="margin-bottom: 30px; border: 2px solid #333; padding: 15px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
-                html += `<h3 style="margin: 0 0 15px 0; color: #333; font-size: 16px; font-weight: bold;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
+                html += `<div class="anriss-plate" style="margin-bottom: 40px; border: 2px solid #333; padding: 20px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
+                html += `<h3 style="margin: 0 0 20px 0; color: #333; font-size: 18px; font-weight: bold;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
                 
-                // VERGRÖSSERTE WEBANSICHT - wird beim Drucken durch CSS kompakt gemacht
-                html += `<div style="position: relative; height: 120px; width: 280px; background: #f8f9fa; margin: 15px auto; border-radius: 6px; border: 1px solid #ddd;">`;
+                // VERGRÖSSERTE WEBANSICHT - 360px breit, 150px hoch
+                html += `<div style="position: relative; height: 150px; width: 360px; background: #f8f9fa; margin: 20px auto; border-radius: 6px; border: 1px solid #ddd;">`;
                 
-                const plattenhoehePx = Math.max(70, Math.min(100, (benoetigteLaengeM / hoehe) * 100));
+                const plattenhoehePx = Math.max(90, Math.min(130, (benoetigteLaengeM / hoehe) * 120));
                 
                 // Plattengrund OHNE grauen Hintergrund - nur transparenter Rahmen
-                html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 240px; height: ${plattenhoehePx}px; background: transparent; border: 1px solid #999; border-radius: 3px;"></div>`;
+                html += `<div style="position: absolute; bottom: 20px; left: 30px; width: 300px; height: ${plattenhoehePx}px; background: transparent; border: 1px solid #999; border-radius: 3px;"></div>`;
                 
                 let startY = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
                 let endY = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
@@ -874,58 +760,52 @@
                 startY = Math.max(0, Math.min(plattenhoehePx, startY));
                 endY = Math.max(0, Math.min(plattenhoehePx, endY));
                 
-                const endX = istLetztePlatte ? Math.min(240, (untereBreite - plattenStart) / plattenBreite * 240) : 240;
+                const endX = istLetztePlatte ? Math.min(300, (untereBreite - plattenStart) / plattenBreite * 300) : 300;
                 
-                // SVG für Plattenzeichnung - KLEINER FÜR DRUCK
-                html += `<svg style="position: absolute; bottom: 15px; left: 20px;" width="180" height="${Math.min(plattenhoehePx, 60)}">`;
+                // SVG für Plattenzeichnung
+                html += `<svg style="position: absolute; bottom: 20px; left: 30px;" width="300" height="${plattenhoehePx}">`;
                 
-                // Skalierte Variablen für kleineres SVG
-                const svgWidth = 180;
-                const svgHeight = Math.min(plattenhoehePx, 60);
-                const scaledStartY = startY * (svgHeight / plattenhoehePx);
-                const scaledEndY = endY * (svgHeight / plattenhoehePx);
-                const scaledEndX = istLetztePlatte ? Math.min(svgWidth, (untereBreite - plattenStart) / plattenBreite * svgWidth) : svgWidth;
                 if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
-                    const linkeEckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
-                    const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
+                    const linkeEckeX = (linkeObereEcke - plattenStart) / plattenBreite * 300;
+                    const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 300;
                     
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${rechteEckeX},0 ${linkeEckeX},0 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
+                    html += `<text x="150" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="16" stroke="#000" stroke-width="0.3">Nutzen</text>`;
                     
                     html += `<polygon points="0,${startY} ${linkeEckeX},0 ${rechteEckeX},0 ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
+                    html += `<text x="150" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
                     
                     html += `<line x1="0" y1="${startY}" x2="${linkeEckeX}" y2="0" stroke="#000" stroke-width="2"/>`;
                     html += `<line x1="${linkeEckeX}" y1="0" x2="${rechteEckeX}" y2="0" stroke="#000" stroke-width="2"/>`;
                     html += `<line x1="${rechteEckeX}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
                 } else if (ueberdecktLinkeEcke) {
-                    const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
+                    const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 300;
                     
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${eckeX},0 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
+                    html += `<text x="150" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="16" stroke="#000" stroke-width="0.3">Nutzen</text>`;
                     
                     html += `<polygon points="0,${startY} ${eckeX},0 ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="120" y="${Math.min(startY, endY)/2 + 8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
+                    html += `<text x="150" y="${Math.min(startY, endY)/2 + 10}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
                     
                     html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="0" stroke="#000" stroke-width="2"/>`;
                     html += `<line x1="${eckeX}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
                 } else if (ueberdecktRechteEcke) {
-                    const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
+                    const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 300;
                     
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${eckeX},0 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
+                    html += `<text x="150" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="16" stroke="#000" stroke-width="0.3">Nutzen</text>`;
                     
                     html += `<polygon points="0,${startY} ${eckeX},0 ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="120" y="${Math.min(startY, endY)/2 + 8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
+                    html += `<text x="150" y="${Math.min(startY, endY)/2 + 10}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
                     
                     html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="0" stroke="#000" stroke-width="2"/>`;
                     html += `<line x1="${eckeX}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
                 } else {
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
+                    html += `<text x="150" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="16" stroke="#000" stroke-width="0.3">Nutzen</text>`;
                     
                     html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="120" y="${Math.min(startY, endY)/2 + 8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
+                    html += `<text x="150" y="${Math.min(startY, endY)/2 + 10}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
                     
                     html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
                 }
@@ -936,30 +816,30 @@
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - untereBreite;
                     
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + endX}px; width: 2px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx/2}px; left: ${15 + endX}px; font-size: 9px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
+                    html += `<div style="position: absolute; bottom: 20px; left: ${30 + endX}px; width: 3px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx/2}px; left: ${25 + endX}px; font-size: 11px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
                     
                     if (ueberhang > 0) {
-                        const restBreite = 240 - endX;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 20}px; left: ${20 + endX}px; width: ${restBreite}px; height: 2px; background: #dc3545;"></div>`;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 10}px; left: ${20 + endX + restBreite/2}px; font-size: 10px; font-weight: bold; color: #dc3545; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
+                        const restBreite = 300 - endX;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 25}px; left: ${30 + endX}px; width: ${restBreite}px; height: 3px; background: #dc3545;"></div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 15}px; left: ${30 + endX + restBreite/2}px; font-size: 12px; font-weight: bold; color: #dc3545; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
                     }
                 }
                 
                 // Anrisslinien - zentriert zur Platte
-                html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 3px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
-                html += `<div style="position: absolute; bottom: 15px; left: ${20 + endX - 2}px; width: 3px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
+                html += `<div style="position: absolute; bottom: 20px; left: 30px; width: 4px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 2px;"></div>`;
+                html += `<div style="position: absolute; bottom: 20px; left: ${30 + endX - 3}px; width: 4px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 2px;"></div>`;
                 
                 // Anrissmaße - symmetrisch zur Platte positioniert
-                html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx}px; left: 14px; font-size: 11px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx}px; left: ${270 - 10}px; font-size: 11px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: 2px; left: -10px; font-size: 11px; font-weight: bold; color: #dc3545; text-align: center; width: 40px;">${anreissLinks}cm</div>`;
-                html += `<div style="position: absolute; bottom: 2px; left: ${270 - 30}px; font-size: 11px; font-weight: bold; color: #dc3545; text-align: center; width: 40px;">${anreissRechts}cm</div>`;
+                html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx}px; left: 24px; font-size: 13px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: ${25 + plattenhoehePx}px; left: ${360 - 20}px; font-size: 13px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: 2px; left: -5px; font-size: 13px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissLinks}cm</div>`;
+                html += `<div style="position: absolute; bottom: 2px; left: ${360 - 45}px; font-size: 13px; font-weight: bold; color: #dc3545; text-align: center; width: 50px;">${anreissRechts}cm</div>`;
                 
                 html += `</div>`;
                 
                 // Anleitung
-                html += `<div style="background: #f8f9fa; padding: 15px; border-radius: 6px; font-size: 13px; margin-top: 20px; border-left: 3px solid #ffc107;">`;
+                html += `<div style="background: #f8f9fa; padding: 18px; border-radius: 6px; font-size: 14px; margin-top: 25px; border-left: 3px solid #ffc107;">`;
                 html += `<strong style="color: #333;">Anzeichnen:</strong><br>`;
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - untereBreite;
@@ -1014,3 +894,119 @@
     </script>
 </body>
 </html>
+            d;
+            
+            let anzahlPlatten = Math.ceil((untereBreite - lieferbreite + deckbreite) / deckbreite);
+            
+            for (let i = 0; i < anzahlPlatten; i++) {
+                let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+                let positionVonLinksEnde = positionVonLinks + lieferbreite;
+                positionVonLinksEnde = Math.min(positionVonLinksEnde, untereBreite);
+                
+                // Höhe an beiden Positionen berechnen
+                function hoeheAnPosition(pos) {
+                    if (pos <= linkeObereEcke) {
+                        return hoehe * (pos / linkeObereEcke);
+                    } else if (pos >= rechteObereEcke) {
+                        const abstandVonRechts = untereBreite - pos;
+                        return hoehe * (abstandVonRechts / seitenAbstand);
+                    } else {
+                        return hoehe;
+                    }
+                }
+                
+                const hoeheStart = hoeheAnPosition(positionVonLinks);
+                const hoeheEnde = hoeheAnPosition(positionVonLinksEnde);
+                const benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
+                
+                if (benoetigteLaenge > 0 && positionVonLinks < untereBreite) {
+                    schnittliste.push({
+                        plattenNr: i + 1,
+                        positionVonLinks: positionVonLinks.toFixed(2),
+                        positionBis: positionVonLinksEnde.toFixed(2),
+                        benoetigteLaenge: benoetigteLaenge.toFixed(2),
+                        plattenbreite: lieferbreite.toFixed(2)
+                    });
+                }
+            }
+
+            return { 
+                schnittliste: schnittliste,
+                anzahlPlatten: schnittliste.length
+            };
+        }
+
+        function berechneSeitenlängen(obereBreite, untereBreite, hoehe) {
+            const breitenDifferenz = untereBreite - obereBreite;
+            const seitenlaenge = Math.sqrt(hoehe * hoehe + (breitenDifferenz / 2) * (breitenDifferenz / 2));
+            return seitenlaenge;
+        }
+
+        function berechnen() {
+            const obereBreite = parseFloat(document.getElementById('obere-breite').value);
+            const untereBreite = parseFloat(document.getElementById('untere-breite').value);
+            const hoehe = parseFloat(document.getElementById('hoehe').value);
+            const deckbreite = parseFloat(document.getElementById('deckbreite').value);
+            const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
+
+            if (!obereBreite || !untereBreite || !hoehe || !deckbreite || !lieferbreite) {
+                alert('Bitte füllen Sie alle Felder aus!');
+                return;
+            }
+
+            if (obereBreite >= untereBreite) {
+                alert('Die obere Breite muss kleiner als die untere Breite sein!');
+                return;
+            }
+
+            const ueberlappung = lieferbreite - deckbreite;
+            const trapezBerechnung = berechneTrapez(obereBreite, untereBreite, hoehe, deckbreite);
+            const maxLaenge = Math.max(...trapezBerechnung.schnittliste.map(p => parseFloat(p.benoetigteLaenge)));
+            const seitenlaenge = berechneSeitenlängen(obereBreite, untereBreite, hoehe);
+
+            document.getElementById('ueberlappung').textContent = ueberlappung.toFixed(2) + ' m';
+            document.getElementById('seiten-result').textContent = 'Links/Rechts: ' + seitenlaenge.toFixed(2) + 'm';
+            document.getElementById('benoetigte-plattenlaenge').textContent = maxLaenge.toFixed(2) + ' m';
+            document.getElementById('anzahl-bleche-breite').textContent = trapezBerechnung.anzahlPlatten + ' Stück';
+            document.getElementById('gesamt-bleche').textContent = trapezBerechnung.anzahlPlatten + ' Stück';
+
+            // Schnittliste anzeigen
+            const tbody = document.getElementById('schnitt-details');
+            tbody.innerHTML = '';
+            
+            trapezBerechnung.schnittliste.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.plattenNr}</td>
+                    <td>${item.positionVonLinks} - ${item.positionBis}</td>
+                    <td style="font-weight: bold; color: #28a745;">${item.plattenbreite}</td>
+                    <td style="font-weight: bold; color: #28a745; background-color: #f8fff9; padding: 8px;">${item.benoetigteLaenge}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            aktuelleSchnittliste = trapezBerechnung.schnittliste;
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('schnittliste').style.display = 'block';
+            
+            // Vorschau generieren
+            generiereVorschau(obereBreite, untereBreite, hoehe, trapezBerechnung.schnittliste);
+            document.getElementById('vorschau').style.display = 'block';
+
+            // Smooth scroll zu den Ergebnissen
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }, 100);
+        }
+
+        function generiereVorschau(obereBreite, untereBreite, hoehe, schnittliste) {
+            const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
+            const deckbreite = parseFloat(document.getElementById('deckbreite').value);
+            const ueberlappung = lieferbreite - deckbreite;
+            const breitenDifferenz = untereBreite - obereBreite;
+            const seitenAbstand = breitenDifferenz / 2;
+            const linkeObereEcke = seitenAbstand;
+            const rechteObereEcke = untereBreite - seitenAbstan
