@@ -474,48 +474,53 @@
                 page-break-before: always !important;
             }
             
-            /* Header des Anrissplans - kompakt */
+            /* Header des Anrissplans - NUR die wichtigsten Infos */
             #anrissplan > div:first-child {
-                border-bottom: 1px solid #000 !important;
-                padding-bottom: 5px !important;
-                margin-bottom: 8px !important;
+                border-bottom: 2px solid #000 !important;
+                padding-bottom: 15px !important;
+                margin-bottom: 30px !important;
+                text-align: center !important;
             }
             
             #anrissplan h4 {
                 color: #000 !important;
-                font-size: 1em !important;
-                margin: 0 !important;
+                font-size: 1.8em !important; /* Größer: 1em → 1.8em */
+                margin: 0 0 10px 0 !important;
             }
             
             #anrissplan p {
                 color: #333 !important;
-                font-size: 0.8em !important;
-                margin: 2px 0 0 0 !important;
+                font-size: 1.2em !important; /* Größer: 0.8em → 1.2em */
+                margin: 10px 0 !important;
+                font-weight: bold !important;
             }
             
-            /* Draufsicht - kompakt */
+            /* Draufsicht - GRÖßER und alleine auf Seite 1 */
             .print-overview {
                 display: block !important;
-                margin-bottom: 10px !important;
-                page-break-after: avoid !important;
+                margin-bottom: 20px !important;
+                page-break-after: always !important; /* Seitenumbruch NACH der Übersicht */
+                text-align: center !important;
+                padding: 40px 0 !important;
             }
             
             .print-overview h3 {
                 color: #000 !important;
-                font-size: 0.9em !important;
-                margin: 5px 0 !important;
+                font-size: 1.4em !important; /* Größer: 0.9em → 1.4em */
+                margin: 20px 0 30px 0 !important; /* Mehr Abstand */
             }
             
             .print-overview div {
-                border: 1px solid #000 !important;
-                padding: 5px !important;
+                border: 2px solid #000 !important;
+                padding: 20px !important; /* Mehr Padding */
                 margin: 0 auto !important;
+                display: inline-block !important;
             }
             
-            /* SVG in Draufsicht kleiner machen */
+            /* SVG in Draufsicht - VIEL GRÖßER */
             .print-overview svg {
-                width: 200px !important;
-                height: 130px !important;
+                width: 400px !important; /* Größer: 200px → 400px */
+                height: 260px !important; /* Größer: 130px → 260px */
             }
             
             /* Plattenüberschriften - kompakter */
