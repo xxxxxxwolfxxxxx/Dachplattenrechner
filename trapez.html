@@ -448,17 +448,18 @@
                 display: block !important;
             }
             
-            /* Plattenbehälter - etwas kleiner, perfekte Größe für Druck */
+            /* Plattenbehälter - optimale Größe für konstant 3 pro Seite */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 12mm !important;
+                margin-bottom: 8mm !important;
                 border: 1px solid #000 !important;
-                padding: 10px !important;
+                padding: 8px !important;
                 border-radius: 4px !important;
                 background: white !important;
                 box-shadow: none !important;
                 color: #000 !important;
-                min-height: 215px !important; /* 10% kleiner: 240px → 215px */
+                min-height: 180px !important; /* Kleiner: 215px → 180px */
+                max-height: 180px !important; /* Maximale Höhe begrenzen */
             }
             
             /* EINHEITLICHE SEITENUMBRUCH-REGEL: Alle 3 Platten eine neue Seite */
@@ -517,12 +518,12 @@
                 height: 130px !important;
             }
             
-            /* Plattenüberschriften - größer für Druck */
+            /* Plattenüberschriften - kompakter */
             .anriss-plate h3 {
                 color: #000 !important;
-                font-size: 1.1em !important; /* Größer: 0.9em → 1.1em */
-                margin: 0 0 10px 0 !important; /* Mehr Abstand */
-                line-height: 1.3 !important;
+                font-size: 1.0em !important; /* Kleiner: 1.1em → 1.0em */
+                margin: 0 0 6px 0 !important; /* Weniger Abstand */
+                line-height: 1.2 !important;
             }
             
             /* SVG-Texte für bessere Sichtbarkeit */
@@ -546,33 +547,33 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm - perfekte Größe für Druck */
+            /* Plattendiagramm - kompakter für konstant 3 pro Seite */
             .anriss-plate > div[style*="position: relative"] {
-                height: 160px !important; /* 10% kleiner: 180px → 160px */
-                width: 430px !important; /* 10% kleiner: 480px → 430px */
-                margin: 12px auto !important;
+                height: 100px !important; /* Kleiner: 160px → 100px */
+                width: 300px !important; /* Kleiner: 430px → 300px */
+                margin: 8px auto !important;
             }
             
-            /* Anleitung - perfekte Größe für Druck */
+            /* Anleitung - kompakt aber lesbar */
             .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 9px !important; /* 10% kleiner: 10px → 9px */
-                font-size: 10px !important; /* 10% kleiner: 11px → 10px */
-                margin-top: 10px !important;
-                line-height: 1.25 !important;
+                padding: 6px !important; /* Kleiner: 9px → 6px */
+                font-size: 9px !important; /* Kleiner: 10px → 9px */
+                margin-top: 6px !important;
+                line-height: 1.2 !important;
                 border-left-color: #ffc107 !important;
             }
             
-            /* Maße in den Platten - perfekte Lesbarkeit */
+            /* Maße in den Platten - kompakt aber lesbar */
             .anriss-plate div[style*="font-size: 11px"] {
-                font-size: 11px !important; /* 10% kleiner: 12px → 11px */
+                font-size: 9px !important; /* Kleiner: 11px → 9px */
             }
             
             .anriss-plate div[style*="font-size: 10px"] {
-                font-size: 10px !important; /* 10% kleiner: 11px → 10px */
+                font-size: 8px !important; /* Kleiner: 10px → 8px */
             }
             
             .anriss-plate div[style*="font-size: 9px"] {
-                font-size: 9px !important; /* 10% kleiner: 10px → 9px */
+                font-size: 8px !important; /* Kleiner: 9px → 8px */
             }
         }
         
