@@ -1292,6 +1292,42 @@
                 
                 html += `</svg>`;
                 
+                // Spezielle Markierungen für Trapez-Ecken
+                if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
+                    const linkeEckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
+                    const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
+                    
+                    // Beide Ecken markieren
+                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + linkeEckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + linkeEckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">LINKE<br>ECKE<br>${hoehe}m</div>`;
+                    
+                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + rechteEckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + rechteEckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">RECHTE<br>ECKE<br>${hoehe}m</div>`;
+                    
+                    // Bemaßung zwischen den Ecken
+                    const abstandEcken = rechteEckeX - linkeEckeX;
+                    html += `<div style="position: absolute; top: 4px; left: ${20 + linkeEckeX}px; width: ${abstandEcken}px; height: 2px; background: #666;"></div>`;
+                    html += `<div style="position: absolute; top: -4px; left: ${20 + linkeEckeX + abstandEcken/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">Oberkante: ${obereBreite}m</div>`;
+                } else if (ueberdecktLinkeEcke) {
+                    const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
+                    
+                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + eckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + eckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">LINKE<br>ECKE<br>${hoehe}m</div>`;
+                    
+                    // Bemaßung zur linken Ecke
+                    html += `<div style="position: absolute; top: 4px; left: 20px; width: ${eckeX}px; height: 2px; background: #666;"></div>`;
+                    html += `<div style="position: absolute; top: -4px; left: ${20 + eckeX/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">${((linkeObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
+                } else if (ueberdecktRechteEcke) {
+                    const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
+                    
+                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + eckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + eckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">RECHTE<br>ECKE<br>${hoehe}m</div>`;
+                    
+                    // Bemaßung zur rechten Ecke
+                    html += `<div style="position: absolute; top: 4px; left: 20px; width: ${eckeX}px; height: 2px; background: #666;"></div>`;
+                    html += `<div style="position: absolute; top: -4px; left: ${20 + eckeX/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">${((rechteObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
+                }
+                
                 // Letzte Platte markieren
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - untereBreite;
@@ -1336,15 +1372,18 @@
                     const linkeEckePos = linkeObereEcke - plattenStart;
                     const rechteEckePos = rechteObereEcke - plattenStart;
                     html += `• <strong style="color: #ff6b35;">KOMPLEX: Links schräg bis ${(linkeEckePos * 100).toFixed(0)}cm → horizontal bis ${(rechteEckePos * 100).toFixed(0)}cm → rechts schräg!</strong><br>`;
-                    html += `• Schnittlinie: Links ansteigend, dann ${hoehe}m horizontal, dann rechts abfallend<br>`;
+                    html += `• <strong style="color: #1976d2;">BEMASUNG: Linke Ecke bei ${(linkeEckePos * 100).toFixed(0)}cm, rechte Ecke bei ${(rechteEckePos * 100).toFixed(0)}cm von links</strong><br>`;
+                    html += `• Schnittlinie: Links ansteigend, dann ${hoehe}m horizontal (Oberkante ${obereBreite}m), dann rechts abfallend<br>`;
                 } else if (ueberdecktLinkeEcke) {
                     html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält die LINKE obere Trapez-Ecke!</strong><br>`;
                     const eckenPos = linkeObereEcke - plattenStart;
                     html += `• <strong style="color: #ff6b35;">ÜBERGANG: Schräg ansteigend bis ${(eckenPos * 100).toFixed(0)}cm, dann horizontal!</strong><br>`;
+                    html += `• <strong style="color: #1976d2;">BEMASUNG: Linke Ecke bei ${(eckenPos * 100).toFixed(0)}cm von links der Platte</strong><br>`;
                 } else if (ueberdecktRechteEcke) {
                     html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält die RECHTE obere Trapez-Ecke!</strong><br>`;
                     const eckenPos = rechteObereEcke - plattenStart;
                     html += `• <strong style="color: #ff6b35;">ÜBERGANG: Horizontal bis ${(eckenPos * 100).toFixed(0)}cm, dann schräg abfallend!</strong><br>`;
+                    html += `• <strong style="color: #1976d2;">BEMASUNG: Rechte Ecke bei ${(eckenPos * 100).toFixed(0)}cm von links der Platte</strong><br>`;
                 } else if (anreissLinks !== anreissRechts) {
                     html += `• <strong style="color: #dc3545;">ACHTUNG: Schräger Schnitt!</strong><br>`;
                 } else {
