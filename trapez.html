@@ -418,7 +418,7 @@
                 font-family: Arial, sans-serif !important;
             }
             
-            /* Verstecke Navigation, Werbung und Eingabebereich */
+            /* Verstecke Navigation, Werbung und Eingabebereich - AUCH SCHNITTLISTE */
             .nav-header,
             .ad-container,
             .ad-container-middle,
@@ -426,7 +426,7 @@
             .calculate-btn,
             #results .result-item,
             #vorschau,
-            #schnittliste table,
+            #schnittliste,
             .anriss-btn,
             .cookie-banner {
                 display: none !important;
@@ -495,32 +495,34 @@
                 font-weight: bold !important;
             }
             
-            /* Draufsicht - GRÖßER und alleine auf Seite 1 */
+            /* Draufsicht - MAXIMALE GRÖßE auf ganzer Seite 1 */
             .print-overview {
                 display: block !important;
-                margin-bottom: 20px !important;
+                margin: 60px auto !important; /* Mehr vertikaler Abstand */
                 page-break-after: always !important; /* Seitenumbruch NACH der Übersicht */
                 text-align: center !important;
-                padding: 40px 0 !important;
+                padding: 60px 20px !important; /* Mehr Padding */
             }
             
             .print-overview h3 {
                 color: #000 !important;
-                font-size: 1.4em !important; /* Größer: 0.9em → 1.4em */
-                margin: 20px 0 30px 0 !important; /* Mehr Abstand */
+                font-size: 1.6em !important; /* Noch größer: 1.4em → 1.6em */
+                margin: 30px 0 40px 0 !important; /* Noch mehr Abstand */
+                font-weight: bold !important;
             }
             
             .print-overview div {
-                border: 2px solid #000 !important;
-                padding: 20px !important; /* Mehr Padding */
+                border: 3px solid #000 !important; /* Dickerer Rahmen */
+                padding: 30px !important; /* Mehr Padding */
                 margin: 0 auto !important;
                 display: inline-block !important;
+                border-radius: 8px !important;
             }
             
-            /* SVG in Draufsicht - VIEL GRÖßER */
+            /* SVG in Draufsicht - NOCH GRÖßER */
             .print-overview svg {
-                width: 400px !important; /* Größer: 200px → 400px */
-                height: 260px !important; /* Größer: 130px → 260px */
+                width: 500px !important; /* Noch größer: 400px → 500px */
+                height: 320px !important; /* Noch größer: 260px → 320px */
             }
             
             /* Plattenüberschriften - kompakter */
