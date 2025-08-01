@@ -448,16 +448,17 @@
                 display: block !important;
             }
             
-            /* Plattenbehälter - maximal kompakt, 3 pro Seite */
+            /* Plattenbehälter - VIEL GRÖSSER für bessere Lesbarkeit beim Druck */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 8mm !important;
+                margin-bottom: 15mm !important;
                 border: 1px solid #000 !important;
-                padding: 8px !important;
+                padding: 12px !important;
                 border-radius: 4px !important;
                 background: white !important;
                 box-shadow: none !important;
                 color: #000 !important;
+                min-height: 240px !important; /* 3x größer: 80px → 240px */
             }
             
             /* EINHEITLICHE SEITENUMBRUCH-REGEL: Alle 3 Platten eine neue Seite */
@@ -516,12 +517,12 @@
                 height: 130px !important;
             }
             
-            /* Plattenüberschriften - kompakt */
+            /* Plattenüberschriften - größer für Druck */
             .anriss-plate h3 {
                 color: #000 !important;
-                font-size: 0.9em !important;
-                margin: 0 0 5px 0 !important;
-                line-height: 1.2 !important;
+                font-size: 1.1em !important; /* Größer: 0.9em → 1.1em */
+                margin: 0 0 10px 0 !important; /* Mehr Abstand */
+                line-height: 1.3 !important;
             }
             
             /* SVG-Texte für bessere Sichtbarkeit */
@@ -545,33 +546,33 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm kompakt */
+            /* Plattendiagramm - 3x größer für Druck */
             .anriss-plate > div[style*="position: relative"] {
-                height: 60px !important;
-                width: 160px !important;
-                margin: 5px auto !important;
+                height: 180px !important; /* 3x größer: 60px → 180px */
+                width: 480px !important; /* 3x größer: 160px → 480px */
+                margin: 15px auto !important;
             }
             
-            /* Anleitung kompakt */
+            /* Anleitung - größer und besser lesbar für Druck */
             .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 4px !important;
-                font-size: 8px !important;
-                margin-top: 4px !important;
-                line-height: 1.1 !important;
+                padding: 10px !important; /* 3x größer: 4px → 10px */
+                font-size: 11px !important; /* Größer: 8px → 11px */
+                margin-top: 12px !important;
+                line-height: 1.3 !important; /* Mehr Zeilenabstand */
                 border-left-color: #ffc107 !important;
             }
             
-            /* Maße in den Platten kleiner */
+            /* Maße in den Platten - größer für bessere Lesbarkeit */
             .anriss-plate div[style*="font-size: 11px"] {
-                font-size: 8px !important;
+                font-size: 12px !important; /* Größer: 8px → 12px */
             }
             
             .anriss-plate div[style*="font-size: 10px"] {
-                font-size: 7px !important;
+                font-size: 11px !important; /* Größer: 7px → 11px */
             }
             
             .anriss-plate div[style*="font-size: 9px"] {
-                font-size: 7px !important;
+                font-size: 10px !important; /* Größer: 7px → 10px */
             }
         }
         
@@ -1307,7 +1308,7 @@
                     // Bemaßung zwischen den Ecken
                     const abstandEcken = rechteEckeX - linkeEckeX;
                     html += `<div style="position: absolute; top: 4px; left: ${20 + linkeEckeX}px; width: ${abstandEcken}px; height: 2px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: -4px; left: ${20 + linkeEckeX + abstandEcken/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">Oberkante: ${obereBreite}m</div>`;
+                    html += `<div style="position: absolute; top: 4px; left: ${20 + linkeEckeX + abstandEcken/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">Oberkante: ${obereBreite}m</div>`;
                 } else if (ueberdecktLinkeEcke) {
                     const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
                     
@@ -1316,7 +1317,7 @@
                     
                     // Bemaßung zur linken Ecke
                     html += `<div style="position: absolute; top: 4px; left: 20px; width: ${eckeX}px; height: 2px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: -4px; left: ${20 + eckeX/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">${((linkeObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: 4px; left: ${20 + eckeX/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">${((linkeObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
                 } else if (ueberdecktRechteEcke) {
                     const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
                     
@@ -1325,7 +1326,7 @@
                     
                     // Bemaßung zur rechten Ecke
                     html += `<div style="position: absolute; top: 4px; left: 20px; width: ${eckeX}px; height: 2px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: -4px; left: ${20 + eckeX/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">${((rechteObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: 4px; left: ${20 + eckeX/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">${((rechteObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
                 }
                 
                 // Letzte Platte markieren
