@@ -404,12 +404,12 @@
             color: white;
         }
 
-        /* OPTIMIERTE DRUCKSTILE FÜR GRÖßERE PLATTENCONTAINER */
+        /* EINHEITLICHE DRUCKSTILE WIE BEI DEN DREIECKEN */
         @media print {
             /* Seitenformat */
             @page {
                 size: A4 portrait;
-                margin: 10mm; /* Weniger Rand für mehr Platz */
+                margin: 12mm;
             }
             
             /* Kein Hintergrundbild beim Drucken */
@@ -418,7 +418,7 @@
                 font-family: Arial, sans-serif !important;
             }
             
-            /* Verstecke ALLES außer Anrissplan */
+            /* Verstecke ALLES außer Anrissplan - auch Ergebnisse und Button-Bereich */
             .nav-header,
             .ad-container,
             .ad-container-middle,
@@ -448,105 +448,98 @@
                 display: block !important;
             }
             
-            /* DEUTLICH GRÖßERE Plattenbehälter für optimale Raumnutzung */
+            /* Plattenbehälter - GRÖßERE Container für mehr Platz */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 15mm !important; /* Mehr Abstand zwischen Platten */
-                border: 2px solid #000 !important;
-                padding: 20px !important; /* Deutlich mehr Padding */
-                border-radius: 6px !important;
+                margin-bottom: 12mm !important; /* Mehr Abstand */
+                border: 1px solid #000 !important;
+                padding: 15px !important; /* Mehr Padding */
+                border-radius: 4px !important;
                 background: white !important;
                 box-shadow: none !important;
                 color: #000 !important;
-                min-height: 270px !important; /* DEUTLICH höher: 210px → 270px */
-                max-height: 270px !important;
-                width: 100% !important; /* Volle Breite nutzen */
+                min-height: 200px !important; /* Höher: 190px → 210px */
+                max-height: 200px !important;
             }
             
-            /* OPTIMIERTE Seitenumbrüche - nur noch 2 Platten pro Seite für mehr Platz */
-            .anriss-plate:nth-child(3), /* Jede 3. Platte auf neue Seite */
-            .anriss-plate:nth-child(5),
+            /* EINHEITLICHE SEITENUMBRUCH-REGEL: Alle 3 Platten eine neue Seite */
+            .anriss-plate:nth-child(4),
             .anriss-plate:nth-child(7),
-            .anriss-plate:nth-child(9),
-            .anriss-plate:nth-child(11),
+            .anriss-plate:nth-child(10),
             .anriss-plate:nth-child(13),
-            .anriss-plate:nth-child(15),
-            .anriss-plate:nth-child(17),
+            .anriss-plate:nth-child(16),
             .anriss-plate:nth-child(19),
-            .anriss-plate:nth-child(21),
-            .anriss-plate:nth-child(23),
+            .anriss-plate:nth-child(22),
             .anriss-plate:nth-child(25) {
                 page-break-before: always !important;
             }
             
-            /* Header des Anrissplans */
+            /* Header des Anrissplans - NUR die wichtigsten Infos */
             #anrissplan > div:first-child {
-                border-bottom: 3px solid #000 !important;
-                padding-bottom: 20px !important;
-                margin-bottom: 40px !important;
+                border-bottom: 2px solid #000 !important;
+                padding-bottom: 15px !important;
+                margin-bottom: 30px !important;
                 text-align: center !important;
             }
             
             #anrissplan h4 {
                 color: #000 !important;
-                font-size: 2.2em !important; /* Noch größer: 1.8em → 2.2em */
-                margin: 0 0 15px 0 !important;
-                font-weight: bold !important;
+                font-size: 1.8em !important; /* Größer: 1em → 1.8em */
+                margin: 0 0 10px 0 !important;
             }
             
             #anrissplan p {
                 color: #333 !important;
-                font-size: 1.4em !important; /* Größer: 1.2em → 1.4em */
-                margin: 15px 0 !important;
+                font-size: 1.2em !important; /* Größer: 0.8em → 1.2em */
+                margin: 10px 0 !important;
                 font-weight: bold !important;
             }
             
-            /* Draufsicht - MAXIMALE GRÖßE auf ganzer ersten Seite */
+            /* Draufsicht - MAXIMALE GRÖßE auf ganzer Seite 1 */
             .print-overview {
                 display: block !important;
-                margin: 80px auto !important; /* Noch mehr vertikaler Abstand */
-                page-break-after: always !important;
+                margin: 60px auto !important; /* Mehr vertikaler Abstand */
+                page-break-after: always !important; /* Seitenumbruch NACH der Übersicht */
                 text-align: center !important;
-                padding: 80px 20px !important; /* Deutlich mehr Padding */
+                padding: 60px 20px !important; /* Mehr Padding */
             }
             
             .print-overview h3 {
                 color: #000 !important;
-                font-size: 2.0em !important; /* Größer: 1.6em → 2.0em */
-                margin: 40px 0 50px 0 !important; /* Noch mehr Abstand */
+                font-size: 1.6em !important; /* Noch größer: 1.4em → 1.6em */
+                margin: 30px 0 40px 0 !important; /* Noch mehr Abstand */
                 font-weight: bold !important;
             }
             
             .print-overview div {
-                border: 4px solid #000 !important; /* Noch dickerer Rahmen */
-                padding: 40px !important; /* Mehr Padding */
+                border: 3px solid #000 !important; /* Dickerer Rahmen */
+                padding: 30px !important; /* Mehr Padding */
                 margin: 0 auto !important;
                 display: inline-block !important;
-                border-radius: 10px !important;
+                border-radius: 8px !important;
             }
             
-            /* SVG in Draufsicht - MAXIMALE GRÖßE */
+            /* SVG in Draufsicht - NOCH GRÖßER */
             .print-overview svg {
-                width: 600px !important; /* Noch größer: 500px → 600px */
-                height: 380px !important; /* Noch größer: 320px → 380px */
+                width: 500px !important; /* Noch größer: 400px → 500px */
+                height: 320px !important; /* Noch größer: 260px → 320px */
             }
             
-            /* Plattenüberschriften - mehr Platz durch größere Container */
+            /* Plattenüberschriften - mehr Platz */
             .anriss-plate h3 {
                 color: #000 !important;
-                font-size: 1.2em !important; /* Größer: 1.0em → 1.2em */
-                margin: 0 0 12px 0 !important; /* Mehr Abstand */
-                line-height: 1.4 !important;
-                font-weight: bold !important;
+                font-size: 1.0em !important; /* Größer: 0.95em → 1.0em */
+                margin: 0 0 8px 0 !important; /* Mehr Abstand */
+                line-height: 1.3 !important;
             }
             
-            /* SVG-Texte für optimale Sichtbarkeit */
+            /* SVG-Texte für bessere Sichtbarkeit */
             .anriss-plate svg text {
                 fill: #fff !important;
                 stroke: #000 !important;
-                stroke-width: 0.8pt !important; /* Dicker für bessere Lesbarkeit */
+                stroke-width: 0.5pt !important;
                 font-weight: bold !important;
-                font-size: 10px !important; /* Größer: 8px → 10px */
+                font-size: 8px !important;
             }
             
             /* Alle Farbtexte für Druck optimieren */
@@ -561,44 +554,33 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm - DEUTLICH GRÖßER für bessere Sichtbarkeit */
+            /* Plattendiagramm - angepasste Höhe für Container */
             .anriss-plate > div[style*="position: relative"] {
-                height: 140px !important; /* Deutlich größer: 90px → 140px */
-                width: 400px !important; /* Breiter: 280px → 400px */
-                margin: 15px auto !important; /* Mehr Abstand */
+                height: 90px !important; /* Größer: 80px → 90px für besseres Verhältnis */
+                width: 280px !important;
+                margin: 8px auto !important;
             }
             
-            /* Anleitung - GRÖßERE Container ermöglichen größere Schrift */
+            /* Anleitung - mehr Platz durch größere Container */
             .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 15px !important; /* Deutlich mehr Padding: 10px → 15px */
-                font-size: 12px !important; /* Größere Schrift: 10px → 12px */
-                margin-top: 15px !important; /* Mehr Abstand */
-                line-height: 1.5 !important; /* Mehr Zeilenabstand */
+                padding: 10px !important; /* Mehr Padding: 6px → 10px */
+                font-size: 10px !important; /* Größere Schrift: 9px → 10px */
+                margin-top: 10px !important; /* Mehr Abstand */
+                line-height: 1.3 !important; /* Mehr Zeilenabstand */
                 border-left-color: #ffc107 !important;
-                border-left-width: 4px !important; /* Dickerer Rand */
             }
             
-            /* Maße in den Platten - durch größere Container nun besser lesbar */
+            /* Maße in den Platten - kompakt aber lesbar */
             .anriss-plate div[style*="font-size: 11px"] {
-                font-size: 11px !important; /* Gleich bleiben für bessere Lesbarkeit */
+                font-size: 9px !important; /* Kleiner: 11px → 9px */
             }
             
             .anriss-plate div[style*="font-size: 10px"] {
-                font-size: 10px !important; /* Größer: 8px → 10px */
+                font-size: 8px !important; /* Kleiner: 10px → 8px */
             }
             
             .anriss-plate div[style*="font-size: 9px"] {
-                font-size: 10px !important; /* Größer: 8px → 10px */
-            }
-            
-            /* Spezielle Markierungen und Beschriftungen größer */
-            .anriss-plate div[style*="font-size: 13px"] {
-                font-size: 13px !important; /* Anleitung bleibt gut lesbar */
-            }
-            
-            /* Anrissmaße - durch mehr Platz größer darstellbar */
-            .anriss-plate div[style*="bottom: 2px"] {
-                font-size: 12px !important; /* Größer für bessere Lesbarkeit */
+                font-size: 8px !important; /* Kleiner: 9px → 8px */
             }
         }
         
@@ -710,6 +692,16 @@
                 <h2>1. Trapez-Geometrie</h2>
                 <div class="input-row">
                     <div class="input-group">
+                        <label for="obere-breite">Obere Breite (m)</label>
+                        <input type="number" id="obere-breite" step="0.01" min="0" placeholder="z.B. 8.00">
+                    </div>
+                    <div class="input-group">
+                        <label for="untere-breite">Untere Breite (m)</label>
+                        <input type="number" id="untere-breite" step="0.01" min="0" placeholder="z.B. 12.00">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
                         <label for="hoehe">Höhe (m)</label>
                         <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 4.00">
                     </div>
@@ -725,7 +717,7 @@
             <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
                 <div class="ad-placeholder">
                     <div class="ad-content-horizontal">
-                        <span class="ad-icon">🏠</span>
+                        <span class="ad-icon"></span>
                         <div class="ad-text-block">
                             <strong>Trapez-Dachdeckung</strong>
                             <span>Professionelle Lösungen für komplexe Dachformen</span>
@@ -830,7 +822,7 @@
             <div class="ad-container" id="bottom-ad-container" style="text-align: center;">
                 <div class="ad-placeholder">
                     <div class="ad-content">
-                        <span class="ad-icon">🔧</span>
+                        <span class="ad-icon"></span>
                         <span class="ad-text">Mehr professionelle Tools für Dachdecker</span>
                     </div>
                 </div>
