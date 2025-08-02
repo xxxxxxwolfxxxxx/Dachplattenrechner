@@ -1,4 +1,4 @@
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,7 @@
     <script>
         // AdSense nur laden wenn Marketing-Cookies akzeptiert sind
         function loadAdSense() {
-            if (localStorage.getItem('marketingCookies') === 'true') {
+            if (typeof(Storage) !== "undefined" && localStorage.getItem('marketingCookies') === 'true') {
                 const script = document.createElement('script');
                 script.async = true;
                 script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
@@ -37,7 +37,7 @@
         
         // Analytics nur laden wenn Analyse-Cookies akzeptiert sind
         function loadAnalytics() {
-            if (localStorage.getItem('analyticsCookies') === 'true') {
+            if (typeof(Storage) !== "undefined" && localStorage.getItem('analyticsCookies') === 'true') {
                 gtag('config', 'G-6NSYG8B1T9', {
                     anonymize_ip: true,
                     cookie_flags: 'SameSite=None;Secure'
@@ -46,12 +46,14 @@
         }
         
         // Check if analytics cookies are accepted
-        const analyticsCookies = localStorage.getItem('analyticsCookies');
-        if (analyticsCookies === 'true') {
-            gtag('config', 'G-6NSYG8B1T9', {
-                anonymize_ip: true,
-                cookie_flags: 'SameSite=None;Secure'
-            });
+        if (typeof(Storage) !== "undefined") {
+            const analyticsCookies = localStorage.getItem('analyticsCookies');
+            if (analyticsCookies === 'true') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+            }
         }
     </script>
     
@@ -404,12 +406,12 @@
             color: white;
         }
 
-        /* KORRIGIERTE DRUCKSTILE - Plattencontainer sind jetzt höher */
+        /* OPTIMIERTE DRUCKSTILE - KLEINERE PLATTEN */
         @media print {
             /* Seitenformat */
             @page {
                 size: A4 portrait;
-                margin: 12mm;
+                margin: 10mm;
             }
             
             /* Kein Hintergrundbild beim Drucken */
@@ -418,7 +420,7 @@
                 font-family: Arial, sans-serif !important;
             }
             
-            /* Verstecke ALLES außer Anrissplan - auch Ergebnisse und Button-Bereich */
+            /* Verstecke ALLES außer Anrissplan */
             .nav-header,
             .ad-container,
             .ad-container-middle,
@@ -448,98 +450,97 @@
                 display: block !important;
             }
             
-            /* Plattenbehälter - NOCH GRÖßERE Container für optimale Plattenansicht */
+            /* Plattenbehälter - KLEINERE Container */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 15mm !important; /* Mehr Abstand zwischen Platten */
+                margin-bottom: 8mm !important;
                 border: 1px solid #000 !important;
-                padding: 18px !important; /* Mehr Padding */
-                border-radius: 4px !important;
+                padding: 8px !important;
+                border-radius: 3px !important;
                 background: white !important;
                 box-shadow: none !important;
                 color: #000 !important;
-                min-height: 300px !important; /* Höher für bessere Darstellung: 260px → 300px */
-                max-height: 300px !important;
+                min-height: 180px !important; /* Reduziert von 260px auf 180px */
+                max-height: 180px !important;
             }
             
-            /* EINHEITLICHE SEITENUMBRUCH-REGEL: Alle 3 Platten eine neue Seite */
-            .anriss-plate:nth-child(4),
-            .anriss-plate:nth-child(7),
-            .anriss-plate:nth-child(10),
+            /* SEITENUMBRUCH-REGEL: Alle 4 Platten eine neue Seite (statt 3) */
+            .anriss-plate:nth-child(5),
+            .anriss-plate:nth-child(9),
             .anriss-plate:nth-child(13),
-            .anriss-plate:nth-child(16),
-            .anriss-plate:nth-child(19),
-            .anriss-plate:nth-child(22),
-            .anriss-plate:nth-child(25) {
+            .anriss-plate:nth-child(17),
+            .anriss-plate:nth-child(21),
+            .anriss-plate:nth-child(25),
+            .anriss-plate:nth-child(29) {
                 page-break-before: always !important;
             }
             
-            /* Header des Anrissplans - NUR die wichtigsten Infos */
+            /* Header des Anrissplans - kompakter */
             #anrissplan > div:first-child {
                 border-bottom: 2px solid #000 !important;
-                padding-bottom: 15px !important;
-                margin-bottom: 30px !important;
+                padding-bottom: 8px !important;
+                margin-bottom: 15px !important;
                 text-align: center !important;
             }
             
             #anrissplan h4 {
                 color: #000 !important;
-                font-size: 1.8em !important; /* Größer: 1em → 1.8em */
-                margin: 0 0 10px 0 !important;
+                font-size: 1.4em !important; /* Reduziert von 1.8em */
+                margin: 0 0 5px 0 !important;
             }
             
             #anrissplan p {
                 color: #333 !important;
-                font-size: 1.2em !important; /* Größer: 0.8em → 1.2em */
-                margin: 10px 0 !important;
+                font-size: 1.0em !important; /* Reduziert von 1.2em */
+                margin: 5px 0 !important;
                 font-weight: bold !important;
             }
             
-            /* Draufsicht - MAXIMALE GRÖßE auf ganzer Seite 1 */
+            /* Draufsicht - kompakter */
             .print-overview {
                 display: block !important;
-                margin: 60px auto !important; /* Mehr vertikaler Abstand */
-                page-break-after: always !important; /* Seitenumbruch NACH der Übersicht */
+                margin: 30px auto !important; /* Reduziert von 60px */
+                page-break-after: always !important;
                 text-align: center !important;
-                padding: 60px 20px !important; /* Mehr Padding */
+                padding: 30px 20px !important; /* Reduziert von 60px */
             }
             
             .print-overview h3 {
                 color: #000 !important;
-                font-size: 1.6em !important; /* Noch größer: 1.4em → 1.6em */
-                margin: 30px 0 40px 0 !important; /* Noch mehr Abstand */
+                font-size: 1.3em !important; /* Reduziert von 1.6em */
+                margin: 15px 0 20px 0 !important; /* Reduziert */
                 font-weight: bold !important;
             }
             
             .print-overview div {
-                border: 3px solid #000 !important; /* Dickerer Rahmen */
-                padding: 30px !important; /* Mehr Padding */
+                border: 2px solid #000 !important;
+                padding: 20px !important; /* Reduziert von 30px */
                 margin: 0 auto !important;
                 display: inline-block !important;
-                border-radius: 8px !important;
+                border-radius: 6px !important;
             }
             
-            /* SVG in Draufsicht - NOCH GRÖßER */
+            /* SVG in Draufsicht - kleiner */
             .print-overview svg {
-                width: 500px !important; /* Noch größer: 400px → 500px */
-                height: 320px !important; /* Noch größer: 260px → 320px */
+                width: 350px !important; /* Reduziert von 500px */
+                height: 220px !important; /* Reduziert von 320px */
             }
             
-            /* Plattenüberschriften - mehr Platz */
+            /* Plattenüberschriften - kompakter */
             .anriss-plate h3 {
                 color: #000 !important;
-                font-size: 1.1em !important; /* Größer für bessere Lesbarkeit */
-                margin: 0 0 10px 0 !important; /* Mehr Abstand */
-                line-height: 1.3 !important;
+                font-size: 0.9em !important; /* Reduziert von 1.0em */
+                margin: 0 0 5px 0 !important; /* Reduziert */
+                line-height: 1.2 !important;
             }
             
             /* SVG-Texte für bessere Sichtbarkeit */
             .anriss-plate svg text {
                 fill: #fff !important;
                 stroke: #000 !important;
-                stroke-width: 0.5pt !important;
+                stroke-width: 0.4pt !important;
                 font-weight: bold !important;
-                font-size: 8px !important;
+                font-size: 7px !important; /* Reduziert von 8px */
             }
             
             /* Alle Farbtexte für Druck optimieren */
@@ -554,33 +555,33 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm - angepasste Höhe für größere Container */
+            /* Plattendiagramm - angepasste Höhe für kleinere Container */
             .anriss-plate > div[style*="position: relative"] {
-                height: 100px !important; /* Größer für bessere Darstellung: 80px → 100px */
-                width: 280px !important;
-                margin: 10px auto !important;
+                height: 60px !important; /* Reduziert von 80px */
+                width: 200px !important; /* Reduziert von 280px */
+                margin: 5px auto !important; /* Reduziert */
             }
             
-            /* Anleitung - mehr Platz durch größere Container */
+            /* Anleitung - kompakter */
             .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 12px !important; /* Mehr Padding: 6px → 12px */
-                font-size: 11px !important; /* Größere Schrift: 9px → 11px */
-                margin-top: 12px !important; /* Mehr Abstand */
-                line-height: 1.4 !important; /* Mehr Zeilenabstand */
+                padding: 6px !important; /* Reduziert von 10px */
+                font-size: 8px !important; /* Reduziert von 10px */
+                margin-top: 6px !important; /* Reduziert */
+                line-height: 1.2 !important; /* Reduziert */
                 border-left-color: #ffc107 !important;
             }
             
-            /* Maße in den Platten - lesbar aber kompakt */
+            /* Maße in den Platten - noch kompakter */
             .anriss-plate div[style*="font-size: 11px"] {
-                font-size: 10px !important; /* Größer: 9px → 10px */
+                font-size: 8px !important; /* Reduziert */
             }
             
             .anriss-plate div[style*="font-size: 10px"] {
-                font-size: 9px !important; /* Größer: 8px → 9px */
+                font-size: 7px !important; /* Reduziert */
             }
             
             .anriss-plate div[style*="font-size: 9px"] {
-                font-size: 9px !important; /* Gleich bleiben */
+                font-size: 7px !important; /* Reduziert */
             }
         }
         
@@ -643,6 +644,85 @@
                     <div class="ad-content">
                         <span class="ad-icon">📢</span>
                         <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
+                    </div>
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <svg width="280" height="160" viewBox="0 0 280 160" style="margin-bottom: 15px;">
+                        <!-- Trapez-Grundform -->
+                        <polygon points="80,20 200,20 240,120 40,120" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        
+                        <!-- Trapezbleche (senkrecht, enden exakt an den Trapez-Kanten) -->
+                        <line x1="60" y1="120" x2="60" y2="70" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="80" y1="120" x2="80" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="100" y1="120" x2="100" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="120" y1="120" x2="120" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="140" y1="120" x2="140" y2="20" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
+                        <line x1="160" y1="120" x2="160" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="180" y1="120" x2="180" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="200" y1="120" x2="200" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="220" y1="120" x2="220" y2="70" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        
+                        <!-- Obere Kante markieren -->
+                        <line x1="80" y1="20" x2="200" y2="20" stroke="#28a745" stroke-width="3"/>
+                        <text x="140" y="15" text-anchor="middle" font-size="10" fill="#28a745" font-weight="bold">Obere Breite</text>
+                        
+                        <!-- Untere Kante markieren -->
+                        <line x1="40" y1="120" x2="240" y2="120" stroke="#dc3545" stroke-width="3"/>
+                        <text x="140" y="138" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">Untere Breite</text>
+                        
+                        <!-- Höhen-Maß -->
+                        <line x1="25" y1="20" x2="25" y2="120" stroke="#333" stroke-width="1"/>
+                        <line x1="22" y1="20" x2="28" y2="20" stroke="#333" stroke-width="1"/>
+                        <line x1="22" y1="120" x2="28" y2="120" stroke="#333" stroke-width="1"/>
+                        <text x="18" y="70" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 18 70)">Höhe</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Trapez-Geometrie -->
+            <div class="section">
+                <h2>1. Trapez-Geometrie</h2>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="obere-breite">Obere Breite (m)</label>
+                        <input type="number" id="obere-breite" step="0.01" min="0" placeholder="z.B. 8.00">
+                    </div>
+                    <div class="input-group">
+                        <label for="untere-breite">Untere Breite (m)</label>
+                        <input type="number" id="untere-breite" step="0.01" min="0" placeholder="z.B. 12.00">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="hoehe">Höhe (m)</label>
+                        <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 4.00">
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Hinweis:</strong> Berechnung für trapezförmige Dachflächen.
+                    Verwendbar für Pultdächer, Mansarden, Gauben oder asymmetrische Dachformen.
+                    Die Bleche verlaufen senkrecht von unten nach oben.
+                </div>
+            </div>
+
+            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
+            <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
+                <div class="ad-placeholder">
+                    <div class="ad-content-horizontal">
+                        <span class="ad-icon">🏗️</span>
+                        <div class="ad-text-block">
+                            <strong>Trapez-Dachdeckung</strong>
+                            <span>Professionelle Lösungen für komplexe Dachformen</span>
+                        </div>
                     </div>
                 </div>
                 <div style="text-align: center; width: 100%;">
@@ -743,7 +823,7 @@
             <div class="ad-container" id="bottom-ad-container" style="text-align: center;">
                 <div class="ad-placeholder">
                     <div class="ad-content">
-                        <span class="ad-icon"></span>
+                        <span class="ad-icon">🔧</span>
                         <span class="ad-text">Mehr professionelle Tools für Dachdecker</span>
                     </div>
                 </div>
@@ -772,16 +852,18 @@
 
         // Cookie Management System
         function showCookieBanner() {
-            const cookieConsent = localStorage.getItem('cookieConsent');
+            const cookieConsent = localStorage && localStorage.getItem('cookieConsent');
             if (!cookieConsent) {
                 document.getElementById('cookieBanner').classList.add('show');
             }
         }
 
         function acceptAllCookies() {
-            localStorage.setItem('cookieConsent', 'all');
-            localStorage.setItem('analyticsCookies', 'true');
-            localStorage.setItem('marketingCookies', 'true');
+            if (typeof(Storage) !== "undefined") {
+                localStorage.setItem('cookieConsent', 'all');
+                localStorage.setItem('analyticsCookies', 'true');
+                localStorage.setItem('marketingCookies', 'true');
+            }
             
             loadAnalytics();
             loadAdSense();
@@ -791,15 +873,17 @@
         }
 
         function acceptOnlyEssential() {
-            localStorage.setItem('cookieConsent', 'essential');
-            localStorage.setItem('analyticsCookies', 'false');
-            localStorage.setItem('marketingCookies', 'false');
+            if (typeof(Storage) !== "undefined") {
+                localStorage.setItem('cookieConsent', 'essential');
+                localStorage.setItem('analyticsCookies', 'false');
+                localStorage.setItem('marketingCookies', 'false');
+            }
             
             document.getElementById('cookieBanner').classList.remove('show');
         }
 
         function showAds() {
-            if (localStorage.getItem('marketingCookies') === 'true') {
+            if (typeof(Storage) !== "undefined" && localStorage.getItem('marketingCookies') === 'true') {
                 // Zeige AdSense-Container
                 document.getElementById('top-ad-container').style.display = 'block';
                 document.getElementById('middle-ad-container').style.display = 'block';
@@ -942,86 +1026,7 @@
                 });
             }, 100);
         }
-                </div>
-            </div>
 
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                    <svg width="280" height="160" viewBox="0 0 280 160" style="margin-bottom: 15px;">
-                        <!-- Trapez-Grundform -->
-                        <polygon points="80,20 200,20 240,120 40,120" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                        
-                        <!-- Trapezbleche (senkrecht, enden exakt an den Trapez-Kanten) -->
-                        <line x1="60" y1="120" x2="60" y2="70" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="80" y1="120" x2="80" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="100" y1="120" x2="100" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="120" y1="120" x2="120" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="140" y1="120" x2="140" y2="20" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
-                        <line x1="160" y1="120" x2="160" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="180" y1="120" x2="180" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="200" y1="120" x2="200" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="220" y1="120" x2="220" y2="70" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        
-                        <!-- Obere Kante markieren -->
-                        <line x1="80" y1="20" x2="200" y2="20" stroke="#28a745" stroke-width="3"/>
-                        <text x="140" y="15" text-anchor="middle" font-size="10" fill="#28a745" font-weight="bold">Obere Breite</text>
-                        
-                        <!-- Untere Kante markieren -->
-                        <line x1="40" y1="120" x2="240" y2="120" stroke="#dc3545" stroke-width="3"/>
-                        <text x="140" y="138" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">Untere Breite</text>
-                        
-                        <!-- Höhen-Maß -->
-                        <line x1="25" y1="20" x2="25" y2="120" stroke="#333" stroke-width="1"/>
-                        <line x1="22" y1="20" x2="28" y2="20" stroke="#333" stroke-width="1"/>
-                        <line x1="22" y1="120" x2="28" y2="120" stroke="#333" stroke-width="1"/>
-                        <text x="18" y="70" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 18 70)">Höhe</text>
-                    </svg>
-                </div>
-            </div>
-
-            <!-- Trapez-Geometrie -->
-            <div class="section">
-                <h2>1. Trapez-Geometrie</h2>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label for="obere-breite">Obere Breite (m)</label>
-                        <input type="number" id="obere-breite" step="0.01" min="0" placeholder="z.B. 8.00">
-                    </div>
-                    <div class="input-group">
-                        <label for="untere-breite">Untere Breite (m)</label>
-                        <input type="number" id="untere-breite" step="0.01" min="0" placeholder="z.B. 12.00">
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label for="hoehe">Höhe (m)</label>
-                        <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 4.00">
-                    </div>
-                </div>
-                <div class="info-box">
-                    <strong>Hinweis:</strong> Berechnung für trapezförmige Dachflächen.
-                    Verwendbar für Pultdächer, Mansarden, Gauben oder asymmetrische Dachformen.
-                    Die Bleche verlaufen senkrecht von unten nach oben.
-                </div>
-            </div>
-
-            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
-            <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
-                <div class="ad-placeholder">
-                    <div class="ad-content-horizontal">
-                        <span class="ad-icon"></span>
-                        <div class="ad-text-block">
-                            <strong>Trapez-Dachdeckung</strong>
-                            <span>Professionelle Lösungen für komplexe Dachformen</span>
-                        </div>
-                    </div>
-                </div>
-                <div style="text-align: center; width: 100%;">
-                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
-                
         function generiereVorschau(obereBreite, untereBreite, hoehe, schnittliste) {
             const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
             const deckbreite = parseFloat(document.getElementById('deckbreite').value);
@@ -1234,13 +1239,12 @@
                 html += `<div class="anriss-plate" style="margin-bottom: 30px; border: 2px solid #333; padding: 15px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
                 html += `<h3 style="margin: 0 0 15px 0; color: #333; font-size: 16px; font-weight: bold;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
                 
-                // KORRIGIERTE Plattendiagramm-Container - jetzt höher und mit fester Plattenhöhe
-                html += `<div style="position: relative; height: 140px; width: 280px; background: #f8f9fa; margin: 15px auto; border-radius: 6px; border: 1px solid #ddd;">`;
+                // Plattendiagramm - KLEINERE Abmessungen für den Druck
+                html += `<div style="position: relative; height: 60px; width: 200px; background: #f8f9fa; margin: 8px auto; border-radius: 4px; border: 1px solid #ddd;">`;
                 
-                // KORRIGIERT: Feste Plattenhöhe statt dynamische Berechnung
-                const plattenhoehePx = 80; // Feste Höhe für alle Platten
+                const plattenhoehePx = Math.max(40, Math.min(55, (benoetigteLaengeM / hoehe) * 55));
                 
-                html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 240px; height: ${plattenhoehePx}px; background: #e9ecef; border: 1px solid #999; border-radius: 3px;"></div>`;
+                html += `<div style="position: absolute; bottom: 8px; left: 15px; width: 170px; height: ${plattenhoehePx}px; background: #e9ecef; border: 1px solid #999; border-radius: 2px;"></div>`;
                 
                 let startY = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
                 let endY = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
@@ -1248,124 +1252,124 @@
                 startY = Math.max(0, Math.min(plattenhoehePx, startY));
                 endY = Math.max(0, Math.min(plattenhoehePx, endY));
                 
-                const endX = istLetztePlatte ? Math.min(240, (untereBreite - plattenStart) / plattenBreite * 240) : 240;
+                const endX = istLetztePlatte ? Math.min(170, (untereBreite - plattenStart) / plattenBreite * 170) : 170;
                 
-                html += `<svg style="position: absolute; bottom: 15px; left: 20px;" width="240" height="${plattenhoehePx}">`;
+                html += `<svg style="position: absolute; bottom: 8px; left: 15px;" width="170" height="${plattenhoehePx}">`;
                 
                 if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
-                    const linkeEckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
-                    const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
+                    const linkeEckeX = (linkeObereEcke - plattenStart) / plattenBreite * 170;
+                    const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 170;
                     
                     // Nutzen
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${rechteEckeX},0 ${linkeEckeX},0 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
+                    html += `<text x="85" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="10" stroke="#000" stroke-width="0.2">Nutzen</text>`;
                     
                     // Abschnitt
                     html += `<polygon points="0,${startY} ${linkeEckeX},0 ${rechteEckeX},0 ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
+                    html += `<text x="85" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="9" stroke="#000" stroke-width="0.2">Abschnitt</text>`;
                     
                     // Schnittlinien
-                    html += `<line x1="0" y1="${startY}" x2="${linkeEckeX}" y2="0" stroke="#000" stroke-width="2"/>`;
-                    html += `<line x1="${linkeEckeX}" y1="0" x2="${rechteEckeX}" y2="0" stroke="#000" stroke-width="2"/>`;
-                    html += `<line x1="${rechteEckeX}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
+                    html += `<line x1="0" y1="${startY}" x2="${linkeEckeX}" y2="0" stroke="#000" stroke-width="1.5"/>`;
+                    html += `<line x1="${linkeEckeX}" y1="0" x2="${rechteEckeX}" y2="0" stroke="#000" stroke-width="1.5"/>`;
+                    html += `<line x1="${rechteEckeX}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="1.5"/>`;
                 } else if (ueberdecktLinkeEcke) {
-                    const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
+                    const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 170;
                     
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${eckeX},0 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
+                    html += `<text x="85" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="10" stroke="#000" stroke-width="0.2">Nutzen</text>`;
                     
                     html += `<polygon points="0,${startY} ${eckeX},0 ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="120" y="${Math.min(startY, endY)/2 + 8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
+                    html += `<text x="85" y="${Math.min(startY, endY)/2 + 6}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="9" stroke="#000" stroke-width="0.2">Abschnitt</text>`;
                     
-                    html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="0" stroke="#000" stroke-width="2"/>`;
-                    html += `<line x1="${eckeX}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
+                    html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="0" stroke="#000" stroke-width="1.5"/>`;
+                    html += `<line x1="${eckeX}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="1.5"/>`;
                 } else if (ueberdecktRechteEcke) {
-                    const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
+                    const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 170;
                     
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${eckeX},0 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
+                    html += `<text x="85" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="10" stroke="#000" stroke-width="0.2">Nutzen</text>`;
                     
                     html += `<polygon points="0,${startY} ${eckeX},0 ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="120" y="${Math.min(startY, endY)/2 + 8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
+                    html += `<text x="85" y="${Math.min(startY, endY)/2 + 6}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="9" stroke="#000" stroke-width="0.2">Abschnitt</text>`;
                     
-                    html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="0" stroke="#000" stroke-width="2"/>`;
-                    html += `<line x1="${eckeX}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
+                    html += `<line x1="0" y1="${startY}" x2="${eckeX}" y2="0" stroke="#000" stroke-width="1.5"/>`;
+                    html += `<line x1="${eckeX}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="1.5"/>`;
                 } else {
                     html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
+                    html += `<text x="85" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="10" stroke="#000" stroke-width="0.2">Nutzen</text>`;
                     
                     html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="120" y="${Math.min(startY, endY)/2 + 8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
+                    html += `<text x="85" y="${Math.min(startY, endY)/2 + 6}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="9" stroke="#000" stroke-width="0.2">Abschnitt</text>`;
                     
-                    html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
+                    html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="1.5"/>`;
                 }
                 
                 html += `</svg>`;
                 
-                // Spezielle Markierungen für Trapez-Ecken
+                // Spezielle Markierungen für Trapez-Ecken - angepasst für kleinere Größe
                 if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
-                    const linkeEckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
-                    const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
+                    const linkeEckeX = (linkeObereEcke - plattenStart) / plattenBreite * 170;
+                    const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 170;
                     
                     // Beide Ecken markieren
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + linkeEckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + linkeEckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">LINKE<br>ECKE<br>${hoehe}m</div>`;
+                    html += `<div style="position: absolute; bottom: 8px; left: ${15 + linkeEckeX}px; width: 1.5px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${8 + plattenhoehePx + 2}px; left: ${12 + linkeEckeX}px; font-size: 7px; font-weight: bold; color: #333; text-align: center;">LINKE<br>ECKE<br>${hoehe}m</div>`;
                     
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + rechteEckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + rechteEckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">RECHTE<br>ECKE<br>${hoehe}m</div>`;
+                    html += `<div style="position: absolute; bottom: 8px; left: ${15 + rechteEckeX}px; width: 1.5px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${8 + plattenhoehePx + 2}px; left: ${12 + rechteEckeX}px; font-size: 7px; font-weight: bold; color: #333; text-align: center;">RECHTE<br>ECKE<br>${hoehe}m</div>`;
                     
                     // Bemaßung zwischen den Ecken
                     const abstandEcken = rechteEckeX - linkeEckeX;
-                    html += `<div style="position: absolute; top: 4px; left: ${20 + linkeEckeX}px; width: ${abstandEcken}px; height: 2px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: 4px; left: ${20 + linkeEckeX + abstandEcken/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">Oberkante: ${obereBreite}m</div>`;
+                    html += `<div style="position: absolute; top: 2px; left: ${15 + linkeEckeX}px; width: ${abstandEcken}px; height: 1.5px; background: #666;"></div>`;
+                    html += `<div style="position: absolute; top: 2px; left: ${15 + linkeEckeX + abstandEcken/2}px; font-size: 7px; font-weight: bold; color: #333; transform: translateX(-50%);">Oberkante: ${obereBreite}m</div>`;
                 } else if (ueberdecktLinkeEcke) {
-                    const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
+                    const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 170;
                     
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + eckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + eckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">LINKE<br>ECKE<br>${hoehe}m</div>`;
+                    html += `<div style="position: absolute; bottom: 8px; left: ${15 + eckeX}px; width: 1.5px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${8 + plattenhoehePx + 2}px; left: ${12 + eckeX}px; font-size: 7px; font-weight: bold; color: #333; text-align: center;">LINKE<br>ECKE<br>${hoehe}m</div>`;
                     
                     // Bemaßung zur linken Ecke
-                    html += `<div style="position: absolute; top: 4px; left: 20px; width: ${eckeX}px; height: 2px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: 4px; left: ${20 + eckeX/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">${((linkeObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: 2px; left: 15px; width: ${eckeX}px; height: 1.5px; background: #666;"></div>`;
+                    html += `<div style="position: absolute; top: 2px; left: ${15 + eckeX/2}px; font-size: 7px; font-weight: bold; color: #333; transform: translateX(-50%);">${((linkeObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
                 } else if (ueberdecktRechteEcke) {
-                    const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
+                    const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 170;
                     
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + eckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + eckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">RECHTE<br>ECKE<br>${hoehe}m</div>`;
+                    html += `<div style="position: absolute; bottom: 8px; left: ${15 + eckeX}px; width: 1.5px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${8 + plattenhoehePx + 2}px; left: ${12 + eckeX}px; font-size: 7px; font-weight: bold; color: #333; text-align: center;">RECHTE<br>ECKE<br>${hoehe}m</div>`;
                     
                     // Bemaßung zur rechten Ecke
-                    html += `<div style="position: absolute; top: 4px; left: 20px; width: ${eckeX}px; height: 2px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: 4px; left: ${20 + eckeX/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">${((rechteObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
+                    html += `<div style="position: absolute; top: 2px; left: 15px; width: ${eckeX}px; height: 1.5px; background: #666;"></div>`;
+                    html += `<div style="position: absolute; top: 2px; left: ${15 + eckeX/2}px; font-size: 7px; font-weight: bold; color: #333; transform: translateX(-50%);">${((rechteObereEcke - plattenStart) * 100).toFixed(0)}cm</div>`;
                 }
                 
                 // Letzte Platte markieren
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - untereBreite;
                     
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + endX}px; width: 2px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx/2}px; left: ${15 + endX}px; font-size: 9px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
+                    html += `<div style="position: absolute; bottom: 8px; left: ${15 + endX}px; width: 1.5px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${8 + plattenhoehePx/2}px; left: ${12 + endX}px; font-size: 6px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
                     
                     if (ueberhang > 0) {
-                        const restBreite = 240 - endX;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 20}px; left: ${20 + endX}px; width: ${restBreite}px; height: 2px; background: #dc3545;"></div>`;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 10}px; left: ${20 + endX + restBreite/2}px; font-size: 10px; font-weight: bold; color: #dc3545; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
+                        const restBreite = 170 - endX;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 12}px; left: ${15 + endX}px; width: ${restBreite}px; height: 1.5px; background: #dc3545;"></div>`;
+                        html += `<div style="position: absolute; top: ${plattenhoehePx + 6}px; left: ${15 + endX + restBreite/2}px; font-size: 7px; font-weight: bold; color: #dc3545; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
                     }
                 }
                 
-                // Anrisslinien
-                html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 3px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
-                html += `<div style="position: absolute; bottom: 15px; left: ${20 + endX - 2}px; width: 3px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
+                // Anrisslinien - angepasst für kleinere Größe
+                html += `<div style="position: absolute; bottom: 8px; left: 15px; width: 2px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
+                html += `<div style="position: absolute; bottom: 8px; left: ${15 + endX - 1.5}px; width: 2px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
                 
-                // Anrissmaße
-                html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx}px; left: 14px; font-size: 11px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx}px; left: ${270 - 10}px; font-size: 11px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: 2px; left: -10px; font-size: 11px; font-weight: bold; color: #dc3545; text-align: center; width: 40px;">${anreissLinks}cm</div>`;
-                html += `<div style="position: absolute; bottom: 2px; left: ${270 - 30}px; font-size: 11px; font-weight: bold; color: #dc3545; text-align: center; width: 40px;">${anreissRechts}cm</div>`;
+                // Anrissmaße - angepasst für kleinere Größe
+                html += `<div style="position: absolute; bottom: ${10 + plattenhoehePx}px; left: 10px; font-size: 8px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: ${10 + plattenhoehePx}px; left: ${190 - 8}px; font-size: 8px; font-weight: bold; color: #dc3545;">↑</div>`;
+                html += `<div style="position: absolute; bottom: 1px; left: -5px; font-size: 8px; font-weight: bold; color: #dc3545; text-align: center; width: 30px;">${anreissLinks}cm</div>`;
+                html += `<div style="position: absolute; bottom: 1px; left: ${190 - 25}px; font-size: 8px; font-weight: bold; color: #dc3545; text-align: center; width: 30px;">${anreissRechts}cm</div>`;
                 
                 html += `</div>`;
                 
-                // Anleitung
-                html += `<div style="background: #f8f9fa; padding: 15px; border-radius: 6px; font-size: 13px; margin-top: 20px; border-left: 3px solid #ffc107;">`;
+                // Anleitung - kompakter für kleinere Platten
+                html += `<div style="background: #f8f9fa; padding: 6px; border-radius: 4px; font-size: 8px; margin-top: 8px; border-left: 2px solid #ffc107;">`;
                 html += `<strong style="color: #333;">Anzeichnen:</strong><br>`;
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - untereBreite;
@@ -1376,7 +1380,7 @@
                 html += `• <span style="color: #333;">Von der Unterkante: Links bei ${anreissLinks}cm und rechts bei ${anreissRechts}cm markieren</span><br>`;
                 html += `• <span style="color: #333;">Diagonale Schnittlinie anzeichnen und oberen Teil absägen</span><br>`;
                 
-                // Spezielle Hinweise für kritische Platten
+                // Spezielle Hinweise für kritische Platten - kompakter
                 if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
                     html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält BEIDE oberen Trapez-Ecken!</strong><br>`;
                     const linkeEckePos = linkeObereEcke - plattenStart;
@@ -1423,13 +1427,15 @@
         // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize tracking and ads based on existing consent
-            const cookieConsent = localStorage.getItem('cookieConsent');
-            if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
-                loadAnalytics();
-            }
-            if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
-                loadAdSense();
-                showAds();
+            if (typeof(Storage) !== "undefined") {
+                const cookieConsent = localStorage.getItem('cookieConsent');
+                if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
+                    loadAnalytics();
+                }
+                if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
+                    loadAdSense();
+                    showAds();
+                }
             }
             
             // Cookie banner anzeigen falls nötig
