@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+</html><!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -404,7 +404,7 @@
             color: white;
         }
 
-        /* EINHEITLICHE DRUCKSTILE WIE BEI DEN DREIECKEN */
+        /* KORRIGIERTE DRUCKSTILE - Plattencontainer sind jetzt höher */
         @media print {
             /* Seitenformat */
             @page {
@@ -448,18 +448,18 @@
                 display: block !important;
             }
             
-            /* Plattenbehälter - GRÖßERE Container für mehr Platz */
+            /* Plattenbehälter - NOCH GRÖßERE Container für optimale Plattenansicht */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 12mm !important; /* Mehr Abstand */
+                margin-bottom: 15mm !important; /* Mehr Abstand zwischen Platten */
                 border: 1px solid #000 !important;
-                padding: 15px !important; /* Mehr Padding */
+                padding: 18px !important; /* Mehr Padding */
                 border-radius: 4px !important;
                 background: white !important;
                 box-shadow: none !important;
                 color: #000 !important;
-                min-height: 260px !important; /* Höher: 190px → 210px */
-                max-height: 260px !important;
+                min-height: 300px !important; /* Höher für bessere Darstellung: 260px → 300px */
+                max-height: 300px !important;
             }
             
             /* EINHEITLICHE SEITENUMBRUCH-REGEL: Alle 3 Platten eine neue Seite */
@@ -528,8 +528,8 @@
             /* Plattenüberschriften - mehr Platz */
             .anriss-plate h3 {
                 color: #000 !important;
-                font-size: 1.0em !important; /* Größer: 0.95em → 1.0em */
-                margin: 0 0 8px 0 !important; /* Mehr Abstand */
+                font-size: 1.1em !important; /* Größer für bessere Lesbarkeit */
+                margin: 0 0 10px 0 !important; /* Mehr Abstand */
                 line-height: 1.3 !important;
             }
             
@@ -554,33 +554,33 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm - angepasste Höhe für Container */
+            /* Plattendiagramm - angepasste Höhe für größere Container */
             .anriss-plate > div[style*="position: relative"] {
-                height: 80px !important; /* Größer: 80px → 90px für besseres Verhältnis */
+                height: 100px !important; /* Größer für bessere Darstellung: 80px → 100px */
                 width: 280px !important;
-                margin: 8px auto !important;
+                margin: 10px auto !important;
             }
             
             /* Anleitung - mehr Platz durch größere Container */
             .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 10px !important; /* Mehr Padding: 6px → 10px */
-                font-size: 10px !important; /* Größere Schrift: 9px → 10px */
-                margin-top: 10px !important; /* Mehr Abstand */
-                line-height: 1.3 !important; /* Mehr Zeilenabstand */
+                padding: 12px !important; /* Mehr Padding: 6px → 12px */
+                font-size: 11px !important; /* Größere Schrift: 9px → 11px */
+                margin-top: 12px !important; /* Mehr Abstand */
+                line-height: 1.4 !important; /* Mehr Zeilenabstand */
                 border-left-color: #ffc107 !important;
             }
             
-            /* Maße in den Platten - kompakt aber lesbar */
+            /* Maße in den Platten - lesbar aber kompakt */
             .anriss-plate div[style*="font-size: 11px"] {
-                font-size: 9px !important; /* Kleiner: 11px → 9px */
+                font-size: 10px !important; /* Größer: 9px → 10px */
             }
             
             .anriss-plate div[style*="font-size: 10px"] {
-                font-size: 8px !important; /* Kleiner: 10px → 8px */
+                font-size: 9px !important; /* Größer: 8px → 9px */
             }
             
             .anriss-plate div[style*="font-size: 9px"] {
-                font-size: 8px !important; /* Kleiner: 9px → 8px */
+                font-size: 9px !important; /* Gleich bleiben */
             }
         }
         
@@ -643,85 +643,6 @@
                     <div class="ad-content">
                         <span class="ad-icon">📢</span>
                         <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
-                    </div>
-                </div>
-                <div style="text-align: center; width: 100%;">
-                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
-                </div>
-            </div>
-
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                    <svg width="280" height="160" viewBox="0 0 280 160" style="margin-bottom: 15px;">
-                        <!-- Trapez-Grundform -->
-                        <polygon points="80,20 200,20 240,120 40,120" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                        
-                        <!-- Trapezbleche (senkrecht, enden exakt an den Trapez-Kanten) -->
-                        <line x1="60" y1="120" x2="60" y2="70" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="80" y1="120" x2="80" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="100" y1="120" x2="100" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="120" y1="120" x2="120" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="140" y1="120" x2="140" y2="20" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
-                        <line x1="160" y1="120" x2="160" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="180" y1="120" x2="180" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="200" y1="120" x2="200" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        <line x1="220" y1="120" x2="220" y2="70" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        
-                        <!-- Obere Kante markieren -->
-                        <line x1="80" y1="20" x2="200" y2="20" stroke="#28a745" stroke-width="3"/>
-                        <text x="140" y="15" text-anchor="middle" font-size="10" fill="#28a745" font-weight="bold">Obere Breite</text>
-                        
-                        <!-- Untere Kante markieren -->
-                        <line x1="40" y1="120" x2="240" y2="120" stroke="#dc3545" stroke-width="3"/>
-                        <text x="140" y="138" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">Untere Breite</text>
-                        
-                        <!-- Höhen-Maß -->
-                        <line x1="25" y1="20" x2="25" y2="120" stroke="#333" stroke-width="1"/>
-                        <line x1="22" y1="20" x2="28" y2="20" stroke="#333" stroke-width="1"/>
-                        <line x1="22" y1="120" x2="28" y2="120" stroke="#333" stroke-width="1"/>
-                        <text x="18" y="70" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 18 70)">Höhe</text>
-                    </svg>
-                </div>
-            </div>
-
-            <!-- Trapez-Geometrie -->
-            <div class="section">
-                <h2>1. Trapez-Geometrie</h2>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label for="obere-breite">Obere Breite (m)</label>
-                        <input type="number" id="obere-breite" step="0.01" min="0" placeholder="z.B. 8.00">
-                    </div>
-                    <div class="input-group">
-                        <label for="untere-breite">Untere Breite (m)</label>
-                        <input type="number" id="untere-breite" step="0.01" min="0" placeholder="z.B. 12.00">
-                    </div>
-                </div>
-                <div class="input-row">
-                    <div class="input-group">
-                        <label for="hoehe">Höhe (m)</label>
-                        <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 4.00">
-                    </div>
-                </div>
-                <div class="info-box">
-                    <strong>Hinweis:</strong> Berechnung für trapezförmige Dachflächen.
-                    Verwendbar für Pultdächer, Mansarden, Gauben oder asymmetrische Dachformen.
-                    Die Bleche verlaufen senkrecht von unten nach oben.
-                </div>
-            </div>
-
-            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
-            <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
-                <div class="ad-placeholder">
-                    <div class="ad-content-horizontal">
-                        <span class="ad-icon"></span>
-                        <div class="ad-text-block">
-                            <strong>Trapez-Dachdeckung</strong>
-                            <span>Professionelle Lösungen für komplexe Dachformen</span>
-                        </div>
                     </div>
                 </div>
                 <div style="text-align: center; width: 100%;">
@@ -1021,7 +942,86 @@
                 });
             }, 100);
         }
+                </div>
+            </div>
 
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <svg width="280" height="160" viewBox="0 0 280 160" style="margin-bottom: 15px;">
+                        <!-- Trapez-Grundform -->
+                        <polygon points="80,20 200,20 240,120 40,120" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        
+                        <!-- Trapezbleche (senkrecht, enden exakt an den Trapez-Kanten) -->
+                        <line x1="60" y1="120" x2="60" y2="70" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="80" y1="120" x2="80" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="100" y1="120" x2="100" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="120" y1="120" x2="120" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="140" y1="120" x2="140" y2="20" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
+                        <line x1="160" y1="120" x2="160" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="180" y1="120" x2="180" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="200" y1="120" x2="200" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        <line x1="220" y1="120" x2="220" y2="70" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+                        
+                        <!-- Obere Kante markieren -->
+                        <line x1="80" y1="20" x2="200" y2="20" stroke="#28a745" stroke-width="3"/>
+                        <text x="140" y="15" text-anchor="middle" font-size="10" fill="#28a745" font-weight="bold">Obere Breite</text>
+                        
+                        <!-- Untere Kante markieren -->
+                        <line x1="40" y1="120" x2="240" y2="120" stroke="#dc3545" stroke-width="3"/>
+                        <text x="140" y="138" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">Untere Breite</text>
+                        
+                        <!-- Höhen-Maß -->
+                        <line x1="25" y1="20" x2="25" y2="120" stroke="#333" stroke-width="1"/>
+                        <line x1="22" y1="20" x2="28" y2="20" stroke="#333" stroke-width="1"/>
+                        <line x1="22" y1="120" x2="28" y2="120" stroke="#333" stroke-width="1"/>
+                        <text x="18" y="70" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 18 70)">Höhe</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Trapez-Geometrie -->
+            <div class="section">
+                <h2>1. Trapez-Geometrie</h2>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="obere-breite">Obere Breite (m)</label>
+                        <input type="number" id="obere-breite" step="0.01" min="0" placeholder="z.B. 8.00">
+                    </div>
+                    <div class="input-group">
+                        <label for="untere-breite">Untere Breite (m)</label>
+                        <input type="number" id="untere-breite" step="0.01" min="0" placeholder="z.B. 12.00">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="hoehe">Höhe (m)</label>
+                        <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 4.00">
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Hinweis:</strong> Berechnung für trapezförmige Dachflächen.
+                    Verwendbar für Pultdächer, Mansarden, Gauben oder asymmetrische Dachformen.
+                    Die Bleche verlaufen senkrecht von unten nach oben.
+                </div>
+            </div>
+
+            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
+            <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
+                <div class="ad-placeholder">
+                    <div class="ad-content-horizontal">
+                        <span class="ad-icon"></span>
+                        <div class="ad-text-block">
+                            <strong>Trapez-Dachdeckung</strong>
+                            <span>Professionelle Lösungen für komplexe Dachformen</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; width: 100%;">
+                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                
         function generiereVorschau(obereBreite, untereBreite, hoehe, schnittliste) {
             const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
             const deckbreite = parseFloat(document.getElementById('deckbreite').value);
@@ -1234,10 +1234,11 @@
                 html += `<div class="anriss-plate" style="margin-bottom: 30px; border: 2px solid #333; padding: 15px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
                 html += `<h3 style="margin: 0 0 15px 0; color: #333; font-size: 16px; font-weight: bold;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
                 
-                // Plattendiagramm
-                html += `<div style="position: relative; height: 120px; width: 280px; background: #f8f9fa; margin: 15px auto; border-radius: 6px; border: 1px solid #ddd;">`;
+                // KORRIGIERTE Plattendiagramm-Container - jetzt höher und mit fester Plattenhöhe
+                html += `<div style="position: relative; height: 140px; width: 280px; background: #f8f9fa; margin: 15px auto; border-radius: 6px; border: 1px solid #ddd;">`;
                 
-                const plattenhoehePx = Math.max(70, Math.min(100, (benoetigteLaengeM / hoehe) * 100));
+                // KORRIGIERT: Feste Plattenhöhe statt dynamische Berechnung
+                const plattenhoehePx = 80; // Feste Höhe für alle Platten
                 
                 html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 240px; height: ${plattenhoehePx}px; background: #e9ecef; border: 1px solid #999; border-radius: 3px;"></div>`;
                 
