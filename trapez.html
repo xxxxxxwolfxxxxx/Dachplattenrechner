@@ -448,18 +448,18 @@
                 display: block !important;
             }
             
-            /* Plattenbehälter - HÖHER für bessere Seitennutzung */
+            /* Plattenbehälter - kleiner für besseres Layout */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 12mm !important;
+                margin-bottom: 10mm !important;
                 border: 1px solid #000 !important;
-                padding: 12px !important;
+                padding: 10px !important;
                 border-radius: 4px !important;
                 background: white !important;
                 box-shadow: none !important;
                 color: #000 !important;
-                min-height: 220px !important; /* Höher: 180px → 220px */
-                max-height: 220px !important;
+                min-height: 190px !important; /* Kleiner: 220px → 190px */
+                max-height: 190px !important;
             }
             
             /* EINHEITLICHE SEITENUMBRUCH-REGEL: Alle 3 Platten eine neue Seite */
@@ -525,11 +525,11 @@
                 height: 320px !important; /* Noch größer: 260px → 320px */
             }
             
-            /* Plattenüberschriften - kompakter */
+            /* Plattenüberschriften - kleiner */
             .anriss-plate h3 {
                 color: #000 !important;
-                font-size: 1.0em !important; /* Kleiner: 1.1em → 1.0em */
-                margin: 0 0 6px 0 !important; /* Weniger Abstand */
+                font-size: 0.95em !important; /* Kleiner: 1.0em → 0.95em */
+                margin: 0 0 5px 0 !important;
                 line-height: 1.2 !important;
             }
             
@@ -554,19 +554,19 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm - größer für bessere Seitennutzung */
+            /* Plattendiagramm - kleiner für besseres Layout */
             .anriss-plate > div[style*="position: relative"] {
-                height: 120px !important; /* Höher: 100px → 120px */
-                width: 360px !important; /* Breiter: 300px → 360px */
-                margin: 10px auto !important;
+                height: 100px !important; /* Kleiner: 120px → 100px */
+                width: 320px !important; /* Kleiner: 360px → 320px */
+                margin: 8px auto !important;
             }
             
-            /* Anleitung - größer für bessere Lesbarkeit */
+            /* Anleitung - kompakter */
             .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 8px !important; /* Größer: 6px → 8px */
-                font-size: 10px !important; /* Größer: 9px → 10px */
-                margin-top: 8px !important;
-                line-height: 1.3 !important; /* Mehr Zeilenabstand */
+                padding: 6px !important; /* Kleiner: 8px → 6px */
+                font-size: 9px !important; /* Kleiner: 10px → 9px */
+                margin-top: 6px !important;
+                line-height: 1.2 !important;
                 border-left-color: #ffc107 !important;
             }
             
