@@ -418,18 +418,17 @@
                 font-family: Arial, sans-serif !important;
             }
             
-            /* Verstecke Navigation, Werbung, Eingabebereich UND obere Skizze */
+            /* Verstecke ALLES außer Anrissplan - auch Ergebnisse und Button-Bereich */
             .nav-header,
             .ad-container,
             .ad-container-middle,
             .section,
             .calculate-btn,
-            #results .result-item,
-            #vorschau,
-            #schnittliste,
+            #results,
             .anriss-btn,
             .cookie-banner,
-            main > div:first-of-type {
+            main > div:first-of-type,
+            main > div[style*="text-align: center"] {
                 display: none !important;
             }
             
@@ -449,18 +448,18 @@
                 display: block !important;
             }
             
-            /* Plattenbehälter - optimale Größe für konstant 3 pro Seite */
+            /* Plattenbehälter - HÖHER für bessere Seitennutzung */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 8mm !important;
+                margin-bottom: 12mm !important;
                 border: 1px solid #000 !important;
-                padding: 8px !important;
+                padding: 12px !important;
                 border-radius: 4px !important;
                 background: white !important;
                 box-shadow: none !important;
                 color: #000 !important;
-                min-height: 180px !important; /* Kleiner: 215px → 180px */
-                max-height: 180px !important; /* Maximale Höhe begrenzen */
+                min-height: 220px !important; /* Höher: 180px → 220px */
+                max-height: 220px !important;
             }
             
             /* EINHEITLICHE SEITENUMBRUCH-REGEL: Alle 3 Platten eine neue Seite */
@@ -555,19 +554,19 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm - kompakter für konstant 3 pro Seite */
+            /* Plattendiagramm - größer für bessere Seitennutzung */
             .anriss-plate > div[style*="position: relative"] {
-                height: 100px !important; /* Kleiner: 160px → 100px */
-                width: 300px !important; /* Kleiner: 430px → 300px */
-                margin: 8px auto !important;
+                height: 120px !important; /* Höher: 100px → 120px */
+                width: 360px !important; /* Breiter: 300px → 360px */
+                margin: 10px auto !important;
             }
             
-            /* Anleitung - kompakt aber lesbar */
+            /* Anleitung - größer für bessere Lesbarkeit */
             .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 6px !important; /* Kleiner: 9px → 6px */
-                font-size: 9px !important; /* Kleiner: 10px → 9px */
-                margin-top: 6px !important;
-                line-height: 1.2 !important;
+                padding: 8px !important; /* Größer: 6px → 8px */
+                font-size: 10px !important; /* Größer: 9px → 10px */
+                margin-top: 8px !important;
+                line-height: 1.3 !important; /* Mehr Zeilenabstand */
                 border-left-color: #ffc107 !important;
             }
             
