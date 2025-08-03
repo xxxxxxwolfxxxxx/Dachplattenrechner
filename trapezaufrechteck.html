@@ -404,7 +404,7 @@
             color: white;
         }
 
-        /* DRUCKSTILE - exakt wie trapez.html */
+        /* KORRIGIERTE DRUCKSTILE */
         @media print {
             /* Seitenformat */
             @page {
@@ -448,7 +448,7 @@
                 display: block !important;
             }
             
-            /* Plattenbehälter */
+            /* KORRIGIERTE Plattenbehälter - zurück zur ursprünglichen Höhe */
             .anriss-plate {
                 page-break-inside: avoid !important;
                 margin-bottom: 10mm !important;
@@ -458,7 +458,7 @@
                 background: white !important;
                 box-shadow: none !important;
                 color: #000 !important;
-                min-height: 260px !important;
+                min-height: 260px !important; /* Zurück auf ursprüngliche Höhe */
                 max-height: 260px !important;
             }
             
@@ -554,16 +554,15 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm */
+            /* KORRIGIERTES Plattendiagramm - kleinere Platten damit sie in Container passen */
             .anriss-plate > div[style*="position: relative"] {
-                height: 65px !important;
+                height: 65px !important; /* Kleiner: 70px → 65px */
                 width: 280px !important;
                 margin: 6px auto !important;
             }
             
             /* Anleitung - kompakter */
-            .anriss-plate > div[style*="background: #f8f9fa"],
-            .anriss-plate > div[style*="background: linear-gradient"] {
+            .anriss-plate > div[style*="background: #f8f9fa"] {
                 padding: 8px !important;
                 font-size: 9px !important;
                 margin-top: 8px !important;
@@ -702,9 +701,9 @@
                 </div>
             </div>
 
-            <!-- Geometrie -->
+            <!-- Trapez-auf-Rechteck-Geometrie -->
             <div class="section">
-                <h2>1. Trapez-auf-Rechteck Geometrie</h2>
+                <h2>1. Trapez auf Rechteck Geometrie</h2>
                 <div class="input-row">
                     <div class="input-group">
                         <label for="obere-breite">Obere Breite (Trapez) (m)</label>
@@ -726,8 +725,9 @@
                     </div>
                 </div>
                 <div class="info-box">
-                    <strong>Hinweis:</strong> Diese Form entsteht bei gewalmten Satteldächern oder Krüppelwalmdächern.
-                    Der obere Bereich ist trapezförmig (Walm), der untere rechteckig (Satteldach).
+                    <strong>Hinweis:</strong> Berechnung für Trapez-auf-Rechteck Dachflächen.
+                    Typisch für Walmdächer, Krüppelwalmdächer und Satteldächer mit Walm.
+                    Der obere Bereich ist trapezförmig, der untere rechteckig.
                     Die Bleche verlaufen senkrecht über beide Bereiche.
                 </div>
             </div>
@@ -930,6 +930,70 @@
             const seitenAbstand = breitenDifferenz / 2;
             const linkeObereEcke = seitenAbstand;
             const rechteObereEcke = untereBreite - seitenAbstand;
+            const gesamtHoehe = trapezHoehe + rechteckHoehe;
+            
+            let anzahlPlatten = Math.ceil((untereBreite - lieferbreite + deckbreite) / deckbreite);
+            
+            for (let i = 0; i < anzahlPlatten; i++) {
+                let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+                let positionVonLinksEnde = positionVonLinks + lieferbreite;
+                positionVonLinksEnde = Math.min(positionVonLinksEnde, untereBreite);
+                
+                // Höhe berechnen - Kombination aus Trapez und Rechteck
+                function hoeheAnPosition(pos) {
+                    if (pos <= linkeObereEcke) {
+                        // Links vom Trapez - linear ansteigend von rechteckHoehe auf gesamtHoehe
+                        const prozent = pos / linkeObereEcke;
+                        return rechteckHoehe + (trapezHoehe * prozent);
+                    } else if (pos >= rechteObereEcke) {
+                        // Rechts vom Trapez - linear abfallend von gesamtHoehe auf rechteckHoehe
+                        const abstandVonRechts = untereBreite - pos;
+                        const prozent = abstandVonRechts / seitenAbstand;
+                        return rechteckHoehe + (trapezHoehe * prozent);
+                    } else {
+                        // Im mittleren Bereich - volle Höhe (Trapez + Rechteck)
+                        return gesamtHoehe;
+                    }
+                }
+                
+                const hoeheStart = hoeheAnPosition(positionVonLinks);
+                const hoeheEnde = hoeheAnPosition(positionVonLinksEnde);
+                const benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
+                
+                if (benoetigteLaenge > 0 && positionVonLinks < untereBreite) {
+                    schnittliste.push({
+                        plattenNr: i + 1,
+                        positionVonLinks: positionVonLinks.toFixed(2),
+                        positionBis: positionVonLinksEnde.toFixed(2),
+                        benoetigteLaenge: benoetigteLaenge.toFixed(2),
+                        plattenbreite: lieferbreite.toFixed(2)
+                    });
+                }
+            }
+
+            return { 
+                schnittliste: schnittliste,
+                anzahlPlatten: schnittliste.length
+            };
+        }
+
+        function berechneSeitenlängen(obereBreite, untereBreite, trapezHoehe, rechteckHoehe) {
+            const breitenDifferenz = untereBreite - obereBreite;
+            const schraegeLaengeImTrapez = Math.sqrt(trapezHoehe * trapezHoehe + (breitenDifferenz / 2) * (breitenDifferenz / 2));
+            const gesamtSeitenlaenge = schraegeLaengeImTrapez + rechteckHoehe;
+            return gesamtSeitenlaenge;
+        }
+
+        function berechnen() {
+            const obereBreite = parseFloat(document.getElementById('obere-breite').value);
+            const untereBreite = parseFloat(document.getElementById('untere-breite').value);
+            const trapezHoehe = parseFloat(document.getElementById('trapez-hoehe').value);
+            const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
+            const gesamtHoehe = trapezHoehe + rechteckHoehe;
+            const breitenDifferenz = untereBreite - obereBreite;
+            const seitenAbstand = breitenDifferenz / 2;
+            const linkeObereEcke = seitenAbstand;
+            const rechteObereEcke = untereBreite - seitenAbstand;
             
             let html = `<div style="font-family: Arial, sans-serif;">`;
             html += `<div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;" class="print-header">`;
@@ -939,7 +1003,7 @@
             
             // Vorschau für Anrissplan hinzufügen
             html += '<div style="margin-bottom: 30px; text-align: center;" class="print-overview">';
-            html += '<h3 style="color: #ffffff; margin-bottom: 15px;">Trapez-auf-Rechteck Übersicht</h3>';
+            html += '<h3 style="color: #ffffff; margin-bottom: 15px;">Trapez-auf-Rechteck-Übersicht</h3>';
             html += '<div style="border: 2px solid #1e3c72; border-radius: 8px; padding: 15px; background: white; display: inline-block;">';
             html += document.getElementById('vorschau-svg').innerHTML;
             html += '</div>';
@@ -1002,7 +1066,7 @@
                 
                 html += `<svg style="position: absolute; bottom: 15px; left: 20px;" width="240" height="${plattenhoehePx}">`;
                 
-                // Nutzen und Verschnitt zeichnen
+                // Trapez auf Rechteck Logik
                 if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
                     const linkeEckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
                     const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
@@ -1056,38 +1120,12 @@
                 
                 html += `</svg>`;
                 
-                // Spezielle Markierungen für Trapez-Ecken
-                if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
-                    const linkeEckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
-                    const rechteEckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
-                    
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + linkeEckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + linkeEckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">LINKE<br>ECKE<br>${gesamtHoehe}m</div>`;
-                    
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + rechteEckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + rechteEckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">RECHTE<br>ECKE<br>${gesamtHoehe}m</div>`;
-                    
-                    const abstandEcken = rechteEckeX - linkeEckeX;
-                    html += `<div style="position: absolute; top: 4px; left: ${20 + linkeEckeX}px; width: ${abstandEcken}px; height: 2px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: 4px; left: ${20 + linkeEckeX + abstandEcken/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">Oberkante: ${obereBreite}m</div>`;
-                } else if (ueberdecktLinkeEcke) {
-                    const eckeX = (linkeObereEcke - plattenStart) / plattenBreite * 240;
-                    
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + eckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + eckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">LINKE<br>ECKE<br>${gesamtHoehe}m</div>`;
-                } else if (ueberdecktRechteEcke) {
-                    const eckeX = (rechteObereEcke - plattenStart) / plattenBreite * 240;
-                    
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + eckeX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + eckeX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">RECHTE<br>ECKE<br>${gesamtHoehe}m</div>`;
-                }
-                
                 // Letzte Platte markieren
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - untereBreite;
                     
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + endX}px; width: 2px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx/2}px; left: ${15 + endX}px; font-size: 9px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
+                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + endX}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
+                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + endX}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">DACH<br>KANTE</div>`;
                     
                     if (ueberhang > 0) {
                         const restBreite = 240 - endX;
@@ -1123,32 +1161,29 @@
                 // Spezielle Hinweise für verschiedene Bereiche
                 if (istImMittleren) {
                     html += `• <strong style="color: #28a745;">EINFACH: Diese Platte ist vollständig im Mittelbereich!</strong><br>`;
-                    html += `• <strong style="color: #28a745;">WAAGERECHTER Schnitt bei ${gesamtHoehe}m Höhe!</strong><br>`;
+                    html += `• <strong style="color: #28a745;">Waagerechter Schnitt bei ${gesamtHoehe}m Höhe!</strong><br>`;
                     html += `• Rechteck-Bereich: ${rechteckHoehe}m (unten) + Trapez-Bereich: ${trapezHoehe}m (oben)<br>`;
                 } else if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
-                    html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte überdeckt BEIDE Trapez-Ecken!</strong><br>`;
+                    html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte überdeckt BEIDE oberen Trapez-Ecken!</strong><br>`;
                     const linkeEckePos = linkeObereEcke - plattenStart;
                     const rechteEckePos = rechteObereEcke - plattenStart;
-                    html += `• <strong style="color: #ff6b35;">KOMPLEX: Links schräg bis ${(linkeEckePos * 100).toFixed(0)}cm → WAAGERECHT bis ${(rechteEckePos * 100).toFixed(0)}cm → rechts schräg!</strong><br>`;
-                    html += `• <strong style="color: #1976d2;">BEMAẞUNG: Linke Ecke bei ${(linkeEckePos * 100).toFixed(0)}cm, rechte Ecke bei ${(rechteEckePos * 100).toFixed(0)}cm von links</strong><br>`;
-                    html += `• Schnittlinie: Links ansteigend, dann ${gesamtHoehe}m horizontal (Oberkante ${obereBreite}m), dann rechts abfallend<br>`;
+                    html += `• <strong style="color: #ff6b35;">KOMPLEX: Links schräg bis ${(linkeEckePos * 100).toFixed(0)}cm → waagerecht bis ${(rechteEckePos * 100).toFixed(0)}cm → rechts schräg!</strong><br>`;
+                    html += `• <strong style="color: #1976d2;">Keine Spitze - waagerechte Oberkante bei ${gesamtHoehe}m!</strong><br>`;
                 } else if (ueberdecktLinkeEcke) {
-                    html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte überdeckt die LINKE Trapez-Ecke!</strong><br>`;
+                    html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte überdeckt die LINKE obere Trapez-Ecke!</strong><br>`;
                     const eckenPos = linkeObereEcke - plattenStart;
                     html += `• <strong style="color: #ff6b35;">ÜBERGANG: Schräg ansteigend bis ${(eckenPos * 100).toFixed(0)}cm, dann waagerecht!</strong><br>`;
-                    html += `• <strong style="color: #1976d2;">BEMAẞUNG: Linke Ecke bei ${(eckenPos * 100).toFixed(0)}cm von links der Platte</strong><br>`;
                 } else if (ueberdecktRechteEcke) {
-                    html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte überdeckt die RECHTE Trapez-Ecke!</strong><br>`;
+                    html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte überdeckt die RECHTE obere Trapez-Ecke!</strong><br>`;
                     const eckenPos = rechteObereEcke - plattenStart;
                     html += `• <strong style="color: #ff6b35;">ÜBERGANG: Waagerecht bis ${(eckenPos * 100).toFixed(0)}cm, dann schräg abfallend!</strong><br>`;
-                    html += `• <strong style="color: #1976d2;">BEMAẞUNG: Rechte Ecke bei ${(eckenPos * 100).toFixed(0)}cm von links der Platte</strong><br>`;
                 } else if (anreissLinks !== anreissRechts) {
                     html += `• <strong style="color: #dc3545;">ACHTUNG: Schräger Schnitt!</strong><br>`;
                 } else {
                     html += `• <strong style="color: #28a745;">TIPP: Gerader Schnitt im Rechteckbereich!</strong><br>`;
                 }
                 
-                html += `• <strong style="color: #1976d2;">INFO: Durchgehende Platte über Rechteck (${rechteckHoehe}m) + Trapez (${trapezHoehe}m) = ${gesamtHoehe}m Gesamt</strong><br>`;
+                html += `• <strong style="color: #1e3c72;">INFO: Durchgehende Platte über Rechteck (${rechteckHoehe}m) + Trapez (${trapezHoehe}m) = ${gesamtHoehe}m Gesamt</strong><br>`;
                 html += `</div>`;
                 html += `</div>`;
             });
