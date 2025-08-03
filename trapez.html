@@ -1232,10 +1232,10 @@
                 const ueberdecktRechteEcke = plattenStart <= rechteObereEcke && plattenEndeReal >= rechteObereEcke;
                 
                 html += `<div class="anriss-plate" style="margin-bottom: 30px; border: 2px solid #333; padding: 15px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
-                html += `<h3 style="margin: 0 0 15px 0; color: #333; font-size: 16px; font-weight: bold;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
+                html += `<h3 style="margin: 0 0 25px 0; color: #333; font-size: 16px; font-weight: bold;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
                 
-                // Plattendiagramm
-                html += `<div style="position: relative; height: 120px; width: 280px; background: #f8f9fa; margin: 15px auto; border-radius: 6px; border: 1px solid #ddd;">`;
+                // Plattendiagramm - tiefer positioniert
+                html += `<div style="position: relative; height: 120px; width: 280px; background: #f8f9fa; margin: 25px auto 15px auto; border-radius: 6px; border: 1px solid #ddd;">`;
                 
                 const plattenhoehePx = Math.max(50, Math.min(65, (benoetigteLaengeM / hoehe) * 65)); // Kleinere Plattenhöhe
                 
@@ -1363,8 +1363,8 @@
                 
                 html += `</div>`;
                 
-                // Anleitung
-                html += `<div style="background: #f8f9fa; padding: 15px; border-radius: 6px; font-size: 13px; margin-top: 20px; border-left: 3px solid #ffc107;">`;
+                // Anleitung - tiefer positioniert
+                html += `<div style="background: #f8f9fa; padding: 15px; border-radius: 6px; font-size: 13px; margin-top: 25px; border-left: 3px solid #ffc107;">`;
                 html += `<strong style="color: #333;">Anzeichnen:</strong><br>`;
                 if (istLetztePlatte) {
                     const ueberhang = originalPlattenEnde - untereBreite;
