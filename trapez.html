@@ -448,7 +448,7 @@
                 display: block !important;
             }
             
-            /* KORRIGIERTE Plattenbehälter - optimierte Höhe */
+            /* KORRIGIERTE Plattenbehälter - zurück zur ursprünglichen Höhe */
             .anriss-plate {
                 page-break-inside: avoid !important;
                 margin-bottom: 10mm !important;
@@ -458,8 +458,8 @@
                 background: white !important;
                 box-shadow: none !important;
                 color: #000 !important;
-                min-height: 200px !important; /* Reduziert: 260px → 200px */
-                max-height: 200px !important;
+                min-height: 260px !important; /* Zurück auf ursprüngliche Höhe */
+                max-height: 260px !important;
             }
             
             /* EINHEITLICHE SEITENUMBRUCH-REGEL: Alle 3 Platten eine neue Seite */
@@ -554,9 +554,9 @@
                 color: #000 !important;
             }
             
-            /* KORRIGIERTES Plattendiagramm - optimierte Höhe */
+            /* KORRIGIERTES Plattendiagramm - kleinere Platten damit sie in Container passen */
             .anriss-plate > div[style*="position: relative"] {
-                height: 70px !important; /* Reduziert: 80px → 70px */
+                height: 65px !important; /* Kleiner: 70px → 65px */
                 width: 280px !important;
                 margin: 6px auto !important;
             }
@@ -1237,7 +1237,7 @@
                 // Plattendiagramm
                 html += `<div style="position: relative; height: 120px; width: 280px; background: #f8f9fa; margin: 15px auto; border-radius: 6px; border: 1px solid #ddd;">`;
                 
-                const plattenhoehePx = Math.max(70, Math.min(100, (benoetigteLaengeM / hoehe) * 100));
+                const plattenhoehePx = Math.max(50, Math.min(65, (benoetigteLaengeM / hoehe) * 65)); // Kleinere Plattenhöhe
                 
                 html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 240px; height: ${plattenhoehePx}px; background: #e9ecef; border: 1px solid #999; border-radius: 3px;"></div>`;
                 
@@ -1381,18 +1381,18 @@
                     const linkeEckePos = linkeObereEcke - plattenStart;
                     const rechteEckePos = rechteObereEcke - plattenStart;
                     html += `• <strong style="color: #ff6b35;">KOMPLEX: Links schräg bis ${(linkeEckePos * 100).toFixed(0)}cm → horizontal bis ${(rechteEckePos * 100).toFixed(0)}cm → rechts schräg!</strong><br>`;
-                    html += `• <strong style="color: #1976d2;">BEMASUNG: Linke Ecke bei ${(linkeEckePos * 100).toFixed(0)}cm, rechte Ecke bei ${(rechteEckePos * 100).toFixed(0)}cm von links</strong><br>`;
+                    html += `• <strong style="color: #1976d2;">BEMAẞUNG: Linke Ecke bei ${(linkeEckePos * 100).toFixed(0)}cm, rechte Ecke bei ${(rechteEckePos * 100).toFixed(0)}cm von links</strong><br>`;
                     html += `• Schnittlinie: Links ansteigend, dann ${hoehe}m horizontal (Oberkante ${obereBreite}m), dann rechts abfallend<br>`;
                 } else if (ueberdecktLinkeEcke) {
                     html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält die LINKE obere Trapez-Ecke!</strong><br>`;
                     const eckenPos = linkeObereEcke - plattenStart;
                     html += `• <strong style="color: #ff6b35;">ÜBERGANG: Schräg ansteigend bis ${(eckenPos * 100).toFixed(0)}cm, dann horizontal!</strong><br>`;
-                    html += `• <strong style="color: #1976d2;">BEMASUNG: Linke Ecke bei ${(eckenPos * 100).toFixed(0)}cm von links der Platte</strong><br>`;
+                    html += `• <strong style="color: #1976d2;">BEMAẞUNG: Linke Ecke bei ${(eckenPos * 100).toFixed(0)}cm von links der Platte</strong><br>`;
                 } else if (ueberdecktRechteEcke) {
                     html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält die RECHTE obere Trapez-Ecke!</strong><br>`;
                     const eckenPos = rechteObereEcke - plattenStart;
                     html += `• <strong style="color: #ff6b35;">ÜBERGANG: Horizontal bis ${(eckenPos * 100).toFixed(0)}cm, dann schräg abfallend!</strong><br>`;
-                    html += `• <strong style="color: #1976d2;">BEMASUNG: Rechte Ecke bei ${(eckenPos * 100).toFixed(0)}cm von links der Platte</strong><br>`;
+                    html += `• <strong style="color: #1976d2;">BEMAẞUNG: Rechte Ecke bei ${(eckenPos * 100).toFixed(0)}cm von links der Platte</strong><br>`;
                 } else if (anreissLinks !== anreissRechts) {
                     html += `• <strong style="color: #dc3545;">ACHTUNG: Schräger Schnitt!</strong><br>`;
                 } else {
