@@ -404,7 +404,7 @@
             color: white;
         }
 
-        /* EINHEITLICHE DRUCKSTILE WIE BEI DEN DREIECKEN */
+        /* KORRIGIERTE DRUCKSTILE */
         @media print {
             /* Seitenformat */
             @page {
@@ -418,7 +418,7 @@
                 font-family: Arial, sans-serif !important;
             }
             
-            /* Verstecke ALLES außer Anrissplan - auch Ergebnisse und Button-Bereich */
+            /* Verstecke ALLES außer Anrissplan */
             .nav-header,
             .ad-container,
             .ad-container-middle,
@@ -448,18 +448,18 @@
                 display: block !important;
             }
             
-            /* Plattenbehälter - GRÖßERE Container für mehr Platz */
+            /* KORRIGIERTE Plattenbehälter - optimierte Höhe */
             .anriss-plate {
                 page-break-inside: avoid !important;
-                margin-bottom: 12mm !important; /* Mehr Abstand */
+                margin-bottom: 10mm !important;
                 border: 1px solid #000 !important;
-                padding: 15px !important; /* Mehr Padding */
+                padding: 12px !important;
                 border-radius: 4px !important;
                 background: white !important;
                 box-shadow: none !important;
                 color: #000 !important;
-                min-height: 260px !important; /* Höher: 190px → 210px */
-                max-height: 260px !important;
+                min-height: 200px !important; /* Reduziert: 260px → 200px */
+                max-height: 200px !important;
             }
             
             /* EINHEITLICHE SEITENUMBRUCH-REGEL: Alle 3 Platten eine neue Seite */
@@ -474,63 +474,63 @@
                 page-break-before: always !important;
             }
             
-            /* Header des Anrissplans - NUR die wichtigsten Infos */
+            /* Header des Anrissplans */
             #anrissplan > div:first-child {
                 border-bottom: 2px solid #000 !important;
                 padding-bottom: 15px !important;
-                margin-bottom: 30px !important;
+                margin-bottom: 25px !important;
                 text-align: center !important;
             }
             
             #anrissplan h4 {
                 color: #000 !important;
-                font-size: 1.8em !important; /* Größer: 1em → 1.8em */
+                font-size: 1.6em !important;
                 margin: 0 0 10px 0 !important;
             }
             
             #anrissplan p {
                 color: #333 !important;
-                font-size: 1.2em !important; /* Größer: 0.8em → 1.2em */
-                margin: 10px 0 !important;
+                font-size: 1.1em !important;
+                margin: 8px 0 !important;
                 font-weight: bold !important;
             }
             
-            /* Draufsicht - MAXIMALE GRÖßE auf ganzer Seite 1 */
+            /* Draufsicht - auf ganzer Seite 1 */
             .print-overview {
                 display: block !important;
-                margin: 60px auto !important; /* Mehr vertikaler Abstand */
-                page-break-after: always !important; /* Seitenumbruch NACH der Übersicht */
+                margin: 40px auto !important;
+                page-break-after: always !important;
                 text-align: center !important;
-                padding: 60px 20px !important; /* Mehr Padding */
+                padding: 40px 20px !important;
             }
             
             .print-overview h3 {
                 color: #000 !important;
-                font-size: 1.6em !important; /* Noch größer: 1.4em → 1.6em */
-                margin: 30px 0 40px 0 !important; /* Noch mehr Abstand */
+                font-size: 1.4em !important;
+                margin: 25px 0 30px 0 !important;
                 font-weight: bold !important;
             }
             
             .print-overview div {
-                border: 3px solid #000 !important; /* Dickerer Rahmen */
-                padding: 30px !important; /* Mehr Padding */
+                border: 3px solid #000 !important;
+                padding: 25px !important;
                 margin: 0 auto !important;
                 display: inline-block !important;
                 border-radius: 8px !important;
             }
             
-            /* SVG in Draufsicht - NOCH GRÖßER */
+            /* SVG in Draufsicht */
             .print-overview svg {
-                width: 500px !important; /* Noch größer: 400px → 500px */
-                height: 320px !important; /* Noch größer: 260px → 320px */
+                width: 450px !important;
+                height: 280px !important;
             }
             
-            /* Plattenüberschriften - mehr Platz */
+            /* Plattenüberschriften */
             .anriss-plate h3 {
                 color: #000 !important;
-                font-size: 1.0em !important; /* Größer: 0.95em → 1.0em */
-                margin: 0 0 8px 0 !important; /* Mehr Abstand */
-                line-height: 1.3 !important;
+                font-size: 0.95em !important;
+                margin: 0 0 6px 0 !important;
+                line-height: 1.2 !important;
             }
             
             /* SVG-Texte für bessere Sichtbarkeit */
@@ -554,33 +554,33 @@
                 color: #000 !important;
             }
             
-            /* Plattendiagramm - angepasste Höhe für Container */
+            /* KORRIGIERTES Plattendiagramm - optimierte Höhe */
             .anriss-plate > div[style*="position: relative"] {
-                height: 80px !important; /* Größer: 80px → 90px für besseres Verhältnis */
+                height: 70px !important; /* Reduziert: 80px → 70px */
                 width: 280px !important;
-                margin: 8px auto !important;
+                margin: 6px auto !important;
             }
             
-            /* Anleitung - mehr Platz durch größere Container */
+            /* Anleitung - kompakter */
             .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 10px !important; /* Mehr Padding: 6px → 10px */
-                font-size: 10px !important; /* Größere Schrift: 9px → 10px */
-                margin-top: 10px !important; /* Mehr Abstand */
-                line-height: 1.3 !important; /* Mehr Zeilenabstand */
+                padding: 8px !important;
+                font-size: 9px !important;
+                margin-top: 8px !important;
+                line-height: 1.2 !important;
                 border-left-color: #ffc107 !important;
             }
             
             /* Maße in den Platten - kompakt aber lesbar */
             .anriss-plate div[style*="font-size: 11px"] {
-                font-size: 9px !important; /* Kleiner: 11px → 9px */
+                font-size: 8px !important;
             }
             
             .anriss-plate div[style*="font-size: 10px"] {
-                font-size: 8px !important; /* Kleiner: 10px → 8px */
+                font-size: 7px !important;
             }
             
             .anriss-plate div[style*="font-size: 9px"] {
-                font-size: 8px !important; /* Kleiner: 9px → 8px */
+                font-size: 7px !important;
             }
         }
         
@@ -717,7 +717,7 @@
             <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
                 <div class="ad-placeholder">
                     <div class="ad-content-horizontal">
-                        <span class="ad-icon"></span>
+                        <span class="ad-icon">🏗️</span>
                         <div class="ad-text-block">
                             <strong>Trapez-Dachdeckung</strong>
                             <span>Professionelle Lösungen für komplexe Dachformen</span>
@@ -822,7 +822,7 @@
             <div class="ad-container" id="bottom-ad-container" style="text-align: center;">
                 <div class="ad-placeholder">
                     <div class="ad-content">
-                        <span class="ad-icon"></span>
+                        <span class="ad-icon">🔧</span>
                         <span class="ad-text">Mehr professionelle Tools für Dachdecker</span>
                     </div>
                 </div>
@@ -1375,7 +1375,7 @@
                 html += `• <span style="color: #333;">Von der Unterkante: Links bei ${anreissLinks}cm und rechts bei ${anreissRechts}cm markieren</span><br>`;
                 html += `• <span style="color: #333;">Diagonale Schnittlinie anzeichnen und oberen Teil absägen</span><br>`;
                 
-                // Spezielle Hinweise für kritische Platten
+                // Spezielle Hinweise für kritische Platten (KORRIGIERT: "Bemaßung" statt "Bemasung")
                 if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
                     html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält BEIDE oberen Trapez-Ecken!</strong><br>`;
                     const linkeEckePos = linkeObereEcke - plattenStart;
