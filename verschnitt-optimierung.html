@@ -1061,27 +1061,49 @@
         }
 
         function berechneKombination(masze, lagerlaenge, schnittblattBreite, toleranz) {
+            console.log(`🔧 Berechne Kombination: Lager ${lagerlaenge}m, verfügbare Teile: [${masze.map(m => m.toFixed(2)).join(', ')}]`);
+            
             // Einfache Berechnung für identische Teile
             if (masze.length > 0 && masze.every(m => Math.abs(m - masze[0]) < 0.001)) {
                 const teilLaenge = masze[0];
                 const nettoTeilLaenge = teilLaenge - toleranz;
                 
-                if (nettoTeilLaenge <= 0) return [];
+                console.log(`📏 Identische Teile: ${teilLaenge}m, netto: ${nettoTeilLaenge}m`);
                 
-                // Berechne maximale Anzahl
-                let maxAnzahl = Math.floor(lagerlaenge / nettoTeilLaenge);
-                
-                // Berücksichtige Schnittblattbreite zwischen den Teilen
-                while (maxAnzahl > 1) {
-                    const benoetigterPlatz = maxAnzahl * nettoTeilLaenge + (maxAnzahl - 1) * schnittblattBreite;
-                    if (benoetigterPlatz <= lagerlaenge) {
-                        break;
-                    }
-                    maxAnzahl--;
+                if (nettoTeilLaenge <= 0) {
+                    console.log(`❌ Netto-Länge ≤ 0`);
+                    return [];
                 }
                 
+                // KORRIGIERTE BERECHNUNG: Iterativ die maximale Anzahl finden
+                let maxAnzahl = 1;
+                
+                // Teste schrittweise mehr Teile
+                while (maxAnzahl <= masze.length) {
+                    const benoetigterPlatz = maxAnzahl * nettoTeilLaenge + (maxAnzahl - 1) * schnittblattBreite;
+                    console.log(`🧮 Test ${maxAnzahl} Teile: ${maxAnzahl} × ${nettoTeilLaenge.toFixed(3)}m + ${maxAnzahl-1} × ${schnittblattBreite.toFixed(3)}m = ${benoetigterPlatz.toFixed(3)}m (verfügbar: ${lagerlaenge}m)`);
+                    
+                    if (benoetigterPlatz <= lagerlaenge) {
+                        maxAnzahl++; // Noch ein Teil könnte passen
+                    } else {
+                        maxAnzahl--; // Das war eins zu viel
+                        break;
+                    }
+                }
+                
+                // Sicherheitscheck: mindestens 1, maximal verfügbare Anzahl
+                maxAnzahl = Math.max(1, Math.min(maxAnzahl, masze.length));
+                
+                // Finaler Check ob das wirklich passt
+                const finalerPlatz = maxAnzahl * nettoTeilLaenge + (maxAnzahl - 1) * schnittblattBreite;
+                if (finalerPlatz > lagerlaenge) {
+                    maxAnzahl = Math.max(1, maxAnzahl - 1);
+                }
+                
+                console.log(`✅ Finale Anzahl: ${maxAnzahl} Teile`);
+                
                 const kombination = [];
-                for (let i = 0; i < Math.min(maxAnzahl, masze.length); i++) {
+                for (let i = 0; i < maxAnzahl; i++) {
                     kombination.push(teilLaenge);
                 }
                 
@@ -1093,16 +1115,24 @@
             let verbleibendelaenge = lagerlaenge;
             const sortierteMasze = [...masze].sort((a, b) => b - a);
             
+            console.log(`🎯 Greedy-Algorithmus für gemischte Teile`);
+            
             for (let mass of sortierteMasze) {
                 const nettoMass = mass - toleranz;
                 const benoetigterPlatz = nettoMass + (kombination.length > 0 ? schnittblattBreite : 0);
                 
+                console.log(`🔍 Prüfe ${mass}m: netto ${nettoMass.toFixed(3)}m, braucht ${benoetigterPlatz.toFixed(3)}m, verfügbar ${verbleibendelaenge.toFixed(3)}m`);
+                
                 if (verbleibendelaenge >= benoetigterPlatz && nettoMass > 0) {
                     kombination.push(mass);
                     verbleibendelaenge -= benoetigterPlatz;
+                    console.log(`✅ Hinzugefügt! Verbleibend: ${verbleibendelaenge.toFixed(3)}m`);
+                } else {
+                    console.log(`❌ Passt nicht`);
                 }
             }
             
+            console.log(`🎯 Finale Kombination: [${kombination.map(m => m.toFixed(2)).join(', ')}]`);
             return kombination;
         }
 
@@ -1139,7 +1169,18 @@
             const effizienz = gesamtMaterial > 0 ? (tatsaechlichBenoetigtesMaterial / gesamtMaterial * 100) : 0;
             
             // Ergebnisse anzeigen
-            document.getElementById('lager-anzahl').textContent = optimierung.length + ' Stück';
+            const lagerAnzahl = {};
+            optimierung.forEach(platte => {
+                const laenge = platte.lagerlaenge.toFixed(1);
+                lagerAnzahl[laenge] = (lagerAnzahl[laenge] || 0) + 1;
+            });
+            
+            const lagerText = Object.entries(lagerAnzahl)
+                .sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]))
+                .map(([laenge, anzahl]) => `${anzahl}× ${laenge}m`)
+                .join(', ');
+            
+            document.getElementById('lager-anzahl').textContent = `${optimierung.length} Stück (${lagerText})`;
             document.getElementById('gesamt-material').textContent = gesamtMaterial.toFixed(2) + ' m';
             document.getElementById('nutzen-material').textContent = tatsaechlichBenoetigtesMaterial.toFixed(2) + ' m';
             document.getElementById('gesamt-verschnitt').textContent = gesamtVerschnitt.toFixed(2) + ' m';
