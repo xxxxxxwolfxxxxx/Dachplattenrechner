@@ -420,14 +420,27 @@
                 <div class="input-row">
                     <div class="input-group">
                         <label for="optimierung-modus">Optimierungsmodus</label>
-                        <select id="optimierung-modus" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px;">
+                        <select id="optimierung-modus" onchange="toggleStapelschnitt()" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px;">
                             <option value="verschnitt">🎯 Minimaler Verschnitt (Materialeinsparung)</option>
-                            <option value="schnitte">⚡ Wenigste Schnitte (Zeiteinsparung)</option>
+                            <option value="schnitte">⚡ Optimale Sägezeit (Stapelschnitt)</option>
                         </select>
                     </div>
                     <div class="input-group">
                         <label for="schnittblatt-breite">Schnittblattbreite (mm)</label>
                         <input type="number" id="schnittblatt-breite" value="3.0" step="0.1" min="0" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px;">
+                    </div>
+                </div>
+                <div class="input-row" id="stapelschnitt-container" style="display: none;">
+                    <div class="input-group">
+                        <label for="max-stapel">Max. Platten pro Stapelschnitt</label>
+                        <input type="number" id="max-stapel" value="5" min="1" max="20" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px;">
+                        <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                            💡 Wie viele Platten können Sie gleichzeitig stapeln und schneiden?<br>
+                            Beispiel: 5 Platten à 3m mittig geteilt = 10×1,5m mit nur 1 Schnitt
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <!-- Leerer Platz für symmetrisches Layout -->
                     </div>
                 </div>
                 <div class="input-row">
@@ -580,6 +593,18 @@
             document.getElementById('top-ad-container').style.display = 'none';
             document.getElementById('middle-ad-container').style.display = 'none';
             document.getElementById('bottom-ad-container').style.display = 'none';
+        }
+
+        // Stapelschnitt-Container ein/ausblenden
+        function toggleStapelschnitt() {
+            const modus = document.getElementById('optimierung-modus').value;
+            const container = document.getElementById('stapelschnitt-container');
+            
+            if (modus === 'schnitte') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
         }
 
         // Verbesserte Druckfunktion
@@ -829,9 +854,13 @@
             const schnittblattBreite = parseFloat(document.getElementById('schnittblatt-breite').value) / 1000;
             const toleranz = parseFloat(document.getElementById('toleranz').value) / 1000;
             const modus = document.getElementById('optimierung-modus').value;
+            const maxStapel = modus === 'schnitte' ? parseInt(document.getElementById('max-stapel').value) || 5 : 1;
             
             console.log(`🎯 Optimierungsmodus: ${modus}`);
             console.log(`🔧 Schnittblattbreite: ${schnittblattBreite}m, Toleranz: ${toleranz}m`);
+            if (modus === 'schnitte') {
+                console.log(`📚 Max. Stapelschnitt: ${maxStapel} Platten`);
+            }
             
             // Verbrauchszähler für begrenzte Lagerlängen
             const verbrauchteAnzahl = {};
@@ -845,54 +874,74 @@
                 let bestePlatte = null;
                 let besteKombination = [];
                 let besterWert = modus === 'verschnitt' ? Infinity : -1;
+                let besteStapelAnzahl = 1;
                 
                 console.log(`🔄 Platte ${plattenNr}: Verbleibende Teile: ${verbleibendeMapze.length}`);
                 
                 // Teste jede verfügbare Lagerlänge
                 for (let lager of verfuegbareLaengen) {
-                    // Prüfe ob noch verfügbar
-                    if (verbrauchteAnzahl[lager.laenge] >= lager.anzahl) {
+                    // Prüfe wie viele von dieser Länge noch verfügbar sind
+                    const verfuegbareAnzahl = Math.max(0, lager.anzahl - verbrauchteAnzahl[lager.laenge]);
+                    if (verfuegbareAnzahl === 0) {
                         console.log(`⏭️ Lager ${lager.laenge}m: Keine mehr verfügbar`);
                         continue;
                     }
                     
-                    const kombination = berechneKombination(verbleibendeMapze, lager.laenge, schnittblattBreite, toleranz);
-                    
-                    if (kombination.length === 0) {
-                        console.log(`❌ Lager ${lager.laenge}m: Keine Kombination möglich`);
-                        continue;
-                    }
-                    
-                    // Berechne Materialverbrauch - Toleranz abziehen
-                    const nettoMaterial = kombination.reduce((sum, mass) => sum + (mass - toleranz), 0);
-                    const benoetigteSchnitte = kombination.length > 1 ? (kombination.length - 1) * schnittblattBreite : 0;
-                    const verschnitt = lager.laenge - nettoMaterial - benoetigteSchnitte;
-                    
-                    console.log(`🔍 Lager ${lager.laenge}m: ${kombination.length} Teile, Netto: ${nettoMaterial.toFixed(3)}m, Schnitte: ${benoetigteSchnitte.toFixed(3)}m, Verschnitt: ${verschnitt.toFixed(3)}m`);
-                    
-                    // Prüfe ob überhaupt machbar
-                    if (verschnitt < 0) {
-                        console.log(`❌ Lager ${lager.laenge}m: Nicht machbar (negativer Verschnitt)`);
-                        continue;
-                    }
-                    
-                    let istBesser = false;
-                    if (modus === 'verschnitt') {
-                        // KORRIGIERT: Minimaler Verschnitt - kleinster Verschnitt gewinnt
-                        istBesser = verschnitt < besterWert;
-                        if (istBesser) besterWert = verschnitt;
-                        console.log(`🎯 VERSCHNITT-Modus: ${verschnitt.toFixed(3)}m ${istBesser ? '< ' + besterWert.toFixed(3) + 'm → BESSER' : '≥ aktuell bester'}`);
+                    if (modus === 'schnitte') {
+                        // STAPELSCHNITT-MODUS: Teste verschiedene Stapelgrößen
+                        const maxMoeglicheStapel = Math.min(maxStapel, verfuegbareAnzahl);
+                        
+                        for (let stapelGroesse = 1; stapelGroesse <= maxMoeglicheStapel; stapelGroesse++) {
+                            const kombination = berechneStapelKombination(verbleibendeMapze, lager.laenge, schnittblattBreite, toleranz, stapelGroesse);
+                            
+                            if (kombination.length === 0) continue;
+                            
+                            // Berechne effektive Schnitte pro produziertem Teil
+                            const produziertTeile = kombination.length * stapelGroesse;
+                            const benoetigteSchnitte = kombination.length > 1 ? kombination.length - 1 : 0; // Physische Schnitte
+                            const schnittEffizienz = produziertTeile / Math.max(1, benoetigteSchnitte); // Teile pro Schnitt
+                            
+                            console.log(`🔍 Lager ${lager.laenge}m, Stapel ${stapelGroesse}: ${kombination.length} Schnitte → ${produziertTeile} Teile, Effizienz: ${schnittEffizienz.toFixed(1)} Teile/Schnitt`);
+                            
+                            // Besseres System: Maximiere Teile pro Schnitt
+                            if (schnittEffizienz > besterWert) {
+                                besterWert = schnittEffizienz;
+                                besteKombination = kombination;
+                                bestePlatte = lager;
+                                besteStapelAnzahl = stapelGroesse;
+                                console.log(`✅ NEUE BESTE STAPEL-LÖSUNG: ${stapelGroesse}x ${lager.laenge}m, Effizienz: ${schnittEffizienz.toFixed(1)} Teile/Schnitt`);
+                            }
+                        }
                     } else {
-                        // KORRIGIERT: Wenigste Schnitte - meiste Teile pro Platte gewinnt
-                        istBesser = kombination.length > besterWert;
-                        if (istBesser) besterWert = kombination.length;
-                        console.log(`⚡ SCHNITTE-Modus: ${kombination.length} Teile ${istBesser ? '> ' + besterWert + ' → BESSER' : '≤ aktuell beste'}`);
-                    }
-                    
-                    if (istBesser) {
-                        besteKombination = kombination;
-                        bestePlatte = lager;
-                        console.log(`✅ NEUE BESTE: ${lager.laenge}m mit ${kombination.length} Teilen, Verschnitt: ${verschnitt.toFixed(3)}m`);
+                        // VERSCHNITT-MODUS: Normale Einzelplatten-Optimierung
+                        const kombination = berechneKombination(verbleibendeMapze, lager.laenge, schnittblattBreite, toleranz);
+                        
+                        if (kombination.length === 0) {
+                            console.log(`❌ Lager ${lager.laenge}m: Keine Kombination möglich`);
+                            continue;
+                        }
+                        
+                        // Berechne Materialverbrauch - Toleranz abziehen
+                        const nettoMaterial = kombination.reduce((sum, mass) => sum + (mass - toleranz), 0);
+                        const benoetigteSchnitte = kombination.length > 1 ? (kombination.length - 1) * schnittblattBreite : 0;
+                        const verschnitt = lager.laenge - nettoMaterial - benoetigteSchnitte;
+                        
+                        console.log(`🔍 Lager ${lager.laenge}m: ${kombination.length} Teile, Netto: ${nettoMaterial.toFixed(3)}m, Schnitte: ${benoetigteSchnitte.toFixed(3)}m, Verschnitt: ${verschnitt.toFixed(3)}m`);
+                        
+                        // Prüfe ob überhaupt machbar
+                        if (verschnitt < 0) {
+                            console.log(`❌ Lager ${lager.laenge}m: Nicht machbar (negativer Verschnitt)`);
+                            continue;
+                        }
+                        
+                        // Minimaler Verschnitt - kleinster Verschnitt gewinnt
+                        if (verschnitt < besterWert) {
+                            besterWert = verschnitt;
+                            besteKombination = kombination;
+                            bestePlatte = lager;
+                            besteStapelAnzahl = 1;
+                            console.log(`✅ NEUE BESTE VERSCHNITT-LÖSUNG: ${lager.laenge}m, Verschnitt: ${verschnitt.toFixed(3)}m`);
+                        }
                     }
                 }
                 
@@ -901,34 +950,114 @@
                     break;
                 }
                 
-                // Berechne finalen Verschnitt
-                const nettoMaterial = besteKombination.reduce((sum, mass) => sum + (mass - toleranz), 0);
-                const benoetigteSchnitte = besteKombination.length > 1 ? (besteKombination.length - 1) * schnittblattBreite : 0;
-                const verschnitt = bestePlatte.laenge - nettoMaterial - benoetigteSchnitte;
-                
-                console.log(`✅ Platte ${plattenNr}: ${bestePlatte.laenge}m mit ${besteKombination.length} Teilen, Verschnitt: ${verschnitt.toFixed(3)}m`);
-                
-                ergebnis.push({
-                    plattenNr: plattenNr++,
-                    lagerlaenge: bestePlatte.laenge,
-                    masze: [...besteKombination],
-                    verschnitt: Math.max(0, verschnitt),
-                    anzahlSchnitte: besteKombination.length > 0 ? besteKombination.length - 1 : 0
-                });
+                // Erstelle Ergebnisse für alle Platten im Stapel
+                for (let stapelIndex = 0; stapelIndex < besteStapelAnzahl; stapelIndex++) {
+                    // Berechne finalen Verschnitt
+                    const nettoMaterial = besteKombination.reduce((sum, mass) => sum + (mass - toleranz), 0);
+                    const benoetigteSchnitte = besteKombination.length > 1 ? (besteKombination.length - 1) * schnittblattBreite : 0;
+                    const verschnitt = bestePlatte.laenge - nettoMaterial - benoetigteSchnitte;
+                    
+                    // Berechne tatsächliche Schnitte (bei Stapelschnitt)
+                    let tatsaechlicheSchnitte;
+                    if (modus === 'schnitte' && besteStapelAnzahl > 1) {
+                        // Bei Stapelschnitt: Schnitte werden durch Stapelgröße geteilt
+                        tatsaechlicheSchnitte = (besteKombination.length > 0 ? besteKombination.length - 1 : 0) / besteStapelAnzahl;
+                    } else {
+                        // Normal: Ein Schnitt pro Trennung
+                        tatsaechlicheSchnitte = besteKombination.length > 0 ? besteKombination.length - 1 : 0;
+                    }
+                    
+                    console.log(`✅ Platte ${plattenNr}: ${bestePlatte.laenge}m mit ${besteKombination.length} Teilen, Verschnitt: ${verschnitt.toFixed(3)}m, Schnitte: ${tatsaechlicheSchnitte.toFixed(2)}`);
+                    
+                    ergebnis.push({
+                        plattenNr: plattenNr++,
+                        lagerlaenge: bestePlatte.laenge,
+                        masze: [...besteKombination],
+                        verschnitt: Math.max(0, verschnitt),
+                        anzahlSchnitte: tatsaechlicheSchnitte,
+                        stapelInfo: besteStapelAnzahl > 1 ? `${besteStapelAnzahl}er Stapel` : null
+                    });
+                }
                 
                 // Verbrauch markieren
-                verbrauchteAnzahl[bestePlatte.laenge]++;
+                verbrauchteAnzahl[bestePlatte.laenge] += besteStapelAnzahl;
                 
-                // Entferne verwendete Maße
-                besteKombination.forEach(mass => {
-                    const index = verbleibendeMapze.findIndex(m => Math.abs(m - mass) < 0.0001);
-                    if (index > -1) {
-                        verbleibendeMapze.splice(index, 1);
-                    }
-                });
+                // Entferne verwendete Maße (für alle Platten im Stapel)
+                for (let stapelIndex = 0; stapelIndex < besteStapelAnzahl; stapelIndex++) {
+                    besteKombination.forEach(mass => {
+                        const index = verbleibendeMapze.findIndex(m => Math.abs(m - mass) < 0.0001);
+                        if (index > -1) {
+                            verbleibendeMapze.splice(index, 1);
+                        }
+                    });
+                }
             }
             
             return ergebnis;
+        }
+
+        function berechneStapelKombination(masze, lagerlaenge, schnittblattBreite, toleranz, stapelGroesse) {
+            // Finde identische Teile die für Stapelschnitt geeignet sind
+            const haeufigkeiten = {};
+            masze.forEach(mass => {
+                const key = mass.toFixed(3);
+                haeufigkeiten[key] = (haeufigkeiten[key] || 0) + 1;
+            });
+            
+            // Sortiere nach Häufigkeit (häufigste zuerst für Stapelschnitt)
+            const sortierteLaengen = Object.entries(haeufigkeiten)
+                .map(([laenge, anzahl]) => ({ laenge: parseFloat(laenge), anzahl }))
+                .sort((a, b) => b.anzahl - a.anzahl);
+            
+            const kombination = [];
+            let verbleibendelaenge = lagerlaenge;
+            
+            for (let item of sortierteLaengen) {
+                const teilLaenge = item.laenge;
+                const verfuegbareAnzahl = item.anzahl;
+                const nettoTeilLaenge = teilLaenge - toleranz;
+                
+                if (nettoTeilLaenge <= 0) continue;
+                
+                // Prüfe wie viele solcher Teile auf eine Platte passen
+                let maxTeilePlatze = Math.floor(verbleibendelaenge / nettoTeilLaenge);
+                
+                // Berücksichtige Schnittblattbreite
+                while (maxTeilePlatze > 1) {
+                    const benoetigterPlatz = maxTeilePlatze * nettoTeilLaenge + (kombination.length > 0 ? schnittblattBreite : 0) + (maxTeilePlatze - 1) * schnittblattBreite;
+                    if (benoetigterPlatz <= verbleibendelaenge) {
+                        break;
+                    }
+                    maxTeilePlatze--;
+                }
+                
+                if (maxTeilePlatze === 0) continue;
+                
+                // Berechne wie viele Teile wir für den Stapel brauchen
+                const benoetigteTeileStapel = Math.min(
+                    maxTeilePlatze,
+                    Math.floor(verfuegbareAnzahl / stapelGroesse) * stapelGroesse // Nur volle Stapel
+                );
+                
+                if (benoetigteTeileStapel === 0) continue;
+                
+                // Füge die Teile zur Kombination hinzu (aber nur einmal für die Platte)
+                const teileProPlatte = benoetigteTeileStapel / stapelGroesse;
+                for (let i = 0; i < teileProPlatte; i++) {
+                    kombination.push(teilLaenge);
+                }
+                
+                // Berechne verbrauchten Platz
+                const benoetigterPlatz = teileProPlatte * nettoTeilLaenge + (kombination.length > teileProPlatte ? schnittblattBreite : 0) + (teileProPlatte - 1) * schnittblattBreite;
+                verbleibendelaenge -= benoetigterPlatz;
+                
+                // Wenn wir genug haben für diesen Stapel, stoppe hier
+                if (benoetigteTeileStapel >= stapelGroesse) {
+                    break;
+                }
+            }
+            
+            return kombination;
         }
 
         function berechneKombination(masze, lagerlaenge, schnittblattBreite, toleranz) {
@@ -1034,11 +1163,11 @@
                 }
                 
                 row.innerHTML = `
-                    <td><strong>P${platte.plattenNr}</strong></td>
+                    <td><strong>P${platte.plattenNr}</strong>${platte.stapelInfo ? `<br><small style="color: #666;">${platte.stapelInfo}</small>` : ''}</td>
                     <td style="font-weight: bold; color: #1e3c72;">${platte.lagerlaenge.toFixed(1)}m</td>
                     <td>${platte.masze.map(m => `${m.toFixed(2)}m`).join(', ')}</td>
                     <td style="font-weight: bold; color: #28a745;">${platte.verschnitt.toFixed(3)}m</td>
-                    <td style="text-align: center;">${anzahlSchnitte}</td>
+                    <td style="text-align: center;">${platte.stapelInfo ? platte.anzahlSchnitte.toFixed(2) : Math.ceil(anzahlSchnitte)}</td>
                 `;
                 tbody.appendChild(row);
                 
