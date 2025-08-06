@@ -83,19 +83,14 @@ body {
     font-family: var(--font-sans);
     line-height: 1.6;
     color: var(--text-primary);
-    background: var(--bg-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
-    
-    /* NUR das index.png Hintergrundbild ohne Overlays */
-    background-image: url('Images/index.png');
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
     min-height: 100vh;
+    
+    /* ALLES zusammen - Fallback-Farbe + Bild */
+    background: var(--bg-primary) url('Images/index.png') center/cover fixed no-repeat;
 }
 
 /* Hauptcontainer */
