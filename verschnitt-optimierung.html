@@ -78,6 +78,7 @@
             padding: 20px;
             text-align: center;
             transition: all 0.3s ease;
+            color: #333;
         }
         
         .ad-placeholder:hover {
@@ -90,7 +91,7 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-            color: #6c757d;
+            color: #333;
             font-weight: 500;
         }
         
@@ -114,17 +115,13 @@
         }
         
         .ad-text-block span {
-            color: #6c757d;
+            color: #555;
             font-size: 0.9em;
-        }
-        
-        .ad-icon {
-            font-size: 1.5em;
-            opacity: 0.8;
         }
         
         .ad-text {
             font-size: 0.95em;
+            color: #333;
         }
         
         .ad-content-real {
@@ -143,17 +140,172 @@
             display: block !important;
         }
         
-        /* Debug Info */
-        .debug-info {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
+        /* Lagerlängen Labels - dunkle Schrift */
+        .section label {
+            color: #333 !important;
+        }
+        
+        /* Info-Boxen - helle Schrift auf dunklem Grund */
+        .info-box {
+            background: #2a5298;
+            color: white !important;
             border-radius: 8px;
             padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .info-box strong {
+            color: white !important;
+        }
+        
+        /* Button Styles */
+        .calculate-btn, .btn, .print-button {
+            background: #2a5298;
+            color: white !important;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .calculate-btn:hover, .btn:hover, .print-button:hover {
+            background: #1e3c72;
+        }
+        
+        /* Results Styling */
+        .results {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
             margin-top: 20px;
-            font-family: monospace;
-            font-size: 12px;
-            max-height: 300px;
-            overflow-y: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-item span:first-child {
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .result-item span:last-child {
+            color: #2a5298;
+            font-weight: bold;
+        }
+        
+        /* Table Styling */
+        .schnitt-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+        }
+        
+        .schnitt-table th {
+            background: #2a5298;
+            color: white !important;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+        
+        .schnitt-table td {
+            padding: 10px 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+            color: #333;
+        }
+        
+        .schnitt-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        /* Verschnitt-Optimierung Box */
+        #verschnitt-optimierung {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #333 !important;
+            border-radius: 10px;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        #verschnitt-optimierung h4 {
+            color: #856404 !important;
+            margin-bottom: 15px;
+        }
+        
+        #verschnitt-optimierung strong {
+            color: #333 !important;
+        }
+        
+        #verschnitt-optimierung em {
+            color: #666 !important;
+        }
+        
+        /* Navigation Header */
+        .nav-header {
+            background: #2a5298;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        
+        .nav-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .back-btn {
+            color: white !important;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+        
+        .nav-title {
+            color: white !important;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        /* Section Headers */
+        h1, h2, h3, h4 {
+            color: #1e3c72 !important;
+        }
+        
+        /* Input Styling */
+        input, select, textarea {
+            color: #333 !important;
+            background: white;
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: #999 !important;
         }
         
         /* Mobile Optimierung */
@@ -174,6 +326,10 @@
             .ad-text-block {
                 text-align: center;
             }
+            
+            .nav-header .container {
+                padding: 0 15px;
+            }
         }
     </style>
 </head>
@@ -181,7 +337,7 @@
     <div class="nav-header">
         <div class="container">
             <a href="index.html" class="back-btn">
-                <span>←</span>
+                <span>&larr;</span>
                 <span>Zurück zur Übersicht</span>
             </a>
             <div class="nav-title">Verschnitt-Optimierung</div>
@@ -194,7 +350,6 @@
             <div class="ad-container" id="top-ad-container" style="text-align: center;">
                 <div class="ad-placeholder">
                     <div class="ad-content">
-                        <span class="ad-icon">📢</span>
                         <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
                     </div>
                 </div>
@@ -212,7 +367,7 @@
             <div class="section">
                 <h2>1. Benötigte Längen eingeben</h2>
                 <div class="info-box" style="margin-bottom: 15px;">
-                    <strong>💡 Eingabe-Hilfe:</strong><br>
+                    <strong>Eingabe-Hilfe:</strong><br>
                     • <strong>Verschiedene Längenangaben:</strong> 1.5m, 150cm, 1500mm, 1,5, 2.3<br>
                     • <strong>Wiederholungen:</strong> 100x1.5m, 50x2,3m, 25x150cm<br>
                     • <strong>Gemischte Listen:</strong><br>
@@ -239,7 +394,6 @@
             <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
                 <div class="ad-placeholder">
                     <div class="ad-content-horizontal">
-                        <span class="ad-icon">💡</span>
                         <div class="ad-text-block">
                             <strong>Professionelle Optimierungstools</strong>
                             <span>Intelligente Materialplanung für Handwerk und Industrie</span>
@@ -258,90 +412,90 @@
             <div class="section">
                 <h2>2. Verfügbare Lagerlängen auswählen</h2>
                 <div class="info-box" style="margin-bottom: 15px;">
-                    <strong>📦 Lagerbestand:</strong> Wählen Sie alle verfügbaren Lagerlängen aus. 
+                    <strong>Lagerbestand:</strong> Wählen Sie alle verfügbaren Lagerlängen aus. 
                     Lassen Sie die Anzahl leer für unbegrenzt verfügbar, oder geben Sie eine konkrete Anzahl ein.
                 </div>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-2.0" value="2.0">
-                        <label for="lager-2.0" style="flex: 1; font-weight: 500; color: #333 !important;">2,0m</label>
-                        <input type="number" id="anzahl-2.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-2.0" style="flex: 1; font-weight: 500; color: #333;">2,0m</label>
+                        <input type="number" id="anzahl-2.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-2.5" value="2.5">
-                        <label for="lager-2.5" style="flex: 1; font-weight: 500; color: #333 !important;">2,5m</label>
-                        <input type="number" id="anzahl-2.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-2.5" style="flex: 1; font-weight: 500; color: #333;">2,5m</label>
+                        <input type="number" id="anzahl-2.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-3.0" value="3.0" checked>
-                        <label for="lager-3.0" style="flex: 1; font-weight: 500; color: #333 !important;">3,0m</label>
-                        <input type="number" id="anzahl-3.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-3.0" style="flex: 1; font-weight: 500; color: #333;">3,0m</label>
+                        <input type="number" id="anzahl-3.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-3.1" value="3.1">
-                        <label for="lager-3.1" style="flex: 1; font-weight: 500; color: #333 !important;">3,1m</label>
-                        <input type="number" id="anzahl-3.1" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-3.1" style="flex: 1; font-weight: 500; color: #333;">3,1m</label>
+                        <input type="number" id="anzahl-3.1" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-3.5" value="3.5">
-                        <label for="lager-3.5" style="flex: 1; font-weight: 500; color: #333 !important;">3,5m</label>
-                        <input type="number" id="anzahl-3.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-3.5" style="flex: 1; font-weight: 500; color: #333;">3,5m</label>
+                        <input type="number" id="anzahl-3.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-4.0" value="4.0" checked>
-                        <label for="lager-4.0" style="flex: 1; font-weight: 500; color: #333 !important;">4,0m</label>
-                        <input type="number" id="anzahl-4.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-4.0" style="flex: 1; font-weight: 500; color: #333;">4,0m</label>
+                        <input type="number" id="anzahl-4.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-4.5" value="4.5" checked>
-                        <label for="lager-4.5" style="flex: 1; font-weight: 500; color: #333 !important;">4,5m</label>
-                        <input type="number" id="anzahl-4.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-4.5" style="flex: 1; font-weight: 500; color: #333;">4,5m</label>
+                        <input type="number" id="anzahl-4.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-5.0" value="5.0" checked>
-                        <label for="lager-5.0" style="flex: 1; font-weight: 500; color: #333 !important;">5,0m</label>
-                        <input type="number" id="anzahl-5.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-5.0" style="flex: 1; font-weight: 500; color: #333;">5,0m</label>
+                        <input type="number" id="anzahl-5.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-5.5" value="5.5">
-                        <label for="lager-5.5" style="flex: 1; font-weight: 500; color: #333 !important;">5,5m</label>
-                        <input type="number" id="anzahl-5.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-5.5" style="flex: 1; font-weight: 500; color: #333;">5,5m</label>
+                        <input type="number" id="anzahl-5.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-6.0" value="6.0" checked>
-                        <label for="lager-6.0" style="flex: 1; font-weight: 500; color: #333 !important;">6,0m</label>
-                        <input type="number" id="anzahl-6.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-6.0" style="flex: 1; font-weight: 500; color: #333;">6,0m</label>
+                        <input type="number" id="anzahl-6.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-6.5" value="6.5">
-                        <label for="lager-6.5" style="flex: 1; font-weight: 500; color: #333 !important;">6,5m</label>
-                        <input type="number" id="anzahl-6.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-6.5" style="flex: 1; font-weight: 500; color: #333;">6,5m</label>
+                        <input type="number" id="anzahl-6.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-7.0" value="7.0">
-                        <label for="lager-7.0" style="flex: 1; font-weight: 500; color: #333 !important;">7,0m</label>
-                        <input type="number" id="anzahl-7.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-7.0" style="flex: 1; font-weight: 500; color: #333;">7,0m</label>
+                        <input type="number" id="anzahl-7.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-7.5" value="7.5">
-                        <label for="lager-7.5" style="flex: 1; font-weight: 500; color: #333 !important;">7,5m</label>
-                        <input type="number" id="anzahl-7.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-7.5" style="flex: 1; font-weight: 500; color: #333;">7,5m</label>
+                        <input type="number" id="anzahl-7.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-8.0" value="8.0">
-                        <label for="lager-8.0" style="flex: 1; font-weight: 500; color: #333 !important;">8,0m</label>
-                        <input type="number" id="anzahl-8.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-8.0" style="flex: 1; font-weight: 500; color: #333;">8,0m</label>
+                        <input type="number" id="anzahl-8.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-8.5" value="8.5">
-                        <label for="lager-8.5" style="flex: 1; font-weight: 500; color: #333 !important;">8,5m</label>
-                        <input type="number" id="anzahl-8.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-8.5" style="flex: 1; font-weight: 500; color: #333;">8,5m</label>
+                        <input type="number" id="anzahl-8.5" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 6px; background: #f8f9fa;">
                         <input type="checkbox" id="lager-9.0" value="9.0">
-                        <label for="lager-9.0" style="flex: 1; font-weight: 500; color: #333 !important;">9,0m</label>
-                        <input type="number" id="anzahl-9.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0">
+                        <label for="lager-9.0" style="flex: 1; font-weight: 500; color: #333;">9,0m</label>
+                        <input type="number" id="anzahl-9.0" placeholder="∞" style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; color: #333;" min="0">
                     </div>
                 </div>
             </div>
@@ -352,20 +506,20 @@
                 <div class="input-row">
                     <div class="input-group">
                         <label for="optimierung-modus">Optimierungsmodus</label>
-                        <select id="optimierung-modus" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px;">
-                            <option value="verschnitt">🎯 Minimaler Verschnitt (Materialeinsparung)</option>
-                            <option value="schnitte" selected>⚡ Wenigste Schnitte (Zeiteinsparung)</option>
+                        <select id="optimierung-modus" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px; color: #333;">
+                            <option value="verschnitt">Minimaler Verschnitt (Materialeinsparung)</option>
+                            <option value="schnitte" selected>Wenigste Schnitte (Zeiteinsparung)</option>
                         </select>
                     </div>
                     <div class="input-group">
                         <label for="schnittblatt-breite">Schnittblattbreite (mm)</label>
-                        <input type="number" id="schnittblatt-breite" value="3.0" step="0.1" min="0" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px;">
+                        <input type="number" id="schnittblatt-breite" value="3.0" step="0.1" min="0" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px; color: #333;">
                     </div>
                 </div>
                 <div class="input-row">
                     <div class="input-group">
                         <label for="toleranz">Toleranz pro Platte (mm)</label>
-                        <input type="number" id="toleranz" value="5.0" step="0.1" min="0" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px;">
+                        <input type="number" id="toleranz" value="5.0" step="0.1" min="0" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 6px; font-size: 16px; color: #333;">
                     </div>
                     <div class="input-group">
                         <!-- Leerer Platz für symmetrisches Layout -->
@@ -373,10 +527,10 @@
                 </div>
             </div>
 
-            <button class="calculate-btn" onclick="berechneOptimierung()">🔧 Optimierung berechnen</button>
+            <button class="calculate-btn" onclick="berechneOptimierung()">Optimierung berechnen</button>
 
             <div id="results" class="results" style="display: none;">
-                <h3 style="color: #1e3c72; margin-bottom: 20px; text-align: center;">📊 Optimierungsergebnisse</h3>
+                <h3 style="color: #1e3c72; margin-bottom: 20px; text-align: center;">Optimierungsergebnisse</h3>
                 
                 <div class="result-item">
                     <span>Benötigte Lagerplatten:</span>
@@ -405,9 +559,9 @@
                 
                 <div id="saegeplan" style="margin-top: 25px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h4 style="color: #1e3c72; margin: 0;">🪚 Detaillierter Sägeplan</h4>
+                        <h4 style="color: #1e3c72; margin: 0;">Detaillierter Sägeplan</h4>
                         <button onclick="druckeSaegeplan()" class="btn btn-primary print-button">
-                            🖨️ Sägeplan drucken
+                            Sägeplan drucken
                         </button>
                     </div>
                     
@@ -429,24 +583,17 @@
                         </div>
                         
                         <div id="verschnitt-optimierung" style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-radius: 10px; border-left: 5px solid #ffc107; display: none;">
-                            <h4 style="color: #856404; margin-bottom: 15px;">💡 Verschnitt-Optimierungstipp</h4>
+                            <h4 style="color: #856404; margin-bottom: 15px;">Verschnitt-Optimierungstipp</h4>
                             <div id="optimierung-text"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Debug Info -->
-            <div id="debug" class="debug-info" style="display: none;">
-                <h4>🐛 Debug-Informationen</h4>
-                <div id="debug-content"></div>
-            </div>
-
             <!-- Eleganter Werbeplatz am Ende -->
             <div class="ad-container" id="bottom-ad-container" style="text-align: center;">
                 <div class="ad-placeholder">
                     <div class="ad-content">
-                        <span class="ad-icon">🛠️</span>
                         <span class="ad-text">Mehr professionelle Optimierungstools verfügbar</span>
                     </div>
                 </div>
@@ -462,15 +609,9 @@
 
     <script>
         let aktuelleOptimierung = [];
-        let debugLog = [];
         
         function log(message) {
             console.log(message);
-            debugLog.push(message);
-            const debugContent = document.getElementById('debug-content');
-            if (debugContent) {
-                debugContent.innerHTML = debugLog.join('<br>');
-            }
         }
 
         // Cookie Management System
@@ -612,13 +753,13 @@
                 if (verschnittOptimierungsTipp) {
                     druckHTML += `
                         <div style="background: #fffbf0; border: 2px solid #ffc107; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                            <h4 style="color: #856404; margin-bottom: 15px;">💡 Verschnitt-Optimierungstipp</h4>
+                            <h4 style="color: #856404; margin-bottom: 15px;">Verschnitt-Optimierungstipp</h4>
                             <div>${verschnittOptimierungsTipp}</div>
-                            <strong>💰 Vorteile:</strong><br>
+                            <strong>Vorteile:</strong><br>
                             • Kein Materialverschnitt<br>
                             • Weniger Sägeschnitte (spart Zeit)<br>
                             • Teile sind noch innerhalb der Toleranz<br>
-                            <em>💡 Längere Teile sind oft sogar besser als zu kurze!</em>
+                            <em>Längere Teile sind oft sogar besser als zu kurze!</em>
                         </div>`;
                 }
             }
@@ -704,7 +845,7 @@
                             for (let i = 0; i < anzahl; i++) {
                                 masze.push(wert);
                             }
-                            log(`✅ Parsed: ${anzahl}x ${wert}m`);
+                            log(`Parsed: ${anzahl}x ${wert}m`);
                             continue;
                         }
                     }
@@ -714,7 +855,7 @@
                 const wert = parseEinheitUndWert(line);
                 if (!isNaN(wert) && wert > 0) {
                     masze.push(wert);
-                    log(`✅ Parsed: ${wert}m`);
+                    log(`Parsed: ${wert}m`);
                 }
             }
             
@@ -722,15 +863,12 @@
         }
 
         function berechneOptimierung() {
-            debugLog = [];
-            document.getElementById('debug').style.display = 'block';
-            
-            log('🔧 Start Optimierung...');
+            log('Start Optimierung...');
             
             try {
                 // 1. Eingabe parsen
                 const benoetigteMasze = parseEinfacheEingabe();
-                log(`📏 Benötigte Maße: ${benoetigteMasze.length} Stück`);
+                log(`Benötigte Maße: ${benoetigteMasze.length} Stück`);
                 
                 // Zeige geparste Werte zur Kontrolle
                 const einzigartigeMasze = [...new Set(benoetigteMasze)];
@@ -740,28 +878,28 @@
                 });
                 
                 if (benoetigteMasze.length === 0) {
-                    alert('❌ Bitte geben Sie mindestens eine Länge ein!');
+                    alert('Bitte geben Sie mindestens eine Länge ein!');
                     return;
                 }
                 
                 // 2. Lagerlängen sammeln
                 const verfuegbareLaengen = getVerfuegbareLaengen();
-                log(`📦 Verfügbare Längen: ${verfuegbareLaengen.map(l => l.laenge + 'm').join(', ')}`);
+                log(`Verfügbare Längen: ${verfuegbareLaengen.map(l => l.laenge + 'm').join(', ')}`);
                 
                 if (verfuegbareLaengen.length === 0) {
-                    alert('❌ Bitte wählen Sie mindestens eine Lagerlänge aus!');
+                    alert('Bitte wählen Sie mindestens eine Lagerlänge aus!');
                     return;
                 }
                 
                 // 3. Optimierung durchführen
                 const optimierung = intelligenteOptimierung(benoetigteMasze, verfuegbareLaengen);
-                log('✅ Optimierung abgeschlossen');
+                log('Optimierung abgeschlossen');
                 
                 // 4. Ergebnisse anzeigen
                 zeigeErgebnisse(optimierung);
                 
             } catch (error) {
-                log('❌ Fehler: ' + error.message);
+                log('Fehler: ' + error.message);
                 alert('Fehler bei der Optimierung: ' + error.message);
             }
         }
@@ -769,7 +907,7 @@
         function getVerfuegbareLaengen() {
             const verfuegbar = [];
             
-            // KORRIGIERT: Alle Lagerlängen mit korrekten IDs
+            // Alle Lagerlängen mit korrekten IDs
             const lagerlängen = [
                 { id: 'lager-2.0', laenge: 2.0 },
                 { id: 'lager-2.5', laenge: 2.5 },
@@ -853,11 +991,11 @@
                     if (kannVerschnittVerteilen) {
                         // Verschnitt kann auf Teile verteilt werden - kein Verschnitt-Schnitt nötig!
                         endVerschnitt = 0;
-                        log(`✅ ${lagerlaenge}m mit ${maxAnzahl}x${teilLaenge}m: Verschnitt ${(verschnittProTeil*1000).toFixed(1)}mm pro Teil ≤ ${(toleranz*1000).toFixed(0)}mm Toleranz → KEIN Verschnitt-Schnitt!`);
+                        log(`${lagerlaenge}m mit ${maxAnzahl}x${teilLaenge}m: Verschnitt ${(verschnittProTeil*1000).toFixed(1)}mm pro Teil ≤ ${(toleranz*1000).toFixed(0)}mm Toleranz → KEIN Verschnitt-Schnitt!`);
                     } else {
                         // Verschnitt zu groß - muss abgetrennt werden
                         realSchnitte += 1;
-                        log(`⚠️ ${lagerlaenge}m mit ${maxAnzahl}x${teilLaenge}m: Verschnitt ${(verschnittProTeil*1000).toFixed(1)}mm pro Teil > ${(toleranz*1000).toFixed(0)}mm Toleranz → +1 Verschnitt-Schnitt`);
+                        log(`${lagerlaenge}m mit ${maxAnzahl}x${teilLaenge}m: Verschnitt ${(verschnittProTeil*1000).toFixed(1)}mm pro Teil > ${(toleranz*1000).toFixed(0)}mm Toleranz → +1 Verschnitt-Schnitt`);
                     }
                     
                     return { 
@@ -909,8 +1047,8 @@
             const toleranz = parseFloat(document.getElementById('toleranz').value) / 1000;
             const modus = document.getElementById('optimierung-modus').value;
             
-            log(`🎯 Optimierungsmodus: ${modus}`);
-            log(`🔧 Schnittblattbreite: ${(schnittblattBreite*1000).toFixed(1)}mm, Toleranz: ${(toleranz*1000).toFixed(1)}mm`);
+            log(`Optimierungsmodus: ${modus}`);
+            log(`Schnittblattbreite: ${(schnittblattBreite*1000).toFixed(1)}mm, Toleranz: ${(toleranz*1000).toFixed(1)}mm`);
             
             // Verbrauchszähler für begrenzte Lagerlängen
             const verbrauchteAnzahl = {};
@@ -925,20 +1063,20 @@
                 let besteKombination = [];
                 let besterWert = modus === 'verschnitt' ? Infinity : Infinity; // Beide Modi minimieren
                 
-                log(`🔄 Platte ${plattenNr}: Verbleibende Teile: ${verbleibendeMapze.length}`);
+                log(`Platte ${plattenNr}: Verbleibende Teile: ${verbleibendeMapze.length}`);
                 
                 // Teste jede verfügbare Lagerlänge
                 for (let lager of verfuegbareLaengen) {
                     // Prüfe ob noch verfügbar
                     if (verbrauchteAnzahl[lager.laenge] >= lager.anzahl) {
-                        log(`⏭️ Lager ${lager.laenge}m: Keine mehr verfügbar (${verbrauchteAnzahl[lager.laenge]}/${lager.anzahl})`);
+                        log(`Lager ${lager.laenge}m: Keine mehr verfügbar (${verbrauchteAnzahl[lager.laenge]}/${lager.anzahl})`);
                         continue;
                     }
                     
                     const kombination = berechneOptimaleKombination(verbleibendeMapze, lager.laenge, schnittblattBreite, toleranz);
                     
                     if (kombination.teile.length === 0) {
-                        log(`❌ Lager ${lager.laenge}m: Keine Kombination möglich`);
+                        log(`Lager ${lager.laenge}m: Keine Kombination möglich`);
                         continue;
                     }
                     
@@ -947,7 +1085,7 @@
                         // Minimaler Verschnitt - URSPRÜNGLICHE LOGIK BEIBEHALTEN
                         istBesser = kombination.verschnitt < besterWert;
                         if (istBesser) besterWert = kombination.verschnitt;
-                        log(`🎯 VERSCHNITT-Modus: ${lager.laenge}m → ${kombination.teile.length} Teile, Verschnitt: ${kombination.verschnitt.toFixed(3)}m ${istBesser ? '(BESSER)' : ''}`);
+                        log(`VERSCHNITT-Modus: ${lager.laenge}m → ${kombination.teile.length} Teile, Verschnitt: ${kombination.verschnitt.toFixed(3)}m ${istBesser ? '(BESSER)' : ''}`);
                     } else {
                         // Wenigste Schnitte: KORRIGIERTE LOGIK
                         // Primär: Minimiere Schnitte pro Teil, Sekundär: Minimiere Verschnitt
@@ -963,25 +1101,25 @@
                             zusatzInfo = ', Verschnitt verteilbar auf Teile!';
                         }
                         
-                        log(`⚡ SCHNITTE-Modus: ${lager.laenge}m → ${kombination.teile.length} Teile, ${kombination.realSchnitte} reale Schnitte, Effizienz: ${schnittEffizienz.toFixed(2)} Schnitte/Teil, Verschnitt: ${kombination.verschnitt.toFixed(3)}m${zusatzInfo} ${istBesser ? '(BESSER)' : ''}`);
+                        log(`SCHNITTE-Modus: ${lager.laenge}m → ${kombination.teile.length} Teile, ${kombination.realSchnitte} reale Schnitte, Effizienz: ${schnittEffizienz.toFixed(2)} Schnitte/Teil, Verschnitt: ${kombination.verschnitt.toFixed(3)}m${zusatzInfo} ${istBesser ? '(BESSER)' : ''}`);
                     }
                     
                     if (istBesser) {
                         besteKombination = kombination.teile;
                         bestePlatte = lager;
-                        log(`✅ NEUE BESTE: ${lager.laenge}m mit ${kombination.teile.length} Teilen, ${kombination.realSchnitte} reale Schnitte`);
+                        log(`NEUE BESTE: ${lager.laenge}m mit ${kombination.teile.length} Teilen, ${kombination.realSchnitte} reale Schnitte`);
                     }
                 }
                 
                 if (!bestePlatte || besteKombination.length === 0) {
-                    log('⚠️ Keine optimale Platte gefunden - breche ab');
+                    log('Keine optimale Platte gefunden - breche ab');
                     break;
                 }
                 
                 // Berechne finale Werte
                 const finalKombination = berechneOptimaleKombination([...besteKombination], bestePlatte.laenge, schnittblattBreite, toleranz);
                 
-                log(`✅ Platte ${plattenNr}: ${bestePlatte.laenge}m mit ${besteKombination.length} Teilen, Verschnitt: ${finalKombination.verschnitt.toFixed(3)}m, Reale Schnitte: ${finalKombination.realSchnitte}`);
+                log(`Platte ${plattenNr}: ${bestePlatte.laenge}m mit ${besteKombination.length} Teilen, Verschnitt: ${finalKombination.verschnitt.toFixed(3)}m, Reale Schnitte: ${finalKombination.realSchnitte}`);
                 
                 ergebnis.push({
                     plattenNr: plattenNr++,
@@ -1085,11 +1223,11 @@
             // Zeige Verschnitt-Optimierungstipp
             if (verschnittOptimierungsTipp) {
                 document.getElementById('optimierung-text').innerHTML = verschnittOptimierungsTipp + 
-                    '<strong>💰 Vorteile:</strong><br>' +
+                    '<strong>Vorteile:</strong><br>' +
                     '• Kein Materialverschnitt<br>' +
                     '• Weniger Sägeschnitte (spart Zeit)<br>' +
                     '• Teile sind noch innerhalb der Toleranz<br>' +
-                    '<em>💡 Längere Teile sind oft sogar besser als zu kurze!</em>';
+                    '<em>Längere Teile sind oft sogar besser als zu kurze!</em>';
                 document.getElementById('verschnitt-optimierung').style.display = 'block';
             } else {
                 document.getElementById('verschnitt-optimierung').style.display = 'none';
@@ -1097,8 +1235,8 @@
             
             document.getElementById('results').style.display = 'block';
             
-            // Zeige finale Statistik im Debug-Log
-            log(`📊 FINALE STATISTIK:`);
+            // Zeige finale Statistik im Log
+            log(`FINALE STATISTIK:`);
             log(`   Platten benötigt: ${optimierung.length}`);
             log(`   Gesamtmaterial: ${gesamtMaterial.toFixed(2)}m`);
             log(`   Gesamtverschnitt: ${gesamtVerschnitt.toFixed(2)}m`);
