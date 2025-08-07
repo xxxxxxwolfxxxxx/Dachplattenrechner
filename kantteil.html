@@ -3,1101 +3,802 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kantteil-Rechner - Einfache Live-Eingabe</title>
-    <meta name="description" content="Einfacher Kantteil-Rechner mit direkter Live-Eingabe und Winkel-Slider.">
-    
+    <title>Blechkantteil Zeichenprogramm</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
+            margin: 0;
+            padding: 20px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: url('images/winkel.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
             background-color: #f5f5f5;
-            min-height: 100vh;
-            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
 
         .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-        }
-
-        .nav-header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 15px 0;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .nav-header .container {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 0 20px;
-        }
-
-        .back-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            transition: background-color 0.3s;
-        }
-
-        .back-btn:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
-
-        .nav-title {
-            font-size: 1.4em;
-            font-weight: 600;
-        }
-
-        /* Hauptbereich - Skizze */
-        .sketch-area {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            position: relative;
-            min-height: 500px;
-        }
-
-        .sketch-title {
-            color: #1e3c72;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-            text-align: center;
-        }
-
-        #sketch-canvas {
             width: 100%;
-            height: 400px;
-            border: 2px solid #e0e0e0;
+        }
+
+        .drawing-area {
+            flex: 1;
+            background: white;
+            border: 2px solid #ddd;
             border-radius: 8px;
-            background: white;
-        }
-
-        /* Eingabe-Bereich unten */
-        .input-area {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            display: none;
-        }
-
-        .input-area.active {
-            display: block;
-        }
-
-        .input-title {
-            text-align: center;
-            font-size: 1.1em;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        /* Längen-Eingabe */
-        .length-input-container {
-            display: none;
-            text-align: center;
-        }
-
-        .length-input-container.active {
-            display: block;
-        }
-
-        .length-input {
-            width: 150px;
-            padding: 12px;
-            font-size: 18px;
-            font-weight: 600;
-            text-align: center;
-            border: none;
-            border-radius: 6px;
-            margin: 0 auto;
-            display: block;
-        }
-
-        .length-unit {
-            color: #e3f2fd;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        /* Winkel-Eingabe */
-        .angle-input-container {
-            display: none;
-            text-align: center;
-        }
-
-        .angle-input-container.active {
-            display: block;
-        }
-
-        .angle-slider-container {
-            margin-bottom: 15px;
             position: relative;
+            margin-bottom: 20px;
+            min-height: 500px;
+            overflow: hidden;
         }
 
-        .angle-slider {
+        .rotate-control {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            border: 2px solid #007acc;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            cursor: pointer;
+        }
+
+        .rotate-knob {
             width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            display: block;
-            -webkit-appearance: none;
-            appearance: none;
-            height: 8px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 4px;
-            outline: none;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            position: relative;
+            transition: box-shadow 0.2s;
         }
 
-        .angle-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
+        .rotate-knob:hover {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .rotate-knob:active {
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.2);
+        }
+
+        .satellite {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #007acc;
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: grab;
+        }
+
+        .satellite:active {
+            cursor: grabbing;
+        }
+
+        .center-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 20px;
             height: 20px;
-            background: #fff;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            color: #666;
+            pointer-events: none;
         }
 
-        .angle-slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #fff;
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        }
-
-        .slider-labels {
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
             display: flex;
-            justify-content: space-between;
-            max-width: 400px;
-            margin: 5px auto 0;
-            font-size: 12px;
-            color: rgba(255,255,255,0.8);
+            gap: 20px;
+            align-items: center;
         }
 
-        .angle-display {
-            font-size: 24px;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        /* Buttons */
-        .button-row {
+        .control-group {
             display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
+            flex-direction: column;
+            gap: 8px;
         }
 
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
+        .control-group label {
+            font-weight: 500;
+            color: #333;
             font-size: 14px;
-            font-weight: 600;
+        }
+
+        .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            width: 80px;
+        }
+
+        .control-group input:focus {
+            outline: none;
+            border-color: #007acc;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider {
+            width: 200px;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007acc;
             cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-confirm {
-            background: #4caf50;
-            color: white;
-        }
-
-        .btn-confirm:hover {
-            background: #45a049;
-            transform: translateY(-1px);
-        }
-
-        .btn-cancel {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-
-        .btn-cancel:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* SVG Styles */
-        .profile-line {
-            stroke: #1e3c72;
-            stroke-width: 4;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            cursor: pointer;
-            transition: stroke-width 0.2s;
-        }
-
-        .profile-line:hover {
-            stroke-width: 6;
-            stroke: #2196f3;
-        }
-
-        .profile-line.selected {
-            stroke: #ff5722;
-            stroke-width: 5;
-        }
-
-        .profile-line.editing {
-            stroke: #4caf50;
-            stroke-width: 5;
-            stroke-dasharray: 8,4;
         }
 
         .plus-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #007acc;
+            color: white;
+            border: none;
+            font-size: 20px;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transform-origin: center center;
+            position: absolute;
+            z-index: 100;
         }
 
         .plus-button:hover {
+            background: #0056a3;
             transform: scale(1.1);
         }
 
-        .plus-button circle {
-            fill: #4caf50;
-            stroke: white;
+        .plus-button:active {
+            transform: scale(1.1);
+        }
+
+        .initial-plus {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transform-origin: center center;
+        }
+
+        .initial-plus:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .initial-plus:active {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .line-segment {
+            stroke: #333;
             stroke-width: 3;
+            fill: none;
         }
 
-        .plus-button:hover circle {
-            fill: #45a049;
-        }
-
-        .plus-button text {
-            fill: white;
-            font-weight: bold;
-            text-anchor: middle;
-            dominant-baseline: central;
-            font-size: 18px;
-            pointer-events: none;
-        }
-
-        .dimension-text {
-            font-size: 12px;
-            fill: #666;
-            text-anchor: middle;
-            font-family: Arial, sans-serif;
-            font-weight: 600;
-            pointer-events: none;
-        }
-
-        .start-marker {
-            fill: #2196f3;
-            stroke: white;
-            stroke-width: 2;
-        }
-
-        .end-marker {
-            fill: #ff9800;
-            stroke: white;
-            stroke-width: 2;
-        }
-
-        /* Status-Anzeige */
-        .status-bar {
-            background: #e8f5e8;
-            border: 1px solid #4caf50;
-            border-radius: 6px;
-            padding: 10px;
-            margin-bottom: 15px;
-            text-align: center;
-            color: #2e7d32;
-            font-weight: 500;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            .sketch-area {
-                padding: 15px;
-            }
-
-            #sketch-canvas {
-                height: 300px;
-            }
-
-            .length-input {
-                width: 120px;
-                font-size: 16px;
-            }
-
-            .angle-display {
-                font-size: 20px;
-            }
+        .curve {
+            stroke: #333;
+            stroke-width: 3;
+            fill: none;
         }
     </style>
 </head>
 <body>
-    <div class="nav-header">
-        <div class="container">
-            <a href="index.html" class="back-btn">
-                <span>←</span>
-                <span>Zurück zur Übersicht</span>
-            </a>
-            <div class="nav-title">Kantteil-Rechner - Live-Eingabe</div>
-        </div>
-    </div>
-
     <div class="container">
-        <!-- Skizzen-Bereich -->
-        <div class="sketch-area">
-            <h3 class="sketch-title">📐 Interaktive Profil-Konstruktion</h3>
-            
-            <div class="status-bar" id="status-bar">
-                Klicken Sie auf eine Linie um die Länge zu ändern, oder auf ein ➕ um ein neues Segment hinzuzufügen
+        <div class="drawing-area" id="drawingArea">
+            <div class="rotate-control" id="rotateControl">
+                <div class="rotate-knob" id="rotateKnob">
+                    <div class="satellite" id="satellite"></div>
+                    <svg class="center-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L19 6.5C18.8 5.9 18.6 5.4 18.3 4.9L19.3 3L17 0.7L15.4 1.7C14.9 1.4 14.4 1.2 13.8 1L13 3H11L10.2 1C9.6 1.2 9.1 1.4 8.6 1.7L7 0.7L4.7 3L5.7 4.6C5.4 5.1 5.2 5.6 5 6.2L3 7V9L5 9.5C5.2 10.1 5.4 10.6 5.7 11.1L4.7 12.7L7 15L8.6 14C9.1 14.3 9.6 14.5 10.2 14.7L11 17H13L13.8 14.7C14.4 14.5 14.9 14.3 15.4 14L17 15L19.3 12.7L18.3 11.1C18.6 10.6 18.8 10.1 19 9.5L21 9ZM12 18C8.7 18 6 15.3 6 12S8.7 6 12 6 18 8.7 18 12 15.3 18 12 18ZM12 8C9.8 8 8 9.8 8 12S9.8 16 12 16 16 14.2 16 12 14.2 8 12 8Z"/>
+                    </svg>
+                </div>
             </div>
-
-            <svg id="sketch-canvas" viewBox="0 0 1000 300">
-                <!-- Grid -->
+            
+            <button class="plus-button initial-plus" id="initialPlus">+</button>
+            
+            <svg id="svgCanvas" viewBox="0 0 800 600">
                 <defs>
-                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f5f5f5" stroke-width="0.5"/>
-                    </pattern>
-                    <pattern id="major-grid" width="100" height="100" patternUnits="userSpaceOnUse">
-                        <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#e8e8e8" stroke-width="1"/>
-                    </pattern>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                     refX="0" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+                    </marker>
                 </defs>
-                
-                <rect width="100%" height="100%" fill="url(#grid)"/>
-                <rect width="100%" height="100%" fill="url(#major-grid)"/>
-                
-                <!-- Koordinatensystem -->
-                <line x1="50" y1="150" x2="950" y2="150" stroke="#ddd" stroke-width="1" opacity="0.3"/>
-                
-                <!-- Start-Linie (100mm = 200px) -->
-                <line id="line-1" x1="100" y1="150" x2="300" y2="150" 
-                      class="profile-line" 
-                      data-segment="1" 
-                      data-length="100" 
-                      onclick="selectLine(this)"/>
-                
-                <!-- Start-Marker -->
-                <circle cx="100" cy="150" r="4" class="start-marker"/>
-                <text x="85" y="140" class="dimension-text" style="font-size: 10px;">START</text>
-                
-                <!-- Ende-Marker -->
-                <circle cx="300" cy="150" r="4" class="end-marker"/>
-                
-                <!-- Längen-Bemaßung -->
-                <text x="200" y="135" class="dimension-text" id="dim-1">100mm</text>
-                
-                <!-- Plus-Button am Anfang -->
-                <g id="plus-start" class="plus-button" data-at-start="1" onclick="addSegmentAtStart(this)">
-                    <circle cx="100" cy="150" r="12"/>
-                    <text x="100" y="150">+</text>
-                </g>
-                
-                <!-- Plus-Button am Ende -->
-                <g id="plus-1" class="plus-button" data-at-end="1" onclick="addSegment(this)">
-                    <circle cx="300" cy="150" r="12"/>
-                    <text x="300" y="150">+</text>
-                </g>
-                
-                <!-- Weitere Segmente werden hier dynamisch hinzugefügt -->
-                <g id="segments"></g>
-                <g id="dimensions"></g>
-                <g id="plus-buttons"></g>
             </svg>
         </div>
 
-        <!-- Eingabe-Bereich -->
-        <div class="input-area" id="input-area">
-            <!-- Längen-Eingabe -->
-            <div class="length-input-container" id="length-input-container">
-                <div class="input-title">Länge eingeben</div>
-                <input type="number" 
-                       class="length-input" 
-                       id="length-input" 
-                       min="1" 
-                       max="5000" 
-                       step="0.1" 
-                       placeholder="100"
-                       oninput="updateLength()"
-                       onkeydown="handleLengthKeydown(event)">
-                <div class="length-unit">Millimeter (mm)</div>
-                
-                <div class="button-row">
-                    <button class="btn btn-confirm" onclick="confirmLength()">✓ Bestätigen</button>
-                    <button class="btn btn-cancel" onclick="cancelEdit()">✗ Abbrechen</button>
-                </div>
+        <div class="controls">
+            <div class="control-group">
+                <label>Länge (mm)</label>
+                <input type="number" id="lengthInput" value="10" min="1" max="200">
             </div>
-
-            <!-- Winkel-Eingabe -->
-            <div class="angle-input-container" id="angle-input-container">
-                <div class="input-title">Winkel einstellen</div>
-                
-                <div class="angle-slider-container">
-                    <input type="range" 
-                           class="angle-slider" 
-                           id="angle-slider" 
-                           min="-180" 
-                           max="180" 
-                           value="90" 
-                           step="1"
-                           oninput="updateAngle()">
-                    <div class="slider-labels">
-                        <span>-180°</span>
-                        <span>0°</span>
-                        <span>+180°</span>
-                    </div>
-                </div>
-                
-                <div class="angle-display" id="angle-display">90°</div>
-                
-                <div class="button-row">
-                    <button class="btn btn-confirm" onclick="confirmAngle()">✓ Bestätigen</button>
-                    <button class="btn btn-cancel" onclick="cancelEdit()">✗ Abbrechen</button>
+            
+            <div class="control-group">
+                <label>Winkel (°)</label>
+                <input type="number" id="angleInput" value="0" min="-180" max="180">
+            </div>
+            
+            <div class="control-group">
+                <label>Winkel-Schieberegler</label>
+                <div class="slider-container">
+                    <span>-180°</span>
+                    <input type="range" id="angleSlider" class="slider" 
+                           min="-180" max="180" value="0">
+                    <span>+180°</span>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Globale Variablen
-        let segments = [
-            { id: 1, length: 100, angle: 0, startX: 100, startY: 150, endX: 300, endY: 150, absoluteAngle: 0 }
-        ];
-        
-        let currentEditMode = null; // 'length' oder 'angle'
-        let currentEditSegment = null;
-        let currentEditElement = null;
-        let nextSegmentId = 2;
-        let scale = 2; // 2 Pixel = 1mm
-
-        // DOM-Elemente
-        const svg = document.getElementById('sketch-canvas');
-        const inputArea = document.getElementById('input-area');
-        const lengthContainer = document.getElementById('length-input-container');
-        const angleContainer = document.getElementById('angle-input-container');
-        const lengthInput = document.getElementById('length-input');
-        const angleSlider = document.getElementById('angle-slider');
-        const angleDisplay = document.getElementById('angle-display');
-        const statusBar = document.getElementById('status-bar');
-
-        // Initialisierung
-        document.addEventListener('DOMContentLoaded', function() {
-            updateStatus('Bereit - Klicken Sie auf die Linie oder das ➕');
-        });
-
-        function selectLine(lineElement) {
-            // Vorherige Auswahl entfernen
-            document.querySelectorAll('.profile-line').forEach(line => {
-                line.classList.remove('selected', 'editing');
-            });
-
-            // Aktuelle Linie auswählen
-            lineElement.classList.add('selected');
-            
-            const segmentId = parseInt(lineElement.getAttribute('data-segment'));
-            const segment = segments.find(s => s.id === segmentId);
-            
-            if (!segment) return;
-            
-            // Längen-Eingabe vorbereiten
-            currentEditMode = 'length';
-            currentEditSegment = segment;
-            currentEditElement = lineElement;
-            
-            lengthInput.value = segment.length;
-            
-            // Eingabe-Bereich anzeigen
-            inputArea.classList.add('active');
-            lengthContainer.classList.add('active');
-            angleContainer.classList.remove('active');
-            
-            // Input fokussieren und auswählen
-            setTimeout(() => {
-                lengthInput.focus();
-                lengthInput.select();
-            }, 100);
-            
-            updateStatus('Geben Sie die neue Länge ein und bestätigen Sie mit Enter oder ✓');
-        }
-
-        function addSegment(plusElement) {
-            const atEndId = parseInt(plusElement.getAttribute('data-at-end'));
-            const prevSegment = segments.find(s => s.id === atEndId);
-            
-            if (!prevSegment) return;
-            
-            // Neue 10mm Linie erstellen
-            const newLength = 10;
-            const newAngle = 90; // Standard-Winkel
-            
-            // Position berechnen
-            const startX = prevSegment.endX;
-            const startY = prevSegment.endY;
-            const newAbsoluteAngle = prevSegment.absoluteAngle + newAngle;
-            
-            let endX, endY;
-            
-            // Spezialbehandlung für 180° (oder fast 180°)
-            if (Math.abs(Math.abs(newAngle) - 180) < 5) {
-                // 180° als Kurve mit Radius
-                const radiusSize = 20;
-                const prevDirection = prevSegment.absoluteAngle * Math.PI / 180;
+        class BlechkantTool {
+            constructor() {
+                this.segments = [];
+                this.currentSegment = null;
+                this.scale = 2; // 2 Pixel pro mm
+                this.globalRotation = 0;
+                this.centerX = 400;
+                this.centerY = 300;
+                this.zoom = 1;
+                this.panX = 0;
+                this.panY = 0;
+                this.isPanning = false;
+                this.lastPanX = 0;
+                this.lastPanY = 0;
+                this.isRotating = false;
+                this.minZoom = 0.5;
+                this.maxZoom = 50;
+                this.bendRadius = 2; // 1mm Biegeradius = 2px
                 
-                // Kurvenrichtung bestimmen
-                const curveDirection = newAngle > 0 ? 1 : -1;
-                const perpAngle = prevDirection + (Math.PI / 2) * curveDirection;
-                
-                // Kurvenmittelpunkt
-                const curveOffsetX = Math.cos(perpAngle) * radiusSize;
-                const curveOffsetY = -Math.sin(perpAngle) * radiusSize;
-                
-                // Neue Linie parallel zur alten, aber versetzt
-                const parallelDirection = prevDirection + Math.PI; // 180° gedreht
-                const scaledLength = newLength * scale;
-                
-                const curveStartX = startX + curveOffsetX;
-                const curveStartY = startY + curveOffsetY;
-                
-                endX = curveStartX + Math.cos(parallelDirection) * scaledLength;
-                endY = curveStartY - Math.sin(parallelDirection) * scaledLength;
-                
-            } else {
-                // Normaler Winkel
-                const radians = (newAbsoluteAngle * Math.PI) / 180;
-                const scaledLength = newLength * scale;
-                
-                endX = startX + Math.cos(radians) * scaledLength;
-                endY = startY - Math.sin(radians) * scaledLength;
+                this.initializeElements();
+                this.bindEvents();
+                this.updateSatellitePosition();
             }
-            
-            // Neues Segment erstellen
-            const newSegment = {
-                id: nextSegmentId++,
-                length: newLength,
-                angle: newAngle,
-                startX: startX,
-                startY: startY,
-                endX: endX,
-                endY: endY,
-                absoluteAngle: newAbsoluteAngle,
-                is180Degree: Math.abs(Math.abs(newAngle) - 180) < 5
-            };
-            
-            segments.push(newSegment);
-            
-            // Visuell hinzufügen
-            addSegmentVisual(newSegment);
-            
-            // Winkel-Eingabe aktivieren
-            currentEditMode = 'angle';
-            currentEditSegment = newSegment;
-            
-            angleSlider.value = newAngle;
-            angleDisplay.textContent = newAngle + '°';
-            
-            inputArea.classList.add('active');
-            lengthContainer.classList.remove('active');
-            angleContainer.classList.add('active');
-            
-            updateStatus('Stellen Sie den Winkel mit dem Schieberegler ein');
-        }
 
-        function addSegmentAtStart(plusElement) {
-            const firstSegment = segments[0];
-            if (!firstSegment) return;
-            
-            // Neue 10mm Linie am Anfang
-            const newLength = 10;
-            const newAngle = 90;
-            
-            // Rückwärts vom ersten Segment
-            const reverseDirection = (firstSegment.absoluteAngle + 180) * Math.PI / 180;
-            const scaledLength = newLength * scale;
-            
-            const startX = firstSegment.startX - Math.cos(reverseDirection) * scaledLength;
-            const startY = firstSegment.startY + Math.sin(reverseDirection) * scaledLength;
-            
-            const newSegment = {
-                id: nextSegmentId++,
-                length: newLength,
-                angle: newAngle,
-                startX: startX,
-                startY: startY,
-                endX: firstSegment.startX,
-                endY: firstSegment.startY,
-                absoluteAngle: firstSegment.absoluteAngle - 180 + newAngle,
-                is180Degree: false
-            };
-            
-            // Am Anfang der Liste einfügen
-            segments.unshift(newSegment);
-            
-            // Alle IDs der nachfolgenden Segmente anpassen
-            for (let i = 1; i < segments.length; i++) {
-                segments[i].id = i + 1;
+            initializeElements() {
+                this.svgCanvas = document.getElementById('svgCanvas');
+                this.drawingArea = document.getElementById('drawingArea');
+                this.initialPlus = document.getElementById('initialPlus');
+                this.lengthInput = document.getElementById('lengthInput');
+                this.angleInput = document.getElementById('angleInput');
+                this.angleSlider = document.getElementById('angleSlider');
+                this.rotateControl = document.getElementById('rotateControl');
+                this.rotateKnob = document.getElementById('rotateKnob');
+                this.satellite = document.getElementById('satellite');
             }
-            
-            // Komplette Neuzeichnung
-            redrawAllSegments();
-            
-            // Winkel-Eingabe aktivieren
-            currentEditMode = 'angle';
-            currentEditSegment = newSegment;
-            
-            angleSlider.value = newAngle;
-            angleDisplay.textContent = newAngle + '°';
-            
-            inputArea.classList.add('active');
-            lengthContainer.classList.remove('active');
-            angleContainer.classList.add('active');
-            
-            updateStatus('Stellen Sie den Winkel für das neue Segment am Anfang ein');
-        }
 
-        function addSegmentVisual(segment) {
-            // Linie hinzufügen
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('id', `line-${segment.id}`);
-            line.setAttribute('x1', segment.startX);
-            line.setAttribute('y1', segment.startY);
-            line.setAttribute('x2', segment.endX);
-            line.setAttribute('y2', segment.endY);
-            line.setAttribute('class', 'profile-line editing');
-            line.setAttribute('data-segment', segment.id);
-            line.setAttribute('data-length', segment.length);
-            line.setAttribute('onclick', 'selectLine(this)');
-            
-            document.getElementById('segments').appendChild(line);
-            
-            // Bemaßung hinzufügen
-            const midX = (segment.startX + segment.endX) / 2;
-            const midY = (segment.startY + segment.endY) / 2;
-            
-            const dimText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            dimText.setAttribute('id', `dim-${segment.id}`);
-            dimText.setAttribute('x', midX);
-            dimText.setAttribute('y', midY - 10);
-            dimText.setAttribute('class', 'dimension-text');
-            dimText.textContent = segment.length + 'mm';
-            
-            document.getElementById('dimensions').appendChild(dimText);
-            
-            // Altes Plus entfernen und neues hinzufügen
-            const oldPlus = document.getElementById(`plus-${segment.id - 1}`);
-            if (oldPlus) oldPlus.remove();
-            
-            const newPlus = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            newPlus.setAttribute('id', `plus-${segment.id}`);
-            newPlus.setAttribute('class', 'plus-button');
-            newPlus.setAttribute('data-at-end', segment.id);
-            newPlus.setAttribute('onclick', 'addSegment(this)');
-            
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('cx', segment.endX);
-            circle.setAttribute('cy', segment.endY);
-            circle.setAttribute('r', '12');
-            
-            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('x', segment.endX);
-            text.setAttribute('y', segment.endY);
-            text.textContent = '+';
-            
-            newPlus.appendChild(circle);
-            newPlus.appendChild(text);
-            document.getElementById('plus-buttons').appendChild(newPlus);
-            
-            // End-Marker aktualisieren
-            const endMarker = document.querySelector('.end-marker');
-            if (endMarker) {
-                endMarker.setAttribute('cx', segment.endX);
-                endMarker.setAttribute('cy', segment.endY);
+            bindEvents() {
+                this.initialPlus.addEventListener('click', () => this.startFirstSegment());
+                this.lengthInput.addEventListener('input', () => this.updateCurrentSegment());
+                this.angleInput.addEventListener('input', () => this.updateAngleFromInput());
+                this.angleSlider.addEventListener('input', () => this.updateAngleFromSlider());
+                
+                // Satelliten-Rotation
+                this.satellite.addEventListener('mousedown', (e) => this.startRotation(e));
+                document.addEventListener('mousemove', (e) => this.handleRotation(e));
+                document.addEventListener('mouseup', () => this.endRotation());
+                
+                // Zentrier-Knopf
+                this.rotateKnob.addEventListener('click', (e) => {
+                    if (e.target === this.rotateKnob) {
+                        this.centerPart();
+                    }
+                });
+                
+                // Zoom und Pan
+                this.svgCanvas.addEventListener('wheel', (e) => this.handleZoom(e));
+                this.svgCanvas.addEventListener('mousedown', (e) => this.startPan(e));
+                this.svgCanvas.addEventListener('mousemove', (e) => this.handlePan(e));
+                this.svgCanvas.addEventListener('mouseup', () => this.endPan());
+                this.svgCanvas.addEventListener('mouseleave', () => this.endPan());
             }
-        }
 
-        function updateLength() {
-            if (currentEditMode !== 'length' || !currentEditSegment) return;
-            
-            const newLength = parseFloat(lengthInput.value);
-            if (!newLength || newLength <= 0) return;
-            
-            // Segment aktualisieren
-            const segment = currentEditSegment;
-            const lengthDiff = newLength - segment.length;
-            segment.length = newLength;
-            
-            // Position neu berechnen
-            const direction = segment.absoluteAngle * Math.PI / 180;
-            const additionalLength = lengthDiff * scale;
-            
-            segment.endX = segment.startX + Math.cos(direction) * (newLength * scale);
-            segment.endY = segment.startY - Math.sin(direction) * (newLength * scale);
-            
-            // Visuelle Updates
-            updateSegmentVisual(segment);
-            updateFollowingSegments(segment);
-        }
-
-        function updateAngle() {
-            if (currentEditMode !== 'angle' || !currentEditSegment) return;
-            
-            const newAngle = parseInt(angleSlider.value);
-            angleDisplay.textContent = newAngle + '°';
-            
-            // Segment aktualisieren
-            const segment = currentEditSegment;
-            segment.angle = newAngle;
-            
-            // 180° Spezialbehandlung
-            segment.is180Degree = Math.abs(Math.abs(newAngle) - 180) < 5;
-            
-            // Position neu berechnen
-            const segmentIndex = segments.findIndex(s => s.id === segment.id);
-            let baseAngle = 0;
-            
-            if (segmentIndex === 0) {
-                // Erstes Segment
-                baseAngle = 0;
-            } else {
-                // Nachfolgendes Segment
-                const prevSegment = segments[segmentIndex - 1];
-                baseAngle = prevSegment.absoluteAngle;
+            startFirstSegment() {
+                this.initialPlus.style.display = 'none';
+                
+                const startX = this.centerX;
+                const startY = this.centerY;
+                const length = parseFloat(this.lengthInput.value) * this.scale;
+                
+                this.currentSegment = {
+                    id: Date.now(),
+                    startX: startX,
+                    startY: startY,
+                    endX: startX + length,
+                    endY: startY,
+                    length: length,
+                    angle: 0,
+                    fixed: false,
+                    parentSegment: null,
+                    connectionPoint: null
+                };
+                
+                this.drawCurrentSegment();
+                this.createEndButtons();
             }
-            
-            segment.absoluteAngle = baseAngle + newAngle;
-            
-            let endX, endY;
-            
-            if (segment.is180Degree) {
-                // 180° als Kurve
-                const radiusSize = 20;
-                const prevDirection = baseAngle * Math.PI / 180;
-                
-                // Kurvenrichtung
-                const curveDirection = newAngle > 0 ? 1 : -1;
-                const perpAngle = prevDirection + (Math.PI / 2) * curveDirection;
-                
-                // Versatz für parallele Linie
-                const curveOffsetX = Math.cos(perpAngle) * radiusSize;
-                const curveOffsetY = -Math.sin(perpAngle) * radiusSize;
-                
-                // Parallele Richtung (180° gedreht)
-                const parallelDirection = prevDirection + Math.PI;
-                const scaledLength = segment.length * scale;
-                
-                const curveStartX = segment.startX + curveOffsetX;
-                const curveStartY = segment.startY + curveOffsetY;
-                
-                endX = curveStartX + Math.cos(parallelDirection) * scaledLength;
-                endY = curveStartY - Math.sin(parallelDirection) * scaledLength;
-                
-            } else {
-                // Normaler Winkel
-                const direction = segment.absoluteAngle * Math.PI / 180;
-                const scaledLength = segment.length * scale;
-                
-                endX = segment.startX + Math.cos(direction) * scaledLength;
-                endY = segment.startY - Math.sin(direction) * scaledLength;
-            }
-            
-            segment.endX = endX;
-            segment.endY = endY;
-            
-            // Visuelle Updates
-            updateSegmentVisualAdvanced(segment);
-            updateFollowingSegments(segment);
-        }
 
-        function updateSegmentVisualAdvanced(segment) {
-            const line = document.getElementById(`line-${segment.id}`);
-            
-            if (segment.is180Degree) {
-                // 180° Segment als Kurve zeichnen
-                draw180DegreeSegment(segment, line);
-            } else {
-                // Normale Linie
-                if (line) {
-                    line.setAttribute('x1', segment.startX);
-                    line.setAttribute('y1', segment.startY);
-                    line.setAttribute('x2', segment.endX);
-                    line.setAttribute('y2', segment.endY);
-                    line.setAttribute('data-length', segment.length);
+            updateCurrentSegment() {
+                if (!this.currentSegment || this.currentSegment.fixed) return;
+                
+                const length = parseFloat(this.lengthInput.value) * this.scale;
+                this.currentSegment.length = length;
+                
+                if (!this.currentSegment.parentSegment) {
+                    // Erstes Segment
+                    this.currentSegment.endX = this.currentSegment.startX + length;
+                } else {
+                    // Nachfolgende Segmente
+                    this.calculateBendGeometry();
+                }
+                
+                this.drawCurrentSegment();
+                this.updatePlusButtonPositions();
+            }
+
+            updateAngleFromInput() {
+                const angle = parseFloat(this.angleInput.value) || 0;
+                this.angleSlider.value = angle;
+                this.updateAngle(angle);
+            }
+
+            updateAngleFromSlider() {
+                const angle = parseFloat(this.angleSlider.value) || 0;
+                this.angleInput.value = angle;
+                this.updateAngle(angle);
+            }
+
+            updateAngle(angle) {
+                if (!this.currentSegment || this.currentSegment.fixed) return;
+                
+                this.currentSegment.angle = angle;
+                this.calculateBendGeometry();
+                this.drawCurrentSegment();
+                this.updatePlusButtonPositions();
+            }
+
+            calculateBendGeometry() {
+                if (!this.currentSegment.parentSegment) return;
+                
+                const parent = this.currentSegment.parentSegment;
+                const angleRad = this.currentSegment.angle * Math.PI / 180;
+                const length = this.currentSegment.length;
+                
+                // Richtung der Elternlinie
+                const parentAngle = Math.atan2(
+                    parent.endY - parent.startY,
+                    parent.endX - parent.startX
+                );
+                
+                // Verbindungspunkt
+                let connectionX, connectionY;
+                if (this.currentSegment.connectionPoint === 'end') {
+                    connectionX = parent.endX;
+                    connectionY = parent.endY;
+                } else {
+                    connectionX = parent.startX;
+                    connectionY = parent.startY;
+                }
+                
+                // Berechne die Biegung
+                if (Math.abs(angleRad) < 0.01) {
+                    // Kein Winkel - gerade Verlängerung
+                    this.currentSegment.startX = connectionX;
+                    this.currentSegment.startY = connectionY;
                     
-                    // Entferne Kurven-Klassen
-                    line.classList.remove('curve-segment');
+                    const direction = this.currentSegment.connectionPoint === 'end' ? 1 : -1;
+                    this.currentSegment.endX = connectionX + length * Math.cos(parentAngle) * direction;
+                    this.currentSegment.endY = connectionY + length * Math.sin(parentAngle) * direction;
+                    
+                } else {
+                    // Mit Biegung - berechne Startpunkt basierend auf Biegeradius
+                    const bendRadius = this.bendRadius;
+                    
+                    // Normale zur Elternlinie
+                    const normalAngle = parentAngle + Math.PI / 2;
+                    
+                    // Bei 180° ist der Versatz maximal (3px für Sichtbarkeit)
+                    const offsetFactor = Math.sin(Math.abs(angleRad) / 2);
+                    const maxOffset = 3; // 3px maximaler Abstand bei 180°
+                    const offset = offsetFactor * maxOffset;
+                    
+                    // KORREKTUR: Berücksichtige die Verbindungsseite
+                    let effectiveAngle = angleRad;
+                    let offsetDirection;
+                    
+                    if (this.currentSegment.connectionPoint === 'start') {
+                        // Von der Start-Seite: Winkel UND Offset-Richtung umkehren
+                        effectiveAngle = angleRad; // Winkel bleibt gleich
+                        offsetDirection = angleRad > 0 ? -1 : 1; // Offset-Richtung umkehren
+                    } else {
+                        // Von der End-Seite: normal
+                        offsetDirection = angleRad > 0 ? 1 : -1;
+                    }
+                    
+                    // Neuer Startpunkt
+                    this.currentSegment.startX = connectionX + offset * Math.cos(normalAngle) * offsetDirection;
+                    this.currentSegment.startY = connectionY + offset * Math.sin(normalAngle) * offsetDirection;
+                    
+                    // Neue Richtung - berücksichtige Verbindungsseite
+                    let newAngle;
+                    if (this.currentSegment.connectionPoint === 'end') {
+                        newAngle = parentAngle + angleRad;
+                    } else {
+                        // Von start: umgekehrte Basis-Richtung, aber gleicher Winkel
+                        newAngle = parentAngle + Math.PI + angleRad;
+                    }
+                    
+                    this.currentSegment.endX = this.currentSegment.startX + length * Math.cos(newAngle);
+                    this.currentSegment.endY = this.currentSegment.startY + length * Math.sin(newAngle);
                 }
             }
-            
-            // Bemaßung aktualisieren
-            const dim = document.getElementById(`dim-${segment.id}`);
-            if (dim) {
-                const midX = (segment.startX + segment.endX) / 2;
-                const midY = (segment.startY + segment.endY) / 2;
-                dim.setAttribute('x', midX);
-                dim.setAttribute('y', midY - 10);
-                dim.textContent = segment.length + 'mm';
-            }
-            
-            // Plus-Button aktualisieren
-            const plus = document.getElementById(`plus-${segment.id}`);
-            if (plus) {
-                const circle = plus.querySelector('circle');
-                const text = plus.querySelector('text');
-                if (circle && text) {
-                    circle.setAttribute('cx', segment.endX);
-                    circle.setAttribute('cy', segment.endY);
-                    text.setAttribute('x', segment.endX);
-                    text.setAttribute('y', segment.endY);
+
+            drawCurrentSegment() {
+                this.clearTemporaryElements();
+                
+                // Zeichne alle fixierten Segmente
+                this.segments.forEach(segment => this.drawSegment(segment));
+                
+                // Zeichne aktuelles Segment
+                if (this.currentSegment) {
+                    this.drawSegment(this.currentSegment);
+                    
+                    // Zeichne Kurve ab 1°
+                    if (this.currentSegment.parentSegment && Math.abs(this.currentSegment.angle) >= 1) {
+                        this.drawSmoothCurve();
+                    }
                 }
+                
+                this.applyGlobalRotation();
             }
-            
-            // End-Marker aktualisieren (wenn letztes Segment)
-            if (segment.id === segments[segments.length - 1].id) {
-                const endMarker = document.querySelector('.end-marker');
-                if (endMarker) {
-                    endMarker.setAttribute('cx', segment.endX);
-                    endMarker.setAttribute('cy', segment.endY);
-                }
-            }
-        }
 
-        function draw180DegreeSegment(segment, lineElement) {
-            // Entferne alte Linie
-            if (lineElement) {
-                lineElement.remove();
-            }
-            
-            const segmentIndex = segments.findIndex(s => s.id === segment.id);
-            const baseAngle = segmentIndex > 0 ? segments[segmentIndex - 1].absoluteAngle : 0;
-            const prevDirection = baseAngle * Math.PI / 180;
-            
-            const radiusSize = 20;
-            const curveDirection = segment.angle > 0 ? 1 : -1;
-            const perpAngle = prevDirection + (Math.PI / 2) * curveDirection;
-            
-            // Versatz berechnen
-            const curveOffsetX = Math.cos(perpAngle) * radiusSize;
-            const curveOffsetY = -Math.sin(perpAngle) * radiusSize;
-            
-            // Kurven-Startpunkt
-            const curveStartX = segment.startX + curveOffsetX;
-            const curveStartY = segment.startY + curveOffsetY;
-            
-            // Parallele Linie (gestrichelt)
-            const parallelLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            parallelLine.setAttribute('id', `line-${segment.id}`);
-            parallelLine.setAttribute('class', 'profile-line curve-segment editing');
-            parallelLine.setAttribute('data-segment', segment.id);
-            parallelLine.setAttribute('data-length', segment.length);
-            parallelLine.setAttribute('onclick', 'selectLine(this)');
-            parallelLine.setAttribute('stroke-dasharray', '8,4');
-            
-            // Pfad: Kurve + Linie + Kurve
-            const arcRadius = radiusSize / 2;
-            const parallelDirection = prevDirection + Math.PI;
-            const scaledLength = segment.length * scale;
-            
-            const parallelEndX = curveStartX + Math.cos(parallelDirection) * scaledLength;
-            const parallelEndY = curveStartY - Math.sin(parallelDirection) * scaledLength;
-            
-            // SVG Pfad zusammensetzen
-            let pathData = `M ${segment.startX} ${segment.startY}`;
-            
-            // Erste Kurve
-            const curve1EndX = curveStartX;
-            const curve1EndY = curveStartY;
-            pathData += ` Q ${segment.startX + curveOffsetX/2} ${segment.startY + curveOffsetY/2} ${curve1EndX} ${curve1EndY}`;
-            
-            // Parallele Linie
-            pathData += ` L ${parallelEndX} ${parallelEndY}`;
-            
-            // Zweite Kurve
-            pathData += ` Q ${segment.endX + curveOffsetX/2} ${segment.endY + curveOffsetY/2} ${segment.endX} ${segment.endY}`;
-            
-            parallelLine.setAttribute('d', pathData);
-            
-            document.getElementById('segments').appendChild(parallelLine);
-        }
-
-        function redrawAllSegments() {
-            // Alles löschen
-            document.getElementById('segments').innerHTML = '';
-            document.getElementById('dimensions').innerHTML = '';
-            document.getElementById('plus-buttons').innerHTML = '';
-            
-            // Alle Segmente neu zeichnen
-            segments.forEach((segment, index) => {
-                addSegmentVisual(segment);
-            });
-            
-            // Start-Plus aktualisieren
-            const startPlus = document.getElementById('plus-start');
-            if (startPlus && segments.length > 0) {
-                const firstSegment = segments[0];
-                const circle = startPlus.querySelector('circle');
-                const text = startPlus.querySelector('text');
-                circle.setAttribute('cx', firstSegment.startX);
-                circle.setAttribute('cy', firstSegment.startY);
-                text.setAttribute('x', firstSegment.startX);
-                text.setAttribute('y', firstSegment.startY);
-            }
-        }
-
-        function updateSegmentVisual(segment) {
-            // Linie aktualisieren
-            const line = document.getElementById(`line-${segment.id}`);
-            if (line) {
+            drawSegment(segment) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                 line.setAttribute('x1', segment.startX);
                 line.setAttribute('y1', segment.startY);
                 line.setAttribute('x2', segment.endX);
                 line.setAttribute('y2', segment.endY);
-                line.setAttribute('data-length', segment.length);
+                line.setAttribute('class', 'line-segment');
+                line.setAttribute('data-temp', segment.fixed ? 'false' : 'true');
+                this.svgCanvas.appendChild(line);
             }
-            
-            // Bemaßung aktualisieren
-            const dim = document.getElementById(`dim-${segment.id}`);
-            if (dim) {
-                const midX = (segment.startX + segment.endX) / 2;
-                const midY = (segment.startY + segment.endY) / 2;
-                dim.setAttribute('x', midX);
-                dim.setAttribute('y', midY - 10);
-                dim.textContent = segment.length + 'mm';
+
+            drawSmoothCurve() {
+                if (!this.currentSegment.parentSegment || Math.abs(this.currentSegment.angle) < 1) return;
+                
+                const parent = this.currentSegment.parentSegment;
+                let startX, startY;
+                
+                if (this.currentSegment.connectionPoint === 'end') {
+                    startX = parent.endX;
+                    startY = parent.endY;
+                } else {
+                    startX = parent.startX;
+                    startY = parent.startY;
+                }
+                
+                const endX = this.currentSegment.startX;
+                const endY = this.currentSegment.startY;
+                
+                // Verwende den Biegeradius und berücksichtige Verbindungsseite
+                const radius = this.bendRadius;
+                let sweepFlag;
+                
+                if (this.currentSegment.connectionPoint === 'end') {
+                    sweepFlag = this.currentSegment.angle > 0 ? 1 : 0;
+                } else {
+                    // Von start: gleiche Sweep-Richtung wie der Winkel
+                    sweepFlag = this.currentSegment.angle > 0 ? 1 : 0;
+                }
+                
+                const largeArcFlag = Math.abs(this.currentSegment.angle) > 90 ? 1 : 0;
+                
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const d = `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${endX} ${endY}`;
+                path.setAttribute('d', d);
+                path.setAttribute('class', 'curve');
+                path.setAttribute('data-temp', 'true');
+                this.svgCanvas.appendChild(path);
             }
-            
-            // Plus-Button aktualisieren
-            const plus = document.getElementById(`plus-${segment.id}`);
-            if (plus) {
-                const circle = plus.querySelector('circle');
-                const text = plus.querySelector('text');
-                if (circle && text) {
-                    circle.setAttribute('cx', segment.endX);
-                    circle.setAttribute('cy', segment.endY);
-                    text.setAttribute('x', segment.endX);
-                    text.setAttribute('y', segment.endY);
+
+            createEndButtons() {
+                this.removePlusButtons();
+                
+                if (!this.currentSegment) return;
+                
+                this.createPlusButton(this.currentSegment.startX, this.currentSegment.startY, 'start');
+                this.createPlusButton(this.currentSegment.endX, this.currentSegment.endY, 'end');
+            }
+
+            createPlusButton(x, y, position) {
+                const button = document.createElement('button');
+                button.className = 'plus-button';
+                button.textContent = '+';
+                button.dataset.position = position;
+                button.dataset.segmentId = this.currentSegment.id;
+                
+                this.updateButtonPosition(button, x, y);
+                
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.addSegment(position, button);
+                });
+                
+                this.drawingArea.appendChild(button);
+            }
+
+            addSegment(position, clickedButton) {
+                console.log('Clicked button position:', position);
+                console.log('Button element:', clickedButton);
+                
+                // Entferne NUR den geklickten Button
+                if (clickedButton && clickedButton.parentNode) {
+                    clickedButton.remove();
+                    console.log('Clicked button removed');
+                } else {
+                    console.error('Button not found or already removed');
+                }
+                
+                // Fixiere aktuelles Segment
+                if (this.currentSegment) {
+                    this.currentSegment.fixed = true;
+                    this.segments.push(this.currentSegment);
+                }
+                
+                const parentSegment = this.currentSegment;
+                const length = 10 * this.scale;
+                let startX, startY;
+                
+                if (position === 'end') {
+                    startX = parentSegment.endX;
+                    startY = parentSegment.endY;
+                } else {
+                    startX = parentSegment.startX;
+                    startY = parentSegment.startY;
+                }
+                
+                // Erstelle neues Segment als Verlängerung
+                const parentAngle = Math.atan2(
+                    parentSegment.endY - parentSegment.startY,
+                    parentSegment.endX - parentSegment.startX
+                );
+                
+                let endX, endY;
+                if (position === 'end') {
+                    endX = startX + length * Math.cos(parentAngle);
+                    endY = startY + length * Math.sin(parentAngle);
+                } else {
+                    endX = startX - length * Math.cos(parentAngle);
+                    endY = startY - length * Math.sin(parentAngle);
+                }
+                
+                this.currentSegment = {
+                    id: Date.now(),
+                    startX: startX,
+                    startY: startY,
+                    endX: endX,
+                    endY: endY,
+                    length: length,
+                    angle: 0,
+                    fixed: false,
+                    parentSegment: parentSegment,
+                    connectionPoint: position
+                };
+                
+                // Eingabefelder zurücksetzen
+                this.lengthInput.value = 10;
+                this.angleInput.value = 0;
+                this.angleSlider.value = 0;
+                
+                this.drawCurrentSegment();
+                this.createEndButtons();
+            }
+
+            removePlusButtons() {
+                const buttons = this.drawingArea.querySelectorAll('.plus-button:not(.initial-plus)');
+                buttons.forEach(button => button.remove());
+            }
+
+            updatePlusButtonPositions() {
+                if (!this.currentSegment || this.currentSegment.fixed) return;
+                
+                const buttons = this.drawingArea.querySelectorAll(`[data-segment-id="${this.currentSegment.id}"]`);
+                buttons.forEach(button => {
+                    const position = button.dataset.position;
+                    if (position === 'start') {
+                        this.updateButtonPosition(button, this.currentSegment.startX, this.currentSegment.startY);
+                    } else if (position === 'end') {
+                        this.updateButtonPosition(button, this.currentSegment.endX, this.currentSegment.endY);
+                    }
+                });
+            }
+
+            updateButtonPosition(button, x, y) {
+                const rect = this.svgCanvas.getBoundingClientRect();
+                const drawingRect = this.drawingArea.getBoundingClientRect();
+                
+                const transformedX = (x * this.zoom) + this.panX;
+                const transformedY = (y * this.zoom) + this.panY;
+                
+                const pixelX = (transformedX / 800) * rect.width + (rect.left - drawingRect.left);
+                const pixelY = (transformedY / 600) * rect.height + (rect.top - drawingRect.top);
+                
+                button.style.left = (pixelX - 16) + 'px';
+                button.style.top = (pixelY - 16) + 'px';
+            }
+
+            clearTemporaryElements() {
+                const tempElements = this.svgCanvas.querySelectorAll('[data-temp="true"]');
+                tempElements.forEach(el => el.remove());
+            }
+
+            // Zoom zum Mauszeiger
+            handleZoom(e) {
+                e.preventDefault();
+                
+                const rect = this.svgCanvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                // Berechne Mausposition in SVG-Koordinaten vor dem Zoom
+                const svgX = (mouseX / rect.width) * 800;
+                const svgY = (mouseY / rect.height) * 600;
+                
+                const worldX = (svgX - this.panX) / this.zoom;
+                const worldY = (svgY - this.panY) / this.zoom;
+                
+                const oldZoom = this.zoom;
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                this.zoom *= delta;
+                this.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoom));
+                
+                // Anpassung der Pan-Position um zum Mauszeiger zu zoomen
+                const newSvgX = worldX * this.zoom + this.panX;
+                const newSvgY = worldY * this.zoom + this.panY;
+                
+                this.panX += svgX - newSvgX;
+                this.panY += svgY - newSvgY;
+                
+                this.applyTransform();
+                this.updatePlusButtonPositions();
+            }
+
+            // Satelliten-Rotation
+            startRotation(e) {
+                e.stopPropagation();
+                this.isRotating = true;
+                this.satellite.style.cursor = 'grabbing';
+            }
+
+            handleRotation(e) {
+                if (!this.isRotating) return;
+                
+                const rect = this.rotateControl.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+                const degrees = (angle * 180 / Math.PI + 90) % 360;
+                
+                this.globalRotation = degrees > 180 ? degrees - 360 : degrees;
+                this.updateSatellitePosition();
+                this.applyTransform();
+                this.updatePlusButtonPositions();
+            }
+
+            endRotation() {
+                this.isRotating = false;
+                this.satellite.style.cursor = 'grab';
+            }
+
+            updateSatellitePosition() {
+                const rotationRad = (this.globalRotation - 90) * Math.PI / 180;
+                const radius = 34;
+                const x = radius * Math.cos(rotationRad);
+                const y = radius * Math.sin(rotationRad);
+                
+                this.satellite.style.left = `calc(50% + ${x}px)`;
+                this.satellite.style.top = `calc(50% + ${y}px)`;
+                this.satellite.style.transform = 'translate(-50%, -50%)';
+            }
+
+            centerPart() {
+                if (this.isRotating) return;
+                
+                this.panX = 0;
+                this.panY = 0;
+                this.applyTransform();
+                this.updatePlusButtonPositions();
+            }
+
+            startPan(e) {
+                if (e.button === 0 && !e.target.closest('.plus-button')) {
+                    this.isPanning = true;
+                    this.lastPanX = e.clientX;
+                    this.lastPanY = e.clientY;
+                    this.svgCanvas.style.cursor = 'grabbing';
                 }
             }
-            
-            // End-Marker aktualisieren (wenn letztes Segment)
-            if (segment.id === segments[segments.length - 1].id) {
-                const endMarker = document.querySelector('.end-marker');
-                if (endMarker) {
-                    endMarker.setAttribute('cx', segment.endX);
-                    endMarker.setAttribute('cy', segment.endY);
+
+            handlePan(e) {
+                if (this.isPanning) {
+                    const deltaX = e.clientX - this.lastPanX;
+                    const deltaY = e.clientY - this.lastPanY;
+                    
+                    this.panX += deltaX;
+                    this.panY += deltaY;
+                    
+                    this.lastPanX = e.clientX;
+                    this.lastPanY = e.clientY;
+                    
+                    this.applyTransform();
+                    this.updatePlusButtonPositions();
                 }
             }
-        }
 
-        function updateFollowingSegments(changedSegment) {
-            const changedIndex = segments.findIndex(s => s.id === changedSegment.id);
-            
-            // Alle nachfolgenden Segmente aktualisieren
-            for (let i = changedIndex + 1; i < segments.length; i++) {
-                const segment = segments[i];
-                const prevSegment = segments[i - 1];
+            endPan() {
+                this.isPanning = false;
+                this.svgCanvas.style.cursor = 'default';
+            }
+
+            applyTransform() {
+                const transformGroup = this.svgCanvas.querySelector('#mainGroup');
+                if (transformGroup) {
+                    transformGroup.setAttribute('transform', 
+                        `translate(${this.panX} ${this.panY}) scale(${this.zoom}) rotate(${this.globalRotation} ${this.centerX} ${this.centerY})`);
+                }
+            }
+
+            applyGlobalRotation() {
+                const transformGroup = this.svgCanvas.querySelector('#mainGroup');
+                if (transformGroup) {
+                    transformGroup.remove();
+                }
                 
-                // Startposition vom Ende des vorherigen Segments
-                segment.startX = prevSegment.endX;
-                segment.startY = prevSegment.endY;
+                const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                group.id = 'mainGroup';
+                group.setAttribute('transform', 
+                    `translate(${this.panX} ${this.panY}) scale(${this.zoom}) rotate(${this.globalRotation} ${this.centerX} ${this.centerY})`);
                 
-                // Absoluten Winkel neu berechnen
-                segment.absoluteAngle = prevSegment.absoluteAngle + segment.angle;
+                const elements = this.svgCanvas.querySelectorAll('.line-segment, .curve');
+                elements.forEach(el => {
+                    group.appendChild(el.cloneNode(true));
+                    el.remove();
+                });
                 
-                // Endposition neu berechnen
-                const direction = segment.absoluteAngle * Math.PI / 180;
-                const scaledLength = segment.length * scale;
-                segment.endX = segment.startX + Math.cos(direction) * scaledLength;
-                segment.endY = segment.startY - Math.sin(direction) * scaledLength;
-                
-                // Visuell aktualisieren
-                updateSegmentVisual(segment);
+                this.svgCanvas.appendChild(group);
+                this.updatePlusButtonPositions();
             }
         }
 
-        function confirmLength() {
-            if (currentEditElement) {
-                currentEditElement.classList.remove('selected', 'editing');
-            }
-            cancelEdit();
-            updateStatus('✓ Länge bestätigt - Klicken Sie auf eine Linie oder ein ➕');
-        }
-
-        function confirmAngle() {
-            if (currentEditElement) {
-                currentEditElement.classList.remove('selected', 'editing');
-            }
-            // Editing-Status von der neuen Linie entfernen
-            const line = document.getElementById(`line-${currentEditSegment.id}`);
-            if (line) {
-                line.classList.remove('editing');
-            }
-            
-            cancelEdit();
-            updateStatus('✓ Winkel bestätigt - Das ➕ ist weitergewandert');
-        }
-
-        function cancelEdit() {
-            inputArea.classList.remove('active');
-            lengthContainer.classList.remove('active');
-            angleContainer.classList.remove('active');
-            
-            document.querySelectorAll('.profile-line').forEach(line => {
-                line.classList.remove('selected');
-            });
-            
-            currentEditMode = null;
-            currentEditSegment = null;
-            currentEditElement = null;
-            
-            updateStatus('Bereit - Klicken Sie auf eine Linie oder ein ➕');
-        }
-
-        function handleLengthKeydown(event) {
-            if (event.key === 'Enter') {
-                confirmLength();
-            } else if (event.key === 'Escape') {
-                cancelEdit();
-            }
-        }
-
-        function updateStatus(message) {
-            statusBar.textContent = message;
-        }
-
-        // Auto-Save (optional)
-        function autoSave() {
-            const saveData = {
-                segments: segments,
-                timestamp: new Date().toISOString()
-            };
-            localStorage.setItem('kantteil-simple', JSON.stringify(saveData));
-        }
-
-        // Periodisches Speichern
-        setInterval(autoSave, 10000);
-
-        console.log('📐 Einfacher Kantteil-Rechner geladen');
-        console.log('💡 Klicken Sie auf Linien für Länge, auf ➕ für neue Segmente');
+        document.addEventListener('DOMContentLoaded', () => {
+            new BlechkantTool();
+        });
     </script>
 </body>
 </html>
