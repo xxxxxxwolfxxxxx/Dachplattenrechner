@@ -340,6 +340,19 @@
                 border: 1px solid #000 !important;
                 padding: 8px !important;
             }
+
+            /* WASSERZEICHEN FÜR DRUCKSEITEN */ 
+            @media print { /* Wasserzeichen auf jeder Seite */ 
+                body::after { content: 'Dachplattenrechner.de'; 
+                             position: fixed; top: 50%; left: 50%; 
+                             transform: translate(-50%, -50%) rotate(-45deg); 
+                             font-size: 48px; 
+                             font-weight: bold; 
+                             color: rgba(0, 123, 255, 0.08); 
+                             font-family: Arial, sans-serif; 
+                             z-index: 1; pointer-events: none; 
+                             white-space: nowrap; letter-spacing: 3px; 
+                            } /* Sicherstellen, dass Inhalt über dem Wasserzeichen liegt */ .anrissplan, #anrissplan, #anriss-content, #druckbarer-saegeplan, .platte-container, .anriss-plate, table { position: relative; z-index: 2; background: white; } }
         }
 
         /* Mobile responsivity */
