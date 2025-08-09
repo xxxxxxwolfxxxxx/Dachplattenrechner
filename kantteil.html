@@ -11,13 +11,12 @@ const DachkanteilDrawingApp = () => {
   const [currentPos, setCurrentPos] = useState(null);
   const [pixelsPerMm] = useState(2);
   const [showGrid] = useState(true);
-  const [zoom, setZoom] = useState(5); // Höherer Zoom für kleine Teile
-  const [panOffset, setPanOffset] = useState({ x: 50, y: 50 }); // Weniger Offset nötig
+  const [zoom, setZoom] = useState(5);
+  const [panOffset, setPanOffset] = useState({ x: 50, y: 50 });
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const [isErasing, setIsErasing] = useState(false);
 
-  // Canvas-Koordinaten zu Bildschirm-Koordinaten
   const canvasToScreen = useCallback((point) => {
     return {
       x: (point.x + panOffset.x) * zoom,
@@ -25,7 +24,6 @@ const DachkanteilDrawingApp = () => {
     };
   }, [zoom, panOffset]);
 
-  // Bildschirm-Koordinaten zu Canvas-Koordinaten
   const screenToCanvas = useCallback((point) => {
     return {
       x: point.x / zoom - panOffset.x,
@@ -33,7 +31,6 @@ const DachkanteilDrawingApp = () => {
     };
   }, [zoom, panOffset]);
 
-  // Gitter zeichnen
   const drawGrid = useCallback((ctx, canvas) => {
     if (!showGrid) return;
     
@@ -59,42 +56,109 @@ const DachkanteilDrawingApp = () => {
     }
   }, [showGrid, zoom, panOffset]);
 
-  // Verbindung zeichnen mit Kurven an allen Ecken
+  const getDirection = (fromNode, connection) => {
+    const toNodeId = connection.startId === fromNode.id ? connection.endId : connection.startId;
+    const toNode = nodes.find(n => n.id === toNodeId);
+    if (!toNode) return null;
+    
+    const dx = toNode.x - fromNode.x;
+    const dy = toNode.y - fromNode.y;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    
+    return length > 0 ? { x: dx / length, y: dy / length } : null;
+  };
+
+  const needsRounding = (node) => {
+    if (node.hidden) return null;
+    
+    const nodeConnections = connections.filter(conn => 
+      conn.startId === node.id || conn.endId === node.id
+    );
+    
+    if (nodeConnections.length < 2) return null;
+    
+    let minAngle = Math.PI;
+    
+    for (let i = 0; i < nodeConnections.length; i++) {
+      for (let j = i + 1; j < nodeConnections.length; j++) {
+        const dir1 = getDirection(node, nodeConnections[i]);
+        const dir2 = getDirection(node, nodeConnections[j]);
+        
+        if (dir1 && dir2) {
+          const dot = dir1.x * dir2.x + dir1.y * dir2.y;
+          const angle = Math.acos(Math.max(-1, Math.min(1, dot)));
+          minAngle = Math.min(minAngle, angle);
+        }
+      }
+    }
+    
+    if (minAngle > 2.8) return null;
+    
+    const radius = 1.5 * pixelsPerMm;
+    const halfAngle = minAngle / 2;
+    const cutDistance = radius / Math.tan(halfAngle);
+    
+    return { cutDistance, radius, angle: minAngle };
+  };
+
   const drawConnection = useCallback((ctx, connection) => {
     const startNode = nodes.find(n => n.id === connection.startId);
     const endNode = nodes.find(n => n.id === connection.endId);
     
     if (!startNode || !endNode) return;
     
-    const startScreen = canvasToScreen(startNode);
-    const endScreen = canvasToScreen(endNode);
-    
-    // Hervorhebung wenn Maus drüber und Radiergummi aktiv
     const isHovered = isErasing && selectedConnection !== null && 
                      connections[selectedConnection] && 
                      connections[selectedConnection].id === connection.id;
     
     ctx.strokeStyle = isHovered ? '#ff4444' : '#666';
-    ctx.lineWidth = isHovered ? 8 : 6; // Dickere Linien
+    ctx.lineWidth = isHovered ? 8 : 6;
     ctx.lineCap = 'round';
     
     if (isHovered) {
       ctx.globalAlpha = 0.8;
     }
     
-    // Prüfe ob Kurven an den Enden nötig sind
-    const needsCurveAtStart = hasOtherConnectionsAtNode(startNode, connection);
-    const needsCurveAtEnd = hasOtherConnectionsAtNode(endNode, connection);
+    let startPoint = startNode;
+    let endPoint = endNode;
     
-    if (needsCurveAtStart || needsCurveAtEnd) {
-      drawConnectionWithCurves(ctx, startScreen, endScreen, connection, needsCurveAtStart, needsCurveAtEnd);
-    } else {
-      // Normale gerade Linie
-      ctx.beginPath();
-      ctx.moveTo(startScreen.x, startScreen.y);
-      ctx.lineTo(endScreen.x, endScreen.y);
-      ctx.stroke();
+    const startRounding = needsRounding(startNode);
+    if (startRounding) {
+      const direction = {
+        x: endNode.x - startNode.x,
+        y: endNode.y - startNode.y
+      };
+      const length = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+      const unit = { x: direction.x / length, y: direction.y / length };
+      
+      startPoint = {
+        x: startNode.x + unit.x * startRounding.cutDistance,
+        y: startNode.y + unit.y * startRounding.cutDistance
+      };
     }
+    
+    const endRounding = needsRounding(endNode);
+    if (endRounding) {
+      const direction = {
+        x: startNode.x - endNode.x,
+        y: startNode.y - endNode.y
+      };
+      const length = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+      const unit = { x: direction.x / length, y: direction.y / length };
+      
+      endPoint = {
+        x: endNode.x + unit.x * endRounding.cutDistance,
+        y: endNode.y + unit.y * endRounding.cutDistance
+      };
+    }
+    
+    const startScreen = canvasToScreen(startPoint);
+    const endScreen = canvasToScreen(endPoint);
+    
+    ctx.beginPath();
+    ctx.moveTo(startScreen.x, startScreen.y);
+    ctx.lineTo(endScreen.x, endScreen.y);
+    ctx.stroke();
     
     if (isHovered) {
       ctx.globalAlpha = 1;
@@ -102,148 +166,138 @@ const DachkanteilDrawingApp = () => {
     
   }, [nodes, canvasToScreen, isErasing, selectedConnection, connections]);
 
-  // Prüfe ob Knoten andere Verbindungen hat
-  const hasOtherConnectionsAtNode = (node, currentConnection) => {
-    return connections.some(conn => 
-      conn.id !== currentConnection.id && 
-      (conn.startId === node.id || conn.endId === node.id)
-    );
-  };
+  const drawRoundings = useCallback((ctx) => {
+    console.log('=== DRAWING ROUNDINGS ===');
+    console.log('Total nodes:', nodes.length);
+    console.log('Total connections:', connections.length);
+    
+    const processedNodes = new Set();
+    
+    nodes.forEach((node, nodeIndex) => {
+      if (node.hidden || processedNodes.has(node.id)) {
+        console.log(`Node ${nodeIndex} (id:${node.id}) skipped - hidden:${node.hidden}`);
+        return;
+      }
+      
+      const nodeConnections = connections.filter(conn => 
+        conn.startId === node.id || conn.endId === node.id
+      );
+      
+      console.log(`Node ${nodeIndex} (id:${node.id}) has ${nodeConnections.length} connections`);
+      
+      if (nodeConnections.length < 2) {
+        console.log(`Node ${nodeIndex} - not enough connections for rounding`);
+        return;
+      }
+      
+      console.log(`Node ${nodeIndex} - drawing roundings!`);
+      
+      for (let i = 0; i < nodeConnections.length; i++) {
+        for (let j = i + 1; j < nodeConnections.length; j++) {
+          const conn1 = nodeConnections[i];
+          const conn2 = nodeConnections[j];
+          
+          console.log(`  Rounding between conn ${conn1.id} and ${conn2.id}`);
+          
+          const dir1 = getDirection(node, conn1);
+          const dir2 = getDirection(node, conn2);
+          
+          if (!dir1 || !dir2) {
+            console.log('  No valid directions - skipping');
+            continue;
+          }
+          
+          const dot = dir1.x * dir2.x + dir1.y * dir2.y;
+          const angle = Math.acos(Math.max(-1, Math.min(1, dot)));
+          const degrees = angle * (180 / Math.PI);
+          
+          console.log(`  Angle: ${degrees.toFixed(1)} degrees`);
+          
+          if (degrees < 20 || degrees > 160) {
+            console.log('  Angle out of range - skipping');
+            continue;
+          }
+          
+          const radius = 1.5 * pixelsPerMm;
+          const halfAngle = angle / 2;
+          
+          const bisector = {
+            x: dir1.x + dir2.x,
+            y: dir1.y + dir2.y
+          };
+          const bisectorLength = Math.sqrt(bisector.x * bisector.x + bisector.y * bisector.y);
+          if (bisectorLength < 0.001) {
+            console.log('  Bisector too short - skipping');
+            continue;
+          }
+          
+          bisector.x /= bisectorLength;
+          bisector.y /= bisectorLength;
+          
+          const distanceToCenter = radius / Math.sin(halfAngle);
+          const zirkelCenter = {
+            x: node.x + bisector.x * distanceToCenter,
+            y: node.y + bisector.y * distanceToCenter
+          };
+          
+          const touchDistance = radius / Math.tan(halfAngle);
+          const touch1 = {
+            x: node.x + dir1.x * touchDistance,
+            y: node.y + dir1.y * touchDistance
+          };
+          const touch2 = {
+            x: node.x + dir2.x * touchDistance,
+            y: node.y + dir2.y * touchDistance
+          };
+          
+          const centerScreen = canvasToScreen(zirkelCenter);
+          const touch1Screen = canvasToScreen(touch1);
+          const touch2Screen = canvasToScreen(touch2);
+          const radiusScreen = radius * zoom;
+          
+          console.log(`  Drawing arc at screen pos: ${centerScreen.x.toFixed(1)}, ${centerScreen.y.toFixed(1)}, radius: ${radiusScreen.toFixed(1)}`);
+          
+          const startAngle = Math.atan2(touch1Screen.y - centerScreen.y, touch1Screen.x - centerScreen.x);
+          const endAngle = Math.atan2(touch2Screen.y - centerScreen.y, touch2Screen.x - centerScreen.x);
+          
+          let angleDiff = endAngle - startAngle;
+          while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+          while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+          
+          // SEHR AUFFÄLLIGE FARBE UND DICKE
+          ctx.strokeStyle = '#ff0000'; // ROT
+          ctx.lineWidth = 12; // SEHR DICK
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.arc(centerScreen.x, centerScreen.y, radiusScreen, startAngle, endAngle, angleDiff < 0);
+          ctx.stroke();
+          
+          console.log(`  ✓ Arc drawn successfully!`);
+        }
+      }
+      
+      processedNodes.add(node.id);
+    });
+    
+    console.log('=== ROUNDINGS COMPLETE ===');
+  }, [nodes, connections, canvasToScreen, pixelsPerMm, zoom]);
 
-  // Zeichne Verbindung mit Kurven an den Enden
-  const drawConnectionWithCurves = (ctx, startScreen, endScreen, connection, curveAtStart, curveAtEnd) => {
-    const radiusMm = 1; // 1mm Radius
-    const radiusPx = radiusMm * pixelsPerMm * zoom;
-    
-    const dx = endScreen.x - startScreen.x;
-    const dy = endScreen.y - startScreen.y;
-    const length = Math.sqrt(dx * dx + dy * dy);
-    
-    if (length < radiusPx * 2) {
-      // Zu kurz für Kurven
-      ctx.beginPath();
-      ctx.moveTo(startScreen.x, startScreen.y);
-      ctx.lineTo(endScreen.x, endScreen.y);
-      ctx.stroke();
-      return;
-    }
-    
-    const unitX = dx / length;
-    const unitY = dy / length;
-    
-    // Verkürze Linie nur minimal wo Kurven nötig sind
-    const shortenDistance = 0.3 * pixelsPerMm * zoom; // Nur 0.3mm
-    const startShortenX = curveAtStart ? unitX * shortenDistance : 0;
-    const startShortenY = curveAtStart ? unitY * shortenDistance : 0;
-    const endShortenX = curveAtEnd ? unitX * shortenDistance : 0;
-    const endShortenY = curveAtEnd ? unitY * shortenDistance : 0;
-    
-    // Verkürzte Linie zeichnen
-    const newStartX = startScreen.x + startShortenX;
-    const newStartY = startScreen.y + startShortenY;
-    const newEndX = endScreen.x - endShortenX;
-    const newEndY = endScreen.y - endShortenY;
-    
-    ctx.beginPath();
-    ctx.moveTo(newStartX, newStartY);
-    ctx.lineTo(newEndX, newEndY);
-    ctx.stroke();
-    
-    // Zeichne echte Biegekurven wo nötig
-    if (curveAtStart) {
-      drawBendingCurveAtNode(ctx, startScreen, connection, true, radiusPx);
-    }
-    
-    if (curveAtEnd) {
-      drawBendingCurveAtNode(ctx, endScreen, connection, false, radiusPx);
-    }
-  };
-
-  // Zeichne echte Biegekurve an einem Knoten
-  const drawBendingCurveAtNode = (ctx, nodeScreen, connection, isStartNode, radius) => {
-    const node = isStartNode ? 
-      nodes.find(n => n.id === connection.startId) : 
-      nodes.find(n => n.id === connection.endId);
-    
-    if (!node) return;
-    
-    // Finde andere Verbindung an diesem Knoten
-    const otherConnection = connections.find(conn => 
-      conn.id !== connection.id && 
-      (conn.startId === node.id || conn.endId === node.id)
-    );
-    
-    if (!otherConnection) return;
-    
-    // Berechne Richtungsvektoren der beiden Linien
-    const currentOtherNodeId = isStartNode ? connection.endId : connection.startId;
-    const currentOtherNode = nodes.find(n => n.id === currentOtherNodeId);
-    
-    const otherOtherNodeId = otherConnection.startId === node.id ? 
-      otherConnection.endId : otherConnection.startId;
-    const otherOtherNode = nodes.find(n => n.id === otherOtherNodeId);
-    
-    if (!currentOtherNode || !otherOtherNode) return;
-    
-    // Richtungen von diesem Knoten weg
-    const dir1X = currentOtherNode.x - node.x;
-    const dir1Y = currentOtherNode.y - node.y;
-    const len1 = Math.sqrt(dir1X * dir1X + dir1Y * dir1Y);
-    const unit1X = dir1X / len1;
-    const unit1Y = dir1Y / len1;
-    
-    const dir2X = otherOtherNode.x - node.x;
-    const dir2Y = otherOtherNode.y - node.y;
-    const len2 = Math.sqrt(dir2X * dir2X + dir2Y * dir2Y);
-    const unit2X = dir2X / len2;
-    const unit2Y = dir2Y / len2;
-    
-    // Kleiner Biegeradius - nur 0.3mm statt 1mm
-    const curveRadius = 0.3 * pixelsPerMm * zoom;
-    
-    // Startpunkte der Kurve (genau an den verkürzten Linienenden)
-    const start1X = nodeScreen.x + unit1X * curveRadius;
-    const start1Y = nodeScreen.y + unit1Y * curveRadius;
-    const start2X = nodeScreen.x + unit2X * curveRadius;
-    const start2Y = nodeScreen.y + unit2Y * curveRadius;
-    
-    // Kontrollpunkt leicht nach innen versetzt für sanfte Kurve
-    const bisectorX = unit1X + unit2X;
-    const bisectorY = unit1Y + unit2Y;
-    const bisectorLen = Math.sqrt(bisectorX * bisectorX + bisectorY * bisectorY);
-    
-    const controlOffset = curveRadius * 0.4; // Kleiner Versatz
-    const controlX = nodeScreen.x + (bisectorX / bisectorLen) * controlOffset;
-    const controlY = nodeScreen.y + (bisectorY / bisectorLen) * controlOffset;
-    
-    // Zeichne kleine, sanfte Biegekurve
-    ctx.beginPath();
-    ctx.moveTo(start1X, start1Y);
-    ctx.quadraticCurveTo(controlX, controlY, start2X, start2Y);
-    ctx.stroke();
-  };
-
-  // Knoten zeichnen
   const drawNode = useCallback((ctx, node) => {
-    // Zeichne nur sichtbare, echte Endpunkte (keine Biegepunkte)
     if (node.hidden || node.isBendPoint) return;
     
     const screenPos = canvasToScreen(node);
     
-    // Äußerer Ring
     ctx.fillStyle = '#666';
     ctx.beginPath();
     ctx.arc(screenPos.x, screenPos.y, 8, 0, 2 * Math.PI);
     ctx.fill();
     
-    // Innerer Kern
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.arc(screenPos.x, screenPos.y, 5, 0, 2 * Math.PI);
     ctx.fill();
   }, [canvasToScreen]);
 
-  // Alle Elemente zeichnen
   const redraw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -252,22 +306,15 @@ const DachkanteilDrawingApp = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     drawGrid(ctx, canvas);
-    
-    // Verbindungen zuerst zeichnen (unter den Knoten)
     connections.forEach(connection => drawConnection(ctx, connection));
-    
-    // Knoten darüber zeichnen
+    drawRoundings(ctx);
     nodes.forEach(node => drawNode(ctx, node));
     
-    // Live-Linie während des Zeichnens
     if (isDrawing && startNode && currentPos) {
       const startScreen = canvasToScreen(startNode);
       const currentScreen = canvasToScreen(currentPos);
       
-      // Berechne Winkel
       let angleText = '';
-      let needsAutoBend = false;
-      let bendDirection = 1;
       
       const deltaX = currentPos.x - startNode.x;
       const deltaY = currentPos.y - startNode.y;
@@ -287,78 +334,15 @@ const DachkanteilDrawingApp = () => {
             const lastDeltaY = lastEndNode.y - lastStartNode.y;
             const lastAngle = Math.atan2(lastDeltaY, lastDeltaX);
             
-            // Winkel zur Fortsetzungsrichtung berechnen
             let angleDiff = (currentAngle - lastAngle) * (180 / Math.PI);
-            
-            // Normalisiere auf -180° bis +180°
             while (angleDiff > 180) angleDiff -= 360;
             while (angleDiff <= -180) angleDiff += 360;
             
-            // KEINE Korrektur hier - angleDiff ist bereits richtig:
-            // 0° = gleiche Richtung wie letzte Linie (Fortsetzung)
-            // +90° = 90° rechts von der letzten Linie
-            // -90° = 90° links von der letzten Linie
-            // ±180° = entgegengesetzte Richtung
-            
-            if (Math.abs(angleDiff) > 90) {
-              needsAutoBend = true;
-              bendDirection = angleDiff > 0 ? 1 : -1;
-              
-              // Auto-Biegung zeichnen
-              const bendOffset = 1 * pixelsPerMm;
-              const lastLength = Math.sqrt(lastDeltaX * lastDeltaX + lastDeltaY * lastDeltaY);
-              const lastDirX = lastDeltaX / lastLength;
-              const lastDirY = lastDeltaY / lastLength;
-              
-              const perpToLastX = -lastDirY * bendDirection;
-              const perpToLastY = lastDirX * bendDirection;
-              
-              const bend1X = startNode.x + perpToLastX * bendOffset;
-              const bend1Y = startNode.y + perpToLastY * bendOffset;
-              
-              const bend1Screen = canvasToScreen({x: bend1X, y: bend1Y});
-              const endScreen = canvasToScreen(currentPos);
-              
-              ctx.strokeStyle = '#666';
-              ctx.lineWidth = 6; // Dickere Auto-Biegung
-              ctx.lineCap = 'round';
-              ctx.globalAlpha = 0.7;
-              
-              ctx.beginPath();
-              ctx.moveTo(startScreen.x, startScreen.y);
-              ctx.lineTo(bend1Screen.x, bend1Screen.y);
-              ctx.stroke();
-              
-              ctx.beginPath();
-              ctx.moveTo(bend1Screen.x, bend1Screen.y);
-              ctx.lineTo(endScreen.x, endScreen.y);
-              ctx.stroke();
-              
-              const curveRadius = bendOffset * zoom * 0.6; // Größere Kurve
-              ctx.beginPath();
-              ctx.arc(bend1Screen.x, bend1Screen.y, curveRadius, 0, 2 * Math.PI);
-              ctx.stroke();
-              
-              ctx.globalAlpha = 1;
-              
-              const firstSign = bendDirection > 0 ? '+' : '-';
-              const fromBend1ToTargetX = currentPos.x - bend1X;
-              const fromBend1ToTargetY = currentPos.y - bend1Y;
-              const bend1ToTargetAngle = Math.atan2(fromBend1ToTargetY, fromBend1ToTargetX);
-              const perpAngle = Math.atan2(perpToLastY, perpToLastX);
-              let secondAngle = (bend1ToTargetAngle - perpAngle) * (180 / Math.PI);
-              while (secondAngle > 180) secondAngle -= 360;
-              while (secondAngle <= -180) secondAngle += 360;
-              const secondSign = secondAngle >= 0 ? '+' : '';
-              angleText = ` | ${firstSign}90° → ${secondSign}${Math.round(secondAngle)}°`;
-            } else {
-              const angleSign = angleDiff >= 0 ? '+' : '';
-              angleText = ` | ${angleSign}${Math.round(angleDiff)}°`;
-            }
+            const angleSign = angleDiff >= 0 ? '+' : '';
+            angleText = ` | ${angleSign}${Math.round(angleDiff)}°`;
           }
         }
       } else {
-        // Erste Linie - Winkel zur Waagerechten
         let angleDiff = currentAngle * (180 / Math.PI);
         while (angleDiff > 180) angleDiff -= 360;
         while (angleDiff <= -180) angleDiff += 360;
@@ -367,25 +351,21 @@ const DachkanteilDrawingApp = () => {
         angleText = ` | ${angleSign}${Math.round(angleDiff)}°`;
       }
       
-      if (!needsAutoBend) {
-        ctx.strokeStyle = '#666';
-        ctx.lineWidth = 6; // Dickere Live-Vorschau
-        ctx.lineCap = 'round';
-        ctx.globalAlpha = 0.7;
-        
-        ctx.beginPath();
-        ctx.moveTo(startScreen.x, startScreen.y);
-        ctx.lineTo(currentScreen.x, currentScreen.y);
-        ctx.stroke();
-        
-        ctx.globalAlpha = 1;
-      }
+      ctx.strokeStyle = '#666';
+      ctx.lineWidth = 6;
+      ctx.lineCap = 'round';
+      ctx.globalAlpha = 0.7;
       
-      // Länge berechnen (in mm)
+      ctx.beginPath();
+      ctx.moveTo(startScreen.x, startScreen.y);
+      ctx.lineTo(currentScreen.x, currentScreen.y);
+      ctx.stroke();
+      
+      ctx.globalAlpha = 1;
+      
       const lengthPx = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       const lengthMm = lengthPx / pixelsPerMm;
       
-      // Maßtext anzeigen
       const midX = (startScreen.x + currentScreen.x) / 2;
       const midY = (startScreen.y + currentScreen.y) / 2;
       
@@ -400,9 +380,8 @@ const DachkanteilDrawingApp = () => {
       ctx.textBaseline = 'middle';
       ctx.fillText(text, midX, midY - 15);
     }
-  }, [nodes, connections, drawGrid, drawConnection, drawNode, isDrawing, startNode, currentPos, canvasToScreen, pixelsPerMm, zoom]);
+  }, [nodes, connections, drawGrid, drawConnection, drawNode, drawRoundings, isDrawing, startNode, currentPos, canvasToScreen, pixelsPerMm, zoom]);
 
-  // Canvas-Größe anpassen
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -423,7 +402,6 @@ const DachkanteilDrawingApp = () => {
     redraw();
   }, [redraw]);
 
-  // Maus-Position abrufen
   const getMousePos = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
@@ -433,14 +411,12 @@ const DachkanteilDrawingApp = () => {
     };
   };
 
-  // Knoten an Position finden
   const findNodeAtPos = (pos) => {
     const canvasPos = screenToCanvas(pos);
     
     for (let i = nodes.length - 1; i >= 0; i--) {
       const node = nodes[i];
       
-      // Überspringe versteckte Knoten UND Biegepunkte
       if (node.hidden || node.isBendPoint) continue;
       
       const distance = Math.sqrt(
@@ -453,7 +429,6 @@ const DachkanteilDrawingApp = () => {
     return -1;
   };
 
-  // Verbindung an Position finden
   const findConnectionAtPos = (pos) => {
     const canvasPos = screenToCanvas(pos);
     
@@ -464,7 +439,6 @@ const DachkanteilDrawingApp = () => {
       
       if (!startNode || !endNode) continue;
       
-      // Distanz zur Linie berechnen
       const A = canvasPos.x - startNode.x;
       const B = canvasPos.y - startNode.y;
       const C = endNode.x - startNode.x;
@@ -493,7 +467,6 @@ const DachkanteilDrawingApp = () => {
     return -1;
   };
 
-  // Mausrad-Events für Zoom
   const handleWheel = (e) => {
     e.preventDefault();
     
@@ -503,7 +476,6 @@ const DachkanteilDrawingApp = () => {
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
     const newZoom = Math.max(0.1, Math.min(5, zoom * zoomFactor));
     
-    // Zoom zum Mauszeiger
     const newPanOffset = {
       x: panOffset.x + (canvasPos.x * (zoom - newZoom)) / newZoom,
       y: panOffset.y + (canvasPos.y * (zoom - newZoom)) / newZoom
@@ -513,16 +485,25 @@ const DachkanteilDrawingApp = () => {
     setPanOffset(newPanOffset);
   };
 
-  // Zoom-Funktionen (für Buttons)
   const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.2, 5));
   const handleZoomOut = () => setZoom(prev => Math.max(prev / 1.2, 0.1));
 
-  // Maus-Events
+  const handleReset = () => {
+    setNodes([]);
+    setConnections([]);
+    setSelectedConnection(null);
+    setIsDrawing(false);
+    setStartNode(null);
+    setCurrentPos(null);
+    setIsErasing(false);
+    setZoom(5);
+    setPanOffset({ x: 50, y: 50 });
+  };
+
   const handleMouseDown = (e) => {
     const pos = getMousePos(e);
     const canvasPos = screenToCanvas(pos);
     
-    // Mittlere Maustaste für Verschieben
     if (e.button === 1) {
       e.preventDefault();
       setIsPanning(true);
@@ -530,11 +511,9 @@ const DachkanteilDrawingApp = () => {
       return;
     }
     
-    // Nur linke Maustaste für normales Zeichnen/Radieren
     if (e.button !== 0) return;
     
     if (isErasing) {
-      // Radiergummi-Modus
       const connectionIndex = findConnectionAtPos(pos);
       
       if (connectionIndex !== -1) {
@@ -555,7 +534,6 @@ const DachkanteilDrawingApp = () => {
     }
 
     if (isDrawing) {
-      // Zweiter Klick - Linie beenden
       const existingNodeIndex = findNodeAtPos(pos);
       
       let endNode;
@@ -573,106 +551,24 @@ const DachkanteilDrawingApp = () => {
         setNodes(prev => [...prev, endNode]);
       }
       
-      // Prüfe ob Auto-Biegung nötig ist
       if (startNode.id !== endNode.id) {
-        let needsAutoBend = false;
-        let bendDirection = 1;
-        
-        if (connections.length > 0) {
-          const lastConnection = connections
-            .filter(conn => conn.startId === startNode.id || conn.endId === startNode.id)
-            .pop();
-          
-          if (lastConnection) {
-            const lastStartNode = nodes.find(n => n.id === lastConnection.startId);
-            const lastEndNode = nodes.find(n => n.id === lastConnection.endId);
-            
-            if (lastStartNode && lastEndNode) {
-              const lastDeltaX = lastEndNode.x - lastStartNode.x;
-              const lastDeltaY = lastEndNode.y - lastStartNode.y;
-              const lastAngle = Math.atan2(lastDeltaY, lastDeltaX);
-              
-              const deltaX = endNode.x - startNode.x;
-              const deltaY = endNode.y - startNode.y;
-              const currentAngle = Math.atan2(deltaY, deltaX);
-              
-              let angleDiff = (currentAngle - lastAngle) * (180 / Math.PI);
-              
-              // Normalisiere auf -180° bis +180°
-              while (angleDiff > 180) angleDiff -= 360;
-              while (angleDiff <= -180) angleDiff += 360;
-              
-              if (Math.abs(angleDiff) > 90) {
-                needsAutoBend = true;
-                bendDirection = angleDiff > 0 ? 1 : -1;
-              }
-            }
-          }
-        }
-        
-        if (needsAutoBend) {
-          // Erstelle Auto-Biegung
-          const bendOffset = 1 * pixelsPerMm;
-          const lastConnection = connections
-            .filter(conn => conn.startId === startNode.id || conn.endId === startNode.id)
-            .pop();
-          const lastStartNode = nodes.find(n => n.id === lastConnection.startId);
-          const lastEndNode = nodes.find(n => n.id === lastConnection.endId);
-          const lastDeltaX = lastEndNode.x - lastStartNode.x;
-          const lastDeltaY = lastEndNode.y - lastStartNode.y;
-          const lastLength = Math.sqrt(lastDeltaX * lastDeltaX + lastDeltaY * lastDeltaY);
-          const lastDirX = lastDeltaX / lastLength;
-          const lastDirY = lastDeltaY / lastLength;
-          
-          const perpToLastX = -lastDirY * bendDirection;
-          const perpToLastY = lastDirX * bendDirection;
-          
-          const bendNode = {
-            id: Date.now() + 100,
-            x: startNode.x + perpToLastX * bendOffset,
-            y: startNode.y + perpToLastY * bendOffset,
-            hidden: true,
-            isBendPoint: true
-          };
-          
-          setNodes(prev => [...prev, bendNode]);
-          
-          const connection1 = {
-            id: Date.now() + 101,
-            startId: startNode.id,
-            endId: bendNode.id
-          };
-          
-          const connection2 = {
-            id: Date.now() + 102,
-            startId: bendNode.id,
-            endId: endNode.id
-          };
-          
-          setConnections(prev => [...prev, connection1, connection2]);
-        } else {
-          // Normale Verbindung
-          const newConnection = {
-            id: Date.now() + 2,
-            startId: startNode.id,
-            endId: endNode.id
-          };
-          setConnections(prev => [...prev, newConnection]);
-        }
+        const newConnection = {
+          id: Date.now() + 2,
+          startId: startNode.id,
+          endId: endNode.id
+        };
+        setConnections(prev => [...prev, newConnection]);
       }
       
-      // Zeichenmodus beenden
       setIsDrawing(false);
       setStartNode(null);
       setCurrentPos(null);
     } else {
-      // Erster Klick - Linie beginnen
       const nodeIndex = findNodeAtPos(pos);
       
       if (nodeIndex !== -1) {
         const existingNode = nodes[nodeIndex];
         
-        // Prüfe ob es ein echter Endpunkt ist
         const nodeConnections = connections.filter(conn => 
           conn.startId === existingNode.id || conn.endId === existingNode.id
         );
@@ -681,7 +577,6 @@ const DachkanteilDrawingApp = () => {
           setStartNode(existingNode);
           setIsDrawing(true);
           
-          // Startpunkt DAUERHAFT verstecken
           setNodes(prev => prev.map((node, i) => ({
             ...node,
             hidden: i === nodeIndex ? true : node.hidden
@@ -730,7 +625,6 @@ const DachkanteilDrawingApp = () => {
     }
   };
 
-  // Export als SVG
   const exportAsSVG = () => {
     let svg = `<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">`;
     
@@ -761,9 +655,8 @@ const DachkanteilDrawingApp = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* Toolbar */}
-      <div className="flex items-center gap-4 p-4 bg-white shadow-md">
+    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
+      <div className="flex items-center gap-4 p-4 bg-white shadow-md flex-shrink-0">
         <div className="flex gap-2">
           <button
             onClick={() => setIsErasing(false)}
@@ -799,13 +692,16 @@ const DachkanteilDrawingApp = () => {
         
         <div className="w-px h-8 bg-gray-300" />
         
+        <button onClick={handleReset} className="p-2 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-700">
+          🔄 Neu starten
+        </button>
+        
         <button onClick={exportAsSVG} className="p-2 rounded-lg bg-green-100 hover:bg-green-200">
           <Download size={20} />
         </button>
       </div>
       
-      {/* Zeichenfläche */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden min-h-0">
         <canvas
           ref={canvasRef}
           onMouseDown={handleMouseDown}
@@ -813,7 +709,7 @@ const DachkanteilDrawingApp = () => {
           onMouseUp={handleMouseUp}
           onWheel={handleWheel}
           onContextMenu={(e) => e.preventDefault()}
-          className="cursor-crosshair bg-white"
+          className="cursor-crosshair bg-white w-full h-full"
           style={{ 
             touchAction: 'none',
             cursor: isPanning ? 'move' : isErasing ? 'crosshair' : isDrawing ? 'crosshair' : 'default'
@@ -821,13 +717,13 @@ const DachkanteilDrawingApp = () => {
         />
         
         {nodes.length === 0 && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-500">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-500 pointer-events-none">
             <div className="text-2xl mb-4">📏 Dachkanteil-Zeichner</div>
             <div className="mb-4">Zeichnen Sie Dachkanteile mit korrekter Winkelangabe</div>
             <div className="text-sm space-y-2">
               <div><strong>0°</strong> = Gerade Fortsetzung der letzten Linie</div>
-              <div><strong>±90°</strong> = Rechtwinklige Biegung</div>
-              <div><strong>>90°</strong> = Automatische Z-Biegung</div>
+              <div><strong>±90°</strong> = Rechtwinklige Biegung mit Zirkel-Rundungen</div>
+              <div><strong>Alle Winkel</strong> = Automatische Zirkelkurven (1.5mm Radius)</div>
             </div>
           </div>
         )}
