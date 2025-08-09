@@ -1,804 +1,839 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blechkantteil Zeichenprogramm</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { ZoomIn, ZoomOut, Download, Eraser } from 'lucide-react';
 
-        .container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-        }
+const DachkanteilDrawingApp = () => {
+  const canvasRef = useRef(null);
+  const [nodes, setNodes] = useState([]);
+  const [connections, setConnections] = useState([]);
+  const [selectedConnection, setSelectedConnection] = useState(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [startNode, setStartNode] = useState(null);
+  const [currentPos, setCurrentPos] = useState(null);
+  const [pixelsPerMm] = useState(2);
+  const [showGrid] = useState(true);
+  const [zoom, setZoom] = useState(5); // Höherer Zoom für kleine Teile
+  const [panOffset, setPanOffset] = useState({ x: 50, y: 50 }); // Weniger Offset nötig
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+  const [isErasing, setIsErasing] = useState(false);
 
-        .drawing-area {
-            flex: 1;
-            background: white;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            position: relative;
-            margin-bottom: 20px;
-            min-height: 500px;
-            overflow: hidden;
-        }
+  // Canvas-Koordinaten zu Bildschirm-Koordinaten
+  const canvasToScreen = useCallback((point) => {
+    return {
+      x: (point.x + panOffset.x) * zoom,
+      y: (point.y + panOffset.y) * zoom
+    };
+  }, [zoom, panOffset]);
 
-        .rotate-control {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: white;
-            border: 2px solid #007acc;
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            cursor: pointer;
-        }
+  // Bildschirm-Koordinaten zu Canvas-Koordinaten
+  const screenToCanvas = useCallback((point) => {
+    return {
+      x: point.x / zoom - panOffset.x,
+      y: point.y / zoom - panOffset.y
+    };
+  }, [zoom, panOffset]);
 
-        .rotate-knob {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            position: relative;
-            transition: box-shadow 0.2s;
-        }
+  // Gitter zeichnen
+  const drawGrid = useCallback((ctx, canvas) => {
+    if (!showGrid) return;
+    
+    ctx.strokeStyle = '#e5e5e5';
+    ctx.lineWidth = 1;
+    
+    const gridSize = 25 * zoom;
+    const offsetX = (panOffset.x * zoom) % gridSize;
+    const offsetY = (panOffset.y * zoom) % gridSize;
+    
+    for (let x = offsetX; x < canvas.width; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+    
+    for (let y = offsetY; y < canvas.height; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+  }, [showGrid, zoom, panOffset]);
 
-        .rotate-knob:hover {
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
+  // Verbindung zeichnen mit Kurven an allen Ecken
+  const drawConnection = useCallback((ctx, connection) => {
+    const startNode = nodes.find(n => n.id === connection.startId);
+    const endNode = nodes.find(n => n.id === connection.endId);
+    
+    if (!startNode || !endNode) return;
+    
+    const startScreen = canvasToScreen(startNode);
+    const endScreen = canvasToScreen(endNode);
+    
+    // Hervorhebung wenn Maus drüber und Radiergummi aktiv
+    const isHovered = isErasing && selectedConnection !== null && 
+                     connections[selectedConnection] && 
+                     connections[selectedConnection].id === connection.id;
+    
+    ctx.strokeStyle = isHovered ? '#ff4444' : '#666';
+    ctx.lineWidth = isHovered ? 8 : 6; // Dickere Linien
+    ctx.lineCap = 'round';
+    
+    if (isHovered) {
+      ctx.globalAlpha = 0.8;
+    }
+    
+    // Prüfe ob Kurven an den Enden nötig sind
+    const needsCurveAtStart = hasOtherConnectionsAtNode(startNode, connection);
+    const needsCurveAtEnd = hasOtherConnectionsAtNode(endNode, connection);
+    
+    if (needsCurveAtStart || needsCurveAtEnd) {
+      drawConnectionWithCurves(ctx, startScreen, endScreen, connection, needsCurveAtStart, needsCurveAtEnd);
+    } else {
+      // Normale gerade Linie
+      ctx.beginPath();
+      ctx.moveTo(startScreen.x, startScreen.y);
+      ctx.lineTo(endScreen.x, endScreen.y);
+      ctx.stroke();
+    }
+    
+    if (isHovered) {
+      ctx.globalAlpha = 1;
+    }
+    
+  }, [nodes, canvasToScreen, isErasing, selectedConnection, connections]);
 
-        .rotate-knob:active {
-            box-shadow: inset 0 3px 6px rgba(0,0,0,0.2);
-        }
+  // Prüfe ob Knoten andere Verbindungen hat
+  const hasOtherConnectionsAtNode = (node, currentConnection) => {
+    return connections.some(conn => 
+      conn.id !== currentConnection.id && 
+      (conn.startId === node.id || conn.endId === node.id)
+    );
+  };
 
-        .satellite {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: #007acc;
-            border: 2px solid white;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            cursor: grab;
-        }
+  // Zeichne Verbindung mit Kurven an den Enden
+  const drawConnectionWithCurves = (ctx, startScreen, endScreen, connection, curveAtStart, curveAtEnd) => {
+    const radiusMm = 1; // 1mm Radius
+    const radiusPx = radiusMm * pixelsPerMm * zoom;
+    
+    const dx = endScreen.x - startScreen.x;
+    const dy = endScreen.y - startScreen.y;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    
+    if (length < radiusPx * 2) {
+      // Zu kurz für Kurven
+      ctx.beginPath();
+      ctx.moveTo(startScreen.x, startScreen.y);
+      ctx.lineTo(endScreen.x, endScreen.y);
+      ctx.stroke();
+      return;
+    }
+    
+    const unitX = dx / length;
+    const unitY = dy / length;
+    
+    // Verkürze Linie nur minimal wo Kurven nötig sind
+    const shortenDistance = 0.3 * pixelsPerMm * zoom; // Nur 0.3mm
+    const startShortenX = curveAtStart ? unitX * shortenDistance : 0;
+    const startShortenY = curveAtStart ? unitY * shortenDistance : 0;
+    const endShortenX = curveAtEnd ? unitX * shortenDistance : 0;
+    const endShortenY = curveAtEnd ? unitY * shortenDistance : 0;
+    
+    // Verkürzte Linie zeichnen
+    const newStartX = startScreen.x + startShortenX;
+    const newStartY = startScreen.y + startShortenY;
+    const newEndX = endScreen.x - endShortenX;
+    const newEndY = endScreen.y - endShortenY;
+    
+    ctx.beginPath();
+    ctx.moveTo(newStartX, newStartY);
+    ctx.lineTo(newEndX, newEndY);
+    ctx.stroke();
+    
+    // Zeichne echte Biegekurven wo nötig
+    if (curveAtStart) {
+      drawBendingCurveAtNode(ctx, startScreen, connection, true, radiusPx);
+    }
+    
+    if (curveAtEnd) {
+      drawBendingCurveAtNode(ctx, endScreen, connection, false, radiusPx);
+    }
+  };
 
-        .satellite:active {
-            cursor: grabbing;
-        }
+  // Zeichne echte Biegekurve an einem Knoten
+  const drawBendingCurveAtNode = (ctx, nodeScreen, connection, isStartNode, radius) => {
+    const node = isStartNode ? 
+      nodes.find(n => n.id === connection.startId) : 
+      nodes.find(n => n.id === connection.endId);
+    
+    if (!node) return;
+    
+    // Finde andere Verbindung an diesem Knoten
+    const otherConnection = connections.find(conn => 
+      conn.id !== connection.id && 
+      (conn.startId === node.id || conn.endId === node.id)
+    );
+    
+    if (!otherConnection) return;
+    
+    // Berechne Richtungsvektoren der beiden Linien
+    const currentOtherNodeId = isStartNode ? connection.endId : connection.startId;
+    const currentOtherNode = nodes.find(n => n.id === currentOtherNodeId);
+    
+    const otherOtherNodeId = otherConnection.startId === node.id ? 
+      otherConnection.endId : otherConnection.startId;
+    const otherOtherNode = nodes.find(n => n.id === otherOtherNodeId);
+    
+    if (!currentOtherNode || !otherOtherNode) return;
+    
+    // Richtungen von diesem Knoten weg
+    const dir1X = currentOtherNode.x - node.x;
+    const dir1Y = currentOtherNode.y - node.y;
+    const len1 = Math.sqrt(dir1X * dir1X + dir1Y * dir1Y);
+    const unit1X = dir1X / len1;
+    const unit1Y = dir1Y / len1;
+    
+    const dir2X = otherOtherNode.x - node.x;
+    const dir2Y = otherOtherNode.y - node.y;
+    const len2 = Math.sqrt(dir2X * dir2X + dir2Y * dir2Y);
+    const unit2X = dir2X / len2;
+    const unit2Y = dir2Y / len2;
+    
+    // Kleiner Biegeradius - nur 0.3mm statt 1mm
+    const curveRadius = 0.3 * pixelsPerMm * zoom;
+    
+    // Startpunkte der Kurve (genau an den verkürzten Linienenden)
+    const start1X = nodeScreen.x + unit1X * curveRadius;
+    const start1Y = nodeScreen.y + unit1Y * curveRadius;
+    const start2X = nodeScreen.x + unit2X * curveRadius;
+    const start2Y = nodeScreen.y + unit2Y * curveRadius;
+    
+    // Kontrollpunkt leicht nach innen versetzt für sanfte Kurve
+    const bisectorX = unit1X + unit2X;
+    const bisectorY = unit1Y + unit2Y;
+    const bisectorLen = Math.sqrt(bisectorX * bisectorX + bisectorY * bisectorY);
+    
+    const controlOffset = curveRadius * 0.4; // Kleiner Versatz
+    const controlX = nodeScreen.x + (bisectorX / bisectorLen) * controlOffset;
+    const controlY = nodeScreen.y + (bisectorY / bisectorLen) * controlOffset;
+    
+    // Zeichne kleine, sanfte Biegekurve
+    ctx.beginPath();
+    ctx.moveTo(start1X, start1Y);
+    ctx.quadraticCurveTo(controlX, controlY, start2X, start2Y);
+    ctx.stroke();
+  };
 
-        .center-icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            color: #666;
-            pointer-events: none;
-        }
+  // Knoten zeichnen
+  const drawNode = useCallback((ctx, node) => {
+    // Zeichne nur sichtbare, echte Endpunkte (keine Biegepunkte)
+    if (node.hidden || node.isBendPoint) return;
+    
+    const screenPos = canvasToScreen(node);
+    
+    // Äußerer Ring
+    ctx.fillStyle = '#666';
+    ctx.beginPath();
+    ctx.arc(screenPos.x, screenPos.y, 8, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // Innerer Kern
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(screenPos.x, screenPos.y, 5, 0, 2 * Math.PI);
+    ctx.fill();
+  }, [canvasToScreen]);
 
-        .controls {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            border: 2px solid #ddd;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .control-group label {
-            font-weight: 500;
-            color: #333;
-            font-size: 14px;
-        }
-
-        .control-group input {
-            padding: 8px 12px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            width: 80px;
-        }
-
-        .control-group input:focus {
-            outline: none;
-            border-color: #007acc;
-        }
-
-        .slider-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .slider {
-            width: 200px;
-            height: 6px;
-            border-radius: 3px;
-            background: #ddd;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        .slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #007acc;
-            cursor: pointer;
-        }
-
-        .plus-button {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #007acc;
-            color: white;
-            border: none;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transform-origin: center center;
-            position: absolute;
-            z-index: 100;
-        }
-
-        .plus-button:hover {
-            background: #0056a3;
-            transform: scale(1.1);
-        }
-
-        .plus-button:active {
-            transform: scale(1.1);
-        }
-
-        .initial-plus {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            transform-origin: center center;
-        }
-
-        .initial-plus:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-
-        .initial-plus:active {
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-
-        svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        .line-segment {
-            stroke: #333;
-            stroke-width: 3;
-            fill: none;
-        }
-
-        .curve {
-            stroke: #333;
-            stroke-width: 3;
-            fill: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="drawing-area" id="drawingArea">
-            <div class="rotate-control" id="rotateControl">
-                <div class="rotate-knob" id="rotateKnob">
-                    <div class="satellite" id="satellite"></div>
-                    <svg class="center-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L19 6.5C18.8 5.9 18.6 5.4 18.3 4.9L19.3 3L17 0.7L15.4 1.7C14.9 1.4 14.4 1.2 13.8 1L13 3H11L10.2 1C9.6 1.2 9.1 1.4 8.6 1.7L7 0.7L4.7 3L5.7 4.6C5.4 5.1 5.2 5.6 5 6.2L3 7V9L5 9.5C5.2 10.1 5.4 10.6 5.7 11.1L4.7 12.7L7 15L8.6 14C9.1 14.3 9.6 14.5 10.2 14.7L11 17H13L13.8 14.7C14.4 14.5 14.9 14.3 15.4 14L17 15L19.3 12.7L18.3 11.1C18.6 10.6 18.8 10.1 19 9.5L21 9ZM12 18C8.7 18 6 15.3 6 12S8.7 6 12 6 18 8.7 18 12 15.3 18 12 18ZM12 8C9.8 8 8 9.8 8 12S9.8 16 12 16 16 14.2 16 12 14.2 8 12 8Z"/>
-                    </svg>
-                </div>
-            </div>
+  // Alle Elemente zeichnen
+  const redraw = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    drawGrid(ctx, canvas);
+    
+    // Verbindungen zuerst zeichnen (unter den Knoten)
+    connections.forEach(connection => drawConnection(ctx, connection));
+    
+    // Knoten darüber zeichnen
+    nodes.forEach(node => drawNode(ctx, node));
+    
+    // Live-Linie während des Zeichnens
+    if (isDrawing && startNode && currentPos) {
+      const startScreen = canvasToScreen(startNode);
+      const currentScreen = canvasToScreen(currentPos);
+      
+      // Berechne Winkel
+      let angleText = '';
+      let needsAutoBend = false;
+      let bendDirection = 1;
+      
+      const deltaX = currentPos.x - startNode.x;
+      const deltaY = currentPos.y - startNode.y;
+      const currentAngle = Math.atan2(deltaY, deltaX);
+      
+      if (connections.length > 0) {
+        const lastConnection = connections
+          .filter(conn => conn.startId === startNode.id || conn.endId === startNode.id)
+          .pop();
+        
+        if (lastConnection) {
+          const lastStartNode = nodes.find(n => n.id === lastConnection.startId);
+          const lastEndNode = nodes.find(n => n.id === lastConnection.endId);
+          
+          if (lastStartNode && lastEndNode) {
+            const lastDeltaX = lastEndNode.x - lastStartNode.x;
+            const lastDeltaY = lastEndNode.y - lastStartNode.y;
+            const lastAngle = Math.atan2(lastDeltaY, lastDeltaX);
             
-            <button class="plus-button initial-plus" id="initialPlus">+</button>
+            // Winkel zur Fortsetzungsrichtung berechnen
+            let angleDiff = (currentAngle - lastAngle) * (180 / Math.PI);
             
-            <svg id="svgCanvas" viewBox="0 0 800 600">
-                <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
-                     refX="0" refY="3.5" orient="auto">
-                        <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
-                    </marker>
-                </defs>
-            </svg>
+            // Normalisiere auf -180° bis +180°
+            while (angleDiff > 180) angleDiff -= 360;
+            while (angleDiff <= -180) angleDiff += 360;
+            
+            // KEINE Korrektur hier - angleDiff ist bereits richtig:
+            // 0° = gleiche Richtung wie letzte Linie (Fortsetzung)
+            // +90° = 90° rechts von der letzten Linie
+            // -90° = 90° links von der letzten Linie
+            // ±180° = entgegengesetzte Richtung
+            
+            if (Math.abs(angleDiff) > 90) {
+              needsAutoBend = true;
+              bendDirection = angleDiff > 0 ? 1 : -1;
+              
+              // Auto-Biegung zeichnen
+              const bendOffset = 1 * pixelsPerMm;
+              const lastLength = Math.sqrt(lastDeltaX * lastDeltaX + lastDeltaY * lastDeltaY);
+              const lastDirX = lastDeltaX / lastLength;
+              const lastDirY = lastDeltaY / lastLength;
+              
+              const perpToLastX = -lastDirY * bendDirection;
+              const perpToLastY = lastDirX * bendDirection;
+              
+              const bend1X = startNode.x + perpToLastX * bendOffset;
+              const bend1Y = startNode.y + perpToLastY * bendOffset;
+              
+              const bend1Screen = canvasToScreen({x: bend1X, y: bend1Y});
+              const endScreen = canvasToScreen(currentPos);
+              
+              ctx.strokeStyle = '#666';
+              ctx.lineWidth = 6; // Dickere Auto-Biegung
+              ctx.lineCap = 'round';
+              ctx.globalAlpha = 0.7;
+              
+              ctx.beginPath();
+              ctx.moveTo(startScreen.x, startScreen.y);
+              ctx.lineTo(bend1Screen.x, bend1Screen.y);
+              ctx.stroke();
+              
+              ctx.beginPath();
+              ctx.moveTo(bend1Screen.x, bend1Screen.y);
+              ctx.lineTo(endScreen.x, endScreen.y);
+              ctx.stroke();
+              
+              const curveRadius = bendOffset * zoom * 0.6; // Größere Kurve
+              ctx.beginPath();
+              ctx.arc(bend1Screen.x, bend1Screen.y, curveRadius, 0, 2 * Math.PI);
+              ctx.stroke();
+              
+              ctx.globalAlpha = 1;
+              
+              const firstSign = bendDirection > 0 ? '+' : '-';
+              const fromBend1ToTargetX = currentPos.x - bend1X;
+              const fromBend1ToTargetY = currentPos.y - bend1Y;
+              const bend1ToTargetAngle = Math.atan2(fromBend1ToTargetY, fromBend1ToTargetX);
+              const perpAngle = Math.atan2(perpToLastY, perpToLastX);
+              let secondAngle = (bend1ToTargetAngle - perpAngle) * (180 / Math.PI);
+              while (secondAngle > 180) secondAngle -= 360;
+              while (secondAngle <= -180) secondAngle += 360;
+              const secondSign = secondAngle >= 0 ? '+' : '';
+              angleText = ` | ${firstSign}90° → ${secondSign}${Math.round(secondAngle)}°`;
+            } else {
+              const angleSign = angleDiff >= 0 ? '+' : '';
+              angleText = ` | ${angleSign}${Math.round(angleDiff)}°`;
+            }
+          }
+        }
+      } else {
+        // Erste Linie - Winkel zur Waagerechten
+        let angleDiff = currentAngle * (180 / Math.PI);
+        while (angleDiff > 180) angleDiff -= 360;
+        while (angleDiff <= -180) angleDiff += 360;
+        
+        const angleSign = angleDiff >= 0 ? '+' : '';
+        angleText = ` | ${angleSign}${Math.round(angleDiff)}°`;
+      }
+      
+      if (!needsAutoBend) {
+        ctx.strokeStyle = '#666';
+        ctx.lineWidth = 6; // Dickere Live-Vorschau
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = 0.7;
+        
+        ctx.beginPath();
+        ctx.moveTo(startScreen.x, startScreen.y);
+        ctx.lineTo(currentScreen.x, currentScreen.y);
+        ctx.stroke();
+        
+        ctx.globalAlpha = 1;
+      }
+      
+      // Länge berechnen (in mm)
+      const lengthPx = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      const lengthMm = lengthPx / pixelsPerMm;
+      
+      // Maßtext anzeigen
+      const midX = (startScreen.x + currentScreen.x) / 2;
+      const midY = (startScreen.y + currentScreen.y) / 2;
+      
+      const text = `${Math.round(lengthMm)}mm${angleText}`;
+      
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+      ctx.fillRect(midX - 60, midY - 25, 120, 20);
+      
+      ctx.fillStyle = '#fff';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, midX, midY - 15);
+    }
+  }, [nodes, connections, drawGrid, drawConnection, drawNode, isDrawing, startNode, currentPos, canvasToScreen, pixelsPerMm, zoom]);
+
+  // Canvas-Größe anpassen
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const resizeCanvas = () => {
+      const container = canvas.parentElement;
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      redraw();
+    };
+    
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    return () => window.removeEventListener('resize', resizeCanvas);
+  }, [redraw]);
+
+  useEffect(() => {
+    redraw();
+  }, [redraw]);
+
+  // Maus-Position abrufen
+  const getMousePos = (e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+  };
+
+  // Knoten an Position finden
+  const findNodeAtPos = (pos) => {
+    const canvasPos = screenToCanvas(pos);
+    
+    for (let i = nodes.length - 1; i >= 0; i--) {
+      const node = nodes[i];
+      
+      // Überspringe versteckte Knoten UND Biegepunkte
+      if (node.hidden || node.isBendPoint) continue;
+      
+      const distance = Math.sqrt(
+        Math.pow(canvasPos.x - node.x, 2) + Math.pow(canvasPos.y - node.y, 2)
+      );
+      if (distance <= 12) {
+        return i;
+      }
+    }
+    return -1;
+  };
+
+  // Verbindung an Position finden
+  const findConnectionAtPos = (pos) => {
+    const canvasPos = screenToCanvas(pos);
+    
+    for (let i = connections.length - 1; i >= 0; i--) {
+      const connection = connections[i];
+      const startNode = nodes.find(n => n.id === connection.startId);
+      const endNode = nodes.find(n => n.id === connection.endId);
+      
+      if (!startNode || !endNode) continue;
+      
+      // Distanz zur Linie berechnen
+      const A = canvasPos.x - startNode.x;
+      const B = canvasPos.y - startNode.y;
+      const C = endNode.x - startNode.x;
+      const D = endNode.y - startNode.y;
+      
+      const dot = A * C + B * D;
+      const lenSq = C * C + D * D;
+      
+      if (lenSq === 0) continue;
+      
+      const param = dot / lenSq;
+      
+      if (param < 0 || param > 1) continue;
+      
+      const xx = startNode.x + param * C;
+      const yy = startNode.y + param * D;
+      
+      const dx = canvasPos.x - xx;
+      const dy = canvasPos.y - yy;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance <= 8) {
+        return i;
+      }
+    }
+    return -1;
+  };
+
+  // Mausrad-Events für Zoom
+  const handleWheel = (e) => {
+    e.preventDefault();
+    
+    const pos = getMousePos(e);
+    const canvasPos = screenToCanvas(pos);
+    
+    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+    const newZoom = Math.max(0.1, Math.min(5, zoom * zoomFactor));
+    
+    // Zoom zum Mauszeiger
+    const newPanOffset = {
+      x: panOffset.x + (canvasPos.x * (zoom - newZoom)) / newZoom,
+      y: panOffset.y + (canvasPos.y * (zoom - newZoom)) / newZoom
+    };
+    
+    setZoom(newZoom);
+    setPanOffset(newPanOffset);
+  };
+
+  // Zoom-Funktionen (für Buttons)
+  const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.2, 5));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev / 1.2, 0.1));
+
+  // Maus-Events
+  const handleMouseDown = (e) => {
+    const pos = getMousePos(e);
+    const canvasPos = screenToCanvas(pos);
+    
+    // Mittlere Maustaste für Verschieben
+    if (e.button === 1) {
+      e.preventDefault();
+      setIsPanning(true);
+      setPanStart({ x: pos.x, y: pos.y });
+      return;
+    }
+    
+    // Nur linke Maustaste für normales Zeichnen/Radieren
+    if (e.button !== 0) return;
+    
+    if (isErasing) {
+      // Radiergummi-Modus
+      const connectionIndex = findConnectionAtPos(pos);
+      
+      if (connectionIndex !== -1) {
+        const connectionToDelete = connections[connectionIndex];
+        setConnections(prev => prev.filter((_, i) => i !== connectionIndex));
+        
+        setTimeout(() => {
+          setNodes(prev => prev.filter(node => {
+            const hasConnections = connections.some(conn => 
+              (conn.startId === node.id || conn.endId === node.id) && 
+              conn.id !== connectionToDelete.id
+            );
+            return hasConnections;
+          }));
+        }, 50);
+      }
+      return;
+    }
+
+    if (isDrawing) {
+      // Zweiter Klick - Linie beenden
+      const existingNodeIndex = findNodeAtPos(pos);
+      
+      let endNode;
+      
+      if (existingNodeIndex !== -1) {
+        endNode = nodes[existingNodeIndex];
+      } else {
+        endNode = {
+          id: Date.now() + 1,
+          x: canvasPos.x,
+          y: canvasPos.y,
+          hidden: false,
+          isBendPoint: false
+        };
+        setNodes(prev => [...prev, endNode]);
+      }
+      
+      // Prüfe ob Auto-Biegung nötig ist
+      if (startNode.id !== endNode.id) {
+        let needsAutoBend = false;
+        let bendDirection = 1;
+        
+        if (connections.length > 0) {
+          const lastConnection = connections
+            .filter(conn => conn.startId === startNode.id || conn.endId === startNode.id)
+            .pop();
+          
+          if (lastConnection) {
+            const lastStartNode = nodes.find(n => n.id === lastConnection.startId);
+            const lastEndNode = nodes.find(n => n.id === lastConnection.endId);
+            
+            if (lastStartNode && lastEndNode) {
+              const lastDeltaX = lastEndNode.x - lastStartNode.x;
+              const lastDeltaY = lastEndNode.y - lastStartNode.y;
+              const lastAngle = Math.atan2(lastDeltaY, lastDeltaX);
+              
+              const deltaX = endNode.x - startNode.x;
+              const deltaY = endNode.y - startNode.y;
+              const currentAngle = Math.atan2(deltaY, deltaX);
+              
+              let angleDiff = (currentAngle - lastAngle) * (180 / Math.PI);
+              
+              // Normalisiere auf -180° bis +180°
+              while (angleDiff > 180) angleDiff -= 360;
+              while (angleDiff <= -180) angleDiff += 360;
+              
+              if (Math.abs(angleDiff) > 90) {
+                needsAutoBend = true;
+                bendDirection = angleDiff > 0 ? 1 : -1;
+              }
+            }
+          }
+        }
+        
+        if (needsAutoBend) {
+          // Erstelle Auto-Biegung
+          const bendOffset = 1 * pixelsPerMm;
+          const lastConnection = connections
+            .filter(conn => conn.startId === startNode.id || conn.endId === startNode.id)
+            .pop();
+          const lastStartNode = nodes.find(n => n.id === lastConnection.startId);
+          const lastEndNode = nodes.find(n => n.id === lastConnection.endId);
+          const lastDeltaX = lastEndNode.x - lastStartNode.x;
+          const lastDeltaY = lastEndNode.y - lastStartNode.y;
+          const lastLength = Math.sqrt(lastDeltaX * lastDeltaX + lastDeltaY * lastDeltaY);
+          const lastDirX = lastDeltaX / lastLength;
+          const lastDirY = lastDeltaY / lastLength;
+          
+          const perpToLastX = -lastDirY * bendDirection;
+          const perpToLastY = lastDirX * bendDirection;
+          
+          const bendNode = {
+            id: Date.now() + 100,
+            x: startNode.x + perpToLastX * bendOffset,
+            y: startNode.y + perpToLastY * bendOffset,
+            hidden: true,
+            isBendPoint: true
+          };
+          
+          setNodes(prev => [...prev, bendNode]);
+          
+          const connection1 = {
+            id: Date.now() + 101,
+            startId: startNode.id,
+            endId: bendNode.id
+          };
+          
+          const connection2 = {
+            id: Date.now() + 102,
+            startId: bendNode.id,
+            endId: endNode.id
+          };
+          
+          setConnections(prev => [...prev, connection1, connection2]);
+        } else {
+          // Normale Verbindung
+          const newConnection = {
+            id: Date.now() + 2,
+            startId: startNode.id,
+            endId: endNode.id
+          };
+          setConnections(prev => [...prev, newConnection]);
+        }
+      }
+      
+      // Zeichenmodus beenden
+      setIsDrawing(false);
+      setStartNode(null);
+      setCurrentPos(null);
+    } else {
+      // Erster Klick - Linie beginnen
+      const nodeIndex = findNodeAtPos(pos);
+      
+      if (nodeIndex !== -1) {
+        const existingNode = nodes[nodeIndex];
+        
+        // Prüfe ob es ein echter Endpunkt ist
+        const nodeConnections = connections.filter(conn => 
+          conn.startId === existingNode.id || conn.endId === existingNode.id
+        );
+        
+        if (!existingNode.hidden && nodeConnections.length <= 1) {
+          setStartNode(existingNode);
+          setIsDrawing(true);
+          
+          // Startpunkt DAUERHAFT verstecken
+          setNodes(prev => prev.map((node, i) => ({
+            ...node,
+            hidden: i === nodeIndex ? true : node.hidden
+          })));
+        }
+      } else {
+        const newNode = {
+          id: Date.now(),
+          x: canvasPos.x,
+          y: canvasPos.y,
+          hidden: false,
+          isBendPoint: false
+        };
+        setNodes(prev => [...prev, newNode]);
+        setStartNode(newNode);
+        setIsDrawing(true);
+      }
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    const pos = getMousePos(e);
+    const canvasPos = screenToCanvas(pos);
+    
+    if (isPanning) {
+      const deltaX = (pos.x - panStart.x) / zoom;
+      const deltaY = (pos.y - panStart.y) / zoom;
+      
+      setPanOffset(prev => ({
+        x: prev.x + deltaX,
+        y: prev.y + deltaY
+      }));
+      
+      setPanStart({ x: pos.x, y: pos.y });
+    } else if (isErasing) {
+      const connectionIndex = findConnectionAtPos(pos);
+      setSelectedConnection(connectionIndex);
+    } else if (isDrawing) {
+      setCurrentPos(canvasPos);
+    }
+  };
+
+  const handleMouseUp = (e) => {
+    if (isPanning) {
+      setIsPanning(false);
+    }
+  };
+
+  // Export als SVG
+  const exportAsSVG = () => {
+    let svg = `<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">`;
+    
+    connections.forEach(connection => {
+      const startNode = nodes.find(n => n.id === connection.startId);
+      const endNode = nodes.find(n => n.id === connection.endId);
+      if (startNode && endNode) {
+        svg += `<line x1="${startNode.x}" y1="${startNode.y}" x2="${endNode.x}" y2="${endNode.y}" stroke="#666" stroke-width="4"/>`;
+      }
+    });
+    
+    nodes.forEach(node => {
+      if (!node.hidden && !node.isBendPoint) {
+        svg += `<circle cx="${node.x}" cy="${node.y}" r="8" fill="#666"/>`;
+        svg += `<circle cx="${node.x}" cy="${node.y}" r="5" fill="#fff"/>`;
+      }
+    });
+    
+    svg += '</svg>';
+    
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'dachkanteile.svg';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="flex flex-col h-screen bg-gray-50">
+      {/* Toolbar */}
+      <div className="flex items-center gap-4 p-4 bg-white shadow-md">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setIsErasing(false)}
+            className={`p-2 rounded-lg flex items-center gap-2 transition-colors ${
+              !isErasing ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+            }`}
+          >
+            ✏️ Zeichnen
+          </button>
+          <button
+            onClick={() => setIsErasing(true)}
+            className={`p-2 rounded-lg flex items-center gap-2 transition-colors ${
+              isErasing ? 'bg-red-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
+            }`}
+          >
+            <Eraser size={16} /> Radieren
+          </button>
         </div>
-
-        <div class="controls">
-            <div class="control-group">
-                <label>Länge (mm)</label>
-                <input type="number" id="lengthInput" value="10" min="1" max="200">
-            </div>
-            
-            <div class="control-group">
-                <label>Winkel (°)</label>
-                <input type="number" id="angleInput" value="0" min="-180" max="180">
-            </div>
-            
-            <div class="control-group">
-                <label>Winkel-Schieberegler</label>
-                <div class="slider-container">
-                    <span>-180°</span>
-                    <input type="range" id="angleSlider" class="slider" 
-                           min="-180" max="180" value="0">
-                    <span>+180°</span>
-                </div>
-            </div>
+        
+        <div className="w-px h-8 bg-gray-300" />
+        
+        <div className="flex gap-2">
+          <button onClick={handleZoomIn} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+            <ZoomIn size={20} />
+          </button>
+          <button onClick={handleZoomOut} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+            <ZoomOut size={20} />
+          </button>
+          <span className="flex items-center px-3 text-sm text-gray-600">
+            {Math.round(zoom * 100)}%
+          </span>
         </div>
+        
+        <div className="w-px h-8 bg-gray-300" />
+        
+        <button onClick={exportAsSVG} className="p-2 rounded-lg bg-green-100 hover:bg-green-200">
+          <Download size={20} />
+        </button>
+      </div>
+      
+      {/* Zeichenfläche */}
+      <div className="flex-1 relative overflow-hidden">
+        <canvas
+          ref={canvasRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onWheel={handleWheel}
+          onContextMenu={(e) => e.preventDefault()}
+          className="cursor-crosshair bg-white"
+          style={{ 
+            touchAction: 'none',
+            cursor: isPanning ? 'move' : isErasing ? 'crosshair' : isDrawing ? 'crosshair' : 'default'
+          }}
+        />
+        
+        {nodes.length === 0 && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-500">
+            <div className="text-2xl mb-4">📏 Dachkanteil-Zeichner</div>
+            <div className="mb-4">Zeichnen Sie Dachkanteile mit korrekter Winkelangabe</div>
+            <div className="text-sm space-y-2">
+              <div><strong>0°</strong> = Gerade Fortsetzung der letzten Linie</div>
+              <div><strong>±90°</strong> = Rechtwinklige Biegung</div>
+              <div><strong>>90°</strong> = Automatische Z-Biegung</div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
+  );
+};
 
-    <script>
-        class BlechkantTool {
-            constructor() {
-                this.segments = [];
-                this.currentSegment = null;
-                this.scale = 2; // 2 Pixel pro mm
-                this.globalRotation = 0;
-                this.centerX = 400;
-                this.centerY = 300;
-                this.zoom = 1;
-                this.panX = 0;
-                this.panY = 0;
-                this.isPanning = false;
-                this.lastPanX = 0;
-                this.lastPanY = 0;
-                this.isRotating = false;
-                this.minZoom = 0.5;
-                this.maxZoom = 50;
-                this.bendRadius = 2; // 1mm Biegeradius = 2px
-                
-                this.initializeElements();
-                this.bindEvents();
-                this.updateSatellitePosition();
-            }
-
-            initializeElements() {
-                this.svgCanvas = document.getElementById('svgCanvas');
-                this.drawingArea = document.getElementById('drawingArea');
-                this.initialPlus = document.getElementById('initialPlus');
-                this.lengthInput = document.getElementById('lengthInput');
-                this.angleInput = document.getElementById('angleInput');
-                this.angleSlider = document.getElementById('angleSlider');
-                this.rotateControl = document.getElementById('rotateControl');
-                this.rotateKnob = document.getElementById('rotateKnob');
-                this.satellite = document.getElementById('satellite');
-            }
-
-            bindEvents() {
-                this.initialPlus.addEventListener('click', () => this.startFirstSegment());
-                this.lengthInput.addEventListener('input', () => this.updateCurrentSegment());
-                this.angleInput.addEventListener('input', () => this.updateAngleFromInput());
-                this.angleSlider.addEventListener('input', () => this.updateAngleFromSlider());
-                
-                // Satelliten-Rotation
-                this.satellite.addEventListener('mousedown', (e) => this.startRotation(e));
-                document.addEventListener('mousemove', (e) => this.handleRotation(e));
-                document.addEventListener('mouseup', () => this.endRotation());
-                
-                // Zentrier-Knopf
-                this.rotateKnob.addEventListener('click', (e) => {
-                    if (e.target === this.rotateKnob) {
-                        this.centerPart();
-                    }
-                });
-                
-                // Zoom und Pan
-                this.svgCanvas.addEventListener('wheel', (e) => this.handleZoom(e));
-                this.svgCanvas.addEventListener('mousedown', (e) => this.startPan(e));
-                this.svgCanvas.addEventListener('mousemove', (e) => this.handlePan(e));
-                this.svgCanvas.addEventListener('mouseup', () => this.endPan());
-                this.svgCanvas.addEventListener('mouseleave', () => this.endPan());
-            }
-
-            startFirstSegment() {
-                this.initialPlus.style.display = 'none';
-                
-                const startX = this.centerX;
-                const startY = this.centerY;
-                const length = parseFloat(this.lengthInput.value) * this.scale;
-                
-                this.currentSegment = {
-                    id: Date.now(),
-                    startX: startX,
-                    startY: startY,
-                    endX: startX + length,
-                    endY: startY,
-                    length: length,
-                    angle: 0,
-                    fixed: false,
-                    parentSegment: null,
-                    connectionPoint: null
-                };
-                
-                this.drawCurrentSegment();
-                this.createEndButtons();
-            }
-
-            updateCurrentSegment() {
-                if (!this.currentSegment || this.currentSegment.fixed) return;
-                
-                const length = parseFloat(this.lengthInput.value) * this.scale;
-                this.currentSegment.length = length;
-                
-                if (!this.currentSegment.parentSegment) {
-                    // Erstes Segment
-                    this.currentSegment.endX = this.currentSegment.startX + length;
-                } else {
-                    // Nachfolgende Segmente
-                    this.calculateBendGeometry();
-                }
-                
-                this.drawCurrentSegment();
-                this.updatePlusButtonPositions();
-            }
-
-            updateAngleFromInput() {
-                const angle = parseFloat(this.angleInput.value) || 0;
-                this.angleSlider.value = angle;
-                this.updateAngle(angle);
-            }
-
-            updateAngleFromSlider() {
-                const angle = parseFloat(this.angleSlider.value) || 0;
-                this.angleInput.value = angle;
-                this.updateAngle(angle);
-            }
-
-            updateAngle(angle) {
-                if (!this.currentSegment || this.currentSegment.fixed) return;
-                
-                this.currentSegment.angle = angle;
-                this.calculateBendGeometry();
-                this.drawCurrentSegment();
-                this.updatePlusButtonPositions();
-            }
-
-            calculateBendGeometry() {
-                if (!this.currentSegment.parentSegment) return;
-                
-                const parent = this.currentSegment.parentSegment;
-                const angleRad = this.currentSegment.angle * Math.PI / 180;
-                const length = this.currentSegment.length;
-                
-                // Richtung der Elternlinie
-                const parentAngle = Math.atan2(
-                    parent.endY - parent.startY,
-                    parent.endX - parent.startX
-                );
-                
-                // Verbindungspunkt
-                let connectionX, connectionY;
-                if (this.currentSegment.connectionPoint === 'end') {
-                    connectionX = parent.endX;
-                    connectionY = parent.endY;
-                } else {
-                    connectionX = parent.startX;
-                    connectionY = parent.startY;
-                }
-                
-                // Berechne die Biegung
-                if (Math.abs(angleRad) < 0.01) {
-                    // Kein Winkel - gerade Verlängerung
-                    this.currentSegment.startX = connectionX;
-                    this.currentSegment.startY = connectionY;
-                    
-                    const direction = this.currentSegment.connectionPoint === 'end' ? 1 : -1;
-                    this.currentSegment.endX = connectionX + length * Math.cos(parentAngle) * direction;
-                    this.currentSegment.endY = connectionY + length * Math.sin(parentAngle) * direction;
-                    
-                } else {
-                    // Mit Biegung - berechne Startpunkt basierend auf Biegeradius
-                    const bendRadius = this.bendRadius;
-                    
-                    // Normale zur Elternlinie
-                    const normalAngle = parentAngle + Math.PI / 2;
-                    
-                    // Bei 180° ist der Versatz maximal (3px für Sichtbarkeit)
-                    const offsetFactor = Math.sin(Math.abs(angleRad) / 2);
-                    const maxOffset = 3; // 3px maximaler Abstand bei 180°
-                    const offset = offsetFactor * maxOffset;
-                    
-                    // KORREKTUR: Berücksichtige die Verbindungsseite
-                    let effectiveAngle = angleRad;
-                    let offsetDirection;
-                    
-                    if (this.currentSegment.connectionPoint === 'start') {
-                        // Von der Start-Seite: Winkel UND Offset-Richtung umkehren
-                        effectiveAngle = angleRad; // Winkel bleibt gleich
-                        offsetDirection = angleRad > 0 ? -1 : 1; // Offset-Richtung umkehren
-                    } else {
-                        // Von der End-Seite: normal
-                        offsetDirection = angleRad > 0 ? 1 : -1;
-                    }
-                    
-                    // Neuer Startpunkt
-                    this.currentSegment.startX = connectionX + offset * Math.cos(normalAngle) * offsetDirection;
-                    this.currentSegment.startY = connectionY + offset * Math.sin(normalAngle) * offsetDirection;
-                    
-                    // Neue Richtung - berücksichtige Verbindungsseite
-                    let newAngle;
-                    if (this.currentSegment.connectionPoint === 'end') {
-                        newAngle = parentAngle + angleRad;
-                    } else {
-                        // Von start: umgekehrte Basis-Richtung, aber gleicher Winkel
-                        newAngle = parentAngle + Math.PI + angleRad;
-                    }
-                    
-                    this.currentSegment.endX = this.currentSegment.startX + length * Math.cos(newAngle);
-                    this.currentSegment.endY = this.currentSegment.startY + length * Math.sin(newAngle);
-                }
-            }
-
-            drawCurrentSegment() {
-                this.clearTemporaryElements();
-                
-                // Zeichne alle fixierten Segmente
-                this.segments.forEach(segment => this.drawSegment(segment));
-                
-                // Zeichne aktuelles Segment
-                if (this.currentSegment) {
-                    this.drawSegment(this.currentSegment);
-                    
-                    // Zeichne Kurve ab 1°
-                    if (this.currentSegment.parentSegment && Math.abs(this.currentSegment.angle) >= 1) {
-                        this.drawSmoothCurve();
-                    }
-                }
-                
-                this.applyGlobalRotation();
-            }
-
-            drawSegment(segment) {
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', segment.startX);
-                line.setAttribute('y1', segment.startY);
-                line.setAttribute('x2', segment.endX);
-                line.setAttribute('y2', segment.endY);
-                line.setAttribute('class', 'line-segment');
-                line.setAttribute('data-temp', segment.fixed ? 'false' : 'true');
-                this.svgCanvas.appendChild(line);
-            }
-
-            drawSmoothCurve() {
-                if (!this.currentSegment.parentSegment || Math.abs(this.currentSegment.angle) < 1) return;
-                
-                const parent = this.currentSegment.parentSegment;
-                let startX, startY;
-                
-                if (this.currentSegment.connectionPoint === 'end') {
-                    startX = parent.endX;
-                    startY = parent.endY;
-                } else {
-                    startX = parent.startX;
-                    startY = parent.startY;
-                }
-                
-                const endX = this.currentSegment.startX;
-                const endY = this.currentSegment.startY;
-                
-                // Verwende den Biegeradius und berücksichtige Verbindungsseite
-                const radius = this.bendRadius;
-                let sweepFlag;
-                
-                if (this.currentSegment.connectionPoint === 'end') {
-                    sweepFlag = this.currentSegment.angle > 0 ? 1 : 0;
-                } else {
-                    // Von start: gleiche Sweep-Richtung wie der Winkel
-                    sweepFlag = this.currentSegment.angle > 0 ? 1 : 0;
-                }
-                
-                const largeArcFlag = Math.abs(this.currentSegment.angle) > 90 ? 1 : 0;
-                
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                const d = `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${endX} ${endY}`;
-                path.setAttribute('d', d);
-                path.setAttribute('class', 'curve');
-                path.setAttribute('data-temp', 'true');
-                this.svgCanvas.appendChild(path);
-            }
-
-            createEndButtons() {
-                this.removePlusButtons();
-                
-                if (!this.currentSegment) return;
-                
-                this.createPlusButton(this.currentSegment.startX, this.currentSegment.startY, 'start');
-                this.createPlusButton(this.currentSegment.endX, this.currentSegment.endY, 'end');
-            }
-
-            createPlusButton(x, y, position) {
-                const button = document.createElement('button');
-                button.className = 'plus-button';
-                button.textContent = '+';
-                button.dataset.position = position;
-                button.dataset.segmentId = this.currentSegment.id;
-                
-                this.updateButtonPosition(button, x, y);
-                
-                button.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.addSegment(position, button);
-                });
-                
-                this.drawingArea.appendChild(button);
-            }
-
-            addSegment(position, clickedButton) {
-                console.log('Clicked button position:', position);
-                console.log('Button element:', clickedButton);
-                
-                // Entferne NUR den geklickten Button
-                if (clickedButton && clickedButton.parentNode) {
-                    clickedButton.remove();
-                    console.log('Clicked button removed');
-                } else {
-                    console.error('Button not found or already removed');
-                }
-                
-                // Fixiere aktuelles Segment
-                if (this.currentSegment) {
-                    this.currentSegment.fixed = true;
-                    this.segments.push(this.currentSegment);
-                }
-                
-                const parentSegment = this.currentSegment;
-                const length = 10 * this.scale;
-                let startX, startY;
-                
-                if (position === 'end') {
-                    startX = parentSegment.endX;
-                    startY = parentSegment.endY;
-                } else {
-                    startX = parentSegment.startX;
-                    startY = parentSegment.startY;
-                }
-                
-                // Erstelle neues Segment als Verlängerung
-                const parentAngle = Math.atan2(
-                    parentSegment.endY - parentSegment.startY,
-                    parentSegment.endX - parentSegment.startX
-                );
-                
-                let endX, endY;
-                if (position === 'end') {
-                    endX = startX + length * Math.cos(parentAngle);
-                    endY = startY + length * Math.sin(parentAngle);
-                } else {
-                    endX = startX - length * Math.cos(parentAngle);
-                    endY = startY - length * Math.sin(parentAngle);
-                }
-                
-                this.currentSegment = {
-                    id: Date.now(),
-                    startX: startX,
-                    startY: startY,
-                    endX: endX,
-                    endY: endY,
-                    length: length,
-                    angle: 0,
-                    fixed: false,
-                    parentSegment: parentSegment,
-                    connectionPoint: position
-                };
-                
-                // Eingabefelder zurücksetzen
-                this.lengthInput.value = 10;
-                this.angleInput.value = 0;
-                this.angleSlider.value = 0;
-                
-                this.drawCurrentSegment();
-                this.createEndButtons();
-            }
-
-            removePlusButtons() {
-                const buttons = this.drawingArea.querySelectorAll('.plus-button:not(.initial-plus)');
-                buttons.forEach(button => button.remove());
-            }
-
-            updatePlusButtonPositions() {
-                if (!this.currentSegment || this.currentSegment.fixed) return;
-                
-                const buttons = this.drawingArea.querySelectorAll(`[data-segment-id="${this.currentSegment.id}"]`);
-                buttons.forEach(button => {
-                    const position = button.dataset.position;
-                    if (position === 'start') {
-                        this.updateButtonPosition(button, this.currentSegment.startX, this.currentSegment.startY);
-                    } else if (position === 'end') {
-                        this.updateButtonPosition(button, this.currentSegment.endX, this.currentSegment.endY);
-                    }
-                });
-            }
-
-            updateButtonPosition(button, x, y) {
-                const rect = this.svgCanvas.getBoundingClientRect();
-                const drawingRect = this.drawingArea.getBoundingClientRect();
-                
-                const transformedX = (x * this.zoom) + this.panX;
-                const transformedY = (y * this.zoom) + this.panY;
-                
-                const pixelX = (transformedX / 800) * rect.width + (rect.left - drawingRect.left);
-                const pixelY = (transformedY / 600) * rect.height + (rect.top - drawingRect.top);
-                
-                button.style.left = (pixelX - 16) + 'px';
-                button.style.top = (pixelY - 16) + 'px';
-            }
-
-            clearTemporaryElements() {
-                const tempElements = this.svgCanvas.querySelectorAll('[data-temp="true"]');
-                tempElements.forEach(el => el.remove());
-            }
-
-            // Zoom zum Mauszeiger
-            handleZoom(e) {
-                e.preventDefault();
-                
-                const rect = this.svgCanvas.getBoundingClientRect();
-                const mouseX = e.clientX - rect.left;
-                const mouseY = e.clientY - rect.top;
-                
-                // Berechne Mausposition in SVG-Koordinaten vor dem Zoom
-                const svgX = (mouseX / rect.width) * 800;
-                const svgY = (mouseY / rect.height) * 600;
-                
-                const worldX = (svgX - this.panX) / this.zoom;
-                const worldY = (svgY - this.panY) / this.zoom;
-                
-                const oldZoom = this.zoom;
-                const delta = e.deltaY > 0 ? 0.9 : 1.1;
-                this.zoom *= delta;
-                this.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoom));
-                
-                // Anpassung der Pan-Position um zum Mauszeiger zu zoomen
-                const newSvgX = worldX * this.zoom + this.panX;
-                const newSvgY = worldY * this.zoom + this.panY;
-                
-                this.panX += svgX - newSvgX;
-                this.panY += svgY - newSvgY;
-                
-                this.applyTransform();
-                this.updatePlusButtonPositions();
-            }
-
-            // Satelliten-Rotation
-            startRotation(e) {
-                e.stopPropagation();
-                this.isRotating = true;
-                this.satellite.style.cursor = 'grabbing';
-            }
-
-            handleRotation(e) {
-                if (!this.isRotating) return;
-                
-                const rect = this.rotateControl.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                
-                const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
-                const degrees = (angle * 180 / Math.PI + 90) % 360;
-                
-                this.globalRotation = degrees > 180 ? degrees - 360 : degrees;
-                this.updateSatellitePosition();
-                this.applyTransform();
-                this.updatePlusButtonPositions();
-            }
-
-            endRotation() {
-                this.isRotating = false;
-                this.satellite.style.cursor = 'grab';
-            }
-
-            updateSatellitePosition() {
-                const rotationRad = (this.globalRotation - 90) * Math.PI / 180;
-                const radius = 34;
-                const x = radius * Math.cos(rotationRad);
-                const y = radius * Math.sin(rotationRad);
-                
-                this.satellite.style.left = `calc(50% + ${x}px)`;
-                this.satellite.style.top = `calc(50% + ${y}px)`;
-                this.satellite.style.transform = 'translate(-50%, -50%)';
-            }
-
-            centerPart() {
-                if (this.isRotating) return;
-                
-                this.panX = 0;
-                this.panY = 0;
-                this.applyTransform();
-                this.updatePlusButtonPositions();
-            }
-
-            startPan(e) {
-                if (e.button === 0 && !e.target.closest('.plus-button')) {
-                    this.isPanning = true;
-                    this.lastPanX = e.clientX;
-                    this.lastPanY = e.clientY;
-                    this.svgCanvas.style.cursor = 'grabbing';
-                }
-            }
-
-            handlePan(e) {
-                if (this.isPanning) {
-                    const deltaX = e.clientX - this.lastPanX;
-                    const deltaY = e.clientY - this.lastPanY;
-                    
-                    this.panX += deltaX;
-                    this.panY += deltaY;
-                    
-                    this.lastPanX = e.clientX;
-                    this.lastPanY = e.clientY;
-                    
-                    this.applyTransform();
-                    this.updatePlusButtonPositions();
-                }
-            }
-
-            endPan() {
-                this.isPanning = false;
-                this.svgCanvas.style.cursor = 'default';
-            }
-
-            applyTransform() {
-                const transformGroup = this.svgCanvas.querySelector('#mainGroup');
-                if (transformGroup) {
-                    transformGroup.setAttribute('transform', 
-                        `translate(${this.panX} ${this.panY}) scale(${this.zoom}) rotate(${this.globalRotation} ${this.centerX} ${this.centerY})`);
-                }
-            }
-
-            applyGlobalRotation() {
-                const transformGroup = this.svgCanvas.querySelector('#mainGroup');
-                if (transformGroup) {
-                    transformGroup.remove();
-                }
-                
-                const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                group.id = 'mainGroup';
-                group.setAttribute('transform', 
-                    `translate(${this.panX} ${this.panY}) scale(${this.zoom}) rotate(${this.globalRotation} ${this.centerX} ${this.centerY})`);
-                
-                const elements = this.svgCanvas.querySelectorAll('.line-segment, .curve');
-                elements.forEach(el => {
-                    group.appendChild(el.cloneNode(true));
-                    el.remove();
-                });
-                
-                this.svgCanvas.appendChild(group);
-                this.updatePlusButtonPositions();
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            new BlechkantTool();
-        });
-    </script>
-</body>
-</html>
+export default DachkanteilDrawingApp;
