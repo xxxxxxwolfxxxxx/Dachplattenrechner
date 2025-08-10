@@ -3,388 +3,1271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dachkanteil-Zeichner</title>
+    <title>CNC-Kantmaschinen Simulator - Interaktiv</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            background: #f0f0f0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
             height: 100vh;
-            display: flex;
-            flex-direction: column;
+            overflow: hidden;
         }
         
-        .toolbar {
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            height: 100vh;
             background: white;
-            padding: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            gap: 10px;
-            align-items: center;
         }
         
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            background: #e0e0e0;
-        }
-        
-        .btn:hover {
-            background: #d0d0d0;
-        }
-        
-        .btn.active {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .canvas-area {
-            flex: 1;
+        .drawing-area {
+            background: #ecf0f1;
             position: relative;
             overflow: hidden;
         }
         
-        canvas {
-            display: block;
-            background: white;
-            cursor: crosshair;
-        }
-        
-        .info {
+        .toolbar {
             position: absolute;
             top: 20px;
             left: 20px;
-            background: rgba(255,255,255,0.9);
-            padding: 10px;
-            border-radius: 4px;
+            background: rgba(52, 73, 94, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+        
+        .toolbar h3 {
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+        
+        .tool-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .tool-input {
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            width: 80px;
+            font-size: 14px;
+        }
+        
+        .tool-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .tool-btn.danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .tool-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+        
+        .canvas-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        #drawingCanvas {
+            display: block;
+            cursor: crosshair;
+            background: 
+                linear-gradient(rgba(52, 152, 219, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(52, 152, 219, 0.1) 1px, transparent 1px);
+            background-size: 25px 25px;
+        }
+        
+        .status-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(52, 73, 94, 0.95);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .coordinates {
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .current-mode {
+            background: #3498db;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+        
+        .side-panel {
+            background: #34495e;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .side-panel h2 {
+            color: #3498db;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+        
+        .section {
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .section h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .instruction {
+            color: #bdc3c7;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+        }
+        
+        .result-card h4 {
             font-size: 12px;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+        
+        .result-card .value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .result-card .unit {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+        
+        .finish-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .finish-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        .part-list {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .part-item {
+            background: rgba(52, 152, 219, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .part-item h4 {
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .part-stats {
+            font-size: 13px;
+            color: #bdc3c7;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .modal h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .modal-btn {
+            padding: 12px 25px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .modal-btn.primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .modal-btn.secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .angle-preview {
+            position: absolute;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        .length-preview {
+            position: absolute;
+            background: rgba(39, 174, 96, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 200;
         }
     </style>
 </head>
 <body>
-    <div class="toolbar">
-        <button id="drawBtn" class="btn active">Zeichnen</button>
-        <button id="eraseBtn" class="btn">Radieren</button>
-        <button id="resetBtn" class="btn">Reset</button>
-        <span id="info">Zoom: 500%</span>
+    <div class="container">
+        <div class="drawing-area">
+            <div class="toolbar">
+                <h3>🔧 Werkzeuge</h3>
+                <div class="tool-row">
+                    <label style="color: white; width: 90px;">Blechstärke:</label>
+                    <input type="number" class="tool-input" id="thickness" value="2" min="0.1" max="50" step="0.1">
+                    <span>mm</span>
+                </div>
+                <div class="tool-row">
+                    <button class="tool-btn danger" onclick="clearAll()">🗑️ Alles löschen</button>
+                </div>
+            </div>
+            
+            <div class="canvas-container">
+                <canvas id="drawingCanvas" width="1200" height="800"></canvas>
+                <div class="angle-preview" id="anglePreview" style="display: none;"></div>
+                <div class="length-preview" id="lengthPreview" style="display: none;"></div>
+            </div>
+            
+            <div class="status-bar">
+                <div class="coordinates" id="coordinates">X: 0, Y: 0</div>
+                <div class="current-mode" id="currentMode">Erste Linie zeichnen</div>
+                <div style="color: #3498db; font-weight: 600;" id="currentAction">Startpunkt setzen</div>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <h2>🎯 CNC-Kantmaschinen Simulator</h2>
+            
+            <!-- Anweisungen -->
+            <div class="section">
+                <h3>📋 Aktuelle Anweisung</h3>
+                <div class="instruction" id="instructionText">
+                    <strong>Schritt 1:</strong> Klicken Sie auf einen Startpunkt für die erste Linie
+                </div>
+            </div>
+            
+            <!-- Ergebnisse -->
+            <div class="section">
+                <h3>📊 Aktuelles Teil</h3>
+                <div class="results">
+                    <div class="result-card">
+                        <h4>Gestreckte Länge</h4>
+                        <div class="value" id="totalLength">0</div>
+                        <div class="unit">mm</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Biegungen</h4>
+                        <div class="value" id="bendCount">0</div>
+                        <div class="unit">Stück</div>
+                    </div>
+                </div>
+                <div class="results">
+                    <div class="result-card">
+                        <h4>Segmente</h4>
+                        <div class="value" id="segmentCount">0</div>
+                        <div class="unit">Stück</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Letzter Winkel</h4>
+                        <div class="value" id="lastAngle">-</div>
+                        <div class="unit">°</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Teil fertigstellen -->
+            <button class="finish-btn" id="finishPartBtn" onclick="finishPart()" style="display: none;">
+                🔴 Teil fertigstellen
+            </button>
+            
+            <!-- Fertige Teile -->
+            <div class="section">
+                <h3>✅ Fertige Teile</h3>
+                <div class="part-list" id="partsList">
+                    <p style="color: #7f8c8d; text-align: center;">Noch keine Teile erstellt</p>
+                </div>
+            </div>
+        </div>
     </div>
     
-    <div class="canvas-area">
-        <canvas id="canvas"></canvas>
-        <div class="info">
-            <div>📏 Dachkanteil-Zeichner</div>
-            <div>Zeichnen Sie L-Formen für Zirkelbögen</div>
+    <!-- Modal für Download -->
+    <div class="modal" id="downloadModal">
+        <div class="modal-content">
+            <h3>📥 Zeichnung herunterladen</h3>
+            <p>Möchten Sie die technische Zeichnung aller Teile herunterladen?</p>
+            <div style="margin-top: 20px;">
+                <button class="modal-btn primary" onclick="downloadDrawing()">Download starten</button>
+                <button class="modal-btn secondary" onclick="closeModal()">Abbrechen</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+        // Globale Variablen
+        let canvas, ctx;
+        let currentState = 'firstLineStart'; // firstLineStart, firstLineEnd, selectBendPoint, dragBend, selectLinePoint, dragLine
+        let currentPart = {
+            lines: [],
+            bends: [],
+            totalLength: 0
+        };
+        let completedParts = [];
+        let mousePos = { x: 0, y: 0 };
+        let dragStartPos = { x: 0, y: 0 };
         
-        let nodes = [];
-        let connections = [];
-        let isDrawing = false;
-        let startNode = null;
-        let currentPos = null;
-        let isErasing = false;
-        let zoom = 5;
-        let panOffset = {x: 50, y: 50};
-        const pixelsPerMm = 2;
-        
-        function resizeCanvas() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
+        // Aktuelle Zeichenelemente
+        let firstLineStart = null;
+        let selectedBendPoint = null;
+        let selectedLinePoint = null;
+        let previewAngle = 0;
+        let previewDirection = 'left';
+        let previewLength = 0;
+        let lastLineAngle = 0;
+
+        // Initialisierung
+        window.onload = function() {
+            canvas = document.getElementById('drawingCanvas');
+            ctx = canvas.getContext('2d');
+            
+            canvas.addEventListener('mousemove', onMouseMove);
+            canvas.addEventListener('mousedown', onMouseDown);
+            canvas.addEventListener('mouseup', onMouseUp);
+            
+            redraw();
+        };
+
+        function onMouseMove(e) {
+            const rect = canvas.getBoundingClientRect();
+            mousePos.x = e.clientX - rect.left;
+            mousePos.y = e.clientY - rect.top;
+            
+            // Koordinaten anzeigen (in mm)
+            document.getElementById('coordinates').textContent = 
+                `X: ${Math.round(mousePos.x * 0.5)}, Y: ${Math.round((canvas.height - mousePos.y) * 0.5)}`;
+            
+            handleMouseMove();
             redraw();
         }
-        
-        function canvasToScreen(point) {
-            return {
-                x: (point.x + panOffset.x) * zoom,
-                y: (point.y + panOffset.y) * zoom
-            };
+
+        function onMouseDown(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientX - rect.top;
+            
+            dragStartPos = { x: mousePos.x, y: mousePos.y };
+            
+            if (currentState === 'firstLineStart') {
+                handleFirstLineStart();
+            } else if (currentState === 'firstLineEnd') {
+                handleFirstLineEnd();
+            } else if (currentState === 'selectBendPoint') {
+                handleBendPointSelection();
+            } else if (currentState === 'dragBend') {
+                handleBendConfirm();
+            } else if (currentState === 'selectLinePoint') {
+                handleLinePointSelection();
+            } else if (currentState === 'dragLine') {
+                handleLineConfirm();
+            }
         }
-        
-        function screenToCanvas(point) {
-            return {
-                x: point.x / zoom - panOffset.x,
-                y: point.y / zoom - panOffset.y
-            };
+
+        function onMouseUp(e) {
+            // Hier könnten spezielle MouseUp-Aktionen stehen
         }
-        
+
+        function handleMouseMove() {
+            if (currentState === 'firstLineEnd') {
+                // Erste Linie live anzeigen
+            } else if (currentState === 'dragBend') {
+                // Winkel und Richtung basierend auf Mausposition berechnen
+                calculateBendPreview();
+                showAnglePreview();
+            } else if (currentState === 'dragLine') {
+                // Länge basierend auf Mausposition berechnen
+                calculateLinePreview();
+                showLengthPreview();
+            }
+        }
+
+        function handleFirstLineStart() {
+            firstLineStart = { x: mousePos.x, y: mousePos.y };
+            currentState = 'firstLineEnd';
+            updateInstruction('Klicken Sie auf den Endpunkt der ersten Linie');
+            document.getElementById('currentAction').textContent = 'Endpunkt setzen';
+        }
+
+        function handleFirstLineEnd() {
+            const firstLineEnd = { x: mousePos.x, y: mousePos.y };
+            
+            // Erste Linie erstellen
+            const length = Math.sqrt(
+                Math.pow(mousePos.x - firstLineStart.x, 2) + 
+                Math.pow(mousePos.y - firstLineStart.y, 2)
+            ) * 0.5; // Pixel zu mm Konvertierung
+            
+            lastLineAngle = Math.atan2(
+                firstLineEnd.y - firstLineStart.y, 
+                firstLineEnd.x - firstLineStart.x
+            );
+            
+            currentPart.lines.push({
+                start: firstLineStart,
+                end: firstLineEnd,
+                length: length,
+                angle: lastLineAngle
+            });
+            
+            currentPart.totalLength = length;
+            updateResults();
+            
+            // Zu Biegepunkt-Auswahl wechseln
+            currentState = 'selectBendPoint';
+            updateInstruction('Klicken Sie auf einen roten Punkt, um eine Biegung zu erstellen');
+            document.getElementById('currentAction').textContent = 'Biegepunkt wählen';
+            document.getElementById('finishPartBtn').style.display = 'block';
+        }
+
+        function handleBendPointSelection() {
+            // Nur der letzte Endpunkt soll klickbar sein
+            if (currentPart.lines.length === 0) return;
+            
+            const lastLine = currentPart.lines[currentPart.lines.length - 1];
+            const lastEndPoint = lastLine.end;
+            
+            // Prüfen ob der Klick nahe genug am letzten Endpunkt ist
+            const distance = Math.sqrt(
+                Math.pow(mousePos.x - lastEndPoint.x, 2) + 
+                Math.pow(mousePos.y - lastEndPoint.y, 2)
+            );
+            
+            if (distance < 15) {
+                // Prüfen ob dieser Punkt schon verwendet wurde
+                const alreadyUsed = currentPart.bends.some(bend => 
+                    bend.point.x === lastEndPoint.x && bend.point.y === lastEndPoint.y
+                );
+                
+                if (!alreadyUsed) {
+                    selectedBendPoint = lastEndPoint;
+                    lastLineAngle = lastLine.angle;
+                    currentState = 'dragBend';
+                    updateInstruction('Ziehen Sie um den Punkt, um Winkel und Richtung festzulegen. Klicken Sie zur Bestätigung');
+                    document.getElementById('currentAction').textContent = 'Biegung ziehen';
+                }
+            }
+        }
+
+        function calculateBendPreview() {
+            if (!selectedBendPoint) return;
+            
+            const dx = mousePos.x - selectedBendPoint.x;
+            const dy = mousePos.y - selectedBendPoint.y;
+            
+            // Neuen Winkel der gewünschten Richtung berechnen
+            const newAngle = Math.atan2(dy, dx);
+            
+            // Winkelunterschied zur letzten Linie
+            let angleDiff = newAngle - lastLineAngle;
+            
+            // Winkel normalisieren auf -180° bis +180°
+            while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+            while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+            
+            // Winkel und Richtung bestimmen
+            previewAngle = Math.abs(angleDiff * 180 / Math.PI);
+            
+            // Richtung korrigieren: positiver Winkel = Links, negativer = Rechts
+            previewDirection = angleDiff > 0 ? 'left' : 'right';
+            
+            // Minimum 5°, Maximum 175°
+            previewAngle = Math.max(5, Math.min(175, previewAngle));
+        }
+
+        function showAnglePreview() {
+            const preview = document.getElementById('anglePreview');
+            preview.style.display = 'block';
+            preview.style.left = (mousePos.x + 10) + 'px';
+            preview.style.top = (mousePos.y - 30) + 'px';
+            preview.textContent = `${previewAngle.toFixed(1)}° ${previewDirection === 'left' ? '⬅️' : '➡️'}`;
+        }
+
+        function handleBendConfirm() {
+            // Biegung erstellen
+            const bend = {
+                point: selectedBendPoint,
+                angle: previewAngle,
+                direction: previewDirection
+            };
+            
+            currentPart.bends.push(bend);
+            
+            // KORRIGIERTE Winkelberechnung für nächste Linie
+            const bendRadians = (previewAngle * Math.PI) / 180;
+            
+            // Linksabiegung = Winkel subtrahieren, Rechtsabiegung = Winkel addieren
+            if (previewDirection === 'left') {
+                lastLineAngle += bendRadians;  // KORRIGIERT: + statt -
+            } else {
+                lastLineAngle -= bendRadians;  // KORRIGIERT: - statt +
+            }
+            
+            updateResults();
+            
+            // Zu Linienpunkt-Auswahl wechseln
+            selectedLinePoint = selectedBendPoint;
+            currentState = 'dragLine';
+            updateInstruction('Ziehen Sie von dem Punkt weg, um die Linienlänge festzulegen. Klicken Sie zur Bestätigung');
+            document.getElementById('currentAction').textContent = 'Linie ziehen';
+            
+            document.getElementById('anglePreview').style.display = 'none';
+        }
+
+        function calculateLinePreview() {
+            if (!selectedLinePoint) return;
+            
+            const dx = mousePos.x - selectedLinePoint.x;
+            const dy = mousePos.y - selectedLinePoint.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            previewLength = distance * 0.5; // Pixel zu mm
+            previewLength = Math.max(1, previewLength); // Minimum 1mm
+        }
+
+        function showLengthPreview() {
+            const preview = document.getElementById('lengthPreview');
+            preview.style.display = 'block';
+            preview.style.left = (mousePos.x + 10) + 'px';
+            preview.style.top = (mousePos.y - 30) + 'px';
+            preview.textContent = `${previewLength.toFixed(1)} mm`;
+        }
+
+        function handleLineConfirm() {
+            // Endpunkt der neuen Linie berechnen
+            const lengthInPixels = previewLength * 2; // mm zu Pixel
+            const endX = selectedLinePoint.x + Math.cos(lastLineAngle) * lengthInPixels;
+            const endY = selectedLinePoint.y + Math.sin(lastLineAngle) * lengthInPixels;
+            
+            // Neue Linie erstellen
+            const newLine = {
+                start: { ...selectedLinePoint },
+                end: { x: endX, y: endY },
+                length: previewLength,
+                angle: lastLineAngle
+            };
+            
+            currentPart.lines.push(newLine);
+            currentPart.totalLength += previewLength;
+            
+            updateResults();
+            
+            // Zurück zur Biegepunkt-Auswahl
+            currentState = 'selectBendPoint';
+            updateInstruction('Klicken Sie auf einen roten Punkt, um eine weitere Biegung zu erstellen');
+            document.getElementById('currentAction').textContent = 'Biegepunkt wählen';
+            
+            document.getElementById('lengthPreview').style.display = 'none';
+        }
+
+        function updateInstruction(text) {
+            document.getElementById('instructionText').innerHTML = text;
+        }
+
+        function updateResults() {
+            document.getElementById('totalLength').textContent = currentPart.totalLength.toFixed(1);
+            document.getElementById('bendCount').textContent = currentPart.bends.length;
+            document.getElementById('segmentCount').textContent = currentPart.lines.length;
+            
+            if (currentPart.bends.length > 0) {
+                const lastBend = currentPart.bends[currentPart.bends.length - 1];
+                document.getElementById('lastAngle').textContent = lastBend.angle.toFixed(1);
+            } else {
+                document.getElementById('lastAngle').textContent = '-';
+            }
+        }
+
+        function finishPart() {
+            if (currentPart.lines.length === 0) return;
+            
+            // Teil zu fertigen Teilen hinzufügen
+            completedParts.push({
+                ...JSON.parse(JSON.stringify(currentPart)), // Deep copy
+                id: completedParts.length + 1,
+                timestamp: new Date()
+            });
+            
+            // Neues Teil starten
+            resetCurrentPart();
+            updatePartsList();
+        }
+
+        function resetCurrentPart() {
+            currentPart = {
+                lines: [],
+                bends: [],
+                totalLength: 0
+            };
+            
+            currentState = 'firstLineStart';
+            firstLineStart = null;
+            selectedBendPoint = null;
+            selectedLinePoint = null;
+            lastLineAngle = 0;
+            
+            updateInstruction('Klicken Sie auf einen Startpunkt für die erste Linie');
+            document.getElementById('currentAction').textContent = 'Startpunkt setzen';
+            document.getElementById('currentMode').textContent = 'Erste Linie zeichnen';
+            document.getElementById('finishPartBtn').style.display = 'none';
+            
+            // Previews ausblenden
+            document.getElementById('anglePreview').style.display = 'none';
+            document.getElementById('lengthPreview').style.display = 'none';
+            
+            updateResults();
+        }
+
+        function clearAll() {
+            currentPart = {
+                lines: [],
+                bends: [],
+                totalLength: 0
+            };
+            completedParts = [];
+            
+            resetCurrentPart();
+            updatePartsList();
+            redraw();
+        }
+
+        function updatePartsList() {
+            const container = document.getElementById('partsList');
+            
+            if (completedParts.length === 0) {
+                container.innerHTML = '<p style="color: #7f8c8d; text-align: center;">Noch keine Teile erstellt</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            completedParts.forEach(part => {
+                const partDiv = document.createElement('div');
+                partDiv.className = 'part-item';
+                partDiv.innerHTML = `
+                    <h4>Teil ${part.id}</h4>
+                    <div class="part-stats">
+                        Länge: ${part.totalLength.toFixed(1)} mm<br>
+                        Biegungen: ${part.bends.length}<br>
+                        Segmente: ${part.lines.length}
+                    </div>
+                `;
+                container.appendChild(partDiv);
+            });
+            
+            // Download-Button hinzufügen wenn Teile vorhanden
+            if (completedParts.length > 0) {
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'finish-btn';
+                downloadBtn.style.marginTop = '15px';
+                downloadBtn.style.padding = '12px';
+                downloadBtn.style.fontSize = '14px';
+                downloadBtn.textContent = '📥 Alle Teile herunterladen';
+                downloadBtn.onclick = () => document.getElementById('downloadModal').style.display = 'flex';
+                container.appendChild(downloadBtn);
+            }
+        }
+
+        function redraw() {
+            // Canvas löschen
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Raster zeichnen
+            drawGrid();
+            
+            // Fertige Teile zeichnen (grau)
+            completedParts.forEach((part, index) => {
+                const colors = ['#95a5a6', '#7f8c8d', '#bdc3c7'];
+                drawPart(part, colors[index % colors.length], 2);
+            });
+            
+            // Aktuelles Teil zeichnen
+            if (currentPart.lines.length > 0) {
+                drawPart(currentPart, '#2c3e50', 4);
+            }
+            
+            // Erste Linie in Bearbeitung
+            if (currentState === 'firstLineEnd' && firstLineStart) {
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(firstLineStart.x, firstLineStart.y);
+                ctx.lineTo(mousePos.x, mousePos.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            
+            // Biegevorschau
+            if (currentState === 'dragBend' && selectedBendPoint) {
+                drawBendPreview();
+            }
+            
+            // Linienvorschau
+            if (currentState === 'dragLine' && selectedLinePoint) {
+                drawLinePreview();
+            }
+            
+            // Punkte zeichnen
+            drawPoints();
+        }
+
         function drawGrid() {
-            ctx.strokeStyle = '#f0f0f0';
+            ctx.strokeStyle = 'rgba(52, 152, 219, 0.1)';
             ctx.lineWidth = 1;
             
-            const gridSize = 25 * zoom;
-            const offsetX = (panOffset.x * zoom) % gridSize;
-            const offsetY = (panOffset.y * zoom) % gridSize;
-            
-            for (let x = offsetX; x < canvas.width; x += gridSize) {
+            for (let x = 0; x <= canvas.width; x += 25) {
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
                 ctx.lineTo(x, canvas.height);
                 ctx.stroke();
             }
             
-            for (let y = offsetY; y < canvas.height; y += gridSize) {
+            for (let y = 0; y <= canvas.height; y += 25) {
                 ctx.beginPath();
                 ctx.moveTo(0, y);
                 ctx.lineTo(canvas.width, y);
                 ctx.stroke();
             }
         }
-        
-        function getDirection(fromNode, connection) {
-            const toNodeId = connection.startId === fromNode.id ? connection.endId : connection.startId;
-            const toNode = nodes.find(n => n.id === toNodeId);
-            if (!toNode) return null;
+
+        function drawPart(part, color, lineWidth) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.setLineDash([]);
             
-            const dx = toNode.x - fromNode.x;
-            const dy = toNode.y - fromNode.y;
-            const length = Math.sqrt(dx * dx + dy * dy);
-            
-            return length > 0 ? { x: dx / length, y: dy / length } : null;
-        }
-        
-        function drawConnection(connection) {
-            const startNode = nodes.find(n => n.id === connection.startId);
-            const endNode = nodes.find(n => n.id === connection.endId);
-            
-            if (!startNode || !endNode) return;
-            
-            const startScreen = canvasToScreen(startNode);
-            const endScreen = canvasToScreen(endNode);
-            
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 4;
-            ctx.lineCap = 'round';
-            
-            ctx.beginPath();
-            ctx.moveTo(startScreen.x, startScreen.y);
-            ctx.lineTo(endScreen.x, endScreen.y);
-            ctx.stroke();
-        }
-        
-        function drawRoundings() {
-            console.log('Drawing roundings...');
-            
-            nodes.forEach(node => {
-                const nodeConnections = connections.filter(conn => 
-                    conn.startId === node.id || conn.endId === node.id
-                );
-                
-                if (nodeConnections.length < 2) return;
-                
-                console.log(`Node has ${nodeConnections.length} connections`);
-                
-                for (let i = 0; i < nodeConnections.length; i++) {
-                    for (let j = i + 1; j < nodeConnections.length; j++) {
-                        const conn1 = nodeConnections[i];
-                        const conn2 = nodeConnections[j];
+            // Linien zeichnen mit Biegekurven
+            part.lines.forEach((line, index) => {
+                if (index === 0) {
+                    // Erste Linie komplett zeichnen
+                    ctx.beginPath();
+                    ctx.moveTo(line.start.x, line.start.y);
+                    ctx.lineTo(line.end.x, line.end.y);
+                    ctx.stroke();
+                } else {
+                    // Folgelinien: verkürzt zeichnen für Kurvenübergang
+                    const bend = part.bends[index - 1];
+                    if (bend) {
+                        const curveRadius = 15; // Radius der Biegekurve in Pixeln
                         
-                        const dir1 = getDirection(node, conn1);
-                        const dir2 = getDirection(node, conn2);
+                        // Linie verkürzt zeichnen (ohne die letzten Pixel für Kurve)
+                        const dx = line.end.x - line.start.x;
+                        const dy = line.end.y - line.start.y;
+                        const length = Math.sqrt(dx * dx + dy * dy);
+                        const shortendLength = Math.max(0, length - curveRadius);
+                        const ratio = shortendLength / length;
                         
-                        if (!dir1 || !dir2) continue;
+                        const shortenedEndX = line.start.x + dx * ratio;
+                        const shortenedEndY = line.start.y + dy * ratio;
                         
-                        const dot = dir1.x * dir2.x + dir1.y * dir2.y;
-                        const angle = Math.acos(Math.max(-1, Math.min(1, dot)));
-                        const degrees = angle * (180 / Math.PI);
-                        
-                        console.log(`Angle: ${degrees} degrees`);
-                        
-                        if (degrees < 30 || degrees > 150) continue;
-                        
-                        const radius = 2 * pixelsPerMm;
-                        const halfAngle = angle / 2;
-                        
-                        const bisector = {
-                            x: dir1.x + dir2.x,
-                            y: dir1.y + dir2.y
-                        };
-                        const bisectorLength = Math.sqrt(bisector.x * bisector.x + bisector.y * bisector.y);
-                        if (bisectorLength < 0.001) continue;
-                        
-                        bisector.x /= bisectorLength;
-                        bisector.y /= bisectorLength;
-                        
-                        const distanceToCenter = radius / Math.sin(halfAngle);
-                        const centerCanvas = {
-                            x: node.x + bisector.x * distanceToCenter,
-                            y: node.y + bisector.y * distanceToCenter
-                        };
-                        
-                        const touchDistance = radius / Math.tan(halfAngle);
-                        const touch1Canvas = {
-                            x: node.x + dir1.x * touchDistance,
-                            y: node.y + dir1.y * touchDistance
-                        };
-                        const touch2Canvas = {
-                            x: node.x + dir2.x * touchDistance,
-                            y: node.y + dir2.y * touchDistance
-                        };
-                        
-                        const centerScreen = canvasToScreen(centerCanvas);
-                        const touch1Screen = canvasToScreen(touch1Canvas);
-                        const touch2Screen = canvasToScreen(touch2Canvas);
-                        const radiusScreen = radius * zoom;
-                        
-                        const startAngle = Math.atan2(touch1Screen.y - centerScreen.y, touch1Screen.x - centerScreen.x);
-                        const endAngle = Math.atan2(touch2Screen.y - centerScreen.y, touch2Screen.x - centerScreen.x);
-                        
-                        let angleDiff = endAngle - startAngle;
-                        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-                        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-                        
-                        // SEHR AUFFÄLLIGE ROTE BÖGEN
-                        ctx.strokeStyle = '#FF0000';
-                        ctx.lineWidth = 8;
-                        ctx.lineCap = 'round';
                         ctx.beginPath();
-                        ctx.arc(centerScreen.x, centerScreen.y, radiusScreen, startAngle, endAngle, angleDiff < 0);
+                        ctx.moveTo(line.start.x, line.start.y);
+                        ctx.lineTo(shortenedEndX, shortenedEndY);
                         ctx.stroke();
                         
-                        console.log('Arc drawn!');
+                        // Biegekurve zeichnen
+                        drawBendCurve(part, index - 1, curveRadius, color, lineWidth);
+                    } else {
+                        // Normale Linie ohne Biegung
+                        ctx.beginPath();
+                        ctx.moveTo(line.start.x, line.start.y);
+                        ctx.lineTo(line.end.x, line.end.y);
+                        ctx.stroke();
                     }
                 }
             });
         }
-        
-        function drawNode(node) {
-            const screenPos = canvasToScreen(node);
+
+        function drawBendCurve(part, bendIndex, radius, color, lineWidth) {
+            const bend = part.bends[bendIndex];
+            const prevLine = part.lines[bendIndex];
+            const nextLine = part.lines[bendIndex + 1];
             
-            ctx.fillStyle = '#333';
+            if (!bend || !prevLine || !nextLine) return;
+            
+            // Winkel der beiden Linien
+            const angle1 = Math.atan2(prevLine.end.y - prevLine.start.y, prevLine.end.x - prevLine.start.x);
+            const angle2 = Math.atan2(nextLine.end.y - nextLine.start.y, nextLine.end.x - nextLine.start.x);
+            
+            // Mittelpunkt der Kurve berechnen
+            const bendPoint = bend.point;
+            
+            // Kurve zeichnen
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            
+            // Einfache Kurve: Quadratische Bézierkurve
+            const controlOffset = radius * 0.6;
+            const controlX = bendPoint.x + Math.cos((angle1 + angle2) / 2) * controlOffset;
+            const controlY = bendPoint.y + Math.sin((angle1 + angle2) / 2) * controlOffset;
+            
+            // Startpunkt der Kurve (Ende der vorherigen Linie, verkürzt)
+            const startOffset = radius;
+            const startX = bendPoint.x - Math.cos(angle1) * startOffset;
+            const startY = bendPoint.y - Math.sin(angle1) * startOffset;
+            
+            // Endpunkt der Kurve (Anfang der nächsten Linie, verkürzt)
+            const endOffset = radius;
+            const endX = bendPoint.x + Math.cos(angle2) * endOffset;
+            const endY = bendPoint.y + Math.sin(angle2) * endOffset;
+            
             ctx.beginPath();
-            ctx.arc(screenPos.x, screenPos.y, 6, 0, 2 * Math.PI);
-            ctx.fill();
+            ctx.moveTo(startX, startY);
+            ctx.quadraticCurveTo(bendPoint.x, bendPoint.y, endX, endY);
+            ctx.stroke();
+        }
+
+        function drawBendPreview() {
+            if (!selectedBendPoint) return;
             
-            ctx.fillStyle = '#fff';
+            // Richtungslinie zur Maus (dünner und dezenter)
+            ctx.strokeStyle = 'rgba(231, 76, 60, 0.5)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
             ctx.beginPath();
-            ctx.arc(screenPos.x, screenPos.y, 3, 0, 2 * Math.PI);
-            ctx.fill();
-        }
-        
-        function redraw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.moveTo(selectedBendPoint.x, selectedBendPoint.y);
+            ctx.lineTo(mousePos.x, mousePos.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
             
-            drawGrid();
-            connections.forEach(drawConnection);
-            drawRoundings();
-            nodes.forEach(drawNode);
+            // Vorschau der Biegekurve
+            const bendRadians = (previewAngle * Math.PI) / 180;
+            let nextAngle = lastLineAngle;
             
-            if (isDrawing && startNode && currentPos) {
-                const startScreen = canvasToScreen(startNode);
-                const currentScreen = canvasToScreen(currentPos);
-                
-                ctx.strokeStyle = '#666';
-                ctx.lineWidth = 4;
-                ctx.globalAlpha = 0.5;
-                
-                ctx.beginPath();
-                ctx.moveTo(startScreen.x, startScreen.y);
-                ctx.lineTo(currentScreen.x, currentScreen.y);
-                ctx.stroke();
-                
-                ctx.globalAlpha = 1;
-            }
-        }
-        
-        function getMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            };
-        }
-        
-        function findNodeAtPos(pos) {
-            const canvasPos = screenToCanvas(pos);
-            
-            for (let i = nodes.length - 1; i >= 0; i--) {
-                const node = nodes[i];
-                const distance = Math.sqrt(
-                    Math.pow(canvasPos.x - node.x, 2) + Math.pow(canvasPos.y - node.y, 2)
-                );
-                if (distance <= 10) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-        
-        canvas.addEventListener('mousedown', (e) => {
-            const pos = getMousePos(e);
-            const canvasPos = screenToCanvas(pos);
-            
-            if (isDrawing) {
-                const existingNodeIndex = findNodeAtPos(pos);
-                
-                let endNode;
-                if (existingNodeIndex !== -1) {
-                    endNode = nodes[existingNodeIndex];
-                } else {
-                    endNode = {
-                        id: Date.now() + 1,
-                        x: canvasPos.x,
-                        y: canvasPos.y
-                    };
-                    nodes.push(endNode);
-                }
-                
-                if (startNode.id !== endNode.id) {
-                    connections.push({
-                        id: Date.now() + 2,
-                        startId: startNode.id,
-                        endId: endNode.id
-                    });
-                }
-                
-                isDrawing = false;
-                startNode = null;
-                currentPos = null;
-                redraw();
+            if (previewDirection === 'left') {
+                nextAngle += bendRadians;
             } else {
-                const nodeIndex = findNodeAtPos(pos);
+                nextAngle -= bendRadians;
+            }
+            
+            // Kurven-Vorschau zeichnen
+            const curveRadius = 15;
+            
+            // Startpunkt der Kurve (Ende der aktuellen Linie, verkürzt)
+            const startX = selectedBendPoint.x - Math.cos(lastLineAngle) * curveRadius;
+            const startY = selectedBendPoint.y - Math.sin(lastLineAngle) * curveRadius;
+            
+            // Endpunkt der Kurve (Anfang der nächsten Linie)
+            const endX = selectedBendPoint.x + Math.cos(nextAngle) * curveRadius;
+            const endY = selectedBendPoint.y + Math.sin(nextAngle) * curveRadius;
+            
+            // Biegekurve als Vorschau
+            ctx.strokeStyle = 'rgba(231, 76, 60, 0.8)';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.quadraticCurveTo(selectedBendPoint.x, selectedBendPoint.y, endX, endY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Vorschau der nächsten Linie in korrekter Richtung zeigen
+            const previewLength = 50; // Pixel
+            const lineEndX = endX + Math.cos(nextAngle) * previewLength;
+            const lineEndY = endY + Math.sin(nextAngle) * previewLength;
+            
+            ctx.strokeStyle = 'rgba(39, 174, 96, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(lineEndX, lineEndY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Pfeil am Ende der Vorschaulinie
+            const arrowSize = 8;
+            const arrowAngle1 = nextAngle + Math.PI - 0.3;
+            const arrowAngle2 = nextAngle + Math.PI + 0.3;
+            
+            ctx.strokeStyle = 'rgba(39, 174, 96, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(lineEndX, lineEndY);
+            ctx.lineTo(lineEndX + Math.cos(arrowAngle1) * arrowSize, lineEndY + Math.sin(arrowAngle1) * arrowSize);
+            ctx.moveTo(lineEndX, lineEndY);
+            ctx.lineTo(lineEndX + Math.cos(arrowAngle2) * arrowSize, lineEndY + Math.sin(arrowAngle2) * arrowSize);
+            ctx.stroke();
+        }
+
+        function drawLinePreview() {
+            if (!selectedLinePoint) return;
+            
+            // Vorschau-Linie zeichnen
+            const lengthInPixels = previewLength * 2;
+            const endX = selectedLinePoint.x + Math.cos(lastLineAngle) * lengthInPixels;
+            const endY = selectedLinePoint.y + Math.sin(lastLineAngle) * lengthInPixels;
+            
+            ctx.strokeStyle = '#27ae60';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(selectedLinePoint.x, selectedLinePoint.y);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Längen-Markierung
+            const midX = (selectedLinePoint.x + endX) / 2;
+            const midY = (selectedLinePoint.y + endY) / 2;
+            
+            ctx.fillStyle = '#27ae60';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${previewLength.toFixed(1)}mm`, midX, midY - 10);
+        }
+
+        function drawPoints() {
+            // Startpunkte (blau)
+            currentPart.lines.forEach(line => {
+                ctx.fillStyle = '#3498db';
+                ctx.beginPath();
+                ctx.arc(line.start.x, line.start.y, 6, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            // Endpunkte (rot für Biegungen)
+            currentPart.lines.forEach(line => {
+                ctx.fillStyle = (currentState === 'selectBendPoint') ? '#e74c3c' : '#3498db';
+                ctx.beginPath();
+                ctx.arc(line.end.x, line.end.y, 8, 0, 2 * Math.PI);
+                ctx.fill();
                 
-                if (nodeIndex !== -1) {
-                    startNode = nodes[nodeIndex];
-                    isDrawing = true;
-                } else {
-                    const newNode = {
-                        id: Date.now(),
-                        x: canvasPos.x,
-                        y: canvasPos.y
-                    };
-                    nodes.push(newNode);
-                    startNode = newNode;
-                    isDrawing = true;
+                // Weißer Punkt in der Mitte für bessere Sichtbarkeit
+                if (currentState === 'selectBendPoint') {
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath();
+                    ctx.arc(line.end.x, line.end.y, 4, 0, 2 * Math.PI);
+                    ctx.fill();
                 }
-                redraw();
+            });
+            
+            // Erste Linie Startpunkt
+            if (firstLineStart && currentState !== 'firstLineStart') {
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.arc(firstLineStart.x, firstLineStart.y, 6, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            // Ausgewählter Punkt hervorheben
+            if (selectedBendPoint && currentState === 'dragBend') {
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(selectedBendPoint.x, selectedBendPoint.y, 12, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+            
+            if (selectedLinePoint && currentState === 'dragLine') {
+                ctx.strokeStyle = '#27ae60';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(selectedLinePoint.x, selectedLinePoint.y, 12, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+        }
+
+        function downloadDrawing() {
+            // Hochauflösender Canvas für Download
+            const downloadCanvas = document.createElement('canvas');
+            const downloadCtx = downloadCanvas.getContext('2d');
+            const scale = 3;
+            
+            downloadCanvas.width = canvas.width * scale;
+            downloadCanvas.height = canvas.height * scale;
+            
+            // Weißer Hintergrund
+            downloadCtx.fillStyle = 'white';
+            downloadCtx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
+            
+            // Skaliert zeichnen
+            downloadCtx.scale(scale, scale);
+            
+            // Alle Teile zeichnen
+            completedParts.forEach((part, index) => {
+                const colors = ['#2c3e50', '#e74c3c', '#27ae60', '#3498db', '#9b59b6', '#e67e22'];
+                drawPartForDownload(downloadCtx, part, colors[index % colors.length], 4);
+            });
+            
+            // Titel und Informationen
+            downloadCtx.fillStyle = '#2c3e50';
+            downloadCtx.font = 'bold 24px Arial';
+            downloadCtx.textAlign = 'left';
+            downloadCtx.fillText('CNC-Kantmaschinen Programmierung - Interaktiv', 20, 40);
+            
+            downloadCtx.font = '16px Arial';
+            downloadCtx.fillText(`Anzahl Teile: ${completedParts.length}`, 20, 70);
+            downloadCtx.fillText(`Blechstärke: ${document.getElementById('thickness').value}mm`, 20, 90);
+            downloadCtx.fillText(`Erstellt: ${new Date().toLocaleDateString('de-DE')}`, 20, 110);
+            
+            // Teile-Übersicht
+            let totalLength = 0;
+            let totalBends = 0;
+            
+            completedParts.forEach((part, index) => {
+                const y = 140 + index * 20;
+                downloadCtx.fillText(`Teil ${part.id}: ${part.totalLength.toFixed(1)}mm, ${part.bends.length} Biegungen, ${part.lines.length} Segmente`, 20, y);
+                totalLength += part.totalLength;
+                totalBends += part.bends.length;
+            });
+            
+            // Zusammenfassung
+            if (completedParts.length > 0) {
+                const summaryY = 140 + completedParts.length * 20 + 30;
+                downloadCtx.font = 'bold 18px Arial';
+                downloadCtx.fillText('Zusammenfassung:', 20, summaryY);
+                downloadCtx.font = '16px Arial';
+                downloadCtx.fillText(`Gesamtlänge aller Teile: ${totalLength.toFixed(1)}mm`, 20, summaryY + 25);
+                downloadCtx.fillText(`Gesamtanzahl Biegungen: ${totalBends}`, 20, summaryY + 45);
+                downloadCtx.fillText(`Materialverbrauch (geschätzt): ${(totalLength * 50 / 100).toFixed(2)}cm²`, 20, summaryY + 65);
+            }
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = `cnc_kantteile_interaktiv_${new Date().toISOString().slice(0,10)}.png`;
+            link.href = downloadCanvas.toDataURL('image/png', 1.0);
+            link.click();
+            
+            closeModal();
+        }
+
+        function drawPartForDownload(ctx, part, color, lineWidth) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.setLineDash([]);
+            
+            // Linien zeichnen mit Biegekurven
+            part.lines.forEach((line, index) => {
+                if (index === 0) {
+                    // Erste Linie komplett zeichnen
+                    ctx.beginPath();
+                    ctx.moveTo(line.start.x, line.start.y);
+                    ctx.lineTo(line.end.x, line.end.y);
+                    ctx.stroke();
+                } else {
+                    // Folgelinien: verkürzt zeichnen für Kurvenübergang
+                    const bend = part.bends[index - 1];
+                    if (bend) {
+                        const curveRadius = 20;
+                        
+                        // Linie verkürzt zeichnen
+                        const dx = line.end.x - line.start.x;
+                        const dy = line.end.y - line.start.y;
+                        const length = Math.sqrt(dx * dx + dy * dy);
+                        const shortendLength = Math.max(0, length - curveRadius);
+                        const ratio = shortendLength / length;
+                        
+                        const shortenedEndX = line.start.x + dx * ratio;
+                        const shortenedEndY = line.start.y + dy * ratio;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(line.start.x, line.start.y);
+                        ctx.lineTo(shortenedEndX, shortenedEndY);
+                        ctx.stroke();
+                        
+                        // Biegekurve für Download zeichnen
+                        drawBendCurveForDownload(ctx, part, index - 1, curveRadius, color, lineWidth);
+                    } else {
+                        ctx.beginPath();
+                        ctx.moveTo(line.start.x, line.start.y);
+                        ctx.lineTo(line.end.x, line.end.y);
+                        ctx.stroke();
+                    }
+                }
+                
+                // Längenangabe
+                const midX = (line.start.x + line.end.x) / 2;
+                const midY = (line.start.y + line.end.y) / 2;
+                
+                ctx.fillStyle = color;
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${line.length.toFixed(1)}mm`, midX, midY - 15);
+            });
+            
+            // Winkelangaben bei Biegungen (OHNE jegliche Kreise oder Punkte)
+            part.bends.forEach((bend, index) => {
+                ctx.fillStyle = '#e67e22';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${bend.angle.toFixed(1)}°`, bend.point.x - 30, bend.point.y - 25);
+                ctx.fillText(bend.direction === 'left' ? '⬅️' : '➡️', bend.point.x - 30, bend.point.y - 5);
+            });
+            
+            // KEINE PUNKTE MEHR - komplett entfernt!
+        }
+
+        function drawBendCurveForDownload(ctx, part, bendIndex, radius, color, lineWidth) {
+            const bend = part.bends[bendIndex];
+            const prevLine = part.lines[bendIndex];
+            const nextLine = part.lines[bendIndex + 1];
+            
+            if (!bend || !prevLine || !nextLine) return;
+            
+            // Winkel der beiden Linien
+            const angle1 = Math.atan2(prevLine.end.y - prevLine.start.y, prevLine.end.x - prevLine.start.x);
+            const angle2 = Math.atan2(nextLine.end.y - nextLine.start.y, nextLine.end.x - nextLine.start.x);
+            
+            const bendPoint = bend.point;
+            
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            
+            // Startpunkt der Kurve
+            const startX = bendPoint.x - Math.cos(angle1) * radius;
+            const startY = bendPoint.y - Math.sin(angle1) * radius;
+            
+            // Endpunkt der Kurve
+            const endX = bendPoint.x + Math.cos(angle2) * radius;
+            const endY = bendPoint.y + Math.sin(angle2) * radius;
+            
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.quadraticCurveTo(bendPoint.x, bendPoint.y, endX, endY);
+            ctx.stroke();
+        }
+
+        function closeModal() {
+            document.getElementById('downloadModal').style.display = 'none';
+        }
+
+        // Tastatur-Shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                // ESC bricht aktuelle Aktion ab
+                if (currentState === 'dragBend' || currentState === 'dragLine') {
+                    if (currentState === 'dragBend') {
+                        currentState = 'selectBendPoint';
+                        updateInstruction('Klicken Sie auf einen roten Punkt, um eine Biegung zu erstellen');
+                    } else {
+                        currentState = 'selectLinePoint';
+                        updateInstruction('Klicken Sie auf einen Punkt, um eine Linie zu erstellen');
+                    }
+                    
+                    document.getElementById('anglePreview').style.display = 'none';
+                    document.getElementById('lengthPreview').style.display = 'none';
+                    redraw();
+                }
+            } else if (e.key === 'Enter' || e.key === ' ') {
+                // Enter/Space bestätigt aktuelle Aktion
+                if (currentState === 'dragBend') {
+                    handleBendConfirm();
+                } else if (currentState === 'dragLine') {
+                    handleLineConfirm();
+                }
+                e.preventDefault();
             }
         });
-        
-        canvas.addEventListener('mousemove', (e) => {
-            if (isDrawing) {
-                const pos = getMousePos(e);
-                currentPos = screenToCanvas(pos);
-                redraw();
+
+        // Auto-Update der Berechnungen
+        document.addEventListener('input', function(e) {
+            if (e.target.id === 'thickness') {
+                updateResults();
             }
         });
-        
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            nodes = [];
-            connections = [];
-            isDrawing = false;
-            startNode = null;
-            currentPos = null;
-            redraw();
-        });
-        
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
     </script>
 </body>
 </html>
