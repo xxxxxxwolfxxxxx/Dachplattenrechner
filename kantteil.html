@@ -1,312 +1,1161 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Kantteile — Zeichner (Standalone)</title>
-<style>
-  :root{
-    --brand:#005a9c;
-    --accent:#007acc;
-    --muted:#f3f4f6;
-    --orange:#f59e0b;
-  }
-  body{font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif; margin:0; background:#f7f7f7; color:#222;}
-  header{background:var(--brand); color:#fff; padding:14px 16px; font-size:18px; font-weight:600; text-align:center;}
-  .wrap{max-width:980px; margin:18px auto; padding:16px; background:#fff; box-shadow:0 6px 18px rgba(10,10,10,0.06); border-radius:8px;}
-  .controls{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:12px;}
-  label{font-size:14px; color:#333;}
-  input[type=number]{width:86px; padding:6px 8px; border:1px solid #ddd; border-radius:6px; margin-left:6px;}
-  button{background:var(--accent); color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:600;}
-  button.ghost{background:#fff; color:var(--brand); border:1px solid #ddd;}
-  button:disabled{opacity:0.5; cursor:not-allowed;}
-  .canvas-wrap{border-radius:6px; overflow:hidden; border:1px solid #e6e6e6; background:#fff;}
-  svg{display:block; width:100%; height:520px; background:#fff; cursor:crosshair;}
-  .hint{font-size:13px; color:#555; margin-top:10px;}
-  .note{font-size:13px; color:#a00; margin-top:8px;}
-  footer{font-size:12px;color:#666;margin-top:10px;text-align:center;}
-  @media (max-width:640px){ .controls{flex-direction:column; align-items:flex-start} }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kantteile Zeichenprogramm</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .control-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+        
+        select, input, button {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .canvas-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            padding: 30px;
+            background: #ffffff;
+        }
+        
+        canvas {
+            border: 3px solid #34495e;
+            border-radius: 10px;
+            background: white;
+            cursor: crosshair;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .info-panel {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .info-panel h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .status {
+            background: #e8f5e8;
+            color: #27ae60;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            min-width: 300px;
+        }
+        
+        .modal-content h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-buttons button {
+            flex: 1;
+        }
+        
+        .cancel-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+        }
+        
+        .measurements {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 10px;
+            border: 2px dashed #3498db;
+        }
+        
+        .measurements h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .measurement-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .measurement-item:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
-<header>Kantteile-Zeicher (Standalone)</header>
-<div class="wrap">
-  <div class="controls">
-    <label>Biegeradius (mm)
-      <input id="radius" type="number" value="0.5" step="0.1" min="0">
-    </label>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Kantteile Zeichenprogramm</h1>
+            <p>Erstellen Sie präzise Skizzen für Sonderkantteile (0,5mm - 0,7mm Bleche)</p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>Blechstärke</label>
+                <select id="thickness">
+                    <option value="0.5">0,5 mm</option>
+                    <option value="0.6" selected>0,6 mm</option>
+                    <option value="0.7">0,7 mm</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Erste Linie</label>
+                <select id="firstLineType">
+                    <option value="horizontal">Waagerecht</option>
+                    <option value="vertical">Senkrecht</option>
+                </select>
+            </div>
+            
+            <button id="startDrawing">Zeichnung starten</button>
+            <button id="clearCanvas">Alles löschen</button>
+            <button id="exportSketch">Skizze exportieren</button>
+        </div>
+        
+        <div class="status" id="statusDisplay">Wählen Sie die Blechstärke und starten Sie die Zeichnung</div>
+        
+        <div class="canvas-container">
+            <canvas id="drawingCanvas" width="1000" height="600"></canvas>
+        </div>
+        
+        <div class="info-panel">
+            <h3>📋 Anleitung</h3>
+            <p><strong>Schritt 1:</strong> Wählen Sie Blechstärke und Linienrichtung, dann "Zeichnung starten"</p>
+            <p><strong>Schritt 2:</strong> Bewegen Sie die Maus für die Längeneingabe oder geben Sie die Länge manuell ein</p>
+            <p><strong>Schritt 3:</strong> Bestätigen Sie mit Linksklick oder Enter</p>
+            <p><strong>Schritt 4:</strong> Klicken Sie auf die blauen Punkte um Kurven hinzuzufügen</p>
+            <p><strong>Kurven:</strong> Wählen Sie den Winkel (-180° bis +180°) für die Biegung</p>
+            <p><strong>Navigation:</strong> Mausrad = Zoom, Mittlere Maustaste = Verschieben</p>
+        </div>
+        
+        <div class="measurements" id="measurementPanel" style="display: none;">
+            <h4>📐 Bauteilmaße</h4>
+            <div id="measurementList"></div>
+        </div>
+    </div>
+    
+    <!-- Modal für Längeneingabe -->
+    <div class="modal" id="lengthModal">
+        <div class="modal-content">
+            <h3>Linienlänge eingeben</h3>
+            <p>Aktuelle Länge: <span id="currentLength">0</span> mm</p>
+            <input type="number" id="lengthInput" min="1" max="1000" step="1" placeholder="Länge in mm">
+            <div class="modal-buttons">
+                <button id="confirmLength">Bestätigen</button>
+                <button id="cancelLength" class="cancel-btn">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal für Winkeleingabe -->
+    <div class="modal" id="angleModal">
+        <div class="modal-content">
+            <h3>Biegewinkel eingeben</h3>
+            <p>Aktueller Winkel: <span id="currentAngle">0</span>°</p>
+            <input type="number" id="angleInput" min="-180" max="180" step="1" placeholder="Winkel in Grad">
+            <div class="modal-buttons">
+                <button id="confirmAngle">Bestätigen</button>
+                <button id="cancelAngle" class="cancel-btn">Abbrechen</button>
+            </div>
+        </div>
+    </div>
 
-    <label>Materialdicke (mm)
-      <input id="thickness" type="number" value="0.5" step="0.1" min="0">
-    </label>
-
-    <button id="finish">Finish</button>
-    <button id="apply">Apply bends</button>
-    <button id="export">Export SVG</button>
-    <button id="reset" class="ghost">Reset</button>
-  </div>
-
-  <div class="canvas-wrap">
-    <svg id="svg" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
-  </div>
-
-  <p class="hint">Klicke in die Fläche, um Punkte zu setzen. Klicke <strong>Finish</strong>, wenn du fertig bist, dann <strong>Apply bends</strong> um Ecken zu runden. Export erzeugt ein SVG.</p>
-  <p class="note">Hinweis: Technischer Prototyp — Abwicklung / K-Faktor / echte Fertigmaße sind nicht automatisch berücksichtigt. Visualisierung von Biegeradien und 180°-U-Bögen ist implementiert.</p>
-  <footer>© Kantteile-Zeicher — Standalone</footer>
-</div>
-
-<script>
-/* Full single-file implementation of fillets + special 180° handling.
-   Defaults: radius 0.5 mm, thickness 0.5 mm.
-   1:1 mapping mm -> SVG units. */
-
-const svg = document.getElementById('svg');
-const radiusInput = document.getElementById('radius');
-const thicknessInput = document.getElementById('thickness');
-const finishBtn = document.getElementById('finish');
-const applyBtn = document.getElementById('apply');
-const exportBtn = document.getElementById('export');
-const resetBtn = document.getElementById('reset');
-
-let points = [];      // array of {x,y}
-let finished = false; // drawing finished
-let pathCenter = "";  // SVG path for centerline after filleting
-let scale = 1;        // mm to px scale (1:1 by default)
-
-/* ---------- vector helpers (careful arithmetic) ---------- */
-function sub(a,b){return {x:a.x-b.x, y:a.y-b.y};}
-function add(a,b){return {x:a.x+b.x, y:a.y+b.y};}
-function mul(v,s){return {x:v.x*s, y:v.y*s};}
-function len(v){ return Math.hypot(v.x, v.y); }
-function norm(v){ const L = len(v) || 1; return { x: v.x / L, y: v.y / L }; }
-function dot(a,b){ return a.x*b.x + a.y*b.y; }
-function perp(v){ return { x: -v.y, y: v.x }; }
-
-/* ---------- UI / drawing helpers ---------- */
-function clearSVG(){
-  while(svg.firstChild) svg.removeChild(svg.firstChild);
-  svg.appendChild(gridDef());
-}
-
-function gridDef(){
-  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
-  const pattern = document.createElementNS('http://www.w3.org/2000/svg','pattern');
-  pattern.setAttribute('id','grid'); pattern.setAttribute('width','20'); pattern.setAttribute('height','20');
-  pattern.setAttribute('patternUnits','userSpaceOnUse');
-  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-  path.setAttribute('d','M 20 0 L 0 0 0 20'); path.setAttribute('fill','none'); path.setAttribute('stroke',getComputedStyle(document.documentElement).getPropertyValue('--muted') || '#f3f4f6'); path.setAttribute('stroke-width','0.5');
-  pattern.appendChild(path);
-  defs.appendChild(pattern);
-  const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-  rect.setAttribute('x','0'); rect.setAttribute('y','0'); rect.setAttribute('width','1000'); rect.setAttribute('height','500'); rect.setAttribute('fill','url(#grid)');
-  defs.appendChild(rect); // note: will be appended separately
-  // return a group containing defs + rect
-  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-  g.appendChild(defs);
-  const rectClone = rect.cloneNode();
-  g.appendChild(rectClone);
-  return g;
-}
-
-function drawRawPolyline(){
-  clearSVG();
-  if(points.length === 0) return;
-  // polyline
-  const pl = document.createElementNS('http://www.w3.org/2000/svg','polyline');
-  pl.setAttribute('points', points.map(p => `${p.x},${p.y}`).join(' '));
-  pl.setAttribute('fill','none'); pl.setAttribute('stroke','#222'); pl.setAttribute('stroke-width','2');
-  if(finished) pl.setAttribute('stroke-dasharray','4 4');
-  svg.appendChild(pl);
-  // points
-  for(let p of points){
-    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',4); c.setAttribute('fill','#222');
-    svg.appendChild(c);
-  }
-}
-
-function drawResult(pathStr, thickness){
-  clearSVG();
-  // centerline
-  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-  path.setAttribute('d', pathStr);
-  path.setAttribute('fill','none'); path.setAttribute('stroke','#007acc'); path.setAttribute('stroke-width',2);
-  svg.appendChild(path);
-  // thickness visualization: stroke around centerline
-  if(thickness>0){
-    const tpath = document.createElementNS('http://www.w3.org/2000/svg','path');
-    tpath.setAttribute('d', pathStr);
-    tpath.setAttribute('fill','none'); tpath.setAttribute('stroke',getComputedStyle(document.documentElement).getPropertyValue('--orange') || '#f59e0b');
-    // strokeWidth scaled by thickness (times 2 to visualize both sides)
-    tpath.setAttribute('stroke-width', Math.max(0.5, thickness * 2 * scale));
-    tpath.setAttribute('stroke-opacity', 0.35);
-    svg.appendChild(tpath);
-  }
-}
-
-/* ---------- main geometry: fillets + special 180° handling ---------- */
-function buildFilletedPath(radius_mm){
-  const r = Math.max(0, radius_mm * scale);
-  if(points.length < 2) return "";
-  // if only two points => straight line
-  if(points.length === 2){
-    return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
-  }
-
-  const cmds = [];
-  cmds.push(`M ${points[0].x} ${points[0].y}`);
-  for(let i=1;i<points.length;i++){
-    // last point: just line to it
-    if(i === points.length - 1){
-      cmds.push(`L ${points[i].x} ${points[i].y}`);
-      break;
-    }
-
-    const A = points[i-1];
-    const B = points[i];
-    const C = points[i+1];
-
-    // direction vectors
-    const v1 = norm(sub(B, A)); // incoming (from A to B)
-    const v2 = norm(sub(C, B)); // outgoing (from B to C)
-
-    // guard degenerate
-    const cosTheta = Math.max(-1, Math.min(1, dot(v1, v2)));
-    const theta = Math.acos(cosTheta); // 0..pi
-    const cross = v1.x * v2.y - v1.y * v2.x;
-    const side = Math.sign(cross) || 1;
-
-    // near-straight -> just line to B
-    if(Math.abs(theta) < 1e-6){
-      cmds.push(`L ${B.x} ${B.y}`);
-      continue;
-    }
-
-    // special case: near-180° (U-turn)
-    if(Math.abs(Math.PI - theta) < 1e-3 || Math.abs(theta - Math.PI) < 0.001){
-      // create semicircle around point B with center offset by radius to one side,
-      // then continue: this makes the returning segment roughly parallel and offset.
-      // Choose normal direction (perp of v1)
-      const n = norm(perp(v1));
-      // move center a bit to side (use side to define orientation)
-      const center = add(B, mul(n, r * side));
-      // compute angle of incoming direction relative to center
-      // incoming tangent point angle:
-      const angIn = Math.atan2(B.y - center.y, B.x - center.x);
-      // semicircle from angIn to angIn + pi (choose sweep accordingly)
-      const angOut = angIn + Math.PI;
-      // arc endpoints
-      const arcStart = { x: center.x + r * Math.cos(angIn), y: center.y + r * Math.sin(angIn) };
-      const arcEnd   = { x: center.x + r * Math.cos(angOut), y: center.y + r * Math.sin(angOut) };
-      // line to arc start (from previous command)
-      cmds.push(`L ${arcStart.x} ${arcStart.y}`);
-      // SVG arc: rx ry x-axis-rot large-arc-flag sweep-flag x y
-      // For semicircle, large-arc-flag = 0, sweep depends on direction (choose based on side)
-      const sweep = side === 1 ? 1 : 0;
-      cmds.push(`A ${r} ${r} 0 0 ${sweep} ${arcEnd.x} ${arcEnd.y}`);
-      // Note: we do NOT explicitly line to B; arc bridges the u-turn smoothly.
-      continue;
-    }
-
-    // regular fillet:
-    // distance from corner along each segment to tangent point:
-    // dist = r / tan(theta/2)
-    const tanHalf = Math.tan(theta / 2);
-    let dist = (tanHalf === 0) ? 0 : r / tanHalf;
-
-    const len1 = len(sub(B, A));
-    const len2 = len(sub(C, B));
-    // ensure distance doesn't exceed available segment length
-    if(dist > len1 - 1e-3) dist = Math.max(0, len1 - 1e-3);
-    if(dist > len2 - 1e-3) dist = Math.max(0, len2 - 1e-3);
-
-    // tangent points on incoming/outgoing
-    const tang1 = add(B, mul(v1, -dist));
-    const tang2 = add(B, mul(v2,  dist));
-
-    // bisector (unit) direction
-    const bis = norm(add(v1, v2)); // points roughly into the interior of the corner
-    // distance from corner B to fillet center: r / sin(theta/2)
-    const sinHalf = Math.sin(theta / 2) || 1e-6;
-    const centerDist = r / sinHalf;
-    // center is located along bisector, but need correct orientation (towards interior)
-    const center = add(B, mul(bis, centerDist * ( (dot(bis, {x:1,y:0})||1) ? 1 : 1 ) ));
-
-    // angles for arc
-    const angStart = Math.atan2(tang1.y - center.y, tang1.x - center.x);
-    const angEnd   = Math.atan2(tang2.y - center.y, tang2.x - center.x);
-    let delta = angEnd - angStart;
-    while(delta <= -Math.PI) delta += 2*Math.PI;
-    while(delta > Math.PI) delta -= 2*Math.PI;
-    const largeArcFlag = Math.abs(delta) > Math.PI ? 1 : 0;
-    const sweepFlag = delta > 0 ? 1 : 0;
-
-    // append: line to tang1, arc to tang2
-    cmds.push(`L ${tang1.x} ${tang1.y}`);
-    cmds.push(`A ${r} ${r} 0 ${largeArcFlag} ${sweepFlag} ${tang2.x} ${tang2.y}`);
-  }
-
-  return cmds.join(' ');
-}
-
-/* ---------- event handlers ---------- */
-function addPointFromEvent(evt){
-  if(finished) return;
-  const rect = svg.getBoundingClientRect();
-  // map client point to svg coordinates (viewBox 0..1000 x 0..500)
-  // handle responsive scaling using ratio between rect and viewBox
-  const vb = {w:1000, h:500};
-  const x = ((evt.clientX - rect.left) / rect.width) * vb.w;
-  const y = ((evt.clientY - rect.top) / rect.height) * vb.h;
-  points.push({x: x, y: y});
-  drawRawPolyline();
-}
-function onFinish(){
-  if(points.length < 2) return;
-  finished = true;
-  drawRawPolyline();
-}
-function onReset(){
-  points = []; finished = false; pathCenter = "";
-  clearSVG();
-  drawRawPolyline();
-}
-function onApply(){
-  if(!finished || points.length < 2) return;
-  const r_mm = parseFloat(radiusInput.value) || 0;
-  const t_mm = parseFloat(thicknessInput.value) || 0;
-  pathCenter = buildFilletedPath(r_mm);
-  drawResult(pathCenter, t_mm);
-}
-function onExport(){
-  // produce standalone SVG document (with defs and viewBox)
-  const clone = svg.cloneNode(true);
-  // ensure xmlns attribute
-  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
-  clone.setAttribute('version','1.1');
-  const svgText = new XMLSerializer().serializeToString(clone);
-  const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'kantteil.svg';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-/* ---------- wire up listeners ---------- */
-svg.addEventListener('click', addPointFromEvent);
-finishBtn.addEventListener('click', onFinish);
-resetBtn.addEventListener('click', onReset);
-applyBtn.addEventListener('click', onApply);
-exportBtn.addEventListener('click', onExport);
-
-/* initial draw */
-clearSVG();
-drawRawPolyline();
-
-</script>
+    <script>
+        class KantteileZeichner {
+            constructor() {
+                this.canvas = document.getElementById('drawingCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.elements = [];
+                this.currentElement = null;
+                this.activePoints = [];
+                this.isDrawing = false;
+                this.drawingMode = null;
+                this.mousePos = { x: 0, y: 0 };
+                this.startPos = { x: 500, y: 300 };
+                this.scale = 10; // 10 Pixel pro mm
+                this.zoom = 1;
+                this.panX = 0;
+                this.panY = 0;
+                this.isPanning = false;
+                this.lastPanPoint = { x: 0, y: 0 };
+                
+                this.setupEventListeners();
+                this.render();
+            }
+            
+            setupEventListeners() {
+                this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+                this.canvas.addEventListener('click', (e) => this.handleClick(e));
+                this.canvas.addEventListener('keydown', (e) => this.handleKeyDown(e));
+                this.canvas.addEventListener('wheel', (e) => this.handleWheel(e));
+                this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+                this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
+                this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+                this.canvas.setAttribute('tabindex', '0');
+                
+                document.getElementById('startDrawing').addEventListener('click', () => this.startDrawing());
+                document.getElementById('clearCanvas').addEventListener('click', () => this.clearCanvas());
+                document.getElementById('exportSketch').addEventListener('click', () => this.exportSketch());
+                
+                document.getElementById('confirmLength').addEventListener('click', () => this.confirmLength());
+                document.getElementById('cancelLength').addEventListener('click', () => this.cancelModal('lengthModal'));
+                document.getElementById('confirmAngle').addEventListener('click', () => this.confirmAngle());
+                document.getElementById('cancelAngle').addEventListener('click', () => this.cancelModal('angleModal'));
+                
+                document.getElementById('lengthInput').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') this.confirmLength();
+                    if (e.key === 'Escape') this.cancelModal('lengthModal');
+                });
+                
+                document.getElementById('angleInput').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') this.confirmAngle();
+                    if (e.key === 'Escape') this.cancelModal('angleModal');
+                });
+            }
+            
+            handleWheel(e) {
+                e.preventDefault();
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                const newZoom = Math.max(0.1, Math.min(10, this.zoom * zoomFactor));
+                
+                const worldMouseX = (mouseX - this.panX) / this.zoom;
+                const worldMouseY = (mouseY - this.panY) / this.zoom;
+                
+                this.zoom = newZoom;
+                
+                this.panX = mouseX - worldMouseX * this.zoom;
+                this.panY = mouseY - worldMouseY * this.zoom;
+                
+                this.render();
+            }
+            
+            handleMouseDown(e) {
+                if (e.button === 1) {
+                    e.preventDefault();
+                    this.isPanning = true;
+                    this.lastPanPoint = { x: e.clientX, y: e.clientY };
+                    this.canvas.style.cursor = 'grabbing';
+                }
+            }
+            
+            handleMouseUp(e) {
+                if (e.button === 1) {
+                    this.isPanning = false;
+                    this.canvas.style.cursor = 'crosshair';
+                }
+            }
+            
+            getWorldCoordinates(screenX, screenY) {
+                return {
+                    x: (screenX - this.panX) / this.zoom,
+                    y: (screenY - this.panY) / this.zoom
+                };
+            }
+            
+            getScreenCoordinates(worldX, worldY) {
+                return {
+                    x: worldX * this.zoom + this.panX,
+                    y: worldY * this.zoom + this.panY
+                };
+            }
+            
+            startDrawing() {
+                const firstLineType = document.getElementById('firstLineType').value;
+                const thickness = parseFloat(document.getElementById('thickness').value);
+                
+                this.clearCanvas();
+                this.isDrawing = true;
+                this.drawingMode = 'line';
+                
+                this.currentElement = {
+                    type: 'line',
+                    start: { ...this.startPos },
+                    end: { ...this.startPos },
+                    direction: firstLineType,
+                    length: 0,
+                    thickness: thickness
+                };
+                
+                this.updateStatus('Bewegen Sie die Maus oder drücken Sie Leertaste für manuelle Eingabe. Bestätigen mit Linksklick oder Enter.');
+                this.render();
+            }
+            
+            handleMouseMove(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const screenPos = {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+                
+                if (this.isPanning) {
+                    const deltaX = e.clientX - this.lastPanPoint.x;
+                    const deltaY = e.clientY - this.lastPanPoint.y;
+                    
+                    this.panX += deltaX;
+                    this.panY += deltaY;
+                    
+                    this.lastPanPoint = { x: e.clientX, y: e.clientY };
+                    this.render();
+                    return;
+                }
+                
+                this.mousePos = this.getWorldCoordinates(screenPos.x, screenPos.y);
+                
+                if (!this.isDrawing) return;
+                
+                if (this.drawingMode === 'line') {
+                    this.updateLineFromMouse();
+                } else if (this.drawingMode === 'curve') {
+                    this.updateCurveFromMouse();
+                }
+                
+                this.render();
+            }
+            
+            updateLineFromMouse() {
+                if (!this.currentElement || this.currentElement.type !== 'line') return;
+                
+                const start = this.currentElement.start;
+                let length;
+                
+                if (this.currentElement.direction === 'tangential') {
+                    // Neue Logik: Linie folgt der Kurven-Tangente in beliebiger Richtung
+                    const lineAngle = this.currentElement.angle;
+                    const dx = this.mousePos.x - start.x;
+                    const dy = this.mousePos.y - start.y;
+                    
+                    // Projiziere die Mausposition auf die Tangenten-Richtung
+                    const projectedLength = dx * Math.cos(lineAngle) + dy * Math.sin(lineAngle);
+                    length = Math.abs(projectedLength) / this.scale;
+                    
+                    this.currentElement.end = {
+                        x: start.x + Math.cos(lineAngle) * projectedLength,
+                        y: start.y + Math.sin(lineAngle) * projectedLength
+                    };
+                    
+                } else if (this.currentElement.direction === 'horizontal') {
+                    // Alte Logik für normale horizontale Linien
+                    length = Math.abs(this.mousePos.x - start.x) / this.scale;
+                    this.currentElement.end = {
+                        x: this.mousePos.x > start.x ? start.x + length * this.scale : start.x - length * this.scale,
+                        y: start.y
+                    };
+                } else {
+                    // Alte Logik für normale vertikale Linien
+                    length = Math.abs(this.mousePos.y - start.y) / this.scale;
+                    this.currentElement.end = {
+                        x: start.x,
+                        y: this.mousePos.y > start.y ? start.y + length * this.scale : start.y - length * this.scale
+                    };
+                }
+                
+                this.currentElement.length = Math.round(length);
+                document.getElementById('currentLength').textContent = this.currentElement.length;
+            }
+            
+            updateCurveFromMouse() {
+                if (!this.currentElement || this.currentElement.type !== 'curve') return;
+                
+                const start = this.currentElement.start;
+                const dx = this.mousePos.x - start.x;
+                const dy = this.mousePos.y - start.y;
+                
+                // Calculate relative angle to current direction
+                let mouseAngle = Math.atan2(dy, dx);
+                let relativeAngle = mouseAngle - this.currentElement.startAngle;
+                
+                // Normalize to -180 to +180 degrees
+                while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
+                while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
+                
+                let angleDegrees = relativeAngle * 180 / Math.PI;
+                
+                // WICHTIGE KORREKTUR: Puffer-Zone um 180° und -180°
+                // Verhindert das nervige Springen zwischen +180° und -180°
+                const bufferZone = 10; // 10° Puffer-Zone
+                
+                if (angleDegrees > (180 - bufferZone) && angleDegrees <= 180) {
+                    // In der oberen Puffer-Zone: fixiere auf +180°
+                    angleDegrees = 180;
+                } else if (angleDegrees < (-180 + bufferZone) && angleDegrees >= -180) {
+                    // In der unteren Puffer-Zone: fixiere auf -180°
+                    angleDegrees = -180;
+                } else if (angleDegrees > 170 && angleDegrees < (180 - bufferZone)) {
+                    // Bereich 170° bis 170°: näher zu +180°
+                    angleDegrees = Math.round(angleDegrees);
+                } else if (angleDegrees < -170 && angleDegrees > (-180 + bufferZone)) {
+                    // Bereich -170° bis -170°: näher zu -180°
+                    angleDegrees = Math.round(angleDegrees);
+                } else {
+                    // Normaler Bereich: runde auf ganze Grade
+                    angleDegrees = Math.round(angleDegrees);
+                }
+                
+                // Zusätzliche Begrenzung
+                if (angleDegrees > 180) angleDegrees = 180;
+                if (angleDegrees < -180) angleDegrees = -180;
+                
+                this.currentElement.angle = angleDegrees;
+                document.getElementById('currentAngle').textContent = angleDegrees;
+                
+                this.calculateCurveEndpoint();
+            }
+            
+            calculateCurveEndpoint() {
+                if (!this.currentElement || this.currentElement.type !== 'curve') return;
+                
+                const { start, radius, startAngle, angle } = this.currentElement;
+                
+                if (angle === 0) {
+                    this.currentElement.end = { ...start };
+                    return;
+                }
+                
+                // Korrigierte Kurven-Geometrie für ALLE Winkel (auch tangentiale)
+                const angleRad = angle * Math.PI / 180;
+                
+                // Kurvenmittelpunkt: IMMER senkrecht zur aktuellen Fahrtrichtung
+                // Für Rechtskurve (positiv): 90° rechts von der Fahrtrichtung
+                // Für Linkskurve (negativ): 90° links von der Fahrtrichtung
+                const centerAngle = startAngle + (angle > 0 ? Math.PI/2 : -Math.PI/2);
+                
+                const center = {
+                    x: start.x + Math.cos(centerAngle) * radius,
+                    y: start.y + Math.sin(centerAngle) * radius
+                };
+                
+                // Startwinkel vom Mittelpunkt zum Startpunkt
+                const startAngleFromCenter = startAngle + (angle > 0 ? -Math.PI/2 : Math.PI/2);
+                
+                // Endwinkel = Startwinkel + Kurvenwinkel
+                const endAngleFromCenter = startAngleFromCenter + angleRad;
+                
+                // Endpunkt auf dem Kreis
+                this.currentElement.end = {
+                    x: center.x + Math.cos(endAngleFromCenter) * radius,
+                    y: center.y + Math.sin(endAngleFromCenter) * radius
+                };
+                
+                // Tangenten-Richtung am Ende (für die nächste Linie)
+                this.currentElement.endAngle = startAngle + angleRad;
+                this.currentElement.center = center;
+                this.currentElement.startAngleFromCenter = startAngleFromCenter;
+                this.currentElement.endAngleFromCenter = endAngleFromCenter;
+            }
+            
+            handleClick(e) {
+                if (this.isPanning) return;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const screenPos = {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+                
+                const clickPos = this.getWorldCoordinates(screenPos.x, screenPos.y);
+                
+                const clickedPoint = this.activePoints.find(point => {
+                    const screenPoint = this.getScreenCoordinates(point.x, point.y);
+                    return Math.sqrt(Math.pow(screenPos.x - screenPoint.x, 2) + Math.pow(screenPos.y - screenPoint.y, 2)) < 15;
+                });
+                
+                if (clickedPoint) {
+                    this.handlePointClick(clickedPoint);
+                    return;
+                }
+                
+                if (this.isDrawing) {
+                    this.confirmCurrentElement();
+                }
+            }
+            
+            handlePointClick(point) {
+                this.activePoints = this.activePoints.filter(p => p !== point);
+                
+                this.drawingMode = 'curve';
+                this.isDrawing = true;
+                
+                const lastElement = this.elements[this.elements.length - 1];
+                const travelDirection = this.getTravelDirection(lastElement);
+                
+                // Kürze die letzte Linie um den Radius der Kurve
+                if (lastElement && lastElement.type === 'line') {
+                    const radiusMM = 1; // 1mm Radius
+                    this.shortenLastLine(lastElement, radiusMM);
+                    
+                    // Aktualisiere den Startpunkt der Kurve
+                    point = { ...lastElement.end };
+                }
+                
+                this.currentElement = {
+                    type: 'curve',
+                    start: { ...point },
+                    radius: 1 * this.scale,
+                    startAngle: travelDirection,
+                    angle: 0,
+                    end: { ...point }
+                };
+                
+                this.updateStatus('Wählen Sie den Biegewinkel (-180° bis +180°). Negativ = links, Positiv = rechts.');
+                this.render();
+            }
+            
+            shortenLastLine(lineElement, radiusMM) {
+                const radiusPixels = radiusMM * this.scale;
+                const originalLength = lineElement.length;
+                
+                if (lineElement.direction === 'tangential') {
+                    // Neue Logik: Kürze in Tangenten-Richtung
+                    const lineAngle = lineElement.angle;
+                    lineElement.end = {
+                        x: lineElement.end.x - Math.cos(lineAngle) * radiusPixels,
+                        y: lineElement.end.y - Math.sin(lineAngle) * radiusPixels
+                    };
+                } else if (lineElement.direction === 'horizontal') {
+                    if (lineElement.end.x > lineElement.start.x) {
+                        lineElement.end.x -= radiusPixels;
+                    } else {
+                        lineElement.end.x += radiusPixels;
+                    }
+                } else {
+                    if (lineElement.end.y > lineElement.start.y) {
+                        lineElement.end.y -= radiusPixels;
+                    } else {
+                        lineElement.end.y += radiusPixels;
+                    }
+                }
+                
+                // Aktualisiere die Längenmessung
+                lineElement.length = Math.max(0, originalLength - radiusMM);
+            }
+            
+            getTravelDirection(lastElement) {
+                if (!lastElement) return 0;
+                
+                if (lastElement.type === 'line') {
+                    if (lastElement.direction === 'tangential') {
+                        // Neue Logik: verwende die gespeicherte Winkel-Richtung
+                        return lastElement.angle;
+                    } else if (lastElement.direction === 'horizontal') {
+                        return lastElement.end.x > lastElement.start.x ? 0 : Math.PI;
+                    } else {
+                        return lastElement.end.y > lastElement.start.y ? Math.PI/2 : -Math.PI/2;
+                    }
+                } else if (lastElement.type === 'curve') {
+                    return lastElement.endAngle;
+                }
+                
+                return 0;
+            }
+            
+            handleKeyDown(e) {
+                if (!this.isDrawing) return;
+                
+                if (e.key === 'Enter') {
+                    this.confirmCurrentElement();
+                } else if (e.key === ' ') {
+                    e.preventDefault();
+                    if (this.drawingMode === 'line') {
+                        this.showModal('lengthModal');
+                    } else if (this.drawingMode === 'curve') {
+                        this.showModal('angleModal');
+                    }
+                }
+            }
+            
+            confirmCurrentElement() {
+                if (!this.currentElement) return;
+                
+                if (this.currentElement.type === 'line' && this.currentElement.length === 0) {
+                    this.updateStatus('Die Linie muss mindestens 1mm lang sein!');
+                    return;
+                }
+                
+                if (this.currentElement.type === 'curve' && this.currentElement.angle === 0) {
+                    this.updateStatus('Wählen Sie einen Winkel ungleich 0°!');
+                    return;
+                }
+                
+                this.elements.push({ ...this.currentElement });
+                
+                // Nach einer Kurve automatisch eine neue Linie starten
+                if (this.currentElement.type === 'curve') {
+                    // Die neue Linie folgt der exakten Richtung der Kurve
+                    this.currentElement = {
+                        type: 'line',
+                        start: { ...this.currentElement.end },
+                        end: { ...this.currentElement.end },
+                        direction: 'tangential', // Neue Richtung: folgt der Kurven-Tangente
+                        angle: this.currentElement.endAngle, // Speichere die exakte Richtung
+                        length: 0,
+                        thickness: parseFloat(document.getElementById('thickness').value)
+                    };
+                    
+                    this.drawingMode = 'line';
+                    this.updateStatus('Zeichnen Sie die nächste Linie. Bewegen Sie die Maus oder drücken Sie Leertaste für manuelle Eingabe.');
+                } else {
+                    // Nach einer Linie -> Punkt für Kurve hinzufügen
+                    this.activePoints.push({ ...this.currentElement.end });
+                    this.currentElement = null;
+                    this.isDrawing = false;
+                    this.drawingMode = null;
+                    this.updateStatus('Klicken Sie auf den blauen Punkt um eine Kurve hinzuzufügen.');
+                }
+                
+                this.updateMeasurements();
+                this.render();
+            }
+            
+            getLineStartAfterCurve(curveElement, radiusMM) {
+                // Die neue Linie startet IMMER direkt am Ende der Kurve
+                // Keine zusätzlichen Versätze - die Kurve endet bereits am richtigen Punkt
+                return {
+                    x: curveElement.end.x,
+                    y: curveElement.end.y
+                };
+            }
+            
+            getLineDirectionAfterCurve(curveElement) {
+                // Die neue Linie muss in der exakten Richtung der Kurve weitergehen
+                // Nicht nur horizontal/vertikal, sondern in der tatsächlichen Tangenten-Richtung
+                const endAngle = curveElement.endAngle;
+                
+                // Keine Einschränkung auf nur horizontal/vertikal
+                // Die Linie folgt der exakten Richtung der Kurven-Tangente
+                return 'tangential'; // Neuer Modus für beliebige Richtungen
+            }
+            
+            showModal(modalId) {
+                document.getElementById(modalId).style.display = 'flex';
+                if (modalId === 'lengthModal') {
+                    const input = document.getElementById('lengthInput');
+                    input.value = this.currentElement?.length || 0;
+                    input.focus();
+                    input.select();
+                } else if (modalId === 'angleModal') {
+                    const input = document.getElementById('angleInput');
+                    input.value = this.currentElement?.angle || 0;
+                    input.focus();
+                    input.select();
+                }
+            }
+            
+            cancelModal(modalId) {
+                document.getElementById(modalId).style.display = 'none';
+            }
+            
+            confirmLength() {
+                const length = parseInt(document.getElementById('lengthInput').value);
+                if (length >= 1 && length <= 1000) {
+                    if (this.currentElement && this.currentElement.type === 'line') {
+                        this.currentElement.length = length;
+                        this.updateLineFromLength(length);
+                        this.render();
+                    }
+                }
+                this.cancelModal('lengthModal');
+            }
+            
+            confirmAngle() {
+                const angle = parseInt(document.getElementById('angleInput').value);
+                if (angle >= -180 && angle <= 180 && angle !== 0) {
+                    if (this.currentElement && this.currentElement.type === 'curve') {
+                        this.currentElement.angle = angle;
+                        this.calculateCurveEndpoint();
+                        this.render();
+                    }
+                }
+                this.cancelModal('angleModal');
+            }
+            
+            updateLineFromLength(length) {
+                if (!this.currentElement || this.currentElement.type !== 'line') return;
+                
+                const start = this.currentElement.start;
+                
+                if (this.currentElement.direction === 'tangential') {
+                    // Neue Logik: Linie in Tangenten-Richtung
+                    const lineAngle = this.currentElement.angle;
+                    const lengthPixels = length * this.scale;
+                    
+                    this.currentElement.end = {
+                        x: start.x + Math.cos(lineAngle) * lengthPixels,
+                        y: start.y + Math.sin(lineAngle) * lengthPixels
+                    };
+                } else if (this.currentElement.direction === 'horizontal') {
+                    this.currentElement.end = {
+                        x: start.x + length * this.scale,
+                        y: start.y
+                    };
+                } else {
+                    this.currentElement.end = {
+                        x: start.x,
+                        y: start.y + length * this.scale
+                    };
+                }
+            }
+            
+            render() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.ctx.save();
+                this.ctx.scale(this.zoom, this.zoom);
+                this.ctx.translate(this.panX / this.zoom, this.panY / this.zoom);
+                
+                this.drawGrid();
+                
+                this.elements.forEach(element => {
+                    this.drawElement(element, '#2c3e50', 3 / this.zoom);
+                });
+                
+                if (this.currentElement) {
+                    this.drawElement(this.currentElement, '#e74c3c', 3 / this.zoom);
+                    
+                    // Zeige Vorschau-Linie bei Kurven
+                    if (this.currentElement.type === 'curve' && this.isDrawing && this.currentElement.end) {
+                        this.drawPreviewLine();
+                    }
+                    
+                    // Zeige aktuelle Werte beim Zeichnen an
+                    if (this.isDrawing) {
+                        this.drawCurrentValues();
+                    }
+                }
+                
+                this.activePoints.forEach(point => {
+                    this.drawPoint(point, '#3498db', 8 / this.zoom);
+                });
+                
+                this.ctx.restore();
+                
+                this.drawZoomInfo();
+            }
+            
+            drawPreviewLine() {
+                if (!this.currentElement || this.currentElement.type !== 'curve') return;
+                if (!this.currentElement.end || this.currentElement.angle === 0) return;
+                
+                // Zeichne eine gestrichelte Vorschau-Linie vom Kurvenende zum Mauszeiger
+                const start = this.currentElement.end;
+                const end = this.mousePos;
+                
+                // Berechne die projizierte Länge in Tangenten-Richtung
+                const tangentAngle = this.currentElement.endAngle;
+                const dx = end.x - start.x;
+                const dy = end.y - start.y;
+                const projectedLength = dx * Math.cos(tangentAngle) + dy * Math.sin(tangentAngle);
+                
+                // Endpunkt der projizierten Linie
+                const projectedEnd = {
+                    x: start.x + Math.cos(tangentAngle) * projectedLength,
+                    y: start.y + Math.sin(tangentAngle) * projectedLength
+                };
+                
+                // Zeichne die Vorschau-Linie (gestrichelt, semi-transparent)
+                this.ctx.strokeStyle = 'rgba(46, 204, 113, 0.7)'; // Grün, leicht transparent
+                this.ctx.lineWidth = 2 / this.zoom;
+                this.ctx.setLineDash([10 / this.zoom, 5 / this.zoom]);
+                this.ctx.lineCap = 'round';
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(start.x, start.y);
+                this.ctx.lineTo(projectedEnd.x, projectedEnd.y);
+                this.ctx.stroke();
+                
+                // Reset line dash
+                this.ctx.setLineDash([]);
+            }
+            
+            drawCurrentValues() {
+                if (!this.currentElement) return;
+                
+                // Position für die Anzeige bestimmen
+                let displayX, displayY, value, unit, color;
+                
+                if (this.currentElement.type === 'line') {
+                    // Bei Linien: Anzeige am Ende der Linie
+                    displayX = this.currentElement.end.x;
+                    displayY = this.currentElement.end.y - 30 / this.zoom;
+                    value = this.currentElement.length;
+                    unit = 'mm';
+                    color = '#e74c3c';
+                } else if (this.currentElement.type === 'curve') {
+                    // Bei Kurven: Anzeige am Mittelpunkt der Kurve
+                    if (this.currentElement.center) {
+                        displayX = this.currentElement.center.x;
+                        displayY = this.currentElement.center.y - 20 / this.zoom;
+                    } else {
+                        displayX = this.currentElement.start.x;
+                        displayY = this.currentElement.start.y - 30 / this.zoom;
+                    }
+                    value = this.currentElement.angle;
+                    unit = '°';
+                    color = '#f39c12';
+                }
+                
+                // Zeichne Hintergrund
+                const text = `${value}${unit}`;
+                this.ctx.font = `${16 / this.zoom}px Arial`;
+                this.ctx.textAlign = 'center';
+                
+                const textMetrics = this.ctx.measureText(text);
+                const textWidth = textMetrics.width;
+                const textHeight = 16 / this.zoom;
+                
+                const padding = 8 / this.zoom;
+                const bgX = displayX - textWidth/2 - padding;
+                const bgY = displayY - textHeight - padding;
+                const bgWidth = textWidth + 2 * padding;
+                const bgHeight = textHeight + 2 * padding;
+                
+                // Hintergrund mit Schatten
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                this.ctx.fillRect(bgX + 2/this.zoom, bgY + 2/this.zoom, bgWidth, bgHeight);
+                
+                // Hintergrund
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                this.ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
+                
+                // Rahmen
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 2 / this.zoom;
+                this.ctx.strokeRect(bgX, bgY, bgWidth, bgHeight);
+                
+                // Text
+                this.ctx.fillStyle = color;
+                this.ctx.font = `bold ${16 / this.zoom}px Arial`;
+                this.ctx.fillText(text, displayX, displayY);
+                
+                // Verbindungslinie zur aktuellen Position (nur bei Linien)
+                if (this.currentElement.type === 'line' && this.currentElement.length > 0) {
+                    this.ctx.strokeStyle = 'rgba(231, 76, 60, 0.5)';
+                    this.ctx.lineWidth = 1 / this.zoom;
+                    this.ctx.setLineDash([5 / this.zoom, 5 / this.zoom]);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.currentElement.end.x, this.currentElement.end.y);
+                    this.ctx.lineTo(displayX, displayY + 5 / this.zoom);
+                    this.ctx.stroke();
+                    this.ctx.setLineDash([]);
+                }
+            }
+            
+            drawGrid() {
+                this.ctx.strokeStyle = '#ecf0f1';
+                this.ctx.lineWidth = 1 / this.zoom;
+                
+                const visibleArea = {
+                    left: -this.panX / this.zoom,
+                    top: -this.panY / this.zoom,
+                    right: (this.canvas.width - this.panX) / this.zoom,
+                    bottom: (this.canvas.height - this.panY) / this.zoom
+                };
+                
+                const gridSize = this.scale * 10;
+                
+                const startX = Math.floor(visibleArea.left / gridSize) * gridSize;
+                for (let x = startX; x <= visibleArea.right; x += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, visibleArea.top);
+                    this.ctx.lineTo(x, visibleArea.bottom);
+                    this.ctx.stroke();
+                }
+                
+                const startY = Math.floor(visibleArea.top / gridSize) * gridSize;
+                for (let y = startY; y <= visibleArea.bottom; y += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(visibleArea.left, y);
+                    this.ctx.lineTo(visibleArea.right, y);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawZoomInfo() {
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                this.ctx.fillRect(10, 10, 120, 30);
+                
+                this.ctx.fillStyle = 'white';
+                this.ctx.font = '14px Arial';
+                this.ctx.fillText(`Zoom: ${Math.round(this.zoom * 100)}%`, 20, 30);
+                
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                this.ctx.fillRect(this.canvas.width - 250, 10, 240, 50);
+                
+                this.ctx.fillStyle = 'white';
+                this.ctx.font = '12px Arial';
+                this.ctx.fillText('Mausrad: Zoom', this.canvas.width - 240, 25);
+                this.ctx.fillText('Mittlere Maustaste: Verschieben', this.canvas.width - 240, 45);
+            }
+            
+            drawElement(element, color, width) {
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = width;
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+                
+                if (element.type === 'line') {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(element.start.x, element.start.y);
+                    this.ctx.lineTo(element.end.x, element.end.y);
+                    this.ctx.stroke();
+                } else if (element.type === 'curve' && element.center && element.angle !== 0) {
+                    this.ctx.beginPath();
+                    
+                    // Verwende die korrekten Winkel vom Kurvenmittelpunkt
+                    const startAngle = element.startAngleFromCenter;
+                    const endAngle = element.endAngleFromCenter;
+                    
+                    // Zeichne in der richtigen Richtung
+                    const counterClockwise = element.angle < 0;
+                    this.ctx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
+                    
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawPoint(point, color, radius) {
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.strokeStyle = 'white';
+                this.ctx.lineWidth = 2 / this.zoom;
+                this.ctx.stroke();
+            }
+            
+            clearCanvas() {
+                this.elements = [];
+                this.activePoints = [];
+                this.currentElement = null;
+                this.isDrawing = false;
+                this.drawingMode = null;
+                
+                document.getElementById('measurementPanel').style.display = 'none';
+                this.updateStatus('Canvas geleert. Starten Sie eine neue Zeichnung.');
+                this.render();
+            }
+            
+            updateStatus(message) {
+                document.getElementById('statusDisplay').textContent = message;
+            }
+            
+            updateMeasurements() {
+                const panel = document.getElementById('measurementPanel');
+                const list = document.getElementById('measurementList');
+                
+                list.innerHTML = '';
+                
+                let totalLength = 0;
+                let lineCount = 0;
+                let curveCount = 0;
+                
+                this.elements.forEach((element, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'measurement-item';
+                    
+                    if (element.type === 'line') {
+                        lineCount++;
+                        totalLength += element.length;
+                        
+                        let directionText = '';
+                        if (element.direction === 'tangential') {
+                            const angleDeg = Math.round(element.angle * 180 / Math.PI);
+                            directionText = `${angleDeg}°`;
+                        } else {
+                            directionText = element.direction;
+                        }
+                        
+                        item.innerHTML = `
+                            <span>Linie ${lineCount}</span>
+                            <span>${element.length} mm (${directionText})</span>
+                        `;
+                    } else if (element.type === 'curve') {
+                        curveCount++;
+                        item.innerHTML = `
+                            <span>Kurve ${curveCount}</span>
+                            <span>${element.angle}° (R=${element.radius/this.scale}mm)</span>
+                        `;
+                    }
+                    
+                    list.appendChild(item);
+                });
+                
+                if (this.elements.length > 0) {
+                    const totalItem = document.createElement('div');
+                    totalItem.className = 'measurement-item';
+                    totalItem.style.fontWeight = 'bold';
+                    totalItem.style.borderTop = '2px solid #3498db';
+                    totalItem.innerHTML = `
+                        <span>Gesamtlänge</span>
+                        <span>${totalLength} mm</span>
+                    `;
+                    list.appendChild(totalItem);
+                    
+                    panel.style.display = 'block';
+                }
+            }
+            
+            exportSketch() {
+                if (this.elements.length === 0) {
+                    alert('Keine Zeichnung zum Exportieren vorhanden!');
+                    return;
+                }
+                
+                const link = document.createElement('a');
+                link.download = `kantteil_skizze_${new Date().toISOString().split('T')[0]}.png`;
+                link.href = this.canvas.toDataURL();
+                link.click();
+                
+                this.updateStatus('Skizze wurde als PNG-Datei exportiert!');
+            }
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            new KantteileZeichner();
+        });
+    </script>
 </body>
 </html>
