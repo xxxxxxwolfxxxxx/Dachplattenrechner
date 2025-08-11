@@ -189,12 +189,97 @@
         .status {
             background: rgba(232, 245, 232, 0.9);
             color: #27ae60;
-            padding: 10px;
+            padding: 15px;
             border-radius: 5px;
             margin: 10px 0;
             font-weight: 600;
             text-align: center;
             backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .status-text {
+            font-size: 1rem;
+        }
+        
+        .status-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .status-buttons button {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .status-buttons button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(39, 174, 96, 0.4);
+            background: linear-gradient(135deg, #229954, #1e8449);
+        }
+        
+        .werbung-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .anleitung-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .anleitung-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        
+        .anleitung-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .anleitung-item {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .anleitung-item strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
         }
         
         .measurements {
@@ -311,6 +396,16 @@
                 gap: 8px;
             }
             
+            .status-buttons {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            
+            .anleitung-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
             .canvas-container {
                 padding: 15px;
             }
@@ -327,6 +422,10 @@
             }
             
             .button-group {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .status-buttons {
                 grid-template-columns: 1fr 1fr;
             }
             
@@ -365,8 +464,11 @@
                         <option value="vertical">Senkrecht</option>
                     </select>
                 </div>
-                
-                <div class="button-group">
+            </div>
+            
+            <div class="status" id="statusDisplay">
+                <div class="status-text">Wählen Sie die Blechstärke und starten Sie die Zeichnung</div>
+                <div class="status-buttons">
                     <button id="startDrawing">Zeichnung starten</button>
                     <button id="clearCanvas">Alles löschen</button>
                     <button id="centerView">Zentrieren</button>
@@ -374,20 +476,42 @@
                 </div>
             </div>
             
-            <div class="status" id="statusDisplay">Wählen Sie die Blechstärke und starten Sie die Zeichnung</div>
-            
             <div class="canvas-container">
                 <canvas id="drawingCanvas" width="1000" height="600"></canvas>
             </div>
             
-            <div class="info-panel">
-                <h3>Anleitung</h3>
-                <p><strong>Schritt 1:</strong> Wählen Sie Blechstärke und Linienrichtung, dann "Zeichnung starten"</p>
-                <p><strong>Schritt 2:</strong> Bewegen Sie die Maus für die Längeneingabe oder geben Sie die Länge manuell ein</p>
-                <p><strong>Schritt 3:</strong> Bestätigen Sie mit Linksklick oder Enter</p>
-                <p><strong>Schritt 4:</strong> Klicken Sie auf die blauen Punkte um Kurven hinzuzufügen</p>
-                <p><strong>Kurven:</strong> Wählen Sie den Winkel (-180° bis +180°) für die Biegung</p>
-                <p><strong>Navigation:</strong> Mausrad = Zoom, Mittlere Maustaste = Verschieben</p>
+            <div class="werbung-container">
+                <div>🎯 Hier könnte Ihre Werbung stehen - Premium Kantteile & Blechbearbeitung</div>
+            </div>
+            
+            <div class="anleitung-section">
+                <h3>Bedienungsanleitung</h3>
+                <div class="anleitung-grid">
+                    <div class="anleitung-item">
+                        <strong>Schritt 1: Zeichnung starten</strong>
+                        Wählen Sie Blechstärke und Linienrichtung, dann "Zeichnung starten" klicken
+                    </div>
+                    <div class="anleitung-item">
+                        <strong>Schritt 2: Länge eingeben</strong>
+                        Bewegen Sie die Maus für die Längeneingabe oder Leertaste für manuelle Eingabe
+                    </div>
+                    <div class="anleitung-item">
+                        <strong>Schritt 3: Bestätigen</strong>
+                        Bestätigen Sie mit Linksklick oder Enter-Taste
+                    </div>
+                    <div class="anleitung-item">
+                        <strong>Schritt 4: Kurven hinzufügen</strong>
+                        Klicken Sie auf die blauen Punkte um Kurven hinzuzufügen
+                    </div>
+                    <div class="anleitung-item">
+                        <strong>Winkel einstellen</strong>
+                        Wählen Sie den Winkel (-180° bis +180°) für die Biegung
+                    </div>
+                    <div class="anleitung-item">
+                        <strong>Navigation</strong>
+                        Mausrad = Zoom, Mittlere Maustaste = Verschieben der Ansicht
+                    </div>
+                </div>
             </div>
             
             <div class="measurements" id="measurementPanel" style="display: none;">
@@ -2133,7 +2257,13 @@
             }
             
             updateStatus(message) {
-                document.getElementById('statusDisplay').textContent = message;
+                const statusText = document.querySelector('.status-text');
+                if (statusText) {
+                    statusText.textContent = message;
+                } else {
+                    // Fallback für alte Struktur
+                    document.getElementById('statusDisplay').textContent = message;
+                }
             }
             
             updateMeasurements() {
