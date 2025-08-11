@@ -13,53 +13,91 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-image: url('images/Skizze.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
             min-height: 100vh;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
         }
         
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
+        /* Werbecontainer */
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            margin: 20px auto;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .header {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             color: white;
-            padding: 20px;
+            padding: 30px;
             text-align: center;
+            border-radius: 15px 15px 0 0;
+            margin: 0;
         }
         
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
+            font-weight: 600;
         }
         
         .header p {
             font-size: 1.1rem;
             opacity: 0.9;
+            margin: 0;
+        }
+        
+        .content-wrapper {
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: 600;
         }
         
         .controls {
-            background: #f8f9fa;
+            background: rgba(248, 249, 250, 0.9);
             padding: 20px;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 2px solid #e9ecef;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            align-items: end;
+            border-radius: 10px;
+            margin: 20px 0;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .control-group {
             display: flex;
             flex-direction: column;
             gap: 5px;
-            align-items: center;
         }
         
         .control-group label {
@@ -68,18 +106,28 @@
             font-size: 0.9rem;
         }
         
+        .button-group {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
         select, input, button {
             padding: 10px 15px;
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 1rem;
             transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
         }
         
         select:focus, input:focus {
             outline: none;
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            background: white;
         }
         
         button {
@@ -108,7 +156,11 @@
             display: flex;
             justify-content: center;
             padding: 30px;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         canvas {
@@ -120,11 +172,12 @@
         }
         
         .info-panel {
-            background: #ecf0f1;
+            background: rgba(236, 240, 241, 0.9);
             padding: 15px;
             border-radius: 10px;
-            margin: 20px;
+            margin: 20px 0;
             border-left: 5px solid #3498db;
+            backdrop-filter: blur(5px);
         }
         
         .info-panel h3 {
@@ -134,70 +187,23 @@
         }
         
         .status {
-            background: #e8f5e8;
+            background: rgba(232, 245, 232, 0.9);
             color: #27ae60;
             padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
             font-weight: 600;
             text-align: center;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            text-align: center;
-            min-width: 300px;
-        }
-        
-        .modal-content h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-        
-        .modal-content input {
-            width: 100%;
-            margin: 10px 0;
-            text-align: center;
-            font-size: 1.2rem;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .modal-buttons button {
-            flex: 1;
-        }
-        
-        .cancel-btn {
-            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+            backdrop-filter: blur(5px);
         }
         
         .measurements {
-            background: #f8f9fa;
+            background: rgba(248, 249, 250, 0.9);
             padding: 15px;
-            margin: 20px;
+            margin: 20px 0;
             border-radius: 10px;
             border: 2px dashed #3498db;
+            backdrop-filter: blur(5px);
         }
         
         .measurements h4 {
@@ -215,58 +221,179 @@
         .measurement-item:last-child {
             border-bottom: none;
         }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            min-width: 300px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .modal-content h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-buttons button {
+            flex: 1;
+        }
+        
+        .cancel-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+                border-radius: 10px 10px 0 0;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content-wrapper {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            
+            .canvas-container {
+                padding: 15px;
+            }
+            
+            canvas {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .content-wrapper {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="main-content">
         <div class="header">
-            <h1>🔧 Kantteile Zeichenprogramm</h1>
+            <h1>Kantteile Zeichenprogramm</h1>
             <p>Erstellen Sie präzise Skizzen für Sonderkantteile (0,5mm - 0,7mm Bleche)</p>
         </div>
         
-        <div class="controls">
-            <div class="control-group">
-                <label>Blechstärke</label>
-                <select id="thickness">
-                    <option value="0.5">0,5 mm</option>
-                    <option value="0.6" selected>0,6 mm</option>
-                    <option value="0.7">0,7 mm</option>
-                </select>
+        <div class="content-wrapper">
+            <div class="controls">
+                <div class="control-group">
+                    <label>Blechstärke</label>
+                    <select id="thickness">
+                        <option value="0.5">0,5 mm</option>
+                        <option value="0.6" selected>0,6 mm</option>
+                        <option value="0.7">0,7 mm</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Erste Linie</label>
+                    <select id="firstLineType">
+                        <option value="horizontal">Waagerecht</option>
+                        <option value="vertical">Senkrecht</option>
+                    </select>
+                </div>
+                
+                <div class="button-group">
+                    <button id="startDrawing">Zeichnung starten</button>
+                    <button id="clearCanvas">Alles löschen</button>
+                    <button id="centerView">Zentrieren</button>
+                    <button id="exportSketch">Skizze exportieren</button>
+                </div>
             </div>
             
-            <div class="control-group">
-                <label>Erste Linie</label>
-                <select id="firstLineType">
-                    <option value="horizontal">Waagerecht</option>
-                    <option value="vertical">Senkrecht</option>
-                </select>
+            <div class="status" id="statusDisplay">Wählen Sie die Blechstärke und starten Sie die Zeichnung</div>
+            
+            <div class="canvas-container">
+                <canvas id="drawingCanvas" width="1000" height="600"></canvas>
             </div>
             
-            <button id="startDrawing">Zeichnung starten</button>
-            <button id="clearCanvas">Alles löschen</button>
-            <button id="centerView">Zentrieren</button>
-            <button id="exportSketch">Skizze exportieren</button>
-        </div>
-        
-        <div class="status" id="statusDisplay">Wählen Sie die Blechstärke und starten Sie die Zeichnung</div>
-        
-        <div class="canvas-container">
-            <canvas id="drawingCanvas" width="1000" height="600"></canvas>
-        </div>
-        
-        <div class="info-panel">
-            <h3>📋 Anleitung</h3>
-            <p><strong>Schritt 1:</strong> Wählen Sie Blechstärke und Linienrichtung, dann "Zeichnung starten"</p>
-            <p><strong>Schritt 2:</strong> Bewegen Sie die Maus für die Längeneingabe oder geben Sie die Länge manuell ein</p>
-            <p><strong>Schritt 3:</strong> Bestätigen Sie mit Linksklick oder Enter</p>
-            <p><strong>Schritt 4:</strong> Klicken Sie auf die blauen Punkte um Kurven hinzuzufügen</p>
-            <p><strong>Kurven:</strong> Wählen Sie den Winkel (-180° bis +180°) für die Biegung</p>
-            <p><strong>Navigation:</strong> Mausrad = Zoom, Mittlere Maustaste = Verschieben</p>
-        </div>
-        
-        <div class="measurements" id="measurementPanel" style="display: none;">
-            <h4>📐 Bauteilmaße</h4>
-            <div id="measurementList"></div>
+            <div class="info-panel">
+                <h3>Anleitung</h3>
+                <p><strong>Schritt 1:</strong> Wählen Sie Blechstärke und Linienrichtung, dann "Zeichnung starten"</p>
+                <p><strong>Schritt 2:</strong> Bewegen Sie die Maus für die Längeneingabe oder geben Sie die Länge manuell ein</p>
+                <p><strong>Schritt 3:</strong> Bestätigen Sie mit Linksklick oder Enter</p>
+                <p><strong>Schritt 4:</strong> Klicken Sie auf die blauen Punkte um Kurven hinzuzufügen</p>
+                <p><strong>Kurven:</strong> Wählen Sie den Winkel (-180° bis +180°) für die Biegung</p>
+                <p><strong>Navigation:</strong> Mausrad = Zoom, Mittlere Maustaste = Verschieben</p>
+            </div>
+            
+            <div class="measurements" id="measurementPanel" style="display: none;">
+                <h4>Bauteilmaße</h4>
+                <div id="measurementList"></div>
+            </div>
         </div>
     </div>
     
@@ -646,7 +773,11 @@
             
             shortenLastLine(lineElement, radiusMM) {
                 const radiusPixels = radiusMM * this.scale;
-                const originalLength = lineElement.length;
+                
+                // Speichere die ursprüngliche Länge VOR der Kürzung
+                if (!lineElement.originalLength) {
+                    lineElement.originalLength = lineElement.length;
+                }
                 
                 if (lineElement.direction === 'tangential') {
                     // Neue Logik: Kürze in Tangenten-Richtung
@@ -669,8 +800,8 @@
                     }
                 }
                 
-                // Aktualisiere die Längenmessung
-                lineElement.length = Math.max(0, originalLength - radiusMM);
+                // Aktualisiere die Längenmessung (für die Anzeige)
+                lineElement.length = Math.max(0, lineElement.originalLength - radiusMM);
             }
             
             getTravelDirection(lastElement) {
@@ -760,7 +891,7 @@
             
             optimizeAllMeasurements() {
                 // Globale Bemaßungsoptimierung: Betrachte die gesamte Skizze
-                console.log('🔧 Starte globale Bemaßungsoptimierung...');
+                console.log('Starte globale Bemaßungsoptimierung...');
                 
                 // Schritt 1: Analysiere die Gesamtgeometrie
                 const sketchBounds = this.calculateSketchBounds();
@@ -774,7 +905,7 @@
                 // Schritt 3: Minimiere Pfeile wo möglich
                 this.minimizeUnnecessaryArrows();
                 
-                console.log('✅ Bemaßungsoptimierung abgeschlossen');
+                console.log('Bemaßungsoptimierung abgeschlossen');
             }
             
             calculateSketchBounds() {
@@ -1009,7 +1140,8 @@
                         unit: unit,
                         type: type,
                         element: { ...element },
-                        needsArrow: false
+                        needsArrow: false,
+                        originalLength: element.type === 'line' ? element.originalLength || element.length : null // Speichere ursprüngliche Länge
                     };
                     
                     // Kollisionserkennung und automatische Neupositionierung
@@ -1422,6 +1554,11 @@
                 
                 if (this.currentElement) {
                     this.drawElement(this.currentElement, '#e74c3c', 3 / this.zoom);
+                    
+                    // Zeige grüne Vorschau-Linie beim Winkel-Zeichnen (zeigt nächste Linien-Richtung)
+                    if (this.currentElement.type === 'curve' && this.isDrawing && this.currentElement.end) {
+                        this.drawPreviewLine();
+                    }
                     
                     // Zeige aktuelle Werte beim Zeichnen an
                     if (this.isDrawing) {
@@ -2006,50 +2143,30 @@
                 list.innerHTML = '';
                 
                 let totalLength = 0;
-                let lineCount = 0;
-                let curveCount = 0;
+                let kantungen = 0;
                 
+                // Zähle Kantungen (Kurven) und berechne korrekte Gesamtlänge
                 this.elements.forEach((element, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'measurement-item';
-                    
                     if (element.type === 'line') {
-                        lineCount++;
-                        totalLength += element.length;
-                        
-                        let directionText = '';
-                        if (element.direction === 'tangential') {
-                            const angleDeg = Math.round(element.angle * 180 / Math.PI);
-                            directionText = `${angleDeg}°`;
-                        } else {
-                            directionText = element.direction;
-                        }
-                        
-                        item.innerHTML = `
-                            <span>Linie ${lineCount}</span>
-                            <span>${element.length} mm (${directionText})</span>
-                        `;
+                        // Verwende ursprüngliche Länge (vor Kürzung für Kurven)
+                        const lengthToAdd = element.originalLength || element.length;
+                        totalLength += lengthToAdd;
                     } else if (element.type === 'curve') {
-                        curveCount++;
-                        item.innerHTML = `
-                            <span>Kurve ${curveCount}</span>
-                            <span>${element.angle}° (R=${element.radius/this.scale}mm)</span>
-                        `;
+                        kantungen++;
                     }
-                    
-                    list.appendChild(item);
                 });
                 
                 if (this.elements.length > 0) {
-                    const totalItem = document.createElement('div');
-                    totalItem.className = 'measurement-item';
-                    totalItem.style.fontWeight = 'bold';
-                    totalItem.style.borderTop = '2px solid #3498db';
-                    totalItem.innerHTML = `
-                        <span>Gesamtlänge</span>
-                        <span>${totalLength} mm</span>
+                    const summaryItem = document.createElement('div');
+                    summaryItem.className = 'measurement-item';
+                    summaryItem.style.fontWeight = 'bold';
+                    summaryItem.style.borderTop = '2px solid #3498db';
+                    summaryItem.style.marginTop = '10px';
+                    summaryItem.innerHTML = `
+                        <span>Gesamtlänge: ${totalLength} mm</span>
+                        <span>Kantungen: ${kantungen}</span>
                     `;
-                    list.appendChild(totalItem);
+                    list.appendChild(summaryItem);
                     
                     panel.style.display = 'block';
                 }
