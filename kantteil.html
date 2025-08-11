@@ -1,1273 +1,312 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CNC-Kantmaschinen Simulator - Interaktiv</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            height: 100vh;
-            background: white;
-        }
-        
-        .drawing-area {
-            background: #ecf0f1;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .toolbar {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(52, 73, 94, 0.95);
-            padding: 15px;
-            border-radius: 10px;
-            color: white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            z-index: 100;
-        }
-        
-        .toolbar h3 {
-            margin-bottom: 15px;
-            color: #3498db;
-        }
-        
-        .tool-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-        
-        .tool-input {
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            width: 80px;
-            font-size: 14px;
-        }
-        
-        .tool-btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .tool-btn.danger {
-            background: #e74c3c;
-            color: white;
-        }
-        
-        .tool-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-        }
-        
-        .canvas-container {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-        
-        #drawingCanvas {
-            display: block;
-            cursor: crosshair;
-            background: 
-                linear-gradient(rgba(52, 152, 219, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(52, 152, 219, 0.1) 1px, transparent 1px);
-            background-size: 25px 25px;
-        }
-        
-        .status-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(52, 73, 94, 0.95);
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .coordinates {
-            font-family: monospace;
-            font-size: 14px;
-        }
-        
-        .current-mode {
-            background: #3498db;
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-weight: 600;
-        }
-        
-        .side-panel {
-            background: #34495e;
-            color: white;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        
-        .side-panel h2 {
-            color: #3498db;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 1.5em;
-        }
-        
-        .section {
-            background: rgba(52, 152, 219, 0.1);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-left: 4px solid #3498db;
-        }
-        
-        .section h3 {
-            color: #3498db;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-        
-        .instruction {
-            color: #bdc3c7;
-            margin-bottom: 15px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .results {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .result-card {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            color: white;
-        }
-        
-        .result-card h4 {
-            font-size: 12px;
-            margin-bottom: 8px;
-            opacity: 0.8;
-        }
-        
-        .result-card .value {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-        
-        .result-card .unit {
-            font-size: 0.8em;
-            opacity: 0.8;
-        }
-        
-        .finish-btn {
-            width: 100%;
-            padding: 20px;
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .finish-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
-        }
-        
-        .part-list {
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            padding: 15px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .part-item {
-            background: rgba(52, 152, 219, 0.2);
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            border-left: 3px solid #3498db;
-        }
-        
-        .part-item h4 {
-            color: #3498db;
-            margin-bottom: 5px;
-        }
-        
-        .part-stats {
-            font-size: 13px;
-            color: #bdc3c7;
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-        
-        .modal h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-        
-        .modal-btn {
-            padding: 12px 25px;
-            margin: 5px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        
-        .modal-btn.primary {
-            background: #3498db;
-            color: white;
-        }
-        
-        .modal-btn.secondary {
-            background: #95a5a6;
-            color: white;
-        }
-
-        .angle-preview {
-            position: absolute;
-            background: rgba(231, 76, 60, 0.9);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-weight: 600;
-            font-size: 14px;
-            pointer-events: none;
-            z-index: 200;
-        }
-
-        .length-preview {
-            position: absolute;
-            background: rgba(39, 174, 96, 0.9);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-weight: 600;
-            font-size: 14px;
-            pointer-events: none;
-            z-index: 200;
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kantteile — Zeichner (Standalone)</title>
+<style>
+  :root{
+    --brand:#005a9c;
+    --accent:#007acc;
+    --muted:#f3f4f6;
+    --orange:#f59e0b;
+  }
+  body{font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif; margin:0; background:#f7f7f7; color:#222;}
+  header{background:var(--brand); color:#fff; padding:14px 16px; font-size:18px; font-weight:600; text-align:center;}
+  .wrap{max-width:980px; margin:18px auto; padding:16px; background:#fff; box-shadow:0 6px 18px rgba(10,10,10,0.06); border-radius:8px;}
+  .controls{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:12px;}
+  label{font-size:14px; color:#333;}
+  input[type=number]{width:86px; padding:6px 8px; border:1px solid #ddd; border-radius:6px; margin-left:6px;}
+  button{background:var(--accent); color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:600;}
+  button.ghost{background:#fff; color:var(--brand); border:1px solid #ddd;}
+  button:disabled{opacity:0.5; cursor:not-allowed;}
+  .canvas-wrap{border-radius:6px; overflow:hidden; border:1px solid #e6e6e6; background:#fff;}
+  svg{display:block; width:100%; height:520px; background:#fff; cursor:crosshair;}
+  .hint{font-size:13px; color:#555; margin-top:10px;}
+  .note{font-size:13px; color:#a00; margin-top:8px;}
+  footer{font-size:12px;color:#666;margin-top:10px;text-align:center;}
+  @media (max-width:640px){ .controls{flex-direction:column; align-items:flex-start} }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="drawing-area">
-            <div class="toolbar">
-                <h3>🔧 Werkzeuge</h3>
-                <div class="tool-row">
-                    <label style="color: white; width: 90px;">Blechstärke:</label>
-                    <input type="number" class="tool-input" id="thickness" value="2" min="0.1" max="50" step="0.1">
-                    <span>mm</span>
-                </div>
-                <div class="tool-row">
-                    <button class="tool-btn danger" onclick="clearAll()">🗑️ Alles löschen</button>
-                </div>
-            </div>
-            
-            <div class="canvas-container">
-                <canvas id="drawingCanvas" width="1200" height="800"></canvas>
-                <div class="angle-preview" id="anglePreview" style="display: none;"></div>
-                <div class="length-preview" id="lengthPreview" style="display: none;"></div>
-            </div>
-            
-            <div class="status-bar">
-                <div class="coordinates" id="coordinates">X: 0, Y: 0</div>
-                <div class="current-mode" id="currentMode">Erste Linie zeichnen</div>
-                <div style="color: #3498db; font-weight: 600;" id="currentAction">Startpunkt setzen</div>
-            </div>
-        </div>
+<header>Kantteile-Zeicher (Standalone)</header>
+<div class="wrap">
+  <div class="controls">
+    <label>Biegeradius (mm)
+      <input id="radius" type="number" value="0.5" step="0.1" min="0">
+    </label>
 
-        <div class="side-panel">
-            <h2>🎯 CNC-Kantmaschinen Simulator</h2>
-            
-            <!-- Anweisungen -->
-            <div class="section">
-                <h3>📋 Aktuelle Anweisung</h3>
-                <div class="instruction" id="instructionText">
-                    <strong>Schritt 1:</strong> Klicken Sie auf einen Startpunkt für die erste Linie
-                </div>
-            </div>
-            
-            <!-- Ergebnisse -->
-            <div class="section">
-                <h3>📊 Aktuelles Teil</h3>
-                <div class="results">
-                    <div class="result-card">
-                        <h4>Gestreckte Länge</h4>
-                        <div class="value" id="totalLength">0</div>
-                        <div class="unit">mm</div>
-                    </div>
-                    <div class="result-card">
-                        <h4>Biegungen</h4>
-                        <div class="value" id="bendCount">0</div>
-                        <div class="unit">Stück</div>
-                    </div>
-                </div>
-                <div class="results">
-                    <div class="result-card">
-                        <h4>Segmente</h4>
-                        <div class="value" id="segmentCount">0</div>
-                        <div class="unit">Stück</div>
-                    </div>
-                    <div class="result-card">
-                        <h4>Letzter Winkel</h4>
-                        <div class="value" id="lastAngle">-</div>
-                        <div class="unit">°</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Teil fertigstellen -->
-            <button class="finish-btn" id="finishPartBtn" onclick="finishPart()" style="display: none;">
-                🔴 Teil fertigstellen
-            </button>
-            
-            <!-- Fertige Teile -->
-            <div class="section">
-                <h3>✅ Fertige Teile</h3>
-                <div class="part-list" id="partsList">
-                    <p style="color: #7f8c8d; text-align: center;">Noch keine Teile erstellt</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal für Download -->
-    <div class="modal" id="downloadModal">
-        <div class="modal-content">
-            <h3>📥 Zeichnung herunterladen</h3>
-            <p>Möchten Sie die technische Zeichnung aller Teile herunterladen?</p>
-            <div style="margin-top: 20px;">
-                <button class="modal-btn primary" onclick="downloadDrawing()">Download starten</button>
-                <button class="modal-btn secondary" onclick="closeModal()">Abbrechen</button>
-            </div>
-        </div>
-    </div>
+    <label>Materialdicke (mm)
+      <input id="thickness" type="number" value="0.5" step="0.1" min="0">
+    </label>
 
-    <script>
-        // Globale Variablen
-        let canvas, ctx;
-        let currentState = 'firstLineStart'; // firstLineStart, firstLineEnd, selectBendPoint, dragBend, selectLinePoint, dragLine
-        let currentPart = {
-            lines: [],
-            bends: [],
-            totalLength: 0
-        };
-        let completedParts = [];
-        let mousePos = { x: 0, y: 0 };
-        let dragStartPos = { x: 0, y: 0 };
-        
-        // Aktuelle Zeichenelemente
-        let firstLineStart = null;
-        let selectedBendPoint = null;
-        let selectedLinePoint = null;
-        let previewAngle = 0;
-        let previewDirection = 'left';
-        let previewLength = 0;
-        let lastLineAngle = 0;
+    <button id="finish">Finish</button>
+    <button id="apply">Apply bends</button>
+    <button id="export">Export SVG</button>
+    <button id="reset" class="ghost">Reset</button>
+  </div>
 
-        // Initialisierung
-        window.onload = function() {
-            canvas = document.getElementById('drawingCanvas');
-            ctx = canvas.getContext('2d');
-            
-            canvas.addEventListener('mousemove', onMouseMove);
-            canvas.addEventListener('mousedown', onMouseDown);
-            canvas.addEventListener('mouseup', onMouseUp);
-            
-            redraw();
-        };
+  <div class="canvas-wrap">
+    <svg id="svg" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
 
-        function onMouseMove(e) {
-            const rect = canvas.getBoundingClientRect();
-            mousePos.x = e.clientX - rect.left;
-            mousePos.y = e.clientY - rect.top;
-            
-            // Koordinaten anzeigen (in mm)
-            document.getElementById('coordinates').textContent = 
-                `X: ${Math.round(mousePos.x * 0.5)}, Y: ${Math.round((canvas.height - mousePos.y) * 0.5)}`;
-            
-            handleMouseMove();
-            redraw();
-        }
+  <p class="hint">Klicke in die Fläche, um Punkte zu setzen. Klicke <strong>Finish</strong>, wenn du fertig bist, dann <strong>Apply bends</strong> um Ecken zu runden. Export erzeugt ein SVG.</p>
+  <p class="note">Hinweis: Technischer Prototyp — Abwicklung / K-Faktor / echte Fertigmaße sind nicht automatisch berücksichtigt. Visualisierung von Biegeradien und 180°-U-Bögen ist implementiert.</p>
+  <footer>© Kantteile-Zeicher — Standalone</footer>
+</div>
 
-        function onMouseDown(e) {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientX - rect.top;
-            
-            dragStartPos = { x: mousePos.x, y: mousePos.y };
-            
-            if (currentState === 'firstLineStart') {
-                handleFirstLineStart();
-            } else if (currentState === 'firstLineEnd') {
-                handleFirstLineEnd();
-            } else if (currentState === 'selectBendPoint') {
-                handleBendPointSelection();
-            } else if (currentState === 'dragBend') {
-                handleBendConfirm();
-            } else if (currentState === 'selectLinePoint') {
-                handleLinePointSelection();
-            } else if (currentState === 'dragLine') {
-                handleLineConfirm();
-            }
-        }
+<script>
+/* Full single-file implementation of fillets + special 180° handling.
+   Defaults: radius 0.5 mm, thickness 0.5 mm.
+   1:1 mapping mm -> SVG units. */
 
-        function onMouseUp(e) {
-            // Hier könnten spezielle MouseUp-Aktionen stehen
-        }
+const svg = document.getElementById('svg');
+const radiusInput = document.getElementById('radius');
+const thicknessInput = document.getElementById('thickness');
+const finishBtn = document.getElementById('finish');
+const applyBtn = document.getElementById('apply');
+const exportBtn = document.getElementById('export');
+const resetBtn = document.getElementById('reset');
 
-        function handleMouseMove() {
-            if (currentState === 'firstLineEnd') {
-                // Erste Linie live anzeigen
-            } else if (currentState === 'dragBend') {
-                // Winkel und Richtung basierend auf Mausposition berechnen
-                calculateBendPreview();
-                showAnglePreview();
-            } else if (currentState === 'dragLine') {
-                // Länge basierend auf Mausposition berechnen
-                calculateLinePreview();
-                showLengthPreview();
-            }
-        }
+let points = [];      // array of {x,y}
+let finished = false; // drawing finished
+let pathCenter = "";  // SVG path for centerline after filleting
+let scale = 1;        // mm to px scale (1:1 by default)
 
-        function handleFirstLineStart() {
-            firstLineStart = { x: mousePos.x, y: mousePos.y };
-            currentState = 'firstLineEnd';
-            updateInstruction('Klicken Sie auf den Endpunkt der ersten Linie');
-            document.getElementById('currentAction').textContent = 'Endpunkt setzen';
-        }
+/* ---------- vector helpers (careful arithmetic) ---------- */
+function sub(a,b){return {x:a.x-b.x, y:a.y-b.y};}
+function add(a,b){return {x:a.x+b.x, y:a.y+b.y};}
+function mul(v,s){return {x:v.x*s, y:v.y*s};}
+function len(v){ return Math.hypot(v.x, v.y); }
+function norm(v){ const L = len(v) || 1; return { x: v.x / L, y: v.y / L }; }
+function dot(a,b){ return a.x*b.x + a.y*b.y; }
+function perp(v){ return { x: -v.y, y: v.x }; }
 
-        function handleFirstLineEnd() {
-            const firstLineEnd = { x: mousePos.x, y: mousePos.y };
-            
-            // Erste Linie erstellen
-            const length = Math.sqrt(
-                Math.pow(mousePos.x - firstLineStart.x, 2) + 
-                Math.pow(mousePos.y - firstLineStart.y, 2)
-            ) * 0.5; // Pixel zu mm Konvertierung
-            
-            lastLineAngle = Math.atan2(
-                firstLineEnd.y - firstLineStart.y, 
-                firstLineEnd.x - firstLineStart.x
-            );
-            
-            currentPart.lines.push({
-                start: firstLineStart,
-                end: firstLineEnd,
-                length: length,
-                angle: lastLineAngle
-            });
-            
-            currentPart.totalLength = length;
-            updateResults();
-            
-            // Zu Biegepunkt-Auswahl wechseln
-            currentState = 'selectBendPoint';
-            updateInstruction('Klicken Sie auf einen roten Punkt, um eine Biegung zu erstellen');
-            document.getElementById('currentAction').textContent = 'Biegepunkt wählen';
-            document.getElementById('finishPartBtn').style.display = 'block';
-        }
+/* ---------- UI / drawing helpers ---------- */
+function clearSVG(){
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  svg.appendChild(gridDef());
+}
 
-        function handleBendPointSelection() {
-            // Nur der letzte Endpunkt soll klickbar sein
-            if (currentPart.lines.length === 0) return;
-            
-            const lastLine = currentPart.lines[currentPart.lines.length - 1];
-            const lastEndPoint = lastLine.end;
-            
-            // Prüfen ob der Klick nahe genug am letzten Endpunkt ist
-            const distance = Math.sqrt(
-                Math.pow(mousePos.x - lastEndPoint.x, 2) + 
-                Math.pow(mousePos.y - lastEndPoint.y, 2)
-            );
-            
-            if (distance < 15) {
-                // Prüfen ob dieser Punkt schon verwendet wurde
-                const alreadyUsed = currentPart.bends.some(bend => 
-                    bend.point.x === lastEndPoint.x && bend.point.y === lastEndPoint.y
-                );
-                
-                if (!alreadyUsed) {
-                    selectedBendPoint = lastEndPoint;
-                    lastLineAngle = lastLine.angle;
-                    currentState = 'dragBend';
-                    updateInstruction('Ziehen Sie um den Punkt, um Winkel und Richtung festzulegen. Klicken Sie zur Bestätigung');
-                    document.getElementById('currentAction').textContent = 'Biegung ziehen';
-                }
-            }
-        }
+function gridDef(){
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  const pattern = document.createElementNS('http://www.w3.org/2000/svg','pattern');
+  pattern.setAttribute('id','grid'); pattern.setAttribute('width','20'); pattern.setAttribute('height','20');
+  pattern.setAttribute('patternUnits','userSpaceOnUse');
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d','M 20 0 L 0 0 0 20'); path.setAttribute('fill','none'); path.setAttribute('stroke',getComputedStyle(document.documentElement).getPropertyValue('--muted') || '#f3f4f6'); path.setAttribute('stroke-width','0.5');
+  pattern.appendChild(path);
+  defs.appendChild(pattern);
+  const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  rect.setAttribute('x','0'); rect.setAttribute('y','0'); rect.setAttribute('width','1000'); rect.setAttribute('height','500'); rect.setAttribute('fill','url(#grid)');
+  defs.appendChild(rect); // note: will be appended separately
+  // return a group containing defs + rect
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.appendChild(defs);
+  const rectClone = rect.cloneNode();
+  g.appendChild(rectClone);
+  return g;
+}
 
-        function calculateBendPreview() {
-            if (!selectedBendPoint) return;
-            
-            const dx = mousePos.x - selectedBendPoint.x;
-            const dy = mousePos.y - selectedBendPoint.y;
-            
-            // Neuen Winkel der gewünschten Richtung berechnen
-            const newAngle = Math.atan2(dy, dx);
-            
-            // Winkelunterschied zur letzten Linie
-            let angleDiff = newAngle - lastLineAngle;
-            
-            // Winkel normalisieren auf -180° bis +180°
-            while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-            while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-            
-            // Winkel und Richtung bestimmen
-            previewAngle = Math.abs(angleDiff * 180 / Math.PI);
-            
-            // Richtung korrigieren: positiver Winkel = Links, negativer = Rechts
-            previewDirection = angleDiff > 0 ? 'left' : 'right';
-            
-            // Minimum 5°, Maximum 175°
-            previewAngle = Math.max(5, Math.min(175, previewAngle));
-        }
+function drawRawPolyline(){
+  clearSVG();
+  if(points.length === 0) return;
+  // polyline
+  const pl = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+  pl.setAttribute('points', points.map(p => `${p.x},${p.y}`).join(' '));
+  pl.setAttribute('fill','none'); pl.setAttribute('stroke','#222'); pl.setAttribute('stroke-width','2');
+  if(finished) pl.setAttribute('stroke-dasharray','4 4');
+  svg.appendChild(pl);
+  // points
+  for(let p of points){
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',4); c.setAttribute('fill','#222');
+    svg.appendChild(c);
+  }
+}
 
-        function showAnglePreview() {
-            const preview = document.getElementById('anglePreview');
-            preview.style.display = 'block';
-            preview.style.left = (mousePos.x + 10) + 'px';
-            preview.style.top = (mousePos.y - 30) + 'px';
-            preview.textContent = `${previewAngle.toFixed(1)}° ${previewDirection === 'left' ? '⬅️' : '➡️'}`;
-        }
+function drawResult(pathStr, thickness){
+  clearSVG();
+  // centerline
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d', pathStr);
+  path.setAttribute('fill','none'); path.setAttribute('stroke','#007acc'); path.setAttribute('stroke-width',2);
+  svg.appendChild(path);
+  // thickness visualization: stroke around centerline
+  if(thickness>0){
+    const tpath = document.createElementNS('http://www.w3.org/2000/svg','path');
+    tpath.setAttribute('d', pathStr);
+    tpath.setAttribute('fill','none'); tpath.setAttribute('stroke',getComputedStyle(document.documentElement).getPropertyValue('--orange') || '#f59e0b');
+    // strokeWidth scaled by thickness (times 2 to visualize both sides)
+    tpath.setAttribute('stroke-width', Math.max(0.5, thickness * 2 * scale));
+    tpath.setAttribute('stroke-opacity', 0.35);
+    svg.appendChild(tpath);
+  }
+}
 
-        function handleBendConfirm() {
-            // Biegung erstellen
-            const bend = {
-                point: selectedBendPoint,
-                angle: previewAngle,
-                direction: previewDirection
-            };
-            
-            currentPart.bends.push(bend);
-            
-            // KORRIGIERTE Winkelberechnung für nächste Linie
-            const bendRadians = (previewAngle * Math.PI) / 180;
-            
-            // Linksabiegung = Winkel subtrahieren, Rechtsabiegung = Winkel addieren
-            if (previewDirection === 'left') {
-                lastLineAngle += bendRadians;  // KORRIGIERT: + statt -
-            } else {
-                lastLineAngle -= bendRadians;  // KORRIGIERT: - statt +
-            }
-            
-            updateResults();
-            
-            // Zu Linienpunkt-Auswahl wechseln
-            selectedLinePoint = selectedBendPoint;
-            currentState = 'dragLine';
-            updateInstruction('Ziehen Sie von dem Punkt weg, um die Linienlänge festzulegen. Klicken Sie zur Bestätigung');
-            document.getElementById('currentAction').textContent = 'Linie ziehen';
-            
-            document.getElementById('anglePreview').style.display = 'none';
-        }
+/* ---------- main geometry: fillets + special 180° handling ---------- */
+function buildFilletedPath(radius_mm){
+  const r = Math.max(0, radius_mm * scale);
+  if(points.length < 2) return "";
+  // if only two points => straight line
+  if(points.length === 2){
+    return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+  }
 
-        function calculateLinePreview() {
-            if (!selectedLinePoint) return;
-            
-            const dx = mousePos.x - selectedLinePoint.x;
-            const dy = mousePos.y - selectedLinePoint.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            previewLength = distance * 0.5; // Pixel zu mm
-            previewLength = Math.max(1, previewLength); // Minimum 1mm
-        }
+  const cmds = [];
+  cmds.push(`M ${points[0].x} ${points[0].y}`);
+  for(let i=1;i<points.length;i++){
+    // last point: just line to it
+    if(i === points.length - 1){
+      cmds.push(`L ${points[i].x} ${points[i].y}`);
+      break;
+    }
 
-        function showLengthPreview() {
-            const preview = document.getElementById('lengthPreview');
-            preview.style.display = 'block';
-            preview.style.left = (mousePos.x + 10) + 'px';
-            preview.style.top = (mousePos.y - 30) + 'px';
-            preview.textContent = `${previewLength.toFixed(1)} mm`;
-        }
+    const A = points[i-1];
+    const B = points[i];
+    const C = points[i+1];
 
-        function handleLineConfirm() {
-            // Endpunkt der neuen Linie berechnen
-            const lengthInPixels = previewLength * 2; // mm zu Pixel
-            const endX = selectedLinePoint.x + Math.cos(lastLineAngle) * lengthInPixels;
-            const endY = selectedLinePoint.y + Math.sin(lastLineAngle) * lengthInPixels;
-            
-            // Neue Linie erstellen
-            const newLine = {
-                start: { ...selectedLinePoint },
-                end: { x: endX, y: endY },
-                length: previewLength,
-                angle: lastLineAngle
-            };
-            
-            currentPart.lines.push(newLine);
-            currentPart.totalLength += previewLength;
-            
-            updateResults();
-            
-            // Zurück zur Biegepunkt-Auswahl
-            currentState = 'selectBendPoint';
-            updateInstruction('Klicken Sie auf einen roten Punkt, um eine weitere Biegung zu erstellen');
-            document.getElementById('currentAction').textContent = 'Biegepunkt wählen';
-            
-            document.getElementById('lengthPreview').style.display = 'none';
-        }
+    // direction vectors
+    const v1 = norm(sub(B, A)); // incoming (from A to B)
+    const v2 = norm(sub(C, B)); // outgoing (from B to C)
 
-        function updateInstruction(text) {
-            document.getElementById('instructionText').innerHTML = text;
-        }
+    // guard degenerate
+    const cosTheta = Math.max(-1, Math.min(1, dot(v1, v2)));
+    const theta = Math.acos(cosTheta); // 0..pi
+    const cross = v1.x * v2.y - v1.y * v2.x;
+    const side = Math.sign(cross) || 1;
 
-        function updateResults() {
-            document.getElementById('totalLength').textContent = currentPart.totalLength.toFixed(1);
-            document.getElementById('bendCount').textContent = currentPart.bends.length;
-            document.getElementById('segmentCount').textContent = currentPart.lines.length;
-            
-            if (currentPart.bends.length > 0) {
-                const lastBend = currentPart.bends[currentPart.bends.length - 1];
-                document.getElementById('lastAngle').textContent = lastBend.angle.toFixed(1);
-            } else {
-                document.getElementById('lastAngle').textContent = '-';
-            }
-        }
+    // near-straight -> just line to B
+    if(Math.abs(theta) < 1e-6){
+      cmds.push(`L ${B.x} ${B.y}`);
+      continue;
+    }
 
-        function finishPart() {
-            if (currentPart.lines.length === 0) return;
-            
-            // Teil zu fertigen Teilen hinzufügen
-            completedParts.push({
-                ...JSON.parse(JSON.stringify(currentPart)), // Deep copy
-                id: completedParts.length + 1,
-                timestamp: new Date()
-            });
-            
-            // Neues Teil starten
-            resetCurrentPart();
-            updatePartsList();
-        }
+    // special case: near-180° (U-turn)
+    if(Math.abs(Math.PI - theta) < 1e-3 || Math.abs(theta - Math.PI) < 0.001){
+      // create semicircle around point B with center offset by radius to one side,
+      // then continue: this makes the returning segment roughly parallel and offset.
+      // Choose normal direction (perp of v1)
+      const n = norm(perp(v1));
+      // move center a bit to side (use side to define orientation)
+      const center = add(B, mul(n, r * side));
+      // compute angle of incoming direction relative to center
+      // incoming tangent point angle:
+      const angIn = Math.atan2(B.y - center.y, B.x - center.x);
+      // semicircle from angIn to angIn + pi (choose sweep accordingly)
+      const angOut = angIn + Math.PI;
+      // arc endpoints
+      const arcStart = { x: center.x + r * Math.cos(angIn), y: center.y + r * Math.sin(angIn) };
+      const arcEnd   = { x: center.x + r * Math.cos(angOut), y: center.y + r * Math.sin(angOut) };
+      // line to arc start (from previous command)
+      cmds.push(`L ${arcStart.x} ${arcStart.y}`);
+      // SVG arc: rx ry x-axis-rot large-arc-flag sweep-flag x y
+      // For semicircle, large-arc-flag = 0, sweep depends on direction (choose based on side)
+      const sweep = side === 1 ? 1 : 0;
+      cmds.push(`A ${r} ${r} 0 0 ${sweep} ${arcEnd.x} ${arcEnd.y}`);
+      // Note: we do NOT explicitly line to B; arc bridges the u-turn smoothly.
+      continue;
+    }
 
-        function resetCurrentPart() {
-            currentPart = {
-                lines: [],
-                bends: [],
-                totalLength: 0
-            };
-            
-            currentState = 'firstLineStart';
-            firstLineStart = null;
-            selectedBendPoint = null;
-            selectedLinePoint = null;
-            lastLineAngle = 0;
-            
-            updateInstruction('Klicken Sie auf einen Startpunkt für die erste Linie');
-            document.getElementById('currentAction').textContent = 'Startpunkt setzen';
-            document.getElementById('currentMode').textContent = 'Erste Linie zeichnen';
-            document.getElementById('finishPartBtn').style.display = 'none';
-            
-            // Previews ausblenden
-            document.getElementById('anglePreview').style.display = 'none';
-            document.getElementById('lengthPreview').style.display = 'none';
-            
-            updateResults();
-        }
+    // regular fillet:
+    // distance from corner along each segment to tangent point:
+    // dist = r / tan(theta/2)
+    const tanHalf = Math.tan(theta / 2);
+    let dist = (tanHalf === 0) ? 0 : r / tanHalf;
 
-        function clearAll() {
-            currentPart = {
-                lines: [],
-                bends: [],
-                totalLength: 0
-            };
-            completedParts = [];
-            
-            resetCurrentPart();
-            updatePartsList();
-            redraw();
-        }
+    const len1 = len(sub(B, A));
+    const len2 = len(sub(C, B));
+    // ensure distance doesn't exceed available segment length
+    if(dist > len1 - 1e-3) dist = Math.max(0, len1 - 1e-3);
+    if(dist > len2 - 1e-3) dist = Math.max(0, len2 - 1e-3);
 
-        function updatePartsList() {
-            const container = document.getElementById('partsList');
-            
-            if (completedParts.length === 0) {
-                container.innerHTML = '<p style="color: #7f8c8d; text-align: center;">Noch keine Teile erstellt</p>';
-                return;
-            }
-            
-            container.innerHTML = '';
-            
-            completedParts.forEach(part => {
-                const partDiv = document.createElement('div');
-                partDiv.className = 'part-item';
-                partDiv.innerHTML = `
-                    <h4>Teil ${part.id}</h4>
-                    <div class="part-stats">
-                        Länge: ${part.totalLength.toFixed(1)} mm<br>
-                        Biegungen: ${part.bends.length}<br>
-                        Segmente: ${part.lines.length}
-                    </div>
-                `;
-                container.appendChild(partDiv);
-            });
-            
-            // Download-Button hinzufügen wenn Teile vorhanden
-            if (completedParts.length > 0) {
-                const downloadBtn = document.createElement('button');
-                downloadBtn.className = 'finish-btn';
-                downloadBtn.style.marginTop = '15px';
-                downloadBtn.style.padding = '12px';
-                downloadBtn.style.fontSize = '14px';
-                downloadBtn.textContent = '📥 Alle Teile herunterladen';
-                downloadBtn.onclick = () => document.getElementById('downloadModal').style.display = 'flex';
-                container.appendChild(downloadBtn);
-            }
-        }
+    // tangent points on incoming/outgoing
+    const tang1 = add(B, mul(v1, -dist));
+    const tang2 = add(B, mul(v2,  dist));
 
-        function redraw() {
-            // Canvas löschen
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Raster zeichnen
-            drawGrid();
-            
-            // Fertige Teile zeichnen (grau)
-            completedParts.forEach((part, index) => {
-                const colors = ['#95a5a6', '#7f8c8d', '#bdc3c7'];
-                drawPart(part, colors[index % colors.length], 2);
-            });
-            
-            // Aktuelles Teil zeichnen
-            if (currentPart.lines.length > 0) {
-                drawPart(currentPart, '#2c3e50', 4);
-            }
-            
-            // Erste Linie in Bearbeitung
-            if (currentState === 'firstLineEnd' && firstLineStart) {
-                ctx.strokeStyle = '#e74c3c';
-                ctx.lineWidth = 3;
-                ctx.setLineDash([5, 5]);
-                ctx.beginPath();
-                ctx.moveTo(firstLineStart.x, firstLineStart.y);
-                ctx.lineTo(mousePos.x, mousePos.y);
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
-            
-            // Biegevorschau
-            if (currentState === 'dragBend' && selectedBendPoint) {
-                drawBendPreview();
-            }
-            
-            // Linienvorschau
-            if (currentState === 'dragLine' && selectedLinePoint) {
-                drawLinePreview();
-            }
-            
-            // Punkte zeichnen
-            drawPoints();
-        }
+    // bisector (unit) direction
+    const bis = norm(add(v1, v2)); // points roughly into the interior of the corner
+    // distance from corner B to fillet center: r / sin(theta/2)
+    const sinHalf = Math.sin(theta / 2) || 1e-6;
+    const centerDist = r / sinHalf;
+    // center is located along bisector, but need correct orientation (towards interior)
+    const center = add(B, mul(bis, centerDist * ( (dot(bis, {x:1,y:0})||1) ? 1 : 1 ) ));
 
-        function drawGrid() {
-            ctx.strokeStyle = 'rgba(52, 152, 219, 0.1)';
-            ctx.lineWidth = 1;
-            
-            for (let x = 0; x <= canvas.width; x += 25) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
-                ctx.stroke();
-            }
-            
-            for (let y = 0; y <= canvas.height; y += 25) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-            }
-        }
+    // angles for arc
+    const angStart = Math.atan2(tang1.y - center.y, tang1.x - center.x);
+    const angEnd   = Math.atan2(tang2.y - center.y, tang2.x - center.x);
+    let delta = angEnd - angStart;
+    while(delta <= -Math.PI) delta += 2*Math.PI;
+    while(delta > Math.PI) delta -= 2*Math.PI;
+    const largeArcFlag = Math.abs(delta) > Math.PI ? 1 : 0;
+    const sweepFlag = delta > 0 ? 1 : 0;
 
-        function drawPart(part, color, lineWidth) {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.setLineDash([]);
-            
-            // Linien zeichnen mit Biegekurven
-            part.lines.forEach((line, index) => {
-                if (index === 0) {
-                    // Erste Linie komplett zeichnen
-                    ctx.beginPath();
-                    ctx.moveTo(line.start.x, line.start.y);
-                    ctx.lineTo(line.end.x, line.end.y);
-                    ctx.stroke();
-                } else {
-                    // Folgelinien: verkürzt zeichnen für Kurvenübergang
-                    const bend = part.bends[index - 1];
-                    if (bend) {
-                        const curveRadius = 15; // Radius der Biegekurve in Pixeln
-                        
-                        // Linie verkürzt zeichnen (ohne die letzten Pixel für Kurve)
-                        const dx = line.end.x - line.start.x;
-                        const dy = line.end.y - line.start.y;
-                        const length = Math.sqrt(dx * dx + dy * dy);
-                        const shortendLength = Math.max(0, length - curveRadius);
-                        const ratio = shortendLength / length;
-                        
-                        const shortenedEndX = line.start.x + dx * ratio;
-                        const shortenedEndY = line.start.y + dy * ratio;
-                        
-                        ctx.beginPath();
-                        ctx.moveTo(line.start.x, line.start.y);
-                        ctx.lineTo(shortenedEndX, shortenedEndY);
-                        ctx.stroke();
-                        
-                        // Biegekurve zeichnen
-                        drawBendCurve(part, index - 1, curveRadius, color, lineWidth);
-                    } else {
-                        // Normale Linie ohne Biegung
-                        ctx.beginPath();
-                        ctx.moveTo(line.start.x, line.start.y);
-                        ctx.lineTo(line.end.x, line.end.y);
-                        ctx.stroke();
-                    }
-                }
-            });
-        }
+    // append: line to tang1, arc to tang2
+    cmds.push(`L ${tang1.x} ${tang1.y}`);
+    cmds.push(`A ${r} ${r} 0 ${largeArcFlag} ${sweepFlag} ${tang2.x} ${tang2.y}`);
+  }
 
-        function drawBendCurve(part, bendIndex, radius, color, lineWidth) {
-            const bend = part.bends[bendIndex];
-            const prevLine = part.lines[bendIndex];
-            const nextLine = part.lines[bendIndex + 1];
-            
-            if (!bend || !prevLine || !nextLine) return;
-            
-            // Winkel der beiden Linien
-            const angle1 = Math.atan2(prevLine.end.y - prevLine.start.y, prevLine.end.x - prevLine.start.x);
-            const angle2 = Math.atan2(nextLine.end.y - nextLine.start.y, nextLine.end.x - nextLine.start.x);
-            
-            // Mittelpunkt der Kurve berechnen
-            const bendPoint = bend.point;
-            
-            // Kurve zeichnen
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            
-            // Einfache Kurve: Quadratische Bézierkurve
-            const controlOffset = radius * 0.6;
-            const controlX = bendPoint.x + Math.cos((angle1 + angle2) / 2) * controlOffset;
-            const controlY = bendPoint.y + Math.sin((angle1 + angle2) / 2) * controlOffset;
-            
-            // Startpunkt der Kurve (Ende der vorherigen Linie, verkürzt)
-            const startOffset = radius;
-            const startX = bendPoint.x - Math.cos(angle1) * startOffset;
-            const startY = bendPoint.y - Math.sin(angle1) * startOffset;
-            
-            // Endpunkt der Kurve (Anfang der nächsten Linie, verkürzt)
-            const endOffset = radius;
-            const endX = bendPoint.x + Math.cos(angle2) * endOffset;
-            const endY = bendPoint.y + Math.sin(angle2) * endOffset;
-            
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.quadraticCurveTo(bendPoint.x, bendPoint.y, endX, endY);
-            ctx.stroke();
-        }
+  return cmds.join(' ');
+}
 
-        function drawBendPreview() {
-            if (!selectedBendPoint) return;
-            
-            // Richtungslinie zur Maus (dünner und dezenter)
-            ctx.strokeStyle = 'rgba(231, 76, 60, 0.5)';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([3, 3]);
-            ctx.beginPath();
-            ctx.moveTo(selectedBendPoint.x, selectedBendPoint.y);
-            ctx.lineTo(mousePos.x, mousePos.y);
-            ctx.stroke();
-            ctx.setLineDash([]);
-            
-            // Vorschau der Biegekurve
-            const bendRadians = (previewAngle * Math.PI) / 180;
-            let nextAngle = lastLineAngle;
-            
-            if (previewDirection === 'left') {
-                nextAngle += bendRadians;
-            } else {
-                nextAngle -= bendRadians;
-            }
-            
-            // Kurven-Vorschau zeichnen
-            const curveRadius = 15;
-            
-            // Startpunkt der Kurve (Ende der aktuellen Linie, verkürzt)
-            const startX = selectedBendPoint.x - Math.cos(lastLineAngle) * curveRadius;
-            const startY = selectedBendPoint.y - Math.sin(lastLineAngle) * curveRadius;
-            
-            // Endpunkt der Kurve (Anfang der nächsten Linie)
-            const endX = selectedBendPoint.x + Math.cos(nextAngle) * curveRadius;
-            const endY = selectedBendPoint.y + Math.sin(nextAngle) * curveRadius;
-            
-            // Biegekurve als Vorschau
-            ctx.strokeStyle = 'rgba(231, 76, 60, 0.8)';
-            ctx.lineWidth = 3;
-            ctx.setLineDash([5, 5]);
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.quadraticCurveTo(selectedBendPoint.x, selectedBendPoint.y, endX, endY);
-            ctx.stroke();
-            ctx.setLineDash([]);
-            
-            // Vorschau der nächsten Linie in korrekter Richtung zeigen
-            const previewLength = 50; // Pixel
-            const lineEndX = endX + Math.cos(nextAngle) * previewLength;
-            const lineEndY = endY + Math.sin(nextAngle) * previewLength;
-            
-            ctx.strokeStyle = 'rgba(39, 174, 96, 0.8)';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([3, 3]);
-            ctx.beginPath();
-            ctx.moveTo(endX, endY);
-            ctx.lineTo(lineEndX, lineEndY);
-            ctx.stroke();
-            ctx.setLineDash([]);
-            
-            // Pfeil am Ende der Vorschaulinie
-            const arrowSize = 8;
-            const arrowAngle1 = nextAngle + Math.PI - 0.3;
-            const arrowAngle2 = nextAngle + Math.PI + 0.3;
-            
-            ctx.strokeStyle = 'rgba(39, 174, 96, 0.8)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(lineEndX, lineEndY);
-            ctx.lineTo(lineEndX + Math.cos(arrowAngle1) * arrowSize, lineEndY + Math.sin(arrowAngle1) * arrowSize);
-            ctx.moveTo(lineEndX, lineEndY);
-            ctx.lineTo(lineEndX + Math.cos(arrowAngle2) * arrowSize, lineEndY + Math.sin(arrowAngle2) * arrowSize);
-            ctx.stroke();
-        }
+/* ---------- event handlers ---------- */
+function addPointFromEvent(evt){
+  if(finished) return;
+  const rect = svg.getBoundingClientRect();
+  // map client point to svg coordinates (viewBox 0..1000 x 0..500)
+  // handle responsive scaling using ratio between rect and viewBox
+  const vb = {w:1000, h:500};
+  const x = ((evt.clientX - rect.left) / rect.width) * vb.w;
+  const y = ((evt.clientY - rect.top) / rect.height) * vb.h;
+  points.push({x: x, y: y});
+  drawRawPolyline();
+}
+function onFinish(){
+  if(points.length < 2) return;
+  finished = true;
+  drawRawPolyline();
+}
+function onReset(){
+  points = []; finished = false; pathCenter = "";
+  clearSVG();
+  drawRawPolyline();
+}
+function onApply(){
+  if(!finished || points.length < 2) return;
+  const r_mm = parseFloat(radiusInput.value) || 0;
+  const t_mm = parseFloat(thicknessInput.value) || 0;
+  pathCenter = buildFilletedPath(r_mm);
+  drawResult(pathCenter, t_mm);
+}
+function onExport(){
+  // produce standalone SVG document (with defs and viewBox)
+  const clone = svg.cloneNode(true);
+  // ensure xmlns attribute
+  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  clone.setAttribute('version','1.1');
+  const svgText = new XMLSerializer().serializeToString(clone);
+  const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'kantteil.svg';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
-        function drawLinePreview() {
-            if (!selectedLinePoint) return;
-            
-            // Vorschau-Linie zeichnen
-            const lengthInPixels = previewLength * 2;
-            const endX = selectedLinePoint.x + Math.cos(lastLineAngle) * lengthInPixels;
-            const endY = selectedLinePoint.y + Math.sin(lastLineAngle) * lengthInPixels;
-            
-            ctx.strokeStyle = '#27ae60';
-            ctx.lineWidth = 3;
-            ctx.setLineDash([5, 5]);
-            ctx.beginPath();
-            ctx.moveTo(selectedLinePoint.x, selectedLinePoint.y);
-            ctx.lineTo(endX, endY);
-            ctx.stroke();
-            ctx.setLineDash([]);
-            
-            // Längen-Markierung
-            const midX = (selectedLinePoint.x + endX) / 2;
-            const midY = (selectedLinePoint.y + endY) / 2;
-            
-            ctx.fillStyle = '#27ae60';
-            ctx.font = 'bold 14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${previewLength.toFixed(1)}mm`, midX, midY - 10);
-        }
+/* ---------- wire up listeners ---------- */
+svg.addEventListener('click', addPointFromEvent);
+finishBtn.addEventListener('click', onFinish);
+resetBtn.addEventListener('click', onReset);
+applyBtn.addEventListener('click', onApply);
+exportBtn.addEventListener('click', onExport);
 
-        function drawPoints() {
-            // Startpunkte (blau)
-            currentPart.lines.forEach(line => {
-                ctx.fillStyle = '#3498db';
-                ctx.beginPath();
-                ctx.arc(line.start.x, line.start.y, 6, 0, 2 * Math.PI);
-                ctx.fill();
-            });
-            
-            // Endpunkte (rot für Biegungen)
-            currentPart.lines.forEach(line => {
-                ctx.fillStyle = (currentState === 'selectBendPoint') ? '#e74c3c' : '#3498db';
-                ctx.beginPath();
-                ctx.arc(line.end.x, line.end.y, 8, 0, 2 * Math.PI);
-                ctx.fill();
-                
-                // Weißer Punkt in der Mitte für bessere Sichtbarkeit
-                if (currentState === 'selectBendPoint') {
-                    ctx.fillStyle = 'white';
-                    ctx.beginPath();
-                    ctx.arc(line.end.x, line.end.y, 4, 0, 2 * Math.PI);
-                    ctx.fill();
-                }
-            });
-            
-            // Erste Linie Startpunkt
-            if (firstLineStart && currentState !== 'firstLineStart') {
-                ctx.fillStyle = '#e74c3c';
-                ctx.beginPath();
-                ctx.arc(firstLineStart.x, firstLineStart.y, 6, 0, 2 * Math.PI);
-                ctx.fill();
-            }
-            
-            // Ausgewählter Punkt hervorheben
-            if (selectedBendPoint && currentState === 'dragBend') {
-                ctx.strokeStyle = '#e74c3c';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(selectedBendPoint.x, selectedBendPoint.y, 12, 0, 2 * Math.PI);
-                ctx.stroke();
-            }
-            
-            if (selectedLinePoint && currentState === 'dragLine') {
-                ctx.strokeStyle = '#27ae60';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(selectedLinePoint.x, selectedLinePoint.y, 12, 0, 2 * Math.PI);
-                ctx.stroke();
-            }
-        }
+/* initial draw */
+clearSVG();
+drawRawPolyline();
 
-        function downloadDrawing() {
-            // Hochauflösender Canvas für Download
-            const downloadCanvas = document.createElement('canvas');
-            const downloadCtx = downloadCanvas.getContext('2d');
-            const scale = 3;
-            
-            downloadCanvas.width = canvas.width * scale;
-            downloadCanvas.height = canvas.height * scale;
-            
-            // Weißer Hintergrund
-            downloadCtx.fillStyle = 'white';
-            downloadCtx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
-            
-            // Skaliert zeichnen
-            downloadCtx.scale(scale, scale);
-            
-            // Alle Teile zeichnen
-            completedParts.forEach((part, index) => {
-                const colors = ['#2c3e50', '#e74c3c', '#27ae60', '#3498db', '#9b59b6', '#e67e22'];
-                drawPartForDownload(downloadCtx, part, colors[index % colors.length], 4);
-            });
-            
-            // Titel und Informationen
-            downloadCtx.fillStyle = '#2c3e50';
-            downloadCtx.font = 'bold 24px Arial';
-            downloadCtx.textAlign = 'left';
-            downloadCtx.fillText('CNC-Kantmaschinen Programmierung - Interaktiv', 20, 40);
-            
-            downloadCtx.font = '16px Arial';
-            downloadCtx.fillText(`Anzahl Teile: ${completedParts.length}`, 20, 70);
-            downloadCtx.fillText(`Blechstärke: ${document.getElementById('thickness').value}mm`, 20, 90);
-            downloadCtx.fillText(`Erstellt: ${new Date().toLocaleDateString('de-DE')}`, 20, 110);
-            
-            // Teile-Übersicht
-            let totalLength = 0;
-            let totalBends = 0;
-            
-            completedParts.forEach((part, index) => {
-                const y = 140 + index * 20;
-                downloadCtx.fillText(`Teil ${part.id}: ${part.totalLength.toFixed(1)}mm, ${part.bends.length} Biegungen, ${part.lines.length} Segmente`, 20, y);
-                totalLength += part.totalLength;
-                totalBends += part.bends.length;
-            });
-            
-            // Zusammenfassung
-            if (completedParts.length > 0) {
-                const summaryY = 140 + completedParts.length * 20 + 30;
-                downloadCtx.font = 'bold 18px Arial';
-                downloadCtx.fillText('Zusammenfassung:', 20, summaryY);
-                downloadCtx.font = '16px Arial';
-                downloadCtx.fillText(`Gesamtlänge aller Teile: ${totalLength.toFixed(1)}mm`, 20, summaryY + 25);
-                downloadCtx.fillText(`Gesamtanzahl Biegungen: ${totalBends}`, 20, summaryY + 45);
-                downloadCtx.fillText(`Materialverbrauch (geschätzt): ${(totalLength * 50 / 100).toFixed(2)}cm²`, 20, summaryY + 65);
-            }
-            
-            // Download
-            const link = document.createElement('a');
-            link.download = `cnc_kantteile_interaktiv_${new Date().toISOString().slice(0,10)}.png`;
-            link.href = downloadCanvas.toDataURL('image/png', 1.0);
-            link.click();
-            
-            closeModal();
-        }
-
-        function drawPartForDownload(ctx, part, color, lineWidth) {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.setLineDash([]);
-            
-            // Linien zeichnen mit Biegekurven
-            part.lines.forEach((line, index) => {
-                if (index === 0) {
-                    // Erste Linie komplett zeichnen
-                    ctx.beginPath();
-                    ctx.moveTo(line.start.x, line.start.y);
-                    ctx.lineTo(line.end.x, line.end.y);
-                    ctx.stroke();
-                } else {
-                    // Folgelinien: verkürzt zeichnen für Kurvenübergang
-                    const bend = part.bends[index - 1];
-                    if (bend) {
-                        const curveRadius = 20;
-                        
-                        // Linie verkürzt zeichnen
-                        const dx = line.end.x - line.start.x;
-                        const dy = line.end.y - line.start.y;
-                        const length = Math.sqrt(dx * dx + dy * dy);
-                        const shortendLength = Math.max(0, length - curveRadius);
-                        const ratio = shortendLength / length;
-                        
-                        const shortenedEndX = line.start.x + dx * ratio;
-                        const shortenedEndY = line.start.y + dy * ratio;
-                        
-                        ctx.beginPath();
-                        ctx.moveTo(line.start.x, line.start.y);
-                        ctx.lineTo(shortenedEndX, shortenedEndY);
-                        ctx.stroke();
-                        
-                        // Biegekurve für Download zeichnen
-                        drawBendCurveForDownload(ctx, part, index - 1, curveRadius, color, lineWidth);
-                    } else {
-                        ctx.beginPath();
-                        ctx.moveTo(line.start.x, line.start.y);
-                        ctx.lineTo(line.end.x, line.end.y);
-                        ctx.stroke();
-                    }
-                }
-                
-                // Längenangabe
-                const midX = (line.start.x + line.end.x) / 2;
-                const midY = (line.start.y + line.end.y) / 2;
-                
-                ctx.fillStyle = color;
-                ctx.font = 'bold 14px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(`${line.length.toFixed(1)}mm`, midX, midY - 15);
-            });
-            
-            // Winkelangaben bei Biegungen (OHNE jegliche Kreise oder Punkte)
-            part.bends.forEach((bend, index) => {
-                ctx.fillStyle = '#e67e22';
-                ctx.font = 'bold 16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(`${bend.angle.toFixed(1)}°`, bend.point.x - 30, bend.point.y - 25);
-                ctx.fillText(bend.direction === 'left' ? '⬅️' : '➡️', bend.point.x - 30, bend.point.y - 5);
-            });
-            
-            // KEINE PUNKTE MEHR - komplett entfernt!
-        }
-
-        function drawBendCurveForDownload(ctx, part, bendIndex, radius, color, lineWidth) {
-            const bend = part.bends[bendIndex];
-            const prevLine = part.lines[bendIndex];
-            const nextLine = part.lines[bendIndex + 1];
-            
-            if (!bend || !prevLine || !nextLine) return;
-            
-            // Winkel der beiden Linien
-            const angle1 = Math.atan2(prevLine.end.y - prevLine.start.y, prevLine.end.x - prevLine.start.x);
-            const angle2 = Math.atan2(nextLine.end.y - nextLine.start.y, nextLine.end.x - nextLine.start.x);
-            
-            const bendPoint = bend.point;
-            
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            
-            // Startpunkt der Kurve
-            const startX = bendPoint.x - Math.cos(angle1) * radius;
-            const startY = bendPoint.y - Math.sin(angle1) * radius;
-            
-            // Endpunkt der Kurve
-            const endX = bendPoint.x + Math.cos(angle2) * radius;
-            const endY = bendPoint.y + Math.sin(angle2) * radius;
-            
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.quadraticCurveTo(bendPoint.x, bendPoint.y, endX, endY);
-            ctx.stroke();
-        }
-
-        function closeModal() {
-            document.getElementById('downloadModal').style.display = 'none';
-        }
-
-        // Tastatur-Shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                // ESC bricht aktuelle Aktion ab
-                if (currentState === 'dragBend' || currentState === 'dragLine') {
-                    if (currentState === 'dragBend') {
-                        currentState = 'selectBendPoint';
-                        updateInstruction('Klicken Sie auf einen roten Punkt, um eine Biegung zu erstellen');
-                    } else {
-                        currentState = 'selectLinePoint';
-                        updateInstruction('Klicken Sie auf einen Punkt, um eine Linie zu erstellen');
-                    }
-                    
-                    document.getElementById('anglePreview').style.display = 'none';
-                    document.getElementById('lengthPreview').style.display = 'none';
-                    redraw();
-                }
-            } else if (e.key === 'Enter' || e.key === ' ') {
-                // Enter/Space bestätigt aktuelle Aktion
-                if (currentState === 'dragBend') {
-                    handleBendConfirm();
-                } else if (currentState === 'dragLine') {
-                    handleLineConfirm();
-                }
-                e.preventDefault();
-            }
-        });
-
-        // Auto-Update der Berechnungen
-        document.addEventListener('input', function(e) {
-            if (e.target.id === 'thickness') {
-                updateResults();
-            }
-        });
-    </script>
+</script>
 </body>
 </html>
