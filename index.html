@@ -755,6 +755,85 @@
             }
         }
 
+        // Sketch Modal Function
+        function openSketchModal() {
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modal-body');
+            
+            const content = `
+                <h2>Bemaßungsskizzen Download</h2>
+                
+                <p>Professionelle DIN A4 Bemaßungsskizzen für verschiedene Dachformen - direkt drucken oder als PDF speichern.</p>
+                
+                <div class="sketch-downloads" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                    
+                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">🏠 Satteldach</h4>
+                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Klassisches Satteldach mit First und Traufen</p>
+                        <button class="sketch-btn" onclick="openSketch('Satteldach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-right: 8px;">Öffnen</button>
+                        <button class="sketch-btn" onclick="printSketch('Satteldach.html')" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Drucken</button>
+                    </div>
+                    
+                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">🏘️ Walmdach</h4>
+                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Walmdach mit vier Dachflächen</p>
+                        <button class="sketch-btn" onclick="openSketch('walmdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-right: 8px;">Öffnen</button>
+                        <button class="sketch-btn" onclick="printSketch('walmdach.html')" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Drucken</button>
+                    </div>
+                    
+                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">🔺 Pyramidendach</h4>
+                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Pyramidenförmiges Dach mit zentralem Punkt</p>
+                        <button class="sketch-btn" onclick="openSketch('pyramidendach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-right: 8px;">Öffnen</button>
+                        <button class="sketch-btn" onclick="printSketch('pyramidendach.html')" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Drucken</button>
+                    </div>
+                    
+                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">📐 Pultdach</h4>
+                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Einfaches geneigtes Pultdach</p>
+                        <button class="sketch-btn" onclick="openSketch('pultdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-right: 8px;">Öffnen</button>
+                        <button class="sketch-btn" onclick="printSketch('pultdach.html')" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Drucken</button>
+                    </div>
+                    
+                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">⚡ Krüppelwalm</h4>
+                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Krüppelwalmdach mit abgeknickten Walmen</p>
+                        <button class="sketch-btn" onclick="openSketch('krüppelwalm.html')" style="background: #2a5298; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-right: 8px;">Öffnen</button>
+                        <button class="sketch-btn" onclick="printSketch('krüppelwalm.html')" style="background: #666; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">Drucken</button>
+                    </div>
+                    
+                </div>
+                
+                <div class="sketch-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <h3 style="margin: 0 0 10px 0; color: #2a5298;">ℹ️ Hinweise:</h3>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li>Alle Skizzen sind im DIN A4 Format optimiert</li>
+                        <li>Perfekt für die Baustelle geeignet</li>
+                        <li>Mit Dachplattenrechner.de Wasserzeichen</li>
+                        <li>Beschriftungsfelder für Ihre Maße</li>
+                        <li>Kostenlos für private und gewerbliche Nutzung</li>
+                    </ul>
+                </div>
+            `;
+            
+            modalBody.innerHTML = content;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function openSketch(filename) {
+            // Öffne die Skizze in einem neuen Tab
+            window.open(filename, '_blank');
+        }
+
+        function printSketch(filename) {
+            // Öffne die Skizze in einem neuen Fenster zum Drucken
+            const printWindow = window.open(filename, '_blank');
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+        }
+
         // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
             setupEmailProtection();
