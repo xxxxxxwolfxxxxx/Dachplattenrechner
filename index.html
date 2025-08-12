@@ -765,6 +765,19 @@
                 
                 <p>Professionelle DIN A4 Bemaßungsskizzen für verschiedene Dachformen - direkt drucken oder als PDF speichern.</p>
                 
+                <!-- Google AdSense Banner im Modal -->
+                <div class="modal-ad-container" style="margin: 20px 0; text-align: center; min-height: 90px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <div class="modal-ad-placeholder" style="display: flex; align-items: center; gap: 10px; color: #666;">
+                        <span style="font-size: 24px;">📢</span>
+                        <span style="font-size: 14px;">Werbung - Unterstützt unsere kostenlosen Tools</span>
+                    </div>
+                    <ins class="adsbygoogle modal-ad-real" style="display:none; width: 100%; height: 90px;"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="rectangle"
+                         data-full-width-responsive="true"></ins>
+                </div>
+                
                 <div class="sketch-downloads" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
                     
                     <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
@@ -774,8 +787,6 @@
                                     <rect x="5" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
                                     <rect x="30" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
                                     <line x1="30" y1="15" x2="30" y2="65" stroke="#333" stroke-width="1.5"/>
-                                    <line x1="5" y1="15" x2="30" y2="40" stroke="#666" stroke-width="0.5" stroke-dasharray="2,1"/>
-                                    <line x1="55" y1="15" x2="30" y2="40" stroke="#666" stroke-width="0.5" stroke-dasharray="2,1"/>
                                 </svg>
                             </div>
                             <div style="flex: 1;">
@@ -830,8 +841,6 @@
                             <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
                                 <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
                                     <rect x="10" y="25" width="40" height="30" fill="none" stroke="#333" stroke-width="1"/>
-                                    <line x1="10" y1="25" x2="50" y2="45" stroke="#666" stroke-width="0.5" stroke-dasharray="2,1"/>
-                                    <line x1="10" y1="55" x2="50" y2="35" stroke="#666" stroke-width="0.5" stroke-dasharray="2,1"/>
                                 </svg>
                             </div>
                             <div style="flex: 1;">
@@ -879,6 +888,31 @@
             modalBody.innerHTML = content;
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
+            
+            // AdSense für Modal laden falls Marketing-Cookies akzeptiert
+            if (localStorage.getItem('marketingCookies') === 'true') {
+                loadModalAds();
+            }
+        }
+
+        function loadModalAds() {
+            // Modal-AdSense laden
+            const modalAdReal = document.querySelector('.modal-ad-real');
+            const modalAdPlaceholder = document.querySelector('.modal-ad-placeholder');
+            
+            if (modalAdReal && modalAdPlaceholder) {
+                modalAdPlaceholder.style.display = 'none';
+                modalAdReal.style.display = 'block';
+                
+                try {
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                } catch (e) {
+                    console.log('Modal AdSense loading error:', e);
+                    // Bei Fehler Placeholder wieder anzeigen
+                    modalAdPlaceholder.style.display = 'flex';
+                    modalAdReal.style.display = 'none';
+                }
+            }
         }
 
         function printSketch(filename) {
