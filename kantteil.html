@@ -559,7 +559,7 @@
                 this.drawingMode = null;
                 this.mousePos = { x: 0, y: 0 };
                 this.startPos = { x: 500, y: 300 };
-                this.scale = 10; // 10 Pixel pro mm
+                this.scale = 20; // 20 Pixel pro mm (1 Kästchen = 5mm)
                 this.zoom = 1;
                 this.panX = 0;
                 this.panY = 0;
@@ -625,7 +625,7 @@
             }
             
             handleMouseDown(e) {
-                if (e.button === 1) {
+                if (e.button === 1 || (e.button === 0 && e.ctrlKey)) { // Mittlere Maustaste oder Strg+Linksklick
                     e.preventDefault();
                     this.isPanning = true;
                     this.lastPanPoint = { x: e.clientX, y: e.clientY };
@@ -634,7 +634,7 @@
             }
             
             handleMouseUp(e) {
-                if (e.button === 1) {
+                if (e.button === 1 || e.button === 0) { // Beide Tasten können Panning beenden
                     this.isPanning = false;
                     this.canvas.style.cursor = 'crosshair';
                 }
@@ -1595,7 +1595,7 @@
                     bottom: (this.canvas.height - this.panY) / this.zoom
                 };
                 
-                const gridSize = this.scale * 10;
+                const gridSize = this.scale * 5; // 5mm pro Kästchen
                 
                 const startX = Math.floor(visibleArea.left / gridSize) * gridSize;
                 for (let x = startX; x <= visibleArea.right; x += gridSize) {
@@ -1775,12 +1775,236 @@
                     return;
                 }
                 
+                // Erstelle ein temporäres Canvas für den Export
+                const exportCanvas = document.createElement('canvas');
+                const exportCtx = exportCanvas.getContext('2d');
+                
+                // Berechne die Bounding Box der gesamten Zeichnung (inklusive Labels)
+                let minX = Infinity, minY = Infinity;
+                let maxX = -Infinity, maxY = -Infinity;
+                
+                // Berücksichtige alle Elemente
+                this.elements.forEach(element => {
+                    if (element.type === 'line') {
+                        minX = Math.min(minX, element.start.x, element.end.x);
+                        maxX = Math.max(maxX, element.start.x, element.end.x);
+                        minY = Math.min(minY, element.start.y, element.end.y);
+                        maxY = Math.max(maxY, element.start.y, element.end.y);
+                    } else if (element.type === 'curve' && element.center) {
+                        const r = element.radius;
+                        minX = Math.min(minX, element.center.x - r);
+                        maxX = Math.max(maxX, element.center.x + r);
+                        minY = Math.min(minY, element.center.y - r);
+                        maxY = Math.max(maxY, element.center.y + r);
+                    }
+                });
+                
+                // Berücksichtige auch alle Maß-Labels
+                this.measurementLabels.forEach(label => {
+                    minX = Math.min(minX, label.position.x - 50); // Puffer für Label-Größe
+                    maxX = Math.max(maxX, label.position.x + 50);
+                    minY = Math.min(minY, label.position.y - 20);
+                    maxY = Math.max(maxY, label.position.y + 20);
+                });
+                
+                // Füge Rand hinzu
+                const margin = 100;
+                minX -= margin;
+                maxX += margin;
+                minY -= margin;
+                maxY += margin;
+                
+                const width = maxX - minX;
+                const height = maxY - minY;
+                
+                // Setze Canvas-Größe
+                exportCanvas.width = width;
+                exportCanvas.height = height;
+                
+                // Weißer Hintergrund
+                exportCtx.fillStyle = 'white';
+                exportCtx.fillRect(0, 0, width, height);
+                
+                // Verschiebe den Ursprung, damit die Zeichnung zentriert ist
+                exportCtx.translate(-minX, -minY);
+                
+                // Zeichne ein dezentes Gitter (optional)
+                this.drawExportGrid(exportCtx, minX, maxX, minY, maxY);
+                
+                // Zeichne alle Elemente
+                this.elements.forEach(element => {
+                    this.drawElementForExport(exportCtx, element, '#2c3e50', 3);
+                });
+                
+                // Zeichne alle Maß-Labels
+                this.measurementLabels.forEach(label => {
+                    this.drawMeasurementLabelForExport(exportCtx, label);
+                });
+                
+                // Erstelle Download
                 const link = document.createElement('a');
                 link.download = `kantteil_skizze_${new Date().toISOString().split('T')[0]}.png`;
-                link.href = this.canvas.toDataURL();
+                link.href = exportCanvas.toDataURL('image/png');
                 link.click();
                 
                 this.updateStatus('Skizze wurde als PNG-Datei exportiert!');
+            }
+            
+            drawExportGrid(ctx, minX, maxX, minY, maxY) {
+                ctx.strokeStyle = '#f8f9fa'; // Sehr helles Grau
+                ctx.lineWidth = 0.5;
+                
+                const gridSize = this.scale * 5; // 5mm Kästchen
+                
+                const startX = Math.floor(minX / gridSize) * gridSize;
+                for (let x = startX; x <= maxX; x += gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, minY);
+                    ctx.lineTo(x, maxY);
+                    ctx.stroke();
+                }
+                
+                const startY = Math.floor(minY / gridSize) * gridSize;
+                for (let y = startY; y <= maxY; y += gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(minX, y);
+                    ctx.lineTo(maxX, y);
+                    ctx.stroke();
+                }
+            }
+            
+            drawElementForExport(ctx, element, color, width) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = width;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                if (element.type === 'line') {
+                    ctx.beginPath();
+                    ctx.moveTo(element.start.x, element.start.y);
+                    ctx.lineTo(element.end.x, element.end.y);
+                    ctx.stroke();
+                } else if (element.type === 'curve' && element.center && element.angle !== 0) {
+                    ctx.beginPath();
+                    
+                    const startAngle = element.startAngleFromCenter;
+                    const endAngle = element.endAngleFromCenter;
+                    
+                    const counterClockwise = element.angle < 0;
+                    ctx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
+                    
+                    ctx.stroke();
+                }
+            }
+            
+            drawMeasurementLabelForExport(ctx, label) {
+                const pos = label.position;
+                const text = `${label.value}${label.unit}`;
+                const isAngle = label.type === 'angle';
+                
+                // Zeichne Pfeil
+                this.drawArrowToTargetForExport(ctx, label);
+                
+                // Text-Eigenschaften
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                const textMetrics = ctx.measureText(text);
+                const textWidth = textMetrics.width;
+                const textHeight = 14;
+                
+                const padding = 6;
+                const bgWidth = textWidth + 2 * padding;
+                const bgHeight = textHeight + 2 * padding;
+                
+                const bgX = pos.x - bgWidth / 2;
+                const bgY = pos.y - bgHeight / 2;
+                
+                // Schatten
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillRect(bgX + 1, bgY + 1, bgWidth, bgHeight);
+                
+                // Hintergrund
+                ctx.fillStyle = 'white';
+                ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
+                
+                // Rahmen
+                ctx.strokeStyle = isAngle ? '#e74c3c' : '#3498db';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(bgX, bgY, bgWidth, bgHeight);
+                
+                // Text
+                ctx.fillStyle = isAngle ? '#e74c3c' : '#2c3e50';
+                ctx.fillText(text, pos.x, pos.y);
+            }
+            
+            drawArrowToTargetForExport(ctx, label) {
+                const start = label.position;
+                const end = label.targetPoint;
+                
+                const dx = end.x - start.x;
+                const dy = end.y - start.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                
+                if (length < 20) return;
+                
+                const angle = Math.atan2(dy, dx);
+                
+                const labelMargin = 35;
+                const targetMargin = 8;
+                
+                const arrowStart = {
+                    x: start.x + Math.cos(angle) * labelMargin,
+                    y: start.y + Math.sin(angle) * labelMargin
+                };
+                
+                const arrowEnd = {
+                    x: end.x - Math.cos(angle) * targetMargin,
+                    y: end.y - Math.sin(angle) * targetMargin
+                };
+                
+                const isAngle = label.type === 'angle';
+                const arrowColor = isAngle ? '#e74c3c' : '#3498db';
+                
+                // Pfeil-Linie
+                ctx.strokeStyle = arrowColor;
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                
+                ctx.beginPath();
+                ctx.moveTo(arrowStart.x, arrowStart.y);
+                ctx.lineTo(arrowEnd.x, arrowEnd.y);
+                ctx.stroke();
+                
+                // Pfeilspitze
+                const arrowSize = 10;
+                const arrowAngle1 = angle + Math.PI + 0.25;
+                const arrowAngle2 = angle + Math.PI - 0.25;
+                
+                ctx.fillStyle = arrowColor;
+                ctx.beginPath();
+                ctx.moveTo(arrowEnd.x, arrowEnd.y);
+                ctx.lineTo(
+                    arrowEnd.x + Math.cos(arrowAngle1) * arrowSize,
+                    arrowEnd.y + Math.sin(arrowAngle1) * arrowSize
+                );
+                ctx.lineTo(
+                    arrowEnd.x + Math.cos(arrowAngle2) * arrowSize,
+                    arrowEnd.y + Math.sin(arrowAngle2) * arrowSize
+                );
+                ctx.closePath();
+                ctx.fill();
+                
+                // Target-Punkt
+                ctx.fillStyle = arrowColor;
+                ctx.beginPath();
+                ctx.arc(end.x, end.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
             }
         }
         
