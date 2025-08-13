@@ -493,7 +493,7 @@
                 </div>
             </div>
             <div class="info-panel">
-                <strong>Hinweis:</strong> Die Rückseite ist immer betongrau (RAL 7032). 
+                <strong>Hinweis:</strong> Die Rückseite ist oft betongrau (RAL 7032). 
                 Bei Prelaq-Farben verwenden Sie 3-stellige Codes (z.B. 502, 756).
                 Standard RAL-Farben haben 4-stellige Codes (z.B. 8004, 6020).
             </div>
@@ -2279,12 +2279,12 @@
                 ctx.stroke();
             }
             
-            drawExportInfo(ctx, partName, quantity, minX, maxX, minY, maxY) {
+            drawExportInfo(ctx, partName, quantity, colorSide, minX, maxX, minY, maxY) {
                 // Erstelle Info-Box oben links
                 const infoX = minX + 20;
                 const infoY = minY + 20;
                 const infoWidth = 300;
-                const infoHeight = 120;
+                const infoHeight = 140;
                 
                 // Hintergrund
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
@@ -2316,24 +2316,9 @@
                 const thickness = document.getElementById('thickness').value;
                 ctx.fillText(`Blechstärke: ${thickness} mm`, infoX + 15, infoY + 90);
                 
-                // Farbinfo
-                const frontColorSelect = document.getElementById('frontColor');
-                let colorInfo = 'RAL 8004 (Kupferbraun)'; // Default
-                
-                if (frontColorSelect.value === 'custom' || frontColorSelect.value === 'prelaq') {
-                    const customValue = document.getElementById('customColorInput').value.trim();
-                    if (customValue) {
-                        if (frontColorSelect.value === 'prelaq') {
-                            colorInfo = `Prelaq ${customValue}`;
-                        } else {
-                            colorInfo = `RAL ${customValue}`;
-                        }
-                    }
-                } else if (frontColorSelect.value !== '8004') {
-                    colorInfo = `RAL ${frontColorSelect.value}`;
-                }
-                
-                ctx.fillText(`Vorderseite: ${colorInfo}`, infoX + 15, infoY + 110);
+                // Farbseite
+                const colorSideText = colorSide === 'top' ? 'Oben' : 'Unten';
+                ctx.fillText(`Farbseite: ${colorSideText}`, infoX + 15, infoY + 110);
                 
                 // Datum
                 const date = new Date().toLocaleDateString('de-DE');
@@ -2342,7 +2327,6 @@
                 ctx.textAlign = 'right';
                 ctx.fillText(`Erstellt am: ${date}`, maxX - 20, maxY - 20);
             }
-        }
 
         // Globale Funktionen
         function updateColorPreview() {
