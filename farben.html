@@ -238,7 +238,12 @@
 <body>
     <div class="header">
         <h1>🎨 Farbauswahl</h1>
-        <p>Wählen Sie eine RAL- oder Prelaq-Farbe für Ihr Kantteil</p>
+        <p id="headerDescription">Wählen Sie eine RAL- oder Prelaq-Farbe für Ihr Kantteil</p>
+        <div style="margin-top: 15px;">
+            <button class="control-btn" onclick="window.close()" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+                × Schließen
+            </button>
+        </div>
     </div>
     
     <div class="color-tabs">
@@ -561,6 +566,18 @@
             `;
             
             selectionInfo.style.display = 'block';
+            
+            // Prüfe ob es ein Standalone-Modus ist (kein Parent-Window)
+            if (!window.opener) {
+                // Standalone-Modus - automatisch nach kurzer Zeit schließen
+                setTimeout(() => {
+                    selectionInfo.style.display = 'none';
+                    document.querySelectorAll('.color-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    selectedColor = null;
+                }, 2000);
+            }
         }
 
         // Auswahl bestätigen
@@ -611,6 +628,23 @@
         document.addEventListener('DOMContentLoaded', function() {
             renderColors(RAL_COLORS, 'ralGrid', 'ral');
             renderColors(PRELAQ_COLORS, 'prelaqGrid', 'prelaq');
+            
+            // Prüfe ob es ein Standalone-Modus ist
+            if (!window.opener) {
+                document.getElementById('headerDescription').textContent = 'Übersicht aller verfügbaren RAL- und Prelaq-Farben';
+                
+                // Verstecke Bestätigen-Button im Standalone-Modus
+                const confirmBtn = document.querySelector('.confirm-btn');
+                if (confirmBtn) {
+                    confirmBtn.style.display = 'none';
+                }
+                
+                // Ändere Cancel-Button Text
+                const cancelBtn = document.querySelector('.cancel-btn');
+                if (cancelBtn) {
+                    cancelBtn.textContent = 'Fenster schließen';
+                }
+            }
         });
     </script>
 </body>
