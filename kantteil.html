@@ -205,13 +205,13 @@
         
         /* Farbauswahl Button */
         .color-select-btn {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
         
         .color-select-btn:hover {
-            background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
-            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
         }
         
         /* Status */
@@ -426,10 +426,17 @@
                         </button>
                     </div>
                 </div>
+                <div class="control-group">
+                    <label>Ausgewählte Farbe</label>
+                    <div id="selectedColorDisplay" style="padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #e0e0e0; font-weight: 600; color: #1e3c72;">
+                        RAL 8004 - Kupferbraun
+                    </div>
+                </div>
             </div>
             <div class="info-panel">
                 <strong>Hinweis:</strong> Die Rückseite ist oft betongrau (RAL 7032). 
-                Klicken Sie auf "Farbe wählen" um aus allen verfügbaren RAL- und Prelaq-Farben zu wählen.
+                Die Farbseite wird im Editor festgelegt (oben/unten).
+                <br><strong>Tipp:</strong> Drehen Sie Ihr Bildschirmhelligkeit hoch für bessere Farbdarstellung.
             </div>
         </div>
 
@@ -516,8 +523,11 @@
         window.onColorSelected = function(colorData) {
             window.kantteilSettings.frontColor = colorData.color;
             window.kantteilSettings.selectedColorCode = colorData.code;
+            window.kantteilSettings.selectedColorName = colorData.name;
+            window.kantteilSettings.selectedColorType = colorData.type;
             
             updateColorPreview();
+            updateSelectedColorDisplay();
         };
 
         // Farbvorschau aktualisieren
@@ -527,6 +537,18 @@
             
             colorFront.style.background = window.kantteilSettings.frontColor;
             colorBack.style.background = window.kantteilSettings.backColor;
+        }
+
+        // Ausgewählte Farbe anzeigen
+        function updateSelectedColorDisplay() {
+            const display = document.getElementById('selectedColorDisplay');
+            const settings = window.kantteilSettings;
+            
+            if (settings.selectedColorName) {
+                display.textContent = `${settings.selectedColorType.toUpperCase()} ${settings.selectedColorCode} - ${settings.selectedColorName}`;
+            } else {
+                display.textContent = `RAL ${settings.selectedColorCode} - Kupferbraun`;
+            }
         }
 
         // Editor starten
@@ -562,6 +584,7 @@
         // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
             updateColorPreview();
+            updateSelectedColorDisplay();
         });
     </script>
 </body>
