@@ -464,6 +464,14 @@
                         <option value="vertical">Senkrecht</option>
                     </select>
                 </div>
+                
+                <div class="control-group">
+                    <label>Farbseite</label>
+                    <select id="colorSide">
+                        <option value="top">Oben</option>
+                        <option value="bottom">Unten</option>
+                    </select>
+                </div>
             </div>
             
             <div class="status" id="statusDisplay">
@@ -547,6 +555,36 @@
         </div>
     </div>
 
+    <!-- Modal für Export-Optionen -->
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <h3>Skizze exportieren</h3>
+            <div id="exportForm">
+                <div style="margin: 15px 0;">
+                    <label for="partName" style="display: block; margin-bottom: 5px; font-weight: bold;">Name des Kantteils:</label>
+                    <input type="text" id="partName" placeholder="z.B. Abdeckung Gehäuse" style="width: 100%; margin: 5px 0;">
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <label for="quantityNeeded" style="display: block; margin-bottom: 5px; font-weight: bold;">Benötigte Meterzahl:</label>
+                    <input type="number" id="quantityNeeded" min="0" step="0.1" placeholder="z.B. 2.5" style="width: 100%; margin: 5px 0;">
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <label for="exportColorSide" style="display: block; margin-bottom: 5px; font-weight: bold;">Farbseite:</label>
+                    <select id="exportColorSide" style="width: 100%; margin: 5px 0;">
+                        <option value="top">Oben</option>
+                        <option value="bottom">Unten</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="confirmExport">Exportieren</button>
+                <button id="cancelExport" class="cancel-btn">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         class KantteileZeichner {
             constructor() {
@@ -580,17 +618,27 @@
                 this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
                 this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
                 this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+                
+                // Verhindere das Standard-Verhalten für mittlere Maustaste
+                this.canvas.addEventListener('auxclick', (e) => {
+                    if (e.button === 1) {
+                        e.preventDefault();
+                    }
+                });
+                
                 this.canvas.setAttribute('tabindex', '0');
                 
                 document.getElementById('startDrawing').addEventListener('click', () => this.startDrawing());
                 document.getElementById('clearCanvas').addEventListener('click', () => this.clearCanvas());
                 document.getElementById('centerView').addEventListener('click', () => this.centerView());
-                document.getElementById('exportSketch').addEventListener('click', () => this.exportSketch());
+                document.getElementById('exportSketch').addEventListener('click', () => this.showExportModal());
                 
                 document.getElementById('confirmLength').addEventListener('click', () => this.confirmLength());
                 document.getElementById('cancelLength').addEventListener('click', () => this.cancelModal('lengthModal'));
                 document.getElementById('confirmAngle').addEventListener('click', () => this.confirmAngle());
                 document.getElementById('cancelAngle').addEventListener('click', () => this.cancelModal('angleModal'));
+                document.getElementById('confirmExport').addEventListener('click', () => this.confirmExport());
+                document.getElementById('cancelExport').addEventListener('click', () => this.cancelModal('exportModal'));
                 
                 document.getElementById('lengthInput').addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') this.confirmLength();
@@ -600,6 +648,11 @@
                 document.getElementById('angleInput').addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') this.confirmAngle();
                     if (e.key === 'Escape') this.cancelModal('angleModal');
+                });
+                
+                document.getElementById('exportForm').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') this.confirmExport();
+                    if (e.key === 'Escape') this.cancelModal('exportModal');
                 });
             }
             
@@ -625,16 +678,18 @@
             }
             
             handleMouseDown(e) {
-                if (e.button === 1 || (e.button === 0 && e.ctrlKey)) { // Mittlere Maustaste oder Strg+Linksklick
+                // Mittlere Maustaste (Button 1) oder Strg+Linksklick
+                if (e.button === 1 || (e.button === 0 && (e.ctrlKey || e.metaKey))) {
                     e.preventDefault();
                     this.isPanning = true;
                     this.lastPanPoint = { x: e.clientX, y: e.clientY };
                     this.canvas.style.cursor = 'grabbing';
+                    return;
                 }
             }
             
             handleMouseUp(e) {
-                if (e.button === 1 || e.button === 0) { // Beide Tasten können Panning beenden
+                if (this.isPanning && (e.button === 1 || e.button === 0)) {
                     this.isPanning = false;
                     this.canvas.style.cursor = 'crosshair';
                 }
@@ -817,6 +872,9 @@
             
             handleClick(e) {
                 if (this.isPanning) return;
+                
+                // Ignoriere Klicks wenn Strg gedrückt ist (für Panning)
+                if (e.ctrlKey || e.metaKey) return;
                 
                 const rect = this.canvas.getBoundingClientRect();
                 const screenPos = {
@@ -1625,12 +1683,12 @@
                 this.ctx.fillText(`Zoom: ${Math.round(this.zoom * 100)}%`, 20, 30);
                 
                 this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                this.ctx.fillRect(this.canvas.width - 250, 10, 240, 50);
+                this.ctx.fillRect(this.canvas.width - 300, 10, 290, 50);
                 
                 this.ctx.fillStyle = 'white';
                 this.ctx.font = '12px Arial';
-                this.ctx.fillText('Mausrad: Zoom', this.canvas.width - 240, 25);
-                this.ctx.fillText('Mittlere Maustaste: Verschieben', this.canvas.width - 240, 45);
+                this.ctx.fillText('Mausrad: Zoom', this.canvas.width - 290, 25);
+                this.ctx.fillText('Mausrad: Zoom, Mittlere Taste/Strg+Ziehen: Verschieben', this.canvas.width - 290, 45);
             }
             
             drawElement(element, color, width) {
@@ -1769,7 +1827,21 @@
                 }
             }
             
-            exportSketch() {
+            showExportModal() {
+                if (this.elements.length === 0) {
+                    alert('Keine Zeichnung zum Exportieren vorhanden!');
+                    return;
+                }
+                
+                // Setze aktuelle Farbseite als Vorauswahl
+                const currentColorSide = document.getElementById('colorSide').value;
+                document.getElementById('exportColorSide').value = currentColorSide;
+                
+                this.showModal('exportModal');
+                document.getElementById('partName').focus();
+            }
+            
+            exportSketch(partName = '', quantity = 0, colorSide = 'top') {
                 if (this.elements.length === 0) {
                     alert('Keine Zeichnung zum Exportieren vorhanden!');
                     return;
@@ -1840,6 +1912,9 @@
                 this.measurementLabels.forEach(label => {
                     this.drawMeasurementLabelForExport(exportCtx, label);
                 });
+                
+                // Zeichne Informationstext (Name, Menge, Farbseite)
+                this.drawExportInfo(exportCtx, partName, quantity, colorSide, minX, maxX, minY, maxY);
                 
                 // Erstelle Download
                 const link = document.createElement('a');
@@ -2005,6 +2080,15 @@
                 ctx.strokeStyle = 'white';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
+            }
+            
+            confirmExport() {
+                const partName = document.getElementById('partName').value.trim();
+                const quantity = parseFloat(document.getElementById('quantityNeeded').value) || 0;
+                const colorSide = document.getElementById('exportColorSide').value;
+                
+                this.exportSketch(partName, quantity, colorSide);
+                this.cancelModal('exportModal');
             }
         }
         
