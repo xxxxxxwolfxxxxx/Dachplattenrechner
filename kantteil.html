@@ -691,9 +691,12 @@
                 this.frontColor = '#8B4513'; // RAL 8004 default
                 this.backColor = '#B8B799'; // RAL 7032 (Betongrau)
                 
-                this.setupEventListeners();
-                this.updateColorPreview();
-                this.render();
+                // Warte kurz, dann initialisiere
+                setTimeout(() => {
+                    this.setupEventListeners();
+                    this.updateColorPreview();
+                    this.render();
+                }, 100);
             }
             
             setupEventListeners() {
@@ -781,19 +784,8 @@
             }
             
             handleMouseDown(e) {
-                const rect = this.canvas.getBoundingClientRect();
-                
-                // Mittlere Maustaste (Button 1) für Panning
-                if (e.button === 1) {
-                    e.preventDefault();
-                    this.isPanning = true;
-                    this.lastPanPoint = { x: e.clientX, y: e.clientY };
-                    this.canvas.style.cursor = 'grabbing';
-                    return;
-                }
-                
-                // Auch Strg+Linksklick für Panning
-                if (e.button === 0 && (e.ctrlKey || e.metaKey)) {
+                // Mittlere Maustaste (Button 1) oder Strg+Linksklick für Panning
+                if (e.button === 1 || (e.button === 0 && (e.ctrlKey || e.metaKey))) {
                     e.preventDefault();
                     this.isPanning = true;
                     this.lastPanPoint = { x: e.clientX, y: e.clientY };
@@ -803,7 +795,7 @@
             }
             
             handleMouseUp(e) {
-                if (this.isPanning) {
+                if (this.isPanning && (e.button === 1 || e.button === 0)) {
                     this.isPanning = false;
                     this.canvas.style.cursor = 'crosshair';
                 }
@@ -928,14 +920,14 @@
                 } else if (this.currentElement.direction === 'horizontal') {
                     length = Math.abs(this.mousePos.x - start.x) / this.scale;
                     this.currentElement.end = {
-                        x: this.mousePos.x > start.x ? start.x + length * this.scale : start.x - length * this.scale,
+                        x: this.mousePos.x,
                         y: start.y
                     };
                 } else {
                     length = Math.abs(this.mousePos.y - start.y) / this.scale;
                     this.currentElement.end = {
                         x: start.x,
-                        y: this.mousePos.y > start.y ? start.y + length * this.scale : start.y - length * this.scale
+                        y: this.mousePos.y
                     };
                 }
                 
@@ -1026,11 +1018,14 @@
                     y: e.clientY - rect.top
                 };
                 
-                const clickPos = this.getWorldCoordinates(screenPos.x, screenPos.y);
-                
+                // Prüfe zuerst auf Klick auf aktive Punkte (in Bildschirmkoordinaten)
                 const clickedPoint = this.activePoints.find(point => {
                     const screenPoint = this.getScreenCoordinates(point.x, point.y);
-                    return Math.sqrt(Math.pow(screenPos.x - screenPoint.x, 2) + Math.pow(screenPos.y - screenPoint.y, 2)) < 15;
+                    const distance = Math.sqrt(
+                        Math.pow(screenPos.x - screenPoint.x, 2) + 
+                        Math.pow(screenPos.y - screenPoint.y, 2)
+                    );
+                    return distance < 15; // 15 Pixel Toleranz
                 });
                 
                 if (clickedPoint) {
@@ -1437,7 +1432,7 @@
                         x: start.x + length * this.scale,
                         y: start.y
                     };
-                } else {
+                } else { // vertical
                     this.currentElement.end = {
                         x: start.x,
                         y: start.y + length * this.scale
@@ -2359,6 +2354,10 @@
         // Initialize the application
         document.addEventListener('DOMContentLoaded', () => {
             window.zeichner = new KantteileZeichner();
+            
+            // Stelle sicher, dass der Canvas die richtige Größe hat
+            const canvas = document.getElementById('drawingCanvas');
+            canvas.focus();
         });
     </script>
 </body>
