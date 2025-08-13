@@ -42,6 +42,33 @@
             align-items: center;
         }
         
+        .color-side-selector {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .color-side-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .color-side-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .color-side-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
         .control-btn {
             background: rgba(255, 255, 255, 0.1);
             color: white;
@@ -272,6 +299,12 @@
     <div class="editor-header">
         <div class="editor-title">🔧 Kantteile Zeichenprogramm</div>
         <div class="editor-controls">
+            <div class="color-side-selector">
+                <span style="color: white; font-size: 12px; margin-right: 8px;">Farbseite:</span>
+                <button class="color-side-btn active" id="colorSideTop" onclick="setColorSide('top')">Oben</button>
+                <button class="color-side-btn" id="colorSideBottom" onclick="setColorSide('bottom')">Unten</button>
+            </div>
+            <button class="control-btn" onclick="openColorSelection()">Farbe ändern</button>
             <button class="control-btn" onclick="centerView()">Zentrieren</button>
             <button class="control-btn" onclick="clearCanvas()">Löschen</button>
             <button class="control-btn" onclick="exportSketch()">Exportieren</button>
@@ -365,6 +398,7 @@
                 this.isPanning = false;
                 this.lastPanPoint = { x: 0, y: 0 };
                 this.measurementLabels = [];
+                this.colorSide = 'top'; // 'top' oder 'bottom'
                 
                 // Einstellungen von URL-Parametern laden
                 this.loadSettings();
@@ -1123,6 +1157,30 @@
                 window.close();
             }
         }
+
+        function setColorSide(side) {
+            editor.colorSide = side;
+            
+            // Button-Status aktualisieren
+            document.getElementById('colorSideTop').classList.toggle('active', side === 'top');
+            document.getElementById('colorSideBottom').classList.toggle('active', side === 'bottom');
+            
+            editor.render();
+        }
+
+        function openColorSelection() {
+            window.open('farben.html', 'colorSelection', 'width=1000,height=700,scrollbars=yes,resizable=yes');
+        }
+
+        // Callback für Farbauswahl
+        window.onColorSelected = function(colorData) {
+            editor.settings.frontColor = colorData.color;
+            editor.settings.selectedColorCode = colorData.code;
+            editor.settings.selectedColorName = colorData.name;
+            editor.settings.selectedColorType = colorData.type;
+            
+            editor.render();
+        };
 
         function showModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
