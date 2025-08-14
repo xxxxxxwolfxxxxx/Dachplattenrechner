@@ -231,182 +231,12 @@
                 text-align: center;
             }
         }
-        
-        /* MAXIMAL OPTIMIERTE DRUCKSTILE */
-        @media print {
-            /* Seitenformat */
-            @page {
-                size: A4 portrait;
-                margin: 12mm;
-            }
-            
-            /* Kein Hintergrundbild beim Drucken */
-            body {
-                background: white !important;
-                font-family: Arial, sans-serif !important;
-            }
-            
-            /* Verstecke Navigation, Werbung und Eingabebereich */
-            .nav-header,
-            .ad-container,
-            .ad-container-middle,
-            .section,
-            .calculate-btn,
-            #results .result-item,
-            #vorschau,
-            #schnittliste table,
-            #schnittliste > div:not(.platte-container),
-            .anriss-btn,
-            .print-button {
-                display: none !important;
-            }
-            
-            /* Zeige nur den Anrissplan */
-            #anrissplan {
-                display: block !important;
-                position: static !important;
-                width: 100% !important;
-                background: white !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            
-            /* Header des Anrissplans - sehr kompakt */
-            #anrissplan > div:first-child {
-                border-bottom: 1px solid #000 !important;
-                padding-bottom: 5px !important;
-                margin-bottom: 8px !important;
-            }
-            
-            #anrissplan h4 {
-                color: #000 !important;
-                font-size: 1em !important;
-                margin: 0 !important;
-            }
-            
-            #anrissplan p {
-                color: #333 !important;
-                font-size: 0.8em !important;
-                margin: 2px 0 0 0 !important;
-            }
-            
-            /* Draufsicht - kompakt auf erste Seite, aber kein Seitenumbruch */
-            .print-overview {
-                display: block !important;
-                margin-bottom: 10px !important;
-                page-break-after: avoid !important;
-            }
-            
-            .print-overview h3 {
-                color: #000 !important;
-                font-size: 0.9em !important;
-                margin: 5px 0 !important;
-            }
-            
-            .print-overview div {
-                border: 1px solid #000 !important;
-                padding: 5px !important;
-                margin: 0 auto !important;
-            }
-            
-            /* SVG in Draufsicht kleiner machen */
-            .print-overview svg {
-                width: 200px !important;
-                height: 130px !important;
-            }
-            
-            /* Container für alle Platten */
-            .plates-container {
-                display: block !important;
-            }
-            
-            /* Plattenbehälter - maximal kompakt, 3 pro Seite */
-            .anriss-plate {
-                page-break-inside: avoid !important;
-                margin-bottom: 8mm !important;
-                border: 1px solid #000 !important;
-                padding: 8px !important;
-                border-radius: 4px !important;
-                background: white !important;
-                box-shadow: none !important;
-                height: auto !important;
-                max-height: 25vh !important;
-            }
-            
-            /* EINHEITLICHE SEITENUMBRUCH-REGEL: Alle 3 Platten eine neue Seite */
-            .anriss-plate:nth-child(4),
-            .anriss-plate:nth-child(7),
-            .anriss-plate:nth-child(10),
-            .anriss-plate:nth-child(13),
-            .anriss-plate:nth-child(16),
-            .anriss-plate:nth-child(19),
-            .anriss-plate:nth-child(22),
-            .anriss-plate:nth-child(25) {
-                page-break-before: always !important;
-            }            
-            /* Plattenüberschriften - sehr kompakt */
-            .anriss-plate h3 {
-                color: #000 !important;
-                font-size: 0.9em !important;
-                margin: 0 0 5px 0 !important;
-                line-height: 1.2 !important;
-            }
-            
-            /* SVG-Texte für bessere Sichtbarkeit */
-            .anriss-plate svg text {
-                fill: #fff !important;
-                stroke: #000 !important;
-                stroke-width: 0.5pt !important;
-                font-weight: bold !important;
-                font-size: 8px !important;
-            }
-            
-            /* Alle Farbtexte für Druck optimieren */
-            .anriss-plate div[style*="color: #dc3545"],
-            .anriss-plate div[style*="color: #1e3c72"],
-            .anriss-plate div[style*="color: #28a745"],
-            .anriss-plate div[style*="color: #666"],
-            .anriss-plate div[style*="color: #333"],
-            .anriss-plate div[style*="color: #fff"],
-            .anriss-plate div[style*="color: #ffffff"],
-            .anriss-plate div[style*="color: white"] {
-                color: #000 !important;
-            }
-            
-            /* Plattendiagramm sehr kompakt machen */
-            .anriss-plate > div[style*="position: relative"] {
-                height: 60px !important;
-                width: 160px !important;
-                margin: 5px auto !important;
-            }
-            
-            /* Anleitung sehr kompakt */
-            .anriss-plate > div[style*="background: #f8f9fa"] {
-                padding: 4px !important;
-                font-size: 8px !important;
-                margin-top: 4px !important;
-                line-height: 1.1 !important;
-            }
-            
-            /* Maße in den Platten kleiner */
-            .anriss-plate div[style*="font-size: 11px"] {
-                font-size: 8px !important;
-            }
-            
-            .anriss-plate div[style*="font-size: 10px"] {
-                font-size: 7px !important;
-            }
-            
-            .anriss-plate div[style*="font-size: 9px"] {
-                font-size: 7px !important;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="nav-header">
         <div class="container">
-            <a href="index.html" class="back-btn">
+            <a href="../index.html" class="back-btn">
                 <span>←</span>
                 <span>Zurück zur Übersicht</span>
             </a>
@@ -497,7 +327,7 @@
                         📏 Kantenlängen eingeben
                     </button>
                     <button id="btn-position" onclick="wechsleParameterModus('position')">
-                        📍 Spitzen-Position + Höhe eingeben
+                        📐 Spitzen-Position + Höhe eingeben
                     </button>
                 </div>
 
@@ -647,7 +477,7 @@
                     <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
                         <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (oben → unten)
                     </div>
-                    <button class="anriss-btn" onclick="erstelleAnrissplan()">📐 Anrissplan erstellen</button>
+                    <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
                 </div>
             </div>
 
@@ -665,16 +495,6 @@
                          data-ad-slot="auto"
                          data-ad-format="auto"></ins>
                 </div>
-            </div>
-
-            <div id="anrissplan" class="anrissplan" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h4 style="color: #ffffff; font-size: 1.4em;">Anrissplan zum Ausdrucken</h4>
-                    <button onclick="window.print()" class="btn btn-primary">
-                        Drucken
-                    </button>
-                </div>
-                <div id="anriss-content"></div>
             </div>
         </main>
     </div>
@@ -834,7 +654,7 @@
             };
         }
 
-        function berechneHoeheAnPosition(position, basisBreite, maxHoehe, spitzenPos) {
+        function berechneHoeheAnPosition(position, basisBreite, hoehe, spitzenPos) {
             if (position <= 0) return 0;
             if (position >= basisBreite) return 0;
             
@@ -843,14 +663,14 @@
                 // Links von der Spitze
                 abstand = spitzenPos - position;
                 const linkeSeite = spitzenPos;
-                if (linkeSeite === 0) return maxHoehe;
-                return maxHoehe * (1 - abstand / linkeSeite);
+                if (linkeSeite === 0) return hoehe;
+                return hoehe * (1 - abstand / linkeSeite);
             } else {
                 // Rechts von der Spitze
                 abstand = position - spitzenPos;
                 const rechteSeite = basisBreite - spitzenPos;
-                if (rechteSeite === 0) return maxHoehe;
-                return maxHoehe * (1 - abstand / rechteSeite);
+                if (rechteSeite === 0) return hoehe;
+                return hoehe * (1 - abstand / rechteSeite);
             }
         }
 
@@ -1069,6 +889,7 @@
             document.getElementById('vorschau-svg').innerHTML = svg;
         }
 
+        // NEUE ANRISSPLAN FUNKTION - Leitet zur zentralen anrissplan.html weiter
         function erstelleAnrissplan() {
             if (aktuelleSchnittliste.length === 0) return;
             
@@ -1076,170 +897,23 @@
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'anrissplan_generated', {
                     'event_category': 'ungleichschenkliges_dreieck',
-                    'event_label': 'pdf_generated'
+                    'event_label': 'redirected_to_anrissplan'
                 });
             }
             
             const basisBreite = parseFloat(document.getElementById('basis-breite').value);
             const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
             
-            let html = `<div style="font-family: Arial, sans-serif;">`;
-            html += `<div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;" class="print-header">`;
-            html += `<h2 style="color: #ffffff; margin-bottom: 10px;">Anrissplan - Ungleichschenkliges Dreieck</h2>`;
-            html += `<p style="color: #e0e0e0; font-size: 1.1em;">Basis: ${basisBreite}m | Höhe: ${hoehe}m | Spitze bei: ${spitzenPosition.toFixed(2)}m | Platten: ${aktuelleSchnittliste.length} Stück</p>`;
-            html += `</div>`;
+            const planData = {
+                basisBreite: basisBreite,
+                hoehe: hoehe,
+                spitzenPosition: spitzenPosition,
+                schnittliste: aktuelleSchnittliste
+            };
             
-            // Vorschau für Anrissplan hinzufügen (wird beim Drucken ausgeblendet)
-            html += '<div style="margin-bottom: 30px; text-align: center;" class="print-overview">';
-            html += '<h3 style="color: #ffffff; margin-bottom: 15px;">Dachplattenrechner.de Dreieck Übersicht</h3>';
-            html += '<div style="border: 2px solid #1e3c72; border-radius: 8px; padding: 15px; background: white; display: inline-block;">';
-            html += document.getElementById('vorschau-svg').innerHTML;
-            html += '</div>';
-            html += '</div>';
-            
-            // Container für alle Platten
-            html += '<div class="plates-container">';
-            
-            aktuelleSchnittliste.forEach((item, index) => {
-                const plattenStart = parseFloat(item.positionVonLinks);
-                const plattenEnde = parseFloat(item.positionBis);
-                const plattenBreite = parseFloat(item.plattenbreite);
-                const originalPlattenEnde = plattenStart + plattenBreite;
-                const istLetztePlatte = originalPlattenEnde > basisBreite;
-                const ueberdecktSpitze = plattenStart <= spitzenPosition && originalPlattenEnde >= spitzenPosition;
-                const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
-                
-                // Anreißmaße berechnen
-                const plattenEndeReal = istLetztePlatte ? basisBreite : originalPlattenEnde;
-                const hoeheStart = berechneHoeheAnPosition(plattenStart, basisBreite, hoehe, spitzenPosition);
-                const hoeheEnde = berechneHoeheAnPosition(plattenEndeReal, basisBreite, hoehe, spitzenPosition);
-                
-                let anreissLinks = Math.round(hoeheStart * 100);
-                let anreissRechts = Math.round(hoeheEnde * 100);
-                
-                html += `<div class="anriss-plate" style="margin-bottom: 30px; border: 2px solid #333; padding: 15px; border-radius: 8px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
-                html += `<h3 style="margin: 0 0 15px 0; color: #333; font-size: 16px; font-weight: bold;">Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>`;
-                
-                html += `<div style="position: relative; height: 120px; width: 280px; background: #f8f9fa; margin: 15px auto; border-radius: 6px; border: 1px solid #ddd;">`;
-                
-                const plattenhoehePx = Math.max(70, Math.min(100, (benoetigteLaengeM / hoehe) * 100));
-                
-                html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 240px; height: ${plattenhoehePx}px; background: #e9ecef; border: 1px solid #999; border-radius: 3px;"></div>`;
-                
-                let startY = plattenhoehePx - (anreissLinks / 100 / benoetigteLaengeM) * plattenhoehePx;
-                let endY = plattenhoehePx - (anreissRechts / 100 / benoetigteLaengeM) * plattenhoehePx;
-                
-                startY = Math.max(0, Math.min(plattenhoehePx, startY));
-                endY = Math.max(0, Math.min(plattenhoehePx, endY));
-                
-                const endX = istLetztePlatte ? Math.min(240, (basisBreite - plattenStart) / plattenBreite * 240) : 240;
-                
-                html += `<svg style="position: absolute; bottom: 15px; left: 20px;" width="240" height="${plattenhoehePx}">`;
-                
-                if (ueberdecktSpitze) {
-                    const spitzeVonLinks = spitzenPosition - plattenStart;
-                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 240;
-                    
-                    // Nutzen (hellblau für besseren Kontrast)
-                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} ${spitzePositionPx},0 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
-                    
-                    // Abschnitt (hellrot für besseren Kontrast)
-                    html += `<polygon points="0,${startY} ${spitzePositionPx},0 ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.25}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
-                    
-                    // Schnittlinien
-                    html += `<line x1="0" y1="${startY}" x2="${spitzePositionPx}" y2="0" stroke="#000" stroke-width="2"/>`;
-                    html += `<line x1="${spitzePositionPx}" y1="0" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
-                } else {
-                    // Normale Platte
-                    html += `<polygon points="0,${plattenhoehePx} ${endX},${plattenhoehePx} ${endX},${endY} 0,${startY}" fill="#4a90e2" opacity="0.8"/>`;
-                    html += `<text x="120" y="${plattenhoehePx * 0.8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.3">Nutzen</text>`;
-                    
-                    html += `<polygon points="0,${startY} ${endX},${endY} ${endX},0 0,0" fill="#e74c3c" opacity="0.8"/>`;
-                    html += `<text x="120" y="${Math.min(startY, endY)/2 + 8}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.3">Abschnitt</text>`;
-                    
-                    html += `<line x1="0" y1="${startY}" x2="${endX}" y2="${endY}" stroke="#000" stroke-width="2"/>`;
-                }
-                
-                html += `</svg>`;
-                
-                // Spitze markieren
-                if (ueberdecktSpitze) {
-                    const spitzeVonLinks = spitzenPosition - plattenStart;
-                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * 240;
-                    
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + spitzePositionPx}px; width: 2px; height: ${plattenhoehePx}px; background: #333; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx + 4}px; left: ${15 + spitzePositionPx}px; font-size: 10px; font-weight: bold; color: #333; text-align: center;">SPITZE<br>${hoehe}m</div>`;
-                    
-                    // Bemaßung zur Spitze
-                    html += `<div style="position: absolute; top: 4px; left: 20px; width: ${spitzePositionPx}px; height: 2px; background: #666;"></div>`;
-                    html += `<div style="position: absolute; top: -4px; left: ${20 + spitzePositionPx/2}px; font-size: 10px; font-weight: bold; color: #333; transform: translateX(-50%);">${(spitzeVonLinks * 100).toFixed(0)}cm</div>`;
-                }
-                
-                // Letzte Platte markieren
-                if (istLetztePlatte) {
-                    const ueberhang = originalPlattenEnde - basisBreite;
-                    
-                    html += `<div style="position: absolute; bottom: 15px; left: ${20 + endX}px; width: 2px; height: ${plattenhoehePx}px; background: #28a745; border-radius: 1px;"></div>`;
-                    html += `<div style="position: absolute; bottom: ${15 + plattenhoehePx/2}px; left: ${15 + endX}px; font-size: 9px; font-weight: bold; color: #28a745; transform: rotate(-90deg); transform-origin: left bottom; white-space: nowrap;">DACHKANTE</div>`;
-                    
-                    if (ueberhang > 0) {
-                        const restBreite = 240 - endX;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 20}px; left: ${20 + endX}px; width: ${restBreite}px; height: 2px; background: #dc3545;"></div>`;
-                        html += `<div style="position: absolute; top: ${plattenhoehePx + 10}px; left: ${20 + endX + restBreite/2}px; font-size: 10px; font-weight: bold; color: #dc3545; transform: translateX(-50%);">${(ueberhang * 100).toFixed(0)}cm</div>`;
-                    }
-                }
-                
-                // Anrisslinien - zentriert zur Platte
-                html += `<div style="position: absolute; bottom: 15px; left: 20px; width: 3px; height: ${anreissLinks / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
-                html += `<div style="position: absolute; bottom: 15px; left: ${20 + endX - 2}px; width: 3px; height: ${anreissRechts / 100 / benoetigteLaengeM * plattenhoehePx}px; background: #dc3545; border-radius: 1px;"></div>`;
-                
-                // Anrissmaße - symmetrisch zur Platte positioniert
-                html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx}px; left: 14px; font-size: 11px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: ${20 + plattenhoehePx}px; left: ${270 - 10}px; font-size: 11px; font-weight: bold; color: #dc3545;">↑</div>`;
-                html += `<div style="position: absolute; bottom: 2px; left: -10px; font-size: 11px; font-weight: bold; color: #dc3545; text-align: center; width: 40px;">${anreissLinks}cm</div>`;
-                html += `<div style="position: absolute; bottom: 2px; left: ${270 - 30}px; font-size: 11px; font-weight: bold; color: #dc3545; text-align: center; width: 40px;">${anreissRechts}cm</div>`;
-                
-                html += `</div>`;
-                
-                // Anleitung
-                html += `<div style="background: #f8f9fa; padding: 15px; border-radius: 6px; font-size: 13px; margin-top: 20px; border-left: 3px solid #ffc107;">`;
-                html += `<strong style="color: #333;">Anzeichnen:</strong><br>`;
-                if (istLetztePlatte) {
-                    const ueberhang = originalPlattenEnde - basisBreite;
-                    if (ueberhang > 0) {
-                        html += `• <strong style="color: #dc3545;">ZUERST: Rechts ${(ueberhang * 100).toFixed(0)}cm abschneiden!</strong><br>`;
-                    }
-                }
-                html += `• <span style="color: #333;">Von der Unterkante: Links bei ${anreissLinks}cm und rechts bei ${anreissRechts}cm markieren</span><br>`;
-                html += `• <span style="color: #333;">Diagonale Schnittlinie anzeichnen und oberen Teil absägen</span><br>`;
-                if (ueberdecktSpitze) {
-                    const spitzeVonLinks = spitzenPosition - plattenStart;
-                    html += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält die Dachspitze bei ${(spitzeVonLinks * 100).toFixed(0)}cm von links!</strong><br>`;
-                }
-                if (anreissLinks === anreissRechts) {
-                    html += `• <strong style="color: #198754;">TIPP: Symmetrischer Schnitt!</strong><br>`;
-                }
-                html += `</div>`;
-                html += `</div>`;
-            });
-            
-            // Container schließen
-            html += '</div>';
-            
-            html += `</div>`;
-            
-            document.getElementById('anriss-content').innerHTML = html;
-            document.getElementById('anrissplan').style.display = 'block';
-            
-            // Smooth scroll zum Anrissplan
-            setTimeout(() => {
-                document.getElementById('anrissplan').scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
-                });
-            }, 100);
+            // Daten kodieren und zur Anrissplan-Seite weiterleiten
+            const encodedData = encodeURIComponent(JSON.stringify(planData));
+            window.location.href = `anrissplan.html?type=ungleichschenkliges-dreieck&data=${encodedData}`;
         }
 
         // Initialize everything
