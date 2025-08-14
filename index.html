@@ -49,6 +49,198 @@
     </script>
     
     <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* Optimierter Hintergrund für bessere Performance */
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        }
+        
+        /* Fallback für wenn das Bild nicht lädt */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('Images/index.png') center/cover fixed no-repeat;
+            z-index: -2;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        body.bg-loaded::before {
+            opacity: 1;
+        }
+        
+        /* Modal für Dachflächenberechnung */
+        .calculation-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .calculation-modal-content {
+            background: var(--gradient-secondary);
+            margin: 3% auto;
+            padding: var(--spacing-xxl);
+            border-radius: var(--radius-xl);
+            width: 95%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
+        }
+
+        .calculation-close {
+            position: absolute;
+            right: 25px;
+            top: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: color var(--transition-normal);
+        }
+
+        .calculation-close:hover {
+            color: var(--accent-blue);
+            transform: scale(1.1);
+        }
+
+        .calculation-modal h2 {
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-lg);
+            font-size: 2.2em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .calculation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+        }
+
+        .calculation-item {
+            background: var(--gradient-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            text-decoration: none;
+            color: inherit;
+            border: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculation-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .calculation-item:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--accent-blue);
+            background: var(--gradient-secondary);
+        }
+
+        .calculation-icon {
+            text-align: center;
+            margin-bottom: var(--spacing-md);
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calculation-icon img {
+            max-width: 120px;
+            width: auto;
+            height: 80px;
+            filter: drop-shadow(0 4px 8px rgba(14, 165, 233, 0.3));
+            border-radius: var(--radius-md);
+            object-fit: contain;
+        }
+
+        .calculation-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .calculation-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Werbung im Modal */
+        .modal-ad-container {
+            margin: var(--spacing-xl) auto;
+            max-width: 800px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            width: 100%;
+            display: block;
+            position: relative;
+            background: var(--gradient-surface);
+            border: 1px solid var(--border-color);
+            min-height: 120px;
+        }
+
+        .modal-ad-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            color: var(--text-muted);
+            padding: var(--spacing-lg);
+        }
+
+        .modal-ad-real {
+            min-height: 120px;
+            display: none;
+            text-align: center;
+            margin: 0 auto;
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -65,9 +257,9 @@
         <main>
             <div class="calculators-grid">
                 <!-- Projekt Dach -->
-                <a href="plan.html" class="calculator-card">
-                  <div class="card-icon">
-                         <img src="Images/Plan-2.jpg" alt="Projekt Dach" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
+                <a href="projekt-dach/plan.html" class="calculator-card">
+                    <div class="card-icon">
+                        <img src="Images/Plan-2.jpg" alt="Projekt Dach" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
                     </div>
                     <h2 class="card-title">Projekt Dach</h2>
                     <p class="card-description">
@@ -84,25 +276,25 @@
                     <span class="cta-button">Überblick verschaffen</span>
                 </a>
 
-                <!-- Bemaßungsskizzen -->
-                <a href="#" onclick="openSketchModal()" class="calculator-card">
+                <!-- Dachflächenberechnung (NEU) -->
+                <div class="calculator-card" onclick="openCalculationModal()" style="cursor: pointer;">
                     <div class="card-icon">
-                        <img src="Images/Klemmbrett.png" alt="Bemaßungsskizzen Download" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
+                        <img src="Images/gleichschenkliges-dreieck.png" alt="Dachflächenberechnung" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
                     </div>
-                    <h2 class="card-title">Bemaßungsskizzen</h2>
+                    <h2 class="card-title">Dachflächenberechnung</h2>
                     <p class="card-description">
-                        Professionelle DIN A4 Skizzen für alle Dachformen - direkt drucken oder als PDF speichern.
+                        Berechnen Sie präzise Ihre Dachflächen für verschiedene geometrische Formen.
                     </p>
                     <ul class="card-features">
-                        <li>DIN A4 Format</li>
-                        <li>Alle Dachtypen verfügbar</li>
-                        <li>Direkt druckbereit</li>
-                        <li>Als PDF speicherbar</li>
+                        <li>Gleichschenklige Dreiecke</li>
+                        <li>Ungleichschenklige Dreiecke</li>
+                        <li>Trapezflächen</li>
+                        <li>Komplexe Kombinationen</li>
                     </ul>
-                    <span class="cta-button">Skizzen drucken</span>
-                </a>
+                    <span class="cta-button">Rechner auswählen</span>
+                </div>
 
-                <!-- Erster Werbeplatz nach 2 Kacheln -->
+                <!-- Werbeplatz nach 2 Kacheln -->
                 <div class="ad-container-middle" id="middle-ad-container-1">
                     <div class="ad-placeholder">
                         <div class="ad-content-horizontal">
@@ -119,114 +311,26 @@
                          data-ad-format="auto"></ins>
                 </div>
 
-                <!-- Gleichschenkliges Dreieck -->
-                <a href="gleichschenkliges-dreieck.html" class="calculator-card">
+                <!-- Bemaßungsskizzen -->
+                <div class="calculator-card" onclick="openSketchModal()" style="cursor: pointer;">
                     <div class="card-icon">
-                        <img src="Images/gleichschenkliges-dreieck.png" alt="Gleichschenkliges Dreieck Berechnung" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
+                        <img src="Images/Klemmbrett.png" alt="Bemaßungsskizzen Download" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
                     </div>
-                    <h2 class="card-title">Gleichschenkliges Dreieck</h2>
+                    <h2 class="card-title">Bemaßungsskizzen</h2>
                     <p class="card-description">
-                        Ideal für Pyramidendächer, Satteldachwalmflächen und symmetrische Dreiecksflächen.
+                        Professionelle DIN A4 Skizzen für alle Dachformen - direkt drucken oder als PDF speichern.
                     </p>
                     <ul class="card-features">
-                        <li>Symmetrische Dreiecksberechnung</li>
-                        <li>Automatische Spitzenerkennung</li>
-                        <li>Optimierte Materialverteilung</li>
-                        <li>Detaillierte Schnittliste</li>
+                        <li>DIN A4 Format</li>
+                        <li>Alle Dachtypen verfügbar</li>
+                        <li>Direkt druckbereit</li>
+                        <li>Als PDF speicherbar</li>
                     </ul>
-                    <span class="cta-button">Jetzt berechnen</span>
-                </a>
-
-                <!-- Ungleichschenkliges Dreieck -->
-                <a href="ungleichschenkliges-dreieck.html" class="calculator-card">
-                    <div class="card-icon">
-                        <img src="Images/ungleichschenkliges-dreieck.png" alt="Ungleichschenkliges Dreieck Berechnung" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
-                    </div>
-                    <h2 class="card-title">Ungleichschenkliges Dreieck</h2>
-                    <p class="card-description">
-                        Für asymmetrische Dachflächen mit verschobener Spitze. Flexible Eingabemöglichkeiten.
-                    </p>
-                    <ul class="card-features">
-                        <li>Variable Spitzenposition</li>
-                        <li>Kantenlängen oder Position/Höhe</li>
-                        <li>Geometrische Validierung</li>
-                        <li>Präzise Winkelberechnungen</li>
-                    </ul>
-                    <span class="cta-button">Jetzt berechnen</span>
-                </a>
-
-                <!-- Zweiter Werbeplatz nach 2 Kacheln -->
-                <div class="ad-container-middle" id="middle-ad-container-2">
-                    <div class="ad-placeholder">
-                        <div class="ad-content-horizontal">
-                            <span class="ad-icon">🔧</span>
-                            <div class="ad-text-block">
-                                <strong>Berechnung & Planung</strong>
-                                <span>Präzise Tools für perfekte Dachergebnisse</span>
-                            </div>
-                        </div>
-                    </div>
-                    <ins class="adsbygoogle ad-content-real" style="display:none"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
-                </div>
-
-                <!-- Trapez -->
-                <a href="trapez.html" class="calculator-card">
-                    <div class="card-icon">
-                        <img src="Images/trapez.png" alt="Trapez Berechnung" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
-                    </div>
-                    <h2 class="card-title">Trapez</h2>
-                    <p class="card-description">
-                        Für trapezförmige Dachflächen mit parallelen oberen und unteren Kanten.
-                    </p>
-                    <ul class="card-features">
-                        <li>Parallele Oberkanten</li>
-                        <li>Variable Neigungswinkel</li>
-                        <li>Optimierte Schnittführung</li>
-                        <li>Materialersparnis</li>
-                    </ul>
-                    <span class="cta-button">Jetzt berechnen</span>
-                </a>
-
-                <!-- Trapez auf Rechteck -->
-                <a href="trapezaufrechteck.html" class="calculator-card">
-                    <div class="card-icon">
-                        <img src="Images/trapez-rechteck.png" alt="Trapez auf Rechteck Berechnung" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
-                    </div>
-                    <h2 class="card-title">Trapez auf Rechteck</h2>
-                    <p class="card-description">
-                        Für Walmdächer und Krüppelwalmdächer mit trapezförmigem oberen und rechteckigem unteren Bereich.
-                    </p>
-                    <ul class="card-features">
-                        <li>Walmdach-Berechnung</li>
-                        <li>Kombinierte Geometrie</li>
-                        <li>Durchgehende Platten</li>
-                        <li>Komplexe Anrisspläne</li>
-                    </ul>
-                    <span class="cta-button">Jetzt berechnen</span>
-                </a>
-
-                <!-- Dritter Werbeplatz nach 2 Kacheln -->
-                <div class="ad-container-middle" id="middle-ad-container-3">
-                    <div class="ad-placeholder">
-                        <div class="ad-content-horizontal">
-                            <span class="ad-icon">⚙️</span>
-                            <div class="ad-text-block">
-                                <strong>Bauprofi-Tools</strong>
-                                <span>Weitere praktische Helfer für Ihre Bauprojekte</span>
-                            </div>
-                        </div>
-                    </div>
-                    <ins class="adsbygoogle ad-content-real" style="display:none"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
+                    <span class="cta-button">Skizzen drucken</span>
                 </div>
 
                 <!-- Sonderwinkel zeichnen -->
-                <a href="kantteil.html" class="calculator-card">
+                <a href="tools/kantteil.html" class="calculator-card">
                     <div class="card-icon">
                         <img src="Images/skizze.png" alt="Sonderwinkel zeichnen" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
                     </div>
@@ -243,8 +347,25 @@
                     <span class="cta-button">Jetzt zeichnen</span>
                 </a>
 
+                <!-- Werbeplatz nach 2 Kacheln -->
+                <div class="ad-container-middle" id="middle-ad-container-2">
+                    <div class="ad-placeholder">
+                        <div class="ad-content-horizontal">
+                            <span class="ad-icon">🔧</span>
+                            <div class="ad-text-block">
+                                <strong>Berechnung & Planung</strong>
+                                <span>Präzise Tools für perfekte Dachergebnisse</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ins class="adsbygoogle ad-content-real" style="display:none"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+
                 <!-- Verschnitt-Optimierung -->
-                <a href="verschnitt-optimierung.html" class="calculator-card">
+                <a href="tools/verschnitt-optimierung.html" class="calculator-card">
                     <div class="card-icon">
                         <img src="Images/verschnitt.png" alt="Verschnitt-Optimierung" width="176" height="121" style="border-radius: 8px; object-fit: contain;">
                     </div>
@@ -260,73 +381,56 @@
                     </ul>
                     <span class="cta-button">Jetzt optimieren</span>
                 </a>
-
-                <!-- Letzter Werbeplatz nach einzelner Kachel -->
-                <div class="ad-container-middle" id="middle-ad-container-4">
-                    <div class="ad-placeholder">
-                        <div class="ad-content-horizontal">
-                            <span class="ad-icon">🛠️</span>
-                            <div class="ad-text-block">
-                                <strong>Mehr professionelle Tools</strong>
-                                <span>Entdecken Sie weitere Lösungen für Dachdecker</span>
-                            </div>
-                        </div>
-                    </div>
-                    <ins class="adsbygoogle ad-content-real" style="display:none"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
-                </div>
             </div>
         </main>
     </div>
 
     <footer>
         <div class="container">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Rechner</h3>
-                <ul class="footer-links">
-                    <li><a href="gleichschenkliges-dreieck.html">Gleichschenkliges Dreieck</a></li>
-                    <li><a href="ungleichschenkliges-dreieck.html">Ungleichschenkliges Dreieck</a></li>
-                    <li><a href="trapez.html">Trapez</a></li>
-                    <li><a href="trapezaufrechteck.html">Trapez auf Rechteck</a></li>
-                    <li><a href="messen.html">Richtig Messen</a></li>
-                    <li><a href="verschnitt-optimierung.html">Verschnitt-Optimierung</a></li>
-                </ul>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Rechner</h3>
+                    <ul class="footer-links">
+                        <li><a href="tools/gleichschenkliges-dreieck.html">Gleichschenkliges Dreieck</a></li>
+                        <li><a href="tools/ungleichschenkliges-dreieck.html">Ungleichschenkliges Dreieck</a></li>
+                        <li><a href="tools/trapez.html">Trapez</a></li>
+                        <li><a href="tools/trapezaufrechteck.html">Trapez auf Rechteck</a></li>
+                        <li><a href="projekt-dach/messen.html">Richtig Messen</a></li>
+                        <li><a href="tools/verschnitt-optimierung.html">Verschnitt-Optimierung</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="openModal('hilfe')">Hilfe & FAQ</a></li>
+                        <li><a href="#" onclick="openModal('kontakt')">Kontakt</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Dachplattenrechner.de</h3>
+                    <p>Professionelle Berechnungstools für die Dachdeckerbranche. Präzise, schnell und benutzerfreundlich.</p>
+                    <p style="margin-top: 15px;">
+                        <strong>Kontakt:</strong><br>
+                        <span id="email-footer"></span>
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h3>Rechtliches</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="openModal('impressum')">Impressum</a></li>
+                        <li><a href="#" onclick="openModal('datenschutz')">Datenschutz</a></li>
+                        <li><a href="#" onclick="openModal('agb')">AGB</a></li>
+                        <li><a href="#" onclick="openModal('cookies')">Cookie-Einstellungen</a></li>
+                    </ul>
+                </div>
             </div>
-            <div class="footer-section">
-                <h3>Support</h3>
-                <ul class="footer-links">
-                    <li><a href="#" onclick="openModal('hilfe')">Hilfe & FAQ</a></li>
-                    <li><a href="#" onclick="openModal('kontakt')">Kontakt</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Dachplattenrechner.de</h3>
-                <p>Professionelle Berechnungstools für die Dachdeckerbranche. Präzise, schnell und benutzerfreundlich.</p>
-                <p style="margin-top: 15px;">
-                    <strong>Kontakt:</strong><br>
-                    <span id="email-footer"></span>
-                </p>
-            </div>
-            <div class="footer-section">
-                <h3>Rechtliches</h3>
-                <ul class="footer-links">
-                    <li><a href="#" onclick="openModal('impressum')">Impressum</a></li>
-                    <li><a href="#" onclick="openModal('datenschutz')">Datenschutz</a></li>
-                    <li><a href="#" onclick="openModal('agb')">AGB</a></li>
-                    <li><a href="#" onclick="openModal('cookies')">Cookie-Einstellungen</a></li>
-                </ul>
-            </div>
-        </div>
             <div class="footer-bottom">
                 <p>&copy; 2025 Dachplattenrechner.de. Alle Rechte vorbehalten.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Verbessertes Cookie-Banner -->
+    <!-- Cookie-Banner -->
     <div id="cookieBanner" class="cookie-banner">
         <div class="cookie-content">
             <div class="cookie-text">
@@ -341,7 +445,7 @@
         </div>
     </div>
 
-    <!-- Modals -->
+    <!-- Modal für allgemeine Inhalte -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
@@ -349,7 +453,88 @@
         </div>
     </div>
 
+    <!-- Modal für Dachflächenberechnung -->
+    <div id="calculationModal" class="calculation-modal">
+        <div class="calculation-modal-content">
+            <span class="calculation-close" onclick="closeCalculationModal()">&times;</span>
+            <h2>Dachflächenberechnung</h2>
+            <p>Wählen Sie den passenden Rechner für Ihre Dachform:</p>
+            
+            <!-- Werbung im Modal -->
+            <div class="modal-ad-container" id="modal-ad-container">
+                <div class="modal-ad-placeholder">
+                    <span style="font-size: 24px;">📢</span>
+                    <span style="font-size: 14px;">Werbung - Unterstützt unsere kostenlosen Tools</span>
+                </div>
+                <ins class="adsbygoogle modal-ad-real" style="display:none"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="auto"
+                     data-ad-format="rectangle"
+                     data-full-width-responsive="true"></ins>
+            </div>
+            
+            <div class="calculation-grid">
+                <!-- Gleichschenkliges Dreieck -->
+                <a href="tools/gleichschenkliges-dreieck.html" class="calculation-item">
+                    <div class="calculation-icon">
+                        <img src="Images/gleichschenkliges-dreieck.png" alt="Gleichschenkliges Dreieck" />
+                    </div>
+                    <div class="calculation-title">Gleichschenkliges Dreieck</div>
+                    <div class="calculation-description">
+                        Ideal für Pyramidendächer, Satteldachwalmflächen und symmetrische Dreiecksflächen.
+                    </div>
+                </a>
+
+                <!-- Ungleichschenkliges Dreieck -->
+                <a href="tools/ungleichschenkliges-dreieck.html" class="calculation-item">
+                    <div class="calculation-icon">
+                        <img src="Images/ungleichschenkliges-dreieck.png" alt="Ungleichschenkliges Dreieck" />
+                    </div>
+                    <div class="calculation-title">Ungleichschenkliges Dreieck</div>
+                    <div class="calculation-description">
+                        Für asymmetrische Dachflächen mit verschobener Spitze. Flexible Eingabemöglichkeiten.
+                    </div>
+                </a>
+
+                <!-- Trapez -->
+                <a href="tools/trapez.html" class="calculation-item">
+                    <div class="calculation-icon">
+                        <img src="Images/trapez.png" alt="Trapez" />
+                    </div>
+                    <div class="calculation-title">Trapez</div>
+                    <div class="calculation-description">
+                        Für trapezförmige Dachflächen mit parallelen oberen und unteren Kanten.
+                    </div>
+                </a>
+
+                <!-- Trapez auf Rechteck -->
+                <a href="tools/trapezaufrechteck.html" class="calculation-item">
+                    <div class="calculation-icon">
+                        <img src="Images/trapez-rechteck.png" alt="Trapez auf Rechteck" />
+                    </div>
+                    <div class="calculation-title">Trapez auf Rechteck</div>
+                    <div class="calculation-description">
+                        Für Walmdächer und Krüppelwalmdächer mit trapezförmigem oberen und rechteckigem unteren Bereich.
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Hintergrundbild optimiert laden
+        function loadBackgroundImage() {
+            const img = new Image();
+            img.onload = function() {
+                document.body.classList.add('bg-loaded');
+            };
+            img.onerror = function() {
+                // Fallback bereits durch CSS Gradient gesetzt
+                console.log('Hintergrundbild konnte nicht geladen werden, Fallback aktiv');
+            };
+            img.src = 'Images/index.png';
+        }
+
         // Cookie Management System
         function showCookieBanner() {
             const cookieConsent = localStorage.getItem('cookieConsent');
@@ -380,11 +565,8 @@
 
         function showAds() {
             if (localStorage.getItem('marketingCookies') === 'true') {
-                // Zeige AdSense-Container
                 document.getElementById('middle-ad-container-1').style.display = 'block';
                 document.getElementById('middle-ad-container-2').style.display = 'block';
-                document.getElementById('middle-ad-container-3').style.display = 'block';
-                document.getElementById('middle-ad-container-4').style.display = 'block';
                 
                 // Lade AdSense-Anzeigen
                 if (window.adsbygoogle) {
@@ -402,7 +584,41 @@
             }
         }
 
-        // Modal Management
+        // Dachflächenberechnung Modal
+        function openCalculationModal() {
+            document.getElementById('calculationModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // AdSense für Modal laden falls Marketing-Cookies akzeptiert
+            if (localStorage.getItem('marketingCookies') === 'true') {
+                loadModalAds();
+            }
+        }
+
+        function closeCalculationModal() {
+            document.getElementById('calculationModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function loadModalAds() {
+            const modalAdReal = document.querySelector('.modal-ad-real');
+            const modalAdPlaceholder = document.querySelector('.modal-ad-placeholder');
+            
+            if (modalAdReal && modalAdPlaceholder) {
+                modalAdPlaceholder.style.display = 'none';
+                modalAdReal.style.display = 'block';
+                
+                try {
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                } catch (e) {
+                    console.log('Modal AdSense loading error:', e);
+                    modalAdPlaceholder.style.display = 'flex';
+                    modalAdReal.style.display = 'none';
+                }
+            }
+        }
+
+        // Modal Management (bestehende Funktionen)
         function openModal(type) {
             const modal = document.getElementById('modal');
             const modalBody = document.getElementById('modal-body');
@@ -608,7 +824,7 @@
                     <p><strong>Lieferbreite:</strong> Die tatsächliche Breite des Bleches (meist 1,06m).</p>
                     <p><strong>Überlappung:</strong> Differenz zwischen Liefer- und Deckbreite.</p>
                     
-                    <h4>🔺 Welchen Rechner verwenden?</h4>
+                    <h4>📐 Welchen Rechner verwenden?</h4>
                     <p><strong>Gleichschenkliges Dreieck:</strong> Für symmetrische Dreiecke</p>
                     <p><strong>Ungleichschenkliges Dreieck:</strong> Für asymmetrische Dreiecke</p>
                     <p><strong>Trapez:</strong> Für trapezförmige Flächen</p>
@@ -722,16 +938,94 @@
         function hideAds() {
             document.getElementById('middle-ad-container-1').style.display = 'none';
             document.getElementById('middle-ad-container-2').style.display = 'none';
-            document.getElementById('middle-ad-container-3').style.display = 'none';
-            document.getElementById('middle-ad-container-4').style.display = 'none';
+        }
+
+        // Sketch Modal Functions
+        function openSketchModal() {
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modal-body');
+            
+            const content = `
+                <h2>Bemaßungsskizzen Download</h2>
+                
+                <p>Professionelle DIN A4 Bemaßungsskizzen für verschiedene Dachformen - direkt drucken oder als PDF speichern.</p>
+                
+                <div class="sketch-downloads" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                    
+                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
+                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
+                                    <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
+                                    <line x1="30" y1="25" x2="30" y2="55" stroke="#333" stroke-width="1"/>
+                                    <line x1="17.5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
+                                    <line x1="42.5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
+                                    <line x1="17.5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
+                                    <line x1="42.5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
+                                </svg>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">⚡ Krüppelwalm</h4>
+                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Krüppelwalmdach mit abgeknickten Walmen</p>
+                                <button class="sketch-btn" onclick="printSketch('skizzen/krüppelwalm.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">🖨️ Drucken</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pultdach -->
+                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
+                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
+                                    <rect x="10" y="25" width="40" height="30" fill="none" stroke="#333" stroke-width="1"/>
+                                </svg>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">📐 Pultdach</h4>
+                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Einfaches geneigtes Pultdach</p>
+                                <button class="sketch-btn" onclick="printSketch('skizzen/pultdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">🖨️ Drucken</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <div class="sketch-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; color: #333;">
+                    <h3 style="margin: 0 0 10px 0; color: #2a5298;">ℹ️ Hinweise:</h3>
+                    <ul style="margin: 0; padding-left: 20px; color: #555;">
+                        <li>Alle Skizzen sind im DIN A4 Format optimiert</li>
+                        <li>Perfekt für die Baustelle geeignet</li>
+                        <li>Beschriftungsfelder für Ihre Maße</li>
+                        <li>Kostenlos für private und gewerbliche Nutzung</li>
+                    </ul>
+                </div>
+            `;
+            
+            modalBody.innerHTML = content;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function printSketch(filename) {
+            // Öffne die Skizze in einem neuen Fenster zum Drucken
+            const printWindow = window.open(filename, '_blank');
+            if (printWindow) {
+                printWindow.onload = function() {
+                    printWindow.print();
+                };
+            }
         }
 
         // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('modal');
+            const calculationModal = document.getElementById('calculationModal');
             
             if (event.target === modal) {
                 closeModal();
+            }
+            if (event.target === calculationModal) {
+                closeCalculationModal();
             }
         }
 
@@ -755,176 +1049,12 @@
             }
         }
 
-       // Sketch Modal Function
-        function openSketchModal() {
-            const modal = document.getElementById('modal');
-            const modalBody = document.getElementById('modal-body');
-            
-            const content = `
-                <h2>Bemaßungsskizzen Download</h2>
-                
-                <p>Professionelle DIN A4 Bemaßungsskizzen für verschiedene Dachformen - direkt drucken oder als PDF speichern.</p>
-                
-                <!-- Google AdSense Banner im Modal -->
-                <div class="modal-ad-container" style="margin: 20px 0; text-align: center; min-height: 90px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                    <div class="modal-ad-placeholder" style="display: flex; align-items: center; gap: 10px; color: #666;">
-                        <span style="font-size: 24px;">📢</span>
-                        <span style="font-size: 14px;">Werbung - Unterstützt unsere kostenlosen Tools</span>
-                    </div>
-                    <ins class="adsbygoogle modal-ad-real" style="display:none; width: 100%; height: 90px;"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="rectangle"
-                         data-full-width-responsive="true"></ins>
-                </div>
-                
-                <div class="sketch-downloads" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
-                    
-                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
-                        <div style="display: flex; align-items: flex-start; gap: 12px;">
-                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                                    <rect x="5" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
-                                    <rect x="30" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
-                                    <line x1="30" y1="15" x2="30" y2="65" stroke="#333" stroke-width="1.5"/>
-                                </svg>
-                            </div>
-                            <div style="flex: 1;">
-                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">🏠 Satteldach</h4>
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Klassisches Satteldach mit First und Traufen</p>
-                                <button class="sketch-btn" onclick="printSketch('Satteldach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">🖨️ Drucken</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
-                        <div style="display: flex; align-items: flex-start; gap: 12px;">
-                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                                    <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
-                                    <line x1="30" y1="25" x2="30" y2="55" stroke="#333" stroke-width="1"/>
-                                    <line x1="5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="55" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="55" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                                </svg>
-                            </div>
-                            <div style="flex: 1;">
-                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">🏘️ Walmdach</h4>
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Walmdach mit vier Dachflächen</p>
-                                <button class="sketch-btn" onclick="printSketch('walmdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">🖨️ Drucken</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
-                        <div style="display: flex; align-items: flex-start; gap: 12px;">
-                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                                    <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
-                                    <line x1="5" y1="10" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="55" y1="10" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="5" y1="70" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="55" y1="70" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                                </svg>
-                            </div>
-                            <div style="flex: 1;">
-                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">🔺 Pyramidendach</h4>
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Pyramidenförmiges Dach mit zentralem Punkt</p>
-                                <button class="sketch-btn" onclick="printSketch('pyramidendach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">🖨️ Drucken</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
-                        <div style="display: flex; align-items: flex-start; gap: 12px;">
-                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                                    <rect x="10" y="25" width="40" height="30" fill="none" stroke="#333" stroke-width="1"/>
-                                </svg>
-                            </div>
-                            <div style="flex: 1;">
-                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">📐 Pultdach</h4>
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Einfaches geneigtes Pultdach</p>
-                                <button class="sketch-btn" onclick="printSketch('pultdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">🖨️ Drucken</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
-                        <div style="display: flex; align-items: flex-start; gap: 12px;">
-                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                                    <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
-                                    <line x1="30" y1="25" x2="30" y2="55" stroke="#333" stroke-width="1"/>
-                                    <line x1="17.5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="42.5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="17.5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="42.5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                                </svg>
-                            </div>
-                            <div style="flex: 1;">
-                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">⚡ Krüppelwalm</h4>
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Krüppelwalmdach mit abgeknickten Walmen</p>
-                                <button class="sketch-btn" onclick="printSketch('krüppelwalm.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">🖨️ Drucken</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-                
-                <div class="sketch-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; color: #333;">
-                    <h3 style="margin: 0 0 10px 0; color: #2a5298;">ℹ️ Hinweise:</h3>
-                    <ul style="margin: 0; padding-left: 20px; color: #555;">
-                        <li>Alle Skizzen sind im DIN A4 Format optimiert</li>
-                        <li>Perfekt für die Baustelle geeignet</li>
-                        <li>Beschriftungsfelder für Ihre Maße</li>
-                        <li>Kostenlos für private und gewerbliche Nutzung</li>
-                    </ul>
-                </div>
-            `;
-            
-            modalBody.innerHTML = content;
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            
-            // AdSense für Modal laden falls Marketing-Cookies akzeptiert
-            if (localStorage.getItem('marketingCookies') === 'true') {
-                loadModalAds();
-            }
-        }
-
-        function loadModalAds() {
-            // Modal-AdSense laden
-            const modalAdReal = document.querySelector('.modal-ad-real');
-            const modalAdPlaceholder = document.querySelector('.modal-ad-placeholder');
-            
-            if (modalAdReal && modalAdPlaceholder) {
-                modalAdPlaceholder.style.display = 'none';
-                modalAdReal.style.display = 'block';
-                
-                try {
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
-                } catch (e) {
-                    console.log('Modal AdSense loading error:', e);
-                    // Bei Fehler Placeholder wieder anzeigen
-                    modalAdPlaceholder.style.display = 'flex';
-                    modalAdReal.style.display = 'none';
-                }
-            }
-        }
-
-        function printSketch(filename) {
-            // Öffne die Skizze in einem neuen Fenster zum Drucken
-            const printWindow = window.open(filename, '_blank');
-            printWindow.onload = function() {
-                printWindow.print();
-            };
-        }
-
         // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
             setupEmailProtection();
+            
+            // Lade Hintergrundbild optimiert
+            loadBackgroundImage();
             
             // Initialize tracking and ads based on existing consent
             const cookieConsent = localStorage.getItem('cookieConsent');
