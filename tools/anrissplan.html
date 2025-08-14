@@ -998,38 +998,85 @@
 
         // Hauptinitialisierung
         function init() {
-            const params = getUrlParams();
+            console.log('Anrissplan init gestartet');
             
-            if (!params.type || !params.data) {
-                document.getElementById('plan-title').textContent = 'Fehler: Keine Daten übertragen';
-                document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">⚠ Fehler:</strong> Keine gültigen Daten gefunden. Bitte kehren Sie zum Rechner zurück.';
-                return;
-            }
-            
-            planType = params.type;
-            planData = decodeData(params.data);
-            
-            if (!planData) {
-                document.getElementById('plan-title').textContent = 'Fehler: Daten beschädigt';
-                document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">⚠ Fehler:</strong> Die übertragenen Daten sind beschädigt. Bitte kehren Sie zum Rechner zurück.';
-                return;
-            }
-            
-            // Header aktualisieren
-            updateHeader(planType, planData);
-            
-            // Übersicht generieren
-            generateOverview(planType, planData);
-            
-            // Platten generieren
-            generateAllPlates(planType, planData);
-            
-            // Analytics
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'anrissplan_viewed', {
-                    'event_category': 'anrissplan',
-                    'event_label': planType
-                });
+            try {
+                const params = getUrlParams();
+                console.log('URL Parameters:', params);
+                
+                if (!params.type || !params.data) {
+                    console.log('Keine Parameter gefunden');
+                    document.getElementById('plan-title').textContent = 'Fehler: Keine Daten übertragen';
+                    document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">⚠ Fehler:</strong> Keine gültigen Daten gefunden. Bitte kehren Sie zum Rechner zurück.';
+                    
+                    // Debug-Info anzeigen
+                    document.getElementById('overview-content').innerHTML = `
+                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px;">
+                            <h4>Debug-Informationen:</h4>
+                            <p><strong>URL:</strong> ${window.location.href}</p>
+                            <p><strong>Type Parameter:</strong> ${params.type || 'nicht gefunden'}</p>
+                            <p><strong>Data Parameter:</strong> ${params.data ? 'vorhanden' : 'nicht gefunden'}</p>
+                            <p><strong>Alle URL-Parameter:</strong> ${window.location.search}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                planType = params.type;
+                planData = decodeData(params.data);
+                console.log('Dekodierte Daten:', planData);
+                
+                if (!planData) {
+                    console.log('Daten konnten nicht dekodiert werden');
+                    document.getElementById('plan-title').textContent = 'Fehler: Daten beschädigt';
+                    document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">⚠ Fehler:</strong> Die übertragenen Daten sind beschädigt. Bitte kehren Sie zum Rechner zurück.';
+                    
+                    // Debug-Info anzeigen
+                    document.getElementById('overview-content').innerHTML = `
+                        <div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px;">
+                            <h4>Debug-Informationen:</h4>
+                            <p><strong>Rohe Daten:</strong> ${params.data.substring(0, 100)}...</p>
+                            <p><strong>Fehler beim Dekodieren</strong></p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                console.log('Starte Header-Update');
+                // Header aktualisieren
+                updateHeader(planType, planData);
+                
+                console.log('Starte Übersicht-Generierung');
+                // Übersicht generieren
+                generateOverview(planType, planData);
+                
+                console.log('Starte Platten-Generierung');
+                // Platten generieren
+                generateAllPlates(planType, planData);
+                
+                console.log('Anrissplan erfolgreich geladen');
+                
+                // Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'anrissplan_viewed', {
+                        'event_category': 'anrissplan',
+                        'event_label': planType
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Fehler in init():', error);
+                document.getElementById('plan-title').textContent = 'JavaScript-Fehler aufgetreten';
+                document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">⚠ Fehler:</strong> ' + error.message;
+                
+                // Debug-Info anzeigen
+                document.getElementById('overview-content').innerHTML = `
+                    <div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px;">
+                        <h4>JavaScript-Fehler:</h4>
+                        <p><strong>Fehlermeldung:</strong> ${error.message}</p>
+                        <p><strong>Stack:</strong> <pre style="font-size: 12px; white-space: pre-wrap;">${error.stack}</pre></p>
+                    </div>
+                `;
             }
         }
 
