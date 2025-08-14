@@ -55,17 +55,263 @@
         }
     </script>
 
-    
     <style>
-        /* Hintergrundbild - UNGLEICHSCHENKLIGES DREIECK */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-image: url('../images/ungleichschenkliges-dreieck.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
         }
-        
+
+        .nav-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-btn:hover {
+            opacity: 0.8;
+        }
+
+        .nav-title {
+            color: #ffffff;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .section h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #e3f2fd;
+            padding-bottom: 10px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .parameter-switch {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .parameter-switch button {
+            padding: 12px 20px;
+            border: 2px solid #1e3c72;
+            background: white;
+            color: #1e3c72;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .parameter-switch button.active {
+            background: #1e3c72;
+            color: white;
+        }
+
+        .parameter-switch button:hover {
+            background: #1e3c72;
+            color: white;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        .results {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item span:first-child {
+            font-weight: 500;
+        }
+
+        .result-item span:last-child {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #ffd700;
+        }
+
+        .schnitt-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .schnitt-table th,
+        .schnitt-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .schnitt-table th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        .anriss-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            width: auto;
+            min-width: 200px;
+        }
+
+        .anriss-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            background: linear-gradient(135deg, #218838 0%, #1ea89c 100%);
+        }
+
+        .anriss-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+        }
+
         /* Elegante Werbecontainer */
         .ad-container, .ad-container-middle {
             margin: 30px auto;
@@ -151,68 +397,29 @@
             display: block !important;
         }
 
-        /* Anrissplan Button Styling */
-        .anriss-btn {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 20px auto;
-            display: block;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-            transition: all 0.3s ease;
-            text-decoration: none;
-            width: auto;
-            min-width: 200px;
-        }
-
-        .anriss-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-            background: linear-gradient(135deg, #218838 0%, #1ea89c 100%);
-        }
-
-        .anriss-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
-        }
-
-        /* Sicherstellen dass der Berechnen-Button das gleiche Styling hat */
-        .calculate-btn {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 20px auto;
-            display: block;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-            transition: all 0.3s ease;
-            text-decoration: none;
-            width: auto;
-            min-width: 200px;
-        }
-
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-        }
-
-        .calculate-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
-        }
-        
         /* Mobile Optimierung */
         @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .input-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .input-group {
+                min-width: auto;
+            }
+            
+            .parameter-switch {
+                flex-direction: column;
+            }
+            
+            .parameter-switch button {
+                width: 100%;
+            }
+            
             .ad-container, .ad-container-middle {
                 margin: 20px 15px;
             }
@@ -322,7 +529,7 @@
 
                 <!-- Parameter-Auswahl -->
                 <div class="parameter-switch">
-                    <button id="btn-kantenlängen" class="active" onclick="wechsleParameterModus('kantenlängen')">
+                    <button id="btn-kantenlaengen" class="active" onclick="wechsleParameterModus('kantenlaengen')">
                         📏 Kantenlängen eingeben
                     </button>
                     <button id="btn-position" onclick="wechsleParameterModus('position')">
@@ -331,7 +538,7 @@
                 </div>
 
                 <!-- Kantenlängen-Eingabe -->
-                <div id="kantenlängen-inputs">
+                <div id="kantenlaengen-inputs">
                     <div class="input-row">
                         <div class="input-group">
                             <label for="kante-links">Linke Kantenlänge (m)</label>
@@ -433,7 +640,7 @@
                     <span id="gesamt-bleche">-</span>
                 </div>
                 
-                <!-- Visuelles Vorschaufenster (kompakter) -->
+                <!-- Visuelles Vorschaufenster -->
                 <div id="vorschau" style="display: none; margin-top: 25px;">
                     <h4 style="color: #ffffff; font-size: 1.2em; margin-bottom: 15px;">Visuelle Vorschau</h4>
                     <div style="text-align: center; margin-bottom: 15px;">
@@ -500,16 +707,8 @@
 
     <script>
         let aktuelleSchnittliste = [];
-        let parameterModus = 'kantenlängen';
+        let parameterModus = 'kantenlaengen';
         let spitzenPosition = 0;
-
-        // Cookie Management System
-        function showCookieBanner() {
-            const cookieConsent = localStorage.getItem('cookieConsent');
-            if (!cookieConsent) {
-                document.getElementById('cookieBanner').classList.add('show');
-            }
-        }
 
         function acceptAllCookies() {
             localStorage.setItem('cookieConsent', 'all');
@@ -533,12 +732,10 @@
 
         function showAds() {
             if (localStorage.getItem('marketingCookies') === 'true') {
-                // Zeige AdSense-Container
                 document.getElementById('top-ad-container').style.display = 'block';
                 document.getElementById('middle-ad-container').style.display = 'block';
                 document.getElementById('bottom-ad-container').style.display = 'block';
                 
-                // Lade AdSense-Anzeigen
                 if (window.adsbygoogle) {
                     try {
                         const ads = document.querySelectorAll('.adsbygoogle');
@@ -563,35 +760,29 @@
         function wechsleParameterModus(modus) {
             parameterModus = modus;
             
-            // Buttons aktualisieren
-            document.getElementById('btn-kantenlängen').classList.remove('active');
+            document.getElementById('btn-kantenlaengen').classList.remove('active');
             document.getElementById('btn-position').classList.remove('active');
             document.getElementById('btn-' + modus).classList.add('active');
             
-            // Eingabe-Bereiche ein-/ausblenden
-            if (modus === 'kantenlängen') {
-                document.getElementById('kantenlängen-inputs').style.display = 'block';
+            if (modus === 'kantenlaengen') {
+                document.getElementById('kantenlaengen-inputs').style.display = 'block';
                 document.getElementById('position-inputs').style.display = 'none';
             } else {
-                document.getElementById('kantenlängen-inputs').style.display = 'none';
+                document.getElementById('kantenlaengen-inputs').style.display = 'none';
                 document.getElementById('position-inputs').style.display = 'block';
             }
         }
 
         function berechneSpitzenPosition(basisBreite, hoehe, kanteLinks, kanteRechts) {
-            // Mit dem Kosinussatz die Position der Spitze berechnen
-            const a = kanteLinks;  // linke Kantenlänge
-            const b = kanteRechts; // rechte Kantenlänge  
-            const c = basisBreite; // Basis
+            const a = kanteLinks;
+            const b = kanteRechts;
+            const c = basisBreite;
             
-            // Berechnung mit Kosinussatz: c² = a² + b² - 2ab*cos(C)
-            // Umgestellt nach der Position x der Spitze von links:
             const x = (a * a - b * b + c * c) / (2 * c);
-            
             return Math.max(0, Math.min(basisBreite, x));
         }
 
-        function berechneKantenlängen(basisBreite, hoehe, spitzenPos) {
+        function berechneKantenlaengen(basisBreite, hoehe, spitzenPos) {
             const linkeSeite = spitzenPos;
             const rechteSeite = basisBreite - spitzenPos;
             
@@ -601,14 +792,10 @@
             return { links: kanteLinks, rechts: kanteRechts };
         }
 
-        function berechneHoeheAusKantenlängen(basisBreite, kanteLinks, kanteRechts) {
-            // Berechne Spitzenposition
-            const spitzenPos = berechneSpitzenPosition(basisBreite, 1, kanteLinks, kanteRechts); // Höhe = 1 als Dummy
-            
-            // Berechne Höhe mit Pythagoras aus einer der beiden Seiten
+        function berechneHoeheAusKantenlaengen(basisBreite, kanteLinks, kanteRechts) {
+            const spitzenPos = berechneSpitzenPosition(basisBreite, 1, kanteLinks, kanteRechts);
             const linkeSeite = spitzenPos;
             const hoehe = Math.sqrt(kanteLinks * kanteLinks - linkeSeite * linkeSeite);
-            
             return hoehe;
         }
 
@@ -623,14 +810,11 @@
                 let positionVonLinksEnde = positionVonLinks + lieferbreite;
                 positionVonLinksEnde = Math.min(positionVonLinksEnde, basisBreite);
                 
-                // Berechnung der Plattenlänge für ungleichschenkliges Dreieck
                 let benoetigteLaenge;
                 
                 if (positionVonLinks <= spitzenPos && positionVonLinksEnde >= spitzenPos) {
-                    // Platte enthält die Spitze
                     benoetigteLaenge = hoehe;
                 } else {
-                    // Berechne Höhe an beiden Positionen
                     const hoeheStart = berechneHoeheAnPosition(positionVonLinks, basisBreite, hoehe, spitzenPos);
                     const hoeheEnde = berechneHoeheAnPosition(positionVonLinksEnde, basisBreite, hoehe, spitzenPos);
                     benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
@@ -659,13 +843,11 @@
             
             let abstand;
             if (position <= spitzenPos) {
-                // Links von der Spitze
                 abstand = spitzenPos - position;
                 const linkeSeite = spitzenPos;
                 if (linkeSeite === 0) return hoehe;
                 return hoehe * (1 - abstand / linkeSeite);
             } else {
-                // Rechts von der Spitze
                 abstand = position - spitzenPos;
                 const rechteSeite = basisBreite - spitzenPos;
                 if (rechteSeite === 0) return hoehe;
@@ -685,7 +867,7 @@
 
             let kanteLinks, kanteRechts, hoehe;
 
-            if (parameterModus === 'kantenlängen') {
+            if (parameterModus === 'kantenlaengen') {
                 kanteLinks = parseFloat(document.getElementById('kante-links').value);
                 kanteRechts = parseFloat(document.getElementById('kante-rechts').value);
                 
@@ -694,11 +876,9 @@
                     return;
                 }
                 
-                // Höhe aus Kantenlängen berechnen
-                hoehe = berechneHoeheAusKantenlängen(basisBreite, kanteLinks, kanteRechts);
+                hoehe = berechneHoeheAusKantenlaengen(basisBreite, kanteLinks, kanteRechts);
                 spitzenPosition = berechneSpitzenPosition(basisBreite, hoehe, kanteLinks, kanteRechts);
                 
-                // Validierung: Prüfe ob die Kantenlängen geometrisch möglich sind
                 if (hoehe <= 0 || isNaN(hoehe)) {
                     alert('Die eingegebenen Kantenlängen sind nicht mit der Basis-Breite vereinbar! Bitte prüfen Sie Ihre Eingabe.');
                     return;
@@ -717,12 +897,11 @@
                     return;
                 }
                 
-                const berechneteKanten = berechneKantenlängen(basisBreite, hoehe, spitzenPosition);
+                const berechneteKanten = berechneKantenlaengen(basisBreite, hoehe, spitzenPosition);
                 kanteLinks = berechneteKanten.links;
                 kanteRechts = berechneteKanten.rechts;
             }
 
-            // Track calculation event for analytics
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'calculation', {
                     'event_category': 'ungleichschenkliges_dreieck',
@@ -741,11 +920,8 @@
             document.getElementById('benoetigte-plattenlaenge').textContent = maxLaenge.toFixed(2) + ' m';
             document.getElementById('anzahl-bleche-breite').textContent = dreieckBerechnung.anzahlPlatten + ' Stück';
             document.getElementById('gesamt-bleche').textContent = dreieckBerechnung.anzahlPlatten + ' Stück';
-            
-            // Höhe in den Ergebnissen anzeigen
             document.getElementById('hoehe-result').textContent = hoehe.toFixed(2) + ' m';
 
-            // Schnittliste anzeigen
             const tbody = document.getElementById('schnitt-details');
             tbody.innerHTML = '';
             
@@ -764,11 +940,9 @@
             document.getElementById('results').style.display = 'block';
             document.getElementById('schnittliste').style.display = 'block';
             
-            // Vorschau generieren
             generiereVorschau(basisBreite, hoehe, spitzenPosition, dreieckBerechnung.schnittliste);
             document.getElementById('vorschau').style.display = 'block';
 
-            // Smooth scroll zu den Ergebnissen
             setTimeout(() => {
                 document.getElementById('results').scrollIntoView({ 
                     behavior: 'smooth', 
@@ -782,23 +956,19 @@
             const deckbreite = parseFloat(document.getElementById('deckbreite').value);
             const ueberlappung = lieferbreite - deckbreite;
             
-            // SVG-Dimensionen (kompakter)
             const svgWidth = 500;
             const svgHeight = 320;
             const margin = 40;
             const dreieckWidth = svgWidth - 2 * margin;
             const dreieckHeight = svgHeight - 2 * margin - 40;
             
-            // Skalierung
             const scaleX = dreieckWidth / basisBreite;
             const scaleY = dreieckHeight / hoehe;
             
             let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" style="border: 1px solid #ddd; border-radius: 8px;">`;
             
-            // Hintergrund (viel heller)
             svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#fdfdfd"/>`;
             
-            // Dreieck-Outline (ungleichschenklig)
             const dreieckSpitzeX = margin + spitzenPosition * scaleX;
             const dreieckSpitzeY = margin;
             const dreieckLinksX = margin;
@@ -808,7 +978,6 @@
             
             svg += `<polygon points="${dreieckSpitzeX},${dreieckSpitzeY} ${dreieckLinksX},${dreieckLinksY} ${dreieckRechtsX},${dreieckRechtsY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
             
-            // Platten zeichnen
             schnittliste.forEach((platte, index) => {
                 const plattenStart = parseFloat(platte.positionVonLinks);
                 const plattenEnde = parseFloat(platte.positionBis);
@@ -820,25 +989,20 @@
                 const plattenEndeReal = istLetztePlatte ? basisBreite : originalPlattenEnde;
                 const ueberdecktSpitze = plattenStart <= spitzenPosition && originalPlattenEnde >= spitzenPosition;
                 
-                // Plattenposition in SVG
                 const plattenX = margin + plattenStart * scaleX;
                 const plattenWidth = (plattenEndeReal - plattenStart) * scaleX;
                 
-                // Höhen an den Positionen
                 const hoeheStart = berechneHoeheAnPosition(plattenStart, basisBreite, hoehe, spitzenPosition);
                 const hoeheEnde = berechneHoeheAnPosition(plattenEndeReal, basisBreite, hoehe, spitzenPosition);
                 
                 const startY = margin + dreieckHeight - (hoeheStart * scaleY);
                 const endY = margin + dreieckHeight - (hoeheEnde * scaleY);
                 
-                // Platte als Rechteck (vereinfacht)
                 const plattenHoehe = benoetigteLaenge * scaleY;
                 const plattenY = margin + dreieckHeight - plattenHoehe;
                 
-                // Plattenhintergrund (dezenter)
                 svg += `<rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${plattenHoehe}" fill="#f8f9fa" stroke="#999" stroke-width="0.5"/>`;
                 
-                // Nutzen-Bereich (weniger opak)
                 if (ueberdecktSpitze) {
                     const spitzeX = margin + spitzenPosition * scaleX;
                     svg += `<polygon points="${plattenX},${margin + dreieckHeight} ${plattenX + plattenWidth},${margin + dreieckHeight} ${plattenX + plattenWidth},${endY} ${spitzeX},${margin} ${plattenX},${startY}" fill="#1e3c72" opacity="0.4"/>`;
@@ -846,7 +1010,6 @@
                     svg += `<polygon points="${plattenX},${margin + dreieckHeight} ${plattenX + plattenWidth},${margin + dreieckHeight} ${plattenX + plattenWidth},${endY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.4"/>`;
                 }
                 
-                // Verschnitt-Bereich (weniger opak)
                 if (ueberdecktSpitze) {
                     const spitzeX = margin + spitzenPosition * scaleX;
                     svg += `<polygon points="${plattenX},${startY} ${spitzeX},${margin} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.3"/>`;
@@ -854,31 +1017,25 @@
                     svg += `<polygon points="${plattenX},${startY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.3"/>`;
                 }
                 
-                // Überlappungs-Bereich (weniger opak)
                 if (index > 0 && ueberlappung > 0) {
                     const ueberlappungsWidth = ueberlappung * scaleX;
                     svg += `<rect x="${plattenX}" y="${plattenY}" width="${ueberlappungsWidth}" height="${plattenHoehe}" fill="#28a745" opacity="0.25"/>`;
                 }
                 
-                // Plattennummer
                 svg += `<text x="${plattenX + plattenWidth/2}" y="${margin + dreieckHeight + 18}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${platte.plattenNr}</text>`;
                 
-                // Spitze markieren
                 if (ueberdecktSpitze) {
                     svg += `<circle cx="${margin + spitzenPosition * scaleX}" cy="${margin}" r="3" fill="#ffc107"/>`;
                     svg += `<text x="${margin + spitzenPosition * scaleX}" y="${margin - 8}" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffc107">SPITZE</text>`;
                 }
             });
             
-            // Maßlinien (dezenter)
             svg += `<line x1="${margin}" y1="${margin + dreieckHeight + 30}" x2="${margin + basisBreite * scaleX}" y2="${margin + dreieckHeight + 30}" stroke="#666" stroke-width="1"/>`;
             svg += `<text x="${margin + (basisBreite * scaleX)/2}" y="${margin + dreieckHeight + 42}" text-anchor="middle" font-size="11" font-weight="bold" fill="#666">Basis: ${basisBreite}m</text>`;
             
-            // Höhenmaß (dezenter)
             svg += `<line x1="${margin - 15}" y1="${margin}" x2="${margin - 15}" y2="${margin + dreieckHeight}" stroke="#666" stroke-width="1"/>`;
             svg += `<text x="${margin - 25}" y="${margin + dreieckHeight/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#666" transform="rotate(-90 ${margin - 25} ${margin + dreieckHeight/2})">Höhe: ${hoehe}m</text>`;
             
-            // Spitzenposition markieren (dezenter)
             const spitzeX = margin + spitzenPosition * scaleX;
             svg += `<line x1="${spitzeX}" y1="${margin + dreieckHeight + 5}" x2="${spitzeX}" y2="${margin + dreieckHeight + 25}" stroke="#ffc107" stroke-width="1"/>`;
             svg += `<text x="${spitzeX}" y="${margin + dreieckHeight + 37}" text-anchor="middle" font-size="10" font-weight="bold" fill="#666">Spitze: ${spitzenPosition.toFixed(1)}m</text>`;
@@ -888,11 +1045,9 @@
             document.getElementById('vorschau-svg').innerHTML = svg;
         }
 
-        // NEUE ANRISSPLAN FUNKTION - Leitet zur zentralen anrissplan.html weiter
         function erstelleAnrissplan() {
             if (aktuelleSchnittliste.length === 0) return;
             
-            // Track anrissplan generation
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'anrissplan_generated', {
                     'event_category': 'ungleichschenkliges_dreieck',
@@ -903,21 +1058,21 @@
             const basisBreite = parseFloat(document.getElementById('basis-breite').value);
             const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
             
+            const vorschauSvg = document.getElementById('vorschau-svg').innerHTML;
+            
             const planData = {
                 basisBreite: basisBreite,
                 hoehe: hoehe,
                 spitzenPosition: spitzenPosition,
-                schnittliste: aktuelleSchnittliste
+                schnittliste: aktuelleSchnittliste,
+                vorschauSvg: vorschauSvg
             };
             
-            // Daten kodieren und zur Anrissplan-Seite weiterleiten
             const encodedData = encodeURIComponent(JSON.stringify(planData));
             window.location.href = `anrissplan.html?type=ungleichschenkliges-dreieck&data=${encodedData}`;
         }
 
-        // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize tracking and ads based on existing consent
             const cookieConsent = localStorage.getItem('cookieConsent');
             if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
                 loadAnalytics();
@@ -927,8 +1082,7 @@
                 showAds();
             }
             
-            // Initial den Kantenlängen-Modus aktivieren
-            wechsleParameterModus('kantenlängen');
+            wechsleParameterModus('kantenlaengen');
         });
     </script>
 </body>
