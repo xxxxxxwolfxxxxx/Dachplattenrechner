@@ -465,6 +465,127 @@
             margin-bottom: 15px;
         }
 
+        /* Modal Styles von index.html */
+        .calculation-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .calculation-modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+            margin: 3% auto;
+            padding: 40px;
+            border-radius: 20px;
+            width: 95%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .calculation-close {
+            position: absolute;
+            right: 25px;
+            top: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.3s ease;
+        }
+
+        .calculation-close:hover {
+            color: #0ea5e9;
+            transform: scale(1.1);
+        }
+
+        .calculation-modal h2 {
+            color: #fff;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .calculation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .calculation-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            text-decoration: none;
+            color: inherit;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .calculation-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0ea5e9, #06b6d4);
+        }
+
+        .calculation-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border-color: #0ea5e9;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .calculation-icon {
+            text-align: center;
+            margin-bottom: 20px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calculation-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #fff;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .calculation-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         @media (max-width: 768px) {
             .glass-panel {
                 padding: 40px 30px;
@@ -699,10 +820,10 @@
             <span class="nav-text">Zurück zur Planung</span>
         </a>
         
-        <a href="/" class="nav-button sketch-button">
+        <div class="nav-button sketch-button" onclick="window.open('/');setTimeout(() => { const newWindow = window.open('/', '_blank'); newWindow.onload = () => newWindow.openSketchModal(); }, 100);">
             <span class="nav-icon">📋</span>
             <span class="nav-text">Bemaßungsskizzen</span>
-        </a>
+        </div>
         
         <a href="uk.html" class="nav-button nav-forward">
             <span class="nav-text">Zur Unterkonstruktion</span>
@@ -913,6 +1034,35 @@
         });
 
         window.addEventListener('resize', updateScrollIndicator);
+
+        // Modal Functions
+        function openSketchModal() {
+            document.getElementById('sketchModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSketchModal() {
+            document.getElementById('sketchModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function printSketch(filename) {
+            const printWindow = window.open(filename, '_blank');
+            if (printWindow) {
+                printWindow.onload = function() {
+                    printWindow.print();
+                };
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const sketchModal = document.getElementById('sketchModal');
+            
+            if (event.target === sketchModal) {
+                closeSketchModal();
+            }
+        }
 
         // Initialize
         createFloatingElements();
