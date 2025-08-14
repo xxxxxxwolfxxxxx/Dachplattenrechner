@@ -498,7 +498,7 @@
                 case 'gleichschenkliges-dreieck':
                     svg = generateTriangleSVG(data, true);
                     break;
-                case 'ungleichschenkligs-dreieck':
+                case 'ungleichschenkliges-dreieck':
                     svg = generateTriangleSVG(data, false);
                     break;
                 case 'trapez':
@@ -683,7 +683,7 @@
                     anreissRechts = Math.round(hoeheEndeGleich * 100);
                     break;
                     
-                case 'ungleichschenkligs-dreieck':
+                case 'ungleichschenkliges-dreieck':
                     const spitzeUngleich = parseFloat(data.spitzenPosition);
                     const hoeheUngleich = parseFloat(data.hoehe);
                     const basisUngleich = parseFloat(data.basisBreite);
@@ -792,7 +792,7 @@
             
             switch(type) {
                 case 'gleichschenkliges-dreieck':
-                case 'ungleichschenkligs-dreieck':
+                case 'ungleichschenkliges-dreieck':
                     const basisBreite = parseFloat(data.basisBreite);
                     istLetztePlatte = (plattenStart + plattenBreite) > basisBreite;
                     plattenEndeReal = istLetztePlatte ? basisBreite : plattenEnde;
@@ -883,7 +883,7 @@
             let basisBreite = 0;
             switch(type) {
                 case 'gleichschenkliges-dreieck':
-                case 'ungleichschenkligs-dreieck':
+                case 'ungleichschenkliges-dreieck':
                     basisBreite = parseFloat(data.basisBreite);
                     break;
                 case 'trapez':
@@ -920,7 +920,7 @@
                 }
             }
             
-            if (type === 'ungleichschenkligs-dreieck') {
+            if (type === 'ungleichschenkliges-dreieck') {
                 const spitzenPosition = parseFloat(data.spitzenPosition);
                 const ueberdecktSpitze = plattenStart <= spitzenPosition && originalPlattenEnde >= spitzenPosition;
                 
