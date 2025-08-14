@@ -618,7 +618,7 @@
                     <span id="gesamt-bleche">-</span>
                 </div>
                 
-                <!-- Visuelles Vorschaufenster (kompakter) -->
+                <!-- Visuelles Vorschaufenster -->
                 <div id="vorschau" style="display: none; margin-top: 25px;">
                     <h4 style="color: #ffffff; font-size: 1.2em; margin-bottom: 15px;">Visuelle Vorschau</h4>
                     <div style="text-align: center; margin-bottom: 15px;">
@@ -687,14 +687,6 @@
         let aktuelleSchnittliste = [];
         let parameterModus = 'basis-hoehe';
 
-        // Cookie Management System
-        function showCookieBanner() {
-            const cookieConsent = localStorage.getItem('cookieConsent');
-            if (!cookieConsent) {
-                document.getElementById('cookieBanner').classList.add('show');
-            }
-        }
-
         function acceptAllCookies() {
             localStorage.setItem('cookieConsent', 'all');
             localStorage.setItem('analyticsCookies', 'true');
@@ -717,12 +709,10 @@
 
         function showAds() {
             if (localStorage.getItem('marketingCookies') === 'true') {
-                // Zeige AdSense-Container
                 document.getElementById('top-ad-container').style.display = 'block';
                 document.getElementById('middle-ad-container').style.display = 'block';
                 document.getElementById('bottom-ad-container').style.display = 'block';
                 
-                // Lade AdSense-Anzeigen
                 if (window.adsbygoogle) {
                     try {
                         const ads = document.querySelectorAll('.adsbygoogle');
@@ -747,7 +737,6 @@
         function wechsleParameterModus(modus) {
             parameterModus = modus;
             
-            // Buttons aktualisieren
             document.getElementById('btn-basis-hoehe').classList.remove('active');
             document.getElementById('btn-kantenlaenge').classList.remove('active');
             
@@ -757,7 +746,6 @@
                 document.getElementById('btn-basis-hoehe').classList.add('active');
             }
             
-            // Eingabe-Bereiche ein-/ausblenden
             if (modus === 'basis-hoehe') {
                 document.getElementById('basis-hoehe-inputs').style.display = 'block';
                 document.getElementById('kantenlaenge-inputs').style.display = 'none';
@@ -770,7 +758,7 @@
         function berechneGleichschenkligesDreieck(basisBreite, hoehe, deckbreite) {
             const schnittliste = [];
             const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
-            const spitzenPosition = basisBreite / 2; // Spitze ist in der Mitte
+            const spitzenPosition = basisBreite / 2;
             
             let anzahlPlatten = Math.ceil((basisBreite - lieferbreite + deckbreite) / deckbreite);
             
@@ -779,14 +767,11 @@
                 let positionVonLinksEnde = positionVonLinks + lieferbreite;
                 positionVonLinksEnde = Math.min(positionVonLinksEnde, basisBreite);
                 
-                // Berechnung der Plattenlänge für gleichschenkliges Dreieck
                 let benoetigteLaenge;
                 
                 if (positionVonLinks <= spitzenPosition && positionVonLinksEnde >= spitzenPosition) {
-                    // Platte enthält die Spitze
                     benoetigteLaenge = hoehe;
                 } else {
-                    // Berechne Höhe an beiden Positionen
                     const hoeheStart = berechneHoeheAnPosition(positionVonLinks, basisBreite, hoehe);
                     const hoeheEnde = berechneHoeheAnPosition(positionVonLinksEnde, basisBreite, hoehe);
                     benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
@@ -815,7 +800,6 @@
             const maxAbstand = basisBreite / 2;
             
             if (abstand >= maxAbstand) return 0;
-            
             return maxHoehe * (1 - abstand / maxAbstand);
         }
 
@@ -858,7 +842,6 @@
                     return;
                 }
                 
-                // Validierung: Kantenlänge muss größer als halbe Basis sein
                 if (kantenlaenge <= basisBreite / 2) {
                     alert('Die Kantenlänge muss größer als die halbe Basis-Breite (' + (basisBreite / 2).toFixed(2) + 'm) sein!');
                     return;
@@ -872,7 +855,6 @@
                 }
             }
 
-            // Track calculation event for analytics
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'calculation', {
                     'event_category': 'gleichschenkliges_dreieck',
@@ -891,7 +873,6 @@
             document.getElementById('anzahl-bleche-breite').textContent = dreieckBerechnung.anzahlPlatten + ' Stück';
             document.getElementById('gesamt-bleche').textContent = dreieckBerechnung.anzahlPlatten + ' Stück';
 
-            // Schnittliste anzeigen
             const tbody = document.getElementById('schnitt-details');
             tbody.innerHTML = '';
             
@@ -910,11 +891,9 @@
             document.getElementById('results').style.display = 'block';
             document.getElementById('schnittliste').style.display = 'block';
             
-            // Vorschau generieren
             generiereVorschau(basisBreite, hoehe, dreieckBerechnung.schnittliste);
             document.getElementById('vorschau').style.display = 'block';
 
-            // Smooth scroll zu den Ergebnissen
             setTimeout(() => {
                 document.getElementById('results').scrollIntoView({ 
                     behavior: 'smooth', 
@@ -929,23 +908,19 @@
             const deckbreite = parseFloat(document.getElementById('deckbreite').value);
             const ueberlappung = lieferbreite - deckbreite;
             
-            // SVG-Dimensionen (kompakter)
             const svgWidth = 500;
             const svgHeight = 320;
             const margin = 40;
             const dreieckWidth = svgWidth - 2 * margin;
             const dreieckHeight = svgHeight - 2 * margin - 40;
             
-            // Skalierung
             const scaleX = dreieckWidth / basisBreite;
             const scaleY = dreieckHeight / hoehe;
             
             let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" style="border: 1px solid #ddd; border-radius: 8px;">`;
             
-            // Hintergrund (viel heller)
             svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#fdfdfd"/>`;
             
-            // Dreieck-Outline
             const dreieckSpitzeX = margin + spitzenPosition * scaleX;
             const dreieckSpitzeY = margin;
             const dreieckLinksX = margin;
@@ -955,7 +930,6 @@
             
             svg += `<polygon points="${dreieckSpitzeX},${dreieckSpitzeY} ${dreieckLinksX},${dreieckLinksY} ${dreieckRechtsX},${dreieckRechtsY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
             
-            // Platten zeichnen
             schnittliste.forEach((platte, index) => {
                 const plattenStart = parseFloat(platte.positionVonLinks);
                 const plattenEnde = parseFloat(platte.positionBis);
@@ -967,25 +941,20 @@
                 const plattenEndeReal = istLetztePlatte ? basisBreite : originalPlattenEnde;
                 const ueberdecktSpitze = plattenStart <= spitzenPosition && originalPlattenEnde >= spitzenPosition;
                 
-                // Plattenposition in SVG
                 const plattenX = margin + plattenStart * scaleX;
                 const plattenWidth = (plattenEndeReal - plattenStart) * scaleX;
                 
-                // Höhen an den Positionen
                 const hoeheStart = berechneHoeheAnPosition(plattenStart, basisBreite, hoehe);
                 const hoeheEnde = berechneHoeheAnPosition(plattenEndeReal, basisBreite, hoehe);
                 
                 const startY = margin + dreieckHeight - (hoeheStart * scaleY);
                 const endY = margin + dreieckHeight - (hoeheEnde * scaleY);
                 
-                // Platte als Rechteck (vereinfacht)
                 const plattenHoehe = benoetigteLaenge * scaleY;
                 const plattenY = margin + dreieckHeight - plattenHoehe;
                 
-                // Plattenhintergrund (dezenter)
                 svg += `<rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${plattenHoehe}" fill="#f8f9fa" stroke="#999" stroke-width="0.5"/>`;
                 
-                // Nutzen-Bereich (weniger opak)
                 if (ueberdecktSpitze) {
                     const spitzeX = margin + spitzenPosition * scaleX;
                     svg += `<polygon points="${plattenX},${margin + dreieckHeight} ${plattenX + plattenWidth},${margin + dreieckHeight} ${plattenX + plattenWidth},${endY} ${spitzeX},${margin} ${plattenX},${startY}" fill="#1e3c72" opacity="0.4"/>`;
@@ -993,7 +962,6 @@
                     svg += `<polygon points="${plattenX},${margin + dreieckHeight} ${plattenX + plattenWidth},${margin + dreieckHeight} ${plattenX + plattenWidth},${endY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.4"/>`;
                 }
                 
-                // Verschnitt-Bereich (weniger opak)
                 if (ueberdecktSpitze) {
                     const spitzeX = margin + spitzenPosition * scaleX;
                     svg += `<polygon points="${plattenX},${startY} ${spitzeX},${margin} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.3"/>`;
@@ -1001,27 +969,22 @@
                     svg += `<polygon points="${plattenX},${startY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.3"/>`;
                 }
                 
-                // Überlappungs-Bereich (weniger opak)
                 if (index > 0 && ueberlappung > 0) {
                     const ueberlappungsWidth = ueberlappung * scaleX;
                     svg += `<rect x="${plattenX}" y="${plattenY}" width="${ueberlappungsWidth}" height="${plattenHoehe}" fill="#28a745" opacity="0.25"/>`;
                 }
                 
-                // Plattennummer
                 svg += `<text x="${plattenX + plattenWidth/2}" y="${margin + dreieckHeight + 18}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${platte.plattenNr}</text>`;
                 
-                // Spitze markieren
                 if (ueberdecktSpitze) {
                     svg += `<circle cx="${margin + spitzenPosition * scaleX}" cy="${margin}" r="3" fill="#ffc107"/>`;
                     svg += `<text x="${margin + spitzenPosition * scaleX}" y="${margin - 8}" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffc107">SPITZE</text>`;
                 }
             });
             
-            // Maßlinien (dezenter)
             svg += `<line x1="${margin}" y1="${margin + dreieckHeight + 30}" x2="${margin + basisBreite * scaleX}" y2="${margin + dreieckHeight + 30}" stroke="#666" stroke-width="1"/>`;
             svg += `<text x="${margin + (basisBreite * scaleX)/2}" y="${margin + dreieckHeight + 42}" text-anchor="middle" font-size="11" font-weight="bold" fill="#666">Basis: ${basisBreite}m</text>`;
             
-            // Höhenmaß (dezenter)
             svg += `<line x1="${margin - 15}" y1="${margin}" x2="${margin - 15}" y2="${margin + dreieckHeight}" stroke="#666" stroke-width="1"/>`;
             svg += `<text x="${margin - 25}" y="${margin + dreieckHeight/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#666" transform="rotate(-90 ${margin - 25} ${margin + dreieckHeight/2})">Höhe: ${hoehe}m</text>`;
             
@@ -1033,7 +996,6 @@
         function erstelleAnrissplan() {
             if (aktuelleSchnittliste.length === 0) return;
             
-            // Track anrissplan generation
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'anrissplan_generated', {
                     'event_category': 'gleichschenkliges_dreieck',
@@ -1046,7 +1008,6 @@
                 parseFloat(document.getElementById('basis-breite-kante').value);
             const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
             
-            // Vorschau-SVG generieren und mitschicken
             const vorschauSvg = document.getElementById('vorschau-svg').innerHTML;
             
             const planData = {
@@ -1056,14 +1017,11 @@
                 vorschauSvg: vorschauSvg
             };
             
-            // Daten kodieren und zur Anrissplan-Seite weiterleiten
             const encodedData = encodeURIComponent(JSON.stringify(planData));
             window.location.href = `anrissplan.html?type=gleichschenkliges-dreieck&data=${encodedData}`;
         }
 
-        // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize tracking and ads based on existing consent
             const cookieConsent = localStorage.getItem('cookieConsent');
             if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
                 loadAnalytics();
@@ -1073,7 +1031,6 @@
                 showAds();
             }
             
-            // Initial den Basis-Höhe-Modus aktivieren
             wechsleParameterModus('basis-hoehe');
         });
     </script>
