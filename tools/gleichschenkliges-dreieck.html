@@ -55,17 +55,263 @@
         }
     </script>
 
-    
     <style>
-        /* Hintergrundbild */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-image: url('../images/gleichschenkliges-dreieck.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
         }
-        
+
+        .nav-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-btn:hover {
+            opacity: 0.8;
+        }
+
+        .nav-title {
+            color: #ffffff;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .section h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #e3f2fd;
+            padding-bottom: 10px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .parameter-switch {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .parameter-switch button {
+            padding: 12px 20px;
+            border: 2px solid #1e3c72;
+            background: white;
+            color: #1e3c72;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .parameter-switch button.active {
+            background: #1e3c72;
+            color: white;
+        }
+
+        .parameter-switch button:hover {
+            background: #1e3c72;
+            color: white;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        .results {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item span:first-child {
+            font-weight: 500;
+        }
+
+        .result-item span:last-child {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #ffd700;
+        }
+
+        .schnitt-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .schnitt-table th,
+        .schnitt-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .schnitt-table th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        .anriss-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            width: auto;
+            min-width: 200px;
+        }
+
+        .anriss-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            background: linear-gradient(135deg, #218838 0%, #1ea89c 100%);
+        }
+
+        .anriss-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+        }
+
         /* Elegante Werbecontainer */
         .ad-container, .ad-container-middle {
             margin: 30px auto;
@@ -151,68 +397,29 @@
             display: block !important;
         }
 
-        /* Anrissplan Button Styling */
-        .anriss-btn {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 20px auto;
-            display: block;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-            transition: all 0.3s ease;
-            text-decoration: none;
-            width: auto;
-            min-width: 200px;
-        }
-
-        .anriss-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-            background: linear-gradient(135deg, #218838 0%, #1ea89c 100%);
-        }
-
-        .anriss-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
-        }
-
-        /* Sicherstellen dass der Berechnen-Button das gleiche Styling hat */
-        .calculate-btn {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 20px auto;
-            display: block;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-            transition: all 0.3s ease;
-            text-decoration: none;
-            width: auto;
-            min-width: 200px;
-        }
-
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-        }
-
-        .calculate-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
-        }
-        
         /* Mobile Optimierung */
         @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .input-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .input-group {
+                min-width: auto;
+            }
+            
+            .parameter-switch {
+                flex-direction: column;
+            }
+            
+            .parameter-switch button {
+                width: 100%;
+            }
+            
             .ad-container, .ad-container-middle {
                 margin: 20px 15px;
             }
@@ -309,7 +516,7 @@
                     <button id="btn-basis-hoehe" class="active" onclick="wechsleParameterModus('basis-hoehe')">
                         📐 Basis + Höhe eingeben
                     </button>
-                    <button id="btn-kantenlänge" onclick="wechsleParameterModus('kantenlaenge')">
+                    <button id="btn-kantenlaenge" onclick="wechsleParameterModus('kantenlaenge')">
                         📏 Kantenlänge eingeben
                     </button>
                 </div>
@@ -339,8 +546,8 @@
                             <input type="number" id="basis-breite-kante" step="0.01" min="0" placeholder="z.B. 8.00">
                         </div>
                         <div class="input-group">
-                            <label for="kantenlänge">Kantenlänge (m)</label>
-                            <input type="number" id="kantenlänge" step="0.01" min="0" placeholder="z.B. 7.50">
+                            <label for="kantenlaenge">Kantenlänge (m)</label>
+                            <input type="number" id="kantenlaenge" step="0.01" min="0" placeholder="z.B. 7.50">
                         </div>
                     </div>
                     <div class="info-box">
@@ -392,7 +599,7 @@
                 </div>
                 <div class="result-item">
                     <span>Berechnete Kantenlänge:</span>
-                    <span id="kantenlänge-result">-</span>
+                    <span id="kantenlaenge-result">-</span>
                 </div>
                 <div class="result-item">
                     <span>Berechnete Höhe:</span>
@@ -542,10 +749,10 @@
             
             // Buttons aktualisieren
             document.getElementById('btn-basis-hoehe').classList.remove('active');
-            document.getElementById('btn-kantenlänge').classList.remove('active');
+            document.getElementById('btn-kantenlaenge').classList.remove('active');
             
             if (modus === 'kantenlaenge') {
-                document.getElementById('btn-kantenlänge').classList.add('active');
+                document.getElementById('btn-kantenlaenge').classList.add('active');
             } else {
                 document.getElementById('btn-basis-hoehe').classList.add('active');
             }
@@ -612,18 +819,18 @@
             return maxHoehe * (1 - abstand / maxAbstand);
         }
 
-        function berechneKantenlängeAusHoehe(basisBreite, hoehe) {
+        function berechneKantenlaengeAusHoehe(basisBreite, hoehe) {
             const halbeBase = basisBreite / 2;
             return Math.sqrt(halbeBase * halbeBase + hoehe * hoehe);
         }
 
-        function berechneHoeheAusKantenlänge(basisBreite, kantenlänge) {
+        function berechneHoeheAusKantenlaenge(basisBreite, kantenlaenge) {
             const halbeBase = basisBreite / 2;
-            return Math.sqrt(kantenlänge * kantenlänge - halbeBase * halbeBase);
+            return Math.sqrt(kantenlaenge * kantenlaenge - halbeBase * halbeBase);
         }
 
         function berechnen() {
-            let basisBreite, hoehe, kantenlänge;
+            let basisBreite, hoehe, kantenlaenge;
             const deckbreite = parseFloat(document.getElementById('deckbreite').value);
             const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
 
@@ -641,23 +848,23 @@
                     return;
                 }
                 
-                kantenlänge = berechneKantenlängeAusHoehe(basisBreite, hoehe);
+                kantenlaenge = berechneKantenlaengeAusHoehe(basisBreite, hoehe);
             } else if (parameterModus === 'kantenlaenge') {
                 basisBreite = parseFloat(document.getElementById('basis-breite-kante').value);
-                kantenlänge = parseFloat(document.getElementById('kantenlänge').value);
+                kantenlaenge = parseFloat(document.getElementById('kantenlaenge').value);
                 
-                if (!basisBreite || !kantenlänge) {
+                if (!basisBreite || !kantenlaenge) {
                     alert('Bitte geben Sie Basis-Breite und Kantenlänge ein!');
                     return;
                 }
                 
                 // Validierung: Kantenlänge muss größer als halbe Basis sein
-                if (kantenlänge <= basisBreite / 2) {
+                if (kantenlaenge <= basisBreite / 2) {
                     alert('Die Kantenlänge muss größer als die halbe Basis-Breite (' + (basisBreite / 2).toFixed(2) + 'm) sein!');
                     return;
                 }
                 
-                hoehe = berechneHoeheAusKantenlänge(basisBreite, kantenlänge);
+                hoehe = berechneHoeheAusKantenlaenge(basisBreite, kantenlaenge);
                 
                 if (hoehe <= 0 || isNaN(hoehe)) {
                     alert('Die eingegebene Kantenlänge ist nicht mit der Basis-Breite vereinbar!');
@@ -678,7 +885,7 @@
             const maxLaenge = Math.max(...dreieckBerechnung.schnittliste.map(p => parseFloat(p.benoetigteLaenge)));
 
             document.getElementById('ueberlappung').textContent = ueberlappung.toFixed(2) + ' m';
-            document.getElementById('kantenlänge-result').textContent = kantenlänge.toFixed(2) + ' m';
+            document.getElementById('kantenlaenge-result').textContent = kantenlaenge.toFixed(2) + ' m';
             document.getElementById('hoehe-result').textContent = hoehe.toFixed(2) + ' m';
             document.getElementById('benoetigte-plattenlaenge').textContent = maxLaenge.toFixed(2) + ' m';
             document.getElementById('anzahl-bleche-breite').textContent = dreieckBerechnung.anzahlPlatten + ' Stück';
@@ -823,7 +1030,6 @@
             document.getElementById('vorschau-svg').innerHTML = svg;
         }
 
-        // NEUE ANRISSPLAN FUNKTION - Leitet zur zentralen anrissplan.html weiter
         function erstelleAnrissplan() {
             if (aktuelleSchnittliste.length === 0) return;
             
@@ -840,10 +1046,14 @@
                 parseFloat(document.getElementById('basis-breite-kante').value);
             const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
             
+            // Vorschau-SVG generieren und mitschicken
+            const vorschauSvg = document.getElementById('vorschau-svg').innerHTML;
+            
             const planData = {
                 basisBreite: basisBreite,
                 hoehe: hoehe,
-                schnittliste: aktuelleSchnittliste
+                schnittliste: aktuelleSchnittliste,
+                vorschauSvg: vorschauSvg
             };
             
             // Daten kodieren und zur Anrissplan-Seite weiterleiten
