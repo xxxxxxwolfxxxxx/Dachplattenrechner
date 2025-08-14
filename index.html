@@ -329,6 +329,24 @@
                     <span class="cta-button">Skizzen drucken</span>
                 </div>
 
+                <!-- Farben -->
+                <a href="farben.html" class="calculator-card">
+                    <div class="card-icon">
+                        <img src="Images/farbkarte.png" alt="RAL und Prelaq Farben" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
+                    </div>
+                    <h2 class="card-title">Farben</h2>
+                    <p class="card-description">
+                        Übersicht aller RAL und Prelaq Farben für Trapezbleche und Dachplatten.
+                    </p>
+                    <ul class="card-features">
+                        <li>RAL Classic Farben</li>
+                        <li>Prelaq Farbpalette</li>
+                        <li>Farbcodes und Namen</li>
+                        <li>Visuelle Darstellung</li>
+                    </ul>
+                    <span class="cta-button">Farben ansehen</span>
+                </a>
+
                 <!-- Sonderwinkel zeichnen -->
                 <a href="tools/kantteil.html" class="calculator-card">
                     <div class="card-icon">
@@ -972,6 +990,65 @@
                         </div>
                     </div>
 
+                    <!-- Satteldach -->
+                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
+                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
+                                    <rect x="5" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
+                                    <rect x="30" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
+                                    <line x1="30" y1="15" x2="30" y2="65" stroke="#333" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">🏠 Satteldach</h4>
+                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Klassisches Satteldach mit First und Traufen</p>
+                                <button class="sketch-btn" onclick="printSketch('skizzen/Satteldach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">🖨️ Drucken</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Walmdach -->
+                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
+                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
+                                    <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
+                                    <line x1="30" y1="25" x2="30" y2="55" stroke="#333" stroke-width="1"/>
+                                    <line x1="5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
+                                    <line x1="55" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
+                                    <line x1="5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
+                                    <line x1="55" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
+                                </svg>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">🏘️ Walmdach</h4>
+                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Walmdach mit vier Dachflächen</p>
+                                <button class="sketch-btn" onclick="printSketch('skizzen/walmdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">🖨️ Drucken</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pyramidendach -->
+                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
+                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
+                                    <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
+                                    <line x1="5" y1="10" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
+                                    <line x1="55" y1="10" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
+                                    <line x1="5" y1="70" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
+                                    <line x1="55" y1="70" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
+                                </svg>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">🔺 Pyramidendach</h4>
+                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #666;">Pyramidenförmiges Dach mit zentralem Punkt</p>
+                                <button class="sketch-btn" onclick="printSketch('skizzen/pyramidendach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">🖨️ Drucken</button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Pultdach -->
                     <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
                         <div style="display: flex; align-items: flex-start; gap: 12px;">
