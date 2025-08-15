@@ -473,14 +473,6 @@
             svg += '<line x1="' + margin + '" y1="' + (linksY + 30) + '" x2="' + rechtsX + '" y2="' + (linksY + 30) + '" stroke="#666" stroke-width="1"/>';
             svg += '<text x="' + (margin + (basisBreite * scaleX)/2) + '" y="' + (linksY + 45) + '" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">Basis: ' + basisBreite + 'm</text>';
             
-            // Maßlinien von Spitze
-            const masslinieMitte = spitzeY - 30;
-            svg += '<line x1="' + linksX + '" y1="' + masslinieMitte + '" x2="' + spitzeX + '" y2="' + masslinieMitte + '" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>';
-            svg += '<text x="' + ((linksX + spitzeX)/2) + '" y="' + (masslinieMitte - 8) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">' + spitzenPosition.toFixed(1) + 'm</text>';
-            
-            svg += '<line x1="' + spitzeX + '" y1="' + masslinieMitte + '" x2="' + rechtsX + '" y2="' + masslinieMitte + '" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>';
-            svg += '<text x="' + ((spitzeX + rechtsX)/2) + '" y="' + (masslinieMitte - 8) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">' + (basisBreite - spitzenPosition).toFixed(1) + 'm</text>';
-            
             // Längenliste rechts
             const listenStart = diagramWidth + 20;
             svg += '<text x="' + listenStart + '" y="25" font-size="14" fill="#333" font-weight="bold">Plattenlängen:</text>';
@@ -513,9 +505,176 @@
             return '<p>Trapez auf Rechteck-Übersicht wird geladen...</p>';
         }
 
+        // Anrissmaße berechnen
+        function calculateAnreissMasse(plattenStart, plattenEnde, type, data) {
+            let anreissLinks = 0;
+            let anreissRechts = 0;
+            
+            switch(type) {
+                case 'gleichschenkliges-dreieck':
+                    const basisGleich = parseFloat(data.basisBreite);
+                    const hoeheGleich = parseFloat(data.hoehe);
+                    
+                    const hoeheStartGleich = berechneHoeheAnPositionGleich(plattenStart, basisGleich, hoeheGleich);
+                    const hoeheEndeGleich = berechneHoeheAnPositionGleich(plattenEnde, basisGleich, hoeheGleich);
+                    
+                    anreissLinks = Math.round(hoeheStartGleich * 100);
+                    anreissRechts = Math.round(hoeheEndeGleich * 100);
+                    break;
+                    
+                case 'ungleichschenkliges-dreieck':
+                    const spitzeUngleich = parseFloat(data.spitzenPosition);
+                    const hoeheUngleich = parseFloat(data.hoehe);
+                    const basisUngleich = parseFloat(data.basisBreite);
+                    
+                    const hoeheStartUngleich = berechneHoeheAnPositionUngleich(plattenStart, basisUngleich, hoeheUngleich, spitzeUngleich);
+                    const hoeheEndeUngleich = berechneHoeheAnPositionUngleich(plattenEnde, basisUngleich, hoeheUngleich, spitzeUngleich);
+                    
+                    anreissLinks = Math.round(hoeheStartUngleich * 100);
+                    anreissRechts = Math.round(hoeheEndeUngleich * 100);
+                    break;
+            }
+            
+            return { links: anreissLinks, rechts: anreissRechts };
+        }
+
+        // Höhenberechnungen
+        function berechneHoeheAnPositionGleich(position, basisBreite, maxHoehe) {
+            const spitzenPosition = basisBreite / 2;
+            const abstand = Math.abs(position - spitzenPosition);
+            const maxAbstand = basisBreite / 2;
+            
+            if (abstand >= maxAbstand) return 0;
+            return maxHoehe * (1 - abstand / maxAbstand);
+        }
+
+        function berechneHoeheAnPositionUngleich(position, basisBreite, hoehe, spitzenPosition) {
+            if (position <= 0) return 0;
+            if (position >= basisBreite) return 0;
+            
+            if (position <= spitzenPosition) {
+                const abstand = spitzenPosition - position;
+                const linkeSeite = spitzenPosition;
+                if (linkeSeite === 0) return hoehe;
+                return hoehe * (1 - abstand / linkeSeite);
+            } else {
+                const abstand = position - spitzenPosition;
+                const rechteSeite = basisBreite - spitzenPosition;
+                if (rechteSeite === 0) return hoehe;
+                return hoehe * (1 - abstand / rechteSeite);
+            }
+        }
+
         // Einzelne Platte generieren
         function generatePlate(item, index, type, data) {
-            return '<div class="anriss-plate"><h3>Platte ' + item.plattenNr + ' (Position: ' + item.positionVonLinks + 'm - ' + item.positionBis + 'm)</h3><p>Wird geladen...</p></div>';
+            const plattenStart = parseFloat(item.positionVonLinks);
+            const plattenEnde = parseFloat(item.positionBis);
+            const plattenBreite = parseFloat(item.plattenbreite);
+            const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
+            
+            // Anrissmaße berechnen basierend auf Typ
+            const anreissMasse = calculateAnreissMasse(plattenStart, plattenEnde, type, data);
+            
+            let html = '<div class="anriss-plate">';
+            html += '<div style="display: flex; gap: 20px;">';
+            html += '<div style="flex: 0 0 350px;">';
+            html += '<h3>Platte ' + item.plattenNr + ' (Position: ' + item.positionVonLinks + 'm - ' + item.positionBis + 'm)</h3>';
+            
+            html += '<div style="margin: 15px 0; padding: 10px; background: #f0f8ff; border-radius: 6px;">';
+            html += '<div><strong>Links:</strong> ' + anreissMasse.links + 'cm</div>';
+            html += '<div><strong>Rechts:</strong> ' + anreissMasse.rechts + 'cm</div>';
+            html += '<div><strong>Benötigte Länge:</strong> ' + item.benoetigteLaenge + 'm</div>';
+            html += '</div>';
+            
+            html += '<div style="background: #f8f9fa; border-left: 4px solid #ffc107; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.4;">';
+            html += generateInstructions(item, anreissMasse, type, data);
+            html += '</div>';
+            
+            html += '</div>';
+            html += '<div style="flex: 1; position: relative; height: 280px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">';
+            html += generatePlateDiagram(item, anreissMasse, type, data);
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            
+            return html;
+        }
+
+        // Plattendiagramm generieren
+        function generatePlateDiagram(item, anreissMasse, type, data) {
+            const plattenStart = parseFloat(item.positionVonLinks);
+            const plattenBreite = parseFloat(item.plattenbreite);
+            const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
+            
+            // SVG Dimensionen - maximale Ausnutzung
+            const plattenX = 20;
+            const plattenY = 20;
+            const plattenWidth = 360;
+            const plattenHeight = 180;
+            
+            // Anriss-Höhen berechnen
+            const anrissHoeheLinks = (anreissMasse.links / 100 / benoetigteLaengeM) * plattenHeight;
+            const anrissHoeheRechts = (anreissMasse.rechts / 100 / benoetigteLaengeM) * plattenHeight;
+            
+            // Y-Koordinaten
+            const nutzenStartY = plattenY + plattenHeight - anrissHoeheLinks;
+            const nutzenEndY = plattenY + plattenHeight - anrissHoeheRechts;
+            
+            let svg = '<svg width="100%" height="100%" viewBox="0 0 400 280" style="position: absolute; top: 0; left: 0;">';
+            
+            // Plattenhintergrund
+            svg += '<rect x="' + plattenX + '" y="' + plattenY + '" width="' + plattenWidth + '" height="' + plattenHeight + '" fill="#e9ecef" stroke="#999" stroke-width="2" rx="4"/>';
+            
+            // Nutzenbereich (blau)
+            svg += '<polygon points="' + plattenX + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + plattenWidth) + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + plattenWidth) + ',' + nutzenEndY + ' ' + plattenX + ',' + nutzenStartY + '" fill="#4a90e2" opacity="0.8"/>';
+            
+            // Verschnittbereich (rot)
+            svg += '<polygon points="' + plattenX + ',' + nutzenStartY + ' ' + (plattenX + plattenWidth) + ',' + nutzenEndY + ' ' + (plattenX + plattenWidth) + ',' + plattenY + ' ' + plattenX + ',' + plattenY + '" fill="#e74c3c" opacity="0.8"/>';
+            
+            // Schnittlinie (schwarz)
+            svg += '<line x1="' + plattenX + '" y1="' + nutzenStartY + '" x2="' + (plattenX + plattenWidth) + '" y2="' + nutzenEndY + '" stroke="#000" stroke-width="3"/>';
+            
+            // Anrisslinien (rot)
+            svg += '<line x1="' + plattenX + '" y1="' + (plattenY + plattenHeight) + '" x2="' + plattenX + '" y2="' + nutzenStartY + '" stroke="#dc3545" stroke-width="4"/>';
+            svg += '<line x1="' + (plattenX + plattenWidth) + '" y1="' + (plattenY + plattenHeight) + '" x2="' + (plattenX + plattenWidth) + '" y2="' + nutzenEndY + '" stroke="#dc3545" stroke-width="4"/>';
+            
+            // Anrissmaße
+            if (anreissMasse.links === 0) {
+                svg += '<text x="10" y="' + (plattenY + plattenHeight - 5) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold">' + anreissMasse.links + 'cm</text>';
+            } else {
+                svg += '<text x="10" y="' + (nutzenStartY + (plattenHeight - anrissHoeheLinks)/2) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 10 ' + (nutzenStartY + (plattenHeight - anrissHoeheLinks)/2) + ')">' + anreissMasse.links + 'cm</text>';
+            }
+            
+            if (anreissMasse.rechts === 0) {
+                svg += '<text x="' + (plattenX + plattenWidth + 10) + '" y="' + (plattenY + plattenHeight - 5) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold">' + anreissMasse.rechts + 'cm</text>';
+            } else {
+                svg += '<text x="' + (plattenX + plattenWidth + 10) + '" y="' + (nutzenEndY + (plattenHeight - anrissHoeheRechts)/2) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 ' + (plattenX + plattenWidth + 10) + ' ' + (nutzenEndY + (plattenHeight - anrissHoeheRechts)/2) + ')">' + anreissMasse.rechts + 'cm</text>';
+            }
+            
+            // Beschriftung "Nutzen" unter der Platte
+            svg += '<text x="' + (plattenX + plattenWidth/2) + '" y="' + (plattenY + plattenHeight + 20) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="16">Nutzen</text>';
+            
+            // Gelbe gestrichelte Maßlinie von links nach rechts mit Maß
+            const massLinieY = plattenY - 15;
+            svg += '<line x1="' + plattenX + '" y1="' + massLinieY + '" x2="' + (plattenX + plattenWidth) + '" y2="' + massLinieY + '" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>';
+            svg += '<text x="' + (plattenX + plattenWidth/2) + '" y="' + (massLinieY - 8) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">' + plattenBreite.toFixed(2) + 'm</text>';
+            
+            svg += '</svg>';
+            
+            return svg;
+        }
+
+        // Anweisungen generieren
+        function generateInstructions(item, anreissMasse, type, data) {
+            let instructions = '<strong>Anzeichnen:</strong><br>';
+            instructions += '• Von der Unterkante: Links bei ' + anreissMasse.links + 'cm und rechts bei ' + anreissMasse.rechts + 'cm markieren<br>';
+            instructions += '• Diagonale Schnittlinie anzeichnen und oberen Teil absägen<br>';
+            
+            if (anreissMasse.links === anreissMasse.rechts) {
+                instructions += '• <strong style="color: #198754;">TIPP: Symmetrischer Schnitt!</strong><br>';
+            }
+            
+            return instructions;
         }
 
         // Alle Platten generieren
