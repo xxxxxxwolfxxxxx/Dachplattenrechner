@@ -520,6 +520,7 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
             spitzenPosition = type === 'gleichschenkliges-dreieck' ? basisBreite / 2 : parseFloat(data.spitzenPosition);
             // Korrigierte Spitzenerkennung: Prüfe ob Spitze innerhalb der Platte liegt
             istSpitzenPlatte = plattenStart < spitzenPosition && (plattenStart + plattenBreite) > spitzenPosition;
+            istTrapezEckenPlatte = false;
             break;
         case 'trapez':
             basisBreite = parseFloat(data.untereBreite);
@@ -545,6 +546,12 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
             const plattenEnde = plattenStart + plattenBreite;
             istTrapezEckenPlatte = (plattenStart < linkeEcke && plattenEnde > linkeEcke) || 
                                  (plattenStart < rechteEcke && plattenEnde > rechteEcke);
+            istSpitzenPlatte = false;
+            break;
+        default:
+            basisBreite = 0;
+            istSpitzenPlatte = false;
+            istTrapezEckenPlatte = false;
             break;
     }
     
