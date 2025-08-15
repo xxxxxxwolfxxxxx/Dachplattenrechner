@@ -1,4 +1,4 @@
-// anrissplan.js - Alle JavaScript-Funktionen für den Anrissplan
+case// anrissplan.js - Alle JavaScript-Funktionen für den Anrissplan
 
 // Globale Variablen
 let planData = null;
