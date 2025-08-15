@@ -216,6 +216,8 @@
             border: 1px solid #ddd;
             margin: 20px auto;
             position: relative;
+            height: 120px;
+            width: 320px;
         }
 
         .instructions {
@@ -236,21 +238,27 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            font-size: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
             font-weight: bold;
         }
 
         .measurement-left {
             color: #dc3545;
             text-align: center;
-            width: 60px;
+            width: 80px;
         }
 
         .measurement-right {
             color: #dc3545;
             text-align: center;
-            width: 60px;
+            width: 80px;
+        }
+
+        .measurement-center {
+            flex-grow: 1;
+            text-align: center;
+            color: #333;
         }
 
         /* Druckstile - maximal optimiert */
@@ -346,7 +354,7 @@
             }
             
             .measurements {
-                font-size: 8px !important;
+                font-size: 10px !important;
             }
             
             .measurement-left,
@@ -354,10 +362,13 @@
                 color: #000 !important;
             }
             
+            .measurement-center {
+                color: #000 !important;
+            }
+            
             svg text {
-                fill: #fff !important;
-                stroke: #000 !important;
-                stroke-width: 0.5pt !important;
+                fill: #000 !important;
+                stroke: none !important;
                 font-weight: bold !important;
                 font-size: 8px !important;
             }
@@ -402,22 +413,22 @@
         <div class="anrissplan-header">
             <h1 id="plan-title">Anrissplan wird geladen...</h1>
             <div id="plan-info" class="anrissplan-info">
-                <strong>📏 Professioneller Anrissplan:</strong> Alle Maße in Zentimeter, druckoptimiert für die Werkstatt
+                <strong>Professioneller Anrissplan:</strong> Alle Maße in Zentimeter, druckoptimiert für die Werkstatt
             </div>
         </div>
 
         <div class="anrissplan-controls">
             <button onclick="window.print()" class="btn btn-primary">
-                🖨️ Drucken
+                Drucken
             </button>
             <a href="../index.html" class="btn btn-success">
-                🏠 Zurück zur Übersicht
+                Zurück zur Übersicht
             </a>
         </div>
 
         <!-- Übersichtssektion (wird beim Drucken ausgeblendet) -->
         <div class="overview-section" id="overview-section">
-            <h3>📊 Dachflächen-Übersicht</h3>
+            <h3>Dachflächen-Übersicht</h3>
             <div id="overview-content">
                 <!-- Wird dynamisch gefüllt -->
             </div>
@@ -484,28 +495,27 @@
             }
             
             titleElement.textContent = title;
-            infoElement.innerHTML = `<strong>📏 ${title}:</strong> ${info}`;
+            infoElement.innerHTML = `<strong>${title}:</strong> ${info}`;
         }
 
-        // Übersicht generieren
+        // Übersicht generieren mit Plattenaufteilung
         function generateOverview(type, data) {
             const container = document.getElementById('overview-content');
             
-            // SVG basierend auf Typ generieren (ohne vorschauSvg zu verwenden)
             let svg = '';
             
             switch(type) {
                 case 'gleichschenkliges-dreieck':
-                    svg = generateTriangleSVG(data, true);
+                    svg = generateTriangleSVGWithPlates(data, true);
                     break;
                 case 'ungleichschenkliges-dreieck':
-                    svg = generateTriangleSVG(data, false);
+                    svg = generateTriangleSVGWithPlates(data, false);
                     break;
                 case 'trapez':
-                    svg = generateTrapezSVG(data);
+                    svg = generateTrapezSVGWithPlates(data);
                     break;
                 case 'trapez-auf-rechteck':
-                    svg = generateTrapezRechteckSVG(data);
+                    svg = generateTrapezRechteckSVGWithPlates(data);
                     break;
                 default:
                     svg = '<p>Unbekannte Dachform</p>';
@@ -514,17 +524,17 @@
             container.innerHTML = `
                 <div style="text-align: center; border: 2px solid #1e3c72; border-radius: 8px; padding: 20px; background: white; display: inline-block;">
                     ${svg}
-                </div>
-                <div style="margin-top: 15px; text-align: center; color: #666;">
-                    <strong>📋 Anrissplan für ${data.schnittliste.length} Platten</strong>
+                    <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                        <strong>Plattenaufteilung für ${data.schnittliste.length} Platten</strong>
+                    </div>
                 </div>
             `;
         }
 
-        // SVG für Dreieck generieren
-        function generateTriangleSVG(data, isGleichschenklig) {
-            const width = 400;
-            const height = 250;
+        // SVG für Dreieck mit Platten generieren
+        function generateTriangleSVGWithPlates(data, isGleichschenklig) {
+            const width = 500;
+            const height = 300;
             const margin = 40;
             
             const basisBreite = parseFloat(data.basisBreite);
@@ -541,26 +551,47 @@
             const rechtsX = margin + basisBreite * scaleX;
             const rechtsY = margin + hoehe * scaleY;
             
-            return `
-                <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-                    <rect width="${width}" height="${height}" fill="#fdfdfd"/>
-                    <polygon points="${spitzeX},${spitzeY} ${linksX},${linksY} ${rechtsX},${rechtsY}" 
-                             fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                    <circle cx="${spitzeX}" cy="${spitzeY}" r="4" fill="#dc3545"/>
-                    <text x="${spitzeX}" y="${spitzeY - 10}" text-anchor="middle" font-size="12" 
-                          fill="#dc3545" font-weight="bold">Spitze</text>
-                    <text x="${margin + (basisBreite * scaleX)/2}" y="${height - 10}" 
-                          text-anchor="middle" font-size="14" fill="#333" font-weight="bold">
-                          Basis: ${basisBreite}m
-                    </text>
-                </svg>
-            `;
+            let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
+            svg += `<rect width="${width}" height="${height}" fill="#fdfdfd"/>`;
+            
+            // Dreieck-Outline
+            svg += `<polygon points="${spitzeX},${spitzeY} ${linksX},${linksY} ${rechtsX},${rechtsY}" 
+                     fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Platten einzeichnen
+            data.schnittliste.forEach((platte, index) => {
+                const plattenStart = parseFloat(platte.positionVonLinks);
+                const plattenEnde = parseFloat(platte.positionBis);
+                const plattenX = margin + plattenStart * scaleX;
+                const plattenEndX = margin + plattenEnde * scaleX;
+                
+                // Plattenlinie
+                svg += `<line x1="${plattenX}" y1="${linksY}" x2="${plattenX}" y2="${spitzeY}" 
+                        stroke="#666" stroke-width="1.5" opacity="0.7"/>`;
+                        
+                // Plattennummer
+                svg += `<text x="${plattenX + (plattenEndX - plattenX)/2}" y="${linksY + 20}" 
+                        text-anchor="middle" font-size="12" fill="#333" font-weight="bold">${platte.plattenNr}</text>`;
+            });
+            
+            // Spitze markieren
+            svg += `<circle cx="${spitzeX}" cy="${spitzeY}" r="4" fill="#dc3545"/>`;
+            svg += `<text x="${spitzeX}" y="${spitzeY - 10}" text-anchor="middle" font-size="12" 
+                    fill="#dc3545" font-weight="bold">Spitze</text>`;
+            
+            // Maßlinien
+            svg += `<line x1="${margin}" y1="${linksY + 30}" x2="${rechtsX}" y2="${linksY + 30}" stroke="#666" stroke-width="1"/>`;
+            svg += `<text x="${margin + (basisBreite * scaleX)/2}" y="${linksY + 45}" text-anchor="middle" font-size="14" 
+                    fill="#333" font-weight="bold">Basis: ${basisBreite}m</text>`;
+            
+            svg += `</svg>`;
+            return svg;
         }
 
-        // SVG für Trapez generieren
-        function generateTrapezSVG(data) {
-            const width = 400;
-            const height = 250;
+        // SVG für Trapez mit Platten generieren
+        function generateTrapezSVGWithPlates(data) {
+            const width = 500;
+            const height = 300;
             const margin = 40;
             
             const obereBreite = parseFloat(data.obereBreite);
@@ -578,29 +609,49 @@
             const untenRechtsX = margin + untereBreite * scaleX;
             const untenY = margin + hoehe * scaleY;
             
-            return `
-                <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-                    <rect width="${width}" height="${height}" fill="#fdfdfd"/>
-                    <polygon points="${obenLinksX},${obenY} ${obenRechtsX},${obenY} ${untenRechtsX},${untenY} ${untenLinksX},${untenY}" 
-                             fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                    <line x1="${obenLinksX}" y1="${obenY}" x2="${obenRechtsX}" y2="${obenY}" 
-                          stroke="#28a745" stroke-width="3"/>
-                    <text x="${(obenLinksX + obenRechtsX)/2}" y="${obenY - 10}" 
-                          text-anchor="middle" font-size="12" fill="#28a745" font-weight="bold">
-                          Oben: ${obereBreite}m
-                    </text>
-                    <text x="${margin + (untereBreite * scaleX)/2}" y="${height - 10}" 
-                          text-anchor="middle" font-size="12" fill="#333" font-weight="bold">
-                          Unten: ${untereBreite}m
-                    </text>
-                </svg>
-            `;
+            let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
+            svg += `<rect width="${width}" height="${height}" fill="#fdfdfd"/>`;
+            
+            // Trapez-Outline
+            svg += `<polygon points="${obenLinksX},${obenY} ${obenRechtsX},${obenY} ${untenRechtsX},${untenY} ${untenLinksX},${untenY}" 
+                     fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Platten einzeichnen
+            data.schnittliste.forEach((platte, index) => {
+                const plattenStart = parseFloat(platte.positionVonLinks);
+                const plattenEnde = parseFloat(platte.positionBis);
+                const plattenX = margin + plattenStart * scaleX;
+                const plattenEndX = margin + plattenEnde * scaleX;
+                
+                // Plattenlinie
+                svg += `<line x1="${plattenX}" y1="${untenY}" x2="${plattenX}" y2="${obenY}" 
+                        stroke="#666" stroke-width="1.5" opacity="0.7"/>`;
+                        
+                // Plattennummer
+                svg += `<text x="${plattenX + (plattenEndX - plattenX)/2}" y="${untenY + 20}" 
+                        text-anchor="middle" font-size="12" fill="#333" font-weight="bold">${platte.plattenNr}</text>`;
+            });
+            
+            // Obere Kante markieren
+            svg += `<line x1="${obenLinksX}" y1="${obenY}" x2="${obenRechtsX}" y2="${obenY}" 
+                    stroke="#28a745" stroke-width="3"/>`;
+            svg += `<text x="${(obenLinksX + obenRechtsX)/2}" y="${obenY - 10}" 
+                    text-anchor="middle" font-size="12" fill="#28a745" font-weight="bold">
+                    Oben: ${obereBreite}m</text>`;
+            
+            // Untere Kante
+            svg += `<text x="${margin + (untereBreite * scaleX)/2}" y="${height - 10}" 
+                    text-anchor="middle" font-size="12" fill="#333" font-weight="bold">
+                    Unten: ${untereBreite}m</text>`;
+            
+            svg += `</svg>`;
+            return svg;
         }
 
-        // SVG für Trapez auf Rechteck generieren
-        function generateTrapezRechteckSVG(data) {
-            const width = 400;
-            const height = 280;
+        // SVG für Trapez auf Rechteck mit Platten generieren
+        function generateTrapezRechteckSVGWithPlates(data) {
+            const width = 500;
+            const height = 350;
             const margin = 40;
             
             const obereBreite = parseFloat(data.obereBreite);
@@ -615,24 +666,46 @@
             
             const rechteckY = margin + trapezHoehe * scaleY;
             
-            return `
-                <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-                    <rect width="${width}" height="${height}" fill="#fdfdfd"/>
-                    <!-- Rechteck -->
-                    <rect x="${margin}" y="${rechteckY}" width="${untereBreite * scaleX}" 
-                          height="${rechteckHoehe * scaleY}" fill="#e8f4fd" stroke="#1976d2" stroke-width="2"/>
-                    <!-- Trapez -->
-                    <polygon points="${margin + seitenAbstand * scaleX},${margin} ${margin + (untereBreite - seitenAbstand) * scaleX},${margin} ${margin + untereBreite * scaleX},${rechteckY} ${margin},${rechteckY}" 
-                             fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                    <!-- Übergang -->
-                    <line x1="${margin}" y1="${rechteckY}" x2="${margin + untereBreite * scaleX}" y2="${rechteckY}" 
-                          stroke="#ffc107" stroke-width="3" stroke-dasharray="5,5"/>
-                    <text x="${width/2}" y="${height - 10}" 
-                          text-anchor="middle" font-size="12" fill="#333" font-weight="bold">
-                          Trapez: ${trapezHoehe}m + Rechteck: ${rechteckHoehe}m
-                    </text>
-                </svg>
-            `;
+            let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
+            svg += `<rect width="${width}" height="${height}" fill="#fdfdfd"/>`;
+            
+            // Rechteck (unten)
+            svg += `<rect x="${margin}" y="${rechteckY}" width="${untereBreite * scaleX}" 
+                    height="${rechteckHoehe * scaleY}" fill="#e8f4fd" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Trapez (oben)
+            const obenLinksX = margin + seitenAbstand * scaleX;
+            const obenRechtsX = margin + (untereBreite - seitenAbstand) * scaleX;
+            const untenRechtsX = margin + untereBreite * scaleX;
+            
+            svg += `<polygon points="${obenLinksX},${margin} ${obenRechtsX},${margin} ${untenRechtsX},${rechteckY} ${margin},${rechteckY}" 
+                     fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Platten einzeichnen
+            data.schnittliste.forEach((platte, index) => {
+                const plattenStart = parseFloat(platte.positionVonLinks);
+                const plattenEnde = parseFloat(platte.positionBis);
+                const plattenX = margin + plattenStart * scaleX;
+                const plattenEndX = margin + plattenEnde * scaleX;
+                
+                // Plattenlinie über beide Bereiche
+                svg += `<line x1="${plattenX}" y1="${margin + gesamtHoehe * scaleY}" x2="${plattenX}" y2="${margin}" 
+                        stroke="#666" stroke-width="1.5" opacity="0.7"/>`;
+                        
+                // Plattennummer
+                svg += `<text x="${plattenX + (plattenEndX - plattenX)/2}" y="${margin + gesamtHoehe * scaleY + 20}" 
+                        text-anchor="middle" font-size="12" fill="#333" font-weight="bold">${platte.plattenNr}</text>`;
+            });
+            
+            // Übergang markieren
+            svg += `<line x1="${margin}" y1="${rechteckY}" x2="${untenRechtsX}" y2="${rechteckY}" 
+                    stroke="#ffc107" stroke-width="2" stroke-dasharray="5,5"/>`;
+            svg += `<text x="${width/2}" y="${height - 10}" 
+                    text-anchor="middle" font-size="12" fill="#333" font-weight="bold">
+                    Trapez: ${trapezHoehe}m + Rechteck: ${rechteckHoehe}m</text>`;
+            
+            svg += `</svg>`;
+            return svg;
         }
 
         // Einzelne Platte generieren
@@ -642,7 +715,7 @@
             const plattenBreite = parseFloat(item.plattenbreite);
             const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
             
-            // Anreißmaße berechnen basierend auf Typ
+            // Anrissmaße berechnen basierend auf Typ
             const anreissMasse = calculateAnreissMasse(plattenStart, plattenEnde, type, data);
             
             return `
@@ -650,14 +723,14 @@
                     <h3>Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>
                     
                     <div class="measurements">
-                        <div class="measurement-left">→<br>${anreissMasse.links}cm</div>
-                        <div style="flex-grow: 1; text-align: center; font-weight: bold;">
+                        <div class="measurement-left">Links: ${anreissMasse.links}cm</div>
+                        <div class="measurement-center">
                             Benötigte Länge: ${item.benoetigteLaenge}m
                         </div>
-                        <div class="measurement-right">→<br>${anreissMasse.rechts}cm</div>
+                        <div class="measurement-right">Rechts: ${anreissMasse.rechts}cm</div>
                     </div>
                     
-                    <div class="plate-diagram" style="height: 80px; width: 320px;">
+                    <div class="plate-diagram">
                         ${generatePlateDiagram(item, anreissMasse, type, data)}
                     </div>
                     
@@ -668,16 +741,15 @@
             `;
         }
 
-        // Anreißmaße berechnen
+        // Anrissmaße berechnen
         function calculateAnreissMasse(plattenStart, plattenEnde, type, data) {
             let anreissLinks = 0;
             let anreissRechts = 0;
             
             switch(type) {
                 case 'gleichschenkliges-dreieck':
-                    const spitzeGleich = parseFloat(data.basisBreite) / 2;
-                    const hoeheGleich = parseFloat(data.hoehe);
                     const basisGleich = parseFloat(data.basisBreite);
+                    const hoeheGleich = parseFloat(data.hoehe);
                     
                     const hoeheStartGleich = berechneHoeheAnPositionGleich(plattenStart, basisGleich, hoeheGleich);
                     const hoeheEndeGleich = berechneHoeheAnPositionGleich(plattenEnde, basisGleich, hoeheGleich);
@@ -716,7 +788,6 @@
                     const untereBreiteCombo = parseFloat(data.untereBreite);
                     const trapezHoeheCombo = parseFloat(data.trapezHoehe);
                     const rechteckHoeheCombo = parseFloat(data.rechteckHoehe);
-                    const gesamtHoeheCombo = trapezHoeheCombo + rechteckHoeheCombo;
                     const seitenAbstandCombo = (untereBreiteCombo - obereBreiteCombo) / 2;
                     
                     const hoeheStartCombo = berechneHoeheAnPositionCombo(plattenStart, seitenAbstandCombo, untereBreiteCombo, trapezHoeheCombo, rechteckHoeheCombo);
@@ -782,11 +853,8 @@
             }
         }
 
-        // Plattendiagramm generieren
+        // Plattendiagramm generieren - KORRIGIERT
         function generatePlateDiagram(item, anreissMasse, type, data) {
-            console.log('Generiere Plattendiagramm für Platte:', item.plattenNr);
-            console.log('Anreißmaße:', anreissMasse);
-            
             const plattenStart = parseFloat(item.positionVonLinks);
             const plattenEnde = parseFloat(item.positionBis);
             const plattenBreite = parseFloat(item.plattenbreite);
@@ -795,94 +863,94 @@
             // Bestimme ob letzte Platte
             let istLetztePlatte = false;
             let plattenEndeReal = plattenEnde;
+            let basisBreite = 0;
             
             switch(type) {
                 case 'gleichschenkliges-dreieck':
                 case 'ungleichschenkliges-dreieck':
-                    const basisBreite = parseFloat(data.basisBreite);
-                    istLetztePlatte = (plattenStart + plattenBreite) > basisBreite;
-                    plattenEndeReal = istLetztePlatte ? basisBreite : plattenEnde;
+                    basisBreite = parseFloat(data.basisBreite);
                     break;
                 case 'trapez':
                 case 'trapez-auf-rechteck':
-                    const untereBreite = parseFloat(data.untereBreite);
-                    istLetztePlatte = (plattenStart + plattenBreite) > untereBreite;
-                    plattenEndeReal = istLetztePlatte ? untereBreite : plattenEnde;
+                    basisBreite = parseFloat(data.untereBreite);
                     break;
             }
             
-            const plattenhoehePx = 50;
-            const plattenbreitePx = 260;
-            const endX = istLetztePlatte ? Math.min(plattenbreitePx, ((plattenEndeReal - plattenStart) / plattenBreite) * plattenbreitePx) : plattenbreitePx;
+            const originalPlattenEnde = plattenStart + plattenBreite;
+            istLetztePlatte = originalPlattenEnde > basisBreite;
+            plattenEndeReal = istLetztePlatte ? basisBreite : plattenEnde;
+            
+            const plattenhoehePx = 60;
+            const plattenbreitePx = 280;
+            
+            // Berechne tatsächliche Plattenbreite für Darstellung
+            const dargestellteBreite = plattenEndeReal - plattenStart;
+            const endX = (dargestellteBreite / plattenBreite) * plattenbreitePx;
             
             let startY = (anreissMasse.links / 100 / benoetigteLaengeM) * plattenhoehePx;
             let endY = (anreissMasse.rechts / 100 / benoetigteLaengeM) * plattenhoehePx;
+            
+            // Y-Koordinaten für SVG (von oben nach unten)
+            startY = plattenhoehePx - startY;
+            endY = plattenhoehePx - endY;
             
             // Sicherstellen, dass Y-Werte im gültigen Bereich sind
             startY = Math.max(0, Math.min(plattenhoehePx, startY));
             endY = Math.max(0, Math.min(plattenhoehePx, endY));
             
-            console.log('SVG Berechnungen:', {
-                plattenhoehePx, plattenbreitePx, endX, startY, endY,
-                istLetztePlatte, plattenEndeReal
-            });
-            
-            // Spezielle Markierungen je nach Typ
-            let specialMarkings = '';
-            
-            // Prüfe auf Spitzen/Ecken
-            if (type === 'gleichschenkliges-dreieck') {
-                const spitzenPosition = parseFloat(data.basisBreite) / 2;
-                const ueberdecktSpitze = plattenStart <= spitzenPosition && (plattenStart + plattenBreite) >= spitzenPosition;
-                
-                if (ueberdecktSpitze) {
-                    const spitzeVonLinks = spitzenPosition - plattenStart;
-                    const spitzePositionPx = (spitzeVonLinks / plattenBreite) * plattenbreitePx;
-                    specialMarkings = `
-                        <line x1="${30 + spitzePositionPx}" y1="10" x2="${30 + spitzePositionPx}" y2="${15 + plattenhoehePx + 10}" stroke="#ffc107" stroke-width="2"/>
-                        <text x="${30 + spitzePositionPx}" y="8" text-anchor="middle" font-size="8" fill="#ffc107" font-weight="bold">SPITZE</text>
-                    `;
-                }
-            }
-            
             return `
-                <svg width="100%" height="80" viewBox="0 0 320 80" style="position: absolute; top: 0; left: 0;">
-                    <!-- Debug Info -->
-                    <text x="10" y="10" font-size="8" fill="#999">Debug: ${item.plattenNr} | ${startY.toFixed(1)} - ${endY.toFixed(1)}</text>
-                    
+                <svg width="100%" height="100%" viewBox="0 0 320 120" style="position: absolute; top: 0; left: 0;">
                     <!-- Plattenhintergrund -->
-                    <rect x="30" y="15" width="${plattenbreitePx}" height="${plattenhoehePx}" 
+                    <rect x="20" y="20" width="${plattenbreitePx}" height="${plattenhoehePx}" 
                           fill="#e9ecef" stroke="#999" stroke-width="1" rx="2"/>
                     
-                    <!-- Nutzenbereich -->
-                    <polygon points="30,${15 + plattenhoehePx} ${30 + endX},${15 + plattenhoehePx} ${30 + endX},${15 + plattenhoehePx - endY} 30,${15 + plattenhoehePx - startY}" 
-                             fill="#4a90e2" opacity="0.8"/>
-                    <text x="${30 + endX/2}" y="${15 + plattenhoehePx - Math.max(startY, endY)/2}" text-anchor="middle" 
-                          fill="#fff" font-weight="bold" font-size="10">Nutzen</text>
+                    <!-- Tatsächlich genutzte Plattenbreite -->
+                    <rect x="20" y="20" width="${endX}" height="${plattenhoehePx}" 
+                          fill="#ddd" stroke="#666" stroke-width="1" rx="2"/>
                     
-                    <!-- Verschnittbereich -->
-                    <polygon points="30,${15 + plattenhoehePx - startY} ${30 + endX},${15 + plattenhoehePx - endY} ${30 + endX},15 30,15" 
+                    <!-- Nutzenbereich (blau) -->
+                    <polygon points="20,${20 + plattenhoehePx} ${20 + endX},${20 + plattenhoehePx} ${20 + endX},${20 + endY} 20,${20 + startY}" 
+                             fill="#4a90e2" opacity="0.8"/>
+                    
+                    <!-- Verschnittbereich (rot) -->
+                    <polygon points="20,${20 + startY} ${20 + endX},${20 + endY} ${20 + endX},20 20,20" 
                              fill="#e74c3c" opacity="0.8"/>
-                    <text x="${30 + endX/2}" y="${15 + (plattenhoehePx - Math.max(startY, endY))/2}" text-anchor="middle" 
-                          fill="#fff" font-weight="bold" font-size="9">Verschnitt</text>
                     
                     <!-- Schnittlinie -->
-                    <line x1="30" y1="${15 + plattenhoehePx - startY}" x2="${30 + endX}" y2="${15 + plattenhoehePx - endY}" 
+                    <line x1="20" y1="${20 + startY}" x2="${20 + endX}" y2="${20 + endY}" 
                           stroke="#000" stroke-width="2"/>
                     
-                    <!-- Anreißlinien -->
-                    <line x1="30" y1="${15 + plattenhoehePx}" x2="30" y2="${15 + plattenhoehePx - startY}" 
+                    <!-- Anrisslinien -->
+                    <line x1="20" y1="${20 + plattenhoehePx}" x2="20" y2="${20 + startY}" 
                           stroke="#dc3545" stroke-width="3"/>
-                    <line x1="${30 + endX}" y1="${15 + plattenhoehePx}" x2="${30 + endX}" y2="${15 + plattenhoehePx - endY}" 
+                    <line x1="${20 + endX}" y1="${20 + plattenhoehePx}" x2="${20 + endX}" y2="${20 + endY}" 
                           stroke="#dc3545" stroke-width="3"/>
                     
-                    <!-- Anreißmaße -->
-                    <text x="15" y="${15 + plattenhoehePx - 3}" text-anchor="middle" 
-                          font-size="9" fill="#dc3545" font-weight="bold">→ ${anreissMasse.links}cm</text>
-                    <text x="${30 + endX + 15}" y="${15 + plattenhoehePx - 3}" text-anchor="middle" 
-                          font-size="9" fill="#dc3545" font-weight="bold">→ ${anreissMasse.rechts}cm</text>
+                    <!-- Maßpfeile -->
+                    <line x1="10" y1="${20 + startY}" x2="10" y2="${20 + plattenhoehePx}" 
+                          stroke="#dc3545" stroke-width="1"/>
+                    <text x="5" y="${20 + startY + (plattenhoehePx - startY)/2}" 
+                          text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold" 
+                          transform="rotate(-90 5 ${20 + startY + (plattenhoehePx - startY)/2})">${anreissMasse.links}cm</text>
                     
-                    ${specialMarkings}
+                    <line x1="${20 + endX + 10}" y1="${20 + endY}" x2="${20 + endX + 10}" y2="${20 + plattenhoehePx}" 
+                          stroke="#dc3545" stroke-width="1"/>
+                    <text x="${20 + endX + 15}" y="${20 + endY + (plattenhoehePx - endY)/2}" 
+                          text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold" 
+                          transform="rotate(-90 ${20 + endX + 15} ${20 + endY + (plattenhoehePx - endY)/2})">${anreissMasse.rechts}cm</text>
+                    
+                    <!-- Beschriftungen -->
+                    <text x="${20 + endX/2}" y="${20 + plattenhoehePx/2}" text-anchor="middle" 
+                          fill="#fff" font-weight="bold" font-size="12" stroke="#000" stroke-width="0.5">Nutzen</text>
+                    <text x="${20 + endX/2}" y="${20 + (startY + endY)/4}" text-anchor="middle" 
+                          fill="#fff" font-weight="bold" font-size="10" stroke="#000" stroke-width="0.5">Verschnitt</text>
+                    
+                    ${istLetztePlatte ? `
+                    <!-- Letzte Platte Markierung -->
+                    <line x1="${20 + endX}" y1="15" x2="${20 + endX}" y2="${20 + plattenhoehePx + 5}" 
+                          stroke="#28a745" stroke-width="2"/>
+                    <text x="${20 + endX + 5}" y="12" font-size="8" fill="#28a745" font-weight="bold">ENDE</text>
+                    ` : ''}
                 </svg>
             `;
         }
@@ -974,23 +1042,11 @@
                 const linkeObereEcke = seitenAbstand;
                 const rechteObereEcke = untereBreite - seitenAbstand;
                 
-                const ueberdecktLinkeEcke = plattenStart <= linkeObereEcke && originalPlattenEnde >= linkeObereEcke;
-                const ueberdecktRechteEcke = plattenStart <= rechteObereEcke && originalPlattenEnde >= rechteObereEcke;
                 const istImMittleren = plattenStart >= linkeObereEcke && originalPlattenEnde <= rechteObereEcke;
                 
                 if (istImMittleren) {
                     instructions += `• <strong style="color: #28a745;">EINFACH: Diese Platte ist vollständig im Mittelbereich!</strong><br>`;
                     instructions += `• <strong style="color: #28a745;">Waagerechter Schnitt bei ${gesamtHoehe}m Höhe!</strong><br>`;
-                    instructions += `• Rechteck-Bereich: ${rechteckHoehe}m (unten) + Trapez-Bereich: ${trapezHoehe}m (oben)<br>`;
-                } else if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
-                    instructions += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält BEIDE oberen Trapez-Ecken!</strong><br>`;
-                    instructions += `• <strong style="color: #1976d2;">INFO: Durchgehende Platte über Rechteck (${rechteckHoehe}m) + Trapez (${trapezHoehe}m) = ${gesamtHoehe}m Gesamt</strong><br>`;
-                } else if (ueberdecktLinkeEcke) {
-                    instructions += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält die LINKE obere Trapez-Ecke!</strong><br>`;
-                    instructions += `• <strong style="color: #1976d2;">INFO: Durchgehende Platte über Rechteck (${rechteckHoehe}m) + Trapez (${trapezHoehe}m) = ${gesamtHoehe}m Gesamt</strong><br>`;
-                } else if (ueberdecktRechteEcke) {
-                    instructions += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält die RECHTE obere Trapez-Ecke!</strong><br>`;
-                    instructions += `• <strong style="color: #1976d2;">INFO: Durchgehende Platte über Rechteck (${rechteckHoehe}m) + Trapez (${trapezHoehe}m) = ${gesamtHoehe}m Gesamt</strong><br>`;
                 } else {
                     instructions += `• <strong style="color: #1976d2;">INFO: Durchgehende Platte über Rechteck (${rechteckHoehe}m) + Trapez (${trapezHoehe}m) = ${gesamtHoehe}m Gesamt</strong><br>`;
                 }
@@ -1022,18 +1078,7 @@
                 if (!params.type || !params.data) {
                     console.log('Keine Parameter gefunden');
                     document.getElementById('plan-title').textContent = 'Fehler: Keine Daten übertragen';
-                    document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">⚠ Fehler:</strong> Keine gültigen Daten gefunden. Bitte kehren Sie zum Rechner zurück.';
-                    
-                    // Debug-Info anzeigen
-                    document.getElementById('overview-content').innerHTML = `
-                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px;">
-                            <h4>Debug-Informationen:</h4>
-                            <p><strong>URL:</strong> ${window.location.href}</p>
-                            <p><strong>Type Parameter:</strong> ${params.type || 'nicht gefunden'}</p>
-                            <p><strong>Data Parameter:</strong> ${params.data ? 'vorhanden' : 'nicht gefunden'}</p>
-                            <p><strong>Alle URL-Parameter:</strong> ${window.location.search}</p>
-                        </div>
-                    `;
+                    document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">Fehler:</strong> Keine gültigen Daten gefunden. Bitte kehren Sie zum Rechner zurück.';
                     return;
                 }
                 
@@ -1044,29 +1089,17 @@
                 if (!planData) {
                     console.log('Daten konnten nicht dekodiert werden');
                     document.getElementById('plan-title').textContent = 'Fehler: Daten beschädigt';
-                    document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">⚠ Fehler:</strong> Die übertragenen Daten sind beschädigt. Bitte kehren Sie zum Rechner zurück.';
-                    
-                    // Debug-Info anzeigen
-                    document.getElementById('overview-content').innerHTML = `
-                        <div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px;">
-                            <h4>Debug-Informationen:</h4>
-                            <p><strong>Rohe Daten:</strong> ${params.data.substring(0, 100)}...</p>
-                            <p><strong>Fehler beim Dekodieren</strong></p>
-                        </div>
-                    `;
+                    document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">Fehler:</strong> Die übertragenen Daten sind beschädigt. Bitte kehren Sie zum Rechner zurück.';
                     return;
                 }
                 
                 console.log('Starte Header-Update');
-                // Header aktualisieren
                 updateHeader(planType, planData);
                 
                 console.log('Starte Übersicht-Generierung');
-                // Übersicht generieren
                 generateOverview(planType, planData);
                 
                 console.log('Starte Platten-Generierung');
-                // Platten generieren
                 generateAllPlates(planType, planData);
                 
                 console.log('Anrissplan erfolgreich geladen');
@@ -1082,16 +1115,7 @@
             } catch (error) {
                 console.error('Fehler in init():', error);
                 document.getElementById('plan-title').textContent = 'JavaScript-Fehler aufgetreten';
-                document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">⚠ Fehler:</strong> ' + error.message;
-                
-                // Debug-Info anzeigen
-                document.getElementById('overview-content').innerHTML = `
-                    <div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px;">
-                        <h4>JavaScript-Fehler:</h4>
-                        <p><strong>Fehlermeldung:</strong> ${error.message}</p>
-                        <p><strong>Stack:</strong> <pre style="font-size: 12px; white-space: pre-wrap;">${error.stack}</pre></p>
-                    </div>
-                `;
+                document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">Fehler:</strong> ' + error.message;
             }
         }
 
