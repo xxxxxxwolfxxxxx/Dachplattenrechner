@@ -526,10 +526,10 @@
                 const plattenStart = parseFloat(platte.positionVonLinks);
                 const plattenX = margin + plattenStart * scaleX;
                 
-                // KORRIGIERTE Höhenberechnung - korrekte Berechnung für beide Seiten
+                // Korrekte Höhenberechnung für beide Seiten
                 let plattenObenY;
                 if (plattenStart <= spitzenPosition) {
-                    // Links von der Spitze - direkte Berechnung wie rechts
+                    // Links von der Spitze - je näher zur Spitze, desto höher
                     const verhaeltnis = plattenStart / spitzenPosition;
                     plattenObenY = spitzeY + verhaeltnis * (linksY - spitzeY);
                 } else {
@@ -884,11 +884,11 @@
             const istLetztePlatte = originalPlattenEnde > basisBreite;
             const plattenEndeReal = istLetztePlatte ? basisBreite : plattenEnde;
             
-            // SVG Dimensionen - vergrößert und zentriert
-            const plattenX = 50;
-            const plattenY = 60;
-            const plattenWidth = 320;
-            const plattenHeight = 120;
+            // SVG Dimensionen - nochmals vergrößert (+10%)
+            const plattenX = 45;
+            const plattenY = 50;
+            const plattenWidth = 350;
+            const plattenHeight = 140;
             
             // Berechne tatsächliche Plattenbreite für Darstellung
             const dargestellteBreite = plattenEndeReal - plattenStart;
@@ -966,15 +966,15 @@
                     <line x1="${plattenX + endX}" y1="${plattenY + plattenHeight}" x2="${plattenX + endX}" y2="${nutzenEndY}" 
                           stroke="#dc3545" stroke-width="4"/>
                     
-                    <!-- Anrissmaße - beide senkrecht, angepasst an neue Größe -->
-                    <text x="25" y="${nutzenStartY + (plattenHeight - anrissHoeheLinks)/2}" 
+                    <!-- Anrissmaße - korrigierte Position für 0cm Werte -->
+                    <text x="20" y="${anreissMasse.links === 0 ? plattenY + plattenHeight - 5 : nutzenStartY + (plattenHeight - anrissHoeheLinks)/2}" 
                           text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" 
-                          transform="rotate(-90 25 ${nutzenStartY + (plattenHeight - anrissHoeheLinks)/2})">${anreissMasse.links}cm</text>
+                          ${anreissMasse.links === 0 ? '' : `transform="rotate(-90 20 ${nutzenStartY + (plattenHeight - anrissHoeheLinks)/2})"`}>${anreissMasse.links}cm</text>
                     
-                    <!-- Rechtes Maß - auch senkrecht, angepasst an neue Größe -->
-                    <text x="${plattenX + endX + 25}" y="${nutzenEndY + (plattenHeight - anrissHoeheRechts)/2}" 
+                    <!-- Rechtes Maß - korrigierte Position für 0cm Werte -->
+                    <text x="${plattenX + endX + 20}" y="${anreissMasse.rechts === 0 ? plattenY + plattenHeight - 5 : nutzenEndY + (plattenHeight - anrissHoeheRechts)/2}" 
                           text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" 
-                          transform="rotate(-90 ${plattenX + endX + 25} ${nutzenEndY + (plattenHeight - anrissHoeheRechts)/2})">${anreissMasse.rechts}cm</text>
+                          ${anreissMasse.rechts === 0 ? '' : `transform="rotate(-90 ${plattenX + endX + 20} ${nutzenEndY + (plattenHeight - anrissHoeheRechts)/2})"`}>${anreissMasse.rechts}cm</text>
                     
                     <!-- Beschriftungen - angepasste Schriftgröße -->
                     <text x="${plattenX + endX/2}" y="${plattenY + plattenHeight - 20}" text-anchor="middle" 
