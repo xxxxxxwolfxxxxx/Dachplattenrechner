@@ -672,6 +672,39 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         if (plattenX + endX - spitzeX > 40) {
             svg += '<text x="' + rechterAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
         }
+    } else if (istTrapezEckenPlatte && type === 'trapez') {
+        // Bei Trapez-Ecken: Abschnitt-Beschriftungen links und rechts der Ecke
+        const obereBreite = parseFloat(data.obereBreite);
+        const seitenAbstand = (basisBreite - obereBreite) / 2;
+        const plattenEnde = plattenStart + plattenBreite;
+        
+        if (plattenStart < seitenAbstand && plattenEnde > seitenAbstand) {
+            // Linke Ecke
+            const linkeEckeX = plattenX + ((seitenAbstand - plattenStart) / plattenBreite) * plattenWidth;
+            const linkerAbschnittX = plattenX + (linkeEckeX - plattenX) / 2;
+            const rechterAbschnittX = linkeEckeX + (plattenX + endX - linkeEckeX) / 2;
+            
+            if (linkeEckeX - plattenX > 40) {
+                svg += '<text x="' + linkerAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
+            if (plattenX + endX - linkeEckeX > 40) {
+                svg += '<text x="' + rechterAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
+        }
+        
+        if (plattenStart < (basisBreite - seitenAbstand) && plattenEnde > (basisBreite - seitenAbstand)) {
+            // Rechte Ecke
+            const rechteEckeX = plattenX + (((basisBreite - seitenAbstand) - plattenStart) / plattenBreite) * plattenWidth;
+            const linkerAbschnittX = plattenX + (rechteEckeX - plattenX) / 2;
+            const rechterAbschnittX = rechteEckeX + (plattenX + endX - rechteEckeX) / 2;
+            
+            if (rechteEckeX - plattenX > 40) {
+                svg += '<text x="' + linkerAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
+            if (plattenX + endX - rechteEckeX > 40) {
+                svg += '<text x="' + rechterAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
+        }
     } else {
         svg += '<text x="' + (plattenX + endX/2) + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
     }
