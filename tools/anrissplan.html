@@ -649,15 +649,41 @@
             
             svg += '<polygon points="' + obenLinksX + ',' + margin + ' ' + obenRechtsX + ',' + margin + ' ' + untenRechtsX + ',' + rechteckY + ' ' + margin + ',' + rechteckY + '" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>';
             
-            // Platten als senkrechte Linien über beide Bereiche
+            // Platten als senkrechte Linien über beide Bereiche - korrigierte Höhe
             for (let i = 0; i < data.schnittliste.length; i++) {
                 const platte = data.schnittliste[i];
                 const plattenStart = parseFloat(platte.positionVonLinks);
                 const plattenX = margin + plattenStart * scaleX;
                 
-                svg += '<line x1="' + plattenX + '" y1="' + (margin + gesamtHoehe * scaleY) + '" x2="' + plattenX + '" y2="' + margin + '" stroke="#666" stroke-width="1.5" opacity="0.8"/>';
+                // Bestimme korrekte Oberkante basierend auf Position
+                let plattenObenY;
+                if (plattenStart <= seitenAbstand) {
+                    // Links: Von Rechteck-Oberkante zur oberen linken Ecke
+                    const verhaeltnis = plattenStart / seitenAbstand;
+                    plattenObenY = rechteckY - verhaeltnis * (rechteckY - margin);
+                } else if (plattenStart >= (untereBreite - seitenAbstand)) {
+                    // Rechts: Von Rechteck-Oberkante zur oberen rechten Ecke
+                    const abstandVonRechts = untereBreite - plattenStart;
+                    const verhaeltnis = abstandVonRechts / seitenAbstand;
+                    plattenObenY = rechteckY - verhaeltnis * (rechteckY - margin);
+                } else {
+                    // Mitte: Bis zur Trapez-Oberkante
+                    plattenObenY = margin;
+                }
+                
+                svg += '<line x1="' + plattenX + '" y1="' + (margin + gesamtHoehe * scaleY) + '" x2="' + plattenX + '" y2="' + plattenObenY + '" stroke="#666" stroke-width="1.5" opacity="0.8"/>';
                 svg += '<text x="' + plattenX + '" y="' + (margin + gesamtHoehe * scaleY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
             }
+            
+            // Obere Ecken markieren
+            svg += '<circle cx="' + obenLinksX + '" cy="' + margin + '" r="3" fill="#dc3545"/>';
+            svg += '<circle cx="' + obenRechtsX + '" cy="' + margin + '" r="3" fill="#dc3545"/>';
+            svg += '<text x="' + obenLinksX + '" y="' + (margin - 10) + '" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">Ecke</text>';
+            svg += '<text x="' + obenRechtsX + '" y="' + (margin - 10) + '" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">Ecke</text>';
+            
+            // Obere Kante markieren
+            svg += '<line x1="' + obenLinksX + '" y1="' + margin + '" x2="' + obenRechtsX + '" y2="' + margin + '" stroke="#28a745" stroke-width="3"/>';
+            svg += '<text x="' + ((obenLinksX + obenRechtsX)/2) + '" y="' + (margin - 25) + '" text-anchor="middle" font-size="12" fill="#28a745" font-weight="bold">Oben: ' + obereBreite + 'm</text>';
             
             // Übergang markieren
             svg += '<line x1="' + margin + '" y1="' + rechteckY + '" x2="' + untenRechtsX + '" y2="' + rechteckY + '" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,5"/>';
