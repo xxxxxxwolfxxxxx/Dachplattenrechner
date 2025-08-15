@@ -1,4 +1,45 @@
-case// anrissplan.js - Alle JavaScript-Funktionen für den Anrissplan
+} else if (istTrapezEckenPlatte && (type === 'trapez' || type === 'trapez-auf-rechteck')) {
+        // Bei Trapez-Ecken: Abschnitt-Beschriftungen links und rechts der Ecke
+        let obereBreite, seitenAbstand;
+        
+        if (type === 'trapez') {
+            obereBreite = parseFloat(data.obereBreite);
+            seitenAbstand = (basisBreite - obereBreite) / 2;
+        } else {
+            // trapez-auf-rechteck
+            obereBreite = parseFloat(data.obereBreite);
+            seitenAbstand = (basisBreite - obereBreite) / 2;
+        }
+        
+        const plattenEnde = plattenStart + plattenBreite;
+        
+        if (plattenStart < seitenAbstand && plattenEnde > seitenAbstand) {
+            // Linke Ecke
+            const linkeEckeX = plattenX + ((seitenAbstand - plattenStart) / plattenBreite) * plattenWidth;
+            const linkerAbschnittX = plattenX + (linkeEckeX - plattenX) / 2;
+            const rechterAbschnittX = linkeEckeX + (plattenX + endX - linkeEckeX) / 2;
+            
+            if (linkeEckeX - plattenX > 40) {
+                svg += '<text x="' + linkerAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
+            if (plattenX + endX - linkeEckeX > 40) {
+                svg += '<text x="' + rechterAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
+        }
+        
+        if (plattenStart < (basisBreite - seitenAbstand) && plattenEnde > (basisBreite - seitenAbstand)) {
+            // Rechte Ecke
+            const rechteEckeX = plattenX + (((basisBreite - seitenAbstand) - plattenStart) / plattenBreite) * plattenWidth;
+            const linkerAbschnittX = plattenX + (rechteEckeX - plattenX) / 2;
+            const rechterAbschnittX = rechteEckeX + (plattenX + endX - rechteEckeX) / 2;
+            
+            if (rechteEckeX - plattenX > 40) {
+                svg += '<text x="' + linkerAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
+            if (plattenX + endX - rechteEckeX > 40) {
+                svg += '<text x="' + rechterAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
+        }        case// anrissplan.js - Alle JavaScript-Funktionen für den Anrissplan
 
 // Globale Variablen
 let planData = null;
@@ -542,10 +583,24 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
     // Nutzenbereich (blau)
     if (istSpitzenPlatte) {
         svg += '<polygon points="' + plattenX + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + spitzeX + ',' + plattenY + ' ' + plattenX + ',' + nutzenStartY + '" fill="#4a90e2" opacity="0.8"/>';
-    } else if (istTrapezEckenPlatte && type === 'trapez') {
-        // Für Trapez mit Ecken: Ähnlich wie Spitzenplatte
-        const obereBreite = parseFloat(data.obereBreite);
-        const seitenAbstand = (basisBreite - obereBreite) / 2;
+    } else if (istTrapezEckenPlatte && (type === 'trapez' || type === 'trapez-auf-rechteck')) {
+        // Für Trapez und Trapez-auf-Rechteck mit Ecken
+        let obereBreite, seitenAbstand, eckeY;
+        
+        if (type === 'trapez') {
+            obereBreite = parseFloat(data.obereBreite);
+            seitenAbstand = (basisBreite - obereBreite) / 2;
+            eckeY = plattenY; // Ecken sind an der Oberkante
+        } else {
+            // trapez-auf-rechteck
+            obereBreite = parseFloat(data.obereBreite);
+            const trapezHoehe = parseFloat(data.trapezHoehe);
+            const rechteckHoehe = parseFloat(data.rechteckHoehe);
+            const gesamtHoehe = trapezHoehe + rechteckHoehe;
+            seitenAbstand = (basisBreite - obereBreite) / 2;
+            eckeY = plattenY + plattenHeight - (rechteckHoehe / gesamtHoehe) * plattenHeight; // Ecken am Übergang
+        }
+        
         const plattenEnde = plattenStart + plattenBreite;
         
         let eckeX = 0;
@@ -563,7 +618,12 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         }
         
         if (hatEcke) {
-            svg += '<polygon points="' + plattenX + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + eckeX + ',' + plattenY + ' ' + plattenX + ',' + nutzenStartY + '" fill="#4a90e2" opacity="0.8"/>';
+            if (type === 'trapez-auf-rechteck') {
+                // Komplexere Schnittlinie für Trapez-auf-Rechteck
+                svg += '<polygon points="' + plattenX + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + eckeX + ',' + eckeY + ' ' + plattenX + ',' + nutzenStartY + '" fill="#4a90e2" opacity="0.8"/>';
+            } else {
+                svg += '<polygon points="' + plattenX + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + eckeX + ',' + eckeY + ' ' + plattenX + ',' + nutzenStartY + '" fill="#4a90e2" opacity="0.8"/>';
+            }
         } else {
             svg += '<polygon points="' + plattenX + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + plattenX + ',' + nutzenStartY + '" fill="#4a90e2" opacity="0.8"/>';
         }
@@ -574,10 +634,24 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
     // Verschnittbereich (rot)
     if (istSpitzenPlatte) {
         svg += '<polygon points="' + plattenX + ',' + nutzenStartY + ' ' + spitzeX + ',' + plattenY + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + (plattenX + endX) + ',' + plattenY + ' ' + plattenX + ',' + plattenY + '" fill="#e74c3c" opacity="0.8"/>';
-    } else if (istTrapezEckenPlatte && type === 'trapez') {
-        // Für Trapez mit Ecken: Ähnlich wie Spitzenplatte
-        const obereBreite = parseFloat(data.obereBreite);
-        const seitenAbstand = (basisBreite - obereBreite) / 2;
+    } else if (istTrapezEckenPlatte && (type === 'trapez' || type === 'trapez-auf-rechteck')) {
+        // Für Trapez und Trapez-auf-Rechteck mit Ecken
+        let obereBreite, seitenAbstand, eckeY;
+        
+        if (type === 'trapez') {
+            obereBreite = parseFloat(data.obereBreite);
+            seitenAbstand = (basisBreite - obereBreite) / 2;
+            eckeY = plattenY; // Ecken sind an der Oberkante
+        } else {
+            // trapez-auf-rechteck
+            obereBreite = parseFloat(data.obereBreite);
+            const trapezHoehe = parseFloat(data.trapezHoehe);
+            const rechteckHoehe = parseFloat(data.rechteckHoehe);
+            const gesamtHoehe = trapezHoehe + rechteckHoehe;
+            seitenAbstand = (basisBreite - obereBreite) / 2;
+            eckeY = plattenY + plattenHeight - (rechteckHoehe / gesamtHoehe) * plattenHeight; // Ecken am Übergang
+        }
+        
         const plattenEnde = plattenStart + plattenBreite;
         
         let eckeX = 0;
@@ -595,7 +669,7 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         }
         
         if (hatEcke) {
-            svg += '<polygon points="' + plattenX + ',' + nutzenStartY + ' ' + eckeX + ',' + plattenY + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + (plattenX + endX) + ',' + plattenY + ' ' + plattenX + ',' + plattenY + '" fill="#e74c3c" opacity="0.8"/>';
+            svg += '<polygon points="' + plattenX + ',' + nutzenStartY + ' ' + eckeX + ',' + eckeY + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + (plattenX + endX) + ',' + plattenY + ' ' + plattenX + ',' + plattenY + '" fill="#e74c3c" opacity="0.8"/>';
         } else {
             svg += '<polygon points="' + plattenX + ',' + nutzenStartY + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + (plattenX + endX) + ',' + plattenY + ' ' + plattenX + ',' + plattenY + '" fill="#e74c3c" opacity="0.8"/>';
         }
@@ -607,10 +681,24 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
     if (istSpitzenPlatte) {
         svg += '<line x1="' + plattenX + '" y1="' + nutzenStartY + '" x2="' + spitzeX + '" y2="' + plattenY + '" stroke="#000" stroke-width="3"/>';
         svg += '<line x1="' + spitzeX + '" y1="' + plattenY + '" x2="' + (plattenX + endX) + '" y2="' + nutzenEndY + '" stroke="#000" stroke-width="3"/>';
-    } else if (istTrapezEckenPlatte && type === 'trapez') {
-        // Für Trapez mit Ecken: Ähnlich wie Spitzenplatte
-        const obereBreite = parseFloat(data.obereBreite);
-        const seitenAbstand = (basisBreite - obereBreite) / 2;
+    } else if (istTrapezEckenPlatte && (type === 'trapez' || type === 'trapez-auf-rechteck')) {
+        // Für Trapez und Trapez-auf-Rechteck mit Ecken
+        let obereBreite, seitenAbstand, eckeY;
+        
+        if (type === 'trapez') {
+            obereBreite = parseFloat(data.obereBreite);
+            seitenAbstand = (basisBreite - obereBreite) / 2;
+            eckeY = plattenY; // Ecken sind an der Oberkante
+        } else {
+            // trapez-auf-rechteck
+            obereBreite = parseFloat(data.obereBreite);
+            const trapezHoehe = parseFloat(data.trapezHoehe);
+            const rechteckHoehe = parseFloat(data.rechteckHoehe);
+            const gesamtHoehe = trapezHoehe + rechteckHoehe;
+            seitenAbstand = (basisBreite - obereBreite) / 2;
+            eckeY = plattenY + plattenHeight - (rechteckHoehe / gesamtHoehe) * plattenHeight; // Ecken am Übergang
+        }
+        
         const plattenEnde = plattenStart + plattenBreite;
         
         let eckeX = 0;
@@ -628,8 +716,8 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         }
         
         if (hatEcke) {
-            svg += '<line x1="' + plattenX + '" y1="' + nutzenStartY + '" x2="' + eckeX + '" y2="' + plattenY + '" stroke="#000" stroke-width="3"/>';
-            svg += '<line x1="' + eckeX + '" y1="' + plattenY + '" x2="' + (plattenX + endX) + '" y2="' + nutzenEndY + '" stroke="#000" stroke-width="3"/>';
+            svg += '<line x1="' + plattenX + '" y1="' + nutzenStartY + '" x2="' + eckeX + '" y2="' + eckeY + '" stroke="#000" stroke-width="3"/>';
+            svg += '<line x1="' + eckeX + '" y1="' + eckeY + '" x2="' + (plattenX + endX) + '" y2="' + nutzenEndY + '" stroke="#000" stroke-width="3"/>';
         } else {
             svg += '<line x1="' + plattenX + '" y1="' + nutzenStartY + '" x2="' + (plattenX + endX) + '" y2="' + nutzenEndY + '" stroke="#000" stroke-width="3"/>';
         }
@@ -736,9 +824,23 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
     }
     
     // Bei Trapez-Formen: Markiere Ecken mit gelben Linien (wie Spitze)
-    if (istTrapezEckenPlatte && type === 'trapez') {
-        const obereBreite = parseFloat(data.obereBreite);
-        const seitenAbstand = (basisBreite - obereBreite) / 2;
+    if (istTrapezEckenPlatte && (type === 'trapez' || type === 'trapez-auf-rechteck')) {
+        let obereBreite, seitenAbstand, eckeY;
+        
+        if (type === 'trapez') {
+            obereBreite = parseFloat(data.obereBreite);
+            seitenAbstand = (basisBreite - obereBreite) / 2;
+            eckeY = plattenY; // Ecken sind an der Oberkante
+        } else {
+            // trapez-auf-rechteck
+            obereBreite = parseFloat(data.obereBreite);
+            const trapezHoehe = parseFloat(data.trapezHoehe);
+            const rechteckHoehe = parseFloat(data.rechteckHoehe);
+            const gesamtHoehe = trapezHoehe + rechteckHoehe;
+            seitenAbstand = (basisBreite - obereBreite) / 2;
+            eckeY = plattenY + plattenHeight - (rechteckHoehe / gesamtHoehe) * plattenHeight; // Ecken am Übergang
+        }
+        
         const plattenEnde = plattenStart + plattenBreite;
         const massLinieY = plattenY + plattenHeight/2;
         
@@ -750,9 +852,14 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
             svg += '<line x1="' + plattenX + '" y1="' + massLinieY + '" x2="' + linkeEckeX + '" y2="' + massLinieY + '" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>';
             svg += '<text x="' + (plattenX + (linkeEckeX - plattenX)/2) + '" y="' + (massLinieY - 8) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">' + eckeVonLinks.toFixed(2) + 'm</text>';
             
-            svg += '<circle cx="' + linkeEckeX + '" cy="' + plattenY + '" r="4" fill="#ffc107"/>';
-            svg += '<line x1="' + linkeEckeX + '" y1="' + plattenY + '" x2="' + linkeEckeX + '" y2="' + (plattenY + plattenHeight) + '" stroke="#ffc107" stroke-width="3"/>';
-            svg += '<text x="' + linkeEckeX + '" y="' + (plattenY - 25) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">ECKE L</text>';
+            svg += '<circle cx="' + linkeEckeX + '" cy="' + eckeY + '" r="4" fill="#ffc107"/>';
+            svg += '<line x1="' + linkeEckeX + '" y1="' + eckeY + '" x2="' + linkeEckeX + '" y2="' + (plattenY + plattenHeight) + '" stroke="#ffc107" stroke-width="3"/>';
+            
+            if (type === 'trapez') {
+                svg += '<text x="' + linkeEckeX + '" y="' + (eckeY - 25) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">ECKE L</text>';
+            } else {
+                svg += '<text x="' + linkeEckeX + '" y="' + (eckeY - 10) + '" text-anchor="middle" font-size="10" fill="#ffc107" font-weight="bold">ECKE L</text>';
+            }
         }
         
         if (plattenStart < (basisBreite - seitenAbstand) && plattenEnde > (basisBreite - seitenAbstand)) {
@@ -763,9 +870,14 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
             svg += '<line x1="' + plattenX + '" y1="' + massLinieY + '" x2="' + rechteEckeX + '" y2="' + massLinieY + '" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>';
             svg += '<text x="' + (plattenX + (rechteEckeX - plattenX)/2) + '" y="' + (massLinieY - 8) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">' + eckeVonLinks.toFixed(2) + 'm</text>';
             
-            svg += '<circle cx="' + rechteEckeX + '" cy="' + plattenY + '" r="4" fill="#ffc107"/>';
-            svg += '<line x1="' + rechteEckeX + '" y1="' + plattenY + '" x2="' + rechteEckeX + '" y2="' + (plattenY + plattenHeight) + '" stroke="#ffc107" stroke-width="3"/>';
-            svg += '<text x="' + rechteEckeX + '" y="' + (plattenY - 25) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">ECKE R</text>';
+            svg += '<circle cx="' + rechteEckeX + '" cy="' + eckeY + '" r="4" fill="#ffc107"/>';
+            svg += '<line x1="' + rechteEckeX + '" y1="' + eckeY + '" x2="' + rechteEckeX + '" y2="' + (plattenY + plattenHeight) + '" stroke="#ffc107" stroke-width="3"/>';
+            
+            if (type === 'trapez') {
+                svg += '<text x="' + rechteEckeX + '" y="' + (eckeY - 25) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">ECKE R</text>';
+            } else {
+                svg += '<text x="' + rechteEckeX + '" y="' + (eckeY - 10) + '" text-anchor="middle" font-size="10" fill="#ffc107" font-weight="bold">ECKE R</text>';
+            }
         }
     }
     
