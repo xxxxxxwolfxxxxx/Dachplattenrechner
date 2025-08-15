@@ -387,9 +387,6 @@
             <button onclick="window.print()" class="btn btn-primary">
                 Drucken
             </button>
-            <a href="../index.html" class="btn btn-success">
-                Zurück zur Übersicht
-            </a>
         </div>
 
         <!-- Übersichtssektion (wird beim Drucken ausgeblendet) -->
@@ -529,12 +526,12 @@
                 const plattenStart = parseFloat(platte.positionVonLinks);
                 const plattenX = margin + plattenStart * scaleX;
                 
-                // KORRIGIERTE Höhenberechnung - umgekehrte Logik für linke Seite
+                // KORRIGIERTE Höhenberechnung - korrekte Berechnung für beide Seiten
                 let plattenObenY;
                 if (plattenStart <= spitzenPosition) {
-                    // Links von der Spitze - KORRIGIERT: Verhältnis umgekehrt berechnen
-                    const verhaeltnis = (spitzenPosition - plattenStart) / spitzenPosition;
-                    plattenObenY = linksY - verhaeltnis * (linksY - spitzeY);
+                    // Links von der Spitze - direkte Berechnung wie rechts
+                    const verhaeltnis = plattenStart / spitzenPosition;
+                    plattenObenY = spitzeY + verhaeltnis * (linksY - spitzeY);
                 } else {
                     // Rechts von der Spitze - Linie zur rechten Dreiecksseite  
                     const abstandVonSpitze = plattenStart - spitzenPosition;
@@ -887,11 +884,11 @@
             const istLetztePlatte = originalPlattenEnde > basisBreite;
             const plattenEndeReal = istLetztePlatte ? basisBreite : plattenEnde;
             
-            // SVG Dimensionen
-            const plattenX = 30;
-            const plattenY = 20;
-            const plattenWidth = 300;
-            const plattenHeight = 80;
+            // SVG Dimensionen - vergrößert und zentriert
+            const plattenX = 50;
+            const plattenY = 60;
+            const plattenWidth = 320;
+            const plattenHeight = 120;
             
             // Berechne tatsächliche Plattenbreite für Darstellung
             const dargestellteBreite = plattenEndeReal - plattenStart;
@@ -969,34 +966,34 @@
                     <line x1="${plattenX + endX}" y1="${plattenY + plattenHeight}" x2="${plattenX + endX}" y2="${nutzenEndY}" 
                           stroke="#dc3545" stroke-width="4"/>
                     
-                    <!-- Anrissmaße - beide senkrecht wie links -->
-                    <text x="15" y="${nutzenStartY + (plattenHeight - anrissHoeheLinks)/2}" 
-                          text-anchor="middle" font-size="12" fill="#dc3545" font-weight="bold" 
-                          transform="rotate(-90 15 ${nutzenStartY + (plattenHeight - anrissHoeheLinks)/2})">${anreissMasse.links}cm</text>
+                    <!-- Anrissmaße - beide senkrecht, angepasst an neue Größe -->
+                    <text x="25" y="${nutzenStartY + (plattenHeight - anrissHoeheLinks)/2}" 
+                          text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" 
+                          transform="rotate(-90 25 ${nutzenStartY + (plattenHeight - anrissHoeheLinks)/2})">${anreissMasse.links}cm</text>
                     
-                    <!-- Rechtes Maß - auch senkrecht (nicht 90° gedreht) -->
-                    <text x="${plattenX + endX + 15}" y="${nutzenEndY + (plattenHeight - anrissHoeheRechts)/2}" 
-                          text-anchor="middle" font-size="12" fill="#dc3545" font-weight="bold" 
-                          transform="rotate(-90 ${plattenX + endX + 15} ${nutzenEndY + (plattenHeight - anrissHoeheRechts)/2})">${anreissMasse.rechts}cm</text>
+                    <!-- Rechtes Maß - auch senkrecht, angepasst an neue Größe -->
+                    <text x="${plattenX + endX + 25}" y="${nutzenEndY + (plattenHeight - anrissHoeheRechts)/2}" 
+                          text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" 
+                          transform="rotate(-90 ${plattenX + endX + 25} ${nutzenEndY + (plattenHeight - anrissHoeheRechts)/2})">${anreissMasse.rechts}cm</text>
                     
-                    <!-- Beschriftungen -->
-                    <text x="${plattenX + endX/2}" y="${plattenY + plattenHeight - 15}" text-anchor="middle" 
-                          fill="#fff" font-weight="bold" font-size="14" stroke="#000" stroke-width="0.5">Nutzen</text>
+                    <!-- Beschriftungen - angepasste Schriftgröße -->
+                    <text x="${plattenX + endX/2}" y="${plattenY + plattenHeight - 20}" text-anchor="middle" 
+                          fill="#fff" font-weight="bold" font-size="16" stroke="#000" stroke-width="0.5">Nutzen</text>
                     
-                    <!-- Intelligente "Abschnitt" Positionierung -->
-                    ${abschnittTexte}
+                    <!-- Intelligente "Abschnitt" Positionierung - angepasste Schriftgröße -->
+                    ${abschnittTexte.replace(/font-size="12"/g, 'font-size="14"')}
                     
                     ${istLetztePlatte ? `
                     <!-- Letzte Platte Markierung -->
                     <line x1="${plattenX + endX}" y1="10" x2="${plattenX + endX}" y2="${plattenY + plattenHeight + 10}" 
                           stroke="#28a745" stroke-width="3"/>
-                    <text x="${plattenX + endX + 5}" y="8" font-size="10" fill="#28a745" font-weight="bold">ENDE</text>
+                    <text x="${plattenX + endX + 8}" y="12" font-size="12" fill="#28a745" font-weight="bold">ENDE</text>
                     ` : ''}
                     
                     ${istSpitzenPlatte ? `
                     <!-- Spitze markieren -->
                     <line x1="${spitzeX}" y1="${plattenY}" x2="${spitzeX}" y2="${plattenY + plattenHeight}" stroke="#ffc107" stroke-width="3"/>
-                    <text x="${spitzeX}" y="${plattenY - 20}" text-anchor="middle" font-size="10" fill="#ffc107" font-weight="bold">SPITZE</text>
+                    <text x="${spitzeX}" y="${plattenY - 25}" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">SPITZE</text>
                     ` : ''}
                 </svg>
             `;
