@@ -529,12 +529,12 @@
                 const plattenStart = parseFloat(platte.positionVonLinks);
                 const plattenX = margin + plattenStart * scaleX;
                 
-                // Korrekte Höhenberechnung - Linie trifft exakt die Dreiecksseite
+                // KORRIGIERTE Höhenberechnung - umgekehrte Logik für linke Seite
                 let plattenObenY;
                 if (plattenStart <= spitzenPosition) {
-                    // Links von der Spitze - Linie zur linken Dreiecksseite
-                    const verhaeltnis = plattenStart / spitzenPosition;
-                    plattenObenY = spitzeY + verhaeltnis * (linksY - spitzeY);
+                    // Links von der Spitze - KORRIGIERT: Verhältnis umgekehrt berechnen
+                    const verhaeltnis = (spitzenPosition - plattenStart) / spitzenPosition;
+                    plattenObenY = linksY - verhaeltnis * (linksY - spitzeY);
                 } else {
                     // Rechts von der Spitze - Linie zur rechten Dreiecksseite  
                     const abstandVonSpitze = plattenStart - spitzenPosition;
@@ -550,20 +550,6 @@
                 svg += `<text x="${plattenX}" y="${linksY + 20}" 
                         text-anchor="middle" font-size="12" fill="#333" font-weight="bold">${platte.plattenNr}</text>`;
             });
-            
-            // Spitze markieren
-            svg += `<circle cx="${spitzeX}" cy="${spitzeY}" r="4" fill="#dc3545"/>`;
-            svg += `<text x="${spitzeX}" y="${spitzeY - 10}" text-anchor="middle" font-size="12" 
-                    fill="#dc3545" font-weight="bold">Spitze</text>`;
-            
-            // Basis-Maß
-            svg += `<line x1="${margin}" y1="${linksY + 30}" x2="${rechtsX}" y2="${linksY + 30}" stroke="#666" stroke-width="1"/>`;
-            svg += `<text x="${margin + (basisBreite * scaleX)/2}" y="${linksY + 45}" text-anchor="middle" font-size="14" 
-                    fill="#333" font-weight="bold">Basis: ${basisBreite}m</text>`;
-            
-            svg += `</svg>`;
-            return svg;
-        }
 
         // Trapez Übersicht
         function generateTrapezOverview(data) {
