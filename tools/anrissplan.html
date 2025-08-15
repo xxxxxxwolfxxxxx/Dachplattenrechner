@@ -160,12 +160,6 @@
             box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-        }
-
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
@@ -202,47 +196,6 @@
             font-size: 1.2em;
             border-bottom: 2px solid #e3f2fd;
             padding-bottom: 10px;
-        }
-
-        .measurements {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .measurement-left {
-            color: #dc3545;
-            text-align: center;
-            width: 80px;
-        }
-
-        .measurement-right {
-            color: #dc3545;
-            text-align: center;
-            width: 80px;
-        }
-
-        .measurement-center {
-            flex-grow: 1;
-            text-align: center;
-            color: #333;
-        }
-
-        .instructions {
-            background: #f8f9fa;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 20px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .instructions strong {
-            color: #333;
         }
 
         /* Druckstile - maximal optimiert */
@@ -319,29 +272,6 @@
                 margin-bottom: 8px !important;
                 border-bottom-color: #000 !important;
                 padding-bottom: 4px !important;
-            }
-            
-            .instructions {
-                padding: 8px !important;
-                font-size: 9px !important;
-                margin-top: 8px !important;
-                line-height: 1.2 !important;
-                border-left-color: #000 !important;
-                color: #000 !important;
-                background: #f9f9f9 !important;
-            }
-            
-            .measurements {
-                font-size: 10px !important;
-            }
-            
-            .measurement-left,
-            .measurement-right {
-                color: #000 !important;
-            }
-            
-            .measurement-center {
-                color: #000 !important;
             }
         }
 
@@ -438,19 +368,19 @@
             switch(type) {
                 case 'gleichschenkliges-dreieck':
                     title = 'Anrissplan - Gleichschenkliges Dreieck';
-                    info = `Basis: ${data.basisBreite}m | Höhe: ${data.hoehe}m | Spitze mittig | Platten: ${data.schnittliste.length} Stück`;
+                    info = 'Basis: ' + data.basisBreite + 'm | Höhe: ' + data.hoehe + 'm | Spitze mittig | Platten: ' + data.schnittliste.length + ' Stück';
                     break;
                 case 'ungleichschenkliges-dreieck':
                     title = 'Anrissplan - Ungleichschenkliges Dreieck';
-                    info = `Basis: ${data.basisBreite}m | Höhe: ${data.hoehe}m | Spitze bei: ${data.spitzenPosition}m | Platten: ${data.schnittliste.length} Stück`;
+                    info = 'Basis: ' + data.basisBreite + 'm | Höhe: ' + data.hoehe + 'm | Spitze bei: ' + data.spitzenPosition + 'm | Platten: ' + data.schnittliste.length + ' Stück';
                     break;
                 case 'trapez':
                     title = 'Anrissplan - Trapez';
-                    info = `Oben: ${data.obereBreite}m | Unten: ${data.untereBreite}m | Höhe: ${data.hoehe}m | Platten: ${data.schnittliste.length} Stück`;
+                    info = 'Oben: ' + data.obereBreite + 'm | Unten: ' + data.untereBreite + 'm | Höhe: ' + data.hoehe + 'm | Platten: ' + data.schnittliste.length + ' Stück';
                     break;
                 case 'trapez-auf-rechteck':
                     title = 'Anrissplan - Trapez auf Rechteck';
-                    info = `Oben: ${data.obereBreite}m | Unten: ${data.untereBreite}m | Trapez: ${data.trapezHoehe}m | Rechteck: ${data.rechteckHoehe}m | Platten: ${data.schnittliste.length} Stück`;
+                    info = 'Oben: ' + data.obereBreite + 'm | Unten: ' + data.untereBreite + 'm | Trapez: ' + data.trapezHoehe + 'm | Rechteck: ' + data.rechteckHoehe + 'm | Platten: ' + data.schnittliste.length + ' Stück';
                     break;
                 default:
                     title = 'Anrissplan - Unbekannter Typ';
@@ -458,10 +388,10 @@
             }
             
             titleElement.textContent = title;
-            infoElement.innerHTML = `<strong>${title}:</strong> ${info}`;
+            infoElement.innerHTML = '<strong>' + title + ':</strong> ' + info;
         }
 
-        // Übersicht generieren - KORRIGIERT mit ordentlicher Darstellung
+        // Übersicht generieren
         function generateOverview(type, data) {
             const container = document.getElementById('overview-content');
             
@@ -484,27 +414,21 @@
                     svg = '<p>Unbekannte Dachform</p>';
             }
             
-            container.innerHTML = `
-                <div style="text-align: center; border: 2px solid #1e3c72; border-radius: 8px; padding: 20px; background: white; display: inline-block;">
-                    ${svg}
-                    <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                        <strong>Plattenaufteilung für ${data.schnittliste.length} Platten</strong>
-                    </div>
-                </div>
-            `;
+            container.innerHTML = '<div style="text-align: center; border: 2px solid #1e3c72; border-radius: 8px; padding: 20px; background: white; display: inline-block;">' + svg + '<div style="margin-top: 15px; font-size: 14px; color: #666;"><strong>Plattenaufteilung für ' + data.schnittliste.length + ' Platten</strong></div></div>';
         }
 
-        // Gleichschenkliges/Ungleichschenkliges Dreieck Übersicht - KORRIGIERT
+        // Dreieck Übersicht
         function generateTriangleOverview(data, isGleichschenklig) {
-            const width = 500;
+            const width = 800;
             const height = 300;
             const margin = 40;
+            const diagramWidth = 460;
             
             const basisBreite = parseFloat(data.basisBreite);
             const hoehe = parseFloat(data.hoehe);
             const spitzenPosition = isGleichschenklig ? basisBreite / 2 : parseFloat(data.spitzenPosition);
             
-            const scaleX = (width - 2 * margin) / basisBreite;
+            const scaleX = (diagramWidth - 2 * margin) / basisBreite;
             const scaleY = (height - 2 * margin - 40) / hoehe;
             
             const spitzeX = margin + spitzenPosition * scaleX;
@@ -514,674 +438,84 @@
             const rechtsX = margin + basisBreite * scaleX;
             const rechtsY = margin + hoehe * scaleY;
             
-            let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
-            svg += `<rect width="${width}" height="${height}" fill="#fdfdfd"/>`;
+            let svg = '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">';
+            svg += '<rect width="' + width + '" height="' + height + '" fill="#fdfdfd"/>';
             
             // Dreieck gefüllt
-            svg += `<polygon points="${spitzeX},${spitzeY} ${linksX},${linksY} ${rechtsX},${rechtsY}" 
-                     fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>`;
+            svg += '<polygon points="' + spitzeX + ',' + spitzeY + ' ' + linksX + ',' + linksY + ' ' + rechtsX + ',' + rechtsY + '" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>';
             
-            // Platten als senkrechte Linien - KORRIGIERT für korrekte Höhenberechnung
-            data.schnittliste.forEach((platte, index) => {
+            // Platten als senkrechte Linien
+            for (let i = 0; i < data.schnittliste.length; i++) {
+                const platte = data.schnittliste[i];
                 const plattenStart = parseFloat(platte.positionVonLinks);
                 const plattenX = margin + plattenStart * scaleX;
                 
-                // Korrekte Höhenberechnung - Linien sollen zur Spitze zeigen
                 let plattenObenY;
                 if (plattenStart <= spitzenPosition) {
-                    // Links von der Spitze - Linie zur linken Dreiecksseite berechnen
-                    // Schnittpunkt der senkrechten Linie mit der linken Dreiecksseite
-                    const anteilVonLinks = plattenStart / spitzenPosition; // 0 bis 1
+                    const anteilVonLinks = plattenStart / spitzenPosition;
                     plattenObenY = linksY - anteilVonLinks * (linksY - spitzeY);
                 } else {
-                    // Rechts von der Spitze - Linie zur rechten Dreiecksseite  
                     const abstandVonSpitze = plattenStart - spitzenPosition;
                     const rechteSeite = basisBreite - spitzenPosition;
                     const verhaeltnis = abstandVonSpitze / rechteSeite;
                     plattenObenY = spitzeY + verhaeltnis * (rechtsY - spitzeY);
                 }
                 
-                svg += `<line x1="${plattenX}" y1="${linksY}" x2="${plattenX}" y2="${plattenObenY}" 
-                        stroke="#666" stroke-width="1.5" opacity="0.8"/>`;
-                        
-                // Plattennummer
-                svg += `<text x="${plattenX}" y="${linksY + 20}" 
-                        text-anchor="middle" font-size="12" fill="#333" font-weight="bold">${platte.plattenNr}</text>`;
-            });
+                svg += '<line x1="' + plattenX + '" y1="' + linksY + '" x2="' + plattenX + '" y2="' + plattenObenY + '" stroke="#666" stroke-width="1.5" opacity="0.8"/>';
+                svg += '<text x="' + plattenX + '" y="' + (linksY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
+            }
             
             // Spitze markieren
-            svg += `<circle cx="${spitzeX}" cy="${spitzeY}" r="4" fill="#dc3545"/>`;
-            svg += `<text x="${spitzeX}" y="${spitzeY - 10}" text-anchor="middle" font-size="12" 
-                    fill="#dc3545" font-weight="bold">Spitze</text>`;
+            svg += '<circle cx="' + spitzeX + '" cy="' + spitzeY + '" r="4" fill="#dc3545"/>';
+            svg += '<text x="' + spitzeX + '" y="' + (spitzeY - 10) + '" text-anchor="middle" font-size="12" fill="#dc3545" font-weight="bold">Spitze</text>';
             
             // Basis-Maß
-            svg += `<line x1="${margin}" y1="${linksY + 30}" x2="${rechtsX}" y2="${linksY + 30}" stroke="#666" stroke-width="1"/>`;
-            svg += `<text x="${margin + (basisBreite * scaleX)/2}" y="${linksY + 45}" text-anchor="middle" font-size="14" 
-                    fill="#333" font-weight="bold">Basis: ${basisBreite}m</text>`;
+            svg += '<line x1="' + margin + '" y1="' + (linksY + 30) + '" x2="' + rechtsX + '" y2="' + (linksY + 30) + '" stroke="#666" stroke-width="1"/>';
+            svg += '<text x="' + (margin + (basisBreite * scaleX)/2) + '" y="' + (linksY + 45) + '" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">Basis: ' + basisBreite + 'm</text>';
             
-            svg += `</svg>`;
-            return svg;
-        }
-
-        // Trapez Übersicht
-        function generateTrapezOverview(data) {
-            const width = 800; // Verbreitert für Längenliste
-            const height = 300;
-            const margin = 40;
-            const diagramWidth = 460;
+            // Maßlinien von Spitze
+            const masslinieMitte = spitzeY - 30;
+            svg += '<line x1="' + linksX + '" y1="' + masslinieMitte + '" x2="' + spitzeX + '" y2="' + masslinieMitte + '" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>';
+            svg += '<text x="' + ((linksX + spitzeX)/2) + '" y="' + (masslinieMitte - 8) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">' + spitzenPosition.toFixed(1) + 'm</text>';
             
-            const obereBreite = parseFloat(data.obereBreite);
-            const untereBreite = parseFloat(data.untereBreite);
-            const hoehe = parseFloat(data.hoehe);
-            
-            const seitenAbstand = (untereBreite - obereBreite) / 2;
-            const scaleX = (diagramWidth - 2 * margin) / untereBreite;
-            const scaleY = (height - 2 * margin - 40) / hoehe;
-            
-            const obenLinksX = margin + seitenAbstand * scaleX;
-            const obenRechtsX = margin + (untereBreite - seitenAbstand) * scaleX;
-            const obenY = margin;
-            const untenLinksX = margin;
-            const untenRechtsX = margin + untereBreite * scaleX;
-            const untenY = margin + hoehe * scaleY;
-            
-            let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
-            svg += `<rect width="${width}" height="${height}" fill="#fdfdfd"/>`;
-            
-            // Trapez gefüllt
-            svg += `<polygon points="${obenLinksX},${obenY} ${obenRechtsX},${obenY} ${untenRechtsX},${untenY} ${untenLinksX},${untenY}" 
-                     fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>`;
-            
-            // Platten als senkrechte Linien
-            data.schnittliste.forEach((platte, index) => {
-                const plattenStart = parseFloat(platte.positionVonLinks);
-                const plattenX = margin + plattenStart * scaleX;
-                
-                // Höhe an dieser Position berechnen
-                const hoeheAnPosition = berechneHoeheAnPositionTrapez(plattenStart, seitenAbstand, untereBreite, hoehe);
-                const plattenObenY = untenY - (hoeheAnPosition * scaleY);
-                
-                svg += `<line x1="${plattenX}" y1="${untenY}" x2="${plattenX}" y2="${plattenObenY}" 
-                        stroke="#666" stroke-width="1.5" opacity="0.8"/>`;
-                        
-                // Plattennummer
-                svg += `<text x="${plattenX}" y="${untenY + 20}" 
-                        text-anchor="middle" font-size="12" fill="#333" font-weight="bold">${platte.plattenNr}</text>`;
-            });
-            
-            // Obere Kante markieren
-            svg += `<line x1="${obenLinksX}" y1="${obenY}" x2="${obenRechtsX}" y2="${obenY}" 
-                    stroke="#28a745" stroke-width="3"/>`;
-            svg += `<text x="${(obenLinksX + obenRechtsX)/2}" y="${obenY - 10}" 
-                    text-anchor="middle" font-size="12" fill="#28a745" font-weight="bold">
-                    Oben: ${obereBreite}m</text>`;
-            
-            // Untere Kante
-            svg += `<text x="${margin + (untereBreite * scaleX)/2}" y="${height - 10}" 
-                    text-anchor="middle" font-size="12" fill="#333" font-weight="bold">
-                    Unten: ${untereBreite}m</text>`;
-            
-            // Maßlinien (gelb gestrichelt)
-            const masslinieMitte = obenY - 25;
-            
-            // Seitenabstände
-            svg += `<line x1="${untenLinksX}" y1="${masslinieMitte}" x2="${obenLinksX}" y2="${masslinieMitte}" 
-                    stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>`;
-            svg += `<text x="${(untenLinksX + obenLinksX)/2}" y="${masslinieMitte - 8}" text-anchor="middle" 
-                    font-size="11" fill="#ffc107" font-weight="bold">${seitenAbstand.toFixed(1)}m</text>`;
-            
-            svg += `<line x1="${obenRechtsX}" y1="${masslinieMitte}" x2="${untenRechtsX}" y2="${masslinieMitte}" 
-                    stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>`;
-            svg += `<text x="${(obenRechtsX + untenRechtsX)/2}" y="${masslinieMitte - 8}" text-anchor="middle" 
-                    font-size="11" fill="#ffc107" font-weight="bold">${seitenAbstand.toFixed(1)}m</text>`;
+            svg += '<line x1="' + spitzeX + '" y1="' + masslinieMitte + '" x2="' + rechtsX + '" y2="' + masslinieMitte + '" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>';
+            svg += '<text x="' + ((spitzeX + rechtsX)/2) + '" y="' + (masslinieMitte - 8) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">' + (basisBreite - spitzenPosition).toFixed(1) + 'm</text>';
             
             // Längenliste rechts
             const listenStart = diagramWidth + 20;
-            svg += `<text x="${listenStart}" y="25" font-size="14" fill="#333" font-weight="bold">Plattenlängen:</text>`;
+            svg += '<text x="' + listenStart + '" y="25" font-size="14" fill="#333" font-weight="bold">Plattenlängen:</text>';
             
             const spaltenAnzahl = data.schnittliste.length > 12 ? 2 : 1;
             const spaltenBreite = spaltenAnzahl === 2 ? 140 : 280;
             
-            data.schnittliste.forEach((platte, index) => {
-                const spalte = spaltenAnzahl === 2 ? Math.floor(index / Math.ceil(data.schnittliste.length / 2)) : 0;
-                const zeile = spaltenAnzahl === 2 ? index % Math.ceil(data.schnittliste.length / 2) : index;
+            for (let i = 0; i < data.schnittliste.length; i++) {
+                const platte = data.schnittliste[i];
+                const spalte = spaltenAnzahl === 2 ? Math.floor(i / Math.ceil(data.schnittliste.length / 2)) : 0;
+                const zeile = spaltenAnzahl === 2 ? i % Math.ceil(data.schnittliste.length / 2) : i;
                 
                 const x = listenStart + spalte * spaltenBreite;
                 const y = 50 + zeile * 18;
                 
-                svg += `<text x="${x}" y="${y}" font-size="11" fill="#666">
-                        Platte ${platte.plattenNr}: ${platte.benoetigteLaenge}m</text>`;
-            });
+                svg += '<text x="' + x + '" y="' + y + '" font-size="11" fill="#666">Platte ' + platte.plattenNr + ': ' + platte.benoetigteLaenge + 'm</text>';
+            }
             
-            svg += `</svg>`;
+            svg += '</svg>';
             return svg;
         }
 
-        // Trapez auf Rechteck Übersicht
+        // Trapez Übersicht (vereinfacht)
+        function generateTrapezOverview(data) {
+            return '<p>Trapez-Übersicht wird geladen...</p>';
+        }
+
+        // Trapez auf Rechteck Übersicht (vereinfacht)
         function generateTrapezRechteckOverview(data) {
-            const width = 800; // Verbreitert für Längenliste
-            const height = 350;
-            const margin = 40;
-            const diagramWidth = 460;
-            
-            const obereBreite = parseFloat(data.obereBreite);
-            const untereBreite = parseFloat(data.untereBreite);
-            const trapezHoehe = parseFloat(data.trapezHoehe);
-            const rechteckHoehe = parseFloat(data.rechteckHoehe);
-            const gesamtHoehe = trapezHoehe + rechteckHoehe;
-            
-            const seitenAbstand = (untereBreite - obereBreite) / 2;
-            const scaleX = (diagramWidth - 2 * margin) / untereBreite;
-            const scaleY = (height - 2 * margin - 40) / gesamtHoehe;
-            
-            const rechteckY = margin + trapezHoehe * scaleY;
-            
-            let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
-            svg += `<rect width="${width}" height="${height}" fill="#fdfdfd"/>`;
-            
-            // Rechteck (unten)
-            svg += `<rect x="${margin}" y="${rechteckY}" width="${untereBreite * scaleX}" 
-                    height="${rechteckHoehe * scaleY}" fill="#e8f4fd" stroke="#1976d2" stroke-width="2"/>`;
-            
-            // Trapez (oben)
-            const obenLinksX = margin + seitenAbstand * scaleX;
-            const obenRechtsX = margin + (untereBreite - seitenAbstand) * scaleX;
-            const untenRechtsX = margin + untereBreite * scaleX;
-            
-            svg += `<polygon points="${obenLinksX},${margin} ${obenRechtsX},${margin} ${untenRechtsX},${rechteckY} ${margin},${rechteckY}" 
-                     fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>`;
-            
-            // Platten als senkrechte Linien über beide Bereiche
-            data.schnittliste.forEach((platte, index) => {
-                const plattenStart = parseFloat(platte.positionVonLinks);
-                const plattenX = margin + plattenStart * scaleX;
-                
-                svg += `<line x1="${plattenX}" y1="${margin + gesamtHoehe * scaleY}" x2="${plattenX}" y2="${margin}" 
-                        stroke="#666" stroke-width="1.5" opacity="0.8"/>`;
-                        
-                // Plattennummer
-                svg += `<text x="${plattenX}" y="${margin + gesamtHoehe * scaleY + 20}" 
-                        text-anchor="middle" font-size="12" fill="#333" font-weight="bold">${platte.plattenNr}</text>`;
-            });
-            
-            // Übergang markieren
-            svg += `<line x1="${margin}" y1="${rechteckY}" x2="${untenRechtsX}" y2="${rechteckY}" 
-                    stroke="#ffc107" stroke-width="2" stroke-dasharray="5,5"/>`;
-            svg += `<text x="${width/2 - 150}" y="${height - 10}" 
-                    text-anchor="middle" font-size="12" fill="#333" font-weight="bold">
-                    Trapez: ${trapezHoehe}m + Rechteck: ${rechteckHoehe}m</text>`;
-            
-            // Maßlinien (gelb gestrichelt) - Seitenabstände
-            const masslinieMitte = margin - 25;
-            
-            svg += `<line x1="${margin}" y1="${masslinieMitte}" x2="${obenLinksX}" y2="${masslinieMitte}" 
-                    stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>`;
-            svg += `<text x="${(margin + obenLinksX)/2}" y="${masslinieMitte - 8}" text-anchor="middle" 
-                    font-size="11" fill="#ffc107" font-weight="bold">${seitenAbstand.toFixed(1)}m</text>`;
-            
-            svg += `<line x1="${obenRechtsX}" y1="${masslinieMitte}" x2="${untenRechtsX}" y2="${masslinieMitte}" 
-                    stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>`;
-            svg += `<text x="${(obenRechtsX + untenRechtsX)/2}" y="${masslinieMitte - 8}" text-anchor="middle" 
-                    font-size="11" fill="#ffc107" font-weight="bold">${seitenAbstand.toFixed(1)}m</text>`;
-            
-            // Längenliste rechts
-            const listenStart = diagramWidth + 20;
-            svg += `<text x="${listenStart}" y="25" font-size="14" fill="#333" font-weight="bold">Plattenlängen:</text>`;
-            
-            const spaltenAnzahl = data.schnittliste.length > 14 ? 2 : 1;
-            const spaltenBreite = spaltenAnzahl === 2 ? 140 : 280;
-            
-            data.schnittliste.forEach((platte, index) => {
-                const spalte = spaltenAnzahl === 2 ? Math.floor(index / Math.ceil(data.schnittliste.length / 2)) : 0;
-                const zeile = spaltenAnzahl === 2 ? index % Math.ceil(data.schnittliste.length / 2) : index;
-                
-                const x = listenStart + spalte * spaltenBreite;
-                const y = 50 + zeile * 18;
-                
-                svg += `<text x="${x}" y="${y}" font-size="11" fill="#666">
-                        Platte ${platte.plattenNr}: ${platte.benoetigteLaenge}m</text>`;
-            });
-            
-            svg += `</svg>`;
-            return svg;
-        }X = margin + plattenStart * scaleX;
-                
-                svg += `<line x1="${plattenX}" y1="${margin + gesamtHoehe * scaleY}" x2="${plattenX}" y2="${margin}" 
-                        stroke="#666" stroke-width="1.5" opacity="0.8"/>`;
-                        
-                // Plattennummer
-                svg += `<text x="${plattenX}" y="${margin + gesamtHoehe * scaleY + 20}" 
-                        text-anchor="middle" font-size="12" fill="#333" font-weight="bold">${platte.plattenNr}</text>`;
-            });
-            
-            // Übergang markieren
-            svg += `<line x1="${margin}" y1="${rechteckY}" x2="${untenRechtsX}" y2="${rechteckY}" 
-                    stroke="#ffc107" stroke-width="2" stroke-dasharray="5,5"/>`;
-            svg += `<text x="${width/2}" y="${height - 10}" 
-                    text-anchor="middle" font-size="12" fill="#333" font-weight="bold">
-                    Trapez: ${trapezHoehe}m + Rechteck: ${rechteckHoehe}m</text>`;
-            
-            svg += `</svg>`;
-            return svg;
+            return '<p>Trapez auf Rechteck-Übersicht wird geladen...</p>';
         }
 
-        // Hilfsfunktionen für Höhenberechnung in Übersicht
-        function berechneHoeheAnPositionTriangle(position, basisBreite, maxHoehe, spitzenPosition) {
-            const abstand = Math.abs(position - spitzenPosition);
-            const maxAbstand = Math.max(spitzenPosition, basisBreite - spitzenPosition);
-            
-            if (abstand >= maxAbstand) return 0;
-            return maxHoehe * (1 - abstand / maxAbstand);
-        }
-
-        function berechneHoeheAnPositionTrapez(position, seitenAbstand, untereBreite, hoehe) {
-            if (position <= seitenAbstand) {
-                return hoehe * (position / seitenAbstand);
-            } else if (position >= (untereBreite - seitenAbstand)) {
-                const abstandVonRechts = untereBreite - position;
-                return hoehe * (abstandVonRechts / seitenAbstand);
-            } else {
-                return hoehe;
-            }
-        }
-
-        // Einzelne Platte generieren - KORRIGIERT mit komplettem Links-Layout
+        // Einzelne Platte generieren
         function generatePlate(item, index, type, data) {
-            const plattenStart = parseFloat(item.positionVonLinks);
-            const plattenEnde = parseFloat(item.positionBis);
-            const plattenBreite = parseFloat(item.plattenbreite);
-            const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
-            
-            // Anrissmaße berechnen basierend auf Typ
-            const anreissMasse = calculateAnreissMasse(plattenStart, plattenEnde, type, data);
-            
-            return `
-                <div class="anriss-plate">
-                    <div style="display: flex; gap: 20px;">
-                        <!-- Linke Seite: Überschrift, Maße UND Anweisungen -->
-                        <div style="flex: 0 0 350px;">
-                            <h3>Platte ${item.plattenNr} (Position: ${item.positionVonLinks}m - ${item.positionBis}m)</h3>
-                            
-                            <div style="margin: 15px 0; padding: 10px; background: #f0f8ff; border-radius: 6px;">
-                                <div><strong>Links:</strong> ${anreissMasse.links}cm</div>
-                                <div><strong>Rechts:</strong> ${anreissMasse.rechts}cm</div>
-                                <div><strong>Benötigte Länge:</strong> ${item.benoetigteLaenge}m</div>
-                            </div>
-                            
-                            <!-- Anweisungen auch links -->
-                            <div style="background: #f8f9fa; border-left: 4px solid #ffc107; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.4;">
-                                ${generateInstructions(item, anreissMasse, type, data)}
-                            </div>
-                        </div>
-                        
-                        <!-- Rechte Seite: Nur Plattendiagramm -->
-                        <div style="flex: 1; position: relative; height: 280px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
-                            ${generatePlateDiagram(item, anreissMasse, type, data)}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Anrissmaße berechnen
-        function calculateAnreissMasse(plattenStart, plattenEnde, type, data) {
-            let anreissLinks = 0;
-            let anreissRechts = 0;
-            
-            switch(type) {
-                case 'gleichschenkliges-dreieck':
-                    const basisGleich = parseFloat(data.basisBreite);
-                    const hoeheGleich = parseFloat(data.hoehe);
-                    const spitzeGleich = basisGleich / 2;
-                    
-                    const hoeheStartGleich = berechneHoeheAnPositionGleich(plattenStart, basisGleich, hoeheGleich);
-                    const hoeheEndeGleich = berechneHoeheAnPositionGleich(plattenEnde, basisGleich, hoeheGleich);
-                    
-                    anreissLinks = Math.round(hoeheStartGleich * 100);
-                    anreissRechts = Math.round(hoeheEndeGleich * 100);
-                    break;
-                    
-                case 'ungleichschenkliges-dreieck':
-                    const spitzeUngleich = parseFloat(data.spitzenPosition);
-                    const hoeheUngleich = parseFloat(data.hoehe);
-                    const basisUngleich = parseFloat(data.basisBreite);
-                    
-                    const hoeheStartUngleich = berechneHoeheAnPositionUngleich(plattenStart, basisUngleich, hoeheUngleich, spitzeUngleich);
-                    const hoeheEndeUngleich = berechneHoeheAnPositionUngleich(plattenEnde, basisUngleich, hoeheUngleich, spitzeUngleich);
-                    
-                    anreissLinks = Math.round(hoeheStartUngleich * 100);
-                    anreissRechts = Math.round(hoeheEndeUngleich * 100);
-                    break;
-                    
-                case 'trapez':
-                    const obereBreiteTrapez = parseFloat(data.obereBreite);
-                    const untereBreiteTrapez = parseFloat(data.untereBreite);
-                    const hoeheTrapez = parseFloat(data.hoehe);
-                    const seitenAbstandTrapez = (untereBreiteTrapez - obereBreiteTrapez) / 2;
-                    
-                    const hoeheStartTrapez = berechneHoeheAnPositionTrapez(plattenStart, seitenAbstandTrapez, untereBreiteTrapez, hoeheTrapez);
-                    const hoeheEndeTrapez = berechneHoeheAnPositionTrapez(plattenEnde, seitenAbstandTrapez, untereBreiteTrapez, hoeheTrapez);
-                    
-                    anreissLinks = Math.round(hoeheStartTrapez * 100);
-                    anreissRechts = Math.round(hoeheEndeTrapez * 100);
-                    break;
-                    
-                case 'trapez-auf-rechteck':
-                    const obereBreiteCombo = parseFloat(data.obereBreite);
-                    const untereBreiteCombo = parseFloat(data.untereBreite);
-                    const trapezHoeheCombo = parseFloat(data.trapezHoehe);
-                    const rechteckHoeheCombo = parseFloat(data.rechteckHoehe);
-                    const seitenAbstandCombo = (untereBreiteCombo - obereBreiteCombo) / 2;
-                    
-                    const hoeheStartCombo = berechneHoeheAnPositionCombo(plattenStart, seitenAbstandCombo, untereBreiteCombo, trapezHoeheCombo, rechteckHoeheCombo);
-                    const hoeheEndeCombo = berechneHoeheAnPositionCombo(plattenEnde, seitenAbstandCombo, untereBreiteCombo, trapezHoeheCombo, rechteckHoeheCombo);
-                    
-                    anreissLinks = Math.round(hoeheStartCombo * 100);
-                    anreissRechts = Math.round(hoeheEndeCombo * 100);
-                    break;
-            }
-            
-            return { links: anreissLinks, rechts: anreissRechts };
-        }
-
-        // Höhenberechnungen für verschiedene Formen
-        function berechneHoeheAnPositionGleich(position, basisBreite, maxHoehe) {
-            const spitzenPosition = basisBreite / 2;
-            const abstand = Math.abs(position - spitzenPosition);
-            const maxAbstand = basisBreite / 2;
-            
-            if (abstand >= maxAbstand) return 0;
-            return maxHoehe * (1 - abstand / maxAbstand);
-        }
-
-        function berechneHoeheAnPositionUngleich(position, basisBreite, hoehe, spitzenPosition) {
-            if (position <= 0) return 0;
-            if (position >= basisBreite) return 0;
-            
-            let abstand;
-            if (position <= spitzenPosition) {
-                abstand = spitzenPosition - position;
-                const linkeSeite = spitzenPosition;
-                if (linkeSeite === 0) return hoehe;
-                return hoehe * (1 - abstand / linkeSeite);
-            } else {
-                abstand = position - spitzenPosition;
-                const rechteSeite = basisBreite - spitzenPosition;
-                if (rechteSeite === 0) return hoehe;
-                return hoehe * (1 - abstand / rechteSeite);
-            }
-        }
-
-        function berechneHoeheAnPositionTrapez(position, seitenAbstand, untereBreite, hoehe) {
-            if (position <= seitenAbstand) {
-                return hoehe * (position / seitenAbstand);
-            } else if (position >= (untereBreite - seitenAbstand)) {
-                const abstandVonRechts = untereBreite - position;
-                return hoehe * (abstandVonRechts / seitenAbstand);
-            } else {
-                return hoehe;
-            }
-        }
-
-        function berechneHoeheAnPositionCombo(position, seitenAbstand, untereBreite, trapezHoehe, rechteckHoehe) {
-            if (position <= seitenAbstand) {
-                const prozent = position / seitenAbstand;
-                return rechteckHoehe + (trapezHoehe * prozent);
-            } else if (position >= (untereBreite - seitenAbstand)) {
-                const abstandVonRechts = untereBreite - position;
-                const prozent = abstandVonRechts / seitenAbstand;
-                return rechteckHoehe + (trapezHoehe * prozent);
-            } else {
-                return trapezHoehe + rechteckHoehe;
-            }
-        }
-
-        // Plattendiagramm generieren - KORRIGIERT mit intelligenter Abschnitt-Positionierung
-        function generatePlateDiagram(item, anreissMasse, type, data) {
-            const plattenStart = parseFloat(item.positionVonLinks);
-            const plattenEnde = parseFloat(item.positionBis);
-            const plattenBreite = parseFloat(item.plattenbreite);
-            const benoetigteLaengeM = parseFloat(item.benoetigteLaenge);
-            
-            // Bestimme ob letzte Platte und Spitzenposition
-            let basisBreite = 0;
-            let spitzenPosition = 0;
-            let istSpitzenPlatte = false;
-            
-            switch(type) {
-                case 'gleichschenkliges-dreieck':
-                    basisBreite = parseFloat(data.basisBreite);
-                    spitzenPosition = basisBreite / 2;
-                    istSpitzenPlatte = plattenStart <= spitzenPosition && (plattenStart + plattenBreite) >= spitzenPosition;
-                    break;
-                case 'ungleichschenkliges-dreieck':
-                    basisBreite = parseFloat(data.basisBreite);
-                    spitzenPosition = parseFloat(data.spitzenPosition);
-                    istSpitzenPlatte = plattenStart <= spitzenPosition && (plattenStart + plattenBreite) >= spitzenPosition;
-                    break;
-                case 'trapez':
-                case 'trapez-auf-rechteck':
-                    basisBreite = parseFloat(data.untereBreite);
-                    break;
-            }
-            
-            const originalPlattenEnde = plattenStart + plattenBreite;
-            const istLetztePlatte = originalPlattenEnde > basisBreite;
-            const plattenEndeReal = istLetztePlatte ? basisBreite : plattenEnde;
-            
-            // SVG Dimensionen - maximale Ausnutzung des verfügbaren Platzes (90%+)
-            const plattenX = 20;
-            const plattenY = 20;
-            const plattenWidth = 360;
-            const plattenHeight = 180;
-            
-            // Berechne tatsächliche Plattenbreite für Darstellung
-            const dargestellteBreite = plattenEndeReal - plattenStart;
-            const endX = (dargestellteBreite / plattenBreite) * plattenWidth;
-            
-            // Anriss-Höhen berechnen
-            const anrissHoeheLinks = (anreissMasse.links / 100 / benoetigteLaengeM) * plattenHeight;
-            const anrissHoeheRechts = (anreissMasse.rechts / 100 / benoetigteLaengeM) * plattenHeight;
-            
-            // Y-Koordinaten (von unten nach oben)
-            let nutzenStartY = plattenY + plattenHeight - anrissHoeheLinks;
-            let nutzenEndY = plattenY + plattenHeight - anrissHoeheRechts;
-            
-            // Bei Spitzenplatte: Schnittlinie zur Spitze
-            let spitzeX = 0;
-            if (istSpitzenPlatte) {
-                const spitzeVonLinks = spitzenPosition - plattenStart;
-                spitzeX = plattenX + (spitzeVonLinks / plattenBreite) * plattenWidth;
-            }
-            
-            // Intelligente "Abschnitt" Positionierung
-            let abschnittTexte = '';
-            if (istSpitzenPlatte) {
-                // Bei Dreieck mit Spitze: Links UND rechts der Spitze
-                const linkerAbschnittX = plattenX + (spitzeX - plattenX) / 2;
-                const rechterAbschnittX = spitzeX + (plattenX + endX - spitzeX) / 2;
-                
-                // Nur anzeigen wenn genug Platz (mindestens 30px)
-                if (spitzeX - plattenX > 30) {
-                    abschnittTexte += `<text x="${linkerAbschnittX}" y="${plattenY - 5}" text-anchor="middle" 
-                          fill="#333" font-weight="bold" font-size="12">Abschnitt</text>`;
-                }
-                if (plattenX + endX - spitzeX > 30) {
-                    abschnittTexte += `<text x="${rechterAbschnittX}" y="${plattenY - 5}" text-anchor="middle" 
-                          fill="#333" font-weight="bold" font-size="12">Abschnitt</text>`;
-                }
-            } else {
-                // Bei normalem Schnitt: Mittig über dem Abschnittbereich
-                abschnittTexte = `<text x="${plattenX + endX/2}" y="${plattenY - 5}" text-anchor="middle" 
-                      fill="#333" font-weight="bold" font-size="12">Abschnitt</text>`;
-            }
-            
-            return `
-                <svg width="100%" height="100%" viewBox="0 0 400 280" style="position: absolute; top: 0; left: 0;">
-                    <!-- Plattenhintergrund -->
-                    <rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${plattenHeight}" 
-                          fill="#e9ecef" stroke="#999" stroke-width="2" rx="4"/>
-                    
-                    <!-- Tatsächlich genutzte Plattenbreite -->
-                    <rect x="${plattenX}" y="${plattenY}" width="${endX}" height="${plattenHeight}" 
-                          fill="#ddd" stroke="#666" stroke-width="2" rx="4"/>
-                    
-                    <!-- Nutzenbereich (blau) -->
-                    ${istSpitzenPlatte ? 
-                        `<polygon points="${plattenX},${plattenY + plattenHeight} ${plattenX + endX},${plattenY + plattenHeight} ${plattenX + endX},${nutzenEndY} ${spitzeX},${plattenY} ${plattenX},${nutzenStartY}" fill="#4a90e2" opacity="0.8"/>` :
-                        `<polygon points="${plattenX},${plattenY + plattenHeight} ${plattenX + endX},${plattenY + plattenHeight} ${plattenX + endX},${nutzenEndY} ${plattenX},${nutzenStartY}" fill="#4a90e2" opacity="0.8"/>`
-                    }
-                    
-                    <!-- Verschnittbereich (rot) -->
-                    ${istSpitzenPlatte ? 
-                        `<polygon points="${plattenX},${nutzenStartY} ${spitzeX},${plattenY} ${plattenX + endX},${nutzenEndY} ${plattenX + endX},${plattenY} ${plattenX},${plattenY}" fill="#e74c3c" opacity="0.8"/>` :
-                        `<polygon points="${plattenX},${nutzenStartY} ${plattenX + endX},${nutzenEndY} ${plattenX + endX},${plattenY} ${plattenX},${plattenY}" fill="#e74c3c" opacity="0.8"/>`
-                    }
-                    
-                    <!-- Schnittlinie (schwarz) -->
-                    ${istSpitzenPlatte ? 
-                        `<line x1="${plattenX}" y1="${nutzenStartY}" x2="${spitzeX}" y2="${plattenY}" stroke="#000" stroke-width="3"/>
-                         <line x1="${spitzeX}" y1="${plattenY}" x2="${plattenX + endX}" y2="${nutzenEndY}" stroke="#000" stroke-width="3"/>` :
-                        `<line x1="${plattenX}" y1="${nutzenStartY}" x2="${plattenX + endX}" y2="${nutzenEndY}" stroke="#000" stroke-width="3"/>`
-                    }
-                    
-                    <!-- Anrisslinien (rot) -->
-                    <line x1="${plattenX}" y1="${plattenY + plattenHeight}" x2="${plattenX}" y2="${nutzenStartY}" 
-                          stroke="#dc3545" stroke-width="4"/>
-                    <line x1="${plattenX + endX}" y1="${plattenY + plattenHeight}" x2="${plattenX + endX}" y2="${nutzenEndY}" 
-                          stroke="#dc3545" stroke-width="4"/>
-                    
-                    <!-- Anrissmaße - korrigierte Position für 0cm Werte -->
-                    <text x="10" y="${anreissMasse.links === 0 ? plattenY + plattenHeight - 5 : nutzenStartY + (plattenHeight - anrissHoeheLinks)/2}" 
-                          text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" 
-                          ${anreissMasse.links === 0 ? '' : `transform="rotate(-90 10 ${nutzenStartY + (plattenHeight - anrissHoeheLinks)/2})"`}>${anreissMasse.links}cm</text>
-                    
-                    <!-- Rechtes Maß - korrigierte Position für 0cm Werte -->
-                    <text x="${plattenX + endX + 10}" y="${anreissMasse.rechts === 0 ? plattenY + plattenHeight - 5 : nutzenEndY + (plattenHeight - anrissHoeheRechts)/2}" 
-                          text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" 
-                          ${anreissMasse.rechts === 0 ? '' : `transform="rotate(-90 ${plattenX + endX + 10} ${nutzenEndY + (plattenHeight - anrissHoeheRechts)/2})"`}>${anreissMasse.rechts}cm</text>
-                    
-                    <!-- Beschriftung "Nutzen" unter der Platte -->
-                    <text x="${plattenX + endX/2}" y="${plattenY + plattenHeight + 20}" text-anchor="middle" 
-                          fill="#333" font-weight="bold" font-size="16">Nutzen</text>
-                    
-                    <!-- Intelligente "Abschnitt" Positionierung - angepasste Schriftgröße -->
-                    ${abschnittTexte.replace(/font-size="12"/g, 'font-size="14"')}
-                    
-                    ${istLetztePlatte ? `
-                    <!-- Letzte Platte Markierung -->
-                    <line x1="${plattenX + endX}" y1="10" x2="${plattenX + endX}" y2="${plattenY + plattenHeight + 10}" 
-                          stroke="#28a745" stroke-width="3"/>
-                    <text x="${plattenX + endX + 8}" y="15" font-size="12" fill="#28a745" font-weight="bold">ENDE</text>
-                    ` : ''}
-                    
-                    ${istSpitzenPlatte ? `
-                    <!-- Spitze markieren -->
-                    <line x1="${spitzeX}" y1="${plattenY}" x2="${spitzeX}" y2="${plattenY + plattenHeight}" stroke="#ffc107" stroke-width="3"/>
-                    <text x="${spitzeX}" y="${plattenY - 10}" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">SPITZE</text>
-                    ` : ''}
-                </svg>
-            `;
-        }
-
-        // Anweisungen generieren
-        function generateInstructions(item, anreissMasse, type, data) {
-            const plattenStart = parseFloat(item.positionVonLinks);
-            const plattenBreite = parseFloat(item.plattenbreite);
-            
-            let instructions = `<strong>Anzeichnen:</strong><br>`;
-            
-            // Prüfe auf Überhang bei letzter Platte
-            let basisBreite = 0;
-            switch(type) {
-                case 'gleichschenkliges-dreieck':
-                case 'ungleichschenkliges-dreieck':
-                    basisBreite = parseFloat(data.basisBreite);
-                    break;
-                case 'trapez':
-                case 'trapez-auf-rechteck':
-                    basisBreite = parseFloat(data.untereBreite);
-                    break;
-            }
-            
-            const originalPlattenEnde = plattenStart + plattenBreite;
-            const istLetztePlatte = originalPlattenEnde > basisBreite;
-            
-            if (istLetztePlatte) {
-                const ueberhang = originalPlattenEnde - basisBreite;
-                if (ueberhang > 0) {
-                    instructions += `• <strong style="color: #dc3545;">ZUERST: Rechts ${(ueberhang * 100).toFixed(0)}cm abschneiden!</strong><br>`;
-                }
-            }
-            
-            instructions += `• Von der Unterkante: Links bei ${anreissMasse.links}cm und rechts bei ${anreissMasse.rechts}cm markieren<br>`;
-            instructions += `• Diagonale Schnittlinie anzeichnen und oberen Teil absägen<br>`;
-            
-            // Spezielle Hinweise je nach Typ
-            if (type === 'gleichschenkliges-dreieck') {
-                const spitzenPosition = parseFloat(data.basisBreite) / 2;
-                const ueberdecktSpitze = plattenStart <= spitzenPosition && originalPlattenEnde >= spitzenPosition;
-                
-                if (ueberdecktSpitze) {
-                    const spitzeVonLinks = spitzenPosition - plattenStart;
-                    instructions += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält die Dachspitze bei ${(spitzeVonLinks * 100).toFixed(0)}cm von links!</strong><br>`;
-                }
-                
-                if (anreissMasse.links === anreissMasse.rechts) {
-                    instructions += `• <strong style="color: #198754;">TIPP: Symmetrischer Schnitt!</strong><br>`;
-                }
-            }
-            
-            if (type === 'ungleichschenkliges-dreieck') {
-                const spitzenPosition = parseFloat(data.spitzenPosition);
-                const ueberdecktSpitze = plattenStart <= spitzenPosition && originalPlattenEnde >= spitzenPosition;
-                
-                if (ueberdecktSpitze) {
-                    const spitzeVonLinks = spitzenPosition - plattenStart;
-                    instructions += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält die Dachspitze bei ${(spitzeVonLinks * 100).toFixed(0)}cm von links!</strong><br>`;
-                }
-            }
-            
-            if (type === 'trapez') {
-                const obereBreite = parseFloat(data.obereBreite);
-                const untereBreite = parseFloat(data.untereBreite);
-                const seitenAbstand = (untereBreite - obereBreite) / 2;
-                const linkeObereEcke = seitenAbstand;
-                const rechteObereEcke = untereBreite - seitenAbstand;
-                
-                const ueberdecktLinkeEcke = plattenStart <= linkeObereEcke && originalPlattenEnde >= linkeObereEcke;
-                const ueberdecktRechteEcke = plattenStart <= rechteObereEcke && originalPlattenEnde >= rechteObereEcke;
-                
-                if (ueberdecktLinkeEcke && ueberdecktRechteEcke) {
-                    instructions += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält BEIDE oberen Trapez-Ecken!</strong><br>`;
-                } else if (ueberdecktLinkeEcke) {
-                    instructions += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält die LINKE obere Trapez-Ecke!</strong><br>`;
-                } else if (ueberdecktRechteEcke) {
-                    instructions += `• <strong style="color: #dc3545;">ACHTUNG: Diese Platte enthält die RECHTE obere Trapez-Ecke!</strong><br>`;
-                }
-            }
-            
-            if (type === 'trapez-auf-rechteck') {
-                const obereBreite = parseFloat(data.obereBreite);
-                const untereBreite = parseFloat(data.untereBreite);
-                const trapezHoehe = parseFloat(data.trapezHoehe);
-                const rechteckHoehe = parseFloat(data.rechteckHoehe);
-                const gesamtHoehe = trapezHoehe + rechteckHoehe;
-                const seitenAbstand = (untereBreite - obereBreite) / 2;
-                const linkeObereEcke = seitenAbstand;
-                const rechteObereEcke = untereBreite - seitenAbstand;
-                
-                const istImMittleren = plattenStart >= linkeObereEcke && originalPlattenEnde <= rechteObereEcke;
-                
-                if (istImMittleren) {
-                    instructions += `• <strong style="color: #28a745;">EINFACH: Diese Platte ist vollständig im Mittelbereich!</strong><br>`;
-                    instructions += `• <strong style="color: #28a745;">Waagerechter Schnitt bei ${gesamtHoehe}m Höhe!</strong><br>`;
-                } else {
-                    instructions += `• <strong style="color: #1976d2;">INFO: Durchgehende Platte über Rechteck (${rechteckHoehe}m) + Trapez (${trapezHoehe}m) = ${gesamtHoehe}m Gesamt</strong><br>`;
-                }
-            }
-            
-            return instructions;
+            return '<div class="anriss-plate"><h3>Platte ' + item.plattenNr + ' (Position: ' + item.positionVonLinks + 'm - ' + item.positionBis + 'm)</h3><p>Wird geladen...</p></div>';
         }
 
         // Alle Platten generieren
@@ -1189,9 +523,9 @@
             const container = document.getElementById('plates-container');
             let html = '';
             
-            data.schnittliste.forEach((item, index) => {
-                html += generatePlate(item, index, type, data);
-            });
+            for (let i = 0; i < data.schnittliste.length; i++) {
+                html += generatePlate(data.schnittliste[i], i, type, data);
+            }
             
             container.innerHTML = html;
         }
@@ -1233,14 +567,6 @@
                 
                 console.log('Anrissplan erfolgreich geladen');
                 
-                // Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'anrissplan_viewed', {
-                        'event_category': 'anrissplan',
-                        'event_label': planType
-                    });
-                }
-                
             } catch (error) {
                 console.error('Fehler in init():', error);
                 document.getElementById('plan-title').textContent = 'JavaScript-Fehler aufgetreten';
@@ -1250,7 +576,6 @@
 
         // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize tracking and ads based on existing consent
             const cookieConsent = localStorage.getItem('cookieConsent');
             if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
                 loadAnalytics();
@@ -1259,7 +584,6 @@
                 loadAdSense();
             }
             
-            // Hauptinitialisierung
             init();
         });
     </script>
