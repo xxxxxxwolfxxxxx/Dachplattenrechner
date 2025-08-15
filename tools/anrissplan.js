@@ -114,7 +114,10 @@ function generateTriangleOverview(data, isGleichschenklig) {
     for (let i = 0; i < data.schnittliste.length; i++) {
         const platte = data.schnittliste[i];
         const plattenStart = parseFloat(platte.positionVonLinks);
+        const plattenBreite = parseFloat(platte.plattenbreite);
+        const plattenMitte = plattenStart + (plattenBreite / 2);
         const plattenX = margin + plattenStart * scaleX;
+        const plattenMitteX = margin + plattenMitte * scaleX;
         
         let plattenObenY;
         if (plattenStart <= spitzenPosition) {
@@ -128,7 +131,7 @@ function generateTriangleOverview(data, isGleichschenklig) {
         }
         
         svg += '<line x1="' + plattenX + '" y1="' + linksY + '" x2="' + plattenX + '" y2="' + plattenObenY + '" stroke="#666" stroke-width="1.5" opacity="0.8"/>';
-        svg += '<text x="' + plattenX + '" y="' + (linksY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
+        svg += '<text x="' + plattenMitteX + '" y="' + (linksY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
     }
     
     // Spitze markieren
@@ -193,13 +196,16 @@ function generateTrapezOverview(data) {
     for (let i = 0; i < data.schnittliste.length; i++) {
         const platte = data.schnittliste[i];
         const plattenStart = parseFloat(platte.positionVonLinks);
+        const plattenBreite = parseFloat(platte.plattenbreite);
+        const plattenMitte = plattenStart + (plattenBreite / 2);
         const plattenX = margin + plattenStart * scaleX;
+        const plattenMitteX = margin + plattenMitte * scaleX;
         
         const hoeheAnPosition = berechneHoeheAnPositionTrapezOverview(plattenStart, seitenAbstand, untereBreite, hoehe);
         const plattenObenY = untenY - (hoeheAnPosition * scaleY);
         
         svg += '<line x1="' + plattenX + '" y1="' + untenY + '" x2="' + plattenX + '" y2="' + plattenObenY + '" stroke="#666" stroke-width="1.5" opacity="0.8"/>';
-        svg += '<text x="' + plattenX + '" y="' + (untenY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
+        svg += '<text x="' + plattenMitteX + '" y="' + (untenY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
     }
     
     // Obere Kante markieren
@@ -267,7 +273,10 @@ function generateTrapezRechteckOverview(data) {
     for (let i = 0; i < data.schnittliste.length; i++) {
         const platte = data.schnittliste[i];
         const plattenStart = parseFloat(platte.positionVonLinks);
+        const plattenBreite = parseFloat(platte.plattenbreite);
+        const plattenMitte = plattenStart + (plattenBreite / 2);
         const plattenX = margin + plattenStart * scaleX;
+        const plattenMitteX = margin + plattenMitte * scaleX;
         
         // Bestimme korrekte Oberkante basierend auf Position
         let plattenObenY;
@@ -286,7 +295,7 @@ function generateTrapezRechteckOverview(data) {
         }
         
         svg += '<line x1="' + plattenX + '" y1="' + (margin + gesamtHoehe * scaleY) + '" x2="' + plattenX + '" y2="' + plattenObenY + '" stroke="#666" stroke-width="1.5" opacity="0.8"/>';
-        svg += '<text x="' + plattenX + '" y="' + (margin + gesamtHoehe * scaleY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
+        svg += '<text x="' + plattenMitteX + '" y="' + (margin + gesamtHoehe * scaleY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
     }
     
     // Obere Ecken markieren
@@ -467,7 +476,8 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         case 'ungleichschenkliges-dreieck':
             basisBreite = parseFloat(data.basisBreite);
             spitzenPosition = type === 'gleichschenkliges-dreieck' ? basisBreite / 2 : parseFloat(data.spitzenPosition);
-            istSpitzenPlatte = plattenStart <= spitzenPosition && (plattenStart + plattenBreite) >= spitzenPosition;
+            // Korrigierte Spitzenerkennung: Prüfe ob Spitze innerhalb der Platte liegt
+            istSpitzenPlatte = plattenStart < spitzenPosition && (plattenStart + plattenBreite) > spitzenPosition;
             break;
         case 'trapez':
             basisBreite = parseFloat(data.untereBreite);
