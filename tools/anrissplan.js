@@ -542,6 +542,31 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
     // Nutzenbereich (blau)
     if (istSpitzenPlatte) {
         svg += '<polygon points="' + plattenX + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + spitzeX + ',' + plattenY + ' ' + plattenX + ',' + nutzenStartY + '" fill="#4a90e2" opacity="0.8"/>';
+    } else if (istTrapezEckenPlatte && type === 'trapez') {
+        // Für Trapez mit Ecken: Ähnlich wie Spitzenplatte
+        const obereBreite = parseFloat(data.obereBreite);
+        const seitenAbstand = (basisBreite - obereBreite) / 2;
+        const plattenEnde = plattenStart + plattenBreite;
+        
+        let eckeX = 0;
+        let hatEcke = false;
+        
+        // Bestimme welche Ecke in der Platte ist und ihre Position
+        if (plattenStart < seitenAbstand && plattenEnde > seitenAbstand) {
+            // Linke Ecke
+            eckeX = plattenX + ((seitenAbstand - plattenStart) / plattenBreite) * plattenWidth;
+            hatEcke = true;
+        } else if (plattenStart < (basisBreite - seitenAbstand) && plattenEnde > (basisBreite - seitenAbstand)) {
+            // Rechte Ecke
+            eckeX = plattenX + (((basisBreite - seitenAbstand) - plattenStart) / plattenBreite) * plattenWidth;
+            hatEcke = true;
+        }
+        
+        if (hatEcke) {
+            svg += '<polygon points="' + plattenX + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + eckeX + ',' + plattenY + ' ' + plattenX + ',' + nutzenStartY + '" fill="#4a90e2" opacity="0.8"/>';
+        } else {
+            svg += '<polygon points="' + plattenX + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + plattenX + ',' + nutzenStartY + '" fill="#4a90e2" opacity="0.8"/>';
+        }
     } else {
         svg += '<polygon points="' + plattenX + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + (plattenY + plattenHeight) + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + plattenX + ',' + nutzenStartY + '" fill="#4a90e2" opacity="0.8"/>';
     }
@@ -549,6 +574,31 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
     // Verschnittbereich (rot)
     if (istSpitzenPlatte) {
         svg += '<polygon points="' + plattenX + ',' + nutzenStartY + ' ' + spitzeX + ',' + plattenY + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + (plattenX + endX) + ',' + plattenY + ' ' + plattenX + ',' + plattenY + '" fill="#e74c3c" opacity="0.8"/>';
+    } else if (istTrapezEckenPlatte && type === 'trapez') {
+        // Für Trapez mit Ecken: Ähnlich wie Spitzenplatte
+        const obereBreite = parseFloat(data.obereBreite);
+        const seitenAbstand = (basisBreite - obereBreite) / 2;
+        const plattenEnde = plattenStart + plattenBreite;
+        
+        let eckeX = 0;
+        let hatEcke = false;
+        
+        // Bestimme welche Ecke in der Platte ist und ihre Position
+        if (plattenStart < seitenAbstand && plattenEnde > seitenAbstand) {
+            // Linke Ecke
+            eckeX = plattenX + ((seitenAbstand - plattenStart) / plattenBreite) * plattenWidth;
+            hatEcke = true;
+        } else if (plattenStart < (basisBreite - seitenAbstand) && plattenEnde > (basisBreite - seitenAbstand)) {
+            // Rechte Ecke
+            eckeX = plattenX + (((basisBreite - seitenAbstand) - plattenStart) / plattenBreite) * plattenWidth;
+            hatEcke = true;
+        }
+        
+        if (hatEcke) {
+            svg += '<polygon points="' + plattenX + ',' + nutzenStartY + ' ' + eckeX + ',' + plattenY + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + (plattenX + endX) + ',' + plattenY + ' ' + plattenX + ',' + plattenY + '" fill="#e74c3c" opacity="0.8"/>';
+        } else {
+            svg += '<polygon points="' + plattenX + ',' + nutzenStartY + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + (plattenX + endX) + ',' + plattenY + ' ' + plattenX + ',' + plattenY + '" fill="#e74c3c" opacity="0.8"/>';
+        }
     } else {
         svg += '<polygon points="' + plattenX + ',' + nutzenStartY + ' ' + (plattenX + endX) + ',' + nutzenEndY + ' ' + (plattenX + endX) + ',' + plattenY + ' ' + plattenX + ',' + plattenY + '" fill="#e74c3c" opacity="0.8"/>';
     }
@@ -557,6 +607,32 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
     if (istSpitzenPlatte) {
         svg += '<line x1="' + plattenX + '" y1="' + nutzenStartY + '" x2="' + spitzeX + '" y2="' + plattenY + '" stroke="#000" stroke-width="3"/>';
         svg += '<line x1="' + spitzeX + '" y1="' + plattenY + '" x2="' + (plattenX + endX) + '" y2="' + nutzenEndY + '" stroke="#000" stroke-width="3"/>';
+    } else if (istTrapezEckenPlatte && type === 'trapez') {
+        // Für Trapez mit Ecken: Ähnlich wie Spitzenplatte
+        const obereBreite = parseFloat(data.obereBreite);
+        const seitenAbstand = (basisBreite - obereBreite) / 2;
+        const plattenEnde = plattenStart + plattenBreite;
+        
+        let eckeX = 0;
+        let hatEcke = false;
+        
+        // Bestimme welche Ecke in der Platte ist und ihre Position
+        if (plattenStart < seitenAbstand && plattenEnde > seitenAbstand) {
+            // Linke Ecke
+            eckeX = plattenX + ((seitenAbstand - plattenStart) / plattenBreite) * plattenWidth;
+            hatEcke = true;
+        } else if (plattenStart < (basisBreite - seitenAbstand) && plattenEnde > (basisBreite - seitenAbstand)) {
+            // Rechte Ecke
+            eckeX = plattenX + (((basisBreite - seitenAbstand) - plattenStart) / plattenBreite) * plattenWidth;
+            hatEcke = true;
+        }
+        
+        if (hatEcke) {
+            svg += '<line x1="' + plattenX + '" y1="' + nutzenStartY + '" x2="' + eckeX + '" y2="' + plattenY + '" stroke="#000" stroke-width="3"/>';
+            svg += '<line x1="' + eckeX + '" y1="' + plattenY + '" x2="' + (plattenX + endX) + '" y2="' + nutzenEndY + '" stroke="#000" stroke-width="3"/>';
+        } else {
+            svg += '<line x1="' + plattenX + '" y1="' + nutzenStartY + '" x2="' + (plattenX + endX) + '" y2="' + nutzenEndY + '" stroke="#000" stroke-width="3"/>';
+        }
     } else {
         svg += '<line x1="' + plattenX + '" y1="' + nutzenStartY + '" x2="' + (plattenX + endX) + '" y2="' + nutzenEndY + '" stroke="#000" stroke-width="3"/>';
     }
@@ -626,25 +702,37 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         svg += '<text x="' + spitzeX + '" y="' + (plattenY - 25) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">SPITZE</text>';
     }
     
-    // Bei Trapez-Formen: Markiere Ecken
-    if (istTrapezEckenPlatte && (type === 'trapez' || type === 'trapez-auf-rechteck')) {
-        if (type === 'trapez') {
-            // Normaler Trapez - Ecken sind an der Oberkante
-            const obereBreite = parseFloat(data.obereBreite);
-            const seitenAbstand = (basisBreite - obereBreite) / 2;
-            const plattenEnde = plattenStart + plattenBreite;
+    // Bei Trapez-Formen: Markiere Ecken mit gelben Linien (wie Spitze)
+    if (istTrapezEckenPlatte && type === 'trapez') {
+        const obereBreite = parseFloat(data.obereBreite);
+        const seitenAbstand = (basisBreite - obereBreite) / 2;
+        const plattenEnde = plattenStart + plattenBreite;
+        const massLinieY = plattenY + plattenHeight/2;
+        
+        if (plattenStart < seitenAbstand && plattenEnde > seitenAbstand) {
+            // Linke Ecke
+            const linkeEckeX = plattenX + ((seitenAbstand - plattenStart) / plattenBreite) * plattenWidth;
+            const eckeVonLinks = seitenAbstand - plattenStart;
             
-            if (plattenStart < seitenAbstand && plattenEnde > seitenAbstand) {
-                const linkeEckeX = plattenX + ((seitenAbstand - plattenStart) / plattenBreite) * plattenWidth;
-                svg += '<circle cx="' + linkeEckeX + '" cy="' + plattenY + '" r="4" fill="#ffc107"/>';
-                svg += '<text x="' + linkeEckeX + '" y="' + (plattenY - 10) + '" text-anchor="middle" font-size="10" fill="#ffc107" font-weight="bold">ECKE L</text>';
-            }
+            svg += '<line x1="' + plattenX + '" y1="' + massLinieY + '" x2="' + linkeEckeX + '" y2="' + massLinieY + '" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>';
+            svg += '<text x="' + (plattenX + (linkeEckeX - plattenX)/2) + '" y="' + (massLinieY - 8) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">' + eckeVonLinks.toFixed(2) + 'm</text>';
             
-            if (plattenStart < (basisBreite - seitenAbstand) && plattenEnde > (basisBreite - seitenAbstand)) {
-                const rechteEckeX = plattenX + (((basisBreite - seitenAbstand) - plattenStart) / plattenBreite) * plattenWidth;
-                svg += '<circle cx="' + rechteEckeX + '" cy="' + plattenY + '" r="4" fill="#ffc107"/>';
-                svg += '<text x="' + rechteEckeX + '" y="' + (plattenY - 10) + '" text-anchor="middle" font-size="10" fill="#ffc107" font-weight="bold">ECKE R</text>';
-            }
+            svg += '<circle cx="' + linkeEckeX + '" cy="' + plattenY + '" r="4" fill="#ffc107"/>';
+            svg += '<line x1="' + linkeEckeX + '" y1="' + plattenY + '" x2="' + linkeEckeX + '" y2="' + (plattenY + plattenHeight) + '" stroke="#ffc107" stroke-width="3"/>';
+            svg += '<text x="' + linkeEckeX + '" y="' + (plattenY - 25) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">ECKE L</text>';
+        }
+        
+        if (plattenStart < (basisBreite - seitenAbstand) && plattenEnde > (basisBreite - seitenAbstand)) {
+            // Rechte Ecke
+            const rechteEckeX = plattenX + (((basisBreite - seitenAbstand) - plattenStart) / plattenBreite) * plattenWidth;
+            const eckeVonLinks = (basisBreite - seitenAbstand) - plattenStart;
+            
+            svg += '<line x1="' + plattenX + '" y1="' + massLinieY + '" x2="' + rechteEckeX + '" y2="' + massLinieY + '" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,3"/>';
+            svg += '<text x="' + (plattenX + (rechteEckeX - plattenX)/2) + '" y="' + (massLinieY - 8) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">' + eckeVonLinks.toFixed(2) + 'm</text>';
+            
+            svg += '<circle cx="' + rechteEckeX + '" cy="' + plattenY + '" r="4" fill="#ffc107"/>';
+            svg += '<line x1="' + rechteEckeX + '" y1="' + plattenY + '" x2="' + rechteEckeX + '" y2="' + (plattenY + plattenHeight) + '" stroke="#ffc107" stroke-width="3"/>';
+            svg += '<text x="' + rechteEckeX + '" y="' + (plattenY - 25) + '" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">ECKE R</text>';
         }
     }
     
