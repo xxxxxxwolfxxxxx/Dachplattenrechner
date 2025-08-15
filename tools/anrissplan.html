@@ -815,8 +815,8 @@
             const plattenbreitePx = 260;
             const endX = istLetztePlatte ? Math.min(plattenbreitePx, ((plattenEndeReal - plattenStart) / plattenBreite) * plattenbreitePx) : plattenbreitePx;
             
-            let startY = plattenhoehePx - (anreissMasse.links / 100 / benoetigteLaengeM) * plattenhoehePx;
-            let endY = plattenhoehePx - (anreissMasse.rechts / 100 / benoetigteLaengeM) * plattenhoehePx;
+            let startY = (anreissMasse.links / 100 / benoetigteLaengeM) * plattenhoehePx;
+            let endY = (anreissMasse.rechts / 100 / benoetigteLaengeM) * plattenhoehePx;
             
             // Sicherstellen, dass Y-Werte im gültigen Bereich sind
             startY = Math.max(0, Math.min(plattenhoehePx, startY));
@@ -855,25 +855,25 @@
                           fill="#e9ecef" stroke="#999" stroke-width="1" rx="2"/>
                     
                     <!-- Nutzenbereich -->
-                    <polygon points="30,${15 + plattenhoehePx} ${30 + endX},${15 + plattenhoehePx} ${30 + endX},${15 + endY} 30,${15 + startY}" 
+                    <polygon points="30,${15 + plattenhoehePx} ${30 + endX},${15 + plattenhoehePx} ${30 + endX},${15 + plattenhoehePx - endY} 30,${15 + plattenhoehePx - startY}" 
                              fill="#4a90e2" opacity="0.8"/>
-                    <text x="${30 + endX/2}" y="${15 + plattenhoehePx - 10}" text-anchor="middle" 
+                    <text x="${30 + endX/2}" y="${15 + plattenhoehePx - Math.max(startY, endY)/2}" text-anchor="middle" 
                           fill="#fff" font-weight="bold" font-size="10">Nutzen</text>
                     
                     <!-- Verschnittbereich -->
-                    <polygon points="30,${15 + startY} ${30 + endX},${15 + endY} ${30 + endX},15 30,15" 
+                    <polygon points="30,${15 + plattenhoehePx - startY} ${30 + endX},${15 + plattenhoehePx - endY} ${30 + endX},15 30,15" 
                              fill="#e74c3c" opacity="0.8"/>
-                    <text x="${30 + endX/2}" y="${15 + Math.min(startY, endY)/2 + 8}" text-anchor="middle" 
+                    <text x="${30 + endX/2}" y="${15 + (plattenhoehePx - Math.max(startY, endY))/2}" text-anchor="middle" 
                           fill="#fff" font-weight="bold" font-size="9">Verschnitt</text>
                     
                     <!-- Schnittlinie -->
-                    <line x1="30" y1="${15 + startY}" x2="${30 + endX}" y2="${15 + endY}" 
+                    <line x1="30" y1="${15 + plattenhoehePx - startY}" x2="${30 + endX}" y2="${15 + plattenhoehePx - endY}" 
                           stroke="#000" stroke-width="2"/>
                     
                     <!-- Anreißlinien -->
-                    <line x1="30" y1="${15 + plattenhoehePx}" x2="30" y2="${15 + startY}" 
+                    <line x1="30" y1="${15 + plattenhoehePx}" x2="30" y2="${15 + plattenhoehePx - startY}" 
                           stroke="#dc3545" stroke-width="3"/>
-                    <line x1="${30 + endX}" y1="${15 + plattenhoehePx}" x2="${30 + endX}" y2="${15 + endY}" 
+                    <line x1="${30 + endX}" y1="${15 + plattenhoehePx}" x2="${30 + endX}" y2="${15 + plattenhoehePx - endY}" 
                           stroke="#dc3545" stroke-width="3"/>
                     
                     <!-- Anreißmaße -->
