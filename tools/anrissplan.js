@@ -481,6 +481,15 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
             break;
         case 'trapez':
             basisBreite = parseFloat(data.untereBreite);
+            const obereBreiteTrapez = parseFloat(data.obereBreite);
+            const seitenAbstandTrapez = (basisBreite - obereBreiteTrapez) / 2;
+            linkeEcke = seitenAbstandTrapez;
+            rechteEcke = basisBreite - seitenAbstandTrapez;
+            
+            // Prüfe ob Platte eine oder beide Trapez-Ecken enthält
+            const plattenEndeTrapez = plattenStart + plattenBreite;
+            istTrapezEckenPlatte = (plattenStart < linkeEcke && plattenEndeTrapez > linkeEcke) || 
+                                 (plattenStart < rechteEcke && plattenEndeTrapez > rechteEcke);
             istSpitzenPlatte = false;
             break;
         case 'trapez-auf-rechteck':
@@ -492,8 +501,8 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
             
             // Prüfe ob Platte eine oder beide Trapez-Ecken enthält
             const plattenEnde = plattenStart + plattenBreite;
-            istTrapezEckenPlatte = (plattenStart <= linkeEcke && plattenEnde >= linkeEcke) || 
-                                 (plattenStart <= rechteEcke && plattenEnde >= rechteEcke);
+            istTrapezEckenPlatte = (plattenStart < linkeEcke && plattenEnde > linkeEcke) || 
+                                 (plattenStart < rechteEcke && plattenEnde > rechteEcke);
             break;
     }
     
@@ -552,8 +561,8 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         
         // Bestimme Schnittpunkte basierend auf welche Ecken in der Platte sind
         const plattenEnde = plattenStart + plattenBreite;
-        const enthaeltLinkeEcke = plattenStart <= linkeEcke && plattenEnde >= linkeEcke;
-        const enthaeltRechteEcke = plattenStart <= rechteEcke && plattenEnde >= rechteEcke;
+        const enthaeltLinkeEcke = plattenStart < linkeEcke && plattenEnde > linkeEcke;
+        const enthaeltRechteEcke = plattenStart < rechteEcke && plattenEnde > rechteEcke;
         
         if (enthaeltLinkeEcke && enthaeltRechteEcke) {
             // Beide Ecken in der Platte - waagerechte Linie oben
@@ -591,8 +600,8 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         let verschnittPunkte = plattenX + ',' + plattenY + ' ' + (plattenX + endX) + ',' + plattenY;
         
         const plattenEnde = plattenStart + plattenBreite;
-        const enthaeltLinkeEcke = plattenStart <= linkeEcke && plattenEnde >= linkeEcke;
-        const enthaeltRechteEcke = plattenStart <= rechteEcke && plattenEnde >= rechteEcke;
+        const enthaeltLinkeEcke = plattenStart < linkeEcke && plattenEnde > linkeEcke;
+        const enthaeltRechteEcke = plattenStart < rechteEcke && plattenEnde > rechteEcke;
         
         if (enthaeltLinkeEcke && enthaeltRechteEcke) {
             const linkeEckeX = plattenX + ((linkeEcke - plattenStart) / plattenBreite) * plattenWidth;
@@ -626,8 +635,8 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         const trapezGrenzeY = plattenY + plattenHeight - (rechteckHoehe / gesamtHoehe) * plattenHeight;
         
         const plattenEnde = plattenStart + plattenBreite;
-        const enthaeltLinkeEcke = plattenStart <= linkeEcke && plattenEnde >= linkeEcke;
-        const enthaeltRechteEcke = plattenStart <= rechteEcke && plattenEnde >= rechteEcke;
+        const enthaeltLinkeEcke = plattenStart < linkeEcke && plattenEnde > linkeEcke;
+        const enthaeltRechteEcke = plattenStart < rechteEcke && plattenEnde > rechteEcke;
         
         if (enthaeltLinkeEcke && enthaeltRechteEcke) {
             // Beide Ecken: Linie von links schräg hoch, waagerecht, dann schräg runter
@@ -732,13 +741,13 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         const trapezGrenzeY = plattenY + plattenHeight - (rechteckHoehe / gesamtHoehe) * plattenHeight;
         const plattenEnde = plattenStart + plattenBreite;
         
-        if (plattenStart <= linkeEcke && plattenEnde >= linkeEcke) {
+        if (plattenStart < linkeEcke && plattenEnde > linkeEcke) {
             const linkeEckeX = plattenX + ((linkeEcke - plattenStart) / plattenBreite) * plattenWidth;
             svg += '<circle cx="' + linkeEckeX + '" cy="' + trapezGrenzeY + '" r="4" fill="#ffc107"/>';
             svg += '<text x="' + linkeEckeX + '" y="' + (trapezGrenzeY - 10) + '" text-anchor="middle" font-size="10" fill="#ffc107" font-weight="bold">ECKE L</text>';
         }
         
-        if (plattenStart <= rechteEcke && plattenEnde >= rechteEcke) {
+        if (plattenStart < rechteEcke && plattenEnde > rechteEcke) {
             const rechteEckeX = plattenX + ((rechteEcke - plattenStart) / plattenBreite) * plattenWidth;
             svg += '<circle cx="' + rechteEckeX + '" cy="' + trapezGrenzeY + '" r="4" fill="#ffc107"/>';
             svg += '<text x="' + rechteEckeX + '" y="' + (trapezGrenzeY - 10) + '" text-anchor="middle" font-size="10" fill="#ffc107" font-weight="bold">ECKE R</text>';
