@@ -208,13 +208,44 @@
             body {
                 background: white !important;
                 font-family: Arial, sans-serif !important;
+                position: relative;
+            }
+            
+            /* Wasserzeichen auf jeder Seite */
+            body::before {
+                content: "Dachplattenrechner.de";
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(-45deg);
+                font-size: 3em;
+                font-weight: bold;
+                color: rgba(0, 0, 0, 0.05);
+                z-index: -1;
+                pointer-events: none;
+                white-space: nowrap;
             }
             
             .nav-header,
-            .anrissplan-controls,
-            .btn,
-            .overview-section {
+            .anrissplan-controls {
                 display: none !important;
+            }
+            
+            /* Übersicht WIRD gedruckt */
+            .overview-section {
+                display: block !important;
+                background: white !important;
+                border: 1px solid #000 !important;
+                padding: 15px !important;
+                margin-bottom: 15px !important;
+                box-shadow: none !important;
+                page-break-after: always !important;
+            }
+            
+            .overview-section h3 {
+                color: #000 !important;
+                font-size: 1.2em !important;
+                margin-bottom: 10px !important;
             }
             
             .container {
@@ -272,6 +303,11 @@
                 margin-bottom: 8px !important;
                 border-bottom-color: #000 !important;
                 padding-bottom: 4px !important;
+            }
+            
+            /* Drucken-Button verstecken */
+            .btn {
+                display: none !important;
             }
         }
 
@@ -652,15 +688,15 @@
             svg += '<line x1="' + plattenX + '" y1="' + (plattenY + plattenHeight) + '" x2="' + plattenX + '" y2="' + nutzenStartY + '" stroke="#dc3545" stroke-width="4"/>';
             svg += '<line x1="' + (plattenX + endX) + '" y1="' + (plattenY + plattenHeight) + '" x2="' + (plattenX + endX) + '" y2="' + nutzenEndY + '" stroke="#dc3545" stroke-width="4"/>';
             
-            // Anrissmaße - korrigierte Position und Rotation für 0cm
+            // Anrissmaße - korrigierte Position für 0cm an Plattenende
             if (anreissMasse.links === 0) {
-                svg += '<text x="10" y="' + (plattenY + plattenHeight - 15) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 10 ' + (plattenY + plattenHeight - 15) + ')">' + anreissMasse.links + 'cm</text>';
+                svg += '<text x="10" y="' + (plattenY + plattenHeight + 5) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 10 ' + (plattenY + plattenHeight + 5) + ')">' + anreissMasse.links + 'cm</text>';
             } else {
                 svg += '<text x="10" y="' + (nutzenStartY + (plattenHeight - anrissHoeheLinks)/2) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 10 ' + (nutzenStartY + (plattenHeight - anrissHoeheLinks)/2) + ')">' + anreissMasse.links + 'cm</text>';
             }
             
             if (anreissMasse.rechts === 0) {
-                svg += '<text x="' + (plattenX + endX + 20) + '" y="' + (plattenY + plattenHeight - 15) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 ' + (plattenX + endX + 20) + ' ' + (plattenY + plattenHeight - 15) + ')">' + anreissMasse.rechts + 'cm</text>';
+                svg += '<text x="' + (plattenX + endX + 20) + '" y="' + (plattenY + plattenHeight + 5) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 ' + (plattenX + endX + 20) + ' ' + (plattenY + plattenHeight + 5) + ')">' + anreissMasse.rechts + 'cm</text>';
             } else {
                 svg += '<text x="' + (plattenX + endX + 20) + '" y="' + (nutzenEndY + (plattenHeight - anrissHoeheRechts)/2) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 ' + (plattenX + endX + 20) + ' ' + (nutzenEndY + (plattenHeight - anrissHoeheRechts)/2) + ')">' + anreissMasse.rechts + 'cm</text>';
             }
@@ -783,6 +819,11 @@
             for (let i = 0; i < data.schnittliste.length; i++) {
                 html += generatePlate(data.schnittliste[i], i, type, data);
             }
+            
+            // Drucken-Button unter der letzten Platte
+            html += '<div style="text-align: center; margin: 30px 0;">';
+            html += '<button onclick="window.print()" class="btn btn-primary">Anrissplan drucken</button>';
+            html += '</div>';
             
             container.innerHTML = html;
         }
