@@ -526,12 +526,13 @@
                 const plattenStart = parseFloat(platte.positionVonLinks);
                 const plattenX = margin + plattenStart * scaleX;
                 
-                // Korrekte Höhenberechnung für beide Seiten
+                // Korrekte Höhenberechnung - Linien sollen zur Spitze zeigen
                 let plattenObenY;
                 if (plattenStart <= spitzenPosition) {
-                    // Links von der Spitze - je näher zur Spitze, desto höher
-                    const verhaeltnis = plattenStart / spitzenPosition;
-                    plattenObenY = spitzeY + verhaeltnis * (linksY - spitzeY);
+                    // Links von der Spitze - Linie zur linken Dreiecksseite berechnen
+                    // Schnittpunkt der senkrechten Linie mit der linken Dreiecksseite
+                    const anteilVonLinks = plattenStart / spitzenPosition; // 0 bis 1
+                    plattenObenY = linksY - anteilVonLinks * (linksY - spitzeY);
                 } else {
                     // Rechts von der Spitze - Linie zur rechten Dreiecksseite  
                     const abstandVonSpitze = plattenStart - spitzenPosition;
@@ -884,11 +885,11 @@
             const istLetztePlatte = originalPlattenEnde > basisBreite;
             const plattenEndeReal = istLetztePlatte ? basisBreite : plattenEnde;
             
-            // SVG Dimensionen - nochmals vergrößert (+10%)
-            const plattenX = 45;
-            const plattenY = 50;
-            const plattenWidth = 350;
-            const plattenHeight = 140;
+            // SVG Dimensionen - maximale Ausnutzung des verfügbaren Platzes (90%+)
+            const plattenX = 20;
+            const plattenY = 20;
+            const plattenWidth = 360;
+            const plattenHeight = 180;
             
             // Berechne tatsächliche Plattenbreite für Darstellung
             const dargestellteBreite = plattenEndeReal - plattenStart;
@@ -967,18 +968,18 @@
                           stroke="#dc3545" stroke-width="4"/>
                     
                     <!-- Anrissmaße - korrigierte Position für 0cm Werte -->
-                    <text x="20" y="${anreissMasse.links === 0 ? plattenY + plattenHeight - 5 : nutzenStartY + (plattenHeight - anrissHoeheLinks)/2}" 
+                    <text x="10" y="${anreissMasse.links === 0 ? plattenY + plattenHeight - 5 : nutzenStartY + (plattenHeight - anrissHoeheLinks)/2}" 
                           text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" 
-                          ${anreissMasse.links === 0 ? '' : `transform="rotate(-90 20 ${nutzenStartY + (plattenHeight - anrissHoeheLinks)/2})"`}>${anreissMasse.links}cm</text>
+                          ${anreissMasse.links === 0 ? '' : `transform="rotate(-90 10 ${nutzenStartY + (plattenHeight - anrissHoeheLinks)/2})"`}>${anreissMasse.links}cm</text>
                     
                     <!-- Rechtes Maß - korrigierte Position für 0cm Werte -->
-                    <text x="${plattenX + endX + 20}" y="${anreissMasse.rechts === 0 ? plattenY + plattenHeight - 5 : nutzenEndY + (plattenHeight - anrissHoeheRechts)/2}" 
+                    <text x="${plattenX + endX + 10}" y="${anreissMasse.rechts === 0 ? plattenY + plattenHeight - 5 : nutzenEndY + (plattenHeight - anrissHoeheRechts)/2}" 
                           text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" 
-                          ${anreissMasse.rechts === 0 ? '' : `transform="rotate(-90 ${plattenX + endX + 20} ${nutzenEndY + (plattenHeight - anrissHoeheRechts)/2})"`}>${anreissMasse.rechts}cm</text>
+                          ${anreissMasse.rechts === 0 ? '' : `transform="rotate(-90 ${plattenX + endX + 10} ${nutzenEndY + (plattenHeight - anrissHoeheRechts)/2})"`}>${anreissMasse.rechts}cm</text>
                     
-                    <!-- Beschriftungen - angepasste Schriftgröße -->
-                    <text x="${plattenX + endX/2}" y="${plattenY + plattenHeight - 20}" text-anchor="middle" 
-                          fill="#fff" font-weight="bold" font-size="16" stroke="#000" stroke-width="0.5">Nutzen</text>
+                    <!-- Beschriftung "Nutzen" unter der Platte -->
+                    <text x="${plattenX + endX/2}" y="${plattenY + plattenHeight + 20}" text-anchor="middle" 
+                          fill="#333" font-weight="bold" font-size="16">Nutzen</text>
                     
                     <!-- Intelligente "Abschnitt" Positionierung - angepasste Schriftgröße -->
                     ${abschnittTexte.replace(/font-size="12"/g, 'font-size="14"')}
@@ -987,13 +988,13 @@
                     <!-- Letzte Platte Markierung -->
                     <line x1="${plattenX + endX}" y1="10" x2="${plattenX + endX}" y2="${plattenY + plattenHeight + 10}" 
                           stroke="#28a745" stroke-width="3"/>
-                    <text x="${plattenX + endX + 8}" y="12" font-size="12" fill="#28a745" font-weight="bold">ENDE</text>
+                    <text x="${plattenX + endX + 8}" y="15" font-size="12" fill="#28a745" font-weight="bold">ENDE</text>
                     ` : ''}
                     
                     ${istSpitzenPlatte ? `
                     <!-- Spitze markieren -->
                     <line x1="${spitzeX}" y1="${plattenY}" x2="${spitzeX}" y2="${plattenY + plattenHeight}" stroke="#ffc107" stroke-width="3"/>
-                    <text x="${spitzeX}" y="${plattenY - 25}" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">SPITZE</text>
+                    <text x="${spitzeX}" y="${plattenY - 10}" text-anchor="middle" font-size="12" fill="#ffc107" font-weight="bold">SPITZE</text>
                     ` : ''}
                 </svg>
             `;
