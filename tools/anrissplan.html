@@ -400,7 +400,7 @@
 
     <div class="container">
         <div class="anrissplan-header">
-            <h1 id="plan-title">test Anrissplan wird geladen...</h1>
+            <h1 id="plan-title">Anrissplan wird geladen...</h1>
             <div id="plan-info" class="anrissplan-info">
                 <strong>📏 Professioneller Anrissplan:</strong> Alle Maße in Zentimeter, druckoptimiert für die Werkstatt
             </div>
@@ -784,6 +784,9 @@
 
         // Plattendiagramm generieren
         function generatePlateDiagram(item, anreissMasse, type, data) {
+            console.log('Generiere Plattendiagramm für Platte:', item.plattenNr);
+            console.log('Anreißmaße:', anreissMasse);
+            
             const plattenStart = parseFloat(item.positionVonLinks);
             const plattenEnde = parseFloat(item.positionBis);
             const plattenBreite = parseFloat(item.plattenbreite);
@@ -815,8 +818,14 @@
             let startY = plattenhoehePx - (anreissMasse.links / 100 / benoetigteLaengeM) * plattenhoehePx;
             let endY = plattenhoehePx - (anreissMasse.rechts / 100 / benoetigteLaengeM) * plattenhoehePx;
             
+            // Sicherstellen, dass Y-Werte im gültigen Bereich sind
             startY = Math.max(0, Math.min(plattenhoehePx, startY));
             endY = Math.max(0, Math.min(plattenhoehePx, endY));
+            
+            console.log('SVG Berechnungen:', {
+                plattenhoehePx, plattenbreitePx, endX, startY, endY,
+                istLetztePlatte, plattenEndeReal
+            });
             
             // Spezielle Markierungen je nach Typ
             let specialMarkings = '';
@@ -830,14 +839,17 @@
                     const spitzeVonLinks = spitzenPosition - plattenStart;
                     const spitzePositionPx = (spitzeVonLinks / plattenBreite) * plattenbreitePx;
                     specialMarkings = `
-                        <line x1="${spitzePositionPx}" y1="10" x2="${spitzePositionPx}" y2="${plattenhoehePx + 10}" stroke="#ffc107" stroke-width="2"/>
-                        <text x="${spitzePositionPx}" y="8" text-anchor="middle" font-size="8" fill="#ffc107" font-weight="bold">SPITZE</text>
+                        <line x1="${30 + spitzePositionPx}" y1="10" x2="${30 + spitzePositionPx}" y2="${15 + plattenhoehePx + 10}" stroke="#ffc107" stroke-width="2"/>
+                        <text x="${30 + spitzePositionPx}" y="8" text-anchor="middle" font-size="8" fill="#ffc107" font-weight="bold">SPITZE</text>
                     `;
                 }
             }
             
             return `
                 <svg width="100%" height="80" viewBox="0 0 320 80" style="position: absolute; top: 0; left: 0;">
+                    <!-- Debug Info -->
+                    <text x="10" y="10" font-size="8" fill="#999">Debug: ${item.plattenNr} | ${startY.toFixed(1)} - ${endY.toFixed(1)}</text>
+                    
                     <!-- Plattenhintergrund -->
                     <rect x="30" y="15" width="${plattenbreitePx}" height="${plattenhoehePx}" 
                           fill="#e9ecef" stroke="#999" stroke-width="1" rx="2"/>
@@ -846,13 +858,13 @@
                     <polygon points="30,${15 + plattenhoehePx} ${30 + endX},${15 + plattenhoehePx} ${30 + endX},${15 + endY} 30,${15 + startY}" 
                              fill="#4a90e2" opacity="0.8"/>
                     <text x="${30 + endX/2}" y="${15 + plattenhoehePx - 10}" text-anchor="middle" 
-                          fill="#fff" font-weight="bold" font-size="10" stroke="#000" stroke-width="0.3">Nutzen</text>
+                          fill="#fff" font-weight="bold" font-size="10">Nutzen</text>
                     
                     <!-- Verschnittbereich -->
                     <polygon points="30,${15 + startY} ${30 + endX},${15 + endY} ${30 + endX},15 30,15" 
                              fill="#e74c3c" opacity="0.8"/>
                     <text x="${30 + endX/2}" y="${15 + Math.min(startY, endY)/2 + 8}" text-anchor="middle" 
-                          fill="#fff" font-weight="bold" font-size="9" stroke="#000" stroke-width="0.3">Verschnitt</text>
+                          fill="#fff" font-weight="bold" font-size="9">Verschnitt</text>
                     
                     <!-- Schnittlinie -->
                     <line x1="30" y1="${15 + startY}" x2="${30 + endX}" y2="${15 + endY}" 
