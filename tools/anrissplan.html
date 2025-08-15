@@ -645,9 +645,9 @@
             const istLetztePlatte = originalPlattenEnde > basisBreite;
             const plattenEndeReal = istLetztePlatte ? basisBreite : (plattenStart + plattenBreite);
             
-            // SVG Dimensionen
+            // SVG Dimensionen - gesamte Darstellung tiefer
             const plattenX = 20;
-            const plattenY = 40;
+            const plattenY = 60;  // Tiefer positioniert
             const plattenWidth = 360;
             const plattenHeight = 160;
             
@@ -704,7 +704,7 @@
             svg += '<line x1="' + plattenX + '" y1="' + (plattenY + plattenHeight) + '" x2="' + plattenX + '" y2="' + nutzenStartY + '" stroke="#dc3545" stroke-width="4"/>';
             svg += '<line x1="' + (plattenX + endX) + '" y1="' + (plattenY + plattenHeight) + '" x2="' + (plattenX + endX) + '" y2="' + nutzenEndY + '" stroke="#dc3545" stroke-width="4"/>';
             
-            // Anrissmaße - korrigierte Position für 0cm und bessere Positionierung
+            // Anrissmaße - korrigierte Position für 0cm bei letzter Platte
             if (anreissMasse.links === 0) {
                 svg += '<text x="10" y="' + (plattenY + plattenHeight + 10) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 10 ' + (plattenY + plattenHeight + 10) + ')">' + anreissMasse.links + 'cm</text>';
             } else {
@@ -712,15 +712,18 @@
             }
             
             if (anreissMasse.rechts === 0) {
-                // Bei 0cm rechts: Verschiebung nach links um Kollision mit grüner ENDE-Linie zu vermeiden
-                const xPos = istLetztePlatte ? (plattenX + endX - 15) : (plattenX + endX + 20);
-                svg += '<text x="' + xPos + '" y="' + (plattenY + plattenHeight + 10) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 ' + xPos + ' ' + (plattenY + plattenHeight + 10) + ')">' + anreissMasse.rechts + 'cm</text>';
+                // Bei 0cm rechts der letzten Platte: Unter die Platte ohne Rotation
+                if (istLetztePlatte) {
+                    svg += '<text x="' + (plattenX + endX/2) + '" y="' + (plattenY + plattenHeight + 35) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold">' + anreissMasse.rechts + 'cm</text>';
+                } else {
+                    svg += '<text x="' + (plattenX + endX + 20) + '" y="' + (plattenY + plattenHeight + 10) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 ' + (plattenX + endX + 20) + ' ' + (plattenY + plattenHeight + 10) + ')">' + anreissMasse.rechts + 'cm</text>';
+                }
             } else {
                 svg += '<text x="' + (plattenX + endX + 20) + '" y="' + (nutzenEndY + (plattenHeight - anrissHoeheRechts)/2) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 ' + (plattenX + endX + 20) + ' ' + (nutzenEndY + (plattenHeight - anrissHoeheRechts)/2) + ')">' + anreissMasse.rechts + 'cm</text>';
             }
             
-            // Beschriftung "Nutzen" unter der Platte
-            svg += '<text x="' + (plattenX + endX/2) + '" y="' + (plattenY + plattenHeight + 30) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="16">Nutzen</text>';
+            // Beschriftung "Nutzen" unter der Platte - angepasst für tiefere Position
+            svg += '<text x="' + (plattenX + endX/2) + '" y="' + (plattenY + plattenHeight + 50) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="16">Nutzen</text>';
             
             // "Abschnitt" Beschriftungen über der Platte
             if (istSpitzenPlatte) {
