@@ -712,9 +712,9 @@
             }
             
             if (anreissMasse.rechts === 0) {
-                // Bei 0cm rechts der letzten Platte: Unter die Platte ohne Rotation
+                // Bei 0cm rechts der letzten Platte: Genau da wo die Diagonale die Unterkante trifft
                 if (istLetztePlatte) {
-                    svg += '<text x="' + (plattenX + endX/2) + '" y="' + (plattenY + plattenHeight + 35) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold">' + anreissMasse.rechts + 'cm</text>';
+                    svg += '<text x="' + (plattenX + endX) + '" y="' + (plattenY + plattenHeight + 15) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold">' + anreissMasse.rechts + 'cm</text>';
                 } else {
                     svg += '<text x="' + (plattenX + endX + 20) + '" y="' + (plattenY + plattenHeight + 10) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 ' + (plattenX + endX + 20) + ' ' + (plattenY + plattenHeight + 10) + ')">' + anreissMasse.rechts + 'cm</text>';
                 }
