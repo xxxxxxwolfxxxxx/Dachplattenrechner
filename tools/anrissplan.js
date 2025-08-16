@@ -139,8 +139,8 @@ function generateTriangleOverview(data, isGleichschenklig) {
     svg += '<text x="' + spitzeX + '" y="' + (spitzeY - 10) + '" text-anchor="middle" font-size="12" fill="#dc3545" font-weight="bold">Spitze</text>';
     
     // Basis-Maß
-    svg += '<line x1="' + margin + '" y1="' + (linksY + 30) + '" x2="' + rechtsX + '" y2="' + (linksY + 30) + '" stroke="#666" stroke-width="1"/>';
-    svg += '<text x="' + (margin + (basisBreite * scaleX)/2) + '" y="' + (linksY + 45) + '" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">Basis: ' + basisBreite + 'm</text>';
+    svg += '<line x1="' + margin + '" y1="' + (linksY + 50) + '" x2="' + rechtsX + '" y2="' + (linksY + 50) + '" stroke="#666" stroke-width="1"/>';
+    svg += '<text x="' + (margin + (basisBreite * scaleX)/2) + '" y="' + (linksY + 65) + '" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">Basis: ' + basisBreite + 'm</text>';
     
     // Längenliste rechts
     const listenStart = diagramWidth + 20;
