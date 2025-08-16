@@ -299,7 +299,114 @@
                     <div class="ad-placeholder">
                         <div class="ad-content-horizontal">
                             <span class="ad-icon">💡</span>
-                            <div class="ad-text-block">
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">Pyramidendach</h4>
+                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Pyramidenförmiges Dach mit zentralem Punkt</p>
+                                <button class="sketch-btn" onclick="printSketch('skizzen/pyramidendach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pultdach -->
+                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
+                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
+                                    <rect x="10" y="25" width="40" height="30" fill="none" stroke="#333" stroke-width="1"/>
+                                </svg>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">Pultdach</h4>
+                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Einfaches geneigtes Pultdach</p>
+                                <button class="sketch-btn" onclick="printSketch('skizzen/pultdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <div class="sketch-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; color: #333;">
+                    <h3 style="margin: 0 0 10px 0; color: #2a5298;">ℹ️ Hinweise:</h3>
+                    <ul style="margin: 0; padding-left: 20px; color: #555;">
+                        <li>Alle Skizzen sind im DIN A4 Format optimiert</li>
+                        <li>Perfekt für die Baustelle geeignet</li>
+                        <li>Beschriftungsfelder für Ihre Maße</li>
+                        <li>Kostenlos für private und gewerbliche Nutzung</li>
+                    </ul>
+                </div>
+            `;
+            
+            modalBody.innerHTML = content;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function printSketch(filename) {
+            // Öffne die Skizze in einem neuen Fenster zum Drucken
+            const printWindow = window.open(filename, '_blank');
+            if (printWindow) {
+                printWindow.onload = function() {
+                    printWindow.print();
+                };
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            const calculationModal = document.getElementById('calculationModal');
+            
+            if (event.target === modal) {
+                closeModal();
+            }
+            if (event.target === calculationModal) {
+                closeCalculationModal();
+            }
+        }
+
+        // Email protection
+        function setupEmailProtection() {
+            const email = 'xxxxwolfxxxx@me.com';
+            const emailElements = ['email-contact', 'email-privacy', 'email-display', 'email-footer', 'email-support'];
+            
+            emailElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.innerHTML = `<span class="email-protection" onclick="revealEmail('${id}', '${email}')" style="cursor: pointer; color: #2a5298; text-decoration: underline;">E-Mail anzeigen</span>`;
+                }
+            });
+        }
+
+        function revealEmail(elementId, email) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<a href="mailto:${email}" style="color: inherit;">${email}</a>`;
+            }
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEmailProtection();
+            
+            // Lade Hintergrundbild optimiert
+            loadBackgroundImage();
+            
+            // Initialize tracking and ads based on existing consent
+            const cookieConsent = localStorage.getItem('cookieConsent');
+            if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
+                loadAnalytics();
+            }
+            if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
+                loadAdSense();
+                showAds();
+            }
+            
+            // Show cookie banner for first-time visitors
+            showCookieBanner();
+        });
+    </script>
+</body>
+</html> class="ad-text-block">
                                 <strong>Professionelle Dachtools</strong>
                                 <span>Weitere hilfreiche Ressourcen für Dachdecker und Heimwerker</span>
                             </div>
@@ -407,24 +514,6 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Rechner</h3>
-                    <ul class="footer-links">
-                        <li><a href="tools/gleichschenkliges-dreieck.html">Gleichschenkliges Dreieck</a></li>
-                        <li><a href="tools/ungleichschenkliges-dreieck.html">Ungleichschenkliges Dreieck</a></li>
-                        <li><a href="tools/trapez.html">Trapez</a></li>
-                        <li><a href="tools/trapezaufrechteck.html">Trapez auf Rechteck</a></li>
-                        <li><a href="projekt-dach/messen.html">Richtig Messen</a></li>
-                        <li><a href="tools/verschnitt-optimierung.html">Verschnitt-Optimierung</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Support</h3>
-                    <ul class="footer-links">
-                        <li><a href="#" onclick="openModal('hilfe')">Hilfe & FAQ</a></li>
-                        <li><a href="#" onclick="openModal('kontakt')">Kontakt</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
                     <h3>Dachplattenrechner.de</h3>
                     <p>Professionelle Berechnungstools für die Dachdeckerbranche. Präzise, schnell und benutzerfreundlich.</p>
                     <p style="margin-top: 15px;">
@@ -439,6 +528,13 @@
                         <li><a href="#" onclick="openModal('datenschutz')">Datenschutz</a></li>
                         <li><a href="#" onclick="openModal('agb')">AGB</a></li>
                         <li><a href="#" onclick="openModal('cookies')">Cookie-Einstellungen</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="openModal('hilfe')">Hilfe & FAQ</a></li>
+                        <li><a href="#" onclick="openModal('kontakt')">Kontakt</a></li>
                     </ul>
                 </div>
             </div>
@@ -837,7 +933,7 @@
                     <p><strong>4. Berechnen:</strong> Klicken Sie auf "Berechnen" um die Schnittliste zu erhalten.</p>
                     <p><strong>5. Anrissplan:</strong> Erstellen Sie einen druckbaren Anrissplan.</p>
                     
-                    <h4>📏 Was bedeuten Deckbreite und Lieferbreite?</h4>
+                    <h4>📐 Was bedeuten Deckbreite und Lieferbreite?</h4>
                     <p><strong>Deckbreite:</strong> Die nutzbare Breite des Trapezbleches (meist 1,00m).</p>
                     <p><strong>Lieferbreite:</strong> Die tatsächliche Breite des Bleches (meist 1,06m).</p>
                     <p><strong>Überlappung:</strong> Differenz zwischen Liefer- und Deckbreite.</p>
