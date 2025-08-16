@@ -200,4 +200,338 @@ class SketchModal {
         const iframe = document.createElement('iframe');
         iframe.style.position = 'absolute';
         iframe.style.left = '-99999px';
-        iframe.style.top
+        iframe.style.top = '-99999px';
+        iframe.style.width = '0px';
+        iframe.style.height = '0px';
+        iframe.style.border = 'none';
+        iframe.style.visibility = 'hidden';
+        iframe.style.opacity = '0';
+        iframe.src = filename;
+        
+        document.body.appendChild(iframe);
+        
+        // Warte bis das iframe geladen ist
+        iframe.onload = function() {
+            try {
+                // Füge 3cm Margin CSS hinzu
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                const style = iframeDoc.createElement('style');
+                style.textContent = `
+                    @media print {
+                        @page {
+                            margin: 3cm !important;
+                            size: A4 !important;
+                        }
+                        body {
+                            margin: 0 !important;
+                            padding: 0 !important;
+                        }
+                        * {
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            box-sizing: border-box !important;
+                        }
+                        html {
+                            margin: 0 !important;
+                            padding: 0 !important;
+                        }
+                    }
+                    @page {
+                        margin: 3cm !important;
+                        size: A4 !important;
+                    }
+                `;
+                iframeDoc.head.appendChild(style);
+                
+                // Kurz warten, dann drucken
+                setTimeout(() => {
+                    try {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                        
+                        // iframe nach 3 Sekunden entfernen
+                        setTimeout(() => {
+                            if (iframe.parentNode) {
+                                document.body.removeChild(iframe);
+                            }
+                        }, 3000);
+                        
+                    } catch (printError) {
+                        console.error('Print error:', printError);
+                        // Fallback: Öffne in neuem Tab
+                        window.open(filename, '_blank');
+                        if (iframe.parentNode) {
+                            document.body.removeChild(iframe);
+                        }
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                console.error('iframe access error:', error);
+                // Fallback: Öffne in neuem Tab
+                window.open(filename, '_blank');
+                if (iframe.parentNode) {
+                    document.body.removeChild(iframe);
+                }
+            }
+        };
+        
+        iframe.onerror = function() {
+            console.error('Error loading sketch file:', filename);
+            // Fallback: Öffne in neuem Tab
+            window.open(filename, '_blank');
+            if (iframe.parentNode) {
+                document.body.removeChild(iframe);
+            }
+        };
+        
+        // Fallback-Timer: Nach 10 Sekunden iframe entfernen
+        setTimeout(() => {
+            if (iframe.parentNode) {
+                console.log('Timeout reached, removing iframe');
+                document.body.removeChild(iframe);
+            }
+        }, 10000);
+    }
+
+    setupEventListeners() {
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            if (event.target === this.modal) {
+                this.close();
+            }
+        }
+    }
+}
+
+// Video Scrubbing Funktionalität
+class VideoScrubber {
+    constructor(videoId, sectionIndex) {
+        this.video = document.getElementById(videoId);
+        this.sectionIndex = sectionIndex;
+        this.videoDuration = 5; // Default 5 Sekunden
+        
+        if (this.video) {
+            this.setupVideo();
+        }
+    }
+
+    setupVideo() {
+        this.video.addEventListener('loadedmetadata', () => {
+            this.videoDuration = this.video.duration;
+            console.log('Video geladen, Dauer:', this.videoDuration);
+        });
+    }
+
+    updateProgress() {
+        if (!this.video || !this.video.duration) return;
+        
+        const scrollPosition = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const sections = document.querySelectorAll('.section');
+        
+        if (this.sectionIndex >= sections.length) return;
+        
+        const section = sections[this.sectionIndex];
+        const sectionTop = section.offsetTop;
+        const sectionBottom = sectionTop + section.offsetHeight;
+        
+        if (scrollPosition >= sectionTop - windowHeight && scrollPosition <= sectionBottom) {
+            const sectionProgress = Math.max(0, Math.min(1, 
+                (scrollPosition - (sectionTop - windowHeight)) / (section.offsetHeight + windowHeight)
+            ));
+            
+            this.video.currentTime = sectionProgress * this.video.duration;
+        }
+    }
+}
+
+// Spezielle Background-Effekte
+class BackgroundEffects {
+    constructor(page) {
+        this.page = page;
+        this.effects = {};
+    }
+
+    // Registriere Custom-Effekt für eine Sektion
+    registerEffect(sectionIndex, effectFunction) {
+        this.effects[sectionIndex] = effectFunction;
+    }
+
+    // Führe alle registrierten Effekte aus
+    updateEffects() {
+        if (this.page.isMobile) return; // Auf Mobile deaktiviert
+        
+        const scrollPosition = window.scrollY;
+        const windowHeight = window.innerHeight;
+        
+        this.page.sections.forEach((section, index) => {
+            const sectionTop = section.offsetTop;
+            const sectionBottom = sectionTop + section.offsetHeight;
+            
+            if (scrollPosition >= sectionTop - windowHeight && scrollPosition <= sectionBottom) {
+                const sectionProgress = Math.max(0, Math.min(1, 
+                    (scrollPosition - (sectionTop - windowHeight * 0.5)) / (section.offsetHeight + windowHeight * 0.5)
+                ));
+                
+                // Führe spezifischen Effekt aus, falls registriert
+                if (this.effects[index]) {
+                    this.effects[index](sectionProgress, index);
+                } else {
+                    // Standard vertikale Bewegung
+                    const bgPositionY = (sectionProgress * 100);
+                    document.documentElement.style.setProperty(`--bg-pos-${index + 1}`, `center ${bgPositionY}%`);
+                }
+            }
+        });
+    }
+}
+
+// Globale Funktionen für backwards compatibility
+function openSketchModal() {
+    if (window.sketchModal) {
+        window.sketchModal.open();
+    }
+}
+
+function closeSketchModal() {
+    if (window.sketchModal) {
+        window.sketchModal.close();
+    }
+}
+
+function downloadSketch(sketchType) {
+    if (window.sketchModal) {
+        window.sketchModal.download(sketchType);
+    }
+}
+
+// Initialisierung wenn DOM geladen ist
+document.addEventListener('DOMContentLoaded', function() {
+    // Haupt-Page-Klasse initialisieren
+    window.dachPage = new DachPage();
+    
+    // Sketch Modal initialisieren falls vorhanden
+    if (document.getElementById('sketchModal')) {
+        window.sketchModal = new SketchModal();
+    }
+    
+    // Video Scrubber für messen.html
+    if (document.getElementById('stormVideo')) {
+        window.videoScrubber = new VideoScrubber('stormVideo', 1);
+        
+        // Video Scrubbing zum Update-Cycle hinzufügen
+        window.dachPage.updateCustomScrollEffects = function() {
+            if (window.videoScrubber) {
+                window.videoScrubber.updateProgress();
+            }
+        };
+    }
+    
+    // Background Effects System initialisieren
+    window.backgroundEffects = new BackgroundEffects(window.dachPage);
+    
+    // Custom Background Effects registrieren basierend auf der Seite
+    const currentPage = window.location.pathname.split('/').pop();
+    
+    switch(currentPage) {
+        case 'uk.html':
+            // Aerogel-Effekt für UK-Seite
+            window.backgroundEffects.registerEffect(0, function(progress, index) {
+                const aerogelTop1 = 80 - (progress * 120);
+                const aerogelLeft1 = -30 + (progress * 80);
+                const aerogelTop2 = 60 - (progress * 100);
+                const aerogelLeft2 = -40 + (progress * 90);
+                
+                document.documentElement.style.setProperty('--aerogel-top', aerogelTop1 + '%');
+                document.documentElement.style.setProperty('--aerogel-left', aerogelLeft1 + '%');
+                document.documentElement.style.setProperty('--aerogel-top-2', aerogelTop2 + '%');
+                document.documentElement.style.setProperty('--aerogel-left-2', aerogelLeft2 + '%');
+            });
+            
+            window.backgroundEffects.registerEffect(2, function(progress, index) {
+                const bgPositionY = 0 + (progress * 100);
+                document.documentElement.style.setProperty('--temple-bg-position', `center ${bgPositionY}%`);
+            });
+            
+            window.backgroundEffects.registerEffect(3, function(progress, index) {
+                const bgPositionX = 50 + (Math.sin(progress * Math.PI * 2) * 10);
+                const bgPositionY = 50 + (progress * 20);
+                document.documentElement.style.setProperty('--tool-bg-position', `${bgPositionX}% ${bgPositionY}%`);
+            });
+            break;
+            
+        case 'messen.html':
+            // Lineal-Licht Effekt
+            window.backgroundEffects.registerEffect(3, function(progress, index) {
+                const lightPosition = 100 - (progress * 200);
+                const bgPosition = 50 - (progress * 50);
+                
+                document.documentElement.style.setProperty('--ruler-light-position', lightPosition + '%');
+                document.documentElement.style.setProperty('--ruler-bg-position', `center ${bgPosition}%`);
+            });
+            break;
+            
+        case 'plan.html':
+            // Holz-Scroll Effekt
+            window.backgroundEffects.registerEffect(2, function(progress, index) {
+                const bgPositionY = 0 + (progress * 20);
+                document.documentElement.style.setProperty('--wood-bg-position', `center ${bgPositionY}%`);
+            });
+            
+            // Community-Scroll Effekt
+            window.backgroundEffects.registerEffect(3, function(progress, index) {
+                const bgPositionY = 0 + (progress * 120);
+                document.documentElement.style.setProperty('--community-bg-position', `center ${bgPositionY}%`);
+            });
+            break;
+            
+        case 'blech.html':
+            // Handwerker bleibt zentral
+            window.backgroundEffects.registerEffect(2, function(progress, index) {
+                document.documentElement.style.setProperty('--bg-pos-3', `center center`);
+            });
+            
+            // Schraubbild Detail
+            window.backgroundEffects.registerEffect(3, function(progress, index) {
+                const bgPositionY = 25 + (progress * 25);
+                document.documentElement.style.setProperty('--bg-pos-4', `center ${bgPositionY}%`);
+            });
+            break;
+            
+        case 'winkel.html':
+            // Winkel-spezifische Effekte
+            window.backgroundEffects.registerEffect(1, function(progress, index) {
+                const bgPositionX = (progress * 100);
+                document.documentElement.style.setProperty('--bg-pos-2', `${bgPositionX}% center`);
+            });
+            
+            window.backgroundEffects.registerEffect(2, function(progress, index) {
+                const bgPositionY = -10 + (progress * 80);
+                document.documentElement.style.setProperty('--bg-pos-3', `center ${bgPositionY}%`);
+            });
+            
+            window.backgroundEffects.registerEffect(3, function(progress, index) {
+                const bgPositionX = -30 + (progress * 160);
+                const bgPositionY = 40 + (progress * 20);
+                document.documentElement.style.setProperty('--bg-pos-4', `${bgPositionX}% ${bgPositionY}%`);
+            });
+            break;
+    }
+    
+    // Background Effects zum Update-Cycle hinzufügen
+    const originalUpdateCustomScrollEffects = window.dachPage.updateCustomScrollEffects;
+    window.dachPage.updateCustomScrollEffects = function() {
+        if (originalUpdateCustomScrollEffects) {
+            originalUpdateCustomScrollEffects.call(this);
+        }
+        if (window.backgroundEffects) {
+            window.backgroundEffects.updateEffects();
+        }
+    };
+});
+
+// Export für ES6 Module (falls benötigt)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { DachPage, SketchModal, VideoScrubber, BackgroundEffects };
+}
