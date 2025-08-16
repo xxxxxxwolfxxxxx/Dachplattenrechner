@@ -1638,9 +1638,10 @@ footer::before {
     }
     
     body {
-        /* Mobile optimiertes Hintergrundbild */
-        background: var(--bg-primary) url('Images/index.png') center/cover fixed no-repeat;
-        background-size: 100% auto; /* Bildbreite = Displaybreite */
+       /* Mobile optimiertes Hintergrundbild - keine Skalierung */
+        background: var(--bg-primary) url('Images/index.png') top center no-repeat;
+        background-attachment: scroll; /* Verhindert Probleme auf Mobile */
+        background-size: auto 100vh; /* Höhe = Viewport, Breite proportional */
     }
     
     .container {
