@@ -679,13 +679,14 @@
             window.close();
         }
 
-        // Farben filtern
+       // Farben filtern
         function filterColors(searchTerm) {
             const term = searchTerm.toLowerCase();
             const colors = currentTab === 'ral' ? RAL_COLORS : PRELAQ_COLORS;
+            const gridId = currentTab === 'ral' ? 'ralGrid' : 'prelaqGrid';
             
             if (!term) {
-                renderColors(colors, currentTab + 'Grid', currentTab);
+                renderColors(colors, gridId, currentTab);
                 return;
             }
             
@@ -697,7 +698,7 @@
                 }
             });
             
-            renderColors(filtered, currentTab + 'Grid', currentTab);
+            renderColors(filtered, gridId, currentTab);
         }
 
         // Event Listeners
