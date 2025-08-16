@@ -1657,7 +1657,7 @@ footer::before {
     
     /* Mobile Kachel-Titel kleiner machen */
     .card-title {
-        font-size: 1.4em; /* Reduziert von 1.8em */
+        font-size: 1.2em; /* Reduziert von 1.8em */
         line-height: 1.2;
         height: auto; /* Flexible Höhe */
         min-height: 50px;
