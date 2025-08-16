@@ -310,6 +310,7 @@ class VideoScrubber {
         this.video = document.getElementById(videoId);
         this.sectionIndex = sectionIndex;
         this.videoDuration = 5; // Default 5 Sekunden
+        this.isMobile = window.innerWidth <= 768;
         
         if (this.video) {
             this.setupVideo();
@@ -317,14 +318,40 @@ class VideoScrubber {
     }
 
     setupVideo() {
+        // Mobile Video Setup
+        if (this.isMobile) {
+            this.video.autoplay = true;
+            this.video.loop = true;
+            this.video.muted = true;
+            this.video.playsInline = true;
+            
+            // Versuche Video zu starten
+            this.video.play().catch(e => {
+                console.log('Video autoplay failed on mobile:', e);
+                // Fallback: Zeige erstes Frame
+                this.video.currentTime = 0;
+            });
+        }
+        
         this.video.addEventListener('loadedmetadata', () => {
             this.videoDuration = this.video.duration;
             console.log('Video geladen, Dauer:', this.videoDuration);
         });
+        
+        // Fallback falls Video nicht lädt
+        this.video.addEventListener('error', (e) => {
+            console.error('Video error:', e);
+            // Verstecke Video-Container bei Fehler
+            const videoContainer = this.video.closest('.background-image');
+            if (videoContainer) {
+                videoContainer.style.background = 'linear-gradient(45deg, #1a1a2e, #16213e)';
+                videoContainer.innerHTML = '';
+            }
+        });
     }
 
     updateProgress() {
-        if (!this.video || !this.video.duration) return;
+        if (!this.video || !this.video.duration || this.isMobile) return;
         
         const scrollPosition = window.scrollY;
         const windowHeight = window.innerHeight;
