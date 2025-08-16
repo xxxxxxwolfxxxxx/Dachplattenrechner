@@ -681,8 +681,8 @@ body {
 /* Mobile Styles */
 @media (max-width: 768px) {
     .section {
-        min-height: 120vh;
-        padding: 30vh 10px;
+        min-height: 100vh;
+        padding: 20vh 10px;
     }
     
     .glass-panel {
@@ -781,5 +781,36 @@ body {
         height: 100%;
         left: 0;
         top: 0;
+    }
+    
+    /* Mobile: Deaktiviere komplexe Animationen */
+    .background-image {
+        animation: none !important;
+        transform: none !important;
+        filter: brightness(1) contrast(1) !important;
+    }
+}
+
+/* Mobile Landscape Orientierung */
+@media (max-width: 768px) and (orientation: landscape) {
+    .section {
+        min-height: 150vh;
+        padding: 25vh 10px;
+    }
+    
+    .glass-panel {
+        padding: 20px 15px;
+    }
+    
+    .glass-panel h1 {
+        font-size: 1.6em;
+    }
+    
+    .glass-panel h2 {
+        font-size: 1.4em;
+    }
+    
+    .glass-panel p {
+        font-size: 0.95em;
     }
 }
