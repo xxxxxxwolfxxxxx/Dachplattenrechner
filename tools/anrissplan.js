@@ -617,12 +617,29 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         const linkerAbschnittX = plattenX + (besondereX - plattenX) / 2;
         const rechterAbschnittX = besondereX + (plattenX + endX - besondereX) / 2;
         
-        // Nur "Abschnitt" zeigen, wo tatsächlich Verschnitt entsteht
-        if (besondereX - plattenX > 40) {
-            svg += '<text x="' + linkerAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
-        }
-        if (plattenX + endX - besondereX > 40) {
-            svg += '<text x="' + rechterAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+        if (type === 'trapez' || type === 'trapez-auf-rechteck') {
+            // Bei Trapez-Eckplatten: Nur "Abschnitt" wo Verschnitt ist
+            const obereBreite = parseFloat(data.obereBreite);
+            const untereBreite = parseFloat(data.untereBreite);
+            const seitenAbstand = (untereBreite - obereBreite) / 2;
+            
+            // Links von der Ecke: nur wenn Platte im schrägen Bereich startet
+            if (besondereX - plattenX > 40 && plattenStart < seitenAbstand) {
+                svg += '<text x="' + linkerAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
+            // Rechts von der Ecke: nur wenn Platte im schrägen Bereich endet
+            const plattenEnde = plattenStart + plattenBreite;
+            if (plattenX + endX - besondereX > 40 && plattenEnde > (untereBreite - seitenAbstand)) {
+                svg += '<text x="' + rechterAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
+        } else {
+            // Bei Dreiecken: links und rechts der Spitze
+            if (besondereX - plattenX > 40) {
+                svg += '<text x="' + linkerAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
+            if (plattenX + endX - besondereX > 40) {
+                svg += '<text x="' + rechterAbschnittX + '" y="' + (plattenY - 15) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="14">Abschnitt</text>';
+            }
         }
     } else if (type === 'trapez' || type === 'trapez-auf-rechteck') {
         // Bei Trapez-Formen: Nur "Abschnitt" wenn die Platte in den schrägen Bereichen liegt
