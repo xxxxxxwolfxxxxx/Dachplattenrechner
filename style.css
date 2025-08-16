@@ -1613,23 +1613,13 @@ footer::before {
     }
 }
 
-/* ===== RESPONSIVE DESIGN ===== */
-
-/* Tablet */
-@media (max-width: 1024px) {
-    .container {
-        padding: 0 var(--spacing-lg);
+/* Mobile */
+@media (max-width: 768px) {
+    :root {
+        font-size: 14px;
     }
     
-    .calculators-grid {
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: var(--spacing-lg);
-    }
-    
-    .form-row {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    }
-}
+    body {
 
 /* Mobile */
 @media (max-width: 768px) {
