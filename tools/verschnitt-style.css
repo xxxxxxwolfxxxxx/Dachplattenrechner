@@ -1,8 +1,8 @@
 /* Verschnitt-Optimierung Spezifische Styles */
 
-/* Überschreibt das Hintergrundbild für Tool-Seiten */
+/* Hintergrundbild für Verschnitt-Optimierung */
 body {
-    background: var(--bg-primary) !important;
+    background: var(--bg-primary) url('../images/verschnitt.png') center/cover fixed no-repeat !important;
 }
 
 /* Hauptcontainer für bessere Lesbarkeit */
