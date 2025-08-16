@@ -978,3 +978,4 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
             istTrapezEckenPlatte = false;
             break;
         case 'trapez':
+            basis
