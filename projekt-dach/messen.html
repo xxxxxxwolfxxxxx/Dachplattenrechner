@@ -332,8 +332,9 @@
             
             <div class="sketch-info">
                 <strong>So funktioniert's:</strong> Klicken Sie auf eine Dachform um die Skizze zu öffnen. 
-                Die Bemaßungsskizze öffnet sich direkt in der Druckvorschau. 
-                <strong>Tipp:</strong> Wählen Sie beim Drucken "Als PDF speichern" um eine PDF-Datei zu erstellen!
+                <strong>Desktop:</strong> Die Bemaßungsskizze öffnet sich direkt in der Druckvorschau. 
+                <strong>Handy/Tablet:</strong> Die Skizze öffnet sich in einem neuen Tab zum manuellen Drucken.
+                <br><strong>Tipp:</strong> Wählen Sie beim Drucken "Als PDF speichern" um eine PDF-Datei zu erstellen!
             </div>
         </div>
     </div>
@@ -412,11 +413,17 @@
             }
         }
         
-        /* Mobile Landscape - Optimiert für bessere Sichtbarkeit */
+        /* Mobile Landscape - Spezielle Behandlung für vorletzte Sektion */
         @media (max-width: 768px) and (orientation: landscape) {
             .section {
                 min-height: 160vh;
                 padding: 30vh 10px;
+            }
+            
+            /* Vorletzte Sektion (Dachformen) - weniger Padding */
+            .section:nth-child(4) {
+                min-height: 140vh;
+                padding: 20vh 10px;
             }
             
             .background-image:nth-child(2) {
