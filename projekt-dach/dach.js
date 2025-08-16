@@ -64,24 +64,52 @@ class DachPage {
 
     // Intersection Observer für Glass Panels
     setupIntersectionObserver() {
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: this.isMobile && window.innerHeight < window.innerWidth ? 
-                '-20px 0px -50px 0px' : // Mobile Landscape: weniger Margin
-                '0px 0px -100px 0px'   // Desktop/Mobile Portrait
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
+        // Verschiedene Observer für verschiedene Sektionen auf Mobile Landscape
+        if (this.isMobile && window.innerHeight < window.innerWidth) {
+            // Mobile Landscape: Individuelle Observer
+            document.querySelectorAll('.glass-panel').forEach((panel, index) => {
+                let rootMargin;
+                if (index === 2) { // Vorletzte Sektion - sehr aggressive Erkennung
+                    rootMargin = '50px 0px -20px 0px';
+                } else if (index === 3) { // Letzte Sektion
+                    rootMargin = '100px 0px 0px 0px';
+                } else {
+                    rootMargin = '0px 0px -50px 0px';
                 }
+                
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            console.log(`Panel ${index} visible in landscape mode`);
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: rootMargin
+                });
+                
+                observer.observe(panel);
             });
-        }, observerOptions);
+        } else {
+            // Desktop/Mobile Portrait: Standard Observer
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
 
-        document.querySelectorAll('.glass-panel').forEach(panel => {
-            observer.observe(panel);
-        });
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.glass-panel').forEach(panel => {
+                observer.observe(panel);
+            });
+        }
     }
 
     // Background switching
