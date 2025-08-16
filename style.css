@@ -1620,18 +1620,10 @@ footer::before {
     }
     
     body {
-
-/* Mobile */
-@media (max-width: 768px) {
-    :root {
-        font-size: 14px;
-    }
-    
-    body {
        /* Mobile optimiertes Hintergrundbild - keine Skalierung */
         background: var(--bg-primary) url('Images/index.png') top center no-repeat;
         background-attachment: scroll; /* Verhindert Probleme auf Mobile */
-        background-size: auto 100vh; /* Höhe = Viewport, Breite proportional */
+        background-size: auto ; /* Höhe = Viewport, Breite proportional */
     }
     
     .container {
