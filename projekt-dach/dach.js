@@ -20,6 +20,17 @@ class DachPage {
         // Mobile Detection Update
         window.addEventListener('resize', () => {
             this.isMobile = window.innerWidth <= 768;
+            // Bei Orientierungswechsel Observer neu initialisieren
+            this.setupIntersectionObserver();
+        });
+        
+        // Orientierungswechsel abfangen
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                this.isMobile = window.innerWidth <= 768;
+                this.setupIntersectionObserver();
+                this.updateScrollIndicator();
+            }, 100);
         });
     }
 
@@ -55,7 +66,9 @@ class DachPage {
     setupIntersectionObserver() {
         const observerOptions = {
             threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
+            rootMargin: this.isMobile && window.innerHeight < window.innerWidth ? 
+                '-20px 0px -50px 0px' : // Mobile Landscape: weniger Margin
+                '0px 0px -100px 0px'   // Desktop/Mobile Portrait
         };
 
         const observer = new IntersectionObserver((entries) => {
