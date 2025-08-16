@@ -296,7 +296,33 @@ class SketchModal {
         
         console.log('Loading sketch file:', filename);
         
-        // Erstelle ein unsichtbares iframe
+        // Mobile Detection
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+        
+        if (isMobile) {
+            // Mobile: Öffne direkt in neuem Tab/Fenster
+            console.log('Mobile detected, opening in new tab');
+            const newWindow = window.open(filename, '_blank');
+            
+            if (newWindow) {
+                // Versuche nach kurzer Zeit automatisch zu drucken
+                newWindow.onload = function() {
+                    setTimeout(() => {
+                        try {
+                            newWindow.print();
+                        } catch (e) {
+                            console.log('Auto-print failed on mobile, user needs to manually print');
+                        }
+                    }, 1000);
+                };
+            } else {
+                console.error('Popup blocked, trying direct navigation');
+                window.location.href = filename;
+            }
+            return;
+        }
+        
+        // Desktop: Verwende iframe-Methode
         const iframe = document.createElement('iframe');
         iframe.style.position = 'absolute';
         iframe.style.left = '-99999px';
