@@ -10,10 +10,10 @@
     <div class="parallax-container">
         <div class="background-image active" style="background-image: url('/images/messen-1.jpg'); animation: tapeGlow 4s ease-in-out infinite; background-position: center 70%;"></div>
         <div class="background-image" style="background: none; position: relative; overflow: hidden;">
-            <video id="stormVideo" muted playsinline autoplay loop preload="metadata" poster="/images/messen-2-poster.jpg">
+            <video id="stormVideo" muted playsinline autoplay loop preload="metadata">
                 <source src="/images/messen-2.mp4" type="video/mp4">
                 <!-- Fallback für Browser ohne Video-Support -->
-                <div style="width: 100%; height: 100%; background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460); position: absolute; top: 0; left: 0;"></div>
+                <div style="width: 100%; height: 100%; background-image: url('/images/messen-2.jpg'); background-size: cover; background-position: center; position: absolute; top: 0; left: 0;"></div>
             </video>
         </div>
         <div class="background-image" style="background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url('/images/messen-3.png'); animation: houseGlow 5s ease-in-out infinite; top: 3%;"></div>
@@ -387,7 +387,9 @@
         /* Mobile Video Fix */
         @media (max-width: 768px) {
             .background-image:nth-child(2) {
-                background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460) !important;
+                background-image: url('/images/messen-2.jpg') !important;
+                background-size: cover !important;
+                background-position: center !important;
             }
             
             .background-image:nth-child(2) video {
@@ -410,10 +412,34 @@
             }
         }
         
-        /* Mobile Landscape */
+        /* Mobile Landscape - Größere Sektionen für Querformat */
         @media (max-width: 768px) and (orientation: landscape) {
+            .section {
+                min-height: 180vh;
+                padding: 40vh 10px;
+            }
+            
             .background-image:nth-child(2) {
-                background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460, #1a1a2e) !important;
+                background-image: url('/images/messen-2.jpg') !important;
+                background-size: cover !important;
+                background-position: center !important;
+            }
+            
+            .glass-panel {
+                padding: 20px 15px;
+                margin: 10px;
+            }
+            
+            .glass-panel h1 {
+                font-size: 1.6em;
+            }
+            
+            .glass-panel h2 {
+                font-size: 1.4em;
+            }
+            
+            .glass-panel p {
+                font-size: 0.95em;
             }
         }
     </style>
