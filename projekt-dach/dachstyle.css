@@ -794,12 +794,13 @@ body {
 /* Mobile Landscape Orientierung */
 @media (max-width: 768px) and (orientation: landscape) {
     .section {
-        min-height: 150vh;
-        padding: 25vh 10px;
+        min-height: 180vh;
+        padding: 40vh 10px;
     }
     
     .glass-panel {
         padding: 20px 15px;
+        margin: 10px;
     }
     
     .glass-panel h1 {
