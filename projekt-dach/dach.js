@@ -7,6 +7,7 @@ class DachPage {
         this.sections = document.querySelectorAll('.section');
         this.scrollDots = document.querySelectorAll('.scroll-dot');
         this.isMobile = window.innerWidth <= 768;
+        this.isLandscape = window.innerHeight < window.innerWidth;
         
         this.init();
     }
@@ -20,18 +21,37 @@ class DachPage {
         // Mobile Detection Update
         window.addEventListener('resize', () => {
             this.isMobile = window.innerWidth <= 768;
+            this.isLandscape = window.innerHeight < window.innerWidth;
             // Bei Orientierungswechsel Observer neu initialisieren
             this.setupIntersectionObserver();
+            
+            // Forciere Sichtbarkeit für Mobile Landscape
+            if (this.isMobile && this.isLandscape) {
+                this.forceMobileLandscapeVisibility();
+            }
         });
         
         // Orientierungswechsel abfangen
         window.addEventListener('orientationchange', () => {
             setTimeout(() => {
                 this.isMobile = window.innerWidth <= 768;
+                this.isLandscape = window.innerHeight < window.innerWidth;
                 this.setupIntersectionObserver();
                 this.updateScrollIndicator();
+                
+                // Forciere Sichtbarkeit für Mobile Landscape
+                if (this.isMobile && this.isLandscape) {
+                    this.forceMobileLandscapeVisibility();
+                }
             }, 100);
         });
+        
+        // Initial Check für Mobile Landscape
+        if (this.isMobile && this.isLandscape) {
+            setTimeout(() => {
+                this.forceMobileLandscapeVisibility();
+            }, 500);
+        }
     }
 
     // Floating particles erstellen
@@ -173,7 +193,46 @@ class DachPage {
         });
     }
 
-    // Event Listeners setup
+    // Forciere Sichtbarkeit für Mobile Landscape
+    forceMobileLandscapeVisibility() {
+        if (this.isMobile && this.isLandscape) {
+            console.log('Forcing visibility for mobile landscape');
+            
+            // Alle Glass Panels sofort sichtbar machen
+            document.querySelectorAll('.glass-panel').forEach((panel, index) => {
+                panel.classList.add('visible');
+                console.log(`Forced panel ${index} visible`);
+            });
+            
+            // Scroll-basierte Überprüfung alle 100ms
+            const forceCheck = setInterval(() => {
+                const scrollPosition = window.scrollY;
+                const windowHeight = window.innerHeight;
+                
+                this.sections.forEach((section, index) => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+                    const sectionCenter = sectionTop + (sectionHeight / 2);
+                    
+                    // Wenn Sektion im Viewport ist, Panel sofort sichtbar machen
+                    if (scrollPosition + windowHeight > sectionTop && 
+                        scrollPosition < sectionTop + sectionHeight) {
+                        const panel = section.querySelector('.glass-panel');
+                        if (panel && !panel.classList.contains('visible')) {
+                            panel.classList.add('visible');
+                            console.log(`Force-activated panel ${index} at scroll ${scrollPosition}`);
+                        }
+                    }
+                });
+            }, 100);
+            
+            // Nach 10 Sekunden aufhören zu forcieren
+            setTimeout(() => {
+                clearInterval(forceCheck);
+                console.log('Stopped forcing visibility');
+            }, 10000);
+        }
+    }
     setupEventListeners() {
         // Mouse move
         document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
