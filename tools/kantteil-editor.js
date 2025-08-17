@@ -943,6 +943,281 @@ class KantteileEditor {
         this.showModal('exportModal');
     }
     
+    confirmExport() {
+        const partName = document.getElementById('partName').value.trim();
+        const quantityNeeded = parseFloat(document.getElementById('quantityNeeded').value);
+        
+        if (!partName) {
+            alert('Bitte geben Sie einen Namen für das Kantteil ein!');
+            return;
+        }
+        
+        if (!quantityNeeded || quantityNeeded <= 0) {
+            alert('Bitte geben Sie eine gültige Meterzahl ein!');
+            return;
+        }
+        
+        this.generateTechnicalDrawing(partName, quantityNeeded);
+        closeModal('exportModal');
+    }
+    
+    generateTechnicalDrawing(partName = 'Kantteil', quantityNeeded = 0) {
+        if (this.elements.length === 0) {
+            alert('Keine Zeichnung für Bemaßung vorhanden!');
+            return;
+        }
+        
+        // Erstelle ein neues Canvas für die technische Zeichnung
+        const techCanvas = document.createElement('canvas');
+        const techCtx = techCanvas.getContext('2d');
+        
+        // Bestimme Bounding Box der Zeichnung
+        let minX = Infinity, minY = Infinity;
+        let maxX = -Infinity, maxY = -Infinity;
+        
+        this.elements.forEach(element => {
+            if (element.type === 'line') {
+                minX = Math.min(minX, element.start.x, element.end.x);
+                maxX = Math.max(maxX, element.start.x, element.end.x);
+                minY = Math.min(minY, element.start.y, element.end.y);
+                maxY = Math.max(maxY, element.start.y, element.end.y);
+            } else if (element.type === 'curve' && element.center) {
+                const r = element.radius + 20;
+                minX = Math.min(minX, element.center.x - r);
+                maxX = Math.max(maxX, element.center.x + r);
+                minY = Math.min(minY, element.center.y - r);
+                maxY = Math.max(maxY, element.center.y + r);
+            }
+        });
+        
+        // Canvas-Größe mit Rand für Bemaßung und Titel
+        const margin = 120;
+        const drawingWidth = maxX - minX;
+        const drawingHeight = maxY - minY;
+        
+        techCanvas.width = drawingWidth + 2 * margin;
+        techCanvas.height = drawingHeight + 2 * margin + 100; // Extra Platz für Titel/Info
+        
+        // Weißer Hintergrund
+        techCtx.fillStyle = 'white';
+        techCtx.fillRect(0, 0, techCanvas.width, techCanvas.height);
+        
+        // Titel und Informationen
+        techCtx.fillStyle = 'black';
+        techCtx.font = 'bold 24px Arial';
+        techCtx.textAlign = 'center';
+        techCtx.fillText(partName, techCanvas.width / 2, 30);
+        
+        techCtx.font = '16px Arial';
+        techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 55);
+        
+        // Berechne Gesamtlänge und Kantungen
+        let totalLength = 0;
+        let kantungen = 0;
+        this.elements.forEach((element) => {
+            if (element.type === 'line') {
+                totalLength += element.originalLength || element.length;
+            } else if (element.type === 'curve') {
+                kantungen++;
+            }
+        });
+        
+        techCtx.font = '14px Arial';
+        techCtx.textAlign = 'left';
+        techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 20, techCanvas.height - 60);
+        techCtx.fillText(`Kantungen: ${kantungen}`, 20, techCanvas.height - 40);
+        techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 20, techCanvas.height - 20);
+        
+        techCtx.textAlign = 'right';
+        techCtx.fillText(`Farbcode: ${this.settings.selectedColorCode}`, techCanvas.width - 20, techCanvas.height - 60);
+        techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 20, techCanvas.height - 40);
+        techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 20, techCanvas.height - 20);
+        
+        // Verschiebe Koordinatensystem für Zeichnung
+        techCtx.translate(-minX + margin, -minY + margin + 50);
+        
+        // Zeichne Elemente in schwarz
+        techCtx.strokeStyle = 'black';
+        techCtx.lineWidth = 2;
+        techCtx.lineCap = 'round';
+        techCtx.lineJoin = 'round';
+        
+        this.elements.forEach(element => {
+            if (element.type === 'line') {
+                techCtx.beginPath();
+                techCtx.moveTo(element.start.x, element.start.y);
+                techCtx.lineTo(element.end.x, element.end.y);
+                techCtx.stroke();
+            } else if (element.type === 'curve' && element.center && element.angle !== 0) {
+                const startAngle = element.startAngleFromCenter;
+                const endAngle = element.endAngleFromCenter;
+                const counterClockwise = element.angle < 0;
+                
+                techCtx.beginPath();
+                techCtx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
+                techCtx.stroke();
+            }
+        });
+        
+        // Füge Bemaßung hinzu
+        this.addDimensions(techCtx);
+        
+        // Download als PNG
+        const link = document.createElement('a');
+        link.download = `${partName}_technische_zeichnung.png`;
+        link.href = techCanvas.toDataURL();
+        link.click();
+        
+        // Für PDF: Canvas als Bild in PDF einbetten
+        this.generatePDF(techCanvas, partName);
+        
+        this.updateStatus('Technische Zeichnung wurde als PNG und PDF erstellt.');
+    }
+    
+    generatePDF(canvas, partName) {
+        // Erstelle Druckvorschau-Fenster
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        const imgData = canvas.toDataURL('image/png');
+        
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${partName} - Technische Zeichnung</title>
+                <style>
+                    body { 
+                        margin: 0; 
+                        padding: 20px; 
+                        font-family: Arial, sans-serif;
+                        background: #f5f5f5;
+                    }
+                    .container {
+                        max-width: 210mm;
+                        margin: 0 auto;
+                        background: white;
+                        padding: 20mm;
+                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    }
+                    .controls {
+                        margin-bottom: 20px;
+                        text-align: center;
+                        background: #e9e9e9;
+                        padding: 10px;
+                        border-radius: 5px;
+                    }
+                    .controls button {
+                        margin: 0 10px;
+                        padding: 8px 16px;
+                        background: #007cba;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    }
+                    .controls button:hover {
+                        background: #005a8b;
+                    }
+                    img { 
+                        width: 100%; 
+                        height: auto; 
+                        border: 1px solid #ddd;
+                    }
+                    @media print {
+                        body { background: white; }
+                        .controls { display: none; }
+                        .container { 
+                            box-shadow: none; 
+                            padding: 0;
+                            max-width: none;
+                        }
+                        img { border: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="controls">
+                    <button onclick="window.print()">🖨️ Drucken</button>
+                    <button onclick="downloadImage()">📥 PNG herunterladen</button>
+                    <button onclick="window.close()">❌ Schließen</button>
+                </div>
+                <div class="container">
+                    <img src="${imgData}" alt="Technische Zeichnung">
+                </div>
+                <script>
+                    function downloadImage() {
+                        const link = document.createElement('a');
+                        link.download = '${partName}_technische_zeichnung.png';
+                        link.href = '${imgData}';
+                        link.click();
+                    }
+                </script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+    
+    addDimensions(ctx) {
+        ctx.strokeStyle = 'blue';
+        ctx.fillStyle = 'blue';
+        ctx.lineWidth = 1;
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        
+        let dimensionOffset = 30;
+        
+        this.elements.forEach((element, index) => {
+            if (element.type === 'line') {
+                const length = element.originalLength || element.length;
+                
+                // Mittelpunkt der Linie
+                const midX = (element.start.x + element.end.x) / 2;
+                const midY = (element.start.y + element.end.y) / 2;
+                
+                // Normale für Bemaßungslinie
+                const dx = element.end.x - element.start.x;
+                const dy = element.end.y - element.start.y;
+                const lineLength = Math.sqrt(dx * dx + dy * dy);
+                
+                if (lineLength > 0) {
+                    const normalX = -dy / lineLength;
+                    const normalY = dx / lineLength;
+                    
+                    // Bemaßungslinie
+                    const dimStartX = element.start.x + normalX * dimensionOffset;
+                    const dimStartY = element.start.y + normalY * dimensionOffset;
+                    const dimEndX = element.end.x + normalX * dimensionOffset;
+                    const dimEndY = element.end.y + normalY * dimensionOffset;
+                    
+                    // Zeichne Bemaßungslinie
+                    ctx.beginPath();
+                    ctx.moveTo(dimStartX, dimStartY);
+                    ctx.lineTo(dimEndX, dimEndY);
+                    ctx.stroke();
+                    
+                    // Hilfslinien
+                    ctx.beginPath();
+                    ctx.moveTo(element.start.x, element.start.y);
+                    ctx.lineTo(dimStartX, dimStartY);
+                    ctx.moveTo(element.end.x, element.end.y);
+                    ctx.lineTo(dimEndX, dimEndY);
+                    ctx.stroke();
+                    
+                    // Bemaßungstext
+                    const textX = (dimStartX + dimEndX) / 2;
+                    const textY = (dimStartY + dimEndY) / 2 - 5;
+                    
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(textX - 15, textY - 8, 30, 16);
+                    ctx.fillStyle = 'blue';
+                    ctx.fillText(`${length}mm`, textX, textY + 4);
+                }
+                
+                dimensionOffset += 25;
+            }
+        });
+    }
+    
     updateLineFromLength(length) {
         if (!this.currentElement || this.currentElement.type !== 'line') return;
         
@@ -1051,6 +1326,16 @@ function confirmAngle() {
         }
     }
     closeModal('angleModal');
+}
+
+function confirmExport() {
+    if (editor) {
+        editor.confirmExport();
+    }
+}
+
+function generateTechnicalDrawing() {
+    // Diese Funktion wird nicht mehr benötigt, da confirmExport() alles macht
 }
 
 function closeHelp() {
