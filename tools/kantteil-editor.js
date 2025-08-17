@@ -269,9 +269,13 @@ class KantteileEditor {
         const startAngle = this.currentElement.startAngle;
         const currentDisplayAngle = parseInt(document.getElementById('currentAngle').textContent) || 0;
         
-        // 1. Berechne gewünschten Winkel basierend auf Mausposition
-        const dx = this.mousePos.x - this.currentElement.start.x;
-        const dy = this.mousePos.y - this.currentElement.start.y;
+        // 1. Erst Kurve mit aktuellem Winkel berechnen für korrektes Ende
+        this.calculateCurveEndpoint();
+        const curveEnd = this.currentElement.end || this.currentElement.start;
+        
+        // 2. Berechne Winkel vom Kurvenende zur Maus (nicht vom Start!)
+        const dx = this.mousePos.x - curveEnd.x;
+        const dy = this.mousePos.y - curveEnd.y;
         const mouseLineAngle = Math.atan2(dy, dx);
         let relativeAngle = mouseLineAngle - startAngle;
         
@@ -280,57 +284,54 @@ class KantteileEditor {
         
         let rawAngleDegrees = relativeAngle * 180 / Math.PI;
         
-        // 2. Wende Hysterese auf den Winkel an (nicht auf die grüne Linie!)
+        // 3. Wende Hysterese auf den Winkel an
         let finalAngle = rawAngleDegrees;
         
-        const distanceFromStart = Math.sqrt(dx * dx + dy * dy);
+        const distanceFromStart = Math.sqrt(
+            Math.pow(this.mousePos.x - this.currentElement.start.x, 2) + 
+            Math.pow(this.mousePos.y - this.currentElement.start.y, 2)
+        );
         const pufferDistance = 4 * this.currentElement.radius;
         const isInPufferZone = distanceFromStart > pufferDistance;
         
         if (Math.abs(rawAngleDegrees) >= 180) {
             if (Math.abs(currentDisplayAngle) < 180) {
-                // Noch nicht bei ±180° -> gehe zu ±180°
                 finalAngle = (rawAngleDegrees > 0) ? 180 : -180;
             } else {
-                // Bereits bei ±180° -> prüfe Hysterese
                 if (isInPufferZone) {
-                    // In Pufferzone -> springe zur anderen Seite
                     if (currentDisplayAngle > 0 && rawAngleDegrees < -180) {
                         finalAngle = -180;
                     } else if (currentDisplayAngle < 0 && rawAngleDegrees > 180) {
                         finalAngle = 180;
                     } else {
-                        finalAngle = currentDisplayAngle; // Bleibe
+                        finalAngle = currentDisplayAngle;
                     }
                 } else {
-                    // Nicht in Pufferzone -> bleibe
                     finalAngle = currentDisplayAngle;
                 }
             }
         } else if (Math.abs(currentDisplayAngle) >= 180) {
-            // War bei ±180°, prüfe ob wir deutlich darunter sind
             if (Math.abs(rawAngleDegrees) < 160) {
-                finalAngle = rawAngleDegrees; // Folge der Maus wieder
+                finalAngle = rawAngleDegrees;
             } else {
-                finalAngle = currentDisplayAngle; // Bleibe bei ±180°
+                finalAngle = currentDisplayAngle;
             }
         }
         
-        // 3. Setze den Winkel und berechne die Kurve
+        // 4. Setze den Winkel und berechne die Kurve neu
         finalAngle = Math.round(finalAngle);
         this.currentElement.angle = finalAngle;
         this.calculateCurveEndpoint();
         
-        // 4. Grüne Linie ist IMMER eine Verlängerung der Kurve
-        const curveEnd = this.currentElement.end || this.currentElement.start;
+        // 5. Grüne Linie ist IMMER eine Verlängerung der Kurve
+        const newCurveEnd = this.currentElement.end || this.currentElement.start;
         const curveEndAngle = this.currentElement.endAngle || (startAngle + finalAngle * Math.PI / 180);
         
-        // Grüne Linie geht in Richtung der Kurve weiter
         const length = 100;
-        const helperEndX = curveEnd.x + Math.cos(curveEndAngle) * length;
-        const helperEndY = curveEnd.y + Math.sin(curveEndAngle) * length;
+        const helperEndX = newCurveEnd.x + Math.cos(curveEndAngle) * length;
+        const helperEndY = newCurveEnd.y + Math.sin(curveEndAngle) * length;
         
-        // 5. Speichere und zeige an
+        // 6. Speichere und zeige an
         this.helperLineEnd = { x: helperEndX, y: helperEndY };
         document.getElementById('currentAngle').textContent = finalAngle;
         this.updateValueOverlay(finalAngle + '°');
@@ -633,7 +634,7 @@ class KantteileEditor {
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
         
-        // Bestimme die Farbseite basierend auf vorherigen Elementen
+        // Bestimme die Farbseite basierend auf vorherigen Elementen UND der Farbseiten-Einstellung
         const shouldSwapColors = this.shouldSwapColorsForElement(element);
         const frontColor = shouldSwapColors ? this.settings.backColor : this.settings.frontColor;
         const backColor = shouldSwapColors ? this.settings.frontColor : this.settings.backColor;
@@ -675,16 +676,44 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Zeichne Oberseite der Kurve (äußerer Radius)
-            this.ctx.strokeStyle = frontColor;
+            // Bei Kurven bestimme welche Seite innen/außen ist basierend auf Biegungsrichtung
+            let outerColor = frontColor;
+            let innerColor = backColor;
+            
+            // Wenn die Kurve "umgedreht" ist (durch ungerade Anzahl vorheriger Kurven),
+            // vertausche innen/außen entsprechend der Biegungsrichtung
+            if (shouldSwapColors) {
+                if (element.angle > 0) {
+                    // Rechtskurve mit vertauschten Farben
+                    outerColor = backColor;
+                    innerColor = frontColor;
+                } else {
+                    // Linkskurve mit vertauschten Farben  
+                    outerColor = frontColor;
+                    innerColor = backColor;
+                }
+            } else {
+                if (element.angle > 0) {
+                    // Rechtskurve normal
+                    outerColor = frontColor;
+                    innerColor = backColor;
+                } else {
+                    // Linkskurve normal
+                    outerColor = backColor;
+                    innerColor = frontColor;
+                }
+            }
+            
+            // Zeichne äußeren Bogen
+            this.ctx.strokeStyle = outerColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Zeichne Unterseite der Kurve (innerer Radius)
-            this.ctx.strokeStyle = backColor;
+            // Zeichne inneren Bogen
+            this.ctx.strokeStyle = innerColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
