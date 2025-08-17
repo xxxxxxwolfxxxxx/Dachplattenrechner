@@ -253,70 +253,67 @@ class KantteileEditor {
     updateCurveFromMouse() {
         if (!this.currentElement || this.currentElement.type !== 'curve') return;
         
+        // Berechne das Ende der grünen Hilfslinie
+        const curveEnd = this.currentElement.end || this.currentElement.start;
+        let helperEndX, helperEndY;
+        
         // Berechne den rohen Winkel basierend auf der Mausposition
-        const curveStart = this.currentElement.start;
-        const dx = this.mousePos.x - curveStart.x;
-        const dy = this.mousePos.y - curveStart.y;
-        
-        // Berechne den Winkel der Linie vom Kurvenstart zur Maus
+        const dx = this.mousePos.x - this.currentElement.start.x;
+        const dy = this.mousePos.y - this.currentElement.start.y;
         const mouseLineAngle = Math.atan2(dy, dx);
-        
-        // Berechne den Winkel relativ zur ursprünglichen Startrichtung
         let relativeAngle = mouseLineAngle - this.currentElement.startAngle;
         
         // Normalisiere auf -PI bis PI
         while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
         while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
         
-        // Konvertiere zu Grad
         let rawAngleDegrees = relativeAngle * 180 / Math.PI;
         
-        // Hysterese-Logik für ±180° Übergang
-        const currentAngle = this.currentElement.angle || 0;
+        // Bestimme das Ende der grünen Hilfslinie und den finalen Winkel
         let finalAngle = rawAngleDegrees;
         
-        // Prüfe ob wir in der kritischen Zone um ±180° sind
-        if (Math.abs(rawAngleDegrees) > 160) {
+        if (Math.abs(rawAngleDegrees) > 180) {
+            // Über ±180° -> grüne Linie wird parallel zur ursprünglichen Linie
+            const startAngle = this.currentElement.startAngle;
+            const length = 100; // Feste Länge für die Hilfslinie
             
             if (rawAngleDegrees > 180) {
-                // Über +180° -> bleibt bei +180° bis Hysterese-Bedingung erfüllt
+                // +180° -> Linie in ursprüngliche Richtung
+                helperEndX = curveEnd.x + Math.cos(startAngle) * length;
+                helperEndY = curveEnd.y + Math.sin(startAngle) * length;
                 finalAngle = 180;
                 
-                // Prüfe Hysterese-Bedingung für Umsprung auf -180°
+                // Prüfe Hysterese für Umsprung auf -180°
                 const distanceFromStart = Math.sqrt(dx * dx + dy * dy);
                 const pufferDistance = 4 * this.currentElement.radius;
-                
                 if (distanceFromStart > pufferDistance && rawAngleDegrees > 200) {
                     finalAngle = -180;
+                    helperEndX = curveEnd.x - Math.cos(startAngle) * length;
+                    helperEndY = curveEnd.y - Math.sin(startAngle) * length;
                 }
-                
-            } else if (rawAngleDegrees < -180) {
-                // Unter -180° -> bleibt bei -180° bis Hysterese-Bedingung erfüllt
+            } else {
+                // -180° -> Linie in entgegengesetzte Richtung
+                helperEndX = curveEnd.x - Math.cos(startAngle) * length;
+                helperEndY = curveEnd.y - Math.sin(startAngle) * length;
                 finalAngle = -180;
                 
-                // Prüfe Hysterese-Bedingung für Umsprung auf +180°
+                // Prüfe Hysterese für Umsprung auf +180°
                 const distanceFromStart = Math.sqrt(dx * dx + dy * dy);
                 const pufferDistance = 4 * this.currentElement.radius;
-                
                 if (distanceFromStart > pufferDistance && rawAngleDegrees < -200) {
                     finalAngle = 180;
+                    helperEndX = curveEnd.x + Math.cos(startAngle) * length;
+                    helperEndY = curveEnd.y + Math.sin(startAngle) * length;
                 }
             }
-            
-            // Zusätzliche Hysterese wenn wir bereits bei ±180° waren
-            if (Math.abs(currentAngle) >= 180) {
-                if (currentAngle > 0 && rawAngleDegrees < 160) {
-                    // War bei +180°, jetzt deutlich darunter -> normal folgen
-                    finalAngle = rawAngleDegrees;
-                } else if (currentAngle < 0 && rawAngleDegrees > -160) {
-                    // War bei -180°, jetzt deutlich darüber -> normal folgen
-                    finalAngle = rawAngleDegrees;
-                } else {
-                    // Bleibe bei aktuellem Extremwert
-                    finalAngle = currentAngle;
-                }
-            }
+        } else {
+            // Normal zur Maus
+            helperEndX = this.mousePos.x;
+            helperEndY = this.mousePos.y;
         }
+        
+        // Speichere die Hilfslinie für das Zeichnen
+        this.helperLineEnd = { x: helperEndX, y: helperEndY };
         
         finalAngle = Math.round(finalAngle);
         
@@ -588,40 +585,18 @@ class KantteileEditor {
     }
     
     drawHelperLine() {
-        if (!this.currentElement || this.currentElement.type !== 'curve') return;
+        if (!this.currentElement || this.currentElement.type !== 'curve' || !this.helperLineEnd) return;
         
-        // Berechne das Ende der Hilfslinie basierend auf dem aktuellen Winkel
-        const curveEnd = this.currentElement.end;
-        let helperEndX, helperEndY;
+        // Zeichne gestrichelte grüne Linie zum berechneten Ende
+        const curveEnd = this.currentElement.end || this.currentElement.start;
         
-        if (Math.abs(this.currentElement.angle) >= 180) {
-            // Bei ±180° zeichne die Linie parallel zur ursprünglichen Linie
-            const startAngle = this.currentElement.startAngle;
-            const length = 100; // Feste Länge für die Hilfslinie
-            
-            if (this.currentElement.angle > 0) {
-                // +180° -> Linie in ursprüngliche Richtung
-                helperEndX = curveEnd.x + Math.cos(startAngle) * length;
-                helperEndY = curveEnd.y + Math.sin(startAngle) * length;
-            } else {
-                // -180° -> Linie in entgegengesetzte Richtung
-                helperEndX = curveEnd.x - Math.cos(startAngle) * length;
-                helperEndY = curveEnd.y - Math.sin(startAngle) * length;
-            }
-        } else {
-            // Normal zur Maus
-            helperEndX = this.mousePos.x;
-            helperEndY = this.mousePos.y;
-        }
-        
-        // Zeichne gestrichelte grüne Linie
         this.ctx.strokeStyle = '#27ae60';
         this.ctx.lineWidth = 2 / this.zoom;
         this.ctx.setLineDash([5 / this.zoom, 5 / this.zoom]);
         
         this.ctx.beginPath();
         this.ctx.moveTo(curveEnd.x, curveEnd.y);
-        this.ctx.lineTo(helperEndX, helperEndY);
+        this.ctx.lineTo(this.helperLineEnd.x, this.helperLineEnd.y);
         this.ctx.stroke();
         
         // Zurück zu durchgezogener Linie
