@@ -637,21 +637,13 @@ class KantteileEditor {
         // Bestimme die Farbseite basierend auf vorherigen Elementen
         const shouldSwapColors = this.shouldSwapColorsForElement(element);
         
-        // Debug: Zeige die verwendeten Farben
-        console.log(`Drawing element, shouldSwap: ${shouldSwapColors}`);
-        console.log(`frontColor: ${this.settings.frontColor}, backColor: ${this.settings.backColor}`);
-        
         // IMMER die Originalfarben verwenden
         const topColor = this.settings.frontColor;    // Braun - immer Oberseite
         const bottomColor = this.settings.backColor;  // Grau - immer Unterseite
         
-        console.log(`topColor: ${topColor}, bottomColor: ${bottomColor}`);
-        
         // Je nach Orientierung: was ist gerade oben?
         const currentTopColor = shouldSwapColors ? bottomColor : topColor;
         const currentBottomColor = shouldSwapColors ? topColor : bottomColor;
-        
-        console.log(`currentTopColor: ${currentTopColor}, currentBottomColor: ${currentBottomColor}`);
         
         // Bestimme den Versatz für Ober- und Unterseite (senkrecht zur Linie)
         const offset = width * 0.6;
@@ -690,29 +682,19 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Bei Kurven: die Zuordnung von innen/außen zu oben/unten hängt von der Kurvenrichtung ab
-            let outerColor, innerColor;
+            // Kurven behalten IMMER die gleiche Farbzuordnung wie die vorangegangene Linie
+            // Kein Spurwechsel in Kurven!
             
-            if (element.angle < 0) {
-                // Linkskurve: innen ist rechts von der Fahrtrichtung = "oben" in unserer Darstellung
-                outerColor = currentBottomColor;  // außen = "unten"
-                innerColor = currentTopColor;     // innen = "oben"
-            } else {
-                // Rechtskurve: innen ist links von der Fahrtrichtung = "unten" in unserer Darstellung  
-                outerColor = currentTopColor;     // außen = "oben"
-                innerColor = currentBottomColor;  // innen = "unten"
-            }
-            
-            // Zeichne äußeren Bogen
-            this.ctx.strokeStyle = outerColor;
+            // Zeichne äußeren Bogen (behält die "Oberseite")
+            this.ctx.strokeStyle = currentTopColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Zeichne inneren Bogen
-            this.ctx.strokeStyle = innerColor;
+            // Zeichne inneren Bogen (behält die "Unterseite")
+            this.ctx.strokeStyle = currentBottomColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
