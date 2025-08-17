@@ -326,39 +326,112 @@ KantteileEditor.prototype.updateLineFromLength = function(lengthMM) {
     this.currentElement.length = lengthMM;
 };
 
+// Korrigierte updateCurveFromMouse Funktion - misst Winkel zwischen Linien
 KantteileEditor.prototype.updateCurveFromMouse = function() {
     if (!this.currentElement || this.currentElement.type !== 'curve') return;
     
     const start = this.currentElement.start;
     const mouse = this.mousePos;
-    const radius = this.currentElement.radius;
     const startAngle = this.currentElement.startAngle;
     
-    // Berechne Vektoren
-    const deltaX = mouse.x - start.x;
-    const deltaY = mouse.y - start.y;
-    
-    // Berechne den Winkel von der Startrichtung zur Mausposition
-    const mouseAngle = Math.atan2(deltaY, deltaX);
-    let relativeAngle = mouseAngle - startAngle;
-    
-    // Normalisiere auf -π bis π
-    while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
-    while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
-    
-    // Konvertiere zu Grad
-    let angleDegrees = relativeAngle * 180 / Math.PI;
-    
-    // Runde auf ganze Grad
-    angleDegrees = Math.round(angleDegrees);
-    
-    // Begrenze auf ±180°
-    if (angleDegrees > 180) angleDegrees = 180;
-    if (angleDegrees < -180) angleDegrees = -180;
-    
-    this.currentElement.angle = angleDegrees;
+    // Berechne den Winkel der grünen Linie (vom Kurvenende zur Maus)
+    // Dazu müssen wir erstmal einen groben Endpunkt berechnen
+    let tempAngle = 0;
+    this.currentElement.angle = tempAngle;
     this.calculateCurveEndpoint();
+    
+    // Iterativ den korrekten Winkel finden
+    for (let i = 0; i < 5; i++) {
+        this.calculateCurveEndpoint();
+        const end = this.currentElement.end;
+        
+        // Winkel der grünen Linie (vom Kurvenende zur Maus)
+        const greenLineAngle = Math.atan2(mouse.y - end.y, mouse.x - end.x);
+        
+        // Winkel zwischen ursprünglicher Linie und grüner Linie
+        let angleDiff = greenLineAngle - startAngle;
+        
+        // Normalisiere auf -π bis π
+        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+        
+        // Konvertiere zu Grad
+        let angleDegrees = angleDiff * 180 / Math.PI;
+        angleDegrees = Math.round(angleDegrees);
+        
+        // Begrenze auf ±180°
+        if (angleDegrees > 180) angleDegrees = 180;
+        if (angleDegrees < -180) angleDegrees = -180;
+        
+        this.currentElement.angle = angleDegrees;
+    }
 };
+
+// Korrigierte drawHelperLines Funktion
+KantteileEditor.prototype.drawHelperLines = function() {
+    if (this.currentElement && this.currentElement.type === 'curve') {
+        const start = this.currentElement.start;
+        const radius = this.currentElement.radius;
+        const startAngle = this.currentElement.startAngle;
+        
+        // Berechne den aktuellen Endpunkt der Kurve
+        this.calculateCurveEndpoint();
+        const end = this.currentElement.end;
+        const endAngle = this.currentElement.endAngle;
+        
+        // Zeichne grüne gestrichelte Linie vom Kurvenende in Tangentialrichtung zur Maus
+        if (end && endAngle !== undefined) {
+            this.ctx.strokeStyle = 'rgba(39, 174, 96, 0.8)';
+            this.ctx.lineWidth = 2 / this.zoom;
+            this.ctx.setLineDash([8 / this.zoom, 4 / this.zoom]);
+            
+            this.ctx.beginPath();
+            this.ctx.moveTo(end.x, end.y);
+            this.ctx.lineTo(this.mousePos.x, this.mousePos.y);
+            this.ctx.stroke();
+        }
+        
+        // Zeichne gestrichelten Kreis bei 2x Radius für 180° Bereich
+        this.ctx.strokeStyle = 'rgba(39, 174, 96, 0.4)';
+        this.ctx.lineWidth = 1 / this.zoom;
+        this.ctx.setLineDash([4 / this.zoom, 4 / this.zoom]);
+        
+        this.ctx.beginPath();
+        this.ctx.arc(start.x, start.y, radius * 2, 0, Math.PI * 2);
+        this.ctx.stroke();
+        
+        this.ctx.setLineDash([]);
+    }
+};
+
+// Korrigierte drawElementWithColors Funktion für bessere Farblogik
+KantteileEditor.prototype.drawElementWithColors = function(element, width) {
+    this.ctx.lineWidth = width;
+    this.ctx.lineCap = 'round';
+    this.ctx.lineJoin = 'round';
+    
+    // Bestimme Farben basierend auf aktueller Farbseite
+    const topColor = this.colorSide === 'top' ? this.settings.frontColor : this.settings.backColor;
+    const bottomColor = this.colorSide === 'top' ? this.settings.backColor : this.settings.frontColor;
+    
+    if (element.type === 'line') {
+        // Rückseite (unten) versetzt
+        this.ctx.strokeStyle = bottomColor;
+        this.ctx.globalAlpha = 0.7;
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(element.start.x + 2, element.start.y + 2);
+        this.ctx.lineTo(element.end.x + 2, element.end.y + 2);
+        this.ctx.stroke();
+        
+        // Vorderseite (oben)
+        this.ctx.strokeStyle = topColor;
+        this.ctx.globalAlpha = 1.0;
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(element.start.x, element.start.y);
+        this.ctx.lineTo(element.end.x, element.end.y);
+        this.ctx.stroke();
 
 KantteileEditor.prototype.updateStatus = function(message) {
     document.getElementById('statusText').textContent = message;
