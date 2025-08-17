@@ -691,14 +691,26 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Äußerer Bogen (Oberseite)
-            this.ctx.strokeStyle = topColor;
+            // Bei Kurven: Bestimme welche Spur außen/innen ist basierend auf Biegrichtung
+            let outerColor, innerColor;
+            if (element.angle > 0) {
+                // Rechtskurve: "linke" Spur wird außen, "rechte" wird innen
+                outerColor = topColor;
+                innerColor = bottomColor;
+            } else {
+                // Linkskurve: "rechte" Spur wird außen, "linke" wird innen
+                outerColor = bottomColor;
+                innerColor = topColor;
+            }
+            
+            // Äußerer Bogen
+            this.ctx.strokeStyle = outerColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Innerer Bogen (Unterseite)
-            this.ctx.strokeStyle = bottomColor;
+            // Innerer Bogen
+            this.ctx.strokeStyle = innerColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
