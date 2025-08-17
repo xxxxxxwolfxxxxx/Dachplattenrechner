@@ -271,15 +271,15 @@ class KantteileEditor {
         
         let rawAngleDegrees = relativeAngle * 180 / Math.PI;
         
-        // Vereinfachte Hysterese-Logik
-        let targetAngle = rawAngleDegrees;
+        // Bestimme das Ende der grünen Hilfslinie
         let helperEndX, helperEndY;
+        let targetAngle = rawAngleDegrees;
         const startAngle = this.currentElement.startAngle;
         const length = 100;
         
-        // Prüfe ob wir über ±180° sind
+        // Prüfe ob wir über ±180° sind oder waren
         if (Math.abs(rawAngleDegrees) > 180) {
-            // Prüfe Hysterese nur wenn wir weit genug weg sind
+            // Prüfe Hysterese
             const distanceFromStart = Math.sqrt(dx * dx + dy * dy);
             const pufferDistance = 4 * this.currentElement.radius;
             
@@ -287,36 +287,35 @@ class KantteileEditor {
                 if (distanceFromStart > pufferDistance) {
                     // Weit genug -> springe zu -180°
                     targetAngle = -180;
-                    helperEndX = curveEnd.x - Math.cos(startAngle) * length;
-                    helperEndY = curveEnd.y - Math.sin(startAngle) * length;
                 } else {
                     // Zu nah -> bleibe bei +180°
                     targetAngle = 180;
-                    helperEndX = curveEnd.x + Math.cos(startAngle) * length;
-                    helperEndY = curveEnd.y + Math.sin(startAngle) * length;
                 }
             } else { // rawAngleDegrees < -180
                 if (distanceFromStart > pufferDistance) {
                     // Weit genug -> springe zu +180°
                     targetAngle = 180;
-                    helperEndX = curveEnd.x + Math.cos(startAngle) * length;
-                    helperEndY = curveEnd.y + Math.sin(startAngle) * length;
                 } else {
                     // Zu nah -> bleibe bei -180°
                     targetAngle = -180;
-                    helperEndX = curveEnd.x - Math.cos(startAngle) * length;
-                    helperEndY = curveEnd.y - Math.sin(startAngle) * length;
                 }
             }
         } else if (Math.abs(currentAngle) >= 180 && Math.abs(rawAngleDegrees) > 160) {
             // Waren bei ±180°, bleibe dort bis deutlich darunter
             targetAngle = currentAngle;
-            if (currentAngle > 0) {
+        }
+        
+        // Bestimme grüne Linie basierend auf Zielwinkel
+        if (Math.abs(targetAngle) >= 180) {
+            // Bei ±180° zeichne parallel zur ursprünglichen Linie
+            if (targetAngle > 0) {
+                // +180° -> Linie in ursprüngliche Richtung (parallel nach rechts)
                 helperEndX = curveEnd.x + Math.cos(startAngle) * length;
                 helperEndY = curveEnd.y + Math.sin(startAngle) * length;
             } else {
-                helperEndX = curveEnd.x - Math.cos(startAngle) * length;
-                helperEndY = curveEnd.y - Math.sin(startAngle) * length;
+                // -180° -> Linie in entgegengesetzte Richtung (parallel nach links)
+                helperEndX = curveEnd.x + Math.cos(startAngle + Math.PI) * length;
+                helperEndY = curveEnd.y + Math.sin(startAngle + Math.PI) * length;
             }
         } else {
             // Normal zur Maus
@@ -327,7 +326,20 @@ class KantteileEditor {
         // Speichere die Hilfslinie für das Zeichnen
         this.helperLineEnd = { x: helperEndX, y: helperEndY };
         
-        targetAngle = Math.round(targetAngle);
+        // Berechne den finalen Winkel basierend auf der grünen Hilfslinie
+        const helperDx = helperEndX - curveEnd.x;
+        const helperDy = helperEndY - curveEnd.y;
+        
+        if (Math.sqrt(helperDx * helperDx + helperDy * helperDy) > 1) {
+            const helperAngle = Math.atan2(helperDy, helperDx);
+            let finalRelativeAngle = helperAngle - startAngle;
+            
+            // Normalisiere
+            while (finalRelativeAngle > Math.PI) finalRelativeAngle -= 2 * Math.PI;
+            while (finalRelativeAngle < -Math.PI) finalRelativeAngle += 2 * Math.PI;
+            
+            targetAngle = Math.round(finalRelativeAngle * 180 / Math.PI);
+        }
         
         // Begrenze auf -180° bis +180°
         if (targetAngle > 180) targetAngle = 180;
