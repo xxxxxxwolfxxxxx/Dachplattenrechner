@@ -257,21 +257,31 @@ class KantteileEditor {
         const dx = this.mousePos.x - start.x;
         const dy = this.mousePos.y - start.y;
         
-        let mouseAngle = Math.atan2(dy, dx);
+        // Berechne die Distanz von der Maus zur Startposition
+        const distanceToMouse = Math.sqrt(dx * dx + dy * dy);
         
-        // Berechne den Winkel zwischen der Startrichtung und der endgültigen Richtung nach der Kurve
+        // Bei 2 * Biegeradius sollten wir 180° erreichen
+        const targetDistance = 2 * this.currentElement.radius;
+        
+        // Berechne den Winkel basierend auf der Distanz
+        let angleRatio = Math.min(distanceToMouse / targetDistance, 1.0);
+        
+        // Bestimme die Richtung basierend auf der Mausposition relativ zur Startrichtung
+        let mouseAngle = Math.atan2(dy, dx);
         let relativeAngle = mouseAngle - this.currentElement.startAngle;
         
-        // Normalisiere den Winkel auf -180° bis +180°
+        // Normalisiere auf -PI bis PI
         while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
         while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
         
-        let angleDegrees = relativeAngle * 180 / Math.PI;
-        angleDegrees = Math.round(angleDegrees);
+        // Bestimme Richtung (links oder rechts)
+        const isRightTurn = relativeAngle > 0;
         
-        // Begrenze auf -180° bis +180°
-        if (angleDegrees > 180) angleDegrees = 180;
-        if (angleDegrees < -180) angleDegrees = -180;
+        // Berechne den Winkel: 180° bei maximaler Distanz
+        let angleDegrees = angleRatio * 180;
+        if (!isRightTurn) angleDegrees = -angleDegrees;
+        
+        angleDegrees = Math.round(angleDegrees);
         
         this.currentElement.angle = angleDegrees;
         document.getElementById('currentAngle').textContent = angleDegrees;
@@ -510,30 +520,35 @@ class KantteileEditor {
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
         
-        // Bestimme welche Seite aktuell oben ist basierend auf der Farbseite-Einstellung und den Biegungen
-        const isTopSideVisible = this.determineVisibleSide(element);
+        // Bestimme den Versatz für Ober- und Unterseite (senkrecht zur Linie)
+        const offset = width * 0.6; // Versatz um die Linien zu trennen
         
         if (element.type === 'line') {
-            // Zeichne beide Seiten an der gleichen Position (keine Versetzung)
-            // Erst die Rückseite (falls sichtbar)
-            if (!isTopSideVisible) {
-                this.ctx.strokeStyle = this.settings.backColor;
-                this.ctx.globalAlpha = 1.0;
-                
-                this.ctx.beginPath();
-                this.ctx.moveTo(element.start.x, element.start.y);
-                this.ctx.lineTo(element.end.x, element.end.y);
-                this.ctx.stroke();
-            }
+            // Berechne die Normale (senkrecht zur Linie)
+            const dx = element.end.x - element.start.x;
+            const dy = element.end.y - element.start.y;
+            const length = Math.sqrt(dx * dx + dy * dy);
             
-            // Dann die Vorderseite (falls sichtbar)
-            if (isTopSideVisible) {
+            if (length > 0) {
+                const normalX = -dy / length; // Normale nach links
+                const normalY = dx / length;
+                
+                // Zeichne Oberseite (mit Versatz nach einer Seite)
                 this.ctx.strokeStyle = this.settings.frontColor;
                 this.ctx.globalAlpha = 1.0;
                 
                 this.ctx.beginPath();
-                this.ctx.moveTo(element.start.x, element.start.y);
-                this.ctx.lineTo(element.end.x, element.end.y);
+                this.ctx.moveTo(element.start.x + normalX * offset, element.start.y + normalY * offset);
+                this.ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
+                this.ctx.stroke();
+                
+                // Zeichne Unterseite (mit Versatz zur anderen Seite)
+                this.ctx.strokeStyle = this.settings.backColor;
+                this.ctx.globalAlpha = 1.0;
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(element.start.x - normalX * offset, element.start.y - normalY * offset);
+                this.ctx.lineTo(element.end.x - normalX * offset, element.end.y - normalY * offset);
                 this.ctx.stroke();
             }
             
@@ -542,49 +557,24 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Rückseite (falls sichtbar)
-            if (!isTopSideVisible) {
-                this.ctx.strokeStyle = this.settings.backColor;
-                this.ctx.globalAlpha = 1.0;
-                
-                this.ctx.beginPath();
-                this.ctx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
-                this.ctx.stroke();
-            }
+            // Zeichne Oberseite der Kurve (äußerer Radius)
+            this.ctx.strokeStyle = this.settings.frontColor;
+            this.ctx.globalAlpha = 1.0;
             
-            // Vorderseite (falls sichtbar)
-            if (isTopSideVisible) {
-                this.ctx.strokeStyle = this.settings.frontColor;
-                this.ctx.globalAlpha = 1.0;
-                
-                this.ctx.beginPath();
-                this.ctx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
-                this.ctx.stroke();
-            }
+            this.ctx.beginPath();
+            this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
+            this.ctx.stroke();
+            
+            // Zeichne Unterseite der Kurve (innerer Radius)
+            this.ctx.strokeStyle = this.settings.backColor;
+            this.ctx.globalAlpha = 1.0;
+            
+            this.ctx.beginPath();
+            this.ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
+            this.ctx.stroke();
         }
         
         this.ctx.globalAlpha = 1.0;
-    }
-    
-    determineVisibleSide(targetElement) {
-        // Finde die Position des Elements in der Liste
-        const elementIndex = this.elements.indexOf(targetElement);
-        
-        // Starte mit der ursprünglichen Farbseite-Einstellung
-        let isTopSideUp = (this.colorSide === 'top');
-        
-        // Gehe durch alle Kurven bis zu diesem Element und verfolge die Orientierung
-        for (let i = 0; i <= elementIndex; i++) {
-            const element = this.elements[i];
-            if (element.type === 'curve') {
-                // Bei einer Kurve dreht sich die Orientierung um
-                // Positiver Winkel = Rechtskurve, negativer Winkel = Linkskurve
-                // Das ändert welche Seite oben ist
-                isTopSideUp = !isTopSideUp;
-            }
-        }
-        
-        return isTopSideUp;
     }
     
     drawElement(element, color, width) {
