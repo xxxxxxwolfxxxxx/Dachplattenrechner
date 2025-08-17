@@ -676,27 +676,19 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Bestimme welche Spur außen/innen ist basierend auf Kurvenrichtung
-            let spurAussenColor, spurInnenColor;
+            // Einfach: beide Spuren folgen der gleichen Kurve mit unterschiedlichen Radien
+            // Spur A bekommt IMMER den größeren Radius (außen)
+            // Spur B bekommt IMMER den kleineren Radius (innen)
+            // Keine Logik für Links-/Rechtskurven - das ist geometrisch automatisch korrekt
             
-            if (element.angle > 0) {
-                // Rechtskurve: Spur A geht nach außen
-                spurAussenColor = spurMapping.spurA;
-                spurInnenColor = spurMapping.spurB;
-            } else {
-                // Linkskurve: Spur B geht nach außen
-                spurAussenColor = spurMapping.spurB;
-                spurInnenColor = spurMapping.spurA;
-            }
-            
-            // Äußerer Bogen
-            this.ctx.strokeStyle = spurAussenColor;
+            // Äußere Spur (größerer Radius) - immer Spur A
+            this.ctx.strokeStyle = spurMapping.spurA;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Innerer Bogen
-            this.ctx.strokeStyle = spurInnenColor;
+            // Innere Spur (kleinerer Radius) - immer Spur B  
+            this.ctx.strokeStyle = spurMapping.spurB;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
