@@ -697,8 +697,9 @@ class KantteileEditor {
     }
     
     getSpurMappingForElement(targetElement) {
-        // Bestimme die Spurzuordnung basierend auf Grundeinstellung und Umklappungen
-        const isFlipped = this.isElementFlipped(targetElement);
+        // VEREINFACHT: Keine Umklappung mehr!
+        // Die Farbseite-Wahl gilt nur für die allererste Linie
+        // Danach bleiben die Spuren IMMER gleich zugeordnet
         
         let spurA, spurB;
         if (this.colorSide === 'top') {
@@ -709,11 +710,7 @@ class KantteileEditor {
             spurB = this.settings.frontColor;    // Gewählte Farbe = Spur B
         }
         
-        // Bei umgedrehtem Blech: Spuren tauschen
-        if (isFlipped) {
-            [spurA, spurB] = [spurB, spurA];
-        }
-        
+        // KEINE Umklappung mehr - Farben bleiben IMMER gleich
         return { spurA, spurB };
     }
     
