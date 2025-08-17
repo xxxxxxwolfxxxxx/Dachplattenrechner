@@ -326,7 +326,7 @@ KantteileEditor.prototype.updateLineFromLength = function(lengthMM) {
     this.currentElement.length = lengthMM;
 };
 
-// Korrigierte updateCurveFromMouse Funktion - misst Winkel zwischen Linien
+// Korrigierte updateCurveFromMouse Funktion - einfache Winkelberechnung
 KantteileEditor.prototype.updateCurveFromMouse = function() {
     if (!this.currentElement || this.currentElement.type !== 'curve') return;
     
@@ -334,37 +334,26 @@ KantteileEditor.prototype.updateCurveFromMouse = function() {
     const mouse = this.mousePos;
     const startAngle = this.currentElement.startAngle;
     
-    // Berechne den Winkel der grünen Linie (vom Kurvenende zur Maus)
-    // Dazu müssen wir erstmal einen groben Endpunkt berechnen
-    let tempAngle = 0;
-    this.currentElement.angle = tempAngle;
-    this.calculateCurveEndpoint();
+    // Berechne Winkel von Startpunkt zur Maus
+    const mouseAngle = Math.atan2(mouse.y - start.y, mouse.x - start.x);
     
-    // Iterativ den korrekten Winkel finden
-    for (let i = 0; i < 5; i++) {
-        this.calculateCurveEndpoint();
-        const end = this.currentElement.end;
-        
-        // Winkel der grünen Linie (vom Kurvenende zur Maus)
-        const greenLineAngle = Math.atan2(mouse.y - end.y, mouse.x - end.x);
-        
-        // Winkel zwischen ursprünglicher Linie und grüner Linie
-        let angleDiff = greenLineAngle - startAngle;
-        
-        // Normalisiere auf -π bis π
-        while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-        while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-        
-        // Konvertiere zu Grad
-        let angleDegrees = angleDiff * 180 / Math.PI;
-        angleDegrees = Math.round(angleDegrees);
-        
-        // Begrenze auf ±180°
-        if (angleDegrees > 180) angleDegrees = 180;
-        if (angleDegrees < -180) angleDegrees = -180;
-        
-        this.currentElement.angle = angleDegrees;
-    }
+    // Winkel relativ zur Startrichtung
+    let relativeAngle = mouseAngle - startAngle;
+    
+    // Normalisiere auf -π bis π
+    while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
+    while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
+    
+    // Konvertiere zu Grad
+    let angleDegrees = relativeAngle * 180 / Math.PI;
+    angleDegrees = Math.round(angleDegrees);
+    
+    // Begrenze auf ±180°
+    if (angleDegrees > 180) angleDegrees = 180;
+    if (angleDegrees < -180) angleDegrees = -180;
+    
+    this.currentElement.angle = angleDegrees;
+    this.calculateCurveEndpoint();
 };
 
 // Korrigierte drawHelperLines Funktion
@@ -403,6 +392,35 @@ KantteileEditor.prototype.drawHelperLines = function() {
         this.ctx.setLineDash([]);
     }
 };
+
+// Korrigierte drawElementWithColors Funktion für bessere Farblogik
+KantteileEditor.prototype.drawElementWithColors = function(element, width) {
+    this.ctx.lineWidth = width;
+    this.ctx.lineCap = 'round';
+    this.ctx.lineJoin = 'round';
+    
+    // Bestimme Farben basierend auf aktueller Farbseite
+    const topColor = this.colorSide === 'top' ? this.settings.frontColor : this.settings.backColor;
+    const bottomColor = this.colorSide === 'top' ? this.settings.backColor : this.settings.frontColor;
+    
+    if (element.type === 'line') {
+        // Rückseite (unten) versetzt
+        this.ctx.strokeStyle = bottomColor;
+        this.ctx.globalAlpha = 0.7;
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(element.start.x + 2, element.start.y + 2);
+        this.ctx.lineTo(element.end.x + 2, element.end.y + 2);
+        this.ctx.stroke();
+        
+        // Vorderseite (oben)
+        this.ctx.strokeStyle = topColor;
+        this.ctx.globalAlpha = 1.0;
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(element.start.x, element.start.y);
+        this.ctx.lineTo(element.end.x, element.end.y);
+        this.ctx.stroke();
 
 // Korrigierte drawElementWithColors Funktion für bessere Farblogik
 KantteileEditor.prototype.drawElementWithColors = function(element, width) {
