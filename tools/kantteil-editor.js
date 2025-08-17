@@ -676,10 +676,9 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Kurve übernimmt einfach die Farbseiten der vorangegangenen Linie
-            // shouldSwapColors gibt bereits die richtige Orientierung basierend auf vorherigen Kurven
+            // Kurve verwendet die bereits berechneten Farben (frontColor/backColor sind schon getauscht wenn nötig)
             
-            // Zeichne äußeren Bogen (Oberseite der aktuellen Orientierung)
+            // Zeichne äußeren Bogen (mit der "Front"-Farbe der aktuellen Orientierung)
             this.ctx.strokeStyle = frontColor;
             this.ctx.globalAlpha = 1.0;
             
@@ -687,7 +686,7 @@ class KantteileEditor {
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Zeichne inneren Bogen (Unterseite der aktuellen Orientierung)
+            // Zeichne inneren Bogen (mit der "Back"-Farbe der aktuellen Orientierung)
             this.ctx.strokeStyle = backColor;
             this.ctx.globalAlpha = 1.0;
             
