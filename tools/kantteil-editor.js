@@ -486,20 +486,63 @@ class KantteileEditor {
         if (!this.currentElement || this.currentElement.type !== 'curve') return;
         
         const start = this.currentElement.start;
+        const startAngle = this.currentElement.startAngle;
+        
+        // Dynamischer Messpunkt - weiter weg für große Winkel
+        const currentAngleDeg = Math.abs(this.currentElement.angle || 0);
+        let measureRadius = this.currentElement.radius;
+        
+        if (currentAngleDeg > 90) {
+            // Bei Winkeln über 90° den Messpunkt weiter weg setzen
+            measureRadius = this.currentElement.radius * 3;
+        }
+        
+        // Berechne Winkel basierend auf dem erweiterten Messpunkt
         const dx = this.mousePos.x - start.x;
         const dy = this.mousePos.y - start.y;
+        const mouseDistance = Math.sqrt(dx * dx + dy * dy);
         
-        let mouseAngle = Math.atan2(dy, dx);
-        let relativeAngle = mouseAngle - this.currentElement.startAngle;
+        // Projiziere Mausposition auf erweiterten Messkreis
+        let effectiveMouseX, effectiveMouseY;
         
+        if (mouseDistance > measureRadius) {
+            // Maus ist weit genug weg, normale Berechnung
+            effectiveMouseX = this.mousePos.x;
+            effectiveMouseY = this.mousePos.y;
+        } else {
+            // Maus zu nah, projiziere auf Messkreis
+            const mouseAngle = Math.atan2(dy, dx);
+            effectiveMouseX = start.x + Math.cos(mouseAngle) * measureRadius;
+            effectiveMouseY = start.y + Math.sin(mouseAngle) * measureRadius;
+        }
+        
+        const effectiveDx = effectiveMouseX - start.x;
+        const effectiveDy = effectiveMouseY - start.y;
+        let mouseAngle = Math.atan2(effectiveDy, effectiveDx);
+        let relativeAngle = mouseAngle - startAngle;
+        
+        // Normalisiere Winkel
         while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
         while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
         
         let angleDegrees = relativeAngle * 180 / Math.PI;
         angleDegrees = Math.round(angleDegrees);
         
+        // Begrenze auf ±180°
         if (angleDegrees > 180) angleDegrees = 180;
         if (angleDegrees < -180) angleDegrees = -180;
+        
+        // Spezielle Behandlung für große Winkel - vermeide Sprünge
+        const oldAngle = this.currentElement.angle || 0;
+        if (Math.abs(oldAngle) > 150 && Math.abs(angleDegrees) > 150) {
+            // Bei großen Winkeln: Behalte Vorzeichen bei wenn möglich
+            if (Math.sign(oldAngle) !== Math.sign(angleDegrees)) {
+                // Prüfe ob 180° gemeint ist
+                if (Math.abs(angleDegrees) > 170) {
+                    angleDegrees = Math.sign(oldAngle) * 180;
+                }
+            }
+        }
         
         this.currentElement.angle = angleDegrees;
         document.getElementById('currentAngle').textContent = angleDegrees;
@@ -841,13 +884,28 @@ class KantteileEditor {
             unit = 'mm';
             color = '#e74c3c';
         } else if (this.currentElement.type === 'curve') {
+            // Dynamische Positionierung der Winkelanzeige
+            const currentAngle = Math.abs(this.currentElement.angle || 0);
+            let displayRadius = this.currentElement.radius + 30 / this.zoom;
+            
+            // Bei großen Winkeln (>90°) weiter weg anzeigen
+            if (currentAngle > 90) {
+                displayRadius = this.currentElement.radius * 2.5;
+            }
+            
             if (this.currentElement.center) {
-                displayX = this.currentElement.center.x;
-                displayY = this.currentElement.center.y - 20 / this.zoom;
+                // Positioniere Anzeige basierend auf mittlerem Winkel der Kurve
+                const startAngle = this.currentElement.startAngle;
+                const halfAngle = (this.currentElement.angle || 0) * Math.PI / 360; // Halber Winkel in Radiant
+                const middleAngle = startAngle + halfAngle;
+                
+                displayX = this.currentElement.center.x + Math.cos(middleAngle) * displayRadius;
+                displayY = this.currentElement.center.y + Math.sin(middleAngle) * displayRadius;
             } else {
                 displayX = this.currentElement.start.x;
                 displayY = this.currentElement.start.y - 30 / this.zoom;
             }
+            
             value = this.currentElement.angle;
             unit = '°';
             color = '#f39c12';
@@ -880,6 +938,20 @@ class KantteileEditor {
         this.ctx.fillStyle = color;
         this.ctx.font = `bold ${16 / this.zoom}px Arial`;
         this.ctx.fillText(text, displayX, displayY);
+        
+        // Bei Kurven: Zeichne erweiterten Messbereich für große Winkel
+        if (this.currentElement.type === 'curve' && Math.abs(this.currentElement.angle || 0) > 90) {
+            this.ctx.strokeStyle = 'rgba(241, 196, 15, 0.3)';
+            this.ctx.lineWidth = 1 / this.zoom;
+            this.ctx.setLineDash([5 / this.zoom, 5 / this.zoom]);
+            
+            this.ctx.beginPath();
+            this.ctx.arc(this.currentElement.start.x, this.currentElement.start.y, 
+                        this.currentElement.radius * 3, 0, Math.PI * 2);
+            this.ctx.stroke();
+            
+            this.ctx.setLineDash([]);
+        }
     }
     
     drawGrid() {
