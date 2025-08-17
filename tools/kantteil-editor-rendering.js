@@ -382,16 +382,17 @@ KantteileEditor.prototype.drawCurrentValues = function() {
 KantteileEditor.prototype.drawHelperLines = function() {
     if (this.currentElement && this.currentElement.type === 'curve') {
         const start = this.currentElement.start;
+        const end = this.currentElement.end;
         const startAngle = this.currentElement.startAngle;
         const radius = this.currentElement.radius;
         
-        // Zeichne grüne gestrichelte Linie vom Kurvenstart zur Mausposition
+        // Zeichne grüne gestrichelte Linie vom Kurvenende zur Mausposition (als Verlängerung)
         this.ctx.strokeStyle = 'rgba(39, 174, 96, 0.8)';
         this.ctx.lineWidth = 2 / this.zoom;
         this.ctx.setLineDash([8 / this.zoom, 4 / this.zoom]);
         
         this.ctx.beginPath();
-        this.ctx.moveTo(start.x, start.y);
+        this.ctx.moveTo(end.x, end.y);
         this.ctx.lineTo(this.mousePos.x, this.mousePos.y);
         this.ctx.stroke();
         
