@@ -676,19 +676,24 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Bei Kurven: bestimme welche Seite innen/außen ist
-            // Abhängig von der aktuellen Orientierung des Blechs
+            // Bei Kurven: die Farbzuordnung muss zur aktuellen Orientierung passen
+            // Wenn das Blech umgedreht ist, sind auch innen/außen vertauscht
             
             let outerColor, innerColor;
             
             if (shouldSwapColors) {
-                // Blech ist "umgedreht" - ursprüngliche Unterseite ist jetzt sichtbar
-                outerColor = backColor;  // Ursprüngliche Unterseite außen
-                innerColor = frontColor; // Ursprüngliche Oberseite innen
+                // Blech ist umgedreht - die Farben sind vertauscht
+                outerColor = backColor;  
+                innerColor = frontColor; 
             } else {
-                // Blech ist normal orientiert
-                outerColor = frontColor; // Ursprüngliche Oberseite außen
-                innerColor = backColor;  // Ursprüngliche Unterseite innen
+                // Blech normal orientiert
+                outerColor = frontColor; 
+                innerColor = backColor;  
+            }
+            
+            // Bei negativen Winkeln (Linkskurven) tauschen sich innen/außen um
+            if (element.angle < 0) {
+                [outerColor, innerColor] = [innerColor, outerColor];
             }
             
             // Zeichne äußeren Bogen
