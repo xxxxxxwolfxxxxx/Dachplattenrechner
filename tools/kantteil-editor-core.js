@@ -331,17 +331,23 @@ KantteileEditor.prototype.updateCurveFromMouse = function() {
     
     const start = this.currentElement.start;
     const mouse = this.mousePos;
-    const distance = Math.sqrt(
-        Math.pow(mouse.x - start.x, 2) + 
-        Math.pow(mouse.y - start.y, 2)
-    );
     
-    let angle = Math.atan2(mouse.y - start.y, mouse.x - start.x) - this.currentElement.startAngle;
+    // Berechne Winkel vom Startpunkt zur Maus relativ zur Startrichtung
+    let mouseAngle = Math.atan2(mouse.y - start.y, mouse.x - start.x);
+    let relativeAngle = mouseAngle - this.currentElement.startAngle;
     
-    while (angle > Math.PI) angle -= 2 * Math.PI;
-    while (angle < -Math.PI) angle += 2 * Math.PI;
+    // Normalisiere Winkel auf -180° bis +180°
+    while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
+    while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
     
-    this.currentElement.angle = Math.round(angle * 180 / Math.PI);
+    let angleDegrees = relativeAngle * 180 / Math.PI;
+    angleDegrees = Math.round(angleDegrees);
+    
+    // Begrenze auf ±180°
+    if (angleDegrees > 180) angleDegrees = 180;
+    if (angleDegrees < -180) angleDegrees = -180;
+    
+    this.currentElement.angle = angleDegrees;
     this.calculateCurveEndpoint();
 };
 
