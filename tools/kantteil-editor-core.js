@@ -312,21 +312,16 @@ KantteileEditor.prototype.updateLineFromLength = function(lengthMM) {
             y: start.y + Math.sin(angle) * lengthPixels
         };
     } else if (this.currentElement.direction === 'horizontal') {
-        const direction = this.currentElement.end.x >= start.x ? 1 : -1;
         this.currentElement.end = {
-            x: start.x + direction * lengthPixels,
+            x: start.x + lengthPixels,
             y: start.y
         };
     } else {
-        const direction = this.currentElement.end.y >= start.y ? 1 : -1;
         this.currentElement.end = {
             x: start.x,
-            y: start.y + direction * lengthPixels
+            y: start.y + lengthPixels
         };
     }
-    
-    this.currentElement.length = lengthMM;
-};
     
     this.currentElement.length = lengthMM;
 };
