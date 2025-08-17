@@ -327,6 +327,9 @@ KantteileEditor.prototype.updateLineFromLength = function(lengthMM) {
     
     this.currentElement.length = lengthMM;
 };
+    
+    this.currentElement.length = lengthMM;
+};
 
 KantteileEditor.prototype.updateCurveFromMouse = function() {
     if (!this.currentElement || this.currentElement.type !== 'curve') return;
