@@ -200,17 +200,29 @@ class KantteileEditor {
         this.isDrawing = true;
         this.drawingMode = 'line';
         
+        // Bestimme Startrichtung basierend auf Farbseite
+        let startDirection = this.settings.firstLineType;
+        if (this.colorSide === 'bottom') {
+            // Wenn Unterseite gewählt, drehe die Richtung um
+            if (startDirection === 'horizontal') {
+                startDirection = 'horizontal'; // Bleibt horizontal, aber andere Richtung im Rendering
+            } else {
+                startDirection = 'vertical'; // Richtung bleibt gleich
+            }
+        }
+        
         this.currentElement = {
             type: 'line',
             start: { ...this.startPos },
             end: { ...this.startPos },
-            direction: this.settings.firstLineType,
+            direction: startDirection,
             length: 0,
             thickness: this.settings.thickness
         };
         
         this.updateStatus('Bewegen Sie die Maus oder drücken Sie Leertaste für manuelle Eingabe. Bestätigen mit Linksklick oder Enter.');
         document.getElementById('startBtn').style.display = 'none';
+        this.showValueOverlay();
         this.render();
     }
     
@@ -248,6 +260,7 @@ class KantteileEditor {
         
         this.currentElement.length = Math.round(length);
         document.getElementById('currentLength').textContent = this.currentElement.length;
+        this.updateValueOverlay(this.currentElement.length + ' mm');
     }
     
     updateCurveFromMouse() {
@@ -320,6 +333,19 @@ class KantteileEditor {
         // 5. Speichere und zeige an
         this.helperLineEnd = { x: helperEndX, y: helperEndY };
         document.getElementById('currentAngle').textContent = finalAngle;
+        this.updateValueOverlay(finalAngle + '°');
+    }
+    
+    showValueOverlay() {
+        document.getElementById('valueOverlay').style.display = 'block';
+    }
+    
+    hideValueOverlay() {
+        document.getElementById('valueOverlay').style.display = 'none';
+    }
+    
+    updateValueOverlay(text) {
+        document.getElementById('valueText').textContent = text;
     }
     
     getDistanceToOriginalLine(point) {
@@ -404,6 +430,7 @@ class KantteileEditor {
             end: { ...point }
         };
         
+        this.showValueOverlay();
         this.updateStatus('Wählen Sie den Biegewinkel (-180° bis +180°). Negativ = links, Positiv = rechts.');
         this.render();
     }
@@ -472,6 +499,7 @@ class KantteileEditor {
         this.elements.push({ ...this.currentElement });
         
         if (this.currentElement.type === 'curve') {
+            // Nach einer Kurve: nächste Linie ist tangential zur Kurve
             this.currentElement = {
                 type: 'line',
                 start: { ...this.currentElement.end },
@@ -485,10 +513,12 @@ class KantteileEditor {
             this.drawingMode = 'line';
             this.updateStatus('Zeichnen Sie die nächste Linie. Bewegen Sie die Maus oder drücken Sie Leertaste für manuelle Eingabe.');
         } else {
+            // Nach einer Linie: Punkt für Kurve hinzufügen
             this.activePoints.push({ ...this.currentElement.end });
             this.currentElement = null;
             this.isDrawing = false;
             this.drawingMode = null;
+            this.hideValueOverlay();
             this.updateStatus('Klicken Sie auf den blauen Punkt um eine Kurve hinzuzufügen.');
         }
         
@@ -993,17 +1023,8 @@ function confirmAngle() {
     closeModal('angleModal');
 }
 
-function confirmExport() {
-    const partName = document.getElementById('partName').value.trim();
-    const quantity = parseFloat(document.getElementById('quantityNeeded').value) || 0;
-    
-    // Vereinfachter Export - erstelle Download
-    const link = document.createElement('a');
-    link.download = `kantteil_${partName || 'skizze'}_${new Date().toISOString().split('T')[0]}.png`;
-    link.href = editor.canvas.toDataURL('image/png');
-    link.click();
-    
-    closeModal('exportModal');
+function closeHelp() {
+    document.getElementById('helpOverlay').style.display = 'none';
 }
 
 // Event Listeners für Modals
