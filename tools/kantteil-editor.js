@@ -991,12 +991,12 @@ class KantteileEditor {
         });
         
         // Canvas-Größe mit Rand für Bemaßung und Titel
-        const margin = 120;
+        const margin = 150;
         const drawingWidth = maxX - minX;
         const drawingHeight = maxY - minY;
         
         techCanvas.width = drawingWidth + 2 * margin;
-        techCanvas.height = drawingHeight + 2 * margin + 100; // Extra Platz für Titel/Info
+        techCanvas.height = drawingHeight + 2 * margin + 100;
         
         // Weißer Hintergrund
         techCtx.fillStyle = 'white';
@@ -1036,31 +1036,14 @@ class KantteileEditor {
         // Verschiebe Koordinatensystem für Zeichnung
         techCtx.translate(-minX + margin, -minY + margin + 50);
         
-        // Zeichne Elemente in schwarz
-        techCtx.strokeStyle = 'black';
-        techCtx.lineWidth = 2;
-        techCtx.lineCap = 'round';
-        techCtx.lineJoin = 'round';
-        
-        this.elements.forEach(element => {
-            if (element.type === 'line') {
-                techCtx.beginPath();
-                techCtx.moveTo(element.start.x, element.start.y);
-                techCtx.lineTo(element.end.x, element.end.y);
-                techCtx.stroke();
-            } else if (element.type === 'curve' && element.center && element.angle !== 0) {
-                const startAngle = element.startAngleFromCenter;
-                const endAngle = element.endAngleFromCenter;
-                const counterClockwise = element.angle < 0;
-                
-                techCtx.beginPath();
-                techCtx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
-                techCtx.stroke();
-            }
-        });
+        // Zeichne Elemente farbig mit Spuren
+        this.drawTechnicalElements(techCtx);
         
         // Füge Bemaßung hinzu
-        this.addDimensions(techCtx);
+        this.addImprovedDimensions(techCtx);
+        
+        // Füge Farbseiten-Beschriftung hinzu
+        this.addColorSideLabels(techCtx);
         
         // Download als PNG
         const link = document.createElement('a');
@@ -1072,6 +1055,274 @@ class KantteileEditor {
         this.generatePDF(techCanvas, partName);
         
         this.updateStatus('Technische Zeichnung wurde als PNG und PDF erstellt.');
+    }
+    
+    drawTechnicalElements(ctx) {
+        const spurMapping = this.getSpurMappingForElement(this.elements[0]);
+        const lineWidth = 3;
+        const offset = lineWidth * 0.8;
+        
+        this.elements.forEach(element => {
+            if (element.type === 'line') {
+                const dx = element.end.x - element.start.x;
+                const dy = element.end.y - element.start.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                
+                if (length > 0) {
+                    const normalX = -dy / length;
+                    const normalY = dx / length;
+                    
+                    // Spur A
+                    ctx.strokeStyle = spurMapping.spurA;
+                    ctx.lineWidth = lineWidth;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(element.start.x + normalX * offset, element.start.y + normalY * offset);
+                    ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
+                    ctx.stroke();
+                    
+                    // Spur B
+                    ctx.strokeStyle = spurMapping.spurB;
+                    ctx.beginPath();
+                    ctx.moveTo(element.start.x - normalX * offset, element.start.y - normalY * offset);
+                    ctx.lineTo(element.end.x - normalX * offset, element.end.y - normalY * offset);
+                    ctx.stroke();
+                }
+            } else if (element.type === 'curve' && element.center && element.angle !== 0) {
+                const startAngle = element.startAngleFromCenter;
+                const endAngle = element.endAngleFromCenter;
+                const counterClockwise = element.angle < 0;
+                
+                let ersteSpurColor, zweiteSpurColor;
+                if (element.angle > 0) {
+                    ersteSpurColor = spurMapping.spurB;
+                    zweiteSpurColor = spurMapping.spurA;
+                } else {
+                    ersteSpurColor = spurMapping.spurA;
+                    zweiteSpurColor = spurMapping.spurB;
+                }
+                
+                ctx.lineWidth = lineWidth;
+                
+                // Äußerer Bogen
+                ctx.strokeStyle = ersteSpurColor;
+                ctx.beginPath();
+                ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
+                ctx.stroke();
+                
+                // Innerer Bogen
+                ctx.strokeStyle = zweiteSpurColor;
+                ctx.beginPath();
+                ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
+                ctx.stroke();
+            }
+        });
+    }
+    
+    addImprovedDimensions(ctx) {
+        ctx.strokeStyle = 'blue';
+        ctx.fillStyle = 'blue';
+        ctx.lineWidth = 1;
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        
+        const usedDimensionLines = [];
+        
+        this.elements.forEach((element, index) => {
+            if (element.type === 'line') {
+                const length = element.originalLength || element.length;
+                
+                // Bestimme optimale Bemaßungsposition
+                const dimPosition = this.findOptimalDimensionPosition(element, usedDimensionLines, index);
+                
+                this.drawDimensionLine(ctx, element, dimPosition, length);
+                usedDimensionLines.push(dimPosition);
+            }
+        });
+    }
+    
+    findOptimalDimensionPosition(element, usedLines, elementIndex) {
+        const dx = element.end.x - element.start.x;
+        const dy = element.end.y - element.start.y;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        
+        if (length === 0) return { offset: 30, side: 1 };
+        
+        const normalX = -dy / length;
+        const normalY = dx / length;
+        
+        // Prüfe verschiedene Abstände und Seiten
+        const possibleOffsets = [40, 70, 100, 130];
+        const sides = [1, -1]; // 1 = links, -1 = rechts
+        
+        for (const side of sides) {
+            for (const offset of possibleOffsets) {
+                const testPos = {
+                    startX: element.start.x + normalX * offset * side,
+                    startY: element.start.y + normalY * offset * side,
+                    endX: element.end.x + normalX * offset * side,
+                    endY: element.end.y + normalY * offset * side,
+                    offset: offset,
+                    side: side
+                };
+                
+                // Prüfe Kollision mit existierenden Bemaßungslinien
+                const hasCollision = usedLines.some(usedLine => {
+                    return this.linesIntersect(testPos, usedLine);
+                });
+                
+                if (!hasCollision) {
+                    return testPos;
+                }
+            }
+        }
+        
+        // Fallback
+        return { 
+            startX: element.start.x + normalX * 40,
+            startY: element.start.y + normalY * 40,
+            endX: element.end.x + normalX * 40,
+            endY: element.end.y + normalY * 40,
+            offset: 40,
+            side: 1
+        };
+    }
+    
+    linesIntersect(line1, line2) {
+        // Vereinfachte Kollisionsprüfung - prüfe ob Linien zu nah beieinander sind
+        const dist1 = Math.sqrt(Math.pow(line1.startX - line2.startX, 2) + Math.pow(line1.startY - line2.startY, 2));
+        const dist2 = Math.sqrt(Math.pow(line1.endX - line2.endX, 2) + Math.pow(line1.endY - line2.endY, 2));
+        return (dist1 < 50 && dist2 < 50);
+    }
+    
+    drawDimensionLine(ctx, element, dimPos, length) {
+        // Erweitere Bemaßung bis zur Außenseite von Kurven
+        let startPoint = { x: element.start.x, y: element.start.y };
+        let endPoint = { x: element.end.x, y: element.end.y };
+        
+        // Prüfe vorherige Kurve
+        const prevElement = this.elements[this.elements.indexOf(element) - 1];
+        if (prevElement && prevElement.type === 'curve') {
+            const extendLength = 3; // 3px Verlängerung zur Außenseite
+            const dx = element.end.x - element.start.x;
+            const dy = element.end.y - element.start.y;
+            const lineLength = Math.sqrt(dx * dx + dy * dy);
+            if (lineLength > 0) {
+                const unitX = -dx / lineLength;
+                const unitY = -dy / lineLength;
+                startPoint.x += unitX * extendLength;
+                startPoint.y += unitY * extendLength;
+            }
+        }
+        
+        // Prüfe nachfolgende Kurve
+        const nextElement = this.elements[this.elements.indexOf(element) + 1];
+        if (nextElement && nextElement.type === 'curve') {
+            const extendLength = 3;
+            const dx = element.end.x - element.start.x;
+            const dy = element.end.y - element.start.y;
+            const lineLength = Math.sqrt(dx * dx + dy * dy);
+            if (lineLength > 0) {
+                const unitX = dx / lineLength;
+                const unitY = dy / lineLength;
+                endPoint.x += unitX * extendLength;
+                endPoint.y += unitY * extendLength;
+            }
+        }
+        
+        // Zeichne Bemaßungslinie
+        ctx.beginPath();
+        ctx.moveTo(dimPos.startX, dimPos.startY);
+        ctx.lineTo(dimPos.endX, dimPos.endY);
+        ctx.stroke();
+        
+        // Hilfslinien
+        ctx.beginPath();
+        ctx.moveTo(startPoint.x, startPoint.y);
+        ctx.lineTo(dimPos.startX, dimPos.startY);
+        ctx.moveTo(endPoint.x, endPoint.y);
+        ctx.lineTo(dimPos.endX, dimPos.endY);
+        ctx.stroke();
+        
+        // Bemaßungstext
+        const textX = (dimPos.startX + dimPos.endX) / 2;
+        const textY = (dimPos.startY + dimPos.endY) / 2 - 5;
+        
+        ctx.fillStyle = 'white';
+        ctx.fillRect(textX - 20, textY - 10, 40, 20);
+        ctx.fillStyle = 'blue';
+        ctx.fillText(`${length}mm`, textX, textY + 4);
+    }
+    
+    addColorSideLabels(ctx) {
+        if (this.elements.length === 0) return;
+        
+        // Finde die längste Linie
+        let longestLine = null;
+        let maxLength = 0;
+        
+        this.elements.forEach(element => {
+            if (element.type === 'line') {
+                const length = element.originalLength || element.length;
+                if (length > maxLength) {
+                    maxLength = length;
+                    longestLine = element;
+                }
+            }
+        });
+        
+        if (!longestLine) return;
+        
+        const spurMapping = this.getSpurMappingForElement(longestLine);
+        const dx = longestLine.end.x - longestLine.start.x;
+        const dy = longestLine.end.y - longestLine.start.y;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        
+        if (length === 0) return;
+        
+        const normalX = -dy / length;
+        const normalY = dx / length;
+        const midX = (longestLine.start.x + longestLine.end.x) / 2;
+        const midY = (longestLine.start.y + longestLine.end.y) / 2;
+        
+        // Beschriftung für Farbseite (Spur A)
+        const labelOffsetA = 15;
+        const labelXA = midX + normalX * labelOffsetA;
+        const labelYA = midY + normalY * labelOffsetA;
+        
+        ctx.fillStyle = spurMapping.spurA;
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Farbseite', labelXA, labelYA);
+        
+        // Beschriftung für Rückseite (Spur B)
+        const labelOffsetB = 15;
+        const labelXB = midX - normalX * labelOffsetB;
+        const labelYB = midY - normalY * labelOffsetB;
+        
+        ctx.fillStyle = spurMapping.spurB;
+        ctx.fillText('Rückseite', labelXB, labelYB);
+        
+        // Pfeile zur Zuordnung
+        ctx.strokeStyle = spurMapping.spurA;
+        ctx.lineWidth = 1;
+        this.drawArrow(ctx, labelXA, labelYA + 5, midX + normalX * 4, midY + normalY * 4);
+        
+        ctx.strokeStyle = spurMapping.spurB;
+        this.drawArrow(ctx, labelXB, labelYB + 5, midX - normalX * 4, midY - normalY * 4);
+    }
+    
+    drawArrow(ctx, fromX, fromY, toX, toY) {
+        const headlen = 8;
+        const angle = Math.atan2(toY - fromY, toX - fromX);
+        
+        ctx.beginPath();
+        ctx.moveTo(fromX, fromY);
+        ctx.lineTo(toX, toY);
+        ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+        ctx.stroke();
     }
     
     generatePDF(canvas, partName) {
@@ -1158,6 +1409,8 @@ class KantteileEditor {
     }
     
     addDimensions(ctx) {
+        // Diese alte Methode wird durch addImprovedDimensions ersetzt
+        // Bleibt als Fallback bestehen
         ctx.strokeStyle = 'blue';
         ctx.fillStyle = 'blue';
         ctx.lineWidth = 1;
