@@ -492,7 +492,7 @@ class KantteileEditor {
         const dx = this.mousePos.x - start.x;
         const dy = this.mousePos.y - start.y;
         
-        // Berechne den Winkel direkt von der Startrichtung zur Mausposition
+        // Berechne Basis-Winkel
         let mouseAngle = Math.atan2(dy, dx);
         let relativeAngle = mouseAngle - startAngle;
         
@@ -502,27 +502,24 @@ class KantteileEditor {
         
         let angleDegrees = relativeAngle * 180 / Math.PI;
         
-        // Spezielle Behandlung für große Winkel (>90°)
-        const currentAngleDeg = Math.abs(angleDegrees);
-        if (currentAngleDeg > 90) {
-            // Bei großen Winkeln: Prüfe ob wir nahe an 180° sind
+        // Spezielle Logik für Winkel über 90°
+        if (Math.abs(angleDegrees) > 90) {
+            // Berechne senkrechte Richtung zur Startrichtung
+            const startDirection = { x: Math.cos(startAngle), y: Math.sin(startAngle) };
+            const perpendicular = { x: -startDirection.y, y: startDirection.x };
+            
+            // Projiziere Mausvektor auf senkrechte Richtung
+            const perpProjection = dx * perpendicular.x + dy * perpendicular.y;
             const mouseDistance = Math.sqrt(dx * dx + dy * dy);
             
-            // Berechne den theoretischen Abstand für 180°
-            // Bei 180° sollte die Maus auf Höhe von 2x Radius sein
-            const expectedDistanceFor180 = 2 * radius;
-            
-            // Wenn wir nahe der 180°-Position sind, snap zu 180°
-            if (mouseDistance >= expectedDistanceFor180 * 0.95) {
-                // Prüfe Richtung: oberhalb oder unterhalb der Startlinie
-                const startDirection = { x: Math.cos(startAngle), y: Math.sin(startAngle) };
-                const perpendicular = { x: -startDirection.y, y: startDirection.x };
-                
-                // Projiziere Mausvektor auf senkrechte Richtung
-                const perpProjection = dx * perpendicular.x + dy * perpendicular.y;
-                
-                if (Math.abs(perpProjection) >= radius * 1.8) { // Bei etwa 2x Radius Höhe
-                    angleDegrees = perpProjection > 0 ? 180 : -180;
+            // Prüfe ob wir im 180°-Bereich sind (oberhalb/unterhalb 2x Radius)
+            if (mouseDistance >= radius * 2) {
+                if (perpProjection > 0) {
+                    // Oberhalb der ursprünglichen Linie = konstant +180°
+                    angleDegrees = 180;
+                } else {
+                    // Unterhalb der ursprünglichen Linie = konstant -180°
+                    angleDegrees = -180;
                 }
             }
         }
@@ -929,50 +926,20 @@ class KantteileEditor {
         this.ctx.font = `bold ${16 / this.zoom}px Arial`;
         this.ctx.fillText(text, displayX, displayY);
         
-        // Bei Kurven: Zeichne Hilfslinien für 180°-Positionen
+        // Bei Kurven: Zeichne grüne gestrichelte Hilfslinie für 180°-Bereich
         if (this.currentElement.type === 'curve') {
             const start = this.currentElement.start;
             const startAngle = this.currentElement.startAngle;
             const radius = this.currentElement.radius;
             
-            // Zeichne 180°-Hilfslinie (2x Radius Abstand)
-            this.ctx.strokeStyle = 'rgba(241, 196, 15, 0.4)';
-            this.ctx.lineWidth = 1 / this.zoom;
-            this.ctx.setLineDash([3 / this.zoom, 3 / this.zoom]);
+            // Zeichne grünen gestrichelten Kreis bei 2x Radius für 180°-Bereich
+            this.ctx.strokeStyle = 'rgba(39, 174, 96, 0.6)';
+            this.ctx.lineWidth = 2 / this.zoom;
+            this.ctx.setLineDash([8 / this.zoom, 4 / this.zoom]);
             
-            // Berechne senkrechte Richtung zur Startrichtung
-            const startDirection = { x: Math.cos(startAngle), y: Math.sin(startAngle) };
-            const perpendicular = { x: -startDirection.y, y: startDirection.x };
-            
-            // Zeichne +180° Linie (oben)
-            const plus180Point = {
-                x: start.x + perpendicular.x * radius * 2,
-                y: start.y + perpendicular.y * radius * 2
-            };
             this.ctx.beginPath();
-            this.ctx.moveTo(start.x, start.y);
-            this.ctx.lineTo(plus180Point.x, plus180Point.y);
+            this.ctx.arc(start.x, start.y, radius * 2, 0, Math.PI * 2);
             this.ctx.stroke();
-            
-            // Zeichne -180° Linie (unten)
-            const minus180Point = {
-                x: start.x - perpendicular.x * radius * 2,
-                y: start.y - perpendicular.y * radius * 2
-            };
-            this.ctx.beginPath();
-            this.ctx.moveTo(start.x, start.y);
-            this.ctx.lineTo(minus180Point.x, minus180Point.y);
-            this.ctx.stroke();
-            
-            // Zeichne Markierungen an den 180°-Punkten
-            this.ctx.fillStyle = 'rgba(241, 196, 15, 0.8)';
-            this.ctx.beginPath();
-            this.ctx.arc(plus180Point.x, plus180Point.y, 3 / this.zoom, 0, Math.PI * 2);
-            this.ctx.fill();
-            
-            this.ctx.beginPath();
-            this.ctx.arc(minus180Point.x, minus180Point.y, 3 / this.zoom, 0, Math.PI * 2);
-            this.ctx.fill();
             
             this.ctx.setLineDash([]);
         }
