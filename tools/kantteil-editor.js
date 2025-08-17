@@ -656,14 +656,14 @@ class KantteileEditor {
                 const normalX = -dy / length;
                 const normalY = dx / length;
                 
-                // Spur A (immer nach links versetzt)
+                // Spur A (nach links versetzt)
                 this.ctx.strokeStyle = spurMapping.spurA;
                 this.ctx.beginPath();
                 this.ctx.moveTo(element.start.x + normalX * offset, element.start.y + normalY * offset);
                 this.ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
                 this.ctx.stroke();
                 
-                // Spur B (immer nach rechts versetzt)
+                // Spur B (nach rechts versetzt)
                 this.ctx.strokeStyle = spurMapping.spurB;
                 this.ctx.beginPath();
                 this.ctx.moveTo(element.start.x - normalX * offset, element.start.y - normalY * offset);
@@ -676,19 +676,30 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Einfach: beide Spuren folgen der gleichen Kurve mit unterschiedlichen Radien
-            // Spur A bekommt IMMER den größeren Radius (außen)
-            // Spur B bekommt IMMER den kleineren Radius (innen)
-            // Keine Logik für Links-/Rechtskurven - das ist geometrisch automatisch korrekt
+            // KRITISCH: Welche Spur geht nach außen/innen?
+            // Bei Rechtskurve (angle > 0): die "linke" Spur wird zur äußeren
+            // Bei Linkskurve (angle < 0): die "rechte" Spur wird zur äußeren
             
-            // Äußere Spur (größerer Radius) - immer Spur A
-            this.ctx.strokeStyle = spurMapping.spurA;
+            let aussereSpurColor, innereSpurColor;
+            
+            if (element.angle > 0) {
+                // Rechtskurve: linke Spur (Spur A) wird äußere
+                aussereSpurColor = spurMapping.spurA;
+                innereSpurColor = spurMapping.spurB;
+            } else {
+                // Linkskurve: rechte Spur (Spur B) wird äußere  
+                aussereSpurColor = spurMapping.spurB;
+                innereSpurColor = spurMapping.spurA;
+            }
+            
+            // Äußere Spur (größerer Radius)
+            this.ctx.strokeStyle = aussereSpurColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Innere Spur (kleinerer Radius) - immer Spur B  
-            this.ctx.strokeStyle = spurMapping.spurB;
+            // Innere Spur (kleinerer Radius)
+            this.ctx.strokeStyle = innereSpurColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
