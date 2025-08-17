@@ -645,18 +645,18 @@ class KantteileEditor {
         const isFlipped = this.isElementFlipped(element);
         
         // Basis-Farbzuordnung (abhängig von der gewählten Seite)
-        let topColor, bottomColor;
+        let leftColor, rightColor; // Verwende konsistente links/rechts Zuordnung
         if (this.colorSide === 'top') {
-            topColor = this.settings.frontColor;    // Gewählte Farbe oben
-            bottomColor = this.settings.backColor;  // Andere Farbe unten
+            leftColor = this.settings.frontColor;    // Gewählte Farbe links
+            rightColor = this.settings.backColor;    // Andere Farbe rechts
         } else {
-            topColor = this.settings.backColor;     // Andere Farbe oben
-            bottomColor = this.settings.frontColor; // Gewählte Farbe unten
+            leftColor = this.settings.backColor;     // Andere Farbe links
+            rightColor = this.settings.frontColor;   // Gewählte Farbe rechts
         }
         
         // Bei umgedrehtem Blech: Farben tauschen
         if (isFlipped) {
-            [topColor, bottomColor] = [bottomColor, topColor];
+            [leftColor, rightColor] = [rightColor, leftColor];
         }
         
         const offset = width * 0.6;
@@ -671,15 +671,15 @@ class KantteileEditor {
                 const normalX = -dy / length;
                 const normalY = dx / length;
                 
-                // Oberseite (nach links versetzt)
-                this.ctx.strokeStyle = topColor;
+                // Linke Spur
+                this.ctx.strokeStyle = leftColor;
                 this.ctx.beginPath();
                 this.ctx.moveTo(element.start.x + normalX * offset, element.start.y + normalY * offset);
                 this.ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
                 this.ctx.stroke();
                 
-                // Unterseite (nach rechts versetzt)
-                this.ctx.strokeStyle = bottomColor;
+                // Rechte Spur
+                this.ctx.strokeStyle = rightColor;
                 this.ctx.beginPath();
                 this.ctx.moveTo(element.start.x - normalX * offset, element.start.y - normalY * offset);
                 this.ctx.lineTo(element.end.x - normalX * offset, element.end.y - normalY * offset);
@@ -691,26 +691,18 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Bei Kurven: Bestimme welche Spur außen/innen ist basierend auf Biegrichtung
-            let outerColor, innerColor;
-            if (element.angle > 0) {
-                // Rechtskurve: "linke" Spur wird außen, "rechte" wird innen
-                outerColor = topColor;
-                innerColor = bottomColor;
-            } else {
-                // Linkskurve: "rechte" Spur wird außen, "linke" wird innen
-                outerColor = bottomColor;
-                innerColor = topColor;
-            }
+            // Kurven: Farben bleiben konsistent - keine Spurwechsel!
+            // Äußerer Bogen bekommt immer die "linke" Farbe
+            // Innerer Bogen bekommt immer die "rechte" Farbe
             
-            // Äußerer Bogen
-            this.ctx.strokeStyle = outerColor;
+            // Äußerer Bogen (größerer Radius)
+            this.ctx.strokeStyle = leftColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Innerer Bogen
-            this.ctx.strokeStyle = innerColor;
+            // Innerer Bogen (kleinerer Radius)
+            this.ctx.strokeStyle = rightColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
