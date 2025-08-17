@@ -271,7 +271,7 @@ class KantteileEditor {
         
         let greenLineAngleDegrees = greenLineAngle * 180 / Math.PI;
         
-        // 3. Bestimme finale grüne Linie mit verbesserter Hysterese
+        // 3. Bestimme finale grüne Linie mit gesperrter Richtung in Hysterese
         let finalGreenLineAngle = greenLineAngleDegrees;
         let helperEndX = this.mousePos.x;
         let helperEndY = this.mousePos.y;
@@ -289,23 +289,26 @@ class KantteileEditor {
                 // Noch nicht bei ±180° -> gehe zu ±180°
                 finalGreenLineAngle = (greenLineAngleDegrees > 0) ? 180 : -180;
             } else {
-                // Bereits bei ±180° -> prüfe Umsprung
+                // Bereits bei ±180° -> prüfe Hysterese mit Richtungssperre
                 if (isInPufferZone) {
-                    // In Pufferzone -> springe zur anderen Seite
+                    // In Pufferzone -> nur umspringen wenn Maus auch auf andere Seite wechselt
                     if (currentDisplayAngle > 0 && greenLineAngleDegrees < -180) {
+                        // War bei +180°, Maus ist jetzt links der ursprünglichen Linie
                         finalGreenLineAngle = -180;
                     } else if (currentDisplayAngle < 0 && greenLineAngleDegrees > 180) {
+                        // War bei -180°, Maus ist jetzt rechts der ursprünglichen Linie
                         finalGreenLineAngle = 180;
                     } else {
-                        finalGreenLineAngle = currentDisplayAngle; // Bleibe
+                        // Maus noch auf gleicher Seite -> bleibe bei aktuellem Winkel
+                        finalGreenLineAngle = currentDisplayAngle;
                     }
                 } else {
-                    // Nicht in Pufferzone -> bleibe bei aktuellem Wert
+                    // Nicht in Pufferzone -> definitiv bleiben
                     finalGreenLineAngle = currentDisplayAngle;
                 }
             }
             
-            // Grüne Linie parallel zeichnen
+            // Grüne Linie parallel zeichnen, aber nur in richtige Richtung
             const length = 100;
             const direction = (finalGreenLineAngle > 0) ? 0 : Math.PI;
             helperEndX = curveEnd.x + Math.cos(startAngle + direction) * length;
@@ -319,12 +322,11 @@ class KantteileEditor {
                 helperEndX = this.mousePos.x;
                 helperEndY = this.mousePos.y;
             } else {
-                // Noch nahe bei 180° -> bleibe bei ±180°
+                // Noch nahe bei 180° -> bleibe bei ±180°, aber grüne Linie zur Maus
                 finalGreenLineAngle = currentDisplayAngle;
-                const length = 100;
-                const direction = (finalGreenLineAngle > 0) ? 0 : Math.PI;
-                helperEndX = curveEnd.x + Math.cos(startAngle + direction) * length;
-                helperEndY = curveEnd.y + Math.sin(startAngle + direction) * length;
+                // Grüne Linie bleibt zur Maus, auch wenn Winkelanzeige bei ±180° bleibt
+                helperEndX = this.mousePos.x;
+                helperEndY = this.mousePos.y;
             }
         }
         
