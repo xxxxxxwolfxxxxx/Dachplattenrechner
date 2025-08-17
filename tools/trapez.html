@@ -372,36 +372,32 @@
 
         /* Mobile Optimierung */
         @media (max-width: 768px) {
+            body {
+                background-attachment: scroll; /* Bessere Performance auf Mobile */
+            }
+            
             .container {
-                padding: 20px 15px;
+                padding: 15px 10px; /* Reduziert von 20px 15px */
             }
             
-            .input-row {
-                flex-direction: column;
-                gap: 15px;
+            .nav-header .container {
+                padding: 0 15px;
             }
             
-            .input-group {
-                min-width: auto;
+            .nav-title {
+                font-size: 1.2em; /* Reduziert von 1.4em */
             }
             
-            .ad-container, .ad-container-middle {
-                margin: 20px 15px;
+            .section {
+                padding: 20px 15px; /* Reduziert von 25px */
+                margin-bottom: 20px; /* Reduziert von 25px */
             }
             
-            .ad-placeholder {
-                padding: 15px;
+            .section h2 {
+                font-size: 1.3em; /* Reduziert von 1.5em */
             }
             
-            .ad-content-horizontal {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .ad-text-block {
-                text-align: center;
-            }
-        }
+            /* SV
     </style>
 </head>
 <body>
