@@ -964,4 +964,193 @@ class KantteileEditor {
             let maxX = -Infinity, maxY = -Infinity;
             
             this.elements.forEach(element => {
-                if (element.
+                if (element.type === 'line') {
+                    minX = Math.min(minX, element.start.x, element.end.x);
+                    maxX = Math.max(maxX, element.start.x, element.end.x);
+                    minY = Math.min(minY, element.start.y, element.end.y);
+                    maxY = Math.max(maxY, element.start.y, element.end.y);
+                } else if (element.type === 'curve' && element.center) {
+                    const r = element.radius;
+                    minX = Math.min(minX, element.center.x - r);
+                    maxX = Math.max(maxX, element.center.x + r);
+                    minY = Math.min(minY, element.center.y - r);
+                    maxY = Math.max(maxY, element.center.y + r);
+                }
+            });
+            
+            const centerX = (minX + maxX) / 2;
+            const centerY = (minY + maxY) / 2;
+            const width = maxX - minX + 100;
+            const height = maxY - minY + 100;
+            
+            const zoomX = this.canvas.width / width;
+            const zoomY = this.canvas.height / height;
+            this.zoom = Math.min(zoomX, zoomY, 2);
+            
+            this.panX = this.canvas.width/2 - centerX * this.zoom;
+            this.panY = this.canvas.height/2 - centerY * this.zoom;
+        }
+        
+        this.render();
+        this.updateStatus('Ansicht zentriert.');
+    }
+    
+    exportSketch() {
+        if (this.elements.length === 0) {
+            alert('Keine Zeichnung zum Exportieren vorhanden!');
+            return;
+        }
+        
+        this.showModal('exportModal');
+    }
+
+    showHelp() {
+        document.getElementById('helpOverlay').style.display = 'flex';
+    }
+    
+    updateLineFromLength(length) {
+        if (!this.currentElement || this.currentElement.type !== 'line') return;
+        
+        const start = this.currentElement.start;
+        
+        if (this.currentElement.direction === 'tangential') {
+            const lineAngle = this.currentElement.angle;
+            const lengthPixels = length * this.scale;
+            
+            this.currentElement.end = {
+                x: start.x + Math.cos(lineAngle) * lengthPixels,
+                y: start.y + Math.sin(lineAngle) * lengthPixels
+            };
+        } else if (this.currentElement.direction === 'horizontal') {
+            this.currentElement.end = {
+                x: start.x + length * this.scale,
+                y: start.y
+            };
+        } else {
+            this.currentElement.end = {
+                x: start.x,
+                y: start.y + length * this.scale
+            };
+        }
+    }
+}
+
+// Globale Funktionen
+let editor;
+
+function startDrawing() {
+    editor.startDrawing();
+}
+
+function clearCanvas() {
+    editor.clearCanvas();
+}
+
+function centerView() {
+    editor.centerView();
+}
+
+function exportSketch() {
+    editor.exportSketch();
+}
+
+function closeEditor() {
+    if (window.parent && window.parent.closeEditor) {
+        window.parent.closeEditor();
+    } else {
+        window.close();
+    }
+}
+
+function setColorSide(side) {
+    editor.colorSide = side;
+    
+    // Button-Status aktualisieren
+    document.getElementById('colorSideTop').classList.toggle('active', side === 'top');
+    document.getElementById('colorSideBottom').classList.toggle('active', side === 'bottom');
+    
+    editor.render();
+}
+
+function openColorSelection() {
+    window.open('farben.html', 'colorSelection', 'width=1000,height=700,scrollbars=yes,resizable=yes');
+}
+
+// Callback für Farbauswahl
+window.onColorSelected = function(colorData) {
+    editor.settings.frontColor = colorData.color;
+    editor.settings.selectedColorCode = colorData.code;
+    editor.settings.selectedColorName = colorData.name;
+    editor.settings.selectedColorType = colorData.type;
+    
+    editor.render();
+};
+
+function showModal(modalId) {
+    document.getElementById(modalId).style.display = 'flex';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function closeHelp() {
+    document.getElementById('helpOverlay').style.display = 'none';
+}
+
+function showMobileInput() {
+    editor.showMobileInput();
+}
+
+function confirmLength() {
+    const length = parseInt(document.getElementById('lengthInput').value);
+    if (length >= 1 && length <= 1000) {
+        if (editor.currentElement && editor.currentElement.type === 'line') {
+            editor.currentElement.length = length;
+            editor.updateLineFromLength(length);
+            editor.render();
+        }
+    }
+    closeModal('lengthModal');
+}
+
+function confirmAngle() {
+    const angle = parseInt(document.getElementById('angleInput').value);
+    if (angle >= -180 && angle <= 180 && angle !== 0) {
+        if (editor.currentElement && editor.currentElement.type === 'curve') {
+            editor.currentElement.angle = angle;
+            editor.calculateCurveEndpoint();
+            editor.render();
+        }
+    }
+    closeModal('angleModal');
+}
+
+function confirmExport() {
+    const partName = document.getElementById('partName').value.trim();
+    const quantity = parseFloat(document.getElementById('quantityNeeded').value) || 0;
+    
+    // Vereinfachter Export - erstelle Download
+    const link = document.createElement('a');
+    link.download = `kantteil_${partName || 'skizze'}_${new Date().toISOString().split('T')[0]}.png`;
+    link.href = editor.canvas.toDataURL('image/png');
+    link.click();
+    
+    closeModal('exportModal');
+}
+
+// Event Listeners für Modals
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('lengthInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') confirmLength();
+        if (e.key === 'Escape') closeModal('lengthModal');
+    });
+
+    document.getElementById('angleInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') confirmAngle();
+        if (e.key === 'Escape') closeModal('angleModal');
+    });
+
+    // Initialisierung
+    editor = new KantteileEditor();
+});
