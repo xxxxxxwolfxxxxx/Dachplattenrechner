@@ -258,14 +258,18 @@ class KantteileEditor {
         const dy = this.mousePos.y - start.y;
         
         let mouseAngle = Math.atan2(dy, dx);
+        
+        // Berechne den Winkel zwischen der Startrichtung und der endgültigen Richtung nach der Kurve
         let relativeAngle = mouseAngle - this.currentElement.startAngle;
         
+        // Normalisiere den Winkel auf -180° bis +180°
         while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
         while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
         
         let angleDegrees = relativeAngle * 180 / Math.PI;
         angleDegrees = Math.round(angleDegrees);
         
+        // Begrenze auf -180° bis +180°
         if (angleDegrees > 180) angleDegrees = 180;
         if (angleDegrees < -180) angleDegrees = -180;
         
@@ -506,48 +510,81 @@ class KantteileEditor {
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
         
+        // Bestimme welche Seite aktuell oben ist basierend auf der Farbseite-Einstellung und den Biegungen
+        const isTopSideVisible = this.determineVisibleSide(element);
+        
         if (element.type === 'line') {
-            // Rückseite (betongrau) versetzt
-            this.ctx.strokeStyle = this.settings.backColor;
-            this.ctx.globalAlpha = 0.7;
+            // Zeichne beide Seiten an der gleichen Position (keine Versetzung)
+            // Erst die Rückseite (falls sichtbar)
+            if (!isTopSideVisible) {
+                this.ctx.strokeStyle = this.settings.backColor;
+                this.ctx.globalAlpha = 1.0;
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(element.start.x, element.start.y);
+                this.ctx.lineTo(element.end.x, element.end.y);
+                this.ctx.stroke();
+            }
             
-            this.ctx.beginPath();
-            this.ctx.moveTo(element.start.x + 2, element.start.y + 2);
-            this.ctx.lineTo(element.end.x + 2, element.end.y + 2);
-            this.ctx.stroke();
-            
-            // Vorderseite (gewählte Farbe)
-            this.ctx.strokeStyle = this.settings.frontColor;
-            this.ctx.globalAlpha = 1.0;
-            
-            this.ctx.beginPath();
-            this.ctx.moveTo(element.start.x, element.start.y);
-            this.ctx.lineTo(element.end.x, element.end.y);
-            this.ctx.stroke();
+            // Dann die Vorderseite (falls sichtbar)
+            if (isTopSideVisible) {
+                this.ctx.strokeStyle = this.settings.frontColor;
+                this.ctx.globalAlpha = 1.0;
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(element.start.x, element.start.y);
+                this.ctx.lineTo(element.end.x, element.end.y);
+                this.ctx.stroke();
+            }
             
         } else if (element.type === 'curve' && element.center && element.angle !== 0) {
             const startAngle = element.startAngleFromCenter;
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Rückseite
-            this.ctx.strokeStyle = this.settings.backColor;
-            this.ctx.globalAlpha = 0.7;
+            // Rückseite (falls sichtbar)
+            if (!isTopSideVisible) {
+                this.ctx.strokeStyle = this.settings.backColor;
+                this.ctx.globalAlpha = 1.0;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
+                this.ctx.stroke();
+            }
             
-            this.ctx.beginPath();
-            this.ctx.arc(element.center.x + 2, element.center.y + 2, element.radius, startAngle, endAngle, counterClockwise);
-            this.ctx.stroke();
-            
-            // Vorderseite
-            this.ctx.strokeStyle = this.settings.frontColor;
-            this.ctx.globalAlpha = 1.0;
-            
-            this.ctx.beginPath();
-            this.ctx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
-            this.ctx.stroke();
+            // Vorderseite (falls sichtbar)
+            if (isTopSideVisible) {
+                this.ctx.strokeStyle = this.settings.frontColor;
+                this.ctx.globalAlpha = 1.0;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
+                this.ctx.stroke();
+            }
         }
         
         this.ctx.globalAlpha = 1.0;
+    }
+    
+    determineVisibleSide(targetElement) {
+        // Finde die Position des Elements in der Liste
+        const elementIndex = this.elements.indexOf(targetElement);
+        
+        // Starte mit der ursprünglichen Farbseite-Einstellung
+        let isTopSideUp = (this.colorSide === 'top');
+        
+        // Gehe durch alle Kurven bis zu diesem Element und verfolge die Orientierung
+        for (let i = 0; i <= elementIndex; i++) {
+            const element = this.elements[i];
+            if (element.type === 'curve') {
+                // Bei einer Kurve dreht sich die Orientierung um
+                // Positiver Winkel = Rechtskurve, negativer Winkel = Linkskurve
+                // Das ändert welche Seite oben ist
+                isTopSideUp = !isTopSideUp;
+            }
+        }
+        
+        return isTopSideUp;
     }
     
     drawElement(element, color, width) {
