@@ -273,6 +273,26 @@ class KantteileEditor {
         
         // Konvertiere zu Grad
         let angleDegrees = relativeAngle * 180 / Math.PI;
+        
+        // Hysterese für den Übergang zwischen +180° und -180°
+        const currentAngle = this.currentElement.angle || 0;
+        const hysteresisZone = 10; // 10° Puffer
+        
+        if (Math.abs(angleDegrees) > 180 - hysteresisZone) {
+            // Wenn wir nahe bei ±180° sind, prüfe ob wir in der Hysterese-Zone bleiben
+            if (currentAngle > 170 && angleDegrees < -170) {
+                // War bei +180°, Maus ist bei -180° -> nur wechseln wenn deutlich über -180°
+                if (angleDegrees < -180 + hysteresisZone) {
+                    angleDegrees = 180; // Bleibe bei +180°
+                }
+            } else if (currentAngle < -170 && angleDegrees > 170) {
+                // War bei -180°, Maus ist bei +180° -> nur wechseln wenn deutlich über +180°
+                if (angleDegrees > 180 - hysteresisZone) {
+                    angleDegrees = -180; // Bleibe bei -180°
+                }
+            }
+        }
+        
         angleDegrees = Math.round(angleDegrees);
         
         // Begrenze auf -180° bis +180°
