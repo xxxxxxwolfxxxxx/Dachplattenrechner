@@ -198,18 +198,193 @@
             padding-bottom: 10px;
         }
 
-        /* Druckstile - maximal optimiert */
-        @media print {
-            @page {
-                size: A4 portrait;
-                margin: 12mm;
+        /* Mobile Optimierung */
+        @media (max-width: 768px) {
+            body {
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             }
             
-            body {
-                background: white !important;
-                font-family: Arial, sans-serif !important;
-                position: relative;
+            .container {
+                padding: 15px 10px; /* Reduziert von 30px 20px */
             }
+            
+            .nav-header .container {
+                padding: 0 15px;
+            }
+            
+            .nav-title {
+                font-size: 1.2em; /* Reduziert von 1.4em */
+            }
+            
+            .anrissplan-header {
+                padding: 20px 15px; /* Reduziert von 30px */
+                margin-bottom: 20px; /* Reduziert von 25px */
+            }
+            
+            .anrissplan-header h1 {
+                font-size: 1.6em; /* Reduziert von 2em */
+                margin-bottom: 12px; /* Reduziert von 15px */
+            }
+            
+            .anrissplan-info {
+                padding: 12px; /* Reduziert von 15px */
+                font-size: 13px; /* Reduziert */
+                margin-bottom: 15px; /* Reduziert von 20px */
+            }
+            
+            .anrissplan-controls {
+                flex-direction: column;
+                align-items: center;
+                gap: 12px; /* Reduziert von 15px */
+                margin-bottom: 20px; /* Reduziert von 25px */
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 280px; /* Reduziert von 300px */
+                justify-content: center;
+                padding: 10px 20px; /* Reduziert von 12px 24px */
+                font-size: 15px; /* Reduziert von 16px */
+            }
+            
+            .overview-section {
+                padding: 20px 15px; /* Reduziert von 25px */
+                margin-bottom: 20px; /* Reduziert von 25px */
+            }
+            
+            .overview-section h3 {
+                font-size: 1.2em; /* Reduziert von 1.3em */
+                margin-bottom: 15px; /* Reduziert von 20px */
+            }
+            
+            /* Übersichts-SVGs für Mobile optimieren */
+            .overview-section svg {
+                max-width: 100% !important;
+                height: auto !important;
+                max-height: 250px !important; /* Deutlich reduziert */
+            }
+            
+            .anriss-plate {
+                padding: 15px 12px; /* Reduziert von 20px */
+                margin-bottom: 20px; /* Reduziert von 25px */
+            }
+            
+            .anriss-plate h3 {
+                font-size: 1.1em; /* Reduziert von 1.2em */
+                margin-bottom: 15px; /* Reduziert von 20px */
+            }
+            
+            /* Plattendiagramme im Anrissplan für Mobile */
+            .anriss-plate div[style*="flex: 1"] {
+                height: 220px !important; /* Reduziert von 280px */
+            }
+            
+            .anriss-plate svg {
+                max-width: 100% !important;
+                height: auto !important;
+                max-height: 200px !important;
+            }
+            
+            /* Flex-Layout der Platten für Mobile anpassen */
+            .anriss-plate div[style*="display: flex"] {
+                flex-direction: column !important;
+                gap: 15px !important;
+            }
+            
+            .anriss-plate div[style*="flex: 0 0 350px"] {
+                flex: none !important;
+                width: 100% !important;
+            }
+            
+            /* Text in Anweisungen kleiner */
+            .anriss-plate div[style*="background: #f8f9fa"] {
+                font-size: 12px !important; /* Reduziert von 13px */
+                padding: 10px !important; /* Reduziert von 12px */
+                line-height: 1.3 !important; /* Reduziert von 1.4 */
+            }
+            
+            /* Maße-Box kompakter */
+            .anriss-plate div[style*="background: #f0f8ff"] {
+                padding: 8px !important; /* Reduziert von 10px */
+                font-size: 13px; /* Etwas kleiner */
+            }
+        }
+
+        /* Hochkant-spezifische Optimierungen für Anrissplan */
+        @media (max-width: 480px) and (orientation: portrait) {
+            .container {
+                padding: 12px 8px; /* Noch kleiner für sehr kleine Displays */
+            }
+            
+            .anrissplan-header {
+                padding: 15px 12px;
+            }
+            
+            .anrissplan-header h1 {
+                font-size: 1.4em; /* Noch kleiner */
+            }
+            
+            .overview-section {
+                padding: 15px 12px;
+            }
+            
+            .overview-section svg {
+                max-height: 220px !important; /* Noch kleiner für Portrait */
+            }
+            
+            .anriss-plate {
+                padding: 12px 10px;
+            }
+            
+            .anriss-plate div[style*="flex: 1"] {
+                height: 200px !important; /* Noch kleiner */
+            }
+            
+            .btn {
+                max-width: 250px; /* Noch kleiner */
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+
+        /* Querformat - 5% kleiner für bessere Darstellung */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .container {
+                padding: 14px 9px; /* 5% kleiner als mobile Standard */
+            }
+            
+            .anrissplan-header {
+                padding: 19px 14px; /* 5% kleiner */
+                margin-bottom: 19px;
+            }
+            
+            .anrissplan-header h1 {
+                font-size: 1.5em; /* 5% kleiner */
+            }
+            
+            .overview-section {
+                padding: 19px 14px; /* 5% kleiner */
+                margin-bottom: 19px;
+            }
+            
+            .overview-section svg {
+                max-height: 240px !important; /* 5% kleiner */
+            }
+            
+            .anriss-plate {
+                padding: 14px 11px; /* 5% kleiner */
+                margin-bottom: 19px;
+            }
+            
+            .anriss-plate div[style*="flex: 1"] {
+                height: 210px !important; /* 5% kleiner */
+            }
+            
+            .btn {
+                max-width: 265px; /* 5% kleiner */
+                padding: 9px 19px;
+            }
+        }
             
             /* Wasserzeichen auf jeder Seite - korrigierte Version */
             .anriss-plate::before,
