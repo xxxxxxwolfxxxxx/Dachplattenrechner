@@ -395,3 +395,102 @@ function showModal(modalId) {
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
+
+// Editor Control Functions
+function setColorSide(side) {
+    if (editor) {
+        editor.colorSide = side;
+        
+        // Update button states
+        document.getElementById('colorSideTop').classList.toggle('active', side === 'top');
+        document.getElementById('colorSideBottom').classList.toggle('active', side === 'bottom');
+        
+        editor.render();
+    }
+}
+
+function openColorSelection() {
+    window.open('farben.html', 'colorSelection', 'width=1000,height=700,scrollbars=yes,resizable=yes');
+}
+
+function centerView() {
+    if (editor) {
+        editor.centerView();
+    }
+}
+
+function clearCanvas() {
+    if (editor) {
+        editor.clearCanvas();
+    }
+}
+
+function exportSketch() {
+    if (editor) {
+        editor.exportSketch();
+    }
+}
+
+function closeEditor() {
+    if (window.parent && window.parent.closeEditor) {
+        window.parent.closeEditor();
+    }
+}
+
+function startDrawing() {
+    if (editor) {
+        editor.startDrawing();
+    }
+}
+
+function showMobileInput() {
+    if (editor) {
+        editor.showMobileInput();
+    }
+}
+
+function closeHelp() {
+    document.getElementById('helpOverlay').style.display = 'none';
+}
+
+function confirmLength() {
+    const input = document.getElementById('lengthInput');
+    const length = parseFloat(input.value);
+    
+    if (length && length > 0 && editor && editor.currentElement) {
+        editor.updateLineFromLength(length);
+        editor.render();
+        closeModal('lengthModal');
+    }
+}
+
+function confirmAngle() {
+    const input = document.getElementById('angleInput');
+    const angle = parseFloat(input.value);
+    
+    if (angle !== null && !isNaN(angle) && editor && editor.currentElement) {
+        editor.currentElement.angle = angle;
+        editor.calculateCurveEndpoint();
+        editor.render();
+        closeModal('angleModal');
+    }
+}
+
+function confirmExport() {
+    const partName = document.getElementById('partName').value;
+    const quantity = document.getElementById('quantityNeeded').value;
+    
+    if (editor) {
+        // Export logic would go here
+        console.log('Export:', partName, quantity);
+        closeModal('exportModal');
+    }
+}
+
+// Global editor instance
+let editor;
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    editor = new KantteileEditor();
+});
