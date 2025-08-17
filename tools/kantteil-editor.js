@@ -636,11 +636,17 @@ class KantteileEditor {
         
         // Bestimme die Farbseite basierend auf vorherigen Elementen UND der Farbseiten-Einstellung
         const shouldSwapColors = this.shouldSwapColorsForElement(element);
-        const frontColor = shouldSwapColors ? this.settings.backColor : this.settings.frontColor;
-        const backColor = shouldSwapColors ? this.settings.frontColor : this.settings.backColor;
+        
+        // IMMER die Originalfarben verwenden, nie tauschen in der Darstellung
+        const topColor = this.settings.frontColor;    // Braun - immer Oberseite
+        const bottomColor = this.settings.backColor;  // Grau - immer Unterseite
+        
+        // Je nach Orientierung: was ist gerade oben?
+        const currentTopColor = shouldSwapColors ? bottomColor : topColor;
+        const currentBottomColor = shouldSwapColors ? topColor : bottomColor;
         
         // Bestimme den Versatz für Ober- und Unterseite (senkrecht zur Linie)
-        const offset = width * 0.6; // Versatz um die Linien zu trennen
+        const offset = width * 0.6;
         
         if (element.type === 'line') {
             // Berechne die Normale (senkrecht zur Linie)
@@ -652,8 +658,8 @@ class KantteileEditor {
                 const normalX = -dy / length; // Normale nach links
                 const normalY = dx / length;
                 
-                // Zeichne Oberseite (mit Versatz nach einer Seite)
-                this.ctx.strokeStyle = frontColor;
+                // Zeichne Oberseite (was gerade oben ist)
+                this.ctx.strokeStyle = currentTopColor;
                 this.ctx.globalAlpha = 1.0;
                 
                 this.ctx.beginPath();
@@ -661,8 +667,8 @@ class KantteileEditor {
                 this.ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
                 this.ctx.stroke();
                 
-                // Zeichne Unterseite (mit Versatz zur anderen Seite)
-                this.ctx.strokeStyle = backColor;
+                // Zeichne Unterseite (was gerade unten ist)
+                this.ctx.strokeStyle = currentBottomColor;
                 this.ctx.globalAlpha = 1.0;
                 
                 this.ctx.beginPath();
@@ -676,18 +682,16 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Kurve verwendet die bereits berechneten Farben (frontColor/backColor sind schon getauscht wenn nötig)
-            
-            // Zeichne äußeren Bogen (mit der "Front"-Farbe der aktuellen Orientierung)
-            this.ctx.strokeStyle = frontColor;
+            // Zeichne äußeren Bogen (was gerade oben ist)
+            this.ctx.strokeStyle = currentTopColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Zeichne inneren Bogen (mit der "Back"-Farbe der aktuellen Orientierung)
-            this.ctx.strokeStyle = backColor;
+            // Zeichne inneren Bogen (was gerade unten ist)
+            this.ctx.strokeStyle = currentBottomColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
