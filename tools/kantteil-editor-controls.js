@@ -95,6 +95,7 @@ function confirmLength() {
     const length = parseInt(document.getElementById('lengthInput').value);
     if (length >= 1 && length <= 1000) {
         if (editor && editor.currentElement && editor.currentElement.type === 'line') {
+            editor.currentElement.length = length;
             editor.updateLineFromLength(length);
             editor.render();
         }
