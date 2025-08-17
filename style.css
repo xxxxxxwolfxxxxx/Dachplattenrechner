@@ -1840,6 +1840,11 @@ footer::before {
         padding: 6px 0;
         font-size: 0.8em;
         line-height: 1.3;
+        padding-left: 45px; /* ERHÖHT von ursprünglich 35px */
+    }
+    
+    .card-features li::before {
+        left: 12px; /* VERSCHOBEN von 0 auf 12px */
     }
     
     .cta-button {
