@@ -257,16 +257,7 @@ class KantteileEditor {
         const dx = this.mousePos.x - start.x;
         const dy = this.mousePos.y - start.y;
         
-        // Berechne die Distanz von der Maus zur Startposition
-        const distanceToMouse = Math.sqrt(dx * dx + dy * dy);
-        
-        // Bei 2 * Biegeradius sollten wir 180° erreichen
-        const targetDistance = 2 * this.currentElement.radius;
-        
-        // Berechne den Winkel basierend auf der Distanz
-        let angleRatio = Math.min(distanceToMouse / targetDistance, 1.0);
-        
-        // Bestimme die Richtung basierend auf der Mausposition relativ zur Startrichtung
+        // Berechne den Winkel zwischen der Startrichtung und der Mausrichtung
         let mouseAngle = Math.atan2(dy, dx);
         let relativeAngle = mouseAngle - this.currentElement.startAngle;
         
@@ -274,14 +265,13 @@ class KantteileEditor {
         while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
         while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
         
-        // Bestimme Richtung (links oder rechts)
-        const isRightTurn = relativeAngle > 0;
-        
-        // Berechne den Winkel: 180° bei maximaler Distanz
-        let angleDegrees = angleRatio * 180;
-        if (!isRightTurn) angleDegrees = -angleDegrees;
-        
+        // Konvertiere zu Grad
+        let angleDegrees = relativeAngle * 180 / Math.PI;
         angleDegrees = Math.round(angleDegrees);
+        
+        // Begrenze auf -180° bis +180°
+        if (angleDegrees > 180) angleDegrees = 180;
+        if (angleDegrees < -180) angleDegrees = -180;
         
         this.currentElement.angle = angleDegrees;
         document.getElementById('currentAngle').textContent = angleDegrees;
