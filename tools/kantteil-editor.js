@@ -725,10 +725,10 @@ class KantteileEditor {
             }
         }
         
-        // Für Kurven selbst: betrachte auch die eigene Drehung
+        // Für Kurven selbst: betrachte die Rotation BIS zur Kurvenmitte
         if (targetElement.type === 'curve') {
-            // Kurve sieht ihre eigene Rotation
-            totalRotation += targetElement.angle;
+            // Bei Kurven nehmen wir die halbe Drehung für die Darstellung
+            totalRotation += targetElement.angle / 2;
         }
         
         // Normalisiere die Rotation auf 0-360°
@@ -736,10 +736,15 @@ class KantteileEditor {
         while (totalRotation >= 360) totalRotation -= 360;
         
         // Bestimme ob das Blech "umgedreht" ist
-        const isFlipped = totalRotation >= 90 && totalRotation < 270;
+        // Bei 90-270° ist die ursprüngliche Oberseite nicht mehr oben
+        const isFlipped = totalRotation > 90 && totalRotation < 270;
         
-        // Berücksichtige die ursprüngliche Farbseite-Einstellung
-        const baseSwap = (this.colorSide === 'bottom');
+        // Berücksichtige die ursprüngliche Farbseite-Einstellung NUR für das erste Element
+        let baseSwap = false;
+        if (elementIndex === 0 && targetElement === this.elements[0]) {
+            // Nur die erste Linie berücksichtigt die Farbseite-Einstellung
+            baseSwap = (this.colorSide === 'bottom');
+        }
         
         return baseSwap !== isFlipped;
     }
