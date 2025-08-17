@@ -641,23 +641,8 @@ class KantteileEditor {
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
         
-        // Einfache Logik: Bestimme welche Farbe oben/unten ist
-        const isFlipped = this.isElementFlipped(element);
-        
-        // Basis-Farbzuordnung (abhängig von der gewählten Seite)
-        let leftColor, rightColor; // Verwende konsistente links/rechts Zuordnung
-        if (this.colorSide === 'top') {
-            leftColor = this.settings.frontColor;    // Gewählte Farbe links
-            rightColor = this.settings.backColor;    // Andere Farbe rechts
-        } else {
-            leftColor = this.settings.backColor;     // Andere Farbe links
-            rightColor = this.settings.frontColor;   // Gewählte Farbe rechts
-        }
-        
-        // Bei umgedrehtem Blech: Farben tauschen
-        if (isFlipped) {
-            [leftColor, rightColor] = [rightColor, leftColor];
-        }
+        // Bestimme die Spurzuordnung für dieses Element
+        const spurMapping = this.getSpurMappingForElement(element);
         
         const offset = width * 0.6;
         
@@ -667,19 +652,19 @@ class KantteileEditor {
             const length = Math.sqrt(dx * dx + dy * dy);
             
             if (length > 0) {
-                // Normale zeigt immer nach links (bezogen auf die Zeichenrichtung)
+                // Normale zeigt nach links (bezogen auf die Zeichenrichtung)
                 const normalX = -dy / length;
                 const normalY = dx / length;
                 
-                // Linke Spur
-                this.ctx.strokeStyle = leftColor;
+                // Spur A (immer nach links versetzt)
+                this.ctx.strokeStyle = spurMapping.spurA;
                 this.ctx.beginPath();
                 this.ctx.moveTo(element.start.x + normalX * offset, element.start.y + normalY * offset);
                 this.ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
                 this.ctx.stroke();
                 
-                // Rechte Spur
-                this.ctx.strokeStyle = rightColor;
+                // Spur B (immer nach rechts versetzt)
+                this.ctx.strokeStyle = spurMapping.spurB;
                 this.ctx.beginPath();
                 this.ctx.moveTo(element.start.x - normalX * offset, element.start.y - normalY * offset);
                 this.ctx.lineTo(element.end.x - normalX * offset, element.end.y - normalY * offset);
@@ -691,22 +676,52 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Kurven: Farben bleiben konsistent - keine Spurwechsel!
-            // Äußerer Bogen bekommt immer die "linke" Farbe
-            // Innerer Bogen bekommt immer die "rechte" Farbe
+            // Bestimme welche Spur außen/innen ist basierend auf Kurvenrichtung
+            let spurAussenColor, spurInnenColor;
             
-            // Äußerer Bogen (größerer Radius)
-            this.ctx.strokeStyle = leftColor;
+            if (element.angle > 0) {
+                // Rechtskurve: Spur A geht nach außen
+                spurAussenColor = spurMapping.spurA;
+                spurInnenColor = spurMapping.spurB;
+            } else {
+                // Linkskurve: Spur B geht nach außen
+                spurAussenColor = spurMapping.spurB;
+                spurInnenColor = spurMapping.spurA;
+            }
+            
+            // Äußerer Bogen
+            this.ctx.strokeStyle = spurAussenColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Innerer Bogen (kleinerer Radius)
-            this.ctx.strokeStyle = rightColor;
+            // Innerer Bogen
+            this.ctx.strokeStyle = spurInnenColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
         }
+    }
+    
+    getSpurMappingForElement(targetElement) {
+        // Bestimme die Spurzuordnung basierend auf Grundeinstellung und Umklappungen
+        const isFlipped = this.isElementFlipped(targetElement);
+        
+        let spurA, spurB;
+        if (this.colorSide === 'top') {
+            spurA = this.settings.frontColor;    // Gewählte Farbe = Spur A
+            spurB = this.settings.backColor;     // Andere Farbe = Spur B
+        } else {
+            spurA = this.settings.backColor;     // Andere Farbe = Spur A
+            spurB = this.settings.frontColor;    // Gewählte Farbe = Spur B
+        }
+        
+        // Bei umgedrehtem Blech: Spuren tauschen
+        if (isFlipped) {
+            [spurA, spurB] = [spurB, spurA];
+        }
+        
+        return { spurA, spurB };
     }
     
     isElementFlipped(targetElement) {
