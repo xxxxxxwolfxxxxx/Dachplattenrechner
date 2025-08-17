@@ -676,44 +676,20 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Bei Kurven bestimme welche Seite innen/außen ist basierend auf Biegungsrichtung
-            let outerColor = frontColor;
-            let innerColor = backColor;
+            // Bei Kurven: Oberseite bleibt Oberseite, nur innen/außen ändert sich
+            // Äußerer Bogen (weiter vom Zentrum) = Oberseite
+            // Innerer Bogen (näher zum Zentrum) = Unterseite
             
-            // Wenn die Kurve "umgedreht" ist (durch ungerade Anzahl vorheriger Kurven),
-            // vertausche innen/außen entsprechend der Biegungsrichtung
-            if (shouldSwapColors) {
-                if (element.angle > 0) {
-                    // Rechtskurve mit vertauschten Farben
-                    outerColor = backColor;
-                    innerColor = frontColor;
-                } else {
-                    // Linkskurve mit vertauschten Farben  
-                    outerColor = frontColor;
-                    innerColor = backColor;
-                }
-            } else {
-                if (element.angle > 0) {
-                    // Rechtskurve normal
-                    outerColor = frontColor;
-                    innerColor = backColor;
-                } else {
-                    // Linkskurve normal
-                    outerColor = backColor;
-                    innerColor = frontColor;
-                }
-            }
-            
-            // Zeichne äußeren Bogen
-            this.ctx.strokeStyle = outerColor;
+            // Zeichne äußeren Bogen (Oberseite)
+            this.ctx.strokeStyle = frontColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Zeichne inneren Bogen
-            this.ctx.strokeStyle = innerColor;
+            // Zeichne inneren Bogen (Unterseite)
+            this.ctx.strokeStyle = backColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
@@ -737,10 +713,17 @@ class KantteileEditor {
             }
         }
         
-        // Bei ungerader Anzahl von Kurven sind die Farben vertauscht
-        // Berücksichtige auch die Farbseite-Einstellung
+        // Kurven ändern NICHT die Farbseite - sie biegen nur das Blech
+        // Nur die Farbseite-Einstellung bestimmt die initiale Orientierung
         const baseSwap = (this.colorSide === 'bottom');
-        return baseSwap !== (curveCount % 2 === 1);
+        
+        // Für das aktuelle Element: Kurven behalten die Farbseite der vorigen Linie
+        if (targetElement.type === 'curve') {
+            return baseSwap !== (curveCount % 2 === 1);
+        } else {
+            // Für Linien: jede Kurve davor hat potentiell die Orientierung geändert
+            return baseSwap !== (curveCount % 2 === 1);
+        }
     }
     
     drawElement(element, color, width) {
