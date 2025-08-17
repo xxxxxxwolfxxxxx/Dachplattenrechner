@@ -331,23 +331,31 @@ KantteileEditor.prototype.updateCurveFromMouse = function() {
     
     const start = this.currentElement.start;
     const mouse = this.mousePos;
+    const radius = this.currentElement.radius;
     
-    // Berechne Winkel vom Startpunkt zur Maus relativ zur Startrichtung
-    let mouseAngle = Math.atan2(mouse.y - start.y, mouse.x - start.x);
-    let relativeAngle = mouseAngle - this.currentElement.startAngle;
+    // Berechne den Winkel basierend auf der Distanz zur ursprünglichen Linie
+    // Bei 180° sollte die Maus 2*Radius entfernt von der Startlinie sein
     
-    // Normalisiere Winkel auf -180° bis +180°
-    while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
-    while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
+    const startAngle = this.currentElement.startAngle;
     
-    let angleDegrees = relativeAngle * 180 / Math.PI;
-    angleDegrees = Math.round(angleDegrees);
+    // Berechne den Normalenvektor zur Startrichtung (90° gedreht)
+    const normalX = -Math.sin(startAngle);
+    const normalY = Math.cos(startAngle);
+    
+    // Projiziere die Mausposition auf die Normale
+    const deltaX = mouse.x - start.x;
+    const deltaY = mouse.y - start.y;
+    const distanceFromLine = deltaX * normalX + deltaY * normalY;
+    
+    // Bei maximalem Abstand (2*Radius) entspricht das 180°
+    const maxDistance = 2 * radius;
+    let angle = (distanceFromLine / maxDistance) * 180;
     
     // Begrenze auf ±180°
-    if (angleDegrees > 180) angleDegrees = 180;
-    if (angleDegrees < -180) angleDegrees = -180;
+    angle = Math.max(-180, Math.min(180, angle));
+    angle = Math.round(angle);
     
-    this.currentElement.angle = angleDegrees;
+    this.currentElement.angle = angle;
     this.calculateCurveEndpoint();
 };
 
