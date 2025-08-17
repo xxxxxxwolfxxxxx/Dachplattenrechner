@@ -712,9 +712,6 @@ class KantteileEditor {
             }
         }
         
-        // Debug: Zeige die Berechnung
-        console.log(`Element ${elementIndex}, totalRotation: ${totalRotation}`);
-        
         // Normalisiere die Rotation auf -180 bis +180
         while (totalRotation > 180) totalRotation -= 360;
         while (totalRotation <= -180) totalRotation += 360;
@@ -729,10 +726,7 @@ class KantteileEditor {
             baseSwap = (this.colorSide === 'bottom');
         }
         
-        const result = baseSwap !== isFlipped;
-        console.log(`Element ${elementIndex}: baseSwap=${baseSwap}, isFlipped=${isFlipped}, result=${result}`);
-        
-        return result;
+        return baseSwap !== isFlipped;
     }
     
     drawElement(element, color, width) {
