@@ -741,22 +741,22 @@ function generatePlate(item, index, type, data) {
     const anreissMasse = calculateAnreissMasse(plattenStart, plattenEnde, type, data);
     
     let html = '<div class="anriss-plate">';
-    html += '<div style="display: flex; gap: 20px;">';
-    html += '<div style="flex: 0 0 350px;">';
+    html += '<div style="display: flex; gap: 20px; position: relative; z-index: 10;">';
+    html += '<div style="flex: 0 0 350px; position: relative; z-index: 10;">';
     html += '<h3>Platte ' + item.plattenNr + ' (Position: ' + item.positionVonLinks + 'm - ' + item.positionBis + 'm)</h3>';
     
-    html += '<div style="margin: 15px 0; padding: 10px; background: #f0f8ff; border-radius: 6px;">';
+    html += '<div style="margin: 15px 0; padding: 10px; background: #f0f8ff; border-radius: 6px; position: relative; z-index: 10;">';
     html += '<div><strong>Links:</strong> ' + anreissMasse.links + 'cm</div>';
     html += '<div><strong>Rechts:</strong> ' + anreissMasse.rechts + 'cm</div>';
     html += '<div><strong>Benötigte Länge:</strong> ' + item.benoetigteLaenge + 'm</div>';
     html += '</div>';
     
-    html += '<div style="background: #f8f9fa; border-left: 4px solid #ffc107; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.4;">';
+    html += '<div style="background: #f8f9fa; border-left: 4px solid #ffc107; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.4; position: relative; z-index: 10;">';
     html += generateInstructions(item, anreissMasse, type, data);
     html += '</div>';
     
     html += '</div>';
-    html += '<div style="flex: 1; position: relative; height: 280px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">';
+    html += '<div style="flex: 1; position: relative; height: 280px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; z-index: 10;">';
     html += generatePlateDiagram(item, anreissMasse, type, data);
     html += '</div>';
     html += '</div>';
