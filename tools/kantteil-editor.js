@@ -676,20 +676,29 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // KORREKTUR: Kantprofile verhalten sich NICHT wie flexible Kabel!
-            // Die Farbseiten bleiben IMMER in ihrer relativen Position
-            // Spur A (links in Linien) bleibt IMMER außen (größerer Radius)
-            // Spur B (rechts in Linien) bleibt IMMER innen (kleinerer Radius)
-            // Kein Wechsel basierend auf Kurvenrichtung!
+            // KORREKTUR: Bei Rechtskurven (angle > 0) müssen die Spuren getauscht werden
+            // weil die Kurvenberechnung bei positiven Winkeln die Radien umkehrt
             
-            // Spur A: IMMER äußerer Bogen (größerer Radius)
-            this.ctx.strokeStyle = spurMapping.spurA;
+            let ersteSpurColor, zweiteSpurColor;
+            
+            if (element.angle > 0) {
+                // Rechtskurve: Spuren tauschen wegen umgekehrter Radiusberechnung
+                ersteSpurColor = spurMapping.spurB;
+                zweiteSpurColor = spurMapping.spurA;
+            } else {
+                // Linkskurve: normale Zuordnung
+                ersteSpurColor = spurMapping.spurA;
+                zweiteSpurColor = spurMapping.spurB;
+            }
+            
+            // Äußerer Bogen (größerer Radius)
+            this.ctx.strokeStyle = ersteSpurColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Spur B: IMMER innerer Bogen (kleinerer Radius)
-            this.ctx.strokeStyle = spurMapping.spurB;
+            // Innerer Bogen (kleinerer Radius)
+            this.ctx.strokeStyle = zweiteSpurColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
