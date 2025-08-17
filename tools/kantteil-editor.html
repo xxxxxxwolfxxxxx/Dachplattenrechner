@@ -35,7 +35,7 @@
         </div>
         
         <!-- Help Overlay -->
-        <div class="help-overlay" id="helpOverlay">
+        <div class="help-overlay" id="helpOverlay" style="display: none;">
             <div class="help-content">
                 <h4>Steuerung</h4>
                 <div class="help-desktop">
@@ -51,12 +51,12 @@
                     <div>• +/- Buttons: Zoom</div>
                     <div>• 📱 Button: Verschiebe-Modus</div>
                 </div>
-                <button class="help-close-btn" onclick="closeHelp()">OK</button>
+                <button class="help-close-btn" id="helpCloseBtn">OK</button>
             </div>
         </div>
         
         <div class="measurements-panel" id="measurementPanel">
-            <h4>Bauteilmaße</h4>
+            <h4>BauteilmaÃŸe</h4>
             <div id="measurementList"></div>
         </div>
         
@@ -74,7 +74,7 @@
     <!-- Modals -->
     <div class="modal" id="lengthModal">
         <div class="modal-content">
-            <h3>Linienlänge eingeben</h3>
+            <h3>LinienlÃ¤nge eingeben</h3>
             <p>Aktuelle Länge: <span id="currentLength">0</span> mm</p>
             <input type="number" id="lengthInput" min="1" max="1000" step="1" placeholder="Länge in mm">
             <div class="modal-buttons">
@@ -111,6 +111,24 @@
     <script src="kantteil-editor-core.js"></script>
     <script src="kantteil-editor-rendering.js"></script>
     <script src="kantteil-editor-mobile.js"></script>
+    
+    <script>
+    // Help-Overlay korrekt schließen
+    function closeHelp() {
+        const helpOverlay = document.getElementById('helpOverlay');
+        if (helpOverlay) {
+            helpOverlay.style.display = 'none';
+        }
+    }
+    
+    // Event-Listener für Help-Close-Button
+    document.addEventListener('DOMContentLoaded', function() {
+        const helpCloseBtn = document.getElementById('helpCloseBtn');
+        if (helpCloseBtn) {
+            helpCloseBtn.addEventListener('click', closeHelp);
+        }
+    });
+    </script>
 
 </body>
 </html>
