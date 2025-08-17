@@ -108,12 +108,8 @@
         </div>
     </div>
 
-    <script src="kantteil-editor-core.js"></script>
-    <script src="kantteil-editor-rendering.js"></script>
-    <script src="kantteil-editor-mobile.js"></script>
-    
     <script>
-    // Help-Overlay korrekt schließen
+    // Globale Funktionen VOR dem Laden der anderen Scripts
     function closeHelp() {
         const helpOverlay = document.getElementById('helpOverlay');
         if (helpOverlay) {
@@ -121,14 +117,91 @@
         }
     }
     
-    // Event-Listener für Help-Close-Button
-    document.addEventListener('DOMContentLoaded', function() {
-        const helpCloseBtn = document.getElementById('helpCloseBtn');
-        if (helpCloseBtn) {
-            helpCloseBtn.addEventListener('click', closeHelp);
+    // Andere globale Funktionen
+    function setColorSide(side) {
+        if (window.editor) {
+            window.editor.colorSide = side;
+            document.getElementById('colorSideTop').classList.toggle('active', side === 'top');
+            document.getElementById('colorSideBottom').classList.toggle('active', side === 'bottom');
+            window.editor.render();
         }
-    });
+    }
+    
+    function openColorSelection() {
+        window.open('farben.html', 'colorSelection', 'width=1000,height=700,scrollbars=yes,resizable=yes');
+    }
+    
+    function centerView() {
+        if (window.editor) window.editor.centerView();
+    }
+    
+    function clearCanvas() {
+        if (window.editor) window.editor.clearCanvas();
+    }
+    
+    function exportSketch() {
+        if (window.editor) window.editor.exportSketch();
+    }
+    
+    function closeEditor() {
+        if (window.parent && window.parent.closeEditor) {
+            window.parent.closeEditor();
+        } else {
+            window.close();
+        }
+    }
+    
+    function startDrawing() {
+        if (window.editor) window.editor.startDrawing();
+    }
+    
+    function showMobileInput() {
+        if (window.editor) window.editor.showMobileInput();
+    }
+    
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+    
+    function confirmLength() {
+        const length = parseInt(document.getElementById('lengthInput').value);
+        if (length >= 1 && length <= 1000) {
+            if (window.editor && window.editor.currentElement && window.editor.currentElement.type === 'line') {
+                window.editor.currentElement.length = length;
+                window.editor.updateLineFromLength(length);
+                window.editor.render();
+            }
+        }
+        closeModal('lengthModal');
+    }
+    
+    function confirmAngle() {
+        const angle = parseInt(document.getElementById('angleInput').value);
+        if (angle >= -180 && angle <= 180 && angle !== 0) {
+            if (window.editor && window.editor.currentElement && window.editor.currentElement.type === 'curve') {
+                window.editor.currentElement.angle = angle;
+                window.editor.calculateCurveEndpoint();
+                window.editor.render();
+            }
+        }
+        closeModal('angleModal');
+    }
+    
+    function confirmExport() {
+        const partName = document.getElementById('partName').value.trim();
+        if (window.editor) {
+            const link = document.createElement('a');
+            link.download = `kantteil_${partName || 'skizze'}_${new Date().toISOString().split('T')[0]}.png`;
+            link.href = window.editor.canvas.toDataURL('image/png');
+            link.click();
+        }
+        closeModal('exportModal');
+    }
     </script>
+    
+    <script src="kantteil-editor-core.js"></script>
+    <script src="kantteil-editor-rendering.js"></script>
+    <script src="kantteil-editor-mobile.js"></script>
 
 </body>
 </html>
