@@ -267,6 +267,8 @@
             .anriss-plate {
                 padding: 15px 12px; /* Reduziert von 20px */
                 margin-bottom: 20px; /* Reduziert von 25px */
+                position: relative; /* Für korrekte Positionierung */
+                overflow: hidden; /* Verhindert Überlauf */
             }
             
             .anriss-plate h3 {
@@ -277,23 +279,31 @@
             /* Plattendiagramme im Anrissplan für Mobile */
             .anriss-plate div[style*="flex: 1"] {
                 height: 220px !important; /* Reduziert von 280px */
+                position: relative !important;
+                overflow: visible !important;
             }
             
             .anriss-plate svg {
                 max-width: 100% !important;
                 height: auto !important;
                 max-height: 200px !important;
+                position: relative !important;
+                z-index: 10 !important; /* Über dem Wasserzeichen */
             }
             
             /* Flex-Layout der Platten für Mobile anpassen */
             .anriss-plate div[style*="display: flex"] {
                 flex-direction: column !important;
                 gap: 15px !important;
+                position: relative !important;
+                z-index: 10 !important; /* Über dem Wasserzeichen */
             }
             
             .anriss-plate div[style*="flex: 0 0 350px"] {
                 flex: none !important;
                 width: 100% !important;
+                position: relative !important;
+                z-index: 10 !important;
             }
             
             /* Text in Anweisungen kleiner */
@@ -301,12 +311,23 @@
                 font-size: 12px !important; /* Reduziert von 13px */
                 padding: 10px !important; /* Reduziert von 12px */
                 line-height: 1.3 !important; /* Reduziert von 1.4 */
+                position: relative !important;
+                z-index: 10 !important;
             }
             
             /* Maße-Box kompakter */
             .anriss-plate div[style*="background: #f0f8ff"] {
                 padding: 8px !important; /* Reduziert von 10px */
                 font-size: 13px; /* Etwas kleiner */
+                position: relative !important;
+                z-index: 10 !important;
+            }
+            
+            /* WASSERZEICHEN AUF MOBILE VERSTECKEN */
+            .anriss-plate::before,
+            .anrissplan-header::before,
+            .overview-section::before {
+                display: none !important;
             }
         }
 
@@ -383,131 +404,6 @@
             .btn {
                 max-width: 265px; /* 5% kleiner */
                 padding: 9px 19px;
-            }
-        }
-            
-            /* Wasserzeichen auf jeder Seite - korrigierte Version */
-            .anriss-plate::before,
-            .anrissplan-header::before,
-            .overview-section::before {
-                content: "Dachplattenrechner.de";
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%) rotate(-45deg);
-                font-size: 2.5em;
-                font-weight: bold;
-                color: rgba(0, 0, 0, 0.08) !important;
-                z-index: 1;
-                pointer-events: none;
-                white-space: nowrap;
-                width: 100%;
-                text-align: center;
-            }
-            
-            .nav-header,
-            .anrissplan-controls {
-                display: none !important;
-            }
-            
-            /* Übersicht WIRD gedruckt */
-            .overview-section {
-                display: block !important;
-                background: white !important;
-                border: 1px solid #000 !important;
-                padding: 15px !important;
-                margin-bottom: 15px !important;
-                box-shadow: none !important;
-                page-break-after: always !important;
-                position: relative;
-            }
-            
-            .overview-section h3 {
-                color: #000 !important;
-                font-size: 1.2em !important;
-                margin-bottom: 10px !important;
-            }
-            
-            .container {
-                max-width: 100% !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            
-            .anrissplan-header {
-                margin-bottom: 15px !important;
-                padding: 15px !important;
-                box-shadow: none !important;
-                border: 2px solid #000 !important;
-                position: relative;
-            }
-            
-            .anrissplan-header h1 {
-                font-size: 1.4em !important;
-                color: #000 !important;
-                margin-bottom: 8px !important;
-            }
-            
-            .anrissplan-info {
-                font-size: 0.9em !important;
-                padding: 8px !important;
-                border-left-color: #000 !important;
-                color: #000 !important;
-                background: #f9f9f9 !important;
-            }
-            
-            .anriss-plate {
-                page-break-inside: avoid !important;
-                margin-bottom: 12mm !important;
-                border: 1px solid #000 !important;
-                padding: 12px !important;
-                border-radius: 4px !important;
-                background: white !important;
-                box-shadow: none !important;
-                max-height: 280px !important;
-                position: relative;
-            }
-            
-            .anriss-plate:nth-child(4),
-            .anriss-plate:nth-child(7),
-            .anriss-plate:nth-child(10),
-            .anriss-plate:nth-child(13),
-            .anriss-plate:nth-child(16),
-            .anriss-plate:nth-child(19),
-            .anriss-plate:nth-child(22),
-            .anriss-plate:nth-child(25) {
-                page-break-before: always !important;
-            }
-            
-            .anriss-plate h3 {
-                color: #000 !important;
-                font-size: 1em !important;
-                margin-bottom: 8px !important;
-                border-bottom-color: #000 !important;
-                padding-bottom: 4px !important;
-            }
-            
-            /* Drucken-Button verstecken */
-            .btn {
-                display: none !important;
-            }
-        }
-
-        /* Mobile Optimierung */
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px 15px;
-            }
-            
-            .anrissplan-controls {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .btn {
-                width: 100%;
-                max-width: 300px;
-                justify-content: center;
             }
         }
     </style>
