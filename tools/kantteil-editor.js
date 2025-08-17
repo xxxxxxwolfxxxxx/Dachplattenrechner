@@ -253,13 +253,19 @@ class KantteileEditor {
     updateCurveFromMouse() {
         if (!this.currentElement || this.currentElement.type !== 'curve') return;
         
-        const start = this.currentElement.start;
-        const dx = this.mousePos.x - start.x;
-        const dy = this.mousePos.y - start.y;
+        // Erst die Kurve berechnen
+        this.calculateCurveFromAngle();
         
-        // Berechne den Winkel zwischen der Startrichtung und der Mausrichtung
-        let mouseAngle = Math.atan2(dy, dx);
-        let relativeAngle = mouseAngle - this.currentElement.startAngle;
+        // Dann den Winkel basierend auf der Hilfslinie zur Maus bestimmen
+        const curveEnd = this.currentElement.end;
+        const dx = this.mousePos.x - curveEnd.x;
+        const dy = this.mousePos.y - curveEnd.y;
+        
+        // Berechne den Winkel der Hilfslinie zur Maus
+        const mouseLineAngle = Math.atan2(dy, dx);
+        
+        // Berechne den Winkel relativ zur ursprünglichen Startrichtung
+        let relativeAngle = mouseLineAngle - this.currentElement.startAngle;
         
         // Normalisiere auf -PI bis PI
         while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
@@ -276,6 +282,12 @@ class KantteileEditor {
         this.currentElement.angle = angleDegrees;
         document.getElementById('currentAngle').textContent = angleDegrees;
         
+        this.calculateCurveEndpoint();
+    }
+    
+    calculateCurveFromAngle() {
+        // Hilfsmethode für rekursive Berechnung
+        if (!this.currentElement || this.currentElement.type !== 'curve') return;
         this.calculateCurveEndpoint();
     }
     
@@ -492,6 +504,11 @@ class KantteileEditor {
             
             if (this.isDrawing) {
                 this.drawCurrentValues();
+                
+                // Zeichne grüne gestrichelte Hilfslinie bei Kurven
+                if (this.currentElement.type === 'curve') {
+                    this.drawHelperLine();
+                }
             }
         }
         
@@ -505,10 +522,32 @@ class KantteileEditor {
         this.drawZoomInfo();
     }
     
+    drawHelperLine() {
+        if (!this.currentElement || this.currentElement.type !== 'curve') return;
+        
+        // Zeichne gestrichelte grüne Linie vom Kurvenende zur Maus
+        this.ctx.strokeStyle = '#27ae60';
+        this.ctx.lineWidth = 2 / this.zoom;
+        this.ctx.setLineDash([5 / this.zoom, 5 / this.zoom]);
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.currentElement.end.x, this.currentElement.end.y);
+        this.ctx.lineTo(this.mousePos.x, this.mousePos.y);
+        this.ctx.stroke();
+        
+        // Zurück zu durchgezogener Linie
+        this.ctx.setLineDash([]);
+    }
+    
     drawElementWithColors(element, width) {
         this.ctx.lineWidth = width;
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
+        
+        // Bestimme die Farbseite basierend auf vorherigen Elementen
+        const shouldSwapColors = this.shouldSwapColorsForElement(element);
+        const frontColor = shouldSwapColors ? this.settings.backColor : this.settings.frontColor;
+        const backColor = shouldSwapColors ? this.settings.frontColor : this.settings.backColor;
         
         // Bestimme den Versatz für Ober- und Unterseite (senkrecht zur Linie)
         const offset = width * 0.6; // Versatz um die Linien zu trennen
@@ -524,7 +563,7 @@ class KantteileEditor {
                 const normalY = dx / length;
                 
                 // Zeichne Oberseite (mit Versatz nach einer Seite)
-                this.ctx.strokeStyle = this.settings.frontColor;
+                this.ctx.strokeStyle = frontColor;
                 this.ctx.globalAlpha = 1.0;
                 
                 this.ctx.beginPath();
@@ -533,7 +572,7 @@ class KantteileEditor {
                 this.ctx.stroke();
                 
                 // Zeichne Unterseite (mit Versatz zur anderen Seite)
-                this.ctx.strokeStyle = this.settings.backColor;
+                this.ctx.strokeStyle = backColor;
                 this.ctx.globalAlpha = 1.0;
                 
                 this.ctx.beginPath();
@@ -548,7 +587,7 @@ class KantteileEditor {
             const counterClockwise = element.angle < 0;
             
             // Zeichne Oberseite der Kurve (äußerer Radius)
-            this.ctx.strokeStyle = this.settings.frontColor;
+            this.ctx.strokeStyle = frontColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
@@ -556,7 +595,7 @@ class KantteileEditor {
             this.ctx.stroke();
             
             // Zeichne Unterseite der Kurve (innerer Radius)
-            this.ctx.strokeStyle = this.settings.backColor;
+            this.ctx.strokeStyle = backColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
@@ -565,6 +604,25 @@ class KantteileEditor {
         }
         
         this.ctx.globalAlpha = 1.0;
+    }
+    
+    shouldSwapColorsForElement(targetElement) {
+        // Finde die Position des Elements in der Liste
+        const elementIndex = this.elements.indexOf(targetElement);
+        
+        // Zähle die Anzahl der Kurven vor diesem Element
+        let curveCount = 0;
+        for (let i = 0; i < elementIndex; i++) {
+            const element = this.elements[i];
+            if (element.type === 'curve') {
+                curveCount++;
+            }
+        }
+        
+        // Bei ungerader Anzahl von Kurven sind die Farben vertauscht
+        // Berücksichtige auch die Farbseite-Einstellung
+        const baseSwap = (this.colorSide === 'bottom');
+        return baseSwap !== (curveCount % 2 === 1);
     }
     
     drawElement(element, color, width) {
