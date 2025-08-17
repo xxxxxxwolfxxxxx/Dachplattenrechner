@@ -690,16 +690,29 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Zeichne äußeren Bogen (was gerade oben ist)
-            this.ctx.strokeStyle = currentTopColor;
+            // Bei Kurven: die Zuordnung von innen/außen zu oben/unten hängt von der Kurvenrichtung ab
+            let outerColor, innerColor;
+            
+            if (element.angle < 0) {
+                // Linkskurve: innen ist rechts von der Fahrtrichtung = "oben" in unserer Darstellung
+                outerColor = currentBottomColor;  // außen = "unten"
+                innerColor = currentTopColor;     // innen = "oben"
+            } else {
+                // Rechtskurve: innen ist links von der Fahrtrichtung = "unten" in unserer Darstellung  
+                outerColor = currentTopColor;     // außen = "oben"
+                innerColor = currentBottomColor;  // innen = "unten"
+            }
+            
+            // Zeichne äußeren Bogen
+            this.ctx.strokeStyle = outerColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Zeichne inneren Bogen (was gerade unten ist)
-            this.ctx.strokeStyle = currentBottomColor;
+            // Zeichne inneren Bogen
+            this.ctx.strokeStyle = innerColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
