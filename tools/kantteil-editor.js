@@ -146,7 +146,7 @@ class KantteileEditor {
     }
     
     handleMouseDown(e) {
-        if (e.button === 1 || (e.button === 0 && (e.ctrlKey || e.metaKey))) {
+        if (e.button === 1) { // Mittlere Maustaste
             e.preventDefault();
             this.isPanning = true;
             this.lastPanPoint = { x: e.clientX, y: e.clientY };
@@ -155,7 +155,7 @@ class KantteileEditor {
     }
     
     handleMouseUp(e) {
-        if (this.isPanning && (e.button === 1 || e.button === 0)) {
+        if (this.isPanning && e.button === 1) {
             this.isPanning = false;
             this.canvas.style.cursor = 'crosshair';
         }
@@ -249,13 +249,20 @@ class KantteileEditor {
             const dx = this.mousePos.x - start.x;
             const dy = this.mousePos.y - start.y;
             
+            // Projiziere nur in Fahrtrichtung
             const projectedLength = dx * Math.cos(lineAngle) + dy * Math.sin(lineAngle);
-            length = Math.abs(projectedLength) / this.scale;
             
-            this.currentElement.end = {
-                x: start.x + Math.cos(lineAngle) * projectedLength,
-                y: start.y + Math.sin(lineAngle) * projectedLength
-            };
+            // Verhindere Rückwärtszeichnung
+            if (projectedLength < 0) {
+                this.currentElement.end = { ...start };
+                length = 0;
+            } else {
+                length = projectedLength / this.scale;
+                this.currentElement.end = {
+                    x: start.x + Math.cos(lineAngle) * projectedLength,
+                    y: start.y + Math.sin(lineAngle) * projectedLength
+                };
+            }
         }
         
         this.currentElement.length = Math.round(length);
@@ -634,43 +641,45 @@ class KantteileEditor {
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
         
-        // Bestimme die Farbseite basierend auf vorherigen Elementen
-        const shouldSwapColors = this.shouldSwapColorsForElement(element);
+        // Einfache Logik: Bestimme welche Farbe oben/unten ist
+        const isFlipped = this.isElementFlipped(element);
         
-        // IMMER die Originalfarben verwenden
-        const topColor = this.settings.frontColor;    // Braun - immer Oberseite
-        const bottomColor = this.settings.backColor;  // Grau - immer Unterseite
+        // Basis-Farbzuordnung (abhängig von der gewählten Seite)
+        let topColor, bottomColor;
+        if (this.colorSide === 'top') {
+            topColor = this.settings.frontColor;    // Gewählte Farbe oben
+            bottomColor = this.settings.backColor;  // Andere Farbe unten
+        } else {
+            topColor = this.settings.backColor;     // Andere Farbe oben
+            bottomColor = this.settings.frontColor; // Gewählte Farbe unten
+        }
         
-        // Je nach Orientierung: was ist gerade oben?
-        const currentTopColor = shouldSwapColors ? bottomColor : topColor;
-        const currentBottomColor = shouldSwapColors ? topColor : bottomColor;
+        // Bei umgedrehtem Blech: Farben tauschen
+        if (isFlipped) {
+            [topColor, bottomColor] = [bottomColor, topColor];
+        }
         
-        // Bestimme den Versatz für Ober- und Unterseite (senkrecht zur Linie)
         const offset = width * 0.6;
         
         if (element.type === 'line') {
-            // Berechne die Normale (senkrecht zur Linie)
             const dx = element.end.x - element.start.x;
             const dy = element.end.y - element.start.y;
             const length = Math.sqrt(dx * dx + dy * dy);
             
             if (length > 0) {
-                const normalX = -dy / length; // Normale nach links
+                // Normale zeigt immer nach links (bezogen auf die Zeichenrichtung)
+                const normalX = -dy / length;
                 const normalY = dx / length;
                 
-                // Zeichne Oberseite (was gerade oben ist)
-                this.ctx.strokeStyle = currentTopColor;
-                this.ctx.globalAlpha = 1.0;
-                
+                // Oberseite (nach links versetzt)
+                this.ctx.strokeStyle = topColor;
                 this.ctx.beginPath();
                 this.ctx.moveTo(element.start.x + normalX * offset, element.start.y + normalY * offset);
                 this.ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
                 this.ctx.stroke();
                 
-                // Zeichne Unterseite (was gerade unten ist)
-                this.ctx.strokeStyle = currentBottomColor;
-                this.ctx.globalAlpha = 1.0;
-                
+                // Unterseite (nach rechts versetzt)
+                this.ctx.strokeStyle = bottomColor;
                 this.ctx.beginPath();
                 this.ctx.moveTo(element.start.x - normalX * offset, element.start.y - normalY * offset);
                 this.ctx.lineTo(element.end.x - normalX * offset, element.end.y - normalY * offset);
@@ -682,36 +691,26 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Kurven behalten IMMER die gleiche Farbzuordnung wie die vorangegangene Linie
-            // Kein Spurwechsel in Kurven!
-            
-            // Zeichne äußeren Bogen (behält die "Oberseite")
-            this.ctx.strokeStyle = currentTopColor;
-            this.ctx.globalAlpha = 1.0;
-            
+            // Äußerer Bogen (Oberseite)
+            this.ctx.strokeStyle = topColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Zeichne inneren Bogen (behält die "Unterseite")
-            this.ctx.strokeStyle = currentBottomColor;
-            this.ctx.globalAlpha = 1.0;
-            
+            // Innerer Bogen (Unterseite)
+            this.ctx.strokeStyle = bottomColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
         }
-        
-        this.ctx.globalAlpha = 1.0;
     }
     
-    shouldSwapColorsForElement(targetElement) {
-        // Finde die Position des Elements in der Liste
+    isElementFlipped(targetElement) {
+        // Finde die Position des Elements
         const elementIndex = this.elements.indexOf(targetElement);
         
-        // Verfolge die Orientierung durch alle Kurven VOR diesem Element
-        let totalRotation = 0; // in Grad
-        
+        // Zähle alle Kurven davor
+        let totalRotation = 0;
         for (let i = 0; i < elementIndex; i++) {
             const element = this.elements[i];
             if (element.type === 'curve') {
@@ -719,21 +718,12 @@ class KantteileEditor {
             }
         }
         
-        // Normalisiere die Rotation auf -180 bis +180
+        // Normalisiere auf -180 bis +180
         while (totalRotation > 180) totalRotation -= 360;
         while (totalRotation <= -180) totalRotation += 360;
         
-        // Bestimme ob das Blech "umgedreht" ist
-        // Bei 90° bis -90° (über die Rückseite) ist es umgedreht
-        const isFlipped = Math.abs(totalRotation) > 90;
-        
-        // Berücksichtige die ursprüngliche Farbseite-Einstellung NUR für das erste Element
-        let baseSwap = false;
-        if (elementIndex === 0) {
-            baseSwap = (this.colorSide === 'bottom');
-        }
-        
-        return baseSwap !== isFlipped;
+        // Umgedreht wenn mehr als 90° oder weniger als -90°
+        return Math.abs(totalRotation) > 90;
     }
     
     drawElement(element, color, width) {
