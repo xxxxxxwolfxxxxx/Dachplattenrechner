@@ -1,4 +1,3 @@
-// Kantteile Editor - Rendering & Visual Logic
 KantteileEditor.prototype.calculateCurveEndpoint = function() {
     if (!this.currentElement || this.currentElement.type !== 'curve') return;
     
@@ -10,6 +9,8 @@ KantteileEditor.prototype.calculateCurveEndpoint = function() {
     }
     
     const angleRad = angle * Math.PI / 180;
+    
+    // Bestimme Zentrum basierend auf Biegerichtung
     const centerAngle = startAngle + (angle > 0 ? Math.PI/2 : -Math.PI/2);
     
     const center = {
@@ -17,14 +18,17 @@ KantteileEditor.prototype.calculateCurveEndpoint = function() {
         y: start.y + Math.sin(centerAngle) * radius
     };
     
+    // Berechne Start- und Endwinkel für den Bogen
     const startAngleFromCenter = startAngle + (angle > 0 ? -Math.PI/2 : Math.PI/2);
     const endAngleFromCenter = startAngleFromCenter + angleRad;
     
+    // Berechne Endpunkt
     this.currentElement.end = {
         x: center.x + Math.cos(endAngleFromCenter) * radius,
         y: center.y + Math.sin(endAngleFromCenter) * radius
     };
     
+    // Speichere für Rendering
     this.currentElement.endAngle = startAngle + angleRad;
     this.currentElement.center = center;
     this.currentElement.startAngleFromCenter = startAngleFromCenter;
