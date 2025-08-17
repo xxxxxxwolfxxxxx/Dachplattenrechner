@@ -676,31 +676,20 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // KORREKT: Wie bei einem Kabel in S-Form
-            // Bei Rechtskurve (angle > 0): die "linke" Spur wird zur äußeren
-            // Bei Linkskurve (angle < 0): die "rechte" Spur wird zur äußeren
-            // Das ist physikalisch korrekt!
+            // KORREKTUR: Kantprofile verhalten sich NICHT wie flexible Kabel!
+            // Die Farbseiten bleiben IMMER in ihrer relativen Position
+            // Spur A (links in Linien) bleibt IMMER außen (größerer Radius)
+            // Spur B (rechts in Linien) bleibt IMMER innen (kleinerer Radius)
+            // Kein Wechsel basierend auf Kurvenrichtung!
             
-            let aussereSpurColor, innereSpurColor;
-            
-            if (element.angle > 0) {
-                // Rechtskurve: linke Spur (Spur A) wird äußere
-                aussereSpurColor = spurMapping.spurA;
-                innereSpurColor = spurMapping.spurB;
-            } else {
-                // Linkskurve: rechte Spur (Spur B) wird äußere  
-                aussereSpurColor = spurMapping.spurB;
-                innereSpurColor = spurMapping.spurA;
-            }
-            
-            // Äußere Spur (größerer Radius)
-            this.ctx.strokeStyle = aussereSpurColor;
+            // Spur A: IMMER äußerer Bogen (größerer Radius)
+            this.ctx.strokeStyle = spurMapping.spurA;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Innere Spur (kleinerer Radius)
-            this.ctx.strokeStyle = innereSpurColor;
+            // Spur B: IMMER innerer Bogen (kleinerer Radius)
+            this.ctx.strokeStyle = spurMapping.spurB;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
