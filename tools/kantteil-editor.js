@@ -676,9 +676,10 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // KRITISCH: Welche Spur geht nach außen/innen?
+            // KORREKT: Wie bei einem Kabel in S-Form
             // Bei Rechtskurve (angle > 0): die "linke" Spur wird zur äußeren
             // Bei Linkskurve (angle < 0): die "rechte" Spur wird zur äußeren
+            // Das ist physikalisch korrekt!
             
             let aussereSpurColor, innereSpurColor;
             
