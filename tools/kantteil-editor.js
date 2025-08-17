@@ -676,20 +676,31 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // Bei Kurven: Oberseite bleibt Oberseite, nur innen/außen ändert sich
-            // Äußerer Bogen (weiter vom Zentrum) = Oberseite
-            // Innerer Bogen (näher zum Zentrum) = Unterseite
+            // Bei Kurven: bestimme welche Seite innen/außen ist
+            // Abhängig von der aktuellen Orientierung des Blechs
             
-            // Zeichne äußeren Bogen (Oberseite)
-            this.ctx.strokeStyle = frontColor;
+            let outerColor, innerColor;
+            
+            if (shouldSwapColors) {
+                // Blech ist "umgedreht" - ursprüngliche Unterseite ist jetzt sichtbar
+                outerColor = backColor;  // Ursprüngliche Unterseite außen
+                innerColor = frontColor; // Ursprüngliche Oberseite innen
+            } else {
+                // Blech ist normal orientiert
+                outerColor = frontColor; // Ursprüngliche Oberseite außen
+                innerColor = backColor;  // Ursprüngliche Unterseite innen
+            }
+            
+            // Zeichne äußeren Bogen
+            this.ctx.strokeStyle = outerColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Zeichne inneren Bogen (Unterseite)
-            this.ctx.strokeStyle = backColor;
+            // Zeichne inneren Bogen
+            this.ctx.strokeStyle = innerColor;
             this.ctx.globalAlpha = 1.0;
             
             this.ctx.beginPath();
@@ -704,26 +715,33 @@ class KantteileEditor {
         // Finde die Position des Elements in der Liste
         const elementIndex = this.elements.indexOf(targetElement);
         
-        // Zähle die Anzahl der Kurven vor diesem Element
-        let curveCount = 0;
+        // Verfolge die Orientierung durch alle Kurven bis zu diesem Element
+        let totalRotation = 0; // in Grad
+        
         for (let i = 0; i < elementIndex; i++) {
             const element = this.elements[i];
             if (element.type === 'curve') {
-                curveCount++;
+                totalRotation += element.angle;
             }
         }
         
-        // Kurven ändern NICHT die Farbseite - sie biegen nur das Blech
-        // Nur die Farbseite-Einstellung bestimmt die initiale Orientierung
+        // Für Kurven selbst: betrachte auch die eigene Drehung
+        if (targetElement.type === 'curve') {
+            // Kurve sieht ihre eigene Rotation
+            totalRotation += targetElement.angle;
+        }
+        
+        // Normalisiere die Rotation auf 0-360°
+        while (totalRotation < 0) totalRotation += 360;
+        while (totalRotation >= 360) totalRotation -= 360;
+        
+        // Bestimme ob das Blech "umgedreht" ist
+        const isFlipped = totalRotation >= 90 && totalRotation < 270;
+        
+        // Berücksichtige die ursprüngliche Farbseite-Einstellung
         const baseSwap = (this.colorSide === 'bottom');
         
-        // Für das aktuelle Element: Kurven behalten die Farbseite der vorigen Linie
-        if (targetElement.type === 'curve') {
-            return baseSwap !== (curveCount % 2 === 1);
-        } else {
-            // Für Linien: jede Kurve davor hat potentiell die Orientierung geändert
-            return baseSwap !== (curveCount % 2 === 1);
-        }
+        return baseSwap !== isFlipped;
     }
     
     drawElement(element, color, width) {
