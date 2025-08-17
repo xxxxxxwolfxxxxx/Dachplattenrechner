@@ -274,21 +274,27 @@ class KantteileEditor {
         // Konvertiere zu Grad
         let angleDegrees = relativeAngle * 180 / Math.PI;
         
-        // Hysterese für den Übergang zwischen +180° und -180°
+        // Erweiterte Hysterese für 4x Biegeradius Pufferzone
         const currentAngle = this.currentElement.angle || 0;
-        const hysteresisZone = 10; // 10° Puffer
+        const pufferDistance = 4 * this.currentElement.radius; // 4x Biegeradius
         
-        if (Math.abs(angleDegrees) > 180 - hysteresisZone) {
-            // Wenn wir nahe bei ±180° sind, prüfe ob wir in der Hysterese-Zone bleiben
-            if (currentAngle > 170 && angleDegrees < -170) {
-                // War bei +180°, Maus ist bei -180° -> nur wechseln wenn deutlich über -180°
-                if (angleDegrees < -180 + hysteresisZone) {
-                    angleDegrees = 180; // Bleibe bei +180°
+        // Berechne Distanz von Kurvenende zur ursprünglichen Linie
+        const distanceToOriginalLine = this.getDistanceToOriginalLine(curveEnd);
+        
+        if (Math.abs(angleDegrees) >= 180) {
+            if (currentAngle > 0) {
+                // Waren bei positivem Winkel, prüfe ob wir weit genug auf der anderen Seite sind
+                if (distanceToOriginalLine < pufferDistance) {
+                    angleDegrees = 180; // Bleibe bei +180° bis Puffer überschritten
+                } else {
+                    angleDegrees = -180; // Springe zu -180°
                 }
-            } else if (currentAngle < -170 && angleDegrees > 170) {
-                // War bei -180°, Maus ist bei +180° -> nur wechseln wenn deutlich über +180°
-                if (angleDegrees > 180 - hysteresisZone) {
-                    angleDegrees = -180; // Bleibe bei -180°
+            } else {
+                // Waren bei negativem Winkel, prüfe ob wir weit genug auf der anderen Seite sind
+                if (distanceToOriginalLine < pufferDistance) {
+                    angleDegrees = -180; // Bleibe bei -180° bis Puffer überschritten
+                } else {
+                    angleDegrees = 180; // Springe zu +180°
                 }
             }
         }
@@ -303,6 +309,26 @@ class KantteileEditor {
         document.getElementById('currentAngle').textContent = angleDegrees;
         
         this.calculateCurveEndpoint();
+    }
+    
+    getDistanceToOriginalLine(point) {
+        // Berechne die Distanz vom Punkt zur ursprünglichen Startlinie
+        const start = this.currentElement.start;
+        const startAngle = this.currentElement.startAngle;
+        
+        // Erstelle einen Punkt auf der ursprünglichen Linie
+        const linePoint = {
+            x: start.x + Math.cos(startAngle) * 1000, // Lange Linie
+            y: start.y + Math.sin(startAngle) * 1000
+        };
+        
+        // Berechne Distanz von Punkt zur Linie
+        const A = start.y - linePoint.y;
+        const B = linePoint.x - start.x;
+        const C = start.x * linePoint.y - linePoint.x * start.y;
+        
+        const distance = Math.abs(A * point.x + B * point.y + C) / Math.sqrt(A * A + B * B);
+        return distance;
     }
     
     calculateCurveFromAngle() {
