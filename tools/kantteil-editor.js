@@ -715,7 +715,7 @@ class KantteileEditor {
         // Finde die Position des Elements in der Liste
         const elementIndex = this.elements.indexOf(targetElement);
         
-        // Verfolge die Orientierung durch alle Kurven bis zu diesem Element
+        // Verfolge die Orientierung durch alle Kurven VOR diesem Element
         let totalRotation = 0; // in Grad
         
         for (let i = 0; i < elementIndex; i++) {
@@ -725,23 +725,16 @@ class KantteileEditor {
             }
         }
         
-        // Für Kurven selbst: betrachte die Rotation BIS zur Kurvenmitte
-        if (targetElement.type === 'curve') {
-            // Bei Kurven nehmen wir die halbe Drehung für die Darstellung
-            totalRotation += targetElement.angle / 2;
-        }
-        
         // Normalisiere die Rotation auf 0-360°
         while (totalRotation < 0) totalRotation += 360;
         while (totalRotation >= 360) totalRotation -= 360;
         
         // Bestimme ob das Blech "umgedreht" ist
-        // Bei 90-270° ist die ursprüngliche Oberseite nicht mehr oben
         const isFlipped = totalRotation > 90 && totalRotation < 270;
         
         // Berücksichtige die ursprüngliche Farbseite-Einstellung NUR für das erste Element
         let baseSwap = false;
-        if (elementIndex === 0 && targetElement === this.elements[0]) {
+        if (elementIndex === 0) {
             // Nur die erste Linie berücksichtigt die Farbseite-Einstellung
             baseSwap = (this.colorSide === 'bottom');
         }
