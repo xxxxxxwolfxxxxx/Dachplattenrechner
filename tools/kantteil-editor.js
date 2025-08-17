@@ -712,21 +712,27 @@ class KantteileEditor {
             }
         }
         
-        // Normalisiere die Rotation auf 0-360°
-        while (totalRotation < 0) totalRotation += 360;
-        while (totalRotation >= 360) totalRotation -= 360;
+        // Debug: Zeige die Berechnung
+        console.log(`Element ${elementIndex}, totalRotation: ${totalRotation}`);
+        
+        // Normalisiere die Rotation auf -180 bis +180
+        while (totalRotation > 180) totalRotation -= 360;
+        while (totalRotation <= -180) totalRotation += 360;
         
         // Bestimme ob das Blech "umgedreht" ist
-        const isFlipped = totalRotation > 90 && totalRotation < 270;
+        // Bei 90° bis -90° (über die Rückseite) ist es umgedreht
+        const isFlipped = Math.abs(totalRotation) > 90;
         
         // Berücksichtige die ursprüngliche Farbseite-Einstellung NUR für das erste Element
         let baseSwap = false;
         if (elementIndex === 0) {
-            // Nur die erste Linie berücksichtigt die Farbseite-Einstellung
             baseSwap = (this.colorSide === 'bottom');
         }
         
-        return baseSwap !== isFlipped;
+        const result = baseSwap !== isFlipped;
+        console.log(`Element ${elementIndex}: baseSwap=${baseSwap}, isFlipped=${isFlipped}, result=${result}`);
+        
+        return result;
     }
     
     drawElement(element, color, width) {
