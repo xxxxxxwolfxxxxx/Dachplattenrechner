@@ -253,76 +253,70 @@ class KantteileEditor {
     updateCurveFromMouse() {
         if (!this.currentElement || this.currentElement.type !== 'curve') return;
         
-        const currentAngle = this.currentElement.angle || 0;
         const startAngle = this.currentElement.startAngle;
         
-        // 1. Berechne rohen Winkel zur Maus (vom Kurvenstart aus)
-        const dx = this.mousePos.x - this.currentElement.start.x;
-        const dy = this.mousePos.y - this.currentElement.start.y;
-        const mouseLineAngle = Math.atan2(dy, dx);
-        let relativeAngle = mouseLineAngle - startAngle;
+        // 1. Berechne Winkel der grünen Linie (vom Kurvenende zur Maus)
+        // Dafür brauchen wir erst das Kurvenende mit aktuellem Winkel
+        this.calculateCurveEndpoint();
+        const curveEnd = this.currentElement.end || this.currentElement.start;
         
-        while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
-        while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
+        const helperDx = this.mousePos.x - curveEnd.x;
+        const helperDy = this.mousePos.y - curveEnd.y;
+        const helperAngle = Math.atan2(helperDy, helperDx);
         
-        let rawAngleDegrees = relativeAngle * 180 / Math.PI;
+        // 2. Berechne den Winkel der grünen Linie relativ zur ursprünglichen Richtung
+        let greenLineAngle = helperAngle - startAngle;
+        while (greenLineAngle > Math.PI) greenLineAngle -= 2 * Math.PI;
+        while (greenLineAngle < -Math.PI) greenLineAngle += 2 * Math.PI;
         
-        // 2. Bestimme finalen Winkel mit Hysterese
-        let finalAngle = rawAngleDegrees;
+        let greenLineAngleDegrees = greenLineAngle * 180 / Math.PI;
         
-        if (Math.abs(rawAngleDegrees) >= 180) {
-            finalAngle = (rawAngleDegrees > 0) ? 180 : -180;
+        // 3. Hysterese und Begrenzung der grünen Linie
+        let finalGreenLineAngle = greenLineAngleDegrees;
+        let helperEndX = this.mousePos.x;
+        let helperEndY = this.mousePos.y;
+        
+        const currentDisplayAngle = parseInt(document.getElementById('currentAngle').textContent) || 0;
+        
+        if (Math.abs(greenLineAngleDegrees) >= 180) {
+            // Grüne Linie wird parallel (±180°)
+            finalGreenLineAngle = (greenLineAngleDegrees > 0) ? 180 : -180;
             
-            // Hysterese prüfen für Umsprung
+            // Hysterese prüfen
+            const dx = this.mousePos.x - this.currentElement.start.x;
+            const dy = this.mousePos.y - this.currentElement.start.y;
             const distanceFromStart = Math.sqrt(dx * dx + dy * dy);
             const pufferDistance = 4 * this.currentElement.radius;
             
-            if (Math.abs(rawAngleDegrees) > 180 && distanceFromStart > pufferDistance) {
-                finalAngle = (rawAngleDegrees > 180) ? -180 : 180;
+            if (Math.abs(greenLineAngleDegrees) > 180 && distanceFromStart > pufferDistance) {
+                finalGreenLineAngle = (greenLineAngleDegrees > 180) ? -180 : 180;
             }
-        } else if (Math.abs(currentAngle) >= 180 && Math.abs(rawAngleDegrees) > 160) {
-            finalAngle = currentAngle; // Bleibe bei ±180°
+            
+            // Grüne Linie parallel zeichnen
+            const length = 100;
+            const direction = (finalGreenLineAngle > 0) ? 0 : Math.PI;
+            helperEndX = curveEnd.x + Math.cos(startAngle + direction) * length;
+            helperEndY = curveEnd.y + Math.sin(startAngle + direction) * length;
+            
+        } else if (Math.abs(currentDisplayAngle) >= 180 && Math.abs(greenLineAngleDegrees) > 160) {
+            // War bei ±180°, bleibe dort
+            finalGreenLineAngle = currentDisplayAngle;
+            const length = 100;
+            const direction = (finalGreenLineAngle > 0) ? 0 : Math.PI;
+            helperEndX = curveEnd.x + Math.cos(startAngle + direction) * length;
+            helperEndY = curveEnd.y + Math.sin(startAngle + direction) * length;
         }
         
-        // 3. Setze Winkel und berechne Kurvenende
-        finalAngle = Math.round(finalAngle);
-        this.currentElement.angle = finalAngle;
-        this.calculateCurveEndpoint();
+        // 4. Rückberechnung: Welchen Kurvenwinkel brauchen wir für diese grüne Linie?
+        finalGreenLineAngle = Math.round(finalGreenLineAngle);
+        this.currentElement.angle = finalGreenLineAngle;
         
-        // 4. Berechne grüne Linie vom Kurvenende aus
-        const curveEnd = this.currentElement.end || this.currentElement.start;
-        let helperEndX, helperEndY;
-        const length = 100;
-        
-        if (Math.abs(finalAngle) >= 180) {
-            // Bei ±180° -> grüne Linie parallel vom Kurvenende aus
-            // Richtung der ausgehenden Linie nach der Kurve
-            const outgoingAngle = this.currentElement.endAngle || (startAngle + finalAngle * Math.PI / 180);
-            helperEndX = curveEnd.x + Math.cos(outgoingAngle) * length;
-            helperEndY = curveEnd.y + Math.sin(outgoingAngle) * length;
-        } else {
-            // Normal zur Maus
-            helperEndX = this.mousePos.x;
-            helperEndY = this.mousePos.y;
-        }
-        
-        // 5. Speichere grüne Linie
+        // 5. Grüne Linie speichern und anzeigen
         this.helperLineEnd = { x: helperEndX, y: helperEndY };
+        document.getElementById('currentAngle').textContent = finalGreenLineAngle;
         
-        // 6. Berechne angezeigten Winkel: grüne Linie relativ zur ursprünglichen Startrichtung
-        const helperDx = helperEndX - curveEnd.x;
-        const helperDy = helperEndY - curveEnd.y;
-        
-        if (Math.sqrt(helperDx * helperDx + helperDy * helperDy) > 1) {
-            const helperAngle = Math.atan2(helperDy, helperDx);
-            let displayAngle = helperAngle - startAngle;
-            
-            while (displayAngle > Math.PI) displayAngle -= 2 * Math.PI;
-            while (displayAngle < -Math.PI) displayAngle += 2 * Math.PI;
-            
-            const displayAngleDegrees = Math.round(displayAngle * 180 / Math.PI);
-            document.getElementById('currentAngle').textContent = displayAngleDegrees;
-        }
+        // 6. Kurve neu berechnen
+        this.calculateCurveEndpoint();
     }
     
     getDistanceToOriginalLine(point) {
