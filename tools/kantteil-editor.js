@@ -254,84 +254,72 @@ class KantteileEditor {
         if (!this.currentElement || this.currentElement.type !== 'curve') return;
         
         const currentAngle = this.currentElement.angle || 0;
+        const startAngle = this.currentElement.startAngle;
         
-        // Berechne den rohen Winkel basierend auf der Mausposition
+        // 1. Berechne rohen Winkel zur Maus
         const dx = this.mousePos.x - this.currentElement.start.x;
         const dy = this.mousePos.y - this.currentElement.start.y;
         const mouseLineAngle = Math.atan2(dy, dx);
-        let relativeAngle = mouseLineAngle - this.currentElement.startAngle;
+        let relativeAngle = mouseLineAngle - startAngle;
         
-        // Normalisiere auf -PI bis PI
         while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
         while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
         
         let rawAngleDegrees = relativeAngle * 180 / Math.PI;
         
-        // Hysterese-Logik
-        let targetAngle = rawAngleDegrees;
-        
-        // Distanz für Hysterese berechnen
+        // 2. Hysterese anwenden
+        let finalAngle = rawAngleDegrees;
         const distanceFromStart = Math.sqrt(dx * dx + dy * dy);
         const pufferDistance = 4 * this.currentElement.radius;
         
         if (Math.abs(rawAngleDegrees) > 180) {
-            // Über ±180° -> prüfe Hysterese
             if (rawAngleDegrees > 180) {
-                // Über +180°
-                if (distanceFromStart > pufferDistance) {
-                    targetAngle = -180; // Springe zu -180°
-                } else {
-                    targetAngle = 180; // Bleibe bei +180°
-                }
+                finalAngle = (distanceFromStart > pufferDistance) ? -180 : 180;
             } else {
-                // Unter -180°
-                if (distanceFromStart > pufferDistance) {
-                    targetAngle = 180; // Springe zu +180°
-                } else {
-                    targetAngle = -180; // Bleibe bei -180°
-                }
+                finalAngle = (distanceFromStart > pufferDistance) ? 180 : -180;
             }
-        } else if (Math.abs(currentAngle) >= 180) {
-            // Waren bereits bei ±180°, prüfe ob wir deutlich darunter sind
-            if (Math.abs(rawAngleDegrees) < 160) {
-                targetAngle = rawAngleDegrees; // Folge der Maus wieder
-            } else {
-                targetAngle = currentAngle; // Bleibe bei ±180°
-            }
+        } else if (Math.abs(currentAngle) >= 180 && Math.abs(rawAngleDegrees) > 160) {
+            finalAngle = currentAngle; // Bleibe bei ±180°
         }
         
-        // Setze den neuen Winkel
-        this.currentElement.angle = Math.round(targetAngle);
-        document.getElementById('currentAngle').textContent = this.currentElement.angle;
+        finalAngle = Math.round(finalAngle);
         
-        // Berechne das Kurvenende
+        // 3. Setze Winkel und berechne Kurve
+        this.currentElement.angle = finalAngle;
         this.calculateCurveEndpoint();
         
-        // Bestimme das Ende der grünen Hilfslinie basierend auf dem finalen Winkel
+        // 4. Berechne grüne Hilfslinie basierend auf finalem Winkel
         const curveEnd = this.currentElement.end || this.currentElement.start;
         let helperEndX, helperEndY;
-        const startAngle = this.currentElement.startAngle;
-        const length = 100;
         
-        if (Math.abs(this.currentElement.angle) >= 180) {
-            // Bei ±180° zeichne parallel zur ursprünglichen Linie
-            if (this.currentElement.angle > 0) {
-                // +180° -> parallel in ursprüngliche Richtung
-                helperEndX = curveEnd.x + Math.cos(startAngle) * length;
-                helperEndY = curveEnd.y + Math.sin(startAngle) * length;
-            } else {
-                // -180° -> parallel in entgegengesetzte Richtung
-                helperEndX = curveEnd.x + Math.cos(startAngle + Math.PI) * length;
-                helperEndY = curveEnd.y + Math.sin(startAngle + Math.PI) * length;
-            }
+        if (Math.abs(finalAngle) >= 180) {
+            // Parallel zur ursprünglichen Linie
+            const length = 100;
+            const direction = (finalAngle > 0) ? 0 : Math.PI; // 0° oder 180°
+            helperEndX = curveEnd.x + Math.cos(startAngle + direction) * length;
+            helperEndY = curveEnd.y + Math.sin(startAngle + direction) * length;
         } else {
-            // Normal zur Maus
+            // Zur Maus
             helperEndX = this.mousePos.x;
             helperEndY = this.mousePos.y;
         }
         
-        // Speichere die Hilfslinie für das Zeichnen
         this.helperLineEnd = { x: helperEndX, y: helperEndY };
+        
+        // 5. Berechne angezeigten Winkel aus grüner Linie
+        const helperDx = helperEndX - curveEnd.x;
+        const helperDy = helperEndY - curveEnd.y;
+        
+        if (Math.sqrt(helperDx * helperDx + helperDy * helperDy) > 1) {
+            const helperAngle = Math.atan2(helperDy, helperDx);
+            let displayAngle = helperAngle - startAngle;
+            
+            while (displayAngle > Math.PI) displayAngle -= 2 * Math.PI;
+            while (displayAngle < -Math.PI) displayAngle += 2 * Math.PI;
+            
+            const displayAngleDegrees = Math.round(displayAngle * 180 / Math.PI);
+            document.getElementById('currentAngle').textContent = displayAngleDegrees;
+        }
     }
     
     getDistanceToOriginalLine(point) {
