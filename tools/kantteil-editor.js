@@ -254,9 +254,9 @@ class KantteileEditor {
         if (!this.currentElement || this.currentElement.type !== 'curve') return;
         
         const startAngle = this.currentElement.startAngle;
+        const currentDisplayAngle = parseInt(document.getElementById('currentAngle').textContent) || 0;
         
-        // 1. Berechne Winkel der grünen Linie (vom Kurvenende zur Maus)
-        // Dafür brauchen wir erst das Kurvenende mit aktuellem Winkel
+        // 1. Berechne Winkel der grünen Linie zur Maus (von aktuellem Kurvenende)
         this.calculateCurveEndpoint();
         const curveEnd = this.currentElement.end || this.currentElement.start;
         
@@ -271,25 +271,38 @@ class KantteileEditor {
         
         let greenLineAngleDegrees = greenLineAngle * 180 / Math.PI;
         
-        // 3. Hysterese und Begrenzung der grünen Linie
+        // 3. Bestimme finale grüne Linie mit verbesserter Hysterese
         let finalGreenLineAngle = greenLineAngleDegrees;
         let helperEndX = this.mousePos.x;
         let helperEndY = this.mousePos.y;
         
-        const currentDisplayAngle = parseInt(document.getElementById('currentAngle').textContent) || 0;
+        // Hysterese-Bedingungen
+        const dx = this.mousePos.x - this.currentElement.start.x;
+        const dy = this.mousePos.y - this.currentElement.start.y;
+        const distanceFromStart = Math.sqrt(dx * dx + dy * dy);
+        const pufferDistance = 4 * this.currentElement.radius;
+        const isInPufferZone = distanceFromStart > pufferDistance;
         
         if (Math.abs(greenLineAngleDegrees) >= 180) {
-            // Grüne Linie wird parallel (±180°)
-            finalGreenLineAngle = (greenLineAngleDegrees > 0) ? 180 : -180;
-            
-            // Hysterese prüfen
-            const dx = this.mousePos.x - this.currentElement.start.x;
-            const dy = this.mousePos.y - this.currentElement.start.y;
-            const distanceFromStart = Math.sqrt(dx * dx + dy * dy);
-            const pufferDistance = 4 * this.currentElement.radius;
-            
-            if (Math.abs(greenLineAngleDegrees) > 180 && distanceFromStart > pufferDistance) {
-                finalGreenLineAngle = (greenLineAngleDegrees > 180) ? -180 : 180;
+            // Grüne Linie würde über ±180° gehen
+            if (Math.abs(currentDisplayAngle) < 180) {
+                // Noch nicht bei ±180° -> gehe zu ±180°
+                finalGreenLineAngle = (greenLineAngleDegrees > 0) ? 180 : -180;
+            } else {
+                // Bereits bei ±180° -> prüfe Umsprung
+                if (isInPufferZone) {
+                    // In Pufferzone -> springe zur anderen Seite
+                    if (currentDisplayAngle > 0 && greenLineAngleDegrees < -180) {
+                        finalGreenLineAngle = -180;
+                    } else if (currentDisplayAngle < 0 && greenLineAngleDegrees > 180) {
+                        finalGreenLineAngle = 180;
+                    } else {
+                        finalGreenLineAngle = currentDisplayAngle; // Bleibe
+                    }
+                } else {
+                    // Nicht in Pufferzone -> bleibe bei aktuellem Wert
+                    finalGreenLineAngle = currentDisplayAngle;
+                }
             }
             
             // Grüne Linie parallel zeichnen
@@ -298,24 +311,30 @@ class KantteileEditor {
             helperEndX = curveEnd.x + Math.cos(startAngle + direction) * length;
             helperEndY = curveEnd.y + Math.sin(startAngle + direction) * length;
             
-        } else if (Math.abs(currentDisplayAngle) >= 180 && Math.abs(greenLineAngleDegrees) > 160) {
-            // War bei ±180°, bleibe dort
-            finalGreenLineAngle = currentDisplayAngle;
-            const length = 100;
-            const direction = (finalGreenLineAngle > 0) ? 0 : Math.PI;
-            helperEndX = curveEnd.x + Math.cos(startAngle + direction) * length;
-            helperEndY = curveEnd.y + Math.sin(startAngle + direction) * length;
+        } else if (Math.abs(currentDisplayAngle) >= 180) {
+            // War bei ±180°, prüfe ob wir deutlich darunter sind
+            if (Math.abs(greenLineAngleDegrees) < 160) {
+                // Deutlich unter 180° -> folge der Maus wieder
+                finalGreenLineAngle = greenLineAngleDegrees;
+                helperEndX = this.mousePos.x;
+                helperEndY = this.mousePos.y;
+            } else {
+                // Noch nahe bei 180° -> bleibe bei ±180°
+                finalGreenLineAngle = currentDisplayAngle;
+                const length = 100;
+                const direction = (finalGreenLineAngle > 0) ? 0 : Math.PI;
+                helperEndX = curveEnd.x + Math.cos(startAngle + direction) * length;
+                helperEndY = curveEnd.y + Math.sin(startAngle + direction) * length;
+            }
         }
         
-        // 4. Rückberechnung: Welchen Kurvenwinkel brauchen wir für diese grüne Linie?
+        // 4. Setze finale Werte
         finalGreenLineAngle = Math.round(finalGreenLineAngle);
         this.currentElement.angle = finalGreenLineAngle;
-        
-        // 5. Grüne Linie speichern und anzeigen
         this.helperLineEnd = { x: helperEndX, y: helperEndY };
         document.getElementById('currentAngle').textContent = finalGreenLineAngle;
         
-        // 6. Kurve neu berechnen
+        // 5. Kurve neu berechnen
         this.calculateCurveEndpoint();
     }
     
