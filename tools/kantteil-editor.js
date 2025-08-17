@@ -634,16 +634,24 @@ class KantteileEditor {
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
         
-        // Bestimme die Farbseite basierend auf vorherigen Elementen UND der Farbseiten-Einstellung
+        // Bestimme die Farbseite basierend auf vorherigen Elementen
         const shouldSwapColors = this.shouldSwapColorsForElement(element);
         
-        // IMMER die Originalfarben verwenden, nie tauschen in der Darstellung
+        // Debug: Zeige die verwendeten Farben
+        console.log(`Drawing element, shouldSwap: ${shouldSwapColors}`);
+        console.log(`frontColor: ${this.settings.frontColor}, backColor: ${this.settings.backColor}`);
+        
+        // IMMER die Originalfarben verwenden
         const topColor = this.settings.frontColor;    // Braun - immer Oberseite
         const bottomColor = this.settings.backColor;  // Grau - immer Unterseite
+        
+        console.log(`topColor: ${topColor}, bottomColor: ${bottomColor}`);
         
         // Je nach Orientierung: was ist gerade oben?
         const currentTopColor = shouldSwapColors ? bottomColor : topColor;
         const currentBottomColor = shouldSwapColors ? topColor : bottomColor;
+        
+        console.log(`currentTopColor: ${currentTopColor}, currentBottomColor: ${currentBottomColor}`);
         
         // Bestimme den Versatz für Ober- und Unterseite (senkrecht zur Linie)
         const offset = width * 0.6;
