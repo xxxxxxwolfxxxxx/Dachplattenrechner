@@ -256,9 +256,8 @@ class KantteileEditor {
         // Erste Kurvenberechnung für das Ende
         this.calculateCurveEndpoint();
         
-        // Berechne das Ende der grünen Hilfslinie
         const curveEnd = this.currentElement.end || this.currentElement.start;
-        let helperEndX, helperEndY;
+        const currentAngle = this.currentElement.angle || 0;
         
         // Berechne den rohen Winkel basierend auf der Mausposition
         const dx = this.mousePos.x - this.currentElement.start.x;
@@ -271,38 +270,53 @@ class KantteileEditor {
         while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
         
         let rawAngleDegrees = relativeAngle * 180 / Math.PI;
-        const currentAngle = this.currentElement.angle || 0;
         
-        // Bestimme das Ende der grünen Hilfslinie basierend auf Hysterese
-        if (Math.abs(rawAngleDegrees) > 180 || Math.abs(currentAngle) >= 180) {
-            // Verwende parallele Linie bei ±180°
-            const startAngle = this.currentElement.startAngle;
-            const length = 100;
-            
-            // Prüfe Hysterese für Umsprung
+        // Vereinfachte Hysterese-Logik
+        let targetAngle = rawAngleDegrees;
+        let helperEndX, helperEndY;
+        const startAngle = this.currentElement.startAngle;
+        const length = 100;
+        
+        // Prüfe ob wir über ±180° sind
+        if (Math.abs(rawAngleDegrees) > 180) {
+            // Prüfe Hysterese nur wenn wir weit genug weg sind
             const distanceFromStart = Math.sqrt(dx * dx + dy * dy);
             const pufferDistance = 4 * this.currentElement.radius;
             
-            if (currentAngle >= 180 || (rawAngleDegrees > 180 && currentAngle >= 0)) {
-                if (distanceFromStart > pufferDistance && rawAngleDegrees > 200) {
-                    // Springe zu -180°
+            if (rawAngleDegrees > 180) {
+                if (distanceFromStart > pufferDistance) {
+                    // Weit genug -> springe zu -180°
+                    targetAngle = -180;
                     helperEndX = curveEnd.x - Math.cos(startAngle) * length;
                     helperEndY = curveEnd.y - Math.sin(startAngle) * length;
                 } else {
-                    // Bleibe bei +180°
+                    // Zu nah -> bleibe bei +180°
+                    targetAngle = 180;
                     helperEndX = curveEnd.x + Math.cos(startAngle) * length;
                     helperEndY = curveEnd.y + Math.sin(startAngle) * length;
                 }
+            } else { // rawAngleDegrees < -180
+                if (distanceFromStart > pufferDistance) {
+                    // Weit genug -> springe zu +180°
+                    targetAngle = 180;
+                    helperEndX = curveEnd.x + Math.cos(startAngle) * length;
+                    helperEndY = curveEnd.y + Math.sin(startAngle) * length;
+                } else {
+                    // Zu nah -> bleibe bei -180°
+                    targetAngle = -180;
+                    helperEndX = curveEnd.x - Math.cos(startAngle) * length;
+                    helperEndY = curveEnd.y - Math.sin(startAngle) * length;
+                }
+            }
+        } else if (Math.abs(currentAngle) >= 180 && Math.abs(rawAngleDegrees) > 160) {
+            // Waren bei ±180°, bleibe dort bis deutlich darunter
+            targetAngle = currentAngle;
+            if (currentAngle > 0) {
+                helperEndX = curveEnd.x + Math.cos(startAngle) * length;
+                helperEndY = curveEnd.y + Math.sin(startAngle) * length;
             } else {
-                if (distanceFromStart > pufferDistance && rawAngleDegrees < -200) {
-                    // Springe zu +180°
-                    helperEndX = curveEnd.x + Math.cos(startAngle) * length;
-                    helperEndY = curveEnd.y + Math.sin(startAngle) * length;
-                } else {
-                    // Bleibe bei -180°
-                    helperEndX = curveEnd.x - Math.cos(startAngle) * length;
-                    helperEndY = curveEnd.y - Math.sin(startAngle) * length;
-                }
+                helperEndX = curveEnd.x - Math.cos(startAngle) * length;
+                helperEndY = curveEnd.y - Math.sin(startAngle) * length;
             }
         } else {
             // Normal zur Maus
@@ -313,24 +327,14 @@ class KantteileEditor {
         // Speichere die Hilfslinie für das Zeichnen
         this.helperLineEnd = { x: helperEndX, y: helperEndY };
         
-        // Berechne den finalen Winkel basierend auf der grünen Hilfslinie
-        const helperDx = helperEndX - curveEnd.x;
-        const helperDy = helperEndY - curveEnd.y;
-        const helperAngle = Math.atan2(helperDy, helperDx);
-        let finalRelativeAngle = helperAngle - this.currentElement.startAngle;
-        
-        // Normalisiere
-        while (finalRelativeAngle > Math.PI) finalRelativeAngle -= 2 * Math.PI;
-        while (finalRelativeAngle < -Math.PI) finalRelativeAngle += 2 * Math.PI;
-        
-        let finalAngle = Math.round(finalRelativeAngle * 180 / Math.PI);
+        targetAngle = Math.round(targetAngle);
         
         // Begrenze auf -180° bis +180°
-        if (finalAngle > 180) finalAngle = 180;
-        if (finalAngle < -180) finalAngle = -180;
+        if (targetAngle > 180) targetAngle = 180;
+        if (targetAngle < -180) targetAngle = -180;
         
-        this.currentElement.angle = finalAngle;
-        document.getElementById('currentAngle').textContent = finalAngle;
+        this.currentElement.angle = targetAngle;
+        document.getElementById('currentAngle').textContent = targetAngle;
         
         this.calculateCurveEndpoint();
     }
