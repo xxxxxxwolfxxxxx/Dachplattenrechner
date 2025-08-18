@@ -1,4 +1,4 @@
-// Editor Implementierung hier - vereinfachte Version für bessere Performance
+// Editor Implementierung - korrigierte Version
 class KantteileEditor {
     constructor() {
         this.canvas = document.getElementById('drawingCanvas');
@@ -18,6 +18,10 @@ class KantteileEditor {
         this.lastPanPoint = { x: 0, y: 0 };
         this.measurementLabels = [];
         this.colorSide = 'top'; // 'top' oder 'bottom'
+        
+        // Touch-Support
+        this.touches = [];
+        this.lastTouchDistance = 0;
         
         // Einstellungen von URL-Parametern laden
         this.loadSettings();
@@ -50,6 +54,7 @@ class KantteileEditor {
     }
     
     setupEventListeners() {
+        // Maus-Events
         this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         this.canvas.addEventListener('click', (e) => this.handleClick(e));
         this.canvas.addEventListener('wheel', (e) => this.handleWheel(e));
@@ -57,10 +62,127 @@ class KantteileEditor {
         this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
         this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
         
+        // Touch-Events für Handy
+        this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e));
+        this.canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e));
+        this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e));
+        
         document.addEventListener('keydown', (e) => this.handleKeyDown(e));
         
         this.canvas.setAttribute('tabindex', '0');
         this.canvas.focus();
+    }
+    
+    // Touch-Handler für Handy
+    handleTouchStart(e) {
+        e.preventDefault();
+        this.touches = Array.from(e.touches);
+        
+        if (this.touches.length === 1) {
+            // Einzelner Touch - wie Mausklick
+            const rect = this.canvas.getBoundingClientRect();
+            const touch = this.touches[0];
+            const screenPos = {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top
+            };
+            this.mousePos = this.getWorldCoordinates(screenPos.x, screenPos.y);
+        } else if (this.touches.length === 2) {
+            // Zwei Finger - Pan/Zoom vorbereiten
+            const distance = this.getTouchDistance(this.touches[0], this.touches[1]);
+            this.lastTouchDistance = distance;
+            this.isPanning = true;
+            
+            const midPoint = this.getTouchMidpoint(this.touches[0], this.touches[1]);
+            this.lastPanPoint = midPoint;
+        }
+    }
+    
+    handleTouchMove(e) {
+        e.preventDefault();
+        this.touches = Array.from(e.touches);
+        
+        if (this.touches.length === 1 && !this.isPanning) {
+            // Einzelner Touch - Mausbewegung simulieren
+            const rect = this.canvas.getBoundingClientRect();
+            const touch = this.touches[0];
+            const screenPos = {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top
+            };
+            this.mousePos = this.getWorldCoordinates(screenPos.x, screenPos.y);
+            
+            if (this.isDrawing) {
+                if (this.drawingMode === 'line') {
+                    this.updateLineFromMouse();
+                } else if (this.drawingMode === 'curve') {
+                    this.updateCurveFromMouse();
+                }
+                this.render();
+            }
+        } else if (this.touches.length === 2) {
+            // Zwei Finger - Pan und Zoom
+            const distance = this.getTouchDistance(this.touches[0], this.touches[1]);
+            const midPoint = this.getTouchMidpoint(this.touches[0], this.touches[1]);
+            
+            // Zoom
+            if (this.lastTouchDistance > 0) {
+                const zoomFactor = distance / this.lastTouchDistance;
+                const newZoom = Math.max(0.1, Math.min(10, this.zoom * zoomFactor));
+                
+                const worldMidX = (midPoint.x - this.panX) / this.zoom;
+                const worldMidY = (midPoint.y - this.panY) / this.zoom;
+                
+                this.zoom = newZoom;
+                
+                this.panX = midPoint.x - worldMidX * this.zoom;
+                this.panY = midPoint.y - worldMidY * this.zoom;
+            }
+            
+            // Pan
+            if (this.lastPanPoint) {
+                const deltaX = midPoint.x - this.lastPanPoint.x;
+                const deltaY = midPoint.y - this.lastPanPoint.y;
+                
+                this.panX += deltaX;
+                this.panY += deltaY;
+            }
+            
+            this.lastTouchDistance = distance;
+            this.lastPanPoint = midPoint;
+            this.render();
+        }
+    }
+    
+    handleTouchEnd(e) {
+        e.preventDefault();
+        this.touches = Array.from(e.touches);
+        
+        if (this.touches.length === 0) {
+            this.isPanning = false;
+            this.lastTouchDistance = 0;
+            this.lastPanPoint = null;
+            
+            // Touch-Click simulieren wenn nicht gepannt wurde
+            if (!this.isPanning && this.isDrawing) {
+                this.confirmCurrentElement();
+            }
+        } else if (this.touches.length === 1) {
+            this.isPanning = false;
+        }
+    }
+    
+    getTouchDistance(touch1, touch2) {
+        const dx = touch1.clientX - touch2.clientX;
+        const dy = touch1.clientY - touch2.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+    
+    getTouchMidpoint(touch1, touch2) {
+        return {
+            x: (touch1.clientX + touch2.clientX) / 2,
+            y: (touch1.clientY + touch2.clientY) / 2
+        };
     }
     
     handleMouseMove(e) {
@@ -203,11 +325,10 @@ class KantteileEditor {
         // Bestimme Startrichtung basierend auf Farbseite
         let startDirection = this.settings.firstLineType;
         if (this.colorSide === 'bottom') {
-            // Wenn Unterseite gewählt, drehe die Richtung um
             if (startDirection === 'horizontal') {
-                startDirection = 'horizontal'; // Bleibt horizontal, aber andere Richtung im Rendering
+                startDirection = 'horizontal';
             } else {
-                startDirection = 'vertical'; // Richtung bleibt gleich
+                startDirection = 'vertical';
             }
         }
         
@@ -249,10 +370,8 @@ class KantteileEditor {
             const dx = this.mousePos.x - start.x;
             const dy = this.mousePos.y - start.y;
             
-            // Projiziere nur in Fahrtrichtung
             const projectedLength = dx * Math.cos(lineAngle) + dy * Math.sin(lineAngle);
             
-            // Verhindere Rückwärtszeichnung
             if (projectedLength < 0) {
                 this.currentElement.end = { ...start };
                 length = 0;
@@ -276,11 +395,9 @@ class KantteileEditor {
         const startAngle = this.currentElement.startAngle;
         const currentDisplayAngle = parseInt(document.getElementById('currentAngle').textContent) || 0;
         
-        // 1. Erst Kurve mit aktuellem Winkel berechnen für korrektes Ende
         this.calculateCurveEndpoint();
         const curveEnd = this.currentElement.end || this.currentElement.start;
         
-        // 2. Berechne Winkel vom Kurvenende zur Maus (nicht vom Start!)
         const dx = this.mousePos.x - curveEnd.x;
         const dy = this.mousePos.y - curveEnd.y;
         const mouseLineAngle = Math.atan2(dy, dx);
@@ -291,7 +408,6 @@ class KantteileEditor {
         
         let rawAngleDegrees = relativeAngle * 180 / Math.PI;
         
-        // 3. Wende Hysterese auf den Winkel an
         let finalAngle = rawAngleDegrees;
         
         const distanceFromStart = Math.sqrt(
@@ -325,12 +441,10 @@ class KantteileEditor {
             }
         }
         
-        // 4. Setze den Winkel und berechne die Kurve neu
         finalAngle = Math.round(finalAngle);
         this.currentElement.angle = finalAngle;
         this.calculateCurveEndpoint();
         
-        // 5. Grüne Linie ist IMMER eine Verlängerung der Kurve
         const newCurveEnd = this.currentElement.end || this.currentElement.start;
         const curveEndAngle = this.currentElement.endAngle || (startAngle + finalAngle * Math.PI / 180);
         
@@ -338,7 +452,6 @@ class KantteileEditor {
         const helperEndX = newCurveEnd.x + Math.cos(curveEndAngle) * length;
         const helperEndY = newCurveEnd.y + Math.sin(curveEndAngle) * length;
         
-        // 6. Speichere und zeige an
         this.helperLineEnd = { x: helperEndX, y: helperEndY };
         document.getElementById('currentAngle').textContent = finalAngle;
         this.updateValueOverlay(finalAngle + '°');
@@ -354,32 +467,6 @@ class KantteileEditor {
     
     updateValueOverlay(text) {
         document.getElementById('valueText').textContent = text;
-    }
-    
-    getDistanceToOriginalLine(point) {
-        // Berechne die Distanz vom Punkt zur ursprünglichen Startlinie
-        const start = this.currentElement.start;
-        const startAngle = this.currentElement.startAngle;
-        
-        // Erstelle einen Punkt auf der ursprünglichen Linie
-        const linePoint = {
-            x: start.x + Math.cos(startAngle) * 1000, // Lange Linie
-            y: start.y + Math.sin(startAngle) * 1000
-        };
-        
-        // Berechne Distanz von Punkt zur Linie
-        const A = start.y - linePoint.y;
-        const B = linePoint.x - start.x;
-        const C = start.x * linePoint.y - linePoint.x * start.y;
-        
-        const distance = Math.abs(A * point.x + B * point.y + C) / Math.sqrt(A * A + B * B);
-        return distance;
-    }
-    
-    calculateCurveFromAngle() {
-        // Hilfsmethode für rekursive Berechnung
-        if (!this.currentElement || this.currentElement.type !== 'curve') return;
-        this.calculateCurveEndpoint();
     }
     
     calculateCurveEndpoint() {
@@ -507,7 +594,6 @@ class KantteileEditor {
         this.elements.push({ ...this.currentElement });
         
         if (this.currentElement.type === 'curve') {
-            // Nach einer Kurve: nächste Linie ist tangential zur Kurve
             this.currentElement = {
                 type: 'line',
                 start: { ...this.currentElement.end },
@@ -521,7 +607,6 @@ class KantteileEditor {
             this.drawingMode = 'line';
             this.updateStatus('Zeichnen Sie die nächste Linie. Bewegen Sie die Maus oder drücken Sie Leertaste für manuelle Eingabe.');
         } else {
-            // Nach einer Linie: Punkt für Kurve hinzufügen
             this.activePoints.push({ ...this.currentElement.end });
             this.currentElement = null;
             this.isDrawing = false;
@@ -588,19 +673,18 @@ class KantteileEditor {
         
         this.drawGrid();
         
-        // Zeichne fertige Elemente
+        // Zeichne fertige Elemente - DICKERE LINIEN
         this.elements.forEach(element => {
-            this.drawElementWithColors(element, 3 / this.zoom);
+            this.drawElementWithColors(element, 6 / this.zoom); // Doppelt so dick
         });
         
         // Zeichne aktuelles Element
         if (this.currentElement) {
-            this.drawElement(this.currentElement, '#e74c3c', 3 / this.zoom);
+            this.drawElement(this.currentElement, '#e74c3c', 6 / this.zoom); // Doppelt so dick
             
             if (this.isDrawing) {
                 this.drawCurrentValues();
                 
-                // Zeichne grüne gestrichelte Hilfslinie bei Kurven
                 if (this.currentElement.type === 'curve') {
                     this.drawHelperLine();
                 }
@@ -609,7 +693,7 @@ class KantteileEditor {
         
         // Zeichne aktive Punkte
         this.activePoints.forEach(point => {
-            this.drawPoint(point, '#3498db', 8 / this.zoom);
+            this.drawPoint(point, '#3498db', 12 / this.zoom); // Größere Punkte
         });
         
         this.ctx.restore();
@@ -620,19 +704,17 @@ class KantteileEditor {
     drawHelperLine() {
         if (!this.currentElement || this.currentElement.type !== 'curve' || !this.helperLineEnd) return;
         
-        // Zeichne gestrichelte grüne Linie zum berechneten Ende
         const curveEnd = this.currentElement.end || this.currentElement.start;
         
         this.ctx.strokeStyle = '#27ae60';
-        this.ctx.lineWidth = 2 / this.zoom;
-        this.ctx.setLineDash([5 / this.zoom, 5 / this.zoom]);
+        this.ctx.lineWidth = 4 / this.zoom; // Dicker
+        this.ctx.setLineDash([8 / this.zoom, 8 / this.zoom]);
         
         this.ctx.beginPath();
         this.ctx.moveTo(curveEnd.x, curveEnd.y);
         this.ctx.lineTo(this.helperLineEnd.x, this.helperLineEnd.y);
         this.ctx.stroke();
         
-        // Zurück zu durchgezogener Linie
         this.ctx.setLineDash([]);
     }
     
@@ -641,7 +723,6 @@ class KantteileEditor {
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
         
-        // Bestimme die Spurzuordnung für dieses Element
         const spurMapping = this.getSpurMappingForElement(element);
         
         const offset = width * 0.6;
@@ -652,18 +733,15 @@ class KantteileEditor {
             const length = Math.sqrt(dx * dx + dy * dy);
             
             if (length > 0) {
-                // Normale zeigt nach links (bezogen auf die Zeichenrichtung)
                 const normalX = -dy / length;
                 const normalY = dx / length;
                 
-                // Spur A (nach links versetzt)
                 this.ctx.strokeStyle = spurMapping.spurA;
                 this.ctx.beginPath();
                 this.ctx.moveTo(element.start.x + normalX * offset, element.start.y + normalY * offset);
                 this.ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
                 this.ctx.stroke();
                 
-                // Spur B (nach rechts versetzt)
                 this.ctx.strokeStyle = spurMapping.spurB;
                 this.ctx.beginPath();
                 this.ctx.moveTo(element.start.x - normalX * offset, element.start.y - normalY * offset);
@@ -676,28 +754,23 @@ class KantteileEditor {
             const endAngle = element.endAngleFromCenter;
             const counterClockwise = element.angle < 0;
             
-            // KORREKTUR: Bei Rechtskurven (angle > 0) müssen die Spuren getauscht werden
-            // weil die Kurvenberechnung bei positiven Winkeln die Radien umkehrt
-            
             let ersteSpurColor, zweiteSpurColor;
             
             if (element.angle > 0) {
-                // Rechtskurve: Spuren tauschen wegen umgekehrter Radiusberechnung
                 ersteSpurColor = spurMapping.spurB;
                 zweiteSpurColor = spurMapping.spurA;
             } else {
-                // Linkskurve: normale Zuordnung
                 ersteSpurColor = spurMapping.spurA;
                 zweiteSpurColor = spurMapping.spurB;
             }
             
-            // Äußerer Bogen (größerer Radius)
+            // Äußerer Bogen
             this.ctx.strokeStyle = ersteSpurColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Innerer Bogen (kleinerer Radius)
+            // Innerer Bogen
             this.ctx.strokeStyle = zweiteSpurColor;
             this.ctx.beginPath();
             this.ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
@@ -706,42 +779,16 @@ class KantteileEditor {
     }
     
     getSpurMappingForElement(targetElement) {
-        // VEREINFACHT: Keine Umklappung mehr!
-        // Die Farbseite-Wahl gilt nur für die allererste Linie
-        // Danach bleiben die Spuren IMMER gleich zugeordnet
-        
         let spurA, spurB;
         if (this.colorSide === 'top') {
-            spurA = this.settings.frontColor;    // Gewählte Farbe = Spur A
-            spurB = this.settings.backColor;     // Andere Farbe = Spur B
+            spurA = this.settings.frontColor;
+            spurB = this.settings.backColor;
         } else {
-            spurA = this.settings.backColor;     // Andere Farbe = Spur A
-            spurB = this.settings.frontColor;    // Gewählte Farbe = Spur B
+            spurA = this.settings.backColor;
+            spurB = this.settings.frontColor;
         }
         
-        // KEINE Umklappung mehr - Farben bleiben IMMER gleich
         return { spurA, spurB };
-    }
-    
-    isElementFlipped(targetElement) {
-        // Finde die Position des Elements
-        const elementIndex = this.elements.indexOf(targetElement);
-        
-        // Zähle alle Kurven davor
-        let totalRotation = 0;
-        for (let i = 0; i < elementIndex; i++) {
-            const element = this.elements[i];
-            if (element.type === 'curve') {
-                totalRotation += element.angle;
-            }
-        }
-        
-        // Normalisiere auf -180 bis +180
-        while (totalRotation > 180) totalRotation -= 360;
-        while (totalRotation <= -180) totalRotation += 360;
-        
-        // Umgedreht wenn mehr als 90° oder weniger als -90°
-        return Math.abs(totalRotation) > 90;
     }
     
     drawElement(element, color, width) {
@@ -774,7 +821,7 @@ class KantteileEditor {
         this.ctx.fill();
         
         this.ctx.strokeStyle = 'white';
-        this.ctx.lineWidth = 2 / this.zoom;
+        this.ctx.lineWidth = 3 / this.zoom; // Dickerer Rand
         this.ctx.stroke();
     }
     
@@ -785,17 +832,17 @@ class KantteileEditor {
         
         if (this.currentElement.type === 'line') {
             displayX = this.currentElement.end.x;
-            displayY = this.currentElement.end.y - 30 / this.zoom;
+            displayY = this.currentElement.end.y - 40 / this.zoom; // Mehr Abstand
             value = this.currentElement.length;
             unit = 'mm';
             color = '#e74c3c';
         } else if (this.currentElement.type === 'curve') {
             if (this.currentElement.center) {
                 displayX = this.currentElement.center.x;
-                displayY = this.currentElement.center.y - 20 / this.zoom;
+                displayY = this.currentElement.center.y - 30 / this.zoom;
             } else {
                 displayX = this.currentElement.start.x;
-                displayY = this.currentElement.start.y - 30 / this.zoom;
+                displayY = this.currentElement.start.y - 40 / this.zoom;
             }
             value = this.currentElement.angle;
             unit = '°';
@@ -803,31 +850,36 @@ class KantteileEditor {
         }
         
         const text = `${value}${unit}`;
-        this.ctx.font = `${16 / this.zoom}px Arial`;
+        // FESTE SCHRIFTGRÖSSE - NICHT ZOOM-ABHÄNGIG
+        this.ctx.font = '20px Arial';
         this.ctx.textAlign = 'center';
         
         const textMetrics = this.ctx.measureText(text);
         const textWidth = textMetrics.width;
-        const textHeight = 16 / this.zoom;
+        const textHeight = 20; // Feste Höhe
         
-        const padding = 8 / this.zoom;
+        const padding = 12;
         const bgX = displayX - textWidth/2 - padding;
         const bgY = displayY - textHeight - padding;
         const bgWidth = textWidth + 2 * padding;
         const bgHeight = textHeight + 2 * padding;
         
+        // Schatten
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-        this.ctx.fillRect(bgX + 2/this.zoom, bgY + 2/this.zoom, bgWidth, bgHeight);
+        this.ctx.fillRect(bgX + 3, bgY + 3, bgWidth, bgHeight);
         
+        // Weißer Hintergrund
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
         this.ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
         
+        // Rahmen
         this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = 2 / this.zoom;
+        this.ctx.lineWidth = 3;
         this.ctx.strokeRect(bgX, bgY, bgWidth, bgHeight);
         
+        // Text
         this.ctx.fillStyle = color;
-        this.ctx.font = `bold ${16 / this.zoom}px Arial`;
+        this.ctx.font = 'bold 20px Arial'; // Feste große Schrift
         this.ctx.fillText(text, displayX, displayY);
     }
     
@@ -865,11 +917,11 @@ class KantteileEditor {
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(10, 10, 120, 30);
+        this.ctx.fillRect(10, 10, 140, 35);
         
         this.ctx.fillStyle = 'white';
-        this.ctx.font = '14px Arial';
-        this.ctx.fillText(`Zoom: ${Math.round(this.zoom * 100)}%`, 20, 30);
+        this.ctx.font = '16px Arial'; // Größere Schrift
+        this.ctx.fillText(`Zoom: ${Math.round(this.zoom * 100)}%`, 20, 32);
     }
     
     updateStatus(message) {
@@ -954,7 +1006,6 @@ class KantteileEditor {
                 totalY += element.start.y + element.end.y;
                 pointCount += 2;
             } else if (element.type === 'curve' && element.center) {
-                // Füge Start- und Endpunkt der Kurve hinzu
                 totalX += element.start.x + element.end.x;
                 totalY += element.start.y + element.end.y;
                 pointCount += 2;
@@ -968,10 +1019,9 @@ class KantteileEditor {
     }
     
     linesIntersect(line1, line2) {
-        // Verbesserte Kollisionsprüfung
         const dist1 = Math.sqrt(Math.pow(line1.startX - line2.startX, 2) + Math.pow(line1.startY - line2.startY, 2));
         const dist2 = Math.sqrt(Math.pow(line1.endX - line2.endX, 2) + Math.pow(line1.endY - line2.endY, 2));
-        return (dist1 < 80 && dist2 < 80); // Größerer Abstand
+        return (dist1 < 80 && dist2 < 80);
     }
     
     confirmExport() {
@@ -1003,7 +1053,6 @@ class KantteileEditor {
             return;
         }
         
-        // Erstelle ein neues Canvas für die technische Zeichnung
         const techCanvas = document.createElement('canvas');
         const techCtx = techCanvas.getContext('2d');
         
@@ -1027,12 +1076,12 @@ class KantteileEditor {
         });
         
         // Canvas-Größe mit Rand für Bemaßung und Titel
-        const margin = 150;
+        const margin = 200; // Mehr Platz
         const drawingWidth = maxX - minX;
         const drawingHeight = maxY - minY;
         
         techCanvas.width = drawingWidth + 2 * margin;
-        techCanvas.height = drawingHeight + 2 * margin + 100;
+        techCanvas.height = drawingHeight + 2 * margin + 150; // Mehr Platz unten
         
         // Weißer Hintergrund
         techCtx.fillStyle = 'white';
@@ -1040,12 +1089,17 @@ class KantteileEditor {
         
         // Titel und Informationen
         techCtx.fillStyle = 'black';
-        techCtx.font = 'bold 24px Arial';
+        techCtx.font = 'bold 28px Arial'; // Größere Titel
         techCtx.textAlign = 'center';
-        techCtx.fillText(partName, techCanvas.width / 2, 30);
+        techCtx.fillText(partName, techCanvas.width / 2, 35);
         
-        techCtx.font = '16px Arial';
-        techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 55);
+        techCtx.font = '18px Arial';
+        techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 60);
+        
+        // WEBSITE-URL HINZUFÜGEN
+        techCtx.font = 'bold 16px Arial';
+        techCtx.fillStyle = '#1e3c72';
+        techCtx.fillText('www.dachplattenrechner.de', techCanvas.width / 2, 85);
         
         // Berechne Gesamtlänge und Kantungen
         let totalLength = 0;
@@ -1058,28 +1112,34 @@ class KantteileEditor {
             }
         });
         
-        techCtx.font = '14px Arial';
-        techCtx.textAlign = 'left';
-        techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 20, techCanvas.height - 60);
-        techCtx.fillText(`Kantungen: ${kantungen}`, 20, techCanvas.height - 40);
-        techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 20, techCanvas.height - 20);
+        // Bestimme Farbseitenbeschriftung
+        const colorSideText = this.colorSide === 'top' ? 
+            `Farbseite: Oben (${this.settings.selectedColorCode})` : 
+            `Farbseite: Unten (${this.settings.selectedColorCode})`;
         
+        // Unten Links - Größere Schrift
+        techCtx.font = '16px Arial';
+        techCtx.textAlign = 'left';
+        techCtx.fillStyle = 'black';
+        techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 20, techCanvas.height - 80);
+        techCtx.fillText(`Kantungen: ${kantungen}`, 20, techCanvas.height - 60);
+        techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 20, techCanvas.height - 40);
+        techCtx.fillText(colorSideText, 20, techCanvas.height - 20); // Farbseite hier
+        
+        // Unten Rechts - Größere Schrift
         techCtx.textAlign = 'right';
-        techCtx.fillText(`Farbcode: ${this.settings.selectedColorCode}`, techCanvas.width - 20, techCanvas.height - 60);
-        techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 20, techCanvas.height - 40);
-        techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 20, techCanvas.height - 20);
+        techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 20, techCanvas.height - 60);
+        techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 20, techCanvas.height - 40);
+        techCtx.fillText(`erstellt mit dachplattenrechner.de`, techCanvas.width - 20, techCanvas.height - 20);
         
         // Verschiebe Koordinatensystem für Zeichnung
-        techCtx.translate(-minX + margin, -minY + margin + 50);
+        techCtx.translate(-minX + margin, -minY + margin + 100);
         
-        // Zeichne Elemente farbig mit Spuren
+        // Zeichne Elemente farbig mit dickeren Spuren
         this.drawTechnicalElements(techCtx);
         
-        // Füge Bemaßung hinzu
+        // Füge verbesserte Bemaßung hinzu
         this.addImprovedDimensions(techCtx);
-        
-        // Füge Farbseiten-Beschriftung hinzu
-        this.addColorSideLabels(techCtx);
         
         // Download als PNG
         const link = document.createElement('a');
@@ -1095,7 +1155,7 @@ class KantteileEditor {
     
     drawTechnicalElements(ctx) {
         const spurMapping = this.getSpurMappingForElement(this.elements[0]);
-        const lineWidth = 3;
+        const lineWidth = 8; // VIEL DICKERE LINIEN
         const offset = lineWidth * 0.8;
         
         this.elements.forEach(element => {
@@ -1158,8 +1218,8 @@ class KantteileEditor {
     addImprovedDimensions(ctx) {
         ctx.strokeStyle = 'blue';
         ctx.fillStyle = 'blue';
-        ctx.lineWidth = 2; // Dickere Linien
-        ctx.font = 'bold 16px Arial'; // Größere Schrift
+        ctx.lineWidth = 3; // Dickere Bemaßungslinien
+        ctx.font = 'bold 20px Arial'; // GRÖßERE SCHRIFT - FEST
         ctx.textAlign = 'center';
         
         const usedDimensionLines = [];
@@ -1168,7 +1228,6 @@ class KantteileEditor {
             if (element.type === 'line') {
                 const length = element.originalLength || element.length;
                 
-                // Bestimme optimale Bemaßungsposition
                 const dimPosition = this.findOptimalDimensionPosition(element, usedDimensionLines, index);
                 
                 this.drawDimensionLine(ctx, element, dimPosition, length);
@@ -1182,35 +1241,31 @@ class KantteileEditor {
         const dy = element.end.y - element.start.y;
         const length = Math.sqrt(dx * dx + dy * dy);
         
-        if (length === 0) return { offset: 50, side: 1 };
+        if (length === 0) return { offset: 80, side: 1 }; // Größerer Standardabstand
         
         const normalX = -dy / length;
         const normalY = dx / length;
         
-        // Berechne Schwerpunkt für Innen/Außen-Bestimmung
         const shapeCenter = this.calculateShapeCenter();
         const lineCenter = {
             x: (element.start.x + element.end.x) / 2,
             y: (element.start.y + element.end.y) / 2
         };
         
-        // Bestimme welche Seite außen ist (weg vom Schwerpunkt)
         const toCenter = {
             x: shapeCenter.x - lineCenter.x,
             y: shapeCenter.y - lineCenter.y
         };
         
-        // Prüfe welche Normale-Richtung vom Schwerpunkt wegzeigt
         const dotProduct = normalX * toCenter.x + normalY * toCenter.y;
-        const preferredSide = dotProduct > 0 ? -1 : 1; // Außenseite bevorzugen
+        const preferredSide = dotProduct > 0 ? -1 : 1;
         
-        // Für kurze Linien (< 15mm): nach innen bemaßen
         const lineLength = element.originalLength || element.length;
         const useInside = lineLength < 15;
         const finalSide = useInside ? -preferredSide : preferredSide;
         
-        // Prüfe verschiedene Abstände
-        const possibleOffsets = useInside ? [25, 35, 45] : [60, 90, 120, 150];
+        // GRÖßERE ABSTÄNDE
+        const possibleOffsets = useInside ? [40, 55, 70] : [100, 130, 160, 190];
         const sides = [finalSide, -finalSide];
         
         for (const side of sides) {
@@ -1225,7 +1280,6 @@ class KantteileEditor {
                     isInside: useInside
                 };
                 
-                // Prüfe Kollision mit existierenden Bemaßungslinien
                 const hasCollision = usedLines.some(usedLine => {
                     return this.linesIntersect(testPos, usedLine);
                 });
@@ -1236,20 +1290,19 @@ class KantteileEditor {
             }
         }
         
-        // Fallback
         return { 
-            startX: element.start.x + normalX * (useInside ? 25 : 60),
-            startY: element.start.y + normalY * (useInside ? 25 : 60),
-            endX: element.end.x + normalX * (useInside ? 25 : 60),
-            endY: element.end.y + normalY * (useInside ? 25 : 60),
-            offset: useInside ? 25 : 60,
+            startX: element.start.x + normalX * (useInside ? 40 : 100),
+            startY: element.start.y + normalY * (useInside ? 40 : 100),
+            endX: element.end.x + normalX * (useInside ? 40 : 100),
+            endY: element.end.y + normalY * (useInside ? 40 : 100),
+            offset: useInside ? 40 : 100,
             side: 1,
             isInside: useInside
         };
     }
     
     drawDimensionLine(ctx, element, dimPos, length) {
-        // Bestimme echte Start- und Endpunkte inkl. Bogenerweiterungen
+        // KORREKTUR: Bemaßungslinien bis zur Kurvenmitte
         let startPoint = { x: element.start.x, y: element.start.y };
         let endPoint = { x: element.end.x, y: element.end.y };
         
@@ -1259,44 +1312,41 @@ class KantteileEditor {
         const normalX = lineLength > 0 ? -dy / lineLength : 0;
         const normalY = lineLength > 0 ? dx / lineLength : 0;
         
-        // Prüfe vorherige Kurve und erweitere bis zur Außenkante
+        // Prüfe vorherige Kurve und erweitere BIS ZUR MITTE
         const prevElement = this.elements[this.elements.indexOf(element) - 1];
         if (prevElement && prevElement.type === 'curve') {
-            const radiusExtension = 4; // Bis zur Außenkante des Bogens
+            // Erweitere bis zur Kurvenmitte (nicht Außenkante)
             const unitX = lineLength > 0 ? -dx / lineLength : 0;
             const unitY = lineLength > 0 ? -dy / lineLength : 0;
-            startPoint.x += unitX * radiusExtension;
-            startPoint.y += unitY * radiusExtension;
+            startPoint.x += unitX * prevElement.radius; // Bis zur Mitte
+            startPoint.y += unitY * prevElement.radius;
         }
         
-        // Prüfe nachfolgende Kurve und erweitere bis zur Außenkante
+        // Prüfe nachfolgende Kurve und erweitere BIS ZUR MITTE
         const nextElement = this.elements[this.elements.indexOf(element) + 1];
         if (nextElement && nextElement.type === 'curve') {
-            const radiusExtension = 4;
             const unitX = lineLength > 0 ? dx / lineLength : 0;
             const unitY = lineLength > 0 ? dy / lineLength : 0;
-            endPoint.x += unitX * radiusExtension;
-            endPoint.y += unitY * radiusExtension;
+            endPoint.x += unitX * nextElement.radius; // Bis zur Mitte
+            endPoint.y += unitY * nextElement.radius;
         }
         
         // Zeichne Bemaßungslinie (dicker)
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(dimPos.startX, dimPos.startY);
         ctx.lineTo(dimPos.endX, dimPos.endY);
         ctx.stroke();
         
-        // Zeichne SENKRECHTE Hilfslinien (nicht schief!)
-        ctx.lineWidth = 1.5;
+        // Zeichne SENKRECHTE Hilfslinien
+        ctx.lineWidth = 2;
         ctx.beginPath();
         
-        // Hilfslinie am Start - senkrecht zur Bemaßungslinie
         const helpStartX = startPoint.x + normalX * dimPos.offset * dimPos.side;
         const helpStartY = startPoint.y + normalY * dimPos.offset * dimPos.side;
         ctx.moveTo(startPoint.x, startPoint.y);
         ctx.lineTo(helpStartX, helpStartY);
         
-        // Hilfslinie am Ende - senkrecht zur Bemaßungslinie  
         const helpEndX = endPoint.x + normalX * dimPos.offset * dimPos.side;
         const helpEndY = endPoint.y + normalY * dimPos.offset * dimPos.side;
         ctx.moveTo(endPoint.x, endPoint.y);
@@ -1304,142 +1354,23 @@ class KantteileEditor {
         
         ctx.stroke();
         
-        // Bemaßungstext (größer)
+        // Bemaßungstext - FESTE GRÖßE
         const textX = (dimPos.startX + dimPos.endX) / 2;
-        const textY = (dimPos.startY + dimPos.endY) / 2 - 8;
+        const textY = (dimPos.startY + dimPos.endY) / 2 - 12;
         
-        // Weißer Hintergrund für bessere Lesbarkeit
+        // Weißer Hintergrund für bessere Lesbarkeit - größer
         ctx.fillStyle = 'white';
-        ctx.fillRect(textX - 30, textY - 12, 60, 24);
+        ctx.fillRect(textX - 40, textY - 15, 80, 30);
         ctx.strokeStyle = 'blue';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(textX - 30, textY - 12, 60, 24);
+        ctx.lineWidth = 2;
+        ctx.strokeRect(textX - 40, textY - 15, 80, 30);
         
         ctx.fillStyle = 'blue';
-        ctx.font = 'bold 16px Arial';
-        ctx.fillText(`${length}mm`, textX, textY + 6);
-    }
-    
-    addColorSideLabels(ctx) {
-        if (this.elements.length === 0) return;
-        
-        // Finde die längste Linie
-        let longestLine = null;
-        let maxLength = 0;
-        
-        this.elements.forEach(element => {
-            if (element.type === 'line') {
-                const length = element.originalLength || element.length;
-                if (length > maxLength) {
-                    maxLength = length;
-                    longestLine = element;
-                }
-            }
-        });
-        
-        if (!longestLine) return;
-        
-        // Berechne Schwerpunkt für korrekte Innen/Außen-Bestimmung
-        const shapeCenter = this.calculateShapeCenter();
-        const spurMapping = this.getSpurMappingForElement(longestLine);
-        
-        const dx = longestLine.end.x - longestLine.start.x;
-        const dy = longestLine.end.y - longestLine.start.y;
-        const length = Math.sqrt(dx * dx + dy * dy);
-        
-        if (length === 0) return;
-        
-        const normalX = -dy / length;
-        const normalY = dx / length;
-        
-        // Positioniere Beschriftung am Anfang der längsten Linie (nicht in der Mitte)
-        const labelBaseX = longestLine.start.x + dx * 0.2; // 20% vom Start
-        const labelBaseY = longestLine.start.y + dy * 0.2;
-        
-        // Bestimme wo sich die Farbspuren tatsächlich befinden
-        const spurAPos = { x: labelBaseX + normalX * 4, y: labelBaseY + normalY * 4 };
-        const spurBPos = { x: labelBaseX - normalX * 4, y: labelBaseY - normalY * 4 };
-        
-        // Berechne Distanz zum Schwerpunkt um Innen/Außen zu bestimmen
-        const distSpurAToCenter = Math.sqrt(Math.pow(spurAPos.x - shapeCenter.x, 2) + Math.pow(spurAPos.y - shapeCenter.y, 2));
-        const distSpurBToCenter = Math.sqrt(Math.pow(spurBPos.x - shapeCenter.x, 2) + Math.pow(spurBPos.y - shapeCenter.y, 2));
-        
-        // Die Spur mit größerer Distanz zum Schwerpunkt ist außen
-        const spurAIsOutside = distSpurAToCenter > distSpurBToCenter;
-        
-        // Positioniere Beschriftungen mit noch mehr Abstand
-        const labelOffset = 70; // Größerer Abstand vom Objekt
-        let spurALabelPos, spurBLabelPos;
-        
-        if (spurAIsOutside) {
-            spurALabelPos = { x: labelBaseX + normalX * labelOffset, y: labelBaseY + normalY * labelOffset };
-            spurBLabelPos = { x: labelBaseX - normalX * labelOffset, y: labelBaseY - normalY * labelOffset };
-        } else {
-            spurALabelPos = { x: labelBaseX - normalX * labelOffset, y: labelBaseY - normalY * labelOffset };
-            spurBLabelPos = { x: labelBaseX + normalX * labelOffset, y: labelBaseY + normalY * labelOffset };
-        }
-        
-        // Bestimme korrekt welche Spur die Farbseite ist
-        // Prüfe direkt die Farbzuordnung statt komplizierte Logik
-        const spurAColor = spurMapping.spurA;
-        const spurBColor = spurMapping.spurB;
-        const selectedColor = this.settings.frontColor;
-        
-        const spurAIsColorSide = (spurAColor === selectedColor);
-        
-        // Zeichne Beschriftungen mit Rahmen für bessere Sichtbarkeit
-        ctx.font = 'bold 18px Arial'; // Große Schrift beibehalten
-        ctx.textAlign = 'center';
-        ctx.lineWidth = 2;
-        
-        // Spur A beschriften
-        const spurALabel = spurAIsColorSide ? 'Farbseite' : 'Rückseite';
-        
-        // Weißer Hintergrund für Spur A
-        ctx.fillStyle = 'white';
-        ctx.fillRect(spurALabelPos.x - 45, spurALabelPos.y - 12, 90, 24);
-        ctx.strokeStyle = spurAColor;
-        ctx.strokeRect(spurALabelPos.x - 45, spurALabelPos.y - 12, 90, 24);
-        
-        ctx.fillStyle = spurAColor;
-        ctx.fillText(spurALabel, spurALabelPos.x, spurALabelPos.y + 6);
-        
-        // Spur B beschriften
-        const spurBLabel = spurAIsColorSide ? 'Rückseite' : 'Farbseite';
-        
-        // Weißer Hintergrund für Spur B
-        ctx.fillStyle = 'white';
-        ctx.fillRect(spurBLabelPos.x - 45, spurBLabelPos.y - 12, 90, 24);
-        ctx.strokeStyle = spurBColor;
-        ctx.strokeRect(spurBLabelPos.x - 45, spurBLabelPos.y - 12, 90, 24);
-        
-        ctx.fillStyle = spurBColor;
-        ctx.fillText(spurBLabel, spurBLabelPos.x, spurBLabelPos.y + 6);
-        
-        // Dünnere Pfeile zur Zuordnung mit größerer Distanz
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = spurAColor;
-        this.drawArrow(ctx, spurALabelPos.x, spurALabelPos.y + 15, spurAPos.x, spurAPos.y);
-        
-        ctx.strokeStyle = spurBColor;
-        this.drawArrow(ctx, spurBLabelPos.x, spurBLabelPos.y + 15, spurBPos.x, spurBPos.y);
-    }
-    
-    drawArrow(ctx, fromX, fromY, toX, toY) {
-        const headlen = 12; // Größere Pfeilspitzen
-        const angle = Math.atan2(toY - fromY, toX - fromX);
-        
-        ctx.beginPath();
-        ctx.moveTo(fromX, fromY);
-        ctx.lineTo(toX, toY);
-        ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
-        ctx.moveTo(toX, toY);
-        ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
-        ctx.stroke();
+        ctx.font = 'bold 20px Arial'; // FESTE GRÖßE
+        ctx.fillText(`${length}mm`, textX, textY + 8);
     }
     
     generatePDF(canvas, partName) {
-        // Erstelle Druckvorschau-Fenster
         const printWindow = window.open('', '_blank', 'width=800,height=600');
         const imgData = canvas.toDataURL('image/png');
         
@@ -1521,69 +1452,6 @@ class KantteileEditor {
         printWindow.document.close();
     }
     
-    addDimensions(ctx) {
-        // Diese alte Methode wird durch addImprovedDimensions ersetzt
-        // Bleibt als Fallback bestehen
-        ctx.strokeStyle = 'blue';
-        ctx.fillStyle = 'blue';
-        ctx.lineWidth = 1;
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        
-        let dimensionOffset = 30;
-        
-        this.elements.forEach((element, index) => {
-            if (element.type === 'line') {
-                const length = element.originalLength || element.length;
-                
-                // Mittelpunkt der Linie
-                const midX = (element.start.x + element.end.x) / 2;
-                const midY = (element.start.y + element.end.y) / 2;
-                
-                // Normale für Bemaßungslinie
-                const dx = element.end.x - element.start.x;
-                const dy = element.end.y - element.start.y;
-                const lineLength = Math.sqrt(dx * dx + dy * dy);
-                
-                if (lineLength > 0) {
-                    const normalX = -dy / lineLength;
-                    const normalY = dx / lineLength;
-                    
-                    // Bemaßungslinie
-                    const dimStartX = element.start.x + normalX * dimensionOffset;
-                    const dimStartY = element.start.y + normalY * dimensionOffset;
-                    const dimEndX = element.end.x + normalX * dimensionOffset;
-                    const dimEndY = element.end.y + normalY * dimensionOffset;
-                    
-                    // Zeichne Bemaßungslinie
-                    ctx.beginPath();
-                    ctx.moveTo(dimStartX, dimStartY);
-                    ctx.lineTo(dimEndX, dimEndY);
-                    ctx.stroke();
-                    
-                    // Hilfslinien
-                    ctx.beginPath();
-                    ctx.moveTo(element.start.x, element.start.y);
-                    ctx.lineTo(dimStartX, dimStartY);
-                    ctx.moveTo(element.end.x, element.end.y);
-                    ctx.lineTo(dimEndX, dimEndY);
-                    ctx.stroke();
-                    
-                    // Bemaßungstext
-                    const textX = (dimStartX + dimEndX) / 2;
-                    const textY = (dimStartY + dimEndY) / 2 - 5;
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(textX - 15, textY - 8, 30, 16);
-                    ctx.fillStyle = 'blue';
-                    ctx.fillText(`${length}mm`, textX, textY + 4);
-                }
-                
-                dimensionOffset += 25;
-            }
-        });
-    }
-    
     updateLineFromLength(length) {
         if (!this.currentElement || this.currentElement.type !== 'line') return;
         
@@ -1641,7 +1509,6 @@ function closeEditor() {
 function setColorSide(side) {
     editor.colorSide = side;
     
-    // Button-Status aktualisieren
     document.getElementById('colorSideTop').classList.toggle('active', side === 'top');
     document.getElementById('colorSideBottom').classList.toggle('active', side === 'bottom');
     
@@ -1652,7 +1519,6 @@ function openColorSelection() {
     window.open('farben.html', 'colorSelection', 'width=1000,height=700,scrollbars=yes,resizable=yes');
 }
 
-// Callback für Farbauswahl
 window.onColorSelected = function(colorData) {
     editor.settings.frontColor = colorData.color;
     editor.settings.selectedColorCode = colorData.code;
