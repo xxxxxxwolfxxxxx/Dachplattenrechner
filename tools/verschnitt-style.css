@@ -436,17 +436,27 @@ h1 {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
     .lager-grid {
         grid-template-columns: 1fr;
         gap: var(--spacing-sm);
     }
     
     .lager-item {
-        padding: 12px;
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    
+    .lager-item label {
+        font-size: 0.95em;
     }
     
     .lager-item input[type="number"] {
-        width: 60px;
+        width: 55px;
+        font-size: 0.9em;
     }
     
     .saegeplan-header {
@@ -458,16 +468,23 @@ h1 {
     .print-button {
         align-self: center;
         width: auto;
+        padding: 10px 20px;
+        font-size: 14px;
     }
     
     .table-container {
-        font-size: 12px;
+        font-size: 11px;
     }
     
     .schnitt-table th,
     .schnitt-table td {
-        padding: 8px 4px;
-        font-size: 0.8em;
+        padding: 6px 3px;
+        font-size: 0.75em;
+    }
+    
+    .schnitt-table th {
+        font-size: 0.7em;
+        padding: 10px 3px;
     }
     
     .result-item {
@@ -475,14 +492,16 @@ h1 {
         align-items: flex-start;
         gap: 4px;
         padding: var(--spacing-sm) 0;
+        font-size: 0.95em;
     }
     
     .ad-container, .ad-container-middle {
-        margin: var(--spacing-lg) 15px;
+        margin: var(--spacing-lg) 10px;
     }
     
     .ad-placeholder {
         padding: var(--spacing-md);
+        font-size: 0.9em;
     }
     
     .ad-content-horizontal {
@@ -493,11 +512,42 @@ h1 {
     .ad-text-block {
         text-align: center;
     }
+    
+    .info-box {
+        padding: var(--spacing-md);
+        font-size: 0.9em;
+    }
+    
+    .input-group label {
+        font-size: 0.95em;
+    }
+    
+    .input-group input,
+    .input-group select {
+        font-size: 0.9em;
+    }
+    
+    .section h2 {
+        font-size: 1.3em;
+    }
+    
+    .optimization-tip {
+        padding: var(--spacing-lg);
+        font-size: 0.9em;
+    }
+    
+    .optimization-tip h4 {
+        font-size: 1.1em;
+    }
 }
 
 @media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+    }
+    
     h1 {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         margin-bottom: var(--spacing-lg);
     }
     
@@ -506,15 +556,141 @@ h1 {
     }
     
     .section {
-        padding: var(--spacing-lg);
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .section h2 {
+        font-size: 1.2em;
+        margin-bottom: var(--spacing-md);
     }
     
     .results {
-        padding: var(--spacing-lg);
+        padding: var(--spacing-md);
     }
     
     #benoetigte-masze {
-        min-height: 150px;
-        font-size: 14px;
+        min-height: 120px;
+        font-size: 13px;
+        padding: 12px;
+    }
+    
+    .lager-item {
+        padding: 8px;
+        font-size: 0.85em;
+    }
+    
+    .lager-item label {
+        font-size: 0.9em;
+    }
+    
+    .lager-item input[type="number"] {
+        width: 50px;
+        font-size: 0.85em;
+        padding: 6px;
+    }
+    
+    .table-container {
+        font-size: 10px;
+        margin: 0 -10px;
+    }
+    
+    .schnitt-table th,
+    .schnitt-table td {
+        padding: 4px 2px;
+        font-size: 0.7em;
+    }
+    
+    .schnitt-table th {
+        font-size: 0.65em;
+        padding: 8px 2px;
+    }
+    
+    .print-button {
+        padding: 8px 16px;
+        font-size: 13px;
+        margin-top: var(--spacing-sm);
+    }
+    
+    .result-item {
+        font-size: 0.9em;
+        padding: 8px 0;
+    }
+    
+    .info-box {
+        padding: var(--spacing-sm);
+        font-size: 0.85em;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .input-group {
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .input-group label {
+        font-size: 0.9em;
+        margin-bottom: 4px;
+    }
+    
+    .input-group input,
+    .input-group select,
+    .input-group textarea {
+        font-size: 0.85em;
+        padding: 10px;
+    }
+    
+    .calculate-btn {
+        font-size: 0.9em;
+        padding: 12px 24px;
+        margin: var(--spacing-md) 0;
+    }
+    
+    .optimization-tip {
+        padding: var(--spacing-md);
+        font-size: 0.85em;
+        margin: var(--spacing-md) -10px 0 -10px;
+    }
+    
+    .optimization-tip h4 {
+        font-size: 1em;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .ad-container, .ad-container-middle {
+        margin: var(--spacing-md) 0;
+    }
+    
+    .ad-placeholder {
+        padding: var(--spacing-sm);
+        font-size: 0.85em;
+    }
+}
+
+@media (max-width: 360px) {
+    h1 {
+        font-size: 1.4rem;
+    }
+    
+    .table-container {
+        font-size: 9px;
+    }
+    
+    .schnitt-table th,
+    .schnitt-table td {
+        padding: 3px 1px;
+        font-size: 0.65em;
+    }
+    
+    .schnitt-table th {
+        font-size: 0.6em;
+        padding: 6px 1px;
+    }
+    
+    .lager-item input[type="number"] {
+        width: 45px;
+    }
+    
+    .result-item {
+        font-size: 0.85em;
     }
 }
