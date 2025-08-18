@@ -1,4 +1,822 @@
-// Editor Implementierung hier - vereinfachte Version für bessere Performance
+img { border: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="controls">
+                    <button onclick="window.print()">🖨️ Drucken</button>
+                    <button onclick="downloadImage()">📥 PNG herunterladen</button>
+                    <button onclick="window.close()">❌ Schließen</button>
+                </div>
+                <div class="container">
+                    <img src="${imgData}" alt="Technische Zeichnung">
+                </div>
+                <script>
+                    function downloadImage() {
+                        const link = document.createElement('a');
+                        link.download = '${partName}_technische_zeichnung.png';
+                        link.href = '${imgData}';
+                        link.click();
+                    }
+                </script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+    
+    updateLineFromLength(length) {
+        if (!this.currentElement || this.currentElement.type !== 'line') return;
+        
+        const start = this.currentElement.start;
+        
+        if (this.currentElement.direction === 'tangential') {
+            const lineAngle = this.currentElement.angle;
+            const lengthPixels = length * this.scale;
+            
+            this.currentElement.end = {
+                x: start.x + Math.cos(lineAngle) * lengthPixels,
+                y: start.y + Math.sin(lineAngle) * lengthPixels
+            };
+        } else if (this.currentElement.direction === 'horizontal') {
+            this.currentElement.end = {
+                x: start.x + length * this.scale,
+                y: start.y
+            };
+        } else {
+            this.currentElement.end = {
+                x: start.x,
+                y: start.y + length * this.scale
+            };
+        }
+    }
+}
+
+// Globale Funktionen
+let editor;
+
+function startDrawing() {
+    editor.startDrawing();
+}
+
+function clearCanvas() {
+    editor.clearCanvas();
+}
+
+function centerView() {
+    editor.centerView();
+}
+
+function exportSketch() {
+    editor.exportSketch();
+}
+
+function closeEditor() {
+    if (window.parent && window.parent.closeEditor) {
+        window.parent.closeEditor();
+    } else {
+        window.close();
+    }
+}
+
+function setColorSide(side) {
+    editor.colorSide = side;
+    
+    // Button-Status aktualisieren
+    document.getElementById('colorSideTop').classList.toggle('active', side === 'top');
+    document.getElementById('colorSideBottom').classList.toggle('active', side === 'bottom');
+    
+    editor.render();
+}
+
+function openColorSelection() {
+    window.open('farben.html', 'colorSelection', 'width=1000,height=700,scrollbars=yes,resizable=yes');
+}
+
+// Callback für Farbauswahl
+window.onColorSelected = function(colorData) {
+    editor.settings.frontColor = colorData.color;
+    editor.settings.selectedColorCode = colorData.code;
+    editor.settings.selectedColorName = colorData.name;
+    editor.settings.selectedColorType = colorData.type;
+    
+    editor.render();
+};
+
+function showModal(modalId) {
+    document.getElementById(modalId).style.display = 'flex';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function confirmLength() {
+    const length = parseInt(document.getElementById('lengthInput').value);
+    if (length >= 1 && length <= 1000) {
+        if (editor.currentElement && editor.currentElement.type === 'line') {
+            editor.currentElement.length = length;
+            editor.updateLineFromLength(length);
+            editor.render();
+        }
+    }
+    closeModal('lengthModal');
+}
+
+function confirmAngle() {
+    const angle = parseInt(document.getElementById('angleInput').value);
+    if (angle >= -180 && angle <= 180 && angle !== 0) {
+        if (editor.currentElement && editor.currentElement.type === 'curve') {
+            editor.currentElement.angle = angle;
+            editor.calculateCurveEndpoint();
+            editor.render();
+        }
+    }
+    closeModal('angleModal');
+}
+
+function confirmExport() {
+    if (editor) {
+        editor.confirmExport();
+    }
+}
+
+function generateTechnicalDrawing() {
+    if (editor) {
+        const partName = document.getElementById('partName').value.trim() || 'Kantteil';
+        const quantityNeeded = parseFloat(document.getElementById('quantityNeeded').value) || 0;
+        editor.generateTechnicalDrawing(partName, quantityNeeded);
+    }
+}
+
+function closeHelp() {
+    document.getElementById('helpOverlay').style.display = 'none';
+}
+
+// Event Listeners für Modals
+document.getElementById('lengthInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') confirmLength();
+    if (e.key === 'Escape') closeModal('lengthModal');
+});
+
+document.getElementById('angleInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') confirmAngle();
+    if (e.key === 'Escape') closeModal('angleModal');
+});
+
+// Initialisierung
+document.addEventListener('DOMContentLoaded', () => {
+    editor = new KantteileEditor();
+});        // Normalisiere auf -180 bis +180
+        while (totalRotation > 180) totalRotation -= 360;
+        while (totalRotation <= -180) totalRotation += 360;
+        
+        // Umgedreht wenn mehr als 90° oder weniger als -90°
+        return Math.abs(totalRotation) > 90;
+    }
+    
+    drawElement(element, color, width) {
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = width;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
+        
+        if (element.type === 'line') {
+            this.ctx.beginPath();
+            this.ctx.moveTo(element.start.x, element.start.y);
+            this.ctx.lineTo(element.end.x, element.end.y);
+            this.ctx.stroke();
+        } else if (element.type === 'curve' && element.center && element.angle !== 0) {
+            this.ctx.beginPath();
+            
+            const startAngle = element.startAngleFromCenter;
+            const endAngle = element.endAngleFromCenter;
+            const counterClockwise = element.angle < 0;
+            
+            this.ctx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
+            this.ctx.stroke();
+        }
+    }
+    
+    drawPoint(point, color, radius) {
+        this.ctx.fillStyle = color;
+        this.ctx.beginPath();
+        this.ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        this.ctx.strokeStyle = 'white';
+        this.ctx.lineWidth = 2 / this.zoom;
+        this.ctx.stroke();
+    }
+    
+    drawCurrentValues() {
+        if (!this.currentElement) return;
+        
+        let displayX, displayY, value, unit, color;
+        
+        if (this.currentElement.type === 'line') {
+            displayX = this.currentElement.end.x;
+            displayY = this.currentElement.end.y - 30 / this.zoom;
+            value = this.currentElement.length;
+            unit = 'mm';
+            color = '#e74c3c';
+        } else if (this.currentElement.type === 'curve') {
+            if (this.currentElement.center) {
+                displayX = this.currentElement.center.x;
+                displayY = this.currentElement.center.y - 20 / this.zoom;
+            } else {
+                displayX = this.currentElement.start.x;
+                displayY = this.currentElement.start.y - 30 / this.zoom;
+            }
+            value = this.currentElement.angle;
+            unit = '°';
+            color = '#f39c12';
+        }
+        
+        const text = `${value}${unit}`;
+        this.ctx.font = `${16 / this.zoom}px Arial`;
+        this.ctx.textAlign = 'center';
+        
+        const textMetrics = this.ctx.measureText(text);
+        const textWidth = textMetrics.width;
+        const textHeight = 16 / this.zoom;
+        
+        const padding = 8 / this.zoom;
+        const bgX = displayX - textWidth/2 - padding;
+        const bgY = displayY - textHeight - padding;
+        const bgWidth = textWidth + 2 * padding;
+        const bgHeight = textHeight + 2 * padding;
+        
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        this.ctx.fillRect(bgX + 2/this.zoom, bgY + 2/this.zoom, bgWidth, bgHeight);
+        
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        this.ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
+        
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = 2 / this.zoom;
+        this.ctx.strokeRect(bgX, bgY, bgWidth, bgHeight);
+        
+        this.ctx.fillStyle = color;
+        this.ctx.font = `bold ${16 / this.zoom}px Arial`;
+        this.ctx.fillText(text, displayX, displayY);
+    }
+    
+    drawGrid() {
+        this.ctx.strokeStyle = '#ecf0f1';
+        this.ctx.lineWidth = 1 / this.zoom;
+        
+        const visibleArea = {
+            left: -this.panX / this.zoom,
+            top: -this.panY / this.zoom,
+            right: (this.canvas.width - this.panX) / this.zoom,
+            bottom: (this.canvas.height - this.panY) / this.zoom
+        };
+        
+        const gridSize = this.scale * 5;
+        
+        const startX = Math.floor(visibleArea.left / gridSize) * gridSize;
+        for (let x = startX; x <= visibleArea.right; x += gridSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, visibleArea.top);
+            this.ctx.lineTo(x, visibleArea.bottom);
+            this.ctx.stroke();
+        }
+        
+        const startY = Math.floor(visibleArea.top / gridSize) * gridSize;
+        for (let y = startY; y <= visibleArea.bottom; y += gridSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(visibleArea.left, y);
+            this.ctx.lineTo(visibleArea.right, y);
+            this.ctx.stroke();
+        }
+    }
+    
+    drawZoomInfo() {
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(10, 10, 120, 30);
+        
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '14px Arial';
+        this.ctx.fillText(`Zoom: ${Math.round(this.zoom * 100)}%`, 20, 30);
+    }
+    
+    updateStatus(message) {
+        document.getElementById('statusText').textContent = message;
+    }
+    
+    clearCanvas() {
+        this.elements = [];
+        this.activePoints = [];
+        this.currentElement = null;
+        this.isDrawing = false;
+        this.drawingMode = null;
+        
+        this.zoom = 1;
+        this.panX = 0;
+        this.panY = 0;
+        
+        document.getElementById('measurementPanel').style.display = 'none';
+        document.getElementById('startBtn').style.display = 'block';
+        this.updateStatus('Canvas geleert. Starten Sie eine neue Zeichnung.');
+        this.render();
+    }
+    
+    centerView() {
+        if (this.elements.length === 0) {
+            this.zoom = 1;
+            this.panX = this.canvas.width/2 - this.startPos.x;
+            this.panY = this.canvas.height/2 - this.startPos.y;
+        } else {
+            let minX = Infinity, minY = Infinity;
+            let maxX = -Infinity, maxY = -Infinity;
+            
+            this.elements.forEach(element => {
+                if (element.type === 'line') {
+                    minX = Math.min(minX, element.start.x, element.end.x);
+                    maxX = Math.max(maxX, element.start.x, element.end.x);
+                    minY = Math.min(minY, element.start.y, element.end.y);
+                    maxY = Math.max(maxY, element.start.y, element.end.y);
+                } else if (element.type === 'curve' && element.center) {
+                    const r = element.radius;
+                    minX = Math.min(minX, element.center.x - r);
+                    maxX = Math.max(maxX, element.center.x + r);
+                    minY = Math.min(minY, element.center.y - r);
+                    maxY = Math.max(maxY, element.center.y + r);
+                }
+            });
+            
+            const centerX = (minX + maxX) / 2;
+            const centerY = (minY + maxY) / 2;
+            const width = maxX - minX + 100;
+            const height = maxY - minY + 100;
+            
+            const zoomX = this.canvas.width / width;
+            const zoomY = this.canvas.height / height;
+            this.zoom = Math.min(zoomX, zoomY, 2);
+            
+            this.panX = this.canvas.width/2 - centerX * this.zoom;
+            this.panY = this.canvas.height/2 - centerY * this.zoom;
+        }
+        
+        this.render();
+        this.updateStatus('Ansicht zentriert.');
+    }
+    
+    exportSketch() {
+        if (this.elements.length === 0) {
+            alert('Keine Zeichnung zum Exportieren vorhanden!');
+            return;
+        }
+        
+        this.showModal('exportModal');
+    }
+    
+    calculateShapeCenter() {
+        if (this.elements.length === 0) return { x: 0, y: 0 };
+        
+        let totalX = 0, totalY = 0, pointCount = 0;
+        
+        this.elements.forEach(element => {
+            if (element.type === 'line') {
+                totalX += element.start.x + element.end.x;
+                totalY += element.start.y + element.end.y;
+                pointCount += 2;
+            } else if (element.type === 'curve' && element.center) {
+                // Füge Start- und Endpunkt der Kurve hinzu
+                totalX += element.start.x + element.end.x;
+                totalY += element.start.y + element.end.y;
+                pointCount += 2;
+            }
+        });
+        
+        return {
+            x: totalX / pointCount,
+            y: totalY / pointCount
+        };
+    }
+    
+    linesIntersect(line1, line2) {
+        // Verbesserte Kollisionsprüfung
+        const dist1 = Math.sqrt(Math.pow(line1.startX - line2.startX, 2) + Math.pow(line1.startY - line2.startY, 2));
+        const dist2 = Math.sqrt(Math.pow(line1.endX - line2.endX, 2) + Math.pow(line1.endY - line2.endY, 2));
+        return (dist1 < 80 && dist2 < 80); // Größerer Abstand
+    }
+    
+    confirmExport() {
+        const partName = document.getElementById('partName').value.trim();
+        const quantityNeeded = parseFloat(document.getElementById('quantityNeeded').value);
+        
+        if (!partName) {
+            alert('Bitte geben Sie einen Namen für das Kantteil ein!');
+            return;
+        }
+        
+        if (!quantityNeeded || quantityNeeded <= 0) {
+            alert('Bitte geben Sie eine gültige Meterzahl ein!');
+            return;
+        }
+        
+        try {
+            this.generateTechnicalDrawing(partName, quantityNeeded);
+            closeModal('exportModal');
+        } catch (error) {
+            console.error('Fehler beim Export:', error);
+            alert('Fehler beim Erstellen der technischen Zeichnung. Bitte versuchen Sie es erneut.');
+        }
+    }
+    
+    generateTechnicalDrawing(partName = 'Kantteil', quantityNeeded = 0) {
+        if (this.elements.length === 0) {
+            alert('Keine Zeichnung für Bemaßung vorhanden!');
+            return;
+        }
+        
+        // Erstelle ein neues Canvas für die technische Zeichnung
+        const techCanvas = document.createElement('canvas');
+        const techCtx = techCanvas.getContext('2d');
+        
+        // Bestimme Bounding Box der Zeichnung
+        let minX = Infinity, minY = Infinity;
+        let maxX = -Infinity, maxY = -Infinity;
+        
+        this.elements.forEach(element => {
+            if (element.type === 'line') {
+                minX = Math.min(minX, element.start.x, element.end.x);
+                maxX = Math.max(maxX, element.start.x, element.end.x);
+                minY = Math.min(minY, element.start.y, element.end.y);
+                maxY = Math.max(maxY, element.start.y, element.end.y);
+            } else if (element.type === 'curve' && element.center) {
+                const r = element.radius + 20;
+                minX = Math.min(minX, element.center.x - r);
+                maxX = Math.max(maxX, element.center.x + r);
+                minY = Math.min(minY, element.center.y - r);
+                maxY = Math.max(maxY, element.center.y + r);
+            }
+        });
+        
+        // Canvas-Größe mit Rand für Bemaßung und Titel
+        const margin = 200; // Mehr Platz für Bemaßung
+        const drawingWidth = maxX - minX;
+        const drawingHeight = maxY - minY;
+        
+        techCanvas.width = drawingWidth + 2 * margin;
+        techCanvas.height = drawingHeight + 2 * margin + 150; // Mehr Platz für Legende
+        
+        // Weißer Hintergrund
+        techCtx.fillStyle = 'white';
+        techCtx.fillRect(0, 0, techCanvas.width, techCanvas.height);
+        
+        // Titel und Informationen
+        techCtx.fillStyle = 'black';
+        techCtx.font = 'bold 28px Arial'; // Größere Schrift
+        techCtx.textAlign = 'center';
+        techCtx.fillText(partName, techCanvas.width / 2, 35);
+        
+        techCtx.font = 'bold 18px Arial'; // Größere Schrift
+        techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 60);
+        
+        // Website-URL hinzufügen
+        techCtx.font = '16px Arial';
+        techCtx.fillText(`www.dachplattenrechner.de`, techCanvas.width / 2, 85);
+        
+        // Berechne Gesamtlänge und Kantungen
+        let totalLength = 0;
+        let kantungen = 0;
+        this.elements.forEach((element) => {
+            if (element.type === 'line') {
+                totalLength += element.originalLength || element.length;
+            } else if (element.type === 'curve') {
+                kantungen++;
+            }
+        });
+        
+        // Bestimme Farbseiten-Text
+        const spurMapping = this.getSpurMappingForElement(this.elements[0]);
+        const selectedColor = this.settings.frontColor;
+        const spurAIsColorSide = (spurMapping.spurA === selectedColor);
+        const farbseiteText = spurAIsColorSide ? 'Farbseite: Obere Spur' : 'Farbseite: Untere Spur';
+        
+        // Legende unten mit größerer Schrift
+        const legendY = techCanvas.height - 100;
+        techCtx.font = 'bold 16px Arial'; // Größere Schrift
+        techCtx.textAlign = 'left';
+        techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 20, legendY);
+        techCtx.fillText(`Kantungen: ${kantungen}`, 20, legendY + 25);
+        techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 20, legendY + 50);
+        techCtx.fillText(farbseiteText, 20, legendY + 75);
+        
+        techCtx.textAlign = 'right';
+        techCtx.fillText(`Farbcode: ${this.settings.selectedColorCode}`, techCanvas.width - 20, legendY);
+        techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 20, legendY + 25);
+        techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 20, legendY + 50);
+        
+        // Verschiebe Koordinatensystem für Zeichnung
+        techCtx.translate(-minX + margin, -minY + margin + 100);
+        
+        // Zeichne Elemente mit dickeren Linien
+        this.drawTechnicalElementsImproved(techCtx);
+        
+        // Füge verbesserte Bemaßung hinzu (bis zur Kurvenmitte)
+        this.addImprovedDimensionsToCenter(techCtx);
+        
+        // Download als PNG
+        const link = document.createElement('a');
+        link.download = `${partName}_technische_zeichnung.png`;
+        link.href = techCanvas.toDataURL();
+        link.click();
+        
+        // Für PDF: Canvas als Bild in PDF einbetten
+        this.generatePDF(techCanvas, partName);
+        
+        this.updateStatus('Technische Zeichnung wurde als PNG und PDF erstellt.');
+    }
+    
+    drawTechnicalElementsImproved(ctx) {
+        const spurMapping = this.getSpurMappingForElement(this.elements[0]);
+        const lineWidth = 5; // Dickere Linien
+        const offset = lineWidth * 0.8;
+        
+        this.elements.forEach(element => {
+            if (element.type === 'line') {
+                const dx = element.end.x - element.start.x;
+                const dy = element.end.y - element.start.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                
+                if (length > 0) {
+                    const normalX = -dy / length;
+                    const normalY = dx / length;
+                    
+                    // Spur A (dickere Linie)
+                    ctx.strokeStyle = spurMapping.spurA;
+                    ctx.lineWidth = lineWidth;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(element.start.x + normalX * offset, element.start.y + normalY * offset);
+                    ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
+                    ctx.stroke();
+                    
+                    // Spur B (dickere Linie)
+                    ctx.strokeStyle = spurMapping.spurB;
+                    ctx.beginPath();
+                    ctx.moveTo(element.start.x - normalX * offset, element.start.y - normalY * offset);
+                    ctx.lineTo(element.end.x - normalX * offset, element.end.y - normalY * offset);
+                    ctx.stroke();
+                }
+            } else if (element.type === 'curve' && element.center && element.angle !== 0) {
+                const startAngle = element.startAngleFromCenter;
+                const endAngle = element.endAngleFromCenter;
+                const counterClockwise = element.angle < 0;
+                
+                let ersteSpurColor, zweiteSpurColor;
+                if (element.angle > 0) {
+                    ersteSpurColor = spurMapping.spurB;
+                    zweiteSpurColor = spurMapping.spurA;
+                } else {
+                    ersteSpurColor = spurMapping.spurA;
+                    zweiteSpurColor = spurMapping.spurB;
+                }
+                
+                ctx.lineWidth = lineWidth; // Dickere Linien
+                
+                // Äußerer Bogen
+                ctx.strokeStyle = ersteSpurColor;
+                ctx.beginPath();
+                ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
+                ctx.stroke();
+                
+                // Innerer Bogen
+                ctx.strokeStyle = zweiteSpurColor;
+                ctx.beginPath();
+                ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
+                ctx.stroke();
+            }
+        });
+    }
+    
+    addImprovedDimensionsToCenter(ctx) {
+        ctx.strokeStyle = 'blue';
+        ctx.fillStyle = 'blue';
+        ctx.lineWidth = 3; // Dickere Bemaßungslinien
+        ctx.font = 'bold 18px Arial'; // Größere Schrift für Bemaßung
+        ctx.textAlign = 'center';
+        
+        const usedDimensionLines = [];
+        
+        this.elements.forEach((element, index) => {
+            if (element.type === 'line') {
+                const length = element.originalLength || element.length;
+                
+                // Bestimme optimale Bemaßungsposition
+                const dimPosition = this.findOptimalDimensionPositionToCenter(element, usedDimensionLines, index);
+                
+                this.drawDimensionLineToCenter(ctx, element, dimPosition, length, index);
+                usedDimensionLines.push(dimPosition);
+            }
+        });
+    }
+    
+    findOptimalDimensionPositionToCenter(element, usedLines, elementIndex) {
+        const dx = element.end.x - element.start.x;
+        const dy = element.end.y - element.start.y;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        
+        if (length === 0) return { offset: 60, side: 1 };
+        
+        const normalX = -dy / length;
+        const normalY = dx / length;
+        
+        // Berechne Schwerpunkt für Innen/Außen-Bestimmung
+        const shapeCenter = this.calculateShapeCenter();
+        const lineCenter = {
+            x: (element.start.x + element.end.x) / 2,
+            y: (element.start.y + element.end.y) / 2
+        };
+        
+        // Bestimme welche Seite außen ist (weg vom Schwerpunkt)
+        const toCenter = {
+            x: shapeCenter.x - lineCenter.x,
+            y: shapeCenter.y - lineCenter.y
+        };
+        
+        // Prüfe welche Normale-Richtung vom Schwerpunkt wegzeigt
+        const dotProduct = normalX * toCenter.x + normalY * toCenter.y;
+        const preferredSide = dotProduct > 0 ? -1 : 1; // Außenseite bevorzugen
+        
+        // Für kurze Linien (< 15mm): nach innen bemaßen
+        const lineLength = element.originalLength || element.length;
+        const useInside = lineLength < 15;
+        const finalSide = useInside ? -preferredSide : preferredSide;
+        
+        // Prüfe verschiedene Abstände - größere Abstände
+        const possibleOffsets = useInside ? [35, 50, 65] : [80, 120, 160, 200];
+        const sides = [finalSide, -finalSide];
+        
+        for (const side of sides) {
+            for (const offset of possibleOffsets) {
+                const testPos = {
+                    startX: element.start.x + normalX * offset * side,
+                    startY: element.start.y + normalY * offset * side,
+                    endX: element.end.x + normalX * offset * side,
+                    endY: element.end.y + normalY * offset * side,
+                    offset: offset,
+                    side: side,
+                    isInside: useInside
+                };
+                
+                // Prüfe Kollision mit existierenden Bemaßungslinien
+                const hasCollision = usedLines.some(usedLine => {
+                    return this.linesIntersect(testPos, usedLine);
+                });
+                
+                if (!hasCollision) {
+                    return testPos;
+                }
+            }
+        }
+        
+        // Fallback
+        return { 
+            startX: element.start.x + normalX * (useInside ? 35 : 80),
+            startY: element.start.y + normalY * (useInside ? 35 : 80),
+            endX: element.end.x + normalX * (useInside ? 35 : 80),
+            endY: element.end.y + normalY * (useInside ? 35 : 80),
+            offset: useInside ? 35 : 80,
+            side: 1,
+            isInside: useInside
+        };
+    }
+    
+    drawDimensionLineToCenter(ctx, element, dimPos, length, elementIndex) {
+        // Bestimme echte Start- und Endpunkte inkl. Erweiterungen bis zur Kurvenmitte
+        let startPoint = { x: element.start.x, y: element.start.y };
+        let endPoint = { x: element.end.x, y: element.end.y };
+        
+        const dx = element.end.x - element.start.x;
+        const dy = element.end.y - element.start.y;
+        const lineLength = Math.sqrt(dx * dx + dy * dy);
+        const normalX = lineLength > 0 ? -dy / lineLength : 0;
+        const normalY = lineLength > 0 ? dx / lineLength : 0;
+        
+        // Prüfe vorherige Kurve und erweitere bis zur Kurvenmitte
+        const prevElement = this.elements[elementIndex - 1];
+        if (prevElement && prevElement.type === 'curve') {
+            const radiusToCenter = prevElement.radius; // Bis zur Kurvenmitte statt Außenkante
+            const unitX = lineLength > 0 ? -dx / lineLength : 0;
+            const unitY = lineLength > 0 ? -dy / lineLength : 0;
+            startPoint.x += unitX * radiusToCenter;
+            startPoint.y += unitY * radiusToCenter;
+        }
+        
+        // Prüfe nachfolgende Kurve und erweitere bis zur Kurvenmitte
+        const nextElement = this.elements[elementIndex + 1];
+        if (nextElement && nextElement.type === 'curve') {
+            const radiusToCenter = nextElement.radius; // Bis zur Kurvenmitte statt Außenkante
+            const unitX = lineLength > 0 ? dx / lineLength : 0;
+            const unitY = lineLength > 0 ? dy / lineLength : 0;
+            endPoint.x += unitX * radiusToCenter;
+            endPoint.y += unitY * radiusToCenter;
+        }
+        
+        // Zeichne Bemaßungslinie (dicker)
+        ctx.lineWidth = 3; // Dickere Bemaßungslinien
+        ctx.beginPath();
+        ctx.moveTo(dimPos.startX, dimPos.startY);
+        ctx.lineTo(dimPos.endX, dimPos.endY);
+        ctx.stroke();
+        
+        // Zeichne SENKRECHTE Hilfslinien (dickere Linien)
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        // Hilfslinie am Start - senkrecht zur Bemaßungslinie
+        const helpStartX = startPoint.x + normalX * dimPos.offset * dimPos.side;
+        const helpStartY = startPoint.y + normalY * dimPos.offset * dimPos.side;
+        ctx.moveTo(startPoint.x, startPoint.y);
+        ctx.lineTo(helpStartX, helpStartY);
+        
+        // Hilfslinie am Ende - senkrecht zur Bemaßungslinie  
+        const helpEndX = endPoint.x + normalX * dimPos.offset * dimPos.side;
+        const helpEndY = endPoint.y + normalY * dimPos.offset * dimPos.side;
+        ctx.moveTo(endPoint.x, endPoint.y);
+        ctx.lineTo(helpEndX, helpEndY);
+        
+        ctx.stroke();
+        
+        // Bemaßungstext (größer)
+        const textX = (dimPos.startX + dimPos.endX) / 2;
+        const textY = (dimPos.startY + dimPos.endY) / 2 - 10;
+        
+        // Weißer Hintergrund für bessere Lesbarkeit (größer)
+        ctx.fillStyle = 'white';
+        ctx.fillRect(textX - 40, textY - 15, 80, 30);
+        ctx.strokeStyle = 'blue';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(textX - 40, textY - 15, 80, 30);
+        
+        ctx.fillStyle = 'blue';
+        ctx.font = 'bold 18px Arial'; // Größere Schrift
+        ctx.fillText(`${length}mm`, textX, textY + 8);
+    }
+    
+    generatePDF(canvas, partName) {
+        // Erstelle Druckvorschau-Fenster
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        const imgData = canvas.toDataURL('image/png');
+        
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${partName} - Technische Zeichnung</title>
+                <style>
+                    body { 
+                        margin: 0; 
+                        padding: 20px; 
+                        font-family: Arial, sans-serif;
+                        background: #f5f5f5;
+                    }
+                    .container {
+                        max-width: 210mm;
+                        margin: 0 auto;
+                        background: white;
+                        padding: 20mm;
+                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    }
+                    .controls {
+                        margin-bottom: 20px;
+                        text-align: center;
+                        background: #e9e9e9;
+                        padding: 10px;
+                        border-radius: 5px;
+                    }
+                    .controls button {
+                        margin: 0 10px;
+                        padding: 8px 16px;
+                        background: #007cba;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    }
+                    .controls button:hover {
+                        background: #005a8b;
+                    }
+                    img { 
+                        width: 100%; 
+                        height: auto; 
+                        border: 1px solid #ddd;
+                    }
+                    @media print {
+                        body { background: white; }
+                        .controls { display: none; }
+                        .container { 
+                            box-shadow: none; 
+                            padding: 0;
+                            max-width: none;
+                        }// Editor Implementierung hier - vereinfachte Version für bessere Performance
 class KantteileEditor {
     constructor() {
         this.canvas = document.getElementById('drawingCanvas');
@@ -735,995 +1553,3 @@ class KantteileEditor {
                 totalRotation += element.angle;
             }
         }
-        
-        // Normalisiere auf -180 bis +180
-        while (totalRotation > 180) totalRotation -= 360;
-        while (totalRotation <= -180) totalRotation += 360;
-        
-        // Umgedreht wenn mehr als 90° oder weniger als -90°
-        return Math.abs(totalRotation) > 90;
-    }
-    
-    drawElement(element, color, width) {
-        this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = width;
-        this.ctx.lineCap = 'round';
-        this.ctx.lineJoin = 'round';
-        
-        if (element.type === 'line') {
-            this.ctx.beginPath();
-            this.ctx.moveTo(element.start.x, element.start.y);
-            this.ctx.lineTo(element.end.x, element.end.y);
-            this.ctx.stroke();
-        } else if (element.type === 'curve' && element.center && element.angle !== 0) {
-            this.ctx.beginPath();
-            
-            const startAngle = element.startAngleFromCenter;
-            const endAngle = element.endAngleFromCenter;
-            const counterClockwise = element.angle < 0;
-            
-            this.ctx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
-            this.ctx.stroke();
-        }
-    }
-    
-    drawPoint(point, color, radius) {
-        this.ctx.fillStyle = color;
-        this.ctx.beginPath();
-        this.ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        this.ctx.strokeStyle = 'white';
-        this.ctx.lineWidth = 2 / this.zoom;
-        this.ctx.stroke();
-    }
-    
-    drawCurrentValues() {
-        if (!this.currentElement) return;
-        
-        let displayX, displayY, value, unit, color;
-        
-        if (this.currentElement.type === 'line') {
-            displayX = this.currentElement.end.x;
-            displayY = this.currentElement.end.y - 30 / this.zoom;
-            value = this.currentElement.length;
-            unit = 'mm';
-            color = '#e74c3c';
-        } else if (this.currentElement.type === 'curve') {
-            if (this.currentElement.center) {
-                displayX = this.currentElement.center.x;
-                displayY = this.currentElement.center.y - 20 / this.zoom;
-            } else {
-                displayX = this.currentElement.start.x;
-                displayY = this.currentElement.start.y - 30 / this.zoom;
-            }
-            value = this.currentElement.angle;
-            unit = '°';
-            color = '#f39c12';
-        }
-        
-        const text = `${value}${unit}`;
-        this.ctx.font = `${16 / this.zoom}px Arial`;
-        this.ctx.textAlign = 'center';
-        
-        const textMetrics = this.ctx.measureText(text);
-        const textWidth = textMetrics.width;
-        const textHeight = 16 / this.zoom;
-        
-        const padding = 8 / this.zoom;
-        const bgX = displayX - textWidth/2 - padding;
-        const bgY = displayY - textHeight - padding;
-        const bgWidth = textWidth + 2 * padding;
-        const bgHeight = textHeight + 2 * padding;
-        
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-        this.ctx.fillRect(bgX + 2/this.zoom, bgY + 2/this.zoom, bgWidth, bgHeight);
-        
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-        this.ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
-        
-        this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = 2 / this.zoom;
-        this.ctx.strokeRect(bgX, bgY, bgWidth, bgHeight);
-        
-        this.ctx.fillStyle = color;
-        this.ctx.font = `bold ${16 / this.zoom}px Arial`;
-        this.ctx.fillText(text, displayX, displayY);
-    }
-    
-    drawGrid() {
-        this.ctx.strokeStyle = '#ecf0f1';
-        this.ctx.lineWidth = 1 / this.zoom;
-        
-        const visibleArea = {
-            left: -this.panX / this.zoom,
-            top: -this.panY / this.zoom,
-            right: (this.canvas.width - this.panX) / this.zoom,
-            bottom: (this.canvas.height - this.panY) / this.zoom
-        };
-        
-        const gridSize = this.scale * 5;
-        
-        const startX = Math.floor(visibleArea.left / gridSize) * gridSize;
-        for (let x = startX; x <= visibleArea.right; x += gridSize) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(x, visibleArea.top);
-            this.ctx.lineTo(x, visibleArea.bottom);
-            this.ctx.stroke();
-        }
-        
-        const startY = Math.floor(visibleArea.top / gridSize) * gridSize;
-        for (let y = startY; y <= visibleArea.bottom; y += gridSize) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(visibleArea.left, y);
-            this.ctx.lineTo(visibleArea.right, y);
-            this.ctx.stroke();
-        }
-    }
-    
-    drawZoomInfo() {
-        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-        
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(10, 10, 120, 30);
-        
-        this.ctx.fillStyle = 'white';
-        this.ctx.font = '14px Arial';
-        this.ctx.fillText(`Zoom: ${Math.round(this.zoom * 100)}%`, 20, 30);
-    }
-    
-    updateStatus(message) {
-        document.getElementById('statusText').textContent = message;
-    }
-    
-    clearCanvas() {
-        this.elements = [];
-        this.activePoints = [];
-        this.currentElement = null;
-        this.isDrawing = false;
-        this.drawingMode = null;
-        
-        this.zoom = 1;
-        this.panX = 0;
-        this.panY = 0;
-        
-        document.getElementById('measurementPanel').style.display = 'none';
-        document.getElementById('startBtn').style.display = 'block';
-        this.updateStatus('Canvas geleert. Starten Sie eine neue Zeichnung.');
-        this.render();
-    }
-    
-    centerView() {
-        if (this.elements.length === 0) {
-            this.zoom = 1;
-            this.panX = this.canvas.width/2 - this.startPos.x;
-            this.panY = this.canvas.height/2 - this.startPos.y;
-        } else {
-            let minX = Infinity, minY = Infinity;
-            let maxX = -Infinity, maxY = -Infinity;
-            
-            this.elements.forEach(element => {
-                if (element.type === 'line') {
-                    minX = Math.min(minX, element.start.x, element.end.x);
-                    maxX = Math.max(maxX, element.start.x, element.end.x);
-                    minY = Math.min(minY, element.start.y, element.end.y);
-                    maxY = Math.max(maxY, element.start.y, element.end.y);
-                } else if (element.type === 'curve' && element.center) {
-                    const r = element.radius;
-                    minX = Math.min(minX, element.center.x - r);
-                    maxX = Math.max(maxX, element.center.x + r);
-                    minY = Math.min(minY, element.center.y - r);
-                    maxY = Math.max(maxY, element.center.y + r);
-                }
-            });
-            
-            const centerX = (minX + maxX) / 2;
-            const centerY = (minY + maxY) / 2;
-            const width = maxX - minX + 100;
-            const height = maxY - minY + 100;
-            
-            const zoomX = this.canvas.width / width;
-            const zoomY = this.canvas.height / height;
-            this.zoom = Math.min(zoomX, zoomY, 2);
-            
-            this.panX = this.canvas.width/2 - centerX * this.zoom;
-            this.panY = this.canvas.height/2 - centerY * this.zoom;
-        }
-        
-        this.render();
-        this.updateStatus('Ansicht zentriert.');
-    }
-    
-    exportSketch() {
-        if (this.elements.length === 0) {
-            alert('Keine Zeichnung zum Exportieren vorhanden!');
-            return;
-        }
-        
-        this.showModal('exportModal');
-    }
-    
-    calculateShapeCenter() {
-        if (this.elements.length === 0) return { x: 0, y: 0 };
-        
-        let totalX = 0, totalY = 0, pointCount = 0;
-        
-        this.elements.forEach(element => {
-            if (element.type === 'line') {
-                totalX += element.start.x + element.end.x;
-                totalY += element.start.y + element.end.y;
-                pointCount += 2;
-            } else if (element.type === 'curve' && element.center) {
-                // Füge Start- und Endpunkt der Kurve hinzu
-                totalX += element.start.x + element.end.x;
-                totalY += element.start.y + element.end.y;
-                pointCount += 2;
-            }
-        });
-        
-        return {
-            x: totalX / pointCount,
-            y: totalY / pointCount
-        };
-    }
-    
-    linesIntersect(line1, line2) {
-        // Verbesserte Kollisionsprüfung
-        const dist1 = Math.sqrt(Math.pow(line1.startX - line2.startX, 2) + Math.pow(line1.startY - line2.startY, 2));
-        const dist2 = Math.sqrt(Math.pow(line1.endX - line2.endX, 2) + Math.pow(line1.endY - line2.endY, 2));
-        return (dist1 < 80 && dist2 < 80); // Größerer Abstand
-    }
-    
-    confirmExport() {
-        const partName = document.getElementById('partName').value.trim();
-        const quantityNeeded = parseFloat(document.getElementById('quantityNeeded').value);
-        
-        if (!partName) {
-            alert('Bitte geben Sie einen Namen für das Kantteil ein!');
-            return;
-        }
-        
-        if (!quantityNeeded || quantityNeeded <= 0) {
-            alert('Bitte geben Sie eine gültige Meterzahl ein!');
-            return;
-        }
-        
-        try {
-            this.generateTechnicalDrawing(partName, quantityNeeded);
-            closeModal('exportModal');
-        } catch (error) {
-            console.error('Fehler beim Export:', error);
-            alert('Fehler beim Erstellen der technischen Zeichnung. Bitte versuchen Sie es erneut.');
-        }
-    }
-    
-    generateTechnicalDrawing(partName = 'Kantteil', quantityNeeded = 0) {
-        if (this.elements.length === 0) {
-            alert('Keine Zeichnung für Bemaßung vorhanden!');
-            return;
-        }
-        
-        // Erstelle ein neues Canvas für die technische Zeichnung
-        const techCanvas = document.createElement('canvas');
-        const techCtx = techCanvas.getContext('2d');
-        
-        // Bestimme Bounding Box der Zeichnung
-        let minX = Infinity, minY = Infinity;
-        let maxX = -Infinity, maxY = -Infinity;
-        
-        this.elements.forEach(element => {
-            if (element.type === 'line') {
-                minX = Math.min(minX, element.start.x, element.end.x);
-                maxX = Math.max(maxX, element.start.x, element.end.x);
-                minY = Math.min(minY, element.start.y, element.end.y);
-                maxY = Math.max(maxY, element.start.y, element.end.y);
-            } else if (element.type === 'curve' && element.center) {
-                const r = element.radius + 20;
-                minX = Math.min(minX, element.center.x - r);
-                maxX = Math.max(maxX, element.center.x + r);
-                minY = Math.min(minY, element.center.y - r);
-                maxY = Math.max(maxY, element.center.y + r);
-            }
-        });
-        
-        // Canvas-Größe mit Rand für Bemaßung und Titel
-        const margin = 150;
-        const drawingWidth = maxX - minX;
-        const drawingHeight = maxY - minY;
-        
-        techCanvas.width = drawingWidth + 2 * margin;
-        techCanvas.height = drawingHeight + 2 * margin + 100;
-        
-        // Weißer Hintergrund
-        techCtx.fillStyle = 'white';
-        techCtx.fillRect(0, 0, techCanvas.width, techCanvas.height);
-        
-        // Titel und Informationen
-        techCtx.fillStyle = 'black';
-        techCtx.font = 'bold 24px Arial';
-        techCtx.textAlign = 'center';
-        techCtx.fillText(partName, techCanvas.width / 2, 30);
-        
-        techCtx.font = '16px Arial';
-        techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 55);
-        
-        // Berechne Gesamtlänge und Kantungen
-        let totalLength = 0;
-        let kantungen = 0;
-        this.elements.forEach((element) => {
-            if (element.type === 'line') {
-                totalLength += element.originalLength || element.length;
-            } else if (element.type === 'curve') {
-                kantungen++;
-            }
-        });
-        
-        techCtx.font = '14px Arial';
-        techCtx.textAlign = 'left';
-        techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 20, techCanvas.height - 60);
-        techCtx.fillText(`Kantungen: ${kantungen}`, 20, techCanvas.height - 40);
-        techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 20, techCanvas.height - 20);
-        
-        techCtx.textAlign = 'right';
-        techCtx.fillText(`Farbcode: ${this.settings.selectedColorCode}`, techCanvas.width - 20, techCanvas.height - 60);
-        techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 20, techCanvas.height - 40);
-        techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 20, techCanvas.height - 20);
-        
-        // Verschiebe Koordinatensystem für Zeichnung
-        techCtx.translate(-minX + margin, -minY + margin + 50);
-        
-        // Zeichne Elemente farbig mit Spuren
-        this.drawTechnicalElements(techCtx);
-        
-        // Füge Bemaßung hinzu
-        this.addImprovedDimensions(techCtx);
-        
-        // Füge Farbseiten-Beschriftung hinzu
-        this.addColorSideLabels(techCtx);
-        
-        // Download als PNG
-        const link = document.createElement('a');
-        link.download = `${partName}_technische_zeichnung.png`;
-        link.href = techCanvas.toDataURL();
-        link.click();
-        
-        // Für PDF: Canvas als Bild in PDF einbetten
-        this.generatePDF(techCanvas, partName);
-        
-        this.updateStatus('Technische Zeichnung wurde als PNG und PDF erstellt.');
-    }
-    
-    drawTechnicalElements(ctx) {
-        const spurMapping = this.getSpurMappingForElement(this.elements[0]);
-        const lineWidth = 3;
-        const offset = lineWidth * 0.8;
-        
-        this.elements.forEach(element => {
-            if (element.type === 'line') {
-                const dx = element.end.x - element.start.x;
-                const dy = element.end.y - element.start.y;
-                const length = Math.sqrt(dx * dx + dy * dy);
-                
-                if (length > 0) {
-                    const normalX = -dy / length;
-                    const normalY = dx / length;
-                    
-                    // Spur A
-                    ctx.strokeStyle = spurMapping.spurA;
-                    ctx.lineWidth = lineWidth;
-                    ctx.lineCap = 'round';
-                    ctx.beginPath();
-                    ctx.moveTo(element.start.x + normalX * offset, element.start.y + normalY * offset);
-                    ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
-                    ctx.stroke();
-                    
-                    // Spur B
-                    ctx.strokeStyle = spurMapping.spurB;
-                    ctx.beginPath();
-                    ctx.moveTo(element.start.x - normalX * offset, element.start.y - normalY * offset);
-                    ctx.lineTo(element.end.x - normalX * offset, element.end.y - normalY * offset);
-                    ctx.stroke();
-                }
-            } else if (element.type === 'curve' && element.center && element.angle !== 0) {
-                const startAngle = element.startAngleFromCenter;
-                const endAngle = element.endAngleFromCenter;
-                const counterClockwise = element.angle < 0;
-                
-                let ersteSpurColor, zweiteSpurColor;
-                if (element.angle > 0) {
-                    ersteSpurColor = spurMapping.spurB;
-                    zweiteSpurColor = spurMapping.spurA;
-                } else {
-                    ersteSpurColor = spurMapping.spurA;
-                    zweiteSpurColor = spurMapping.spurB;
-                }
-                
-                ctx.lineWidth = lineWidth;
-                
-                // Äußerer Bogen
-                ctx.strokeStyle = ersteSpurColor;
-                ctx.beginPath();
-                ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
-                ctx.stroke();
-                
-                // Innerer Bogen
-                ctx.strokeStyle = zweiteSpurColor;
-                ctx.beginPath();
-                ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
-                ctx.stroke();
-            }
-        });
-    }
-    
-    addImprovedDimensions(ctx) {
-        ctx.strokeStyle = 'blue';
-        ctx.fillStyle = 'blue';
-        ctx.lineWidth = 2; // Dickere Linien
-        ctx.font = 'bold 16px Arial'; // Größere Schrift
-        ctx.textAlign = 'center';
-        
-        const usedDimensionLines = [];
-        
-        this.elements.forEach((element, index) => {
-            if (element.type === 'line') {
-                const length = element.originalLength || element.length;
-                
-                // Bestimme optimale Bemaßungsposition
-                const dimPosition = this.findOptimalDimensionPosition(element, usedDimensionLines, index);
-                
-                this.drawDimensionLine(ctx, element, dimPosition, length);
-                usedDimensionLines.push(dimPosition);
-            }
-        });
-    }
-    
-    findOptimalDimensionPosition(element, usedLines, elementIndex) {
-        const dx = element.end.x - element.start.x;
-        const dy = element.end.y - element.start.y;
-        const length = Math.sqrt(dx * dx + dy * dy);
-        
-        if (length === 0) return { offset: 50, side: 1 };
-        
-        const normalX = -dy / length;
-        const normalY = dx / length;
-        
-        // Berechne Schwerpunkt für Innen/Außen-Bestimmung
-        const shapeCenter = this.calculateShapeCenter();
-        const lineCenter = {
-            x: (element.start.x + element.end.x) / 2,
-            y: (element.start.y + element.end.y) / 2
-        };
-        
-        // Bestimme welche Seite außen ist (weg vom Schwerpunkt)
-        const toCenter = {
-            x: shapeCenter.x - lineCenter.x,
-            y: shapeCenter.y - lineCenter.y
-        };
-        
-        // Prüfe welche Normale-Richtung vom Schwerpunkt wegzeigt
-        const dotProduct = normalX * toCenter.x + normalY * toCenter.y;
-        const preferredSide = dotProduct > 0 ? -1 : 1; // Außenseite bevorzugen
-        
-        // Für kurze Linien (< 15mm): nach innen bemaßen
-        const lineLength = element.originalLength || element.length;
-        const useInside = lineLength < 15;
-        const finalSide = useInside ? -preferredSide : preferredSide;
-        
-        // Prüfe verschiedene Abstände
-        const possibleOffsets = useInside ? [25, 35, 45] : [60, 90, 120, 150];
-        const sides = [finalSide, -finalSide];
-        
-        for (const side of sides) {
-            for (const offset of possibleOffsets) {
-                const testPos = {
-                    startX: element.start.x + normalX * offset * side,
-                    startY: element.start.y + normalY * offset * side,
-                    endX: element.end.x + normalX * offset * side,
-                    endY: element.end.y + normalY * offset * side,
-                    offset: offset,
-                    side: side,
-                    isInside: useInside
-                };
-                
-                // Prüfe Kollision mit existierenden Bemaßungslinien
-                const hasCollision = usedLines.some(usedLine => {
-                    return this.linesIntersect(testPos, usedLine);
-                });
-                
-                if (!hasCollision) {
-                    return testPos;
-                }
-            }
-        }
-        
-        // Fallback
-        return { 
-            startX: element.start.x + normalX * (useInside ? 25 : 60),
-            startY: element.start.y + normalY * (useInside ? 25 : 60),
-            endX: element.end.x + normalX * (useInside ? 25 : 60),
-            endY: element.end.y + normalY * (useInside ? 25 : 60),
-            offset: useInside ? 25 : 60,
-            side: 1,
-            isInside: useInside
-        };
-    }
-    
-    drawDimensionLine(ctx, element, dimPos, length) {
-        // Bestimme echte Start- und Endpunkte inkl. Bogenerweiterungen
-        let startPoint = { x: element.start.x, y: element.start.y };
-        let endPoint = { x: element.end.x, y: element.end.y };
-        
-        const dx = element.end.x - element.start.x;
-        const dy = element.end.y - element.start.y;
-        const lineLength = Math.sqrt(dx * dx + dy * dy);
-        const normalX = lineLength > 0 ? -dy / lineLength : 0;
-        const normalY = lineLength > 0 ? dx / lineLength : 0;
-        
-        // Prüfe vorherige Kurve und erweitere bis zur Außenkante
-        const prevElement = this.elements[this.elements.indexOf(element) - 1];
-        if (prevElement && prevElement.type === 'curve') {
-            const radiusExtension = 4; // Bis zur Außenkante des Bogens
-            const unitX = lineLength > 0 ? -dx / lineLength : 0;
-            const unitY = lineLength > 0 ? -dy / lineLength : 0;
-            startPoint.x += unitX * radiusExtension;
-            startPoint.y += unitY * radiusExtension;
-        }
-        
-        // Prüfe nachfolgende Kurve und erweitere bis zur Außenkante
-        const nextElement = this.elements[this.elements.indexOf(element) + 1];
-        if (nextElement && nextElement.type === 'curve') {
-            const radiusExtension = 4;
-            const unitX = lineLength > 0 ? dx / lineLength : 0;
-            const unitY = lineLength > 0 ? dy / lineLength : 0;
-            endPoint.x += unitX * radiusExtension;
-            endPoint.y += unitY * radiusExtension;
-        }
-        
-        // Zeichne Bemaßungslinie (dicker)
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(dimPos.startX, dimPos.startY);
-        ctx.lineTo(dimPos.endX, dimPos.endY);
-        ctx.stroke();
-        
-        // Zeichne SENKRECHTE Hilfslinien (nicht schief!)
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        
-        // Hilfslinie am Start - senkrecht zur Bemaßungslinie
-        const helpStartX = startPoint.x + normalX * dimPos.offset * dimPos.side;
-        const helpStartY = startPoint.y + normalY * dimPos.offset * dimPos.side;
-        ctx.moveTo(startPoint.x, startPoint.y);
-        ctx.lineTo(helpStartX, helpStartY);
-        
-        // Hilfslinie am Ende - senkrecht zur Bemaßungslinie  
-        const helpEndX = endPoint.x + normalX * dimPos.offset * dimPos.side;
-        const helpEndY = endPoint.y + normalY * dimPos.offset * dimPos.side;
-        ctx.moveTo(endPoint.x, endPoint.y);
-        ctx.lineTo(helpEndX, helpEndY);
-        
-        ctx.stroke();
-        
-        // Bemaßungstext (größer)
-        const textX = (dimPos.startX + dimPos.endX) / 2;
-        const textY = (dimPos.startY + dimPos.endY) / 2 - 8;
-        
-        // Weißer Hintergrund für bessere Lesbarkeit
-        ctx.fillStyle = 'white';
-        ctx.fillRect(textX - 30, textY - 12, 60, 24);
-        ctx.strokeStyle = 'blue';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(textX - 30, textY - 12, 60, 24);
-        
-        ctx.fillStyle = 'blue';
-        ctx.font = 'bold 16px Arial';
-        ctx.fillText(`${length}mm`, textX, textY + 6);
-    }
-    
-    addColorSideLabels(ctx) {
-        if (this.elements.length === 0) return;
-        
-        // Finde die längste Linie
-        let longestLine = null;
-        let maxLength = 0;
-        
-        this.elements.forEach(element => {
-            if (element.type === 'line') {
-                const length = element.originalLength || element.length;
-                if (length > maxLength) {
-                    maxLength = length;
-                    longestLine = element;
-                }
-            }
-        });
-        
-        if (!longestLine) return;
-        
-        // Berechne Schwerpunkt für korrekte Innen/Außen-Bestimmung
-        const shapeCenter = this.calculateShapeCenter();
-        const spurMapping = this.getSpurMappingForElement(longestLine);
-        
-        const dx = longestLine.end.x - longestLine.start.x;
-        const dy = longestLine.end.y - longestLine.start.y;
-        const length = Math.sqrt(dx * dx + dy * dy);
-        
-        if (length === 0) return;
-        
-        const normalX = -dy / length;
-        const normalY = dx / length;
-        
-        // Positioniere Beschriftung am Anfang der längsten Linie (nicht in der Mitte)
-        const labelBaseX = longestLine.start.x + dx * 0.2; // 20% vom Start
-        const labelBaseY = longestLine.start.y + dy * 0.2;
-        
-        // Bestimme wo sich die Farbspuren tatsächlich befinden
-        const spurAPos = { x: labelBaseX + normalX * 4, y: labelBaseY + normalY * 4 };
-        const spurBPos = { x: labelBaseX - normalX * 4, y: labelBaseY - normalY * 4 };
-        
-        // Berechne Distanz zum Schwerpunkt um Innen/Außen zu bestimmen
-        const distSpurAToCenter = Math.sqrt(Math.pow(spurAPos.x - shapeCenter.x, 2) + Math.pow(spurAPos.y - shapeCenter.y, 2));
-        const distSpurBToCenter = Math.sqrt(Math.pow(spurBPos.x - shapeCenter.x, 2) + Math.pow(spurBPos.y - shapeCenter.y, 2));
-        
-        // Die Spur mit größerer Distanz zum Schwerpunkt ist außen
-        const spurAIsOutside = distSpurAToCenter > distSpurBToCenter;
-        
-        // Positioniere Beschriftungen mit noch mehr Abstand
-        const labelOffset = 70; // Größerer Abstand vom Objekt
-        let spurALabelPos, spurBLabelPos;
-        
-        if (spurAIsOutside) {
-            spurALabelPos = { x: labelBaseX + normalX * labelOffset, y: labelBaseY + normalY * labelOffset };
-            spurBLabelPos = { x: labelBaseX - normalX * labelOffset, y: labelBaseY - normalY * labelOffset };
-        } else {
-            spurALabelPos = { x: labelBaseX - normalX * labelOffset, y: labelBaseY - normalY * labelOffset };
-            spurBLabelPos = { x: labelBaseX + normalX * labelOffset, y: labelBaseY + normalY * labelOffset };
-        }
-        
-        // Bestimme korrekt welche Spur die Farbseite ist
-        // Prüfe direkt die Farbzuordnung statt komplizierte Logik
-        const spurAColor = spurMapping.spurA;
-        const spurBColor = spurMapping.spurB;
-        const selectedColor = this.settings.frontColor;
-        
-        const spurAIsColorSide = (spurAColor === selectedColor);
-        
-        // Zeichne Beschriftungen mit Rahmen für bessere Sichtbarkeit
-        ctx.font = 'bold 18px Arial'; // Große Schrift beibehalten
-        ctx.textAlign = 'center';
-        ctx.lineWidth = 2;
-        
-        // Spur A beschriften
-        const spurALabel = spurAIsColorSide ? 'Farbseite' : 'Rückseite';
-        
-        // Weißer Hintergrund für Spur A
-        ctx.fillStyle = 'white';
-        ctx.fillRect(spurALabelPos.x - 45, spurALabelPos.y - 12, 90, 24);
-        ctx.strokeStyle = spurAColor;
-        ctx.strokeRect(spurALabelPos.x - 45, spurALabelPos.y - 12, 90, 24);
-        
-        ctx.fillStyle = spurAColor;
-        ctx.fillText(spurALabel, spurALabelPos.x, spurALabelPos.y + 6);
-        
-        // Spur B beschriften
-        const spurBLabel = spurAIsColorSide ? 'Rückseite' : 'Farbseite';
-        
-        // Weißer Hintergrund für Spur B
-        ctx.fillStyle = 'white';
-        ctx.fillRect(spurBLabelPos.x - 45, spurBLabelPos.y - 12, 90, 24);
-        ctx.strokeStyle = spurBColor;
-        ctx.strokeRect(spurBLabelPos.x - 45, spurBLabelPos.y - 12, 90, 24);
-        
-        ctx.fillStyle = spurBColor;
-        ctx.fillText(spurBLabel, spurBLabelPos.x, spurBLabelPos.y + 6);
-        
-        // Dünnere Pfeile zur Zuordnung mit größerer Distanz
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = spurAColor;
-        this.drawArrow(ctx, spurALabelPos.x, spurALabelPos.y + 15, spurAPos.x, spurAPos.y);
-        
-        ctx.strokeStyle = spurBColor;
-        this.drawArrow(ctx, spurBLabelPos.x, spurBLabelPos.y + 15, spurBPos.x, spurBPos.y);
-    }
-    
-    drawArrow(ctx, fromX, fromY, toX, toY) {
-        const headlen = 12; // Größere Pfeilspitzen
-        const angle = Math.atan2(toY - fromY, toX - fromX);
-        
-        ctx.beginPath();
-        ctx.moveTo(fromX, fromY);
-        ctx.lineTo(toX, toY);
-        ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
-        ctx.moveTo(toX, toY);
-        ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
-        ctx.stroke();
-    }
-    
-    generatePDF(canvas, partName) {
-        // Erstelle Druckvorschau-Fenster
-        const printWindow = window.open('', '_blank', 'width=800,height=600');
-        const imgData = canvas.toDataURL('image/png');
-        
-        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>${partName} - Technische Zeichnung</title>
-                <style>
-                    body { 
-                        margin: 0; 
-                        padding: 20px; 
-                        font-family: Arial, sans-serif;
-                        background: #f5f5f5;
-                    }
-                    .container {
-                        max-width: 210mm;
-                        margin: 0 auto;
-                        background: white;
-                        padding: 20mm;
-                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                    }
-                    .controls {
-                        margin-bottom: 20px;
-                        text-align: center;
-                        background: #e9e9e9;
-                        padding: 10px;
-                        border-radius: 5px;
-                    }
-                    .controls button {
-                        margin: 0 10px;
-                        padding: 8px 16px;
-                        background: #007cba;
-                        color: white;
-                        border: none;
-                        border-radius: 4px;
-                        cursor: pointer;
-                    }
-                    .controls button:hover {
-                        background: #005a8b;
-                    }
-                    img { 
-                        width: 100%; 
-                        height: auto; 
-                        border: 1px solid #ddd;
-                    }
-                    @media print {
-                        body { background: white; }
-                        .controls { display: none; }
-                        .container { 
-                            box-shadow: none; 
-                            padding: 0;
-                            max-width: none;
-                        }
-                        img { border: none; }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="controls">
-                    <button onclick="window.print()">🖨️ Drucken</button>
-                    <button onclick="downloadImage()">📥 PNG herunterladen</button>
-                    <button onclick="window.close()">❌ Schließen</button>
-                </div>
-                <div class="container">
-                    <img src="${imgData}" alt="Technische Zeichnung">
-                </div>
-                <script>
-                    function downloadImage() {
-                        const link = document.createElement('a');
-                        link.download = '${partName}_technische_zeichnung.png';
-                        link.href = '${imgData}';
-                        link.click();
-                    }
-                </script>
-            </body>
-            </html>
-        `);
-        printWindow.document.close();
-    }
-    
-    addDimensions(ctx) {
-        // Diese alte Methode wird durch addImprovedDimensions ersetzt
-        // Bleibt als Fallback bestehen
-        ctx.strokeStyle = 'blue';
-        ctx.fillStyle = 'blue';
-        ctx.lineWidth = 1;
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        
-        let dimensionOffset = 30;
-        
-        this.elements.forEach((element, index) => {
-            if (element.type === 'line') {
-                const length = element.originalLength || element.length;
-                
-                // Mittelpunkt der Linie
-                const midX = (element.start.x + element.end.x) / 2;
-                const midY = (element.start.y + element.end.y) / 2;
-                
-                // Normale für Bemaßungslinie
-                const dx = element.end.x - element.start.x;
-                const dy = element.end.y - element.start.y;
-                const lineLength = Math.sqrt(dx * dx + dy * dy);
-                
-                if (lineLength > 0) {
-                    const normalX = -dy / lineLength;
-                    const normalY = dx / lineLength;
-                    
-                    // Bemaßungslinie
-                    const dimStartX = element.start.x + normalX * dimensionOffset;
-                    const dimStartY = element.start.y + normalY * dimensionOffset;
-                    const dimEndX = element.end.x + normalX * dimensionOffset;
-                    const dimEndY = element.end.y + normalY * dimensionOffset;
-                    
-                    // Zeichne Bemaßungslinie
-                    ctx.beginPath();
-                    ctx.moveTo(dimStartX, dimStartY);
-                    ctx.lineTo(dimEndX, dimEndY);
-                    ctx.stroke();
-                    
-                    // Hilfslinien
-                    ctx.beginPath();
-                    ctx.moveTo(element.start.x, element.start.y);
-                    ctx.lineTo(dimStartX, dimStartY);
-                    ctx.moveTo(element.end.x, element.end.y);
-                    ctx.lineTo(dimEndX, dimEndY);
-                    ctx.stroke();
-                    
-                    // Bemaßungstext
-                    const textX = (dimStartX + dimEndX) / 2;
-                    const textY = (dimStartY + dimEndY) / 2 - 5;
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(textX - 15, textY - 8, 30, 16);
-                    ctx.fillStyle = 'blue';
-                    ctx.fillText(`${length}mm`, textX, textY + 4);
-                }
-                
-                dimensionOffset += 25;
-            }
-        });
-    }
-    
-    updateLineFromLength(length) {
-        if (!this.currentElement || this.currentElement.type !== 'line') return;
-        
-        const start = this.currentElement.start;
-        
-        if (this.currentElement.direction === 'tangential') {
-            const lineAngle = this.currentElement.angle;
-            const lengthPixels = length * this.scale;
-            
-            this.currentElement.end = {
-                x: start.x + Math.cos(lineAngle) * lengthPixels,
-                y: start.y + Math.sin(lineAngle) * lengthPixels
-            };
-        } else if (this.currentElement.direction === 'horizontal') {
-            this.currentElement.end = {
-                x: start.x + length * this.scale,
-                y: start.y
-            };
-        } else {
-            this.currentElement.end = {
-                x: start.x,
-                y: start.y + length * this.scale
-            };
-        }
-    }
-}
-
-// Globale Funktionen
-let editor;
-
-function startDrawing() {
-    editor.startDrawing();
-}
-
-function clearCanvas() {
-    editor.clearCanvas();
-}
-
-function centerView() {
-    editor.centerView();
-}
-
-function exportSketch() {
-    editor.exportSketch();
-}
-
-function closeEditor() {
-    if (window.parent && window.parent.closeEditor) {
-        window.parent.closeEditor();
-    } else {
-        window.close();
-    }
-}
-
-function setColorSide(side) {
-    editor.colorSide = side;
-    
-    // Button-Status aktualisieren
-    document.getElementById('colorSideTop').classList.toggle('active', side === 'top');
-    document.getElementById('colorSideBottom').classList.toggle('active', side === 'bottom');
-    
-    editor.render();
-}
-
-function openColorSelection() {
-    window.open('farben.html', 'colorSelection', 'width=1000,height=700,scrollbars=yes,resizable=yes');
-}
-
-// Callback für Farbauswahl
-window.onColorSelected = function(colorData) {
-    editor.settings.frontColor = colorData.color;
-    editor.settings.selectedColorCode = colorData.code;
-    editor.settings.selectedColorName = colorData.name;
-    editor.settings.selectedColorType = colorData.type;
-    
-    editor.render();
-};
-
-function showModal(modalId) {
-    document.getElementById(modalId).style.display = 'flex';
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
-
-function confirmLength() {
-    const length = parseInt(document.getElementById('lengthInput').value);
-    if (length >= 1 && length <= 1000) {
-        if (editor.currentElement && editor.currentElement.type === 'line') {
-            editor.currentElement.length = length;
-            editor.updateLineFromLength(length);
-            editor.render();
-        }
-    }
-    closeModal('lengthModal');
-}
-
-function confirmAngle() {
-    const angle = parseInt(document.getElementById('angleInput').value);
-    if (angle >= -180 && angle <= 180 && angle !== 0) {
-        if (editor.currentElement && editor.currentElement.type === 'curve') {
-            editor.currentElement.angle = angle;
-            editor.calculateCurveEndpoint();
-            editor.render();
-        }
-    }
-    closeModal('angleModal');
-}
-
-function confirmExport() {
-    if (editor) {
-        editor.confirmExport();
-    }
-}
-
-function generateTechnicalDrawing() {
-    if (editor) {
-        const partName = document.getElementById('partName').value.trim() || 'Kantteil';
-        const quantityNeeded = parseFloat(document.getElementById('quantityNeeded').value) || 0;
-        editor.generateTechnicalDrawing(partName, quantityNeeded);
-    }
-}
-
-function closeHelp() {
-    document.getElementById('helpOverlay').style.display = 'none';
-}
-
-// Event Listeners für Modals
-document.getElementById('lengthInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') confirmLength();
-    if (e.key === 'Escape') closeModal('lengthModal');
-});
-
-document.getElementById('angleInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') confirmAngle();
-    if (e.key === 'Escape') closeModal('angleModal');
-});
-
-// Initialisierung
-document.addEventListener('DOMContentLoaded', () => {
-    editor = new KantteileEditor();
-});
