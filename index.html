@@ -580,26 +580,56 @@
             document.getElementById('cookieBanner').classList.remove('show');
         }
 
-        function showAds() {
-            if (localStorage.getItem('marketingCookies') === 'true') {
-                document.getElementById('middle-ad-container-1').style.display = 'block';
-                document.getElementById('middle-ad-container-2').style.display = 'block';
-                
-                // Lade AdSense-Anzeigen
-                if (window.adsbygoogle) {
-                    try {
-                        const ads = document.querySelectorAll('.adsbygoogle');
-                        ads.forEach(ad => {
-                            if (!ad.getAttribute('data-ad-status')) {
-                                (window.adsbygoogle = window.adsbygoogle || []).push({});
-                            }
-                        });
-                    } catch (e) {
-                        console.log('AdSense loading error:', e);
-                    }
-                }
+        // Erweitere deine bestehende showAds() Funktion in index.html
+
+function showAds() {
+    if (localStorage.getItem('marketingCookies') === 'true') {
+        // Container anzeigen
+        document.getElementById('middle-ad-container-1').style.display = 'block';
+        document.getElementById('middle-ad-container-2').style.display = 'block';
+        
+        // Placeholder verstecken, AdSense anzeigen
+        document.querySelectorAll('.ad-placeholder').forEach(placeholder => {
+            placeholder.style.display = 'none';
+        });
+        document.querySelectorAll('.ad-content-real').forEach(ad => {
+            ad.style.display = 'block';
+        });
+        
+        // AdSense initialisieren
+        if (window.adsbygoogle) {
+            try {
+                // Alle noch nicht initialisierten Anzeigen laden
+                const ads = document.querySelectorAll('.adsbygoogle:not([data-adsbygoogle-status])');
+                ads.forEach(() => {
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                });
+            } catch (e) {
+                console.log('AdSense loading error:', e);
+                // Bei Fehler Placeholder anzeigen
+                showAdPlaceholders();
             }
         }
+    } else {
+        hideAds();
+    }
+}
+
+function hideAds() {
+    // Container verstecken
+    document.getElementById('middle-ad-container-1').style.display = 'none';
+    document.getElementById('middle-ad-container-2').style.display = 'none';
+}
+
+function showAdPlaceholders() {
+    // Placeholder anzeigen wenn AdSense nicht funktioniert
+    document.querySelectorAll('.ad-placeholder').forEach(placeholder => {
+        placeholder.style.display = 'flex';
+    });
+    document.querySelectorAll('.ad-content-real').forEach(ad => {
+        ad.style.display = 'none';
+    });
+}
 
         // Dachflächenberechnung Modal
         function openCalculationModal() {
