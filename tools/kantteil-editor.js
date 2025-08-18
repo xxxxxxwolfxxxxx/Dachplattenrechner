@@ -943,6 +943,37 @@ class KantteileEditor {
         this.showModal('exportModal');
     }
     
+    calculateShapeCenter() {
+        if (this.elements.length === 0) return { x: 0, y: 0 };
+        
+        let totalX = 0, totalY = 0, pointCount = 0;
+        
+        this.elements.forEach(element => {
+            if (element.type === 'line') {
+                totalX += element.start.x + element.end.x;
+                totalY += element.start.y + element.end.y;
+                pointCount += 2;
+            } else if (element.type === 'curve' && element.center) {
+                // Füge Start- und Endpunkt der Kurve hinzu
+                totalX += element.start.x + element.end.x;
+                totalY += element.start.y + element.end.y;
+                pointCount += 2;
+            }
+        });
+        
+        return {
+            x: totalX / pointCount,
+            y: totalY / pointCount
+        };
+    }
+    
+    linesIntersect(line1, line2) {
+        // Verbesserte Kollisionsprüfung
+        const dist1 = Math.sqrt(Math.pow(line1.startX - line2.startX, 2) + Math.pow(line1.startY - line2.startY, 2));
+        const dist2 = Math.sqrt(Math.pow(line1.endX - line2.endX, 2) + Math.pow(line1.endY - line2.endY, 2));
+        return (dist1 < 80 && dist2 < 80); // Größerer Abstand
+    }
+    
     confirmExport() {
         const partName = document.getElementById('partName').value.trim();
         const quantityNeeded = parseFloat(document.getElementById('quantityNeeded').value);
@@ -957,8 +988,13 @@ class KantteileEditor {
             return;
         }
         
-        this.generateTechnicalDrawing(partName, quantityNeeded);
-        closeModal('exportModal');
+        try {
+            this.generateTechnicalDrawing(partName, quantityNeeded);
+            closeModal('exportModal');
+        } catch (error) {
+            console.error('Fehler beim Export:', error);
+            alert('Fehler beim Erstellen der technischen Zeichnung. Bitte versuchen Sie es erneut.');
+        }
     }
     
     generateTechnicalDrawing(partName = 'Kantteil', quantityNeeded = 0) {
