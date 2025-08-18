@@ -1122,8 +1122,8 @@ class KantteileEditor {
     addImprovedDimensions(ctx) {
         ctx.strokeStyle = 'blue';
         ctx.fillStyle = 'blue';
-        ctx.lineWidth = 1;
-        ctx.font = '12px Arial';
+        ctx.lineWidth = 2; // Dickere Linien
+        ctx.font = 'bold 16px Arial'; // Größere Schrift
         ctx.textAlign = 'center';
         
         const usedDimensionLines = [];
@@ -1146,14 +1146,31 @@ class KantteileEditor {
         const dy = element.end.y - element.start.y;
         const length = Math.sqrt(dx * dx + dy * dy);
         
-        if (length === 0) return { offset: 30, side: 1 };
+        if (length === 0) return { offset: 50, side: 1 };
         
         const normalX = -dy / length;
         const normalY = dx / length;
         
-        // Prüfe verschiedene Abstände und Seiten
-        const possibleOffsets = [40, 70, 100, 130];
-        const sides = [1, -1]; // 1 = links, -1 = rechts
+        // Berechne Schwerpunkt für Innen/Außen-Bestimmung
+        const shapeCenter = this.calculateShapeCenter();
+        const lineCenter = {
+            x: (element.start.x + element.end.x) / 2,
+            y: (element.start.y + element.end.y) / 2
+        };
+        
+        // Bestimme welche Seite außen ist (weg vom Schwerpunkt)
+        const toCenter = {
+            x: shapeCenter.x - lineCenter.x,
+            y: shapeCenter.y - lineCenter.y
+        };
+        
+        // Prüfe welche Normale-Richtung vom Schwerpunkt wegzeigt
+        const dotProduct = normalX * toCenter.x + normalY * toCenter.y;
+        const preferredSide = dotProduct > 0 ? -1 : 1; // Außenseite bevorzugen
+        
+        // Prüfe verschiedene Abstände, bevorzuge Außenseite
+        const possibleOffsets = [60, 90, 120, 150]; // Größere Abstände
+        const sides = [preferredSide, -preferredSide]; // Außenseite zuerst
         
         for (const side of sides) {
             for (const offset of possibleOffsets) {
@@ -1179,20 +1196,44 @@ class KantteileEditor {
         
         // Fallback
         return { 
-            startX: element.start.x + normalX * 40,
-            startY: element.start.y + normalY * 40,
-            endX: element.end.x + normalX * 40,
-            endY: element.end.y + normalY * 40,
-            offset: 40,
+            startX: element.start.x + normalX * 60,
+            startY: element.start.y + normalY * 60,
+            endX: element.end.x + normalX * 60,
+            endY: element.end.y + normalY * 60,
+            offset: 60,
             side: 1
         };
     }
     
+    calculateShapeCenter() {
+        if (this.elements.length === 0) return { x: 0, y: 0 };
+        
+        let totalX = 0, totalY = 0, pointCount = 0;
+        
+        this.elements.forEach(element => {
+            if (element.type === 'line') {
+                totalX += element.start.x + element.end.x;
+                totalY += element.start.y + element.end.y;
+                pointCount += 2;
+            } else if (element.type === 'curve' && element.center) {
+                // Füge Start- und Endpunkt der Kurve hinzu
+                totalX += element.start.x + element.end.x;
+                totalY += element.start.y + element.end.y;
+                pointCount += 2;
+            }
+        });
+        
+        return {
+            x: totalX / pointCount,
+            y: totalY / pointCount
+        };
+    }
+    
     linesIntersect(line1, line2) {
-        // Vereinfachte Kollisionsprüfung - prüfe ob Linien zu nah beieinander sind
+        // Verbesserte Kollisionsprüfung
         const dist1 = Math.sqrt(Math.pow(line1.startX - line2.startX, 2) + Math.pow(line1.startY - line2.startY, 2));
         const dist2 = Math.sqrt(Math.pow(line1.endX - line2.endX, 2) + Math.pow(line1.endY - line2.endY, 2));
-        return (dist1 < 50 && dist2 < 50);
+        return (dist1 < 80 && dist2 < 80); // Größerer Abstand
     }
     
     drawDimensionLine(ctx, element, dimPos, length) {
@@ -1203,7 +1244,7 @@ class KantteileEditor {
         // Prüfe vorherige Kurve
         const prevElement = this.elements[this.elements.indexOf(element) - 1];
         if (prevElement && prevElement.type === 'curve') {
-            const extendLength = 3; // 3px Verlängerung zur Außenseite
+            const extendLength = 5; // Verlängerung zur Außenseite
             const dx = element.end.x - element.start.x;
             const dy = element.end.y - element.start.y;
             const lineLength = Math.sqrt(dx * dx + dy * dy);
@@ -1218,7 +1259,7 @@ class KantteileEditor {
         // Prüfe nachfolgende Kurve
         const nextElement = this.elements[this.elements.indexOf(element) + 1];
         if (nextElement && nextElement.type === 'curve') {
-            const extendLength = 3;
+            const extendLength = 5;
             const dx = element.end.x - element.start.x;
             const dy = element.end.y - element.start.y;
             const lineLength = Math.sqrt(dx * dx + dy * dy);
@@ -1230,13 +1271,15 @@ class KantteileEditor {
             }
         }
         
-        // Zeichne Bemaßungslinie
+        // Zeichne Bemaßungslinie (dicker)
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(dimPos.startX, dimPos.startY);
         ctx.lineTo(dimPos.endX, dimPos.endY);
         ctx.stroke();
         
-        // Hilfslinien
+        // Hilfslinien (dicker)
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.moveTo(startPoint.x, startPoint.y);
         ctx.lineTo(dimPos.startX, dimPos.startY);
@@ -1244,14 +1287,15 @@ class KantteileEditor {
         ctx.lineTo(dimPos.endX, dimPos.endY);
         ctx.stroke();
         
-        // Bemaßungstext
+        // Bemaßungstext (größer)
         const textX = (dimPos.startX + dimPos.endX) / 2;
-        const textY = (dimPos.startY + dimPos.endY) / 2 - 5;
+        const textY = (dimPos.startY + dimPos.endY) / 2 - 8;
         
         ctx.fillStyle = 'white';
-        ctx.fillRect(textX - 20, textY - 10, 40, 20);
+        ctx.fillRect(textX - 30, textY - 12, 60, 24); // Größerer Hintergrund
         ctx.fillStyle = 'blue';
-        ctx.fillText(`${length}mm`, textX, textY + 4);
+        ctx.font = 'bold 16px Arial'; // Größere Schrift
+        ctx.fillText(`${length}mm`, textX, textY + 6);
     }
     
     addColorSideLabels(ctx) {
@@ -1273,7 +1317,10 @@ class KantteileEditor {
         
         if (!longestLine) return;
         
+        // Berechne Schwerpunkt für korrekte Innen/Außen-Bestimmung
+        const shapeCenter = this.calculateShapeCenter();
         const spurMapping = this.getSpurMappingForElement(longestLine);
+        
         const dx = longestLine.end.x - longestLine.start.x;
         const dy = longestLine.end.y - longestLine.start.y;
         const length = Math.sqrt(dx * dx + dy * dy);
@@ -1285,35 +1332,59 @@ class KantteileEditor {
         const midX = (longestLine.start.x + longestLine.end.x) / 2;
         const midY = (longestLine.start.y + longestLine.end.y) / 2;
         
-        // Beschriftung für Farbseite (Spur A)
-        const labelOffsetA = 15;
-        const labelXA = midX + normalX * labelOffsetA;
-        const labelYA = midY + normalY * labelOffsetA;
+        // Bestimme wo sich die Farbspuren tatsächlich befinden
+        const spurAPos = { x: midX + normalX * 4, y: midY + normalY * 4 };
+        const spurBPos = { x: midX - normalX * 4, y: midY - normalY * 4 };
         
-        ctx.fillStyle = spurMapping.spurA;
-        ctx.font = 'bold 12px Arial';
+        // Berechne Distanz zum Schwerpunkt um Innen/Außen zu bestimmen
+        const distSpurAToCenter = Math.sqrt(Math.pow(spurAPos.x - shapeCenter.x, 2) + Math.pow(spurAPos.y - shapeCenter.y, 2));
+        const distSpurBToCenter = Math.sqrt(Math.pow(spurBPos.x - shapeCenter.x, 2) + Math.pow(spurBPos.y - shapeCenter.y, 2));
+        
+        // Die Spur mit größerer Distanz zum Schwerpunkt ist außen
+        const spurAIsOutside = distSpurAToCenter > distSpurBToCenter;
+        
+        // Positioniere Beschriftungen außen
+        const labelOffset = 25;
+        let spurALabelPos, spurBLabelPos;
+        
+        if (spurAIsOutside) {
+            spurALabelPos = { x: midX + normalX * labelOffset, y: midY + normalY * labelOffset };
+            spurBLabelPos = { x: midX - normalX * labelOffset, y: midY - normalY * labelOffset };
+        } else {
+            spurALabelPos = { x: midX - normalX * labelOffset, y: midY - normalY * labelOffset };
+            spurBLabelPos = { x: midX + normalX * labelOffset, y: midY + normalY * labelOffset };
+        }
+        
+        // Bestimme welche Spur die Farbseite ist
+        const isSpurAColorSide = (this.colorSide === 'top' && spurMapping.spurA === this.settings.frontColor) ||
+                                (this.colorSide === 'bottom' && spurMapping.spurA === this.settings.backColor);
+        
+        // Zeichne Beschriftungen (größer und dicker)
+        ctx.font = 'bold 18px Arial'; // Größere Schrift
         ctx.textAlign = 'center';
-        ctx.fillText('Farbseite', labelXA, labelYA);
+        ctx.lineWidth = 2;
         
-        // Beschriftung für Rückseite (Spur B)
-        const labelOffsetB = 15;
-        const labelXB = midX - normalX * labelOffsetB;
-        const labelYB = midY - normalY * labelOffsetB;
+        // Spur A beschriften
+        ctx.fillStyle = spurMapping.spurA;
+        const spurALabel = isSpurAColorSide ? 'Farbseite' : 'Rückseite';
+        ctx.fillText(spurALabel, spurALabelPos.x, spurALabelPos.y);
         
+        // Spur B beschriften  
         ctx.fillStyle = spurMapping.spurB;
-        ctx.fillText('Rückseite', labelXB, labelYB);
+        const spurBLabel = isSpurAColorSide ? 'Rückseite' : 'Farbseite';
+        ctx.fillText(spurBLabel, spurBLabelPos.x, spurBLabelPos.y);
         
-        // Pfeile zur Zuordnung
+        // Pfeile zur Zuordnung (dicker)
         ctx.strokeStyle = spurMapping.spurA;
-        ctx.lineWidth = 1;
-        this.drawArrow(ctx, labelXA, labelYA + 5, midX + normalX * 4, midY + normalY * 4);
+        ctx.lineWidth = 2;
+        this.drawArrow(ctx, spurALabelPos.x, spurALabelPos.y + 8, spurAPos.x, spurAPos.y);
         
         ctx.strokeStyle = spurMapping.spurB;
-        this.drawArrow(ctx, labelXB, labelYB + 5, midX - normalX * 4, midY - normalY * 4);
+        this.drawArrow(ctx, spurBLabelPos.x, spurBLabelPos.y + 8, spurBPos.x, spurBPos.y);
     }
     
     drawArrow(ctx, fromX, fromY, toX, toY) {
-        const headlen = 8;
+        const headlen = 12; // Größere Pfeilspitzen
         const angle = Math.atan2(toY - fromY, toX - fromX);
         
         ctx.beginPath();
