@@ -620,15 +620,13 @@ function showAdPlaceholders() {
     });
 }
 
-        // Dachflächenberechnung Modal
-        function openCalculationModal() {
-            document.getElementById('calculationModal').style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            
-            // AdSense für Modal laden falls Marketing-Cookies akzeptiert
-            if (localStorage.getItem('marketingCookies') === 'true') {
-                loadModalAds();
-            }
+       function openCalculationModal() {
+    document.getElementById('calculationModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // AdSense für Modal laden
+    loadModalAds();
+}
         }
 
         function closeCalculationModal() {
@@ -637,22 +635,30 @@ function showAdPlaceholders() {
         }
 
         function loadModalAds() {
-            const modalAdReal = document.querySelector('.modal-ad-real');
-            const modalAdPlaceholder = document.querySelector('.modal-ad-placeholder');
-            
-            if (modalAdReal && modalAdPlaceholder) {
-                modalAdPlaceholder.style.display = 'none';
-                modalAdReal.style.display = 'block';
-                
-                try {
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
-                } catch (e) {
-                    console.log('Modal AdSense loading error:', e);
-                    modalAdPlaceholder.style.display = 'flex';
-                    modalAdReal.style.display = 'none';
+    // Für das neue ad-wrapper System
+    const modalAdContainer = document.querySelector('#modal-ad-container');
+    
+    if (modalAdContainer) {
+        // Container sichtbar machen
+        modalAdContainer.style.display = 'block';
+        
+        // AdSense konfigurieren
+        const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+        const modalAd = modalAdContainer.querySelector('.adsbygoogle');
+        
+        if (modalAd && !modalAd.getAttribute('data-ad-status')) {
+            try {
+                // Nicht-personalisierte Werbung wenn Cookies abgelehnt
+                if (!allowPersonalized) {
+                    modalAd.setAttribute('data-npa', '1');
                 }
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.log('Modal AdSense loading error:', e);
             }
         }
+    }
+}
 
         // Modal Management (bestehende Funktionen)
         function openModal(type) {
