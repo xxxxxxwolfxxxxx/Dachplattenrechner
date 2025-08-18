@@ -1492,14 +1492,12 @@ footer::before {
 }
 
 /* ===== AD CONTAINER STYLES ===== */
-/* Neue Werbung ohne Container - nur minimale Kennzeichnung */
 .ad-wrapper {
-    grid-column: 1 / -1 !important;
+    /* KEIN grid-column und order mehr */
     margin: var(--spacing-lg) auto !important;
     width: 100% !important;
     max-width: 100% !important;
     text-align: center !important;
-    order: 999;
 }
 
 .ad-with-label {
