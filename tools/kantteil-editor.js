@@ -1026,13 +1026,13 @@ class KantteileEditor {
             }
         });
         
-        // Canvas-Größe mit Rand für Bemaßung und Titel
-        const margin = 150;
+       // Canvas-Größe mit Rand für Bemaßung und Titel
+        const margin = 200; // Mehr Platz für Bemaßung
         const drawingWidth = maxX - minX;
         const drawingHeight = maxY - minY;
         
         techCanvas.width = drawingWidth + 2 * margin;
-        techCanvas.height = drawingHeight + 2 * margin + 100;
+        techCanvas.height = drawingHeight + 2 * margin + 150; // Mehr Platz für Legende
         
         // Weißer Hintergrund
         techCtx.fillStyle = 'white';
@@ -1040,12 +1040,16 @@ class KantteileEditor {
         
         // Titel und Informationen
         techCtx.fillStyle = 'black';
-        techCtx.font = 'bold 24px Arial';
+        techCtx.font = 'bold 28px Arial'; // Größere Schrift
         techCtx.textAlign = 'center';
-        techCtx.fillText(partName, techCanvas.width / 2, 30);
+        techCtx.fillText(partName, techCanvas.width / 2, 35);
         
+        techCtx.font = 'bold 18px Arial'; // Größere Schrift
+        techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 60);
+        
+        // Website-URL hinzufügen
         techCtx.font = '16px Arial';
-        techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 55);
+        techCtx.fillText(`www.dachplattenrechner.de`, techCanvas.width / 2, 85);
         
         // Berechne Gesamtlänge und Kantungen
         let totalLength = 0;
@@ -1058,40 +1062,34 @@ class KantteileEditor {
             }
         });
         
-        techCtx.font = '14px Arial';
+        // Bestimme Farbseiten-Text
+        const spurMapping = this.getSpurMappingForElement(this.elements[0]);
+        const selectedColor = this.settings.frontColor;
+        const spurAIsColorSide = (spurMapping.spurA === selectedColor);
+        const farbseiteText = spurAIsColorSide ? 'Farbseite: Obere Spur' : 'Farbseite: Untere Spur';
+        
+        // Legende unten mit größerer Schrift
+        const legendY = techCanvas.height - 100;
+        techCtx.font = 'bold 16px Arial'; // Größere Schrift
         techCtx.textAlign = 'left';
-        techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 20, techCanvas.height - 60);
-        techCtx.fillText(`Kantungen: ${kantungen}`, 20, techCanvas.height - 40);
-        techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 20, techCanvas.height - 20);
+        techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 20, legendY);
+        techCtx.fillText(`Kantungen: ${kantungen}`, 20, legendY + 25);
+        techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 20, legendY + 50);
+        techCtx.fillText(farbseiteText, 20, legendY + 75);
         
         techCtx.textAlign = 'right';
-        techCtx.fillText(`Farbcode: ${this.settings.selectedColorCode}`, techCanvas.width - 20, techCanvas.height - 60);
-        techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 20, techCanvas.height - 40);
-        techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 20, techCanvas.height - 20);
+        techCtx.fillText(`Farbcode: ${this.settings.selectedColorCode}`, techCanvas.width - 20, legendY);
+        techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 20, legendY + 25);
+        techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 20, legendY + 50);
         
         // Verschiebe Koordinatensystem für Zeichnung
-        techCtx.translate(-minX + margin, -minY + margin + 50);
+        techCtx.translate(-minX + margin, -minY + margin + 100);
         
-        // Zeichne Elemente farbig mit Spuren
-        this.drawTechnicalElements(techCtx);
+        // Zeichne Elemente mit dickeren Linien
+        this.drawTechnicalElementsImproved(techCtx);
         
-        // Füge Bemaßung hinzu
-        this.addImprovedDimensions(techCtx);
-        
-        // Füge Farbseiten-Beschriftung hinzu
-        this.addColorSideLabels(techCtx);
-        
-        // Download als PNG
-        const link = document.createElement('a');
-        link.download = `${partName}_technische_zeichnung.png`;
-        link.href = techCanvas.toDataURL();
-        link.click();
-        
-        // Für PDF: Canvas als Bild in PDF einbetten
-        this.generatePDF(techCanvas, partName);
-        
-        this.updateStatus('Technische Zeichnung wurde als PNG und PDF erstellt.');
-    }
+        // Füge verbesserte Bemaßung hinzu (bis zur Kurvenmitte)
+        this.addImprovedDimensionsToCenter(techCtx);
     
     drawTechnicalElements(ctx) {
         const spurMapping = this.getSpurMappingForElement(this.elements[0]);
