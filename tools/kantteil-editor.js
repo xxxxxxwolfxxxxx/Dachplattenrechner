@@ -1598,21 +1598,36 @@ function generateTechnicalDrawing() {
 }
 
 function closeHelp() {
-    document.getElementById('helpOverlay').style.display = 'none';
+    const helpOverlay = document.getElementById('helpOverlay');
+    if (helpOverlay) {
+        helpOverlay.style.display = 'none';
+    }
+}
+
+function startDrawing() {
+    if (editor) {
+        editor.startDrawing();
+    }
 }
 
 // Event Listeners für Modals
-document.getElementById('lengthInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') confirmLength();
-    if (e.key === 'Escape') closeModal('lengthModal');
-});
-
-document.getElementById('angleInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') confirmAngle();
-    if (e.key === 'Escape') closeModal('angleModal');
-});
-
-// Initialisierung
 document.addEventListener('DOMContentLoaded', () => {
     editor = new KantteileEditor();
+    
+    // Stelle sicher, dass alle Event Listener korrekt gesetzt sind
+    const lengthInput = document.getElementById('lengthInput');
+    if (lengthInput) {
+        lengthInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') confirmLength();
+            if (e.key === 'Escape') closeModal('lengthModal');
+        });
+    }
+    
+    const angleInput = document.getElementById('angleInput');
+    if (angleInput) {
+        angleInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') confirmAngle();
+            if (e.key === 'Escape') closeModal('angleModal');
+        });
+    }
 });
