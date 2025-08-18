@@ -1081,30 +1081,30 @@ class KantteileEditor {
         });
         
         // Canvas-Größe mit Rand für Bemaßung und Titel
-        const margin = 200; // Mehr Platz
+        const margin = 250; // Noch mehr Platz für größere Schrift
         const drawingWidth = maxX - minX;
         const drawingHeight = maxY - minY;
         
         techCanvas.width = drawingWidth + 2 * margin;
-        techCanvas.height = drawingHeight + 2 * margin + 150; // Mehr Platz unten
+        techCanvas.height = drawingHeight + 2 * margin + 300; // Viel mehr Platz
         
         // Weißer Hintergrund
         techCtx.fillStyle = 'white';
         techCtx.fillRect(0, 0, techCanvas.width, techCanvas.height);
         
-        // Titel und Informationen - VIEl GRÖßERE SCHRIFT
+        // Titel und Informationen - NOCH GRÖßERE SCHRIFT
         techCtx.fillStyle = 'black';
-        techCtx.font = 'bold 48px Arial'; // RIESIGER TITEL
+        techCtx.font = 'bold 96px Arial'; // DOPPELT SO GROß
         techCtx.textAlign = 'center';
-        techCtx.fillText(partName, techCanvas.width / 2, 50);
+        techCtx.fillText(partName, techCanvas.width / 2, 70);
         
-        techCtx.font = 'bold 32px Arial'; // GROßER UNTERTITEL
-        techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 90);
+        techCtx.font = 'bold 64px Arial'; // DOPPELT SO GROß
+        techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 140);
         
-        // WEBSITE-URL HINZUFÜGEN - GROß
-        techCtx.font = 'bold 28px Arial';
+        // WEBSITE-URL HINZUFÜGEN - DOPPELT SO GROß
+        techCtx.font = 'bold 56px Arial';
         techCtx.fillStyle = '#1e3c72';
-        techCtx.fillText('www.dachplattenrechner.de', techCanvas.width / 2, 130);
+        techCtx.fillText('www.dachplattenrechner.de', techCanvas.width / 2, 200);
         
         // Berechne Gesamtlänge und Kantungen
         let totalLength = 0;
@@ -1117,28 +1117,23 @@ class KantteileEditor {
             }
         });
         
-        // Bestimme Farbseitenbeschriftung
-        const colorSideText = this.colorSide === 'top' ? 
-            `Farbseite: Oben (${this.settings.selectedColorCode})` : 
-            `Farbseite: Unten (${this.settings.selectedColorCode})`;
-        
-        // Unten Links - RIESIGE SCHRIFT
-        techCtx.font = 'bold 24px Arial'; // 5x größer als vorher
+        // Unten Links - DOPPELT SO GROßE SCHRIFT
+        techCtx.font = 'bold 48px Arial'; // DOPPELT SO GROß
         techCtx.textAlign = 'left';
         techCtx.fillStyle = 'black';
-        techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 30, techCanvas.height - 120);
-        techCtx.fillText(`Kantungen: ${kantungen}`, 30, techCanvas.height - 90);
-        techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 30, techCanvas.height - 60);
-        techCtx.fillText(colorSideText, 30, techCanvas.height - 30);
+        techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 30, techCanvas.height - 200);
+        techCtx.fillText(`Kantungen: ${kantungen}`, 30, techCanvas.height - 140);
+        techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 30, techCanvas.height - 80);
+        techCtx.fillText(`Farbcode: ${this.settings.selectedColorCode}`, 30, techCanvas.height - 20); // NUR FARBCODE
         
-        // Unten Rechts - RIESIGE SCHRIFT
+        // Unten Rechts - DOPPELT SO GROßE SCHRIFT
         techCtx.textAlign = 'right';
-        techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 30, techCanvas.height - 90);
-        techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 30, techCanvas.height - 60);
-        techCtx.fillText(`erstellt mit dachplattenrechner.de`, techCanvas.width - 30, techCanvas.height - 30);
+        techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 30, techCanvas.height - 140);
+        techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 30, techCanvas.height - 80);
+        techCtx.fillText(`erstellt mit dachplattenrechner.de`, techCanvas.width - 30, techCanvas.height - 20);
         
         // Verschiebe Koordinatensystem für Zeichnung
-        techCtx.translate(-minX + margin, -minY + margin + 150); // Mehr Platz für größeren Titel
+        techCtx.translate(-minX + margin, -minY + margin + 250); // Noch mehr Platz für riesigen Titel
         
         // Zeichne Elemente farbig mit dickeren Spuren
         this.drawTechnicalElements(techCtx);
@@ -1222,8 +1217,8 @@ class KantteileEditor {
     addImprovedDimensions(ctx) {
         ctx.strokeStyle = 'blue';
         ctx.fillStyle = 'blue';
-        ctx.lineWidth = 3; // Dickere Bemaßungslinien
-        ctx.font = 'bold 20px Arial'; // GRÖßERE SCHRIFT - FEST
+        ctx.lineWidth = 4; // Noch dickere Bemaßungslinien
+        ctx.font = 'bold 40px Arial'; // DOPPELT SO GROß
         ctx.textAlign = 'center';
         
         const usedDimensionLines = [];
@@ -1358,20 +1353,20 @@ class KantteileEditor {
         
         ctx.stroke();
         
-        // Bemaßungstext - FESTE GRÖßE
+        // Bemaßungstext - DOPPELT SO GROß
         const textX = (dimPos.startX + dimPos.endX) / 2;
-        const textY = (dimPos.startY + dimPos.endY) / 2 - 12;
+        const textY = (dimPos.startY + dimPos.endY) / 2 - 20;
         
         // Weißer Hintergrund für bessere Lesbarkeit - größer
         ctx.fillStyle = 'white';
-        ctx.fillRect(textX - 40, textY - 15, 80, 30);
+        ctx.fillRect(textX - 80, textY - 30, 160, 60); // Doppelt so groß
         ctx.strokeStyle = 'blue';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(textX - 40, textY - 15, 80, 30);
+        ctx.lineWidth = 3;
+        ctx.strokeRect(textX - 80, textY - 30, 160, 60);
         
         ctx.fillStyle = 'blue';
-        ctx.font = 'bold 20px Arial'; // FESTE GRÖßE
-        ctx.fillText(`${length}mm`, textX, textY + 8);
+        ctx.font = 'bold 40px Arial'; // DOPPELT SO GROß
+        ctx.fillText(`${length}mm`, textX, textY + 15);
     }
     
     generatePDF(canvas, partName) {
