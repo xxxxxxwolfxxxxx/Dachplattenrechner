@@ -557,24 +557,25 @@ function loadAdSense() {
         }
 
         function acceptAllCookies() {
-            localStorage.setItem('cookieConsent', 'all');
-            localStorage.setItem('analyticsCookies', 'true');
-            localStorage.setItem('marketingCookies', 'true');
-            
-            loadAnalytics();
-            loadAdSense();
-            showAds();
-            
-            document.getElementById('cookieBanner').classList.remove('show');
-        }
+    localStorage.setItem('cookieConsent', 'all');
+    localStorage.setItem('analyticsCookies', 'true');
+    localStorage.setItem('marketingCookies', 'true');
+    
+    loadAnalytics();
+    showAds(); // Personalisierte Werbung anzeigen
+    
+    document.getElementById('cookieBanner').classList.remove('show');
+}
 
         function acceptOnlyEssential() {
-            localStorage.setItem('cookieConsent', 'essential');
-            localStorage.setItem('analyticsCookies', 'false');
-            localStorage.setItem('marketingCookies', 'false');
-            
-            document.getElementById('cookieBanner').classList.remove('show');
-        }
+    localStorage.setItem('cookieConsent', 'essential');
+    localStorage.setItem('analyticsCookies', 'false');
+    localStorage.setItem('marketingCookies', 'false');
+    
+    showAds(); // Nicht-personalisierte Werbung anzeigen
+    
+    document.getElementById('cookieBanner').classList.remove('show');
+}
 
         // Erweitere deine bestehende showAds() Funktion in index.html
 
@@ -603,7 +604,6 @@ function showAds() {
         }
     }
 }
-
 function hideAds() {
     // Container verstecken
     document.getElementById('middle-ad-container-1').style.display = 'none';
