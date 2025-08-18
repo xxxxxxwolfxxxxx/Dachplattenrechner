@@ -626,25 +626,42 @@ function showAdPlaceholders() {
     loadModalAds();
 }
 
-        function closeCalculationModal() {
-            document.getElementById('calculationModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
+        function openCalculationModal() {
+    document.getElementById('calculationModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // Warten bis Modal vollständig geladen ist
+    setTimeout(() => {
+        loadModalAds();
+    }, 500);
+}
 
         function loadModalAds() {
-    // Einfach das gleiche System wie auf der Hauptseite
     const modalContainer = document.getElementById('modal-ad-container');
-    if (modalContainer) {
-        modalContainer.style.display = 'block';
-        
-        const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
-        const modalAd = modalContainer.querySelector('.adsbygoogle');
-        
-        if (modalAd && !modalAd.getAttribute('data-ad-status')) {
+    if (!modalContainer) return;
+    
+    // Container sichtbar machen
+    modalContainer.style.display = 'block';
+    
+    // Prüfen ob AdSense schon geladen ist
+    if (typeof window.adsbygoogle === 'undefined') {
+        console.log('AdSense not loaded yet');
+        return;
+    }
+    
+    const modalAd = modalContainer.querySelector('.adsbygoogle');
+    if (modalAd && !modalAd.getAttribute('data-ad-status')) {
+        try {
+            const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
             if (!allowPersonalized) {
                 modalAd.setAttribute('data-npa', '1');
             }
+            
+            // Force AdSense reload
             (window.adsbygoogle = window.adsbygoogle || []).push({});
+            console.log('Modal ad pushed to AdSense');
+        } catch (e) {
+            console.log('Modal AdSense error:', e);
         }
     }
 }
