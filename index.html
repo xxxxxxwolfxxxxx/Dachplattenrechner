@@ -11,23 +11,21 @@
 
     <link rel="icon" type="image/png" sizes="64x64" href="/images/favicon.png">
     <script>
-        // AdSense nur laden wenn Marketing-Cookies akzeptiert sind
-        function loadAdSense() {
-            if (localStorage.getItem('marketingCookies') === 'true') {
-                const script = document.createElement('script');
-                script.async = true;
-                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
-                script.crossOrigin = 'anonymous';
-                document.head.appendChild(script);
-                
-                // AdSense Auto-Ads aktivieren
-                window.adsbygoogle = window.adsbygoogle || [];
-                window.adsbygoogle.push({
-                    google_ad_client: 'ca-pub-8687929894744033',
-                    enable_page_level_ads: true
-                });
-            }
-        }
+       // AdSense für alle laden - personalisiert oder nicht-personalisiert
+function loadAdSense() {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+    
+    // AdSense Auto-Ads aktivieren
+    window.adsbygoogle = window.adsbygoogle || [];
+    window.adsbygoogle.push({
+        google_ad_client: 'ca-pub-8687929894744033',
+        enable_page_level_ads: true
+    });
+}
     </script>
     
     <!-- Google Analytics - wird nur geladen wenn Analyse-Cookies akzeptiert -->
@@ -581,35 +579,28 @@
         // Erweitere deine bestehende showAds() Funktion in index.html
 
 function showAds() {
-    if (localStorage.getItem('marketingCookies') === 'true') {
-        // Container anzeigen
-        document.getElementById('middle-ad-container-1').style.display = 'block';
-        document.getElementById('middle-ad-container-2').style.display = 'block';
-        
-        // Placeholder verstecken, AdSense anzeigen
-        document.querySelectorAll('.ad-placeholder').forEach(placeholder => {
-            placeholder.style.display = 'none';
-        });
-        document.querySelectorAll('.ad-content-real').forEach(ad => {
-            ad.style.display = 'block';
-        });
-        
-        // AdSense initialisieren
-        if (window.adsbygoogle) {
-            try {
-                // Alle noch nicht initialisierten Anzeigen laden
-                const ads = document.querySelectorAll('.adsbygoogle:not([data-adsbygoogle-status])');
-                ads.forEach(() => {
+    // Werbung immer anzeigen - personalisiert oder nicht-personalisiert
+    document.getElementById('middle-ad-container-1').style.display = 'block';
+    document.getElementById('middle-ad-container-2').style.display = 'block';
+    
+    // AdSense konfigurieren basierend auf Cookie-Einstellungen
+    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+    
+    if (window.adsbygoogle) {
+        try {
+            const ads = document.querySelectorAll('.adsbygoogle');
+            ads.forEach(ad => {
+                if (!ad.getAttribute('data-ad-status')) {
+                    // Nicht-personalisierte Werbung wenn Cookies abgelehnt
+                    if (!allowPersonalized) {
+                        ad.setAttribute('data-npa', '1'); // Non-Personalized Ads
+                    }
                     (window.adsbygoogle = window.adsbygoogle || []).push({});
-                });
-            } catch (e) {
-                console.log('AdSense loading error:', e);
-                // Bei Fehler Placeholder anzeigen
-                showAdPlaceholders();
-            }
+                }
+            });
+        } catch (e) {
+            console.log('AdSense loading error:', e);
         }
-    } else {
-        hideAds();
     }
 }
 
@@ -1153,26 +1144,28 @@ function showAdPlaceholders() {
             }
         }
 
-        // Initialize everything
-        document.addEventListener('DOMContentLoaded', function() {
-            setupEmailProtection();
-            
-            // Lade Hintergrundbild optimiert
-            loadBackgroundImage();
-            
-            // Initialize tracking and ads based on existing consent
-            const cookieConsent = localStorage.getItem('cookieConsent');
-            if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
-                loadAnalytics();
-            }
-            if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
-                loadAdSense();
-                showAds();
-            }
-            
-            // Show cookie banner for first-time visitors
-            showCookieBanner();
-        });
+       // Initialize everything
+document.addEventListener('DOMContentLoaded', function() {
+    setupEmailProtection();
+    
+    // Lade Hintergrundbild optimiert
+    loadBackgroundImage();
+    
+    // AdSense immer laden
+    loadAdSense();
+    
+    // Initialize tracking based on existing consent
+    const cookieConsent = localStorage.getItem('cookieConsent');
+    if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
+        loadAnalytics();
+    }
+    
+    // Werbung immer anzeigen
+    showAds();
+    
+    // Show cookie banner for first-time visitors
+    showCookieBanner();
+});
     </script>
 </body>
 </html>
