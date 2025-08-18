@@ -1751,21 +1751,70 @@ footer::before {
     }
 }
 
-/* Mobile Landscape - Querformat Optimierung */
+/* Querformat - Werbung so breit wie 2 Kacheln */
 @media (max-width: 1024px) and (max-height: 768px) and (orientation: landscape) {
-    :root {
-        font-size: 13px;
+    
+    /* Werbung nimmt die volle Breite von 2 Kacheln ein */
+    .ad-container-middle {
+        grid-column: 1 / -1; /* Spannt über alle Spalten */
+        margin: var(--spacing-lg) auto !important;
+        max-width: none !important; /* Entfernt die 800px Begrenzung */
+        width: 100% !important;
+        
+        /* Querformat-optimiert */
+        min-height: 90px; /* Niedriger für Querformat */
+        max-height: 120px;
     }
     
-    body {
-        background: var(--bg-primary) url('Images/index.png') center center no-repeat;
-        background-attachment: scroll;
-        background-size: cover;
+    /* AdSense Container responsiv */
+    .ad-container-middle .adsbygoogle {
+        width: 100% !important;
+        min-height: 90px !important;
+        max-height: 120px !important;
+        display: block !important;
     }
     
-    .container {
-        padding: 0 var(--spacing-sm);
+    /* Container verschwindet wenn keine Werbung */
+    .ad-container-middle:empty,
+    .ad-container-middle[style*="display: none"] {
+        display: none !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
+    
+    /* Placeholder für Querformat anpassen */
+    .ad-container-middle .ad-placeholder {
+        min-height: 90px;
+        padding: var(--spacing-md);
+    }
+    
+    .ad-container-middle .ad-content-horizontal {
+        flex-direction: row;
+        gap: 12px;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .ad-container-middle .ad-icon {
+        font-size: 20px;
+    }
+    
+    .ad-container-middle .ad-text-block {
+        text-align: left;
+    }
+    
+    .ad-container-middle .ad-text-block strong {
+        font-size: 14px;
+        display: block;
+        margin-bottom: 4px;
+    }
+    
+    .ad-container-middle .ad-text-block span {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+}
     
     /* Kompakter Header für Querformat */
     header {
