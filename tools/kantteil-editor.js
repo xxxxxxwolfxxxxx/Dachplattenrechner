@@ -673,14 +673,16 @@ class KantteileEditor {
         
         this.drawGrid();
         
-        // Zeichne fertige Elemente - DICKERE LINIEN
+        // Zeichne fertige Elemente - MINDESTDICKE BEIM ZOOMEN
         this.elements.forEach(element => {
-            this.drawElementWithColors(element, 6 / this.zoom); // Doppelt so dick
+            const minLineWidth = Math.max(6 / this.zoom, 1); // Mindestens 1px sichtbar
+            this.drawElementWithColors(element, minLineWidth);
         });
         
         // Zeichne aktuelles Element
         if (this.currentElement) {
-            this.drawElement(this.currentElement, '#e74c3c', 6 / this.zoom); // Doppelt so dick
+            const minLineWidth = Math.max(6 / this.zoom, 1); // Mindestens 1px sichtbar
+            this.drawElement(this.currentElement, '#e74c3c', minLineWidth);
             
             if (this.isDrawing) {
                 this.drawCurrentValues();
@@ -693,7 +695,8 @@ class KantteileEditor {
         
         // Zeichne aktive Punkte
         this.activePoints.forEach(point => {
-            this.drawPoint(point, '#3498db', 12 / this.zoom); // Größere Punkte
+            const minPointRadius = Math.max(12 / this.zoom, 3); // Mindestens 3px sichtbar
+            this.drawPoint(point, '#3498db', minPointRadius);
         });
         
         this.ctx.restore();
@@ -707,8 +710,10 @@ class KantteileEditor {
         const curveEnd = this.currentElement.end || this.currentElement.start;
         
         this.ctx.strokeStyle = '#27ae60';
-        this.ctx.lineWidth = 4 / this.zoom; // Dicker
-        this.ctx.setLineDash([8 / this.zoom, 8 / this.zoom]);
+        const minLineWidth = Math.max(4 / this.zoom, 1); // Mindestens 1px sichtbar
+        this.ctx.lineWidth = minLineWidth;
+        const dashSize = Math.max(8 / this.zoom, 2); // Mindestens 2px Striche
+        this.ctx.setLineDash([dashSize, dashSize]);
         
         this.ctx.beginPath();
         this.ctx.moveTo(curveEnd.x, curveEnd.y);
@@ -824,7 +829,8 @@ class KantteileEditor {
         this.ctx.fill();
         
         this.ctx.strokeStyle = 'white';
-        this.ctx.lineWidth = 3 / this.zoom; // Dickerer Rand
+        const minBorderWidth = Math.max(3 / this.zoom, 1); // Mindestens 1px Rand
+        this.ctx.lineWidth = minBorderWidth;
         this.ctx.stroke();
     }
     
@@ -890,7 +896,8 @@ class KantteileEditor {
     
     drawGrid() {
         this.ctx.strokeStyle = '#ecf0f1';
-        this.ctx.lineWidth = 1 / this.zoom;
+        const minGridWidth = Math.max(1 / this.zoom, 0.5); // Mindestens 0.5px sichtbar
+        this.ctx.lineWidth = minGridWidth;
         
         const visibleArea = {
             left: -this.panX / this.zoom,
@@ -1092,19 +1099,19 @@ class KantteileEditor {
         techCtx.fillStyle = 'white';
         techCtx.fillRect(0, 0, techCanvas.width, techCanvas.height);
         
-        // Titel und Informationen - NOCH GRÖßERE SCHRIFT
-        techCtx.fillStyle = 'black';
-        techCtx.font = 'bold 96px Arial'; // DOPPELT SO GROß
+        // Titel und Informationen - NEUE REIHENFOLGE
+        techCtx.fillStyle = '#1e3c72';
+        techCtx.font = 'bold 96px Arial'; // DACHPLATTENRECHNER.DE GANz GROß
         techCtx.textAlign = 'center';
-        techCtx.fillText(partName, techCanvas.width / 2, 70);
+        techCtx.fillText('DACHPLATTENRECHNER.DE', techCanvas.width / 2, 70);
         
-        techCtx.font = 'bold 64px Arial'; // DOPPELT SO GROß
+        techCtx.fillStyle = 'black';
+        techCtx.font = 'bold 64px Arial'; // ETWAS KLEINER
         techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 140);
         
-        // WEBSITE-URL HINZUFÜGEN - DOPPELT SO GROß
-        techCtx.font = 'bold 56px Arial';
-        techCtx.fillStyle = '#1e3c72';
-        techCtx.fillText('www.dachplattenrechner.de', techCanvas.width / 2, 200);
+        // TEILENAME NOCH KLEINER
+        techCtx.font = 'bold 48px Arial';
+        techCtx.fillText(partName, techCanvas.width / 2, 190);
         
         // Berechne Gesamtlänge und Kantungen
         let totalLength = 0;
@@ -1240,7 +1247,7 @@ class KantteileEditor {
         const dy = element.end.y - element.start.y;
         const length = Math.sqrt(dx * dx + dy * dy);
         
-        if (length === 0) return { offset: 80, side: 1 }; // Größerer Standardabstand
+        if (length === 0) return { offset: 120, side: 1 }; // Noch größerer Standardabstand
         
         const normalX = -dy / length;
         const normalY = dx / length;
@@ -1263,8 +1270,8 @@ class KantteileEditor {
         const useInside = lineLength < 15;
         const finalSide = useInside ? -preferredSide : preferredSide;
         
-        // GRÖßERE ABSTÄNDE
-        const possibleOffsets = useInside ? [40, 55, 70] : [100, 130, 160, 190];
+        // NOCH GRÖßERE ABSTÄNDE - BESCHRIFTUNG DARF NICHTS VERDECKEN
+        const possibleOffsets = useInside ? [60, 80, 100] : [120, 160, 200, 240, 280];
         const sides = [finalSide, -finalSide];
         
         for (const side of sides) {
@@ -1290,11 +1297,11 @@ class KantteileEditor {
         }
         
         return { 
-            startX: element.start.x + normalX * (useInside ? 40 : 100),
-            startY: element.start.y + normalY * (useInside ? 40 : 100),
-            endX: element.end.x + normalX * (useInside ? 40 : 100),
-            endY: element.end.y + normalY * (useInside ? 40 : 100),
-            offset: useInside ? 40 : 100,
+            startX: element.start.x + normalX * (useInside ? 60 : 120),
+            startY: element.start.y + normalY * (useInside ? 60 : 120),
+            endX: element.end.x + normalX * (useInside ? 60 : 120),
+            endY: element.end.y + normalY * (useInside ? 60 : 120),
+            offset: useInside ? 60 : 120,
             side: 1,
             isInside: useInside
         };
