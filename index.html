@@ -471,9 +471,8 @@ function loadAdSense() {
             <h2>Dachflächenberechnung</h2>
             <p>Wählen Sie den passenden Rechner für Ihre Dachform:</p>
             
-            <!-- Werbung im Modal -->
-            <!-- Im Skizzen-Modal - Mess- und Zeichenausrüstung -->
-<div class="modal-ad-container" id="modal-ad-container">
+           <!-- Werbung im Modal - NEUES SYSTEM -->
+<div class="ad-wrapper" id="modal-ad-container" style="display: none;">
     <div class="ad-with-label">
         <span class="ad-label">Werbung</span>
         <ins class="adsbygoogle"
@@ -481,8 +480,7 @@ function loadAdSense() {
              data-ad-client="ca-pub-8687929894744033"
              data-ad-slot="8407868749"
              data-ad-format="rectangle"
-             data-full-width-responsive="true"
-             data-ad-channel="maßband,teleskopmessstab,klemmbrett,messwerkzeug,zeichenausrüstung"></ins>
+             data-full-width-responsive="true"></ins>
     </div>
 </div>
             
@@ -634,31 +632,22 @@ function showAdPlaceholders() {
         }
 
         function loadModalAds() {
-    // Für das neue ad-wrapper System
-    const modalAdContainer = document.querySelector('#modal-ad-container');
-    
-    if (modalAdContainer) {
-        // Container sichtbar machen
-        modalAdContainer.style.display = 'block';
+    // Einfach das gleiche System wie auf der Hauptseite
+    const modalContainer = document.getElementById('modal-ad-container');
+    if (modalContainer) {
+        modalContainer.style.display = 'block';
         
-        // AdSense konfigurieren
         const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
-        const modalAd = modalAdContainer.querySelector('.adsbygoogle');
+        const modalAd = modalContainer.querySelector('.adsbygoogle');
         
         if (modalAd && !modalAd.getAttribute('data-ad-status')) {
-            try {
-                // Nicht-personalisierte Werbung wenn Cookies abgelehnt
-                if (!allowPersonalized) {
-                    modalAd.setAttribute('data-npa', '1');
-                }
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-            } catch (e) {
-                console.log('Modal AdSense loading error:', e);
+            if (!allowPersonalized) {
+                modalAd.setAttribute('data-npa', '1');
             }
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
         }
     }
 }
-
         // Modal Management (bestehende Funktionen)
         function openModal(type) {
             const modal = document.getElementById('modal');
