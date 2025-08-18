@@ -622,8 +622,46 @@ function showAdPlaceholders() {
     document.getElementById('calculationModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
     
-    // AdSense für Modal laden
-    loadModalAds();
+    // Modal-Werbung direkt einbetten
+    const modalContainer = document.getElementById('modal-ad-container');
+    if (modalContainer) {
+        modalContainer.style.display = 'block';
+        
+        // AdSense-Element komplett neu erstellen
+        const existingAd = modalContainer.querySelector('.adsbygoogle');
+        if (existingAd) {
+            existingAd.remove();
+        }
+        
+        // Neues AdSense-Element erstellen
+        const newAd = document.createElement('ins');
+        newAd.className = 'adsbygoogle';
+        newAd.style.display = 'block';
+        newAd.setAttribute('data-ad-client', 'ca-pub-8687929894744033');
+        newAd.setAttribute('data-ad-slot', '8407868749');
+        newAd.setAttribute('data-ad-format', 'rectangle');
+        newAd.setAttribute('data-full-width-responsive', 'true');
+        
+        // Nicht-personalisierte Werbung wenn nötig
+        const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+        if (!allowPersonalized) {
+            newAd.setAttribute('data-npa', '1');
+        }
+        
+        // In Container einfügen
+        const adLabel = modalContainer.querySelector('.ad-with-label');
+        if (adLabel) {
+            adLabel.appendChild(newAd);
+            
+            // AdSense laden
+            try {
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                console.log('Modal ad created and pushed');
+            } catch (e) {
+                console.log('Modal ad error:', e);
+            }
+        }
+    }
 }
 
         function openCalculationModal() {
