@@ -725,7 +725,8 @@ class KantteileEditor {
         
         const spurMapping = this.getSpurMappingForElement(element);
         
-        const offset = width * 0.6;
+        // KEINE LÜCKE - Offset = 0
+        const offset = 0;
         
         if (element.type === 'line') {
             const dx = element.end.x - element.start.x;
@@ -736,16 +737,18 @@ class KantteileEditor {
                 const normalX = -dy / length;
                 const normalY = dx / length;
                 
+                // Spur A (nach links versetzt) - aber offset = 0
                 this.ctx.strokeStyle = spurMapping.spurA;
                 this.ctx.beginPath();
-                this.ctx.moveTo(element.start.x + normalX * offset, element.start.y + normalY * offset);
-                this.ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
+                this.ctx.moveTo(element.start.x + normalX * (width/2), element.start.y + normalY * (width/2));
+                this.ctx.lineTo(element.end.x + normalX * (width/2), element.end.y + normalY * (width/2));
                 this.ctx.stroke();
                 
+                // Spur B (nach rechts versetzt) - aber offset = 0
                 this.ctx.strokeStyle = spurMapping.spurB;
                 this.ctx.beginPath();
-                this.ctx.moveTo(element.start.x - normalX * offset, element.start.y - normalY * offset);
-                this.ctx.lineTo(element.end.x - normalX * offset, element.end.y - normalY * offset);
+                this.ctx.moveTo(element.start.x - normalX * (width/2), element.start.y - normalY * (width/2));
+                this.ctx.lineTo(element.end.x - normalX * (width/2), element.end.y - normalY * (width/2));
                 this.ctx.stroke();
             }
             
@@ -764,16 +767,16 @@ class KantteileEditor {
                 zweiteSpurColor = spurMapping.spurB;
             }
             
-            // Äußerer Bogen
+            // Äußerer Bogen - nur halbe Linienbreite Abstand
             this.ctx.strokeStyle = ersteSpurColor;
             this.ctx.beginPath();
-            this.ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
+            this.ctx.arc(element.center.x, element.center.y, element.radius + width/2, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
             
-            // Innerer Bogen
+            // Innerer Bogen - nur halbe Linienbreite Abstand
             this.ctx.strokeStyle = zweiteSpurColor;
             this.ctx.beginPath();
-            this.ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
+            this.ctx.arc(element.center.x, element.center.y, element.radius - width/2, startAngle, endAngle, counterClockwise);
             this.ctx.stroke();
         }
     }
@@ -832,7 +835,7 @@ class KantteileEditor {
         
         if (this.currentElement.type === 'line') {
             displayX = this.currentElement.end.x;
-            displayY = this.currentElement.end.y - 40 / this.zoom; // Mehr Abstand
+            displayY = this.currentElement.end.y - 40 / this.zoom;
             value = this.currentElement.length;
             unit = 'mm';
             color = '#e74c3c';
@@ -850,15 +853,17 @@ class KantteileEditor {
         }
         
         const text = `${value}${unit}`;
-        // FESTE SCHRIFTGRÖSSE - NICHT ZOOM-ABHÄNGIG
-        this.ctx.font = '20px Arial';
+        
+        // FESTE SCHRIFTGRÖSSE UNABHÄNGIG VOM ZOOM
+        const fontSize = 20 / this.zoom; // Größe umgekehrt proportional zum Zoom
+        this.ctx.font = `${fontSize}px Arial`;
         this.ctx.textAlign = 'center';
         
         const textMetrics = this.ctx.measureText(text);
         const textWidth = textMetrics.width;
-        const textHeight = 20; // Feste Höhe
+        const textHeight = fontSize;
         
-        const padding = 12;
+        const padding = 12 / this.zoom; // Padding auch zoom-unabhängig
         const bgX = displayX - textWidth/2 - padding;
         const bgY = displayY - textHeight - padding;
         const bgWidth = textWidth + 2 * padding;
@@ -866,7 +871,7 @@ class KantteileEditor {
         
         // Schatten
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-        this.ctx.fillRect(bgX + 3, bgY + 3, bgWidth, bgHeight);
+        this.ctx.fillRect(bgX + 3/this.zoom, bgY + 3/this.zoom, bgWidth, bgHeight);
         
         // Weißer Hintergrund
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
@@ -874,12 +879,12 @@ class KantteileEditor {
         
         // Rahmen
         this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = 3;
+        this.ctx.lineWidth = 3 / this.zoom;
         this.ctx.strokeRect(bgX, bgY, bgWidth, bgHeight);
         
         // Text
         this.ctx.fillStyle = color;
-        this.ctx.font = 'bold 20px Arial'; // Feste große Schrift
+        this.ctx.font = `bold ${fontSize}px Arial`;
         this.ctx.fillText(text, displayX, displayY);
     }
     
@@ -1087,19 +1092,19 @@ class KantteileEditor {
         techCtx.fillStyle = 'white';
         techCtx.fillRect(0, 0, techCanvas.width, techCanvas.height);
         
-        // Titel und Informationen
+        // Titel und Informationen - VIEl GRÖßERE SCHRIFT
         techCtx.fillStyle = 'black';
-        techCtx.font = 'bold 28px Arial'; // Größere Titel
+        techCtx.font = 'bold 48px Arial'; // RIESIGER TITEL
         techCtx.textAlign = 'center';
-        techCtx.fillText(partName, techCanvas.width / 2, 35);
+        techCtx.fillText(partName, techCanvas.width / 2, 50);
         
-        techCtx.font = '18px Arial';
-        techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 60);
+        techCtx.font = 'bold 32px Arial'; // GROßER UNTERTITEL
+        techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 90);
         
-        // WEBSITE-URL HINZUFÜGEN
-        techCtx.font = 'bold 16px Arial';
+        // WEBSITE-URL HINZUFÜGEN - GROß
+        techCtx.font = 'bold 28px Arial';
         techCtx.fillStyle = '#1e3c72';
-        techCtx.fillText('www.dachplattenrechner.de', techCanvas.width / 2, 85);
+        techCtx.fillText('www.dachplattenrechner.de', techCanvas.width / 2, 130);
         
         // Berechne Gesamtlänge und Kantungen
         let totalLength = 0;
@@ -1117,23 +1122,23 @@ class KantteileEditor {
             `Farbseite: Oben (${this.settings.selectedColorCode})` : 
             `Farbseite: Unten (${this.settings.selectedColorCode})`;
         
-        // Unten Links - Größere Schrift
-        techCtx.font = '16px Arial';
+        // Unten Links - RIESIGE SCHRIFT
+        techCtx.font = 'bold 24px Arial'; // 5x größer als vorher
         techCtx.textAlign = 'left';
         techCtx.fillStyle = 'black';
-        techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 20, techCanvas.height - 80);
-        techCtx.fillText(`Kantungen: ${kantungen}`, 20, techCanvas.height - 60);
-        techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 20, techCanvas.height - 40);
-        techCtx.fillText(colorSideText, 20, techCanvas.height - 20); // Farbseite hier
+        techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 30, techCanvas.height - 120);
+        techCtx.fillText(`Kantungen: ${kantungen}`, 30, techCanvas.height - 90);
+        techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 30, techCanvas.height - 60);
+        techCtx.fillText(colorSideText, 30, techCanvas.height - 30);
         
-        // Unten Rechts - Größere Schrift
+        // Unten Rechts - RIESIGE SCHRIFT
         techCtx.textAlign = 'right';
-        techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 20, techCanvas.height - 60);
-        techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 20, techCanvas.height - 40);
-        techCtx.fillText(`erstellt mit dachplattenrechner.de`, techCanvas.width - 20, techCanvas.height - 20);
+        techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 30, techCanvas.height - 90);
+        techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 30, techCanvas.height - 60);
+        techCtx.fillText(`erstellt mit dachplattenrechner.de`, techCanvas.width - 30, techCanvas.height - 30);
         
         // Verschiebe Koordinatensystem für Zeichnung
-        techCtx.translate(-minX + margin, -minY + margin + 100);
+        techCtx.translate(-minX + margin, -minY + margin + 150); // Mehr Platz für größeren Titel
         
         // Zeichne Elemente farbig mit dickeren Spuren
         this.drawTechnicalElements(techCtx);
@@ -1156,7 +1161,6 @@ class KantteileEditor {
     drawTechnicalElements(ctx) {
         const spurMapping = this.getSpurMappingForElement(this.elements[0]);
         const lineWidth = 8; // VIEL DICKERE LINIEN
-        const offset = lineWidth * 0.8;
         
         this.elements.forEach(element => {
             if (element.type === 'line') {
@@ -1168,20 +1172,20 @@ class KantteileEditor {
                     const normalX = -dy / length;
                     const normalY = dx / length;
                     
-                    // Spur A
+                    // Spur A - KEINE LÜCKE
                     ctx.strokeStyle = spurMapping.spurA;
                     ctx.lineWidth = lineWidth;
                     ctx.lineCap = 'round';
                     ctx.beginPath();
-                    ctx.moveTo(element.start.x + normalX * offset, element.start.y + normalY * offset);
-                    ctx.lineTo(element.end.x + normalX * offset, element.end.y + normalY * offset);
+                    ctx.moveTo(element.start.x + normalX * (lineWidth/2), element.start.y + normalY * (lineWidth/2));
+                    ctx.lineTo(element.end.x + normalX * (lineWidth/2), element.end.y + normalY * (lineWidth/2));
                     ctx.stroke();
                     
-                    // Spur B
+                    // Spur B - KEINE LÜCKE
                     ctx.strokeStyle = spurMapping.spurB;
                     ctx.beginPath();
-                    ctx.moveTo(element.start.x - normalX * offset, element.start.y - normalY * offset);
-                    ctx.lineTo(element.end.x - normalX * offset, element.end.y - normalY * offset);
+                    ctx.moveTo(element.start.x - normalX * (lineWidth/2), element.start.y - normalY * (lineWidth/2));
+                    ctx.lineTo(element.end.x - normalX * (lineWidth/2), element.end.y - normalY * (lineWidth/2));
                     ctx.stroke();
                 }
             } else if (element.type === 'curve' && element.center && element.angle !== 0) {
@@ -1200,16 +1204,16 @@ class KantteileEditor {
                 
                 ctx.lineWidth = lineWidth;
                 
-                // Äußerer Bogen
+                // Äußerer Bogen - KEINE LÜCKE
                 ctx.strokeStyle = ersteSpurColor;
                 ctx.beginPath();
-                ctx.arc(element.center.x, element.center.y, element.radius + offset, startAngle, endAngle, counterClockwise);
+                ctx.arc(element.center.x, element.center.y, element.radius + lineWidth/2, startAngle, endAngle, counterClockwise);
                 ctx.stroke();
                 
-                // Innerer Bogen
+                // Innerer Bogen - KEINE LÜCKE
                 ctx.strokeStyle = zweiteSpurColor;
                 ctx.beginPath();
-                ctx.arc(element.center.x, element.center.y, element.radius - offset, startAngle, endAngle, counterClockwise);
+                ctx.arc(element.center.x, element.center.y, element.radius - lineWidth/2, startAngle, endAngle, counterClockwise);
                 ctx.stroke();
             }
         });
