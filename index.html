@@ -532,57 +532,52 @@ function loadAdSense() {
         </div>
     </div>
 
-    <script>
-        // Hintergrundbild optimiert laden
-        function loadBackgroundImage() {
-            const img = new Image();
-            img.onload = function() {
-                document.body.classList.add('bg-loaded');
-            };
-            img.onerror = function() {
-                // Fallback bereits durch CSS Gradient gesetzt
-                console.log('Hintergrundbild konnte nicht geladen werden, Fallback aktiv');
-            };
-            img.src = 'Images/index.png';
-        }
+   <script>
+// Hintergrundbild optimiert laden
+function loadBackgroundImage() {
+    const img = new Image();
+    img.onload = function() {
+        document.body.classList.add('bg-loaded');
+    };
+    img.onerror = function() {
+        console.log('Hintergrundbild konnte nicht geladen werden, Fallback aktiv');
+    };
+    img.src = 'Images/index.png';
+}
 
-        // Cookie Management System
-        function showCookieBanner() {
-            const cookieConsent = localStorage.getItem('cookieConsent');
-            if (!cookieConsent) {
-                document.getElementById('cookieBanner').classList.add('show');
-            }
-        }
+// Cookie Management System
+function showCookieBanner() {
+    const cookieConsent = localStorage.getItem('cookieConsent');
+    if (!cookieConsent) {
+        document.getElementById('cookieBanner').classList.add('show');
+    }
+}
 
-        function acceptAllCookies() {
+function acceptAllCookies() {
     localStorage.setItem('cookieConsent', 'all');
     localStorage.setItem('analyticsCookies', 'true');
     localStorage.setItem('marketingCookies', 'true');
     
     loadAnalytics();
-    showAds(); // Personalisierte Werbung anzeigen
+    showAds();
     
     document.getElementById('cookieBanner').classList.remove('show');
 }
 
-        function acceptOnlyEssential() {
+function acceptOnlyEssential() {
     localStorage.setItem('cookieConsent', 'essential');
     localStorage.setItem('analyticsCookies', 'false');
     localStorage.setItem('marketingCookies', 'false');
     
-    showAds(); // Nicht-personalisierte Werbung anzeigen
+    showAds();
     
     document.getElementById('cookieBanner').classList.remove('show');
 }
 
-        // Erweitere deine bestehende showAds() Funktion in index.html
-
 function showAds() {
-    // Werbung immer anzeigen - personalisiert oder nicht-personalisiert
     document.getElementById('middle-ad-container-1').style.display = 'block';
     document.getElementById('middle-ad-container-2').style.display = 'block';
     
-    // AdSense konfigurieren basierend auf Cookie-Einstellungen
     const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
     
     if (window.adsbygoogle) {
@@ -590,9 +585,8 @@ function showAds() {
             const ads = document.querySelectorAll('.adsbygoogle');
             ads.forEach(ad => {
                 if (!ad.getAttribute('data-ad-status')) {
-                    // Nicht-personalisierte Werbung wenn Cookies abgelehnt
                     if (!allowPersonalized) {
-                        ad.setAttribute('data-npa', '1'); // Non-Personalized Ads
+                        ad.setAttribute('data-npa', '1');
                     }
                     (window.adsbygoogle = window.adsbygoogle || []).push({});
                 }
@@ -602,14 +596,13 @@ function showAds() {
         }
     }
 }
+
 function hideAds() {
-    // Container verstecken
     document.getElementById('middle-ad-container-1').style.display = 'none';
     document.getElementById('middle-ad-container-2').style.display = 'none';
 }
 
 function showAdPlaceholders() {
-    // Placeholder anzeigen wenn AdSense nicht funktioniert
     document.querySelectorAll('.ad-placeholder').forEach(placeholder => {
         placeholder.style.display = 'flex';
     });
@@ -618,15 +611,19 @@ function showAdPlaceholders() {
     });
 }
 
-       // Ersetze die bestehende openCalculationModal() Funktion in index.html
+// Modal AdSense Integration - VERBESSERTE VERSION
 function openCalculationModal() {
     document.getElementById('calculationModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
     
-    // Längere Verzögerung für AdSense
     setTimeout(() => {
         loadModalAds();
-    }, 1000); // Erhöht von 500ms auf 1000ms
+    }, 1000);
+}
+
+function closeCalculationModal() {
+    document.getElementById('calculationModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
 }
 
 function loadModalAds() {
@@ -636,15 +633,12 @@ function loadModalAds() {
         return;
     }
     
-    // Container sichtbar machen
     modalContainer.style.display = 'block';
     
-    // Prüfen ob AdSense verfügbar ist
     if (typeof window.adsbygoogle === 'undefined') {
         console.log('AdSense not loaded, loading now...');
         loadAdSense();
         
-        // Erneut versuchen nach AdSense-Load
         setTimeout(() => {
             attemptModalAdLoad();
         }, 2000);
@@ -663,15 +657,12 @@ function attemptModalAdLoad() {
         return;
     }
     
-    // Neues AdSense-Element komplett neu erstellen
     const adWrapper = modalContainer.querySelector('.ad-with-label');
     if (!adWrapper) return;
     
-    // Alte Ads entfernen
     const oldAds = adWrapper.querySelectorAll('.adsbygoogle');
     oldAds.forEach(ad => ad.remove());
     
-    // Neues Ad-Element erstellen
     const newAd = document.createElement('ins');
     newAd.className = 'adsbygoogle';
     newAd.style.cssText = 'display:block;min-height:250px;';
@@ -680,28 +671,24 @@ function attemptModalAdLoad() {
     newAd.setAttribute('data-ad-format', 'rectangle');
     newAd.setAttribute('data-full-width-responsive', 'true');
     
-    // Nicht-personalisierte Werbung wenn nötig
     const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
     if (!allowPersonalized) {
         newAd.setAttribute('data-npa', '1');
     }
     
-    // Element einfügen
     adWrapper.appendChild(newAd);
     
     try {
-        // AdSense Push mit Fehlerbehandlung
         (window.adsbygoogle = window.adsbygoogle || []).push({});
         console.log('Modal ad pushed to AdSense');
         
-        // Nach 3 Sekunden prüfen ob Werbung geladen wurde
         setTimeout(() => {
             checkAdStatus(newAd);
         }, 3000);
         
     } catch (e) {
         console.error('AdSense error in modal:', e);
-        showAdFallback(modalContainer);
+        hideAdContainer(modalContainer);
     }
 }
 
@@ -718,615 +705,498 @@ function checkAdStatus(adElement) {
 function hideAdContainer(container) {
     if (!container) return;
     
-    // Container komplett verstecken
     container.style.display = 'none';
     container.style.height = '0';
     container.style.margin = '0';
     container.style.padding = '0';
 }
 
-// Wichtig: Modal im HTML bereits vorhanden machen (versteckt)
-// Das Modal sollte beim Seitenladen bereits existieren:
-
-function initializeModalOnPageLoad() {
-    // Modal Container bereits beim Laden erstellen
-    const modalHtml = `
-        <div id="calculationModal" class="calculation-modal" style="display: none;">
-            <div class="calculation-modal-content">
-                <span class="calculation-close" onclick="closeCalculationModal()">&times;</span>
-                <h2>Dachflächenberechnung</h2>
-                <p>Wählen Sie den passenden Rechner für Ihre Dachform:</p>
+// Modal Management (bestehende Funktionen)
+function openModal(type) {
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modal-body');
+    
+    let content = '';
+    
+    if (type === 'impressum') {
+        content = `
+            <h2>Impressum</h2>
+            <h3>Angaben gemäß § 5 TMG</h3>
+            <div class="contact-info">
+                <p><strong>Dachplattenrechner.de</strong><br>
+                Matthias Dührkop<br>
+                Rhedewiesen 1<br>
+                19258 Boizenburg/Elbe<br>
+                Deutschland</p>
                 
-                <!-- Ad Container direkt beim Laden erstellen -->
-                <div class="ad-wrapper" id="modal-ad-container" style="display: none;">
-                    <div class="ad-with-label">
-                        <span class="ad-label">Werbung</span>
-                        <!-- AdSense wird hier später eingefügt -->
-                    </div>
+                <p><strong>Kontakt:</strong><br>
+                E-Mail: <span id="email-contact"></span></p>
+                
+                <p><strong>Umsatzsteuer-ID:</strong><br>
+                DE08721403093</p>
+            </div>
+            
+            <h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
+            <p>Matthias Dührkop<br>
+            Rhedewiesen 1<br>
+            19258 Boizenburg/Elbe</p>
+            
+            <h3>Haftungsausschluss</h3>
+            <p><strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Die Berechnungen des Dachplattenrechners erfolgen nach bestem Wissen und Gewissen, jedoch ohne Gewähr für die Richtigkeit.</p>
+            
+            <p><strong>Haftung für Links:</strong> Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.</p>
+        `;
+    } else if (type === 'datenschutz') {
+        content = `
+            <h2>Datenschutzerklärung</h2>
+            
+            <h3>1. Datenschutz auf einen Blick</h3>
+            <h4>Allgemeine Hinweise</h4>
+            <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.</p>
+            
+            <h4>Datenerfassung auf dieser Website</h4>
+            <p><strong>Wer ist verantwortlich für die Datenerfassung auf dieser Website?</strong><br>
+            Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Impressum entnehmen.</p>
+            
+            <h3>3. Google Analytics</h3>
+            <p>Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
+            
+            <p>Google Analytics ermöglicht es dem Websitebetreiber, das Verhalten der Websitebesucher zu analysieren. Die IP-Adresse wird anonymisiert übertragen.</p>
+            
+            <p><strong>Rechtsgrundlage:</strong> Die Nutzung von Google Analytics erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.</p>
+            
+            <h3>4. Google AdSense</h3>
+            <p>Diese Website verwendet Google AdSense, einen Dienst zum Einbinden von Werbeanzeigen der Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
+            
+            <p><strong>Datenverarbeitung:</strong> Google AdSense verwendet Cookies und ähnliche Technologien, um Ihnen personalisierte Werbung anzuzeigen. Dabei werden Informationen über Ihre Website-Besuche gesammelt.</p>
+            
+            <p><strong>Zweck:</strong> Die Datenverarbeitung dient der Finanzierung dieser kostenlosen Website durch Werbeeinnahmen und der Bereitstellung relevanter Werbung.</p>
+            
+            <p><strong>Rechtsgrundlage:</strong> Die Nutzung von Google AdSense erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.</p>
+            
+            <p><strong>Widerspruch:</strong> Sie können der Verwendung von Cookies für personalisierte Werbung jederzeit widersprechen. Besuchen Sie dazu die <a href="https://adssettings.google.com" target="_blank">Google Ads-Einstellungen</a>.</p>
+            
+            <h3>5. Verwendete Cookies</h3>
+            <p><strong>Essentielle Cookies:</strong> Für die Grundfunktionalität der Website (Cookie-Einstellungen, Session-Verwaltung)</p>
+            <p><strong>Analyse-Cookies:</strong> Google Analytics (_ga, _gat, _gid) - Speicherdauer: bis zu 26 Monate</p>
+            <p><strong>Marketing-Cookies:</strong> Google AdSense (verschiedene Cookies) - Speicherdauer: bis zu 24 Monate</p>
+            
+            <h3>6. Ihre Rechte</h3>
+            <p>Sie haben jederzeit das Recht unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein Recht, die Berichtigung oder Löschung dieser Daten zu verlangen.</p>
+            
+            <p><strong>Widerruf der Einwilligung:</strong> Sie können Ihre Einwilligung zur Datenverarbeitung jederzeit widerrufen. Dies hat jedoch keinen Einfluss auf die Rechtmäßigkeit der aufgrund der Einwilligung bis zum Widerruf erfolgten Verarbeitung.</p>
+            
+            <p><strong>Kontakt:</strong><br>
+            Bei Fragen zum Datenschutz wenden Sie sich bitte an: <span id="email-privacy"></span></p>
+        `;
+    } else if (type === 'agb') {
+        content = `
+            <h2>Allgemeine Geschäftsbedingungen (AGB)</h2>
+            
+            <h3>1. Geltungsbereich</h3>
+            <p>Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung des Dachplattenrechners, einer kostenlosen Webanwendung zur Berechnung von Materialverbrauch und Anrissplänen für Dachplatten. Die Website wird durch Werbeeinnahmen finanziert und steht sowohl privaten als auch gewerblichen Nutzern zur Verfügung.</p>
+            
+            <h3>2. Leistungsbeschreibung</h3>
+            <p>Der Dachplattenrechner bietet verschiedene Berechnungstools für:</p>
+            <ul>
+                <li>Gleichschenklige Dreiecke</li>
+                <li>Ungleichschenklige Dreiecke</li>
+                <li>Trapezflächen</li>
+                <li>Trapez auf Rechteck Flächen</li>
+                <li>Verschnitt-Optimierung</li>
+                <li>Druckfertige Bemaßungsskizzen</li>
+            </ul>
+            
+            <h3>3. Nutzungsrechte</h3>
+            <p><strong>Private Nutzung:</strong> Die kostenlose Nutzung aller Funktionen für private Bauprojekte ist uneingeschränkt gestattet.</p>
+            
+            <p><strong>Gewerbliche Nutzung:</strong> Gewerbliche Nutzer (Dachdecker, Architekten, Handwerker) dürfen die Website kostenlos nutzen und die erstellten Berechnungen sowie Anrisspläne an ihre Kunden weitergeben, solange folgende Bedingungen eingehalten werden:</p>
+            <ul>
+                <li>Die Wasserzeichen und Quellenangaben in den Anrissplänen müssen unverändert bleiben</li>
+                <li>Es darf kein Entgelt für die reine Weitergabe der Berechnungen verlangt werden</li>
+                <li>Die Weitergabe erfolgt als Service im Rahmen der erbrachten Handwerksleistung</li>
+                <li>Eine Nennung von "Dachplattenrechner.de" als Quelle ist erwünscht</li>
+            </ul>
+            
+            <p><strong>Diese Regelung entspricht der kostenlosen Verteilung von Flyern und ist ausdrücklich gestattet.</strong></p>
+            
+            <h3>4. Nutzung und Verfügbarkeit</h3>
+            <p>Die Nutzung des Dachplattenrechners ist kostenlos. Die Finanzierung erfolgt durch Werbeeinnahmen. Wir behalten uns das Recht vor, Werbung auf der Website zu schalten.</p>
+            
+            <h3>5. Werbung</h3>
+            <p>Zur Finanzierung der kostenlosen Nutzung werden auf der Website Werbeanzeigen geschaltet. Diese werden von Google AdSense bereitgestellt und können personalisiert sein, sofern Sie der Verwendung von Marketing-Cookies zugestimmt haben.</p>
+            
+            <h3>6. Haftungsausschluss</h3>
+            <p><strong>Wichtiger Hinweis:</strong> Die Berechnungen des Dachplattenrechners dienen als Planungshilfe und erfolgen ohne Gewähr. Eine Haftung für die Richtigkeit der Berechnungen oder daraus entstehende Schäden wird ausgeschlossen.</p>
+            
+            <p>Alle Berechnungen sollten vor der praktischen Umsetzung von qualifizierten Fachkräften überprüft werden. Der Nutzer trägt die Verantwortung für die ordnungsgemäße Anwendung der Berechnungsergebnisse.</p>
+            
+            <p><strong>Gewerbliche Nutzer:</strong> Bei der Weitergabe von Berechnungen an Kunden weisen Sie diese ausdrücklich darauf hin, dass es sich um Planungshilfen ohne Gewähr handelt.</p>
+            
+            <h3>7. Geistiges Eigentum</h3>
+            <p>Alle Inhalte des Dachplattenrechners, einschließlich Design, Berechnungsalgorithmen und Texte, sind urheberrechtlich geschützt. Eine Vervielfältigung oder kommerzielle Nutzung ohne ausdrückliche Genehmigung ist untersagt.</p>
+            
+            <p><strong>Ausnahme:</strong> Die Weitergabe von Berechnungsergebnissen und Anrissplänen an Kunden ist gemäß Punkt 3 ausdrücklich gestattet.</p>
+            
+            <h3>8. Änderungen</h3>
+            <p>Wir behalten uns das Recht vor, diese AGB jederzeit zu ändern. Nutzer werden über wesentliche Änderungen informiert.</p>
+            
+            <h3>9. Anwendbares Recht</h3>
+            <p>Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts.</p>
+        `;
+    } else if (type === 'cookies') {
+        content = `
+            <h2>Cookie-Einstellungen</h2>
+            
+            <h3>Was sind Cookies?</h3>
+            <p>Cookies sind kleine Textdateien, die beim Besuch einer Website auf Ihrem Gerät gespeichert werden. Sie helfen dabei, die Website funktionsfähig zu machen und die Nutzererfahrung zu verbessern.</p>
+            
+            <h3>Cookie-Kategorien</h3>
+            
+            <div class="cookie-settings">
+                <h4>Essentielle Cookies</h4>
+                <p>Diese Cookies sind für die grundlegende Funktionalität der Website erforderlich und können nicht deaktiviert werden.</p>
+                <div class="cookie-option">
+                    <input type="checkbox" id="essentialCookies" checked disabled>
+                    <label for="essentialCookies">Essentielle Cookies (immer aktiv)</label>
                 </div>
                 
-                <div class="calculation-grid">
-                    <!-- Bestehende Rechner-Karten -->
+                <h4>Analyse-Cookies (Google Analytics)</h4>
+                <p>Diese Cookies helfen uns zu verstehen, wie Besucher mit der Website interagieren, indem sie Informationen anonym sammeln und melden.</p>
+                <div class="cookie-option">
+                    <input type="checkbox" id="analyticsCookies">
+                    <label for="analyticsCookies">Analyse-Cookies (Google Analytics)</label>
+                </div>
+                
+                <h4>Marketing-Cookies (Google AdSense)</h4>
+                <p>Diese Cookies werden verwendet, um Ihnen relevante Werbeanzeigen zu zeigen und die Finanzierung dieser kostenlosen Website zu ermöglichen.</p>
+                <div class="cookie-option">
+                    <input type="checkbox" id="marketingCookies">
+                    <label for="marketingCookies">Marketing-Cookies (Google AdSense)</label>
                 </div>
             </div>
+            
+            <button class="save-button" onclick="saveCookieSettings()">Einstellungen speichern</button>
+            
+            <h3>Detaillierte Cookie-Informationen</h3>
+            
+            <h4>Essentielle Cookies</h4>
+            <p><strong>cookieConsent:</strong> Speichert Ihre Cookie-Einstellungen<br>
+            <strong>Speicherdauer:</strong> Permanent (bis zur Änderung)</p>
+            
+            <h4>Google Analytics Cookies</h4>
+            <p><strong>_ga:</strong> Eindeutige Benutzer-ID für Statistiken<br>
+            <strong>_gat:</strong> Anfragerate begrenzen<br>
+            <strong>_gid:</strong> Eindeutige Benutzer-ID für 24h<br>
+            <strong>Speicherdauer:</strong> 1 Tag bis 26 Monate</p>
+            
+            <h4>Google AdSense Cookies</h4>
+            <p><strong>Verschiedene Cookies:</strong> Für personalisierte Werbung und Anzeigenauslieferung<br>
+            <strong>Speicherdauer:</strong> 1 Tag bis 24 Monate<br>
+            <strong>Anbieter:</strong> Google Ireland Limited</p>
+            
+            <h3>Externe Links</h3>
+            <p><strong>Google Ads-Einstellungen:</strong> <a href="https://adssettings.google.com" target="_blank">adssettings.google.com</a><br>
+            <strong>Google Analytics Opt-out:</strong> <a href="https://tools.google.com/dlpage/gaoptout" target="_blank">tools.google.com/dlpage/gaoptout</a></p>
+        `;
+    } else if (type === 'hilfe') {
+        content = `
+            <h2>Hilfe & FAQ</h2>
+            
+            <h3>Häufig gestellte Fragen</h3>
+            
+            <h4>🔧 Wie verwende ich den Dachplattenrechner?</h4>
+            <p><strong>1. Rechner wählen:</strong> Wählen Sie auf der Startseite den passenden Rechner für Ihre Dachform.</p>
+            <p><strong>2. Maße eingeben:</strong> Geben Sie die Abmessungen Ihrer Dachfläche ein.</p>
+            <p><strong>3. Materialangaben:</strong> Tragen Sie Deckbreite und Lieferbreite Ihrer Trapezbleche ein.</p>
+            <p><strong>4. Berechnen:</strong> Klicken Sie auf "Berechnen" um die Schnittliste zu erhalten.</p>
+            <p><strong>5. Anrissplan:</strong> Erstellen Sie einen druckbaren Anrissplan.</p>
+            
+            <h4>📏 Was bedeuten Deckbreite und Lieferbreite?</h4>
+            <p><strong>Deckbreite:</strong> Die nutzbare Breite des Trapezbleches (meist 1,00m).</p>
+            <p><strong>Lieferbreite:</strong> Die tatsächliche Breite des Bleches (meist 1,06m).</p>
+            <p><strong>Überlappung:</strong> Differenz zwischen Liefer- und Deckbreite.</p>
+            
+            <h4>🏠 Welchen Rechner verwenden?</h4>
+            <p><strong>Gleichschenkliges Dreieck:</strong> Für symmetrische Dreiecke</p>
+            <p><strong>Ungleichschenkliges Dreieck:</strong> Für asymmetrische Dreiecke</p>
+            <p><strong>Trapez:</strong> Für trapezförmige Flächen</p>
+            <p><strong>Trapez auf Rechteck:</strong> Für Walmdächer und Krüppelwalmdächer</p>
+            <p><strong>Verschnitt-Optimierung:</strong> Für optimale Materialaufteilung</p>
+            
+            <h4>🎯 Wie genau sind die Berechnungen?</h4>
+            <p>Die Berechnungen basieren auf mathematischen Grundlagen und sind sehr präzise. Dennoch sollten alle Ergebnisse von Fachkräften überprüft werden.</p>
+            
+            <h4>🖨️ Wie drucke ich die Anrisspläne?</h4>
+            <p>Klicken Sie auf "Anrissplan erstellen" und dann auf "Drucken". Die Pläne sind für DIN A4 optimiert.</p>
+            
+            <h4>📱 Funktioniert es auf dem Smartphone?</h4>
+            <p>Ja! Der Rechner ist vollständig responsive und funktioniert auf allen Geräten.</p>
+            
+            <h4>💰 Warum sehe ich Werbung?</h4>
+            <p>Die Website ist kostenlos und wird durch Werbung finanziert. Sie können in den Cookie-Einstellungen personalisierte Werbung deaktivieren.</p>
+            
+            <h4>🍪 Was sind Cookies?</h4>
+            <p>Cookies sind kleine Dateien, die die Funktionalität verbessern. Sie können Ihre Cookie-Einstellungen jederzeit anpassen.</p>
+            
+            <h4>💾 Werden meine Daten gespeichert?</h4>
+            <p>Nein, alle Berechnungen erfolgen lokal in Ihrem Browser. Nur anonyme Statistiken werden erfasst (falls zugestimmt).</p>
+            
+            <h3>Weitere Unterstützung</h3>
+            <p>Bei weiteren Fragen wenden Sie sich an: <span id="email-support"></span></p>
+        `;
+    } else if (type === 'kontakt') {
+        content = `
+            <h2>Kontakt</h2>
+            
+            <div class="contact-info">
+                <h3>Dachplattenrechner.de</h3>
+                <p>
+                    <strong>Matthias Dührkop</strong><br>
+                    Rhedewiesen 1<br>
+                    19258 Boizenburg/Elbe<br>
+                    Deutschland
+                </p>
+                
+                <p>
+                    <strong>E-Mail:</strong> <span id="email-display"></span><br>
+                    <strong>Website:</strong> dachplattenrechner.de
+                </p>
+            </div>
+            
+            <h3>Anfragen und Support</h3>
+            <p>Für Fragen, Anregungen oder technische Probleme stehen wir Ihnen gerne zur Verfügung:</p>
+            
+            <ul>
+                <li><strong>Technischer Support:</strong> Bei Problemen mit den Berechnungen</li>
+                <li><strong>Feature-Anfragen:</strong> Vorschläge für neue Funktionen</li>
+                <li><strong>Geschäftliche Anfragen:</strong> Kooperationen oder Werbung</li>
+                <li><strong>Datenschutz:</strong> Fragen zum Umgang mit Daten</li>
+            </ul>
+            
+            <h3>Antwortzeiten</h3>
+            <p>Wir bemühen uns, alle Anfragen innerhalb von 24-48 Stunden zu beantworten.</p>
+        `;
+    }
+    
+    modalBody.innerHTML = content;
+    
+    // Load current cookie settings if opening cookie modal
+    if (type === 'cookies') {
+        const analyticsCookies = localStorage.getItem('analyticsCookies') === 'true';
+        const marketingCookies = localStorage.getItem('marketingCookies') === 'true';
+        document.getElementById('analyticsCookies').checked = analyticsCookies;
+        document.getElementById('marketingCookies').checked = marketingCookies;
+    }
+    
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // Setup email protection after modal content is loaded
+    setupEmailProtection();
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function saveCookieSettings() {
+    const analyticsCookies = document.getElementById('analyticsCookies').checked;
+    const marketingCookies = document.getElementById('marketingCookies').checked;
+    
+    localStorage.setItem('cookieConsent', 'custom');
+    localStorage.setItem('analyticsCookies', analyticsCookies.toString());
+    localStorage.setItem('marketingCookies', marketingCookies.toString());
+    
+    // Analytics laden/entladen
+    if (analyticsCookies) {
+        loadAnalytics();
+    } else {
+        window['ga-disable-G-6NSYG8B1T9'] = true;
+    }
+    
+    // AdSense laden/entladen
+    if (marketingCookies) {
+        loadAdSense();
+        showAds();
+    } else {
+        hideAds();
+    }
+    
+    closeModal();
+    alert('Cookie-Einstellungen gespeichert!');
+}
+
+// Sketch Modal Functions
+function openSketchModal() {
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modal-body');
+    
+    const content = `
+        <h2>Bemaßungsskizzen Download</h2>
+        
+        <p>Professionelle DIN A4 Bemaßungsskizzen für verschiedene Dachformen - direkt drucken oder als PDF speichern.</p>
+        
+        <div class="sketch-downloads" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+            
+            <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
+                        <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
+                            <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
+                            <line x1="30" y1="25" x2="30" y2="55" stroke="#333" stroke-width="1"/>
+                            <line x1="17.5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
+                            <line x1="42.5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
+                            <line x1="17.5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
+                            <line x1="42.5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
+                        </svg>
+                    </div>
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">Krüppelwalm</h4>
+                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Krüppelwalmdach mit abgeknickten Walmen</p>
+                        <button class="sketch-btn" onclick="printSketch('skizzen/krüppelwalm.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Satteldach -->
+            <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
+                        <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
+                            <rect x="5" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
+                            <rect x="30" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
+                            <line x1="30" y1="15" x2="30" y2="65" stroke="#333" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">Satteldach</h4>
+                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Klassisches Satteldach mit First und Traufen</p>
+                        <button class="sketch-btn" onclick="printSketch('skizzen/Satteldach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Walmdach -->
+            <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
+                        <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
+                            <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
+                            <line x1="30" y1="25" x2="30" y2="55" stroke="#333" stroke-width="1"/>
+                            <line x1="5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
+                            <line x1="55" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
+                            <line x1="5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
+                            <line x1="55" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
+                        </svg>
+                    </div>
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">Walmdach</h4>
+                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Walmdach mit vier Dachflächen</p>
+                        <button class="sketch-btn" onclick="printSketch('skizzen/walmdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pyramidendach -->
+            <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
+                        <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
+                            <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
+                            <line x1="5" y1="10" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
+                            <line x1="55" y1="10" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
+                            <line x1="5" y1="70" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
+                            <line x1="55" y1="70" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
+                        </svg>
+                    </div>
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">Pyramidendach</h4>
+                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Pyramidenförmiges Dach mit zentralem Punkt</p>
+                        <button class="sketch-btn" onclick="printSketch('skizzen/pyramidendach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pultdach -->
+            <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
+                        <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
+                            <rect x="10" y="25" width="40" height="30" fill="none" stroke="#333" stroke-width="1"/>
+                        </svg>
+                    </div>
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">Pultdach</h4>
+                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Einfaches geneigtes Pultdach</p>
+                        <button class="sketch-btn" onclick="printSketch('skizzen/pultdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="sketch-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; color: #333;">
+            <h3 style="margin: 0 0 10px 0; color: #2a5298;">ℹ️ Hinweise:</h3>
+            <ul style="margin: 0; padding-left: 20px; color: #555;">
+                <li>Alle Skizzen sind im DIN A4 Format optimiert</li>
+                <li>Perfekt für die Baustelle geeignet</li>
+                <li>Beschriftungsfelder für Ihre Maße</li>
+                <li>Kostenlos für private und gewerbliche Nutzung</li>
+            </ul>
         </div>
     `;
     
-    // Nur wenn Modal noch nicht existiert
-    if (!document.getElementById('calculationModal')) {
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    initializeModalOnPageLoad(); // NEUE ZEILE HINZUFÜGEN
-    setupEmailProtection();
-    loadBackgroundImage();
-    loadAdSense();
-    // ... rest bleibt gleich
-});
-        
-        // Neues AdSense-Element erstellen
-        const newAd = document.createElement('ins');
-        newAd.className = 'adsbygoogle';
-        newAd.style.display = 'block';
-        newAd.setAttribute('data-ad-client', 'ca-pub-8687929894744033');
-        newAd.setAttribute('data-ad-slot', '8407868749');
-        newAd.setAttribute('data-ad-format', 'rectangle');
-        newAd.setAttribute('data-full-width-responsive', 'true');
-        
-        // Nicht-personalisierte Werbung wenn nötig
-        const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
-        if (!allowPersonalized) {
-            newAd.setAttribute('data-npa', '1');
-        }
-        
-        // In Container einfügen
-        const adLabel = modalContainer.querySelector('.ad-with-label');
-        if (adLabel) {
-            adLabel.appendChild(newAd);
-            
-            // AdSense laden
-            try {
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-                console.log('Modal ad created and pushed');
-            } catch (e) {
-                console.log('Modal ad error:', e);
-            }
-        }
-    }
-}
-
-        function openCalculationModal() {
-    document.getElementById('calculationModal').style.display = 'block';
+    modalBody.innerHTML = content;
+    modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
-    
-    // Warten bis Modal vollständig geladen ist
-    setTimeout(() => {
-        loadModalAds();
-    }, 500);
 }
 
-        function loadModalAds() {
-    const modalContainer = document.getElementById('modal-ad-container');
-    if (!modalContainer) return;
-    
-    // Container sichtbar machen
-    modalContainer.style.display = 'block';
-    
-    // Prüfen ob AdSense schon geladen ist
-    if (typeof window.adsbygoogle === 'undefined') {
-        console.log('AdSense not loaded yet');
-        return;
-    }
-    
-    const modalAd = modalContainer.querySelector('.adsbygoogle');
-    if (modalAd && !modalAd.getAttribute('data-ad-status')) {
-        try {
-            const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
-            if (!allowPersonalized) {
-                modalAd.setAttribute('data-npa', '1');
-            }
-            
-            // Force AdSense reload
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-            console.log('Modal ad pushed to AdSense');
-        } catch (e) {
-            console.log('Modal AdSense error:', e);
-        }
+function printSketch(filename) {
+    // Öffne die Skizze in einem neuen Fenster zum Drucken
+    const printWindow = window.open(filename, '_blank');
+    if (printWindow) {
+        printWindow.onload = function() {
+            printWindow.print();
+        };
     }
 }
-        // Modal Management (bestehende Funktionen)
-        function openModal(type) {
-            const modal = document.getElementById('modal');
-            const modalBody = document.getElementById('modal-body');
-            
-            let content = '';
-            
-            if (type === 'impressum') {
-                content = `
-                    <h2>Impressum</h2>
-                    <h3>Angaben gemäß § 5 TMG</h3>
-                    <div class="contact-info">
-                        <p><strong>Dachplattenrechner.de</strong><br>
-                        Matthias Dührkop<br>
-                        Rhedewiesen 1<br>
-                        19258 Boizenburg/Elbe<br>
-                        Deutschland</p>
-                        
-                        <p><strong>Kontakt:</strong><br>
-                        E-Mail: <span id="email-contact"></span></p>
-                        
-                        <p><strong>Umsatzsteuer-ID:</strong><br>
-                        DE08721403093</p>
-                    </div>
-                    
-                    <h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
-                    <p>Matthias Dührkop<br>
-                    Rhedewiesen 1<br>
-                    19258 Boizenburg/Elbe</p>
-                    
-                    <h3>Haftungsausschluss</h3>
-                    <p><strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Die Berechnungen des Dachplattenrechners erfolgen nach bestem Wissen und Gewissen, jedoch ohne Gewähr für die Richtigkeit.</p>
-                    
-                    <p><strong>Haftung für Links:</strong> Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.</p>
-                `;
-            } else if (type === 'datenschutz') {
-                content = `
-                    <h2>Datenschutzerklärung</h2>
-                    
-                    <h3>1. Datenschutz auf einen Blick</h3>
-                    <h4>Allgemeine Hinweise</h4>
-                    <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.</p>
-                    
-                    <h4>Datenerfassung auf dieser Website</h4>
-                    <p><strong>Wer ist verantwortlich für die Datenerfassung auf dieser Website?</strong><br>
-                    Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Impressum entnehmen.</p>
-                    
-                    <h3>3. Google Analytics</h3>
-                    <p>Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
-                    
-                    <p>Google Analytics ermöglicht es dem Websitebetreiber, das Verhalten der Websitebesucher zu analysieren. Die IP-Adresse wird anonymisiert übertragen.</p>
-                    
-                    <p><strong>Rechtsgrundlage:</strong> Die Nutzung von Google Analytics erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.</p>
-                    
-                    <h3>4. Google AdSense</h3>
-                    <p>Diese Website verwendet Google AdSense, einen Dienst zum Einbinden von Werbeanzeigen der Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
-                    
-                    <p><strong>Datenverarbeitung:</strong> Google AdSense verwendet Cookies und ähnliche Technologien, um Ihnen personalisierte Werbung anzuzeigen. Dabei werden Informationen über Ihre Website-Besuche gesammelt.</p>
-                    
-                    <p><strong>Zweck:</strong> Die Datenverarbeitung dient der Finanzierung dieser kostenlosen Website durch Werbeeinnahmen und der Bereitstellung relevanter Werbung.</p>
-                    
-                    <p><strong>Rechtsgrundlage:</strong> Die Nutzung von Google AdSense erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.</p>
-                    
-                    <p><strong>Widerspruch:</strong> Sie können der Verwendung von Cookies für personalisierte Werbung jederzeit widersprechen. Besuchen Sie dazu die <a href="https://adssettings.google.com" target="_blank">Google Ads-Einstellungen</a>.</p>
-                    
-                    <h3>5. Verwendete Cookies</h3>
-                    <p><strong>Essentielle Cookies:</strong> Für die Grundfunktionalität der Website (Cookie-Einstellungen, Session-Verwaltung)</p>
-                    <p><strong>Analyse-Cookies:</strong> Google Analytics (_ga, _gat, _gid) - Speicherdauer: bis zu 26 Monate</p>
-                    <p><strong>Marketing-Cookies:</strong> Google AdSense (verschiedene Cookies) - Speicherdauer: bis zu 24 Monate</p>
-                    
-                    <h3>6. Ihre Rechte</h3>
-                    <p>Sie haben jederzeit das Recht unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein Recht, die Berichtigung oder Löschung dieser Daten zu verlangen.</p>
-                    
-                    <p><strong>Widerruf der Einwilligung:</strong> Sie können Ihre Einwilligung zur Datenverarbeitung jederzeit widerrufen. Dies hat jedoch keinen Einfluss auf die Rechtmäßigkeit der aufgrund der Einwilligung bis zum Widerruf erfolgten Verarbeitung.</p>
-                    
-                    <p><strong>Kontakt:</strong><br>
-                    Bei Fragen zum Datenschutz wenden Sie sich bitte an: <span id="email-privacy"></span></p>
-                `;
-            } else if (type === 'agb') {
-                content = `
-                    <h2>Allgemeine Geschäftsbedingungen (AGB)</h2>
-                    
-                    <h3>1. Geltungsbereich</h3>
-                    <p>Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung des Dachplattenrechners, einer kostenlosen Webanwendung zur Berechnung von Materialverbrauch und Anrissplänen für Dachplatten. Die Website wird durch Werbeeinnahmen finanziert und steht sowohl privaten als auch gewerblichen Nutzern zur Verfügung.</p>
-                    
-                    <h3>2. Leistungsbeschreibung</h3>
-                    <p>Der Dachplattenrechner bietet verschiedene Berechnungstools für:</p>
-                    <ul>
-                        <li>Gleichschenklige Dreiecke</li>
-                        <li>Ungleichschenklige Dreiecke</li>
-                        <li>Trapezflächen</li>
-                        <li>Trapez auf Rechteck Flächen</li>
-                        <li>Verschnitt-Optimierung</li>
-                        <li>Druckfertige Bemaßungsskizzen</li>
-                    </ul>
-                    
-                    <h3>3. Nutzungsrechte</h3>
-                    <p><strong>Private Nutzung:</strong> Die kostenlose Nutzung aller Funktionen für private Bauprojekte ist uneingeschränkt gestattet.</p>
-                    
-                    <p><strong>Gewerbliche Nutzung:</strong> Gewerbliche Nutzer (Dachdecker, Architekten, Handwerker) dürfen die Website kostenlos nutzen und die erstellten Berechnungen sowie Anrisspläne an ihre Kunden weitergeben, solange folgende Bedingungen eingehalten werden:</p>
-                    <ul>
-                        <li>Die Wasserzeichen und Quellenangaben in den Anrissplänen müssen unverändert bleiben</li>
-                        <li>Es darf kein Entgelt für die reine Weitergabe der Berechnungen verlangt werden</li>
-                        <li>Die Weitergabe erfolgt als Service im Rahmen der erbrachten Handwerksleistung</li>
-                        <li>Eine Nennung von "Dachplattenrechner.de" als Quelle ist erwünscht</li>
-                    </ul>
-                    
-                    <p><strong>Diese Regelung entspricht der kostenlosen Verteilung von Flyern und ist ausdrücklich gestattet.</strong></p>
-                    
-                    <h3>4. Nutzung und Verfügbarkeit</h3>
-                    <p>Die Nutzung des Dachplattenrechners ist kostenlos. Die Finanzierung erfolgt durch Werbeeinnahmen. Wir behalten uns das Recht vor, Werbung auf der Website zu schalten.</p>
-                    
-                    <h3>5. Werbung</h3>
-                    <p>Zur Finanzierung der kostenlosen Nutzung werden auf der Website Werbeanzeigen geschaltet. Diese werden von Google AdSense bereitgestellt und können personalisiert sein, sofern Sie der Verwendung von Marketing-Cookies zugestimmt haben.</p>
-                    
-                    <h3>6. Haftungsausschluss</h3>
-                    <p><strong>Wichtiger Hinweis:</strong> Die Berechnungen des Dachplattenrechners dienen als Planungshilfe und erfolgen ohne Gewähr. Eine Haftung für die Richtigkeit der Berechnungen oder daraus entstehende Schäden wird ausgeschlossen.</p>
-                    
-                    <p>Alle Berechnungen sollten vor der praktischen Umsetzung von qualifizierten Fachkräften überprüft werden. Der Nutzer trägt die Verantwortung für die ordnungsgemäße Anwendung der Berechnungsergebnisse.</p>
-                    
-                    <p><strong>Gewerbliche Nutzer:</strong> Bei der Weitergabe von Berechnungen an Kunden weisen Sie diese ausdrücklich darauf hin, dass es sich um Planungshilfen ohne Gewähr handelt.</p>
-                    
-                    <h3>7. Geistiges Eigentum</h3>
-                    <p>Alle Inhalte des Dachplattenrechners, einschließlich Design, Berechnungsalgorithmen und Texte, sind urheberrechtlich geschützt. Eine Vervielfältigung oder kommerzielle Nutzung ohne ausdrückliche Genehmigung ist untersagt.</p>
-                    
-                    <p><strong>Ausnahme:</strong> Die Weitergabe von Berechnungsergebnissen und Anrissplänen an Kunden ist gemäß Punkt 3 ausdrücklich gestattet.</p>
-                    
-                    <h3>8. Änderungen</h3>
-                    <p>Wir behalten uns das Recht vor, diese AGB jederzeit zu ändern. Nutzer werden über wesentliche Änderungen informiert.</p>
-                    
-                    <h3>9. Anwendbares Recht</h3>
-                    <p>Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts.</p>
-                `;
-            } else if (type === 'cookies') {
-                content = `
-                    <h2>Cookie-Einstellungen</h2>
-                    
-                    <h3>Was sind Cookies?</h3>
-                    <p>Cookies sind kleine Textdateien, die beim Besuch einer Website auf Ihrem Gerät gespeichert werden. Sie helfen dabei, die Website funktionsfähig zu machen und die Nutzererfahrung zu verbessern.</p>
-                    
-                    <h3>Cookie-Kategorien</h3>
-                    
-                    <div class="cookie-settings">
-                        <h4>Essentielle Cookies</h4>
-                        <p>Diese Cookies sind für die grundlegende Funktionalität der Website erforderlich und können nicht deaktiviert werden.</p>
-                        <div class="cookie-option">
-                            <input type="checkbox" id="essentialCookies" checked disabled>
-                            <label for="essentialCookies">Essentielle Cookies (immer aktiv)</label>
-                        </div>
-                        
-                        <h4>Analyse-Cookies (Google Analytics)</h4>
-                        <p>Diese Cookies helfen uns zu verstehen, wie Besucher mit der Website interagieren, indem sie Informationen anonym sammeln und melden.</p>
-                        <div class="cookie-option">
-                            <input type="checkbox" id="analyticsCookies">
-                            <label for="analyticsCookies">Analyse-Cookies (Google Analytics)</label>
-                        </div>
-                        
-                        <h4>Marketing-Cookies (Google AdSense)</h4>
-                        <p>Diese Cookies werden verwendet, um Ihnen relevante Werbeanzeigen zu zeigen und die Finanzierung dieser kostenlosen Website zu ermöglichen.</p>
-                        <div class="cookie-option">
-                            <input type="checkbox" id="marketingCookies">
-                            <label for="marketingCookies">Marketing-Cookies (Google AdSense)</label>
-                        </div>
-                    </div>
-                    
-                    <button class="save-button" onclick="saveCookieSettings()">Einstellungen speichern</button>
-                    
-                    <h3>Detaillierte Cookie-Informationen</h3>
-                    
-                    <h4>Essentielle Cookies</h4>
-                    <p><strong>cookieConsent:</strong> Speichert Ihre Cookie-Einstellungen<br>
-                    <strong>Speicherdauer:</strong> Permanent (bis zur Änderung)</p>
-                    
-                    <h4>Google Analytics Cookies</h4>
-                    <p><strong>_ga:</strong> Eindeutige Benutzer-ID für Statistiken<br>
-                    <strong>_gat:</strong> Anfragerate begrenzen<br>
-                    <strong>_gid:</strong> Eindeutige Benutzer-ID für 24h<br>
-                    <strong>Speicherdauer:</strong> 1 Tag bis 26 Monate</p>
-                    
-                    <h4>Google AdSense Cookies</h4>
-                    <p><strong>Verschiedene Cookies:</strong> Für personalisierte Werbung und Anzeigenauslieferung<br>
-                    <strong>Speicherdauer:</strong> 1 Tag bis 24 Monate<br>
-                    <strong>Anbieter:</strong> Google Ireland Limited</p>
-                    
-                    <h3>Externe Links</h3>
-                    <p><strong>Google Ads-Einstellungen:</strong> <a href="https://adssettings.google.com" target="_blank">adssettings.google.com</a><br>
-                    <strong>Google Analytics Opt-out:</strong> <a href="https://tools.google.com/dlpage/gaoptout" target="_blank">tools.google.com/dlpage/gaoptout</a></p>
-                `;
-            } else if (type === 'hilfe') {
-                content = `
-                    <h2>Hilfe & FAQ</h2>
-                    
-                    <h3>Häufig gestellte Fragen</h3>
-                    
-                    <h4>🔧 Wie verwende ich den Dachplattenrechner?</h4>
-                    <p><strong>1. Rechner wählen:</strong> Wählen Sie auf der Startseite den passenden Rechner für Ihre Dachform.</p>
-                    <p><strong>2. Maße eingeben:</strong> Geben Sie die Abmessungen Ihrer Dachfläche ein.</p>
-                    <p><strong>3. Materialangaben:</strong> Tragen Sie Deckbreite und Lieferbreite Ihrer Trapezbleche ein.</p>
-                    <p><strong>4. Berechnen:</strong> Klicken Sie auf "Berechnen" um die Schnittliste zu erhalten.</p>
-                    <p><strong>5. Anrissplan:</strong> Erstellen Sie einen druckbaren Anrissplan.</p>
-                    
-                    <h4>📏 Was bedeuten Deckbreite und Lieferbreite?</h4>
-                    <p><strong>Deckbreite:</strong> Die nutzbare Breite des Trapezbleches (meist 1,00m).</p>
-                    <p><strong>Lieferbreite:</strong> Die tatsächliche Breite des Bleches (meist 1,06m).</p>
-                    <p><strong>Überlappung:</strong> Differenz zwischen Liefer- und Deckbreite.</p>
-                    
-                    <h4>🏠 Welchen Rechner verwenden?</h4>
-                    <p><strong>Gleichschenkliges Dreieck:</strong> Für symmetrische Dreiecke</p>
-                    <p><strong>Ungleichschenkliges Dreieck:</strong> Für asymmetrische Dreiecke</p>
-                    <p><strong>Trapez:</strong> Für trapezförmige Flächen</p>
-                    <p><strong>Trapez auf Rechteck:</strong> Für Walmdächer und Krüppelwalmdächer</p>
-                    <p><strong>Verschnitt-Optimierung:</strong> Für optimale Materialaufteilung</p>
-                    
-                    <h4>🎯 Wie genau sind die Berechnungen?</h4>
-                    <p>Die Berechnungen basieren auf mathematischen Grundlagen und sind sehr präzise. Dennoch sollten alle Ergebnisse von Fachkräften überprüft werden.</p>
-                    
-                    <h4>🖨️ Wie drucke ich die Anrisspläne?</h4>
-                    <p>Klicken Sie auf "Anrissplan erstellen" und dann auf "Drucken". Die Pläne sind für DIN A4 optimiert.</p>
-                    
-                    <h4>📱 Funktioniert es auf dem Smartphone?</h4>
-                    <p>Ja! Der Rechner ist vollständig responsive und funktioniert auf allen Geräten.</p>
-                    
-                    <h4>💰 Warum sehe ich Werbung?</h4>
-                    <p>Die Website ist kostenlos und wird durch Werbung finanziert. Sie können in den Cookie-Einstellungen personalisierte Werbung deaktivieren.</p>
-                    
-                    <h4>🍪 Was sind Cookies?</h4>
-                    <p>Cookies sind kleine Dateien, die die Funktionalität verbessern. Sie können Ihre Cookie-Einstellungen jederzeit anpassen.</p>
-                    
-                    <h4>💾 Werden meine Daten gespeichert?</h4>
-                    <p>Nein, alle Berechnungen erfolgen lokal in Ihrem Browser. Nur anonyme Statistiken werden erfasst (falls zugestimmt).</p>
-                    
-                    <h3>Weitere Unterstützung</h3>
-                    <p>Bei weiteren Fragen wenden Sie sich an: <span id="email-support"></span></p>
-                `;
-            } else if (type === 'kontakt') {
-                content = `
-                    <h2>Kontakt</h2>
-                    
-                    <div class="contact-info">
-                        <h3>Dachplattenrechner.de</h3>
-                        <p>
-                            <strong>Matthias Dührkop</strong><br>
-                            Rhedewiesen 1<br>
-                            19258 Boizenburg/Elbe<br>
-                            Deutschland
-                        </p>
-                        
-                        <p>
-                            <strong>E-Mail:</strong> <span id="email-display"></span><br>
-                            <strong>Website:</strong> dachplattenrechner.de
-                        </p>
-                    </div>
-                    
-                    <h3>Anfragen und Support</h3>
-                    <p>Für Fragen, Anregungen oder technische Probleme stehen wir Ihnen gerne zur Verfügung:</p>
-                    
-                    <ul>
-                        <li><strong>Technischer Support:</strong> Bei Problemen mit den Berechnungen</li>
-                        <li><strong>Feature-Anfragen:</strong> Vorschläge für neue Funktionen</li>
-                        <li><strong>Geschäftliche Anfragen:</strong> Kooperationen oder Werbung</li>
-                        <li><strong>Datenschutz:</strong> Fragen zum Umgang mit Daten</li>
-                    </ul>
-                    
-                    <h3>Antwortzeiten</h3>
-                    <p>Wir bemühen uns, alle Anfragen innerhalb von 24-48 Stunden zu beantworten.</p>
-                `;
-            }
-            
-            modalBody.innerHTML = content;
-            
-            // Load current cookie settings if opening cookie modal
-            if (type === 'cookies') {
-                const analyticsCookies = localStorage.getItem('analyticsCookies') === 'true';
-                const marketingCookies = localStorage.getItem('marketingCookies') === 'true';
-                document.getElementById('analyticsCookies').checked = analyticsCookies;
-                document.getElementById('marketingCookies').checked = marketingCookies;
-            }
-            
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            
-            // Setup email protection after modal content is loaded
-            setupEmailProtection();
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('modal');
+    const calculationModal = document.getElementById('calculationModal');
+    
+    if (event.target === modal) {
+        closeModal();
+    }
+    if (event.target === calculationModal) {
+        closeCalculationModal();
+    }
+}
+
+// Email protection
+function setupEmailProtection() {
+    const email = 'xxxxwolfxxxx@me.com';
+    const emailElements = ['email-contact', 'email-privacy', 'email-display', 'email-footer', 'email-support'];
+    
+    emailElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.innerHTML = `<span class="email-protection" onclick="revealEmail('${id}', '${email}')" style="cursor: pointer; color: #2a5298; text-decoration: underline;">E-Mail anzeigen</span>`;
         }
+    });
+}
 
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
+function revealEmail(elementId, email) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = `<a href="mailto:${email}" style="color: inherit;">${email}</a>`;
+    }
+}
 
-        function saveCookieSettings() {
-            const analyticsCookies = document.getElementById('analyticsCookies').checked;
-            const marketingCookies = document.getElementById('marketingCookies').checked;
-            
-            localStorage.setItem('cookieConsent', 'custom');
-            localStorage.setItem('analyticsCookies', analyticsCookies.toString());
-            localStorage.setItem('marketingCookies', marketingCookies.toString());
-            
-            // Analytics laden/entladen
-            if (analyticsCookies) {
-                loadAnalytics();
-            } else {
-                window['ga-disable-G-6NSYG8B1T9'] = true;
-            }
-            
-            // AdSense laden/entladen
-            if (marketingCookies) {
-                loadAdSense();
-                showAds();
-            } else {
-                hideAds();
-            }
-            
-            closeModal();
-            alert('Cookie-Einstellungen gespeichert!');
-        }
-
-        function hideAds() {
-            document.getElementById('middle-ad-container-1').style.display = 'none';
-            document.getElementById('middle-ad-container-2').style.display = 'none';
-        }
-
-        // Sketch Modal Functions
-        function openSketchModal() {
-            const modal = document.getElementById('modal');
-            const modalBody = document.getElementById('modal-body');
-            
-            const content = `
-                <h2>Bemaßungsskizzen Download</h2>
-                
-                <p>Professionelle DIN A4 Bemaßungsskizzen für verschiedene Dachformen - direkt drucken oder als PDF speichern.</p>
-                
-                <div class="sketch-downloads" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
-                    
-                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
-                        <div style="display: flex; align-items: flex-start; gap: 12px;">
-                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                                    <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
-                                    <line x1="30" y1="25" x2="30" y2="55" stroke="#333" stroke-width="1"/>
-                                    <line x1="17.5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="42.5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="17.5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="42.5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                                </svg>
-                            </div>
-                            <div style="flex: 1;">
-                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">Krüppelwalm</h4>
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Krüppelwalmdach mit abgeknickten Walmen</p>
-                                <button class="sketch-btn" onclick="printSketch('skizzen/krüppelwalm.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Satteldach -->
-                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
-                        <div style="display: flex; align-items: flex-start; gap: 12px;">
-                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                                    <rect x="5" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
-                                    <rect x="30" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
-                                    <line x1="30" y1="15" x2="30" y2="65" stroke="#333" stroke-width="1.5"/>
-                                </svg>
-                            </div>
-                            <div style="flex: 1;">
-                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">Satteldach</h4>
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Klassisches Satteldach mit First und Traufen</p>
-                                <button class="sketch-btn" onclick="printSketch('skizzen/Satteldach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Walmdach -->
-                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
-                        <div style="display: flex; align-items: flex-start; gap: 12px;">
-                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                                    <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
-                                    <line x1="30" y1="25" x2="30" y2="55" stroke="#333" stroke-width="1"/>
-                                    <line x1="5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="55" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="55" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                                </svg>
-                            </div>
-                            <div style="flex: 1;">
-                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">Walmdach</h4>
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Walmdach mit vier Dachflächen</p>
-                                <button class="sketch-btn" onclick="printSketch('skizzen/walmdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Pyramidendach -->
-                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
-                        <div style="display: flex; align-items: flex-start; gap: 12px;">
-                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                                    <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
-                                    <line x1="5" y1="10" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="55" y1="10" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="5" y1="70" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                                    <line x1="55" y1="70" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                                </svg>
-                            </div>
-                            <div style="flex: 1;">
-                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">Pyramidendach</h4>
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Pyramidenförmiges Dach mit zentralem Punkt</p>
-                                <button class="sketch-btn" onclick="printSketch('skizzen/pyramidendach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Pultdach -->
-                    <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
-                        <div style="display: flex; align-items: flex-start; gap: 12px;">
-                            <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                                <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                                    <rect x="10" y="25" width="40" height="30" fill="none" stroke="#333" stroke-width="1"/>
-                                </svg>
-                            </div>
-                            <div style="flex: 1;">
-                                <h4 style="margin: 0 0 8px 0; color: #2a5298;">Pultdach</h4>
-                                <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Einfaches geneigtes Pultdach</p>
-                                <button class="sketch-btn" onclick="printSketch('skizzen/pultdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-                
-                <div class="sketch-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; color: #333;">
-                    <h3 style="margin: 0 0 10px 0; color: #2a5298;">ℹ️ Hinweise:</h3>
-                    <ul style="margin: 0; padding-left: 20px; color: #555;">
-                        <li>Alle Skizzen sind im DIN A4 Format optimiert</li>
-                        <li>Perfekt für die Baustelle geeignet</li>
-                        <li>Beschriftungsfelder für Ihre Maße</li>
-                        <li>Kostenlos für private und gewerbliche Nutzung</li>
-                    </ul>
-                </div>
-            `;
-            
-            modalBody.innerHTML = content;
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function printSketch(filename) {
-            // Öffne die Skizze in einem neuen Fenster zum Drucken
-            const printWindow = window.open(filename, '_blank');
-            if (printWindow) {
-                printWindow.onload = function() {
-                    printWindow.print();
-                };
-            }
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('modal');
-            const calculationModal = document.getElementById('calculationModal');
-            
-            if (event.target === modal) {
-                closeModal();
-            }
-            if (event.target === calculationModal) {
-                closeCalculationModal();
-            }
-        }
-
-        // Email protection
-        function setupEmailProtection() {
-            const email = 'xxxxwolfxxxx@me.com';
-            const emailElements = ['email-contact', 'email-privacy', 'email-display', 'email-footer', 'email-support'];
-            
-            emailElements.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.innerHTML = `<span class="email-protection" onclick="revealEmail('${id}', '${email}')" style="cursor: pointer; color: #2a5298; text-decoration: underline;">E-Mail anzeigen</span>`;
-                }
-            });
-        }
-
-        function revealEmail(elementId, email) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.innerHTML = `<a href="mailto:${email}" style="color: inherit;">${email}</a>`;
-            }
-        }
-
-       // Initialize everything
+// Initialize everything
 document.addEventListener('DOMContentLoaded', function() {
     setupEmailProtection();
     
@@ -1348,6 +1218,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show cookie banner for first-time visitors
     showCookieBanner();
 });
-    </script>
+</script>
 </body>
 </html>
