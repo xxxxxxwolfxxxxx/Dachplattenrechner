@@ -19,7 +19,6 @@ function acceptAllCookies() {
     localStorage.setItem('marketingCookies', 'true');
     
     loadAnalytics();
-    loadAdSense();
     showAds();
     
     document.getElementById('cookieBanner').classList.remove('show');
@@ -30,28 +29,31 @@ function acceptOnlyEssential() {
     localStorage.setItem('analyticsCookies', 'false');
     localStorage.setItem('marketingCookies', 'false');
     
+    showAds();
+    
     document.getElementById('cookieBanner').classList.remove('show');
 }
 
 function showAds() {
-    if (localStorage.getItem('marketingCookies') === 'true') {
-        // Zeige AdSense-Container
-        document.getElementById('top-ad-container').style.display = 'block';
-        document.getElementById('middle-ad-container').style.display = 'block';
-        document.getElementById('bottom-ad-container').style.display = 'block';
-        
-        // Lade AdSense-Anzeigen
-        if (window.adsbygoogle) {
-            try {
-                const ads = document.querySelectorAll('.adsbygoogle');
-                ads.forEach(ad => {
-                    if (!ad.getAttribute('data-ad-status')) {
-                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+    document.getElementById('top-ad-container').style.display = 'block';
+    document.getElementById('middle-ad-container').style.display = 'block';
+    document.getElementById('bottom-ad-container').style.display = 'block';
+    
+    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+    
+    if (window.adsbygoogle) {
+        try {
+            const ads = document.querySelectorAll('.adsbygoogle');
+            ads.forEach(ad => {
+                if (!ad.getAttribute('data-ad-status')) {
+                    if (!allowPersonalized) {
+                        ad.setAttribute('data-npa', '1');
                     }
-                });
-            } catch (e) {
-                console.log('AdSense loading error:', e);
-            }
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                }
+            });
+        } catch (e) {
+            console.log('AdSense loading error:', e);
         }
     }
 }
@@ -558,10 +560,6 @@ function zeigeErgebnisse(optimierung) {
         const schnittblattVerluste = platte.anzahlSchnitte * schnittblattBreite;
         tatsaechlichBenoetigtesMaterial += schnittblattVerluste;
         
-        // Verwende reale Schnittanzahl für Gesamtschnitte
-        gesamtSchnitte += platte.realSchnitte || platte.anzahlSchnitte + (platte.verschnitt > 0.001 ? 1 : 0);
-    });
-    
     const effizienz = gesamtMaterial > 0 ? (tatsaechlichBenoetigtesMaterial / gesamtMaterial * 100) : 0;
     
     // Ergebnisse anzeigen
@@ -637,13 +635,18 @@ function zeigeErgebnisse(optimierung) {
 
 // Initialize everything
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tracking and ads based on existing consent
+    // AdSense immer laden
+    loadAdSense();
+    
+    // Initialize tracking based on existing consent
     const cookieConsent = localStorage.getItem('cookieConsent');
     if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
         loadAnalytics();
     }
-    if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
-        loadAdSense();
-        showAds();
-    }
+    
+    // Werbung immer anzeigen
+    showAds();
+    
+    // Show cookie banner for first-time visitors
+    showCookieBanner();
 });
