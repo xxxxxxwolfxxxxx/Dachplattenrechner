@@ -6,9 +6,7 @@
     <title>Verschnitt-Optimierung - Trapezplattenrechner</title>
     <meta name="description" content="Intelligente Materialoptimierung für minimalen Verschnitt oder optimale Sägezeit.">
     
-    <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
-    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
-   <!-- Google AdSense -->
+    <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033" crossorigin="anonymous"></script>
     <script>
@@ -37,6 +35,15 @@
                 });
             }
         }
+        
+        // Check if analytics cookies are accepted
+        const analyticsCookies = localStorage.getItem('analyticsCookies');
+        if (analyticsCookies === 'true') {
+            gtag('config', 'G-6NSYG8B1T9', {
+                anonymize_ip: true,
+                cookie_flags: 'SameSite=None;Secure'
+            });
+        }
     </script>
 
     <link rel="stylesheet" href="../style.css">
@@ -54,18 +61,36 @@
     </div>
 
     <div class="container">
+        <!-- Cookie Banner -->
+        <div id="cookieBanner" class="cookie-banner">
+            <div class="cookie-content">
+                <div class="cookie-text">
+                    <strong>🍪 Cookies & Datenschutz:</strong> Wir verwenden Cookies für Analyse und Werbung. 
+                    Essentiell-Cookies sind für die Funktionalität nötig. Sie können alle akzeptieren oder nur die notwendigen Cookies zulassen.
+                </div>
+                <div class="cookie-buttons">
+                    <button onclick="acceptAllCookies()" class="cookie-btn accept-all">Alle akzeptieren</button>
+                    <button onclick="acceptOnlyEssential()" class="cookie-btn essential-only">Nur Notwendige</button>
+                </div>
+            </div>
+        </div>
+        
         <main>
-            <!-- Werbeplatz 1 - Oben nach Titel -->
-            <div class="ad-wrapper" id="top-ad-container" style="display: none;">
-                <div class="ad-with-label">
-                    <span class="ad-label">Werbung</span>
+            <!-- Werbung Banner 1 - Sägeblätter -->
+            <div class="ad-container" id="top-ad-container">
+                <div class="ad-placeholder">
+                    <div class="ad-content">
+                        <span class="ad-text">Präzise Schnitte - HSS-Kreissägeblätter für Blech</span>
+                    </div>
+                </div>
+                <div class="ad-content-real">
                     <ins class="adsbygoogle"
                          style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
                          data-ad-slot="9814984028"
-                         data-ad-format="auto"
+                         data-ad-format="horizontal"
                          data-full-width-responsive="true"
-                         data-ad-channel="hss,kreissägeblatt,akkuhandkreissäge,trennscheiben,edelstahl,trapezbleche"></ins>
+                         data-ad-channel="hss-kreissägeblatt,akkuhandkreissäge,trennscheiben,edelstahl,trapezbleche,pfannbleche,metallsäge,kaltschnitt,sägeblatt,kreissägeblatt,blech,schneidtechnik,werkzeuge,handwerk"></ins>
                 </div>
             </div>
 
@@ -98,17 +123,24 @@
                 </div>
             </div>
 
-            <!-- Werbeplatz 2 - Zwischen Eingabe und Lagerauswahl -->
-            <div class="ad-wrapper" id="middle-ad-container" style="display: none;">
-                <div class="ad-with-label">
-                    <span class="ad-label">Werbung</span>
+            <!-- Werbung Banner 2 - Schneidwerkzeuge -->
+            <div class="ad-container-middle" id="middle-ad-container">
+                <div class="ad-placeholder">
+                    <div class="ad-content-horizontal">
+                        <div class="ad-text-block">
+                            <strong>Professionelle Schneidwerkzeuge</strong>
+                            <span>Akku-Handkreissägen und Trennscheiben für präzise Blechzuschnitte</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ad-content-real">
                     <ins class="adsbygoogle"
                          style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
                          data-ad-slot="1278018455"
-                         data-ad-format="auto"
+                         data-ad-format="horizontal"
                          data-full-width-responsive="true"
-                         data-ad-channel="schneiden,sägeblatt,kaltschneiden,metallex,pfannenbleche,wellbleche"></ins>
+                         data-ad-channel="akkuhandkreissäge,flex,winkelschleifer,trennscheiben,edelstahl,trapezblech,pfannblech,metallschnitt,kaltschnitt,makita,bosch,metabo,dewalt,milwaukee,festool,kreissäge"></ins>
                 </div>
             </div>
 
@@ -294,36 +326,77 @@
                 </div>
             </div>
 
-            <!-- Werbeplatz 3 - Am Ende nach Ergebnissen -->
-            <div class="ad-wrapper" id="bottom-ad-container" style="display: none;">
-                <div class="ad-with-label">
-                    <span class="ad-label">Werbung</span>
+            <!-- Werbung Banner 3 - Blechbearbeitung -->
+            <div class="ad-container" id="bottom-ad-container">
+                <div class="ad-placeholder">
+                    <div class="ad-content">
+                        <span class="ad-text">Hochwertige Blechbearbeitung - Trapez- und Pfannbleche präzise schneiden</span>
+                    </div>
+                </div>
+                <div class="ad-content-real">
                     <ins class="adsbygoogle"
                          style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
                          data-ad-slot="5492595633"
-                         data-ad-format="auto"
+                         data-ad-format="horizontal"
                          data-full-width-responsive="true"
-                         data-ad-channel="werkzeug,handkreissäge,metallsägeblatt,dachplatten,lichtplatten,schwedenblech"></ins>
+                         data-ad-channel="trapezblech,pfannblech,wellblech,dachblech,profilblech,blechbearbeitung,kaltschnitt,hss-sägeblatt,metallsäge,trennscheiben,edelstahl,verzinkt,aluminium,beschichtet"></ins>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Cookie-Banner -->
-    <div id="cookieBanner" class="cookie-banner">
-        <div class="cookie-content">
-            <div class="cookie-text">
-                <h3 style="margin: 0 0 10px 0; color: white;">🍪 Cookie-Einstellungen</h3>
-                <p>Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung zu bieten. Dazu gehören essentielle Cookies für die Funktionalität, Analyse-Cookies für die Optimierung und Marketing-Cookies für personalisierte Werbung.</p>
-            </div>
-            <div class="cookie-buttons">
-                <button class="cookie-btn accept" onclick="acceptAllCookies()">Alle akzeptieren</button>
-                <button class="cookie-btn decline" onclick="acceptOnlyEssential()">Nur Essentielle</button>
-            </div>
-        </div>
-    </div>
-
     <script src="verschnitt.js"></script>
+    
+    <!-- AdSense Initialisierung -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cookie-Banner anzeigen falls nötig
+            showCookieBanner();
+            
+            // AdSense initialisieren falls Marketing-Cookies akzeptiert
+            setTimeout(function() {
+                if (localStorage.getItem('marketingCookies') === 'true') {
+                    try {
+                        const adContainers = document.querySelectorAll('.ad-container .adsbygoogle');
+                        console.log('Found', adContainers.length, 'ad containers for Verschnitt-Optimierung');
+                        
+                        for (let i = 0; i < adContainers.length; i++) {
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                            console.log('Initialized ad container', i + 1);
+                        }
+                        
+                        // Nach 5 Sekunden prüfen ob Werbung geladen wurde
+                        setTimeout(function() {
+                            document.querySelectorAll('.ad-container').forEach(function(container, index) {
+                                const adElement = container.querySelector('.adsbygoogle');
+                                if (adElement) {
+                                    const adStatus = adElement.getAttribute('data-ad-status');
+                                    const hasContent = adElement.innerHTML.trim().length > 0;
+                                    const hasHeight = adElement.offsetHeight > 50;
+                                    
+                                    if (adStatus === 'unfilled' || (!hasContent && !hasHeight)) {
+                                        container.style.display = 'none';
+                                        container.style.height = '0';
+                                        container.style.margin = '0';
+                                        container.style.padding = '0';
+                                        console.log('Ad container', index + 1, 'hidden - no content loaded');
+                                    } else {
+                                        console.log('Ad container', index + 1, 'loaded successfully');
+                                    }
+                                }
+                            });
+                        }, 5000);
+                        
+                    } catch (error) {
+                        console.log('AdSense initialization error:', error);
+                        document.querySelectorAll('.ad-container').forEach(function(container) {
+                            container.style.display = 'none';
+                        });
+                    }
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
