@@ -1,754 +1,303 @@
-/* CSS Variablen für verschnitt-style.css */
-:root {
-    --bg-primary: #1a1a2e;
-    --bg-secondary: #16213e;
-    --bg-tertiary: #0f172a;
-    --text-primary: #ffffff;
-    --text-secondary: #cbd5e1;
-    --text-muted: #64748b;
-    --accent-blue: #0ea5e9;
-    --accent-blue-dark: #0284c7;
-    --accent-blue-hover: #0369a1;
-    --accent-cyan: #06b6d4;
-    --accent-green: #10b981;
-    --accent-orange: #f59e0b;
-    --border-color: rgba(255, 255, 255, 0.2);
-    --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
-    --gradient-surface: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(51, 65, 85, 0.6) 100%);
-    --gradient-secondary: linear-gradient(135deg, rgba(51, 65, 85, 0.8) 0%, rgba(71, 85, 105, 0.6) 100%);
-    --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
-    --spacing-xl: 32px;
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-    --transition-fast: 0.15s ease;
-    --transition-normal: 0.3s ease;
-    --font-mono: 'Courier New', monospace;
+// Cookie Banner Funktionen
+function showCookieBanner() {
+    const banner = document.getElementById('cookieBanner');
+    const essentialCookies = localStorage.getItem('essentialCookies');
+    const analyticsCookies = localStorage.getItem('analyticsCookies');
+    const marketingCookies = localStorage.getItem('marketingCookies');
+    
+    // Banner nur anzeigen wenn noch nicht entschieden wurde
+    if (essentialCookies === null || analyticsCookies === null || marketingCookies === null) {
+        banner.classList.add('show');
+    }
 }
 
-/* Cookie Banner */
-.cookie-banner {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg-primary);
-    border-top: 3px solid var(--accent-blue);
-    padding: var(--spacing-lg);
-    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.3);
-    z-index: 10000;
-    transform: translateY(100%);
-    transition: transform var(--transition-normal);
-    backdrop-filter: blur(10px);
+function acceptAllCookies() {
+    localStorage.setItem('essentialCookies', 'true');
+    localStorage.setItem('analyticsCookies', 'true');
+    localStorage.setItem('marketingCookies', 'true');
+    hideCookieBanner();
+    loadAnalytics();
+    loadAdSense();
 }
 
-.cookie-banner.show {
-    transform: translateY(0);
+function acceptOnlyEssential() {
+    localStorage.setItem('essentialCookies', 'true');
+    localStorage.setItem('analyticsCookies', 'false');
+    localStorage.setItem('marketingCookies', 'false');
+    hideCookieBanner();
+    hideAds();
 }
 
-.cookie-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-lg);
-    flex-wrap: wrap;
+function hideCookieBanner() {
+    const banner = document.getElementById('cookieBanner');
+    banner.classList.remove('show');
 }
 
-.cookie-text {
-    flex: 1;
-    min-width: 300px;
-    color: var(--text-primary);
-    font-size: 0.95em;
-    line-height: 1.5;
+function hideAds() {
+    document.querySelectorAll('.ad-container, .ad-container-middle').forEach(container => {
+        container.style.display = 'none';
+        container.style.height = '0';
+        container.style.margin = '0';
+        container.style.padding = '0';
+    });
 }
 
-.cookie-buttons {
-    display: flex;
-    gap: var(--spacing-md);
-    flex-wrap: wrap;
+function loadAdSense() {
+    if (localStorage.getItem('marketingCookies') === 'true') {
+        document.querySelectorAll('.ad-container, .ad-container-middle').forEach(container => {
+            container.style.display = 'block';
+        });
+    }
 }
 
-.cookie-btn {
-    padding: 12px 20px;
-    border: none;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    font-size: 0.9em;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+function loadAnalytics() {
+    if (localStorage.getItem('analyticsCookies') === 'true' && typeof gtag !== 'undefined') {
+        gtag('config', 'G-6NSYG8B1T9', {
+            anonymize_ip: true,
+            cookie_flags: 'SameSite=None;Secure'
+        });
+    }
 }
 
-.cookie-btn.accept-all {
-    background: var(--gradient-primary);
-    color: white;
-    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
-}
-
-.cookie-btn.accept-all:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
-}
-
-.cookie-btn.essential-only {
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-color);
-}
-
-.cookie-btn.essential-only:hover {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border-color: var(--accent-blue);
-}
-
-@media (max-width: 768px) {
-    .cookie-content {
-        flex-direction: column;
-        text-align: center;
-        gap: var(--spacing-md);
+// Hauptfunktionen für Verschnitt-Optimierung
+function parseEingabe(text) {
+    const zeilen = text.split('\n').map(z => z.trim()).filter(z => z.length > 0);
+    const benoetigte = [];
+    
+    for (const zeile of zeilen) {
+        // Erkenne Format: [Anzahl]x[Länge][Einheit]
+        const match = zeile.match(/^(\d+(?:\.\d+)?)?x?(\d+(?:[,.]?\d+)?)\s*(m|cm|mm)?$/i);
+        
+        if (match) {
+            let anzahl = parseFloat(match[1]) || 1;
+            let laenge = parseFloat(match[2].replace(',', '.'));
+            const einheit = (match[3] || '').toLowerCase();
+            
+            // Einheiten normalisieren zu Metern
+            if (einheit === 'cm') {
+                laenge = laenge / 100;
+            } else if (einheit === 'mm') {
+                laenge = laenge / 1000;
+            }
+            
+            for (let i = 0; i < anzahl; i++) {
+                benoetigte.push(laenge);
+            }
+        }
     }
     
-    .cookie-text {
-        min-width: auto;
-        font-size: 0.9em;
+    return benoetigte.sort((a, b) => b - a); // Größte zuerst
+}
+
+function getLagerlaengen() {
+    const lagerlaengen = [];
+    const checkboxes = document.querySelectorAll('.lager-item input[type="checkbox"]:checked');
+    
+    for (const checkbox of checkboxes) {
+        const laenge = parseFloat(checkbox.value);
+        const anzahlInput = document.getElementById(`anzahl-${checkbox.value}`);
+        const anzahl = anzahlInput.value ? parseInt(anzahlInput.value) : Infinity;
+        
+        lagerlaengen.push({ laenge, anzahl });
     }
     
-    .cookie-buttons {
-        justify-content: center;
+    return lagerlaengen.sort((a, b) => a.laenge - b.laenge); // Kleinste zuerst
+}
+
+function optimiereVerschnitt(benoetigte, lagerlaengen, modus, schnittbreite, toleranz) {
+    const ergebnis = {
+        platten: [],
+        gesamtVerschnitt: 0,
+        gesamtMaterial: 0,
+        nutzenMaterial: 0,
+        gesamtSchnitte: 0
+    };
+    
+    const reste = [...benoetigte];
+    const verfuegbar = lagerlaengen.map(l => ({ ...l, verwendet: 0 }));
+    
+    while (reste.length > 0) {
+        let bestePlatte = null;
+        let besteKombination = null;
+        let besterWert = Infinity;
+        
+        // Für jede verfügbare Lagerlänge
+        for (const lager of verfuegbar) {
+            if (lager.verwendet >= lager.anzahl) continue;
+            
+            const kombination = findeBesteKombination(reste, lager.laenge, schnittbreite, toleranz, modus);
+            
+            if (kombination.stuecke.length > 0) {
+                let wert;
+                if (modus === 'verschnitt') {
+                    wert = kombination.verschnitt;
+                } else {
+                    wert = -kombination.stuecke.length; // Negative für absteigende Sortierung
+                }
+                
+                if (wert < besterWert) {
+                    besterWert = wert;
+                    bestePlatte = lager;
+                    besteKombination = kombination;
+                }
+            }
+        }
+        
+        if (!bestePlatte) break;
+        
+        // Platte verwenden
+        bestePlatte.verwendet++;
+        
+        // Stücke aus der Liste entfernen
+        for (const stueck of besteKombination.stuecke) {
+            const index = reste.indexOf(stueck);
+            if (index > -1) reste.splice(index, 1);
+        }
+        
+        // Ergebnis speichern
+        ergebnis.platten.push({
+            lagerlaenge: bestePlatte.laenge,
+            stuecke: [...besteKombination.stuecke],
+            verschnitt: besteKombination.verschnitt,
+            schnitte: besteKombination.stuecke.length
+        });
+        
+        ergebnis.gesamtVerschnitt += besteKombination.verschnitt;
+        ergebnis.gesamtMaterial += bestePlatte.laenge;
+        ergebnis.nutzenMaterial += besteKombination.stuecke.reduce((sum, s) => sum + s, 0);
+        ergebnis.gesamtSchnitte += besteKombination.stuecke.length;
     }
     
-    .cookie-btn {
-        padding: 10px 16px;
-        font-size: 0.85em;
-    }
-}
-
-/* KORRIGIERTE Werbung Container - Vollbreite ohne sichtbare Rahmen */
-.ad-container, .ad-container-middle {
-    margin: var(--spacing-xl) 0;
-    width: 100%;
-    max-width: none;
-    border-radius: 0;
-    overflow: hidden;
-    transition: all var(--transition-normal);
-    box-shadow: none;
-    background: transparent;
-    border: none;
-    position: relative;
-    min-height: 90px;
-    text-align: center;
-}
-
-/* Entferne alle sichtbaren Rahmen und Hintergründe */
-.ad-container::before,
-.ad-container-middle::before {
-    display: none;
-}
-
-/* Verstecke Placeholder wenn Werbung geladen ist */
-.ad-placeholder {
-    display: none;
-}
-
-.ad-content-real {
-    display: block !important;
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 0;
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    text-align: center;
-}
-
-/* AdSense Container - VOLLBREITE */
-.adsbygoogle {
-    display: block !important;
-    text-align: center !important;
-    margin: 0 auto !important;
-    width: 100% !important;
-    max-width: none !important;
-    min-height: 90px !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-}
-
-/* Versteckte Container komplett ausblenden */
-.ad-container[style*="display: none"],
-.ad-container-middle[style*="display: none"] {
-    display: none !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    min-height: 0 !important;
-}
-
-/* Verschnitt-Optimierung Spezifische Styles */
-
-/* Hintergrundbild für Verschnitt-Optimierung */
-body {
-    background: var(--bg-primary) url('../images/verschnitt.png') center/cover fixed no-repeat !important;
-}
-
-/* Hauptcontainer für bessere Lesbarkeit */
-h1 {
-    text-align: center;
-    margin-bottom: var(--spacing-xl);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 800;
-    color: var(--text-primary);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-/* Input-Felder mit dunklem Design */
-#benoetigte-masze {
-    width: 100%;
-    padding: 16px;
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: 16px;
-    font-family: var(--font-mono);
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-    transition: all var(--transition-normal);
-    resize: vertical;
-    min-height: 200px;
-}
-
-#benoetigte-masze:focus {
-    outline: none;
-    border-color: var(--accent-blue);
-    box-shadow: 
-        inset 0 2px 4px rgba(0, 0, 0, 0.3),
-        0 0 0 3px rgba(14, 165, 233, 0.2);
-    background: var(--bg-tertiary);
-}
-
-#benoetigte-masze::placeholder {
-    color: var(--text-muted);
-    font-style: italic;
-}
-
-/* Lagerlängen Grid */
-.lager-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-md);
-}
-
-.lager-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-    border-radius: var(--radius-md);
-    background: var(--gradient-surface);
-    border: 1px solid var(--border-color);
-    transition: all var(--transition-normal);
-    box-shadow: var(--shadow-sm);
-}
-
-.lager-item:hover {
-    background: var(--gradient-secondary);
-    border-color: var(--accent-blue);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.lager-item input[type="checkbox"] {
-    transform: scale(1.3);
-    accent-color: var(--accent-blue);
-    cursor: pointer;
-}
-
-.lager-item label {
-    flex: 1;
-    font-weight: 600;
-    color: var(--text-primary);
-    cursor: pointer;
-    font-size: 1.1em;
-}
-
-.lager-item input[type="number"] {
-    width: 70px;
-    padding: 8px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    text-align: center;
-    font-weight: 600;
-}
-
-.lager-item input[type="number"]:focus {
-    outline: none;
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
-}
-
-/* Info-Box Styling */
-.info-box {
-    background: var(--gradient-surface);
-    color: var(--text-primary);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
-    border-left: 4px solid var(--accent-blue);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
-}
-
-.info-box strong {
-    color: var(--accent-blue);
-    font-weight: 700;
-}
-
-/* Results Styling */
-.results h3 {
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-lg);
-    text-align: center;
-    font-size: 1.8em;
-    font-weight: 700;
-}
-
-.result-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-md) 0;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    font-size: 1.1em;
-    transition: all var(--transition-fast);
-}
-
-.result-item:hover {
-    color: var(--text-primary);
-    padding-left: var(--spacing-sm);
-}
-
-.result-item:last-child {
-    border-bottom: none;
-}
-
-.result-item span:first-child {
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-.result-item span:last-child {
-    color: var(--accent-blue);
-    font-weight: bold;
-    font-size: 1.1em;
-}
-
-/* Sägeplan Header */
-.saegeplan-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: var(--spacing-xl) 0 var(--spacing-lg) 0;
-    flex-wrap: wrap;
-    gap: var(--spacing-md);
-}
-
-.saegeplan-header h4 {
-    color: var(--text-primary);
-    margin: 0;
-    font-size: 1.4em;
-    font-weight: 700;
-}
-
-/* Print Button */
-.print-button {
-    background: var(--gradient-primary);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: var(--radius-md);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all var(--transition-normal);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
-    border: 1px solid var(--accent-blue-dark);
-}
-
-.print-button:hover {
-    background: linear-gradient(145deg, var(--accent-blue-hover) 0%, var(--accent-blue-dark) 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
-}
-
-/* Table Container für Responsive */
-.table-container {
-    overflow-x: auto;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
-    border: 1px solid var(--border-color);
-}
-
-/* Schnitt-Tabelle */
-.schnitt-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0;
-    background: var(--bg-secondary);
-    font-size: 14px;
-}
-
-.schnitt-table th {
-    background: var(--gradient-primary);
-    color: white;
-    padding: 16px 12px;
-    text-align: center;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: 0.9em;
-    border: none;
-    position: relative;
-}
-
-.schnitt-table th::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent-blue-dark) 0%, var(--accent-cyan) 100%);
-}
-
-.schnitt-table td {
-    padding: 14px 12px;
-    border: 1px solid var(--border-color);
-    text-align: center;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-.schnitt-table tbody tr {
-    transition: all var(--transition-fast);
-}
-
-.schnitt-table tbody tr:nth-child(even) {
-    background: var(--bg-tertiary);
-}
-
-.schnitt-table tbody tr:hover {
-    background: var(--gradient-surface);
-    transform: scale(1.01);
-    color: var(--text-primary);
-}
-
-/* Erste Spalte (Platte Nr.) hervorheben */
-.schnitt-table td:first-child {
-    font-weight: 700;
-    color: var(--text-primary);
-    background: rgba(14, 165, 233, 0.1);
-}
-
-/* Zweite Spalte (Lagerlänge) hervorheben */
-.schnitt-table td:nth-child(2) {
-    font-weight: 700;
-    color: var(--accent-blue);
-}
-
-/* Verschnitt-Spalte (grün) */
-.schnitt-table td:nth-child(4) {
-    font-weight: 700;
-    color: var(--accent-green);
-}
-
-/* Verschnitt-Optimierung Box */
-.optimization-tip {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.1) 100%);
-    color: var(--text-primary);
-    border-radius: var(--radius-lg);
-    border-left: 5px solid var(--accent-orange);
-    padding: var(--spacing-xl);
-    margin-top: var(--spacing-xl);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    box-shadow: var(--shadow-md);
-}
-
-.optimization-tip h4 {
-    color: var(--accent-orange);
-    margin-bottom: var(--spacing-lg);
-    font-size: 1.3em;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.optimization-tip strong {
-    color: var(--text-primary);
-    font-weight: 700;
-}
-
-.optimization-tip em {
-    color: var(--text-muted);
-    font-style: italic;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .container {
-        padding: 0 15px;
+    if (reste.length > 0) {
+        console.warn('Nicht alle Stücke konnten zugeschnitten werden:', reste);
     }
     
-    .lager-grid {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-sm);
+    return ergebnis;
+}
+
+function findeBesteKombination(stuecke, lagerlaenge, schnittbreite, toleranz, modus) {
+    const maxLaenge = lagerlaenge - toleranz / 1000;
+    let besteKombination = { stuecke: [], verschnitt: lagerlaenge };
+    
+    // Greedy-Ansatz: Größtes Stück zuerst
+    const verfuegbar = [...stuecke];
+    const gewaehlte = [];
+    let verbraucht = 0;
+    
+    while (verfuegbar.length > 0) {
+        let gefunden = false;
+        
+        for (let i = 0; i < verfuegbar.length; i++) {
+            const stueck = verfuegbar[i];
+            const neuerVerbrauch = verbraucht + stueck + (gewaehlte.length > 0 ? schnittbreite / 1000 : 0);
+            
+            if (neuerVerbrauch <= maxLaenge) {
+                gewaehlte.push(stueck);
+                verfuegbar.splice(i, 1);
+                verbraucht = neuerVerbrauch;
+                gefunden = true;
+                break;
+            }
+        }
+        
+        if (!gefunden) break;
     }
     
-    .lager-item {
-        padding: 10px;
-        font-size: 0.9em;
+    const verschnitt = lagerlaenge - verbraucht;
+    
+    return {
+        stuecke: gewaehlte,
+        verschnitt: verschnitt
+    };
+}
+
+function berechneOptimierung() {
+    const eingabe = document.getElementById('benoetigte-masze').value;
+    const modus = document.getElementById('optimierung-modus').value;
+    const schnittbreite = parseFloat(document.getElementById('schnittblatt-breite').value) || 3.0;
+    const toleranz = parseFloat(document.getElementById('toleranz').value) || 5.0;
+    
+    if (!eingabe.trim()) {
+        alert('Bitte geben Sie die benötigten Längen ein.');
+        return;
     }
     
-    .lager-item label {
-        font-size: 0.95em;
+    const benoetigte = parseEingabe(eingabe);
+    const lagerlaengen = getLagerlaengen();
+    
+    if (benoetigte.length === 0) {
+        alert('Keine gültigen Längen erkannt. Bitte überprüfen Sie die Eingabe.');
+        return;
     }
     
-    .lager-item input[type="number"] {
-        width: 55px;
-        font-size: 0.9em;
+    if (lagerlaengen.length === 0) {
+        alert('Bitte wählen Sie mindestens eine Lagerlänge aus.');
+        return;
     }
     
-    .saegeplan-header {
-        flex-direction: column;
-        align-items: stretch;
-        text-align: center;
-    }
+    const ergebnis = optimiereVerschnitt(benoetigte, lagerlaengen, modus, schnittbreite, toleranz);
+    zeigeErgebnisse(ergebnis);
+}
+
+function zeigeErgebnisse(ergebnis) {
+    document.getElementById('results').style.display = 'block';
     
-    .print-button {
-        align-self: center;
-        width: auto;
-        padding: 10px 20px;
-        font-size: 14px;
-    }
+    const effizienz = ergebnis.nutzenMaterial / ergebnis.gesamtMaterial * 100;
     
-    .table-container {
-        font-size: 11px;
-    }
+    document.getElementById('lager-anzahl').textContent = ergebnis.platten.length;
+    document.getElementById('gesamt-material').textContent = ergebnis.gesamtMaterial.toFixed(2) + ' m';
+    document.getElementById('nutzen-material').textContent = ergebnis.nutzenMaterial.toFixed(2) + ' m';
+    document.getElementById('gesamt-verschnitt').textContent = ergebnis.gesamtVerschnitt.toFixed(2) + ' m';
+    document.getElementById('gesamt-schnitte').textContent = ergebnis.gesamtSchnitte;
+    document.getElementById('effizienz').textContent = effizienz.toFixed(1) + '%';
     
-    .schnitt-table th,
-    .schnitt-table td {
-        padding: 6px 3px;
-        font-size: 0.75em;
-    }
+    // Sägeplan-Tabelle
+    const tbody = document.getElementById('saegeplan-details');
+    tbody.innerHTML = '';
     
-    .schnitt-table th {
-        font-size: 0.7em;
-        padding: 10px 3px;
-    }
+    ergebnis.platten.forEach((platte, index) => {
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = index + 1;
+        row.insertCell(1).textContent = platte.lagerlaenge.toFixed(1) + ' m';
+        row.insertCell(2).textContent = platte.stuecke.map(s => s.toFixed(2) + 'm').join(', ');
+        row.insertCell(3).textContent = platte.verschnitt.toFixed(3) + ' m';
+        row.insertCell(4).textContent = platte.schnitte;
+    });
     
-    .result-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-        padding: var(--spacing-sm) 0;
-        font-size: 0.95em;
-    }
-    
-    .ad-container, .ad-container-middle {
-        margin: var(--spacing-lg) 0;
-    }
-    
-    .info-box {
-        padding: var(--spacing-md);
-        font-size: 0.9em;
-    }
-    
-    .input-group label {
-        font-size: 0.95em;
-    }
-    
-    .input-group input,
-    .input-group select {
-        font-size: 0.9em;
-    }
-    
-    .section h2 {
-        font-size: 1.3em;
-    }
-    
-    .optimization-tip {
-        padding: var(--spacing-lg);
-        font-size: 0.9em;
-    }
-    
-    .optimization-tip h4 {
-        font-size: 1.1em;
+    // Optimierungstipp
+    if (ergebnis.gesamtVerschnitt > 0.5) {
+        const tip = document.getElementById('verschnitt-optimierung');
+        tip.style.display = 'block';
+        
+        const tipText = `
+            <strong>Verschnitt-Reduzierung möglich:</strong><br>
+            Es entstehen <strong>${ergebnis.gesamtVerschnitt.toFixed(2)} m Verschnitt</strong>. 
+            Dies entspricht ${(ergebnis.gesamtVerschnitt / ergebnis.gesamtMaterial * 100).toFixed(1)}% 
+            des eingekauften Materials.<br><br>
+            <em>Tipp: Prüfen Sie, ob andere Lagerlängen oder eine Anpassung der Toleranz 
+            den Verschnitt reduzieren könnte.</em>
+        `;
+        
+        document.getElementById('optimierung-text').innerHTML = tipText;
     }
 }
 
-@media (max-width: 480px) {
-    .container {
-        padding: 0 10px;
-    }
+function druckeSaegeplan() {
+    const druckinhalt = document.getElementById('druckbarer-saegeplan').innerHTML;
+    const originalInhalt = document.body.innerHTML;
     
-    h1 {
-        font-size: 1.6rem;
-        margin-bottom: var(--spacing-lg);
-    }
+    document.body.innerHTML = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h1 style="text-align: center; margin-bottom: 30px;">Sägeplan - Verschnitt-Optimierung</h1>
+            <div style="margin-bottom: 20px;">
+                <strong>Erstellt am:</strong> ${new Date().toLocaleDateString('de-DE')}<br>
+                <strong>Uhrzeit:</strong> ${new Date().toLocaleTimeString('de-DE')}
+            </div>
+            ${druckinhalt}
+        </div>
+    `;
     
-    .input-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .section {
-        padding: var(--spacing-md);
-        margin-bottom: var(--spacing-md);
-    }
-    
-    .section h2 {
-        font-size: 1.2em;
-        margin-bottom: var(--spacing-md);
-    }
-    
-    .results {
-        padding: var(--spacing-md);
-    }
-    
-    #benoetigte-masze {
-        min-height: 120px;
-        font-size: 13px;
-        padding: 12px;
-    }
-    
-    .lager-item {
-        padding: 8px;
-        font-size: 0.85em;
-    }
-    
-    .lager-item label {
-        font-size: 0.9em;
-    }
-    
-    .lager-item input[type="number"] {
-        width: 50px;
-        font-size: 0.85em;
-        padding: 6px;
-    }
-    
-    .table-container {
-        font-size: 10px;
-        margin: 0 -10px;
-    }
-    
-    .schnitt-table th,
-    .schnitt-table td {
-        padding: 4px 2px;
-        font-size: 0.7em;
-    }
-    
-    .schnitt-table th {
-        font-size: 0.65em;
-        padding: 8px 2px;
-    }
-    
-    .print-button {
-        padding: 8px 16px;
-        font-size: 13px;
-        margin-top: var(--spacing-sm);
-    }
-    
-    .result-item {
-        font-size: 0.9em;
-        padding: 8px 0;
-    }
-    
-    .info-box {
-        padding: var(--spacing-sm);
-        font-size: 0.85em;
-        margin-bottom: var(--spacing-md);
-    }
-    
-    .input-group {
-        margin-bottom: var(--spacing-sm);
-    }
-    
-    .input-group label {
-        font-size: 0.9em;
-        margin-bottom: 4px;
-    }
-    
-    .input-group input,
-    .input-group select,
-    .input-group textarea {
-        font-size: 0.85em;
-        padding: 10px;
-    }
-    
-    .calculate-btn {
-        font-size: 0.9em;
-        padding: 12px 24px;
-        margin: var(--spacing-md) 0;
-    }
-    
-    .optimization-tip {
-        padding: var(--spacing-md);
-        font-size: 0.85em;
-        margin: var(--spacing-md) -10px 0 -10px;
-    }
-    
-    .optimization-tip h4 {
-        font-size: 1em;
-        margin-bottom: var(--spacing-sm);
-    }
-    
-    .ad-container, .ad-container-middle {
-        margin: var(--spacing-md) 0;
-    }
-}
-
-@media (max-width: 360px) {
-    h1 {
-        font-size: 1.4rem;
-    }
-    
-    .table-container {
-        font-size: 9px;
-    }
-    
-    .schnitt-table th,
-    .schnitt-table td {
-        padding: 3px 1px;
-        font-size: 0.65em;
-    }
-    
-    .schnitt-table th {
-        font-size: 0.6em;
-        padding: 6px 1px;
-    }
-    
-    .lager-item input[type="number"] {
-        width: 45px;
-    }
-    
-    .result-item {
-        font-size: 0.85em;
-    }
+    window.print();
+    document.body.innerHTML = originalInhalt;
+    location.reload(); // Seite neu laden um Event-Listener zu restaurieren
 }
