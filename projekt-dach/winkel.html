@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="dachstyle.css">
     
     <style>
-        /* AdSense Integration Styles - FIXED VERSION */
+        /* AdSense Integration Styles - VERTICAL LAYOUT FIX */
         .ad-container {
             margin: 30px auto;
             text-align: center;
@@ -37,6 +37,9 @@
             box-shadow: 
                 0 25px 50px rgba(0, 0, 0, 0.6),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            /* WICHTIG: Block-Element für vertikale Anordnung */
+            display: block;
+            clear: both;
         }
         
         .ad-container::before {
@@ -77,6 +80,22 @@
             box-shadow: none !important;
             border-radius: 0 !important;
             padding: 10px;
+            /* WICHTIG: Verhindert horizontale Anordnung */
+            float: none !important;
+            clear: both !important;
+        }
+        
+        /* WICHTIG: Sektionen als Block-Elemente */
+        .section {
+            display: block;
+            width: 100%;
+            clear: both;
+        }
+        
+        .glass-panel {
+            display: block;
+            width: 100%;
+            clear: both;
         }
         
         /* Versteckte Container */
@@ -100,12 +119,21 @@
                 margin: 20px auto;
                 min-height: 70px;
                 max-width: calc(100vw - 30px);
+                display: block;
+                clear: both;
             }
             
             .ad-container .adsbygoogle {
                 min-height: 70px !important;
                 max-height: 150px !important;
                 padding: 8px;
+                float: none !important;
+                clear: both !important;
+            }
+            
+            .section {
+                display: block;
+                clear: both;
             }
         }
     </style>
