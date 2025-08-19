@@ -8,17 +8,18 @@
     
     <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033" crossorigin="anonymous"></script>
     <script>
         // AdSense nur laden wenn Marketing-Cookies akzeptiert sind
         function loadAdSense() {
             if (localStorage.getItem('marketingCookies') === 'true') {
-                // AdSense Auto-Ads aktivieren
-                window.adsbygoogle = window.adsbygoogle || [];
-                window.adsbygoogle.push({
-                    google_ad_client: 'ca-pub-8687929894744033',
-                    enable_page_level_ads: true
-                });
+                // Lade AdSense Script dynamisch
+                if (!document.querySelector('script[src*="adsbygoogle.js"]')) {
+                    const script = document.createElement('script');
+                    script.async = true;
+                    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
+                    script.crossOrigin = 'anonymous';
+                    document.head.appendChild(script);
+                }
             }
         }
     </script>
