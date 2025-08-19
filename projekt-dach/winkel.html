@@ -4,7 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Winkelverlegungen beim Blechdach - Professionelle Abschlüsse</title>
+    
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033" crossorigin="anonymous"></script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-6NSYG8B1T9');
+    </script>
+    
     <link rel="stylesheet" href="dachstyle.css">
+    
+    <style>
+        /* AdSense Integration Styles */
+        .ad-container {
+            margin: 40px auto;
+            text-align: center;
+            width: 100%;
+            max-width: 100%;
+            position: relative;
+            background: var(--gradient-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            min-height: 120px;
+        }
+        
+        .ad-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+        
+        .ad-label {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+            pointer-events: none;
+            font-family: var(--font-sans);
+        }
+        
+        .ad-container .adsbygoogle {
+            display: block !important;
+            text-align: center !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            min-height: 120px !important;
+            max-height: 280px !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+        }
+        
+        /* Versteckte Container */
+        .ad-container[style*="display: none"] {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        /* Mobile Anpassungen */
+        @media (max-width: 768px) {
+            .ad-container {
+                margin: 30px auto;
+                min-height: 100px;
+            }
+            
+            .ad-container .adsbygoogle {
+                min-height: 100px !important;
+                max-height: 200px !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="parallax-container">
@@ -89,6 +180,18 @@
                     <li>Profilfüller zwischen den Profilen einsetzen</li>
                 </ul>
             </div>
+            
+            <!-- Werbung nach Sektion 1 -->
+            <div class="ad-container" id="ad-cutting-tools-1">
+                <span class="ad-label">Werbung</span>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="8407868749"
+                     data-ad-format="horizontal"
+                     data-full-width-responsive="true"
+                     data-ad-channel="blechscheren,akkuschrauber,metallschere,nibbler,stichsäge,metallbearbeitung"></ins>
+            </div>
         </section>
 
         <!-- Bereich 2: Ortgangblech und Innenwinkel -->
@@ -133,6 +236,18 @@
                     <li><strong>Aluminium:</strong> Aluminiumverträgliche Dichtstoffe wählen</li>
                     <li><strong>Kupfer:</strong> Kupferverträgliche Systeme – niemals zinkhaltige Materialien!</li>
                 </ul>
+            </div>
+            
+            <!-- Werbung nach Sektion 2 -->
+            <div class="ad-container" id="ad-bending-machines">
+                <span class="ad-label">Werbung</span>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="8407868749"
+                     data-ad-format="horizontal"
+                     data-full-width-responsive="true"
+                     data-ad-channel="kantmaschinen,abkantbank,sickenmaschinen,winkelschleifer,flex,metallbearbeitung"></ins>
             </div>
         </section>
 
@@ -192,6 +307,18 @@
                     <li>Ohne Vorkenntnisse direkt loszeichnen</li>
                 </ul>
             </div>
+            
+            <!-- Werbung nach Sektion 3 -->
+            <div class="ad-container" id="ad-custom-solutions">
+                <span class="ad-label">Werbung</span>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="8407868749"
+                     data-ad-format="horizontal"
+                     data-full-width-responsive="true"
+                     data-ad-channel="sonderanfertigung,kantteile,blechkantung,maßanfertigung,zeichenprogramm"></ins>
+            </div>
         </section>
     </div>
 
@@ -202,7 +329,7 @@
             <span class="nav-text">Zurück zur Blechverlegung</span>
         </a>
         <a href="https://dachplattenrechner.de/tools/kantteil" class="nav-button sketch-button">
-            <span class="nav-icon">📐</span>
+            <span class="nav-icon">📝</span>
             <span class="nav-text">Kantteile Zeichenprogramm</span>
         </a>
         <a href="https://dachplattenrechner.de/" class="nav-button nav-forward">
@@ -211,6 +338,12 @@
         </a>
     </div>
 
+    <script>
+        // AdSense initialisieren
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
     <script src="dach.js"></script>
 </body>
 </html>
