@@ -1,3 +1,104 @@
+/* Cookie Banner */
+.cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-primary);
+    border-top: 3px solid var(--accent-blue);
+    padding: var(--spacing-lg);
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    transform: translateY(100%);
+    transition: transform var(--transition-normal);
+    backdrop-filter: blur(10px);
+}
+
+.cookie-banner.show {
+    transform: translateY(0);
+}
+
+.cookie-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.cookie-text {
+    flex: 1;
+    min-width: 300px;
+    color: var(--text-primary);
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+.cookie-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.cookie-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cookie-btn.accept-all {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+}
+
+.cookie-btn.accept-all:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
+}
+
+.cookie-btn.essential-only {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.cookie-btn.essential-only:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+}
+
+@media (max-width: 768px) {
+    .cookie-content {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-md);
+    }
+    
+    .cookie-text {
+        min-width: auto;
+        font-size: 0.9em;
+    }
+    
+    .cookie-buttons {
+        justify-content: center;
+    }
+    
+    .cookie-btn {
+        padding: 10px 16px;
+        font-size: 0.85em;
+    }
+}
+
 /* Verschnitt-Optimierung Spezifische Styles */
 
 /* Hintergrundbild für Verschnitt-Optimierung */
