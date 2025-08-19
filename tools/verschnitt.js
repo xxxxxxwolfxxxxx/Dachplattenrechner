@@ -1,653 +1,754 @@
-// Verschnitt-Optimierung JavaScript
-let aktuelleOptimierung = [];
-
-function log(message) {
-    console.log(message);
+/* CSS Variablen für verschnitt-style.css */
+:root {
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-tertiary: #0f172a;
+    --text-primary: #ffffff;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
+    --accent-blue: #0ea5e9;
+    --accent-blue-dark: #0284c7;
+    --accent-blue-hover: #0369a1;
+    --accent-cyan: #06b6d4;
+    --accent-green: #10b981;
+    --accent-orange: #f59e0b;
+    --border-color: rgba(255, 255, 255, 0.2);
+    --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+    --gradient-surface: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(51, 65, 85, 0.6) 100%);
+    --gradient-secondary: linear-gradient(135deg, rgba(51, 65, 85, 0.8) 0%, rgba(71, 85, 105, 0.6) 100%);
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --font-mono: 'Courier New', monospace;
 }
 
-// Cookie Management System
-function showCookieBanner() {
-    const cookieConsent = localStorage.getItem('cookieConsent');
-    if (!cookieConsent) {
-        document.getElementById('cookieBanner').classList.add('show');
-    }
+/* Cookie Banner */
+.cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-primary);
+    border-top: 3px solid var(--accent-blue);
+    padding: var(--spacing-lg);
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    transform: translateY(100%);
+    transition: transform var(--transition-normal);
+    backdrop-filter: blur(10px);
 }
 
-function acceptAllCookies() {
-    localStorage.setItem('cookieConsent', 'all');
-    localStorage.setItem('analyticsCookies', 'true');
-    localStorage.setItem('marketingCookies', 'true');
-    
-    loadAnalytics();
-    loadAdSense();
-    showAds();
-    
-    document.getElementById('cookieBanner').classList.remove('show');
+.cookie-banner.show {
+    transform: translateY(0);
 }
 
-function acceptOnlyEssential() {
-    localStorage.setItem('cookieConsent', 'essential');
-    localStorage.setItem('analyticsCookies', 'false');
-    localStorage.setItem('marketingCookies', 'false');
-    
-    document.getElementById('cookieBanner').classList.remove('show');
+.cookie-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
 }
 
-function showAds() {
-    // Zeige AdSense-Container immer (wie auf index.html)
-    document.getElementById('top-ad-container').style.display = 'block';
-    document.getElementById('middle-ad-container').style.display = 'block';
-    document.getElementById('bottom-ad-container').style.display = 'block';
-    
-    // Bestimme ob personalisierte Werbung erlaubt ist
-    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
-    
-    // Lade AdSense-Anzeigen
-    if (window.adsbygoogle) {
-        try {
-            const ads = document.querySelectorAll('.adsbygoogle');
-            ads.forEach(ad => {
-                if (!ad.getAttribute('data-ad-status')) {
-                    // Setze nicht-personalisierte Werbung falls Marketing-Cookies abgelehnt
-                    if (!allowPersonalized) {
-                        ad.setAttribute('data-npa', '1');
-                    }
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
-                }
-            });
-        } catch (e) {
-            console.log('AdSense loading error:', e);
-        }
-    }
+.cookie-text {
+    flex: 1;
+    min-width: 300px;
+    color: var(--text-primary);
+    font-size: 0.95em;
+    line-height: 1.5;
 }
 
-function hideAds() {
-    document.getElementById('top-ad-container').style.display = 'none';
-    document.getElementById('middle-ad-container').style.display = 'none';
-    document.getElementById('bottom-ad-container').style.display = 'none';
+.cookie-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
 }
 
-// Verbesserte Druckfunktion
-function druckeSaegeplan() {
-    if (aktuelleOptimierung.length === 0) {
-        alert('Bitte erstellen Sie zuerst eine Optimierung!');
-        return;
-    }
-    
-    if (typeof gtag !== 'undefined') {
-        gtag('event', 'print_saegeplan', {
-            'event_category': 'verschnitt_optimierung',
-            'event_label': 'print_initiated'
-        });
-    }
-    
-    // Erstelle druckbaren Inhalt
-    const gesamtVerschnitt = aktuelleOptimierung.reduce((sum, p) => sum + p.verschnitt, 0);
-    const gesamtMaterial = aktuelleOptimierung.reduce((sum, p) => sum + p.lagerlaenge, 0);
-    const effizienz = document.getElementById('effizienz').textContent;
-    const gesamtSchnitte = document.getElementById('gesamt-schnitte').textContent;
-    
-    let druckHTML = `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-            <div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #1e3c72; padding-bottom: 15px;">
-                <h2 style="color: #1e3c72; margin-bottom: 10px;">Dachplattenrechner.de Sägeplan - Verschnitt-Optimierung</h2>
-                <p style="color: #666; font-size: 1.1em;">
-                    Platten: ${aktuelleOptimierung.length} Stück | Material: ${gesamtMaterial.toFixed(2)}m | 
-                    Verschnitt: ${gesamtVerschnitt.toFixed(2)}m | Effizienz: ${effizienz} | Schnitte: ${gesamtSchnitte}
-                </p>
-            </div>
-            
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                <thead>
-                    <tr style="background: #f0f0f0;">
-                        <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold;">Platte Nr.</th>
-                        <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold;">Lagerlänge</th>
-                        <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold;">Zu sägende Längen</th>
-                        <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold;">Verschnitt</th>
-                        <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold;">Anzahl Schnitte</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-    
-    // Tabellendaten hinzufügen
-    aktuelleOptimierung.forEach(platte => {
-        let anzahlSchnitte = platte.realSchnitte || platte.anzahlSchnitte + (platte.verschnitt > 0.001 ? 1 : 0);
-        
-        druckHTML += `
-            <tr>
-                <td style="border: 1px solid #333; padding: 8px; text-align: center;"><strong>P${platte.plattenNr}</strong></td>
-                <td style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold; color: #1e3c72;">${platte.lagerlaenge.toFixed(1)}m</td>
-                <td style="border: 1px solid #333; padding: 8px; text-align: center;">${platte.masze.map(m => `${m.toFixed(2)}m`).join(', ')}</td>
-                <td style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold; color: #28a745;">${platte.verschnitt.toFixed(3)}m</td>
-                <td style="border: 1px solid #333; padding: 8px; text-align: center;">${anzahlSchnitte}</td>
-            </tr>`;
-    });
-    
-    druckHTML += `</tbody></table>`;
-    
-    // Optimierungstipp hinzufügen falls vorhanden
-    const optimierungElement = document.getElementById('verschnitt-optimierung');
-    if (optimierungElement && optimierungElement.style.display !== 'none') {
-        const toleranz = parseFloat(document.getElementById('toleranz').value) / 1000;
-        let verschnittOptimierungsTipp = '';
-        
-        aktuelleOptimierung.forEach(platte => {
-            if (platte.verschnitt > 0.001) {
-                const zusaetzlicheLaengeProTeil = platte.verschnitt / platte.masze.length * 1000;
-                const aktuelleToleranz = toleranz * 1000;
-                
-                if (zusaetzlicheLaengeProTeil <= aktuelleToleranz) {
-                    const neueSchnittlaenge = (platte.masze[0] - toleranz + platte.verschnitt / platte.masze.length) * 1000;
-                    const originalSchnittlaenge = (platte.masze[0] - toleranz) * 1000;
-                    
-                    verschnittOptimierungsTipp += `<strong>Platte ${platte.plattenNr}:</strong> Statt ${originalSchnittlaenge.toFixed(1)}mm → <strong>${neueSchnittlaenge.toFixed(1)}mm</strong> schneiden (${zusaetzlicheLaengeProTeil.toFixed(1)}mm länger pro Teil)<br>`;
-                    verschnittOptimierungsTipp += `→ <strong>Kein Verschnitt</strong> + <strong>1 Schnitt gespart</strong> (Verschnitt-Abtrennung entfällt)<br><br>`;
-                }
-            }
-        });
-        
-        if (verschnittOptimierungsTipp) {
-            druckHTML += `
-                <div style="background: #fffbf0; border: 2px solid #ffc107; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                    <h4 style="color: #856404; margin-bottom: 15px;">Verschnitt-Optimierungstipp</h4>
-                    <div>${verschnittOptimierungsTipp}</div>
-                    <strong>Vorteile:</strong><br>
-                    • Kein Materialverschnitt<br>
-                    • Weniger Sägeschnitte (spart Zeit)<br>
-                    • Teile sind noch innerhalb der Toleranz<br>
-                    <em>Längere Teile sind oft sogar besser als zu kurze!</em>
-                </div>`;
-        }
+.cookie-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cookie-btn.accept-all {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+}
+
+.cookie-btn.accept-all:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
+}
+
+.cookie-btn.essential-only {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.cookie-btn.essential-only:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+}
+
+@media (max-width: 768px) {
+    .cookie-content {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-md);
     }
     
-    druckHTML += `</div>`;
-    
-    // Neues Fenster öffnen und drucken
-    const druckFenster = window.open('', '_blank');
-    druckFenster.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Sägeplan - Verschnitt-Optimierung</title>
-            <style>
-                @media print {
-                    body { margin: 15mm; }
-                    table { page-break-inside: avoid; }
-                    div { page-break-inside: avoid; }
-                }
-                body { font-family: Arial, sans-serif; font-size: 11pt; }
-            </style>
-        </head>
-        <body>
-            ${druckHTML}
-        </body>
-        </html>
-    `);
-    druckFenster.document.close();
-    druckFenster.focus();
-    druckFenster.print();
-    druckFenster.close();
-}
-
-function parseEinheitUndWert(eingabe) {
-    // Bereinige Eingabe: Komma zu Punkt, Leerzeichen entfernen
-    let bereinigt = eingabe.replace(',', '.').replace(/\s/g, '').toLowerCase();
-    
-    // Erkenne Einheit
-    let einheit = 'm'; // Standard
-    let zahlTeil = bereinigt;
-    
-    if (bereinigt.endsWith('mm')) {
-        einheit = 'mm';
-        zahlTeil = bereinigt.slice(0, -2);
-    } else if (bereinigt.endsWith('cm')) {
-        einheit = 'cm';
-        zahlTeil = bereinigt.slice(0, -2);
-    } else if (bereinigt.endsWith('m')) {
-        einheit = 'm';
-        zahlTeil = bereinigt.slice(0, -1);
+    .cookie-text {
+        min-width: auto;
+        font-size: 0.9em;
     }
     
-    const zahl = parseFloat(zahlTeil);
-    if (isNaN(zahl)) return NaN;
+    .cookie-buttons {
+        justify-content: center;
+    }
     
-    // Konvertiere zu Meter
-    switch (einheit) {
-        case 'mm': return zahl / 1000;
-        case 'cm': return zahl / 100;
-        case 'm': return zahl;
-        default: return zahl; // Fallback: als Meter behandeln
+    .cookie-btn {
+        padding: 10px 16px;
+        font-size: 0.85em;
     }
 }
 
-function parseEinfacheEingabe() {
-    const text = document.getElementById('benoetigte-masze').value;
-    const lines = text.split('\n');
-    const masze = [];
-    
-    for (let line of lines) {
-        line = line.trim();
-        if (!line) continue;
-        
-        // Wiederholung: 100x1.5m, 50x2,3, 25x150cm
-        if (line.includes('x')) {
-            const parts = line.split('x');
-            if (parts.length === 2) {
-                const anzahl = parseInt(parts[0].trim());
-                const wertMitEinheit = parts[1].trim();
-                const wert = parseEinheitUndWert(wertMitEinheit);
-                
-                if (!isNaN(anzahl) && !isNaN(wert) && anzahl > 0 && wert > 0 && anzahl <= 10000) {
-                    for (let i = 0; i < anzahl; i++) {
-                        masze.push(wert);
-                    }
-                    log(`Parsed: ${anzahl}x ${wert}m`);
-                    continue;
-                }
-            }
-        }
-        
-        // Einfache Angabe: 1.5m, 150cm, 1500mm, 1,5
-        const wert = parseEinheitUndWert(line);
-        if (!isNaN(wert) && wert > 0) {
-            masze.push(wert);
-            log(`Parsed: ${wert}m`);
-        }
-    }
-    
-    return masze.sort((a, b) => b - a); // Größte zuerst
+/* KORRIGIERTE Werbung Container - Vollbreite ohne sichtbare Rahmen */
+.ad-container, .ad-container-middle {
+    margin: var(--spacing-xl) 0;
+    width: 100%;
+    max-width: none;
+    border-radius: 0;
+    overflow: hidden;
+    transition: all var(--transition-normal);
+    box-shadow: none;
+    background: transparent;
+    border: none;
+    position: relative;
+    min-height: 90px;
+    text-align: center;
 }
 
-function berechneOptimierung() {
-    log('Start Optimierung...');
+/* Entferne alle sichtbaren Rahmen und Hintergründe */
+.ad-container::before,
+.ad-container-middle::before {
+    display: none;
+}
+
+/* Verstecke Placeholder wenn Werbung geladen ist */
+.ad-placeholder {
+    display: none;
+}
+
+.ad-content-real {
+    display: block !important;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    text-align: center;
+}
+
+/* AdSense Container - VOLLBREITE */
+.adsbygoogle {
+    display: block !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 90px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* Versteckte Container komplett ausblenden */
+.ad-container[style*="display: none"],
+.ad-container-middle[style*="display: none"] {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+}
+
+/* Verschnitt-Optimierung Spezifische Styles */
+
+/* Hintergrundbild für Verschnitt-Optimierung */
+body {
+    background: var(--bg-primary) url('../images/verschnitt.png') center/cover fixed no-repeat !important;
+}
+
+/* Hauptcontainer für bessere Lesbarkeit */
+h1 {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Input-Felder mit dunklem Design */
+#benoetigte-masze {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-family: var(--font-mono);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all var(--transition-normal);
+    resize: vertical;
+    min-height: 200px;
+}
+
+#benoetigte-masze:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.3),
+        0 0 0 3px rgba(14, 165, 233, 0.2);
+    background: var(--bg-tertiary);
+}
+
+#benoetigte-masze::placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Lagerlängen Grid */
+.lager-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.lager-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-surface);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-sm);
+}
+
+.lager-item:hover {
+    background: var(--gradient-secondary);
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.lager-item input[type="checkbox"] {
+    transform: scale(1.3);
+    accent-color: var(--accent-blue);
+    cursor: pointer;
+}
+
+.lager-item label {
+    flex: 1;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 1.1em;
+}
+
+.lager-item input[type="number"] {
+    width: 70px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    text-align: center;
+    font-weight: 600;
+}
+
+.lager-item input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+}
+
+/* Info-Box Styling */
+.info-box {
+    background: var(--gradient-surface);
+    color: var(--text-primary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    border-left: 4px solid var(--accent-blue);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.info-box strong {
+    color: var(--accent-blue);
+    font-weight: 700;
+}
+
+/* Results Styling */
+.results h3 {
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 1.1em;
+    transition: all var(--transition-fast);
+}
+
+.result-item:hover {
+    color: var(--text-primary);
+    padding-left: var(--spacing-sm);
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-item span:first-child {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.result-item span:last-child {
+    color: var(--accent-blue);
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* Sägeplan Header */
+.saegeplan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: var(--spacing-xl) 0 var(--spacing-lg) 0;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.saegeplan-header h4 {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1.4em;
+    font-weight: 700;
+}
+
+/* Print Button */
+.print-button {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition-normal);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+    border: 1px solid var(--accent-blue-dark);
+}
+
+.print-button:hover {
+    background: linear-gradient(145deg, var(--accent-blue-hover) 0%, var(--accent-blue-dark) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
+}
+
+/* Table Container für Responsive */
+.table-container {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+/* Schnitt-Tabelle */
+.schnitt-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    background: var(--bg-secondary);
+    font-size: 14px;
+}
+
+.schnitt-table th {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 16px 12px;
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9em;
+    border: none;
+    position: relative;
+}
+
+.schnitt-table th::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-blue-dark) 0%, var(--accent-cyan) 100%);
+}
+
+.schnitt-table td {
+    padding: 14px 12px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.schnitt-table tbody tr {
+    transition: all var(--transition-fast);
+}
+
+.schnitt-table tbody tr:nth-child(even) {
+    background: var(--bg-tertiary);
+}
+
+.schnitt-table tbody tr:hover {
+    background: var(--gradient-surface);
+    transform: scale(1.01);
+    color: var(--text-primary);
+}
+
+/* Erste Spalte (Platte Nr.) hervorheben */
+.schnitt-table td:first-child {
+    font-weight: 700;
+    color: var(--text-primary);
+    background: rgba(14, 165, 233, 0.1);
+}
+
+/* Zweite Spalte (Lagerlänge) hervorheben */
+.schnitt-table td:nth-child(2) {
+    font-weight: 700;
+    color: var(--accent-blue);
+}
+
+/* Verschnitt-Spalte (grün) */
+.schnitt-table td:nth-child(4) {
+    font-weight: 700;
+    color: var(--accent-green);
+}
+
+/* Verschnitt-Optimierung Box */
+.optimization-tip {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.1) 100%);
+    color: var(--text-primary);
+    border-radius: var(--radius-lg);
+    border-left: 5px solid var(--accent-orange);
+    padding: var(--spacing-xl);
+    margin-top: var(--spacing-xl);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    box-shadow: var(--shadow-md);
+}
+
+.optimization-tip h4 {
+    color: var(--accent-orange);
+    margin-bottom: var(--spacing-lg);
+    font-size: 1.3em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.optimization-tip strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.optimization-tip em {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
     
-    try {
-        // 1. Eingabe parsen
-        const benoetigteMasze = parseEinfacheEingabe();
-        log(`Benötigte Maße: ${benoetigteMasze.length} Stück`);
-        
-        // Zeige geparste Werte zur Kontrolle
-        const einzigartigeMasze = [...new Set(benoetigteMasze)];
-        einzigartigeMasze.forEach(mass => {
-            const anzahl = benoetigteMasze.filter(m => Math.abs(m - mass) < 0.001).length;
-            log(`  → ${anzahl}x ${mass}m`);
-        });
-        
-        if (benoetigteMasze.length === 0) {
-            alert('Bitte geben Sie mindestens eine Länge ein!');
-            return;
-        }
-        
-        // 2. Lagerlängen sammeln
-        const verfuegbareLaengen = getVerfuegbareLaengen();
-        log(`Verfügbare Längen: ${verfuegbareLaengen.map(l => l.laenge + 'm').join(', ')}`);
-        
-        if (verfuegbareLaengen.length === 0) {
-            alert('Bitte wählen Sie mindestens eine Lagerlänge aus!');
-            return;
-        }
-        
-        // 3. Optimierung durchführen
-        const optimierung = intelligenteOptimierung(benoetigteMasze, verfuegbareLaengen);
-        log('Optimierung abgeschlossen');
-        
-        // 4. Ergebnisse anzeigen
-        zeigeErgebnisse(optimierung);
-        
-    } catch (error) {
-        log('Fehler: ' + error.message);
-        alert('Fehler bei der Optimierung: ' + error.message);
+    .lager-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+    
+    .lager-item {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    
+    .lager-item label {
+        font-size: 0.95em;
+    }
+    
+    .lager-item input[type="number"] {
+        width: 55px;
+        font-size: 0.9em;
+    }
+    
+    .saegeplan-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .print-button {
+        align-self: center;
+        width: auto;
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    
+    .table-container {
+        font-size: 11px;
+    }
+    
+    .schnitt-table th,
+    .schnitt-table td {
+        padding: 6px 3px;
+        font-size: 0.75em;
+    }
+    
+    .schnitt-table th {
+        font-size: 0.7em;
+        padding: 10px 3px;
+    }
+    
+    .result-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: var(--spacing-sm) 0;
+        font-size: 0.95em;
+    }
+    
+    .ad-container, .ad-container-middle {
+        margin: var(--spacing-lg) 0;
+    }
+    
+    .info-box {
+        padding: var(--spacing-md);
+        font-size: 0.9em;
+    }
+    
+    .input-group label {
+        font-size: 0.95em;
+    }
+    
+    .input-group input,
+    .input-group select {
+        font-size: 0.9em;
+    }
+    
+    .section h2 {
+        font-size: 1.3em;
+    }
+    
+    .optimization-tip {
+        padding: var(--spacing-lg);
+        font-size: 0.9em;
+    }
+    
+    .optimization-tip h4 {
+        font-size: 1.1em;
     }
 }
 
-function getVerfuegbareLaengen() {
-    const verfuegbar = [];
+@media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+    }
     
-    // Alle Lagerlängen mit korrekten IDs
-    const lagerlaengen = [
-        { id: 'lager-2.0', laenge: 2.0 },
-        { id: 'lager-2.5', laenge: 2.5 },
-        { id: 'lager-3.0', laenge: 3.0 },
-        { id: 'lager-3.1', laenge: 3.1 },
-        { id: 'lager-3.5', laenge: 3.5 },
-        { id: 'lager-4.0', laenge: 4.0 },
-        { id: 'lager-4.5', laenge: 4.5 },
-        { id: 'lager-5.0', laenge: 5.0 },
-        { id: 'lager-5.5', laenge: 5.5 },
-        { id: 'lager-6.0', laenge: 6.0 },
-        { id: 'lager-6.5', laenge: 6.5 },
-        { id: 'lager-7.0', laenge: 7.0 },
-        { id: 'lager-7.5', laenge: 7.5 },
-        { id: 'lager-8.0', laenge: 8.0 },
-        { id: 'lager-8.5', laenge: 8.5 },
-        { id: 'lager-9.0', laenge: 9.0 }
-    ];
+    h1 {
+        font-size: 1.6rem;
+        margin-bottom: var(--spacing-lg);
+    }
     
-    lagerlaengen.forEach(item => {
-        const checkbox = document.getElementById(item.id);
-        
-        if (checkbox && checkbox.checked) {
-            const anzahlInput = document.getElementById(`anzahl-${item.laenge}`);
-            const anzahl = anzahlInput && anzahlInput.value !== '' ? parseInt(anzahlInput.value) : Infinity;
-            
-            verfuegbar.push({
-                laenge: item.laenge,
-                anzahl: Math.max(0, anzahl || Infinity)
-            });
-        }
-    });
+    .input-row {
+        grid-template-columns: 1fr;
+    }
     
-    return verfuegbar.sort((a, b) => b.laenge - a.laenge); // Größte zuerst
+    .section {
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .section h2 {
+        font-size: 1.2em;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .results {
+        padding: var(--spacing-md);
+    }
+    
+    #benoetigte-masze {
+        min-height: 120px;
+        font-size: 13px;
+        padding: 12px;
+    }
+    
+    .lager-item {
+        padding: 8px;
+        font-size: 0.85em;
+    }
+    
+    .lager-item label {
+        font-size: 0.9em;
+    }
+    
+    .lager-item input[type="number"] {
+        width: 50px;
+        font-size: 0.85em;
+        padding: 6px;
+    }
+    
+    .table-container {
+        font-size: 10px;
+        margin: 0 -10px;
+    }
+    
+    .schnitt-table th,
+    .schnitt-table td {
+        padding: 4px 2px;
+        font-size: 0.7em;
+    }
+    
+    .schnitt-table th {
+        font-size: 0.65em;
+        padding: 8px 2px;
+    }
+    
+    .print-button {
+        padding: 8px 16px;
+        font-size: 13px;
+        margin-top: var(--spacing-sm);
+    }
+    
+    .result-item {
+        font-size: 0.9em;
+        padding: 8px 0;
+    }
+    
+    .info-box {
+        padding: var(--spacing-sm);
+        font-size: 0.85em;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .input-group {
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .input-group label {
+        font-size: 0.9em;
+        margin-bottom: 4px;
+    }
+    
+    .input-group input,
+    .input-group select,
+    .input-group textarea {
+        font-size: 0.85em;
+        padding: 10px;
+    }
+    
+    .calculate-btn {
+        font-size: 0.9em;
+        padding: 12px 24px;
+        margin: var(--spacing-md) 0;
+    }
+    
+    .optimization-tip {
+        padding: var(--spacing-md);
+        font-size: 0.85em;
+        margin: var(--spacing-md) -10px 0 -10px;
+    }
+    
+    .optimization-tip h4 {
+        font-size: 1em;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .ad-container, .ad-container-middle {
+        margin: var(--spacing-md) 0;
+    }
 }
 
-function berechneOptimaleKombination(masze, lagerlaenge, schnittblattBreite, toleranz) {
-    // Spezialfall: Alle Teile sind identisch (wichtig für 100x1.5m)
-    if (masze.length > 0 && masze.every(m => Math.abs(m - masze[0]) < 0.001)) {
-        const teilLaenge = masze[0];
-        
-        if (teilLaenge <= 0) {
-            return { teile: [], verschnitt: lagerlaenge, realSchnitte: 0 };
-        }
-        
-        // Berechne maximale Anzahl identischer Teile
-        let maxAnzahl = 1;
-        
-        // Teste schrittweise mehr Teile
-        while (maxAnzahl <= masze.length) {
-            // Minimaler benötigter Platz (kürzeste erlaubte Teile)
-            const minTeilLaenge = teilLaenge - toleranz;
-            const minBenoetigterPlatz = maxAnzahl * minTeilLaenge + (maxAnzahl - 1) * schnittblattBreite;
-            
-            if (minBenoetigterPlatz > lagerlaenge) {
-                maxAnzahl--; // Ein Schritt zurück
-                break;
-            }
-            if (maxAnzahl === masze.length) break; // Alle passen
-            maxAnzahl++;
-        }
-        
-        if (maxAnzahl > 0) {
-            const teile = [];
-            for (let i = 0; i < maxAnzahl; i++) {
-                teile.push(teilLaenge);
-            }
-            
-            // Berechne mit minimalen Teillängen
-            const minTeilLaenge = teilLaenge - toleranz;
-            const minBenoetigterPlatz = maxAnzahl * minTeilLaenge + (maxAnzahl - 1) * schnittblattBreite;
-            const verfuegbarerVerschnitt = lagerlaenge - minBenoetigterPlatz;
-            
-            // Prüfe ob wir den Verschnitt auf die Teile verteilen können (innerhalb Toleranz)
-            const verschnittProTeil = verfuegbarerVerschnitt / maxAnzahl;
-            const kannVerschnittVerteilen = verschnittProTeil <= toleranz;
-            
-            let realSchnitte = maxAnzahl > 0 ? maxAnzahl - 1 : 0; // Schnitte zwischen Teilen
-            let endVerschnitt = verfuegbarerVerschnitt;
-            
-            if (kannVerschnittVerteilen) {
-                // Verschnitt kann auf Teile verteilt werden - kein Verschnitt-Schnitt nötig!
-                endVerschnitt = 0;
-                log(`${lagerlaenge}m mit ${maxAnzahl}x${teilLaenge}m: Verschnitt ${(verschnittProTeil*1000).toFixed(1)}mm pro Teil ≤ ${(toleranz*1000).toFixed(0)}mm Toleranz → KEIN Verschnitt-Schnitt!`);
-            } else {
-                // Verschnitt zu groß - muss abgetrennt werden
-                realSchnitte += 1;
-                log(`${lagerlaenge}m mit ${maxAnzahl}x${teilLaenge}m: Verschnitt ${(verschnittProTeil*1000).toFixed(1)}mm pro Teil > ${(toleranz*1000).toFixed(0)}mm Toleranz → +1 Verschnitt-Schnitt`);
-            }
-            
-            return { 
-                teile: teile, 
-                verschnitt: endVerschnitt, 
-                realSchnitte: realSchnitte,
-                kannVerschnittVerteilen: kannVerschnittVerteilen,
-                verschnittProTeil: verschnittProTeil
-            };
-        }
+@media (max-width: 360px) {
+    h1 {
+        font-size: 1.4rem;
     }
     
-    // Fallback für gemischte Teile: Greedy-Algorithmus
-    const kombination = [];
-    let verbleibendelaenge = lagerlaenge;
-    const sortierteMasze = [...masze].sort((a, b) => b - a); // Größte zuerst
-    
-    for (let mass of sortierteMasze) {
-        // Minimale benötigte Länge (kürzeste erlaubte Teillänge)
-        const minMass = mass - toleranz;
-        const benoetigterPlatz = minMass + (kombination.length > 0 ? schnittblattBreite : 0);
-        
-        if (verbleibendelaenge >= benoetigterPlatz && minMass > 0) {
-            kombination.push(mass);
-            verbleibendelaenge -= benoetigterPlatz;
-        }
+    .table-container {
+        font-size: 9px;
     }
     
-    // Berechne reale Schnittanzahl für gemischte Teile
-    let realSchnitte = kombination.length > 0 ? kombination.length - 1 : 0;
-    
-    // Bei gemischten Teilen: Verschnitt-Verteilung schwieriger - konservativ rechnen
-    if (verbleibendelaenge > toleranz) {
-        realSchnitte += 1;
+    .schnitt-table th,
+    .schnitt-table td {
+        padding: 3px 1px;
+        font-size: 0.65em;
     }
     
-    return { 
-        teile: kombination, 
-        verschnitt: verbleibendelaenge, 
-        realSchnitte: realSchnitte,
-        kannVerschnittVerteilen: verbleibendelaenge <= toleranz
-    };
+    .schnitt-table th {
+        font-size: 0.6em;
+        padding: 6px 1px;
+    }
+    
+    .lager-item input[type="number"] {
+        width: 45px;
+    }
+    
+    .result-item {
+        font-size: 0.85em;
+    }
 }
-
-function intelligenteOptimierung(masze, verfuegbareLaengen) {
-    const ergebnis = [];
-    const verbleibendeMapze = [...masze];
-    const schnittblattBreite = parseFloat(document.getElementById('schnittblatt-breite').value) / 1000;
-    const toleranz = parseFloat(document.getElementById('toleranz').value) / 1000;
-    const modus = document.getElementById('optimierung-modus').value;
-    
-    log(`Optimierungsmodus: ${modus}`);
-    log(`Schnittblattbreite: ${(schnittblattBreite*1000).toFixed(1)}mm, Toleranz: ${(toleranz*1000).toFixed(1)}mm`);
-    
-    // Verbrauchszähler für begrenzte Lagerlängen
-    const verbrauchteAnzahl = {};
-    verfuegbareLaengen.forEach(lager => {
-        verbrauchteAnzahl[lager.laenge] = 0;
-    });
-    
-    let plattenNr = 1;
-    
-    while (verbleibendeMapze.length > 0 && plattenNr <= 100) {
-        let bestePlatte = null;
-        let besteKombination = [];
-        let besterWert = modus === 'verschnitt' ? Infinity : Infinity; // Beide Modi minimieren
-        
-        log(`Platte ${plattenNr}: Verbleibende Teile: ${verbleibendeMapze.length}`);
-        
-        // Teste jede verfügbare Lagerlänge
-        for (let lager of verfuegbareLaengen) {
-            // Prüfe ob noch verfügbar
-            if (verbrauchteAnzahl[lager.laenge] >= lager.anzahl) {
-                log(`Lager ${lager.laenge}m: Keine mehr verfügbar (${verbrauchteAnzahl[lager.laenge]}/${lager.anzahl})`);
-                continue;
-            }
-            
-            const kombination = berechneOptimaleKombination(verbleibendeMapze, lager.laenge, schnittblattBreite, toleranz);
-            
-            if (kombination.teile.length === 0) {
-                log(`Lager ${lager.laenge}m: Keine Kombination möglich`);
-                continue;
-            }
-            
-            let istBesser = false;
-            if (modus === 'verschnitt') {
-                // Minimaler Verschnitt - URSPRÜNGLICHE LOGIK BEIBEHALTEN
-                istBesser = kombination.verschnitt < besterWert;
-                if (istBesser) besterWert = kombination.verschnitt;
-                log(`VERSCHNITT-Modus: ${lager.laenge}m → ${kombination.teile.length} Teile, Verschnitt: ${kombination.verschnitt.toFixed(3)}m ${istBesser ? '(BESSER)' : ''}`);
-            } else {
-                // Wenigste Schnitte: KORRIGIERTE LOGIK
-                // Primär: Minimiere Schnitte pro Teil, Sekundär: Minimiere Verschnitt
-                const schnittEffizienz = kombination.realSchnitte / kombination.teile.length;
-                const verschnittMalus = kombination.verschnitt * 0.01; // Sehr kleiner Malus für Verschnitt
-                const bewertung = schnittEffizienz + verschnittMalus;
-                
-                istBesser = bewertung < besterWert;
-                if (istBesser) besterWert = bewertung;
-                
-                let zusatzInfo = '';
-                if (kombination.kannVerschnittVerteilen) {
-                    zusatzInfo = ', Verschnitt verteilbar auf Teile!';
-                }
-                
-                log(`SCHNITTE-Modus: ${lager.laenge}m → ${kombination.teile.length} Teile, ${kombination.realSchnitte} reale Schnitte, Effizienz: ${schnittEffizienz.toFixed(2)} Schnitte/Teil, Verschnitt: ${kombination.verschnitt.toFixed(3)}m${zusatzInfo} ${istBesser ? '(BESSER)' : ''}`);
-            }
-            
-            if (istBesser) {
-                besteKombination = kombination.teile;
-                bestePlatte = lager;
-                log(`NEUE BESTE: ${lager.laenge}m mit ${kombination.teile.length} Teilen, ${kombination.realSchnitte} reale Schnitte`);
-            }
-        }
-        
-        if (!bestePlatte || besteKombination.length === 0) {
-            log('Keine optimale Platte gefunden - breche ab');
-            break;
-        }
-        
-        // Berechne finale Werte
-        const finalKombination = berechneOptimaleKombination([...besteKombination], bestePlatte.laenge, schnittblattBreite, toleranz);
-        
-        log(`Platte ${plattenNr}: ${bestePlatte.laenge}m mit ${besteKombination.length} Teilen, Verschnitt: ${finalKombination.verschnitt.toFixed(3)}m, Reale Schnitte: ${finalKombination.realSchnitte}`);
-        
-        ergebnis.push({
-            plattenNr: plattenNr++,
-            lagerlaenge: bestePlatte.laenge,
-            masze: [...besteKombination],
-            verschnitt: Math.max(0, finalKombination.verschnitt),
-            anzahlSchnitte: besteKombination.length > 0 ? besteKombination.length - 1 : 0,
-            realSchnitte: finalKombination.realSchnitte
-        });
-        
-        // Verbrauch markieren
-        verbrauchteAnzahl[bestePlatte.laenge]++;
-        
-        // Entferne verwendete Maße
-        besteKombination.forEach(mass => {
-            const index = verbleibendeMapze.findIndex(m => Math.abs(m - mass) < 0.0001);
-            if (index > -1) {
-                verbleibendeMapze.splice(index, 1);
-            }
-        });
-    }
-    
-    return ergebnis;
-}
-
-function zeigeErgebnisse(optimierung) {
-    aktuelleOptimierung = optimierung;
-    
-    const gesamtVerschnitt = optimierung.reduce((sum, p) => sum + p.verschnitt, 0);
-    const gesamtMaterial = optimierung.reduce((sum, p) => sum + p.lagerlaenge, 0);
-    
-    // Tatsächlich benötigtes Material = Netto-Material (mit abgezogener Toleranz)
-    const toleranz = parseFloat(document.getElementById('toleranz').value) / 1000;
-    const schnittblattBreite = parseFloat(document.getElementById('schnittblatt-breite').value) / 1000;
-    
-    let tatsaechlichBenoetigtesMaterial = 0;
-    let gesamtSchnitte = 0;
-    
-    optimierung.forEach(platte => {
-        // Netto-Material: Original-Längen minus Toleranz
-        const nettoMaterialPlatte = platte.masze.reduce((sum, mass) => sum + (mass - toleranz), 0);
-        tatsaechlichBenoetigtesMaterial += nettoMaterialPlatte;
-        
-        // Schnittblatt-Verluste
-        const schnittblattVerluste = platte.anzahlSchnitte * schnittblattBreite;
-        tatsaechlichBenoetigtesMaterial += schnittblattVerluste;
-        
-        // Verwende reale Schnittanzahl für Gesamtschnitte
-        gesamtSchnitte += platte.realSchnitte || platte.anzahlSchnitte + (platte.verschnitt > 0.001 ? 1 : 0);
-    });
-    
-    const effizienz = gesamtMaterial > 0 ? (tatsaechlichBenoetigtesMaterial / gesamtMaterial * 100) : 0;
-    
-    // Ergebnisse anzeigen
-    document.getElementById('lager-anzahl').textContent = optimierung.length + ' Stück';
-    document.getElementById('gesamt-material').textContent = gesamtMaterial.toFixed(2) + ' m';
-    document.getElementById('nutzen-material').textContent = tatsaechlichBenoetigtesMaterial.toFixed(2) + ' m';
-    document.getElementById('gesamt-verschnitt').textContent = gesamtVerschnitt.toFixed(2) + ' m';
-    document.getElementById('gesamt-schnitte').textContent = gesamtSchnitte + ' Stück';
-    document.getElementById('effizienz').textContent = effizienz.toFixed(1) + '%';
-    
-    // Tabelle füllen
-    const tbody = document.getElementById('saegeplan-details');
-    tbody.innerHTML = '';
-    
-    // Prüfe Verschnitt-Optimierung
-    let verschnittOptimierungsTipp = '';
-    
-    optimierung.forEach(platte => {
-        const row = document.createElement('tr');
-        
-        // Verwende reale Schnittanzahl
-        const anzahlSchnitte = platte.realSchnitte || platte.anzahlSchnitte + (platte.verschnitt > 0.001 ? 1 : 0);
-        
-        row.innerHTML = `
-            <td><strong>P${platte.plattenNr}</strong></td>
-            <td>${platte.lagerlaenge.toFixed(1)}m</td>
-            <td>${platte.masze.map(m => `${m.toFixed(2)}m`).join(', ')}</td>
-            <td>${platte.verschnitt.toFixed(3)}m</td>
-            <td>${anzahlSchnitte}</td>
-        `;
-        tbody.appendChild(row);
-        
-        // Prüfe ob Verschnitt durch Toleranz-Anpassung eliminiert werden kann
-        if (platte.verschnitt > 0.001) {
-            // Berechne wie viel länger jedes Teil geschnitten werden könnte
-            const zusaetzlicheLaengeProTeil = platte.verschnitt / platte.masze.length * 1000; // in mm pro Teil
-            const aktuelleToleranz = toleranz * 1000; // in mm
-            
-            // Wenn die zusätzliche Länge innerhalb der Toleranz liegt
-            if (zusaetzlicheLaengeProTeil <= aktuelleToleranz) {
-                const neueSchnittlaenge = (platte.masze[0] - toleranz + platte.verschnitt / platte.masze.length) * 1000; // in mm
-                const originalSchnittlaenge = (platte.masze[0] - toleranz) * 1000; // in mm
-                
-                verschnittOptimierungsTipp += `<strong>Platte ${platte.plattenNr}:</strong> Statt ${originalSchnittlaenge.toFixed(1)}mm → <strong>${neueSchnittlaenge.toFixed(1)}mm</strong> schneiden (${zusaetzlicheLaengeProTeil.toFixed(1)}mm länger pro Teil)<br>`;
-                verschnittOptimierungsTipp += `→ <strong>Kein Verschnitt</strong> + <strong>1 Schnitt gespart</strong> (Verschnitt-Abtrennung entfällt)<br><br>`;
-            }
-        }
-    });
-    
-    // Zeige Verschnitt-Optimierungstipp
-    if (verschnittOptimierungsTipp) {
-        document.getElementById('optimierung-text').innerHTML = verschnittOptimierungsTipp + 
-            '<strong>Vorteile:</strong><br>' +
-            '• Kein Materialverschnitt<br>' +
-            '• Weniger Sägeschnitte (spart Zeit)<br>' +
-            '• Teile sind noch innerhalb der Toleranz<br>' +
-            '<em>Längere Teile sind oft sogar besser als zu kurze!</em>';
-        document.getElementById('verschnitt-optimierung').style.display = 'block';
-    } else {
-        document.getElementById('verschnitt-optimierung').style.display = 'none';
-    }
-    
-    document.getElementById('results').style.display = 'block';
-    
-    // Zeige finale Statistik im Log
-    log(`FINALE STATISTIK:`);
-    log(`   Platten benötigt: ${optimierung.length}`);
-    log(`   Gesamtmaterial: ${gesamtMaterial.toFixed(2)}m`);
-    log(`   Gesamtverschnitt: ${gesamtVerschnitt.toFixed(2)}m`);
-    log(`   Gesamtschnitte: ${gesamtSchnitte}`);
-    log(`   Effizienz: ${effizienz.toFixed(1)}%`);
-}
-
-// Initialize everything
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tracking and ads based on existing consent
-    const cookieConsent = localStorage.getItem('cookieConsent');
-    if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
-        loadAnalytics();
-    }
-    
-    // WICHTIG: Werbung immer anzeigen (wie auf index.html)
-    showAds();
-});
