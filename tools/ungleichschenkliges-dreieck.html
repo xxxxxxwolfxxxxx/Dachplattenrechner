@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -12,18 +11,14 @@
         // AdSense nur laden wenn Marketing-Cookies akzeptiert sind
         function loadAdSense() {
             if (localStorage.getItem('marketingCookies') === 'true') {
-                const script = document.createElement('script');
-                script.async = true;
-                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
-                script.crossOrigin = 'anonymous';
-                document.head.appendChild(script);
-                
-                // AdSense Auto-Ads aktivieren
-                window.adsbygoogle = window.adsbygoogle || [];
-                window.adsbygoogle.push({
-                    google_ad_client: 'ca-pub-8687929894744033',
-                    enable_page_level_ads: true
-                });
+                // Lade AdSense Script dynamisch
+                if (!document.querySelector('script[src*="adsbygoogle.js"]')) {
+                    const script = document.createElement('script');
+                    script.async = true;
+                    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
+                    script.crossOrigin = 'anonymous';
+                    document.head.appendChild(script);
+                }
             }
         }
     </script>
@@ -312,89 +307,76 @@
             box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
         }
 
-        /* Elegante Werbecontainer */
+        /* AdSense Integration Styles - wie auf Verschnittseite */
         .ad-container, .ad-container-middle {
-            margin: 30px auto;
-            max-width: 800px;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        
-        .ad-container-middle {
-            margin: 40px auto;
-        }
-        
-        .ad-placeholder {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 2px dashed #dee2e6;
-            padding: 20px;
+            margin: 20px auto;
             text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .ad-placeholder:hover {
-            border-color: #2a5298;
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        }
-        
-        .ad-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: #6c757d;
-            font-weight: 500;
-        }
-        
-        .ad-content-horizontal {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .ad-text-block {
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
-        
-        .ad-text-block strong {
-            color: #2a5298;
-            font-size: 1.1em;
-            margin-bottom: 4px;
-        }
-        
-        .ad-text-block span {
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-        
-        .ad-icon {
-            font-size: 1.5em;
-            opacity: 0.8;
-        }
-        
-        .ad-text {
-            font-size: 0.95em;
-        }
-        
-        .ad-content-real {
-            min-height: 100px;
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            min-height: 90px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             display: block;
+            clear: both;
         }
-        
-        /* Werbung aktiv - verstecke Placeholder */
-        .ad-container.ads-active .ad-placeholder,
-        .ad-container-middle.ads-active .ad-placeholder {
-            display: none;
+
+        .ad-container::before,
+        .ad-container-middle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
         }
-        
-        .ad-container.ads-active .ad-content-real,
-        .ad-container-middle.ads-active .ad-content-real {
+
+        .ad-label {
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 3px 8px;
+            font-size: 9px;
+            font-weight: 600;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .ad-container .adsbygoogle,
+        .ad-container-middle .adsbygoogle {
             display: block !important;
+            text-align: center !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            min-height: 90px !important;
+            max-height: 200px !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding: 10px;
+            float: none !important;
+            clear: both !important;
+        }
+
+        .ad-container[style*="display: none"],
+        .ad-container:empty,
+        .ad-container-middle[style*="display: none"],
+        .ad-container-middle:empty {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            min-height: 0 !important;
         }
 
         /* Mobile Optimierung */
@@ -525,29 +507,16 @@
             }
             
             .ad-container, .ad-container-middle {
-                margin: 15px 10px; /* Reduziert */
+                margin: 15px 10px;
+                min-height: 70px;
+                max-width: calc(100vw - 20px);
             }
             
-            .ad-placeholder {
-                padding: 12px; /* Reduziert von 15px */
-            }
-            
-            .ad-content-horizontal {
-                flex-direction: column;
-                text-align: center;
-                gap: 10px; /* Reduziert */
-            }
-            
-            .ad-text-block {
-                text-align: center;
-            }
-            
-            .ad-text-block strong {
-                font-size: 1em; /* Reduziert von 1.1em */
-            }
-            
-            .ad-text-block span {
-                font-size: 0.85em; /* Reduziert von 0.9em */
+            .ad-container .adsbygoogle,
+            .ad-container-middle .adsbygoogle {
+                min-height: 70px !important;
+                max-height: 150px !important;
+                padding: 8px;
             }
         }
 
@@ -653,18 +622,21 @@
     <div class="container">
         <main>
             <!-- Eleganter Werbeplatz oben -->
-            <div class="ad-container" id="top-ad-container" style="text-align: center;">
-                <div class="ad-placeholder">
-                    <div class="ad-content">
-                        <span class="ad-icon">📢</span>
-                        <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
-                    </div>
-                </div>
-                <div style="text-align: center; width: 100%;">
-                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
+            <div class="ad-container" id="top-ad-container">
+                <span class="ad-label">Werbung</span>
+                <!-- rechner-1 -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="2952663401"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <!-- Versteckte Keywords für Anzeigen-Targeting -->
+                <div style="display:none;">
+                    Trapezblech Dreieck berechnen Dachplatten Kantteile Profilblech dreiecksförmig
+                    Trapezplatten Wellblech Pfannenblech Dachdeckung Dachberechnung Metalldach
+                    Dreiecksfläche Trapezblech zuschneiden Dachfläche berechnen Metallverarbeitung
+                    Dachsanierung Neubau Dach Trapezbleche maßgeschneidert
                 </div>
             </div>
 
@@ -767,7 +739,7 @@
                             <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 6.00">
                         </div>
                     </div>
-                    <div class="info-box">
+                     <div class="info-box">
                         <strong>💡 Positions-Modus:</strong> Geben Sie an, wo die Spitze steht und wie hoch das Dreieck ist.
                         Die Kantenlängen werden automatisch berechnet.
                     </div>
@@ -775,21 +747,20 @@
             </div>
 
             <!-- Eleganter Werbeplatz zwischen den Eingaben -->
-            <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
-                <div class="ad-placeholder">
-                    <div class="ad-content-horizontal">
-                        <span class="ad-icon">💡</span>
-                        <div class="ad-text-block">
-                            <strong>Professionelle Dachtools</strong>
-                            <span>Weitere hilfreiche Ressourcen für Dachdecker und Heimwerker</span>
-                        </div>
-                    </div>
-                </div>
-                <div style="text-align: center; width: 100%;">
-                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
+            <div class="ad-container-middle" id="middle-ad-container">
+                <span class="ad-label">Werbung</span>
+                <!-- rechner-2 -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="6038540481"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <!-- Versteckte Keywords für Anzeigen-Targeting -->
+                <div style="display:none;">
+                    Trapezplatte Wellblech Pfannenblech Metallverarbeitung Kantteile Profilblech
+                    Dachplatten Metalldach Trapezbleche Dachberechnung Dreiecksberechnung
+                    Dachsanierung Metallbau Dachdeckung Neubau Dach Zuschnitt
                 </div>
             </div>
 
@@ -888,18 +859,20 @@
             </div>
 
             <!-- Eleganter Werbeplatz am Ende -->
-            <div class="ad-container" id="bottom-ad-container" style="text-align: center;">
-                <div class="ad-placeholder">
-                    <div class="ad-content">
-                        <span class="ad-icon">🛠️</span>
-                        <span class="ad-text">Mehr professionelle Tools für Dachdecker</span>
-                    </div>
-                </div>
-                <div style="text-align: center; width: 100%;">
-                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
+            <div class="ad-container" id="bottom-ad-container">
+                <span class="ad-label">Werbung</span>
+                <!-- rechner-3 -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="8536162573"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <!-- Versteckte Keywords für Anzeigen-Targeting -->
+                <div style="display:none;">
+                    Dachberechnungstools Trapezblech Metalldach Profilblech Wellblech Pfannenblech
+                    Dachplatten berechnen Metallverarbeitung Kantteile Dachfläche messen
+                    Dreiecksberechnung Dachdeckung Neubau Sanierung Heimwerker
                 </div>
             </div>
         </main>
@@ -909,6 +882,7 @@
         let aktuelleSchnittliste = [];
         let parameterModus = 'kantenlaengen';
         let spitzenPosition = 0;
+        let adSenseInitialized = false; // Flag um Doppelinitialisierung zu verhindern
 
         function acceptAllCookies() {
             localStorage.setItem('cookieConsent', 'all');
@@ -931,23 +905,559 @@
         }
 
         function showAds() {
-            if (localStorage.getItem('marketingCookies') === 'true') {
+            if (localStorage.getItem('marketingCookies') === 'true' && !adSenseInitialized) {
+                adSenseInitialized = true; // Verhindere Mehrfachinitialisierung
+                
+                // Zeige AdSense-Container
                 document.getElementById('top-ad-container').style.display = 'block';
                 document.getElementById('middle-ad-container').style.display = 'block';
                 document.getElementById('bottom-ad-container').style.display = 'block';
                 
-                if (window.adsbygoogle) {
+                // Initialisiere AdSense Anzeigen nur einmal
+                setTimeout(function() {
                     try {
                         const ads = document.querySelectorAll('.adsbygoogle');
-                        ads.forEach(ad => {
-                            if (!ad.getAttribute('data-ad-status')) {
+                        console.log('Found', ads.length, 'ad slots to initialize');
+                        
+                        ads.forEach(function(ad, index) {
+                            if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-initialized')) {
+                                ad.setAttribute('data-initialized', 'true');
                                 (window.adsbygoogle = window.adsbygoogle || []).push({});
+                                console.log('AdSense ad', index + 1, 'initialized');
                             }
                         });
+                        
+                        // Prüfe nach 3 Sekunden ob Anzeigen geladen sind
+                        setTimeout(function() {
+                            document.querySelectorAll('.ad-container, .ad-container-middle').forEach(function(container, index) {
+                                const adElement = container.querySelector('.adsbygoogle');
+                                if (adElement) {
+                                    const adStatus = adElement.getAttribute('data-ad-status');
+                                    const hasContent = adElement.innerHTML.trim().length > 0;
+                                    const hasHeight = adElement.offsetHeight > 50;
+                                    
+                                    if (adStatus === 'unfilled' || (!hasContent && !hasHeight)) {
+                                        container.style.display = 'none';
+                                        console.log('Ad container', index + 1, 'hidden - no content loaded');
+                                    } else {
+                                        console.log('Ad container', index + 1, 'loaded successfully');
+                                    }
+                                }
+                            });
+                        }, 3000);
+                        
                     } catch (e) {
                         console.log('AdSense loading error:', e);
                     }
+                }, 1000);
+            }
+        }
+
+        function hideAds() {
+            document.getElementById('top-ad-container').style.display = 'none';
+            document.getElementById('middle-ad-container').style.display = 'none';
+            document.getElementById('bottom-ad-container').style.display = 'none';
+        }
+
+        function wechsleParameterModus(modus) {
+            parameterModus = modus;
+            
+            document.getElementById('btn-kantenlaengen').classList.remove('active');
+            document.getElementById('btn-position').classList.remove('active');
+            document.getElementById('btn-' + modus).classList.add('active');
+            
+            if (modus === 'kantenlaengen') {
+                document.getElementById('kantenlaengen-inputs').style.display = 'block';
+                document.getElementById('position-inputs').style.display = 'none';
+            } else {
+                document.getElementById('kantenlaengen-inputs').style.display = 'none';
+                document.getElementById('position-inputs').style.display = 'block';
+            }
+        }
+
+        function berechneSpitzenPosition(basisBreite, hoehe, kanteLinks, kanteRechts) {
+            const a = kanteLinks;
+            const b = kanteRechts;
+            const c = basisBreite;
+            
+            const x = (a * a - b * b + c * c) / (2 * c);
+            return Math.max(0, Math.min(basisBreite, x));
+        }
+
+        function berechneKantenlaengen(basisBreite, hoehe, spitzenPos) {
+            const linkeSeite = spitzenPos;
+            const rechteSeite = basisBreite - spitzenPos;
+            
+            const kanteLinks = Math.sqrt(linkeSeite * linkeSeite + hoehe * hoehe);
+            const kanteRechts = Math.sqrt(rechteSeite * rechteSeite + hoehe * hoehe);
+            
+            return { links: kanteLinks, rechts: kanteRechts };
+        }
+
+        function berechneHoeheAusKantenlaengen(basisBreite, kanteLinks, kanteRechts) {
+            const spitzenPos = berechneSpitzenPosition(basisBreite, 1, kanteLinks, kanteRechts);
+            const linkeSeite = spitzenPos;
+            const hoehe = Math.sqrt(kanteLinks * kanteLinks - linkeSeite * linkeSeite);
+            return hoehe;
+        }
+
+        function berechneUngleichschenkligesDreieck(basisBreite, hoehe, spitzenPos, deckbreite) {
+            const schnittliste = [];
+            const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
+            
+            let anzahlPlatten = Math.ceil((basisBreite - lieferbreite + deckbreite) / deckbreite);
+            
+            for (let i = 0; i < anzahlPlatten; i++) {
+                let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+                let positionVonLinksEnde = positionVonLinks + lieferbreite;
+                positionVonLinksEnde = Math.min(positionVonLinksEnde, basisBreite);
+                
+                let benoetigteLaenge;
+                
+                if (positionVonLinks <= spitzenPos && positionVonLinksEnde >= spitzenPos) {
+                    benoetigteLaenge = hoehe;
+                } else {
+                    const hoeheStart = berechneHoeheAnPosition(positionVonLinks, basisBreite, hoehe, spitzenPos);
+                    const hoeheEnde = berechneHoeheAnPosition(positionVonLinksEnde, basisBreite, hoehe, spitzenPos);
+                    benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
                 }
+                
+                if (benoetigteLaenge > 0 && positionVonLinks < basisBreite) {
+                    schnittliste.push({
+                        plattenNr: i + 1,
+                        positionVonLinks: positionVonLinks.toFixed(2),
+                        positionBis: positionVonLinksEnde.toFixed(2),
+                        benoetigteLaenge: benoetigteLaenge.toFixed(2),
+                        plattenbreite: lieferbreite.toFixed(2)
+                    });
+                }
+            }
+
+            return { 
+                schnittliste: schnittliste,
+                anzahlPlatten: schnittliste.length
+            };
+        }
+
+        function berechneHoeheAnPosition(position, basisBreite, hoehe, spitzenPos) {
+            if (position <= 0) return 0;
+            if (position >= basisBreite) return 0;
+            
+            let abstand;
+            if (position <= spitzenPos) {
+                abstand = spitzenPos - position;
+                const linkeSeite = spitzenPos;
+                if (linkeSeite === 0) return hoehe;
+                return hoehe * (1 - abstand / linkeSeite);
+            } else {
+                abstand = position - spitzenPos;
+                const rechteSeite = basisBreite - spitzenPos;
+                if (rechteSeite === 0) return hoehe;
+                return hoehe * (1 - abstand / rechteSeite);
+            }
+        }
+
+        function berechnen() {
+            const basisBreite = parseFloat(document.getElementById('basis-breite').value);
+            const deckbreite = parseFloat(document.getElementById('deckbreite').value);
+            const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
+
+            if (!basisBreite || !deckbreite || !lieferbreite) {
+                alert('Bitte füllen Sie alle Grundfelder aus!');
+                return;
+            }
+
+            let kanteLinks, kanteRechts, hoehe;
+
+            if (parameterModus === 'kantenlaengen') {
+                kanteLinks = parseFloat(document.getElementById('kante-links').value);
+                kanteRechts = parseFloat(document.getElementById('kante-rechts').value);
+                
+                if (!kanteLinks || !kanteRechts) {
+                    alert('Bitte geben Sie beide Kantenlängen ein!');
+                    return;
+                }
+                
+                hoehe = berechneHoeheAusKantenlaengen(basisBreite, kanteLinks, kanteRechts);
+                spitzenPosition = berechneSpitzenPosition(basisBreite, hoehe, kanteLinks, kanteRechts);
+                
+                if (hoehe <= 0 || isNaN(hoehe)) {
+                    alert('Die eingegebenen Kantenlängen sind nicht mit der Basis-Breite vereinbar! Bitte prüfen Sie Ihre Eingabe.');
+                    return;
+                }
+            } else {
+                hoehe = parseFloat(document.getElementById('hoehe').value);
+                spitzenPosition = parseFloat(document.getElementById('spitze-position').value);
+                
+                if (!hoehe || spitzenPosition === null || spitzenPosition === undefined || isNaN(spitzenPosition)) {
+                    alert('Bitte geben Sie Höhe und Spitzen-Position ein!');
+                    return;
+                }
+                
+                if (spitzenPosition < 0 || spitzenPosition > basisBreite) {
+                    alert('Die Spitzen-Position muss zwischen 0 und der Basis-Breite liegen!');
+                    return;
+                }
+                
+                const berechneteKanten = berechneKantenlaengen(basisBreite, hoehe, spitzenPosition);
+                kanteLinks = berechneteKanten.links;
+                kanteRechts = berechneteKanten.rechts;
+            }
+
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'calculation', {
+                    'event_category': 'ungleichschenkliges_dreieck',
+                    'event_label': 'form_submitted'
+                });
+            }
+
+            const ueberlappung = lieferbreite - deckbreite;
+            const dreieckBerechnung = berechneUngleichschenkligesDreieck(basisBreite, hoehe, spitzenPosition, deckbreite);
+            const maxLaenge = Math.max(...dreieckBerechnung.schnittliste.map(p => parseFloat(p.benoetigteLaenge)));
+
+            document.getElementById('ueberlappung').textContent = ueberlappung.toFixed(2) + ' m';
+            document.getElementById('spitze-position-result').textContent = spitzenPosition.toFixed(2) + ' m';
+            document.getElementById('hypotenusen-result').textContent = 
+                `Links: ${kanteLinks.toFixed(2)}m | Rechts: ${kanteRechts.toFixed(2)}m`;
+            document.getElementById('benoetigte-plattenlaenge').textContent = maxLaenge.toFixed(2) + ' m';
+            document.getElementById('anzahl-bleche-breite').textContent = dreieckBerechnung.anzahlPlatten + ' Stück';
+            document.getElementById('gesamt-bleche').textContent = dreieckBerechnung.anzahlPlatten + ' Stück';
+            document.getElementById('hoehe-result').textContent = hoehe.toFixed(2) + ' m';
+
+            const tbody = document.getElementById('schnitt-details');
+            tbody.innerHTML = '';
+            
+            dreieckBerechnung.schnittliste.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.plattenNr}</td>
+                    <td>${item.positionVonLinks} - ${item.positionBis}</td>
+                    <td style="font-weight: bold; color: #28a745;">${item.plattenbreite}</td>
+                    <td style="font-weight: bold; color: #28a745; background-color: #f8fff9; padding: 8px;">${item.benoetigteLaenge}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            aktuelleSchnittliste = dreieckBerechnung.schnittliste;
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('schnittliste').style.display = 'block';
+            
+            generiereVorschau(basisBreite, hoehe, spitzenPosition, dreieckBerechnung.schnittliste);
+            document.getElementById('vorschau').style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }, 100);
+        }
+
+        function generiereVorschau(basisBreite, hoehe, spitzenPosition, schnittliste) {
+            const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
+            const deckbreite = parseFloat(document.getElementById('deckbreite').value);
+            const ueberlappung = lieferbreite - deckbreite;
+            
+            const svgWidth = 500;
+            const svgHeight = 320;
+            const margin = 40;
+            const dreieckWidth = svgWidth - 2 * margin;
+            const dreieckHeight = svgHeight - 2 * margin - 40;
+            
+            const scaleX = dreieckWidth / basisBreite;
+            const scaleY = dreieckHeight / hoehe;
+            
+            let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" style="border: 1px solid #ddd; border-radius: 8px;">`;
+            
+            svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#fdfdfd"/>`;
+            
+            const dreieckSpitzeX = margin + spitzenPosition * scaleX;
+            const dreieckSpitzeY = margin;
+            const dreieckLinksX = margin;
+            const dreieckLinksY = margin + dreieckHeight;
+            const dreieckRechtsX = margin + basisBreite * scaleX;
+            const dreieckRechtsY = margin + dreieckHeight;
+            
+            svg += `<polygon points="${dreieckSpitzeX},${dreieckSpitzeY} ${dreieckLinksX},${dreieckLinksY} ${dreieckRechtsX},${dreieckRechtsY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            
+            schnittliste.forEach((platte, index) => {
+                const plattenStart = parseFloat(platte.positionVonLinks);
+                const plattenEnde = parseFloat(platte.positionBis);
+                const plattenBreite = parseFloat(platte.plattenbreite);
+                const originalPlattenEnde = plattenStart + plattenBreite;
+                const benoetigteLaenge = parseFloat(platte.benoetigteLaenge);
+                
+                const istLetztePlatte = originalPlattenEnde > basisBreite;
+                const plattenEndeReal = istLetztePlatte ? basisBreite : originalPlattenEnde;
+                const ueberdecktSpitze = plattenStart <= spitzenPosition && originalPlattenEnde >= spitzenPosition;
+                
+                const plattenX = margin + plattenStart * scaleX;
+                const plattenWidth = (plattenEndeReal - plattenStart) * scaleX;
+                
+                const hoeheStart = berechneHoeheAnPosition(plattenStart, basisBreite, hoehe, spitzenPosition);
+                const hoeheEnde = berechneHoeheAnPosition(plattenEndeReal, basisBreite, hoehe, spitzenPosition);
+                
+                const startY = margin + dreieckHeight - (hoeheStart * scaleY);
+                const endY = margin + dreieckHeight - (hoeheEnde * scaleY);
+                
+                const plattenHoehe = benoetigteLaenge * scaleY;
+                const plattenY = margin + dreieckHeight - plattenHoehe;
+                
+                svg += `<rect x="${plattenX}" y="${plattenY}" width="${plattenWidth}" height="${plattenHoehe}" fill="#f8f9fa" stroke="#999" stroke-width="0.5"/>`;
+                
+                if (ueberdecktSpitze) {
+                    const spitzeX = margin + spitzenPosition * scaleX;
+                    svg += `<polygon points="${plattenX},${margin + dreieckHeight} ${plattenX + plattenWidth},${margin + dreieckHeight} ${plattenX + plattenWidth},${endY} ${spitzeX},${margin} ${plattenX},${startY}" fill="#1e3c72" opacity="0.4"/>`;
+                } else {
+                    svg += `<polygon points="${plattenX},${margin + dreieckHeight} ${plattenX + plattenWidth},${margin + dreieckHeight} ${plattenX + plattenWidth},${endY} ${plattenX},${startY}" fill="#1e3c72" opacity="0.4"/>`;
+                }
+                
+                if (ueberdecktSpitze) {
+                    const spitzeX = margin + spitzenPosition * scaleX;
+                    svg += `<polygon points="${plattenX},${startY} ${spitzeX},${margin} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.3"/>`;
+                } else {
+                    svg += `<polygon points="${plattenX},${startY} ${plattenX + plattenWidth},${endY} ${plattenX + plattenWidth},${plattenY} ${plattenX},${plattenY}" fill="#dc3545" opacity="0.3"/>`;
+                }
+                
+                if (index > 0 && ueberlappung > 0) {
+                    const ueberlappungsWidth = ueberlappung * scaleX;
+                    svg += `<rect x="${plattenX}" y="${plattenY}" width="${ueberlappungsWidth}" height="${plattenHoehe}" fill="#28a745" opacity="0.25"/>`;
+                }
+                
+                svg += `<text x="${plattenX + plattenWidth/2}" y="${margin + dreieckHeight + 18}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${platte.plattenNr}</text>`;
+                
+                if (ueberdecktSpitze) {
+                    svg += `<circle cx="${margin + spitzenPosition * scaleX}" cy="${margin}" r="3" fill="#ffc107"/>`;
+                    svg += `<text x="${margin + spitzenPosition * scaleX}" y="${margin - 8}" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffc107">SPITZE</text>`;
+                }
+            });
+            
+            svg += `<line x1="${margin}" y1="${margin + dreieckHeight + 30}" x2="${margin + basisBreite * scaleX}" y2="${margin + dreieckHeight + 30}" stroke="#666" stroke-width="1"/>`;
+            svg += `<text x="${margin + (basisBreite * scaleX)/2}" y="${margin + dreieckHeight + 42}" text-anchor="middle" font-size="11" font-weight="bold" fill="#666">Basis: ${basisBreite}m</text>`;
+            
+            svg += `<line x1="${margin - 15}" y1="${margin}" x2="${margin - 15}" y2="${margin + dreieckHeight}" stroke="#666" stroke-width="1"/>`;
+            svg += `<text x="${margin - 25}" y="${margin + dreieckHeight/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#666" transform="rotate(-90 ${margin - 25} ${margin + dreieckHeight/2})">Höhe: ${hoehe}m</text>`;
+            
+            const spitzeX = margin + spitzenPosition * scaleX;
+            svg += `<line x1="${spitzeX}" y1="${margin + dreieckHeight + 5}" x2="${spitzeX}" y2="${margin + dreieckHeight + 25}" stroke="#ffc107" stroke-width="1"/>`;
+            svg += `<text x="${spitzeX}" y="${margin + dreieckHeight + 37}" text-anchor="middle" font-size="10" font-weight="bold" fill="#666">Spitze: ${spitzenPosition.toFixed(1)}m</text>`;
+            
+            svg += `</svg>`;
+            
+            document.getElementById('vorschau-svg').innerHTML = svg;
+        }
+
+         <div class="info-box">
+                        <strong>💡 Positions-Modus:</strong> Geben Sie an, wo die Spitze steht und wie hoch das Dreieck ist.
+                        Die Kantenlängen werden automatisch berechnet.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
+            <div class="ad-container-middle" id="middle-ad-container">
+                <span class="ad-label">Werbung</span>
+                <!-- rechner-2 -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="6038540481"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <!-- Versteckte Keywords für Anzeigen-Targeting -->
+                <div style="display:none;">
+                    Trapezplatte Wellblech Pfannenblech Metallverarbeitung Kantteile Profilblech
+                    Dachplatten Metalldach Trapezbleche Dachberechnung Dreiecksberechnung
+                    Dachsanierung Metallbau Dachdeckung Neubau Dach Zuschnitt
+                </div>
+            </div>
+
+            <!-- Material -->
+            <div class="section">
+                <h2>2. Materialangaben</h2>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="deckbreite">Deckbreite (m)</label>
+                        <input type="number" id="deckbreite" step="0.01" min="0" value="1.00">
+                    </div>
+                    <div class="input-group">
+                        <label for="lieferbreite">Lieferbreite (m)</label>
+                        <input type="number" id="lieferbreite" step="0.01" min="0" value="1.05">
+                    </div>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
+
+            <div id="results" class="results" style="display: none;">
+                <div class="result-item">
+                    <span>Überlappung pro Blech:</span>
+                    <span id="ueberlappung">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Berechnete Höhe:</span>
+                    <span id="hoehe-result">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Spitzen-Position von links:</span>
+                    <span id="spitze-position-result">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Berechnete Kantenlängen:</span>
+                    <span id="hypotenusen-result">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Benötigte max. Plattenlänge:</span>
+                    <span id="benoetigte-plattenlaenge">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Benötigte Anzahl Bleche:</span>
+                    <span id="anzahl-bleche-breite">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Gesamtanzahl Bleche:</span>
+                    <span id="gesamt-bleche">-</span>
+                </div>
+                
+                <!-- Visuelles Vorschaufenster -->
+                <div id="vorschau" style="display: none; margin-top: 25px;">
+                    <h4 style="color: #ffffff; font-size: 1.2em; margin-bottom: 15px;">Visuelle Vorschau</h4>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <div id="vorschau-svg"></div>
+                    </div>
+                    <div id="vorschau-legende" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 13px; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 16px; height: 12px; background: #1e3c72; opacity: 0.4; border-radius: 2px;"></div>
+                            <span>Nutzen</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 16px; height: 12px; background: #dc3545; opacity: 0.3; border-radius: 2px;"></div>
+                            <span>Verschnitt</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 16px; height: 12px; background: #28a745; opacity: 0.25; border-radius: 2px;"></div>
+                            <span>Überlappung</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="width: 16px; height: 12px; background: #ffc107; border-radius: 2px;"></div>
+                            <span>Dachspitze</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="schnittliste" style="display: none;">
+                    <h4 style="margin-top: 25px; color: #ffffff; font-size: 1.3em;">Schnittliste (pro Dreiecksfläche):</h4>
+                    <table class="schnitt-table">
+                        <thead>
+                            <tr>
+                                <th>Platte Nr.</th>
+                                <th>Position von links (m)</th>
+                                <th>Plattenbreite (m)</th>
+                                <th>Benötigte Länge (m)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schnitt-details">
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
+                        <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (oben → unten)
+                    </div>
+                    <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
+                </div>
+            </div>
+
+            <!-- Eleganter Werbeplatz am Ende -->
+            <div class="ad-container" id="bottom-ad-container">
+                <span class="ad-label">Werbung</span>
+                <!-- rechner-3 -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="8536162573"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <!-- Versteckte Keywords für Anzeigen-Targeting -->
+                <div style="display:none;">
+                    Dachberechnungstools Trapezblech Metalldach Profilblech Wellblech Pfannenblech
+                    Dachplatten berechnen Metallverarbeitung Kantteile Dachfläche messen
+                    Dreiecksberechnung Dachdeckung Neubau Sanierung Heimwerker
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let aktuelleSchnittliste = [];
+        let parameterModus = 'kantenlaengen';
+        let spitzenPosition = 0;
+        let adSenseInitialized = false; // Flag um Doppelinitialisierung zu verhindern
+
+        function acceptAllCookies() {
+            localStorage.setItem('cookieConsent', 'all');
+            localStorage.setItem('analyticsCookies', 'true');
+            localStorage.setItem('marketingCookies', 'true');
+            
+            loadAnalytics();
+            loadAdSense();
+            showAds();
+            
+            document.getElementById('cookieBanner').classList.remove('show');
+        }
+
+        function acceptOnlyEssential() {
+            localStorage.setItem('cookieConsent', 'essential');
+            localStorage.setItem('analyticsCookies', 'false');
+            localStorage.setItem('marketingCookies', 'false');
+            
+            document.getElementById('cookieBanner').classList.remove('show');
+        }
+
+        function showAds() {
+            if (localStorage.getItem('marketingCookies') === 'true' && !adSenseInitialized) {
+                adSenseInitialized = true; // Verhindere Mehrfachinitialisierung
+                
+                // Zeige AdSense-Container
+                document.getElementById('top-ad-container').style.display = 'block';
+                document.getElementById('middle-ad-container').style.display = 'block';
+                document.getElementById('bottom-ad-container').style.display = 'block';
+                
+                // Initialisiere AdSense Anzeigen nur einmal
+                setTimeout(function() {
+                    try {
+                        const ads = document.querySelectorAll('.adsbygoogle');
+                        console.log('Found', ads.length, 'ad slots to initialize');
+                        
+                        ads.forEach(function(ad, index) {
+                            if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-initialized')) {
+                                ad.setAttribute('data-initialized', 'true');
+                                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                                console.log('AdSense ad', index + 1, 'initialized');
+                            }
+                        });
+                        
+                        // Prüfe nach 3 Sekunden ob Anzeigen geladen sind
+                        setTimeout(function() {
+                            document.querySelectorAll('.ad-container, .ad-container-middle').forEach(function(container, index) {
+                                const adElement = container.querySelector('.adsbygoogle');
+                                if (adElement) {
+                                    const adStatus = adElement.getAttribute('data-ad-status');
+                                    const hasContent = adElement.innerHTML.trim().length > 0;
+                                    const hasHeight = adElement.offsetHeight > 50;
+                                    
+                                    if (adStatus === 'unfilled' || (!hasContent && !hasHeight)) {
+                                        container.style.display = 'none';
+                                        console.log('Ad container', index + 1, 'hidden - no content loaded');
+                                    } else {
+                                        console.log('Ad container', index + 1, 'loaded successfully');
+                                    }
+                                }
+                            });
+                        }, 3000);
+                        
+                    } catch (e) {
+                        console.log('AdSense loading error:', e);
+                    }
+                }, 1000);
             }
         }
 
