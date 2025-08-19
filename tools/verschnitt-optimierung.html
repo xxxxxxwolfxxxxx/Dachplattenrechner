@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verschnitt-Optimierung - Trapezplattenrechner</title>
+    <meta name="description" content="Intelligente Materialoptimierung für minimalen Verschnitt oder optimale Sägezeit.">
+    
+    <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
+    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    <script>
+        // AdSense nur laden wenn Marketing-Cookies akzeptiert sind
+        function loadAdSense() {
+            if (localStorage.getItem('marketingCookies') === 'true') {
+                const script = document.createElement('script');
+                script.async = true;
+                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
+                script.crossOrigin = 'anonymous';
+                document.head.appendChild(script);
+                
+                // AdSense Auto-Ads aktivieren
+                window.adsbygoogle = window.adsbygoogle || [];
+                window.adsbygoogle.push({
+                    google_ad_client: 'ca-pub-8687929894744033',
+                    enable_page_level_ads: true
+                });
+            }
+        }
+    </script>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Analytics nur laden wenn Analyse-Cookies akzeptiert sind
+        function loadAnalytics() {
+            if (localStorage.getItem('analyticsCookies') === 'true') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+            }
+        }
+        
+        // Check if analytics cookies are accepted
+        const analyticsCookies = localStorage.getItem('analyticsCookies');
+        if (analyticsCookies === 'true') {
+            gtag('config', 'G-6NSYG8B1T9', {
+                anonymize_ip: true,
+                cookie_flags: 'SameSite=None;Secure'
+            });
+        }
+    </script>
+
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="verschnitt-style.css">
+</head>
+<body>
+    <div class="nav-header">
+        <div class="container">
+            <a href="../index.html" class="back-btn">
+                <span>&larr;</span>
+                <span>Zurück zur Übersicht</span>
+            </a>
+            <div class="nav-title">Verschnitt-Optimierung</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <main>
+            <!-- Eleganter Werbeplatz oben -->
+            <div class="ad-container" id="top-ad-container">
+                <div class="ad-placeholder">
+                    <div class="ad-content">
+                        <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
+                    </div>
+                </div>
+                <div class="ad-content-real">
+                    <ins class="adsbygoogle"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+            </div>
+
+            <h1>Verschnitt-Optimierung</h1>
+
+            <!-- Einfache Eingabe -->
+            <div class="section">
+                <h2>1. Benötigte Längen eingeben</h2>
+                <div class="info-box">
+                    <strong>Eingabe-Hilfe:</strong><br>
+                    • <strong>Verschiedene Längenangaben:</strong> 1.5m, 150cm, 1500mm, 1,5, 2.3<br>
+                    • <strong>Wiederholungen:</strong> 100x1.5m, 50x2,3m, 25x150cm<br>
+                    • <strong>Gemischte Listen:</strong><br>
+                    &nbsp;&nbsp;100x1.5m<br>
+                    &nbsp;&nbsp;20x2.3<br>
+                    &nbsp;&nbsp;5x180cm<br>
+                    • <strong>Einheiten:</strong> m, cm, mm (wird automatisch erkannt)<br>
+                    • <strong>Dezimalzeichen:</strong> Punkt (1.5) oder Komma (1,5) - beides funktioniert!
+                </div>
+                
+                <div class="input-group">
+                    <label for="benoetigte-masze">Benötigte Längen (eine pro Zeile)</label>
+                    <textarea id="benoetigte-masze" rows="8" placeholder="Beispiele für verschiedene Eingaben:
+100x1.5m
+20x2,3
+5x180cm
+1x2500mm
+3.5
+4,2m">100x1.5</textarea>
+                </div>
+            </div>
+
+            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
+            <div class="ad-container-middle" id="middle-ad-container">
+                <div class="ad-placeholder">
+                    <div class="ad-content-horizontal">
+                        <div class="ad-text-block">
+                            <strong>Professionelle Optimierungstools</strong>
+                            <span>Intelligente Materialplanung für Handwerk und Industrie</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ad-content-real">
+                    <ins class="adsbygoogle"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+            </div>
+
+            <!-- Lagerlängen -->
+            <div class="section">
+                <h2>2. Verfügbare Lagerlängen auswählen</h2>
+                <div class="info-box">
+                    <strong>Lagerbestand:</strong> Wählen Sie alle verfügbaren Lagerlängen aus. 
+                    Lassen Sie die Anzahl leer für unbegrenzt verfügbar, oder geben Sie eine konkrete Anzahl ein.
+                </div>
+                
+                <div class="lager-grid">
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-2.0" value="2.0">
+                        <label for="lager-2.0">2,0m</label>
+                        <input type="number" id="anzahl-2.0" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-2.5" value="2.5">
+                        <label for="lager-2.5">2,5m</label>
+                        <input type="number" id="anzahl-2.5" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-3.0" value="3.0" checked>
+                        <label for="lager-3.0">3,0m</label>
+                        <input type="number" id="anzahl-3.0" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-3.1" value="3.1">
+                        <label for="lager-3.1">3,1m</label>
+                        <input type="number" id="anzahl-3.1" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-3.5" value="3.5">
+                        <label for="lager-3.5">3,5m</label>
+                        <input type="number" id="anzahl-3.5" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-4.0" value="4.0" checked>
+                        <label for="lager-4.0">4,0m</label>
+                        <input type="number" id="anzahl-4.0" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-4.5" value="4.5" checked>
+                        <label for="lager-4.5">4,5m</label>
+                        <input type="number" id="anzahl-4.5" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-5.0" value="5.0" checked>
+                        <label for="lager-5.0">5,0m</label>
+                        <input type="number" id="anzahl-5.0" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-5.5" value="5.5">
+                        <label for="lager-5.5">5,5m</label>
+                        <input type="number" id="anzahl-5.5" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-6.0" value="6.0" checked>
+                        <label for="lager-6.0">6,0m</label>
+                        <input type="number" id="anzahl-6.0" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-6.5" value="6.5">
+                        <label for="lager-6.5">6,5m</label>
+                        <input type="number" id="anzahl-6.5" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-7.0" value="7.0">
+                        <label for="lager-7.0">7,0m</label>
+                        <input type="number" id="anzahl-7.0" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-7.5" value="7.5">
+                        <label for="lager-7.5">7,5m</label>
+                        <input type="number" id="anzahl-7.5" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-8.0" value="8.0">
+                        <label for="lager-8.0">8,0m</label>
+                        <input type="number" id="anzahl-8.0" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-8.5" value="8.5">
+                        <label for="lager-8.5">8,5m</label>
+                        <input type="number" id="anzahl-8.5" placeholder="∞" min="0">
+                    </div>
+                    <div class="lager-item">
+                        <input type="checkbox" id="lager-9.0" value="9.0">
+                        <label for="lager-9.0">9,0m</label>
+                        <input type="number" id="anzahl-9.0" placeholder="∞" min="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Einstellungen -->
+            <div class="section">
+                <h2>3. Optimierungseinstellungen</h2>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="optimierung-modus">Optimierungsmodus</label>
+                        <select id="optimierung-modus">
+                            <option value="verschnitt">Minimaler Verschnitt (Materialeinsparung)</option>
+                            <option value="schnitte" selected>Wenigste Schnitte (Zeiteinsparung)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="schnittblatt-breite">Schnittblattbreite (mm)</label>
+                        <input type="number" id="schnittblatt-breite" value="3.0" step="0.1" min="0">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="toleranz">Toleranz pro Platte (mm)</label>
+                        <input type="number" id="toleranz" value="5.0" step="0.1" min="0">
+                    </div>
+                    <div class="input-group">
+                        <!-- Leerer Platz für symmetrisches Layout -->
+                    </div>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="berechneOptimierung()">Optimierung berechnen</button>
+
+            <div id="results" class="results" style="display: none;">
+                <h3>Optimierungsergebnisse</h3>
+                
+                <div class="result-item">
+                    <span>Benötigte Lagerplatten:</span>
+                    <span id="lager-anzahl">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Gesamtmaterial eingekauft:</span>
+                    <span id="gesamt-material">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Tatsächlich benötigtes Material:</span>
+                    <span id="nutzen-material">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Gesamtverschnitt:</span>
+                    <span id="gesamt-verschnitt">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Gesamtanzahl Schnitte:</span>
+                    <span id="gesamt-schnitte">-</span>
+                </div>
+                <div class="result-item">
+                    <span>Materialeffizienz:</span>
+                    <span id="effizienz">-</span>
+                </div>
+                
+                <div id="saegeplan">
+                    <div class="saegeplan-header">
+                        <h4>Detaillierter Sägeplan</h4>
+                        <button onclick="druckeSaegeplan()" class="print-button">
+                            Sägeplan drucken
+                        </button>
+                    </div>
+                    
+                    <div id="druckbarer-saegeplan">
+                        <div class="table-container">
+                            <table class="schnitt-table">
+                                <thead>
+                                    <tr>
+                                        <th>Platte Nr.</th>
+                                        <th>Lagerlänge</th>
+                                        <th>Zu sägende Längen</th>
+                                        <th>Verschnitt</th>
+                                        <th>Anzahl Schnitte</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="saegeplan-details">
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div id="verschnitt-optimierung" class="optimization-tip" style="display: none;">
+                            <h4>Verschnitt-Optimierungstipp</h4>
+                            <div id="optimierung-text"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eleganter Werbeplatz am Ende -->
+            <div class="ad-container" id="bottom-ad-container">
+                <div class="ad-placeholder">
+                    <div class="ad-content">
+                        <span class="ad-text">Mehr professionelle Optimierungstools verfügbar</span>
+                    </div>
+                </div>
+                <div class="ad-content-real">
+                    <ins class="adsbygoogle"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="auto"
+                         data-ad-format="auto"></ins>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="verschnitt.js"></script>
+</body>
+</html>
