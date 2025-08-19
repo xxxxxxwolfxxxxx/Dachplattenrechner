@@ -22,139 +22,108 @@
     
     <style>
         /* AdSense Integration Styles - VERTICAL LAYOUT + BROAD KEYWORDS */
-.ad-container {
-    margin: 30px auto;
-    text-align: center;
-    width: 100%;
-    max-width: 900px;
-    position: relative;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 20px;
-    overflow: hidden;
-    min-height: 90px;
-    box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    display: block;
-    clear: both;
-}
+        .ad-container {
+            margin: 30px auto;
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            overflow: hidden;
+            min-height: 90px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            display: block;
+            clear: both;
+        }
 
-.ad-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
-}
+        .ad-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+        }
 
-.ad-label {
-    position: absolute;
-    top: 6px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    color: rgba(255, 255, 255, 0.8);
-    padding: 3px 8px;
-    font-size: 9px;
-    font-weight: 600;
-    border-radius: 3px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    z-index: 10;
-    pointer-events: none;
-}
+        .ad-label {
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 3px 8px;
+            font-size: 9px;
+            font-weight: 600;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+            pointer-events: none;
+        }
 
-.ad-container .adsbygoogle {
-    display: block !important;
-    text-align: center !important;
-    margin: 0 auto !important;
-    width: 100% !important;
-    min-height: 90px !important;
-    max-height: 200px !important;
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    padding: 10px;
-    float: none !important;
-    clear: both !important;
-}
-
-.section {
-    display: block;
-    width: 100%;
-    clear: both;
-}
-
-.glass-panel {
-    display: block;
-    width: 100%;
-    clear: both;
-}
-
-.ad-container[style*="display: none"],
-.ad-container:empty {
-    display: none !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    min-height: 0 !important;
-}
-
-@media (max-width: 768px) {
-    .ad-container {
-        margin: 20px auto;
-        min-height: 70px;
-        max-width: calc(100vw - 30px);
-        display: block;
-        clear: both;
-    }
-    
-    .ad-container .adsbygoogle {
-        min-height: 70px !important;
-        max-height: 150px !important;
-        padding: 8px;
-        float: none !important;
-        clear: both !important;
-    }
-    
-    .section {
-        display: block;
-        clear: both;
-    }
-}
-    </style>: center !important;
+        .ad-container .adsbygoogle {
+            display: block !important;
+            text-align: center !important;
             margin: 0 auto !important;
             width: 100% !important;
-            min-height: 120px !important;
-            max-height: 280px !important;
+            min-height: 90px !important;
+            max-height: 200px !important;
             border: none !important;
             background: transparent !important;
             box-shadow: none !important;
             border-radius: 0 !important;
+            padding: 10px;
+            float: none !important;
+            clear: both !important;
         }
-        
-        /* Versteckte Container */
-        .ad-container[style*="display: none"] {
+
+        .section {
+            display: block;
+            width: 100%;
+            clear: both;
+        }
+
+        .glass-panel {
+            display: block;
+            width: 100%;
+            clear: both;
+        }
+
+        .ad-container[style*="display: none"],
+        .ad-container:empty {
             display: none !important;
             height: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
+            min-height: 0 !important;
         }
-        
-        /* Mobile Anpassungen */
+
         @media (max-width: 768px) {
             .ad-container {
-                margin: 30px auto;
-                min-height: 100px;
+                margin: 20px auto;
+                min-height: 70px;
+                max-width: calc(100vw - 30px);
+                display: block;
+                clear: both;
             }
             
             .ad-container .adsbygoogle {
-                min-height: 100px !important;
-                max-height: 200px !important;
+                min-height: 70px !important;
+                max-height: 150px !important;
+                padding: 8px;
+                float: none !important;
+                clear: both !important;
+            }
+            
+            .section {
+                display: block;
+                clear: both;
             }
         }
     </style>
@@ -293,6 +262,18 @@
                 <h3>Feuchtemanagement – Das A und O</h3>
                 <p>Wichtig ist ein funktionierender Feuchtemanager: Also keine geschlossenen Ecken, stehendes Wasser oder fehlende Lüftungsebenen. Die Konstruktion braucht Gefälle, Belüftung und eine klare Linienführung. Nur wenn Restfeuchte entweichen kann, bleibt das Holz gesund.</p>
             </div>
+            
+            <!-- Werbung nach Sektion 2 -->
+            <div class="ad-container" id="ad-insulation-systems">
+                <span class="ad-label">Werbung</span>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="1574334254"
+                     data-ad-format="horizontal"
+                     data-full-width-responsive="true"
+                     data-ad-channel="dämmung,isolierung,wärmedämmung,baustoffe,steinwolle,glaswolle,eps,styropor,dämmplatten,energiesparen"></ins>
+            </div>
         </section>
 
         <!-- Teil 4: Realität auf der Baustelle -->
@@ -353,7 +334,7 @@
                 <ins class="adsbygoogle"
                      style="display:block"
                      data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="8407868749"
+                     data-ad-slot="2071391221"
                      data-ad-format="horizontal"
                      data-full-width-responsive="true"
                      data-ad-channel="akkuschrauber,bohrmaschine,elektrowerkzeuge,makita,bosch,festool,milwaukee,dewalt,metabo,baumarkt,werkzeuge,handwerk"></ins>
@@ -471,53 +452,46 @@
 
     <script>
         // AdSense intelligente Initialisierung - KORRIGIERT
-document.addEventListener('DOMContentLoaded', function() {
-    // Verzögerte AdSense-Initialisierung für bessere Performance
-    setTimeout(function() {
-        try {
-            // Zähle die tatsächlich vorhandenen Ad-Container
-            const adContainers = document.querySelectorAll('.ad-container .adsbygoogle');
-            console.log('Found', adContainers.length, 'ad containers');
-            
-            // Initialisiere nur so viele Ads wie Container vorhanden sind
-            for (let i = 0; i < adContainers.length; i++) {
-                (adsbygoogle = window.adsbygoogle || []).push({});
-                console.log('Initialized ad container', i + 1);
-            }
-            
-            // Nach 5 Sekunden prüfen ob Werbung geladen wurde
+        document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
-                document.querySelectorAll('.ad-container').forEach(function(container, index) {
-                    const adElement = container.querySelector('.adsbygoogle');
-                    if (adElement) {
-                        // Prüfe ob Werbung geladen wurde
-                        const adStatus = adElement.getAttribute('data-ad-status');
-                        const hasContent = adElement.innerHTML.trim().length > 0;
-                        const hasHeight = adElement.offsetHeight > 50;
-                        
-                        // Verstecke Container wenn keine Werbung geladen wurde
-                        if (adStatus === 'unfilled' || (!hasContent && !hasHeight)) {
-                            container.style.display = 'none';
-                            container.style.height = '0';
-                            container.style.margin = '0';
-                            container.style.padding = '0';
-                            console.log('Ad container', index + 1, 'hidden - no content loaded');
-                        } else {
-                            console.log('Ad container', index + 1, 'loaded successfully');
-                        }
+                try {
+                    const adContainers = document.querySelectorAll('.ad-container .adsbygoogle');
+                    console.log('Found', adContainers.length, 'ad containers');
+                    
+                    for (let i = 0; i < adContainers.length; i++) {
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                        console.log('Initialized ad container', i + 1);
                     }
-                });
-            }, 5000);
-            
-        } catch (error) {
-            console.log('AdSense initialization error:', error);
-            // Bei Fehlern alle Werbecontainer verstecken
-            document.querySelectorAll('.ad-container').forEach(function(container) {
-                container.style.display = 'none';
-            });
-        }
-    }, 1000);
-});
+                    
+                    setTimeout(function() {
+                        document.querySelectorAll('.ad-container').forEach(function(container, index) {
+                            const adElement = container.querySelector('.adsbygoogle');
+                            if (adElement) {
+                                const adStatus = adElement.getAttribute('data-ad-status');
+                                const hasContent = adElement.innerHTML.trim().length > 0;
+                                const hasHeight = adElement.offsetHeight > 50;
+                                
+                                if (adStatus === 'unfilled' || (!hasContent && !hasHeight)) {
+                                    container.style.display = 'none';
+                                    container.style.height = '0';
+                                    container.style.margin = '0';
+                                    container.style.padding = '0';
+                                    console.log('Ad container', index + 1, 'hidden - no content loaded');
+                                } else {
+                                    console.log('Ad container', index + 1, 'loaded successfully');
+                                }
+                            }
+                        });
+                    }, 5000);
+                    
+                } catch (error) {
+                    console.log('AdSense initialization error:', error);
+                    document.querySelectorAll('.ad-container').forEach(function(container) {
+                        container.style.display = 'none';
+                    });
+                }
+            }, 1000);
+        });
     </script>
     <script src="dach.js"></script>
 </body>
