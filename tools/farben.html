@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farbauswahl - RAL & Prelaq</title>
+    <title>Farbauswahl - RAL & Prelaq Farben für Trapezblech und Kantteile</title>
+    
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033" crossorigin="anonymous"></script>
+    
     <style>
         * {
             margin: 0;
@@ -54,6 +59,88 @@
             color: #ffffff;
             font-size: 1.4em;
             font-weight: 600;
+        }
+        
+        /* AdSense Integration Styles - HORIZONTAL BANNER */
+        .ad-container {
+            margin: 20px auto;
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            min-height: 90px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: block;
+            clear: both;
+        }
+
+        .ad-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+        }
+
+        .ad-label {
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 3px 8px;
+            font-size: 9px;
+            font-weight: 600;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .ad-container .adsbygoogle {
+            display: block !important;
+            text-align: center !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            min-height: 90px !important;
+            max-height: 200px !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding: 10px;
+            float: none !important;
+            clear: both !important;
+        }
+
+        .ad-container[style*="display: none"],
+        .ad-container:empty {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            min-height: 0 !important;
+        }
+
+        @media (max-width: 768px) {
+            .ad-container {
+                margin: 15px 10px;
+                min-height: 70px;
+                max-width: calc(100vw - 20px);
+            }
+            
+            .ad-container .adsbygoogle {
+                min-height: 70px !important;
+                max-height: 150px !important;
+                padding: 8px;
+            }
         }
         
         .header {
@@ -283,13 +370,25 @@
                 <span>←</span>
                 <span>Zurück zur Übersicht</span>
             </a>
-            <div class="nav-title">Farbauswahl</div>
+            <div class="nav-title">RAL & Prelaq Farbauswahl</div>
         </div>
     </div>
 
+    <!-- Werbung Banner Top -->
+    <div class="ad-container" id="ad-colors-top">
+        <span class="ad-label">Werbung</span>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-8687929894744033"
+             data-ad-slot="3456789101"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"
+             data-ad-channel="acrylspray,ral,ralfarben,ralkarten,farbkarten,lackierspray,sprühdose,autolack,metalllack,baumarkt,farbe,lackierung"></ins>
+    </div>
+
     <div class="header">
-        <h1>RAL & Prelaq Farben</h1>
-        <p id="headerDescription">Wählen Sie eine RAL- oder Prelaq-Farbe für Ihr Kantteil</p>
+        <h1>RAL & Prelaq Farben für Trapezblech</h1>
+        <p id="headerDescription">Wählen Sie die perfekte Farbe für Ihr Trapezblech oder Kantteil - über 300 RAL- und Prelaq-Farben verfügbar</p>
     </div>
     
     <div class="color-tabs">
@@ -304,6 +403,18 @@
     <!-- RAL Farben Tab -->
     <div id="ral-tab" class="tab-content active">
         <div class="color-grid" id="ralGrid"></div>
+        
+        <!-- Werbung Banner Middle - nur in RAL Tab -->
+        <div class="ad-container" id="ad-colors-middle">
+            <span class="ad-label">Werbung</span>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-8687929894744033"
+                 data-ad-slot="3456789102"
+                 data-ad-format="horizontal"
+                 data-full-width-responsive="true"
+                 data-ad-channel="trapezblech,trapezblechhändler,dachblech,wellblech,profilblech,metallhandel,stahlhandel,blechhandel,dachbau,metalldach"></ins>
+        </div>
     </div>
     
     <!-- Prelaq Farben Tab -->
@@ -319,7 +430,7 @@
     </div>
 
     <script>
-        // RAL Farben Datenbank
+        // RAL Farben Datenbank - vollständig
         const RAL_COLORS = {
               '1000': { color: '#CDBA88', name: 'Grünbeige' },
               '1001': { color: '#D0B084', name: 'Beige' },
@@ -364,7 +475,7 @@
               '2011': { color: '#EC7C26', name: 'Tieforange' },
               '2012': { color: '#E55137', name: 'Lachsorange' },
               '2013': { color: '#FF4500', name: 'Perlorange' },
-              '2017': { color: '#E1722B', name: 'RAL-Orange' }, // offizieller Name
+              '2017': { color: '#E1722B', name: 'RAL-Orange' },
               '3000': { color: '#AF2B1E', name: 'Feuerrot' },
               '3001': { color: '#A52019', name: 'Signalrot' },
               '3002': { color: '#A2231D', name: 'Karminrot' },
@@ -385,7 +496,7 @@
               '3022': { color: '#D95030', name: 'Lachsrot' },
               '3027': { color: '#C51D34', name: 'Himbeerrot' },
               '3031': { color: '#B32428', name: 'Orientrot' },
-              '3033': { color: '#EFA9A0', name: 'Perlrosa' }, // als Beispiel
+              '3033': { color: '#EFA9A0', name: 'Perlrosa' },
               '4001': { color: '#6D3F5B', name: 'Rotlila' },
               '4002': { color: '#922B3E', name: 'Rotviolett' },
               '4003': { color: '#DE4C8A', name: 'Erikaviolett' },
@@ -419,7 +530,7 @@
               '5022': { color: '#252850', name: 'Nachtblau' },
               '5023': { color: '#49678D', name: 'Fernblau' },
               '5024': { color: '#5D9B9B', name: 'Pastellblau' },
-              '6000': { color: '#316650', name: 'Patinagrün' },
+              '6000': { color: '#316650', name: 'Patinaagrün' },
               '6001': { color: '#287233', name: 'Smaragdgrün' },
               '6002': { color: '#2D5016', name: 'Laubgrün' },
               '6003': { color: '#424632', name: 'Olivgrün' },
@@ -521,58 +632,57 @@
               '9018': { color: '#D7D7D7', name: 'Papyrusweiß' },
               '9022': { color: '#9C9C9C', name: 'Perlhellgrau' },
               '9023': { color: '#828282', name: 'Perldunkelgrau' }
-
         };
                   
-                   // Prelaq Farben - vollständige Liste sortiert nach Code
-            const PRELAQ_COLORS = {
-                '001': { color: '#FFFFFF', name: 'Schneeweiß' },
-                '002': { color: '#F8F8FF', name: 'Arktikweiß' },
-                '005': { color: '#FEFEFE', name: 'Winterweiß' },
-                '015': { color: '#1C1C1C', name: 'Nordische Nacht' },
-                '020': { color: '#F5F5F5', name: 'Nordisches Weiß' },
-                '021': { color: '#F0F0F0', name: 'Puderweiß' },
-                '022': { color: '#E5E5DC', name: 'Kalksteingrau' },
-                '033': { color: '#8FBC8F', name: 'Olivenblattgrün' },
-                '035': { color: '#696969', name: 'Kammgrau' },
-                '036': { color: '#708090', name: 'Berggrau' },
-                '044': { color: '#2F4F4F', name: 'Metallic Dunkelsilber' },
-                '045': { color: '#C0C0C0', name: 'Metallic Silber' },
-                '061': { color: '#708090', name: 'Felsgrau' },
-                '080': { color: '#F8F8FF', name: 'Polarweiß' },
-                '087': { color: '#2F4F4F', name: 'Anthrazitgrau' },
-                '189': { color: '#DAA520', name: 'Erntegelb' },
-                '241': { color: '#A9A9A9', name: 'Kiesgrau' },
-                '244': { color: '#696969', name: 'Steinbruchgrau' },
-                '384': { color: '#8B4513', name: 'Kaffeebraun' },
-                '387': { color: '#8B4513', name: 'Nussbraun' },
-                '401': { color: '#8B4513', name: 'Kupferbraun' },
-                '434': { color: '#D2691E', name: 'Eichelbraun' },
-                '454': { color: '#708090', name: 'Gipfelgrau' },
-                '455': { color: '#696969', name: 'Klippengrau' },
-                '461': { color: '#B8B8B8', name: 'Gänsegrau' },
-                '502': { color: '#2E8B57', name: 'Seegrün' },
-                '505': { color: '#228B22', name: 'Waldgrün' },
-                '558': { color: '#4169E1', name: 'Seeblau' },
-                '602': { color: '#4682B4', name: 'Stahlblau' },
-                '610': { color: '#191970', name: 'Mitternachtsblau' },
-                '615': { color: '#778899', name: 'Metallic Rauchsilber' },
-                '701': { color: '#708090', name: 'Schiefergrau' },
-                '703': { color: '#2F4F4F', name: 'Dunkelgrau' },
-                '742': { color: '#B22222', name: 'Ziegelrot' },
-                '756': { color: '#DC143C', name: 'Karminrot' },
-                '757': { color: '#B22222', name: 'Feuerziegelrot' },
-                '758': { color: '#DC143C', name: 'Hüttenrot' },
-                '778': { color: '#CD853F', name: 'Metallic Kupfer' },
-                '780': { color: '#800080', name: 'Purpur' },
-                '801': { color: '#DAA520', name: 'Goldgelb' },
-                '830': { color: '#228B22', name: 'Kieferngrün' },
-                '850': { color: '#FFA500', name: 'Orange' },
-                '874': { color: '#32CD32', name: 'Blattgrün' },
-                '902': { color: '#000000', name: 'Schwarz' },
-                '950': { color: '#FFFFFF', name: 'Weiß' },
-                '975': { color: '#8FBC8F', name: 'Silbertannengrün' }
-            };
+        // Prelaq Farben - vollständige Liste sortiert nach Code
+        const PRELAQ_COLORS = {
+            '001': { color: '#FFFFFF', name: 'Schneeweiß' },
+            '002': { color: '#F8F8FF', name: 'Arktikweiß' },
+            '005': { color: '#FEFEFE', name: 'Winterweiß' },
+            '015': { color: '#1C1C1C', name: 'Nordische Nacht' },
+            '020': { color: '#F5F5F5', name: 'Nordisches Weiß' },
+            '021': { color: '#F0F0F0', name: 'Puderweiß' },
+            '022': { color: '#E5E5DC', name: 'Kalksteingrau' },
+            '033': { color: '#8FBC8F', name: 'Olivenblattgrün' },
+            '035': { color: '#696969', name: 'Kammgrau' },
+            '036': { color: '#708090', name: 'Berggrau' },
+            '044': { color: '#2F4F4F', name: 'Metallic Dunkelsilber' },
+            '045': { color: '#C0C0C0', name: 'Metallic Silber' },
+            '061': { color: '#708090', name: 'Felsgrau' },
+            '080': { color: '#F8F8FF', name: 'Polarweiß' },
+            '087': { color: '#2F4F4F', name: 'Anthrazitgrau' },
+            '189': { color: '#DAA520', name: 'Erntegelb' },
+            '241': { color: '#A9A9A9', name: 'Kiesgrau' },
+            '244': { color: '#696969', name: 'Steinbruchgrau' },
+            '384': { color: '#8B4513', name: 'Kaffeebraun' },
+            '387': { color: '#8B4513', name: 'Nussbraun' },
+            '401': { color: '#8B4513', name: 'Kupferbraun' },
+            '434': { color: '#D2691E', name: 'Eichelbraun' },
+            '454': { color: '#708090', name: 'Gipfelgrau' },
+            '455': { color: '#696969', name: 'Klippengrau' },
+            '461': { color: '#B8B8B8', name: 'Gänsegrau' },
+            '502': { color: '#2E8B57', name: 'Seegrün' },
+            '505': { color: '#228B22', name: 'Waldgrün' },
+            '558': { color: '#4169E1', name: 'Seeblau' },
+            '602': { color: '#4682B4', name: 'Stahlblau' },
+            '610': { color: '#191970', name: 'Mitternachtsblau' },
+            '615': { color: '#778899', name: 'Metallic Rauchsilber' },
+            '701': { color: '#708090', name: 'Schiefergrau' },
+            '703': { color: '#2F4F4F', name: 'Dunkelgrau' },
+            '742': { color: '#B22222', name: 'Ziegelrot' },
+            '756': { color: '#DC143C', name: 'Karminrot' },
+            '757': { color: '#B22222', name: 'Feuerziegelrot' },
+            '758': { color: '#DC143C', name: 'Hüttenrot' },
+            '778': { color: '#CD853F', name: 'Metallic Kupfer' },
+            '780': { color: '#800080', name: 'Purpur' },
+            '801': { color: '#DAA520', name: 'Goldgelb' },
+            '830': { color: '#228B22', name: 'Kieferngrün' },
+            '850': { color: '#FFA500', name: 'Orange' },
+            '874': { color: '#32CD32', name: 'Blattgrün' },
+            '902': { color: '#000000', name: 'Schwarz' },
+            '950': { color: '#FFFFFF', name: 'Weiß' },
+            '975': { color: '#8FBC8F', name: 'Silbertannengrün' }
+        };
 
         let selectedColor = null;
         let currentTab = 'ral';
@@ -679,7 +789,7 @@
             window.close();
         }
 
-       // Farben filtern
+        // Farben filtern
         function filterColors(searchTerm) {
             const term = searchTerm.toLowerCase();
             const colors = currentTab === 'ral' ? RAL_COLORS : PRELAQ_COLORS;
@@ -718,9 +828,49 @@
             renderColors(RAL_COLORS, 'ralGrid', 'ral');
             renderColors(PRELAQ_COLORS, 'prelaqGrid', 'prelaq');
             
+            // AdSense Initialisierung
+            setTimeout(function() {
+                try {
+                    const adContainers = document.querySelectorAll('.ad-container .adsbygoogle');
+                    console.log('Found', adContainers.length, 'ad containers');
+                    
+                    for (let i = 0; i < adContainers.length; i++) {
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                        console.log('Initialized ad container', i + 1);
+                    }
+                    
+                    setTimeout(function() {
+                        document.querySelectorAll('.ad-container').forEach(function(container, index) {
+                            const adElement = container.querySelector('.adsbygoogle');
+                            if (adElement) {
+                                const adStatus = adElement.getAttribute('data-ad-status');
+                                const hasContent = adElement.innerHTML.trim().length > 0;
+                                const hasHeight = adElement.offsetHeight > 50;
+                                
+                                if (adStatus === 'unfilled' || (!hasContent && !hasHeight)) {
+                                    container.style.display = 'none';
+                                    container.style.height = '0';
+                                    container.style.margin = '0';
+                                    container.style.padding = '0';
+                                    console.log('Ad container', index + 1, 'hidden - no content loaded');
+                                } else {
+                                    console.log('Ad container', index + 1, 'loaded successfully');
+                                }
+                            }
+                        });
+                    }, 5000);
+                    
+                } catch (error) {
+                    console.log('AdSense initialization error:', error);
+                    document.querySelectorAll('.ad-container').forEach(function(container) {
+                        container.style.display = 'none';
+                    });
+                }
+            }, 1000);
+            
             // Prüfe ob es ein Standalone-Modus ist
             if (!window.opener) {
-                document.getElementById('headerDescription').textContent = 'Übersicht aller verfügbaren RAL- und Prelaq-Farben';
+                document.getElementById('headerDescription').textContent = 'Übersicht aller verfügbaren RAL- und Prelaq-Farben für Trapezblech, Kantteile und Metallverarbeitung';
                 
                 // Verstecke Bestätigen-Button im Standalone-Modus
                 const confirmBtn = document.querySelector('.confirm-btn');
