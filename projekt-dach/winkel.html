@@ -285,7 +285,7 @@
                 <ins class="adsbygoogle"
                      style="display:block"
                      data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="8407868749"
+                     data-ad-slot="1574334254"
                      data-ad-format="horizontal"
                      data-full-width-responsive="true"
                      data-ad-channel="baumarkt,werkzeuge,maschinen,schleifer,säge,bohrmaschine,winkelschleifer,flex,kreissäge,stichsäge,handwerk,heimwerken"></ins>
@@ -355,7 +355,7 @@
                 <ins class="adsbygoogle"
                      style="display:block"
                      data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="8407868749"
+                     data-ad-slot="2071391221"
                      data-ad-format="horizontal"
                      data-full-width-responsive="true"
                      data-ad-channel="dach,dachdecker,blech,trapezblech,dachbau,bedachung,dachsanierung,dachplatten,wellblech,dachrinne,dachziegel,bauunternehmen"></ins>
@@ -370,7 +370,7 @@
             <span class="nav-text">Zurück zur Blechverlegung</span>
         </a>
         <a href="https://dachplattenrechner.de/tools/kantteil" class="nav-button sketch-button">
-            <span class="nav-icon">📝</span>
+            <span class="nav-icon">📐</span>
             <span class="nav-text">Kantteile Zeichenprogramm</span>
         </a>
         <a href="https://dachplattenrechner.de/" class="nav-button nav-forward">
@@ -380,33 +380,34 @@
     </div>
 
     <script>
-        // AdSense intelligente Initialisierung
+        // AdSense intelligente Initialisierung - KORRIGIERT
         document.addEventListener('DOMContentLoaded', function() {
-            // Verzögerte AdSense-Initialisierung für bessere Performance
             setTimeout(function() {
                 try {
-                    // AdSense initialisieren
-                    (adsbygoogle = window.adsbygoogle || []).push({});
-                    (adsbygoogle = window.adsbygoogle || []).push({});
-                    (adsbygoogle = window.adsbygoogle || []).push({});
+                    const adContainers = document.querySelectorAll('.ad-container .adsbygoogle');
+                    console.log('Found', adContainers.length, 'ad containers');
                     
-                    // Nach 5 Sekunden prüfen ob Werbung geladen wurde
+                    for (let i = 0; i < adContainers.length; i++) {
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                        console.log('Initialized ad container', i + 1);
+                    }
+                    
                     setTimeout(function() {
-                        document.querySelectorAll('.ad-container').forEach(function(container) {
+                        document.querySelectorAll('.ad-container').forEach(function(container, index) {
                             const adElement = container.querySelector('.adsbygoogle');
                             if (adElement) {
-                                // Prüfe ob Werbung geladen wurde
                                 const adStatus = adElement.getAttribute('data-ad-status');
                                 const hasContent = adElement.innerHTML.trim().length > 0;
                                 const hasHeight = adElement.offsetHeight > 50;
                                 
-                                // Verstecke Container wenn keine Werbung geladen wurde
                                 if (adStatus === 'unfilled' || (!hasContent && !hasHeight)) {
                                     container.style.display = 'none';
                                     container.style.height = '0';
                                     container.style.margin = '0';
                                     container.style.padding = '0';
-                                    console.log('Ad container hidden - no content loaded');
+                                    console.log('Ad container', index + 1, 'hidden - no content loaded');
+                                } else {
+                                    console.log('Ad container', index + 1, 'loaded successfully');
                                 }
                             }
                         });
@@ -414,7 +415,6 @@
                     
                 } catch (error) {
                     console.log('AdSense initialization error:', error);
-                    // Bei Fehlern alle Werbecontainer verstecken
                     document.querySelectorAll('.ad-container').forEach(function(container) {
                         container.style.display = 'none';
                     });
