@@ -315,123 +315,76 @@ h1 {
     font-style: italic;
 }
 
-/* Werbung Container */
+/* AdSense Integration Styles - wie auf Farbenseite */
 .ad-container, .ad-container-middle {
-    margin: var(--spacing-xl) auto;
-    max-width: 800px;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: all var(--transition-normal);
-    box-shadow: var(--shadow-sm);
-    background: var(--gradient-surface);
-    border: 1px solid var(--border-color);
+    margin: 20px auto;
+    text-align: center;
+    width: 100%;
+    max-width: 1200px;
     position: relative;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    min-height: 90px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: block;
+    clear: both;
 }
 
 .ad-container::before,
 .ad-container-middle::before {
-    content: "WERBUNG";
+    content: '';
     position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(71, 85, 105, 0.9);
-    color: var(--text-primary);
-    padding: 4px 12px;
-    font-size: 10px;
-    font-weight: 700;
-    border-radius: 4px;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+}
+
+.ad-label {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 3px 8px;
+    font-size: 9px;
+    font-weight: 600;
+    border-radius: 3px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     z-index: 10;
     pointer-events: none;
-    box-shadow: var(--shadow-sm);
 }
 
-.ad-placeholder {
-    background: var(--gradient-surface);
-    border: 2px dashed var(--border-color);
-    padding: var(--spacing-lg);
-    text-align: center;
-    transition: all var(--transition-normal);
-    color: var(--text-secondary);
-}
-
-.ad-placeholder:hover {
-    border-color: var(--accent-blue);
-    background: var(--gradient-secondary);
-    color: var(--text-primary);
-}
-
-.ad-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-.ad-content-horizontal {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-}
-
-.ad-text-block {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-
-.ad-text-block strong {
-    color: var(--accent-blue);
-    font-size: 1.1em;
-    margin-bottom: 4px;
-    font-weight: 700;
-}
-
-.ad-text-block span {
-    color: var(--text-muted);
-    font-size: 0.9em;
-}
-
-.ad-text {
-    font-size: 0.95em;
-    color: var(--text-secondary);
-}
-
-.ad-content-real {
-    min-height: 120px;
-    display: block;
-    text-align: center;
-    margin: 0 auto;
-    width: 100%;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-md);
-}
-
-/* AdSense spezifische Styles */
-.adsbygoogle {
-    text-align: center;
-    margin: 0 auto;
-    display: block;
-    width: 100%;
-    min-height: 100px;
-    background: transparent;
-}
-
-/* Werbung aktiv - verstecke Placeholder */
-.ad-container.ads-active .ad-placeholder,
-.ad-container-middle.ads-active .ad-placeholder {
-    display: none;
-}
-
-.ad-container.ads-active .ad-content-real,
-.ad-container-middle.ads-active .ad-content-real {
+.ad-container .adsbygoogle,
+.ad-container-middle .adsbygoogle {
     display: block !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    min-height: 90px !important;
+    max-height: 200px !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 10px;
+    float: none !important;
+    clear: both !important;
+}
+
+.ad-container[style*="display: none"],
+.ad-container:empty,
+.ad-container-middle[style*="display: none"],
+.ad-container-middle:empty {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
 }
 
 /* Responsive Design */
@@ -496,21 +449,16 @@ h1 {
     }
     
     .ad-container, .ad-container-middle {
-        margin: var(--spacing-lg) 10px;
+        margin: 15px 10px;
+        min-height: 70px;
+        max-width: calc(100vw - 20px);
     }
     
-    .ad-placeholder {
-        padding: var(--spacing-md);
-        font-size: 0.9em;
-    }
-    
-    .ad-content-horizontal {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .ad-text-block {
-        text-align: center;
+    .ad-container .adsbygoogle,
+    .ad-container-middle .adsbygoogle {
+        min-height: 70px !important;
+        max-height: 150px !important;
+        padding: 8px;
     }
     
     .info-box {
@@ -648,7 +596,7 @@ h1 {
     .optimization-tip {
         padding: var(--spacing-md);
         font-size: 0.85em;
-        margin: var(--spacing-md) -10px 0 -10px;
+        margin: var(--spacing-md) 0 0 0;
     }
     
     .optimization-tip h4 {
@@ -658,11 +606,6 @@ h1 {
     
     .ad-container, .ad-container-middle {
         margin: var(--spacing-md) 0;
-    }
-    
-    .ad-placeholder {
-        padding: var(--spacing-sm);
-        font-size: 0.85em;
     }
 }
 
