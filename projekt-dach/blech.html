@@ -22,110 +22,110 @@
     
     <style>
         /* AdSense Integration Styles - VERTICAL LAYOUT + BROAD KEYWORDS */
-        .ad-container {
-            margin: 30px auto;
-            text-align: center;
-            width: 100%;
-            max-width: 900px;
-            position: relative;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 20px;
-            overflow: hidden;
-            min-height: 90px;
-            box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.6),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            display: block;
-            clear: both;
-        }
-        
-        .ad-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
-        }
-        
-        .ad-label {
-            position: absolute;
-            top: 6px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 3px 8px;
-            font-size: 9px;
-            font-weight: 600;
-            border-radius: 3px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            z-index: 10;
-            pointer-events: none;
-        }
-        
-        .ad-container .adsbygoogle {
-            display: block !important;
-            text-align: center !important;
-            margin: 0 auto !important;
-            width: 100% !important;
-            min-height: 90px !important;
-            max-height: 200px !important;
-            border: none !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
-            padding: 10px;
-            float: none !important;
-            clear: both !important;
-        }
-        
-        .section {
-            display: block;
-            width: 100%;
-            clear: both;
-        }
-        
-        .glass-panel {
-            display: block;
-            width: 100%;
-            clear: both;
-        }
-        
-        .ad-container[style*="display: none"],
-        .ad-container:empty {
-            display: none !important;
-            height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            min-height: 0 !important;
-        }
-        
-        @media (max-width: 768px) {
-            .ad-container {
-                margin: 20px auto;
-                min-height: 70px;
-                max-width: calc(100vw - 30px);
-                display: block;
-                clear: both;
-            }
-            
-            .ad-container .adsbygoogle {
-                min-height: 70px !important;
-                max-height: 150px !important;
-                padding: 8px;
-                float: none !important;
-                clear: both !important;
-            }
-            
-            .section {
-                display: block;
-                clear: both;
-            }
-        }
+.ad-container {
+    margin: 30px auto;
+    text-align: center;
+    width: 100%;
+    max-width: 900px;
+    position: relative;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    overflow: hidden;
+    min-height: 90px;
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    display: block;
+    clear: both;
+}
+
+.ad-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+}
+
+.ad-label {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 3px 8px;
+    font-size: 9px;
+    font-weight: 600;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.ad-container .adsbygoogle {
+    display: block !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    min-height: 90px !important;
+    max-height: 200px !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 10px;
+    float: none !important;
+    clear: both !important;
+}
+
+.section {
+    display: block;
+    width: 100%;
+    clear: both;
+}
+
+.glass-panel {
+    display: block;
+    width: 100%;
+    clear: both;
+}
+
+.ad-container[style*="display: none"],
+.ad-container:empty {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+}
+
+@media (max-width: 768px) {
+    .ad-container {
+        margin: 20px auto;
+        min-height: 70px;
+        max-width: calc(100vw - 30px);
+        display: block;
+        clear: both;
+    }
+    
+    .ad-container .adsbygoogle {
+        min-height: 70px !important;
+        max-height: 150px !important;
+        padding: 8px;
+        float: none !important;
+        clear: both !important;
+    }
+    
+    .section {
+        display: block;
+        clear: both;
+    }
+}
     </style>
 </head>
 <body>
