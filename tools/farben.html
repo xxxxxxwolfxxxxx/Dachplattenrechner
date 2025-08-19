@@ -377,13 +377,13 @@
     <!-- Werbung Banner Top -->
     <div class="ad-container" id="ad-colors-top">
         <span class="ad-label">Werbung</span>
+        <!-- farben-1 -->
         <ins class="adsbygoogle"
              style="display:block"
              data-ad-client="ca-pub-8687929894744033"
              data-ad-slot="9327898863"
-             data-ad-format="horizontal"
-             data-full-width-responsive="true"
-             data-ad-channel="acrylspray,ral,ralfarben,ralkarten,farbkarten,lackierspray,sprühdose,autolack,metalllack,baumarkt,farbe,lackierung"></ins>
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
     </div>
 
     <div class="header">
@@ -407,13 +407,13 @@
         <!-- Werbung Banner Middle - nur in RAL Tab -->
         <div class="ad-container" id="ad-colors-middle">
             <span class="ad-label">Werbung</span>
+            <!-- farben-2 -->
             <ins class="adsbygoogle"
                  style="display:block"
                  data-ad-client="ca-pub-8687929894744033"
                  data-ad-slot="3474573438"
-                 data-ad-format="horizontal"
-                 data-full-width-responsive="true"
-                 data-ad-channel="trapezblech,trapezblechhändler,dachblech,wellblech,profilblech,metallhandel,stahlhandel,blechhandel,dachbau,metalldach"></ins>
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
         </div>
     </div>
     
@@ -828,16 +828,14 @@
             renderColors(RAL_COLORS, 'ralGrid', 'ral');
             renderColors(PRELAQ_COLORS, 'prelaqGrid', 'prelaq');
             
-            // AdSense Initialisierung
+            // AdSense Initialisierung - KORRIGIERT
             setTimeout(function() {
                 try {
-                    const adContainers = document.querySelectorAll('.ad-container .adsbygoogle');
-                    console.log('Found', adContainers.length, 'ad containers');
+                    // Initialisiere alle AdSense Anzeigen
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                    (adsbygoogle = window.adsbygoogle || []).push({});
                     
-                    for (let i = 0; i < adContainers.length; i++) {
-                        (adsbygoogle = window.adsbygoogle || []).push({});
-                        console.log('Initialized ad container', i + 1);
-                    }
+                    console.log('AdSense ads initialized');
                     
                     setTimeout(function() {
                         document.querySelectorAll('.ad-container').forEach(function(container, index) {
