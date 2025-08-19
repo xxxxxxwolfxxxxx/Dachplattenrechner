@@ -1491,19 +1491,25 @@ footer::before {
     text-shadow: 0 0 5px rgba(14, 165, 233, 0.3);
 }
 
-/* ===== AD CONTAINER STYLES ===== */
+/* ===== AD CONTAINER STYLES - VOLLBREITE FIX ===== */
 .ad-wrapper {
-    /* KEIN grid-column und order mehr */
+    /* WICHTIG: Spannt über alle Grid-Spalten */
+    grid-column: 1 / -1 !important;
     margin: var(--spacing-lg) auto !important;
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: none !important; /* Entfernt jede Breitenbegrenzung */
     text-align: center !important;
+    
+    /* Sicherstellen dass es sichtbar ist */
+    display: block !important;
+    min-height: 90px;
 }
 
 .ad-with-label {
     position: relative;
     width: 100%;
-    display: inline-block;
+    display: block;
+    margin: 0 auto;
 }
 
 /* Werbung-Label - minimalistisch */
@@ -1522,6 +1528,79 @@ footer::before {
     z-index: 10;
     pointer-events: none;
     font-family: var(--font-sans);
+}
+
+/* AdSense Container - VOLLBREITE */
+.ad-wrapper .adsbygoogle {
+    display: block !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: none !important;
+    min-height: 90px !important;
+    max-height: 280px !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* Versteckte Container sollen keinen Platz einnehmen */
+.ad-wrapper[style*="display: none"] {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    grid-column: unset !important;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+    .ad-wrapper {
+        margin: var(--spacing-md) auto !important;
+        min-height: 70px;
+    }
+    
+    .ad-wrapper .adsbygoogle {
+        min-height: 70px !important;
+        max-height: 200px !important;
+    }
+}
+
+/* Desktop - Sicherstellen dass es 2 Kacheln Breite hat */
+@media (min-width: 769px) {
+    .calculators-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: var(--spacing-lg);
+    }
+    
+    /* Ad Container spannt über ALLE verfügbaren Spalten */
+    .ad-wrapper {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Querformat - Werbung so breit wie verfügbar */
+@media (max-width: 1024px) and (max-height: 768px) and (orientation: landscape) {
+    .ad-wrapper {
+        grid-column: 1 / -1 !important;
+        margin: var(--spacing-lg) auto !important;
+        max-width: none !important;
+        width: 100% !important;
+        min-height: 90px;
+        max-height: 120px;
+    }
+    
+    .ad-wrapper .adsbygoogle {
+        width: 100% !important;
+        min-height: 90px !important;
+        max-height: 120px !important;
+        display: block !important;
+    }
 }
 
 /* AdSense Container ohne jede Umrandung - HORIZONTAL FORMAT */
