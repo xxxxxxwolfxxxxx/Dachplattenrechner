@@ -618,20 +618,153 @@ function showAdPlaceholders() {
     });
 }
 
-       function openCalculationModal() {
+       // Ersetze die bestehende openCalculationModal() Funktion in index.html
+function openCalculationModal() {
     document.getElementById('calculationModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
     
-    // Modal-Werbung direkt einbetten
+    // Längere Verzögerung für AdSense
+    setTimeout(() => {
+        loadModalAds();
+    }, 1000); // Erhöht von 500ms auf 1000ms
+}
+
+function loadModalAds() {
     const modalContainer = document.getElementById('modal-ad-container');
-    if (modalContainer) {
-        modalContainer.style.display = 'block';
+    if (!modalContainer) {
+        console.log('Modal ad container not found');
+        return;
+    }
+    
+    // Container sichtbar machen
+    modalContainer.style.display = 'block';
+    
+    // Prüfen ob AdSense verfügbar ist
+    if (typeof window.adsbygoogle === 'undefined') {
+        console.log('AdSense not loaded, loading now...');
+        loadAdSense();
         
-        // AdSense-Element komplett neu erstellen
-        const existingAd = modalContainer.querySelector('.adsbygoogle');
-        if (existingAd) {
-            existingAd.remove();
-        }
+        // Erneut versuchen nach AdSense-Load
+        setTimeout(() => {
+            attemptModalAdLoad();
+        }, 2000);
+        return;
+    }
+    
+    attemptModalAdLoad();
+}
+
+function attemptModalAdLoad() {
+    const modalContainer = document.getElementById('modal-ad-container');
+    const existingAd = modalContainer.querySelector('.adsbygoogle');
+    
+    if (existingAd && existingAd.getAttribute('data-ad-status')) {
+        console.log('Ad already loaded');
+        return;
+    }
+    
+    // Neues AdSense-Element komplett neu erstellen
+    const adWrapper = modalContainer.querySelector('.ad-with-label');
+    if (!adWrapper) return;
+    
+    // Alte Ads entfernen
+    const oldAds = adWrapper.querySelectorAll('.adsbygoogle');
+    oldAds.forEach(ad => ad.remove());
+    
+    // Neues Ad-Element erstellen
+    const newAd = document.createElement('ins');
+    newAd.className = 'adsbygoogle';
+    newAd.style.cssText = 'display:block;min-height:250px;';
+    newAd.setAttribute('data-ad-client', 'ca-pub-8687929894744033');
+    newAd.setAttribute('data-ad-slot', '8407868749');
+    newAd.setAttribute('data-ad-format', 'rectangle');
+    newAd.setAttribute('data-full-width-responsive', 'true');
+    
+    // Nicht-personalisierte Werbung wenn nötig
+    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+    if (!allowPersonalized) {
+        newAd.setAttribute('data-npa', '1');
+    }
+    
+    // Element einfügen
+    adWrapper.appendChild(newAd);
+    
+    try {
+        // AdSense Push mit Fehlerbehandlung
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        console.log('Modal ad pushed to AdSense');
+        
+        // Nach 3 Sekunden prüfen ob Werbung geladen wurde
+        setTimeout(() => {
+            checkAdStatus(newAd);
+        }, 3000);
+        
+    } catch (e) {
+        console.error('AdSense error in modal:', e);
+        showAdFallback(modalContainer);
+    }
+}
+
+function checkAdStatus(adElement) {
+    if (!adElement.getAttribute('data-ad-status') || 
+        adElement.innerHTML.trim() === '') {
+        console.log('No ad loaded in modal, hiding container');
+        hideAdContainer(adElement.closest('.ad-wrapper'));
+    } else {
+        console.log('Modal ad loaded successfully');
+    }
+}
+
+function hideAdContainer(container) {
+    if (!container) return;
+    
+    // Container komplett verstecken
+    container.style.display = 'none';
+    container.style.height = '0';
+    container.style.margin = '0';
+    container.style.padding = '0';
+}
+
+// Wichtig: Modal im HTML bereits vorhanden machen (versteckt)
+// Das Modal sollte beim Seitenladen bereits existieren:
+
+function initializeModalOnPageLoad() {
+    // Modal Container bereits beim Laden erstellen
+    const modalHtml = `
+        <div id="calculationModal" class="calculation-modal" style="display: none;">
+            <div class="calculation-modal-content">
+                <span class="calculation-close" onclick="closeCalculationModal()">&times;</span>
+                <h2>Dachflächenberechnung</h2>
+                <p>Wählen Sie den passenden Rechner für Ihre Dachform:</p>
+                
+                <!-- Ad Container direkt beim Laden erstellen -->
+                <div class="ad-wrapper" id="modal-ad-container" style="display: none;">
+                    <div class="ad-with-label">
+                        <span class="ad-label">Werbung</span>
+                        <!-- AdSense wird hier später eingefügt -->
+                    </div>
+                </div>
+                
+                <div class="calculation-grid">
+                    <!-- Bestehende Rechner-Karten -->
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Nur wenn Modal noch nicht existiert
+    if (!document.getElementById('calculationModal')) {
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeModalOnPageLoad(); // NEUE ZEILE HINZUFÜGEN
+    setupEmailProtection();
+    loadBackgroundImage();
+    loadAdSense();
+    // ... rest bleibt gleich
+});
         
         // Neues AdSense-Element erstellen
         const newAd = document.createElement('ins');
