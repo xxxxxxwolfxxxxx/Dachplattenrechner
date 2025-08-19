@@ -647,8 +647,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
         loadAnalytics();
     }
-    if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
-        loadAdSense();
-        showAds();
-    }
+    
+    // WICHTIG: Werbung immer anzeigen (wie auf index.html)
+    showAds();
 });
