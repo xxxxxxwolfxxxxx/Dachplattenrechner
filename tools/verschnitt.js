@@ -34,24 +34,29 @@ function acceptOnlyEssential() {
 }
 
 function showAds() {
-    if (localStorage.getItem('marketingCookies') === 'true') {
-        // Zeige AdSense-Container
-        document.getElementById('top-ad-container').style.display = 'block';
-        document.getElementById('middle-ad-container').style.display = 'block';
-        document.getElementById('bottom-ad-container').style.display = 'block';
-        
-        // Lade AdSense-Anzeigen
-        if (window.adsbygoogle) {
-            try {
-                const ads = document.querySelectorAll('.adsbygoogle');
-                ads.forEach(ad => {
-                    if (!ad.getAttribute('data-ad-status')) {
-                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+    // Zeige AdSense-Container immer (wie auf index.html)
+    document.getElementById('top-ad-container').style.display = 'block';
+    document.getElementById('middle-ad-container').style.display = 'block';
+    document.getElementById('bottom-ad-container').style.display = 'block';
+    
+    // Bestimme ob personalisierte Werbung erlaubt ist
+    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+    
+    // Lade AdSense-Anzeigen
+    if (window.adsbygoogle) {
+        try {
+            const ads = document.querySelectorAll('.adsbygoogle');
+            ads.forEach(ad => {
+                if (!ad.getAttribute('data-ad-status')) {
+                    // Setze nicht-personalisierte Werbung falls Marketing-Cookies abgelehnt
+                    if (!allowPersonalized) {
+                        ad.setAttribute('data-npa', '1');
                     }
-                });
-            } catch (e) {
-                console.log('AdSense loading error:', e);
-            }
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                }
+            });
+        } catch (e) {
+            console.log('AdSense loading error:', e);
         }
     }
 }
