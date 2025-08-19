@@ -1,5 +1,6 @@
 // Verschnitt-Optimierung JavaScript
 let aktuelleOptimierung = [];
+let adSenseInitialized = false; // Flag um Doppelinitialisierung zu verhindern
 
 function log(message) {
     console.log(message);
@@ -34,25 +35,51 @@ function acceptOnlyEssential() {
 }
 
 function showAds() {
-    if (localStorage.getItem('marketingCookies') === 'true') {
+    if (localStorage.getItem('marketingCookies') === 'true' && !adSenseInitialized) {
+        adSenseInitialized = true; // Verhindere Mehrfachinitialisierung
+        
         // Zeige AdSense-Container
         document.getElementById('top-ad-container').style.display = 'block';
         document.getElementById('middle-ad-container').style.display = 'block';
         document.getElementById('bottom-ad-container').style.display = 'block';
         
-        // Lade AdSense-Anzeigen
-        if (window.adsbygoogle) {
+        // Initialisiere AdSense Anzeigen nur einmal
+        setTimeout(function() {
             try {
                 const ads = document.querySelectorAll('.adsbygoogle');
-                ads.forEach(ad => {
-                    if (!ad.getAttribute('data-ad-status')) {
+                console.log('Found', ads.length, 'ad slots to initialize');
+                
+                ads.forEach(function(ad, index) {
+                    if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-initialized')) {
+                        ad.setAttribute('data-initialized', 'true');
                         (window.adsbygoogle = window.adsbygoogle || []).push({});
+                        console.log('AdSense ad', index + 1, 'initialized');
                     }
                 });
+                
+                // Prüfe nach 3 Sekunden ob Anzeigen geladen sind
+                setTimeout(function() {
+                    document.querySelectorAll('.ad-container, .ad-container-middle').forEach(function(container, index) {
+                        const adElement = container.querySelector('.adsbygoogle');
+                        if (adElement) {
+                            const adStatus = adElement.getAttribute('data-ad-status');
+                            const hasContent = adElement.innerHTML.trim().length > 0;
+                            const hasHeight = adElement.offsetHeight > 50;
+                            
+                            if (adStatus === 'unfilled' || (!hasContent && !hasHeight)) {
+                                container.style.display = 'none';
+                                console.log('Ad container', index + 1, 'hidden - no content loaded');
+                            } else {
+                                console.log('Ad container', index + 1, 'loaded successfully');
+                            }
+                        }
+                    });
+                }, 3000);
+                
             } catch (e) {
                 console.log('AdSense loading error:', e);
             }
-        }
+        }, 1000);
     }
 }
 
@@ -645,48 +672,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
         loadAdSense();
         
-        // Warte bis AdSense geladen ist, dann initialisiere Anzeigen
+        // Warte bis AdSense geladen ist, dann zeige Anzeigen
         setTimeout(function() {
-            showAds();
-            
-            // AdSense Anzeigen einzeln initialisieren
-            setTimeout(function() {
-                try {
-                    const ads = document.querySelectorAll('.adsbygoogle');
-                    ads.forEach(function(ad, index) {
-                        if (!ad.getAttribute('data-ad-status')) {
-                            (window.adsbygoogle = window.adsbygoogle || []).push({});
-                            console.log('AdSense ad', index + 1, 'initialized');
-                        }
-                    });
-                    
-                    // Prüfe nach 3 Sekunden ob Anzeigen geladen sind
-                    setTimeout(function() {
-                        document.querySelectorAll('.ad-container, .ad-container-middle').forEach(function(container, index) {
-                            const adElement = container.querySelector('.adsbygoogle');
-                            if (adElement) {
-                                const adStatus = adElement.getAttribute('data-ad-status');
-                                const hasContent = adElement.innerHTML.trim().length > 0;
-                                const hasHeight = adElement.offsetHeight > 50;
-                                
-                                if (adStatus === 'unfilled' || (!hasContent && !hasHeight)) {
-                                    container.style.display = 'none';
-                                    console.log('Ad container', index + 1, 'hidden - no content loaded');
-                                } else {
-                                    console.log('Ad container', index + 1, 'loaded successfully');
-                                }
-                            }
-                        });
-                    }, 3000);
-                    
-                } catch (error) {
-                    console.log('AdSense initialization error:', error);
-                    // Verstecke alle Ad-Container bei Fehlern
-                    document.querySelectorAll('.ad-container, .ad-container-middle').forEach(function(container) {
-                        container.style.display = 'none';
-                    });
-                }
-            }, 500);
-        }, 1000);
+            showAds(); // Wird nur einmal ausgeführt dank adSenseInitialized Flag
+        }, 1500);
     }
 });
