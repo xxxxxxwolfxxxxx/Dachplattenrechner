@@ -8,8 +8,9 @@ function log(message) {
 // Cookie Management System
 function showCookieBanner() {
     const cookieConsent = localStorage.getItem('cookieConsent');
-    if (!cookieConsent) {
-        document.getElementById('cookieBanner').classList.add('show');
+    const cookieBanner = document.getElementById('cookieBanner');
+    if (!cookieConsent && cookieBanner) {
+        cookieBanner.classList.add('show');
     }
 }
 
@@ -641,18 +642,25 @@ function zeigeErgebnisse(optimierung) {
 
 // Initialize everything
 document.addEventListener('DOMContentLoaded', function() {
-    // AdSense immer laden
-    loadAdSense();
-    
-    // Initialize tracking based on existing consent
+    // Initialize tracking and ads based on existing consent
     const cookieConsent = localStorage.getItem('cookieConsent');
     if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
-        loadAnalytics();
+        // Analytics laden wenn erlaubt
+        if (typeof loadAnalytics === 'function') {
+            loadAnalytics();
+        }
+    }
+    
+    // AdSense laden wenn verfügbar
+    if (typeof loadAdSense === 'function') {
+        loadAdSense();
     }
     
     // Werbung immer anzeigen
     showAds();
     
-    // Show cookie banner for first-time visitors
-    showCookieBanner();
+    // Show cookie banner for first-time visitors only if function exists
+    if (typeof showCookieBanner === 'function') {
+        showCookieBanner();
+    }
 });
