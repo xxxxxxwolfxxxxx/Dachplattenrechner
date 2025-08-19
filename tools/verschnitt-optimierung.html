@@ -9,22 +9,20 @@
     <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
     <script>
-        // AdSense nur laden wenn Marketing-Cookies akzeptiert sind
+        // AdSense für alle laden - personalisiert oder nicht-personalisiert
         function loadAdSense() {
-            if (localStorage.getItem('marketingCookies') === 'true') {
-                const script = document.createElement('script');
-                script.async = true;
-                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
-                script.crossOrigin = 'anonymous';
-                document.head.appendChild(script);
-                
-                // AdSense Auto-Ads aktivieren
-                window.adsbygoogle = window.adsbygoogle || [];
-                window.adsbygoogle.push({
-                    google_ad_client: 'ca-pub-8687929894744033',
-                    enable_page_level_ads: true
-                });
-            }
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
+            script.crossOrigin = 'anonymous';
+            document.head.appendChild(script);
+            
+            // AdSense Auto-Ads aktivieren
+            window.adsbygoogle = window.adsbygoogle || [];
+            window.adsbygoogle.push({
+                google_ad_client: 'ca-pub-8687929894744033',
+                enable_page_level_ads: true
+            });
         }
     </script>
     
@@ -44,15 +42,6 @@
                 });
             }
         }
-        
-        // Check if analytics cookies are accepted
-        const analyticsCookies = localStorage.getItem('analyticsCookies');
-        if (analyticsCookies === 'true') {
-            gtag('config', 'G-6NSYG8B1T9', {
-                anonymize_ip: true,
-                cookie_flags: 'SameSite=None;Secure'
-            });
-        }
     </script>
 
     <link rel="stylesheet" href="../style.css">
@@ -71,18 +60,17 @@
 
     <div class="container">
         <main>
-            <!-- Eleganter Werbeplatz oben -->
-            <div class="ad-container" id="top-ad-container">
-                <div class="ad-placeholder">
-                    <div class="ad-content">
-                        <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
-                    </div>
-                </div>
-                <div class="ad-content-real">
+            <!-- Werbeplatz 1 - Oben nach Titel -->
+            <div class="ad-wrapper" id="top-ad-container" style="display: none;">
+                <div class="ad-with-label">
+                    <span class="ad-label">Werbung</span>
                     <ins class="adsbygoogle"
+                         style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
+                         data-ad-slot="9814984028"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"
+                         data-ad-channel="hss,kreissägeblatt,akkuhandkreissäge,trennscheiben,edelstahl,trapezbleche"></ins>
                 </div>
             </div>
 
@@ -115,21 +103,17 @@
                 </div>
             </div>
 
-            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
-            <div class="ad-container-middle" id="middle-ad-container">
-                <div class="ad-placeholder">
-                    <div class="ad-content-horizontal">
-                        <div class="ad-text-block">
-                            <strong>Professionelle Optimierungstools</strong>
-                            <span>Intelligente Materialplanung für Handwerk und Industrie</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="ad-content-real">
+            <!-- Werbeplatz 2 - Zwischen Eingabe und Lagerauswahl -->
+            <div class="ad-wrapper" id="middle-ad-container" style="display: none;">
+                <div class="ad-with-label">
+                    <span class="ad-label">Werbung</span>
                     <ins class="adsbygoogle"
+                         style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
+                         data-ad-slot="1278018455"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"
+                         data-ad-channel="schneiden,sägeblatt,kaltschneiden,metallex,pfannenbleche,wellbleche"></ins>
                 </div>
             </div>
 
@@ -315,18 +299,17 @@
                 </div>
             </div>
 
-            <!-- Eleganter Werbeplatz am Ende -->
-            <div class="ad-container" id="bottom-ad-container">
-                <div class="ad-placeholder">
-                    <div class="ad-content">
-                        <span class="ad-text">Mehr professionelle Optimierungstools verfügbar</span>
-                    </div>
-                </div>
-                <div class="ad-content-real">
+            <!-- Werbeplatz 3 - Am Ende nach Ergebnissen -->
+            <div class="ad-wrapper" id="bottom-ad-container" style="display: none;">
+                <div class="ad-with-label">
+                    <span class="ad-label">Werbung</span>
                     <ins class="adsbygoogle"
+                         style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
+                         data-ad-slot="5492595633"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"
+                         data-ad-channel="werkzeug,handkreissäge,metallsägeblatt,dachplatten,lichtplatten,schwedenblech"></ins>
                 </div>
             </div>
         </main>
