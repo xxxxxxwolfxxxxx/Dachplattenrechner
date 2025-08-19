@@ -553,6 +553,8 @@ function zeigeErgebnisse(optimierung) {
     
     optimierung.forEach(platte => {
         // Netto-Material: Original-Längen minus Toleranz
+    optimierung.forEach(platte => {
+        // Netto-Material: Original-Längen minus Toleranz
         const nettoMaterialPlatte = platte.masze.reduce((sum, mass) => sum + (mass - toleranz), 0);
         tatsaechlichBenoetigtesMaterial += nettoMaterialPlatte;
         
@@ -560,6 +562,10 @@ function zeigeErgebnisse(optimierung) {
         const schnittblattVerluste = platte.anzahlSchnitte * schnittblattBreite;
         tatsaechlichBenoetigtesMaterial += schnittblattVerluste;
         
+        // Verwende reale Schnittanzahl für Gesamtschnitte
+        gesamtSchnitte += platte.realSchnitte || platte.anzahlSchnitte + (platte.verschnitt > 0.001 ? 1 : 0);
+    });
+    
     const effizienz = gesamtMaterial > 0 ? (tatsaechlichBenoetigtesMaterial / gesamtMaterial * 100) : 0;
     
     // Ergebnisse anzeigen
