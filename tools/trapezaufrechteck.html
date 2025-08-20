@@ -9,23 +9,17 @@
     <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
     <script>
-        // AdSense nur laden wenn Marketing-Cookies akzeptiert sind
-        function loadAdSense() {
-            if (localStorage.getItem('marketingCookies') === 'true') {
-                const script = document.createElement('script');
-                script.async = true;
-                script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
-                script.crossOrigin = 'anonymous';
-                document.head.appendChild(script);
-                
-                // AdSense Auto-Ads aktivieren
-                window.adsbygoogle = window.adsbygoogle || [];
-                window.adsbygoogle.push({
-                    google_ad_client: 'ca-pub-8687929894744033',
-                    enable_page_level_ads: true
-                });
-            }
-        }
+       // AdSense für alle laden - personalisiert oder nicht-personalisiert
+function loadAdSense() {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+    
+    // Nur manuelle Ad-Units, kein Auto-Ads um Konflikt zu vermeiden
+    window.adsbygoogle = window.adsbygoogle || [];
+}
     </script>
     
     <!-- Google tag (gtag.js) -->
@@ -43,15 +37,6 @@
                     cookie_flags: 'SameSite=None;Secure'
                 });
             }
-        }
-        
-        // Check if analytics cookies are accepted
-        const analyticsCookies = localStorage.getItem('analyticsCookies');
-        if (analyticsCookies === 'true') {
-            gtag('config', 'G-6NSYG8B1T9', {
-                anonymize_ip: true,
-                cookie_flags: 'SameSite=None;Secure'
-            });
         }
     </script>
     
@@ -285,314 +270,278 @@
             box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
         }
 
-        /* Elegante Werbecontainer */
-        .ad-container, .ad-container-middle {
-            margin: 30px auto;
-            max-width: 800px;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        
-        .ad-container-middle {
-            margin: 40px auto;
-        }
-        
-        .ad-placeholder {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 2px dashed #dee2e6;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .ad-placeholder:hover {
-            border-color: #2a5298;
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        }
-        
-        .ad-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: #6c757d;
-            font-weight: 500;
-        }
-        
-        .ad-content-horizontal {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .ad-text-block {
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
-        
-        .ad-text-block strong {
-            color: #2a5298;
-            font-size: 1.1em;
-            margin-bottom: 4px;
-        }
-        
-        .ad-text-block span {
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-        
-        .ad-icon {
-            font-size: 1.5em;
-            opacity: 0.8;
-        }
-        
-        .ad-text {
-            font-size: 0.95em;
-        }
-        
-        .ad-content-real {
-            min-height: 100px;
-            display: block;
-        }
-        
-        /* Werbung aktiv - verstecke Placeholder */
-        .ad-container.ads-active .ad-placeholder,
-        .ad-container-middle.ads-active .ad-placeholder {
-            display: none;
-        }
-        
-        .ad-container.ads-active .ad-content-real,
-        .ad-container-middle.ads-active .ad-content-real {
+        /* Werbung Container Styles - Verbesserte Version */
+        .ad-wrapper {
+            grid-column: 1 / -1 !important;
+            margin: var(--spacing-lg) auto !important;
+            width: 100% !important;
+            max-width: none !important;
+            text-align: center !important;
             display: block !important;
+            min-height: 90px;
+        }
+
+        .ad-with-label {
+            position: relative;
+            width: 100%;
+            display: block;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            min-height: 90px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .ad-label {
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 3px 8px;
+            font-size: 9px;
+            font-weight: 600;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .ad-wrapper .adsbygoogle {
+            display: block !important;
+            text-align: center !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            min-height: 90px !important;
+            max-height: 280px !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding: 10px;
+        }
+
+        /* Versteckte Container sollen keinen Platz einnehmen */
+        .ad-wrapper[style*="display: none"] {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            grid-column: unset !important;
         }
 
         /* Mobile Optimierung */
-        @media (max-width: 768px) {
-            body {
-                background-attachment: scroll; /* Bessere Performance auf Mobile */
-            }
-            
-            .container {
-                padding: 15px 10px; /* Reduziert von 20px 15px */
-            }
-            
-            .nav-header .container {
-                padding: 0 15px;
-            }
-            
-            .nav-title {
-                font-size: 1.2em; /* Reduziert von 1.4em */
-            }
-            
-            .section {
-                padding: 20px 15px; /* Reduziert von 25px */
-                margin-bottom: 20px; /* Reduziert von 25px */
-            }
-            
-            .section h2 {
-                font-size: 1.3em; /* Reduziert von 1.5em */
-            }
-            
-            /* SVG Skizzen - deutlich kleiner auf Mobile */
-            .section svg, 
-            div[style*="svg"] svg {
-                width: 100% !important;
-                max-width: 220px !important; /* Deutlich reduziert von 280px */
-                height: auto !important;
-                max-height: 120px !important; /* Deutlich reduziert von 180px */
-            }
-            
-            /* Container für SVG-Skizzen */
-            div[style*="text-align: center"] > div[style*="display: inline-block"] {
-                padding: 15px !important; /* Reduziert von 20px */
-                margin-bottom: 20px !important; /* Reduziert von 30px */
-            }
-            
-            .input-row {
-                flex-direction: column;
-                gap: 12px; /* Reduziert von 15px */
-            }
-            
-            .input-group {
-                min-width: auto;
-            }
-            
-            .input-group input {
-                font-size: 16px; /* Verhindert Zoom auf iOS */
-                padding: 10px 12px; /* Reduziert von 12px 15px */
-            }
-            
-            .input-group label {
-                font-size: 14px; /* Etwas kleiner */
-                margin-bottom: 6px; /* Reduziert von 8px */
-            }
-            
-            .info-box {
-                padding: 12px; /* Reduziert von 15px */
-                font-size: 13px; /* Reduziert von 14px */
-            }
-            
-            .calculate-btn, .anriss-btn {
-                padding: 12px 25px; /* Reduziert von 15px 30px */
-                font-size: 15px; /* Reduziert von 16px */
-                min-width: 180px; /* Reduziert von 200px */
-            }
-            
-            .results {
-                padding: 20px 15px; /* Reduziert von 25px */
-            }
-            
-            .result-item {
-                padding: 10px 0; /* Reduziert von 12px */
-                font-size: 14px; /* Kleiner */
-                flex-direction: column;
-                text-align: left;
-                gap: 2px;
-            }
-            
-            .result-item span:first-child {
-                font-weight: 600;
-                font-size: 13px;
-            }
-            
-            .result-item span:last-child {
-                font-weight: bold;
-                font-size: 15px;
-                color: #ffd700;
-                margin-left: 10px;
-            }
-            
-            .schnitt-table th,
-            .schnitt-table td {
-                padding: 8px 6px; /* Deutlich reduziert von 12px */
-                font-size: 12px; /* Kleiner */
-            }
-            
-            #vorschau-svg svg {
-                max-width: 100% !important;
-                height: auto !important;
-                max-height: 200px !important; /* Deutlich reduziert */
-            }
-            
-            #vorschau-legende {
-                flex-direction: column;
-                gap: 8px !important;
-                font-size: 11px !important; /* Reduziert von 13px */
-                align-items: center;
-            }
-            
-            .ad-container, .ad-container-middle {
-                margin: 15px 10px; /* Reduziert */
-            }
-            
-            .ad-placeholder {
-                padding: 12px; /* Reduziert von 15px */
-            }
-            
-            .ad-content-horizontal {
-                flex-direction: column;
-                text-align: center;
-                gap: 10px; /* Reduziert */
-            }
-            
-            .ad-text-block {
-                text-align: center;
-            }
-            
-            .ad-text-block strong {
-                font-size: 1em; /* Reduziert von 1.1em */
-            }
-            
-            .ad-text-block span {
-                font-size: 0.85em; /* Reduziert von 0.9em */
-            }
-        }
+@media (max-width: 768px) {
+    body {
+        background-attachment: scroll; /* Bessere Performance auf Mobile */
+    }
+    
+    .container {
+        padding: 15px 10px; /* Reduziert von 20px 15px */
+    }
+    
+    .nav-header .container {
+        padding: 0 15px;
+    }
+    
+    .nav-title {
+        font-size: 1.2em; /* Reduziert von 1.4em */
+    }
+    
+    .section {
+        padding: 20px 15px; /* Reduziert von 25px */
+        margin-bottom: 20px; /* Reduziert von 25px */
+    }
+    
+    .section h2 {
+        font-size: 1.3em; /* Reduziert von 1.5em */
+    }
+    
+    /* SVG Skizzen - deutlich kleiner auf Mobile */
+    .section svg, 
+    div[style*="svg"] svg {
+        width: 100% !important;
+        max-width: 220px !important; /* Deutlich reduziert von 280px */
+        height: auto !important;
+        max-height: 120px !important; /* Deutlich reduziert von 180px */
+    }
+    
+    /* Container für SVG-Skizzen */
+    div[style*="text-align: center"] > div[style*="display: inline-block"] {
+        padding: 15px !important; /* Reduziert von 20px */
+        margin-bottom: 20px !important; /* Reduziert von 30px */
+    }
+    
+    .input-row {
+        flex-direction: column;
+        gap: 12px; /* Reduziert von 15px */
+    }
+    
+    .input-group {
+        min-width: auto;
+    }
+    
+    .input-group input {
+        font-size: 16px; /* Verhindert Zoom auf iOS */
+        padding: 10px 12px; /* Reduziert von 12px 15px */
+    }
+    
+    .input-group label {
+        font-size: 14px; /* Etwas kleiner */
+        margin-bottom: 6px; /* Reduziert von 8px */
+    }
+    
+    .info-box {
+        padding: 12px; /* Reduziert von 15px */
+        font-size: 13px; /* Reduziert von 14px */
+    }
+    
+    .calculate-btn, .anriss-btn {
+        padding: 12px 25px; /* Reduziert von 15px 30px */
+        font-size: 15px; /* Reduziert von 16px */
+        min-width: 180px; /* Reduziert von 200px */
+    }
+    
+    .results {
+        padding: 20px 15px; /* Reduziert von 25px */
+    }
+    
+    .result-item {
+        padding: 10px 0; /* Reduziert von 12px */
+        font-size: 14px; /* Kleiner */
+        flex-direction: column;
+        text-align: left;
+        gap: 2px;
+    }
+    
+    .result-item span:first-child {
+        font-weight: 600;
+        font-size: 13px;
+    }
+    
+    .result-item span:last-child {
+        font-weight: bold;
+        font-size: 15px;
+        color: #ffd700;
+        margin-left: 10px;
+    }
+    
+    .schnitt-table th,
+    .schnitt-table td {
+        padding: 8px 6px; /* Deutlich reduziert von 12px */
+        font-size: 12px; /* Kleiner */
+    }
+    
+    #vorschau-svg svg {
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: 200px !important; /* Deutlich reduziert */
+    }
+    
+    #vorschau-legende {
+        flex-direction: column;
+        gap: 8px !important;
+        font-size: 11px !important; /* Reduziert von 13px */
+        align-items: center;
+    }
+    
+    .ad-wrapper {
+        margin: 15px 10px !important;
+        min-height: 70px;
+    }
+    
+    .ad-wrapper .adsbygoogle {
+        min-height: 70px !important;
+        max-height: 150px !important;
+        padding: 8px;
+    }
+}
 
-        /* Hochkant-spezifische Optimierungen */
-        @media (max-width: 480px) and (orientation: portrait) {
-            .container {
-                padding: 12px 8px; /* Noch kleiner für sehr kleine Displays */
-            }
-            
-            .section {
-                padding: 15px 12px;
-                margin-bottom: 15px;
-            }
-            
-            .section h2 {
-                font-size: 1.2em; /* Noch kleiner */
-                margin-bottom: 15px;
-            }
-            
-            .section svg, 
-            div[style*="svg"] svg {
-                max-width: 200px !important;
-                max-height: 110px !important;
-            }
-            
-            .nav-title {
-                font-size: 1.1em;
-            }
-            
-            .input-group label {
-                font-size: 13px;
-            }
-            
-            .info-box {
-                font-size: 12px;
-                padding: 10px;
-            }
-            
-            .calculate-btn, .anriss-btn {
-                padding: 10px 20px;
-                font-size: 14px;
-                min-width: 160px;
-            }
-        }
+/* Hochkant-spezifische Optimierungen */
+@media (max-width: 480px) and (orientation: portrait) {
+    .container {
+        padding: 12px 8px; /* Noch kleiner für sehr kleine Displays */
+    }
+    
+    .section {
+        padding: 15px 12px;
+        margin-bottom: 15px;
+    }
+    
+    .section h2 {
+        font-size: 1.2em; /* Noch kleiner */
+        margin-bottom: 15px;
+    }
+    
+    .section svg, 
+    div[style*="svg"] svg {
+        max-width: 200px !important;
+        max-height: 110px !important;
+    }
+    
+    .nav-title {
+        font-size: 1.1em;
+    }
+    
+    .input-group label {
+        font-size: 13px;
+    }
+    
+    .info-box {
+        font-size: 12px;
+        padding: 10px;
+    }
+    
+    .calculate-btn, .anriss-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        min-width: 160px;
+    }
+}
 
-        /* Querformat - 5% kleiner für bessere Darstellung */
-        @media (max-width: 768px) and (orientation: landscape) {
-            .container {
-                padding: 18px 14px; /* 5% kleiner als mobile Standard */
-            }
+/* Querformat - 5% kleiner für bessere Darstellung */
+@media (max-width: 768px) and (orientation: landscape) {
+    .container {
+        padding: 18px 14px; /* 5% kleiner als mobile Standard */
+    }
+    
+    .section {
+        padding: 19px 14px; /* 5% kleiner */
+        margin-bottom: 19px;
+    }
+    
+    .section h2 {
+        font-size: 1.25em; /* 5% kleiner */
+    }
+    
+    .section svg, 
+    div[style*="svg"] svg {
+        max-width: 210px !important; /* 5% kleiner */
+        max-height: 115px !important;
+    }
+    
+    .nav-title {
+        font-size: 1.15em; /* 5% kleiner */
+    }
+    
+    .calculate-btn, .anriss-btn {
+        padding: 11px 24px; /* 5% kleiner */
+        font-size: 14px;
+        min-width: 170px;
+    }
+    
+    .results {
+        padding: 19px 14px; /* 5% kleiner */
+    }
+    
+    #vorschau-svg svg {
+        max-height: 190px !important; /* 5% kleiner */
+    }
+}
             
-            .section {
-                padding: 19px 14px; /* 5% kleiner */
-                margin-bottom: 19px;
-            }
-            
-            .section h2 {
-                font-size: 1.25em; /* 5% kleiner */
-            }
-            
-            .section svg, 
-            div[style*="svg"] svg {
-                max-width: 210px !important; /* 5% kleiner */
-                max-height: 115px !important;
-            }
-            
-            .nav-title {
-                font-size: 1.15em; /* 5% kleiner */
-            }
-            
-            .calculate-btn, .anriss-btn {
-                padding: 11px 24px; /* 5% kleiner */
-                font-size: 14px;
-                min-width: 170px;
-            }
-            
-            .results {
-                padding: 19px 14px; /* 5% kleiner */
-            }
-            
-            #vorschau-svg svg {
-                max-height: 190px !important; /* 5% kleiner */
-            }
-        }
     </style>
 </head>
 <body>
@@ -608,19 +557,16 @@
 
     <div class="container">
         <main>
-            <!-- Eleganter Werbeplatz oben -->
-            <div class="ad-container" id="top-ad-container" style="text-align: center;">
-                <div class="ad-placeholder">
-                    <div class="ad-content">
-                        <span class="ad-icon">📢</span>
-                        <span class="ad-text">Unterstützen Sie uns - Werbung ermöglicht kostenlose Tools</span>
-                    </div>
-                </div>
-                <div style="text-align: center; width: 100%;">
-                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
+            <!-- Werbeplatz oben -->
+            <div class="ad-wrapper" id="top-ad-container" style="display: none;">
+                <div class="ad-with-label">
+                    <span class="ad-label">Werbung</span>
+                    <ins class="adsbygoogle"
+                         style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
+                         data-ad-slot="7245836294"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
                 </div>
             </div>
 
@@ -703,22 +649,16 @@
                 </div>
             </div>
 
-            <!-- Eleganter Werbeplatz zwischen den Eingaben -->
-            <div class="ad-container-middle" id="middle-ad-container" style="text-align: center;">
-                <div class="ad-placeholder">
-                    <div class="ad-content-horizontal">
-                        <span class="ad-icon">🏗️</span>
-                        <div class="ad-text-block">
-                            <strong>Trapez-auf-Rechteck-Dachdeckung</strong>
-                            <span>Professionelle Lösungen für Walmdächer und Krüppelwalm</span>
-                        </div>
-                    </div>
-                </div>
-                <div style="text-align: center; width: 100%;">
-                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
+            <!-- Werbeplatz mittig -->
+            <div class="ad-wrapper" id="middle-ad-container" style="display: none;">
+                <div class="ad-with-label">
+                    <span class="ad-label">Werbung</span>
+                    <ins class="adsbygoogle"
+                         style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
+                         data-ad-slot="1948572659"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
                 </div>
             </div>
 
@@ -738,6 +678,19 @@
             </div>
 
             <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
+
+            <!-- Werbeplatz nach dem Berechnen-Button -->
+            <div class="ad-wrapper" id="bottom-ad-container" style="display: none;">
+                <div class="ad-with-label">
+                    <span class="ad-label">Werbung</span>
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-8687929894744033"
+                         data-ad-slot="3615204518"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                </div>
+            </div>
 
             <div id="results" class="results" style="display: none;">
                 <div class="result-item">
@@ -811,59 +764,31 @@
                     <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
                 </div>
             </div>
-
-            <!-- Eleganter Werbeplatz am Ende -->
-            <div class="ad-container" id="bottom-ad-container" style="text-align: center;">
-                <div class="ad-placeholder">
-                    <div class="ad-content">
-                        <span class="ad-icon">🔧</span>
-                        <span class="ad-text">Mehr professionelle Tools für Dachdecker</span>
-                    </div>
-                </div>
-                <div style="text-align: center; width: 100%;">
-                    <ins class="adsbygoogle ad-content-real" style="display:none; text-align: center; margin: 0 auto;"
-                         data-ad-client="ca-pub-8687929894744033"
-                         data-ad-slot="auto"
-                         data-ad-format="auto"></ins>
-                </div>
-            </div>
         </main>
     </div>
 
     <script>
         let aktuelleSchnittliste = [];
 
-        function acceptAllCookies() {
-            localStorage.setItem('cookieConsent', 'all');
-            localStorage.setItem('analyticsCookies', 'true');
-            localStorage.setItem('marketingCookies', 'true');
-            
-            loadAnalytics();
-            loadAdSense();
-            showAds();
-            
-            document.getElementById('cookieBanner').classList.remove('show');
-        }
-
-        function acceptOnlyEssential() {
-            localStorage.setItem('cookieConsent', 'essential');
-            localStorage.setItem('analyticsCookies', 'false');
-            localStorage.setItem('marketingCookies', 'false');
-            
-            document.getElementById('cookieBanner').classList.remove('show');
-        }
-
+        // Cookie Management System
         function showAds() {
-            if (localStorage.getItem('marketingCookies') === 'true') {
-                document.getElementById('top-ad-container').style.display = 'block';
-                document.getElementById('middle-ad-container').style.display = 'block';
-                document.getElementById('bottom-ad-container').style.display = 'block';
-                
+            document.getElementById('top-ad-container').style.display = 'block';
+            document.getElementById('middle-ad-container').style.display = 'block';
+            document.getElementById('bottom-ad-container').style.display = 'block';
+            
+            const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+            
+            // Warte bis AdSense geladen ist
+            setTimeout(function() {
                 if (window.adsbygoogle) {
                     try {
                         const ads = document.querySelectorAll('.adsbygoogle');
                         ads.forEach(ad => {
-                            if (!ad.getAttribute('data-ad-status')) {
+                            // Prüfe ob Ad bereits geladen ist
+                            if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-adsbygoogle-status')) {
+                                if (!allowPersonalized) {
+                                    ad.setAttribute('data-npa', '1');
+                                }
                                 (window.adsbygoogle = window.adsbygoogle || []).push({});
                             }
                         });
@@ -871,7 +796,7 @@
                         console.log('AdSense loading error:', e);
                     }
                 }
-            }
+            }, 1000);
         }
 
         function berechneTrapezAufRechteck(obereBreite, untereBreite, trapezHoehe, rechteckHoehe, deckbreite) {
@@ -1160,8 +1085,6 @@
             const trapezHoehe = parseFloat(document.getElementById('trapez-hoehe').value);
             const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
             
-            const vorschauSvg = document.getElementById('vorschau-svg').innerHTML;
-            
             const planData = {
                 obereBreite: obereBreite,
                 untereBreite: untereBreite,
@@ -1174,15 +1097,19 @@
             window.location.href = `anrissplan.html?type=trapez-auf-rechteck&data=${encodedData}`;
         }
 
+        // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
+            // AdSense immer laden
+            loadAdSense();
+            
+            // Initialize tracking based on existing consent
             const cookieConsent = localStorage.getItem('cookieConsent');
             if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
                 loadAnalytics();
             }
-            if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
-                loadAdSense();
-                showAds();
-            }
+            
+            // Werbung immer anzeigen
+            showAds();
         });
     </script>
 </body>
