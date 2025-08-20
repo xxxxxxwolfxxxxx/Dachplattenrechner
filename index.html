@@ -1197,8 +1197,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Lade Hintergrundbild optimiert
     loadBackgroundImage();
     
-    // AdSense immer laden
-    loadAdSense();
+    // AdSense mit Delay laden
+    setTimeout(() => {
+        loadAdSense();
+    }, 1000); // 1 Sekunden warten
     
     // Initialize tracking based on existing consent
     const cookieConsent = localStorage.getItem('cookieConsent');
