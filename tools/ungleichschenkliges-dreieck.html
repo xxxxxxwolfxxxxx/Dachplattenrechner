@@ -17,12 +17,8 @@ function loadAdSense() {
     script.crossOrigin = 'anonymous';
     document.head.appendChild(script);
     
-    // AdSense Auto-Ads aktivieren
+    // Nur manuelle Ad-Units, kein Auto-Ads um Konflikt zu vermeiden
     window.adsbygoogle = window.adsbygoogle || [];
-    window.adsbygoogle.push({
-        google_ad_client: 'ca-pub-8687929894744033',
-        enable_page_level_ads: true
-    });
 }
     </script>
     
@@ -844,21 +840,24 @@ function loadAdSense() {
             
             const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
             
-            if (window.adsbygoogle) {
-                try {
-                    const ads = document.querySelectorAll('.adsbygoogle');
-                    ads.forEach(ad => {
-                        if (!ad.getAttribute('data-ad-status')) {
-                            if (!allowPersonalized) {
-                                ad.setAttribute('data-npa', '1');
+            // Warte bis AdSense geladen ist
+            setTimeout(function() {
+                if (window.adsbygoogle) {
+                    try {
+                        const ads = document.querySelectorAll('.adsbygoogle');
+                        ads.forEach(ad => {
+                            if (!ad.getAttribute('data-ad-status')) {
+                                if (!allowPersonalized) {
+                                    ad.setAttribute('data-npa', '1');
+                                }
+                                (window.adsbygoogle = window.adsbygoogle || []).push({});
                             }
-                            (window.adsbygoogle = window.adsbygoogle || []).push({});
-                        }
-                    });
-                } catch (e) {
-                    console.log('AdSense loading error:', e);
+                        });
+                    } catch (e) {
+                        console.log('AdSense loading error:', e);
+                    }
                 }
-            }
+            }, 1000);
         }
 
         function wechsleParameterModus(modus) {
