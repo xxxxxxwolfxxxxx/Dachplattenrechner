@@ -51,7 +51,7 @@
         .canvas-container {
             position: relative;
             width: 100%;
-            height: calc(100vh - 140px);
+            height: calc(100vh - 110px);
             background: #34495e;
             overflow: hidden;
         }
@@ -68,15 +68,16 @@
             left: 0;
             right: 0;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            padding: 10px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
+            z-index: 300;
         }
         
         .control-row {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             justify-content: space-between;
         }
         
@@ -85,14 +86,14 @@
             background: rgba(255, 255, 255, 0.1);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 12px 8px;
-            border-radius: 8px;
-            font-size: 12px;
+            padding: 8px 4px;
+            border-radius: 6px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
-            min-height: 45px;
+            min-height: 38px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -119,14 +120,20 @@
             border-color: #e74c3c;
         }
         
+        .mobile-btn.color-toggle {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            border-color: #f39c12;
+            font-size: 10px;
+        }
+        
         .status-display {
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 8px 12px;
+            padding: 6px 10px;
             text-align: center;
-            font-size: 14px;
+            font-size: 13px;
             border-radius: 6px;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         
         .value-display {
@@ -263,9 +270,10 @@
         </div>
         
         <div class="control-row">
-            <button class="mobile-btn primary" id="startBtn" onclick="startDrawing()">Zeichnung starten</button>
-            <button class="mobile-btn" id="confirmBtn" onclick="confirmElement()" disabled>Bestätigen</button>
+            <button class="mobile-btn primary" id="startBtn" onclick="startDrawing()">Start</button>
+            <button class="mobile-btn" id="confirmBtn" onclick="confirmElement()" disabled>OK</button>
             <button class="mobile-btn" onclick="showInputModal()">Eingabe</button>
+            <button class="mobile-btn color-toggle" onclick="toggleColorSide()">Farbe</button>
         </div>
         
         <div class="control-row">
@@ -322,6 +330,7 @@
                 this.lastTouches = [];
                 this.lastDistance = 0;
                 this.touchStartTime = 0;
+                this.colorSide = 'top'; // Farbseite
                 
                 this.loadSettings();
                 this.initCanvas();
@@ -464,23 +473,21 @@
             }
             
             handleTap(pos) {
-                if (!this.isDrawing) return;
-                
                 const worldPos = this.getWorldCoordinates(pos.x, pos.y);
                 
-                // Check for active points
+                // Check for active points - GRÖßERE TOUCH-BEREICHE
                 const clickedPoint = this.activePoints.find(point => {
                     const screenPoint = this.getScreenCoordinates(point.x, point.y);
                     const distance = Math.sqrt(
                         Math.pow(pos.x - screenPoint.x, 2) + 
                         Math.pow(pos.y - screenPoint.y, 2)
                     );
-                    return distance < 30; // Larger touch target
+                    return distance < 50; // Viel größerer Touch-Bereich
                 });
                 
                 if (clickedPoint) {
                     this.handlePointClick(clickedPoint);
-                } else {
+                } else if (this.isDrawing) {
                     this.confirmCurrentElement();
                 }
             }
@@ -549,6 +556,9 @@
                 const start = this.currentElement.start;
                 let length;
                 
+                // AUTO-PAN wenn am Rand
+                this.checkAutoPan(touchPos);
+                
                 if (this.currentElement.direction === 'horizontal') {
                     length = Math.abs(touchPos.x - start.x) / this.scale;
                     this.currentElement.end = {
@@ -582,6 +592,34 @@
                 
                 this.currentElement.length = Math.round(length);
                 this.updateValueDisplay(this.currentElement.length + ' mm');
+            }
+            
+            checkAutoPan(worldPos) {
+                const screenPos = this.getScreenCoordinates(worldPos.x, worldPos.y);
+                const margin = 80; // Rand-Bereich
+                let panDelta = { x: 0, y: 0 };
+                
+                // Rechter Rand
+                if (screenPos.x > this.canvas.width - margin) {
+                    panDelta.x = -30;
+                }
+                // Linker Rand  
+                if (screenPos.x < margin) {
+                    panDelta.x = 30;
+                }
+                // Unterer Rand
+                if (screenPos.y > this.canvas.height - margin) {
+                    panDelta.y = -30;
+                }
+                // Oberer Rand
+                if (screenPos.y < margin) {
+                    panDelta.y = 30;
+                }
+                
+                if (panDelta.x !== 0 || panDelta.y !== 0) {
+                    this.panX += panDelta.x;
+                    this.panY += panDelta.y;
+                }
             }
             
             updateCurveFromTouch(touchPos) {
@@ -880,10 +918,16 @@
             }
             
             getSpurMappingForElement(targetElement) {
-                return { 
-                    spurA: this.settings.frontColor, 
-                    spurB: this.settings.backColor 
-                };
+                let spurA, spurB;
+                if (this.colorSide === 'top') {
+                    spurA = this.settings.frontColor;
+                    spurB = this.settings.backColor;
+                } else {
+                    spurA = this.settings.backColor;
+                    spurB = this.settings.frontColor;
+                }
+                
+                return { spurA, spurB };
             }
             
             drawElement(element, color, width) {
@@ -1372,6 +1416,20 @@
                     y: start.y + length * editor.scale
                 };
             }
+        }
+
+        function setColorSide(side) {
+            editor.colorSide = side;
+            editor.render();
+            
+            // Update button text
+            const colorBtn = document.querySelector('.color-toggle');
+            colorBtn.textContent = side === 'top' ? 'Oben' : 'Unten';
+        }
+        
+        function toggleColorSide() {
+            const newSide = editor.colorSide === 'top' ? 'bottom' : 'top';
+            setColorSide(newSide);
         }
 
         function confirmExport() {
