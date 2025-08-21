@@ -335,6 +335,35 @@
             min-width: 80px;
         }
     </style>
+    // Füge diesen Code am Anfang der kantteil-editor.html ein (vor dem </head>)
+
+function detectMobileDevice() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    const isTablet = /ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP)))/i.test(userAgent);
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isSmallScreen = window.innerWidth <= 768;
+    
+    return (isMobile || isTablet || hasTouch) && isSmallScreen;
+}
+
+function redirectToMobile() {
+    if (detectMobileDevice()) {
+        // Übertrage URL-Parameter zur mobilen Version
+        const currentUrl = new URL(window.location);
+        const mobileUrl = new URL('kantteil-editor-mobile.html', window.location);
+        
+        // Kopiere alle Parameter
+        currentUrl.searchParams.forEach((value, key) => {
+            mobileUrl.searchParams.set(key, value);
+        });
+        
+        window.location.href = mobileUrl.toString();
+    }
+}
+
+// Prüfe beim Laden der Seite
+document.addEventListener('DOMContentLoaded', redirectToMobile);
 </head>
 <body>
     <div class="editor-header">
