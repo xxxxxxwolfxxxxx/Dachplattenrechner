@@ -884,12 +884,16 @@ footer::before {
         grid-template-columns: 1fr !important;
         gap: var(--spacing-lg);
         justify-items: center; /* ZENTRIERT DIE KACHELN */
-        max-width: 100%; /* VOLLE BREITE NUTZEN */
+        max-width: none !important; /* ENTFERNT BEGRENZUNG */
         margin: 0 auto var(--spacing-xxl) auto;
+        width: 100vw; /* VOLLE VIEWPORT BREITE */
+        padding: 0 var(--spacing-sm); /* EIGENES PADDING */
+        margin-left: calc(-1 * var(--spacing-sm)); /* KOMPENSIERT CONTAINER PADDING */
+        margin-right: calc(-1 * var(--spacing-sm));
     }
     
     .calculator-card {
-        max-width: 100%; /* VOLLE VERFÜGBARE BREITE */
+        max-width: calc(100vw - 2 * var(--spacing-sm)); /* BERÜCKSICHTIGT PADDING */
         width: 100%;
     }
     
