@@ -632,12 +632,17 @@
                 const dx = touchPos.x - curveEnd.x;
                 const dy = touchPos.y - curveEnd.y;
                 const mouseLineAngle = Math.atan2(dy, dx);
-                let relativeAngle = mouseLineAngle - startAngle;
+                
+                // KORRIGIERT: Verwende die Richtung der grünen Hilfslinie (endAngle)
+                const endAngle = this.currentElement.endAngle || startAngle;
+                let relativeAngle = mouseLineAngle - endAngle;
                 
                 while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
                 while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
                 
                 let angleDegrees = Math.round(relativeAngle * 180 / Math.PI);
+                
+                // KORRIGIERT: Volle -180° bis +180° Range ohne Einschränkungen
                 angleDegrees = Math.max(-180, Math.min(180, angleDegrees));
                 
                 this.currentElement.angle = angleDegrees;
@@ -652,6 +657,7 @@
                 
                 if (angle === 0) {
                     this.currentElement.end = { ...start };
+                    this.currentElement.endAngle = startAngle;
                     return;
                 }
                 
@@ -675,6 +681,12 @@
                 this.currentElement.center = center;
                 this.currentElement.startAngleFromCenter = startAngleFromCenter;
                 this.currentElement.endAngleFromCenter = endAngleFromCenter;
+                
+                // Erstelle Hilfslinie für bessere Visualisierung
+                const length = 80;
+                const helperEndX = this.currentElement.end.x + Math.cos(this.currentElement.endAngle) * length;
+                const helperEndY = this.currentElement.end.y + Math.sin(this.currentElement.endAngle) * length;
+                this.helperLineEnd = { x: helperEndX, y: helperEndY };
             }
             
             handlePointClick(point) {
@@ -843,6 +855,11 @@
                     
                     if (this.isDrawing) {
                         this.drawCurrentValues();
+                        
+                        // Zeichne grüne Hilfslinie für Kurven
+                        if (this.currentElement.type === 'curve' && this.helperLineEnd) {
+                            this.drawHelperLine();
+                        }
                     }
                 }
                 
@@ -1048,6 +1065,23 @@
                 }
             }
             
+            drawHelperLine() {
+                if (!this.currentElement || this.currentElement.type !== 'curve' || !this.helperLineEnd) return;
+                
+                const curveEnd = this.currentElement.end || this.currentElement.start;
+                
+                this.ctx.strokeStyle = '#27ae60';
+                this.ctx.lineWidth = 3 / this.zoom;
+                this.ctx.setLineDash([6 / this.zoom, 6 / this.zoom]);
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(curveEnd.x, curveEnd.y);
+                this.ctx.lineTo(this.helperLineEnd.x, this.helperLineEnd.y);
+                this.ctx.stroke();
+                
+                this.ctx.setLineDash([]);
+            }
+            
             drawZoomInfo() {
                 this.ctx.setTransform(1, 0, 0, 1, 0, 0);
                 document.getElementById('zoomInfo').textContent = `Zoom: ${Math.round(this.zoom * 100)}%`;
@@ -1055,10 +1089,6 @@
             
             updateStatus(message) {
                 document.getElementById('statusDisplay').textContent = message;
-            }
-            
-            showValueDisplay() {
-                document.getElementById('valueDisplay').style.display = 'block';
             }
             
             hideValueDisplay() {
@@ -1380,12 +1410,14 @@
                     editor.currentElement.length = value;
                     editor.updateLineFromLength(value);
                     editor.render();
+                    // KEIN AUTO-CONFIRM mehr
                 }
             } else if (editor.currentElement.type === 'curve') {
                 if (value >= -180 && value <= 180 && value !== 0) {
                     editor.currentElement.angle = value;
                     editor.calculateCurveEndpoint();
                     editor.render();
+                    // KEIN AUTO-CONFIRM mehr
                 }
             }
             
