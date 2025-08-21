@@ -410,9 +410,10 @@
             <ins class="adsbygoogle"
                  style="display:block"
                  data-ad-client="ca-pub-8687929894744033"
-                 data-ad-slot="8222453332"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
+                 data-ad-slot="8407868749"
+                 data-ad-format="horizontal"
+                 data-full-width-responsive="true"
+                 data-ad-channel="trapezbleche,kantteile,spengler,blechbearbeitung"></ins>
         </div>
     </div>
 
@@ -485,10 +486,10 @@
                 <ins class="adsbygoogle"
                      style="display:block"
                      data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="7268464318"
-                     data-ad-format="auto"
+                     data-ad-slot="9560635484"
+                     data-ad-format="horizontal"
                      data-full-width-responsive="true"
-                     data-ad-channel="trapezbleche,schwedenbleche,kantteile,spengler,blechbearbeitung"></ins>
+                     data-ad-channel="schwedenbleche,kantteile,spengler,blechbearbeitung"></ins>
             </div>
         </div>
 
@@ -565,24 +566,69 @@
                 const marketingCookies = getCookieSetting('marketingCookies');
                 const allowPersonalized = marketingCookies === 'true';
                 
+                console.log('Initializing AdSense...');
+                console.log('Marketing cookies allowed:', allowPersonalized);
+                
                 // Alle Werbeanzeigen konfigurieren
                 const ads = document.querySelectorAll('.adsbygoogle');
-                ads.forEach(ad => {
+                console.log('Found', ads.length, 'ad slots');
+                
+                ads.forEach((ad, index) => {
                     // Prüfe ob bereits geladen
                     if (ad.getAttribute('data-adsbygoogle-status')) {
-                        console.log('Ad already loaded, skipping');
+                        console.log('Ad', index, 'already loaded, skipping');
                         return;
                     }
                     
                     if (!allowPersonalized) {
                         ad.setAttribute('data-npa', '1'); // Nicht-personalisierte Werbung
+                        console.log('Ad', index, 'set to non-personalized');
                     }
                     
+                    console.log('Pushing ad', index, 'to AdSense');
+                    
                     // AdSense Push nur für neue Ads
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    try {
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                        console.log('Ad', index, 'pushed successfully');
+                        
+                        // Nach 3 Sekunden Status prüfen
+                        setTimeout(() => {
+                            const status = ad.getAttribute('data-adsbygoogle-status');
+                            const innerHTML = ad.innerHTML;
+                            console.log('Ad', index, 'status after 3s:', status);
+                            console.log('Ad', index, 'innerHTML:', innerHTML.length > 0 ? 'has content' : 'empty');
+                            
+                            if (!status || status === 'unfilled') {
+                                console.warn('Ad', index, 'unfilled - may be due to:');
+                                console.warn('- Ad slot not approved yet');
+                                console.warn('- Low traffic/new domain');
+                                console.warn('- Ad blocker');
+                                console.warn('- No matching ads available');
+                            }
+                        }, 3000);
+                        
+                    } catch (pushError) {
+                        console.error('Error pushing ad', index, ':', pushError);
+                    }
                 });
                 
                 console.log('AdSense initialized with personalization:', allowPersonalized);
+                
+                // AdSense-Status nach 5 Sekunden prüfen
+                setTimeout(() => {
+                    console.log('=== AdSense Status Check ===');
+                    if (window.adsbygoogle && window.adsbygoogle.loaded) {
+                        console.log('AdSense loaded:', window.adsbygoogle.loaded);
+                    }
+                    
+                    const allAds = document.querySelectorAll('.adsbygoogle');
+                    allAds.forEach((ad, i) => {
+                        const rect = ad.getBoundingClientRect();
+                        console.log(`Ad ${i}: ${rect.width}x${rect.height}, visible: ${rect.height > 0}`);
+                    });
+                }, 5000);
+                
             } catch (error) {
                 console.error('AdSense initialization error:', error);
             }
