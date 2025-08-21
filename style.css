@@ -99,6 +99,16 @@ body {
     position: relative;
 }
 
+/* Mobile/Tablet: Container auf volle Breite */
+@media (max-width: 1024px) {
+    .container {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 var(--spacing-sm) !important;
+        width: 100% !important;
+    }
+}
+
 /* ===== HEADER STYLES ===== */
 header {
     background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
@@ -867,30 +877,12 @@ footer::before {
         background-size: 375px auto;
     }
     
-    .container {
-        padding: 0 var(--spacing-sm);
-        max-width: none; /* ENTFERNT CONTAINER BEGRENZUNG */
-        width: 100%;
-    }
-    
-    header {
-        max-width: none; /* ENTFERNT HEADER BEGRENZUNG */
-        margin: var(--spacing-md) var(--spacing-sm) var(--spacing-lg) var(--spacing-sm);
-    }
-    
     header h1 {
         font-size: clamp(1.8rem, 6vw, 2.5rem);
     }
     
     .header-subtitle {
         font-size: 1rem;
-    }
-    
-    /* MAIN CONTAINER ANPASSUNG */
-    main {
-        padding: 0; /* ENTFERNT MAIN PADDING */
-        margin: 0; /* ENTFERNT MAIN MARGIN */
-        width: 100%;
     }
     
     /* MOBILE PORTRAIT: 1 SPALTE KOMPLETT ZENTRIERT */
@@ -961,16 +953,11 @@ footer::before {
 
 /* Querformat - kompakt und 2 Spalten */
 @media (max-width: 1024px) and (max-height: 768px) and (orientation: landscape) {
-    .container {
-        max-width: none; /* ENTFERNT CONTAINER BEGRENZUNG */
-        padding: 0 var(--spacing-sm);
-    }
-    
     /* Kompakter Header für Querformat */
     header {
         padding: var(--spacing-sm) 0;
         margin: var(--spacing-sm) 0 var(--spacing-md) 0;
-        max-width: none; /* VOLLE BREITE */
+        max-width: none;
     }
     
     header h1 {
