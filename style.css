@@ -1,1606 +1,1245 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dachplattenrechner.de - Professionelle Dachplatten-Berechnung</title>
-    <meta name="description" content="Professioneller Dachplattenrechner für verschiedene Dachformen. Berechnen Sie Materialverbrauch und erstellen Sie Anrisspläne für Dreiecksflächen, Pyramiden und mehr.">
+/* ===== MODERN INDUSTRIAL DARK MODE CSS ===== */
+/* Dachplattenrechner.de - Industrial Design */
+
+/* CSS Custom Properties für konsistente Farbpalette */
+:root {
+    /* Dark Theme Farben */
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --bg-quaternary: #475569;
     
-    <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
-    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
-
-    <link rel="icon" type="image/png" sizes="64x64" href="/images/favicon.png">
-    <script>
-       // AdSense für alle laden - personalisiert oder nicht-personalisiert
-function loadAdSense() {
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
-    script.crossOrigin = 'anonymous';
-    document.head.appendChild(script);
+    /* Text Farben */
+    --text-primary: #f1f5f9;
+    --text-secondary: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-accent: #0ea5e9;
     
-    // AdSense Auto-Ads aktivieren
-    window.adsbygoogle = window.adsbygoogle || [];
-    window.adsbygoogle.push({
-        google_ad_client: 'ca-pub-8687929894744033',
-        enable_page_level_ads: true
-    });
-}
-    </script>
+    /* Accent Farben */
+    --accent-blue: #0ea5e9;
+    --accent-blue-hover: #0284c7;
+    --accent-blue-dark: #0369a1;
+    --accent-cyan: #06b6d4;
+    --accent-green: #10b981;
+    --accent-red: #ef4444;
+    --accent-orange: #f59e0b;
     
-    <!-- Google Analytics - wird nur geladen wenn Analyse-Cookies akzeptiert -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        
-        // Analytics nur laden wenn Analyse-Cookies akzeptiert sind
-        function loadAnalytics() {
-            if (localStorage.getItem('analyticsCookies') === 'true') {
-                gtag('config', 'G-6NSYG8B1T9', {
-                    anonymize_ip: true,
-                    cookie_flags: 'SameSite=None;Secure'
-                });
-            }
-        }
-    </script>
+    /* Borders & Shadows */
+    --border-color: #475569;
+    --border-light: #64748b;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.7);
     
-    <link rel="stylesheet" href="style.css">
+    /* Gradients */
+    --gradient-primary: linear-gradient(145deg, var(--accent-blue) 0%, var(--accent-blue-hover) 100%);
+    --gradient-secondary: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    --gradient-surface: linear-gradient(145deg, var(--bg-tertiary) 0%, var(--bg-quaternary) 100%);
     
-    <style>
-       /* Optimierter Hintergrund für bessere Performance */
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-        }
-        
-        /* Fallback für wenn das Bild nicht lädt */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('Images/index.png') center/cover fixed no-repeat;
-            z-index: -2;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-        
-        /* Mobile Anpassung - nur Höhe angleichen */
-        @media (max-width: 768px) {
-            body::before {
-                background-size: auto 100vh; /* Höhe = Viewport, Breite proportional */
-                background-position: center top;
-                background-attachment: scroll; /* Besser für Mobile */
-            }
-        }
-        
-        body.bg-loaded::before {
-            opacity: 1;
-        }
-        
-        /* Modal für Dachflächenberechnung */
-        .calculation-modal {
-            display: none;
-            position: fixed;
-            z-index: 1001;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-        }
-
-        .calculation-modal-content {
-            background: var(--gradient-secondary);
-            margin: 3% auto;
-            padding: var(--spacing-xxl);
-            border-radius: var(--radius-xl);
-            width: 95%;
-            max-width: 1200px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid var(--border-color);
-        }
-
-        .calculation-close {
-            position: absolute;
-            right: 25px;
-            top: 20px;
-            font-size: 32px;
-            font-weight: bold;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: color var(--transition-normal);
-        }
-
-        .calculation-close:hover {
-            color: var(--accent-blue);
-            transform: scale(1.1);
-        }
-
-        .calculation-modal h2 {
-            color: var(--text-primary);
-            margin-bottom: var(--spacing-lg);
-            font-size: 2.2em;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .calculation-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--spacing-lg);
-            margin-top: var(--spacing-xl);
-        }
-
-        .calculation-item {
-            background: var(--gradient-surface);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
-            text-decoration: none;
-            color: inherit;
-            border: 2px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            transition: all var(--transition-normal);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .calculation-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--gradient-primary);
-        }
-
-        .calculation-item:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-xl);
-            border-color: var(--accent-blue);
-            background: var(--gradient-secondary);
-        }
-
-        .calculation-icon {
-            text-align: center;
-            margin-bottom: var(--spacing-md);
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .calculation-icon img {
-            max-width: 120px;
-            width: auto;
-            height: 80px;
-            filter: drop-shadow(0 4px 8px rgba(14, 165, 233, 0.3));
-            border-radius: var(--radius-md);
-            object-fit: contain;
-        }
-
-        .calculation-title {
-            font-size: 1.4em;
-            font-weight: 700;
-            margin-bottom: var(--spacing-sm);
-            color: var(--text-primary);
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .calculation-description {
-            color: var(--text-secondary);
-            line-height: 1.6;
-            text-align: center;
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Werbung im Modal */
-        .modal-ad-container {
-            margin: var(--spacing-xl) auto;
-            max-width: 800px;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            transition: all var(--transition-normal);
-            box-shadow: var(--shadow-sm);
-            text-align: center;
-            width: 100%;
-            display: block;
-            position: relative;
-            background: var(--gradient-surface);
-            border: 1px solid var(--border-color);
-            min-height: 120px;
-        }
-
-        .modal-ad-placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            color: var(--text-muted);
-            padding: var(--spacing-lg);
-        }
-
-        .modal-ad-real {
-            min-height: 120px;
-            display: none;
-            text-align: center;
-            margin: 0 auto;
-            width: 100%;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <div class="container">
-            <div class="header-compact-box">
-                <h1>Dachplattenrechner.de</h1>
-                <h2>Professionelle Berechnung für Trapezbleche und Dachplatten</h2>
-                <p>Ob Hobbydachdecker oder Profi – unser kostenloser Dachplattenrechner nimmt Ihnen die komplexe Mathematik ab und erstellt präzise Schnittlisten sowie druckfertige Anrisspläne. Sparen Sie Zeit, Geld und vermeiden Sie teure Materialverschwendung – egal ob Pyramidendach, Mansardendach oder komplexe Walmdächer. Einfach Maße eingeben, berechnen lassen und direkt mit der Montage beginnen.</p>
-            </div>
-        </div>
-    </header>
-
-    <div class="container">
-        <main>
-            <div class="calculators-grid">
-                <!-- Projekt Dach -->
-                <a href="projekt-dach/plan.html" class="calculator-card">
-                    <div class="card-icon">
-                        <img src="Images/Plan-2.jpg" alt="Projekt Dach" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
-                    </div>
-                    <h2 class="card-title">Projekt Dach</h2>
-                    <p class="card-description">
-                        An alles gedacht? 
-                        Gehen wir das Projekt "Dach" lieber nochmal durch.
-                        Es wird auch nicht zu trocken, versprochen.
-                    </p>
-                    <ul class="card-features">
-                        <li>Sicherheit beim Dachdecken</li>
-                        <li>Richtige Messwerkzeuge</li>
-                        <li>Dachformen erkennen</li>
-                        <li>Typische Baufehler vermeiden</li>
-                    </ul>
-                    <span class="cta-button">Überblick verschaffen</span>
-                </a>
-
-                <!-- Dachflächenberechnung (NEU) -->
-                <div class="calculator-card" onclick="openCalculationModal()" style="cursor: pointer;">
-                    <div class="card-icon">
-                        <img src="Images/gleichschenkliges-dreieck.png" alt="Dachflächenberechnung" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
-                    </div>
-                    <h2 class="card-title">Dachflächenberechnung</h2>
-                    <p class="card-description">
-                        Berechnen Sie präzise Ihre Dachflächen für verschiedene geometrische Formen.
-                    </p>
-                    <ul class="card-features">
-                        <li>Gleichschenklige Dreieck</li>
-                        <li>Ungleichschenklige Dreieck</li>
-                        <li>Trapez</li>
-                        <li>Trapez auf Rechteck</li>
-                    </ul>
-                    <span class="cta-button">Rechner auswählen</span>
-                </div>
-
-              <!-- Werbeplatz nach 2 Kacheln -->
-<div class="ad-wrapper" id="middle-ad-container-1" style="display: none;">
-    <div class="ad-with-label">
-        <span class="ad-label">Werbung</span>
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-8687929894744033"
-             data-ad-slot="8407868749"
-             data-ad-format="horizontal"
-             data-full-width-responsive="true"
-             data-ad-channel="trapezblech,wellblech,pfannenblech"></ins>
-    </div>
-</div>
-
-                  
-
-                <!-- Bemaßungsskizzen -->
-                <div class="calculator-card" onclick="openSketchModal()" style="cursor: pointer;">
-                    <div class="card-icon">
-                        <img src="Images/Klemmbrett.png" alt="Bemaßungsskizzen Download" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
-                    </div>
-                    <h2 class="card-title">Bemaßungsskizzen</h2>
-                    <p class="card-description">
-                        Professionelle DIN A4 Skizzen für alle Dachformen - direkt drucken oder als PDF speichern.
-                    </p>
-                    <ul class="card-features">
-                        <li>DIN A4 Format</li>
-                        <li>Alle Dachtypen verfügbar</li>
-                        <li>Direkt druckbereit</li>
-                        <li>Als PDF speicherbar</li>
-                    </ul>
-                    <span class="cta-button">Skizzen drucken</span>
-                </div>
-
-                <!-- Farben -->
-                <a href="tools/farben.html" class="calculator-card">
-                    <div class="card-icon">
-                        <img src="Images/farben.png" alt="RAL und Prelaq Farben" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
-                    </div>
-                    <h2 class="card-title">Farben</h2>
-                    <p class="card-description">
-                        Übersicht aller RAL und Prelaq Farben für Trapezbleche und Dachplatten.
-                    </p>
-                    <ul class="card-features">
-                        <li>RAL Classic Farben</li>
-                        <li>Prelaq Farbpalette</li>
-                        <li>Farbcodes und Namen</li>
-                        <li>Visuelle Darstellung</li>
-                    </ul>
-                    <span class="cta-button">Farben ansehen</span>
-                </a>
-
-                <!-- Sonderwinkel zeichnen -->
-                <a href="tools/kantteil.html" class="calculator-card">
-                    <div class="card-icon">
-                        <img src="Images/skizze.png" alt="Sonderwinkel zeichnen" width="160" height="110" style="border-radius: 8px; object-fit: contain;">
-                    </div>
-                    <h2 class="card-title">Sonderwinkel zeichnen</h2>
-                    <p class="card-description">
-                        Interaktives Zeichentool für komplexe Kantteile und Sonderwinkel - präzise maßstäbliche Darstellung.
-                    </p>
-                    <ul class="card-features">
-                        <li>Maßstabsgetreues Zeichnen</li>
-                        <li>Komplexe Kantteile</li>
-                        <li>Interaktive Bearbeitung</li>
-                        <li>Druckbare Skizzen</li>
-                    </ul>
-                    <span class="cta-button">Jetzt zeichnen</span>
-                </a>
-
-                <!-- Verschnitt-Optimierung -->
-                <a href="tools/verschnitt-optimierung.html" class="calculator-card">
-                    <div class="card-icon">
-                        <img src="Images/verschnitt.png" alt="Verschnitt-Optimierung" width="176" height="121" style="border-radius: 8px; object-fit: contain;">
-                    </div>
-                    <h2 class="card-title">Verschnitt-Optimierung</h2>
-                    <p class="card-description">
-                        Intelligente Materialoptimierung für minimalen Verschnitt oder optimale Sägezeit.
-                    </p>
-                    <ul class="card-features">
-                        <li>Minimaler Verschnitt</li>
-                        <li>Wenigste Schnitte</li>
-                        <li>Lagerbestandsverwaltung</li>
-                        <li>Detaillierte Sägepläne</li>
-                    </ul>
-                    <span class="cta-button">Jetzt optimieren</span>
-                </a>
-
-                <!-- Werbeplatz nach weiteren Kacheln -->
-<div class="ad-wrapper" id="middle-ad-container-2" style="display: none;">
-    <div class="ad-with-label">
-        <span class="ad-label">Werbung</span>
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-8687929894744033"
-             data-ad-slot="9560635484"
-             data-ad-format="horizontal"
-             data-full-width-responsive="true"
-             data-ad-channel="lichtplatten,schwedenblech,dachplatten"></ins>
-    </div>
-</div>
-            </div>
-        </main>
-    </div>
-
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-            <div class="footer-section">
-                <h3>Dachplattenrechner.de</h3>
-                <p>Professionelle Berechnungstools für die Dachdeckerbranche. Präzise, schnell und benutzerfreundlich.</p>
-                <p style="margin-top: 15px;">
-                    <strong>Kontakt:</strong><br>
-                    <span id="email-footer"></span>
-                </p>
-            </div>
-            <div class="footer-section">
-                <h3>Rechtliches</h3>
-                <ul class="footer-links">
-                    <li><a href="#" onclick="openModal('impressum')">Impressum</a></li>
-                    <li><a href="#" onclick="openModal('datenschutz')">Datenschutz</a></li>
-                    <li><a href="#" onclick="openModal('agb')">AGB</a></li>
-                    <li><a href="#" onclick="openModal('cookies')">Cookie-Einstellungen</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Support</h3>
-                <ul class="footer-links">
-                    <li><a href="#" onclick="openModal('hilfe')">Hilfe & FAQ</a></li>
-                    <li><a href="#" onclick="openModal('kontakt')">Kontakt</a></li>
-                </ul>
-            </div>
-        </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Dachplattenrechner.de. Alle Rechte vorbehalten.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Cookie-Banner -->
-    <div id="cookieBanner" class="cookie-banner">
-        <div class="cookie-content">
-            <div class="cookie-text">
-                <h3 style="margin: 0 0 10px 0; color: white;">🍪 Cookie-Einstellungen</h3>
-                <p>Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung zu bieten. Dazu gehören essentielle Cookies für die Funktionalität, Analyse-Cookies für die Optimierung und Marketing-Cookies für personalisierte Werbung.</p>
-            </div>
-            <div class="cookie-buttons">
-                <button class="cookie-btn accept" onclick="acceptAllCookies()" ontouchstart="">Alle akzeptieren</button>
-                <button class="cookie-btn decline" onclick="acceptOnlyEssential()" ontouchstart="">Nur Essentielle</button>
-                <button class="cookie-btn settings" onclick="openModal('cookies')" ontouchstart="">Einstellungen</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal für allgemeine Inhalte -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div id="modal-body"></div>
-        </div>
-    </div>
-
-    <!-- Modal für Dachflächenberechnung -->
-    <div id="calculationModal" class="calculation-modal">
-        <div class="calculation-modal-content">
-            <span class="calculation-close" onclick="closeCalculationModal()">&times;</span>
-            <h2>Dachflächenberechnung</h2>
-            <p>Wählen Sie den passenden Rechner für Ihre Dachform:</p>
-            
-           <!-- Werbung im Modal - NEUES SYSTEM -->
-<div class="ad-wrapper" id="modal-ad-container" style="display: none;">
-    <div class="ad-with-label">
-        <span class="ad-label">Werbung</span>
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-8687929894744033"
-             data-ad-slot="9678418506"
-             data-ad-format="rectangle"
-             data-full-width-responsive="true"></ins>
-    </div>
-</div>
-            
-            <div class="calculation-grid">
-                <!-- Gleichschenkliges Dreieck -->
-                <a href="tools/gleichschenkliges-dreieck.html" class="calculation-item">
-                    <div class="calculation-icon">
-                        <img src="Images/gleichschenkliges-dreieck.png" alt="Gleichschenkliges Dreieck" />
-                    </div>
-                    <div class="calculation-title">Gleichschenkliges Dreieck</div>
-                    <div class="calculation-description">
-                        Ideal für Pyramidendächer, Satteldachwalmflächen und symmetrische Dreiecksflächen.
-                    </div>
-                </a>
-
-                <!-- Ungleichschenkliges Dreieck -->
-                <a href="tools/ungleichschenkliges-dreieck.html" class="calculation-item">
-                    <div class="calculation-icon">
-                        <img src="Images/ungleichschenkliges-dreieck.png" alt="Ungleichschenkliges Dreieck" />
-                    </div>
-                    <div class="calculation-title">Ungleichschenkliges Dreieck</div>
-                    <div class="calculation-description">
-                        Für asymmetrische Dachflächen mit verschobener Spitze. Flexible Eingabemöglichkeiten.
-                    </div>
-                </a>
-
-                <!-- Trapez -->
-                <a href="tools/trapez.html" class="calculation-item">
-                    <div class="calculation-icon">
-                        <img src="Images/trapez.png" alt="Trapez" />
-                    </div>
-                    <div class="calculation-title">Trapez</div>
-                    <div class="calculation-description">
-                        Für trapezförmige Dachflächen mit parallelen oberen und unteren Kanten.
-                    </div>
-                </a>
-
-                <!-- Trapez auf Rechteck -->
-                <a href="tools/trapezaufrechteck.html" class="calculation-item">
-                    <div class="calculation-icon">
-                        <img src="Images/trapez-rechteck.png" alt="Trapez auf Rechteck" />
-                    </div>
-                    <div class="calculation-title">Trapez auf Rechteck</div>
-                    <div class="calculation-description">
-                        Für Walmdächer und Krüppelwalmdächer mit trapezförmigem oberen und rechteckigem unteren Bereich.
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
-
-   <script>
-// Hintergrundbild optimiert laden
-function loadBackgroundImage() {
-    const img = new Image();
-    img.onload = function() {
-        document.body.classList.add('bg-loaded');
-    };
-    img.onerror = function() {
-        console.log('Hintergrundbild konnte nicht geladen werden, Fallback aktiv');
-    };
-    img.src = 'Images/index.png';
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --spacing-xxl: 4rem;
+    
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-xxl: 20px;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Typography */
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 
-// ORIENTIERUNGSWECHSEL FIX - NEUE FUNKTIONEN
-let orientationChangeTimeout;
-
-function handleOrientationChange() {
-    // Markiere Body für CSS-Fixes
-    document.body.classList.add('orientation-changed');
-    
-    // Erzwinge Neurendering nach kurzer Verzögerung
-    clearTimeout(orientationChangeTimeout);
-    orientationChangeTimeout = setTimeout(() => {
-        // Grid-Elemente neu positionieren
-        const grids = document.querySelectorAll('.calculators-grid');
-        grids.forEach(grid => {
-            // Trigger reflow
-            grid.style.opacity = '0.99';
-            grid.offsetHeight; // Force reflow
-            grid.style.opacity = '';
-        });
-        
-        // Werbung neu positionieren
-        const ads = document.querySelectorAll('.ad-wrapper');
-        ads.forEach(ad => {
-            ad.style.transform = 'translateZ(0)';
-            ad.offsetHeight; // Force reflow
-            ad.style.transform = '';
-        });
-        
-        // Markierung entfernen
-        document.body.classList.remove('orientation-changed');
-        
-        console.log('Orientation change handled');
-    }, 100);
+/* Reset und Basis-Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-// Viewport Meta-Tag dynamisch anpassen
-function updateViewportMeta() {
-    let viewport = document.querySelector('meta[name="viewport"]');
-    if (!viewport) {
-        viewport = document.createElement('meta');
-        viewport.name = 'viewport';
-        document.head.appendChild(viewport);
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+
+body {
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    min-height: 100vh;
+    background: var(--bg-primary) url('Images/index.png') center/cover fixed no-repeat;
+}
+
+/* Hauptcontainer - RESPONSIVE */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+    position: relative;
+}
+
+/* ===== HEADER STYLES ===== */
+header {
+    background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    color: var(--text-primary);
+    padding: var(--spacing-md) 0;
+    margin: var(--spacing-md) auto var(--spacing-lg) auto;
+    max-width: 1000px;
+    position: relative;
+    overflow: hidden;
+    border: 3px solid var(--accent-blue);
+    border-radius: var(--radius-xl);
+    box-shadow: 
+        var(--shadow-lg),
+        0 0 30px rgba(14, 165, 233, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+header::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, 
+        var(--accent-blue), 
+        #06b6d4, 
+        var(--accent-blue));
+    border-radius: var(--radius-xl);
+    z-index: -1;
+    opacity: 0.3;
+    animation: borderGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes borderGlow {
+    0% { opacity: 0.2; }
+    100% { opacity: 0.4; }
+}
+
+header .container {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+header h1 {
+    text-align: center;
+    margin-bottom: var(--spacing-sm);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    color: white;
+    letter-spacing: -0.02em;
+}
+
+.header-subtitle {
+    text-align: center;
+    font-size: 1.1em;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+.header-description {
+    max-width: 700px;
+    margin: var(--spacing-sm) auto 0;
+    padding: var(--spacing-sm);
+    background: rgba(14, 165, 233, 0.1);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.header-description p {
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+    text-align: center;
+}
+
+/* ===== MAIN CONTENT ===== */
+main {
+    background: transparent;
+    padding: var(--spacing-xxl);
+    border-radius: var(--radius-xl);
+    box-shadow: none;
+    margin-bottom: var(--spacing-xl);
+    position: relative;
+    overflow: hidden;
+    border: none;
+    backdrop-filter: none;
+}
+
+/* ===== CALCULATOR CARDS ===== */
+.calculators-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xxl);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.calculator-card {
+    background: var(--gradient-surface);
+    border-radius: var(--radius-xxl);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-lg);
+    margin-bottom: var(--spacing-lg);
+    text-decoration: none;
+    color: inherit;
+    border: 2px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.calculator-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--gradient-primary);
+}
+
+.calculator-card:hover {
+    transform: translateY(-12px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--accent-blue);
+    background: var(--gradient-secondary);
+}
+
+.card-icon {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 140px;
+    margin: 0 auto var(--spacing-lg) auto;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    padding: var(--spacing-lg);
+}
+
+.card-icon img {
+    max-width: 160px !important;
+    width: auto !important;
+    height: 90px !important;
+    filter: drop-shadow(0 4px 8px rgba(14, 165, 233, 0.3));
+    border-radius: var(--radius-md);
+    object-fit: contain;
+}
+
+.card-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+    text-align: center;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--spacing-sm);
+    text-align: center;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-features {
+    list-style: none;
+    margin-bottom: var(--spacing-sm);
+    flex-grow: 1;
+}
+
+.card-features li {
+    padding: 8px 0;
+    position: relative;
+    padding-left: 35px;
+    color: var(--text-secondary);
+    font-size: 0.95em;
+    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+.card-features li:last-child {
+    border-bottom: none;
+}
+
+.card-features li::before {
+    content: "⚡";
+    position: absolute;
+    left: 0;
+    color: var(--accent-blue);
+    font-weight: bold;
+    font-size: 1.3em;
+    filter: drop-shadow(0 0 5px rgba(14, 165, 233, 0.5));
+}
+
+.cta-button {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: 1.1em;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    margin-top: auto;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3);
+    border: 2px solid var(--accent-blue-dark);
+}
+
+.cta-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 35px rgba(14, 165, 233, 0.4);
+    background: linear-gradient(145deg, var(--accent-blue-hover) 0%, var(--accent-blue-dark) 100%);
+}
+
+/* ===== WERBUNG STYLES ===== */
+.ad-wrapper {
+    grid-column: 1 / -1 !important;
+    margin: var(--spacing-lg) auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    text-align: center !important;
+    display: block !important;
+    min-height: 90px;
+}
+
+.ad-with-label {
+    position: relative;
+    width: 100%;
+    display: block;
+    margin: 0 auto;
+}
+
+.ad-label {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 10;
+    pointer-events: none;
+    font-family: var(--font-sans);
+}
+
+.ad-wrapper .adsbygoogle {
+    display: block !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: none !important;
+    min-height: 90px !important;
+    max-height: 280px !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.ad-wrapper[style*="display: none"] {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    grid-column: unset !important;
+}
+
+/* ===== FOOTER ===== */
+footer {
+    background: var(--gradient-secondary);
+    color: var(--text-primary);
+    padding: var(--spacing-xxl) 0 var(--spacing-xl);
+    margin-top: var(--spacing-xxl);
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--border-color);
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="footerPattern" patternUnits="userSpaceOnUse" width="50" height="50"><rect fill="%23334155" width="50" height="50"/><circle fill="%23475569" cx="25" cy="25" r="1" opacity="0.5"/></pattern></defs><rect fill="url(%23footerPattern)" width="100" height="100" opacity="0.3"/></svg>');
+    pointer-events: none;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: var(--spacing-xxl);
+    margin-bottom: var(--spacing-xl);
+    position: relative;
+    z-index: 2;
+}
+
+.footer-section h3 {
+    margin-bottom: var(--spacing-lg);
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.footer-links {
+    list-style: none;
+}
+
+.footer-links li {
+    margin-bottom: 12px;
+}
+
+.footer-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    padding: 8px 0;
+    display: block;
+    border-left: 3px solid transparent;
+    padding-left: var(--spacing-md);
+}
+
+.footer-links a:hover {
+    color: var(--accent-blue);
+    transform: translateX(10px);
+    border-left-color: var(--accent-blue);
+    background: rgba(14, 165, 233, 0.1);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: var(--spacing-xl);
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    position: relative;
+    z-index: 2;
+}
+
+/* ===== COOKIE BANNER ===== */
+.cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    color: var(--text-primary);
+    padding: var(--spacing-lg);
+    z-index: 1001;
+    transform: translateY(100%);
+    transition: transform var(--transition-normal);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+    border-top: 1px solid var(--border-color);
+}
+
+.cookie-banner.show {
+    transform: translateY(0);
+}
+
+.cookie-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.cookie-text {
+    flex: 1;
+    min-width: 300px;
+    color: var(--text-secondary);
+}
+
+.cookie-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.cookie-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition-normal);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9em;
+}
+
+.cookie-btn.accept {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+}
+
+.cookie-btn.accept:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
+}
+
+.cookie-btn.decline {
+    background: var(--gradient-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.cookie-btn.decline:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    background: var(--bg-tertiary);
+}
+
+.cookie-btn.settings {
+    background: transparent;
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.cookie-btn.settings:hover {
+    background: rgba(14, 165, 233, 0.1);
+    transform: translateY(-3px);
+    border-color: var(--accent-blue);
+}
+
+/* ===== MODAL STYLES ===== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.modal-content {
+    background: var(--gradient-secondary);
+    margin: 5% auto;
+    padding: var(--spacing-xxl);
+    border-radius: var(--radius-xl);
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+}
+
+.close {
+    position: absolute;
+    right: 25px;
+    top: 20px;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color var(--transition-normal);
+}
+
+.close:hover {
+    color: var(--accent-blue);
+    transform: scale(1.1);
+}
+
+.modal h2 {
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+    font-size: 2.2em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal p {
+    line-height: 1.6;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-secondary);
+}
+
+.modal h3 {
+    color: var(--accent-blue);
+    margin: var(--spacing-xl) 0 var(--spacing-lg) 0;
+    font-size: 1.4em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.contact-info {
+    background: var(--gradient-surface);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    margin: var(--spacing-lg) 0;
+    border-left: 4px solid var(--accent-blue);
+    border: 1px solid var(--border-color);
+}
+
+.cookie-settings {
+    margin: var(--spacing-lg) 0;
+    padding: var(--spacing-lg);
+    background: var(--gradient-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.cookie-option {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: var(--spacing-md);
+    padding: 12px;
+    background: rgba(14, 165, 233, 0.05);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.cookie-option:hover {
+    background: rgba(14, 165, 233, 0.1);
+}
+
+.cookie-option input[type="checkbox"] {
+    transform: scale(1.4);
+    accent-color: var(--accent-blue);
+    cursor: pointer;
+}
+
+.cookie-option label {
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.save-button {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition-normal);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+}
+
+.save-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
+}
+
+/* ===== EMAIL PROTECTION ===== */
+.email-protection {
+    cursor: pointer;
+    color: var(--accent-blue);
+    text-decoration: underline;
+    transition: color var(--transition-normal);
+}
+
+.email-protection:hover {
+    color: var(--accent-cyan);
+    text-shadow: 0 0 5px rgba(14, 165, 233, 0.3);
+}
+
+/* ===== CALCULATION MODAL ===== */
+.calculation-modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.calculation-modal-content {
+    background: var(--gradient-secondary);
+    margin: 3% auto;
+    padding: var(--spacing-xxl);
+    border-radius: var(--radius-xl);
+    width: 95%;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+}
+
+.calculation-close {
+    position: absolute;
+    right: 25px;
+    top: 20px;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color var(--transition-normal);
+}
+
+.calculation-close:hover {
+    color: var(--accent-blue);
+    transform: scale(1.1);
+}
+
+.calculation-modal h2 {
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+    font-size: 2.2em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.calculation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+}
+
+.calculation-item {
+    background: var(--gradient-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-decoration: none;
+    color: inherit;
+    border: 2px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.calculation-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+}
+
+.calculation-item:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--accent-blue);
+    background: var(--gradient-secondary);
+}
+
+.calculation-icon {
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calculation-icon img {
+    max-width: 120px;
+    width: auto;
+    height: 80px;
+    filter: drop-shadow(0 4px 8px rgba(14, 165, 233, 0.3));
+    border-radius: var(--radius-md);
+    object-fit: contain;
+}
+
+.calculation-title {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.calculation-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== RESPONSIVE DESIGN - KORRIGIERTE VERSION ===== */
+
+/* Verhindere horizontales Scrollen */
+@media (max-width: 1024px) {
+    html {
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
     }
     
-    // Unterschiedliche Einstellungen für verschiedene Orientierungen
-    if (window.matchMedia('(orientation: landscape)').matches && window.innerWidth <= 1024) {
-        viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-    } else {
-        viewport.content = 'width=device-width, initial-scale=1.0';
-    }
-}
-
-// Fix für iOS Safari Viewport-Probleme
-function fixIOSViewport() {
-    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-        const fixViewport = () => {
-            document.body.style.height = window.innerHeight + 'px';
-        };
-        
-        window.addEventListener('orientationchange', () => {
-            setTimeout(fixViewport, 500);
-        });
-        
-        fixViewport();
-    }
-}
-
-// Verbesserte Werbung-Initialisierung für mobile
-function initMobileAds() {
-    // Warte auf DOM ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initMobileAds);
-        return;
+    body {
+        overflow-x: hidden;
+        position: relative;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
     }
     
-    // Überprüfe ob mobile Ansicht
-    const isMobile = window.innerWidth <= 1024;
-    
-    if (isMobile) {
-        // Werbung für mobile optimieren
-        const ads = document.querySelectorAll('.adsbygoogle');
-        ads.forEach(ad => {
-            // Mobile-spezifische Attribute
-            if (window.innerWidth <= 768) {
-                ad.setAttribute('data-ad-format', 'auto');
-                ad.style.minHeight = '70px';
-                ad.style.maxHeight = '200px';
-            } else {
-                ad.setAttribute('data-ad-format', 'horizontal');
-                ad.style.minHeight = '90px';
-                ad.style.maxHeight = '120px';
-            }
-        });
-    }
-}
-
-// Cookie Management System - LOCALSTORAGE FIXES
-function showCookieBanner() {
-    const cookieConsent = localStorage.getItem('cookieConsent');
-    console.log('Cookie consent status:', cookieConsent); // Debug
-    
-    if (!cookieConsent || cookieConsent === 'null' || cookieConsent === '') {
-        console.log('Showing cookie banner'); // Debug
-        document.getElementById('cookieBanner').classList.add('show');
-    } else {
-        console.log('Cookie consent found, hiding banner'); // Debug
-    }
-}
-
-function acceptAllCookies() {
-    console.log('acceptAllCookies called'); // Debug
-    
-    try {
-        // Prüfe localStorage-Verfügbarkeit
-        if (typeof Storage === "undefined") {
-            console.error('localStorage not supported');
-            alert('Ihr Browser unterstützt keine lokale Speicherung. Cookies können nicht gespeichert werden.');
-            return;
-        }
-        
-        // Setze Werte mit Fehlerbehandlung
-        localStorage.setItem('cookieConsent', 'all');
-        localStorage.setItem('analyticsCookies', 'true');
-        localStorage.setItem('marketingCookies', 'true');
-        
-        // Prüfe ob gespeichert wurde
-        const saved = localStorage.getItem('cookieConsent');
-        console.log('Cookie consent saved as:', saved); // Debug
-        
-        if (saved !== 'all') {
-            console.error('Failed to save to localStorage');
-            // Fallback: Cookies in die Session setzen
-            sessionStorage.setItem('cookieConsent', 'all');
-            sessionStorage.setItem('analyticsCookies', 'true');
-            sessionStorage.setItem('marketingCookies', 'true');
-        }
-        
-        loadAnalytics();
-        showAds();
-        
-        // Banner ausblenden
-        const banner = document.getElementById('cookieBanner');
-        if (banner) {
-            banner.classList.remove('show');
-            
-            // Fallback nach 1 Sekunde
-            setTimeout(() => {
-                banner.style.display = 'none';
-            }, 1000);
-        }
-        
-        console.log('Cookies accepted successfully'); // Debug
-    } catch (error) {
-        console.error('Error accepting cookies:', error);
-        
-        // Fallback: Banner direkt ausblenden und Session-Storage verwenden
-        sessionStorage.setItem('cookieConsent', 'all');
-        sessionStorage.setItem('analyticsCookies', 'true');
-        sessionStorage.setItem('marketingCookies', 'true');
-        
-        const banner = document.getElementById('cookieBanner');
-        if (banner) {
-            banner.style.display = 'none';
-        }
-        
-        alert('Cookies wurden für diese Sitzung gespeichert.');
-    }
-}
-
-function acceptOnlyEssential() {
-    console.log('acceptOnlyEssential called'); // Debug
-    
-    try {
-        // Prüfe localStorage-Verfügbarkeit
-        if (typeof Storage === "undefined") {
-            console.error('localStorage not supported');
-            alert('Ihr Browser unterstützt keine lokale Speicherung. Cookies können nicht gespeichert werden.');
-            return;
-        }
-        
-        localStorage.setItem('cookieConsent', 'essential');
-        localStorage.setItem('analyticsCookies', 'false');
-        localStorage.setItem('marketingCookies', 'false');
-        
-        // Prüfe ob gespeichert wurde
-        const saved = localStorage.getItem('cookieConsent');
-        console.log('Cookie consent saved as:', saved); // Debug
-        
-        if (saved !== 'essential') {
-            console.error('Failed to save to localStorage');
-            // Fallback: Cookies in die Session setzen
-            sessionStorage.setItem('cookieConsent', 'essential');
-            sessionStorage.setItem('analyticsCookies', 'false');
-            sessionStorage.setItem('marketingCookies', 'false');
-        }
-        
-        showAds();
-        
-        // Banner ausblenden
-        const banner = document.getElementById('cookieBanner');
-        if (banner) {
-            banner.classList.remove('show');
-            
-            // Fallback nach 1 Sekunde
-            setTimeout(() => {
-                banner.style.display = 'none';
-            }, 1000);
-        }
-        
-        console.log('Essential cookies accepted successfully'); // Debug
-    } catch (error) {
-        console.error('Error accepting essential cookies:', error);
-        
-        // Fallback: Banner direkt ausblenden und Session-Storage verwenden
-        sessionStorage.setItem('cookieConsent', 'essential');
-        sessionStorage.setItem('analyticsCookies', 'false');
-        sessionStorage.setItem('marketingCookies', 'false');
-        
-        const banner = document.getElementById('cookieBanner');
-        if (banner) {
-            banner.style.display = 'none';
-        }
-        
-        alert('Cookie-Einstellungen wurden für diese Sitzung gespeichert.');
-    }
-}
-
-// NEUE HILFSFUNKTION: Sichere Cookie-Abfrage
-function getCookieSetting(key) {
-    try {
-        // Versuche localStorage zuerst
-        let value = localStorage.getItem(key);
-        
-        // Falls nicht vorhanden, versuche sessionStorage
-        if (!value || value === 'null') {
-            value = sessionStorage.getItem(key);
-        }
-        
-        return value;
-    } catch (error) {
-        console.error('Error reading cookie setting:', error);
-        return null;
-    }
-}
-
-// NEUE HILFSFUNKTION: Cookie-Status für Debug
-function debugCookieStatus() {
-    console.log('=== COOKIE STATUS DEBUG ===');
-    console.log('localStorage available:', typeof Storage !== "undefined");
-    console.log('cookieConsent (localStorage):', localStorage.getItem('cookieConsent'));
-    console.log('cookieConsent (sessionStorage):', sessionStorage.getItem('cookieConsent'));
-    console.log('analyticsCookies:', getCookieSetting('analyticsCookies'));
-    console.log('marketingCookies:', getCookieSetting('marketingCookies'));
-    console.log('========================');
-}
-
-function showAds() {
-    document.getElementById('middle-ad-container-1').style.display = 'block';
-    document.getElementById('middle-ad-container-2').style.display = 'block';
-    
-    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
-    
-    if (window.adsbygoogle) {
-        try {
-            const ads = document.querySelectorAll('.adsbygoogle');
-            ads.forEach(ad => {
-                if (!ad.getAttribute('data-ad-status')) {
-                    if (!allowPersonalized) {
-                        ad.setAttribute('data-npa', '1');
-                    }
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
-                }
-            });
-        } catch (e) {
-            console.log('AdSense loading error:', e);
-        }
-    }
-}
-
-function hideAds() {
-    document.getElementById('middle-ad-container-1').style.display = 'none';
-    document.getElementById('middle-ad-container-2').style.display = 'none';
-}
-
-// Modal AdSense Integration - VERBESSERTE VERSION
-function openCalculationModal() {
-    document.getElementById('calculationModal').style.display = 'block';
-    document.body.style.overflow = 'hidden';
-    
-    setTimeout(() => {
-        loadModalAds();
-    }, 1000);
-}
-
-function closeCalculationModal() {
-    document.getElementById('calculationModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-function loadModalAds() {
-    const modalContainer = document.getElementById('modal-ad-container');
-    if (!modalContainer) {
-        console.log('Modal ad container not found');
-        return;
+    /* Alle Elemente die ausbrechen könnten */
+    * {
+        max-width: 100vw;
+        box-sizing: border-box;
     }
     
-    modalContainer.style.display = 'block';
-    
-    if (typeof window.adsbygoogle === 'undefined') {
-        console.log('AdSense not loaded, loading now...');
-        loadAdSense();
-        
-        setTimeout(() => {
-            attemptModalAdLoad();
-        }, 2000);
-        return;
+    /* Orientierungswechsel erzwingen */
+    .calculators-grid {
+        transition: none !important;
+        animation: none !important;
     }
     
-    attemptModalAdLoad();
-}
-
-function attemptModalAdLoad() {
-    const modalContainer = document.getElementById('modal-ad-container');
-    const existingAd = modalContainer.querySelector('.adsbygoogle');
-    
-    if (existingAd && existingAd.getAttribute('data-ad-status')) {
-        console.log('Ad already loaded');
-        return;
-    }
-    
-    const adWrapper = modalContainer.querySelector('.ad-with-label');
-    if (!adWrapper) return;
-    
-    const oldAds = adWrapper.querySelectorAll('.adsbygoogle');
-    oldAds.forEach(ad => ad.remove());
-    
-    const newAd = document.createElement('ins');
-    newAd.className = 'adsbygoogle';
-    newAd.style.cssText = 'display:block;min-height:250px;';
-    newAd.setAttribute('data-ad-client', 'ca-pub-8687929894744033');
-    newAd.setAttribute('data-ad-slot', '8407868749');
-    newAd.setAttribute('data-ad-format', 'rectangle');
-    newAd.setAttribute('data-full-width-responsive', 'true');
-    
-    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
-    if (!allowPersonalized) {
-        newAd.setAttribute('data-npa', '1');
-    }
-    
-    adWrapper.appendChild(newAd);
-    
-    try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log('Modal ad pushed to AdSense');
-        
-        setTimeout(() => {
-            checkAdStatus(newAd);
-        }, 3000);
-        
-    } catch (e) {
-        console.error('AdSense error in modal:', e);
-        hideAdContainer(modalContainer);
+    /* JavaScript Hook für Orientierungswechsel */
+    body.orientation-changed .calculators-grid {
+        opacity: 0.99;
+        transform: translateZ(0);
     }
 }
 
-function checkAdStatus(adElement) {
-    if (!adElement.getAttribute('data-ad-status') || 
-        adElement.innerHTML.trim() === '') {
-        console.log('No ad loaded in modal, hiding container');
-        hideAdContainer(adElement.closest('.ad-wrapper'));
-    } else {
-        console.log('Modal ad loaded successfully');
+/* ===== QUERFORMAT: VOLLE BREITE - KORREKT ===== */
+@media (max-width: 1024px) and (orientation: landscape) {
+    /* Container volle Breite nur im Querformat */
+    .container {
+        max-width: 100vw !important;
+        margin: 0 !important;
+        padding: 0 8px !important;
+        width: 100% !important;
+    }
+    
+    /* Header volle Breite */
+    header {
+        padding: 12px 0;
+        margin: 8px 0 16px 0;
+        max-width: 100vw;
+        width: 100%;
+    }
+    
+    header .container {
+        padding: 0 12px !important;
+        margin: 0 auto !important;
+        max-width: 100vw !important;
+        width: 100% !important;
+    }
+    
+    header h1 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        margin-bottom: 4px;
+    }
+    
+    .header-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+    
+    .header-description {
+        padding: 8px;
+        margin: 8px auto 0;
+    }
+    
+    .header-description p {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    
+    /* Main normale Breite mit Padding */
+    main {
+        padding: 16px 8px;
+        margin: 0;
+        width: 100%;
+    }
+    
+    /* Grid volle Breite - 2 Spalten */
+    .calculators-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px;
+        margin: 0 auto 24px auto;
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        position: static !important;
+        left: auto !important;
+        right: auto !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+    
+    /* Kompakte Kacheln */
+    .calculator-card {
+        padding: 10px;
+        margin-bottom: 8px;
+    }
+    
+    .card-icon {
+        height: 45px;
+        margin-bottom: 6px;
+        padding: 6px;
+    }
+    
+    .card-icon img {
+        height: 45px !important;
+        max-width: 70px !important;
+    }
+    
+    .card-title {
+        font-size: 0.9em;
+        height: auto;
+        min-height: 30px;
+        margin-bottom: 4px;
+        line-height: 1.1;
+    }
+    
+    .card-description {
+        font-size: 0.75em;
+        height: auto;
+        min-height: 40px;
+        margin-bottom: 4px;
+        line-height: 1.2;
+    }
+    
+    .card-features {
+        margin-bottom: 6px;
+    }
+    
+    .card-features li {
+        padding: 3px 0;
+        font-size: 0.7em;
+        line-height: 1.1;
+        padding-left: 20px;
+    }
+    
+    .card-features li::before {
+        left: 6px;
+        font-size: 0.9em;
+    }
+    
+    .cta-button {
+        padding: 8px;
+        font-size: 0.8em;
+    }
+    
+    /* Werbung über beide Spalten */
+    .ad-wrapper {
+        grid-column: 1 / -1 !important;
+        margin: 12px 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    .ad-wrapper .adsbygoogle {
+        width: 100% !important;
+        min-height: 90px !important;
+        max-height: 120px !important;
+    }
+    
+    /* Footer normale Breite */
+    footer {
+        padding: 16px 0 12px 0;
+        margin-top: 24px;
+        width: 100%;
+    }
+    
+    footer .container {
+        padding: 0 12px !important;
+        max-width: 100vw !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+    }
+    
+    .footer-content {
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .footer-section h3 {
+        font-size: 0.9em;
+        margin-bottom: 6px;
+    }
+    
+    /* Modal im Querformat */
+    .modal-content {
+        padding: 16px;
+        margin: 3% auto;
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .calculation-modal-content {
+        padding: 16px;
+        margin: 2% auto;
+        max-height: 95vh;
+    }
+    
+    .calculation-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .calculation-item {
+        padding: 12px;
+    }
+    
+    .calculation-icon {
+        height: 50px;
+        margin-bottom: 8px;
+    }
+    
+    .calculation-title {
+        font-size: 0.9em;
+        margin-bottom: 6px;
+    }
+    
+    .calculation-description {
+        font-size: 0.8em;
+        line-height: 1.3;
     }
 }
 
-function hideAdContainer(container) {
-    if (!container) return;
-    
-    container.style.display = 'none';
-    container.style.height = '0';
-    container.style.margin = '0';
-    container.style.padding = '0';
-}
-
-// Modal Management (bestehende Funktionen)
-function openModal(type) {
-    const modal = document.getElementById('modal');
-    const modalBody = document.getElementById('modal-body');
-    
-    let content = '';
-    
-    if (type === 'impressum') {
-        content = `
-            <h2>Impressum</h2>
-            <h3>Angaben gemäß § 5 TMG</h3>
-            <div class="contact-info">
-                <p><strong>Dachplattenrechner.de</strong><br>
-                Matthias Dührkop<br>
-                Rhedewiesen 1<br>
-                19258 Boizenburg/Elbe<br>
-                Deutschland</p>
-                
-                <p><strong>Kontakt:</strong><br>
-                E-Mail: <span id="email-contact"></span></p>
-                
-                <p><strong>Umsatzsteuer-ID:</strong><br>
-                DE08721403093</p>
-            </div>
-            
-            <h3>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
-            <p>Matthias Dührkop<br>
-            Rhedewiesen 1<br>
-            19258 Boizenburg/Elbe</p>
-            
-            <h3>Haftungsausschluss</h3>
-            <p><strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Die Berechnungen des Dachplattenrechners erfolgen nach bestem Wissen und Gewissen, jedoch ohne Gewähr für die Richtigkeit.</p>
-            
-            <p><strong>Haftung für Links:</strong> Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.</p>
-        `;
-    } else if (type === 'datenschutz') {
-        content = `
-            <h2>Datenschutzerklärung</h2>
-            
-            <h3>1. Datenschutz auf einen Blick</h3>
-            <h4>Allgemeine Hinweise</h4>
-            <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.</p>
-            
-            <h4>Datenerfassung auf dieser Website</h4>
-            <p><strong>Wer ist verantwortlich für die Datenerfassung auf dieser Website?</strong><br>
-            Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Impressum entnehmen.</p>
-            
-            <h3>3. Google Analytics</h3>
-            <p>Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
-            
-            <p>Google Analytics ermöglicht es dem Websitebetreiber, das Verhalten der Websitebesucher zu analysieren. Die IP-Adresse wird anonymisiert übertragen.</p>
-            
-            <p><strong>Rechtsgrundlage:</strong> Die Nutzung von Google Analytics erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.</p>
-            
-            <h3>4. Google AdSense</h3>
-            <p>Diese Website verwendet Google AdSense, einen Dienst zum Einbinden von Werbeanzeigen der Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
-            
-            <p><strong>Datenverarbeitung:</strong> Google AdSense verwendet Cookies und ähnliche Technologien, um Ihnen personalisierte Werbung anzuzeigen. Dabei werden Informationen über Ihre Website-Besuche gesammelt.</p>
-            
-            <p><strong>Zweck:</strong> Die Datenverarbeitung dient der Finanzierung dieser kostenlosen Website durch Werbeeinnahmen und der Bereitstellung relevanter Werbung.</p>
-            
-            <p><strong>Rechtsgrundlage:</strong> Die Nutzung von Google AdSense erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.</p>
-            
-            <p><strong>Widerspruch:</strong> Sie können der Verwendung von Cookies für personalisierte Werbung jederzeit widersprechen. Besuchen Sie dazu die <a href="https://adssettings.google.com" target="_blank">Google Ads-Einstellungen</a>.</p>
-            
-            <h3>5. Verwendete Cookies</h3>
-            <p><strong>Essentielle Cookies:</strong> Für die Grundfunktionalität der Website (Cookie-Einstellungen, Session-Verwaltung)</p>
-            <p><strong>Analyse-Cookies:</strong> Google Analytics (_ga, _gat, _gid) - Speicherdauer: bis zu 26 Monate</p>
-            <p><strong>Marketing-Cookies:</strong> Google AdSense (verschiedene Cookies) - Speicherdauer: bis zu 24 Monate</p>
-            
-            <h3>6. Ihre Rechte</h3>
-            <p>Sie haben jederzeit das Recht unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein Recht, die Berichtigung oder Löschung dieser Daten zu verlangen.</p>
-            
-            <p><strong>Widerruf der Einwilligung:</strong> Sie können Ihre Einwilligung zur Datenverarbeitung jederzeit widerrufen. Dies hat jedoch keinen Einfluss auf die Rechtmäßigkeit der aufgrund der Einwilligung bis zum Widerruf erfolgten Verarbeitung.</p>
-            
-            <p><strong>Kontakt:</strong><br>
-            Bei Fragen zum Datenschutz wenden Sie sich bitte an: <span id="email-privacy"></span></p>
-        `;
-    } else if (type === 'agb') {
-        content = `
-            <h2>Allgemeine Geschäftsbedingungen (AGB)</h2>
-            
-            <h3>1. Geltungsbereich</h3>
-            <p>Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung des Dachplattenrechners, einer kostenlosen Webanwendung zur Berechnung von Materialverbrauch und Anrissplänen für Dachplatten. Die Website wird durch Werbeeinnahmen finanziert und steht sowohl privaten als auch gewerblichen Nutzern zur Verfügung.</p>
-            
-            <h3>2. Leistungsbeschreibung</h3>
-            <p>Der Dachplattenrechner bietet verschiedene Berechnungstools für:</p>
-            <ul>
-                <li>Gleichschenklige Dreiecke</li>
-                <li>Ungleichschenklige Dreiecke</li>
-                <li>Trapezflächen</li>
-                <li>Trapez auf Rechteck Flächen</li>
-                <li>Verschnitt-Optimierung</li>
-                <li>Druckfertige Bemaßungsskizzen</li>
-            </ul>
-            
-            <h3>3. Nutzungsrechte</h3>
-            <p><strong>Private Nutzung:</strong> Die kostenlose Nutzung aller Funktionen für private Bauprojekte ist uneingeschränkt gestattet.</p>
-            
-            <p><strong>Gewerbliche Nutzung:</strong> Gewerbliche Nutzer (Dachdecker, Architekten, Handwerker) dürfen die Website kostenlos nutzen und die erstellten Berechnungen sowie Anrisspläne an ihre Kunden weitergeben, solange folgende Bedingungen eingehalten werden:</p>
-            <ul>
-                <li>Die Wasserzeichen und Quellenangaben in den Anrissplänen müssen unverändert bleiben</li>
-                <li>Es darf kein Entgelt für die reine Weitergabe der Berechnungen verlangt werden</li>
-                <li>Die Weitergabe erfolgt als Service im Rahmen der erbrachten Handwerksleistung</li>
-                <li>Eine Nennung von "Dachplattenrechner.de" als Quelle ist erwünscht</li>
-            </ul>
-            
-            <p><strong>Diese Regelung entspricht der kostenlosen Verteilung von Flyern und ist ausdrücklich gestattet.</strong></p>
-            
-            <h3>4. Nutzung und Verfügbarkeit</h3>
-            <p>Die Nutzung des Dachplattenrechners ist kostenlos. Die Finanzierung erfolgt durch Werbeeinnahmen. Wir behalten uns das Recht vor, Werbung auf der Website zu schalten.</p>
-            
-            <h3>5. Werbung</h3>
-            <p>Zur Finanzierung der kostenlosen Nutzung werden auf der Website Werbeanzeigen geschaltet. Diese werden von Google AdSense bereitgestellt und können personalisiert sein, sofern Sie der Verwendung von Marketing-Cookies zugestimmt haben.</p>
-            
-            <h3>6. Haftungsausschluss</h3>
-            <p><strong>Wichtiger Hinweis:</strong> Die Berechnungen des Dachplattenrechners dienen als Planungshilfe und erfolgen ohne Gewähr. Eine Haftung für die Richtigkeit der Berechnungen oder daraus entstehende Schäden wird ausgeschlossen.</p>
-            
-            <p>Alle Berechnungen sollten vor der praktischen Umsetzung von qualifizierten Fachkräften überprüft werden. Der Nutzer trägt die Verantwortung für die ordnungsgemäße Anwendung der Berechnungsergebnisse.</p>
-            
-            <p><strong>Gewerbliche Nutzer:</strong> Bei der Weitergabe von Berechnungen an Kunden weisen Sie diese ausdrücklich darauf hin, dass es sich um Planungshilfen ohne Gewähr handelt.</p>
-            
-            <h3>7. Geistiges Eigentum</h3>
-            <p>Alle Inhalte des Dachplattenrechners, einschließlich Design, Berechnungsalgorithmen und Texte, sind urheberrechtlich geschützt. Eine Vervielfältigung oder kommerzielle Nutzung ohne ausdrückliche Genehmigung ist untersagt.</p>
-            
-            <p><strong>Ausnahme:</strong> Die Weitergabe von Berechnungsergebnissen und Anrissplänen an Kunden ist gemäß Punkt 3 ausdrücklich gestattet.</p>
-            
-            <h3>8. Änderungen</h3>
-            <p>Wir behalten uns das Recht vor, diese AGB jederzeit zu ändern. Nutzer werden über wesentliche Änderungen informiert.</p>
-            
-            <h3>9. Anwendbares Recht</h3>
-            <p>Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts.</p>
-        `;
-    } else if (type === 'cookies') {
-        content = `
-            <h2>Cookie-Einstellungen</h2>
-            
-            <h3>Was sind Cookies?</h3>
-            <p>Cookies sind kleine Textdateien, die beim Besuch einer Website auf Ihrem Gerät gespeichert werden. Sie helfen dabei, die Website funktionsfähig zu machen und die Nutzererfahrung zu verbessern.</p>
-            
-            <h3>Cookie-Kategorien</h3>
-            
-            <div class="cookie-settings">
-                <h4>Essentielle Cookies</h4>
-                <p>Diese Cookies sind für die grundlegende Funktionalität der Website erforderlich und können nicht deaktiviert werden.</p>
-                <div class="cookie-option">
-                    <input type="checkbox" id="essentialCookies" checked disabled>
-                    <label for="essentialCookies">Essentielle Cookies (immer aktiv)</label>
-                </div>
-                
-                <h4>Analyse-Cookies (Google Analytics)</h4>
-                <p>Diese Cookies helfen uns zu verstehen, wie Besucher mit der Website interagieren, indem sie Informationen anonym sammeln und melden.</p>
-                <div class="cookie-option">
-                    <input type="checkbox" id="analyticsCookies">
-                    <label for="analyticsCookies">Analyse-Cookies (Google Analytics)</label>
-                </div>
-                
-                <h4>Marketing-Cookies (Google AdSense)</h4>
-                <p>Diese Cookies werden verwendet, um Ihnen relevante Werbeanzeigen zu zeigen und die Finanzierung dieser kostenlosen Website zu ermöglichen.</p>
-                <div class="cookie-option">
-                    <input type="checkbox" id="marketingCookies">
-                    <label for="marketingCookies">Marketing-Cookies (Google AdSense)</label>
-                </div>
-            </div>
-            
-            <button class="save-button" onclick="saveCookieSettings()">Einstellungen speichern</button>
-            
-            <h3>Detaillierte Cookie-Informationen</h3>
-            
-            <h4>Essentielle Cookies</h4>
-            <p><strong>cookieConsent:</strong> Speichert Ihre Cookie-Einstellungen<br>
-            <strong>Speicherdauer:</strong> Permanent (bis zur Änderung)</p>
-            
-            <h4>Google Analytics Cookies</h4>
-            <p><strong>_ga:</strong> Eindeutige Benutzer-ID für Statistiken<br>
-            <strong>_gat:</strong> Anfragerate begrenzen<br>
-            <strong>_gid:</strong> Eindeutige Benutzer-ID für 24h<br>
-            <strong>Speicherdauer:</strong> 1 Tag bis 26 Monate</p>
-            
-            <h4>Google AdSense Cookies</h4>
-            <p><strong>Verschiedene Cookies:</strong> Für personalisierte Werbung und Anzeigenauslieferung<br>
-            <strong>Speicherdauer:</strong> 1 Tag bis 24 Monate<br>
-            <strong>Anbieter:</strong> Google Ireland Limited</p>
-            
-            <h3>Externe Links</h3>
-            <p><strong>Google Ads-Einstellungen:</strong> <a href="https://adssettings.google.com" target="_blank">adssettings.google.com</a><br>
-            <strong>Google Analytics Opt-out:</strong> <a href="https://tools.google.com/dlpage/gaoptout" target="_blank">tools.google.com/dlpage/gaoptout</a></p>
-        `;
-    } else if (type === 'hilfe') {
-        content = `
-            <h2>Hilfe & FAQ</h2>
-            
-            <h3>Häufig gestellte Fragen</h3>
-            
-            <h4>🔧 Wie verwende ich den Dachplattenrechner?</h4>
-            <p><strong>1. Rechner wählen:</strong> Wählen Sie auf der Startseite den passenden Rechner für Ihre Dachform.</p>
-            <p><strong>2. Maße eingeben:</strong> Geben Sie die Abmessungen Ihrer Dachfläche ein.</p>
-            <p><strong>3. Materialangaben:</strong> Tragen Sie Deckbreite und Lieferbreite Ihrer Trapezbleche ein.</p>
-            <p><strong>4. Berechnen:</strong> Klicken Sie auf "Berechnen" um die Schnittliste zu erhalten.</p>
-            <p><strong>5. Anrissplan:</strong> Erstellen Sie einen druckbaren Anrissplan.</p>
-            
-            <h4>📏 Was bedeuten Deckbreite und Lieferbreite?</h4>
-            <p><strong>Deckbreite:</strong> Die nutzbare Breite des Trapezbleches (meist 1,00m).</p>
-            <p><strong>Lieferbreite:</strong> Die tatsächliche Breite des Bleches (meist 1,06m).</p>
-            <p><strong>Überlappung:</strong> Differenz zwischen Liefer- und Deckbreite.</p>
-            
-            <h4>🏠 Welchen Rechner verwenden?</h4>
-            <p><strong>Gleichschenkliges Dreieck:</strong> Für symmetrische Dreiecke</p>
-            <p><strong>Ungleichschenkliges Dreieck:</strong> Für asymmetrische Dreiecke</p>
-            <p><strong>Trapez:</strong> Für trapezförmige Flächen</p>
-            <p><strong>Trapez auf Rechteck:</strong> Für Walmdächer und Krüppelwalmdächer</p>
-            <p><strong>Verschnitt-Optimierung:</strong> Für optimale Materialaufteilung</p>
-            
-            <h4>🎯 Wie genau sind die Berechnungen?</h4>
-            <p>Die Berechnungen basieren auf mathematischen Grundlagen und sind sehr präzise. Dennoch sollten alle Ergebnisse von Fachkräften überprüft werden.</p>
-            
-            <h4>🖨️ Wie drucke ich die Anrisspläne?</h4>
-            <p>Klicken Sie auf "Anrissplan erstellen" und dann auf "Drucken". Die Pläne sind für DIN A4 optimiert.</p>
-            
-            <h4>📱 Funktioniert es auf dem Smartphone?</h4>
-            <p>Ja! Der Rechner ist vollständig responsive und funktioniert auf allen Geräten.</p>
-            
-            <h4>💰 Warum sehe ich Werbung?</h4>
-            <p>Die Website ist kostenlos und wird durch Werbung finanziert. Sie können in den Cookie-Einstellungen personalisierte Werbung deaktivieren.</p>
-            
-            <h4>🍪 Was sind Cookies?</h4>
-            <p>Cookies sind kleine Dateien, die die Funktionalität verbessern. Sie können Ihre Cookie-Einstellungen jederzeit anpassen.</p>
-            
-            <h4>💾 Werden meine Daten gespeichert?</h4>
-            <p>Nein, alle Berechnungen erfolgen lokal in Ihrem Browser. Nur anonyme Statistiken werden erfasst (falls zugestimmt).</p>
-            
-            <h3>Weitere Unterstützung</h3>
-            <p>Bei weiteren Fragen wenden Sie sich an: <span id="email-support"></span></p>
-        `;
-    } else if (type === 'kontakt') {
-        content = `
-            <h2>Kontakt</h2>
-            
-            <div class="contact-info">
-                <h3>Dachplattenrechner.de</h3>
-                <p>
-                    <strong>Matthias Dührkop</strong><br>
-                    Rhedewiesen 1<br>
-                    19258 Boizenburg/Elbe<br>
-                    Deutschland
-                </p>
-                
-                <p>
-                    <strong>E-Mail:</strong> <span id="email-display"></span><br>
-                    <strong>Website:</strong> dachplattenrechner.de
-                </p>
-            </div>
-            
-            <h3>Anfragen und Support</h3>
-            <p>Für Fragen, Anregungen oder technische Probleme stehen wir Ihnen gerne zur Verfügung:</p>
-            
-            <ul>
-                <li><strong>Technischer Support:</strong> Bei Problemen mit den Berechnungen</li>
-                <li><strong>Feature-Anfragen:</strong> Vorschläge für neue Funktionen</li>
-                <li><strong>Geschäftliche Anfragen:</strong> Kooperationen oder Werbung</li>
-                <li><strong>Datenschutz:</strong> Fragen zum Umgang mit Daten</li>
-            </ul>
-            
-            <h3>Antwortzeiten</h3>
-            <p>Wir bemühen uns, alle Anfragen innerhalb von 24-48 Stunden zu beantworten.</p>
-        `;
+/* ===== HOCHFORMAT: GRID BRICHT AUS CONTAINER AUS ===== */
+@media (max-width: 768px) and (orientation: portrait) {
+    :root {
+        font-size: 14px;
     }
     
-    modalBody.innerHTML = content;
-    
-    // Load current cookie settings if opening cookie modal
-    if (type === 'cookies') {
-        const analyticsCookies = localStorage.getItem('analyticsCookies') === 'true';
-        const marketingCookies = localStorage.getItem('marketingCookies') === 'true';
-        document.getElementById('analyticsCookies').checked = analyticsCookies;
-        document.getElementById('marketingCookies').checked = marketingCookies;
+    /* Body Hintergrund angepasst */
+    body {
+        background: var(--bg-primary) url('Images/index.png') top center no-repeat;
+        background-attachment: scroll;
+        background-size: 375px auto;
+        /* Erzwinge Neuzeichnung bei Orientierungswechsel */
+        transform: translateZ(0);
     }
     
-    modal.style.display = 'block';
-    document.body.style.overflow = 'hidden';
+    /* Container normal */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 16px;
+        width: auto;
+    }
     
-    // Setup email protection after modal content is loaded
-    setupEmailProtection();
-}
-
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-function saveCookieSettings() {
-    const analyticsCookies = document.getElementById('analyticsCookies').checked;
-    const marketingCookies = document.getElementById('marketingCookies').checked;
+    /* Header normal */
+    header {
+        margin: 16px auto 24px auto;
+        max-width: 1000px;
+        padding: 16px 0;
+    }
     
-    console.log('Saving cookie settings:', { analyticsCookies, marketingCookies }); // Debug
+    header h1 {
+        font-size: clamp(1.8rem, 6vw, 2.5rem);
+    }
     
-    try {
-        localStorage.setItem('cookieConsent', 'custom');
-        localStorage.setItem('analyticsCookies', analyticsCookies.toString());
-        localStorage.setItem('marketingCookies', marketingCookies.toString());
+    .header-subtitle {
+        font-size: 1rem;
+    }
+    
+    /* Main normal */
+    main {
+        padding: 32px;
+        margin-bottom: 32px;
+    }
+    
+    /* GRID BRICHT AUS CONTAINER AUS */
+    .calculators-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+        margin-bottom: 32px;
         
-        // Prüfe ob gespeichert wurde
-        const saved = localStorage.getItem('cookieConsent');
-        console.log('Cookie settings saved as:', saved); // Debug
-        
-        if (saved !== 'custom') {
-            console.error('Failed to save to localStorage, using sessionStorage');
-            sessionStorage.setItem('cookieConsent', 'custom');
-            sessionStorage.setItem('analyticsCookies', analyticsCookies.toString());
-            sessionStorage.setItem('marketingCookies', marketingCookies.toString());
-        }
-        
-    } catch (error) {
-        console.error('Error saving cookie settings:', error);
-        // Fallback zu sessionStorage
-        sessionStorage.setItem('cookieConsent', 'custom');
-        sessionStorage.setItem('analyticsCookies', analyticsCookies.toString());
-        sessionStorage.setItem('marketingCookies', marketingCookies.toString());
+        /* Container-Breakout für volle Breite */
+        position: relative !important;
+        left: 50% !important;
+        right: 50% !important;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
+        width: 100vw !important;
+        max-width: none !important;
+        padding: 0 16px !important;
     }
     
-    // Analytics laden/entladen
-    if (analyticsCookies) {
-        loadAnalytics();
-    } else {
-        window['ga-disable-G-6NSYG8B1T9'] = true;
+    /* Kacheln */
+    .calculator-card {
+        width: 100%;
+        padding: 16px;
+        margin-bottom: 16px;
     }
     
-    // AdSense laden/entladen
-    if (marketingCookies) {
-        loadAdSense();
-        showAds();
-    } else {
-        hideAds();
+    .card-icon {
+        height: 70px;
+        margin-bottom: 12px;
+        padding: 12px;
     }
     
-    closeModal();
-    alert('Cookie-Einstellungen gespeichert!');
+    .card-icon img {
+        height: 70px !important;
+        max-width: 120px !important;
+    }
     
-    // Debug
-    debugCookieStatus();
-}
-
-// Sketch Modal Functions
-function openSketchModal() {
-    const modal = document.getElementById('modal');
-    const modalBody = document.getElementById('modal-body');
+    .card-title {
+        font-size: 1.1em;
+        line-height: 1.2;
+        height: auto;
+        min-height: 40px;
+        margin-bottom: 8px;
+    }
     
-    const content = `
-        <h2>Bemaßungsskizzen Download</h2>
-        
-        <p>Professionelle DIN A4 Bemaßungsskizzen für verschiedene Dachformen - direkt drucken oder als PDF speichern.</p>
-        
-        <div class="sketch-downloads" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
-            
-            <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
-                <div style="display: flex; align-items: flex-start; gap: 12px;">
-                    <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                        <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                            <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
-                            <line x1="30" y1="25" x2="30" y2="55" stroke="#333" stroke-width="1"/>
-                            <line x1="17.5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                            <line x1="42.5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                            <line x1="17.5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                            <line x1="42.5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                        </svg>
-                    </div>
-                    <div style="flex: 1;">
-                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">Krüppelwalm</h4>
-                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Krüppelwalmdach mit abgeknickten Walmen</p>
-                        <button class="sketch-btn" onclick="printSketch('skizzen/krüppelwalm.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Satteldach -->
-            <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
-                <div style="display: flex; align-items: flex-start; gap: 12px;">
-                    <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                        <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                            <rect x="5" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
-                            <rect x="30" y="15" width="25" height="50" fill="none" stroke="#333" stroke-width="1"/>
-                            <line x1="30" y1="15" x2="30" y2="65" stroke="#333" stroke-width="1.5"/>
-                        </svg>
-                    </div>
-                    <div style="flex: 1;">
-                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">Satteldach</h4>
-                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Klassisches Satteldach mit First und Traufen</p>
-                        <button class="sketch-btn" onclick="printSketch('skizzen/Satteldach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Walmdach -->
-            <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
-                <div style="display: flex; align-items: flex-start; gap: 12px;">
-                    <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                        <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                            <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
-                            <line x1="30" y1="25" x2="30" y2="55" stroke="#333" stroke-width="1"/>
-                            <line x1="5" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                            <line x1="55" y1="10" x2="30" y2="25" stroke="#666" stroke-width="0.8"/>
-                            <line x1="5" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                            <line x1="55" y1="70" x2="30" y2="55" stroke="#666" stroke-width="0.8"/>
-                        </svg>
-                    </div>
-                    <div style="flex: 1;">
-                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">Walmdach</h4>
-                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Walmdach mit vier Dachflächen</p>
-                        <button class="sketch-btn" onclick="printSketch('skizzen/walmdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Pyramidendach -->
-            <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
-                <div style="display: flex; align-items: flex-start; gap: 12px;">
-                    <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                        <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                            <rect x="5" y="10" width="50" height="60" fill="none" stroke="#333" stroke-width="1"/>
-                            <line x1="5" y1="10" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                            <line x1="55" y1="10" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                            <line x1="5" y1="70" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                            <line x1="55" y1="70" x2="30" y2="40" stroke="#666" stroke-width="0.8"/>
-                        </svg>
-                    </div>
-                    <div style="flex: 1;">
-                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">Pyramidendach</h4>
-                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Pyramidenförmiges Dach mit zentralem Punkt</p>
-                        <button class="sketch-btn" onclick="printSketch('skizzen/pyramidendach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Pultdach -->
-            <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
-                <div style="display: flex; align-items: flex-start; gap: 12px;">
-                    <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
-                        <svg viewBox="0 0 60 80" style="width: 100%; height: 100%;">
-                            <rect x="10" y="25" width="40" height="30" fill="none" stroke="#333" stroke-width="1"/>
-                        </svg>
-                    </div>
-                    <div style="flex: 1;">
-                        <h4 style="margin: 0 0 8px 0; color: #2a5298;">Pultdach</h4>
-                        <p style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Einfaches geneigtes Pultdach</p>
-                        <button class="sketch-btn" onclick="printSketch('skizzen/pultdach.html')" style="background: #2a5298; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px;">Drucken</button>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-        
-        <div class="sketch-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; color: #333;">
-            <h3 style="margin: 0 0 10px 0; color: #2a5298;">ℹ️ Hinweise:</h3>
-            <ul style="margin: 0; padding-left: 20px; color: #555;">
-                <li>Alle Skizzen sind im DIN A4 Format optimiert</li>
-                <li>Perfekt für die Baustelle geeignet</li>
-                <li>Beschriftungsfelder für Ihre Maße</li>
-                <li>Kostenlos für private und gewerbliche Nutzung</li>
-            </ul>
-        </div>
-    `;
+    .card-description {
+        font-size: 0.9em;
+        height: auto;
+        min-height: 60px;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
     
-    modalBody.innerHTML = content;
-    modal.style.display = 'block';
-    document.body.style.overflow = 'hidden';
-}
-
-function printSketch(filename) {
-    // Öffne die Skizze in einem neuen Fenster zum Drucken
-    const printWindow = window.open(filename, '_blank');
-    if (printWindow) {
-        printWindow.onload = function() {
-            printWindow.print();
-        };
+    .card-features {
+        margin-bottom: 12px;
+    }
+    
+    .card-features li {
+        padding: 6px 0;
+        font-size: 0.85em;
+        line-height: 1.3;
+    }
+    
+    .cta-button {
+        padding: 12px;
+        font-size: 0.95em;
+    }
+    
+    /* WERBUNG BRICHT AUCH AUS */
+    .ad-wrapper {
+        /* Container-Breakout für volle Breite */
+        position: relative !important;
+        left: 50% !important;
+        right: 50% !important;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
+        width: 100vw !important;
+        max-width: none !important;
+        padding: 0 16px !important;
+        margin-top: 16px !important;
+        margin-bottom: 16px !important;
+        grid-column: 1 / -1 !important;
+    }
+    
+    .ad-wrapper .adsbygoogle {
+        min-height: 70px !important;
+        max-height: 200px !important;
+        width: 100% !important;
+    }
+    
+    /* Footer */
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .cookie-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+    
+    .cookie-buttons {
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .modal-content {
+        padding: 16px;
+        margin: 10% auto;
+        width: 95%;
     }
 }
 
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('modal');
-    const calculationModal = document.getElementById('calculationModal');
-    
-    if (event.target === modal) {
-        closeModal();
+/* ===== DESKTOP - Sicherstellen dass Werbung über 2 Kacheln geht ===== */
+@media (min-width: 769px) {
+    .calculators-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: var(--spacing-lg);
     }
-    if (event.target === calculationModal) {
-        closeCalculationModal();
-    }
-}
-
-// Email protection
-function setupEmailProtection() {
-    const email = 'xxxxwolfxxxx@me.com';
-    const emailElements = ['email-contact', 'email-privacy', 'email-display', 'email-footer', 'email-support'];
     
-    emailElements.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.innerHTML = `<span class="email-protection" onclick="revealEmail('${id}', '${email}')" style="cursor: pointer; color: #2a5298; text-decoration: underline;">E-Mail anzeigen</span>`;
-        }
-    });
-}
-
-function revealEmail(elementId, email) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.innerHTML = `<a href="mailto:${email}" style="color: inherit;">${email}</a>`;
+    .ad-wrapper {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
 }
-
-// Debug-Funktion für Layout-Probleme
-function debugMobileLayout() {
-    if (window.innerWidth <= 1024) {
-        console.log('Mobile Debug Info:');
-        console.log('- Viewport Width:', window.innerWidth);
-        console.log('- Viewport Height:', window.innerHeight);
-        console.log('- Orientation:', window.orientation || 'unknown');
-        console.log('- Screen:', screen.width + 'x' + screen.height);
-        
-        const grid = document.querySelector('.calculators-grid');
-        if (grid) {
-            const rect = grid.getBoundingClientRect();
-            console.log('- Grid Position:', rect.left, rect.right);
-            console.log('- Grid Width:', rect.width);
-            console.log('- Overflow Right:', rect.right > window.innerWidth);
-        }
-    }
-}
-
-// Initialize everything
-document.addEventListener('DOMContentLoaded', function() {
-    setupEmailProtection();
-    
-    // DEBUG: Cookie-Status anzeigen
-    debugCookieStatus();
-    
-    // Mobile fixes
-    fixIOSViewport();
-    initMobileAds();
-    handleOrientationChange(); // Initial Layout-Fix
-    
-    // MOBILE COOKIE BUTTON FIXES
-    setupMobileCookieButtons();
-    
-    // Lade Hintergrundbild optimiert
-    loadBackgroundImage();
-    
-    // AdSense immer laden
-    loadAdSense();
-    
-    // Initialize tracking based on existing consent - VERBESSERT
-    const cookieConsent = getCookieSetting('cookieConsent');
-    const analyticsCookies = getCookieSetting('analyticsCookies');
-    
-    console.log('Initializing with consent:', cookieConsent, 'analytics:', analyticsCookies);
-    
-    if (cookieConsent === 'all' || analyticsCookies === 'true') {
-        loadAnalytics();
-    }
-    
-    // Werbung immer anzeigen
-    showAds();
-    
-    // Show cookie banner for first-time visitors - VERBESSERT
-    setTimeout(() => {
-        showCookieBanner();
-    }, 500); // Kurze Verzögerung für bessere localStorage-Erkennung
-    
-    // Debug nur im Development
-    if (window.location.hostname === 'localhost' || window.location.hostname.includes('test')) {
-        window.debugMobile = debugMobileLayout;
-        window.debugCookies = debugCookieStatus;
-        console.log('Debug functions available: window.debugMobile(), window.debugCookies()');
-    }
-});
-
-// NEUE FUNKTION: Mobile Cookie Button Setup
-function setupMobileCookieButtons() {
-    // Touch-Events für bessere Mobile-Kompatibilität
-    const acceptBtn = document.querySelector('.cookie-btn.accept');
-    const declineBtn = document.querySelector('.cookie-btn.decline');
-    const settingsBtn = document.querySelector('.cookie-btn.settings');
-    
-    if (acceptBtn) {
-        acceptBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            acceptAllCookies();
-            // ZOOM-FIX: Viewport neu setzen
-            setTimeout(fixViewportAfterCookieAction, 100);
-        }, { passive: false });
-        
-        acceptBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            acceptAllCookies();
-            setTimeout(fixViewportAfterCookieAction, 100);
-        });
-    }
-    
-    if (declineBtn) {
-        declineBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            acceptOnlyEssential();
-            setTimeout(fixViewportAfterCookieAction, 100);
-        }, { passive: false });
-        
-        declineBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            acceptOnlyEssential();
-            setTimeout(fixViewportAfterCookieAction, 100);
-        });
-    }
-    
-    if (settingsBtn) {
-        settingsBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            openModal('cookies');
-        }, { passive: false });
-        
-        settingsBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            openModal('cookies');
-        });
-    }
-}
-
-// NEUER FIX: Viewport nach Cookie-Aktion korrigieren
-function fixViewportAfterCookieAction() {
-    // Viewport Meta-Tag neu setzen
-    updateViewportMeta();
-    
-    // Body-Zoom zurücksetzen
-    document.body.style.zoom = '1';
-    document.documentElement.style.zoom = '1';
-    
-    // Layout neu triggern
-    window.scrollTo(0, window.scrollY);
-    
-    // Falls iOS: spezielle Behandlung
-    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-        // Kurz warten und dann Layout neu berechnen
-        setTimeout(() => {
-            const currentScale = window.visualViewport ? window.visualViewport.scale : 1;
-            if (currentScale !== 1) {
-                // Versuche Zoom zurückzusetzen
-                const viewport = document.querySelector('meta[name="viewport"]');
-                if (viewport) {
-                    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-                    setTimeout(() => {
-                        viewport.content = 'width=device-width, initial-scale=1.0';
-                    }, 100);
-                }
-            }
-        }, 200);
-    }
-    
-    console.log('Viewport after cookie action fixed');
-}
-
-// Event Listener für Orientierungswechsel
-window.addEventListener('orientationchange', handleOrientationChange);
-window.addEventListener('resize', handleOrientationChange);
-
-// Initial und bei Orientierungswechsel
-updateViewportMeta();
-window.addEventListener('orientationchange', () => {
-    setTimeout(updateViewportMeta, 100);
-});
-</script>
-</body>
-</html>
