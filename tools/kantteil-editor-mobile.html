@@ -31,10 +31,31 @@
             z-index: 100;
         }
         
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
         .mobile-title {
             color: white;
             font-size: 16px;
             font-weight: 600;
+        }
+        
+        .export-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
         
         .mobile-close {
@@ -252,7 +273,10 @@
 </head>
 <body>
     <div class="mobile-header">
-        <div class="mobile-title">🔧 Kantteile Editor</div>
+        <div class="header-left">
+            <div class="mobile-title">🔧 Kantteile Editor</div>
+            <button class="export-btn" onclick="exportSketch()">📤 Export</button>
+        </div>
         <button class="mobile-close" onclick="closeEditor()">✕ Schließen</button>
     </div>
     
@@ -271,13 +295,12 @@
         
         <div class="control-row">
             <button class="mobile-btn primary" id="startBtn" onclick="startDrawing()">Start</button>
-            <button class="mobile-btn" onclick="showInputModal()">Eingabe</button>
             <button class="mobile-btn color-toggle" onclick="toggleColorSide()">Farbe</button>
+            <button class="mobile-btn" onclick="centerView()">Zentrieren</button>
         </div>
         
         <div class="control-row">
-            <button class="mobile-btn" onclick="centerView()">Zentrieren</button>
-            <button class="mobile-btn" onclick="exportSketch()">Export</button>
+            <button class="mobile-btn" onclick="undoLast()">Zurück</button>
             <button class="mobile-btn danger" onclick="clearCanvas()">Löschen</button>
         </div>
     </div>
@@ -868,14 +891,19 @@
                     }
                 }
                 
-                // Zeichne aktive Punkte
+                // Zeichne aktive Punkte mit Animation
                 this.activePoints.forEach(point => {
-                    this.drawPoint(point, '#3498db', 15 / this.zoom); // Größere Punkte für Touch
+                    this.drawPoint(point, '#3498db', 15 / this.zoom);
                 });
                 
                 this.ctx.restore();
                 
                 this.drawZoomInfo();
+                
+                // Animation für leuchtende Punkte
+                if (!this.isInCurveMode && this.activePoints.length > 0) {
+                    setTimeout(() => this.render(), 50); // 20 FPS Animation
+                }
             }
             
             drawElementWithColors(element, width) {
@@ -979,6 +1007,25 @@
             }
             
             drawPoint(point, color, radius) {
+                // LEUCHTENDE ANIMATION für aktive Punkte
+                if (!this.isInCurveMode) {
+                    const time = Date.now() * 0.005;
+                    const pulse = 0.8 + 0.4 * Math.sin(time); // Pulsiert zwischen 0.8 und 1.2
+                    
+                    // Leuchtender äußerer Ring
+                    this.ctx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(point.x, point.y, radius * 1.8 * pulse, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    // Mittlerer Ring
+                    this.ctx.fillStyle = 'rgba(52, 152, 219, 0.6)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(point.x, point.y, radius * 1.3 * pulse, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                
+                // Hauptpunkt
                 this.ctx.fillStyle = color;
                 this.ctx.beginPath();
                 this.ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
@@ -1469,6 +1516,65 @@
             colorBtn.textContent = side === 'top' ? 'Oben' : 'Unten';
         }
         
+        function undoLast() {
+            if (editor.elements.length === 0) {
+                editor.updateStatus('Nichts zum Rückgängigmachen');
+                return;
+            }
+            
+            // Entferne letztes Element
+            const lastElement = editor.elements.pop();
+            
+            // Wenn es eine Kurve war, stelle die ursprüngliche Linienlänge wieder her
+            if (lastElement.type === 'curve' && editor.elements.length > 0) {
+                const previousLine = editor.elements[editor.elements.length - 1];
+                if (previousLine.type === 'line' && previousLine.originalLength) {
+                    previousLine.length = previousLine.originalLength;
+                    delete previousLine.originalLength;
+                    
+                    // Stelle ursprünglichen Endpunkt wieder her
+                    const dx = previousLine.end.x - previousLine.start.x;
+                    const dy = previousLine.end.y - previousLine.start.y;
+                    const currentLength = Math.sqrt(dx * dx + dy * dy);
+                    const targetLength = previousLine.length * editor.scale;
+                    
+                    if (currentLength > 0) {
+                        const factor = targetLength / currentLength;
+                        previousLine.end = {
+                            x: previousLine.start.x + dx * factor,
+                            y: previousLine.start.y + dy * factor
+                        };
+                    }
+                }
+            }
+            
+            // Aktualisiere aktive Punkte
+            editor.activePoints = [];
+            if (editor.elements.length > 0) {
+                const lastEl = editor.elements[editor.elements.length - 1];
+                if (lastEl.type === 'line') {
+                    editor.activePoints.push({ ...lastEl.end });
+                }
+            }
+            
+            // Stoppe aktuelles Zeichnen
+            editor.currentElement = null;
+            editor.isDrawing = false;
+            editor.drawingMode = null;
+            editor.isInCurveMode = false;
+            editor.hideValueDisplay();
+            
+            if (editor.elements.length === 0) {
+                document.getElementById('startBtn').style.display = 'block';
+                editor.updateStatus('Tippen Sie auf "Start" um zu beginnen');
+            } else {
+                editor.updateStatus('Letzter Schritt rückgängig gemacht');
+            }
+            
+            editor.updateMeasurements();
+            editor.render();
+        }
+
         function toggleColorSide() {
             const newSide = editor.colorSide === 'top' ? 'bottom' : 'top';
             setColorSide(newSide);
