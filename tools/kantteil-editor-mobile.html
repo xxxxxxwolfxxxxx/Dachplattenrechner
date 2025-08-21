@@ -1218,10 +1218,13 @@
             
             exportSketch() {
                 if (this.elements.length === 0) {
-                    alert('Keine Zeichnung zum Exportieren vorhanden!');
+                    this.updateStatus('Keine Zeichnung zum Exportieren vorhanden!');
                     return;
                 }
-                showModal('exportModal');
+                
+                // Zeige Export-Modal
+                const modal = document.getElementById('exportModal');
+                modal.style.display = 'flex';
             }
             
             confirmExport() {
@@ -1229,17 +1232,22 @@
                 const quantityNeeded = parseFloat(document.getElementById('quantityNeeded').value);
                 
                 if (!partName) {
-                    alert('Bitte geben Sie einen Namen für das Kantteil ein!');
+                    this.updateStatus('Bitte geben Sie einen Namen für das Kantteil ein!');
                     return;
                 }
                 
                 if (!quantityNeeded || quantityNeeded <= 0) {
-                    alert('Bitte geben Sie eine gültige Meterzahl ein!');
+                    this.updateStatus('Bitte geben Sie eine gültige Meterzahl ein!');
                     return;
                 }
                 
-                this.generateTechnicalDrawing(partName, quantityNeeded);
-                closeModal('exportModal');
+                try {
+                    this.generateTechnicalDrawing(partName, quantityNeeded);
+                    document.getElementById('exportModal').style.display = 'none';
+                } catch (error) {
+                    console.error('Export-Fehler:', error);
+                    this.updateStatus('Fehler beim Export: ' + error.message);
+                }
             }
             
             generateTechnicalDrawing(partName, quantityNeeded) {
@@ -1530,7 +1538,11 @@
         }
 
         function exportSketch() {
-            editor.exportSketch();
+            if (editor && editor.exportSketch) {
+                editor.exportSketch();
+            } else {
+                console.error('Editor oder exportSketch nicht verfügbar');
+            }
         }
 
         function confirmElement() {
@@ -1696,15 +1708,47 @@
         }
 
         function confirmExport() {
-            editor.confirmExport();
+            if (!editor) {
+                console.error('Editor nicht verfügbar');
+                return;
+            }
+            
+            const partName = document.getElementById('partName').value.trim();
+            const quantityNeeded = parseFloat(document.getElementById('quantityNeeded').value);
+            
+            if (!partName) {
+                editor.updateStatus('Bitte geben Sie einen Namen für das Kantteil ein!');
+                return;
+            }
+            
+            if (!quantityNeeded || quantityNeeded <= 0) {
+                editor.updateStatus('Bitte geben Sie eine gültige Meterzahl ein!');
+                return;
+            }
+            
+            try {
+                editor.generateTechnicalDrawing(partName, quantityNeeded);
+                closeModal('exportModal');
+            } catch (error) {
+                console.error('Export-Fehler:', error);
+                editor.updateStatus('Fehler beim Export: ' + error.message);
+            }
         }
 
         function showModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'flex';
+            } else {
+                console.error('Modal nicht gefunden:', modalId);
+            }
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
 
         // Initialisierung
