@@ -642,14 +642,31 @@ function initMobileAds() {
 
 // Cookie Management System - LOCALSTORAGE FIXES
 function showCookieBanner() {
+    // Test localStorage-Funktionalität
+    try {
+        localStorage.setItem('test', 'test');
+        localStorage.removeItem('test');
+    } catch(e) {
+        console.error('localStorage not available:', e);
+        // Fallback: Cookies immer ausblenden wenn localStorage nicht funktioniert
+        return;
+    }
+    
     const cookieConsent = localStorage.getItem('cookieConsent');
     console.log('Cookie consent status:', cookieConsent); // Debug
     
     if (!cookieConsent || cookieConsent === 'null' || cookieConsent === '') {
         console.log('Showing cookie banner'); // Debug
-        document.getElementById('cookieBanner').classList.add('show');
+        const banner = document.getElementById('cookieBanner');
+        if (banner) {
+            banner.classList.add('show');
+        }
     } else {
         console.log('Cookie consent found, hiding banner'); // Debug
+        const banner = document.getElementById('cookieBanner');
+        if (banner) {
+            banner.style.display = 'none';
+        }
     }
 }
 
@@ -660,25 +677,27 @@ function acceptAllCookies() {
         // Prüfe localStorage-Verfügbarkeit
         if (typeof Storage === "undefined") {
             console.error('localStorage not supported');
-            alert('Ihr Browser unterstützt keine lokale Speicherung. Cookies können nicht gespeichert werden.');
-            return;
-        }
-        
-        // Setze Werte mit Fehlerbehandlung
-        localStorage.setItem('cookieConsent', 'all');
-        localStorage.setItem('analyticsCookies', 'true');
-        localStorage.setItem('marketingCookies', 'true');
-        
-        // Prüfe ob gespeichert wurde
-        const saved = localStorage.getItem('cookieConsent');
-        console.log('Cookie consent saved as:', saved); // Debug
-        
-        if (saved !== 'all') {
-            console.error('Failed to save to localStorage');
-            // Fallback: Cookies in die Session setzen
-            sessionStorage.setItem('cookieConsent', 'all');
-            sessionStorage.setItem('analyticsCookies', 'true');
-            sessionStorage.setItem('marketingCookies', 'true');
+            alert('Ihr Browser unterstützt keine lokale Speicherung. Cookies werden für diese Sitzung gespeichert.');
+            // Fallback: Verwende Cookies statt localStorage
+            setCookie('cookieConsent', 'all', 365);
+            setCookie('analyticsCookies', 'true', 365);
+            setCookie('marketingCookies', 'true', 365);
+        } else {
+            // Normale localStorage-Speicherung
+            localStorage.setItem('cookieConsent', 'all');
+            localStorage.setItem('analyticsCookies', 'true');
+            localStorage.setItem('marketingCookies', 'true');
+            
+            // Prüfe ob gespeichert wurde
+            const saved = localStorage.getItem('cookieConsent');
+            console.log('Cookie consent saved as:', saved); // Debug
+            
+            if (saved !== 'all') {
+                console.error('Failed to save to localStorage, using cookies');
+                setCookie('cookieConsent', 'all', 365);
+                setCookie('analyticsCookies', 'true', 365);
+                setCookie('marketingCookies', 'true', 365);
+            }
         }
         
         loadAnalytics();
@@ -688,29 +707,47 @@ function acceptAllCookies() {
         const banner = document.getElementById('cookieBanner');
         if (banner) {
             banner.classList.remove('show');
-            
-            // Fallback nach 1 Sekunde
-            setTimeout(() => {
-                banner.style.display = 'none';
-            }, 1000);
+            banner.style.display = 'none';
         }
         
         console.log('Cookies accepted successfully'); // Debug
     } catch (error) {
         console.error('Error accepting cookies:', error);
         
-        // Fallback: Banner direkt ausblenden und Session-Storage verwenden
-        sessionStorage.setItem('cookieConsent', 'all');
-        sessionStorage.setItem('analyticsCookies', 'true');
-        sessionStorage.setItem('marketingCookies', 'true');
+        // Fallback: Browser-Cookies verwenden
+        setCookie('cookieConsent', 'all', 365);
+        setCookie('analyticsCookies', 'true', 365);
+        setCookie('marketingCookies', 'true', 365);
         
         const banner = document.getElementById('cookieBanner');
         if (banner) {
             banner.style.display = 'none';
         }
         
-        alert('Cookies wurden für diese Sitzung gespeichert.');
+        alert('Cookies wurden über Browser-Cookies gespeichert.');
     }
+}
+
+// NEUE HILFSFUNKTIONEN: Browser-Cookies als Fallback
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+}
+
+function getCookieValue(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
 }
 
 function acceptOnlyEssential() {
@@ -771,21 +808,37 @@ function acceptOnlyEssential() {
     }
 }
 
-// NEUE HILFSFUNKTION: Sichere Cookie-Abfrage
+// NEUE HILFSFUNKTION: Sichere Cookie-Abfrage - ERWEITERT
 function getCookieSetting(key) {
     try {
-        // Versuche localStorage zuerst
+        // 1. Versuche localStorage zuerst
         let value = localStorage.getItem(key);
-        
-        // Falls nicht vorhanden, versuche sessionStorage
-        if (!value || value === 'null') {
-            value = sessionStorage.getItem(key);
+        if (value && value !== 'null') {
+            return value;
         }
         
-        return value;
+        // 2. Falls nicht vorhanden, versuche sessionStorage
+        value = sessionStorage.getItem(key);
+        if (value && value !== 'null') {
+            return value;
+        }
+        
+        // 3. Falls nicht vorhanden, versuche Browser-Cookies
+        value = getCookieValue(key);
+        if (value && value !== 'null') {
+            return value;
+        }
+        
+        return null;
     } catch (error) {
         console.error('Error reading cookie setting:', error);
-        return null;
+        
+        // Fallback: Nur Browser-Cookies versuchen
+        try {
+            return getCookieValue(key);
+        } catch (e) {
+            return null;
+        }
     }
 }
 
