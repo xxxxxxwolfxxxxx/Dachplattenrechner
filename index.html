@@ -402,7 +402,7 @@ function loadAdSense() {
              data-ad-channel="lichtplatten,schwedenblech,dachplatten"></ins>
     </div>
 </div>
-            
+            </div>
         </main>
     </div>
 
@@ -545,6 +545,101 @@ function loadBackgroundImage() {
     img.src = 'Images/index.png';
 }
 
+// ORIENTIERUNGSWECHSEL FIX - NEUE FUNKTIONEN
+let orientationChangeTimeout;
+
+function handleOrientationChange() {
+    // Markiere Body für CSS-Fixes
+    document.body.classList.add('orientation-changed');
+    
+    // Erzwinge Neurendering nach kurzer Verzögerung
+    clearTimeout(orientationChangeTimeout);
+    orientationChangeTimeout = setTimeout(() => {
+        // Grid-Elemente neu positionieren
+        const grids = document.querySelectorAll('.calculators-grid');
+        grids.forEach(grid => {
+            // Trigger reflow
+            grid.style.opacity = '0.99';
+            grid.offsetHeight; // Force reflow
+            grid.style.opacity = '';
+        });
+        
+        // Werbung neu positionieren
+        const ads = document.querySelectorAll('.ad-wrapper');
+        ads.forEach(ad => {
+            ad.style.transform = 'translateZ(0)';
+            ad.offsetHeight; // Force reflow
+            ad.style.transform = '';
+        });
+        
+        // Markierung entfernen
+        document.body.classList.remove('orientation-changed');
+        
+        console.log('Orientation change handled');
+    }, 100);
+}
+
+// Viewport Meta-Tag dynamisch anpassen
+function updateViewportMeta() {
+    let viewport = document.querySelector('meta[name="viewport"]');
+    if (!viewport) {
+        viewport = document.createElement('meta');
+        viewport.name = 'viewport';
+        document.head.appendChild(viewport);
+    }
+    
+    // Unterschiedliche Einstellungen für verschiedene Orientierungen
+    if (window.matchMedia('(orientation: landscape)').matches && window.innerWidth <= 1024) {
+        viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+    } else {
+        viewport.content = 'width=device-width, initial-scale=1.0';
+    }
+}
+
+// Fix für iOS Safari Viewport-Probleme
+function fixIOSViewport() {
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        const fixViewport = () => {
+            document.body.style.height = window.innerHeight + 'px';
+        };
+        
+        window.addEventListener('orientationchange', () => {
+            setTimeout(fixViewport, 500);
+        });
+        
+        fixViewport();
+    }
+}
+
+// Verbesserte Werbung-Initialisierung für mobile
+function initMobileAds() {
+    // Warte auf DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMobileAds);
+        return;
+    }
+    
+    // Überprüfe ob mobile Ansicht
+    const isMobile = window.innerWidth <= 1024;
+    
+    if (isMobile) {
+        // Werbung für mobile optimieren
+        const ads = document.querySelectorAll('.adsbygoogle');
+        ads.forEach(ad => {
+            // Mobile-spezifische Attribute
+            if (window.innerWidth <= 768) {
+                ad.setAttribute('data-ad-format', 'auto');
+                ad.style.minHeight = '70px';
+                ad.style.maxHeight = '200px';
+            } else {
+                ad.setAttribute('data-ad-format', 'horizontal');
+                ad.style.minHeight = '90px';
+                ad.style.maxHeight = '120px';
+            }
+        });
+    }
+}
+
 // Cookie Management System
 function showCookieBanner() {
     const cookieConsent = localStorage.getItem('cookieConsent');
@@ -600,15 +695,6 @@ function showAds() {
 function hideAds() {
     document.getElementById('middle-ad-container-1').style.display = 'none';
     document.getElementById('middle-ad-container-2').style.display = 'none';
-}
-
-function showAdPlaceholders() {
-    document.querySelectorAll('.ad-placeholder').forEach(placeholder => {
-        placeholder.style.display = 'flex';
-    });
-    document.querySelectorAll('.ad-content-real').forEach(ad => {
-        ad.style.display = 'none';
-    });
 }
 
 // Modal AdSense Integration - VERBESSERTE VERSION
@@ -1196,9 +1282,33 @@ function revealEmail(elementId, email) {
     }
 }
 
+// Debug-Funktion für Layout-Probleme
+function debugMobileLayout() {
+    if (window.innerWidth <= 1024) {
+        console.log('Mobile Debug Info:');
+        console.log('- Viewport Width:', window.innerWidth);
+        console.log('- Viewport Height:', window.innerHeight);
+        console.log('- Orientation:', window.orientation || 'unknown');
+        console.log('- Screen:', screen.width + 'x' + screen.height);
+        
+        const grid = document.querySelector('.calculators-grid');
+        if (grid) {
+            const rect = grid.getBoundingClientRect();
+            console.log('- Grid Position:', rect.left, rect.right);
+            console.log('- Grid Width:', rect.width);
+            console.log('- Overflow Right:', rect.right > window.innerWidth);
+        }
+    }
+}
+
 // Initialize everything
 document.addEventListener('DOMContentLoaded', function() {
     setupEmailProtection();
+    
+    // Mobile fixes
+    fixIOSViewport();
+    initMobileAds();
+    handleOrientationChange(); // Initial Layout-Fix
     
     // Lade Hintergrundbild optimiert
     loadBackgroundImage();
@@ -1217,6 +1327,22 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show cookie banner for first-time visitors
     showCookieBanner();
+    
+    // Debug nur im Development
+    if (window.location.hostname === 'localhost' || window.location.hostname.includes('test')) {
+        window.debugMobile = debugMobileLayout;
+        console.log('Mobile Debug: window.debugMobile() verfügbar');
+    }
+});
+
+// Event Listener für Orientierungswechsel
+window.addEventListener('orientationchange', handleOrientationChange);
+window.addEventListener('resize', handleOrientationChange);
+
+// Initial und bei Orientierungswechsel
+updateViewportMeta();
+window.addEventListener('orientationchange', () => {
+    setTimeout(updateViewportMeta, 100);
 });
 </script>
 </body>
