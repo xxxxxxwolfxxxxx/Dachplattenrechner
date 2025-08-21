@@ -1176,6 +1176,13 @@ footer::before {
         padding: 6px 0;
         font-size: 0.85em;
         line-height: 1.3;
+        padding-left: 0 !important; /* KEIN Padding für Blitze */
+        position: relative;
+    }
+    
+    /* BLITZE KOMPLETT ENTFERNEN BEI MOBILE HOCHFORMAT */
+    .card-features li::before {
+        display: none !important;
     }
     
     .cta-button {
