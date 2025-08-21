@@ -271,7 +271,6 @@
         
         <div class="control-row">
             <button class="mobile-btn primary" id="startBtn" onclick="startDrawing()">Start</button>
-            <button class="mobile-btn" id="confirmBtn" onclick="confirmElement()" disabled>OK</button>
             <button class="mobile-btn" onclick="showInputModal()">Eingabe</button>
             <button class="mobile-btn color-toggle" onclick="toggleColorSide()">Farbe</button>
         </div>
@@ -533,9 +532,9 @@
                     thickness: this.settings.thickness
                 };
                 
-                this.updateStatus('Berühren Sie den Bildschirm um die Linie zu positionieren');
+                this.updateStatus('Berühren Sie den Bildschirm um die Linie zu positionieren. Tippen zum Bestätigen.');
                 document.getElementById('startBtn').style.display = 'none';
-                document.getElementById('confirmBtn').disabled = false;
+                // ENTFERNT: confirmBtn wird nicht mehr aktiviert
                 this.showValueDisplay();
                 this.render();
             }
@@ -799,7 +798,7 @@
                     };
                     
                     this.drawingMode = 'line';
-                    this.updateStatus('Zeichnen Sie die nächste Linie');
+                    this.updateStatus('Zeichnen Sie die nächste Linie. Tippen zum Bestätigen.');
                 } else {
                     this.activePoints.push({ ...this.currentElement.end });
                     this.currentElement = null;
@@ -807,7 +806,7 @@
                     this.drawingMode = null;
                     this.hideValueDisplay();
                     this.updateStatus('Tippen Sie auf den blauen Punkt um eine Kurve hinzuzufügen');
-                    document.getElementById('confirmBtn').disabled = true;
+                    // ENTFERNT: confirmBtn wird nicht mehr deaktiviert
                 }
                 
                 this.updateMeasurements();
@@ -880,7 +879,10 @@
             }
             
             drawElementWithColors(element, width) {
-                this.ctx.lineWidth = width;
+                // DYNAMISCHE LINIENBREITE basierend auf Zoom
+                const dynamicWidth = Math.max(1, width * this.zoom);
+                
+                this.ctx.lineWidth = dynamicWidth;
                 this.ctx.lineCap = 'round';
                 this.ctx.lineJoin = 'round';
                 
@@ -899,15 +901,15 @@
                         // Spur A
                         this.ctx.strokeStyle = spurMapping.spurA;
                         this.ctx.beginPath();
-                        this.ctx.moveTo(element.start.x + normalX * (width/2), element.start.y + normalY * (width/2));
-                        this.ctx.lineTo(element.end.x + normalX * (width/2), element.end.y + normalY * (width/2));
+                        this.ctx.moveTo(element.start.x + normalX * (dynamicWidth/2), element.start.y + normalY * (dynamicWidth/2));
+                        this.ctx.lineTo(element.end.x + normalX * (dynamicWidth/2), element.end.y + normalY * (dynamicWidth/2));
                         this.ctx.stroke();
                         
                         // Spur B
                         this.ctx.strokeStyle = spurMapping.spurB;
                         this.ctx.beginPath();
-                        this.ctx.moveTo(element.start.x - normalX * (width/2), element.start.y - normalY * (width/2));
-                        this.ctx.lineTo(element.end.x - normalX * (width/2), element.end.y - normalY * (width/2));
+                        this.ctx.moveTo(element.start.x - normalX * (dynamicWidth/2), element.start.y - normalY * (dynamicWidth/2));
+                        this.ctx.lineTo(element.end.x - normalX * (dynamicWidth/2), element.end.y - normalY * (dynamicWidth/2));
                         this.ctx.stroke();
                     }
                     
@@ -929,13 +931,13 @@
                     // Äußerer Bogen
                     this.ctx.strokeStyle = ersteSpurColor;
                     this.ctx.beginPath();
-                    this.ctx.arc(element.center.x, element.center.y, element.radius + width/2, startAngle, endAngle, counterClockwise);
+                    this.ctx.arc(element.center.x, element.center.y, element.radius + dynamicWidth/2, startAngle, endAngle, counterClockwise);
                     this.ctx.stroke();
                     
                     // Innerer Bogen
                     this.ctx.strokeStyle = zweiteSpurColor;
                     this.ctx.beginPath();
-                    this.ctx.arc(element.center.x, element.center.y, element.radius - width/2, startAngle, endAngle, counterClockwise);
+                    this.ctx.arc(element.center.x, element.center.y, element.radius - dynamicWidth/2, startAngle, endAngle, counterClockwise);
                     this.ctx.stroke();
                 }
             }
@@ -1120,7 +1122,7 @@
                 
                 document.getElementById('measurementsDisplay').style.display = 'none';
                 document.getElementById('startBtn').style.display = 'block';
-                document.getElementById('confirmBtn').disabled = true;
+                // ENTFERNT: confirmBtn wird nicht mehr deaktiviert
                 this.hideValueDisplay();
                 this.updateStatus('Tippen Sie auf "Start" um zu beginnen');
                 this.render();
