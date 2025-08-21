@@ -449,9 +449,9 @@ function loadAdSense() {
                 <p>Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung zu bieten. Dazu gehören essentielle Cookies für die Funktionalität, Analyse-Cookies für die Optimierung und Marketing-Cookies für personalisierte Werbung.</p>
             </div>
             <div class="cookie-buttons">
-                <button class="cookie-btn accept" onclick="acceptAllCookies()">Alle akzeptieren</button>
-                <button class="cookie-btn decline" onclick="acceptOnlyEssential()">Nur Essentielle</button>
-                <button class="cookie-btn settings" onclick="openModal('cookies')">Einstellungen</button>
+                <button class="cookie-btn accept" onclick="acceptAllCookies()" ontouchstart="">Alle akzeptieren</button>
+                <button class="cookie-btn decline" onclick="acceptOnlyEssential()" ontouchstart="">Nur Essentielle</button>
+                <button class="cookie-btn settings" onclick="openModal('cookies')" ontouchstart="">Einstellungen</button>
             </div>
         </div>
     </div>
@@ -640,7 +640,7 @@ function initMobileAds() {
     }
 }
 
-// Cookie Management System
+// Cookie Management System - MOBILE FIXES
 function showCookieBanner() {
     const cookieConsent = localStorage.getItem('cookieConsent');
     if (!cookieConsent) {
@@ -649,24 +649,68 @@ function showCookieBanner() {
 }
 
 function acceptAllCookies() {
-    localStorage.setItem('cookieConsent', 'all');
-    localStorage.setItem('analyticsCookies', 'true');
-    localStorage.setItem('marketingCookies', 'true');
+    console.log('acceptAllCookies called'); // Debug
     
-    loadAnalytics();
-    showAds();
-    
-    document.getElementById('cookieBanner').classList.remove('show');
+    try {
+        localStorage.setItem('cookieConsent', 'all');
+        localStorage.setItem('analyticsCookies', 'true');
+        localStorage.setItem('marketingCookies', 'true');
+        
+        loadAnalytics();
+        showAds();
+        
+        // Banner ausblenden
+        const banner = document.getElementById('cookieBanner');
+        if (banner) {
+            banner.classList.remove('show');
+            
+            // Fallback nach 1 Sekunde
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 1000);
+        }
+        
+        console.log('Cookies accepted successfully'); // Debug
+    } catch (error) {
+        console.error('Error accepting cookies:', error);
+        // Fallback: Banner direkt ausblenden
+        const banner = document.getElementById('cookieBanner');
+        if (banner) {
+            banner.style.display = 'none';
+        }
+    }
 }
 
 function acceptOnlyEssential() {
-    localStorage.setItem('cookieConsent', 'essential');
-    localStorage.setItem('analyticsCookies', 'false');
-    localStorage.setItem('marketingCookies', 'false');
+    console.log('acceptOnlyEssential called'); // Debug
     
-    showAds();
-    
-    document.getElementById('cookieBanner').classList.remove('show');
+    try {
+        localStorage.setItem('cookieConsent', 'essential');
+        localStorage.setItem('analyticsCookies', 'false');
+        localStorage.setItem('marketingCookies', 'false');
+        
+        showAds();
+        
+        // Banner ausblenden
+        const banner = document.getElementById('cookieBanner');
+        if (banner) {
+            banner.classList.remove('show');
+            
+            // Fallback nach 1 Sekunde
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 1000);
+        }
+        
+        console.log('Essential cookies accepted successfully'); // Debug
+    } catch (error) {
+        console.error('Error accepting essential cookies:', error);
+        // Fallback: Banner direkt ausblenden
+        const banner = document.getElementById('cookieBanner');
+        if (banner) {
+            banner.style.display = 'none';
+        }
+    }
 }
 
 function showAds() {
@@ -1310,6 +1354,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initMobileAds();
     handleOrientationChange(); // Initial Layout-Fix
     
+    // MOBILE COOKIE BUTTON FIXES
+    setupMobileCookieButtons();
+    
     // Lade Hintergrundbild optimiert
     loadBackgroundImage();
     
@@ -1334,6 +1381,56 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Mobile Debug: window.debugMobile() verfügbar');
     }
 });
+
+// NEUE FUNKTION: Mobile Cookie Button Setup
+function setupMobileCookieButtons() {
+    // Touch-Events für bessere Mobile-Kompatibilität
+    const acceptBtn = document.querySelector('.cookie-btn.accept');
+    const declineBtn = document.querySelector('.cookie-btn.decline');
+    const settingsBtn = document.querySelector('.cookie-btn.settings');
+    
+    if (acceptBtn) {
+        acceptBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            acceptAllCookies();
+        }, { passive: false });
+        
+        acceptBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            acceptAllCookies();
+        });
+    }
+    
+    if (declineBtn) {
+        declineBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            acceptOnlyEssential();
+        }, { passive: false });
+        
+        declineBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            acceptOnlyEssential();
+        });
+    }
+    
+    if (settingsBtn) {
+        settingsBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openModal('cookies');
+        }, { passive: false });
+        
+        settingsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openModal('cookies');
+        });
+    }
+}
 
 // Event Listener für Orientierungswechsel
 window.addEventListener('orientationchange', handleOrientationChange);
