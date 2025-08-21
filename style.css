@@ -99,24 +99,6 @@ body {
     position: relative;
 }
 
-/* Querformat: VOLLE BREITE ohne weiße Streifen */
-@media (max-width: 1024px) and (orientation: landscape) {
-    .container {
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 0 var(--spacing-sm) !important;
-        width: 100% !important;
-    }
-}
-
-/* Mobile Portrait: NORMALER CONTAINER */
-@media (max-width: 768px) and (orientation: portrait) {
-    .container {
-        padding: 0 var(--spacing-sm);
-        /* Container behält normale Zentrierung */
-    }
-}
-
 /* ===== HEADER STYLES ===== */
 header {
     background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
@@ -221,20 +203,6 @@ main {
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
-}
-
-/* Mobile/Querformat: Grid bricht aus Container aus */
-@media (max-width: 1024px) {
-    .calculators-grid {
-        position: relative;
-        left: 50%;
-        right: 50%;
-        margin-left: -50vw !important;
-        margin-right: -50vw !important;
-        width: 100vw !important;
-        max-width: none !important;
-        padding: 0 var(--spacing-sm);
-    }
 }
 
 .calculator-card {
@@ -870,33 +838,259 @@ footer::before {
     justify-content: center;
 }
 
-/* ===== RESPONSIVE DESIGN ===== */
+/* ===== RESPONSIVE DESIGN - KORRIGIERTE VERSION ===== */
 
-/* Desktop - Sicherstellen dass Werbung über 2 Kacheln geht */
-@media (min-width: 769px) {
-    .calculators-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-        gap: var(--spacing-lg);
+/* Verhindere horizontales Scrollen */
+@media (max-width: 1024px) {
+    html {
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
     }
     
-    .ad-wrapper {
-        grid-column: 1 / -1 !important;
-        width: 100% !important;
-        max-width: 100% !important;
+    body {
+        overflow-x: hidden;
+        position: relative;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+    
+    /* Alle Elemente die ausbrechen könnten */
+    * {
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+    
+    /* Orientierungswechsel erzwingen */
+    .calculators-grid {
+        transition: none !important;
+        animation: none !important;
+    }
+    
+    /* JavaScript Hook für Orientierungswechsel */
+    body.orientation-changed .calculators-grid {
+        opacity: 0.99;
+        transform: translateZ(0);
     }
 }
 
-/* Mobile Portrait - GRID BRICHT AUS CONTAINER AUS */
+/* ===== QUERFORMAT: VOLLE BREITE ===== */
+@media (max-width: 1024px) and (orientation: landscape) {
+    /* Container volle Breite */
+    .container {
+        max-width: 100vw !important;
+        margin: 0 !important;
+        padding: 0 8px !important;
+        width: 100% !important;
+    }
+    
+    /* Header volle Breite */
+    header {
+        padding: 12px 0;
+        margin: 8px 0 16px 0;
+        max-width: 100vw;
+        width: 100%;
+    }
+    
+    header .container {
+        padding: 0 16px !important;
+    }
+    
+    header h1 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        margin-bottom: 4px;
+    }
+    
+    .header-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+    
+    .header-description {
+        padding: 8px;
+        margin: 8px auto 0;
+    }
+    
+    .header-description p {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    
+    /* Main volle Breite */
+    main {
+        padding: 16px 0;
+        margin: 0;
+        width: 100%;
+    }
+    
+    /* Grid volle Breite - 2 Spalten */
+    .calculators-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px;
+        margin: 0 auto 24px auto;
+        max-width: 100vw !important;
+        width: 100% !important;
+        padding: 0 8px !important;
+        /* Grid bleibt im normalen Container */
+        position: static !important;
+        left: auto !important;
+        right: auto !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+    
+    /* Kompakte Kacheln */
+    .calculator-card {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .card-icon {
+        height: 50px;
+        margin-bottom: 8px;
+        padding: 8px;
+    }
+    
+    .card-icon img {
+        height: 50px !important;
+        max-width: 80px !important;
+    }
+    
+    .card-title {
+        font-size: 1em;
+        height: auto;
+        min-height: 35px;
+        margin-bottom: 6px;
+        line-height: 1.2;
+    }
+    
+    .card-description {
+        font-size: 0.8em;
+        height: auto;
+        min-height: 45px;
+        margin-bottom: 6px;
+        line-height: 1.3;
+    }
+    
+    .card-features {
+        margin-bottom: 8px;
+    }
+    
+    .card-features li {
+        padding: 4px 0;
+        font-size: 0.75em;
+        line-height: 1.2;
+        padding-left: 25px;
+    }
+    
+    .card-features li::before {
+        left: 8px;
+        font-size: 1em;
+    }
+    
+    .cta-button {
+        padding: 10px;
+        font-size: 0.85em;
+    }
+    
+    /* Werbung über beide Spalten - volle Breite */
+    .ad-wrapper {
+        grid-column: 1 / -1 !important;
+        margin: 16px 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    .ad-wrapper .adsbygoogle {
+        width: 100% !important;
+        min-height: 90px !important;
+        max-height: 120px !important;
+    }
+    
+    /* Footer kompakter */
+    footer {
+        padding: 16px 0 12px;
+        margin-top: 24px;
+    }
+    
+    .footer-content {
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 16px;
+    }
+    
+    .footer-section h3 {
+        font-size: 1em;
+        margin-bottom: 8px;
+    }
+    
+    /* Modal im Querformat */
+    .modal-content {
+        padding: 16px;
+        margin: 3% auto;
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .calculation-modal-content {
+        padding: 16px;
+        margin: 2% auto;
+        max-height: 95vh;
+    }
+    
+    .calculation-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .calculation-item {
+        padding: 12px;
+    }
+    
+    .calculation-icon {
+        height: 50px;
+        margin-bottom: 8px;
+    }
+    
+    .calculation-title {
+        font-size: 0.9em;
+        margin-bottom: 6px;
+    }
+    
+    .calculation-description {
+        font-size: 0.8em;
+        line-height: 1.3;
+    }
+}
+
+/* ===== HOCHFORMAT: GRID BRICHT AUS CONTAINER AUS ===== */
 @media (max-width: 768px) and (orientation: portrait) {
     :root {
         font-size: 14px;
     }
     
+    /* Body Hintergrund angepasst */
     body {
         background: var(--bg-primary) url('Images/index.png') top center no-repeat;
         background-attachment: scroll;
         background-size: 375px auto;
+        /* Erzwinge Neuzeichnung bei Orientierungswechsel */
+        transform: translateZ(0);
+    }
+    
+    /* Container normal */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 16px;
+        width: auto;
+    }
+    
+    /* Header normal */
+    header {
+        margin: 16px auto 24px auto;
+        max-width: 1000px;
+        padding: 16px 0;
     }
     
     header h1 {
@@ -907,12 +1101,19 @@ footer::before {
         font-size: 1rem;
     }
     
-    /* GRID NUTZT VOLLE VIEWPORT-BREITE */
+    /* Main normal */
+    main {
+        padding: 32px;
+        margin-bottom: 32px;
+    }
+    
+    /* GRID BRICHT AUS CONTAINER AUS */
     .calculators-grid {
         grid-template-columns: 1fr !important;
-        gap: var(--spacing-md);
-        margin-bottom: var(--spacing-xl);
-        /* Bricht aus Container aus: */
+        gap: 16px;
+        margin-bottom: 32px;
+        
+        /* Container-Breakout für volle Breite */
         position: relative !important;
         left: 50% !important;
         right: 50% !important;
@@ -920,20 +1121,20 @@ footer::before {
         margin-right: -50vw !important;
         width: 100vw !important;
         max-width: none !important;
-        padding: 0 var(--spacing-sm) !important;
+        padding: 0 16px !important;
     }
     
+    /* Kacheln */
     .calculator-card {
         width: 100%;
-        padding: var(--spacing-md);
-        margin-bottom: var(--spacing-md);
+        padding: 16px;
+        margin-bottom: 16px;
     }
     
-    /* KOMPAKTERE KACHEL-INHALTE */
     .card-icon {
         height: 70px;
-        margin-bottom: var(--spacing-sm);
-        padding: var(--spacing-sm);
+        margin-bottom: 12px;
+        padding: 12px;
     }
     
     .card-icon img {
@@ -946,19 +1147,19 @@ footer::before {
         line-height: 1.2;
         height: auto;
         min-height: 40px;
-        margin-bottom: var(--spacing-xs);
+        margin-bottom: 8px;
     }
     
     .card-description {
         font-size: 0.9em;
         height: auto;
         min-height: 60px;
-        margin-bottom: var(--spacing-xs);
+        margin-bottom: 8px;
         line-height: 1.4;
     }
     
     .card-features {
-        margin-bottom: var(--spacing-sm);
+        margin-bottom: 12px;
     }
     
     .card-features li {
@@ -974,6 +1175,7 @@ footer::before {
     
     /* WERBUNG BRICHT AUCH AUS */
     .ad-wrapper {
+        /* Container-Breakout für volle Breite */
         position: relative !important;
         left: 50% !important;
         right: 50% !important;
@@ -981,25 +1183,28 @@ footer::before {
         margin-right: -50vw !important;
         width: 100vw !important;
         max-width: none !important;
-        padding: 0 var(--spacing-sm) !important;
-        margin-top: var(--spacing-md) !important;
-        margin-bottom: var(--spacing-md) !important;
+        padding: 0 16px !important;
+        margin-top: 16px !important;
+        margin-bottom: 16px !important;
+        grid-column: 1 / -1 !important;
     }
     
     .ad-wrapper .adsbygoogle {
         min-height: 70px !important;
         max-height: 200px !important;
+        width: 100% !important;
     }
     
+    /* Footer */
     .footer-content {
         grid-template-columns: 1fr;
-        gap: var(--spacing-lg);
+        gap: 16px;
     }
     
     .cookie-content {
         flex-direction: column;
         text-align: center;
-        gap: var(--spacing-md);
+        gap: 16px;
     }
     
     .cookie-buttons {
@@ -1008,319 +1213,23 @@ footer::before {
     }
     
     .modal-content {
-        padding: var(--spacing-lg);
+        padding: 16px;
         margin: 10% auto;
         width: 95%;
     }
 }
 
-/* Querformat - VOLLE BREITE bis zu den Rändern */
-@media (max-width: 1024px) and (orientation: landscape) {
-    /* Header volle Breite */
-    header {
-        padding: var(--spacing-sm) 0;
-        margin: var(--spacing-sm) 0 var(--spacing-md) 0;
-        max-width: none;
-    }
-    
-    header h1 {
-        font-size: clamp(1.5rem, 4vw, 2rem);
-        margin-bottom: var(--spacing-xs);
-    }
-    
-    .header-subtitle {
-        font-size: 0.9rem;
-        margin-bottom: var(--spacing-sm);
-    }
-    
-    .header-description {
-        padding: var(--spacing-xs);
-        margin: var(--spacing-xs) auto 0;
-    }
-    
-    .header-description p {
-        font-size: 14px;
-        line-height: 1.4;
-    }
-    
-    /* MAIN VOLLE BREITE */
-    main {
-        padding: var(--spacing-md) 0;
-        margin: 0;
-        width: 100%;
-    }
-    
-    /* GRID VOLLE BREITE */
+/* ===== DESKTOP - Sicherstellen dass Werbung über 2 Kacheln geht ===== */
+@media (min-width: 769px) {
     .calculators-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-md);
-        margin-bottom: var(--spacing-lg);
-        max-width: none;
-        width: 100%;
-        padding: 0 var(--spacing-sm);
-    }
-    
-    /* Werbung über beide Spalten */
-    .ad-wrapper {
-        grid-column: 1 / -1 !important;
-        margin: var(--spacing-lg) auto !important;
-        max-width: none !important;
-        width: 100% !important;
-        min-height: 90px;
-        max-height: 120px;
-    }
-    
-    .ad-wrapper .adsbygoogle {
-        width: 100% !important;
-        min-height: 90px !important;
-        max-height: 120px !important;
-    }
-    
-    .ad-label {
-        top: 2px;
-        right: 2px;
-        padding: 1px 6px;
-        font-size: 9px;
-    }
-    
-    /* Kompaktere Kacheln */
-    .calculator-card {
-        padding: var(--spacing-md);
-        margin-bottom: var(--spacing-md);
-    }
-    
-    .card-icon {
-        height: 60px;
-        margin-bottom: var(--spacing-sm);
-        padding: var(--spacing-sm);
-    }
-    
-    .card-icon img {
-        height: 60px !important;
-        max-width: 100px !important;
-    }
-    
-    .card-title {
-        font-size: 1.1em;
-        height: auto;
-        min-height: 40px;
-        margin-bottom: var(--spacing-xs);
-    }
-    
-    .card-description {
-        font-size: 0.85em;
-        height: auto;
-        min-height: 50px;
-        margin-bottom: var(--spacing-xs);
-        line-height: 1.4;
-    }
-    
-    .card-features {
-        margin-bottom: var(--spacing-sm);
-    }
-    
-    .card-features li {
-        padding: 6px 0;
-        font-size: 0.8em;
-        line-height: 1.3;
-        padding-left: 45px;
-    }
-    
-    .card-features li::before {
-        left: 12px;
-    }
-    
-    .cta-button {
-        padding: 12px;
-        font-size: 0.95em;
-    }
-    
-    /* Footer kompakter */
-    footer {
-        padding: var(--spacing-lg) 0 var(--spacing-md);
-        margin-top: var(--spacing-lg);
-    }
-    
-    .footer-content {
-        grid-template-columns: 2fr 1fr 1fr;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
         gap: var(--spacing-lg);
     }
     
-    .footer-section h3 {
-        font-size: 1.1em;
-        margin-bottom: var(--spacing-sm);
-    }
-    
-    /* Modal im Querformat */
-    .modal-content {
-        padding: var(--spacing-lg);
-        margin: 3% auto;
-        width: 95%;
-        max-height: 90vh;
-    }
-    
-    .calculation-modal-content {
-        padding: var(--spacing-lg);
-        margin: 2% auto;
-        max-height: 95vh;
-    }
-    
-    .calculation-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-md);
-    }
-    
-    .calculation-item {
-        padding: var(--spacing-md);
-    }
-    
-    .calculation-icon {
-        height: 60px;
-        margin-bottom: var(--spacing-sm);
-    }
-    
-    .calculation-title {
-        font-size: 1em;
-        margin-bottom: var(--spacing-xs);
-    }
-    
-    .calculation-description {
-        font-size: 0.85em;
-        line-height: 1.4;
-    }
-}
-    
-    /* Werbung über beide Spalten */
     .ad-wrapper {
         grid-column: 1 / -1 !important;
-        margin: var(--spacing-lg) auto !important;
-        max-width: none !important;
         width: 100% !important;
-        min-height: 90px;
-        max-height: 120px;
-    }
-    
-    .ad-wrapper .adsbygoogle {
-        width: 100% !important;
-        min-height: 90px !important;
-        max-height: 120px !important;
-        display: block !important;
-    }
-    
-    .ad-label {
-        top: 2px;
-        right: 2px;
-        padding: 1px 6px;
-        font-size: 9px;
-    }
-    
-    /* Kompaktere Kacheln */
-    .calculator-card {
-        padding: var(--spacing-md);
-        margin-bottom: var(--spacing-md);
-    }
-    
-    .card-icon {
-        height: 60px;
-        margin-bottom: var(--spacing-sm);
-        padding: var(--spacing-sm);
-    }
-    
-    .card-icon img {
-        height: 60px !important;
-        max-width: 100px !important;
-    }
-    
-    .card-title {
-        font-size: 1.1em;
-        height: auto;
-        min-height: 40px;
-        margin-bottom: var(--spacing-xs);
-    }
-    
-    .card-description {
-        font-size: 0.85em;
-        height: auto;
-        min-height: 50px;
-        margin-bottom: var(--spacing-xs);
-        line-height: 1.4;
-    }
-    
-    .card-features {
-        margin-bottom: var(--spacing-sm);
-    }
-    
-    .card-features li {
-        padding: 6px 0;
-        font-size: 0.8em;
-        line-height: 1.3;
-        padding-left: 45px;
-    }
-    
-    .card-features li::before {
-        left: 12px;
-    }
-    
-    .cta-button {
-        padding: 12px;
-        font-size: 0.95em;
-    }
-    
-    main {
-        padding: var(--spacing-md);
-    }
-    
-    /* Footer kompakter */
-    footer {
-        padding: var(--spacing-lg) 0 var(--spacing-md);
-        margin-top: var(--spacing-lg);
-    }
-    
-    .footer-content {
-        grid-template-columns: 2fr 1fr 1fr;
-        gap: var(--spacing-lg);
-    }
-    
-    .footer-section h3 {
-        font-size: 1.1em;
-        margin-bottom: var(--spacing-sm);
-    }
-    
-    /* Modal im Querformat */
-    .modal-content {
-        padding: var(--spacing-lg);
-        margin: 3% auto;
-        width: 95%;
-        max-height: 90vh;
-    }
-    
-    .calculation-modal-content {
-        padding: var(--spacing-lg);
-        margin: 2% auto;
-        max-height: 95vh;
-    }
-    
-    .calculation-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-md);
-    }
-    
-    .calculation-item {
-        padding: var(--spacing-md);
-    }
-    
-    .calculation-icon {
-        height: 60px;
-        margin-bottom: var(--spacing-sm);
-    }
-    
-    .calculation-title {
-        font-size: 1em;
-        margin-bottom: var(--spacing-xs);
-    }
-    
-    .calculation-description {
-        font-size: 0.85em;
-        line-height: 1.4;
+        max-width: 100% !important;
     }
 }
