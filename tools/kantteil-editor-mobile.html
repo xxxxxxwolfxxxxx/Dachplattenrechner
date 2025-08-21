@@ -319,7 +319,7 @@
                 this.isDrawing = false;
                 this.drawingMode = null;
                 this.startPos = { x: 400, y: 300 };
-                this.scale = 15; // Kleinerer Scale für Mobile
+                this.scale = 5; // KLEINERER GRUNDSCALE für größere Bauteile
                 this.zoom = 1;
                 this.panX = 0;
                 this.panY = 0;
@@ -426,7 +426,7 @@
                     if (this.lastDistance > 0) {
                         // Zoom
                         const zoomFactor = distance / this.lastDistance;
-                        const newZoom = Math.max(0.3, Math.min(3, this.zoom * zoomFactor));
+                        const newZoom = Math.max(0.05, Math.min(5, this.zoom * zoomFactor)); // VIEL GRÖSSERER ZOOM-BEREICH
                         
                         const worldMidX = (midpoint.x - this.panX) / this.zoom;
                         const worldMidY = (midpoint.y - this.panY) / this.zoom;
@@ -1087,14 +1087,7 @@
                 
                 this.ctx.setLineDash([]);
                 
-                // Zusätzlich: Zeige aktuellen Winkel am Kurvenmittelpunkt
-                if (this.currentElement.center) {
-                    this.ctx.fillStyle = '#27ae60';
-                    this.ctx.font = `${16 / this.zoom}px Arial`;
-                    this.ctx.textAlign = 'center';
-                    const text = `${this.currentElement.angle}°`;
-                    this.ctx.fillText(text, this.currentElement.center.x, this.currentElement.center.y - 10 / this.zoom);
-                }
+                // ENTFERNT: Doppelte Winkelanzeige
             }
             
             drawZoomInfo() {
@@ -1121,23 +1114,23 @@
                 this.isDrawing = false;
                 this.drawingMode = null;
                 
-                this.zoom = 1;
-                this.panX = 0;
-                this.panY = 0;
+                this.zoom = 0.5; // WEITER RAUSGEZOOMT beim Start
+                this.panX = this.canvas.width/2 - this.startPos.x * this.zoom;
+                this.panY = this.canvas.height/2 - this.startPos.y * this.zoom;
                 
                 document.getElementById('measurementsDisplay').style.display = 'none';
                 document.getElementById('startBtn').style.display = 'block';
                 document.getElementById('confirmBtn').disabled = true;
                 this.hideValueDisplay();
-                this.updateStatus('Tippen Sie auf "Zeichnung starten" um zu beginnen');
+                this.updateStatus('Tippen Sie auf "Start" um zu beginnen');
                 this.render();
             }
             
             centerView() {
                 if (this.elements.length === 0) {
-                    this.zoom = 1;
-                    this.panX = this.canvas.width/2 - this.startPos.x;
-                    this.panY = this.canvas.height/2 - this.startPos.y;
+                    this.zoom = 0.5; // WEITER RAUSGEZOOMT
+                    this.panX = this.canvas.width/2 - this.startPos.x * this.zoom;
+                    this.panY = this.canvas.height/2 - this.startPos.y * this.zoom;
                 } else {
                     let minX = Infinity, minY = Infinity;
                     let maxX = -Infinity, maxY = -Infinity;
@@ -1159,12 +1152,12 @@
                     
                     const centerX = (minX + maxX) / 2;
                     const centerY = (minY + maxY) / 2;
-                    const width = maxX - minX + 100;
-                    const height = maxY - minY + 100;
+                    const width = maxX - minX + 200; // MEHR RAND
+                    const height = maxY - minY + 200;
                     
                     const zoomX = this.canvas.width / width;
                     const zoomY = this.canvas.height / height;
-                    this.zoom = Math.min(zoomX, zoomY, 2);
+                    this.zoom = Math.min(zoomX, zoomY, 3); // GRÖSSERER MAX-ZOOM
                     
                     this.panX = this.canvas.width/2 - centerX * this.zoom;
                     this.panY = this.canvas.height/2 - centerY * this.zoom;
