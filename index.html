@@ -640,11 +640,16 @@ function initMobileAds() {
     }
 }
 
-// Cookie Management System - MOBILE FIXES
+// Cookie Management System - LOCALSTORAGE FIXES
 function showCookieBanner() {
     const cookieConsent = localStorage.getItem('cookieConsent');
-    if (!cookieConsent) {
+    console.log('Cookie consent status:', cookieConsent); // Debug
+    
+    if (!cookieConsent || cookieConsent === 'null' || cookieConsent === '') {
+        console.log('Showing cookie banner'); // Debug
         document.getElementById('cookieBanner').classList.add('show');
+    } else {
+        console.log('Cookie consent found, hiding banner'); // Debug
     }
 }
 
@@ -652,9 +657,29 @@ function acceptAllCookies() {
     console.log('acceptAllCookies called'); // Debug
     
     try {
+        // Prüfe localStorage-Verfügbarkeit
+        if (typeof Storage === "undefined") {
+            console.error('localStorage not supported');
+            alert('Ihr Browser unterstützt keine lokale Speicherung. Cookies können nicht gespeichert werden.');
+            return;
+        }
+        
+        // Setze Werte mit Fehlerbehandlung
         localStorage.setItem('cookieConsent', 'all');
         localStorage.setItem('analyticsCookies', 'true');
         localStorage.setItem('marketingCookies', 'true');
+        
+        // Prüfe ob gespeichert wurde
+        const saved = localStorage.getItem('cookieConsent');
+        console.log('Cookie consent saved as:', saved); // Debug
+        
+        if (saved !== 'all') {
+            console.error('Failed to save to localStorage');
+            // Fallback: Cookies in die Session setzen
+            sessionStorage.setItem('cookieConsent', 'all');
+            sessionStorage.setItem('analyticsCookies', 'true');
+            sessionStorage.setItem('marketingCookies', 'true');
+        }
         
         loadAnalytics();
         showAds();
@@ -673,11 +698,18 @@ function acceptAllCookies() {
         console.log('Cookies accepted successfully'); // Debug
     } catch (error) {
         console.error('Error accepting cookies:', error);
-        // Fallback: Banner direkt ausblenden
+        
+        // Fallback: Banner direkt ausblenden und Session-Storage verwenden
+        sessionStorage.setItem('cookieConsent', 'all');
+        sessionStorage.setItem('analyticsCookies', 'true');
+        sessionStorage.setItem('marketingCookies', 'true');
+        
         const banner = document.getElementById('cookieBanner');
         if (banner) {
             banner.style.display = 'none';
         }
+        
+        alert('Cookies wurden für diese Sitzung gespeichert.');
     }
 }
 
@@ -685,9 +717,28 @@ function acceptOnlyEssential() {
     console.log('acceptOnlyEssential called'); // Debug
     
     try {
+        // Prüfe localStorage-Verfügbarkeit
+        if (typeof Storage === "undefined") {
+            console.error('localStorage not supported');
+            alert('Ihr Browser unterstützt keine lokale Speicherung. Cookies können nicht gespeichert werden.');
+            return;
+        }
+        
         localStorage.setItem('cookieConsent', 'essential');
         localStorage.setItem('analyticsCookies', 'false');
         localStorage.setItem('marketingCookies', 'false');
+        
+        // Prüfe ob gespeichert wurde
+        const saved = localStorage.getItem('cookieConsent');
+        console.log('Cookie consent saved as:', saved); // Debug
+        
+        if (saved !== 'essential') {
+            console.error('Failed to save to localStorage');
+            // Fallback: Cookies in die Session setzen
+            sessionStorage.setItem('cookieConsent', 'essential');
+            sessionStorage.setItem('analyticsCookies', 'false');
+            sessionStorage.setItem('marketingCookies', 'false');
+        }
         
         showAds();
         
@@ -705,12 +756,48 @@ function acceptOnlyEssential() {
         console.log('Essential cookies accepted successfully'); // Debug
     } catch (error) {
         console.error('Error accepting essential cookies:', error);
-        // Fallback: Banner direkt ausblenden
+        
+        // Fallback: Banner direkt ausblenden und Session-Storage verwenden
+        sessionStorage.setItem('cookieConsent', 'essential');
+        sessionStorage.setItem('analyticsCookies', 'false');
+        sessionStorage.setItem('marketingCookies', 'false');
+        
         const banner = document.getElementById('cookieBanner');
         if (banner) {
             banner.style.display = 'none';
         }
+        
+        alert('Cookie-Einstellungen wurden für diese Sitzung gespeichert.');
     }
+}
+
+// NEUE HILFSFUNKTION: Sichere Cookie-Abfrage
+function getCookieSetting(key) {
+    try {
+        // Versuche localStorage zuerst
+        let value = localStorage.getItem(key);
+        
+        // Falls nicht vorhanden, versuche sessionStorage
+        if (!value || value === 'null') {
+            value = sessionStorage.getItem(key);
+        }
+        
+        return value;
+    } catch (error) {
+        console.error('Error reading cookie setting:', error);
+        return null;
+    }
+}
+
+// NEUE HILFSFUNKTION: Cookie-Status für Debug
+function debugCookieStatus() {
+    console.log('=== COOKIE STATUS DEBUG ===');
+    console.log('localStorage available:', typeof Storage !== "undefined");
+    console.log('cookieConsent (localStorage):', localStorage.getItem('cookieConsent'));
+    console.log('cookieConsent (sessionStorage):', sessionStorage.getItem('cookieConsent'));
+    console.log('analyticsCookies:', getCookieSetting('analyticsCookies'));
+    console.log('marketingCookies:', getCookieSetting('marketingCookies'));
+    console.log('========================');
 }
 
 function showAds() {
@@ -1135,9 +1222,31 @@ function saveCookieSettings() {
     const analyticsCookies = document.getElementById('analyticsCookies').checked;
     const marketingCookies = document.getElementById('marketingCookies').checked;
     
-    localStorage.setItem('cookieConsent', 'custom');
-    localStorage.setItem('analyticsCookies', analyticsCookies.toString());
-    localStorage.setItem('marketingCookies', marketingCookies.toString());
+    console.log('Saving cookie settings:', { analyticsCookies, marketingCookies }); // Debug
+    
+    try {
+        localStorage.setItem('cookieConsent', 'custom');
+        localStorage.setItem('analyticsCookies', analyticsCookies.toString());
+        localStorage.setItem('marketingCookies', marketingCookies.toString());
+        
+        // Prüfe ob gespeichert wurde
+        const saved = localStorage.getItem('cookieConsent');
+        console.log('Cookie settings saved as:', saved); // Debug
+        
+        if (saved !== 'custom') {
+            console.error('Failed to save to localStorage, using sessionStorage');
+            sessionStorage.setItem('cookieConsent', 'custom');
+            sessionStorage.setItem('analyticsCookies', analyticsCookies.toString());
+            sessionStorage.setItem('marketingCookies', marketingCookies.toString());
+        }
+        
+    } catch (error) {
+        console.error('Error saving cookie settings:', error);
+        // Fallback zu sessionStorage
+        sessionStorage.setItem('cookieConsent', 'custom');
+        sessionStorage.setItem('analyticsCookies', analyticsCookies.toString());
+        sessionStorage.setItem('marketingCookies', marketingCookies.toString());
+    }
     
     // Analytics laden/entladen
     if (analyticsCookies) {
@@ -1156,6 +1265,9 @@ function saveCookieSettings() {
     
     closeModal();
     alert('Cookie-Einstellungen gespeichert!');
+    
+    // Debug
+    debugCookieStatus();
 }
 
 // Sketch Modal Functions
@@ -1349,6 +1461,9 @@ function debugMobileLayout() {
 document.addEventListener('DOMContentLoaded', function() {
     setupEmailProtection();
     
+    // DEBUG: Cookie-Status anzeigen
+    debugCookieStatus();
+    
     // Mobile fixes
     fixIOSViewport();
     initMobileAds();
@@ -1363,22 +1478,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // AdSense immer laden
     loadAdSense();
     
-    // Initialize tracking based on existing consent
-    const cookieConsent = localStorage.getItem('cookieConsent');
-    if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
+    // Initialize tracking based on existing consent - VERBESSERT
+    const cookieConsent = getCookieSetting('cookieConsent');
+    const analyticsCookies = getCookieSetting('analyticsCookies');
+    
+    console.log('Initializing with consent:', cookieConsent, 'analytics:', analyticsCookies);
+    
+    if (cookieConsent === 'all' || analyticsCookies === 'true') {
         loadAnalytics();
     }
     
     // Werbung immer anzeigen
     showAds();
     
-    // Show cookie banner for first-time visitors
-    showCookieBanner();
+    // Show cookie banner for first-time visitors - VERBESSERT
+    setTimeout(() => {
+        showCookieBanner();
+    }, 500); // Kurze Verzögerung für bessere localStorage-Erkennung
     
     // Debug nur im Development
     if (window.location.hostname === 'localhost' || window.location.hostname.includes('test')) {
         window.debugMobile = debugMobileLayout;
-        console.log('Mobile Debug: window.debugMobile() verfügbar');
+        window.debugCookies = debugCookieStatus;
+        console.log('Debug functions available: window.debugMobile(), window.debugCookies()');
     }
 });
 
@@ -1394,12 +1516,15 @@ function setupMobileCookieButtons() {
             e.preventDefault();
             e.stopPropagation();
             acceptAllCookies();
+            // ZOOM-FIX: Viewport neu setzen
+            setTimeout(fixViewportAfterCookieAction, 100);
         }, { passive: false });
         
         acceptBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             acceptAllCookies();
+            setTimeout(fixViewportAfterCookieAction, 100);
         });
     }
     
@@ -1408,12 +1533,14 @@ function setupMobileCookieButtons() {
             e.preventDefault();
             e.stopPropagation();
             acceptOnlyEssential();
+            setTimeout(fixViewportAfterCookieAction, 100);
         }, { passive: false });
         
         declineBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             acceptOnlyEssential();
+            setTimeout(fixViewportAfterCookieAction, 100);
         });
     }
     
@@ -1430,6 +1557,39 @@ function setupMobileCookieButtons() {
             openModal('cookies');
         });
     }
+}
+
+// NEUER FIX: Viewport nach Cookie-Aktion korrigieren
+function fixViewportAfterCookieAction() {
+    // Viewport Meta-Tag neu setzen
+    updateViewportMeta();
+    
+    // Body-Zoom zurücksetzen
+    document.body.style.zoom = '1';
+    document.documentElement.style.zoom = '1';
+    
+    // Layout neu triggern
+    window.scrollTo(0, window.scrollY);
+    
+    // Falls iOS: spezielle Behandlung
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        // Kurz warten und dann Layout neu berechnen
+        setTimeout(() => {
+            const currentScale = window.visualViewport ? window.visualViewport.scale : 1;
+            if (currentScale !== 1) {
+                // Versuche Zoom zurückzusetzen
+                const viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+                    setTimeout(() => {
+                        viewport.content = 'width=device-width, initial-scale=1.0';
+                    }, 100);
+                }
+            }
+        }, 200);
+    }
+    
+    console.log('Viewport after cookie action fixed');
 }
 
 // Event Listener für Orientierungswechsel
