@@ -568,11 +568,17 @@
                 // Alle Werbeanzeigen konfigurieren
                 const ads = document.querySelectorAll('.adsbygoogle');
                 ads.forEach(ad => {
+                    // Prüfe ob bereits geladen
+                    if (ad.getAttribute('data-adsbygoogle-status')) {
+                        console.log('Ad already loaded, skipping');
+                        return;
+                    }
+                    
                     if (!allowPersonalized) {
                         ad.setAttribute('data-npa', '1'); // Nicht-personalisierte Werbung
                     }
                     
-                    // AdSense Push
+                    // AdSense Push nur für neue Ads
                     (window.adsbygoogle = window.adsbygoogle || []).push({});
                 });
                 
@@ -666,11 +672,6 @@
             // AdSense nach kurzer Verzögerung laden
             setTimeout(initAdSense, 1000);
         });
-    </script>
-
-    <!-- AdSense Script ausführen -->
-    <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
 </body>
 </html>
