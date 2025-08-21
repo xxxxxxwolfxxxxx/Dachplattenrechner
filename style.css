@@ -872,7 +872,7 @@ footer::before {
     }
 }
 
-/* Mobile Portrait - NORMALE BREITE, PERFEKTE ZENTRIERUNG */
+/* Mobile Portrait - VOLLE SEITENBREITE für Kacheln */
 @media (max-width: 768px) and (orientation: portrait) {
     :root {
         font-size: 14px;
@@ -892,18 +892,41 @@ footer::before {
         font-size: 1rem;
     }
     
-    /* MOBILE PORTRAIT: 1 SPALTE - WIE HEADER ZENTRIERT */
+    /* MAIN CONTAINER OHNE PADDING für Kacheln */
+    main {
+        padding: 0; /* ENTFERNT PADDING */
+    }
+    
+    /* MOBILE PORTRAIT: KACHELN VOLLE BREITE */
     .calculators-grid {
         grid-template-columns: 1fr !important;
         gap: var(--spacing-lg);
         margin-bottom: var(--spacing-xxl);
-        max-width: 1200px; /* GLEICHE BREITE WIE CONTAINER */
-        margin-left: auto;
-        margin-right: auto;
+        max-width: none !important; /* KEINE BEGRENZUNG */
+        width: 100vw; /* VOLLE VIEWPORT BREITE */
+        padding: 0 var(--spacing-xs); /* NUR MINIMALER ABSTAND */
+        margin-left: 0;
+        margin-right: 0;
     }
     
     .calculator-card {
         width: 100%;
+        margin: 0; /* KEIN ZUSÄTZLICHER MARGIN */
+    }
+    
+    /* WERBUNG VOLLE BREITE */
+    .ad-wrapper {
+        grid-column: 1 !important;
+        max-width: none !important;
+        width: 100% !important;
+        margin: var(--spacing-md) 0 !important; /* KEIN SEITLICHER MARGIN */
+        padding: 0 var(--spacing-xs); /* NUR MINIMALER PADDING */
+    }
+    
+    .ad-wrapper .adsbygoogle {
+        min-height: 70px !important;
+        max-height: 200px !important;
+        width: 100% !important;
     }
     
     /* Mobile Kachel-Titel anpassen */
@@ -917,19 +940,6 @@ footer::before {
     .calculation-title {
         font-size: 1.2em;
         line-height: 1.2;
-    }
-    
-    /* Werbung normal */
-    .ad-wrapper {
-        grid-column: 1 !important;
-        max-width: 100% !important;
-        width: 100% !important;
-        margin: var(--spacing-md) auto !important;
-    }
-    
-    .ad-wrapper .adsbygoogle {
-        min-height: 70px !important;
-        max-height: 200px !important;
     }
     
     .footer-content {
