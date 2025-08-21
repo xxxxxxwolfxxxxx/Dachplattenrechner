@@ -212,6 +212,17 @@ main {
     backdrop-filter: none;
 }
 
+/* Mobile/Querformat: Main ohne Container-Einschränkungen */
+@media (max-width: 1024px) {
+    main {
+        padding: var(--spacing-lg) 0 !important;
+        margin: 0 !important;
+        width: 100vw !important;
+        margin-left: calc(-50vw + 50%) !important;
+        margin-right: calc(-50vw + 50%) !important;
+    }
+}
+
 /* ===== CALCULATOR CARDS ===== */
 .calculators-grid {
     display: grid;
@@ -876,7 +887,7 @@ footer::before {
 /* Mobile Portrait - KORREKTE KACHELGRÖSSE */
 @media (max-width: 768px) and (orientation: portrait) {
     :root {
-        font-size: 14px; /* KLEINERE BASIS-SCHRIFT */
+        font-size: 14px;
     }
     
     body {
@@ -893,28 +904,27 @@ footer::before {
         font-size: 1rem;
     }
     
-    /* MAIN NORMAL - NUTZT CONTAINER PADDING */
-    main {
-        padding: var(--spacing-lg); /* NORMALES PADDING ZURÜCK */
-    }
-    
-    /* MOBILE PORTRAIT: KACHELN NORMALE GRÖSSE */
+    /* MOBILE PORTRAIT: KACHELN IN VIEWPORT-MITTE */
     .calculators-grid {
         grid-template-columns: 1fr !important;
-        gap: var(--spacing-md); /* KLEINERER GAP */
+        gap: var(--spacing-md);
         margin-bottom: var(--spacing-xl);
-        /* NUTZT NORMALE CONTAINER-GRENZEN */
+        max-width: calc(100vw - 2rem) !important;
+        width: calc(100vw - 2rem) !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding: 0 var(--spacing-sm) !important;
     }
     
     .calculator-card {
         width: 100%;
-        padding: var(--spacing-md); /* KOMPAKTERES PADDING */
+        padding: var(--spacing-md);
         margin-bottom: var(--spacing-md);
     }
     
     /* KOMPAKTERE KACHEL-INHALTE */
     .card-icon {
-        height: 70px; /* KLEINER */
+        height: 70px;
         margin-bottom: var(--spacing-sm);
         padding: var(--spacing-sm);
     }
@@ -925,7 +935,7 @@ footer::before {
     }
     
     .card-title {
-        font-size: 1.1em; /* KLEINER */
+        font-size: 1.1em;
         line-height: 1.2;
         height: auto;
         min-height: 40px;
@@ -933,7 +943,7 @@ footer::before {
     }
     
     .card-description {
-        font-size: 0.9em; /* KLEINER */
+        font-size: 0.9em;
         height: auto;
         min-height: 60px;
         margin-bottom: var(--spacing-xs);
@@ -945,13 +955,13 @@ footer::before {
     }
     
     .card-features li {
-        padding: 6px 0; /* KOMPAKTER */
+        padding: 6px 0;
         font-size: 0.85em;
         line-height: 1.3;
     }
     
     .cta-button {
-        padding: 12px; /* KOMPAKTER */
+        padding: 12px;
         font-size: 0.95em;
     }
     
@@ -959,6 +969,8 @@ footer::before {
     .ad-wrapper {
         grid-column: 1 !important;
         margin: var(--spacing-md) auto !important;
+        max-width: calc(100vw - 2rem) !important;
+        width: calc(100vw - 2rem) !important;
     }
     
     .ad-wrapper .adsbygoogle {
