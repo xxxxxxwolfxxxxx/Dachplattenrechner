@@ -1635,7 +1635,7 @@ footer::before {
        /* Mobile optimiertes Hintergrundbild - keine Skalierung */
         background: var(--bg-primary) url('Images/index.png') top center no-repeat;
         background-attachment: scroll; /* Verhindert Probleme auf Mobile */
-        background-size: 375px auto ; /* HÃ¶he = Viewport, Breite proportional */
+        background-size: 375px auto ; /* HÃƒÂ¶he = Viewport, Breite proportional */
     }
     
     .container {
@@ -1654,12 +1654,12 @@ footer::before {
     .card-title {
         font-size: 1.2em; /* Reduziert von 1.8em */
         line-height: 1.2;
-        height: auto; /* Flexible HÃ¶he */
+        height: auto; /* Flexible HÃƒÂ¶he */
         min-height: 50px;
     }
     
     .calculation-title {
-        font-size: 1.2em; /* Reduziert fÃ¼r Modal */
+        font-size: 1.2em; /* Reduziert fÃƒÂ¼r Modal */
         line-height: 1.2;
     }
     
@@ -1701,9 +1701,17 @@ footer::before {
         grid-template-columns: 1fr;
     }
     
+    /* MOBILE PORTRAIT: NUR 1 SPALTE */
     .calculators-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
         gap: var(--spacing-lg);
+    }
+    
+    /* MOBILE PORTRAIT: Werbung zurücksetzen auf normale Breite */
+    .ad-wrapper {
+        grid-column: 1 !important;
+        max-width: 100% !important;
+        width: 100% !important;
     }
     
     .steps-overview {
