@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kantteile Zeichenprogramm</title>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033"
+         crossorigin="anonymous"></script>
+    
     <style>
         * {
             margin: 0;
@@ -281,41 +286,42 @@
             margin-bottom: 8px;
         }
         
-        /* Werbeplätze */
-        .ad-container {
-            margin: 40px auto;
+        /* Werbung Styling */
+        .ad-wrapper {
+            margin: 30px auto;
             max-width: 800px;
             border-radius: 12px;
             overflow: hidden;
             transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        
-        .ad-placeholder {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 2px dashed #dee2e6;
-            padding: 25px;
             text-align: center;
-            transition: all 0.3s ease;
         }
         
-        .ad-placeholder:hover {
-            border-color: #1e3c72;
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        .ad-with-label {
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            backdrop-filter: blur(5px);
         }
         
-        .ad-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: #6c757d;
-            font-weight: 500;
+        .ad-label {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-size: 10px;
+            color: #666;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        .ad-icon {
-            font-size: 1.5em;
-            opacity: 0.8;
+        .adsbygoogle {
+            min-height: 90px;
+            display: block;
         }
         
         /* Editor Container */
@@ -361,6 +367,27 @@
                 grid-template-columns: 1fr;
                 gap: 15px;
             }
+            
+            /* Mobile Werbung - kleinere Höhe */
+            .adsbygoogle {
+                min-height: 70px;
+            }
+            
+            .ad-wrapper {
+                margin: 20px auto;
+            }
+        }
+        
+        /* Portrait Handy - spezielle Anpassungen */
+        @media (max-width: 480px) and (orientation: portrait) {
+            .adsbygoogle {
+                min-height: 100px;
+            }
+            
+            .ad-wrapper {
+                margin: 15px auto;
+                max-width: 95%;
+            }
         }
     </style>
 </head>
@@ -376,13 +403,16 @@
         </div>
     </div>
 
-    <!-- Werbeplatz oben -->
-    <div class="ad-container">
-        <div class="ad-placeholder">
-            <div class="ad-content">
-                <span class="ad-icon">🎯</span>
-                <span class="ad-text">Unterstützen Sie uns - Präzise Tools für Kantteile</span>
-            </div>
+    <!-- Werbung oben -->
+    <div class="ad-wrapper" id="top-ad-container">
+        <div class="ad-with-label">
+            <span class="ad-label">Werbung</span>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-8687929894744033"
+                 data-ad-slot="8222453332"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
         </div>
     </div>
 
@@ -448,13 +478,17 @@
             </div>
         </div>
 
-        <!-- Werbeplatz mitte -->
-        <div class="ad-container">
-            <div class="ad-placeholder">
-                <div class="ad-content">
-                    <span class="ad-icon">🔧</span>
-                    <span class="ad-text">Professionelle Blechbearbeitung & Kantteile</span>
-                </div>
+        <!-- Werbung mitte -->
+        <div class="ad-wrapper" id="middle-ad-container">
+            <div class="ad-with-label">
+                <span class="ad-label">Werbung</span>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="7268464318"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"
+                     data-ad-channel="trapezbleche,schwedenbleche,kantteile,spengler,blechbearbeitung"></ins>
             </div>
         </div>
 
@@ -504,6 +538,49 @@
             backColor: '#B8B799',
             selectedColorCode: '8004'
         };
+
+        // Cookie-Status aus localStorage lesen
+        function getCookieSetting(key) {
+            try {
+                let value = localStorage.getItem(key);
+                if (value && value !== 'null') {
+                    return value;
+                }
+                
+                value = sessionStorage.getItem(key);
+                if (value && value !== 'null') {
+                    return value;
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('Error reading cookie setting:', error);
+                return null;
+            }
+        }
+
+        // AdSense initialisieren
+        function initAdSense() {
+            try {
+                const marketingCookies = getCookieSetting('marketingCookies');
+                const allowPersonalized = marketingCookies === 'true';
+                
+                // Alle Werbeanzeigen konfigurieren
+                const ads = document.querySelectorAll('.adsbygoogle');
+                ads.forEach(ad => {
+                    if (!allowPersonalized) {
+                        ad.setAttribute('data-npa', '1'); // Nicht-personalisierte Werbung
+                    }
+                    
+                    // AdSense Push
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                });
+                
+                console.log('AdSense initialized with personalization:', allowPersonalized);
+            } catch (error) {
+                console.error('AdSense initialization error:', error);
+            }
+        }
 
         // Event Listeners für Einstellungen
         document.getElementById('thickness').addEventListener('change', function() {
@@ -585,7 +662,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateColorPreview();
             updateSelectedColorDisplay();
+            
+            // AdSense nach kurzer Verzögerung laden
+            setTimeout(initAdSense, 1000);
         });
+    </script>
+
+    <!-- AdSense Script ausführen -->
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
 </body>
 </html>
