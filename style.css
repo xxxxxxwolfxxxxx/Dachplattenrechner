@@ -99,8 +99,15 @@ body {
     position: relative;
 }
 
-/* Mobile/Tablet: Container auf volle Breite */
-@media (max-width: 1024px) {
+/* Mobile: Container zentriert aber normale Breite */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 var(--spacing-sm);
+    }
+}
+
+/* Querformat: Container nutzt volle Breite */
+@media (max-width: 1024px) and (max-height: 768px) and (orientation: landscape) {
     .container {
         max-width: none !important;
         margin: 0 !important;
@@ -865,7 +872,7 @@ footer::before {
     }
 }
 
-/* Mobile Portrait - ZENTRIERTE KACHELN */
+/* Mobile Portrait - NORMALE BREITE, PERFEKTE ZENTRIERUNG */
 @media (max-width: 768px) and (orientation: portrait) {
     :root {
         font-size: 14px;
@@ -885,19 +892,17 @@ footer::before {
         font-size: 1rem;
     }
     
-    /* MOBILE PORTRAIT: 1 SPALTE KOMPLETT ZENTRIERT */
+    /* MOBILE PORTRAIT: 1 SPALTE - WIE HEADER ZENTRIERT */
     .calculators-grid {
         grid-template-columns: 1fr !important;
         gap: var(--spacing-lg);
-        justify-items: center;
-        max-width: none !important;
-        margin: 0 auto var(--spacing-xxl) auto;
-        width: 100%;
-        padding: 0 var(--spacing-sm);
+        margin-bottom: var(--spacing-xxl);
+        max-width: 1200px; /* GLEICHE BREITE WIE CONTAINER */
+        margin-left: auto;
+        margin-right: auto;
     }
     
     .calculator-card {
-        max-width: none;
         width: 100%;
     }
     
@@ -914,7 +919,7 @@ footer::before {
         line-height: 1.2;
     }
     
-    /* Werbung auf mobile zurücksetzen */
+    /* Werbung normal */
     .ad-wrapper {
         grid-column: 1 !important;
         max-width: 100% !important;
@@ -951,13 +956,13 @@ footer::before {
     }
 }
 
-/* Querformat - kompakt und 2 Spalten */
+/* Querformat - VOLLE BREITE bis zu den Rändern */
 @media (max-width: 1024px) and (max-height: 768px) and (orientation: landscape) {
     /* Kompakter Header für Querformat */
     header {
         padding: var(--spacing-sm) 0;
         margin: var(--spacing-sm) 0 var(--spacing-md) 0;
-        max-width: none;
+        max-width: none; /* VOLLE BREITE */
     }
     
     header h1 {
@@ -987,12 +992,12 @@ footer::before {
         width: 100%;
     }
     
-    /* Zwei Kacheln nebeneinander im Querformat */
+    /* Zwei Kacheln nebeneinander - VOLLE BREITE */
     .calculators-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: var(--spacing-md);
         margin-bottom: var(--spacing-lg);
-        max-width: none;
+        max-width: none; /* KEINE BEGRENZUNG */
         width: 100%;
         padding: 0 var(--spacing-sm);
     }
