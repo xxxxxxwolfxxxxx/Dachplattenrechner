@@ -868,7 +868,14 @@ footer::before {
     }
     
     .container {
-        padding: 0 var(--spacing-sm); /* REDUZIERT für mehr Platz */
+        padding: 0 var(--spacing-sm);
+        max-width: none; /* ENTFERNT CONTAINER BEGRENZUNG */
+        width: 100%;
+    }
+    
+    header {
+        max-width: none; /* ENTFERNT HEADER BEGRENZUNG */
+        margin: var(--spacing-md) var(--spacing-sm) var(--spacing-lg) var(--spacing-sm);
     }
     
     header h1 {
@@ -879,21 +886,26 @@ footer::before {
         font-size: 1rem;
     }
     
-    /* MOBILE PORTRAIT: 1 SPALTE ZENTRIERT */
+    /* MAIN CONTAINER ANPASSUNG */
+    main {
+        padding: 0; /* ENTFERNT MAIN PADDING */
+        margin: 0; /* ENTFERNT MAIN MARGIN */
+        width: 100%;
+    }
+    
+    /* MOBILE PORTRAIT: 1 SPALTE KOMPLETT ZENTRIERT */
     .calculators-grid {
         grid-template-columns: 1fr !important;
         gap: var(--spacing-lg);
-        justify-items: center; /* ZENTRIERT DIE KACHELN */
-        max-width: none !important; /* ENTFERNT BEGRENZUNG */
+        justify-items: center;
+        max-width: none !important;
         margin: 0 auto var(--spacing-xxl) auto;
-        width: 100vw; /* VOLLE VIEWPORT BREITE */
-        padding: 0 var(--spacing-sm); /* EIGENES PADDING */
-        margin-left: calc(-1 * var(--spacing-sm)); /* KOMPENSIERT CONTAINER PADDING */
-        margin-right: calc(-1 * var(--spacing-sm));
+        width: 100%;
+        padding: 0 var(--spacing-sm);
     }
     
     .calculator-card {
-        max-width: calc(100vw - 2 * var(--spacing-sm)); /* BERÜCKSICHTIGT PADDING */
+        max-width: none;
         width: 100%;
     }
     
@@ -923,10 +935,6 @@ footer::before {
         max-height: 200px !important;
     }
     
-    main {
-        padding: var(--spacing-lg);
-    }
-    
     .footer-content {
         grid-template-columns: 1fr;
         gap: var(--spacing-lg);
@@ -953,10 +961,16 @@ footer::before {
 
 /* Querformat - kompakt und 2 Spalten */
 @media (max-width: 1024px) and (max-height: 768px) and (orientation: landscape) {
+    .container {
+        max-width: none; /* ENTFERNT CONTAINER BEGRENZUNG */
+        padding: 0 var(--spacing-sm);
+    }
+    
     /* Kompakter Header für Querformat */
     header {
         padding: var(--spacing-sm) 0;
-        margin: var(--spacing-sm) auto var(--spacing-md) auto;
+        margin: var(--spacing-sm) 0 var(--spacing-md) 0;
+        max-width: none; /* VOLLE BREITE */
     }
     
     header h1 {
@@ -979,11 +993,21 @@ footer::before {
         line-height: 1.4;
     }
     
+    /* MAIN VOLLE BREITE */
+    main {
+        padding: var(--spacing-md) 0;
+        margin: 0;
+        width: 100%;
+    }
+    
     /* Zwei Kacheln nebeneinander im Querformat */
     .calculators-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: var(--spacing-md);
         margin-bottom: var(--spacing-lg);
+        max-width: none;
+        width: 100%;
+        padding: 0 var(--spacing-sm);
     }
     
     /* Werbung über beide Spalten */
