@@ -212,17 +212,6 @@ main {
     backdrop-filter: none;
 }
 
-/* Mobile/Querformat: Main ohne Container-Einschränkungen */
-@media (max-width: 1024px) {
-    main {
-        padding: var(--spacing-lg) 0 !important;
-        margin: 0 !important;
-        width: 100vw !important;
-        margin-left: calc(-50vw + 50%) !important;
-        margin-right: calc(-50vw + 50%) !important;
-    }
-}
-
 /* ===== CALCULATOR CARDS ===== */
 .calculators-grid {
     display: grid;
@@ -232,6 +221,20 @@ main {
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
+}
+
+/* Mobile/Querformat: Grid bricht aus Container aus */
+@media (max-width: 1024px) {
+    .calculators-grid {
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
+        width: 100vw !important;
+        max-width: none !important;
+        padding: 0 var(--spacing-sm);
+    }
 }
 
 .calculator-card {
@@ -884,7 +887,7 @@ footer::before {
     }
 }
 
-/* Mobile Portrait - KORREKTE KACHELGRÖSSE */
+/* Mobile Portrait - GRID BRICHT AUS CONTAINER AUS */
 @media (max-width: 768px) and (orientation: portrait) {
     :root {
         font-size: 14px;
@@ -904,15 +907,19 @@ footer::before {
         font-size: 1rem;
     }
     
-    /* MOBILE PORTRAIT: KACHELN IN VIEWPORT-MITTE */
+    /* GRID NUTZT VOLLE VIEWPORT-BREITE */
     .calculators-grid {
         grid-template-columns: 1fr !important;
         gap: var(--spacing-md);
         margin-bottom: var(--spacing-xl);
-        max-width: calc(100vw - 2rem) !important;
-        width: calc(100vw - 2rem) !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
+        /* Bricht aus Container aus: */
+        position: relative !important;
+        left: 50% !important;
+        right: 50% !important;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
+        width: 100vw !important;
+        max-width: none !important;
         padding: 0 var(--spacing-sm) !important;
     }
     
@@ -965,12 +972,18 @@ footer::before {
         font-size: 0.95em;
     }
     
-    /* WERBUNG NORMALE BREITE */
+    /* WERBUNG BRICHT AUCH AUS */
     .ad-wrapper {
-        grid-column: 1 !important;
-        margin: var(--spacing-md) auto !important;
-        max-width: calc(100vw - 2rem) !important;
-        width: calc(100vw - 2rem) !important;
+        position: relative !important;
+        left: 50% !important;
+        right: 50% !important;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
+        width: 100vw !important;
+        max-width: none !important;
+        padding: 0 var(--spacing-sm) !important;
+        margin-top: var(--spacing-md) !important;
+        margin-bottom: var(--spacing-md) !important;
     }
     
     .ad-wrapper .adsbygoogle {
