@@ -276,6 +276,7 @@
         <div class="header-left">
             <div class="mobile-title">🔧 Kantteile Editor</div>
             <button class="export-btn" onclick="exportSketch()">📤 Export</button>
+            <button class="export-btn" onclick="showHelp()">❓ Hilfe</button>
         </div>
         <button class="mobile-close" onclick="closeEditor()">✕ Schließen</button>
     </div>
@@ -1243,44 +1244,55 @@
             }
             
             generateTechnicalDrawing(partName, quantityNeeded) {
-                // Vereinfachter Export für Mobile
+                // Erweiterte technische Zeichnung mit Bemaßung
                 const techCanvas = document.createElement('canvas');
                 const techCtx = techCanvas.getContext('2d');
                 
-                // Canvas-Größe
-                techCanvas.width = 800;
-                techCanvas.height = 600;
+                // Bestimme Bounding Box der Zeichnung
+                let minX = Infinity, minY = Infinity;
+                let maxX = -Infinity, maxY = -Infinity;
+                
+                this.elements.forEach(element => {
+                    if (element.type === 'line') {
+                        minX = Math.min(minX, element.start.x, element.end.x);
+                        maxX = Math.max(maxX, element.start.x, element.end.x);
+                        minY = Math.min(minY, element.start.y, element.end.y);
+                        maxY = Math.max(maxY, element.start.y, element.end.y);
+                    } else if (element.type === 'curve' && element.center) {
+                        const r = element.radius + 20;
+                        minX = Math.min(minX, element.center.x - r);
+                        maxX = Math.max(maxX, element.center.x + r);
+                        minY = Math.min(minY, element.center.y - r);
+                        maxY = Math.max(maxY, element.center.y + r);
+                    }
+                });
+                
+                // Canvas-Größe mit viel Platz für Bemaßung
+                const margin = 300; // Mehr Platz für Bemaßung
+                const drawingWidth = maxX - minX;
+                const drawingHeight = maxY - minY;
+                
+                techCanvas.width = drawingWidth + 2 * margin;
+                techCanvas.height = drawingHeight + 2 * margin + 400; // Noch mehr Platz
                 
                 // Weißer Hintergrund
                 techCtx.fillStyle = 'white';
                 techCtx.fillRect(0, 0, techCanvas.width, techCanvas.height);
                 
-                // Titel
+                // Titel und Informationen
                 techCtx.fillStyle = '#1e3c72';
-                techCtx.font = 'bold 32px Arial';
+                techCtx.font = 'bold 64px Arial';
                 techCtx.textAlign = 'center';
-                techCtx.fillText('Technische Zeichnung - Kantteil', techCanvas.width / 2, 40);
+                techCtx.fillText('DACHPLATTENRECHNER.DE', techCanvas.width / 2, 60);
                 
-                techCtx.font = 'bold 24px Arial';
-                techCtx.fillText(partName, techCanvas.width / 2, 70);
+                techCtx.fillStyle = 'black';
+                techCtx.font = 'bold 48px Arial';
+                techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 120);
                 
-                // Zeichnung zentriert darstellen
-                const drawingBounds = this.getDrawingBounds();
-                const scale = Math.min(500 / drawingBounds.width, 400 / drawingBounds.height, 2);
+                techCtx.font = 'bold 36px Arial';
+                techCtx.fillText(partName, techCanvas.width / 2, 160);
                 
-                techCtx.save();
-                techCtx.translate(techCanvas.width / 2, techCanvas.height / 2 + 20);
-                techCtx.scale(scale, scale);
-                techCtx.translate(-drawingBounds.centerX, -drawingBounds.centerY);
-                
-                // Zeichne Elemente
-                this.elements.forEach(element => {
-                    this.drawTechnicalElement(techCtx, element);
-                });
-                
-                techCtx.restore();
-                
-                // Informationen
+                // Berechne Gesamtlänge und Kantungen
                 let totalLength = 0;
                 let kantungen = 0;
                 this.elements.forEach((element) => {
@@ -1291,25 +1303,36 @@
                     }
                 });
                 
-                techCtx.font = 'bold 18px Arial';
+                // Informationen unten
+                techCtx.font = 'bold 32px Arial';
                 techCtx.textAlign = 'left';
                 techCtx.fillStyle = 'black';
-                techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 30, techCanvas.height - 100);
-                techCtx.fillText(`Kantungen: ${kantungen}`, 30, techCanvas.height - 80);
-                techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 30, techCanvas.height - 60);
+                techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 30, techCanvas.height - 160);
+                techCtx.fillText(`Kantungen: ${kantungen}`, 30, techCanvas.height - 120);
+                techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 30, techCanvas.height - 80);
                 techCtx.fillText(`Farbcode: ${this.settings.selectedColorCode}`, 30, techCanvas.height - 40);
                 
                 techCtx.textAlign = 'right';
-                techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 30, techCanvas.height - 60);
-                techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 30, techCanvas.height - 40);
+                techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 30, techCanvas.height - 120);
+                techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 30, techCanvas.height - 80);
+                techCtx.fillText(`erstellt mit dachplattenrechner.de`, techCanvas.width - 30, techCanvas.height - 40);
                 
-                // Download
+                // Verschiebe Koordinatensystem für Zeichnung
+                techCtx.translate(-minX + margin, -minY + margin + 200);
+                
+                // Zeichne Elemente mit Farben
+                this.drawTechnicalElements(techCtx);
+                
+                // WICHTIG: Füge Bemaßung hinzu
+                this.addTechnicalDimensions(techCtx);
+                
+                // Download als PNG
                 const link = document.createElement('a');
-                link.download = `${partName}_mobile.png`;
+                link.download = `${partName}_technische_zeichnung.png`;
                 link.href = techCanvas.toDataURL();
                 link.click();
                 
-                this.updateStatus('Technische Zeichnung wurde erstellt');
+                this.updateStatus('Technische Zeichnung mit Bemaßung wurde erstellt');
             }
             
             getDrawingBounds() {
@@ -1343,59 +1366,152 @@
                 };
             }
             
-            drawTechnicalElement(ctx, element) {
-                const spurMapping = this.getSpurMappingForElement(element);
-                const lineWidth = 4;
+            addTechnicalDimensions(ctx) {
+                ctx.strokeStyle = 'blue';
+                ctx.fillStyle = 'blue';
+                ctx.lineWidth = 3;
+                ctx.font = 'bold 28px Arial';
+                ctx.textAlign = 'center';
                 
-                if (element.type === 'line') {
-                    const dx = element.end.x - element.start.x;
-                    const dy = element.end.y - element.start.y;
-                    const length = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (length > 0) {
-                        const normalX = -dy / length;
-                        const normalY = dx / length;
+                const usedDimensionLines = [];
+                
+                this.elements.forEach((element, index) => {
+                    if (element.type === 'line') {
+                        const length = element.originalLength || element.length;
                         
-                        ctx.strokeStyle = spurMapping.spurA;
-                        ctx.lineWidth = lineWidth;
-                        ctx.lineCap = 'round';
-                        ctx.beginPath();
-                        ctx.moveTo(element.start.x + normalX * (lineWidth/2), element.start.y + normalY * (lineWidth/2));
-                        ctx.lineTo(element.end.x + normalX * (lineWidth/2), element.end.y + normalY * (lineWidth/2));
-                        ctx.stroke();
+                        const dimPosition = this.findOptimalDimensionPosition(element, usedDimensionLines, index);
                         
-                        ctx.strokeStyle = spurMapping.spurB;
-                        ctx.beginPath();
-                        ctx.moveTo(element.start.x - normalX * (lineWidth/2), element.start.y - normalY * (lineWidth/2));
-                        ctx.lineTo(element.end.x - normalX * (lineWidth/2), element.end.y - normalY * (lineWidth/2));
-                        ctx.stroke();
+                        this.drawDimensionLine(ctx, element, dimPosition, length);
+                        usedDimensionLines.push(dimPosition);
                     }
-                } else if (element.type === 'curve' && element.center && element.angle !== 0) {
-                    const startAngle = element.startAngleFromCenter;
-                    const endAngle = element.endAngleFromCenter;
-                    const counterClockwise = element.angle < 0;
-                    
-                    let ersteSpurColor, zweiteSpurColor;
-                    if (element.angle > 0) {
-                        ersteSpurColor = spurMapping.spurB;
-                        zweiteSpurColor = spurMapping.spurA;
-                    } else {
-                        ersteSpurColor = spurMapping.spurA;
-                        zweiteSpurColor = spurMapping.spurB;
+                });
+            }
+            
+            findOptimalDimensionPosition(element, usedLines, elementIndex) {
+                const dx = element.end.x - element.start.x;
+                const dy = element.end.y - element.start.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                
+                if (length === 0) return { offset: 80, side: 1 };
+                
+                const normalX = -dy / length;
+                const normalY = dx / length;
+                
+                // Berechne Zentrum der Zeichnung
+                const shapeCenter = this.calculateShapeCenter();
+                const lineCenter = {
+                    x: (element.start.x + element.end.x) / 2,
+                    y: (element.start.y + element.end.y) / 2
+                };
+                
+                const toCenter = {
+                    x: shapeCenter.x - lineCenter.x,
+                    y: shapeCenter.y - lineCenter.y
+                };
+                
+                const dotProduct = normalX * toCenter.x + normalY * toCenter.y;
+                const preferredSide = dotProduct > 0 ? -1 : 1;
+                
+                const lineLength = element.originalLength || element.length;
+                const useInside = lineLength < 15;
+                const finalSide = useInside ? -preferredSide : preferredSide;
+                
+                const possibleOffsets = useInside ? [40, 60, 80] : [80, 120, 160, 200];
+                const sides = [finalSide, -finalSide];
+                
+                for (const side of sides) {
+                    for (const offset of possibleOffsets) {
+                        const testPos = {
+                            startX: element.start.x + normalX * offset * side,
+                            startY: element.start.y + normalY * offset * side,
+                            endX: element.end.x + normalX * offset * side,
+                            endY: element.end.y + normalY * offset * side,
+                            offset: offset,
+                            side: side,
+                            isInside: useInside
+                        };
+                        
+                        const hasCollision = usedLines.some(usedLine => {
+                            return this.linesIntersect(testPos, usedLine);
+                        });
+                        
+                        if (!hasCollision) {
+                            return testPos;
+                        }
                     }
-                    
-                    ctx.lineWidth = lineWidth;
-                    
-                    ctx.strokeStyle = ersteSpurColor;
-                    ctx.beginPath();
-                    ctx.arc(element.center.x, element.center.y, element.radius + lineWidth/2, startAngle, endAngle, counterClockwise);
-                    ctx.stroke();
-                    
-                    ctx.strokeStyle = zweiteSpurColor;
-                    ctx.beginPath();
-                    ctx.arc(element.center.x, element.center.y, element.radius - lineWidth/2, startAngle, endAngle, counterClockwise);
-                    ctx.stroke();
                 }
+                
+                return { 
+                    startX: element.start.x + normalX * (useInside ? 40 : 80),
+                    startY: element.start.y + normalY * (useInside ? 40 : 80),
+                    endX: element.end.x + normalX * (useInside ? 40 : 80),
+                    endY: element.end.y + normalY * (useInside ? 40 : 80),
+                    offset: useInside ? 40 : 80,
+                    side: 1,
+                    isInside: useInside
+                };
+            }
+            
+            drawDimensionLine(ctx, element, dimPos, length) {
+                // Bemaßungslinie
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(dimPos.startX, dimPos.startY);
+                ctx.lineTo(dimPos.endX, dimPos.endY);
+                ctx.stroke();
+                
+                // Hilfslinien
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(element.start.x, element.start.y);
+                ctx.lineTo(dimPos.startX, dimPos.startY);
+                ctx.moveTo(element.end.x, element.end.y);
+                ctx.lineTo(dimPos.endX, dimPos.endY);
+                ctx.stroke();
+                
+                // Bemaßungstext
+                const textX = (dimPos.startX + dimPos.endX) / 2;
+                const textY = (dimPos.startY + dimPos.endY) / 2 - 15;
+                
+                // Weißer Hintergrund
+                ctx.fillStyle = 'white';
+                ctx.fillRect(textX - 50, textY - 20, 100, 40);
+                ctx.strokeStyle = 'blue';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(textX - 50, textY - 20, 100, 40);
+                
+                ctx.fillStyle = 'blue';
+                ctx.font = 'bold 28px Arial';
+                ctx.fillText(`${length}mm`, textX, textY + 10);
+            }
+            
+            calculateShapeCenter() {
+                if (this.elements.length === 0) return { x: 0, y: 0 };
+                
+                let totalX = 0, totalY = 0, pointCount = 0;
+                
+                this.elements.forEach(element => {
+                    if (element.type === 'line') {
+                        totalX += element.start.x + element.end.x;
+                        totalY += element.start.y + element.end.y;
+                        pointCount += 2;
+                    } else if (element.type === 'curve' && element.center) {
+                        totalX += element.start.x + element.end.x;
+                        totalY += element.start.y + element.end.y;
+                        pointCount += 2;
+                    }
+                });
+                
+                return {
+                    x: totalX / pointCount,
+                    y: totalY / pointCount
+                };
+            }
+            
+            linesIntersect(line1, line2) {
+                const dist1 = Math.sqrt(Math.pow(line1.startX - line2.startX, 2) + Math.pow(line1.startY - line2.startY, 2));
+                const dist2 = Math.sqrt(Math.pow(line1.endX - line2.endX, 2) + Math.pow(line1.endY - line2.endY, 2));
+                return (dist1 < 60 && dist2 < 60);
             }
         }
 
