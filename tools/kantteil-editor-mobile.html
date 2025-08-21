@@ -625,24 +625,26 @@
             updateCurveFromTouch(touchPos) {
                 if (!this.currentElement || this.currentElement.type !== 'curve') return;
                 
-                const startAngle = this.currentElement.startAngle;
-                this.calculateCurveEndpoint();
-                const curveEnd = this.currentElement.end || this.currentElement.start;
+                // VEREINFACHTE WINKELBERECHNUNG
+                const start = this.currentElement.start;
+                const dx = touchPos.x - start.x;
+                const dy = touchPos.y - start.y;
                 
-                const dx = touchPos.x - curveEnd.x;
-                const dy = touchPos.y - curveEnd.y;
-                const mouseLineAngle = Math.atan2(dy, dx);
+                // Berechne Winkel relativ zur aktuellen Fahrtrichtung
+                const mouseAngle = Math.atan2(dy, dx);
+                const startDirection = this.currentElement.startAngle;
                 
-                // KORRIGIERT: Verwende die Richtung der grünen Hilfslinie (endAngle)
-                const endAngle = this.currentElement.endAngle || startAngle;
-                let relativeAngle = mouseLineAngle - endAngle;
+                // Relativer Winkel zur Fahrtrichtung
+                let relativeAngle = mouseAngle - startDirection;
                 
+                // Normalisiere auf -π bis +π
                 while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
                 while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
                 
+                // Konvertiere zu Grad und runde
                 let angleDegrees = Math.round(relativeAngle * 180 / Math.PI);
                 
-                // KORRIGIERT: Volle -180° bis +180° Range ohne Einschränkungen
+                // Begrenze auf erlaubten Bereich
                 angleDegrees = Math.max(-180, Math.min(180, angleDegrees));
                 
                 this.currentElement.angle = angleDegrees;
@@ -658,6 +660,7 @@
                 if (angle === 0) {
                     this.currentElement.end = { ...start };
                     this.currentElement.endAngle = startAngle;
+                    this.helperLineEnd = null;
                     return;
                 }
                 
@@ -682,11 +685,14 @@
                 this.currentElement.startAngleFromCenter = startAngleFromCenter;
                 this.currentElement.endAngleFromCenter = endAngleFromCenter;
                 
-                // Erstelle Hilfslinie für bessere Visualisierung
-                const length = 80;
-                const helperEndX = this.currentElement.end.x + Math.cos(this.currentElement.endAngle) * length;
-                const helperEndY = this.currentElement.end.y + Math.sin(this.currentElement.endAngle) * length;
-                this.helperLineEnd = { x: helperEndX, y: helperEndY };
+                // STABILERE Hilfslinie - nur aktualisieren wenn sich Winkel ändert
+                if (this.lastHelperAngle !== this.currentElement.endAngle) {
+                    const length = 60;
+                    const helperEndX = this.currentElement.end.x + Math.cos(this.currentElement.endAngle) * length;
+                    const helperEndY = this.currentElement.end.y + Math.sin(this.currentElement.endAngle) * length;
+                    this.helperLineEnd = { x: helperEndX, y: helperEndY };
+                    this.lastHelperAngle = this.currentElement.endAngle;
+                }
             }
             
             handlePointClick(point) {
@@ -1071,8 +1077,8 @@
                 const curveEnd = this.currentElement.end || this.currentElement.start;
                 
                 this.ctx.strokeStyle = '#27ae60';
-                this.ctx.lineWidth = 3 / this.zoom;
-                this.ctx.setLineDash([6 / this.zoom, 6 / this.zoom]);
+                this.ctx.lineWidth = 4 / this.zoom;
+                this.ctx.setLineDash([10 / this.zoom, 10 / this.zoom]);
                 
                 this.ctx.beginPath();
                 this.ctx.moveTo(curveEnd.x, curveEnd.y);
@@ -1080,6 +1086,15 @@
                 this.ctx.stroke();
                 
                 this.ctx.setLineDash([]);
+                
+                // Zusätzlich: Zeige aktuellen Winkel am Kurvenmittelpunkt
+                if (this.currentElement.center) {
+                    this.ctx.fillStyle = '#27ae60';
+                    this.ctx.font = `${16 / this.zoom}px Arial`;
+                    this.ctx.textAlign = 'center';
+                    const text = `${this.currentElement.angle}°`;
+                    this.ctx.fillText(text, this.currentElement.center.x, this.currentElement.center.y - 10 / this.zoom);
+                }
             }
             
             drawZoomInfo() {
