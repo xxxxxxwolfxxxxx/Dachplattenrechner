@@ -19,7 +19,12 @@ function loadAdSense() {
     script.crossOrigin = 'anonymous';
     document.head.appendChild(script);
     
-    
+// AdSense Auto-Ads aktivieren
+    window.adsbygoogle = window.adsbygoogle || [];
+    window.adsbygoogle.push({
+        google_ad_client: 'ca-pub-8687929894744033',
+        enable_page_level_ads: true
+    });
 }
     </script>
     
