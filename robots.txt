@@ -1,0 +1,7 @@
+# robots.txt für dachplattenrechner.de
+
+User-agent: *
+Allow: /
+
+# Sitemap-Verweis
+Sitemap: https://dachplattenrechner.de/sitemap.xml
