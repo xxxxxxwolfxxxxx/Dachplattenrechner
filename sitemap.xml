@@ -6,76 +6,89 @@
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
+  <!-- Hauptrechner (basierend auf HTML) -->
   <url>
-    <loc>https://dachplattenrechner.de/dachflaechenberechnung</loc>
+    <loc>https://dachplattenrechner.de/tools/gleichschenkliges-dreieck.html</loc>
     <lastmod>2025-08-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dachplattenrechner.de/gleichschenkliges-dreieck</loc>
+    <loc>https://dachplattenrechner.de/tools/ungleichschenkliges-dreieck.html</loc>
     <lastmod>2025-08-26</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dachplattenrechner.de/ungleichschenkliges-dreieck</loc>
+    <loc>https://dachplattenrechner.de/tools/trapez.html</loc>
     <lastmod>2025-08-26</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://dachplattenrechner.de/trapez</loc>
+    <loc>https://dachplattenrechner.de/tools/trapezaufrechteck.html</loc>
     <lastmod>2025-08-26</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
+  
+  <!-- Tools und Hilfsmittel -->
   <url>
-    <loc>https://dachplattenrechner.de/trapez-auf-rechteck</loc>
-    <lastmod>2025-08-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dachplattenrechner.de/bemasssungsskizzen</loc>
-    <lastmod>2025-08-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://dachplattenrechner.de/farben</loc>
+    <loc>https://dachplattenrechner.de/tools/farben.html</loc>
     <lastmod>2025-08-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://dachplattenrechner.de/ral-farben</loc>
-    <lastmod>2025-08-26</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://dachplattenrechner.de/prelaq-farben</loc>
-    <lastmod>2025-08-26</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://dachplattenrechner.de/sonderwinkel</loc>
+    <loc>https://dachplattenrechner.de/tools/kantteil.html</loc>
     <lastmod>2025-08-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://dachplattenrechner.de/verschnitt-optimierung</loc>
+    <loc>https://dachplattenrechner.de/tools/verschnitt-optimierung.html</loc>
     <lastmod>2025-08-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  
+  <!-- Projekt und Infoseiten -->
   <url>
-    <loc>https://dachplattenrechner.de/projekt-dach</loc>
+    <loc>https://dachplattenrechner.de/projekt-dach/plan.html</loc>
     <lastmod>2025-08-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  
+  <!-- Skizzen (falls direkt aufrufbar) -->
+  <url>
+    <loc>https://dachplattenrechner.de/skizzen/krüppelwalm.html</loc>
+    <lastmod>2025-08-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://dachplattenrechner.de/skizzen/Satteldach.html</loc>
+    <lastmod>2025-08-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://dachplattenrechner.de/skizzen/walmdach.html</loc>
+    <lastmod>2025-08-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://dachplattenrechner.de/skizzen/pyramidendach.html</loc>
+    <lastmod>2025-08-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://dachplattenrechner.de/skizzen/pultdach.html</loc>
+    <lastmod>2025-08-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
   </url>
 </urlset>
