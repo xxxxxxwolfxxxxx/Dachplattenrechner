@@ -1040,7 +1040,7 @@ function loadAdSense() {
         // Druckfunktion hinzufügen
         function druckeLattenplan() {
             const printWindow = window.open('', '_blank');
-            const dachInfo = `${dachTyp} - ${dachBreite}m × ${dachHoehe}m`;
+            const dachInfo = dachTyp + ' - ' + dachBreite + 'm × ' + dachHoehe + 'm';
             const datum = new Date().toLocaleDateString('de-DE');
             
             // Materialübersicht erstellen
@@ -1064,72 +1064,64 @@ function loadAdSense() {
                 }
             });
 
-            const printContent = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Lattenplan - ${dachInfo}</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 20px; }
-                        .header { text-align: center; margin-bottom: 30px; }
-                        .header h1 { color: #1e3c72; margin-bottom: 10px; }
-                        .dach-info { background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-                        .material-section { margin-bottom: 25px; }
-                        .material-section h3 { color: #1e3c72; border-bottom: 2px solid #e3f2fd; padding-bottom: 5px; }
-                        .material-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-                        .material-table th, .material-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                        .material-table th { background: #f5f5f5; font-weight: bold; }
-                        .diagram { text-align: center; margin: 20px 0; }
-                        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #666; }
-                        @media print { .no-print { display: none; } }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1>Lattenplan</h1>
-                        <p><strong>${dachInfo}</strong></p>
-                        <p>Erstellt am: ${datum} | www.dachplattenrechner.de</p>
-                    </div>
-                    
-                    <div class="dach-info">
-                        <strong>Projekt-Details:</strong><br>
-                        Dachtyp: ${dachTyp}<br>
-                        Abmessungen: ${dachBreite}m × ${dachHoehe}m<br>
-                        Sparrenanzahl: ${document.getElementById('anzahl-sparren').value}<br>
-                        Lattenabstand: ${document.getElementById('lattenabstand').value}cm
-                    </div>
-                    
-                    <div class="material-section">
-                        <h3>Konterlatten</h3>
-                        <table class="material-table">
-                            <tr><th>Länge</th><th>Anzahl</th><th>Gesamt</th></tr>
-                            ${konterlattenMaterial.map(m => 
-                                `<tr><td>${m.laenge}</td><td>${m.anzahl}</td><td>${m.gesamt}</td></tr>`
-                            ).join('')}
-                        </table>
-                    </div>
-                    
-                    <div class="material-section">
-                        <h3>Dachlatten</h3>
-                        <table class="material-table">
-                            <tr><th>Länge</th><th>Anzahl</th><th>Gesamt</th></tr>
-                            ${dachlattenMaterial.map(m => 
-                                `<tr><td>${m.laenge}</td><td>${m.anzahl}</td><td>${m.gesamt}</td></tr>`
-                            ).join('')}
-                        </table>
-                    </div>
-                    
-                    <div class="diagram">
-                        ${document.getElementById('vorschau-svg').innerHTML}
-                    </div>
-                    
-                    <div class="footer">
-                        <p>Erstellt mit dem Lattenrechner von <strong>dachplattenrechner.de</strong></p>
-                        <p>Alle Angaben ohne Gewähr. Prüfen Sie die Werte vor der Verwendung.</p>
-                    </div>
-                </body>
-                </html>
-            `;
+            // SVG-Inhalt sicher extrahieren
+            const svgElement = document.getElementById('vorschau-svg');
+            const svgContent = svgElement ? svgElement.innerHTML : '<p>Diagramm nicht verfügbar</p>';
+
+            const printContent = '<!DOCTYPE html>' +
+                '<html><head>' +
+                '<title>Lattenplan - ' + dachInfo + '</title>' +
+                '<style>' +
+                'body { font-family: Arial, sans-serif; margin: 20px; }' +
+                '.header { text-align: center; margin-bottom: 30px; }' +
+                '.header h1 { color: #1e3c72; margin-bottom: 10px; }' +
+                '.dach-info { background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }' +
+                '.material-section { margin-bottom: 25px; }' +
+                '.material-section h3 { color: #1e3c72; border-bottom: 2px solid #e3f2fd; padding-bottom: 5px; }' +
+                '.material-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }' +
+                '.material-table th, .material-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }' +
+                '.material-table th { background: #f5f5f5; font-weight: bold; }' +
+                '.diagram { text-align: center; margin: 20px 0; }' +
+                '.footer { text-align: center; margin-top: 30px; font-size: 12px; color: #666; }' +
+                '@media print { .no-print { display: none; } }' +
+                '</style></head><body>' +
+                '<div class="header">' +
+                '<h1>Lattenplan</h1>' +
+                '<p><strong>' + dachInfo + '</strong></p>' +
+                '<p>Erstellt am: ' + datum + ' | www.dachplattenrechner.de</p>' +
+                '</div>' +
+                '<div class="dach-info">' +
+                '<strong>Projekt-Details:</strong><br>' +
+                'Dachtyp: ' + dachTyp + '<br>' +
+                'Abmessungen: ' + dachBreite + 'm × ' + dachHoehe + 'm<br>' +
+                'Sparrenanzahl: ' + document.getElementById('anzahl-sparren').value + '<br>' +
+                'Lattenabstand: ' + document.getElementById('lattenabstand').value + 'cm' +
+                '</div>' +
+                '<div class="material-section">' +
+                '<h3>Konterlatten</h3>' +
+                '<table class="material-table">' +
+                '<tr><th>Länge</th><th>Anzahl</th><th>Gesamt</th></tr>';
+
+            konterlattenMaterial.forEach(m => {
+                printContent += '<tr><td>' + m.laenge + '</td><td>' + m.anzahl + '</td><td>' + m.gesamt + '</td></tr>';
+            });
+
+            printContent += '</table></div>' +
+                '<div class="material-section">' +
+                '<h3>Dachlatten</h3>' +
+                '<table class="material-table">' +
+                '<tr><th>Länge</th><th>Anzahl</th><th>Gesamt</th></tr>';
+
+            dachlattenMaterial.forEach(m => {
+                printContent += '<tr><td>' + m.laenge + '</td><td>' + m.anzahl + '</td><td>' + m.gesamt + '</td></tr>';
+            });
+
+            printContent += '</table></div>' +
+                '<div class="diagram">' + svgContent + '</div>' +
+                '<div class="footer">' +
+                '<p>Erstellt mit dem Lattenrechner von <strong>dachplattenrechner.de</strong></p>' +
+                '<p>Alle Angaben ohne Gewähr. Prüfen Sie die Werte vor der Verwendung.</p>' +
+                '</div></body></html>';
             
             printWindow.document.write(printContent);
             printWindow.document.close();
