@@ -1028,7 +1028,7 @@ function loadAdSense() {
                 svg += `<text x="${svgWidth/2}" y="${svgHeight - 5}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Lattenkonstruktion - ${anzahlSparren} Sparren, ${anzahlLattenReihen} Lattenreihen</text>`;
                 svg += `<text x="5" y="15" font-size="10" fill="#666">Abstand: ${lattenabstand}cm | dachplattenrechner.de</text>`;
                 
-                svg += `</svg>`;
+                svg += '</svg>';
                 
                 document.getElementById('vorschau-svg').innerHTML = svg;
             } catch (error) {
