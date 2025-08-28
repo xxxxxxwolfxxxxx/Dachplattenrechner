@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lattenrechner - Dachlatten und Konterlatten</title>
+    <meta name="description" content="Berechnen Sie Dachlatten und Konterlatten für Ihre Dachkonstruktion. Professionelle Materialberechnung.">
+    
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
+    <script>
+       // AdSense für alle laden - personalisiert oder nicht-personalisiert
+function loadAdSense() {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+    
+    // Nur manuelle Ad-Units, kein Auto-Ads um Konflikt zu vermeiden
+    window.adsbygoogle = window.adsbygoogle || [];
+}
+    </script>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6NSYG8B1T9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        
+        // Analytics nur laden wenn Analyse-Cookies akzeptiert sind
+        function loadAnalytics() {
+            if (localStorage.getItem('analyticsCookies') === 'true') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+            }
+        }
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .nav-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .back-btn:hover {
+            opacity: 0.8;
+        }
+
+        .nav-title {
+            color: #ffffff;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .section h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #e3f2fd;
+            padding-bottom: 10px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #1e3c72;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+
+        .results {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .result-column h4 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item span:first-child {
+            font-weight: 500;
+        }
+
+        .result-item span:last-child {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .material-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .material-table th,
+        .material-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .material-table th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+
+        /* Werbung Container Styles */
+        .ad-wrapper {
+            grid-column: 1 / -1 !important;
+            margin: var(--spacing-lg) auto !important;
+            width: 100% !important;
+            max-width: none !important;
+            text-align: center !important;
+            display: block !important;
+            min-height: 90px;
+        }
+
+        .ad-with-label {
+            position: relative;
+            width: 100%;
+            display: block;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            min-height: 90px;
+            max-height: 300px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .ad-label {
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 3px 8px;
+            font-size: 9px;
+            font-weight: 600;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .ad-wrapper .adsbygoogle {
+            display: block !important;
+            text-align: center !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            min-height: 90px !important;
+            max-height: 250px !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding: 5px;
+            overflow: hidden;
+        }
+
+        /* Versteckte Container sollen keinen Platz einnehmen */
+        .ad-wrapper[style*="display: none"] {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            grid-column: unset !important;
+        }
+
+        /* Mobile Optimierung */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px 10px;
+            }
+            
+            .section {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+            
+            .section h2 {
+                font-size: 1.3em;
+            }
+            
+            .input-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .input-group {
+                min-width: auto;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .material-table th,
+            .material-table td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+            
+            .ad-wrapper {
+                margin: 15px 10px !important;
+                min-height: 70px;
+            }
+            
+            .ad-wrapper .adsbygoogle {
+                min-height: 70px !important;
+                max-height: 120px !important;
+                padding: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-header">
+        <div class="container">
+            <a href="#" class="back-btn" onclick="history.back()">
+                <span>←</span>
+                <span>Zurück</span>
+            </a>
+            <div class="nav-title">Lattenrechner</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Werbeplatz oben -->
+        <div class="ad-wrapper" id="top-ad-container" style="display: none;">
+            <div class="ad-with-label">
+                <span class="ad-label">Werbung</span>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="2952663401"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+            </div>
+        </div>
+
+        <!-- Dachform-Übersicht -->
+        <div class="section">
+            <h2>Dach-Übersicht</h2>
+            <div id="dach-info">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div id="dach-darstellung" style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <!-- Wird dynamisch gefüllt basierend auf Dachform -->
+                    </div>
+                </div>
+                <div class="info-box">
+                    <strong>Dach-Maße:</strong> <span id="dach-masse">Werden aus vorheriger Berechnung übernommen</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sparren-Konfiguration -->
+        <div class="section">
+            <h2>1. Sparren-Konfiguration</h2>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="anzahl-sparren">Anzahl Sparren</label>
+                    <input type="number" id="anzahl-sparren" min="2" step="1" placeholder="z.B. 15">
+                </div>
+                <div class="input-group">
+                    <label for="sparren-abstand">Sparren-Abstand (cm)</label>
+                    <input type="number" id="sparren-abstand" step="0.1" min="0" placeholder="z.B. 80" readonly>
+                </div>
+            </div>
+            <div class="info-box">
+                Der Sparren-Abstand wird automatisch basierend auf der Dachbreite und Anzahl Sparren berechnet.
+            </div>
+        </div>
+
+        <!-- Werbeplatz mittig -->
+        <div class="ad-wrapper" id="middle-ad-container" style="display: none;">
+            <div class="ad-with-label">
+                <span class="ad-label">Werbung</span>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="6038540481"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+            </div>
+        </div>
+
+        <!-- Latten-Konfiguration -->
+        <div class="section">
+            <h2>2. Latten-Konfiguration</h2>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="lattenabstand">Empfohlener Lattenabstand (cm)</label>
+                    <select id="lattenabstand">
+                        <option value="32.5">32,5 cm (Standardziegel)</option>
+                        <option value="33.3">33,3 cm (Frankfurter Pfanne)</option>
+                        <option value="31.0">31,0 cm (Kleinziegel)</option>
+                        <option value="35.0">35,0 cm (Großziegel)</option>
+                        <option value="40.0">40,0 cm (Betondachstein)</option>
+                        <option value="custom">Benutzerdefiniert</option>
+                    </select>
+                </div>
+                <div class="input-group" id="custom-lattenabstand-group" style="display: none;">
+                    <label for="custom-lattenabstand">Benutzerdefinierter Abstand (cm)</label>
+                    <input type="number" id="custom-lattenabstand" step="0.1" min="0" placeholder="z.B. 30">
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="konterlattenlange">Konterlattenlänge</label>
+                    <select id="konterlattenlange">
+                        <option value="3.0">3,0 m</option>
+                        <option value="4.0">4,0 m</option>
+                        <option value="5.0">5,0 m</option>
+                        <option value="6.0">6,0 m</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="dachlattenlange">Dachlattenlänge</label>
+                    <select id="dachlattenlange">
+                        <option value="3.0">3,0 m</option>
+                        <option value="4.0">4,0 m</option>
+                        <option value="5.0">5,0 m</option>
+                        <option value="6.0">6,0 m</option>
+                    </select>
+                </div>
+            </div>
+            <div class="info-box">
+                <strong>Hinweis:</strong> Konterlatten verlaufen parallel zu den Sparren (senkrecht), Dachlatten verlaufen quer dazu (waagerecht).
+            </div>
+        </div>
+
+        <button class="calculate-btn" onclick="berechnen()">Lattenberechnung durchführen</button>
+
+        <!-- Werbeplatz nach dem Berechnen-Button -->
+        <div class="ad-wrapper" id="bottom-ad-container" style="display: none;">
+            <div class="ad-with-label">
+                <span class="ad-label">Werbung</span>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8687929894744033"
+                     data-ad-slot="8536162573"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+            </div>
+        </div>
+
+        <div id="results" class="results" style="display: none;">
+            <h3 style="text-align: center; margin-bottom: 25px; color: #ffd700;">Materialberechnung</h3>
+            
+            <div class="result-grid">
+                <div class="result-column">
+                    <h4>Konterlatten</h4>
+                    <div class="result-item">
+                        <span>Gesamtlänge:</span>
+                        <span id="konterlatte-gesamtlaenge">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Anzahl Stück:</span>
+                        <span id="konterlatte-anzahl">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Verschnitt ca.:</span>
+                        <span id="konterlatte-verschnitt">-</span>
+                    </div>
+                </div>
+                
+                <div class="result-column">
+                    <h4>Dachlatten</h4>
+                    <div class="result-item">
+                        <span>Gesamtlänge:</span>
+                        <span id="dachlatte-gesamtlaenge">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Anzahl Stück:</span>
+                        <span id="dachlatte-anzahl">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Verschnitt ca.:</span>
+                        <span id="dachlatte-verschnitt">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visuelle Darstellung -->
+            <div id="vorschau" style="margin-top: 25px;">
+                <h4 style="color: #ffffff; font-size: 1.2em; margin-bottom: 15px; text-align: center;">Lattenkonstruktion</h4>
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <div id="vorschau-svg"></div>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 13px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 16px; height: 4px; background: #ff6b35; border-radius: 2px;"></div>
+                        <span>Konterlatten</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 16px; height: 4px; background: #28a745; border-radius: 2px;"></div>
+                        <span>Dachlatten</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 16px; height: 4px; background: #666; border-radius: 2px;"></div>
+                        <span>Sparren</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Materialtabelle -->
+            <div style="margin-top: 25px;">
+                <h4 style="color: #ffffff; font-size: 1.2em; margin-bottom: 15px;">Materialliste</h4>
+                <table class="material-table">
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Länge</th>
+                            <th>Anzahl Stück</th>
+                            <th>Gesamtlänge</th>
+                        </tr>
+                    </thead>
+                    <tbody id="material-details">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Globale Variablen für Dach-Parameter
+        let dachBreite = 10; // Default-Wert
+        let dachHoehe = 6;   // Default-Wert
+        let dachTyp = 'rechteck'; // Default
+
+        // Beim Laden der Seite Dach-Parameter aus URL oder localStorage laden
+        document.addEventListener('DOMContentLoaded', function() {
+            // AdSense immer laden
+            loadAdSense();
+            
+            // Initialize tracking based on existing consent
+            const cookieConsent = localStorage.getItem('cookieConsent');
+            if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
+                loadAnalytics();
+            }
+            
+            // Werbung immer anzeigen
+            showAds();
+            
+            ladeDachParameter();
+            aktualisiereLattenabstandsfeld();
+        });
+
+        // Cookie Management System
+        function showAds() {
+            document.getElementById('top-ad-container').style.display = 'block';
+            document.getElementById('middle-ad-container').style.display = 'block';
+            document.getElementById('bottom-ad-container').style.display = 'block';
+            
+            const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+            
+            // Warte bis AdSense geladen ist
+            setTimeout(function() {
+                if (window.adsbygoogle) {
+                    try {
+                        const ads = document.querySelectorAll('.adsbygoogle');
+                        ads.forEach(ad => {
+                            // Prüfe ob Ad bereits geladen ist
+                            if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-adsbygoogle-status')) {
+                                if (!allowPersonalized) {
+                                    ad.setAttribute('data-npa', '1');
+                                }
+                                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                            }
+                        });
+                    } catch (e) {
+                        console.log('AdSense loading error:', e);
+                    }
+                }
+            }, 1000);
+        }
+
+        function ladeDachParameter() {
+            // Hier würde normalerweise aus URL-Parametern oder localStorage geladen
+            // Für Demo verwenden wir Standard-Werte
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.has('breite')) {
+                dachBreite = parseFloat(urlParams.get('breite'));
+            }
+            if (urlParams.has('hoehe')) {
+                dachHoehe = parseFloat(urlParams.get('hoehe'));
+            }
+            if (urlParams.has('typ')) {
+                dachTyp = urlParams.get('typ');
+            }
+
+            aktualisiereAnzeige();
+        }
+
+        function aktualisiereAnzeige() {
+            document.getElementById('dach-masse').textContent = 
+                `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
+            
+            // Einfache Darstellung des Dachs
+            const darstellung = document.getElementById('dach-darstellung');
+            darstellung.innerHTML = generiereSimpleDachSVG();
+        }
+
+        function generiereSimpleDachSVG() {
+            return `
+                <svg width="200" height="120" viewBox="0 0 200 120">
+                    <rect x="20" y="60" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                    <text x="100" y="90" text-anchor="middle" font-size="12" fill="#333">Dach: ${dachBreite}m × ${dachHoehe}m</text>
+                </svg>
+            `;
+        }
+
+        function aktualisiereLattenabstandsfeld() {
+            const select = document.getElementById('lattenabstand');
+            const customGroup = document.getElementById('custom-lattenabstand-group');
+            
+            select.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customGroup.style.display = 'block';
+                } else {
+                    customGroup.style.display = 'none';
+                }
+            });
+        }
+
+        // Sparrenabstand automatisch berechnen
+        document.getElementById('anzahl-sparren').addEventListener('input', function() {
+            const anzahl = parseInt(this.value);
+            if (anzahl >= 2) {
+                const abstand = (dachBreite * 100) / (anzahl - 1);
+                document.getElementById('sparren-abstand').value = abstand.toFixed(1);
+            }
+        });
+
+        function berechnen() {
+            const anzahlSparren = parseInt(document.getElementById('anzahl-sparren').value);
+            const lattenabstandSelect = document.getElementById('lattenabstand');
+            const konterlattenlange = parseFloat(document.getElementById('konterlattenlange').value);
+            const dachlattenlange = parseFloat(document.getElementById('dachlattenlange').value);
+
+            if (!anzahlSparren || anzahlSparren < 2) {
+                alert('Bitte geben Sie eine gültige Anzahl Sparren ein (mindestens 2)!');
+                return;
+            }
+
+            // Analytics tracking
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'calculation', {
+                    'event_category': 'lattenrechner',
+                    'event_label': 'latten_berechnung_durchgeführt'
+                });
+            }
+
+            let lattenabstand;
+            if (lattenabstandSelect.value === 'custom') {
+                lattenabstand = parseFloat(document.getElementById('custom-lattenabstand').value);
+                if (!lattenabstand) {
+                    alert('Bitte geben Sie einen benutzerdefinierten Lattenabstand ein!');
+                    return;
+                }
+            } else {
+                lattenabstand = parseFloat(lattenabstandSelect.value);
+            }
+
+            // Konterlatten-Berechnung
+            const konterlattenGesamtlaenge = anzahlSparren * dachHoehe;
+            const konterlattenAnzahl = Math.ceil(konterlattenGesamtlaenge / konterlattenlange);
+            const konterlattenVerschnitt = (konterlattenAnzahl * konterlattenlange) - konterlattenGesamtlaenge;
+
+            // Dachlatten-Berechnung
+            const anzahlLattenReihen = Math.ceil((dachHoehe * 100) / lattenabstand);
+            const dachlattenGesamtlaenge = anzahlLattenReihen * dachBreite;
+            const dachlattenAnzahl = Math.ceil(dachlattenGesamtlaenge / dachlattenlange);
+            const dachlattenVerschnitt = (dachlattenAnzahl * dachlattenlange) - dachlattenGesamtlaenge;
+
+            // Ergebnisse anzeigen
+            document.getElementById('konterlatte-gesamtlaenge').textContent = konterlattenGesamtlaenge.toFixed(1) + ' m';
+            document.getElementById('konterlatte-anzahl').textContent = konterlattenAnzahl + ' Stück';
+            document.getElementById('konterlatte-verschnitt').textContent = konterlattenVerschnitt.toFixed(1) + ' m';
+
+            document.getElementById('dachlatte-gesamtlaenge').textContent = dachlattenGesamtlaenge.toFixed(1) + ' m';
+            document.getElementById('dachlatte-anzahl').textContent = dachlattenAnzahl + ' Stück';
+            document.getElementById('dachlatte-verschnitt').textContent = dachlattenVerschnitt.toFixed(1) + ' m';
+
+            // Materialtabelle füllen
+            const tbody = document.getElementById('material-details');
+            tbody.innerHTML = '';
+            
+            const konterlatteRow = document.createElement('tr');
+            konterlatteRow.innerHTML = `
+                <td style="font-weight: bold;">Konterlatten</td>
+                <td>${konterlattenlange.toFixed(1)} m</td>
+                <td style="color: #ffd700; font-weight: bold;">${konterlattenAnzahl}</td>
+                <td style="color: #ffd700; font-weight: bold;">${(konterlattenAnzahl * konterlattenlange).toFixed(1)} m</td>
+            `;
+            tbody.appendChild(konterlatteRow);
+
+            const dachlatteRow = document.createElement('tr');
+            dachlatteRow.innerHTML = `
+                <td style="font-weight: bold;">Dachlatten</td>
+                <td>${dachlattenlange.toFixed(1)} m</td>
+                <td style="color: #ffd700; font-weight: bold;">${dachlattenAnzahl}</td>
+                <td style="color: #ffd700; font-weight: bold;">${(dachlattenAnzahl * dachlattenlange).toFixed(1)} m</td>
+            `;
+            tbody.appendChild(dachlatteRow);
+
+            // Vorschau generieren
+            generiereLattenVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand);
+
+            document.getElementById('results').style.display = 'block';
+            
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }, 100);
+        }
+
+        function generiereLattenVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
+            const svgWidth = 400;
+            const svgHeight = 250;
+            const margin = 20;
+            const dachWidth = svgWidth - 2 * margin;
+            const dachHeight = svgHeight - 2 * margin - 30;
+            
+            const scaleX = dachWidth / dachBreite;
+            const scaleY = dachHeight / dachHoehe;
+            
+            let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" style="border: 1px solid #ddd; border-radius: 8px; background: white;">`;
+            
+            // Dach-Umriss
+            svg += `<rect x="${margin}" y="${margin}" width="${dachWidth}" height="${dachHeight}" fill="#f8f9fa" stroke="#666" stroke-width="2"/>`;
+            
+            // Sparren (vertikal, grau)
+            for (let i = 0; i < anzahlSparren; i++) {
+                const x = margin + (i * dachWidth / (anzahlSparren - 1));
+                svg += `<line x1="${x}" y1="${margin}" x2="${x}" y2="${margin + dachHeight}" stroke="#666" stroke-width="3"/>`;
+            }
+            
+            // Konterlatten (vertikal, orange - parallel zu Sparren, aber dicker dargestellt)
+            for (let i = 0; i < anzahlSparren; i++) {
+                const x = margin + (i * dachWidth / (anzahlSparren - 1));
+                svg += `<line x1="${x-2}" y1="${margin}" x2="${x-2}" y2="${margin + dachHeight}" stroke="#ff6b35" stroke-width="6" opacity="0.8"/>`;
+            }
+            
+            // Dachlatten (horizontal, grün)
+            for (let i = 0; i < anzahlLattenReihen; i++) {
+                const y = margin + (i * dachHeight / (anzahlLattenReihen - 1));
+                svg += `<line x1="${margin}" y1="${y}" x2="${margin + dachWidth}" y2="${y}" stroke="#28a745" stroke-width="4"/>`;
+            }
+            
+            // Beschriftungen
+            svg += `<text x="${svgWidth/2}" y="${svgHeight - 5}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Lattenkonstruktion (${anzahlSparren} Sparren, ${anzahlLattenReihen} Lattenreihen)</text>`;
+            svg += `<text x="5" y="15" font-size="10" fill="#666">Abstand: ${lattenabstand}cm</text>`;
+            
+            svg += `</svg>`;
+            
+            document.getElementById('vorschau-svg').innerHTML = svg;
+        }
+    </script>
+</body>
+</html>
