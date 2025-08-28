@@ -489,7 +489,7 @@ function loadAdSense() {
                             <input type="checkbox" id="dachlatte-5m" value="5.0" checked>
                             5,0 m
                         </label>
-                        <label style="display: flex; align-items; center; gap: 5px; font-weight: normal; cursor: pointer;">
+                        <label style="display: flex; align-items: center; gap: 5px; font-weight: normal; cursor: pointer;">
                             <input type="checkbox" id="dachlatte-6m" value="6.0">
                             6,0 m
                         </label>
@@ -609,7 +609,7 @@ function loadAdSense() {
 
         // Beim Laden der Seite Dach-Parameter aus URL oder localStorage laden
         document.addEventListener('DOMContentLoaded', function() {
-            // AdSense immer laden
+            // AdSense laden und dann Ads anzeigen
             loadAdSense();
             
             // Initialize tracking based on existing consent
@@ -618,8 +618,8 @@ function loadAdSense() {
                 loadAnalytics();
             }
             
-            // Werbung immer anzeigen
-            showAds();
+            // Werbung nach kurzer Verzögerung anzeigen
+            setTimeout(showAds, 500);
             
             ladeDachParameter();
             aktualisiereLattenabstandsfeld();
@@ -627,20 +627,22 @@ function loadAdSense() {
 
         // Cookie Management System
         function showAds() {
+            // Container sofort sichtbar machen
             document.getElementById('top-ad-container').style.display = 'block';
             document.getElementById('middle-ad-container').style.display = 'block';
             document.getElementById('bottom-ad-container').style.display = 'block';
             
             const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
             
-            // Warte bis AdSense geladen ist
-            setTimeout(function() {
-                if (window.adsbygoogle) {
+            // AdSense Ads laden - mehrere Versuche
+            function tryLoadAds(attempts = 0) {
+                if (attempts >= 5) return; // Maximal 5 Versuche
+                
+                if (typeof window.adsbygoogle !== 'undefined') {
                     try {
                         const ads = document.querySelectorAll('.adsbygoogle');
                         ads.forEach(ad => {
-                            // Prüfe ob Ad bereits geladen ist
-                            if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-adsbygoogle-status')) {
+                            if (!ad.getAttribute('data-adsbygoogle-status')) {
                                 if (!allowPersonalized) {
                                     ad.setAttribute('data-npa', '1');
                                 }
@@ -648,10 +650,15 @@ function loadAdSense() {
                             }
                         });
                     } catch (e) {
-                        console.log('AdSense loading error:', e);
+                        console.log('AdSense loading attempt', attempts + 1, 'failed:', e);
+                        setTimeout(() => tryLoadAds(attempts + 1), 1000);
                     }
+                } else {
+                    setTimeout(() => tryLoadAds(attempts + 1), 1000);
                 }
-            }, 1000);
+            }
+            
+            tryLoadAds();
         }
 
         function ladeDachParameter() {
@@ -999,21 +1006,32 @@ function loadAdSense() {
                         const farben = ['#28a745', '#20c997', '#17a2b8', '#6f42c1'];
                         
                         let currentX = margin;
-                        let lattenIndex = 0;
                         
-                        while (currentX < margin + dachWidth && lattenIndex < 10) { // Maximal 10 Iterationen als Sicherheit
-                            const laenge = verfuegbareLaengen[lattenIndex % verfuegbareLaengen.length];
-                            const lattenWidth = Math.min(laenge * scaleX, margin + dachWidth - currentX);
+                        while (currentX < margin + dachWidth - 1) { // -1 für Pixel-Toleranz
+                            let bestLaenge = null;
+                            const verbleibendeBreite = (margin + dachWidth - currentX) / scaleX;
                             
-                            if (lattenWidth <= 0) break;
+                            // Passende Lattenlänge finden
+                            for (let laenge of verfuegbareLaengen) {
+                                if (laenge <= verbleibendeBreite + 0.01) {
+                                    bestLaenge = laenge;
+                                    break;
+                                }
+                            }
                             
-                            const farbeIndex = verfuegbareLaengen.indexOf(laenge);
+                            if (!bestLaenge) {
+                                bestLaenge = Math.min(...verfuegbareLaengen);
+                            }
+                            
+                            const lattenWidth = Math.min(bestLaenge * scaleX, margin + dachWidth - currentX);
+                            if (lattenWidth < 1) break; // Stoppe bei zu kleinen Latten
+                            
+                            const farbeIndex = verfuegbareLaengen.indexOf(bestLaenge);
                             const farbe = farben[farbeIndex % farben.length];
                             
                             svg += `<line x1="${currentX}" y1="${y}" x2="${currentX + lattenWidth}" y2="${y}" stroke="${farbe}" stroke-width="4"/>`;
                             
                             currentX += lattenWidth;
-                            lattenIndex++;
                         }
                     }
                 } else {
@@ -1068,7 +1086,7 @@ function loadAdSense() {
             const svgElement = document.getElementById('vorschau-svg');
             const svgContent = svgElement ? svgElement.innerHTML : '<p>Diagramm nicht verfügbar</p>';
 
-            const printContent = '<!DOCTYPE html>' +
+            let printContent = '<!DOCTYPE html>' +
                 '<html><head>' +
                 '<title>Lattenplan - ' + dachInfo + '</title>' +
                 '<style>' +
@@ -1126,11 +1144,6 @@ function loadAdSense() {
             printWindow.document.write(printContent);
             printWindow.document.close();
             printWindow.print();
-        }`;
-            
-            svg += `</svg>`;
-            
-            document.getElementById('vorschau-svg').innerHTML = svg;
         }
     </script>
 </body>
