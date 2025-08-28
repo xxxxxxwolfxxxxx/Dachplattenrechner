@@ -647,12 +647,44 @@ function loadAdSense() {
         }
 
         function generiereSimpleDachSVG() {
-            return `
-                <svg width="200" height="120" viewBox="0 0 200 120">
-                    <rect x="20" y="60" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                    <text x="100" y="90" text-anchor="middle" font-size="12" fill="#333">Dach: ${dachBreite}m × ${dachHoehe}m</text>
-                </svg>
-            `;
+            let svg = '';
+            
+            switch(dachTyp) {
+                case 'rechteck':
+                    svg = `
+                        <svg width="200" height="120" viewBox="0 0 200 120">
+                            <rect x="20" y="30" width="160" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                            <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Rechteck: ${dachBreite}m × ${dachHoehe}m</text>
+                        </svg>
+                    `;
+                    break;
+                case 'trapez':
+                    svg = `
+                        <svg width="200" height="120" viewBox="0 0 200 120">
+                            <polygon points="40,30 160,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                            <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Trapez: ${dachBreite}m × ${dachHoehe}m</text>
+                        </svg>
+                    `;
+                    break;
+                case 'gleichschenkliges-dreieck':
+                case 'ungleichschenkliges-dreieck':
+                    svg = `
+                        <svg width="200" height="120" viewBox="0 0 200 120">
+                            <polygon points="100,20 30,90 170,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                            <text x="100" y="70" text-anchor="middle" font-size="12" fill="#333">Dreieck: ${dachBreite}m × ${dachHoehe}m</text>
+                        </svg>
+                    `;
+                    break;
+                default:
+                    svg = `
+                        <svg width="200" height="120" viewBox="0 0 200 120">
+                            <rect x="20" y="60" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                            <text x="100" y="90" text-anchor="middle" font-size="12" fill="#333">Dach: ${dachBreite}m × ${dachHoehe}m</text>
+                        </svg>
+                    `;
+            }
+            
+            return svg;
         }
 
         function aktualisiereLattenabstandsfeld() {
