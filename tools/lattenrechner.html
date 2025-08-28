@@ -244,43 +244,43 @@ function loadAdSense() {
             font-weight: 600;
         }
 
-        /* Werbung Container Styles */
+        /* Werbung Container Styles - Repariert */
         .ad-wrapper {
-            grid-column: 1 / -1 !important;
-            margin: var(--spacing-lg) auto !important;
             width: 100% !important;
-            max-width: none !important;
             text-align: center !important;
             display: block !important;
-            min-height: 90px;
+            margin: 20px auto !important;
+            height: auto !important;
+            min-height: 100px !important;
+            max-height: 150px !important;
         }
 
         .ad-with-label {
             position: relative;
             width: 100%;
             display: block;
-            margin: 20px auto;
+            margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
+            border-radius: 8px;
             overflow: hidden;
-            min-height: 90px;
-            max-height: 300px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-height: 100px;
+            max-height: 150px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .ad-label {
             position: absolute;
-            top: 6px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 3px 8px;
-            font-size: 9px;
-            font-weight: 600;
-            border-radius: 3px;
+            top: 4px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 500;
+            border-radius: 2px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             z-index: 10;
             pointer-events: none;
         }
@@ -290,14 +290,14 @@ function loadAdSense() {
             text-align: center !important;
             margin: 0 auto !important;
             width: 100% !important;
-            min-height: 90px !important;
-            max-height: 250px !important;
+            height: 100px !important;
+            max-height: 150px !important;
             border: none !important;
             background: transparent !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            padding: 5px;
-            overflow: hidden;
+            padding: 0 !important;
+            overflow: hidden !important;
         }
 
         /* Versteckte Container sollen keinen Platz einnehmen */
@@ -455,42 +455,42 @@ function loadAdSense() {
             <div class="input-row">
                 <div class="input-group">
                     <label>Verfügbare Konterlattenlängen</label>
-                    <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 8px;">
-                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; white-space: nowrap;">
-                            <input type="checkbox" id="konterlatte-3m" value="3.0" checked style="margin: 0;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 15px; margin-top: 12px; padding-left: 5px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" id="konterlatte-3m" value="3.0" checked>
                             <span>3,0 m</span>
                         </label>
-                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; white-space: nowrap;">
-                            <input type="checkbox" id="konterlatte-4m" value="4.0" checked style="margin: 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" id="konterlatte-4m" value="4.0" checked>
                             <span>4,0 m</span>
                         </label>
-                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; white-space: nowrap;">
-                            <input type="checkbox" id="konterlatte-5m" value="5.0" checked style="margin: 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" id="konterlatte-5m" value="5.0" checked>
                             <span>5,0 m</span>
                         </label>
-                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; white-space: nowrap;">
-                            <input type="checkbox" id="konterlatte-6m" value="6.0" style="margin: 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" id="konterlatte-6m" value="6.0">
                             <span>6,0 m</span>
                         </label>
                     </div>
                 </div>
                 <div class="input-group">
                     <label>Verfügbare Dachlattenlängen</label>
-                    <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 8px;">
-                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; white-space: nowrap;">
-                            <input type="checkbox" id="dachlatte-3m" value="3.0" checked style="margin: 0;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 15px; margin-top: 12px; padding-left: 5px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" id="dachlatte-3m" value="3.0" checked>
                             <span>3,0 m</span>
                         </label>
-                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; white-space: nowrap;">
-                            <input type="checkbox" id="dachlatte-4m" value="4.0" checked style="margin: 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" id="dachlatte-4m" value="4.0" checked>
                             <span>4,0 m</span>
                         </label>
-                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; white-space: nowrap;">
-                            <input type="checkbox" id="dachlatte-5m" value="5.0" checked style="margin: 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" id="dachlatte-5m" value="5.0" checked>
                             <span>5,0 m</span>
                         </label>
-                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; white-space: nowrap;">
-                            <input type="checkbox" id="dachlatte-6m" value="6.0" style="margin: 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                            <input type="checkbox" id="dachlatte-6m" value="6.0">
                             <span>6,0 m</span>
                         </label>
                     </div>
@@ -627,7 +627,7 @@ function loadAdSense() {
             aktualisiereLattenabstandsfeld();
         });
 
-        // Cookie Management System
+        // Cookie Management System - Vereinfacht für Werbung
         function showAds() {
             console.log('Starte Werbungsanzeige...');
             
@@ -641,11 +641,9 @@ function loadAdSense() {
                 }
             });
             
-            const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
-            
-            // AdSense Ads laden - mehrfache Versuche mit längerem Timeout
+            // Werbung OHNE Cookie-Einschränkungen laden
             function tryLoadAds(attempts = 0) {
-                if (attempts >= 8) {
+                if (attempts >= 10) {
                     console.log('AdSense Ladeversuche erschöpft');
                     return;
                 }
@@ -660,24 +658,23 @@ function loadAdSense() {
                         ads.forEach((ad, index) => {
                             if (!ad.getAttribute('data-adsbygoogle-status')) {
                                 console.log(`Lade Ad ${index + 1}`);
-                                if (!allowPersonalized) {
-                                    ad.setAttribute('data-npa', '1');
-                                }
+                                // Immer nicht-personalisiert für bessere Kompatibilität
+                                ad.setAttribute('data-npa', '1');
                                 (window.adsbygoogle = window.adsbygoogle || []).push({});
                             }
                         });
                     } catch (e) {
                         console.log('AdSense loading attempt', attempts + 1, 'failed:', e);
-                        setTimeout(() => tryLoadAds(attempts + 1), 2000);
+                        setTimeout(() => tryLoadAds(attempts + 1), 3000);
                     }
                 } else {
                     console.log('AdSense noch nicht verfügbar, warte...');
-                    setTimeout(() => tryLoadAds(attempts + 1), 2000);
+                    setTimeout(() => tryLoadAds(attempts + 1), 3000);
                 }
             }
             
             // Ersten Versuch nach weiterer Verzögerung
-            setTimeout(() => tryLoadAds(), 1000);
+            setTimeout(() => tryLoadAds(), 2000);
         }
 
         function ladeDachParameter() {
