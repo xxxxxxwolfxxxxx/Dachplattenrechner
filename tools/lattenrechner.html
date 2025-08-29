@@ -861,53 +861,59 @@ function loadAdSense() {
             
             if (anzahlSparren <= 1) return { kombination: [], gesamtLaenge: 0, benoetigteLaenge: 0, verschnitt: 0, anzahlReihen: anzahlReihen };
             
-            const sparrenAbstand = dachBreite / (anzahlSparren - 1);
+            // Optimiere für eine Reihe, dann multipliziere mit Anzahl Reihen
             const kombination = [];
-            let gesamtVerschnitt = 0;
+            let verbleibendeBreite = dachBreite;
             
-            // Für jede Lattenreihe berechnen
-            for (let reihe = 0; reihe < anzahlReihen; reihe++) {
-                let verbleibendeBreite = dachBreite;
+            while (verbleibendeBreite > 0.01) {
+                let besteLaenge = null;
                 
-                while (verbleibendeBreite > 0.01) { // Kleine Toleranz
-                    let besteLaenge = null;
-                    
-                    // Finde passende Länge
+                // Prüfe ob eine größere Latte geteilt werden kann
+                for (let laenge of verfuegbareLaengen) {
+                    if (laenge >= verbleibendeBreite) {
+                        besteLaenge = laenge;
+                        break;
+                    }
+                }
+                
+                // Fallback: größte passende Latte
+                if (!besteLaenge) {
                     for (let laenge of verfuegbareLaengen) {
                         if (laenge <= verbleibendeBreite + 0.01) {
                             besteLaenge = laenge;
                             break;
                         }
                     }
-                    
-                    if (!besteLaenge) {
-                        besteLaenge = Math.min(...verfuegbareLaengen);
-                    }
-                    
-                    const existierend = kombination.find(k => k.laenge === besteLaenge);
-                    if (existierend) {
-                        existierend.anzahl++;
-                    } else {
-                        kombination.push({ laenge: besteLaenge, anzahl: 1 });
-                    }
-                    
-                    verbleibendeBreite -= besteLaenge;
-                    if (verbleibendeBreite < 0) {
-                        gesamtVerschnitt += Math.abs(verbleibendeBreite);
-                        verbleibendeBreite = 0;
-                    }
                 }
+                
+                if (!besteLaenge) {
+                    besteLaenge = Math.min(...verfuegbareLaengen);
+                }
+                
+                const existierend = kombination.find(k => k.laenge === besteLaenge);
+                if (existierend) {
+                    existierend.anzahl++;
+                } else {
+                    kombination.push({ laenge: besteLaenge, anzahl: 1 });
+                }
+                
+                verbleibendeBreite -= besteLaenge;
             }
+            
+            // Multipliziere mit Anzahl Reihen
+            kombination.forEach(k => k.anzahl *= anzahlReihen);
             
             const gesamtLaenge = kombination.reduce((sum, k) => sum + (k.laenge * k.anzahl), 0);
             const benoetigteLaenge = dachBreite * anzahlReihen;
+            const verschnitt = gesamtLaenge - benoetigteLaenge;
             
             return {
                 kombination: kombination,
                 gesamtLaenge: gesamtLaenge,
                 benoetigteLaenge: benoetigteLaenge,
-                verschnitt: gesamtVerschnitt,
-                anzahlReihen: anzahlReihen
+                verschnitt: Math.max(0, verschnitt),
+                anzahlReihen: anzahlReihen,
+                lattenProReihe: dachBreite // Für Zeichnung
             };
         }
 
@@ -963,11 +969,11 @@ function loadAdSense() {
 
         function generiereLattenVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand, dachlattenInfo) {
             try {
-                const svgWidth = 400;
-                const svgHeight = 250;
-                const margin = 20;
+                const svgWidth = 600;
+                const svgHeight = 400;
+                const margin = 30;
                 const dachWidth = svgWidth - 2 * margin;
-                const dachHeight = svgHeight - 2 * margin - 30;
+                const dachHeight = svgHeight - 2 * margin - 60;
                 
                 const scaleX = dachWidth / dachBreite;
                 const scaleY = dachHeight / dachHoehe;
@@ -977,34 +983,43 @@ function loadAdSense() {
                 // Dach-Umriss
                 svg += `<rect x="${margin}" y="${margin}" width="${dachWidth}" height="${dachHeight}" fill="#f8f9fa" stroke="#666" stroke-width="2"/>`;
                 
-                // Sparren (vertikal, grau)
+                // Sparren (vertikal, grau) mit Beschriftung
                 for (let i = 0; i < anzahlSparren; i++) {
                     const x = margin + (i * dachWidth / (anzahlSparren - 1));
                     svg += `<line x1="${x}" y1="${margin}" x2="${x}" y2="${margin + dachHeight}" stroke="#666" stroke-width="3"/>`;
+                    
+                    // Sparren-Nummer
+                    if (i % 2 === 0 || anzahlSparren <= 8) {
+                        svg += `<text x="${x}" y="${margin - 8}" text-anchor="middle" font-size="10" font-weight="bold" fill="#666">S${i+1}</text>`;
+                    }
                 }
                 
-                // Konterlatten (vertikal, orange - parallel zu Sparren)
+                // Konterlatten (vertikal, orange - parallel zu Sparren) mit Längen-Beschriftung
                 for (let i = 0; i < anzahlSparren; i++) {
                     const x = margin + (i * dachWidth / (anzahlSparren - 1));
                     svg += `<line x1="${x-2}" y1="${margin}" x2="${x-2}" y2="${margin + dachHeight}" stroke="#ff6b35" stroke-width="6" opacity="0.8"/>`;
+                    
+                    // Konterlattenlänge anzeigen
+                    if (i === 0) {
+                        svg += `<text x="${x-15}" y="${margin + dachHeight/2}" text-anchor="middle" font-size="9" font-weight="bold" fill="#ff6b35" transform="rotate(-90 ${x-15} ${margin + dachHeight/2})">${dachHoehe.toFixed(1)}m</text>`;
+                    }
                 }
                 
-                // Dachlatten (horizontal, grün) 
+                // Dachlatten (horizontal, grün) mit Längen-Beschriftung
                 if (dachlattenInfo && dachlattenInfo.kombination && dachlattenInfo.kombination.length > 0) {
+                    const verfuegbareLaengen = dachlattenInfo.kombination.map(k => k.laenge).sort((a,b) => b-a);
+                    const farben = ['#28a745', '#20c997', '#17a2b8', '#6f42c1', '#fd7e14'];
+                    
                     for (let i = 0; i < anzahlLattenReihen; i++) {
                         const y = margin + (i * dachHeight / Math.max(1, anzahlLattenReihen - 1));
                         
-                        // Einfache Darstellung der Latten
-                        const verfuegbareLaengen = dachlattenInfo.kombination.map(k => k.laenge).sort((a,b) => b-a);
-                        const farben = ['#28a745', '#20c997', '#17a2b8', '#6f42c1'];
-                        
                         let currentX = margin;
+                        let lattenInReihe = 0;
                         
-                        while (currentX < margin + dachWidth - 1) { // -1 für Pixel-Toleranz
+                        while (currentX < margin + dachWidth - 1) {
                             let bestLaenge = null;
                             const verbleibendeBreite = (margin + dachWidth - currentX) / scaleX;
                             
-                            // Passende Lattenlänge finden
                             for (let laenge of verfuegbareLaengen) {
                                 if (laenge <= verbleibendeBreite + 0.01) {
                                     bestLaenge = laenge;
@@ -1017,14 +1032,25 @@ function loadAdSense() {
                             }
                             
                             const lattenWidth = Math.min(bestLaenge * scaleX, margin + dachWidth - currentX);
-                            if (lattenWidth < 1) break; // Stoppe bei zu kleinen Latten
+                            if (lattenWidth < 1) break;
                             
                             const farbeIndex = verfuegbareLaengen.indexOf(bestLaenge);
                             const farbe = farben[farbeIndex % farben.length];
                             
                             svg += `<line x1="${currentX}" y1="${y}" x2="${currentX + lattenWidth}" y2="${y}" stroke="${farbe}" stroke-width="4"/>`;
                             
+                            // Lattenlänge beschriften (nur bei jeder 2. Reihe und wenn Platz vorhanden)
+                            if (i % 2 === 0 && lattenWidth > 40) {
+                                svg += `<text x="${currentX + lattenWidth/2}" y="${y - 3}" text-anchor="middle" font-size="8" font-weight="bold" fill="${farbe}">${bestLaenge.toFixed(1)}m</text>`;
+                            }
+                            
                             currentX += lattenWidth;
+                            lattenInReihe++;
+                        }
+                        
+                        // Reihen-Nummer links
+                        if (i % 2 === 0 || anzahlLattenReihen <= 10) {
+                            svg += `<text x="${margin - 15}" y="${y + 3}" text-anchor="middle" font-size="9" font-weight="bold" fill="#28a745">L${i+1}</text>`;
                         }
                     }
                 } else {
@@ -1032,12 +1058,24 @@ function loadAdSense() {
                     for (let i = 0; i < anzahlLattenReihen; i++) {
                         const y = margin + (i * dachHeight / Math.max(1, anzahlLattenReihen - 1));
                         svg += `<line x1="${margin}" y1="${y}" x2="${margin + dachWidth}" y2="${y}" stroke="#28a745" stroke-width="4"/>`;
+                        
+                        // Dachlattenlänge
+                        if (i === 0) {
+                            svg += `<text x="${margin + dachWidth/2}" y="${y - 5}" text-anchor="middle" font-size="9" font-weight="bold" fill="#28a745">${dachBreite.toFixed(1)}m</text>`;
+                        }
                     }
                 }
                 
-                // Beschriftungen
+                // Abmessungen außerhalb
                 svg += `<text x="${svgWidth/2}" y="${svgHeight - 5}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Lattenkonstruktion - ${anzahlSparren} Sparren, ${anzahlLattenReihen} Lattenreihen</text>`;
-                svg += `<text x="5" y="15" font-size="10" fill="#666">Abstand: ${lattenabstand}cm | dachplattenrechner.de</text>`;
+                svg += `<text x="5" y="15" font-size="10" fill="#666">Lattenabstand: ${lattenabstand}cm | Dach: ${dachBreite}m × ${dachHoehe}m</text>`;
+                
+                // Maßlinien für Gesamtabmessungen
+                svg += `<line x1="${margin}" y1="${margin + dachHeight + 25}" x2="${margin + dachWidth}" y2="${margin + dachHeight + 25}" stroke="#333" stroke-width="1"/>`;
+                svg += `<text x="${margin + dachWidth/2}" y="${margin + dachHeight + 40}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">Breite: ${dachBreite.toFixed(1)}m</text>`;
+                
+                svg += `<line x1="${margin - 25}" y1="${margin}" x2="${margin - 25}" y2="${margin + dachHeight}" stroke="#333" stroke-width="1"/>`;
+                svg += `<text x="${margin - 35}" y="${margin + dachHeight/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90 ${margin - 35} ${margin + dachHeight/2})">Höhe: ${dachHoehe.toFixed(1)}m</text>`;
                 
                 svg += '</svg>';
                 
