@@ -609,7 +609,7 @@ function loadAdSense() {
 
         // Beim Laden der Seite Dach-Parameter aus URL oder localStorage laden
         document.addEventListener('DOMContentLoaded', function() {
-            // AdSense laden und dann Ads anzeigen
+            // AdSense laden
             loadAdSense();
             
             // Initialize tracking based on existing consent
@@ -618,63 +618,40 @@ function loadAdSense() {
                 loadAnalytics();
             }
             
-            // Werbung erst nach vollständigem Laden der Seite anzeigen
-            setTimeout(() => {
-                setTimeout(showAds, 2000); // 2 Sekunden Delay für vollständiges Rendering
-            }, 1000);
+            // Werbung direkt anzeigen (wie in gleichschenkliges-dreieck.html)
+            showAds();
             
             ladeDachParameter();
             aktualisiereLattenabstandsfeld();
         });
 
-        // Cookie Management System - Vereinfacht für Werbung
+        // Cookie Management System - Vereinfacht wie in gleichschenkliges-dreieck.html
         function showAds() {
-            console.log('Starte Werbungsanzeige...');
+            document.getElementById('top-ad-container').style.display = 'block';
+            document.getElementById('middle-ad-container').style.display = 'block';
+            document.getElementById('bottom-ad-container').style.display = 'block';
             
-            // Container sofort sichtbar machen
-            const containers = ['top-ad-container', 'middle-ad-container', 'bottom-ad-container'];
-            containers.forEach(id => {
-                const container = document.getElementById(id);
-                if (container) {
-                    container.style.display = 'block';
-                    console.log(`Container ${id} sichtbar gemacht`);
-                }
-            });
+            const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
             
-            // Werbung OHNE Cookie-Einschränkungen laden
-            function tryLoadAds(attempts = 0) {
-                if (attempts >= 10) {
-                    console.log('AdSense Ladeversuche erschöpft');
-                    return;
-                }
-                
-                console.log(`AdSense Ladeversuch ${attempts + 1}`);
-                
-                if (typeof window.adsbygoogle !== 'undefined' && window.adsbygoogle) {
+            // Warte bis AdSense geladen ist - einfache Methode
+            setTimeout(function() {
+                if (window.adsbygoogle) {
                     try {
                         const ads = document.querySelectorAll('.adsbygoogle');
-                        console.log(`Gefundene Ads: ${ads.length}`);
-                        
-                        ads.forEach((ad, index) => {
-                            if (!ad.getAttribute('data-adsbygoogle-status')) {
-                                console.log(`Lade Ad ${index + 1}`);
-                                // Immer nicht-personalisiert für bessere Kompatibilität
-                                ad.setAttribute('data-npa', '1');
+                        ads.forEach(ad => {
+                            // Prüfe ob Ad bereits geladen ist
+                            if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-adsbygoogle-status')) {
+                                if (!allowPersonalized) {
+                                    ad.setAttribute('data-npa', '1');
+                                }
                                 (window.adsbygoogle = window.adsbygoogle || []).push({});
                             }
                         });
                     } catch (e) {
-                        console.log('AdSense loading attempt', attempts + 1, 'failed:', e);
-                        setTimeout(() => tryLoadAds(attempts + 1), 3000);
+                        console.log('AdSense loading error:', e);
                     }
-                } else {
-                    console.log('AdSense noch nicht verfügbar, warte...');
-                    setTimeout(() => tryLoadAds(attempts + 1), 3000);
                 }
-            }
-            
-            // Ersten Versuch nach weiterer Verzögerung
-            setTimeout(() => tryLoadAds(), 2000);
+            }, 1000);
         }
 
         function ladeDachParameter() {
