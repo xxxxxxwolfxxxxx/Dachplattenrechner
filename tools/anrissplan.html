@@ -8,8 +8,7 @@
     
     <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
-    <script>
-        function loadAdSense() {
+    function loadAdSense() {
             if (localStorage.getItem('marketingCookies') === 'true') {
                 const script = document.createElement('script');
                 script.async = true;
@@ -452,14 +451,14 @@
     
     <script>
         // Initialize everything
-        document.addEventListener('DOMContentLoaded', function() {
+         document.addEventListener('DOMContentLoaded', function() {
             const cookieConsent = localStorage.getItem('cookieConsent');
             if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
                 loadAnalytics();
             }
-            if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
-                loadAdSense();
-            }
+            
+            // AdSense NICHT laden im Anrissplan (keine Container vorhanden)
+            // loadAdSense(); // <- Diese Zeile entfernt/auskommentiert
             
             init();
         });
