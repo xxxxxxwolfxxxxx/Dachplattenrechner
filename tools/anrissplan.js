@@ -172,6 +172,8 @@ function generateTriangleOverview(data, isGleichschenklig) {
 }
 
 // Trapez Übersicht
+// Ersetzen Sie die unvollständige generateTrapezOverview Funktion (ab Zeile 136) mit dieser korrigierten Version:
+
 function generateTrapezOverview(data) {
     const width = 800;
     const height = 300;
@@ -211,8 +213,6 @@ function generateTrapezOverview(data) {
         const hoeheAnPosition = berechneHoeheAnPositionTrapezOverview(plattenStart, seitenAbstand, untereBreite, hoehe);
         const plattenObenY = untenY - (hoeheAnPosition * scaleY);
         
-        svg += '<line x1="' + plattenX + '" y1="' + untenY + '" x2="' + plattenX + '" y2="' + plattenObenY + '" stroke="#666" stroke-width="1
-            
         svg += '<line x1="' + plattenX + '" y1="' + untenY + '" x2="' + plattenX + '" y2="' + plattenObenY + '" stroke="#666" stroke-width="1.5" opacity="0.8"/>';
         svg += '<text x="' + plattenMitteX + '" y="' + (untenY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
     }
