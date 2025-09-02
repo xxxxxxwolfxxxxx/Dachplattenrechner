@@ -451,15 +451,42 @@
     <script src="anrissplan.js"></script>
     
     <script>
+        // AdSense NUR laden wenn Container existieren - im Anrissplan NICHT
+        function loadAdSense() {
+            // Prüfe ob Ad-Container existieren
+            const adContainers = document.querySelectorAll('.adsbygoogle');
+            if (adContainers.length === 0) {
+                console.log('Keine Ad-Container gefunden - AdSense wird nicht geladen');
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
+            script.crossOrigin = 'anonymous';
+            document.head.appendChild(script);
+            
+            window.adsbygoogle = window.adsbygoogle || [];
+        }
+
+        function loadAnalytics() {
+            if (localStorage.getItem('analyticsCookies') === 'true') {
+                gtag('config', 'G-6NSYG8B1T9', {
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure'
+                });
+            }
+        }
+
         // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
             const cookieConsent = localStorage.getItem('cookieConsent');
             if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
                 loadAnalytics();
             }
-            if (cookieConsent === 'all' || localStorage.getItem('marketingCookies') === 'true') {
-                loadAdSense();
-            }
+            
+            // AdSense NICHT laden im Anrissplan (keine Container vorhanden)
+            // loadAdSense(); // <- Diese Zeile entfernt/auskommentiert
             
             init();
         });
