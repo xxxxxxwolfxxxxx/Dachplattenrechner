@@ -48,6 +48,10 @@ function updateHeader(type, data) {
             title = 'Anrissplan - Trapez auf Rechteck';
             info = 'Oben: ' + data.obereBreite + 'm | Unten: ' + data.untereBreite + 'm | Trapez: ' + data.trapezHoehe + 'm | Rechteck: ' + data.rechteckHoehe + 'm | Platten: ' + data.schnittliste.length + ' Stück';
             break;
+        case 'rechteck':
+            title = 'Anrissplan - Rechteck/Quadrat';
+            info = 'Breite: ' + data.breite + 'm | Höhe: ' + data.hoehe + 'm | Platten: ' + data.schnittliste.length + ' Stück';
+            break;
         default:
             title = 'Anrissplan - Unbekannter Typ';
             info = 'Unbekannte Dachform';
@@ -75,6 +79,9 @@ function generateOverview(type, data) {
             break;
         case 'trapez-auf-rechteck':
             svg = generateTrapezRechteckOverview(data);
+            break;
+        case 'rechteck':
+            svg = generateRechteckOverview(data);
             break;
         default:
             svg = '<p>Unbekannte Dachform</p>';
@@ -204,6 +211,8 @@ function generateTrapezOverview(data) {
         const hoeheAnPosition = berechneHoeheAnPositionTrapezOverview(plattenStart, seitenAbstand, untereBreite, hoehe);
         const plattenObenY = untenY - (hoeheAnPosition * scaleY);
         
+        svg += '<line x1="' + plattenX + '" y1="' + untenY + '" x2="' + plattenX + '" y2="' + plattenObenY + '" stroke="#666" stroke-width="1
+            
         svg += '<line x1="' + plattenX + '" y1="' + untenY + '" x2="' + plattenX + '" y2="' + plattenObenY + '" stroke="#666" stroke-width="1.5" opacity="0.8"/>';
         svg += '<text x="' + plattenMitteX + '" y="' + (untenY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
     }
@@ -330,6 +339,67 @@ function generateTrapezRechteckOverview(data) {
     return svg;
 }
 
+// Rechteck Übersicht
+function generateRechteckOverview(data) {
+    const width = 800;
+    const height = 300;
+    const margin = 40;
+    const diagramWidth = 460;
+    
+    const breite = parseFloat(data.breite);
+    const hoehe = parseFloat(data.hoehe);
+    
+    const scaleX = (diagramWidth - 2 * margin) / breite;
+    const scaleY = (height - 2 * margin - 40) / hoehe;
+    
+    let svg = '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">';
+    svg += '<rect width="' + width + '" height="' + height + '" fill="#fdfdfd"/>';
+    
+    // Rechteck gefüllt
+    svg += '<rect x="' + margin + '" y="' + margin + '" width="' + (breite * scaleX) + '" height="' + (hoehe * scaleY) + '" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>';
+    
+    // Platten als senkrechte Linien
+    for (let i = 0; i < data.schnittliste.length; i++) {
+        const platte = data.schnittliste[i];
+        const plattenStart = parseFloat(platte.positionVonLinks);
+        const plattenBreite = parseFloat(platte.plattenbreite);
+        const plattenMitte = plattenStart + (plattenBreite / 2);
+        const plattenX = margin + plattenStart * scaleX;
+        const plattenMitteX = margin + plattenMitte * scaleX;
+        
+        svg += '<line x1="' + plattenX + '" y1="' + margin + '" x2="' + plattenX + '" y2="' + (margin + hoehe * scaleY) + '" stroke="#666" stroke-width="1.5" opacity="0.8"/>';
+        svg += '<text x="' + plattenMitteX + '" y="' + (margin + hoehe * scaleY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
+    }
+    
+    // Maßlinien
+    svg += '<line x1="' + margin + '" y1="' + (margin + hoehe * scaleY + 40) + '" x2="' + (margin + breite * scaleX) + '" y2="' + (margin + hoehe * scaleY + 40) + '" stroke="#666" stroke-width="1"/>';
+    svg += '<text x="' + (margin + (breite * scaleX)/2) + '" y="' + (margin + hoehe * scaleY + 55) + '" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">Breite: ' + breite + 'm</text>';
+    
+    svg += '<line x1="' + (margin - 15) + '" y1="' + margin + '" x2="' + (margin - 15) + '" y2="' + (margin + hoehe * scaleY) + '" stroke="#666" stroke-width="1"/>';
+    svg += '<text x="' + (margin - 25) + '" y="' + (margin + (hoehe * scaleY)/2) + '" text-anchor="middle" font-size="14" fill="#333" font-weight="bold" transform="rotate(-90 ' + (margin - 25) + ' ' + (margin + (hoehe * scaleY)/2) + ')">Höhe: ' + hoehe + 'm</text>';
+    
+    // Längenliste rechts
+    const listenStart = diagramWidth + 20;
+    svg += '<text x="' + listenStart + '" y="25" font-size="14" fill="#333" font-weight="bold">Plattenlängen:</text>';
+    
+    const spaltenAnzahl = data.schnittliste.length > 12 ? 2 : 1;
+    const spaltenBreite = spaltenAnzahl === 2 ? 140 : 280;
+    
+    for (let i = 0; i < data.schnittliste.length; i++) {
+        const platte = data.schnittliste[i];
+        const spalte = spaltenAnzahl === 2 ? Math.floor(i / Math.ceil(data.schnittliste.length / 2)) : 0;
+        const zeile = spaltenAnzahl === 2 ? i % Math.ceil(data.schnittliste.length / 2) : i;
+        
+        const x = listenStart + spalte * spaltenBreite;
+        const y = 50 + zeile * 18;
+        
+        svg += '<text x="' + x + '" y="' + y + '" font-size="11" fill="#666">Platte ' + platte.plattenNr + ': ' + platte.benoetigteLaenge + 'm</text>';
+    }
+    
+    svg += '</svg>';
+    return svg;
+}
+
 // Hilfsfunktion für Trapez-Höhenberechnung in Übersicht
 function berechneHoeheAnPositionTrapezOverview(position, seitenAbstand, untereBreite, hoehe) {
     if (position <= seitenAbstand) {
@@ -396,6 +466,13 @@ function calculateAnreissMasse(plattenStart, plattenEnde, type, data) {
             
             anreissLinks = Math.round(hoeheStartCombo * 100);
             anreissRechts = Math.round(hoeheEndeCombo * 100);
+            break;
+
+        case 'rechteck':
+            // Bei Rechtecken gibt es keine Anrissmaße - alle Platten haben die volle Höhe
+            const rechteckHoehe = parseFloat(data.hoehe);
+            anreissLinks = Math.round(rechteckHoehe * 100);
+            anreissRechts = Math.round(rechteckHoehe * 100);
             break;
     }
     
@@ -500,10 +577,15 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
                                  (plattenStart < rechteEcke && plattenEndeCombo > rechteEcke);
             istSpitzenPlatte = false;
             break;
+        case 'rechteck':
+            basisBreite = parseFloat(data.breite);
+            istSpitzenPlatte = false;
+            istTrapezEckenPlatte = false;
+            break;
         default:
             basisBreite = 0;
             istSpitzenPlatte = false;
-            ististTrapezEckenPlatte = false;
+            istTrapezEckenPlatte = false;
             break;
     }
     
@@ -521,15 +603,42 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
     const dargestellteBreite = plattenEndeReal - plattenStart;
     const endX = (dargestellteBreite / plattenBreite) * plattenWidth;
     
-    // Anriss-Höhen berechnen
+    // Bei Rechtecken: keine Anrisse, nur volle Plattenhöhe
+    let svg = '<svg width="100%" height="100%" viewBox="0 0 400 280" style="position: absolute; top: 0; left: 0;">';
+    
+    if (type === 'rechteck') {
+        // Rechteck-Platten: Einfache Darstellung ohne Anrisse
+        svg += '<rect x="' + plattenX + '" y="' + plattenY + '" width="' + plattenWidth + '" height="' + plattenHeight + '" fill="#e9ecef" stroke="#999" stroke-width="2" rx="4"/>';
+        svg += '<rect x="' + plattenX + '" y="' + plattenY + '" width="' + endX + '" height="' + plattenHeight + '" fill="#4a90e2" stroke="#666" stroke-width="2" rx="4" opacity="0.8"/>';
+        
+        // Beschriftung
+        svg += '<text x="' + (plattenX + endX/2) + '" y="' + (plattenY + plattenHeight/2) + '" text-anchor="middle" fill="white" font-weight="bold" font-size="20">Vollständige Platte</text>';
+        svg += '<text x="' + (plattenX + endX/2) + '" y="' + (plattenY + plattenHeight + 20) + '" text-anchor="middle" fill="#333" font-weight="bold" font-size="16">Keine Anrisse nötig</text>';
+        
+        // Bei letzter Platte: Überhang anzeigen
+        if (istLetztePlatte) {
+            const ueberhang = originalPlattenEnde - basisBreite;
+            svg += '<line x1="' + (plattenX + endX) + '" y1="' + (plattenY - 5) + '" x2="' + (plattenX + endX) + '" y2="' + (plattenY + plattenHeight + 5) + '" stroke="#28a745" stroke-width="3"/>';
+            svg += '<text x="' + (plattenX + endX + 8) + '" y="' + (plattenY - 8) + '" font-size="12" fill="#28a745" font-weight="bold">ENDE</text>';
+            
+            if (ueberhang > 0) {
+                const abstandsLinieY = plattenY - 30;
+                svg += '<line x1="' + (plattenX + endX) + '" y1="' + abstandsLinieY + '" x2="' + (plattenX + plattenWidth) + '" y2="' + abstandsLinieY + '" stroke="#dc3545" stroke-width="2" stroke-dasharray="3,2"/>';
+                svg += '<text x="' + (plattenX + endX + (plattenWidth - endX)/2) + '" y="' + (abstandsLinieY - 5) + '" text-anchor="middle" font-size="11" fill="#dc3545" font-weight="bold">' + (ueberhang * 100).toFixed(0) + 'cm abschneiden</text>';
+            }
+        }
+        
+        svg += '</svg>';
+        return svg;
+    }
+    
+    // Rest der Funktion für andere Dachformen (komplett mit korrekten Umlauten)
     const anrissHoeheLinks = (anreissMasse.links / 100 / benoetigteLaengeM) * plattenHeight;
     const anrissHoeheRechts = (anreissMasse.rechts / 100 / benoetigteLaengeM) * plattenHeight;
     
-    // Y-Koordinaten
     const nutzenStartY = plattenY + plattenHeight - anrissHoeheLinks;
     const nutzenEndY = plattenY + plattenHeight - anrissHoeheRechts;
     
-    // Spitze oder Ecken-Position innerhalb der Platte
     let besondereX = 0;
     let hatBesondere = false;
     let besondereBezeichnung = '';
@@ -557,8 +666,6 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
             besondereBezeichnung = 'ECKE R';
         }
     }
-    
-    let svg = '<svg width="100%" height="100%" viewBox="0 0 400 280" style="position: absolute; top: 0; left: 0;">';
     
     // Plattenhintergrund (vollständige Platte)
     svg += '<rect x="' + plattenX + '" y="' + plattenY + '" width="' + plattenWidth + '" height="' + plattenHeight + '" fill="#e9ecef" stroke="#999" stroke-width="2" rx="4"/>';
@@ -700,6 +807,28 @@ function generateInstructions(item, anreissMasse, type, data) {
     const plattenStart = parseFloat(item.positionVonLinks);
     const plattenBreite = parseFloat(item.plattenbreite);
     
+    // Bei Rechtecken: Spezielle Anweisungen
+    if (type === 'rechteck') {
+        const rechteckBreite = parseFloat(data.breite);
+        const originalPlattenEnde = plattenStart + plattenBreite;
+        const istLetztePlatte = originalPlattenEnde > rechteckBreite;
+        
+        let instructions = '<strong>Anzeichnen:</strong><br>';
+        
+        if (istLetztePlatte) {
+            const ueberhang = originalPlattenEnde - rechteckBreite;
+            if (ueberhang > 0) {
+                instructions += '• <strong style="color: #dc3545;">Rechts ' + (ueberhang * 100).toFixed(0) + 'cm abschneiden!</strong><br>';
+            }
+        }
+        
+        instructions += '• <strong style="color: #198754;">Keine Anrisse nötig - Platte vollständig verwenden</strong><br>';
+        instructions += '• Platte einfach in benötigter Länge (' + item.benoetigteLaenge + 'm) zuschneiden<br>';
+        
+        return instructions;
+    }
+    
+    // Für andere Dachformen: Original-Logik
     let instructions = '<strong>Anzeichnen:</strong><br>';
     
     let basisBreite = 0;
@@ -746,9 +875,14 @@ function generatePlate(item, index, type, data) {
     html += '<h3>Platte ' + item.plattenNr + ' (Position: ' + item.positionVonLinks + 'm - ' + item.positionBis + 'm)</h3>';
     
     html += '<div style="margin: 15px 0; padding: 10px; background: #f0f8ff; border-radius: 6px; position: relative; z-index: 10;">';
-    html += '<div><strong>Links:</strong> ' + anreissMasse.links + 'cm</div>';
-    html += '<div><strong>Rechts:</strong> ' + anreissMasse.rechts + 'cm</div>';
-    html += '<div><strong>Benötigte Länge:</strong> ' + item.benoetigteLaenge + 'm</div>';
+    if (type === 'rechteck') {
+        html += '<div><strong>Benötigte Länge:</strong> ' + item.benoetigteLaenge + 'm</div>';
+        html += '<div><strong>Plattenbreite:</strong> ' + item.plattenbreite + 'm</div>';
+    } else {
+        html += '<div><strong>Links:</strong> ' + anreissMasse.links + 'cm</div>';
+        html += '<div><strong>Rechts:</strong> ' + anreissMasse.rechts + 'cm</div>';
+        html += '<div><strong>Benötigte Länge:</strong> ' + item.benoetigteLaenge + 'm</div>';
+    }
     html += '</div>';
     
     html += '<div style="background: #f8f9fa; border-left: 4px solid #ffc107; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.4; position: relative; z-index: 10;">';
