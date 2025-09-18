@@ -1149,11 +1149,11 @@ function loadAdSense() {
 
         function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
             const svgWidth = 500;
-            const svgHeight = 300;
-            const margin = 30;
+            const svgHeight = 350;
+            const margin = 50;
             
             const scaleX = (svgWidth - 2 * margin) / dachBreite;
-            const scaleY = (svgHeight - 2 * margin) / dachHoehe;
+            const scaleY = (svgHeight - 2 * margin - 40) / dachHoehe;
             
             let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
             
@@ -1196,6 +1196,34 @@ function loadAdSense() {
                 const lattenEndX = lattenStartX + lattenBreite * scaleX;
                 
                 svg += `<line x1="${lattenStartX}" y1="${lattenY}" x2="${lattenEndX}" y2="${lattenY}" stroke="#28a745" stroke-width="2" opacity="0.9"/>`;
+            }
+            
+            // Maßlinien hinzufügen
+            const dachWidth = dachBreite * scaleX;
+            const dachHeight = dachHoehe * scaleY;
+            
+            // Breiten-Maß unten
+            svg += `<line x1="${margin}" y1="${margin + dachHeight + 20}" x2="${margin + dachWidth}" y2="${margin + dachHeight + 20}" stroke="#333" stroke-width="1"/>`;
+            svg += `<line x1="${margin}" y1="${margin + dachHeight + 17}" x2="${margin}" y2="${margin + dachHeight + 23}" stroke="#333" stroke-width="1"/>`;
+            svg += `<line x1="${margin + dachWidth}" y1="${margin + dachHeight + 17}" x2="${margin + dachWidth}" y2="${margin + dachHeight + 23}" stroke="#333" stroke-width="1"/>`;
+            svg += `<text x="${margin + dachWidth/2}" y="${margin + dachHeight + 35}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
+            
+            // Höhen-Maß links
+            svg += `<line x1="${margin - 20}" y1="${margin}" x2="${margin - 20}" y2="${margin + dachHeight}" stroke="#333" stroke-width="1"/>`;
+            svg += `<line x1="${margin - 23}" y1="${margin}" x2="${margin - 17}" y2="${margin}" stroke="#333" stroke-width="1"/>`;
+            svg += `<line x1="${margin - 23}" y1="${margin + dachHeight}" x2="${margin - 17}" y2="${margin + dachHeight}" stroke="#333" stroke-width="1"/>`;
+            svg += `<text x="${margin - 30}" y="${margin + dachHeight/2}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333" transform="rotate(-90 ${margin - 30} ${margin + dachHeight/2})">Höhe: ${dachHoehe}m</text>`;
+            
+            // Sparren-Abstand Maß (zwischen ersten beiden Sparren)
+            if (anzahlSparren >= 2) {
+                const sparren1X = margin;
+                const sparren2X = margin + (1 / (anzahlSparren - 1)) * dachBreite * scaleX;
+                const abstandY = margin - 15;
+                
+                svg += `<line x1="${sparren1X}" y1="${abstandY}" x2="${sparren2X}" y2="${abstandY}" stroke="#ff6b35" stroke-width="2"/>`;
+                svg += `<line x1="${sparren1X}" y1="${abstandY - 3}" x2="${sparren1X}" y2="${abstandY + 3}" stroke="#ff6b35" stroke-width="2"/>`;
+                svg += `<line x1="${sparren2X}" y1="${abstandY - 3}" x2="${sparren2X}" y2="${abstandY + 3}" stroke="#ff6b35" stroke-width="2"/>`;
+                svg += `<text x="${(sparren1X + sparren2X)/2}" y="${abstandY - 8}" text-anchor="middle" font-size="10" font-weight="bold" fill="#ff6b35">Sparren-Abstand: ${((dachBreite * 100) / (anzahlSparren - 1)).toFixed(0)}cm</text>`;
             }
             
             svg += `</svg>`;
@@ -1259,13 +1287,36 @@ function loadAdSense() {
                             border-radius: 8px;
                             margin-bottom: 20px;
                         }
+                        .material-stats {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 20px;
+                            margin: 20px 0;
+                        }
+                        .stat-box {
+                            border: 1px solid #ddd;
+                            padding: 15px;
+                            border-radius: 8px;
+                            text-align: center;
+                        }
+                        .stat-box h4 {
+                            color: #1e3c72;
+                            margin-bottom: 10px;
+                        }
+                        .stat-item {
+                            display: flex;
+                            justify-content: space-between;
+                            margin: 5px 0;
+                        }
                     </style>
                 </head>
                 <body>
                     <h2>Lattenplan</h2>
                     
                     <div class="dach-info">
-                        <strong>Dach-Maße:</strong> Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}
+                        <strong>Dach-Maße:</strong> Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}<br>
+                        <strong>Sparren:</strong> ${document.getElementById('anzahl-sparren').value} Stück, Abstand: ${document.getElementById('sparren-abstand').value}cm<br>
+                        <strong>Lattenabstand:</strong> ${document.getElementById('lattenabstand').value}cm
                     </div>
                     
                     <div class="konstruktion">
@@ -1286,8 +1337,52 @@ function loadAdSense() {
                         </div>
                     </div>
                     
-                    <h3>Materialliste</h3>
-                    ${document.getElementById('material-details').outerHTML.replace('<tbody id="material-details">', '<tbody>')}
+                    <div class="material-stats">
+                        <div class="stat-box">
+                            <h4>Konterlatten</h4>
+                            <div class="stat-item">
+                                <span>Gesamtlänge:</span>
+                                <strong>${document.getElementById('konterlatte-gesamtlaenge').textContent}</strong>
+                            </div>
+                            <div class="stat-item">
+                                <span>Anzahl Stück:</span>
+                                <strong>${document.getElementById('konterlatte-anzahl').textContent}</strong>
+                            </div>
+                            <div class="stat-item">
+                                <span>Verschnitt:</span>
+                                <strong>${document.getElementById('konterlatte-verschnitt').textContent}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-box">
+                            <h4>Dachlatten</h4>
+                            <div class="stat-item">
+                                <span>Gesamtlänge:</span>
+                                <strong>${document.getElementById('dachlatte-gesamtlaenge').textContent}</strong>
+                            </div>
+                            <div class="stat-item">
+                                <span>Anzahl Stück:</span>
+                                <strong>${document.getElementById('dachlatte-anzahl').textContent}</strong>
+                            </div>
+                            <div class="stat-item">
+                                <span>Verschnitt:</span>
+                                <strong>${document.getElementById('dachlatte-verschnitt').textContent}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Detaillierte Materialliste</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Material</th>
+                                <th>Länge</th>
+                                <th>Anzahl Stück</th>
+                                <th>Gesamtlänge</th>
+                            </tr>
+                        </thead>
+                        ${document.getElementById('material-details').outerHTML.replace('<tbody id="material-details">', '<tbody>')}
+                    </table>
                 </body>
                 </html>
             `;
