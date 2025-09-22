@@ -9,7 +9,7 @@
     <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
     <script>
-       // AdSense fÃ¼r alle laden - personalisiert oder nicht-personalisiert
+       // AdSense für alle laden - personalisiert oder nicht-personalisiert
 function loadAdSense() {
     const script = document.createElement('script');
     script.async = true;
@@ -597,7 +597,7 @@ function loadAdSense() {
                         <line x1="40" y1="120" x2="240" y2="120" stroke="#dc3545" stroke-width="3"/>
                         <text x="140" y="138" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">Untere Breite</text>
                         
-                        <!-- HÃ¶hen-MaÃŸ -->
+                        <!-- Höhen-Maß -->
                         <line x1="25" y1="20" x2="25" y2="120" stroke="#333" stroke-width="1"/>
                         <line x1="22" y1="20" x2="28" y2="20" stroke="#333" stroke-width="1"/>
                         <line x1="22" y1="120" x2="28" y2="120" stroke="#333" stroke-width="1"/>
@@ -621,13 +621,13 @@ function loadAdSense() {
                 </div>
                 <div class="input-row">
                     <div class="input-group">
-                        <label for="hoehe">HÃ¶he (m)</label>
+                        <label for="hoehe">Höhe (m)</label>
                         <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 4.00">
                     </div>
                 </div>
                 <div class="info-box">
-                    <strong>ðŸ'¡ Hinweis:</strong> Berechnung fÃ¼r trapezfÃ¶rmige DachflÃ¤chen.
-                    Verwendbar fÃ¼r PultdÃ¤cher, Mansarden, Gauben oder asymmetrische Dachformen.
+                    <strong>ðŸ'¡ Hinweis:</strong> Berechnung für trapezförmige Dachflächen.
+                    Verwendbar für Pultdächer, Mansarden, Gauben oder asymmetrische Dachformen.
                     Die Bleche verlaufen senkrecht von unten nach oben.
                 </div>
             </div>
@@ -677,19 +677,19 @@ function loadAdSense() {
 
             <div id="results" class="results" style="display: none;">
                 <div class="result-item">
-                    <span>Ãœberlappung pro Blech:</span>
+                    <span>Überlappung pro Blech:</span>
                     <span id="ueberlappung">-</span>
                 </div>
                 <div class="result-item">
-                    <span>Berechnete SeitenlÃ¤ngen:</span>
+                    <span>Berechnete Seitenlängen:</span>
                     <span id="seiten-result">-</span>
                 </div>
                 <div class="result-item">
-                    <span>BenÃ¶tigte max. PlattenlÃ¤nge:</span>
+                    <span>Benötigte max. Plattenlänge:</span>
                     <span id="benoetigte-plattenlaenge">-</span>
                 </div>
                 <div class="result-item">
-                    <span>BenÃ¶tigte Anzahl Bleche:</span>
+                    <span>Benötigte Anzahl Bleche:</span>
                     <span id="anzahl-bleche-breite">-</span>
                 </div>
                 <div class="result-item">
@@ -714,7 +714,7 @@ function loadAdSense() {
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <div style="width: 16px; height: 12px; background: #28a745; opacity: 0.25; border-radius: 2px;"></div>
-                            <span>Ãœberlappung</span>
+                            <span>Überlappung</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <div style="width: 16px; height: 12px; background: #ffc107; border-radius: 2px;"></div>
@@ -724,24 +724,24 @@ function loadAdSense() {
                 </div>
                 
                 <div id="schnittliste" style="display: none;">
-                    <h4 style="margin-top: 25px; color: #ffffff; font-size: 1.3em;">Schnittliste (pro TrapezflÃ¤che):</h4>
+                    <h4 style="margin-top: 25px; color: #ffffff; font-size: 1.3em;">Schnittliste (pro Trapezfläche):</h4>
                     <table class="schnitt-table">
                         <thead>
                             <tr>
                                 <th>Platte Nr.</th>
                                 <th>Position von links (m)</th>
                                 <th>Plattenbreite (m)</th>
-                                <th>BenÃ¶tigte LÃ¤nge (m)</th>
+                                <th>Benötigte Länge (m)</th>
                             </tr>
                         </thead>
                         <tbody id="schnitt-details">
                         </tbody>
                     </table>
                     <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
-                        <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (unten â†' oben)
+                        <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (oben nach unten)
                     </div>
                     <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                        <button class="anriss-btn" onclick="erstelleAnrissplan()">ðŸ"‹ Anrissplan Ã¶ffnen</button>
+                        <button class="anriss-btn" onclick="erstelleAnrissplan()"‹ Anrissplan Öffnen</button>
                         <button class="anriss-btn" onclick="erstelleLattenrechner()" style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);">ðŸ"¨ Lattenrechner</button>
                     </div>
                 </div>
