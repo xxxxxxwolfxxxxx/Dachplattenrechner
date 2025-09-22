@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trapez - Trapezplattenrechner</title>
-    <meta name="description" content="Berechnen Sie Trapezbleche fÃ¼r trapezfÃ¶rmige DachflÃ¤chen. Ideal fÃ¼r PultdÃ¤cher, Mansarden und asymmetrische Dachformen.">
+    <meta name="description" content="Berechnen Sie Trapezbleche für trapezförmige Dachflächen. Ideal für Pultdächer, Mansarden und asymmetrische Dachformen.">
     
     <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
@@ -371,7 +371,7 @@ function loadAdSense() {
         max-height: 120px !important; /* Deutlich reduziert von 160px */
     }
     
-    /* Container fÃ¼r SVG-Skizzen */
+    /* Container für SVG-Skizzen */
     div[style*="text-align: center"] > div[style*="display: inline-block"] {
         padding: 15px !important; /* Reduziert von 20px */
         margin-bottom: 20px !important; /* Reduziert von 30px */
@@ -465,7 +465,7 @@ function loadAdSense() {
 /* Hochkant-spezifische Optimierungen */
 @media (max-width: 480px) and (orientation: portrait) {
     .container {
-        padding: 12px 8px; /* Noch kleiner fÃ¼r sehr kleine Displays */
+        padding: 12px 8px; /* Noch kleiner für sehr kleine Displays */
     }
     
     .section {
@@ -504,7 +504,7 @@ function loadAdSense() {
     }
 }
 
-/* Querformat - 5% kleiner fÃ¼r bessere Darstellung */
+/* Querformat - 5% kleiner für bessere Darstellung */
 @media (max-width: 768px) and (orientation: landscape) {
     .container {
         padding: 18px 14px; /* 5% kleiner als mobile Standard */
@@ -550,8 +550,8 @@ function loadAdSense() {
     <div class="nav-header">
         <div class="container">
             <a href="../index.html" class="back-btn">
-                <span>â†</span>
-                <span>ZurÃ¼ck zur Ãœbersicht</span>
+                <span>←</span>
+                <span>Zurück zur Übersicht</span>
             </a>
             <div class="nav-title">Trapez</div>
         </div>
@@ -601,7 +601,7 @@ function loadAdSense() {
                         <line x1="25" y1="20" x2="25" y2="120" stroke="#333" stroke-width="1"/>
                         <line x1="22" y1="20" x2="28" y2="20" stroke="#333" stroke-width="1"/>
                         <line x1="22" y1="120" x2="28" y2="120" stroke="#333" stroke-width="1"/>
-                        <text x="18" y="70" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 18 70)">HÃ¶he</text>
+                        <text x="18" y="70" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 18 70)">Höhe</text>
                     </svg>
                 </div>
             </div>
@@ -626,7 +626,7 @@ function loadAdSense() {
                     </div>
                 </div>
                 <div class="info-box">
-                    <strong> Hinweis:</strong> Berechnung für trapezförmige Dachflächen.
+                    <strong>💡 Hinweis:</strong> Berechnung für trapezförmige Dachflächen.
                     Verwendbar für Pultdächer, Mansarden, Gauben oder asymmetrische Dachformen.
                     Die Bleche verlaufen senkrecht von unten nach oben.
                 </div>
@@ -738,11 +738,11 @@ function loadAdSense() {
                         </tbody>
                     </table>
                     <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
-                        <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (oben nach unten)
+                        <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (unten → oben)
                     </div>
                     <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                        <button class="anriss-btn" onclick="erstelleAnrissplan()"‹ Anrissplan Öffnen</button>
-                        <button class="anriss-btn" onclick="erstelleLattenrechner()" style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);">ðŸ"¨ Lattenrechner</button>
+                        <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
+                        <button class="anriss-btn" onclick="erstelleLattenrechner()" style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);">🔨 Lattenrechner</button>
                     </div>
                 </div>
             </div>
@@ -766,7 +766,7 @@ function loadAdSense() {
                     try {
                         const ads = document.querySelectorAll('.adsbygoogle');
                         ads.forEach(ad => {
-                            // PrÃ¼fe ob Ad bereits geladen ist
+                            // Prüfe ob Ad bereits geladen ist
                             if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-adsbygoogle-status')) {
                                 if (!allowPersonalized) {
                                     ad.setAttribute('data-npa', '1');
@@ -796,7 +796,7 @@ function loadAdSense() {
                 let positionVonLinksEnde = positionVonLinks + lieferbreite;
                 positionVonLinksEnde = Math.min(positionVonLinksEnde, untereBreite);
                 
-                // HÃ¶he an beiden Positionen berechnen
+                // Höhe an beiden Positionen berechnen
                 function hoeheAnPosition(pos) {
                     if (pos <= linkeObereEcke) {
                         return hoehe * (pos / linkeObereEcke);
@@ -843,7 +843,7 @@ function loadAdSense() {
             const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
 
             if (!obereBreite || !untereBreite || !hoehe || !deckbreite || !lieferbreite) {
-                alert('Bitte fÃ¼llen Sie alle Felder aus!');
+                alert('Bitte füllen Sie alle Felder aus!');
                 return;
             }
 
@@ -867,8 +867,8 @@ function loadAdSense() {
             document.getElementById('ueberlappung').textContent = ueberlappung.toFixed(2) + ' m';
             document.getElementById('seiten-result').textContent = 'Links/Rechts: ' + seitenlaenge.toFixed(2) + 'm';
             document.getElementById('benoetigte-plattenlaenge').textContent = maxLaenge.toFixed(2) + ' m';
-            document.getElementById('anzahl-bleche-breite').textContent = trapezBerechnung.anzahlPlatten + ' StÃ¼ck';
-            document.getElementById('gesamt-bleche').textContent = trapezBerechnung.anzahlPlatten + ' StÃ¼ck';
+            document.getElementById('anzahl-bleche-breite').textContent = trapezBerechnung.anzahlPlatten + ' Stück';
+            document.getElementById('gesamt-bleche').textContent = trapezBerechnung.anzahlPlatten + ' Stück';
 
             const tbody = document.getElementById('schnitt-details');
             tbody.innerHTML = '';
@@ -1018,7 +1018,7 @@ function loadAdSense() {
             svg += `<text x="${margin + (linkeObereEcke + rechteObereEcke) * scaleX / 2}" y="${margin - 20}" text-anchor="middle" font-size="11" font-weight="bold" fill="#28a745">Obere Breite: ${obereBreite}m</text>`;
             
             svg += `<line x1="${margin - 15}" y1="${margin}" x2="${margin - 15}" y2="${margin + trapezHeight}" stroke="#666" stroke-width="1"/>`;
-            svg += `<text x="${margin - 25}" y="${margin + trapezHeight/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#666" transform="rotate(-90 ${margin - 25} ${margin + trapezHeight/2})">HÃ¶he: ${hoehe}m</text>`;
+            svg += `<text x="${margin - 25}" y="${margin + trapezHeight/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#666" transform="rotate(-90 ${margin - 25} ${margin + trapezHeight/2})">Höhe: ${hoehe}m</text>`;
             
             svg += `</svg>`;
             
@@ -1056,7 +1056,7 @@ function loadAdSense() {
             const hoehe = parseFloat(document.getElementById('hoehe').value);
             
             if (!obereBreite || !untereBreite || !hoehe) {
-                alert('Bitte fÃ¼hren Sie zuerst eine Berechnung durch, bevor Sie den Lattenrechner aufrufen.');
+                alert('Bitte führen Sie zuerst eine Berechnung durch, bevor Sie den Lattenrechner aufrufen.');
                 return;
             }
             
@@ -1068,7 +1068,7 @@ function loadAdSense() {
             }
             
             const params = new URLSearchParams({
-                breite: untereBreite, // Bei Trapez ist die untere Breite die maximale Breite
+                breite: untereBreite,
                 hoehe: hoehe,
                 typ: 'trapez',
                 obereBreite: obereBreite
