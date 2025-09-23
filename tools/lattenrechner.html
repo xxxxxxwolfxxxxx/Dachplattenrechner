@@ -248,15 +248,15 @@ function loadAdSense() {
             font-weight: 600;
         }
 
-        /* Werbung Container Styles */
+        /* Werbung Container Styles - VEREINHEITLICHTE HÖHE */
         .ad-wrapper {
             width: 100% !important;
             text-align: center !important;
             display: block !important;
             margin: 20px auto !important;
             height: auto !important;
-            min-height: 100px !important;
-            max-height: 150px !important;
+            min-height: 120px !important;
+            max-height: 140px !important;
         }
 
         .ad-with-label {
@@ -268,8 +268,8 @@ function loadAdSense() {
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
-            min-height: 100px;
-            max-height: 150px;
+            min-height: 120px;
+            max-height: 140px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
@@ -294,8 +294,8 @@ function loadAdSense() {
             text-align: center !important;
             margin: 0 auto !important;
             width: 100% !important;
-            height: 100px !important;
-            max-height: 150px !important;
+            height: 120px !important;
+            max-height: 140px !important;
             border: none !important;
             background: transparent !important;
             box-shadow: none !important;
@@ -350,12 +350,13 @@ function loadAdSense() {
             
             .ad-wrapper {
                 margin: 15px 10px !important;
-                min-height: 70px;
+                min-height: 90px;
+                max-height: 110px;
             }
             
             .ad-wrapper .adsbygoogle {
-                min-height: 70px !important;
-                max-height: 120px !important;
+                min-height: 90px !important;
+                max-height: 110px !important;
                 padding: 3px;
             }
         }
@@ -1171,10 +1172,10 @@ function loadAdSense() {
             
             // Dachform zeichnen
             if (dachTyp === 'trapez') {
-                // Trapez-Umriss (KORRIGIERT: oben schmal, unten breit)
+                // Trapez-Umriss: oben schmal (obereBreite), unten breit (dachBreite)
                 const seitenAbstand = (dachBreite - obereBreite) / 2;
                 const trapezObenLinks = margin + seitenAbstand * scaleX;
-                const trapezObenRechts = margin + (dachBreite - seitenAbstand) * scaleX;
+                const trapezObenRechts = margin + (obereBreite + seitenAbstand) * scaleX;
                 const trapezObenY = margin;
                 const trapezUntenLinks = margin;
                 const trapezUntenRechts = margin + dachBreite * scaleX;
