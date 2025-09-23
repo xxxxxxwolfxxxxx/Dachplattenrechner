@@ -1256,22 +1256,24 @@ function loadAdSense() {
                 svg += `<rect x="${sparrenX - 1}" y="${sparrenY}" width="2" height="${sparrenHeight}" fill="#ff6b35" opacity="0.9"/>`;
             }
             
-            // Dachlatten (quer zu Sparren) - KORRIGIERT für Trapez
+            // Dachlatten (quer zu Sparren) - FINAL KORRIGIERT
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const lattenY = margin + (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe * scaleY;
                 
                 // Berechne Lattenbreite je nach Dachform
                 let lattenBreite = dachBreite;
-                const yPositionFromBottom = (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe;
                 
                 if (dachTyp === 'trapez') {
-                    // KORRIGIERT: Je höher wir gehen (größeres yPositionFromBottom), desto schmaler wird die Latte
-                    // Bei yPositionFromBottom = 0 (unten): volle Breite (12m)
-                    // Bei yPositionFromBottom = dachHoehe (oben): obere Breite (8m)
-                    const breitenFaktor = 1 - (yPositionFromBottom / dachHoehe); // von 1 (unten) zu 0 (oben)
-                    lattenBreite = obereBreite + (dachBreite - obereBreite) * breitenFaktor;
+                    // i=0 ist die UNTERSTE Latte (soll 12m haben)
+                    // i=anzahlLattenReihen-1 ist die OBERSTE Latte (soll 8m haben)
+                    // Direkter Ansatz: Je größer i, desto kleiner die Breite
+                    const fortschritt = i / Math.max(1, anzahlLattenReihen - 1); // 0 bis 1
+                    lattenBreite = dachBreite - (dachBreite - obereBreite) * fortschritt;
+                    // Bei i=0: lattenBreite = 12 - (12-8) * 0 = 12m ✓
+                    // Bei i=max: lattenBreite = 12 - (12-8) * 1 = 8m ✓
                 } else if (dachTyp === 'gleichschenkliges-dreieck') {
-                    lattenBreite = dachBreite * (1 - yPositionFromBottom / dachHoehe);
+                    const yPosition = (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe;
+                    lattenBreite = dachBreite * (1 - yPosition / dachHoehe);
                 }
                 
                 const lattenStartX = margin + (dachBreite - lattenBreite) * scaleX / 2;
