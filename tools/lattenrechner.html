@@ -1552,8 +1552,8 @@ function loadAdSense() {
             if (dachTyp === 'rechteck') {
                 dachlattenKombination = optimiereDachlatten(dachBreite, anzahlLattenReihen, verfuegbareDachlatten, anzahlSparren);
             } else {
-                // Für Trapez und andere spitze Dächer
-                dachlattenKombination = optimiereDachlattenTrapez(anzahlLattenReihen, verfuegbareDachlatten, lattenabstand);
+                // Für Trapez und andere spitze Dächer - NEUE intelligente Optimierung
+                dachlattenKombination = optimiereDachlattenTrapezIntelligent(anzahlLattenReihen, verfuegbareDachlatten, anzahlSparren);
             }
 
             // Ergebnisse anzeigen
