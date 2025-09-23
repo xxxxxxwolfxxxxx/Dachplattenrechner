@@ -610,6 +610,7 @@ function loadAdSense() {
         let dachBreite = 10; // Default-Wert
         let dachHoehe = 6;   // Default-Wert
         let dachTyp = 'rechteck'; // Default
+        let obereBreite = 0; // Für Trapez
         let sparrenLaengen = []; // Array für unterschiedliche Sparrenlängen
 
         // Cookie Management System - Vereinfacht
@@ -651,6 +652,9 @@ function loadAdSense() {
             if (urlParams.has('typ')) {
                 dachTyp = urlParams.get('typ');
             }
+            if (urlParams.has('obereBreite')) {
+                obereBreite = parseFloat(urlParams.get('obereBreite'));
+            }
 
             aktualisiereAnzeige();
         }
@@ -663,9 +667,8 @@ function loadAdSense() {
             
             switch(dachTyp) {
                 case 'trapez':
-                    const obereBreite = urlParams.get('obereBreite');
                     if (obereBreite) {
-                        massText += `, Obere Breite: ${parseFloat(obereBreite).toFixed(1)}m`;
+                        massText += `, Obere Breite: ${obereBreite.toFixed(1)}m`;
                     }
                     break;
                 case 'trapez-auf-rechteck':
@@ -706,7 +709,6 @@ function loadAdSense() {
                     `;
                     break;
                 case 'trapez':
-                    const obereBreite = parseFloat(new URLSearchParams(window.location.search).get('obereBreite')) || dachBreite * 0.6;
                     svg = `
                         <svg width="200" height="120" viewBox="0 0 200 120">
                             <polygon points="60,30 140,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
@@ -783,6 +785,29 @@ function loadAdSense() {
             sparrenLaengen = [];
             
             switch(dachTyp) {
+                case 'trapez':
+                    // Bei Trapez: Sparren variieren je nach Position
+                    const seitenAbstand = (dachBreite - obereBreite) / 2;
+                    
+                    for (let i = 0; i < anzahlSparren; i++) {
+                        const xPosition = (i / (anzahlSparren - 1)) * dachBreite;
+                        let sparrenLaenge;
+                        
+                        if (xPosition <= seitenAbstand) {
+                            // Linke schräge Seite
+                            sparrenLaenge = (xPosition / seitenAbstand) * dachHoehe;
+                        } else if (xPosition >= dachBreite - seitenAbstand) {
+                            // Rechte schräge Seite
+                            const abstandVonRechts = dachBreite - xPosition;
+                            sparrenLaenge = (abstandVonRechts / seitenAbstand) * dachHoehe;
+                        } else {
+                            // Mittlerer Bereich - volle Höhe
+                            sparrenLaenge = dachHoehe;
+                        }
+                        sparrenLaengen.push(Math.max(0, sparrenLaenge));
+                    }
+                    break;
+                    
                 case 'gleichschenkliges-dreieck':
                     // Sparren werden zur Mitte hin länger
                     for (let i = 0; i < anzahlSparren; i++) {
@@ -809,29 +834,6 @@ function loadAdSense() {
                             // Rechte Seite
                             const faktor = (1 - spitzenPosNormiert) === 0 ? 0 : (1 - position) / (1 - spitzenPosNormiert);
                             sparrenLaenge = dachHoehe * faktor;
-                        }
-                        sparrenLaengen.push(Math.max(0, sparrenLaenge));
-                    }
-                    break;
-                    
-                case 'trapez':
-                    const obereBreite = parseFloat(urlParams.get('obereBreite')) || dachBreite * 0.6;
-                    const seitenAbstand = (dachBreite - obereBreite) / 2;
-                    
-                    for (let i = 0; i < anzahlSparren; i++) {
-                        const xPosition = (i / (anzahlSparren - 1)) * dachBreite;
-                        let sparrenLaenge;
-                        
-                        if (xPosition <= seitenAbstand) {
-                            // Linke schräge Seite
-                            sparrenLaenge = (xPosition / seitenAbstand) * dachHoehe;
-                        } else if (xPosition >= dachBreite - seitenAbstand) {
-                            // Rechte schräge Seite
-                            const abstandVonRechts = dachBreite - xPosition;
-                            sparrenLaenge = (abstandVonRechts / seitenAbstand) * dachHoehe;
-                        } else {
-                            // Mittlerer Bereich - volle Höhe
-                            sparrenLaenge = dachHoehe;
                         }
                         sparrenLaengen.push(Math.max(0, sparrenLaenge));
                     }
@@ -1002,8 +1004,8 @@ function loadAdSense() {
             };
         }
 
-        // Berechnet optimale Dachlatten für spitze Dächer
-        function optimiereDachlattenSpitzdach(anzahlReihen, verfuegbareLaengen, lattenabstand) {
+        // Berechnet optimale Dachlatten für Trapez-Dächer
+        function optimiereDachlattenTrapez(anzahlReihen, verfuegbareLaengen, lattenabstand) {
             verfuegbareLaengen.sort((a, b) => b - a);
             
             const kombination = [];
@@ -1012,10 +1014,15 @@ function loadAdSense() {
             // Für jede Lattenreihe die erforderliche Länge berechnen
             for (let reihe = 0; reihe < anzahlReihen; reihe++) {
                 const yPosition = (reihe / Math.max(1, anzahlReihen - 1)) * dachHoehe;
-                let reihenBreite = dachBreite; // Default für Rechteck
+                let reihenBreite;
                 
                 // Berechne Reihenbreite abhängig von Dachform und Position
                 switch(dachTyp) {
+                    case 'trapez':
+                        // Bei Trapez: Breite nimmt linear von unten nach oben ab
+                        reihenBreite = obereBreite + (dachBreite - obereBreite) * (1 - yPosition / dachHoehe);
+                        break;
+                        
                     case 'gleichschenkliges-dreieck':
                         reihenBreite = dachBreite * (1 - yPosition / dachHoehe);
                         break;
@@ -1024,11 +1031,6 @@ function loadAdSense() {
                         const urlParams = new URLSearchParams(window.location.search);
                         const spitzenPosition = parseFloat(urlParams.get('spitzenPosition')) || dachBreite * 0.4;
                         reihenBreite = dachBreite * (1 - yPosition / dachHoehe);
-                        break;
-                        
-                    case 'trapez':
-                        const obereBreite = parseFloat(new URLSearchParams(window.location.search).get('obereBreite')) || dachBreite * 0.6;
-                        reihenBreite = obereBreite + (dachBreite - obereBreite) * (1 - yPosition / dachHoehe);
                         break;
                         
                     case 'trapez-auf-rechteck':
@@ -1044,6 +1046,9 @@ function loadAdSense() {
                             reihenBreite = dachBreite;
                         }
                         break;
+                        
+                    default:
+                        reihenBreite = dachBreite;
                 }
                 
                 reihenBreite = Math.max(0, reihenBreite);
@@ -1160,6 +1165,25 @@ function loadAdSense() {
             // Hintergrund
             svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
             
+            // Dachform zeichnen
+            if (dachTyp === 'trapez') {
+                // Trapez-Umriss
+                const seitenAbstand = (dachBreite - obereBreite) / 2;
+                const trapezObenLinks = margin + seitenAbstand * scaleX;
+                const trapezObenRechts = margin + (dachBreite - seitenAbstand) * scaleX;
+                const trapezObenY = margin;
+                const trapezUntenLinks = margin;
+                const trapezUntenRechts = margin + dachBreite * scaleX;
+                const trapezUntenY = margin + dachHoehe * scaleY;
+                
+                svg += `<polygon points="${trapezObenLinks},${trapezObenY} ${trapezObenRechts},${trapezObenY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            } else {
+                // Rechteck-Umriss als Fallback
+                const dachWidth = dachBreite * scaleX;
+                const dachHeight = dachHoehe * scaleY;
+                svg += `<rect x="${margin}" y="${margin}" width="${dachWidth}" height="${dachHeight}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            }
+            
             // Sparren (senkrecht)
             for (let i = 0; i < anzahlSparren; i++) {
                 const sparrenX = margin + (i / (anzahlSparren - 1)) * dachBreite * scaleX;
@@ -1188,7 +1212,9 @@ function loadAdSense() {
                 let lattenBreite = dachBreite;
                 const yPosition = (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe;
                 
-                if (dachTyp === 'gleichschenkliges-dreieck') {
+                if (dachTyp === 'trapez') {
+                    lattenBreite = obereBreite + (dachBreite - obereBreite) * (1 - yPosition / dachHoehe);
+                } else if (dachTyp === 'gleichschenkliges-dreieck') {
                     lattenBreite = dachBreite * (1 - yPosition / dachHoehe);
                 }
                 
@@ -1315,6 +1341,7 @@ function loadAdSense() {
                     
                     <div class="dach-info">
                         <strong>Dach-Maße:</strong> Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}<br>
+                        ${dachTyp === 'trapez' ? `<strong>Obere Breite:</strong> ${obereBreite}m<br>` : ''}
                         <strong>Sparren:</strong> ${document.getElementById('anzahl-sparren').value} Stück, Abstand: ${document.getElementById('sparren-abstand').value}cm<br>
                         <strong>Lattenabstand:</strong> ${document.getElementById('lattenabstand').value}cm
                     </div>
@@ -1466,7 +1493,8 @@ function loadAdSense() {
             if (dachTyp === 'rechteck') {
                 dachlattenKombination = optimiereDachlatten(dachBreite, anzahlLattenReihen, verfuegbareDachlatten, anzahlSparren);
             } else {
-                dachlattenKombination = optimiereDachlattenSpitzdach(anzahlLattenReihen, verfuegbareDachlatten, lattenabstand);
+                // Für Trapez und andere spitze Dächer
+                dachlattenKombination = optimiereDachlattenTrapez(anzahlLattenReihen, verfuegbareDachlatten, lattenabstand);
             }
 
             // Ergebnisse anzeigen
