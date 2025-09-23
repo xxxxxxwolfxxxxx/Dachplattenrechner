@@ -786,18 +786,20 @@ function loadAdSense() {
             
             switch(dachTyp) {
                 case 'trapez':
-                    // Bei Trapez: Sparren variieren je nach Position
+                    // Bei Trapez: KORRIGIERTE Logik - äußere Sparren sind am kürzesten
                     const seitenAbstand = (dachBreite - obereBreite) / 2;
+                    const linkeObereEcke = seitenAbstand;
+                    const rechteObereEcke = dachBreite - seitenAbstand;
                     
                     for (let i = 0; i < anzahlSparren; i++) {
                         const xPosition = (i / (anzahlSparren - 1)) * dachBreite;
                         let sparrenLaenge;
                         
-                        if (xPosition <= seitenAbstand) {
-                            // Linke schräge Seite
-                            sparrenLaenge = (xPosition / seitenAbstand) * dachHoehe;
-                        } else if (xPosition >= dachBreite - seitenAbstand) {
-                            // Rechte schräge Seite
+                        if (xPosition <= linkeObereEcke) {
+                            // Linke schräge Seite - Sparren wird von 0 auf volle Höhe länger
+                            sparrenLaenge = (xPosition / linkeObereEcke) * dachHoehe;
+                        } else if (xPosition >= rechteObereEcke) {
+                            // Rechte schräge Seite - Sparren wird wieder kürzer
                             const abstandVonRechts = dachBreite - xPosition;
                             sparrenLaenge = (abstandVonRechts / seitenAbstand) * dachHoehe;
                         } else {
@@ -1019,8 +1021,10 @@ function loadAdSense() {
                 // Berechne Reihenbreite abhängig von Dachform und Position
                 switch(dachTyp) {
                     case 'trapez':
-                        // Bei Trapez: Breite nimmt linear von unten nach oben ab
-                        reihenBreite = obereBreite + (dachBreite - obereBreite) * (1 - yPosition / dachHoehe);
+                        // Bei Trapez: KORRIGIERTE Berechnung - oben schmal, unten breit
+                        // yPosition = 0 ist unten (volle Breite), yPosition = dachHoehe ist oben (obere Breite)
+                        const breitenFaktor = 1 - (yPosition / dachHoehe); // von 1 (unten) zu 0 (oben)
+                        reihenBreite = obereBreite + (dachBreite - obereBreite) * breitenFaktor;
                         break;
                         
                     case 'gleichschenkliges-dreieck':
@@ -1167,7 +1171,7 @@ function loadAdSense() {
             
             // Dachform zeichnen
             if (dachTyp === 'trapez') {
-                // Trapez-Umriss
+                // Trapez-Umriss (KORRIGIERT: oben schmal, unten breit)
                 const seitenAbstand = (dachBreite - obereBreite) / 2;
                 const trapezObenLinks = margin + seitenAbstand * scaleX;
                 const trapezObenRechts = margin + (dachBreite - seitenAbstand) * scaleX;
@@ -1213,7 +1217,9 @@ function loadAdSense() {
                 const yPosition = (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe;
                 
                 if (dachTyp === 'trapez') {
-                    lattenBreite = obereBreite + (dachBreite - obereBreite) * (1 - yPosition / dachHoehe);
+                    // KORRIGIERTE Berechnung: unten breit (yPosition=0), oben schmal (yPosition=dachHoehe)
+                    const breitenFaktor = 1 - (yPosition / dachHoehe); // von 1 (unten) zu 0 (oben)
+                    lattenBreite = obereBreite + (dachBreite - obereBreite) * breitenFaktor;
                 } else if (dachTyp === 'gleichschenkliges-dreieck') {
                     lattenBreite = dachBreite * (1 - yPosition / dachHoehe);
                 }
