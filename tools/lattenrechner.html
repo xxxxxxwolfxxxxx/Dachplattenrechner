@@ -1552,7 +1552,7 @@ function loadAdSense() {
             if (dachTyp === 'rechteck') {
                 dachlattenKombination = optimiereDachlatten(dachBreite, anzahlLattenReihen, verfuegbareDachlatten, anzahlSparren);
             } else {
-                // Für Trapez und andere spitze Dächer - VERBESSERTE Optimierung
+                // Für Trapez und andere spitze Dächer - verwende die verbesserte Funktion
                 dachlattenKombination = optimiereDachlattenTrapez(anzahlLattenReihen, verfuegbareDachlatten, anzahlSparren);
             }
 
