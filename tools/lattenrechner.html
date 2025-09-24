@@ -1233,7 +1233,7 @@
                 svg += `<rect x="${sparrenX - 2}" y="${sparrenY}" width="4" height="${sparrenHeight}" fill="#666" opacity="0.8"/>`;
             }
             
-            // Konterlatten (parallel zu Sparren)
+            // Konterlatten (parallel zu Sparren) - inklusive schräge Außenseiten
             for (let i = 0; i < anzahlSparren && i < sparrenPositionen.length; i++) {
                 const sparrenX = margin + sparrenPositionen[i] * scaleX;
                 let sparrenLaenge = dachHoehe;
@@ -1253,7 +1253,22 @@
                 svg += `<rect x="${sparrenX - 1}" y="${sparrenY}" width="2" height="${sparrenHeight}" fill="#ff6b35" opacity="0.9"/>`;
             }
             
-            // Dachlatten (quer zu Sparren) - mit korrekten Stößen auf Sparren und Farbkodierung
+            // Zusätzliche schräge Konterlatten bei Trapez
+            if (dachTyp === 'trapez') {
+                const seitenAbstand = (dachBreite - obereBreite) / 2;
+                
+                // Linke schräge Konterlatte
+                const linkeObenX = margin + seitenAbstand * scaleX;
+                const linkeUntenX = margin;
+                svg += `<line x1="${linkeObenX}" y1="${margin}" x2="${linkeUntenX}" y2="${margin + dachHoehe * scaleY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+                
+                // Rechte schräge Konterlatte  
+                const rechteObenX = margin + (dachBreite - seitenAbstand) * scaleX;
+                const rechteUntenX = margin + dachBreite * scaleX;
+                svg += `<line x1="${rechteObenX}" y1="${margin}" x2="${rechteUntenX}" y2="${margin + dachHoehe * scaleY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+            }
+            
+            // Dachlatten (quer zu Sparren) - mit optimaler Aufteilung und Sparren-Stößen
             const lattenFarben = {
                 6: '#e74c3c', // Rot für 6m
                 5: '#3498db', // Blau für 5m  
@@ -1267,7 +1282,6 @@
                 let lattenBreite = dachBreite;
                 
                 if (dachTyp === 'trapez') {
-                    // KORRIGIERT: Erste Latte (i=0) ist oben und schmal, letzte (i=max) ist unten und breit
                     const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
                     lattenBreite = obereBreite + (dachBreite - obereBreite) * fortschritt;
                 } else if (dachTyp === 'gleichschenkliges-dreieck') {
@@ -1276,9 +1290,8 @@
                 }
                 
                 const lattenStartX = margin + (dachBreite - lattenBreite) * scaleX / 2;
-                const lattenEndX = lattenStartX + lattenBreite * scaleX;
                 
-                // Verfügbare Längen für diese Reihe
+                // Verfügbare Längen
                 const verfuegbareLaengen = [];
                 [6, 5, 4, 3].forEach(laenge => {
                     const checkbox = document.getElementById(`dachlatte-${laenge}m`);
@@ -1288,45 +1301,55 @@
                 });
                 verfuegbareLaengen.sort((a, b) => b - a);
                 
-                // Einfache Aufteilung: größte passende Länge verwenden
-                let aktuellePos = 0;
-                let segmentAnzahl = 0;
+                // Intelligente Aufteilung: lange Latten außen, kurze innen
+                let lattenstuecke = [];
+                let restBreite = lattenBreite;
                 
-                while (aktuellePos < lattenBreite && segmentAnzahl < 5) {
-                    let gewaehlteLattenLaenge = 3; // Fallback
+                // Strategie: Erste und letzte Latte sollten lang sein für Stabilität
+                if (restBreite > 6 && verfuegbareLaengen.includes(6)) {
+                    lattenstuecke.push({ laenge: 6, position: 'links' });
+                    restBreite -= 6;
+                }
+                
+                // Rest mit kürzeren Latten füllen
+                while (restBreite > 0.1) {
+                    let gewaehlteLattenLaenge = 3;
                     
-                    // Beste verfügbare Länge für verbleibende Strecke wählen
-                    const restBreite = lattenBreite - aktuellePos;
                     for (let laenge of verfuegbareLaengen) {
-                        if (laenge <= restBreite + 0.05) {
+                        if (laenge <= restBreite + 0.1) {
                             gewaehlteLattenLaenge = laenge;
                             break;
                         }
                     }
                     
+                    lattenstuecke.push({ laenge: gewaehlteLattenLaenge });
+                    restBreite -= gewaehlteLattenLaenge;
+                }
+                
+                // Lattenstücke zeichnen
+                let aktuellePos = 0;
+                for (let j = 0; j < lattenstuecke.length; j++) {
+                    const stueck = lattenstuecke[j];
                     const segmentStartX = lattenStartX + aktuellePos * scaleX;
-                    const segmentEndX = Math.min(lattenEndX, segmentStartX + gewaehlteLattenLaenge * scaleX);
+                    const segmentEndX = segmentStartX + stueck.laenge * scaleX;
                     
-                    // Dachlattensegment mit Farbkodierung zeichnen
-                    const lattenFarbe = lattenFarben[gewaehlteLattenLaenge] || '#28a745';
+                    // Latte mit Farbkodierung zeichnen
+                    const lattenFarbe = lattenFarben[stueck.laenge] || '#27ae60';
                     svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${lattenFarbe}" stroke-width="3" opacity="0.9"/>`;
                     
-                    // Stoß-Markierung nur wenn nicht letztes Segment
-                    if (aktuellePos + gewaehlteLattenLaenge < lattenBreite - 0.05) {
-                        // Prüfe ob Stoß auf Sparren liegt
-                        const stossPosition = aktuellePos + gewaehlteLattenLaenge;
-                        const stossAbsolut = (dachBreite - lattenBreite) / 2 + stossPosition;
+                    // Stoß nur wenn auf Sparren und nicht letztes Segment
+                    if (j < lattenstuecke.length - 1) {
+                        const stossAbsolutPos = (dachBreite - lattenBreite) / 2 + aktuellePos + stueck.laenge;
                         
                         for (let sparrenPos of sparrenPositionen) {
-                            if (Math.abs(sparrenPos - stossAbsolut) < 0.1) {
-                                svg += `<line x1="${segmentEndX}" y1="${lattenY - 4}" x2="${segmentEndX}" y2="${lattenY + 4}" stroke="#1976d2" stroke-width="1"/>`;
+                            if (Math.abs(sparrenPos - stossAbsolutPos) < 0.15) {
+                                svg += `<line x1="${segmentEndX}" y1="${lattenY - 4}" x2="${segmentEndX}" y2="${lattenY + 4}" stroke="#1976d2" stroke-width="2"/>`;
                                 break;
                             }
                         }
                     }
                     
-                    aktuellePos += gewaehlteLattenLaenge;
-                    segmentAnzahl++;
+                    aktuellePos += stueck.laenge;
                 }
             }
             
