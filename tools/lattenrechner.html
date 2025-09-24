@@ -1268,7 +1268,7 @@
                 svg += `<line x1="${rechteObenX}" y1="${margin}" x2="${rechteUntenX}" y2="${margin + dachHoehe * scaleY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
             }
             
-            // Dachlatten (quer zu Sparren) - korrekte Aufteilung mit Sparren-Stößen
+            // Dachlatten (quer zu Sparren) - reduzierte Nummerierung nur für geteilte Latten
             const lattenFarben = {
                 6: '#e74c3c', // Rot für 6m
                 5: '#3498db', // Blau für 5m  
@@ -1277,6 +1277,7 @@
             };
             
             let lattenNummer = 1;
+            let geteilteLatten = {}; // Speichert welche Latten geteilt werden
             
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const lattenY = margin + (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe * scaleY;
@@ -1303,70 +1304,56 @@
                 });
                 verfuegbareLaengen.sort((a, b) => b - a);
                 
-                // Intelligente Aufteilung: Lange Latten außen, Stöße auf Sparren
+                // Intelligente Aufteilung
                 let lattenstuecke = [];
                 
-                // Ermittle relevante Sparrenpositionen für diese Reihe
-                const relevanteSparren = sparrenPositionen.filter(pos => {
-                    const relativPos = pos - (dachBreite - lattenBreite) / 2;
-                    return relativPos >= 0 && relativPos <= lattenBreite;
-                });
-                
                 if (lattenBreite <= 6.1 && verfuegbareLaengen.includes(6)) {
-                    // Eine 6m Latte reicht komplett
+                    // Eine 6m Latte reicht komplett - keine Nummerierung nötig
                     lattenstuecke.push({
                         startPos: 0,
                         laenge: lattenBreite,
                         originalLaenge: 6,
-                        nummer: lattenNummer++,
-                        verschnitt: (6 - lattenBreite).toFixed(1)
+                        istKomplett: true
                     });
                 } else if (lattenBreite <= 5.1 && verfuegbareLaengen.includes(5)) {
-                    // Eine 5m Latte reicht
+                    // Eine 5m Latte reicht - keine Nummerierung nötig
                     lattenstuecke.push({
                         startPos: 0,
                         laenge: lattenBreite,
                         originalLaenge: 5,
-                        nummer: lattenNummer++,
-                        verschnitt: (5 - lattenBreite).toFixed(1)
+                        istKomplett: true
                     });
                 } else {
-                    // Mehrere Latten nötig - optimale Aufteilung mit Sparren-Stößen
+                    // Mehrere Latten nötig - nur hier nummerieren
                     let verbleibendeBreite = lattenBreite;
                     let aktuellePos = 0;
                     
                     while (verbleibendeBreite > 0.1) {
                         let besteLattenLaenge = 3;
-                        let naechsterSparrenAbstand = verbleibendeBreite;
                         
-                        // Finde nächsten Sparren für optimalen Stoß
-                        for (let sparrenPos of relevanteSparren) {
-                            const relativSparrenPos = sparrenPos - (dachBreite - lattenBreite) / 2;
-                            if (relativSparrenPos > aktuellePos + 2) { // Min 2m Latte
-                                naechsterSparrenAbstand = relativSparrenPos - aktuellePos;
-                                break;
-                            }
-                        }
-                        
-                        // Wähle beste verfügbare Länge für diesen Abschnitt
+                        // Wähle beste verfügbare Länge
                         for (let laenge of verfuegbareLaengen) {
-                            if (laenge >= naechsterSparrenAbstand - 0.1 && laenge <= naechsterSparrenAbstand + 0.1) {
+                            if (laenge <= verbleibendeBreite + 0.1) {
                                 besteLattenLaenge = laenge;
                                 break;
-                            } else if (laenge <= verbleibendeBreite + 0.1) {
-                                besteLattenLaenge = laenge;
                             }
                         }
                         
                         const verwendeteLaenge = Math.min(besteLattenLaenge, verbleibendeBreite);
+                        const hatVerschnitt = (besteLattenLaenge - verwendeteLaenge) > 0.5;
                         
                         lattenstuecke.push({
                             startPos: aktuellePos,
                             laenge: verwendeteLaenge,
                             originalLaenge: besteLattenLaenge,
-                            nummer: lattenNummer++,
-                            verschnitt: (besteLattenLaenge - verwendeteLaenge).toFixed(1)
+                            nummer: hatVerschnitt ? lattenNummer : null,
+                            verschnitt: (besteLattenLaenge - verwendeteLaenge).toFixed(1),
+                            istKomplett: !hatVerschnitt
                         });
+                        
+                        if (hatVerschnitt) {
+                            lattenNummer++;
+                        }
                         
                         aktuellePos += verwendeteLaenge;
                         verbleibendeBreite -= verwendeteLaenge;
@@ -1383,32 +1370,21 @@
                     const lattenFarbe = lattenFarben[stueck.originalLaenge] || '#27ae60';
                     svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${lattenFarbe}" stroke-width="4" opacity="0.9"/>`;
                     
-                    // Nummerierung mit Hintergrund
-                    const textX = segmentStartX + (stueck.laenge * scaleX) / 2;
-                    svg += `<circle cx="${textX}" cy="${lattenY - 8}" r="10" fill="white" stroke="#333" stroke-width="1" opacity="0.9"/>`;
-                    svg += `<text x="${textX}" y="${lattenY - 4}" text-anchor="middle" font-size="8" font-weight="bold" fill="#333">${stueck.nummer}</text>`;
-                    
-                    // Verschnitt-Info wenn vorhanden
-                    if (parseFloat(stueck.verschnitt) > 0.5) {
-                        svg += `<text x="${textX}" y="${lattenY + 15}" text-anchor="middle" font-size="6" fill="#666">-${stueck.verschnitt}m</text>`;
+                    // Nummerierung nur bei geteilten Latten
+                    if (stueck.nummer && !stueck.istKomplett) {
+                        const textX = segmentStartX + (stueck.laenge * scaleX) / 2;
+                        svg += `<circle cx="${textX}" cy="${lattenY - 8}" r="8" fill="white" stroke="#333" stroke-width="1" opacity="0.9"/>`;
+                        svg += `<text x="${textX}" y="${lattenY - 4}" text-anchor="middle" font-size="7" font-weight="bold" fill="#333">${stueck.nummer}</text>`;
+                        
+                        // Verschnitt-Info nur bei nummerierte Latten
+                        if (parseFloat(stueck.verschnitt) > 0.5) {
+                            svg += `<text x="${textX}" y="${lattenY + 12}" text-anchor="middle" font-size="5" fill="#666">-${stueck.verschnitt}m</text>`;
+                        }
                     }
                     
-                    // Stoß nur zwischen Segmenten und nur wenn auf Sparren
+                    // Stoß nur zwischen Segmenten
                     if (j < lattenstuecke.length - 1) {
-                        const stossAbsolutPos = (dachBreite - lattenBreite) / 2 + stueck.startPos + stueck.laenge;
-                        
-                        // Prüfe ob Stoß nahe einem Sparren ist
-                        let aufSparren = false;
-                        for (let sparrenPos of sparrenPositionen) {
-                            if (Math.abs(sparrenPos - stossAbsolutPos) < 0.1) {
-                                aufSparren = true;
-                                break;
-                            }
-                        }
-                        
-                        if (aufSparren) {
-                            svg += `<line x1="${segmentEndX}" y1="${lattenY - 5}" x2="${segmentEndX}" y2="${lattenY + 5}" stroke="#1976d2" stroke-width="3"/>`;
-                        }
+                        svg += `<line x1="${segmentEndX}" y1="${lattenY - 5}" x2="${segmentEndX}" y2="${lattenY + 5}" stroke="#1976d2" stroke-width="3"/>`;
                     }
                 }
             }
