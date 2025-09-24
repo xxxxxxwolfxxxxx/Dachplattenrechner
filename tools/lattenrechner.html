@@ -1238,8 +1238,9 @@
                 let lattenBreite = dachBreite;
                 
                 if (dachTyp === 'trapez') {
+                    // KORRIGIERT: Obere Latten sind schmaler, untere breiter
                     const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
-                    lattenBreite = obereBreite + (dachBreite - obereBreite) * fortschritt;
+                    lattenBreite = obereBreite + (dachBreite - obereBreite) * (1 - fortschritt);
                 } else if (dachTyp === 'gleichschenkliges-dreieck') {
                     const yPosition = (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe;
                     lattenBreite = dachBreite * (1 - yPosition / dachHoehe);
@@ -1248,7 +1249,7 @@
                 const lattenStartX = margin + (dachBreite - lattenBreite) * scaleX / 2;
                 const lattenEndX = lattenStartX + lattenBreite * scaleX;
                 
-                // Optimale Lattenstücke für diese Reihe berechnen
+                // Verfügbare Längen für diese Reihe
                 const verfuegbareLaengen = [];
                 [6, 5, 4, 3].forEach(laenge => {
                     const checkbox = document.getElementById(`dachlatte-${laenge}m`);
@@ -1258,75 +1259,44 @@
                 });
                 verfuegbareLaengen.sort((a, b) => b - a);
                 
-                // Finde optimale Aufteilung mit Sparren-Enden
-                let lattenstuecke = [];
-                let restBreite = lattenBreite;
+                // Einfache Aufteilung: größte passende Länge verwenden
                 let aktuellePos = 0;
+                let segmentAnzahl = 0;
                 
-                while (restBreite > 0.01 && lattenstuecke.length < 10) { // Max 10 Stücke pro Reihe
-                    let bestePassung = null;
-                    let bestePassungWert = 0;
+                while (aktuellePos < lattenBreite && segmentAnzahl < 5) {
+                    let gewaehlteLattenLaenge = 3; // Fallback
                     
+                    // Beste verfügbare Länge für verbleibende Strecke wählen
+                    const restBreite = lattenBreite - aktuellePos;
                     for (let laenge of verfuegbareLaengen) {
                         if (laenge <= restBreite + 0.05) {
-                            // Prüfe ob Ende auf Sparren liegt
-                            const endePosition = aktuellePos + laenge;
-                            let passung = laenge / restBreite; // Grundwert für Effizienz
-                            
-                            // Bonus wenn Ende auf Sparren liegt
-                            for (let sparrenPos of sparrenPositionen) {
-                                const relativeSparrenPos = sparrenPos - (dachBreite - lattenBreite) / 2;
-                                if (Math.abs(endePosition - relativeSparrenPos) < 0.05) {
-                                    passung += 10; // Großer Bonus
-                                    break;
-                                }
-                            }
-                            
-                            if (passung > bestePassungWert) {
-                                bestePassung = laenge;
-                                bestePassungWert = passung;
-                            }
+                            gewaehlteLattenLaenge = laenge;
+                            break;
                         }
                     }
                     
-                    if (!bestePassung) {
-                        bestePassung = Math.min(...verfuegbareLaengen);
-                    }
-                    
-                    lattenstuecke.push({
-                        startPos: aktuellePos,
-                        laenge: bestePassung,
-                        endPos: aktuellePos + bestePassung
-                    });
-                    
-                    aktuellePos += bestePassung;
-                    restBreite -= bestePassung;
-                }
-                
-                // Lattenstücke zeichnen
-                for (let j = 0; j < lattenstuecke.length; j++) {
-                    const stueck = lattenstuecke[j];
-                    const segmentStartX = lattenStartX + stueck.startPos * scaleX;
-                    const segmentEndX = lattenStartX + stueck.endPos * scaleX;
+                    const segmentStartX = lattenStartX + aktuellePos * scaleX;
+                    const segmentEndX = Math.min(lattenEndX, segmentStartX + gewaehlteLattenLaenge * scaleX);
                     
                     // Dachlattensegment zeichnen
                     svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="#28a745" stroke-width="2" opacity="0.9"/>`;
                     
-                    // Stoß-Markierung nur zwischen Segmenten und nur wenn auf Sparren
-                    if (j < lattenstuecke.length - 1) {
-                        let aufSparren = false;
+                    // Stoß-Markierung nur wenn nicht letztes Segment
+                    if (aktuellePos + gewaehlteLattenLaenge < lattenBreite - 0.05) {
+                        // Prüfe ob Stoß auf Sparren liegt
+                        const stossPosition = aktuellePos + gewaehlteLattenLaenge;
+                        const stossAbsolut = (dachBreite - lattenBreite) / 2 + stossPosition;
+                        
                         for (let sparrenPos of sparrenPositionen) {
-                            const relativeSparrenPos = sparrenPos - (dachBreite - lattenBreite) / 2;
-                            if (Math.abs(stueck.endPos - relativeSparrenPos) < 0.05) {
-                                aufSparren = true;
+                            if (Math.abs(sparrenPos - stossAbsolut) < 0.1) {
+                                svg += `<line x1="${segmentEndX}" y1="${lattenY - 4}" x2="${segmentEndX}" y2="${lattenY + 4}" stroke="#1976d2" stroke-width="1"/>`;
                                 break;
                             }
                         }
-                        
-                        if (aufSparren) {
-                            svg += `<line x1="${segmentEndX}" y1="${lattenY - 4}" x2="${segmentEndX}" y2="${lattenY + 4}" stroke="#1976d2" stroke-width="1"/>`;
-                        }
                     }
+                    
+                    aktuellePos += gewaehlteLattenLaenge;
+                    segmentAnzahl++;
                 }
             }
             
@@ -1487,6 +1457,8 @@
             } else {
                 dachlattenKombination = optimiereDachlattenTrapez(anzahlLattenReihen, verfuegbareDachlatten, sparrenPositionen, dachueberstand);
             }
+
+            console.log('Dachlatten-Kombination:', dachlattenKombination); // Debug
 
             // Ergebnisse anzeigen
             zeigeErgebnisse(konterlattenKombination, dachlattenKombination, anzahlLattenReihen, lattenabstand, anzahlSparren);
