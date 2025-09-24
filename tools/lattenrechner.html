@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lattenrechner - Dachlatten und Konterlatten</title>
-    <meta name="description" content="Berechnen Sie Dachlatten und Konterlatten für Ihre Dachkonstruktion. Professionelle Materialberechnung.">
+    <meta name="description" content="Berechnen Sie Dachlatten und Konterlatten fÃ¼r Ihre Dachkonstruktion. Professionelle Materialberechnung.">
     
     <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
@@ -332,8 +332,8 @@
     <div class="nav-header">
         <div class="container">
             <a href="#" class="back-btn" onclick="history.back()">
-                <span>←</span>
-                <span>Zurück</span>
+                <span>â†</span>
+                <span>ZurÃ¼ck</span>
             </a>
             <div class="nav-title">Lattenrechner</div>
         </div>
@@ -353,17 +353,17 @@
             </div>
         </div>
 
-        <!-- Dachform-Übersicht -->
+        <!-- Dachform-Ãœbersicht -->
         <div class="section">
-            <h2>Dach-Übersicht</h2>
+            <h2>Dach-Ãœbersicht</h2>
             <div id="dach-info">
                 <div style="text-align: center; margin-bottom: 20px;">
                     <div id="dach-darstellung" style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <!-- Wird dynamisch gefüllt basierend auf Dachform -->
+                        <!-- Wird dynamisch gefÃ¼llt basierend auf Dachform -->
                     </div>
                 </div>
                 <div class="info-box">
-                    <strong>Dach-Maße:</strong> <span id="dach-masse">Werden aus vorheriger Berechnung übernommen</span>
+                    <strong>Dach-MaÃŸe:</strong> <span id="dach-masse">Werden aus vorheriger Berechnung Ã¼bernommen</span>
                 </div>
             </div>
         </div>
@@ -381,13 +381,13 @@
                     <input type="number" id="sparren-abstand" step="0.1" min="0" placeholder="z.B. 80">
                 </div>
                 <div class="input-group">
-                    <label for="dachueberstand">Seitlicher Dachüberstand (cm)</label>
+                    <label for="dachueberstand">Seitlicher DachÃ¼berstand (cm)</label>
                     <input type="number" id="dachueberstand" step="0.1" min="0" placeholder="z.B. 30">
                 </div>
             </div>
             <div class="info-box" id="sparren-info">
                 <strong>Hinweis:</strong> Wenn 2 von 3 Werten bekannt sind, wird der dritte automatisch berechnet.<br>
-                <strong>Dachüberstand:</strong> Abstand zwischen äußerstem Sparren und Dachkante.
+                <strong>DachÃ¼berstand:</strong> Abstand zwischen Ã¤uÃŸerstem Sparren und Dachkante.
             </div>
         </div>
 
@@ -430,7 +430,7 @@
             </div>
             <div class="input-row">
                 <div class="input-group">
-                    <label>Verfügbare Konterlattenlängen</label>
+                    <label>VerfÃ¼gbare KonterlattenlÃ¤ngen</label>
                     <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
                         <div style="display: inline-block; margin-right: 20px;">
                             <input type="checkbox" id="konterlatte-3m" value="3.0" checked style="margin-right: 5px;">
@@ -451,7 +451,7 @@
                     </div>
                 </div>
                 <div class="input-group">
-                    <label>Verfügbare Dachlattenlängen</label>
+                    <label>VerfÃ¼gbare DachlattenlÃ¤ngen</label>
                     <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
                         <div style="display: inline-block; margin-right: 20px;">
                             <input type="checkbox" id="dachlatte-3m" value="3.0" checked style="margin-right: 5px;">
@@ -473,11 +473,11 @@
                 </div>
             </div>
             <div class="info-box">
-                <strong>Hinweis:</strong> Konterlatten verlaufen parallel zu den Sparren (senkrecht), Dachlatten verlaufen quer dazu (waagerecht). Jede Latte muss mindestens 2 Auflagepunkte haben und auf einem Sparren enden (außer bei Dachüberstand).
+                <strong>Hinweis:</strong> Konterlatten verlaufen parallel zu den Sparren (senkrecht), Dachlatten verlaufen quer dazu (waagerecht). Jede Latte muss mindestens 2 Auflagepunkte haben und auf einem Sparren enden (auÃŸer bei DachÃ¼berstand).
             </div>
         </div>
 
-        <button class="calculate-btn" onclick="berechnen()">Lattenberechnung durchführen</button>
+        <button class="calculate-btn" onclick="berechnen()">Lattenberechnung durchfÃ¼hren</button>
 
         <!-- Werbeplatz nach dem Berechnen-Button -->
         <div class="ad-wrapper" id="bottom-ad-container" style="display: none;">
@@ -499,11 +499,11 @@
                 <div class="result-column">
                     <h4>Konterlatten</h4>
                     <div class="result-item">
-                        <span>Gesamtlänge:</span>
+                        <span>GesamtlÃ¤nge:</span>
                         <span id="konterlatte-gesamtlaenge">-</span>
                     </div>
                     <div class="result-item">
-                        <span>Anzahl Stück:</span>
+                        <span>Anzahl StÃ¼ck:</span>
                         <span id="konterlatte-anzahl">-</span>
                     </div>
                     <div class="result-item">
@@ -515,11 +515,11 @@
                 <div class="result-column">
                     <h4>Dachlatten</h4>
                     <div class="result-item">
-                        <span>Gesamtlänge:</span>
+                        <span>GesamtlÃ¤nge:</span>
                         <span id="dachlatte-gesamtlaenge">-</span>
                     </div>
                     <div class="result-item">
-                        <span>Anzahl Stück:</span>
+                        <span>Anzahl StÃ¼ck:</span>
                         <span id="dachlatte-anzahl">-</span>
                     </div>
                     <div class="result-item">
@@ -548,6 +548,10 @@
                         <div style="width: 16px; height: 4px; background: #666; border-radius: 2px;"></div>
                         <span>Sparren</span>
                     </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 16px; height: 2px; background: #1976d2; border-radius: 1px;"></div>
+                        <span>Lattenstöße</span>
+                    </div>
                 </div>
             </div>
 
@@ -558,9 +562,9 @@
                     <thead>
                         <tr>
                             <th>Material</th>
-                            <th>Länge</th>
-                            <th>Anzahl Stück</th>
-                            <th>Gesamtlänge</th>
+                            <th>LÃ¤nge</th>
+                            <th>Anzahl StÃ¼ck</th>
+                            <th>GesamtlÃ¤nge</th>
                         </tr>
                     </thead>
                     <tbody id="material-details">
@@ -570,20 +574,20 @@
                 <!-- Druckbutton -->
                 <div style="text-align: center; margin-top: 20px;">
                     <button onclick="druckeLattenplan()" style="background: linear-gradient(135deg, #6f42c1 0%, #563d7c 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3); transition: all 0.3s ease;">
-                        🖨️ Lattenplan drucken
+                        ðŸ–¨ï¸ Lattenplan drucken
                     </button>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        // Globale Variablen für Dach-Parameter
+        // Globale Variablen fÃ¼r Dach-Parameter
         let dachBreite = 10; // Default-Wert
         let dachHoehe = 6;   // Default-Wert
         let dachTyp = 'rechteck'; // Default
-        let obereBreite = 0; // Für Trapez
-        let sparrenLaengen = []; // Array für unterschiedliche Sparrenlängen
-        let sparrenPositionen = []; // Array für Sparren-Positionen
+        let obereBreite = 0; // FÃ¼r Trapez
+        let sparrenLaengen = []; // Array fÃ¼r unterschiedliche SparrenlÃ¤ngen
+        let sparrenPositionen = []; // Array fÃ¼r Sparren-Positionen
 
         // Cookie Management System - Vereinfacht
         function showAds() {
@@ -632,7 +636,7 @@
         }
 
         function aktualisiereAnzeige() {
-            let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
+            let massText = `Breite: ${dachBreite}m, HÃ¶he: ${dachHoehe}m, Typ: ${dachTyp}`;
             
             const urlParams = new URLSearchParams(window.location.search);
             
@@ -1190,27 +1194,33 @@
             const tbody = document.getElementById('material-details');
             tbody.innerHTML = '';
             
-            konterlatten.kombination.forEach(k => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td style="font-weight: bold;">Konterlatten</td>
-                    <td>${k.laenge.toFixed(1)} m</td>
-                    <td style="color: #333; font-weight: bold;">${k.anzahl}</td>
-                    <td style="color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
-                `;
-                tbody.appendChild(row);
-            });
+            // Konterlatten hinzufügen
+            if (konterlatten && konterlatten.kombination) {
+                konterlatten.kombination.forEach(k => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="font-weight: bold;">Konterlatten</td>
+                        <td>${k.laenge.toFixed(1)} m</td>
+                        <td style="color: #333; font-weight: bold;">${k.anzahl}</td>
+                        <td style="color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
 
-            dachlatten.kombination.forEach(k => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td style="font-weight: bold;">Dachlatten</td>
-                    <td>${k.laenge.toFixed(1)} m</td>
-                    <td style="color: #333; font-weight: bold;">${k.anzahl}</td>
-                    <td style="color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
-                `;
-                tbody.appendChild(row);
-            });
+            // Dachlatten hinzufügen
+            if (dachlatten && dachlatten.kombination) {
+                dachlatten.kombination.forEach(k => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="font-weight: bold;">Dachlatten</td>
+                        <td>${k.laenge.toFixed(1)} m</td>
+                        <td style="color: #333; font-weight: bold;">${k.anzahl}</td>
+                        <td style="color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
 
             document.getElementById('results').style.display = 'block';
             generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand);
@@ -1293,7 +1303,7 @@
                 svg += `<rect x="${sparrenX - 1}" y="${sparrenY}" width="2" height="${sparrenHeight}" fill="#ff6b35" opacity="0.9"/>`;
             }
             
-            // Dachlatten (quer zu Sparren)
+            // Dachlatten (quer zu Sparren) - mit sichtbaren Stößen
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const lattenY = margin + (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe * scaleY;
                 
@@ -1307,10 +1317,36 @@
                     lattenBreite = dachBreite * (1 - yPosition / dachHoehe);
                 }
                 
+                // Lattenstöße basierend auf verfügbaren Längen simulieren
+                let aktuellePosition = 0;
                 const lattenStartX = margin + (dachBreite - lattenBreite) * scaleX / 2;
-                const lattenEndX = lattenStartX + lattenBreite * scaleX;
+                const verfuegbareLaengen = [6, 5, 4, 3]; // Sortiert nach Länge
                 
-                svg += `<line x1="${lattenStartX}" y1="${lattenY}" x2="${lattenEndX}" y2="${lattenY}" stroke="#28a745" stroke-width="2" opacity="0.9"/>`;
+                while (aktuellePosition < lattenBreite) {
+                    let gewaehlteLattenLaenge = 3; // Fallback
+                    
+                    // Beste verfügbare Länge für verbleibende Strecke wählen
+                    for (let laenge of verfuegbareLaengen) {
+                        const checkbox = document.getElementById(`dachlatte-${laenge}m`);
+                        if (checkbox && checkbox.checked && laenge <= (lattenBreite - aktuellePosition + 0.1)) {
+                            gewaehlteLattenLaenge = laenge;
+                            break;
+                        }
+                    }
+                    
+                    const segmentStartX = lattenStartX + aktuellePosition * scaleX;
+                    const segmentEndX = Math.min(lattenStartX + lattenBreite * scaleX, segmentStartX + gewaehlteLattenLaenge * scaleX);
+                    
+                    // Dachlattensegment zeichnen
+                    svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="#28a745" stroke-width="2" opacity="0.9"/>`;
+                    
+                    // Stoß-Markierung (kleine senkrechte Linie)
+                    if (segmentEndX < lattenStartX + lattenBreite * scaleX - 1) {
+                        svg += `<line x1="${segmentEndX}" y1="${lattenY - 4}" x2="${segmentEndX}" y2="${lattenY + 4}" stroke="#1976d2" stroke-width="1"/>`;
+                    }
+                    
+                    aktuellePosition += gewaehlteLattenLaenge;
+                }
             }
             
             // Dachüberstand anzeigen
@@ -1338,10 +1374,10 @@
             svg += `<line x1="${margin + dachWidth}" y1="${margin + dachHeight + 32}" x2="${margin + dachWidth}" y2="${margin + dachHeight + 38}" stroke="#333" stroke-width="1"/>`;
             svg += `<text x="${margin + dachWidth/2}" y="${margin + dachHeight + 50}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
             
-            svg += `<line x1="${margin - 35}" y1="${margin}" x2="${margin - 35}" y2="${margin + dachHeight}" stroke="#333" stroke-width="1"/>`;
-            svg += `<line x1="${margin - 38}" y1="${margin}" x2="${margin - 32}" y2="${margin}" stroke="#333" stroke-width="1"/>`;
-            svg += `<line x1="${margin - 38}" y1="${margin + dachHeight}" x2="${margin - 32}" y2="${margin + dachHeight}" stroke="#333" stroke-width="1"/>`;
-            svg += `<text x="${margin - 45}" y="${margin + dachHeight/2}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333" transform="rotate(-90 ${margin - 45} ${margin + dachHeight/2})">Höhe: ${dachHoehe}m</text>`;
+            svg += `<line x1="${margin - 25}" y1="${margin}" x2="${margin - 25}" y2="${margin + dachHeight}" stroke="#333" stroke-width="1"/>`;
+            svg += `<line x1="${margin - 28}" y1="${margin}" x2="${margin - 22}" y2="${margin}" stroke="#333" stroke-width="1"/>`;
+            svg += `<line x1="${margin - 28}" y1="${margin + dachHeight}" x2="${margin - 22}" y2="${margin + dachHeight}" stroke="#333" stroke-width="1"/>`;
+            svg += `<text x="${margin - 15}" y="${margin + dachHeight/2}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333" transform="rotate(-90 ${margin - 15} ${margin + dachHeight/2})">Höhe: ${dachHoehe}m</text>`;
             
             svg += `</svg>`;
             
