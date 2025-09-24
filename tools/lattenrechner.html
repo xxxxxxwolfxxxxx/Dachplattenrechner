@@ -1268,7 +1268,7 @@
                 svg += `<line x1="${rechteObenX}" y1="${margin}" x2="${rechteUntenX}" y2="${margin + dachHoehe * scaleY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
             }
             
-            // Dachlatten (quer zu Sparren) - mit globaler Optimierung und Nummerierung
+            // Dachlatten (quer zu Sparren) - mit optimaler Aufteilung und verbesserter Nummerierung
             const lattenFarben = {
                 6: '#e74c3c', // Rot für 6m
                 5: '#3498db', // Blau für 5m  
@@ -1276,12 +1276,12 @@
                 3: '#27ae60'  // Grün für 3m
             };
             
+            let globaleLattenliste = []; // Speichert alle Lattenstücke global
             let lattenNummer = 1;
-            let wiederverwendeteLatten = {}; // Speichert Rest-Stücke
             
+            // Erst alle Reihen analysieren und optimale Aufteilung finden
+            let alleReihen = [];
             for (let i = 0; i < anzahlLattenReihen; i++) {
-                const lattenY = margin + (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe * scaleY;
-                
                 let lattenBreite = dachBreite;
                 
                 if (dachTyp === 'trapez') {
@@ -1292,95 +1292,125 @@
                     lattenBreite = dachBreite * (1 - yPosition / dachHoehe);
                 }
                 
-                const lattenStartX = margin + (dachBreite - lattenBreite) * scaleX / 2;
-                
-                // Verfügbare Längen
-                const verfuegbareLaengen = [];
-                [6, 5, 4, 3].forEach(laenge => {
-                    const checkbox = document.getElementById(`dachlatte-${laenge}m`);
-                    if (checkbox && checkbox.checked) {
-                        verfuegbareLaengen.push(laenge);
-                    }
-                });
-                verfuegbareLaengen.sort((a, b) => b - a);
-                
-                // Optimierte Aufteilung mit Restverwertung
+                alleReihen.push({ reihe: i, breite: lattenBreite });
+            }
+            
+            // Verfügbare Längen
+            const verfuegbareLaengen = [];
+            [6, 5, 4, 3].forEach(laenge => {
+                const checkbox = document.getElementById(`dachlatte-${laenge}m`);
+                if (checkbox && checkbox.checked) {
+                    verfuegbareLaengen.push(laenge);
+                }
+            });
+            verfuegbareLaengen.sort((a, b) => b - a);
+            
+            // Optimiere jede Reihe mit besserer Strategie
+            for (let reihenInfo of alleReihen) {
+                let lattenBreite = reihenInfo.breite;
                 let lattenstuecke = [];
-                let restBreite = lattenBreite;
                 
-                // Erste Priorität: Verwende Rest-Stücke
-                const passenderRest = Object.keys(wiederverwendeteLatten).find(laenge => 
-                    parseFloat(laenge) >= restBreite - 0.1 && parseFloat(laenge) <= restBreite + 0.3
-                );
-                
-                if (passenderRest && restBreite > 2) {
+                // Strategie: Lange Latten außen, kurze innen, optimaler Verschnitt
+                if (lattenBreite <= 6 && verfuegbareLaengen.includes(6)) {
+                    // Eine 6m Latte reicht
                     lattenstuecke.push({ 
-                        laenge: parseFloat(passenderRest), 
-                        istRest: true, 
-                        nummer: wiederverwendeteLatten[passenderRest] 
+                        originalLaenge: 6, 
+                        verwendeteLaenge: lattenBreite,
+                        rest: (6 - lattenBreite).toFixed(1),
+                        nummer: lattenNummer,
+                        position: 'komplett'
                     });
-                    delete wiederverwendeteLatten[passenderRest];
-                    restBreite = 0;
+                    lattenNummer++;
+                } else if (lattenBreite <= 10) {
+                    // 2x 5m Strategie
+                    const haelfte = lattenBreite / 2;
+                    lattenstuecke.push({ 
+                        originalLaenge: 5, 
+                        verwendeteLaenge: haelfte,
+                        rest: (5 - haelfte).toFixed(1),
+                        nummer: lattenNummer,
+                        position: 'links'
+                    });
+                    lattenstuecke.push({ 
+                        originalLaenge: 5, 
+                        verwendeteLaenge: haelfte,
+                        rest: (5 - haelfte).toFixed(1),
+                        nummer: lattenNummer + 1,
+                        position: 'rechts'
+                    });
+                    lattenNummer += 2;
                 } else {
-                    // Normale Optimierung: lange Latten außen für Stabilität
+                    // Breite Reihen: 6m + 5m + Rest
+                    let restBreite = lattenBreite;
+                    let position = 'links';
+                    
                     while (restBreite > 0.1) {
                         let gewaehlteLattenLaenge = 3;
                         
-                        // Für breite Reihen: 2x5m statt 1x6m + 4m für bessere Nutzung
-                        if (restBreite > 10 && verfuegbareLaengen.includes(5)) {
-                            gewaehlteLattenLaenge = 5;
-                        } else {
-                            for (let laenge of verfuegbareLaengen) {
-                                if (laenge <= restBreite + 0.1) {
-                                    gewaehlteLattenLaenge = laenge;
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        lattenstuecke.push({ laenge: gewaehlteLattenLaenge, nummer: lattenNummer++ });
-                        
-                        // Rest-Stück speichern wenn größer als 2m
-                        const rest = gewaehlteLattenLaenge - restBreite;
-                        if (rest > 2) {
-                            wiederverwendeteLatten[rest.toFixed(1)] = lattenstuecke[lattenstuecke.length - 1].nummer;
-                        }
-                        
-                        restBreite -= gewaehlteLattenLaenge;
-                    }
-                }
-                
-                // Lattenstücke zeichnen mit Nummerierung
-                let aktuellePos = 0;
-                for (let j = 0; j < lattenstuecke.length; j++) {
-                    const stueck = lattenstuecke[j];
-                    const verwendeteBreite = Math.min(stueck.laenge, lattenBreite - aktuellePos);
-                    const segmentStartX = lattenStartX + aktuellePos * scaleX;
-                    const segmentEndX = segmentStartX + verwendeteBreite * scaleX;
-                    
-                    // Latte mit Farbkodierung zeichnen
-                    const lattenFarbe = lattenFarben[stueck.laenge] || '#27ae60';
-                    svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${lattenFarbe}" stroke-width="3" opacity="0.9"/>`;
-                    
-                    // Nummerierung für wiederverwendete/geteilte Latten
-                    if (stueck.istRest || wiederverwendeteLatten[stueck.laenge - verwendeteBreite]) {
-                        const textX = segmentStartX + (verwendeteBreite * scaleX) / 2;
-                        svg += `<text x="${textX}" y="${lattenY - 8}" text-anchor="middle" font-size="10" font-weight="bold" fill="#fff" stroke="#000" stroke-width="1">${stueck.nummer}</text>`;
-                    }
-                    
-                    // Stoß nur wenn auf Sparren und nicht letztes Segment
-                    if (j < lattenstuecke.length - 1) {
-                        const stossAbsolutPos = (dachBreite - lattenBreite) / 2 + aktuellePos + verwendeteBreite;
-                        
-                        for (let sparrenPos of sparrenPositionen) {
-                            if (Math.abs(sparrenPos - stossAbsolutPos) < 0.15) {
-                                svg += `<line x1="${segmentEndX}" y1="${lattenY - 4}" x2="${segmentEndX}" y2="${lattenY + 4}" stroke="#1976d2" stroke-width="2"/>`;
+                        // Priorisiere längste passende Latte
+                        for (let laenge of verfuegbareLaengen) {
+                            if (laenge <= restBreite + 0.1) {
+                                gewaehlteLattenLaenge = laenge;
                                 break;
                             }
                         }
+                        
+                        const verwendeteLaenge = Math.min(gewaehlteLattenLaenge, restBreite);
+                        lattenstuecke.push({ 
+                            originalLaenge: gewaehlteLattenLaenge, 
+                            verwendeteLaenge: verwendeteLaenge,
+                            rest: (gewaehlteLattenLaenge - verwendeteLaenge).toFixed(1),
+                            nummer: lattenNummer,
+                            position: position
+                        });
+                        
+                        lattenNummer++;
+                        restBreite -= verwendeteLaenge;
+                        position = position === 'links' ? 'mitte' : 'rechts';
+                    }
+                }
+                
+                globaleLattenliste.push({ reihe: reihenInfo.reihe, stuecke: lattenstuecke });
+            }
+            
+            // Jetzt zeichnen mit verbesserter Nummerierung
+            for (let reihenData of globaleLattenliste) {
+                const i = reihenData.reihe;
+                const lattenY = margin + (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe * scaleY;
+                
+                let lattenBreite = alleReihen[i].breite;
+                const lattenStartX = margin + (dachBreite - lattenBreite) * scaleX / 2;
+                
+                let aktuellePos = 0;
+                
+                for (let j = 0; j < reihenData.stuecke.length; j++) {
+                    const stueck = reihenData.stuecke[j];
+                    const segmentStartX = lattenStartX + aktuellePos * scaleX;
+                    const segmentEndX = segmentStartX + stueck.verwendeteLaenge * scaleX;
+                    
+                    // Latte mit Farbkodierung zeichnen
+                    const lattenFarbe = lattenFarben[stueck.originalLaenge] || '#27ae60';
+                    svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${lattenFarbe}" stroke-width="4" opacity="0.9"/>`;
+                    
+                    // Verbesserte Nummerierung mit Hintergrund
+                    const textX = segmentStartX + (stueck.verwendeteLaenge * scaleX) / 2;
+                    const restInfo = parseFloat(stueck.rest) > 0.5 ? ` (-${stueck.rest})` : '';
+                    
+                    // Weißer Hintergrund für bessere Lesbarkeit
+                    svg += `<circle cx="${textX}" cy="${lattenY - 8}" r="12" fill="white" stroke="#333" stroke-width="1" opacity="0.9"/>`;
+                    svg += `<text x="${textX}" y="${lattenY - 5}" text-anchor="middle" font-size="9" font-weight="bold" fill="#333">${stueck.nummer}</text>`;
+                    
+                    // Rest-Info in kleinerer Schrift
+                    if (parseFloat(stueck.rest) > 0.5) {
+                        svg += `<text x="${textX}" y="${lattenY + 15}" text-anchor="middle" font-size="7" fill="#666">-${stueck.rest}m</text>`;
                     }
                     
-                    aktuellePos += verwendeteBreite;
+                    // Stoß-Markierung
+                    if (j < reihenData.stuecke.length - 1) {
+                        svg += `<line x1="${segmentEndX}" y1="${lattenY - 4}" x2="${segmentEndX}" y2="${lattenY + 4}" stroke="#1976d2" stroke-width="2"/>`;
+                    }
+                    
+                    aktuellePos += stueck.verwendeteLaenge;
                 }
             }
             
