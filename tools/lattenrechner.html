@@ -541,8 +541,20 @@
                         <span>Konterlatten</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <div style="width: 16px; height: 4px; background: #28a745; border-radius: 2px;"></div>
-                        <span>Dachlatten</span>
+                        <div style="width: 16px; height: 4px; background: #e74c3c; border-radius: 2px;"></div>
+                        <span>Dachlatten 6m</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 16px; height: 4px; background: #3498db; border-radius: 2px;"></div>
+                        <span>Dachlatten 5m</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 16px; height: 4px; background: #f39c12; border-radius: 2px;"></div>
+                        <span>Dachlatten 4m</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 16px; height: 4px; background: #27ae60; border-radius: 2px;"></div>
+                        <span>Dachlatten 3m</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px;">
                         <div style="width: 16px; height: 4px; background: #666; border-radius: 2px;"></div>
@@ -1241,16 +1253,23 @@
                 svg += `<rect x="${sparrenX - 1}" y="${sparrenY}" width="2" height="${sparrenHeight}" fill="#ff6b35" opacity="0.9"/>`;
             }
             
-            // Dachlatten (quer zu Sparren) - mit korrekten Stößen auf Sparren
+            // Dachlatten (quer zu Sparren) - mit korrekten Stößen auf Sparren und Farbkodierung
+            const lattenFarben = {
+                6: '#e74c3c', // Rot für 6m
+                5: '#3498db', // Blau für 5m  
+                4: '#f39c12', // Orange für 4m
+                3: '#27ae60'  // Grün für 3m
+            };
+            
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const lattenY = margin + (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe * scaleY;
                 
                 let lattenBreite = dachBreite;
                 
                 if (dachTyp === 'trapez') {
-                    // KORRIGIERT: Obere Latten sind schmaler, untere breiter
+                    // KORRIGIERT: Erste Latte (i=0) ist oben und schmal, letzte (i=max) ist unten und breit
                     const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
-                    lattenBreite = obereBreite + (dachBreite - obereBreite) * (1 - fortschritt);
+                    lattenBreite = obereBreite + (dachBreite - obereBreite) * fortschritt;
                 } else if (dachTyp === 'gleichschenkliges-dreieck') {
                     const yPosition = (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe;
                     lattenBreite = dachBreite * (1 - yPosition / dachHoehe);
@@ -1288,8 +1307,9 @@
                     const segmentStartX = lattenStartX + aktuellePos * scaleX;
                     const segmentEndX = Math.min(lattenEndX, segmentStartX + gewaehlteLattenLaenge * scaleX);
                     
-                    // Dachlattensegment zeichnen
-                    svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="#28a745" stroke-width="2" opacity="0.9"/>`;
+                    // Dachlattensegment mit Farbkodierung zeichnen
+                    const lattenFarbe = lattenFarben[gewaehlteLattenLaenge] || '#28a745';
+                    svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${lattenFarbe}" stroke-width="3" opacity="0.9"/>`;
                     
                     // Stoß-Markierung nur wenn nicht letztes Segment
                     if (aktuellePos + gewaehlteLattenLaenge < lattenBreite - 0.05) {
