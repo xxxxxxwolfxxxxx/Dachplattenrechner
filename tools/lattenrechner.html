@@ -1326,12 +1326,12 @@
                 }
                 
                 if (verwendetesRestStueck) {
-                    // Ganzes Rest-Stück verwenden
+                    // Ganzes Rest-Stück verwenden - GLEICHE NUMMER beibehalten
                     lattenstuecke.push({
                         startPos: 0,
                         laenge: lattenBreite,
                         originalLaenge: verwendetesRestStueck.laenge,
-                        nummer: verwendetesRestStueck.nummer,
+                        nummer: verwendetesRestStueck.nummer, // Ursprüngliche Nummer!
                         istRest: true
                     });
                 } else if (lattenBreite <= 6.1 && verfuegbareLaengen.includes(6)) {
@@ -1347,7 +1347,7 @@
                     
                     // Rest ins Lager wenn > 1.5m
                     if (6 - lattenBreite > 1.5) {
-                        lattenlager[lattenNummer] = 6 - lattenBreite;
+                        lattenlager[lattenNummer] = 6 - lattenBreite; // Nummer als Key!
                     }
                     lattenNummer++;
                 } else if (lattenBreite <= 5.1 && verfuegbareLaengen.includes(5)) {
@@ -1369,51 +1369,71 @@
                     // Mehrere Latten: MUSS auf Sparren aufgeteilt werden
                     let aktuellePos = 0;
                     
+                    // Erst prüfen ob passende Rest-Stücke für Segmente vorhanden sind
+                    const benoetigteSegmente = [];
                     for (let j = 0; j < relevanteSparren.length; j++) {
                         const sparrenPos = relevanteSparren[j];
-                        if (sparrenPos > aktuellePos + 2.5) { // Min 2.5m Segment
-                            const segmentLaenge = sparrenPos - aktuellePos;
-                            
-                            // Finde passende Original-Lattenlänge
-                            let originalLaenge = verfuegbareLaengen.find(l => l >= segmentLaenge) || Math.max(...verfuegbareLaengen);
-                            
-                            lattenstuecke.push({
-                                startPos: aktuellePos,
-                                laenge: segmentLaenge,
-                                originalLaenge: originalLaenge,
-                                nummer: lattenNummer,
-                                verschnitt: (originalLaenge - segmentLaenge).toFixed(1)
+                        if (sparrenPos > aktuellePos + 2.5) {
+                            benoetigteSegmente.push({
+                                start: aktuellePos,
+                                end: sparrenPos,
+                                laenge: sparrenPos - aktuellePos
                             });
-                            
-                            window.globaleMaterialliste.push({laenge: originalLaenge, anzahl: 1});
-                            
-                            if (originalLaenge - segmentLaenge > 1.5) {
-                                lattenlager[lattenNummer] = originalLaenge - segmentLaenge;
-                            }
-                            lattenNummer++;
                             aktuellePos = sparrenPos;
                         }
                     }
                     
                     // Letztes Segment
                     if (aktuellePos < lattenBreite) {
-                        const restSegment = lattenBreite - aktuellePos;
-                        let originalLaenge = verfuegbareLaengen.find(l => l >= restSegment) || Math.max(...verfuegbareLaengen);
-                        
-                        lattenstuecke.push({
-                            startPos: aktuellePos,
-                            laenge: restSegment,
-                            originalLaenge: originalLaenge,
-                            nummer: lattenNummer,
-                            verschnitt: (originalLaenge - restSegment).toFixed(1)
+                        benoetigteSegmente.push({
+                            start: aktuellePos,
+                            end: lattenBreite,
+                            laenge: lattenBreite - aktuellePos
                         });
+                    }
+                    
+                    // Für jedes Segment: erst Rest-Stück suchen, dann neue Latte
+                    for (let segment of benoetigteSegmente) {
+                        let verwendetesRestStueck = null;
                         
-                        window.globaleMaterialliste.push({laenge: originalLaenge, anzahl: 1});
-                        
-                        if (originalLaenge - restSegment > 1.5) {
-                            lattenlager[lattenNummer] = originalLaenge - restSegment;
+                        // Suche passendes Rest-Stück
+                        for (let [nummer, restLaenge] of Object.entries(lattenlager)) {
+                            if (restLaenge >= segment.laenge - 0.05 && restLaenge <= segment.laenge + 0.5) {
+                                verwendetesRestStueck = { nummer: parseInt(nummer), laenge: restLaenge };
+                                delete lattenlager[nummer];
+                                break;
+                            }
                         }
-                        lattenNummer++;
+                        
+                        if (verwendetesRestStueck) {
+                            // Rest-Stück verwenden - ursprüngliche Nummer beibehalten
+                            lattenstuecke.push({
+                                startPos: segment.start,
+                                laenge: segment.laenge,
+                                originalLaenge: verwendetesRestStueck.laenge,
+                                nummer: verwendetesRestStueck.nummer, // Ursprüngliche Nummer!
+                                istRest: true
+                            });
+                        } else {
+                            // Neue Latte verwenden
+                            let originalLaenge = verfuegbareLaengen.find(l => l >= segment.laenge) || Math.max(...verfuegbareLaengen);
+                            
+                            lattenstuecke.push({
+                                startPos: segment.start,
+                                laenge: segment.laenge,
+                                originalLaenge: originalLaenge,
+                                nummer: lattenNummer,
+                                verschnitt: (originalLaenge - segment.laenge).toFixed(1)
+                            });
+                            
+                            window.globaleMaterialliste.push({laenge: originalLaenge, anzahl: 1});
+                            
+                            // Rest ins Lager wenn > 1.5m
+                            if (originalLaenge - segment.laenge > 1.5) {
+                                lattenlager[lattenNummer] = originalLaenge - segment.laenge;
+                            }
+                            lattenNummer++;
+                        }
                     }
                 }
                 
