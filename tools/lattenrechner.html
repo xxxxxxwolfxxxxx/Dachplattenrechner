@@ -1279,7 +1279,7 @@
             
             let lattenNummer = 1;
             let lattenlager = {}; // Rest-Stücke: {nummer: restLaenge}
-            let globaleMaterialliste = []; // Für korrekte Berechnung
+            window.globaleMaterialliste = []; // Global verfügbar machen
             
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const lattenY = margin + (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe * scaleY;
@@ -1343,7 +1343,7 @@
                         nummer: lattenNummer,
                         verschnitt: (6 - lattenBreite).toFixed(1)
                     });
-                    globaleMaterialliste.push({laenge: 6, anzahl: 1});
+                    window.globaleMaterialliste.push({laenge: 6, anzahl: 1});
                     
                     // Rest ins Lager wenn > 1.5m
                     if (6 - lattenBreite > 1.5) {
@@ -1359,7 +1359,7 @@
                         nummer: lattenNummer,
                         verschnitt: (5 - lattenBreite).toFixed(1)
                     });
-                    globaleMaterialliste.push({laenge: 5, anzahl: 1});
+                    window.globaleMaterialliste.push({laenge: 5, anzahl: 1});
                     
                     if (5 - lattenBreite > 1.5) {
                         lattenlager[lattenNummer] = 5 - lattenBreite;
@@ -1385,7 +1385,7 @@
                                 verschnitt: (originalLaenge - segmentLaenge).toFixed(1)
                             });
                             
-                            globaleMaterialliste.push({laenge: originalLaenge, anzahl: 1});
+                            window.globaleMaterialliste.push({laenge: originalLaenge, anzahl: 1});
                             
                             if (originalLaenge - segmentLaenge > 1.5) {
                                 lattenlager[lattenNummer] = originalLaenge - segmentLaenge;
@@ -1408,7 +1408,7 @@
                             verschnitt: (originalLaenge - restSegment).toFixed(1)
                         });
                         
-                        globaleMaterialliste.push({laenge: originalLaenge, anzahl: 1});
+                        window.globaleMaterialliste.push({laenge: originalLaenge, anzahl: 1});
                         
                         if (originalLaenge - restSegment > 1.5) {
                             lattenlager[lattenNummer] = originalLaenge - restSegment;
