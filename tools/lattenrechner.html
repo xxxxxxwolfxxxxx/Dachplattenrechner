@@ -754,16 +754,26 @@
             return svg;
         }
 
-        // Automatische Berechnung von Sparren-Parameter
+        // Automatische Berechnung von Sparren-Parameter mit Verzögerung
+        let berechnungsTimer = null;
+        
         function aktualisiereAutomatischeSparrenBerechnung() {
             const anzahlInput = document.getElementById('anzahl-sparren');
             const abstandInput = document.getElementById('sparren-abstand');
             const ueberstandInput = document.getElementById('dachueberstand');
             
-            // Event Listeners für alle drei Felder
+            // Event Listeners für alle drei Felder mit Verzögerung
             [anzahlInput, abstandInput, ueberstandInput].forEach(input => {
                 input.addEventListener('input', function() {
-                    berechneSparrenParameter();
+                    // Timer zurücksetzen
+                    if (berechnungsTimer) {
+                        clearTimeout(berechnungsTimer);
+                    }
+                    
+                    // Nach 800ms Verzögerung berechnen
+                    berechnungsTimer = setTimeout(() => {
+                        berechneSparrenParameter();
+                    }, 800);
                 });
             });
         }
@@ -1279,6 +1289,7 @@
             
             let lattenNummer = 1;
             let lattenlager = []; // Array von {nummer: X, restLaenge: Y, originalLaenge: Z}
+            let geteilteLatten = new Set(); // Nummern der Latten die tatsächlich geteilt wurden
             window.globaleMaterialliste = []; // Global verfügbar machen
             
             for (let i = 0; i < anzahlLattenReihen; i++) {
@@ -1347,13 +1358,14 @@
                     });
                     window.globaleMaterialliste.push({laenge: 6, anzahl: 1});
                     
-                    // Rest ins Lager wenn > 1.5m
+                    // Rest ins Lager wenn > 1.5m - markiere als geteilt
                     if (6 - lattenBreite > 1.5) {
                         lattenlager.push({
                             nummer: aktuelleNummer,
                             restLaenge: 6 - lattenBreite,
                             originalLaenge: 6
                         });
+                        geteilteLatten.add(aktuelleNummer); // Als geteilt markieren
                     }
                 } else if (lattenBreite <= 5.1 && verfuegbareLaengen.includes(5)) {
                     // Eine neue 5m Latte
@@ -1373,6 +1385,7 @@
                             restLaenge: 5 - lattenBreite,
                             originalLaenge: 5
                         });
+                        geteilteLatten.add(aktuelleNummer); // Als geteilt markieren
                     }
                     
                     if (5 - lattenBreite > 1.5) {
@@ -1451,6 +1464,7 @@
                                     restLaenge: originalLaenge - segment.laenge,
                                     originalLaenge: originalLaenge
                                 });
+                                geteilteLatten.add(aktuelleNummer); // Als geteilt markieren
                             }
                         }
                     }
@@ -1466,9 +1480,9 @@
                     const lattenFarbe = lattenFarben[stueck.originalLaenge] || '#27ae60';
                     svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${lattenFarbe}" stroke-width="4" opacity="0.9"/>`;
                     
-                    // Nummerierung bei geteilten/wiederverwendeten Latten
-                    const zeigNummer = stueck.istRest || (stueck.verschnitt && parseFloat(stueck.verschnitt) > 0.5);
-                    if (zeigNummer) {
+                    // Nummerierung NUR bei geteilten Latten (Rest-Stücke oder Latten mit Rest im Lager)
+                    const istGeteilt = geteilteLatten.has(stueck.nummer);
+                    if (istGeteilt) {
                         const textX = segmentStartX + (stueck.laenge * scaleX) / 2;
                         svg += `<circle cx="${textX}" cy="${lattenY - 8}" r="8" fill="white" stroke="#333" stroke-width="1" opacity="0.9"/>`;
                         svg += `<text x="${textX}" y="${lattenY - 4}" text-anchor="middle" font-size="7" font-weight="bold" fill="#333">${stueck.nummer}</text>`;
