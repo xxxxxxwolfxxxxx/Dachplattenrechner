@@ -1336,7 +1336,7 @@
                 svg += `<rect x="${sparrenX - 1}" y="${sparrenY}" width="2" height="${sparrenHeight}" fill="#ff6b35" opacity="0.9"/>`;
             }
             
-            // Dachlatten (quer zu Sparren)
+            // Dachlatten (quer zu Sparren) - mit Stoß-Logik
             const lattenFarben = {
                 6: '#e74c3c', // Rot für 6m
                 5: '#3498db', // Blau für 5m  
@@ -1344,16 +1344,73 @@
                 3: '#27ae60'  // Grün für 3m
             };
             
+            // Verfügbare Längen für diese Darstellung
+            const verfuegbareLaengen = [];
+            [6, 5, 4, 3].forEach(laenge => {
+                const checkbox = document.getElementById('dachlatte-' + laenge + 'm');
+                if (checkbox && checkbox.checked) {
+                    verfuegbareLaengen.push(laenge);
+                }
+            });
+            verfuegbareLaengen.sort((a, b) => b - a);
+            
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const lattenY = margin + (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe * scaleY;
                 
                 let lattenBreite = berechneReihenBreite(i, anzahlLattenReihen);
-                
                 const lattenStartX = margin + (dachBreite - lattenBreite) * scaleX / 2;
-                const lattenEndX = lattenStartX + lattenBreite * scaleX;
                 
-                // Vereinfachte Darstellung der Latten
-                svg += `<line x1="${lattenStartX}" y1="${lattenY}" x2="${lattenEndX}" y2="${lattenY}" stroke="#27ae60" stroke-width="4" opacity="0.9"/>`;
+                // Ermittle Sparrenpositionen für diese Reihe (relativ zum Reihenstart)
+                const reihenStartAbsolut = (dachBreite - lattenBreite) / 2;
+                const relevanteSparren = sparrenPositionen.filter(pos => 
+                    pos >= reihenStartAbsolut - 0.1 && pos <= reihenStartAbsolut + lattenBreite + 0.1
+                ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
+                
+                // Berechne Lattenstücke für diese Reihe
+                let lattenstuecke = [];
+                let verbleibendeBreite = lattenBreite;
+                let aktuellePosition = 0;
+                
+                while (verbleibendeBreite > 0.05) {
+                    // Finde nächsten Sparren als möglichen Stoßpunkt
+                    let naechsterSparren = relevanteSparren.find(s => s > aktuellePosition + 2.0);
+                    let segmentLaenge = naechsterSparren ? Math.min(naechsterSparren - aktuellePosition, verbleibendeBreite) : verbleibendeBreite;
+                    
+                    // Wähle passende Lattenlänge
+                    let gewaehlteLattenLaenge = verfuegbareLaengen.find(l => l >= segmentLaenge) || Math.max(...verfuegbareLaengen);
+                    
+                    // Falls die gewählte Latte länger ist als das Segment, aber ein Sparren in der Nähe ist
+                    if (gewaehlteLattenLaenge > segmentLaenge && naechsterSparren && gewaehlteLattenLaenge <= naechsterSparren - aktuellePosition + 0.1) {
+                        segmentLaenge = Math.min(gewaehlteLattenLaenge, naechsterSparren - aktuellePosition);
+                    }
+                    
+                    lattenstuecke.push({
+                        startPos: aktuellePosition,
+                        laenge: segmentLaenge,
+                        originalLaenge: gewaehlteLattenLaenge
+                    });
+                    
+                    aktuellePosition += segmentLaenge;
+                    verbleibendeBreite -= segmentLaenge;
+                }
+                
+                // Lattenstücke zeichnen
+                for (let j = 0; j < lattenstuecke.length; j++) {
+                    const stueck = lattenstuecke[j];
+                    const segmentStartX = lattenStartX + stueck.startPos * scaleX;
+                    const segmentEndX = segmentStartX + stueck.laenge * scaleX;
+                    
+                    // Latte mit Farbkodierung
+                    const lattenFarbe = lattenFarben[stueck.originalLaenge] || '#27ae60';
+                    svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${lattenFarbe}" stroke-width="4" opacity="0.9"/>`;
+                    
+                    // Stoß zwischen Segmenten anzeigen
+                    if (j < lattenstuecke.length - 1) {
+                        svg += `<line x1="${segmentEndX}" y1="${lattenY - 8}" x2="${segmentEndX}" y2="${lattenY + 8}" stroke="#1976d2" stroke-width="3"/>`;
+                        // Stoß-Markierung
+                        svg += `<circle cx="${segmentEndX}" cy="${lattenY}" r="3" fill="#1976d2"/>`;
+                    }
+                }
             }
             
             // Dachüberstand anzeigen
