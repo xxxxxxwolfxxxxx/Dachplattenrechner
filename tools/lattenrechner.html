@@ -333,7 +333,7 @@
     <div class="nav-header">
         <div class="container">
             <a href="#" class="back-btn" onclick="history.back()">
-                <span>â†</span>
+                <span>&larr;</span>
                 <span>Zurück</span>
             </a>
             <div class="nav-title">Lattenrechner</div>
@@ -354,13 +354,13 @@
             </div>
         </div>
 
-        <!-- Dachform-Ãœbersicht -->
+        <!-- Dachform-Übersicht -->
         <div class="section">
             <h2>Dach-Übersicht</h2>
             <div id="dach-info">
                 <div style="text-align: center; margin-bottom: 20px;">
                     <div id="dach-darstellung" style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <!-- Wird dynamisch gefÃ¼llt basierend auf Dachform -->
+                        <!-- Wird dynamisch gefüllt basierend auf Dachform -->
                     </div>
                 </div>
                 <div class="info-box">
@@ -587,20 +587,21 @@
                 <!-- Druckbutton -->
                 <div style="text-align: center; margin-top: 20px;">
                     <button onclick="druckeLattenplan()" style="background: linear-gradient(135deg, #6f42c1 0%, #563d7c 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3); transition: all 0.3s ease;">
-                        🖨️ Lattenplan drucken
+                        &#128424; Lattenplan drucken
                     </button>
                 </div>
             </div>
         </div>
     </div>
+
     <script>
-        // Globale Variablen fÃ¼r Dach-Parameter
+        // Globale Variablen für Dach-Parameter
         let dachBreite = 10; // Default-Wert
         let dachHoehe = 6;   // Default-Wert
         let dachTyp = 'rechteck'; // Default
-        let obereBreite = 0; // FÃ¼r Trapez
-        let sparrenLaengen = []; // Array fÃ¼r unterschiedliche SparrenlÃ¤ngen
-        let sparrenPositionen = []; // Array fÃ¼r Sparren-Positionen
+        let obereBreite = 0; // Für Trapez
+        let sparrenLaengen = []; // Array für unterschiedliche Sparrenlängen
+        let sparrenPositionen = []; // Array für Sparren-Positionen
 
         // Cookie Management System - Vereinfacht
         function showAds() {
@@ -708,15 +709,13 @@
                     break;
                 case 'trapez-auf-rechteck':
                     const obereBreiteTA = parseFloat(new URLSearchParams(window.location.search).get('obereBreite')) || dachBreite * 0.6;
-                    const trapezHoehe = parseFloat(new URLSearchParams(window.location.search).get('trapezHoehe')) || dachHoehe * 0.5;
-                    const rechteckHoehe = parseFloat(new URLSearchParams(window.location.search).get('rechteckHoehe')) || dachHoehe * 0.5;
                     svg = `
                         <svg width="200" height="120" viewBox="0 0 200 120">
                             <rect x="20" y="50" width="160" height="40" fill="#e8f4fd" stroke="#1976d2" stroke-width="2"/>
                             <polygon points="60,20 140,20 180,50 20,50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
                             <line x1="20" y1="50" x2="180" y2="50" stroke="#ffc107" stroke-width="1" stroke-dasharray="3,3"/>
-                            <text x="100" y="40" text-anchor="middle" font-size="9" fill="#333">Trapez: ${trapezHoehe.toFixed(1)}m</text>
-                            <text x="100" y="75" text-anchor="middle" font-size="9" fill="#333">Rechteck: ${rechteckHoehe.toFixed(1)}m</text>
+                            <text x="100" y="40" text-anchor="middle" font-size="9" fill="#333">Trapez</text>
+                            <text x="100" y="75" text-anchor="middle" font-size="9" fill="#333">Rechteck</text>
                         </svg>
                     `;
                     break;
@@ -738,7 +737,6 @@
                             <polygon points="${spitzeX},20 30,90 170,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
                             <text x="100" y="60" text-anchor="middle" font-size="10" fill="#333">Ungleichschenkliges</text>
                             <text x="100" y="75" text-anchor="middle" font-size="10" fill="#333">Dreieck</text>
-                            <text x="100" y="85" text-anchor="middle" font-size="9" fill="#333">${dachBreite}m × ${dachHoehe}m</text>
                         </svg>
                     `;
                     break;
@@ -867,7 +865,7 @@
             
             switch(dachTyp) {
                 case 'trapez':
-                    // Bei Trapez: KORRIGIERTE Logik - äußere Sparren sind am kürzesten
+                    // Bei Trapez: oben schmal (obereBreite), unten breit (dachBreite)
                     const seitenAbstand = (dachBreite - obereBreite) / 2;
                     const linkeObereEcke = seitenAbstand;
                     const rechteObereEcke = dachBreite - seitenAbstand;
@@ -966,7 +964,7 @@
                 infoText += `<br><strong>Kontrolle:</strong> Sparrenbreite (${sparrenBreite.toFixed(2)}m) + Überstand (${gesamtUeberstand.toFixed(2)}m) = ${berechneteBreite.toFixed(2)}m`;
                 
                 if (Math.abs(berechneteBreite - dachBreite) > 0.05) {
-                    infoText += ` <span style="color: #dc3545;">⚠️ Abweichung zur Dachbreite (${dachBreite}m): ${(berechneteBreite - dachBreite).toFixed(2)}m</span>`;
+                    infoText += ` <span style="color: #dc3545;">⚠ Abweichung zur Dachbreite (${dachBreite}m): ${(berechneteBreite - dachBreite).toFixed(2)}m</span>`;
                 }
             }
             
@@ -981,118 +979,192 @@
             
             document.getElementById('sparren-info').innerHTML = infoText;
         }
-        // Optimierte Dachlattenfunktionen mit Auflage-Logik
+
+        // Optimierte Dachlattenfunktionen mit Verschnittoptimierung
         function optimiereDachlatten(dachBreite, anzahlReihen, verfuegbareLaengen, sparrenPositionen, dachueberstand) {
-            const ueberstandM = (dachueberstand || 0) / 100;
-            
-            // Vereinfachte Optimierung für bessere Zuverlässigkeit
-            const gesamtLinearMeter = dachBreite * anzahlReihen;
-            
-            // Sortiere verfügbare Längen absteigend
+            return optimiereDachlattenUniversal(anzahlReihen, verfuegbareLaengen, sparrenPositionen, dachueberstand);
+        }
+
+        function optimiereDachlattenTrapez(anzahlReihen, verfuegbareLaengen, sparrenPositionen, dachueberstand) {
+            return optimiereDachlattenUniversal(anzahlReihen, verfuegbareLaengen, sparrenPositionen, dachueberstand);
+        }
+
+        function optimiereDachlattenUniversal(anzahlReihen, verfuegbareLaengen, sparrenPositionen, dachueberstand) {
             verfuegbareLaengen.sort((a, b) => b - a);
             
-            const kombination = [];
-            let verbleibendeReihen = anzahlReihen;
+            // 1. Berechne alle Reihenbreiten
+            const reihenBreiten = [];
+            for (let reihe = 0; reihe < anzahlReihen; reihe++) {
+                let reihenBreite = berechneReihenBreite(reihe, anzahlReihen);
+                reihenBreiten.push(reihenBreite);
+            }
             
-            // Für jede Reihe die beste Längenkombination finden
-            while (verbleibendeReihen > 0) {
-                let restBreite = dachBreite;
+            // 2. Sortiere Reihen nach Breite (breiteste zuerst für optimale Verschnittnutzung)
+            const reihenMitIndex = reihenBreiten.map((breite, index) => ({ breite, originalIndex: index }));
+            reihenMitIndex.sort((a, b) => b.breite - a.breite);
+            
+            // 3. Verschnittlager für abgeschnittene Stücke
+            let verschnittlager = [];
+            const kombination = [];
+            let gesamtBenoetigteLaenge = 0;
+            
+            // 4. Bearbeite Reihen von breit zu schmal
+            for (let reihenData of reihenMitIndex) {
+                const reihenBreite = reihenData.breite;
+                const reihenIndex = reihenData.originalIndex;
+                gesamtBenoetigteLaenge += reihenBreite;
                 
-                while (restBreite > 0.01) {
-                    let gewaehlteLattenLaenge = 3; // Fallback
+                // Ermittle Sparrenpositionen für diese Reihe
+                const relevanteSparren = ermittleRelevanteSparren(reihenIndex, anzahlReihen, reihenBreite);
+                
+                // Versuche zuerst Verschnitt zu verwenden
+                let { verwendeteVerschnittStuecke, verbleibendeBreite } = verwendeVerschnitt(reihenBreite, verschnittlager, relevanteSparren);
+                
+                // Ergänze mit neuen Latten was noch fehlt
+                let neueLattenKombination = [];
+                if (verbleibendeBreite > 0.05) {
+                    neueLattenKombination = berechneNeueLatten(verbleibendeBreite, verfuegbareLaengen, relevanteSparren);
                     
-                    // Wähle die beste verfügbare Länge
-                    for (let laenge of verfuegbareLaengen) {
-                        if (laenge <= restBreite + 0.1) {
-                            gewaehlteLattenLaenge = laenge;
-                            break;
+                    // Neuer Verschnitt ins Lager
+                    for (let neueLatte of neueLattenKombination) {
+                        if (neueLatte.verschnitt > 0.5) { // Nur Stücke > 50cm lagern
+                            verschnittlager.push(neueLatte.verschnitt);
                         }
                     }
-                    
-                    // Zur Kombination hinzufügen
-                    const existierend = kombination.find(k => k.laenge === gewaehlteLattenLaenge);
-                    if (existierend) {
-                        existierend.anzahl++;
-                    } else {
-                        kombination.push({ laenge: gewaehlteLattenLaenge, anzahl: 1 });
-                    }
-                    
-                    restBreite -= gewaehlteLattenLaenge;
                 }
                 
-                verbleibendeReihen--;
+                // Kombiniere alle Latten für diese Reihe
+                for (let latte of neueLattenKombination) {
+                    const existierend = kombination.find(k => k.laenge === latte.laenge);
+                    if (existierend) {
+                        existierend.anzahl += latte.anzahl;
+                    } else {
+                        kombination.push({ laenge: latte.laenge, anzahl: latte.anzahl });
+                    }
+                }
             }
             
             const gesamtLaenge = kombination.reduce((sum, k) => sum + (k.laenge * k.anzahl), 0);
-            const verschnitt = gesamtLaenge - gesamtLinearMeter;
+            const verschnitt = Math.max(0, gesamtLaenge - gesamtBenoetigteLaenge);
             
             return {
                 kombination: kombination,
                 gesamtLaenge: gesamtLaenge,
-                benoetigteLaenge: gesamtLinearMeter,
-                verschnitt: Math.max(0, verschnitt),
+                benoetigteLaenge: gesamtBenoetigteLaenge,
+                verschnitt: verschnitt,
                 anzahlReihen: anzahlReihen
             };
         }
 
-        function optimiereDachlattenTrapez(anzahlReihen, verfuegbareLaengen, sparrenPositionen, dachueberstand) {
-            // Vereinfachte Berechnung für Trapez-Dächer
-            const kombinationGesamt = [];
-            let gesamtBenoetigteLaenge = 0;
+        function berechneReihenBreite(reihenIndex, anzahlReihen) {
+            const urlParams = new URLSearchParams(window.location.search);
             
-            verfuegbareLaengen.sort((a, b) => b - a);
-            
-            for (let reihe = 0; reihe < anzahlReihen; reihe++) {
-                const yPosition = (reihe / Math.max(1, anzahlReihen - 1)) * dachHoehe;
-                let reihenBreite;
-                
-                // Berechne Reihenbreite für diese Höhe - KORRIGIERT
-                switch(dachTyp) {
-                    case 'trapez':
-                        const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
-                        reihenBreite = obereBreite + (dachBreite - obereBreite) * (1 - fortschritt);
-                        break;
-                    default:
-                        reihenBreite = dachBreite;
-                }
-                
-                reihenBreite = Math.max(0.5, reihenBreite);
-                gesamtBenoetigteLaenge += reihenBreite;
-                
-                // Einfache Optimierung: größte passende Länge verwenden
-                let restBreite = reihenBreite;
-                
-                while (restBreite > 0.01) {
-                    let gewaehlteLattenLaenge = 3; // Fallback
+            switch(dachTyp) {
+                case 'trapez':
+                    // Von oben (obereBreite = schmal) nach unten (dachBreite = breit)
+                    const fortschritt = reihenIndex / Math.max(1, anzahlReihen - 1);
+                    return obereBreite + (dachBreite - obereBreite) * fortschritt;
                     
-                    for (let laenge of verfuegbareLaengen) {
-                        if (laenge <= restBreite + 0.05) {
-                            gewaehlteLattenLaenge = laenge;
-                            break;
-                        }
-                    }
+                case 'gleichschenkliges-dreieck':
+                    // Von oben (0) nach unten (dachBreite)
+                    const dreieckFortschritt = reihenIndex / Math.max(1, anzahlReihen - 1);
+                    return dachBreite * dreieckFortschritt;
                     
-                    const existierend = kombinationGesamt.find(k => k.laenge === gewaehlteLattenLaenge);
-                    if (existierend) {
-                        existierend.anzahl++;
+                case 'ungleichschenkliges-dreieck':
+                    const spitzenPosition = parseFloat(urlParams.get('spitzenPosition')) || dachBreite * 0.4;
+                    const ungleichFortschritt = reihenIndex / Math.max(1, anzahlReihen - 1);
+                    return dachBreite * ungleichFortschritt;
+                    
+                case 'trapez-auf-rechteck':
+                    const obereBreiteTA = parseFloat(urlParams.get('obereBreite')) || dachBreite * 0.6;
+                    const trapezHoehe = parseFloat(urlParams.get('trapezHoehe')) || dachHoehe * 0.5;
+                    const rechteckHoehe = parseFloat(urlParams.get('rechteckHoehe')) || dachHoehe * 0.5;
+                    
+                    const yPosition = (reihenIndex / Math.max(1, anzahlReihen - 1)) * dachHoehe;
+                    
+                    if (yPosition <= trapezHoehe) {
+                        // Trapez-Teil: von obereBreiteTA zu dachBreite
+                        const trapezFortschritt = yPosition / trapezHoehe;
+                        return obereBreiteTA + (dachBreite - obereBreiteTA) * trapezFortschritt;
                     } else {
-                        kombinationGesamt.push({ laenge: gewaehlteLattenLaenge, anzahl: 1 });
+                        // Rechteck-Teil: konstant dachBreite
+                        return dachBreite;
                     }
                     
-                    restBreite -= gewaehlteLattenLaenge;
+                default: // rechteck
+                    return dachBreite;
+            }
+        }
+
+        function ermittleRelevanteSparren(reihenIndex, anzahlReihen, reihenBreite) {
+            // Vereinfacht: nimm alle Sparren die in der Reihenbreite liegen
+            const reihenStart = (dachBreite - reihenBreite) / 2;
+            const reihenEnde = reihenStart + reihenBreite;
+            
+            return sparrenPositionen.filter(pos => pos >= reihenStart - 0.1 && pos <= reihenEnde + 0.1)
+                                  .map(pos => pos - reihenStart)
+                                  .filter(pos => pos >= 0 && pos <= reihenBreite)
+                                  .sort((a, b) => a - b);
+        }
+
+        function verwendeVerschnitt(reihenBreite, verschnittlager, relevanteSparren) {
+            let verbleibendeBreite = reihenBreite;
+            let verwendeteStuecke = [];
+            
+            // Sortiere Verschnitt nach Größe (größte zuerst)
+            verschnittlager.sort((a, b) => b - a);
+            
+            // Versuche passende Verschnitt-Stücke zu finden
+            for (let i = verschnittlager.length - 1; i >= 0; i--) {
+                const stueck = verschnittlager[i];
+                
+                if (stueck <= verbleibendeBreite + 0.05) {
+                    verwendeteStuecke.push(stueck);
+                    verbleibendeBreite -= stueck;
+                    verschnittlager.splice(i, 1);
+                    
+                    if (verbleibendeBreite <= 0.05) break;
                 }
             }
             
-            const gesamtLaenge = kombinationGesamt.reduce((sum, k) => sum + (k.laenge * k.anzahl), 0);
-            const verschnitt = gesamtLaenge - gesamtBenoetigteLaenge;
-            
             return {
-                kombination: kombinationGesamt,
-                gesamtLaenge: gesamtLaenge,
-                benoetigteLaenge: gesamtBenoetigteLaenge,
-                verschnitt: Math.max(0, verschnitt),
-                anzahlReihen: anzahlReihen
+                verwendeteVerschnittStuecke: verwendeteStuecke,
+                verbleibendeBreite: Math.max(0, verbleibendeBreite)
             };
+        }
+
+        function berechneNeueLatten(benoetigteBreite, verfuegbareLaengen, relevanteSparren) {
+            const neueLatten = [];
+            let restBreite = benoetigteBreite;
+            
+            while (restBreite > 0.05) {
+                // Finde beste Länge (größte die passt)
+                let gewaehlteLattenLaenge = verfuegbareLaengen.find(l => l >= restBreite) || Math.max(...verfuegbareLaengen);
+                
+                // Prüfe ob Stoß auf Sparren landen kann
+                let verwendeteLaenge = Math.min(gewaehlteLattenLaenge, restBreite);
+                
+                // Bei Stößen: muss auf Sparren landen (vereinfachte Logik)
+                if (restBreite < benoetigteBreite && relevanteSparren.length > 0) {
+                    const naechsterSparren = relevanteSparren.find(s => s >= benoetigteBreite - restBreite);
+                    if (naechsterSparren) {
+                        verwendeteLaenge = Math.min(gewaehlteLattenLaenge, naechsterSparren - (benoetigteBreite - restBreite));
+                    }
+                }
+                
+                const verschnitt = gewaehlteLattenLaenge - verwendeteLaenge;
+                
+                neueLatten.push({
+                    laenge: gewaehlteLattenLaenge,
+                    anzahl: 1,
+                    verwendeteLaenge: verwendeteLaenge,
+                    verschnitt: verschnitt
+                });
+                
+                restBreite -= verwendeteLaenge;
+            }
+            
+            return neueLatten;
         }
 
         function optimiereKonterlatten(benoetigteLaenge, verfuegbareLaengen) {
@@ -1244,7 +1316,7 @@
                 svg += `<rect x="${sparrenX - 2}" y="${sparrenY}" width="4" height="${sparrenHeight}" fill="#666" opacity="0.8"/>`;
             }
             
-            // Konterlatten (parallel zu Sparren) - inklusive schräge Außenseiten
+            // Konterlatten (parallel zu Sparren)
             for (let i = 0; i < anzahlSparren && i < sparrenPositionen.length; i++) {
                 const sparrenX = margin + sparrenPositionen[i] * scaleX;
                 let sparrenLaenge = dachHoehe;
@@ -1264,22 +1336,7 @@
                 svg += `<rect x="${sparrenX - 1}" y="${sparrenY}" width="2" height="${sparrenHeight}" fill="#ff6b35" opacity="0.9"/>`;
             }
             
-            // Zusätzliche schräge Konterlatten bei Trapez
-            if (dachTyp === 'trapez') {
-                const seitenAbstand = (dachBreite - obereBreite) / 2;
-                
-                // Linke schräge Konterlatte
-                const linkeObenX = margin + seitenAbstand * scaleX;
-                const linkeUntenX = margin;
-                svg += `<line x1="${linkeObenX}" y1="${margin}" x2="${linkeUntenX}" y2="${margin + dachHoehe * scaleY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
-                
-                // Rechte schräge Konterlatte  
-                const rechteObenX = margin + (dachBreite - seitenAbstand) * scaleX;
-                const rechteUntenX = margin + dachBreite * scaleX;
-                svg += `<line x1="${rechteObenX}" y1="${margin}" x2="${rechteUntenX}" y2="${margin + dachHoehe * scaleY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
-            }
-            
-            // Dachlatten (quer zu Sparren) - STÖSSE MÜSSEN AUF SPARREN LIEGEN
+            // Dachlatten (quer zu Sparren)
             const lattenFarben = {
                 6: '#e74c3c', // Rot für 6m
                 5: '#3498db', // Blau für 5m  
@@ -1287,212 +1344,16 @@
                 3: '#27ae60'  // Grün für 3m
             };
             
-            let lattenNummer = 1;
-            let lattenlager = []; // Array von {nummer: X, restLaenge: Y, originalLaenge: Z}
-            let geteilteLatten = new Set(); // Nummern der Latten die tatsächlich geteilt wurden
-            window.globaleMaterialliste = []; // Global verfügbar machen
-            
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const lattenY = margin + (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe * scaleY;
                 
-                let lattenBreite = dachBreite;
-                
-                if (dachTyp === 'trapez') {
-                    const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
-                    lattenBreite = obereBreite + (dachBreite - obereBreite) * fortschritt;
-                } else if (dachTyp === 'gleichschenkliges-dreieck') {
-                    const yPosition = (i / Math.max(1, anzahlLattenReihen - 1)) * dachHoehe;
-                    lattenBreite = dachBreite * (1 - yPosition / dachHoehe);
-                }
+                let lattenBreite = berechneReihenBreite(i, anzahlLattenReihen);
                 
                 const lattenStartX = margin + (dachBreite - lattenBreite) * scaleX / 2;
+                const lattenEndX = lattenStartX + lattenBreite * scaleX;
                 
-                // Verfügbare Längen
-                const verfuegbareLaengen = [];
-                [6, 5, 4, 3].forEach(laenge => {
-                    const checkbox = document.getElementById(`dachlatte-${laenge}m`);
-                    if (checkbox && checkbox.checked) {
-                        verfuegbareLaengen.push(laenge);
-                    }
-                });
-                verfuegbareLaengen.sort((a, b) => b - a);
-                
-                // Ermittle Sparrenpositionen für diese Reihe (relativ zum Reihenstart)
-                const reihenStartAbsolut = (dachBreite - lattenBreite) / 2;
-                const relevanteSparren = sparrenPositionen.filter(pos => 
-                    pos >= reihenStartAbsolut && pos <= reihenStartAbsolut + lattenBreite
-                ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
-                
-                // ZWINGEND: Aufteilung MUSS auf Sparren enden
-                let lattenstuecke = [];
-                
-                // Prüfe erst ob ein Rest-Stück die ganze Reihe abdeckt
-                let verwendetesRestStueck = null;
-                for (let rest of lattenlager) {
-                    if (rest.restLaenge >= lattenBreite - 0.05) {
-                        verwendetesRestStueck = rest;
-                        // Rest aus Lager entfernen
-                        lattenlager = lattenlager.filter(r => r !== rest);
-                        break;
-                    }
-                }
-                
-                if (verwendetesRestStueck) {
-                    // Rest-Stück verwenden - ursprüngliche Nummer beibehalten
-                    lattenstuecke.push({
-                        startPos: 0,
-                        laenge: lattenBreite,
-                        originalLaenge: verwendetesRestStueck.originalLaenge,
-                        nummer: verwendetesRestStueck.nummer, // Ursprüngliche Nummer!
-                        istRest: true
-                    });
-                } else if (lattenBreite <= 6.1 && verfuegbareLaengen.includes(6)) {
-                    // Eine neue 6m Latte
-                    const aktuelleNummer = lattenNummer++;
-                    lattenstuecke.push({
-                        startPos: 0,
-                        laenge: lattenBreite,
-                        originalLaenge: 6,
-                        nummer: aktuelleNummer,
-                        verschnitt: (6 - lattenBreite).toFixed(1)
-                    });
-                    window.globaleMaterialliste.push({laenge: 6, anzahl: 1});
-                    
-                    // Rest ins Lager wenn > 1.5m - markiere als geteilt
-                    if (6 - lattenBreite > 1.5) {
-                        lattenlager.push({
-                            nummer: aktuelleNummer,
-                            restLaenge: 6 - lattenBreite,
-                            originalLaenge: 6
-                        });
-                        geteilteLatten.add(aktuelleNummer); // Als geteilt markieren
-                    }
-                } else if (lattenBreite <= 5.1 && verfuegbareLaengen.includes(5)) {
-                    // Eine neue 5m Latte
-                    const aktuelleNummer = lattenNummer++;
-                    lattenstuecke.push({
-                        startPos: 0,
-                        laenge: lattenBreite,
-                        originalLaenge: 5,
-                        nummer: aktuelleNummer,
-                        verschnitt: (5 - lattenBreite).toFixed(1)
-                    });
-                    window.globaleMaterialliste.push({laenge: 5, anzahl: 1});
-                    
-                    if (5 - lattenBreite > 1.5) {
-                        lattenlager.push({
-                            nummer: aktuelleNummer,
-                            restLaenge: 5 - lattenBreite,
-                            originalLaenge: 5
-                        });
-                        geteilteLatten.add(aktuelleNummer); // Als geteilt markieren
-                    }
-                    
-                    if (5 - lattenBreite > 1.5) {
-                        lattenlager[lattenNummer] = 5 - lattenBreite;
-                    }
-                    lattenNummer++;
-                } else {
-                    // Mehrere Latten: MUSS auf Sparren aufgeteilt werden
-                    let aktuellePos = 0;
-                    
-                    // Erst prüfen ob passende Rest-Stücke für Segmente vorhanden sind
-                    const benoetigteSegmente = [];
-                    for (let j = 0; j < relevanteSparren.length; j++) {
-                        const sparrenPos = relevanteSparren[j];
-                        if (sparrenPos > aktuellePos + 2.5) {
-                            benoetigteSegmente.push({
-                                start: aktuellePos,
-                                end: sparrenPos,
-                                laenge: sparrenPos - aktuellePos
-                            });
-                            aktuellePos = sparrenPos;
-                        }
-                    }
-                    
-                    // Letztes Segment
-                    if (aktuellePos < lattenBreite) {
-                        benoetigteSegmente.push({
-                            start: aktuellePos,
-                            end: lattenBreite,
-                            laenge: lattenBreite - aktuellePos
-                        });
-                    }
-                    
-                    // Für jedes Segment: erst Rest-Stück suchen, dann neue Latte
-                    for (let segment of benoetigteSegmente) {
-                        let verwendetesRestStueck = null;
-                        
-                        // Suche passendes Rest-Stück
-                        for (let rest of lattenlager) {
-                            if (rest.restLaenge >= segment.laenge - 0.05 && rest.restLaenge <= segment.laenge + 0.5) {
-                                verwendetesRestStueck = rest;
-                                // Rest aus Lager entfernen
-                                lattenlager = lattenlager.filter(r => r !== rest);
-                                break;
-                            }
-                        }
-                        
-                        if (verwendetesRestStueck) {
-                            // Rest-Stück verwenden - ursprüngliche Nummer beibehalten
-                            lattenstuecke.push({
-                                startPos: segment.start,
-                                laenge: segment.laenge,
-                                originalLaenge: verwendetesRestStueck.originalLaenge,
-                                nummer: verwendetesRestStueck.nummer, // Ursprüngliche Nummer!
-                                istRest: true
-                            });
-                        } else {
-                            // Neue Latte verwenden
-                            const aktuelleNummer = lattenNummer++;
-                            let originalLaenge = verfuegbareLaengen.find(l => l >= segment.laenge) || Math.max(...verfuegbareLaengen);
-                            
-                            lattenstuecke.push({
-                                startPos: segment.start,
-                                laenge: segment.laenge,
-                                originalLaenge: originalLaenge,
-                                nummer: aktuelleNummer,
-                                verschnitt: (originalLaenge - segment.laenge).toFixed(1)
-                            });
-                            
-                            window.globaleMaterialliste.push({laenge: originalLaenge, anzahl: 1});
-                            
-                            // Rest ins Lager wenn > 1.5m
-                            if (originalLaenge - segment.laenge > 1.5) {
-                                lattenlager.push({
-                                    nummer: aktuelleNummer,
-                                    restLaenge: originalLaenge - segment.laenge,
-                                    originalLaenge: originalLaenge
-                                });
-                                geteilteLatten.add(aktuelleNummer); // Als geteilt markieren
-                            }
-                        }
-                    }
-                }
-                
-                // Lattenstücke zeichnen
-                for (let j = 0; j < lattenstuecke.length; j++) {
-                    const stueck = lattenstuecke[j];
-                    const segmentStartX = lattenStartX + stueck.startPos * scaleX;
-                    const segmentEndX = segmentStartX + stueck.laenge * scaleX;
-                    
-                    // Latte mit Farbkodierung der ursprünglichen Länge
-                    const lattenFarbe = lattenFarben[stueck.originalLaenge] || '#27ae60';
-                    svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${lattenFarbe}" stroke-width="4" opacity="0.9"/>`;
-                    
-                    // Nummerierung NUR bei geteilten Latten (Rest-Stücke oder Latten mit Rest im Lager)
-                    const istGeteilt = geteilteLatten.has(stueck.nummer);
-                    if (istGeteilt) {
-                        const textX = segmentStartX + (stueck.laenge * scaleX) / 2;
-                        svg += `<circle cx="${textX}" cy="${lattenY - 8}" r="8" fill="white" stroke="#333" stroke-width="1" opacity="0.9"/>`;
-                        svg += `<text x="${textX}" y="${lattenY - 4}" text-anchor="middle" font-size="7" font-weight="bold" fill="#333">${stueck.nummer}</text>`;
-                    }
-                    
-                    // Stoß zwischen Segmenten - IMMER auf Sparren
-                    if (j < lattenstuecke.length - 1) {
-                        svg += `<line x1="${segmentEndX}" y1="${lattenY - 5}" x2="${segmentEndX}" y2="${lattenY + 5}" stroke="#1976d2" stroke-width="3"/>`;
-                    }
-                }
+                // Vereinfachte Darstellung der Latten
+                svg += `<line x1="${lattenStartX}" y1="${lattenY}" x2="${lattenEndX}" y2="${lattenY}" stroke="#27ae60" stroke-width="4" opacity="0.9"/>`;
             }
             
             // Dachüberstand anzeigen
@@ -1594,7 +1455,7 @@
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'calculation', {
                     'event_category': 'lattenrechner',
-                    'event_label': 'latten_berechnung_durchgeführt'
+                    'event_label': 'latten_berechnung_durchgefuehrt'
                 });
             }
 
@@ -1643,7 +1504,7 @@
             const konterlattenGesamtlaenge = sparrenLaengen.reduce((sum, laenge) => sum + laenge, 0);
             const konterlattenKombination = optimiereKonterlatten(konterlattenGesamtlaenge, verfuegbareKonterlatten);
             
-            // Dachlatten-Berechnung mit Auflagepunkt-Logik
+            // Dachlatten-Berechnung mit Verschnittoptimierung
             const anzahlLattenReihen = Math.ceil((dachHoehe * 100) / lattenabstand) + 1;
             let dachlattenKombination;
             
@@ -1652,8 +1513,6 @@
             } else {
                 dachlattenKombination = optimiereDachlattenTrapez(anzahlLattenReihen, verfuegbareDachlatten, sparrenPositionen, dachueberstand);
             }
-
-            console.log('Dachlatten-Kombination:', dachlattenKombination); // Debug
 
             // Ergebnisse anzeigen
             zeigeErgebnisse(konterlattenKombination, dachlattenKombination, anzahlLattenReihen, lattenabstand, anzahlSparren);
