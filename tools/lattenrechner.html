@@ -825,16 +825,29 @@
 
         // NEUE INTELLIGENTE DACHLATTEN-BERECHNUNG
         function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
-            verfuegbareLaengen.sort((a, b) => b - a); // Absteigend sortieren
+            // WICHTIG: Nur verfügbare Längen verwenden!
+            const tatsaechlichVerfuegbar = verfuegbareLaengen.filter(l => l > 0);
+            if (tatsaechlichVerfuegbar.length === 0) {
+                console.error('Keine verfügbaren Dachlattenlängen!');
+                return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
+            }
+            
+            tatsaechlichVerfuegbar.sort((a, b) => b - a); // Absteigend sortieren
+            console.log('Verfügbare Längen:', tatsaechlichVerfuegbar);
             
             let restStuecke = []; // Lager für Verschnitt-Stücke
             const materialListe = [];
             let gesamtVerschnitt = 0;
+            let gesamtBenoetigteLaenge = 0;
             
-            // Für jede Reihe von unten nach oben
+            // Für jede Reihe von unten nach oben (größte Breite zuerst)
             for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
                 const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
                 let reihenBreite = berechneReihenBreite(fortschritt);
+                
+                console.log(`Reihe ${reihe}: Fortschritt ${fortschritt.toFixed(2)}, Breite ${reihenBreite.toFixed(2)}m`);
+                
+                gesamtBenoetigteLaenge += reihenBreite;
                 
                 // Sparrenpositionen für diese Reihe ermitteln
                 const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
@@ -843,42 +856,62 @@
                 ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
                 
                 // Sicherstellen dass Ränder berücksichtigt werden
-                if (relevanteSparren[0] > 0.05) relevanteSparren.unshift(0);
+                if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
+                    relevanteSparren.unshift(0);
+                }
                 if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
                     relevanteSparren.push(reihenBreite);
                 }
                 
-                let aktuellePosition = 0;
+                console.log(`Relevante Sparren für Reihe ${reihe}:`, relevanteSparren);
                 
-                // Für jedes Segment zwischen Sparren
-                for (let i = 1; i < relevanteSparren.length; i++) {
-                    const segmentStart = relevanteSparren[i - 1];
-                    const segmentEnde = relevanteSparren[i];
-                    const segmentLaenge = segmentEnde - segmentStart;
-                    
-                    if (segmentLaenge < 0.3) continue; // Zu kleine Segmente überspringen
-                    
-                    // Prüfe zuerst Rest-Stücke
+                // Vereinfachte Methode: Ganze Reihe abdecken
+                let verbleibendeBreite = reihenBreite;
+                
+                while (verbleibendeBreite > 0.1) {
+                    // Zuerst Rest-Stücke prüfen
                     let verwendetesRest = null;
+                    let restIndex = -1;
+                    
                     for (let j = 0; j < restStuecke.length; j++) {
-                        if (restStuecke[j] >= segmentLaenge - 0.05 && restStuecke[j] <= segmentLaenge + 0.5) {
+                        if (restStuecke[j] >= verbleibendeBreite - 0.05) {
                             verwendetesRest = restStuecke[j];
-                            restStuecke.splice(j, 1);
+                            restIndex = j;
                             break;
                         }
                     }
                     
                     if (verwendetesRest) {
-                        // Rest-Stück verwenden - minimaler Verschnitt
-                        const restVerschnitt = verwendetesRest - segmentLaenge;
+                        // Rest-Stück verwenden
+                        console.log(`Verwende Rest-Stück: ${verwendetesRest.toFixed(2)}m für ${verbleibendeBreite.toFixed(2)}m`);
+                        restStuecke.splice(restIndex, 1);
+                        
+                        const restVerschnitt = verwendetesRest - verbleibendeBreite;
                         if (restVerschnitt > 0.3) {
                             restStuecke.push(restVerschnitt);
+                            console.log(`Neues Rest-Stück: ${restVerschnitt.toFixed(2)}m`);
                         } else {
                             gesamtVerschnitt += restVerschnitt;
                         }
+                        verbleibendeBreite = 0;
                     } else {
-                        // Neue Latte verwenden
-                        let besteLattenLaenge = verfuegbareLaengen.find(l => l >= segmentLaenge) || Math.max(...verfuegbareLaengen);
+                        // Neue Latte verwenden - IMMER aus verfügbaren Längen wählen
+                        let besteLattenLaenge = null;
+                        
+                        // Finde beste Länge aus verfügbaren
+                        for (let laenge of tatsaechlichVerfuegbar) {
+                            if (laenge >= verbleibendeBreite) {
+                                besteLattenLaenge = laenge;
+                                break;
+                            }
+                        }
+                        
+                        // Falls keine passende Länge gefunden, nimm die größte verfügbare
+                        if (!besteLattenLaenge) {
+                            besteLattenLaenge = Math.max(...tatsaechlichVerfuegbar);
+                        }
+                        
+                        console.log(`Neue Latte: ${besteLattenLaenge}m für ${verbleibendeBreite.toFixed(2)}m`);
                         
                         // Zur Materialliste hinzufügen
                         const existierend = materialListe.find(m => m.laenge === besteLattenLaenge);
@@ -889,25 +922,34 @@
                         }
                         
                         // Verschnitt berechnen
-                        const verschnitt = besteLattenLaenge - segmentLaenge;
+                        const abgedeckteLaenge = Math.min(besteLattenLaenge, verbleibendeBreite);
+                        const verschnitt = besteLattenLaenge - abgedeckteLaenge;
+                        
                         if (verschnitt > 0.3) {
                             restStuecke.push(verschnitt);
+                            console.log(`Rest-Stück hinzugefügt: ${verschnitt.toFixed(2)}m`);
                         } else {
                             gesamtVerschnitt += verschnitt;
                         }
+                        
+                        verbleibendeBreite -= abgedeckteLaenge;
                     }
                 }
             }
             
             // Verbleibende Rest-Stücke als Verschnitt zählen
-            gesamtVerschnitt += restStuecke.reduce((sum, rest) => sum + rest, 0);
+            const verbleibendeReste = restStuecke.reduce((sum, rest) => sum + rest, 0);
+            gesamtVerschnitt += verbleibendeReste;
             
             const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
+            
+            console.log('Endresultat:', { materialListe, gesamtLaenge, gesamtVerschnitt, gesamtBenoetigteLaenge });
             
             return {
                 kombination: materialListe,
                 gesamtLaenge: gesamtLaenge,
                 verschnitt: gesamtVerschnitt,
+                benoetigteLaenge: gesamtBenoetigteLaenge,
                 anzahlReihen: anzahlReihen
             };
         }
@@ -1046,32 +1088,50 @@
             // Hintergrund
             svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
             
-            // Dachform zeichnen - vereinfacht
-            const dachWidth = dachBreite * scaleX;
-            const dachHeight = dachHoehe * scaleY;
-            svg += `<rect x="${margin}" y="${margin}" width="${dachWidth}" height="${dachHeight}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            // Dachform zeichnen - korrekt nach Typ
+            if (dachTyp === 'trapez') {
+                const seitenAbstand = (dachBreite - obereBreite) / 2;
+                const trapezObenLinks = margin + seitenAbstand * scaleX;
+                const trapezObenRechts = margin + (obereBreite + seitenAbstand) * scaleX;
+                const trapezObenY = margin;
+                const trapezUntenLinks = margin;
+                const trapezUntenRechts = margin + dachBreite * scaleX;
+                const trapezUntenY = margin + dachHoehe * scaleY;
+                
+                svg += `<polygon points="${trapezObenLinks},${trapezObenY} ${trapezObenRechts},${trapezObenY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            } else {
+                const dachWidth = dachBreite * scaleX;
+                const dachHeight = dachHoehe * scaleY;
+                svg += `<rect x="${margin}" y="${margin}" width="${dachWidth}" height="${dachHeight}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            }
             
             // Sparren zeichnen
             for (let i = 0; i < anzahlSparren && i < sparrenPositionen.length; i++) {
                 const sparrenX = margin + sparrenPositionen[i] * scaleX;
-                svg += `<rect x="${sparrenX - 2}" y="${margin}" width="4" height="${dachHeight}" fill="#666" opacity="0.8"/>`;
+                svg += `<rect x="${sparrenX - 2}" y="${margin}" width="4" height="${dachHoehe * scaleY}" fill="#666" opacity="0.8"/>`;
             }
             
             // Konterlatten (parallel zu Sparren)
             for (let i = 0; i < anzahlSparren && i < sparrenPositionen.length; i++) {
                 const sparrenX = margin + sparrenPositionen[i] * scaleX;
-                svg += `<rect x="${sparrenX - 1}" y="${margin}" width="2" height="${dachHeight}" fill="#ff6b35" opacity="0.9"/>`;
+                svg += `<rect x="${sparrenX - 1}" y="${margin}" width="2" height="${dachHoehe * scaleY}" fill="#ff6b35" opacity="0.9"/>`;
             }
             
-            // Dachlatten (quer zu Sparren)
+            // Dachlatten (quer zu Sparren) - variable Breiten
             for (let i = 0; i < anzahlLattenReihen; i++) {
-                const lattenY = margin + (i / Math.max(1, anzahlLattenReihen - 1)) * dachHeight;
-                svg += `<line x1="${margin}" y1="${lattenY}" x2="${margin + dachWidth}" y2="${lattenY}" stroke="#e74c3c" stroke-width="4" opacity="0.9"/>`;
+                const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
+                const reihenBreite = berechneReihenBreite(fortschritt);
+                const lattenY = margin + fortschritt * dachHoehe * scaleY;
+                
+                const reihenStartX = margin + (dachBreite - reihenBreite) * scaleX / 2;
+                const reihenEndX = reihenStartX + reihenBreite * scaleX;
+                
+                svg += `<line x1="${reihenStartX}" y1="${lattenY}" x2="${reihenEndX}" y2="${lattenY}" stroke="#e74c3c" stroke-width="4" opacity="0.9"/>`;
             }
             
             // Maßlinien
-            svg += `<line x1="${margin}" y1="${margin + dachHeight + 35}" x2="${margin + dachWidth}" y2="${margin + dachHeight + 35}" stroke="#333" stroke-width="1"/>`;
-            svg += `<text x="${margin + dachWidth/2}" y="${margin + dachHeight + 50}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
+            svg += `<line x1="${margin}" y1="${margin + dachHoehe * scaleY + 35}" x2="${margin + dachBreite * scaleX}" y2="${margin + dachHoehe * scaleY + 35}" stroke="#333" stroke-width="1"/>`;
+            svg += `<text x="${margin + dachBreite * scaleX/2}" y="${margin + dachHoehe * scaleY + 50}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
             
             svg += `</svg>`;
             
