@@ -1221,7 +1221,7 @@
                 svg += `<line x1="${rechteObenX}" y1="${margin}" x2="${rechteUntenX}" y2="${margin + dachHoehe * scaleY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
             }
             
-            // Dachlatten (quer zu Sparren) - variable Breiten mit korrekten Farben
+            // Dachlatten (quer zu Sparren) - mit Stößen zwischen Lattensegmenten
             const lattenFarben = {
                 6: '#e74c3c', // Rot für 6m
                 5: '#3498db', // Blau für 5m  
@@ -1229,28 +1229,102 @@
                 3: '#27ae60'  // Grün für 3m
             };
             
+            // Verfügbare Längen ermitteln
+            const verfuegbareDachlatten = [];
+            [3, 4, 5, 6].forEach(laenge => {
+                const checkbox = document.getElementById(`dachlatte-${laenge}m`);
+                if (checkbox && checkbox.checked) {
+                    verfuegbareDachlatten.push(laenge);
+                }
+            });
+            verfuegbareDachlatten.sort((a, b) => b - a);
+            
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
                 const reihenBreite = berechneReihenBreite(fortschritt);
                 const lattenY = margin + fortschritt * dachHoehe * scaleY;
                 
-                const reihenStartX = margin + (dachBreite - reihenBreite) * scaleX / 2;
+                const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+                const reihenStartX = margin + reihenStartAbsolut * scaleX;
                 const reihenEndX = reihenStartX + reihenBreite * scaleX;
                 
-                // Verwende eine der verfügbaren Längen als Farbe
-                const verfuegbareLaengen = [];
-                [3, 4, 5, 6].forEach(laenge => {
-                    const checkbox = document.getElementById(`dachlatte-${laenge}m`);
-                    if (checkbox && checkbox.checked) {
-                        verfuegbareLaengen.push(laenge);
+                // Sparrenpositionen für diese Reihe ermitteln
+                const relevanteSparren = sparrenPositionen.filter(pos => 
+                    pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
+                ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
+                
+                // Ränder hinzufügen wenn nötig
+                if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
+                    relevanteSparren.unshift(0);
+                }
+                if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
+                    relevanteSparren.push(reihenBreite);
+                }
+                
+                // Lattensegmente für diese Reihe simulieren
+                let aktuellePosition = 0;
+                let segmentNummer = 0;
+                
+                while (aktuellePosition < reihenBreite - 0.1) {
+                    // Nächsten Endpunkt finden (muss auf Sparren landen)
+                    let naechsterEndpunkt = reihenBreite;
+                    
+                    // Finde verfügbare Lattenlänge, die von aktueller Position zu einem Sparren reicht
+                    for (let lattenLaenge of verfuegbareDachlatten) {
+                        const moeglichesEnde = aktuellePosition + lattenLaenge;
+                        
+                        // Finde nächsten Sparren in der Nähe des möglichen Endes
+                        for (let sparrenPos of relevanteSparren) {
+                            if (sparrenPos >= moeglichesEnde - 0.1 && sparrenPos <= moeglichesEnde + 0.1) {
+                                naechsterEndpunkt = sparrenPos;
+                                break;
+                            }
+                            if (sparrenPos >= moeglichesEnde - 0.5 && sparrenPos <= moeglichesEnde) {
+                                naechsterEndpunkt = sparrenPos;
+                                break;
+                            }
+                        }
+                        if (naechsterEndpunkt < reihenBreite) break;
                     }
-                });
-                
-                // Verwende die größte verfügbare Länge als Beispiel-Farbe
-                const beispielLaenge = Math.max(...verfuegbareLaengen) || 5;
-                const farbe = lattenFarben[beispielLaenge] || '#e74c3c';
-                
-                svg += `<line x1="${reihenStartX}" y1="${lattenY}" x2="${reihenEndX}" y2="${lattenY}" stroke="${farbe}" stroke-width="4" opacity="0.9"/>`;
+                    
+                    // Falls kein passender Endpunkt gefunden, nimm nächsten Sparren
+                    if (naechsterEndpunkt >= reihenBreite) {
+                        for (let sparrenPos of relevanteSparren) {
+                            if (sparrenPos > aktuellePosition + 2.5) {
+                                naechsterEndpunkt = sparrenPos;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    const segmentLaenge = naechsterEndpunkt - aktuellePosition;
+                    
+                    if (segmentLaenge < 0.3) {
+                        aktuellePosition = naechsterEndpunkt;
+                        continue;
+                    }
+                    
+                    // Beste Lattenlänge für dieses Segment finden
+                    let verwendeteLaenge = verfuegbareDachlatten.find(l => l >= segmentLaenge) || Math.max(...verfuegbareDachlatten);
+                    const segmentFarbe = lattenFarben[verwendeteLaenge] || '#e74c3c';
+                    
+                    // Segment zeichnen
+                    const segmentStartX = reihenStartX + aktuellePosition * scaleX;
+                    const segmentEndX = reihenStartX + naechsterEndpunkt * scaleX;
+                    
+                    svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
+                    
+                    // Stoß markieren (außer am Ende der Reihe)
+                    if (naechsterEndpunkt < reihenBreite - 0.1) {
+                        svg += `<line x1="${segmentEndX}" y1="${lattenY - 6}" x2="${segmentEndX}" y2="${lattenY + 6}" stroke="#1976d2" stroke-width="3"/>`;
+                        
+                        // Kleine Stoß-Nummer
+                        svg += `<circle cx="${segmentEndX}" cy="${lattenY - 12}" r="6" fill="white" stroke="#1976d2" stroke-width="1" opacity="0.9"/>`;
+                        svg += `<text x="${segmentEndX}" y="${lattenY - 8}" text-anchor="middle" font-size="6" font-weight="bold" fill="#1976d2">${++segmentNummer}</text>`;
+                    }
+                    
+                    aktuellePosition = naechsterEndpunkt;
+                }
             }
             
             // Maßlinien
