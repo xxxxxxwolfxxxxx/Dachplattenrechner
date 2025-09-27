@@ -475,6 +475,7 @@
             </div>
             <div class="info-box">
                 <strong>Hinweis:</strong> Konterlatten verlaufen parallel zu den Sparren (senkrecht), Dachlatten verlaufen quer dazu (waagerecht). Jede Latte muss mindestens 2 Auflagepunkte haben und auf einem Sparren enden.
+                <br><strong>Verschnitt-Recycling:</strong> Abschnitte aus oberen (schmalen) Reihen werden automatisch für untere (breitere) Reihen wiederverwendet. Rest-Stücke sind in der Darstellung mit "R" markiert.
             </div>
         </div>
 
@@ -564,6 +565,10 @@
                     <div style="display: flex; align-items: center; gap: 6px;">
                         <div style="width: 16px; height: 2px; background: #1976d2; border-radius: 1px;"></div>
                         <span>Lattenstöße</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #dc3545; font-weight: bold; font-size: 12px;">R</span>
+                        <span>Rest-Stück</span>
                     </div>
                 </div>
             </div>
@@ -881,14 +886,13 @@
 
         // NEUE INTELLIGENTE DACHLATTEN-BERECHNUNG
         function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
-            // WICHTIG: Nur verfügbare Längen verwenden!
             const tatsaechlichVerfuegbar = verfuegbareLaengen.filter(l => l > 0);
             if (tatsaechlichVerfuegbar.length === 0) {
                 console.error('Keine verfügbaren Dachlattenlängen!');
                 return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
             }
             
-            tatsaechlichVerfuegbar.sort((a, b) => b - a); // Absteigend sortieren
+            tatsaechlichVerfuegbar.sort((a, b) => b - a);
             console.log('Verfügbare Längen:', tatsaechlichVerfuegbar);
             
             let restStuecke = []; // Lager für Verschnitt-Stücke
@@ -896,12 +900,16 @@
             let gesamtVerschnitt = 0;
             let gesamtBenoetigteLaenge = 0;
             
+            // Globales Array für Visualisierung
+            window.lattenPlan = [];
+            
             // Für jede Reihe von unten nach oben (größte Breite zuerst)
             for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
                 const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
                 let reihenBreite = berechneReihenBreite(fortschritt);
                 
                 console.log(`Reihe ${reihe}: Fortschritt ${fortschritt.toFixed(2)}, Breite ${reihenBreite.toFixed(2)}m`);
+                console.log(`Rest-Stücke verfügbar:`, restStuecke.map(r => r.toFixed(2)));
                 
                 gesamtBenoetigteLaenge += reihenBreite;
                 
@@ -911,7 +919,6 @@
                     pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
                 ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
                 
-                // Sicherstellen dass Ränder berücksichtigt werden
                 if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
                     relevanteSparren.unshift(0);
                 }
@@ -919,87 +926,177 @@
                     relevanteSparren.push(reihenBreite);
                 }
                 
-                console.log(`Relevante Sparren für Reihe ${reihe}:`, relevanteSparren);
+                // Lattensegmente für diese Reihe planen
+                const reihenSegmente = [];
+                let aktuellePosition = 0;
                 
-                // Vereinfachte Methode: Ganze Reihe abdecken
-                let verbleibendeBreite = reihenBreite;
-                
-                while (verbleibendeBreite > 0.1) {
-                    // Zuerst Rest-Stücke prüfen
+                while (aktuellePosition < reihenBreite - 0.1) {
+                    // Zuerst prüfen ob ein Rest-Stück passt
                     let verwendetesRest = null;
                     let restIndex = -1;
                     
                     for (let j = 0; j < restStuecke.length; j++) {
-                        if (restStuecke[j] >= verbleibendeBreite - 0.05) {
+                        // Finde nächsten möglichen Endpunkt für dieses Rest-Stück
+                        const moeglichesEnde = aktuellePosition + restStuecke[j];
+                        
+                        // Prüfe ob das Ende auf einen Sparren trifft (mit Toleranz)
+                        const naechsterSparren = relevanteSparren.find(pos => 
+                            Math.abs(pos - moeglichesEnde) <= 0.1 || 
+                            (pos > moeglichesEnde && pos <= moeglichesEnde + 0.5)
+                        );
+                        
+                        if (naechsterSparren && naechsterSparren <= reihenBreite) {
                             verwendetesRest = restStuecke[j];
                             restIndex = j;
                             break;
                         }
                     }
                     
-                    if (verwendetesRest) {
+                    if (verwendetesRest && restIndex >= 0) {
                         // Rest-Stück verwenden
-                        console.log(`Verwende Rest-Stück: ${verwendetesRest.toFixed(2)}m für ${verbleibendeBreite.toFixed(2)}m`);
+                        const moeglichesEnde = aktuellePosition + verwendetesRest;
+                        const naechsterSparren = relevanteSparren.find(pos => 
+                            Math.abs(pos - moeglichesEnde) <= 0.1 || 
+                            (pos > moeglichesEnde && pos <= moeglichesEnde + 0.5)
+                        );
+                        
+                        const segmentEnde = naechsterSparren || Math.min(moeglichesEnde, reihenBreite);
+                        const segmentLaenge = segmentEnde - aktuellePosition;
+                        
+                        console.log(`Verwende Rest-Stück: ${verwendetesRest.toFixed(2)}m für Segment ${segmentLaenge.toFixed(2)}m`);
+                        
+                        reihenSegmente.push({
+                            start: aktuellePosition,
+                            ende: segmentEnde,
+                            laenge: segmentLaenge,
+                            originalLaenge: verwendetesRest,
+                            istRest: true
+                        });
+                        
                         restStuecke.splice(restIndex, 1);
                         
-                        const restVerschnitt = verwendetesRest - verbleibendeBreite;
-                        if (restVerschnitt > 0.3) {
-                            restStuecke.push(restVerschnitt);
-                            console.log(`Neues Rest-Stück: ${restVerschnitt.toFixed(2)}m`);
+                        // Neuer Rest falls vorhanden
+                        const neuerRest = verwendetesRest - segmentLaenge;
+                        if (neuerRest > 0.3) {
+                            restStuecke.push(neuerRest);
+                            console.log(`Neuer Rest: ${neuerRest.toFixed(2)}m`);
                         } else {
-                            gesamtVerschnitt += restVerschnitt;
+                            gesamtVerschnitt += neuerRest;
                         }
-                        verbleibendeBreite = 0;
-                    } else {
-                        // Neue Latte verwenden - IMMER aus verfügbaren Längen wählen
-                        let besteLattenLaenge = null;
                         
-                        // Finde beste Länge aus verfügbaren
-                        for (let laenge of tatsaechlichVerfuegbar) {
-                            if (laenge >= verbleibendeBreite) {
-                                besteLattenLaenge = laenge;
-                                break;
+                        aktuellePosition = segmentEnde;
+                    } else {
+                        // Neue Latte verwenden - finde besten Endpunkt auf Sparren
+                        let besteKombination = null;
+                        
+                        for (let lattenLaenge of tatsaechlichVerfuegbar) {
+                            const moeglichesEnde = aktuellePosition + lattenLaenge;
+                            
+                            // Finde besten Sparren in der Nähe
+                            for (let sparrenPos of relevanteSparren) {
+                                if (sparrenPos > aktuellePosition + 2.5 && sparrenPos <= moeglichesEnde + 0.1) {
+                                    const segmentLaenge = sparrenPos - aktuellePosition;
+                                    const verschnitt = lattenLaenge - segmentLaenge;
+                                    
+                                    if (!besteKombination || verschnitt < besteKombination.verschnitt) {
+                                        besteKombination = {
+                                            lattenLaenge: lattenLaenge,
+                                            segmentEnde: sparrenPos,
+                                            segmentLaenge: segmentLaenge,
+                                            verschnitt: verschnitt
+                                        };
+                                    }
+                                }
                             }
                         }
                         
-                        // Falls keine passende Länge gefunden, nimm die größte verfügbare
-                        if (!besteLattenLaenge) {
-                            besteLattenLaenge = Math.max(...tatsaechlichVerfuegbar);
+                        // Falls keine optimale Kombination gefunden, nimm nächsten Sparren
+                        if (!besteKombination) {
+                            const naechsterSparren = relevanteSparren.find(pos => pos > aktuellePosition + 2.5);
+                            if (naechsterSparren) {
+                                const segmentLaenge = naechsterSparren - aktuellePosition;
+                                const lattenLaenge = tatsaechlichVerfuegbar.find(l => l >= segmentLaenge) || Math.max(...tatsaechlichVerfuegbar);
+                                
+                                besteKombination = {
+                                    lattenLaenge: lattenLaenge,
+                                    segmentEnde: naechsterSparren,
+                                    segmentLaenge: segmentLaenge,
+                                    verschnitt: lattenLaenge - segmentLaenge
+                                };
+                            }
                         }
                         
-                        console.log(`Neue Latte: ${besteLattenLaenge}m für ${verbleibendeBreite.toFixed(2)}m`);
-                        
-                        // Zur Materialliste hinzufügen
-                        const existierend = materialListe.find(m => m.laenge === besteLattenLaenge);
-                        if (existierend) {
-                            existierend.anzahl++;
+                        if (besteKombination) {
+                            console.log(`Neue Latte: ${besteKombination.lattenLaenge}m für Segment ${besteKombination.segmentLaenge.toFixed(2)}m`);
+                            
+                            reihenSegmente.push({
+                                start: aktuellePosition,
+                                ende: besteKombination.segmentEnde,
+                                laenge: besteKombination.segmentLaenge,
+                                originalLaenge: besteKombination.lattenLaenge,
+                                istRest: false
+                            });
+                            
+                            // Material zur Liste hinzufügen
+                            const existierend = materialListe.find(m => m.laenge === besteKombination.lattenLaenge);
+                            if (existierend) {
+                                existierend.anzahl++;
+                            } else {
+                                materialListe.push({ laenge: besteKombination.lattenLaenge, anzahl: 1 });
+                            }
+                            
+                            // Verschnitt behandeln
+                            if (besteKombination.verschnitt > 0.3) {
+                                restStuecke.push(besteKombination.verschnitt);
+                                console.log(`Rest hinzugefügt: ${besteKombination.verschnitt.toFixed(2)}m`);
+                            } else {
+                                gesamtVerschnitt += besteKombination.verschnitt;
+                            }
+                            
+                            aktuellePosition = besteKombination.segmentEnde;
                         } else {
-                            materialListe.push({ laenge: besteLattenLaenge, anzahl: 1 });
+                            // Notfall: Rest der Reihe abdecken
+                            const restReihe = reihenBreite - aktuellePosition;
+                            const lattenLaenge = tatsaechlichVerfuegbar.find(l => l >= restReihe) || Math.max(...tatsaechlichVerfuegbar);
+                            
+                            reihenSegmente.push({
+                                start: aktuellePosition,
+                                ende: reihenBreite,
+                                laenge: restReihe,
+                                originalLaenge: lattenLaenge,
+                                istRest: false
+                            });
+                            
+                            const existierend = materialListe.find(m => m.laenge === lattenLaenge);
+                            if (existierend) {
+                                existierend.anzahl++;
+                            } else {
+                                materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
+                            }
+                            
+                            const verschnitt = lattenLaenge - restReihe;
+                            if (verschnitt > 0.3) {
+                                restStuecke.push(verschnitt);
+                            } else {
+                                gesamtVerschnitt += verschnitt;
+                            }
+                            
+                            break;
                         }
-                        
-                        // Verschnitt berechnen
-                        const abgedeckteLaenge = Math.min(besteLattenLaenge, verbleibendeBreite);
-                        const verschnitt = besteLattenLaenge - abgedeckteLaenge;
-                        
-                        if (verschnitt > 0.3) {
-                            restStuecke.push(verschnitt);
-                            console.log(`Rest-Stück hinzugefügt: ${verschnitt.toFixed(2)}m`);
-                        } else {
-                            gesamtVerschnitt += verschnitt;
-                        }
-                        
-                        verbleibendeBreite -= abgedeckteLaenge;
                     }
                 }
+                
+                window.lattenPlan[reihe] = reihenSegmente;
             }
             
-            // Verbleibende Rest-Stücke als Verschnitt zählen
+            // Verbleibende Rest-Stücke als Verschnitt
             const verbleibendeReste = restStuecke.reduce((sum, rest) => sum + rest, 0);
             gesamtVerschnitt += verbleibendeReste;
             
             const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
             
             console.log('Endresultat:', { materialListe, gesamtLaenge, gesamtVerschnitt, gesamtBenoetigteLaenge });
+            console.log('Verbleibende Reste:', restStuecke.map(r => r.toFixed(2)));
             
             return {
                 kombination: materialListe,
@@ -1221,23 +1318,13 @@
                 svg += `<line x1="${rechteObenX}" y1="${margin}" x2="${rechteUntenX}" y2="${margin + dachHoehe * scaleY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
             }
             
-            // Dachlatten (quer zu Sparren) - mit Stößen zwischen Lattensegmenten
+            // Dachlatten (quer zu Sparren) - mit korrekten Segmenten aus der Berechnung
             const lattenFarben = {
                 6: '#e74c3c', // Rot für 6m
                 5: '#3498db', // Blau für 5m  
                 4: '#f39c12', // Orange für 4m
                 3: '#27ae60'  // Grün für 3m
             };
-            
-            // Verfügbare Längen ermitteln
-            const verfuegbareDachlatten = [];
-            [3, 4, 5, 6].forEach(laenge => {
-                const checkbox = document.getElementById(`dachlatte-${laenge}m`);
-                if (checkbox && checkbox.checked) {
-                    verfuegbareDachlatten.push(laenge);
-                }
-            });
-            verfuegbareDachlatten.sort((a, b) => b - a);
             
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
@@ -1246,84 +1333,50 @@
                 
                 const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
                 const reihenStartX = margin + reihenStartAbsolut * scaleX;
-                const reihenEndX = reihenStartX + reihenBreite * scaleX;
                 
-                // Sparrenpositionen für diese Reihe ermitteln
-                const relevanteSparren = sparrenPositionen.filter(pos => 
-                    pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
-                ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
-                
-                // Ränder hinzufügen wenn nötig
-                if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
-                    relevanteSparren.unshift(0);
-                }
-                if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
-                    relevanteSparren.push(reihenBreite);
-                }
-                
-                // Lattensegmente für diese Reihe simulieren
-                let aktuellePosition = 0;
-                let segmentNummer = 0;
-                
-                while (aktuellePosition < reihenBreite - 0.1) {
-                    // Nächsten Endpunkt finden (muss auf Sparren landen)
-                    let naechsterEndpunkt = reihenBreite;
+                // Verwende geplante Segmente falls verfügbar
+                if (window.lattenPlan && window.lattenPlan[i]) {
+                    const segmente = window.lattenPlan[i];
                     
-                    // Finde verfügbare Lattenlänge, die von aktueller Position zu einem Sparren reicht
-                    for (let lattenLaenge of verfuegbareDachlatten) {
-                        const moeglichesEnde = aktuellePosition + lattenLaenge;
+                    for (let j = 0; j < segmente.length; j++) {
+                        const segment = segmente[j];
+                        const segmentStartX = reihenStartX + segment.start * scaleX;
+                        const segmentEndX = reihenStartX + segment.ende * scaleX;
                         
-                        // Finde nächsten Sparren in der Nähe des möglichen Endes
-                        for (let sparrenPos of relevanteSparren) {
-                            if (sparrenPos >= moeglichesEnde - 0.1 && sparrenPos <= moeglichesEnde + 0.1) {
-                                naechsterEndpunkt = sparrenPos;
-                                break;
-                            }
-                            if (sparrenPos >= moeglichesEnde - 0.5 && sparrenPos <= moeglichesEnde) {
-                                naechsterEndpunkt = sparrenPos;
-                                break;
-                            }
+                        // Farbe basierend auf ursprünglicher Lattenlänge
+                        const segmentFarbe = lattenFarben[segment.originalLaenge] || '#e74c3c';
+                        
+                        // Segment zeichnen
+                        svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
+                        
+                        // Stoß markieren (außer am Ende der Reihe)
+                        if (j < segmente.length - 1) {
+                            svg += `<line x1="${segmentEndX}" y1="${lattenY - 6}" x2="${segmentEndX}" y2="${lattenY + 6}" stroke="#1976d2" stroke-width="3"/>`;
                         }
-                        if (naechsterEndpunkt < reihenBreite) break;
-                    }
-                    
-                    // Falls kein passender Endpunkt gefunden, nimm nächsten Sparren
-                    if (naechsterEndpunkt >= reihenBreite) {
-                        for (let sparrenPos of relevanteSparren) {
-                            if (sparrenPos > aktuellePosition + 2.5) {
-                                naechsterEndpunkt = sparrenPos;
-                                break;
-                            }
+                        
+                        // Rest-Stück Kennzeichnung
+                        if (segment.istRest) {
+                            const mitteX = segmentStartX + (segmentEndX - segmentStartX) / 2;
+                            svg += `<text x="${mitteX}" y="${lattenY - 8}" text-anchor="middle" font-size="8" font-weight="bold" fill="#dc3545">R</text>`;
                         }
                     }
+                } else {
+                    // Fallback: Einfache Darstellung
+                    const reihenEndX = reihenStartX + reihenBreite * scaleX;
                     
-                    const segmentLaenge = naechsterEndpunkt - aktuellePosition;
+                    // Verfügbare Längen ermitteln
+                    const verfuegbareDachlatten = [];
+                    [3, 4, 5, 6].forEach(laenge => {
+                        const checkbox = document.getElementById(`dachlatte-${laenge}m`);
+                        if (checkbox && checkbox.checked) {
+                            verfuegbareDachlatten.push(laenge);
+                        }
+                    });
                     
-                    if (segmentLaenge < 0.3) {
-                        aktuellePosition = naechsterEndpunkt;
-                        continue;
-                    }
+                    const beispielLaenge = Math.max(...verfuegbareDachlatten) || 5;
+                    const farbe = lattenFarben[beispielLaenge] || '#e74c3c';
                     
-                    // Beste Lattenlänge für dieses Segment finden
-                    let verwendeteLaenge = verfuegbareDachlatten.find(l => l >= segmentLaenge) || Math.max(...verfuegbareDachlatten);
-                    const segmentFarbe = lattenFarben[verwendeteLaenge] || '#e74c3c';
-                    
-                    // Segment zeichnen
-                    const segmentStartX = reihenStartX + aktuellePosition * scaleX;
-                    const segmentEndX = reihenStartX + naechsterEndpunkt * scaleX;
-                    
-                    svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
-                    
-                    // Stoß markieren (außer am Ende der Reihe)
-                    if (naechsterEndpunkt < reihenBreite - 0.1) {
-                        svg += `<line x1="${segmentEndX}" y1="${lattenY - 6}" x2="${segmentEndX}" y2="${lattenY + 6}" stroke="#1976d2" stroke-width="3"/>`;
-                        
-                        // Kleine Stoß-Nummer
-                        svg += `<circle cx="${segmentEndX}" cy="${lattenY - 12}" r="6" fill="white" stroke="#1976d2" stroke-width="1" opacity="0.9"/>`;
-                        svg += `<text x="${segmentEndX}" y="${lattenY - 8}" text-anchor="middle" font-size="6" font-weight="bold" fill="#1976d2">${++segmentNummer}</text>`;
-                    }
-                    
-                    aktuellePosition = naechsterEndpunkt;
+                    svg += `<line x1="${reihenStartX}" y1="${lattenY}" x2="${reihenEndX}" y2="${lattenY}" stroke="${farbe}" stroke-width="4" opacity="0.9"/>`;
                 }
             }
             
