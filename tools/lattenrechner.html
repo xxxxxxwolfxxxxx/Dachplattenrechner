@@ -1,822 +1,3 @@
-case 'trapez-auf-rechteck':
-                    const obereBreiteTA = urlParams.get('obereBreite');
-                    const trapezHoehe = urlParams.get('trapezHoehe');
-                    const rechteckHoehe = urlParams.get('rechteckHoehe');
-                    if (obereBreiteTA && trapezHoehe && rechteckHoehe) {
-                        massText += `, Obere Breite: ${parseFloat(obereBreiteTA).toFixed(1)}m`;
-                        massText += `, Trapez: ${parseFloat(trapezHoehe).toFixed(1)}m`;
-                        massText += `, Rechteck: ${parseFloat(rechteckHoehe).toFixed(1)}m`;
-                    }
-                    break;
-                case 'ungleichschenkliges-dreieck':
-                    const spitzenPosition = urlParams.get('spitzenPosition');
-                    if (spitzenPosition) {
-                        massText += `, Spitzen-Position: ${parseFloat(spitzenPosition).toFixed(1)}m`;
-                    }
-                    break;
-            }
-            
-            document.getElementById('dach-masse').textContent = massText;
-            
-            const darstellung = document.getElementById('dach-darstellung');
-            darstellung.innerHTML = generiereSimpleDachSVG();
-        }
-
-        function generiereSimpleDachSVG() {
-            let svg = '';
-            
-            switch(dachTyp) {
-                case 'rechteck':
-                    svg = `
-                        <svg width="200" height="120" viewBox="0 0 200 120">
-                            <rect x="20" y="30" width="160" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                            <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Rechteck: ${dachBreite}m × ${dachHoehe}m</text>
-                        </svg>
-                    `;
-                    break;
-                case 'trapez':
-                    svg = `
-                        <svg width="200" height="120" viewBox="0 0 200 120">
-                            <polygon points="60,30 140,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                            <text x="100" y="50" text-anchor="middle" font-size="10" fill="#333">Trapez</text>
-                            <text x="100" y="65" text-anchor="middle" font-size="10" fill="#333">Oben: ${obereBreite.toFixed(1)}m</text>
-                            <text x="100" y="78" text-anchor="middle" font-size="10" fill="#333">Unten: ${dachBreite}m</text>
-                        </svg>
-                    `;
-                    break;
-                default:
-                    svg = `
-                        <svg width="200" height="120" viewBox="0 0 200 120">
-                            <rect x="20" y="60" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                            <text x="100" y="90" text-anchor="middle" font-size="12" fill="#333">Dach: ${dachBreite}m × ${dachHoehe}m</text>
-                        </svg>
-                    `;
-            }
-            
-            return svg;
-        }
-
-        // Automatische Berechnung von Sparren-Parameter
-        let berechnungsTimer = null;
-        
-        function aktualisiereAutomatischeSparrenBerechnung() {
-            const anzahlInput = document.getElementById('anzahl-sparren');
-            const abstandInput = document.getElementById('sparren-abstand');
-            const ueberstandInput = document.getElementById('dachueberstand');
-            
-            [anzahlInput, abstandInput, ueberstandInput].forEach(input => {
-                input.addEventListener('input', function() {
-                    if (berechnungsTimer) {
-                        clearTimeout(berechnungsTimer);
-                    }
-                    
-                    berechnungsTimer = setTimeout(() => {
-                        berechneSparrenParameter();
-                    }, 800);
-                });
-            });
-        }
-
-        function berechneSparrenParameter() {
-            const anzahlInput = document.getElementById('anzahl-sparren');
-            const abstandInput = document.getElementById('sparren-abstand');
-            const ueberstandInput = document.getElementById('dachueberstand');
-            
-            const anzahl = parseFloat(anzahlInput.value) || 0;
-            const abstand = parseFloat(abstandInput.value) || 0;
-            const ueberstand = parseFloat(ueberstandInput.value) || 0;
-            
-            let gefuellteFelder = 0;
-            if (anzahl > 0 && anzahlInput.value.trim() !== '') gefuellteFelder++;
-            if (abstand > 0 && abstandInput.value.trim() !== '') gefuellteFelder++;
-            if (ueberstand >= 0 && ueberstandInput.value.trim() !== '') gefuellteFelder++;
-            
-            [anzahlInput, abstandInput, ueberstandInput].forEach(input => {
-                if (input.style.backgroundColor === 'rgb(232, 245, 232)') {
-                    input.style.backgroundColor = '';
-                }
-            });
-            
-            if (gefuellteFelder === 2) {
-                if (anzahl > 0 && abstand > 0 && ueberstandInput.value.trim() === '') {
-                    const sparrenBreite = (anzahl - 1) * (abstand / 100);
-                    const neuerUeberstand = ((dachBreite - sparrenBreite) / 2) * 100;
-                    ueberstandInput.value = Math.max(0, neuerUeberstand).toFixed(1);
-                    ueberstandInput.style.backgroundColor = '#e8f5e8';
-                }
-                else if (anzahl > 0 && ueberstand >= 0 && abstandInput.value.trim() === '') {
-                    const verfuegbareBreite = dachBreite - (2 * ueberstand / 100);
-                    const neuerAbstand = (verfuegbareBreite / (anzahl - 1)) * 100;
-                    abstandInput.value = neuerAbstand.toFixed(1);
-                    abstandInput.style.backgroundColor = '#e8f5e8';
-                }
-                else if (abstand > 0 && ueberstand >= 0 && anzahlInput.value.trim() === '') {
-                    const verfuegbareBreite = dachBreite - (2 * ueberstand / 100);
-                    const neueAnzahl = Math.round((verfuegbareBreite / (abstand / 100)) + 1);
-                    anzahlInput.value = Math.max(2, neueAnzahl);
-                    anzahlInput.style.backgroundColor = '#e8f5e8';
-                }
-            }
-            
-            if (anzahlInput.value && abstandInput.value && ueberstandInput.value !== '') {
-                const finalAnzahl = parseInt(anzahlInput.value);
-                const finalAbstand = parseFloat(abstandInput.value);
-                const finalUeberstand = parseFloat(ueberstandInput.value);
-                
-                berechneSparrenPositionen(finalAnzahl, finalAbstand, finalUeberstand);
-                berechneSpitzdachSparren(finalAnzahl);
-            }
-        }
-
-        function berechneSparrenPositionen(anzahl, abstand, ueberstand) {
-            sparrenPositionen = [];
-            const ueberstandM = ueberstand / 100;
-            
-            for (let i = 0; i < anzahl; i++) {
-                const position = ueberstandM + (i * abstand / 100);
-                sparrenPositionen.push(position);
-            }
-        }
-
-        function berechneSpitzdachSparren(anzahlSparren) {
-            const urlParams = new URLSearchParams(window.location.search);
-            sparrenLaengen = [];
-            
-            switch(dachTyp) {
-                case 'trapez':
-                    const seitenAbstand = (dachBreite - obereBreite) / 2;
-                    const linkeObereEcke = seitenAbstand;
-                    const rechteObereEcke = dachBreite - seitenAbstand;
-                    
-                    for (let i = 0; i < anzahlSparren; i++) {
-                        const xPosition = sparrenPositionen[i] || (i / (anzahlSparren - 1)) * dachBreite;
-                        let sparrenLaenge;
-                        
-                        if (xPosition <= linkeObereEcke) {
-                            sparrenLaenge = (xPosition / linkeObereEcke) * dachHoehe;
-                        } else if (xPosition >= rechteObereEcke) {
-                            const abstandVonRechts = dachBreite - xPosition;
-                            sparrenLaenge = (abstandVonRechts / seitenAbstand) * dachHoehe;
-                        } else {
-                            sparrenLaenge = dachHoehe;
-                        }
-                        sparrenLaengen.push(Math.max(0, sparrenLaenge));
-                    }
-                    break;
-                    
-                case 'gleichschenkliges-dreieck':
-                    for (let i = 0; i < anzahlSparren; i++) {
-                        const xPosition = sparrenPositionen[i] || (i / (anzahlSparren - 1)) * dachBreite;
-                        const abstandVonMitte = Math.abs(dachBreite / 2 - xPosition);
-                        const sparrenLaenge = dachHoehe * (1 - (abstandVonMitte / (dachBreite / 2)));
-                        sparrenLaengen.push(Math.max(0, sparrenLaenge));
-                    }
-                    break;
-                    
-                case 'ungleichschenkliges-dreieck':
-                    const spitzenPosition = parseFloat(urlParams.get('spitzenPosition')) || dachBreite * 0.4;
-                    
-                    for (let i = 0; i < anzahlSparren; i++) {
-                        const xPosition = sparrenPositionen[i] || (i / (anzahlSparren - 1)) * dachBreite;
-                        let sparrenLaenge;
-                        
-                        if (xPosition <= spitzenPosition) {
-                            const faktor = spitzenPosition === 0 ? 0 : xPosition / spitzenPosition;
-                            sparrenLaenge = dachHoehe * faktor;
-                        } else {
-                            const faktor = (dachBreite - spitzenPosition) === 0 ? 0 : (dachBreite - xPosition) / (dachBreite - spitzenPosition);
-                            sparrenLaenge = dachHoehe * faktor;
-                        }
-                        sparrenLaengen.push(Math.max(0, sparrenLaenge));
-                    }
-                    break;
-                    
-                default:
-                    for (let i = 0; i < anzahlSparren; i++) {
-                        sparrenLaengen.push(dachHoehe);
-                    }
-            }
-        }
-
-        function aktualisiereLattenabstandsfeld() {
-            const select = document.getElementById('lattenabstand');
-            const customGroup = document.getElementById('custom-lattenabstand-group');
-            
-            select.addEventListener('change', function() {
-                if (this.value === 'custom') {
-                    customGroup.style.display = 'block';
-                } else {
-                    customGroup.style.display = 'none';
-                }
-            });
-        }
-
-        // KORRIGIERTE DACHLATTEN-BERECHNUNG - NUR EIN REST ZUR ZEIT!
-        function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
-            const tatsaechlichVerfuegbar = verfuegbareLaengen.filter(l => l > 0);
-            if (tatsaechlichVerfuegbar.length === 0) {
-                return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
-            }
-            
-            tatsaechlichVerfuegbar.sort((a, b) => b - a);
-            console.log('=== LATTENBERECHNUNG START ===');
-            console.log('Verfügbare Längen:', tatsaechlichVerfuegbar);
-            
-            let aktuellerRest = null; // NUR EIN Rest zur Zeit!
-            const materialListe = [];
-            let gesamtVerschnitt = 0;
-            let gesamtBenoetigteLaenge = 0;
-            
-            window.lattenPlan = [];
-            
-            // Von unten (breiteste Reihe) nach oben
-            for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
-                const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
-                let reihenBreite = berechneReihenBreite(fortschritt);
-                
-                console.log(`\n--- REIHE ${reihe} ---`);
-                console.log(`Breite: ${reihenBreite.toFixed(2)}m`);
-                console.log(`Aktueller Rest: ${aktuellerRest ? aktuellerRest.toFixed(2) + 'm' : 'keiner'}`);
-                
-                gesamtBenoetigteLaenge += reihenBreite;
-                
-                // Sparren für diese Reihe
-                const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
-                const relevanteSparren = sparrenPositionen.filter(pos => 
-                    pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
-                ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
-                
-                if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
-                    relevanteSparren.unshift(0);
-                }
-                if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
-                    relevanteSparren.push(reihenBreite);
-                }
-                
-                const reihenSegmente = [];
-                let aktuellePosition = 0;
-                
-                // 1. Rest-Stück am Anfang verwenden (falls vorhanden)
-                if (aktuellerRest && aktuellerRest > 0.3) {
-                    // Prüfe ob Rest zu einem Sparren passt
-                    const passenderSparren = relevanteSparren.find(pos => 
-                        Math.abs(pos - aktuellerRest) <= 0.1
-                    );
-                    
-                    if (passenderSparren && passenderSparren <= reihenBreite) {
-                        console.log(`Rest ${aktuellerRest.toFixed(2)}m verwendet bis Sparren ${passenderSparren.toFixed(2)}m`);
-                        
-                        reihenSegmente.push({
-                            start: 0,
-                            ende: passenderSparren,
-                            laenge: passenderSparren,
-                            originalLaenge: aktuellerRest,
-                            istRest: true
-                        });
-                        
-                        aktuellePosition = passenderSparren;
-                        
-                        // Rest verbraucht
-                        const restVerschnitt = aktuellerRest - passenderSparren;
-                        if (restVerschnitt > 0.05) {
-                            gesamtVerschnitt += restVerschnitt;
-                        }
-                        aktuellerRest = null;
-                    } else {
-                        console.log(`Rest ${aktuellerRest.toFixed(2)}m passt nicht zu Sparren`);
-                    }
-                }
-                
-                // 2. Restliche Reihe mit neuen Latten
-                while (aktuellePosition < reihenBreite - 0.1) {
-                    let besteKombination = null;
-                    
-                    // Finde beste Latte + Sparren Kombination
-                    for (let lattenLaenge of tatsaechlichVerfuegbar) {
-                        const maxEnde = aktuellePosition + lattenLaenge;
-                        
-                        for (let sparrenPos of relevanteSparren) {
-                            if (sparrenPos > aktuellePosition + 1.5 && sparrenPos <= maxEnde + 0.1) {
-                                const segmentLaenge = sparrenPos - aktuellePosition;
-                                const verschnitt = lattenLaenge - segmentLaenge;
-                                
-                                if (!besteKombination || verschnitt < besteKombination.verschnitt) {
-                                    besteKombination = {
-                                        lattenLaenge: lattenLaenge,
-                                        segmentEnde: sparrenPos,
-                                        segmentLaenge: segmentLaenge,
-                                        verschnitt: verschnitt
-                                    };
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Fallback: nächster Sparren
-                    if (!besteKombination) {
-                        const naechsterSparren = relevanteSparren.find(pos => pos > aktuellePosition + 1.0);
-                        if (naechsterSparren) {
-                            const segmentLaenge = naechsterSparren - aktuellePosition;
-                            const lattenLaenge = tatsaechlichVerfuegbar.find(l => l >= segmentLaenge) || Math.max(...tatsaechlichVerfuegbar);
-                            
-                            besteKombination = {
-                                lattenLaenge: lattenLaenge,
-                                segmentEnde: naechsterSparren,
-                                segmentLaenge: segmentLaenge,
-                                verschnitt: lattenLaenge - segmentLaenge
-                            };
-                        }
-                    }
-                    
-                    if (besteKombination) {
-                        console.log(`Neue Latte: ${besteKombination.lattenLaenge}m für ${besteKombination.segmentLaenge.toFixed(2)}m, Rest: ${besteKombination.verschnitt.toFixed(2)}m`);
-                        
-                        reihenSegmente.push({
-                            start: aktuellePosition,
-                            ende: besteKombination.segmentEnde,
-                            laenge: besteKombination.segmentLaenge,
-                            originalLaenge: besteKombination.lattenLaenge,
-                            istRest: false
-                        });
-                        
-                        // Material hinzufügen
-                        const existierend = materialListe.find(m => m.laenge === besteKombination.lattenLaenge);
-                        if (existierend) {
-                            existierend.anzahl++;
-                        } else {
-                            materialListe.push({ laenge: besteKombination.lattenLaenge, anzahl: 1 });
-                        }
-                        
-                        // Neuer Rest (überschreibt alten Rest!)
-                        if (besteKombination.verschnitt > 0.3) {
-                            aktuellerRest = besteKombination.verschnitt;
-                            console.log(`Neuer Rest: ${aktuellerRest.toFixed(2)}m`);
-                        } else {
-                            gesamtVerschnitt += besteKombination.verschnitt;
-                        }
-                        
-                        aktuellePosition = besteKombination.segmentEnde;
-                    } else {
-                        // Notfall
-                        const restReihe = reihenBreite - aktuellePosition;
-                        const lattenLaenge = Math.max(...tatsaechlichVerfuegbar);
-                        
-                        reihenSegmente.push({
-                            start: aktuellePosition,
-                            ende: reihenBreite,
-                            laenge: restReihe,
-                            originalLaenge: lattenLaenge,
-                            istRest: false
-                        });
-                        
-                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
-                        if (existierend) {
-                            existierend.anzahl++;
-                        } else {
-                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
-                        }
-                        
-                        const verschnitt = lattenLaenge - restReihe;
-                        if (verschnitt > 0.3) {
-                            aktuellerRest = verschnitt;
-                        } else {
-                            gesamtVerschnitt += verschnitt;
-                        }
-                        
-                        break;
-                    }
-                }
-                
-                window.lattenPlan[reihe] = reihenSegmente;
-                console.log(`Reihe ${reihe} fertig. Neuer Rest: ${aktuellerRest ? aktuellerRest.toFixed(2) + 'm' : 'keiner'}`);
-            }
-            
-            // Verbleibendes Rest-Stück
-            if (aktuellerRest) {
-                gesamtVerschnitt += aktuellerRest;
-                console.log(`Verbleibendes Rest-Stück: ${aktuellerRest.toFixed(2)}m`);
-            }
-            
-            const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
-            
-            console.log('=== ERGEBNIS ===');
-            console.log('Material:', materialListe);
-            console.log(`Gesamt: ${gesamtLaenge}m, Verschnitt: ${gesamtVerschnitt.toFixed(2)}m, Benötigt: ${gesamtBenoetigteLaenge.toFixed(2)}m`);
-            
-            return {
-                kombination: materialListe,
-                gesamtLaenge: gesamtLaenge,
-                verschnitt: gesamtVerschnitt,
-                benoetigteLaenge: gesamtBenoetigteLaenge,
-                anzahlReihen: anzahlReihen
-            };
-        }
-
-        function berechneReihenBreite(fortschritt) {
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            switch(dachTyp) {
-                case 'trapez':
-                    return obereBreite + (dachBreite - obereBreite) * fortschritt;
-                case 'gleichschenkliges-dreieck':
-                    return dachBreite * fortschritt;
-                case 'ungleichschenkliges-dreieck':
-                    const spitzenPosition = parseFloat(urlParams.get('spitzenPosition')) || dachBreite * 0.4;
-                    return dachBreite * fortschritt;
-                case 'trapez-auf-rechteck':
-                    const trapezHoehe = parseFloat(urlParams.get('trapezHoehe')) || dachHoehe * 0.5;
-                    const obereBreiteTA = parseFloat(urlParams.get('obereBreite')) || dachBreite * 0.6;
-                    
-                    if (fortschritt <= trapezHoehe / dachHoehe) {
-                        const trapezFortschritt = fortschritt / (trapezHoehe / dachHoehe);
-                        return obereBreiteTA + (dachBreite - obereBreiteTA) * trapezFortschritt;
-                    } else {
-                        return dachBreite;
-                    }
-                default:
-                    return dachBreite;
-            }
-        }
-
-        function optimiereKonterlatten(benoetigteLaenge, verfuegbareLaengen) {
-            verfuegbareLaengen.sort((a, b) => b - a);
-            
-            const kombination = [];
-            let verbleibendelaenge = benoetigteLaenge;
-            
-            if (dachTyp === 'trapez') {
-                const seitenAbstand = (dachBreite - obereBreite) / 2;
-                const schraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + seitenAbstand * seitenAbstand);
-                verbleibendelaenge += 2 * schraegeLaenge;
-                console.log(`Trapez: Zusätzliche schräge Konterlatten: ${(2 * schraegeLaenge).toFixed(2)}m`);
-            }
-            
-            while (verbleibendelaenge > 0) {
-                let gefunden = false;
-                for (let laenge of verfuegbareLaengen) {
-                    if (laenge <= verbleibendelaenge + 0.01) {
-                        const existierend = kombination.find(k => k.laenge === laenge);
-                        if (existierend) {
-                            existierend.anzahl++;
-                        } else {
-                            kombination.push({ laenge: laenge, anzahl: 1 });
-                        }
-                        verbleibendelaenge -= laenge;
-                        gefunden = true;
-                        break;
-                    }
-                }
-                
-                if (!gefunden) {
-                    const kleinste = Math.min(...verfuegbareLaengen);
-                    const existierend = kombination.find(k => k.laenge === kleinste);
-                    if (existierend) {
-                        existierend.anzahl++;
-                    } else {
-                        kombination.push({ laenge: kleinste, anzahl: 1 });
-                    }
-                    verbleibendelaenge -= kleinste;
-                }
-            }
-            
-            const gesamtLaenge = kombination.reduce((sum, k) => sum + (k.laenge * k.anzahl), 0);
-            const verschnitt = gesamtLaenge - benoetigteLaenge;
-            
-            return {
-                kombination: kombination,
-                gesamtLaenge: gesamtLaenge,
-                benoetigteLaenge: benoetigteLaenge,
-                verschnitt: verschnitt
-            };
-        }
-
-        function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabstand, anzahlSparren) {
-            document.getElementById('konterlatte-gesamtlaenge').textContent = konterlatten.gesamtLaenge.toFixed(1) + ' m';
-            document.getElementById('konterlatte-anzahl').textContent = konterlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
-            document.getElementById('konterlatte-verschnitt').textContent = konterlatten.verschnitt.toFixed(1) + ' m';
-
-            document.getElementById('dachlatte-gesamtlaenge').textContent = dachlatten.gesamtLaenge.toFixed(1) + ' m';
-            document.getElementById('dachlatte-anzahl').textContent = dachlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
-            document.getElementById('dachlatte-verschnitt').textContent = dachlatten.verschnitt.toFixed(1) + ' m';
-
-            const tbody = document.getElementById('material-details');
-            tbody.innerHTML = '';
-            
-            if (konterlatten && konterlatten.kombination) {
-                konterlatten.kombination.forEach(k => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td style="font-weight: bold;">Konterlatten</td>
-                        <td>${k.laenge.toFixed(1)} m</td>
-                        <td style="color: #333; font-weight: bold;">${k.anzahl}</td>
-                        <td style="color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-
-            if (dachlatten && dachlatten.kombination) {
-                dachlatten.kombination.forEach(k => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td style="font-weight: bold;">Dachlatten</td>
-                        <td>${k.laenge.toFixed(1)} m</td>
-                        <td style="color: #333; font-weight: bold;">${k.anzahl}</td>
-                        <td style="color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-
-            document.getElementById('results').style.display = 'block';
-            generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand);
-
-            setTimeout(() => {
-                document.getElementById('results').scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
-                });
-            }, 100);
-        }
-
-        function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
-            const svgWidth = 500;
-            const svgHeight = 350;
-            const margin = 50;
-            
-            const scaleX = (svgWidth - 2 * margin) / dachBreite;
-            const scaleY = (svgHeight - 2 * margin - 40) / dachHoehe;
-            
-            let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
-            
-            svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
-            
-            // Dachform zeichnen
-            if (dachTyp === 'trapez') {
-                const seitenAbstand = (dachBreite - obereBreite) / 2;
-                const trapezObenLinks = margin + seitenAbstand * scaleX;
-                const trapezObenRechts = margin + (obereBreite + seitenAbstand) * scaleX;
-                const trapezObenY = margin;
-                const trapezUntenLinks = margin;
-                const trapezUntenRechts = margin + dachBreite * scaleX;
-                const trapezUntenY = margin + dachHoehe * scaleY;
-                
-                svg += `<polygon points="${trapezObenLinks},${trapezObenY} ${trapezObenRechts},${trapezObenY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
-            } else {
-                const dachWidth = dachBreite * scaleX;
-                const dachHeight = dachHoehe * scaleY;
-                svg += `<rect x="${margin}" y="${margin}" width="${dachWidth}" height="${dachHeight}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
-            }
-            
-            // Sparren zeichnen mit korrekten Längen
-            for (let i = 0; i < anzahlSparren && i < sparrenPositionen.length; i++) {
-                const sparrenX = margin + sparrenPositionen[i] * scaleX;
-                let sparrenLaenge = dachHoehe;
-                let sparrenY = margin;
-                let sparrenHeight = dachHoehe * scaleY;
-                
-                if (sparrenLaengen[i] !== undefined) {
-                    sparrenLaenge = sparrenLaengen[i];
-                    sparrenHeight = sparrenLaenge * scaleY;
-                    if (dachTyp === 'trapez') {
-                        sparrenY = margin + (dachHoehe - sparrenLaenge) * scaleY;
-                    }
-                }
-                
-                svg += `<rect x="${sparrenX - 2}" y="${sparrenY}" width="4" height="${sparrenHeight}" fill="#666" opacity="0.8"/>`;
-            }
-            
-            // Konterlatten (parallel zu Sparren)
-            for (let i = 0; i < anzahlSparren && i < sparrenPositionen.length; i++) {
-                const sparrenX = margin + sparrenPositionen[i] * scaleX;
-                let sparrenLaenge = dachHoehe;
-                let sparrenY = margin;
-                let sparrenHeight = dachHoehe * scaleY;
-                
-                if (sparrenLaengen[i] !== undefined) {
-                    sparrenLaenge = sparrenLaengen[i];
-                    sparrenHeight = sparrenLaenge * scaleY;
-                    if (dachTyp === 'trapez') {
-                        sparrenY = margin + (dachHoehe - sparrenLaenge) * scaleY;
-                    }
-                }
-                
-                svg += `<rect x="${sparrenX - 1}" y="${sparrenY}" width="2" height="${sparrenHeight}" fill="#ff6b35" opacity="0.9"/>`;
-            }
-            
-            // Schräge Konterlatten bei Trapez
-            if (dachTyp === 'trapez') {
-                const seitenAbstand = (dachBreite - obereBreite) / 2;
-                
-                const linkeObenX = margin + seitenAbstand * scaleX;
-                const linkeUntenX = margin;
-                svg += `<line x1="${linkeObenX}" y1="${margin}" x2="${linkeUntenX}" y2="${margin + dachHoehe * scaleY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
-                
-                const rechteObenX = margin + (dachBreite - seitenAbstand) * scaleX;
-                const rechteUntenX = margin + dachBreite * scaleX;
-                svg += `<line x1="${rechteObenX}" y1="${margin}" x2="${rechteUntenX}" y2="${margin + dachHoehe * scaleY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
-            }
-            
-            // Dachlatten mit korrekten Segmenten
-            const lattenFarben = {
-                6: '#e74c3c', 5: '#3498db', 4: '#f39c12', 3: '#27ae60'
-            };
-            
-            for (let i = 0; i < anzahlLattenReihen; i++) {
-                const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
-                const reihenBreite = berechneReihenBreite(fortschritt);
-                const lattenY = margin + fortschritt * dachHoehe * scaleY;
-                
-                const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
-                const reihenStartX = margin + reihenStartAbsolut * scaleX;
-                
-                // Verwende geplante Segmente falls verfügbar
-                if (window.lattenPlan && window.lattenPlan[i]) {
-                    const segmente = window.lattenPlan[i];
-                    
-                    for (let j = 0; j < segmente.length; j++) {
-                        const segment = segmente[j];
-                        const segmentStartX = reihenStartX + segment.start * scaleX;
-                        const segmentEndX = reihenStartX + segment.ende * scaleX;
-                        
-                        const segmentFarbe = lattenFarben[segment.originalLaenge] || '#e74c3c';
-                        
-                        svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
-                        
-                        // Stoß markieren
-                        if (j < segmente.length - 1) {
-                            svg += `<line x1="${segmentEndX}" y1="${lattenY - 6}" x2="${segmentEndX}" y2="${lattenY + 6}" stroke="#1976d2" stroke-width="3"/>`;
-                        }
-                        
-                        // Rest-Stück Kennzeichnung
-                        if (segment.istRest) {
-                            const mitteX = segmentStartX + (segmentEndX - segmentStartX) / 2;
-                            svg += `<text x="${mitteX}" y="${lattenY - 8}" text-anchor="middle" font-size="8" font-weight="bold" fill="#dc3545">R</text>`;
-                        }
-                    }
-                } else {
-                    // Fallback
-                    const reihenEndX = reihenStartX + reihenBreite * scaleX;
-                    const verfuegbareDachlatten = [];
-                    [3, 4, 5, 6].forEach(laenge => {
-                        const checkbox = document.getElementById(`dachlatte-${laenge}m`);
-                        if (checkbox && checkbox.checked) {
-                            verfuegbareDachlatten.push(laenge);
-                        }
-                    });
-                    
-                    const beispielLaenge = Math.max(...verfuegbareDachlatten) || 5;
-                    const farbe = lattenFarben[beispielLaenge] || '#e74c3c';
-                    
-                    svg += `<line x1="${reihenStartX}" y1="${lattenY}" x2="${reihenEndX}" y2="${lattenY}" stroke="${farbe}" stroke-width="4" opacity="0.9"/>`;
-                }
-            }
-            
-            // Maßlinien
-            svg += `<line x1="${margin}" y1="${margin + dachHoehe * scaleY + 35}" x2="${margin + dachBreite * scaleX}" y2="${margin + dachHoehe * scaleY + 35}" stroke="#333" stroke-width="1"/>`;
-            svg += `<text x="${margin + dachBreite * scaleX/2}" y="${margin + dachHoehe * scaleY + 50}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
-            
-            svg += `</svg>`;
-            
-            document.getElementById('vorschau-svg').innerHTML = svg;
-        }
-
-        function druckeLattenplan() {
-            const druckInhalt = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Lattenplan</title>
-                    <style>
-                        @media print {
-                            @page { margin: 1cm; }
-                            body { font-family: Arial, sans-serif; }
-                        }
-                        body { font-family: Arial, sans-serif; margin: 20px; }
-                        h2 { color: #1e3c72; margin-bottom: 20px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-                        th { background-color: #f5f5f5; font-weight: bold; }
-                    </style>
-                </head>
-                <body>
-                    <h2>Lattenplan</h2>
-                    <p><strong>Dach:</strong> ${dachBreite}m × ${dachHoehe}m (${dachTyp})</p>
-                    <p><strong>Sparren:</strong> ${document.getElementById('anzahl-sparren').value} Stück</p>
-                    <div style="text-align: center; margin: 20px 0;">
-                        ${document.getElementById('vorschau-svg').innerHTML}
-                    </div>
-                    <table>
-                        <thead><tr><th>Material</th><th>Länge</th><th>Anzahl</th><th>Gesamtlänge</th></tr></thead>
-                        ${document.getElementById('material-details').outerHTML.replace('<tbody id="material-details">', '<tbody>')}
-                    </table>
-                </body>
-                </html>
-            `;
-            
-            const druckFenster = window.open('', '_blank');
-            druckFenster.document.write(druckInhalt);
-            druckFenster.document.close();
-            
-            setTimeout(() => {
-                druckFenster.print();
-                druckFenster.close();
-            }, 500);
-        }
-
-        function berechnen() {
-            const anzahlSparren = parseInt(document.getElementById('anzahl-sparren').value);
-            const sparrenAbstand = parseFloat(document.getElementById('sparren-abstand').value);
-            const dachueberstand = parseFloat(document.getElementById('dachueberstand').value) || 0;
-            const lattenabstandSelect = document.getElementById('lattenabstand');
-
-            if (!anzahlSparren || anzahlSparren < 2) {
-                alert('Bitte geben Sie eine gültige Anzahl Sparren ein (mindestens 2)!');
-                return;
-            }
-
-            if (!sparrenAbstand || sparrenAbstand <= 0) {
-                alert('Bitte geben Sie einen gültigen Sparren-Abstand ein!');
-                return;
-            }
-
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'calculation', {
-                    'event_category': 'lattenrechner',
-                    'event_label': 'latten_berechnung_durchgeführt'
-                });
-            }
-
-            let lattenabstand;
-            if (lattenabstandSelect.value === 'custom') {
-                lattenabstand = parseFloat(document.getElementById('custom-lattenabstand').value);
-                if (!lattenabstand) {
-                    alert('Bitte geben Sie einen benutzerdefinierten Lattenabstand ein!');
-                    return;
-                }
-            } else {
-                lattenabstand = parseFloat(lattenabstandSelect.value);
-            }
-
-            // Verfügbare Längen ermitteln
-            const verfuegbareKonterlatten = [];
-            const verfuegbareDachlatten = [];
-            
-            [3, 4, 5, 6].forEach(laenge => {
-                const konterlatteCheckbox = document.getElementById(`konterlatte-${laenge}m`);
-                const dachlatteCheckbox = document.getElementById(`dachlatte-${laenge}m`);
-                
-                if (konterlatteCheckbox && konterlatteCheckbox.checked) {
-                    verfuegbareKonterlatten.push(laenge);
-                }
-                if (dachlatteCheckbox && dachlatteCheckbox.checked) {
-                    verfuegbareDachlatten.push(laenge);
-                }
-            });
-
-            if (verfuegbareKonterlatten.length === 0) {
-                alert('Bitte wählen Sie mindestens eine Konterlattenlänge aus!');
-                return;
-            }
-            
-            if (verfuegbareDachlatten.length === 0) {
-                alert('Bitte wählen Sie mindestens eine Dachlattenlänge aus!');
-                return;
-            }
-
-            // Sparrenpositionen berechnen
-            berechneSparrenPositionen(anzahlSparren, sparrenAbstand, dachueberstand);
-            berechneSpitzdachSparren(anzahlSparren);
-
-            // Konterlatten-Berechnung
-            const konterlattenGesamtlaenge = sparrenLaengen.reduce((sum, laenge) => sum + laenge, 0);
-            const konterlattenKombination = optimiereKonterlatten(konterlattenGesamtlaenge, verfuegbareKonterlatten);
-            
-            // Dachlatten-Berechnung mit korrigierter Logik
-            const anzahlLattenReihen = Math.ceil((dachHoehe * 100) / lattenabstand) + 1;
-            const dachlattenKombination = berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareDachlatten, anzahlLattenReihen);
-
-            // Ergebnisse anzeigen
-            zeigeErgebnisse(konterlattenKombination, dachlattenKombination, anzahlLattenReihen, lattenabstand, anzahlSparren);
-        }
-
-        // Beim Laden der Seite
-        document.addEventListener('DOMContentLoaded', function() {
-            loadAdSense();
-            
-            const cookieConsent = localStorage.getItem('cookieConsent');
-            if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
-                loadAnalytics();
-            }
-            
-            showAds();
-            
-            ladeDachParameter();
-            aktualisiereLattenabstandsfeld();
-            aktualisiereAutomatischeSparrenBerechnung();
-        });
-    </script>
-</body>
 </html><!DOCTYPE html>
 <html lang="de">
 <head>
@@ -1488,4 +669,629 @@ case 'trapez-auf-rechteck':
                     const obereBreiteTA = urlParams.get('obereBreite');
                     const trapezHoehe = urlParams.get('trapezHoehe');
                     const rechteckHoehe = urlParams.get('rechteckHoehe');
-                    if (obereBreiteTA && trapezHoehe && rechteck
+                    if (obereBreiteTA && trapezHoehe && rechteckHoehe) {
+                        massText += `, Obere Breite: ${parseFloat(obereBreiteTA).toFixed(1)}m`;
+                    }
+                    break;
+            }
+            
+            document.getElementById('dach-masse').textContent = massText;
+            document.getElementById('dach-darstellung').innerHTML = generiereSimpleDachSVG();
+        }
+
+        function generiereSimpleDachSVG() {
+            let svg = '';
+            
+            switch(dachTyp) {
+                case 'rechteck':
+                    svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                        <rect x="20" y="30" width="160" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Rechteck</text>
+                    </svg>`;
+                    break;
+                case 'trapez':
+                    svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                        <polygon points="60,30 140,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                        <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Trapez</text>
+                    </svg>`;
+                    break;
+                default:
+                    svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                        <rect x="20" y="60" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                    </svg>`;
+            }
+            
+            return svg;
+        }
+
+        let berechnungsTimer = null;
+        
+        function aktualisiereAutomatischeSparrenBerechnung() {
+            const anzahlInput = document.getElementById('anzahl-sparren');
+            const abstandInput = document.getElementById('sparren-abstand');
+            const ueberstandInput = document.getElementById('dachueberstand');
+            
+            [anzahlInput, abstandInput, ueberstandInput].forEach(input => {
+                input.addEventListener('input', function() {
+                    if (berechnungsTimer) clearTimeout(berechnungsTimer);
+                    berechnungsTimer = setTimeout(() => berechneSparrenParameter(), 800);
+                });
+            });
+        }
+
+        function berechneSparrenParameter() {
+            const anzahlInput = document.getElementById('anzahl-sparren');
+            const abstandInput = document.getElementById('sparren-abstand');
+            const ueberstandInput = document.getElementById('dachueberstand');
+            
+            const anzahl = parseFloat(anzahlInput.value) || 0;
+            const abstand = parseFloat(abstandInput.value) || 0;
+            const ueberstand = parseFloat(ueberstandInput.value) || 0;
+            
+            let gefuellteFelder = 0;
+            if (anzahl > 0 && anzahlInput.value.trim() !== '') gefuellteFelder++;
+            if (abstand > 0 && abstandInput.value.trim() !== '') gefuellteFelder++;
+            if (ueberstand >= 0 && ueberstandInput.value.trim() !== '') gefuellteFelder++;
+            
+            [anzahlInput, abstandInput, ueberstandInput].forEach(input => {
+                if (input.style.backgroundColor === 'rgb(232, 245, 232)') {
+                    input.style.backgroundColor = '';
+                }
+            });
+            
+            if (gefuellteFelder === 2) {
+                if (anzahl > 0 && abstand > 0 && ueberstandInput.value.trim() === '') {
+                    const sparrenBreite = (anzahl - 1) * (abstand / 100);
+                    const neuerUeberstand = ((dachBreite - sparrenBreite) / 2) * 100;
+                    ueberstandInput.value = Math.max(0, neuerUeberstand).toFixed(1);
+                    ueberstandInput.style.backgroundColor = '#e8f5e8';
+                }
+                else if (anzahl > 0 && ueberstand >= 0 && abstandInput.value.trim() === '') {
+                    const verfuegbareBreite = dachBreite - (2 * ueberstand / 100);
+                    const neuerAbstand = (verfuegbareBreite / (anzahl - 1)) * 100;
+                    abstandInput.value = neuerAbstand.toFixed(1);
+                    abstandInput.style.backgroundColor = '#e8f5e8';
+                }
+                else if (abstand > 0 && ueberstand >= 0 && anzahlInput.value.trim() === '') {
+                    const verfuegbareBreite = dachBreite - (2 * ueberstand / 100);
+                    const neueAnzahl = Math.round((verfuegbareBreite / (abstand / 100)) + 1);
+                    anzahlInput.value = Math.max(2, neueAnzahl);
+                    anzahlInput.style.backgroundColor = '#e8f5e8';
+                }
+            }
+            
+            if (anzahlInput.value && abstandInput.value && ueberstandInput.value !== '') {
+                berechneSparrenPositionen(parseInt(anzahlInput.value), parseFloat(abstandInput.value), parseFloat(ueberstandInput.value));
+                berechneSpitzdachSparren(parseInt(anzahlInput.value));
+            }
+        }
+
+        function berechneSparrenPositionen(anzahl, abstand, ueberstand) {
+            sparrenPositionen = [];
+            const ueberstandM = ueberstand / 100;
+            
+            for (let i = 0; i < anzahl; i++) {
+                sparrenPositionen.push(ueberstandM + (i * abstand / 100));
+            }
+        }
+
+        function berechneSpitzdachSparren(anzahlSparren) {
+            sparrenLaengen = [];
+            
+            switch(dachTyp) {
+                case 'trapez':
+                    const seitenAbstand = (dachBreite - obereBreite) / 2;
+                    const linkeObereEcke = seitenAbstand;
+                    const rechteObereEcke = dachBreite - seitenAbstand;
+                    
+                    for (let i = 0; i < anzahlSparren; i++) {
+                        const xPosition = sparrenPositionen[i];
+                        let sparrenLaenge;
+                        
+                        if (xPosition <= linkeObereEcke) {
+                            sparrenLaenge = (xPosition / linkeObereEcke) * dachHoehe;
+                        } else if (xPosition >= rechteObereEcke) {
+                            sparrenLaenge = ((dachBreite - xPosition) / seitenAbstand) * dachHoehe;
+                        } else {
+                            sparrenLaenge = dachHoehe;
+                        }
+                        sparrenLaengen.push(Math.max(0, sparrenLaenge));
+                    }
+                    break;
+                    
+                default:
+                    for (let i = 0; i < anzahlSparren; i++) {
+                        sparrenLaengen.push(dachHoehe);
+                    }
+            }
+        }
+
+        function aktualisiereLattenabstandsfeld() {
+            const select = document.getElementById('lattenabstand');
+            const customGroup = document.getElementById('custom-lattenabstand-group');
+            
+            select.addEventListener('change', function() {
+                customGroup.style.display = this.value === 'custom' ? 'block' : 'none';
+            });
+        }
+
+        function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
+            const tatsaechlichVerfuegbar = verfuegbareLaengen.filter(l => l > 0);
+            if (tatsaechlichVerfuegbar.length === 0) {
+                return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
+            }
+            
+            tatsaechlichVerfuegbar.sort((a, b) => b - a);
+            
+            let aktuellerRest = null;
+            const materialListe = [];
+            let gesamtVerschnitt = 0;
+            let gesamtBenoetigteLaenge = 0;
+            
+            window.lattenPlan = [];
+            
+            for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
+                const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
+                let reihenBreite = berechneReihenBreite(fortschritt);
+                
+                gesamtBenoetigteLaenge += reihenBreite;
+                
+                const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+                const relevanteSparren = sparrenPositionen.filter(pos => 
+                    pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
+                ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
+                
+                if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
+                    relevanteSparren.unshift(0);
+                }
+                if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
+                    relevanteSparren.push(reihenBreite);
+                }
+                
+                const reihenSegmente = [];
+                let aktuellePosition = 0;
+                
+                if (aktuellerRest && aktuellerRest > 0.3) {
+                    const passenderSparren = relevanteSparren.find(pos => Math.abs(pos - aktuellerRest) <= 0.1);
+                    
+                    if (passenderSparren && passenderSparren <= reihenBreite) {
+                        reihenSegmente.push({
+                            start: 0,
+                            ende: passenderSparren,
+                            laenge: passenderSparren,
+                            originalLaenge: aktuellerRest,
+                            istRest: true
+                        });
+                        
+                        aktuellePosition = passenderSparren;
+                        
+                        const restVerschnitt = aktuellerRest - passenderSparren;
+                        if (restVerschnitt > 0.05) {
+                            gesamtVerschnitt += restVerschnitt;
+                        }
+                        aktuellerRest = null;
+                    }
+                }
+                
+                while (aktuellePosition < reihenBreite - 0.1) {
+                    let besteKombination = null;
+                    
+                    for (let lattenLaenge of tatsaechlichVerfuegbar) {
+                        const maxEnde = aktuellePosition + lattenLaenge;
+                        
+                        for (let sparrenPos of relevanteSparren) {
+                            if (sparrenPos > aktuellePosition + 1.5 && sparrenPos <= maxEnde + 0.1) {
+                                const segmentLaenge = sparrenPos - aktuellePosition;
+                                const verschnitt = lattenLaenge - segmentLaenge;
+                                
+                                if (!besteKombination || verschnitt < besteKombination.verschnitt) {
+                                    besteKombination = {
+                                        lattenLaenge: lattenLaenge,
+                                        segmentEnde: sparrenPos,
+                                        segmentLaenge: segmentLaenge,
+                                        verschnitt: verschnitt
+                                    };
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!besteKombination) {
+                        const naechsterSparren = relevanteSparren.find(pos => pos > aktuellePosition + 1.0);
+                        if (naechsterSparren) {
+                            const segmentLaenge = naechsterSparren - aktuellePosition;
+                            const lattenLaenge = tatsaechlichVerfuegbar.find(l => l >= segmentLaenge) || Math.max(...tatsaechlichVerfuegbar);
+                            
+                            besteKombination = {
+                                lattenLaenge: lattenLaenge,
+                                segmentEnde: naechsterSparren,
+                                segmentLaenge: segmentLaenge,
+                                verschnitt: lattenLaenge - segmentLaenge
+                            };
+                        }
+                    }
+                    
+                    if (besteKombination) {
+                        reihenSegmente.push({
+                            start: aktuellePosition,
+                            ende: besteKombination.segmentEnde,
+                            laenge: besteKombination.segmentLaenge,
+                            originalLaenge: besteKombination.lattenLaenge,
+                            istRest: false
+                        });
+                        
+                        const existierend = materialListe.find(m => m.laenge === besteKombination.lattenLaenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: besteKombination.lattenLaenge, anzahl: 1 });
+                        }
+                        
+                        if (besteKombination.verschnitt > 0.3) {
+                            aktuellerRest = besteKombination.verschnitt;
+                        } else {
+                            gesamtVerschnitt += besteKombination.verschnitt;
+                        }
+                        
+                        aktuellePosition = besteKombination.segmentEnde;
+                    } else {
+                        const restReihe = reihenBreite - aktuellePosition;
+                        const lattenLaenge = Math.max(...tatsaechlichVerfuegbar);
+                        
+                        reihenSegmente.push({
+                            start: aktuellePosition,
+                            ende: reihenBreite,
+                            laenge: restReihe,
+                            originalLaenge: lattenLaenge,
+                            istRest: false
+                        });
+                        
+                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
+                        }
+                        
+                        const verschnitt = lattenLaenge - restReihe;
+                        if (verschnitt > 0.3) {
+                            aktuellerRest = verschnitt;
+                        } else {
+                            gesamtVerschnitt += verschnitt;
+                        }
+                        
+                        break;
+                    }
+                }
+                
+                window.lattenPlan[reihe] = reihenSegmente;
+            }
+            
+            if (aktuellerRest) {
+                gesamtVerschnitt += aktuellerRest;
+            }
+            
+            const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
+            
+            return {
+                kombination: materialListe,
+                gesamtLaenge: gesamtLaenge,
+                verschnitt: gesamtVerschnitt,
+                benoetigteLaenge: gesamtBenoetigteLaenge,
+                anzahlReihen: anzahlReihen
+            };
+        }
+
+        function berechneReihenBreite(fortschritt) {
+            switch(dachTyp) {
+                case 'trapez':
+                    return obereBreite + (dachBreite - obereBreite) * fortschritt;
+                default:
+                    return dachBreite;
+            }
+        }
+
+        function optimiereKonterlatten(benoetigteLaenge, verfuegbareLaengen) {
+            verfuegbareLaengen.sort((a, b) => b - a);
+            
+            const kombination = [];
+            let verbleibendelaenge = benoetigteLaenge;
+            
+            if (dachTyp === 'trapez') {
+                const seitenAbstand = (dachBreite - obereBreite) / 2;
+                const schraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + seitenAbstand * seitenAbstand);
+                verbleibendelaenge += 2 * schraegeLaenge;
+            }
+            
+            while (verbleibendelaenge > 0) {
+                let gefunden = false;
+                for (let laenge of verfuegbareLaengen) {
+                    if (laenge <= verbleibendelaenge + 0.01) {
+                        const existierend = kombination.find(k => k.laenge === laenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            kombination.push({ laenge: laenge, anzahl: 1 });
+                        }
+                        verbleibendelaenge -= laenge;
+                        gefunden = true;
+                        break;
+                    }
+                }
+                
+                if (!gefunden) {
+                    const kleinste = Math.min(...verfuegbareLaengen);
+                    const existierend = kombination.find(k => k.laenge === kleinste);
+                    if (existierend) {
+                        existierend.anzahl++;
+                    } else {
+                        kombination.push({ laenge: kleinste, anzahl: 1 });
+                    }
+                    verbleibendelaenge -= kleinste;
+                }
+            }
+            
+            const gesamtLaenge = kombination.reduce((sum, k) => sum + (k.laenge * k.anzahl), 0);
+            const verschnitt = gesamtLaenge - benoetigteLaenge;
+            
+            return {
+                kombination: kombination,
+                gesamtLaenge: gesamtLaenge,
+                benoetigteLaenge: benoetigteLaenge,
+                verschnitt: verschnitt
+            };
+        }
+
+        function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabstand, anzahlSparren) {
+            document.getElementById('konterlatte-gesamtlaenge').textContent = konterlatten.gesamtLaenge.toFixed(1) + ' m';
+            document.getElementById('konterlatte-anzahl').textContent = konterlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
+            document.getElementById('konterlatte-verschnitt').textContent = konterlatten.verschnitt.toFixed(1) + ' m';
+
+            document.getElementById('dachlatte-gesamtlaenge').textContent = dachlatten.gesamtLaenge.toFixed(1) + ' m';
+            document.getElementById('dachlatte-anzahl').textContent = dachlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
+            document.getElementById('dachlatte-verschnitt').textContent = dachlatten.verschnitt.toFixed(1) + ' m';
+
+            const tbody = document.getElementById('material-details');
+            tbody.innerHTML = '';
+            
+            if (konterlatten && konterlatten.kombination) {
+                konterlatten.kombination.forEach(k => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="font-weight: bold;">Konterlatten</td>
+                        <td>${k.laenge.toFixed(1)} m</td>
+                        <td style="color: #333; font-weight: bold;">${k.anzahl}</td>
+                        <td style="color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            if (dachlatten && dachlatten.kombination) {
+                dachlatten.kombination.forEach(k => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="font-weight: bold;">Dachlatten</td>
+                        <td>${k.laenge.toFixed(1)} m</td>
+                        <td style="color: #333; font-weight: bold;">${k.anzahl}</td>
+                        <td style="color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            document.getElementById('results').style.display = 'block';
+            generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand);
+
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
+            const svgWidth = 500;
+            const svgHeight = 350;
+            const margin = 50;
+            
+            const scaleX = (svgWidth - 2 * margin) / dachBreite;
+            const scaleY = (svgHeight - 2 * margin - 40) / dachHoehe;
+            
+            let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
+            svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
+            
+            if (dachTyp === 'trapez') {
+                const seitenAbstand = (dachBreite - obereBreite) / 2;
+                const trapezObenLinks = margin + seitenAbstand * scaleX;
+                const trapezObenRechts = margin + (obereBreite + seitenAbstand) * scaleX;
+                const trapezUntenLinks = margin;
+                const trapezUntenRechts = margin + dachBreite * scaleX;
+                const trapezUntenY = margin + dachHoehe * scaleY;
+                
+                svg += `<polygon points="${trapezObenLinks},${margin} ${trapezObenRechts},${margin} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            } else {
+                svg += `<rect x="${margin}" y="${margin}" width="${dachBreite * scaleX}" height="${dachHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            }
+            
+            for (let i = 0; i < anzahlSparren && i < sparrenPositionen.length; i++) {
+                const sparrenX = margin + sparrenPositionen[i] * scaleX;
+                let sparrenY = margin;
+                let sparrenHeight = dachHoehe * scaleY;
+                
+                if (sparrenLaengen[i] !== undefined) {
+                    sparrenHeight = sparrenLaengen[i] * scaleY;
+                    if (dachTyp === 'trapez') {
+                        sparrenY = margin + (dachHoehe - sparrenLaengen[i]) * scaleY;
+                    }
+                }
+                
+                svg += `<rect x="${sparrenX - 2}" y="${sparrenY}" width="4" height="${sparrenHeight}" fill="#666" opacity="0.8"/>`;
+                svg += `<rect x="${sparrenX - 1}" y="${sparrenY}" width="2" height="${sparrenHeight}" fill="#ff6b35" opacity="0.9"/>`;
+            }
+            
+            if (dachTyp === 'trapez') {
+                const seitenAbstand = (dachBreite - obereBreite) / 2;
+                const linkeObenX = margin + seitenAbstand * scaleX;
+                const rechteObenX = margin + (dachBreite - seitenAbstand) * scaleX;
+                const untenY = margin + dachHoehe * scaleY;
+                
+                svg += `<line x1="${linkeObenX}" y1="${margin}" x2="${margin}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+                svg += `<line x1="${rechteObenX}" y1="${margin}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+            }
+            
+            const lattenFarben = { 6: '#e74c3c', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
+            
+            for (let i = 0; i < anzahlLattenReihen; i++) {
+                const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
+                const reihenBreite = berechneReihenBreite(fortschritt);
+                const lattenY = margin + fortschritt * dachHoehe * scaleY;
+                
+                const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+                const reihenStartX = margin + reihenStartAbsolut * scaleX;
+                
+                if (window.lattenPlan && window.lattenPlan[i]) {
+                    const segmente = window.lattenPlan[i];
+                    
+                    for (let j = 0; j < segmente.length; j++) {
+                        const segment = segmente[j];
+                        const segmentStartX = reihenStartX + segment.start * scaleX;
+                        const segmentEndX = reihenStartX + segment.ende * scaleX;
+                        
+                        const segmentFarbe = lattenFarben[segment.originalLaenge] || '#e74c3c';
+                        
+                        svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
+                        
+                        if (j < segmente.length - 1) {
+                            svg += `<line x1="${segmentEndX}" y1="${lattenY - 6}" x2="${segmentEndX}" y2="${lattenY + 6}" stroke="#1976d2" stroke-width="3"/>`;
+                        }
+                        
+                        if (segment.istRest) {
+                            const mitteX = segmentStartX + (segmentEndX - segmentStartX) / 2;
+                            svg += `<text x="${mitteX}" y="${lattenY - 8}" text-anchor="middle" font-size="8" font-weight="bold" fill="#dc3545">R</text>`;
+                        }
+                    }
+                }
+            }
+            
+            svg += `<line x1="${margin}" y1="${margin + dachHoehe * scaleY + 35}" x2="${margin + dachBreite * scaleX}" y2="${margin + dachHoehe * scaleY + 35}" stroke="#333" stroke-width="1"/>`;
+            svg += `<text x="${margin + dachBreite * scaleX/2}" y="${margin + dachHoehe * scaleY + 50}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
+            
+            svg += `</svg>`;
+            
+            document.getElementById('vorschau-svg').innerHTML = svg;
+        }
+
+        function druckeLattenplan() {
+            const druckInhalt = `<!DOCTYPE html><html><head><title>Lattenplan</title><style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                h2 { color: #1e3c72; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                th { background-color: #f5f5f5; font-weight: bold; }
+            </style></head><body>
+                <h2>Lattenplan</h2>
+                <p><strong>Dach:</strong> ${dachBreite}m × ${dachHoehe}m (${dachTyp})</p>
+                <div style="text-align: center; margin: 20px 0;">
+                    ${document.getElementById('vorschau-svg').innerHTML}
+                </div>
+                <table><thead><tr><th>Material</th><th>Länge</th><th>Anzahl</th><th>Gesamtlänge</th></tr></thead>
+                    ${document.getElementById('material-details').outerHTML.replace('<tbody id="material-details">', '<tbody>')}
+                </table>
+            </body></html>`;
+            
+            const druckFenster = window.open('', '_blank');
+            druckFenster.document.write(druckInhalt);
+            druckFenster.document.close();
+            
+            setTimeout(() => {
+                druckFenster.print();
+                druckFenster.close();
+            }, 500);
+        }
+
+        function berechnen() {
+            const anzahlSparren = parseInt(document.getElementById('anzahl-sparren').value);
+            const sparrenAbstand = parseFloat(document.getElementById('sparren-abstand').value);
+            const dachueberstand = parseFloat(document.getElementById('dachueberstand').value) || 0;
+            const lattenabstandSelect = document.getElementById('lattenabstand');
+
+            if (!anzahlSparren || anzahlSparren < 2) {
+                alert('Bitte geben Sie eine gültige Anzahl Sparren ein (mindestens 2)!');
+                return;
+            }
+
+            if (!sparrenAbstand || sparrenAbstand <= 0) {
+                alert('Bitte geben Sie einen gültigen Sparren-Abstand ein!');
+                return;
+            }
+
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'calculation', {
+                    'event_category': 'lattenrechner',
+                    'event_label': 'latten_berechnung_durchgeführt'
+                });
+            }
+
+            let lattenabstand;
+            if (lattenabstandSelect.value === 'custom') {
+                lattenabstand = parseFloat(document.getElementById('custom-lattenabstand').value);
+                if (!lattenabstand) {
+                    alert('Bitte geben Sie einen benutzerdefinierten Lattenabstand ein!');
+                    return;
+                }
+            } else {
+                lattenabstand = parseFloat(lattenabstandSelect.value);
+            }
+
+            const verfuegbareKonterlatten = [];
+            const verfuegbareDachlatten = [];
+            
+            [3, 4, 5, 6].forEach(laenge => {
+                const konterlatteCheckbox = document.getElementById(`konterlatte-${laenge}m`);
+                const dachlatteCheckbox = document.getElementById(`dachlatte-${laenge}m`);
+                
+                if (konterlatteCheckbox && konterlatteCheckbox.checked) {
+                    verfuegbareKonterlatten.push(laenge);
+                }
+                if (dachlatteCheckbox && dachlatteCheckbox.checked) {
+                    verfuegbareDachlatten.push(laenge);
+                }
+            });
+
+            if (verfuegbareKonterlatten.length === 0) {
+                alert('Bitte wählen Sie mindestens eine Konterlattenlänge aus!');
+                return;
+            }
+            
+            if (verfuegbareDachlatten.length === 0) {
+                alert('Bitte wählen Sie mindestens eine Dachlattenlänge aus!');
+                return;
+            }
+
+            berechneSparrenPositionen(anzahlSparren, sparrenAbstand, dachueberstand);
+            berechneSpitzdachSparren(anzahlSparren);
+
+            const konterlattenGesamtlaenge = sparrenLaengen.reduce((sum, laenge) => sum + laenge, 0);
+            const konterlattenKombination = optimiereKonterlatten(konterlattenGesamtlaenge, verfuegbareKonterlatten);
+            
+            const anzahlLattenReihen = Math.ceil((dachHoehe * 100) / lattenabstand) + 1;
+            const dachlattenKombination = berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareDachlatten, anzahlLattenReihen);
+
+            zeigeErgebnisse(konterlattenKombination, dachlattenKombination, anzahlLattenReihen, lattenabstand, anzahlSparren);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdSense();
+            
+            const cookieConsent = localStorage.getItem('cookieConsent');
+            if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
+                loadAnalytics();
+            }
+            
+            showAds();
+            
+            ladeDachParameter();
+            aktualisiereLattenabstandsfeld();
+            aktualisiereAutomatischeSparrenBerechnung();
+        });
+    </script>
+</body>
