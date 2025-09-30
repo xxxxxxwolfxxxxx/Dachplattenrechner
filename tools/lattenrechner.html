@@ -475,7 +475,7 @@
             </div>
             <div class="info-box">
                 <strong>Hinweis:</strong> Konterlatten verlaufen parallel zu den Sparren (senkrecht), Dachlatten verlaufen quer dazu (waagerecht). Jede Latte muss mindestens 2 Auflagepunkte haben und auf einem Sparren enden.
-                <br><strong>Verschnitt-Recycling:</strong> Abschnitte aus oberen (schmalen) Reihen werden automatisch für untere (breitere) Reihen wiederverwendet. Rest-Stücke sind in der Darstellung mit "R" markiert.
+                <br><strong>Verschnitt-Recycling:</strong> Die Berechnung simuliert den Bau von unten nach oben. Abschnitte aus unteren (breiten) Reihen werden automatisch für obere (schmalere) Reihen wiederverwendet. Rest-Stücke sind in der Darstellung mit "R" markiert.
             </div>
         </div>
 
@@ -659,9 +659,7 @@
         }
 
         function aktualisiereAnzeige() {
-            let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m,
-
-            Typ: ${dachTyp}`;
+            let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
             
             const urlParams = new URLSearchParams(window.location.search);
             
@@ -828,6 +826,7 @@
             }
             
             tatsaechlichVerfuegbar.sort((a, b) => b - a);
+            const kleinsteVerfuegbar = Math.min(...tatsaechlichVerfuegbar);
             
             let aktuellerRest = null;
             const materialListe = [];
@@ -836,7 +835,7 @@
             
             window.lattenPlan = [];
             
-            for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
+            for (let reihe = 0; reihe < anzahlReihen; reihe++) {
                 const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
                 let reihenBreite = berechneReihenBreite(fortschritt);
                 
@@ -859,7 +858,6 @@
                 
                 if (aktuellerRest && aktuellerRest > 0.3) {
                     const passenderSparren = relevanteSparren.find(pos => Math.abs(pos - aktuellerRest) <= 0.1);
-                    const kleinsteVerfuegbar = Math.min(...tatsaechlichVerfuegbar);
                     
                     if (passenderSparren && passenderSparren <= reihenBreite) {
                         const istTatsaechlichRest = passenderSparren < kleinsteVerfuegbar - 0.5;
@@ -1166,7 +1164,7 @@
                         const segmentStartX = reihenStartX + segment.start * scaleX;
                         const segmentEndX = reihenStartX + segment.ende * scaleX;
                         
-                        const segmentFarbe = segment.istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || '#9b59b6');
+                        const segmentFarbe = segment.istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || restFarbe);
                         
                         svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
                         
