@@ -1103,6 +1103,15 @@
             const scaleX = (svgWidth - 2 * margin) / dachBreite;
             const scaleY = (svgHeight - 2 * margin - 40) / dachHoehe;
             
+            // Ermittle verfügbare Lattenlängen
+            const verfuegbareLaengen = [];
+            [3, 4, 5, 6].forEach(laenge => {
+                const checkbox = document.getElementById(`dachlatte-${laenge}m`);
+                if (checkbox && checkbox.checked) {
+                    verfuegbareLaengen.push(laenge);
+                }
+            });
+            
             let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
             svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
             
@@ -1147,6 +1156,7 @@
             
             const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
             const restFarbe = '#e74c3c';
+            const kleinsteVerfuegbar = Math.min(...verfuegbareLaengen);
             
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
@@ -1164,7 +1174,12 @@
                         const segmentStartX = reihenStartX + segment.start * scaleX;
                         const segmentEndX = reihenStartX + segment.ende * scaleX;
                         
-                        const segmentFarbe = segment.istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || restFarbe);
+                        // Prüfe ob Segment ein Rest ist
+                        const istRest = segment.istRest || 
+                                       segment.laenge < kleinsteVerfuegbar - 0.5 ||
+                                       !verfuegbareLaengen.includes(segment.originalLaenge);
+                        
+                        const segmentFarbe = istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || restFarbe);
                         
                         svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
                         
@@ -1172,7 +1187,7 @@
                             svg += `<line x1="${segmentEndX}" y1="${lattenY - 6}" x2="${segmentEndX}" y2="${lattenY + 6}" stroke="#1976d2" stroke-width="3"/>`;
                         }
                         
-                        if (segment.istRest) {
+                        if (istRest) {
                             const mitteX = segmentStartX + (segmentEndX - segmentStartX) / 2;
                             svg += `<text x="${mitteX}" y="${lattenY - 8}" text-anchor="middle" font-size="8" font-weight="bold" fill="#dc3545">R</text>`;
                         }
