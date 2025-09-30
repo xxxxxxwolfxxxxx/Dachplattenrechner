@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+</html><!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -360,7 +360,6 @@
             <div id="dach-info">
                 <div style="text-align: center; margin-bottom: 20px;">
                     <div id="dach-darstellung" style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <!-- Wird dynamisch gefüllt basierend auf Dachform -->
                     </div>
                 </div>
                 <div class="info-box">
@@ -475,7 +474,7 @@
             </div>
             <div class="info-box">
                 <strong>Hinweis:</strong> Konterlatten verlaufen parallel zu den Sparren (senkrecht), Dachlatten verlaufen quer dazu (waagerecht). Jede Latte muss mindestens 2 Auflagepunkte haben und auf einem Sparren enden.
-                <br><strong>Verschnitt-Recycling:</strong> Die Berechnung simuliert den Bau von unten nach oben. Abschnitte aus unteren (breiten) Reihen werden automatisch für obere (schmalere) Reihen wiederverwendet. Rest-Stücke sind in der Darstellung mit "R" markiert.
+                <br><strong>Verschnitt-Recycling:</strong> Die Berechnung simuliert den Bau von unten nach oben. Reste aus breiten unteren Reihen werden für schmale obere Reihen wiederverwendet. Rest-Stücke sind rot markiert.
             </div>
         </div>
 
@@ -572,7 +571,7 @@
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px;">
                         <span style="color: #dc3545; font-weight: bold; font-size: 12px;">R</span>
-                        <span>Rest-Stück</span>
+                        <span>Rest-Markierung</span>
                     </div>
                 </div>
             </div>
@@ -604,7 +603,6 @@
     </div>
     
     <script>
-        // Globale Variablen für Dach-Parameter
         let dachBreite = 10;
         let dachHoehe = 6;
         let dachTyp = 'rechteck';
@@ -612,7 +610,6 @@
         let sparrenLaengen = [];
         let sparrenPositionen = [];
 
-        // Cookie Management
         function showAds() {
             document.getElementById('top-ad-container').style.display = 'block';
             document.getElementById('middle-ad-container').style.display = 'block';
@@ -664,6 +661,10 @@
             const urlParams = new URLSearchParams(window.location.search);
             
             switch(dachTyp) {
+                case 'trapez':
+                    if (obereBreite) {
+                        massText += `, Obere Breite:switch(dachTyp) {
+                        
                 case 'trapez':
                     if (obereBreite) {
                         massText += `, Obere Breite: ${obereBreite.toFixed(1)}m`;
@@ -828,7 +829,7 @@
             tatsaechlichVerfuegbar.sort((a, b) => b - a);
             const kleinsteVerfuegbar = Math.min(...tatsaechlichVerfuegbar);
             
-            let aktuellerRest = null;
+            let restPool = [];
             const materialListe = [];
             let gesamtVerschnitt = 0;
             let gesamtBenoetigteLaenge = 0;
@@ -856,47 +857,26 @@
                 const reihenSegmente = [];
                 let aktuellePosition = 0;
                 
-                if (aktuellerRest && aktuellerRest > 0.3) {
-                    const passenderSparren = relevanteSparren.find(pos => Math.abs(pos - aktuellerRest) <= 0.1);
-                    
-                    if (passenderSparren && passenderSparren <= reihenBreite) {
-                        const istTatsaechlichRest = passenderSparren < kleinsteVerfuegbar - 0.5;
-                        
-                        reihenSegmente.push({
-                            start: 0,
-                            ende: passenderSparren,
-                            laenge: passenderSparren,
-                            originalLaenge: aktuellerRest,
-                            istRest: istTatsaechlichRest
-                        });
-                        
-                        aktuellePosition = passenderSparren;
-                        
-                        const restVerschnitt = aktuellerRest - passenderSparren;
-                        if (restVerschnitt > 0.05) {
-                            gesamtVerschnitt += restVerschnitt;
-                        }
-                        aktuellerRest = null;
-                    }
-                }
-                
                 while (aktuellePosition < reihenBreite - 0.1) {
                     let besteKombination = null;
                     
-                    for (let lattenLaenge of tatsaechlichVerfuegbar) {
-                        const maxEnde = aktuellePosition + lattenLaenge;
+                    for (let i = 0; i < restPool.length; i++) {
+                        const rest = restPool[i];
+                        const maxEnde = aktuellePosition + rest;
                         
                         for (let sparrenPos of relevanteSparren) {
-                            if (sparrenPos > aktuellePosition + 1.5 && sparrenPos <= maxEnde + 0.1) {
+                            if (sparrenPos > aktuellePosition + 0.5 && sparrenPos <= maxEnde + 0.1) {
                                 const segmentLaenge = sparrenPos - aktuellePosition;
-                                const verschnitt = lattenLaenge - segmentLaenge;
+                                const verschnitt = rest - segmentLaenge;
                                 
                                 if (!besteKombination || verschnitt < besteKombination.verschnitt) {
                                     besteKombination = {
-                                        lattenLaenge: lattenLaenge,
+                                        lattenLaenge: rest,
                                         segmentEnde: sparrenPos,
                                         segmentLaenge: segmentLaenge,
-                                        verschnitt: verschnitt
+                                        verschnitt: verschnitt,
+                                        istRest: true,
+                                        restIndex: i
                                     };
                                 }
                             }
@@ -904,17 +884,59 @@
                     }
                     
                     if (!besteKombination) {
-                        const naechsterSparren = relevanteSparren.find(pos => pos > aktuellePosition + 1.0);
+                        for (let lattenLaenge of tatsaechlichVerfuegbar) {
+                            const maxEnde = aktuellePosition + lattenLaenge;
+                            
+                            for (let sparrenPos of relevanteSparren) {
+                                if (sparrenPos > aktuellePosition + 1.5 && sparrenPos <= maxEnde + 0.1) {
+                                    const segmentLaenge = sparrenPos - aktuellePosition;
+                                    const verschnitt = lattenLaenge - segmentLaenge;
+                                    
+                                    if (!besteKombination || verschnitt < besteKombination.verschnitt) {
+                                        besteKombination = {
+                                            lattenLaenge: lattenLaenge,
+                                            segmentEnde: sparrenPos,
+                                            segmentLaenge: segmentLaenge,
+                                            verschnitt: verschnitt,
+                                            istRest: false
+                                        };
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!besteKombination) {
+                        const naechsterSparren = relevanteSparren.find(pos => pos > aktuellePosition + 0.5);
                         if (naechsterSparren) {
                             const segmentLaenge = naechsterSparren - aktuellePosition;
-                            const lattenLaenge = tatsaechlichVerfuegbar.find(l => l >= segmentLaenge) || Math.max(...tatsaechlichVerfuegbar);
                             
-                            besteKombination = {
-                                lattenLaenge: lattenLaenge,
-                                segmentEnde: naechsterSparren,
-                                segmentLaenge: segmentLaenge,
-                                verschnitt: lattenLaenge - segmentLaenge
-                            };
+                            let verwendeterRest = -1;
+                            for (let i = 0; i < restPool.length; i++) {
+                                if (restPool[i] >= segmentLaenge) {
+                                    besteKombination = {
+                                        lattenLaenge: restPool[i],
+                                        segmentEnde: naechsterSparren,
+                                        segmentLaenge: segmentLaenge,
+                                        verschnitt: restPool[i] - segmentLaenge,
+                                        istRest: true,
+                                        restIndex: i
+                                    };
+                                    verwendeterRest = i;
+                                    break;
+                                }
+                            }
+                            
+                            if (verwendeterRest === -1) {
+                                const lattenLaenge = tatsaechlichVerfuegbar.find(l => l >= segmentLaenge) || Math.max(...tatsaechlichVerfuegbar);
+                                besteKombination = {
+                                    lattenLaenge: lattenLaenge,
+                                    segmentEnde: naechsterSparren,
+                                    segmentLaenge: segmentLaenge,
+                                    verschnitt: lattenLaenge - segmentLaenge,
+                                    istRest: false
+                                };
+                            }
                         }
                     }
                     
@@ -924,49 +946,29 @@
                             ende: besteKombination.segmentEnde,
                             laenge: besteKombination.segmentLaenge,
                             originalLaenge: besteKombination.lattenLaenge,
-                            istRest: false
+                            istRest: besteKombination.istRest
                         });
                         
-                        const existierend = materialListe.find(m => m.laenge === besteKombination.lattenLaenge);
-                        if (existierend) {
-                            existierend.anzahl++;
+                        if (besteKombination.istRest && besteKombination.restIndex !== undefined) {
+                            restPool.splice(besteKombination.restIndex, 1);
                         } else {
-                            materialListe.push({ laenge: besteKombination.lattenLaenge, anzahl: 1 });
+                            const existierend = materialListe.find(m => m.laenge === besteKombination.lattenLaenge);
+                            if (existierend) {
+                                existierend.anzahl++;
+                            } else {
+                                materialListe.push({ laenge: besteKombination.lattenLaenge, anzahl: 1 });
+                            }
                         }
                         
                         if (besteKombination.verschnitt > 0.3) {
-                            aktuellerRest = besteKombination.verschnitt;
+                            restPool.push(besteKombination.verschnitt);
+                            restPool.sort((a, b) => b - a);
                         } else {
                             gesamtVerschnitt += besteKombination.verschnitt;
                         }
                         
                         aktuellePosition = besteKombination.segmentEnde;
                     } else {
-                        const restReihe = reihenBreite - aktuellePosition;
-                        const lattenLaenge = Math.max(...tatsaechlichVerfuegbar);
-                        
-                        reihenSegmente.push({
-                            start: aktuellePosition,
-                            ende: reihenBreite,
-                            laenge: restReihe,
-                            originalLaenge: lattenLaenge,
-                            istRest: false
-                        });
-                        
-                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
-                        if (existierend) {
-                            existierend.anzahl++;
-                        } else {
-                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
-                        }
-                        
-                        const verschnitt = lattenLaenge - restReihe;
-                        if (verschnitt > 0.3) {
-                            aktuellerRest = verschnitt;
-                        } else {
-                            gesamtVerschnitt += verschnitt;
-                        }
-                        
                         break;
                     }
                 }
@@ -974,9 +976,7 @@
                 window.lattenPlan[reihe] = reihenSegmente;
             }
             
-            if (aktuellerRest) {
-                gesamtVerschnitt += aktuellerRest;
-            }
+            gesamtVerschnitt += restPool.reduce((sum, rest) => sum + rest, 0);
             
             const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
             
@@ -1103,7 +1103,6 @@
             const scaleX = (svgWidth - 2 * margin) / dachBreite;
             const scaleY = (svgHeight - 2 * margin - 40) / dachHoehe;
             
-            // Ermittle verfügbare Lattenlängen
             const verfuegbareLaengen = [];
             [3, 4, 5, 6].forEach(laenge => {
                 const checkbox = document.getElementById(`dachlatte-${laenge}m`);
@@ -1111,6 +1110,7 @@
                     verfuegbareLaengen.push(laenge);
                 }
             });
+            const kleinsteVerfuegbar = Math.min(...verfuegbareLaengen);
             
             let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
             svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
@@ -1156,7 +1156,6 @@
             
             const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
             const restFarbe = '#e74c3c';
-            const kleinsteVerfuegbar = Math.min(...verfuegbareLaengen);
             
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
@@ -1174,10 +1173,7 @@
                         const segmentStartX = reihenStartX + segment.start * scaleX;
                         const segmentEndX = reihenStartX + segment.ende * scaleX;
                         
-                        // Prüfe ob Segment ein Rest ist
-                        const istRest = segment.istRest || 
-                                       segment.laenge < kleinsteVerfuegbar - 0.5 ||
-                                       !verfuegbareLaengen.includes(segment.originalLaenge);
+                        const istRest = segment.istRest || segment.laenge < kleinsteVerfuegbar - 0.5;
                         
                         const segmentFarbe = istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || restFarbe);
                         
@@ -1318,4 +1314,3 @@
         });
     </script>
 </body>
-</html>
