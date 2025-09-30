@@ -1,4 +1,4 @@
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -543,7 +543,7 @@
                         <span>Konterlatten</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <div style="width: 16px; height: 4px; background: #e74c3c; border-radius: 2px;"></div>
+                        <div style="width: 16px; height: 4px; background: #9b59b6; border-radius: 2px;"></div>
                         <span>Dachlatten 6m</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px;">
@@ -557,6 +557,10 @@
                     <div style="display: flex; align-items: center; gap: 6px;">
                         <div style="width: 16px; height: 4px; background: #27ae60; border-radius: 2px;"></div>
                         <span>Dachlatten 3m</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <div style="width: 16px; height: 4px; background: #e74c3c; border-radius: 2px;"></div>
+                        <span>Rest-Stück</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px;">
                         <div style="width: 16px; height: 4px; background: #666; border-radius: 2px;"></div>
@@ -655,7 +659,9 @@
         }
 
         function aktualisiereAnzeige() {
-            let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
+            let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m,
+
+            Typ: ${dachTyp}`;
             
             const urlParams = new URLSearchParams(window.location.search);
             
@@ -815,175 +821,175 @@
             });
         }
 
-       function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
-    const tatsaechlichVerfuegbar = verfuegbareLaengen.filter(l => l > 0);
-    if (tatsaechlichVerfuegbar.length === 0) {
-        return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
-    }
-    
-    tatsaechlichVerfuegbar.sort((a, b) => b - a);
-    
-    let aktuellerRest = null;
-    const materialListe = [];
-    let gesamtVerschnitt = 0;
-    let gesamtBenoetigteLaenge = 0;
-    
-    window.lattenPlan = [];
-    
-    for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
-        const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
-        let reihenBreite = berechneReihenBreite(fortschritt);
-        
-        gesamtBenoetigteLaenge += reihenBreite;
-        
-        const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
-        const relevanteSparren = sparrenPositionen.filter(pos => 
-            pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
-        ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
-        
-        if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
-            relevanteSparren.unshift(0);
-        }
-        if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
-            relevanteSparren.push(reihenBreite);
-        }
-        
-        const reihenSegmente = [];
-        let aktuellePosition = 0;
-        
-        if (aktuellerRest && aktuellerRest > 0.3) {
-            const passenderSparren = relevanteSparren.find(pos => Math.abs(pos - aktuellerRest) <= 0.1);
-            const kleinsteVerfuegbar = Math.min(...tatsaechlichVerfuegbar);
-            
-            if (passenderSparren && passenderSparren <= reihenBreite) {
-                const istTatsaechlichRest = passenderSparren < kleinsteVerfuegbar - 0.5;
-                
-                reihenSegmente.push({
-                    start: 0,
-                    ende: passenderSparren,
-                    laenge: passenderSparren,
-                    originalLaenge: aktuellerRest,
-                    istRest: istTatsaechlichRest
-                });
-                
-                aktuellePosition = passenderSparren;
-                
-                const restVerschnitt = aktuellerRest - passenderSparren;
-                if (restVerschnitt > 0.05) {
-                    gesamtVerschnitt += restVerschnitt;
-                }
-                aktuellerRest = null;
+        function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
+            const tatsaechlichVerfuegbar = verfuegbareLaengen.filter(l => l > 0);
+            if (tatsaechlichVerfuegbar.length === 0) {
+                return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
             }
-        }
-        
-        while (aktuellePosition < reihenBreite - 0.1) {
-            let besteKombination = null;
             
-            for (let lattenLaenge of tatsaechlichVerfuegbar) {
-                const maxEnde = aktuellePosition + lattenLaenge;
+            tatsaechlichVerfuegbar.sort((a, b) => b - a);
+            
+            let aktuellerRest = null;
+            const materialListe = [];
+            let gesamtVerschnitt = 0;
+            let gesamtBenoetigteLaenge = 0;
+            
+            window.lattenPlan = [];
+            
+            for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
+                const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
+                let reihenBreite = berechneReihenBreite(fortschritt);
                 
-                for (let sparrenPos of relevanteSparren) {
-                    if (sparrenPos > aktuellePosition + 1.5 && sparrenPos <= maxEnde + 0.1) {
-                        const segmentLaenge = sparrenPos - aktuellePosition;
-                        const verschnitt = lattenLaenge - segmentLaenge;
+                gesamtBenoetigteLaenge += reihenBreite;
+                
+                const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+                const relevanteSparren = sparrenPositionen.filter(pos => 
+                    pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
+                ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
+                
+                if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
+                    relevanteSparren.unshift(0);
+                }
+                if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
+                    relevanteSparren.push(reihenBreite);
+                }
+                
+                const reihenSegmente = [];
+                let aktuellePosition = 0;
+                
+                if (aktuellerRest && aktuellerRest > 0.3) {
+                    const passenderSparren = relevanteSparren.find(pos => Math.abs(pos - aktuellerRest) <= 0.1);
+                    const kleinsteVerfuegbar = Math.min(...tatsaechlichVerfuegbar);
+                    
+                    if (passenderSparren && passenderSparren <= reihenBreite) {
+                        const istTatsaechlichRest = passenderSparren < kleinsteVerfuegbar - 0.5;
                         
-                        if (!besteKombination || verschnitt < besteKombination.verschnitt) {
+                        reihenSegmente.push({
+                            start: 0,
+                            ende: passenderSparren,
+                            laenge: passenderSparren,
+                            originalLaenge: aktuellerRest,
+                            istRest: istTatsaechlichRest
+                        });
+                        
+                        aktuellePosition = passenderSparren;
+                        
+                        const restVerschnitt = aktuellerRest - passenderSparren;
+                        if (restVerschnitt > 0.05) {
+                            gesamtVerschnitt += restVerschnitt;
+                        }
+                        aktuellerRest = null;
+                    }
+                }
+                
+                while (aktuellePosition < reihenBreite - 0.1) {
+                    let besteKombination = null;
+                    
+                    for (let lattenLaenge of tatsaechlichVerfuegbar) {
+                        const maxEnde = aktuellePosition + lattenLaenge;
+                        
+                        for (let sparrenPos of relevanteSparren) {
+                            if (sparrenPos > aktuellePosition + 1.5 && sparrenPos <= maxEnde + 0.1) {
+                                const segmentLaenge = sparrenPos - aktuellePosition;
+                                const verschnitt = lattenLaenge - segmentLaenge;
+                                
+                                if (!besteKombination || verschnitt < besteKombination.verschnitt) {
+                                    besteKombination = {
+                                        lattenLaenge: lattenLaenge,
+                                        segmentEnde: sparrenPos,
+                                        segmentLaenge: segmentLaenge,
+                                        verschnitt: verschnitt
+                                    };
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!besteKombination) {
+                        const naechsterSparren = relevanteSparren.find(pos => pos > aktuellePosition + 1.0);
+                        if (naechsterSparren) {
+                            const segmentLaenge = naechsterSparren - aktuellePosition;
+                            const lattenLaenge = tatsaechlichVerfuegbar.find(l => l >= segmentLaenge) || Math.max(...tatsaechlichVerfuegbar);
+                            
                             besteKombination = {
                                 lattenLaenge: lattenLaenge,
-                                segmentEnde: sparrenPos,
+                                segmentEnde: naechsterSparren,
                                 segmentLaenge: segmentLaenge,
-                                verschnitt: verschnitt
+                                verschnitt: lattenLaenge - segmentLaenge
                             };
                         }
                     }
-                }
-            }
-            
-            if (!besteKombination) {
-                const naechsterSparren = relevanteSparren.find(pos => pos > aktuellePosition + 1.0);
-                if (naechsterSparren) {
-                    const segmentLaenge = naechsterSparren - aktuellePosition;
-                    const lattenLaenge = tatsaechlichVerfuegbar.find(l => l >= segmentLaenge) || Math.max(...tatsaechlichVerfuegbar);
                     
-                    besteKombination = {
-                        lattenLaenge: lattenLaenge,
-                        segmentEnde: naechsterSparren,
-                        segmentLaenge: segmentLaenge,
-                        verschnitt: lattenLaenge - segmentLaenge
-                    };
+                    if (besteKombination) {
+                        reihenSegmente.push({
+                            start: aktuellePosition,
+                            ende: besteKombination.segmentEnde,
+                            laenge: besteKombination.segmentLaenge,
+                            originalLaenge: besteKombination.lattenLaenge,
+                            istRest: false
+                        });
+                        
+                        const existierend = materialListe.find(m => m.laenge === besteKombination.lattenLaenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: besteKombination.lattenLaenge, anzahl: 1 });
+                        }
+                        
+                        if (besteKombination.verschnitt > 0.3) {
+                            aktuellerRest = besteKombination.verschnitt;
+                        } else {
+                            gesamtVerschnitt += besteKombination.verschnitt;
+                        }
+                        
+                        aktuellePosition = besteKombination.segmentEnde;
+                    } else {
+                        const restReihe = reihenBreite - aktuellePosition;
+                        const lattenLaenge = Math.max(...tatsaechlichVerfuegbar);
+                        
+                        reihenSegmente.push({
+                            start: aktuellePosition,
+                            ende: reihenBreite,
+                            laenge: restReihe,
+                            originalLaenge: lattenLaenge,
+                            istRest: false
+                        });
+                        
+                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
+                        }
+                        
+                        const verschnitt = lattenLaenge - restReihe;
+                        if (verschnitt > 0.3) {
+                            aktuellerRest = verschnitt;
+                        } else {
+                            gesamtVerschnitt += verschnitt;
+                        }
+                        
+                        break;
+                    }
                 }
+                
+                window.lattenPlan[reihe] = reihenSegmente;
             }
             
-            if (besteKombination) {
-                reihenSegmente.push({
-                    start: aktuellePosition,
-                    ende: besteKombination.segmentEnde,
-                    laenge: besteKombination.segmentLaenge,
-                    originalLaenge: besteKombination.lattenLaenge,
-                    istRest: false
-                });
-                
-                const existierend = materialListe.find(m => m.laenge === besteKombination.lattenLaenge);
-                if (existierend) {
-                    existierend.anzahl++;
-                } else {
-                    materialListe.push({ laenge: besteKombination.lattenLaenge, anzahl: 1 });
-                }
-                
-                if (besteKombination.verschnitt > 0.3) {
-                    aktuellerRest = besteKombination.verschnitt;
-                } else {
-                    gesamtVerschnitt += besteKombination.verschnitt;
-                }
-                
-                aktuellePosition = besteKombination.segmentEnde;
-            } else {
-                const restReihe = reihenBreite - aktuellePosition;
-                const lattenLaenge = Math.max(...tatsaechlichVerfuegbar);
-                
-                reihenSegmente.push({
-                    start: aktuellePosition,
-                    ende: reihenBreite,
-                    laenge: restReihe,
-                    originalLaenge: lattenLaenge,
-                    istRest: false
-                });
-                
-                const existierend = materialListe.find(m => m.laenge === lattenLaenge);
-                if (existierend) {
-                    existierend.anzahl++;
-                } else {
-                    materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
-                }
-                
-                const verschnitt = lattenLaenge - restReihe;
-                if (verschnitt > 0.3) {
-                    aktuellerRest = verschnitt;
-                } else {
-                    gesamtVerschnitt += verschnitt;
-                }
-                
-                break;
+            if (aktuellerRest) {
+                gesamtVerschnitt += aktuellerRest;
             }
+            
+            const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
+            
+            return {
+                kombination: materialListe,
+                gesamtLaenge: gesamtLaenge,
+                verschnitt: gesamtVerschnitt,
+                benoetigteLaenge: gesamtBenoetigteLaenge,
+                anzahlReihen: anzahlReihen
+            };
         }
-        
-        window.lattenPlan[reihe] = reihenSegmente;
-    }
-    
-    if (aktuellerRest) {
-        gesamtVerschnitt += aktuellerRest;
-    }
-    
-    const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
-    
-    return {
-        kombination: materialListe,
-        gesamtLaenge: gesamtLaenge,
-        verschnitt: gesamtVerschnitt,
-        benoetigteLaenge: gesamtBenoetigteLaenge,
-        anzahlReihen: anzahlReihen
-    };
-}
 
         function berechneReihenBreite(fortschritt) {
             switch(dachTyp) {
@@ -1141,7 +1147,8 @@
                 svg += `<line x1="${rechteObenX}" y1="${margin}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
             }
             
-            const lattenFarben = { 6: '#e74c3c', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
+            const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
+            const restFarbe = '#e74c3c';
             
             for (let i = 0; i < anzahlLattenReihen; i++) {
                 const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
@@ -1159,7 +1166,7 @@
                         const segmentStartX = reihenStartX + segment.start * scaleX;
                         const segmentEndX = reihenStartX + segment.ende * scaleX;
                         
-                        const segmentFarbe = lattenFarben[segment.originalLaenge] || '#e74c3c';
+                        const segmentFarbe = segment.istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || '#9b59b6');
                         
                         svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
                         
@@ -1298,3 +1305,4 @@
         });
     </script>
 </body>
+</html>
