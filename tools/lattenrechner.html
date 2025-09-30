@@ -660,10 +660,12 @@
             
             const urlParams = new URLSearchParams(window.location.search);
             
-            switch(dachTyp) {
+             switch(dachTyp) {
                 case 'trapez':
                     if (obereBreite) {
-                        massText += `, Obere Breite:switch(dachTyp) {
+                        massText += `, Obere Breite: ${obereBreite.toFixed(1)}m`;
+                    }
+                    break;
                         
                 case 'trapez':
                     if (obereBreite) {
