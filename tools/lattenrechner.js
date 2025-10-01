@@ -310,7 +310,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     
     window.lattenPlan = [];
     
-    // Von UNTEN nach OBEN
     for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
         const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
         let reihenBreite = berechneReihenBreite(fortschritt);
@@ -336,7 +335,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             let besteOption = null;
             let minVerschnitt = Infinity;
             
-            // 1. Prüfe ALLE Reste
             for (let i = 0; i < restPool.length; i++) {
                 const restLaenge = restPool[i];
                 
@@ -362,7 +360,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                 }
             }
             
-            // 2. Prüfe neue Latten (kleinste bis größte)
             for (let lattenLaenge of tatsaechlichVerfuegbar) {
                 for (let j = relevanteSparren.length - 1; j >= 0; j--) {
                     const sparrenPos = relevanteSparren[j];
@@ -386,13 +383,11 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                 }
             }
             
-            // 3. Notfall: Nächster Sparren mit passender Latte
             if (!besteOption) {
                 const naechsterSparren = relevanteSparren.find(pos => pos > aktuellePosition + 0.5);
                 if (naechsterSparren) {
                     const benoetigteLattenlaenge = naechsterSparren - aktuellePosition;
                     
-                    // Prüfe Reste
                     for (let i = 0; i < restPool.length; i++) {
                         if (restPool[i] >= benoetigteLattenlaenge - 0.01) {
                             besteOption = {
@@ -407,7 +402,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                         }
                     }
                     
-                    // Wenn kein Rest passt: kleinste neue Latte
                     if (!besteOption) {
                         const passendeLatte = tatsaechlichVerfuegbar.find(l => l >= benoetigteLattenlaenge);
                         if (passendeLatte) {
@@ -426,7 +420,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             
             if (!besteOption) break;
             
-            // Segment hinzufügen
             reihenSegmente.push({
                 start: aktuellePosition,
                 ende: besteOption.ende,
@@ -435,7 +428,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                 istRest: besteOption.istRest
             });
             
-            // Material verwalten
             if (besteOption.istRest) {
                 restPool.splice(besteOption.restIndex, 1);
             } else {
@@ -447,7 +439,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                 }
             }
             
-            // Verschnitt als neuen Rest hinzufügen
             if (besteOption.verschnitt > 0.5) {
                 restPool.push(besteOption.verschnitt);
                 restPool.sort((a, b) => b - a);
