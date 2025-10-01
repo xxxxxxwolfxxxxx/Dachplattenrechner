@@ -226,7 +226,8 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     
     window.lattenPlan = [];
     
-    for (let reihe = 0; reihe < anzahlReihen; reihe++) {
+    // Von UNTEN nach OBEN arbeiten (rückwärts durch die Reihen)
+    for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
         const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
         let reihenBreite = berechneReihenBreite(fortschritt);
         
@@ -253,7 +254,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             let istRestStück = false;
             let lattenEnde = 0;
             
-            // 1. Prüfe Rest-Pool: Finde längsten Rest und nutze ihn maximal
+            // 1. Prüfe Rest-Pool: Finde passenden Rest und nutze ihn maximal
             for (let i = 0; i < restPool.length; i++) {
                 const möglichesEnde = aktuellePosition + restPool[i];
                 
@@ -339,6 +340,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             aktuellePosition = lattenEnde;
         }
         
+        // Speichere die Segmente in der korrekten Reihen-Position
         window.lattenPlan[reihe] = reihenSegmente;
     }
     
