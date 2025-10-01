@@ -248,60 +248,82 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
         let aktuellePosition = 0;
         
         while (aktuellePosition < reihenBreite - 0.01) {
-            const naechsterSparren = relevanteSparren.find(pos => pos > aktuellePosition + 0.01);
-            if (!naechsterSparren) break;
-            
-            const benoetigteLattenlaenge = naechsterSparren - aktuellePosition;
-            
             let verwendeteLatte = null;
             let restIndex = -1;
             let istRestStück = false;
+            let lattenEnde = 0;
             
-            // 1. Prüfe ob ein Rest passt
+            // 1. Prüfe Rest-Pool: Finde längsten Rest und nutze ihn maximal
             for (let i = 0; i < restPool.length; i++) {
-                if (restPool[i] >= benoetigteLattenlaenge - 0.01) {
+                const möglichesEnde = aktuellePosition + restPool[i];
+                
+                // Suche den weitesten Sparren, den dieser Rest erreichen kann
+                let zielSparren = null;
+                for (let j = relevanteSparren.length - 1; j >= 0; j--) {
+                    if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= möglichesEnde + 0.05) {
+                        zielSparren = relevanteSparren[j];
+                        break;
+                    }
+                }
+                
+                if (zielSparren !== null) {
                     verwendeteLatte = {
                         laenge: restPool[i],
                         originalLaenge: restPool[i]
                     };
+                    lattenEnde = zielSparren;
                     restIndex = i;
                     istRestStück = true;
                     break;
                 }
             }
             
-            // 2. Falls kein Rest passt, nimm neue Latte
+            // 2. Falls kein Rest passt: Neue Latte, die möglichst weit reicht
             if (!verwendeteLatte) {
-                const passendeLatte = tatsaechlichVerfuegbar.find(l => l >= benoetigteLattenlaenge - 0.01);
-                if (passendeLatte) {
-                    verwendeteLatte = {
-                        laenge: passendeLatte,
-                        originalLaenge: passendeLatte
-                    };
+                for (let lattenLaenge of tatsaechlichVerfuegbar) {
+                    const möglichesEnde = aktuellePosition + lattenLaenge;
                     
-                    const existierend = materialListe.find(m => m.laenge === passendeLatte);
-                    if (existierend) {
-                        existierend.anzahl++;
-                    } else {
-                        materialListe.push({ laenge: passendeLatte, anzahl: 1 });
+                    // Suche den weitesten Sparren, den diese Latte erreichen kann
+                    let zielSparren = null;
+                    for (let j = relevanteSparren.length - 1; j >= 0; j--) {
+                        if (relevanteSparren[j] > aktuellePosition + 1.5 && relevanteSparren[j] <= möglichesEnde + 0.05) {
+                            zielSparren = relevanteSparren[j];
+                            break;
+                        }
                     }
-                    istRestStück = false;
-                } else {
-                    break;
+                    
+                    if (zielSparren !== null) {
+                        verwendeteLatte = {
+                            laenge: lattenLaenge,
+                            originalLaenge: lattenLaenge
+                        };
+                        lattenEnde = zielSparren;
+                        
+                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
+                        }
+                        istRestStück = false;
+                        break;
+                    }
                 }
             }
+            
+            if (!verwendeteLatte) break;
             
             // Segment zur Reihe hinzufügen
             reihenSegmente.push({
                 start: aktuellePosition,
-                ende: naechsterSparren,
-                laenge: benoetigteLattenlaenge,
+                ende: lattenEnde,
+                laenge: lattenEnde - aktuellePosition,
                 originalLaenge: verwendeteLatte.originalLaenge,
                 istRest: istRestStück
             });
             
             // Rest-Verwaltung
-            const neuerRest = verwendeteLatte.laenge - benoetigteLattenlaenge;
+            const neuerRest = verwendeteLatte.laenge - (lattenEnde - aktuellePosition);
             
             if (istRestStück && restIndex >= 0) {
                 restPool.splice(restIndex, 1);
@@ -314,7 +336,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                 gesamtVerschnitt += neuerRest;
             }
             
-            aktuellePosition = naechsterSparren;
+            aktuellePosition = lattenEnde;
         }
         
         window.lattenPlan[reihe] = reihenSegmente;
