@@ -1,88 +1,4 @@
-function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
-    const tatsaechlichVerfuegbar = verfuegbareLaengen.filter(l => l > 0);
-    if (tatsaechlichVerfuegbar.length === 0) {
-        return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
-    }
-    
-    tatsaechlichVerfuegbar.sort((a, b) => a - b); // Kleinste zuerst für bessere Nutzung
-    
-    let restPool = [];
-    const materialListe = [];
-    let gesamtVerschnitt = 0;
-    let gesamtBenoetigteLaenge = 0;
-    
-    window.lattenPlan = [];
-    
-    // Von UNTEN nach OBEN
-    for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
-        const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
-        let reihenBreite = berechneReihenBreite(fortschritt);
-        
-        gesamtBenoetigteLaenge += reihenBreite;
-        
-        const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
-        const relevanteSparren = sparrenPositionen.filter(pos => 
-            pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
-        ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
-        
-        if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
-            relevanteSparren.unshift(0);
-        }
-        if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
-            relevanteSparren.push(reihenBreite);
-        }
-        
-        const reihenSegmente = [];
-        let aktuellePosition = 0;
-        
-        while (aktuellePosition < reihenBreite - 0.01) {
-            let besteLatte = null;
-            let besteOption = null;
-            
-            // 1. Prüfe ALLE Reste - finde den besten
-            for (let i = 0; i < restPool.length; i++) {
-                const restLaenge = restPool[i];
-                const möglichesEnde = aktuellePosition + restLaenge;
-                
-                for (let j = relevanteSparren.length - 1; j >= 0; j--) {
-                    if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= möglichesEnde + 0.05) {
-                        const verschnitt = restLaenge - (relevanteSparren[j] - aktuellePosition);
-                        if (!besteOption || verschnitt < besteOption.verschnitt) {
-                            besteOption = {
-                                ende: relevanteSparren[j],
-                                laenge: restLaenge,
-                                verschnitt: verschnitt,
-                                istRest: true,
-                                restIndex: i
-                            };
-                        }
-                        break;
-                    }
-                }
-            }
-            
-            // 2. Prüfe ALLE neuen Latten - finde die beste
-            for (let lattenLaenge of tatsaechlichVerfuegbar) {
-                const möglichesEnde = aktuellePosition + lattenLaenge;
-                
-                for (let j = relevanteSparren.length - 1; j >= 0; j--) {
-                    if (relevanteSparren[j] > aktuellePosition + 1.5 && relevanteSparren[j] <= möglichesEnde + 0.05) {
-                        const verschnitt = lattenLaenge - (relevanteSparren[j] - aktuellePosition);
-                        if (!besteOption || verschnitt < besteOption.verschnitt) {
-                            besteOption = {
-                                ende: relevanteSparren[j],
-                                laenge: lattenLaenge,
-                                verschnitt: verschnitt,
-                                istRest: false,
-                                restIndex: -1
-                            };
-                        }
-                        break;
-                    }
-                }
-            }
-            
-            // 3. Falls nichts gefunden: Notfall mit nächslet dachBreite = 10;
+let dachBreite = 10;
 let dachHoehe = 6;
 let dachTyp = 'rechteck';
 let obereBreite = 0;
@@ -640,7 +556,6 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
                 const segmentStartX = reihenStartX + segment.start * scaleX;
                 const segmentEndX = reihenStartX + segment.ende * scaleX;
                 
-                // Farbe: Nur Rest-Stücke aus dem Pool sind rot, neue Latten bekommen ihre normale Farbe
                 const segmentFarbe = segment.istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || '#27ae60');
                 
                 svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
@@ -649,7 +564,6 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
                     svg += `<line x1="${segmentEndX}" y1="${lattenY - 6}" x2="${segmentEndX}" y2="${lattenY + 6}" stroke="#1976d2" stroke-width="3"/>`;
                 }
                 
-                // R-Markierung nur bei Rest-Stücken
                 if (segment.istRest) {
                     const mitteX = segmentStartX + (segmentEndX - segmentStartX) / 2;
                     svg += `<text x="${mitteX}" y="${lattenY - 8}" text-anchor="middle" font-size="8" font-weight="bold" fill="#dc3545">R</text>`;
