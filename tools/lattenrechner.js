@@ -255,15 +255,17 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             
             let verwendeteLatte = null;
             let restIndex = -1;
+            let istRestStück = false;
             
             // 1. Prüfe ob ein Rest passt
             for (let i = 0; i < restPool.length; i++) {
                 if (restPool[i] >= benoetigteLattenlaenge - 0.01) {
                     verwendeteLatte = {
                         laenge: restPool[i],
-                        istRest: true
+                        originalLaenge: restPool[i]
                     };
                     restIndex = i;
+                    istRestStück = true;
                     break;
                 }
             }
@@ -274,7 +276,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                 if (passendeLatte) {
                     verwendeteLatte = {
                         laenge: passendeLatte,
-                        istRest: false
+                        originalLaenge: passendeLatte
                     };
                     
                     const existierend = materialListe.find(m => m.laenge === passendeLatte);
@@ -283,6 +285,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                     } else {
                         materialListe.push({ laenge: passendeLatte, anzahl: 1 });
                     }
+                    istRestStück = false;
                 } else {
                     break;
                 }
@@ -293,14 +296,14 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                 start: aktuellePosition,
                 ende: naechsterSparren,
                 laenge: benoetigteLattenlaenge,
-                originalLaenge: verwendeteLatte.laenge,
-                istRest: verwendeteLatte.istRest
+                originalLaenge: verwendeteLatte.originalLaenge,
+                istRest: istRestStück
             });
             
             // Rest-Verwaltung
             const neuerRest = verwendeteLatte.laenge - benoetigteLattenlaenge;
             
-            if (verwendeteLatte.istRest && restIndex >= 0) {
+            if (istRestStück && restIndex >= 0) {
                 restPool.splice(restIndex, 1);
             }
             
