@@ -508,7 +508,8 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
                 const segmentStartX = reihenStartX + segment.start * scaleX;
                 const segmentEndX = reihenStartX + segment.ende * scaleX;
                 
-                const segmentFarbe = segment.istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || restFarbe);
+                // Farbe: Nur Rest-Stücke aus dem Pool sind rot, neue Latten bekommen ihre normale Farbe
+                const segmentFarbe = segment.istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || '#27ae60');
                 
                 svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
                 
@@ -516,6 +517,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
                     svg += `<line x1="${segmentEndX}" y1="${lattenY - 6}" x2="${segmentEndX}" y2="${lattenY + 6}" stroke="#1976d2" stroke-width="3"/>`;
                 }
                 
+                // R-Markierung nur bei Rest-Stücken
                 if (segment.istRest) {
                     const mitteX = segmentStartX + (segmentEndX - segmentStartX) / 2;
                     svg += `<text x="${mitteX}" y="${lattenY - 8}" text-anchor="middle" font-size="8" font-weight="bold" fill="#dc3545">R</text>`;
