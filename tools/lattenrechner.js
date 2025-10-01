@@ -254,11 +254,11 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             let istRestStück = false;
             let lattenEnde = 0;
             
-            // 1. Prüfe Rest-Pool: Finde passenden Rest und nutze ihn maximal
+            // 1. ZUERST Rest-Pool prüfen
             for (let i = 0; i < restPool.length; i++) {
-                const möglichesEnde = aktuellePosition + restPool[i];
+                const restLaenge = restPool[i];
+                const möglichesEnde = aktuellePosition + restLaenge;
                 
-                // Suche den weitesten Sparren, den dieser Rest erreichen kann
                 let zielSparren = null;
                 for (let j = relevanteSparren.length - 1; j >= 0; j--) {
                     if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= möglichesEnde + 0.05) {
@@ -269,8 +269,8 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                 
                 if (zielSparren !== null) {
                     verwendeteLatte = {
-                        laenge: restPool[i],
-                        originalLaenge: restPool[i]
+                        laenge: restLaenge,
+                        benoetigteLattenlaenge: zielSparren - aktuellePosition
                     };
                     lattenEnde = zielSparren;
                     restIndex = i;
@@ -279,12 +279,11 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                 }
             }
             
-            // 2. Falls kein Rest passt: Neue Latte, die möglichst weit reicht
+            // 2. Falls kein Rest passt: Neue Latte
             if (!verwendeteLatte) {
                 for (let lattenLaenge of tatsaechlichVerfuegbar) {
                     const möglichesEnde = aktuellePosition + lattenLaenge;
                     
-                    // Suche den weitesten Sparren, den diese Latte erreichen kann
                     let zielSparren = null;
                     for (let j = relevanteSparren.length - 1; j >= 0; j--) {
                         if (relevanteSparren[j] > aktuellePosition + 1.5 && relevanteSparren[j] <= möglichesEnde + 0.05) {
@@ -296,9 +295,10 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                     if (zielSparren !== null) {
                         verwendeteLatte = {
                             laenge: lattenLaenge,
-                            originalLaenge: lattenLaenge
+                            benoetigteLattenlaenge: zielSparren - aktuellePosition
                         };
                         lattenEnde = zielSparren;
+                        istRestStück = false;
                         
                         const existierend = materialListe.find(m => m.laenge === lattenLaenge);
                         if (existierend) {
@@ -306,41 +306,81 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                         } else {
                             materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
                         }
-                        istRestStück = false;
                         break;
+                    }
+                }
+            }
+            
+            // 3. Notfall: Nächster Sparren mit kleinster Latte
+            if (!verwendeteLatte) {
+                const naechsterSparren = relevanteSparren.find(pos => pos > aktuellePosition + 0.5);
+                if (naechsterSparren) {
+                    const benoetigteLaenge = naechsterSparren - aktuellePosition;
+                    
+                    // Prüfe nochmal Rest-Pool für kurze Strecken
+                    for (let i = 0; i < restPool.length; i++) {
+                        if (restPool[i] >= benoetigteLaenge - 0.01) {
+                            verwendeteLatte = {
+                                laenge: restPool[i],
+                                benoetigteLattenlaenge: benoetigteLaenge
+                            };
+                            lattenEnde = naechsterSparren;
+                            restIndex = i;
+                            istRestStück = true;
+                            break;
+                        }
+                    }
+                    
+                    // Sonst neue Latte
+                    if (!verwendeteLatte) {
+                        const passendeLatte = tatsaechlichVerfuegbar.find(l => l >= benoetigteLaenge) || Math.max(...tatsaechlichVerfuegbar);
+                        verwendeteLatte = {
+                            laenge: passendeLatte,
+                            benoetigteLattenlaenge: benoetigteLaenge
+                        };
+                        lattenEnde = naechsterSparren;
+                        istRestStück = false;
+                        
+                        const existierend = materialListe.find(m => m.laenge === passendeLatte);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: passendeLatte, anzahl: 1 });
+                        }
                     }
                 }
             }
             
             if (!verwendeteLatte) break;
             
-            // Segment zur Reihe hinzufügen
+            // Segment hinzufügen
             reihenSegmente.push({
                 start: aktuellePosition,
                 ende: lattenEnde,
-                laenge: lattenEnde - aktuellePosition,
-                originalLaenge: verwendeteLatte.originalLaenge,
+                laenge: verwendeteLatte.benoetigteLattenlaenge,
+                originalLaenge: verwendeteLatte.laenge,
                 istRest: istRestStück
             });
             
-            // Rest-Verwaltung
-            const neuerRest = verwendeteLatte.laenge - (lattenEnde - aktuellePosition);
+            // Rest-Verwaltung: KRITISCH!
+            const verschnitt = verwendeteLatte.laenge - verwendeteLatte.benoetigteLattenlaenge;
             
+            // Entferne verwendeten Rest aus Pool
             if (istRestStück && restIndex >= 0) {
                 restPool.splice(restIndex, 1);
             }
             
-            if (neuerRest > 0.5) {
-                restPool.push(neuerRest);
+            // Füge NUR neuen Verschnitt hinzu
+            if (verschnitt > 0.5) {
+                restPool.push(verschnitt);
                 restPool.sort((a, b) => b - a);
-            } else if (neuerRest > 0.01) {
-                gesamtVerschnitt += neuerRest;
+            } else if (verschnitt > 0.01) {
+                gesamtVerschnitt += verschnitt;
             }
             
             aktuellePosition = lattenEnde;
         }
         
-        // Speichere die Segmente in der korrekten Reihen-Position
         window.lattenPlan[reihe] = reihenSegmente;
     }
     
