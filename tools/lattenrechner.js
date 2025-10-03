@@ -597,8 +597,16 @@ function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabs
             tbody.appendChild(row);
         });
     }
-
-    document.getElementById('results').style.display = 'block';
+ if (dachlatten && dachlatten.kombination) {
+        dachlatten.kombination.forEach(k => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="font-weight: bold;">Dachlatten</td>
+                <td>${k.laenge.toFixed(1)} m</td>
+                <td style="color: #333; font-weight: bold;">${k.anzahl}</td>
+                <td style="color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
+                
+                document.getElementById('results').style.display = 'block';
     generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand);
 
     setTimeout(() => {
