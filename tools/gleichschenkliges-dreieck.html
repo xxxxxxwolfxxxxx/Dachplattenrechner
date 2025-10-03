@@ -659,7 +659,7 @@ function loadAdSense() {
                 
                 <div class="parameter-switch">
                     <button id="btn-basis-hoehe" class="active" onclick="wechsleParameterModus('basis-hoehe')">
-                        📏 Basis + Höhe eingeben
+                        🔹 Basis + Höhe eingeben
                     </button>
                     <button id="btn-kantenlaenge" onclick="wechsleParameterModus('kantenlaenge')">
                         📐 Kantenlänge eingeben
@@ -775,8 +775,7 @@ function loadAdSense() {
                     <h4 style="color: #ffffff; font-size: 1.2em; margin-bottom: 15px;">Visuelle Vorschau</h4>
                     <div style="text-align: center; margin-bottom: 15px;">
                         <div id="vorschau-svg"></div>
-                    </div>
-                    <div id="vorschau-legende" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 13px; margin-bottom: 10px;">
+                    </div><div id="vorschau-legende" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 13px; margin-bottom: 10px;">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <div style="width: 16px; height: 12px; background: #1e3c72; opacity: 0.4; border-radius: 2px;"></div>
                             <span>Nutzen</span>
@@ -813,7 +812,10 @@ function loadAdSense() {
                     <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
                         <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (oben → unten)
                     </div>
-                    <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
+                        <button class="anriss-btn" onclick="erstelleLattenrechner()" style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);">🔨 Lattenrechner</button>
+                    </div>
                 </div>
             </div>
         </main>
@@ -1134,6 +1136,33 @@ function loadAdSense() {
             
             const encodedData = encodeURIComponent(JSON.stringify(planData));
             window.location.href = `anrissplan.html?type=gleichschenkliges-dreieck&data=${encodedData}`;
+        }
+
+        function erstelleLattenrechner() {
+            const basisBreite = parameterModus === 'basis-hoehe' ? 
+                parseFloat(document.getElementById('basis-breite').value) : 
+                parseFloat(document.getElementById('basis-breite-kante').value);
+            const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
+            
+            if (!basisBreite || !hoehe) {
+                alert('Bitte führen Sie zuerst eine Berechnung durch, bevor Sie den Lattenrechner aufrufen.');
+                return;
+            }
+            
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'lattenrechner_opened', {
+                    'event_category': 'gleichschenkliges_dreieck',
+                    'event_label': 'redirected_to_lattenrechner'
+                });
+            }
+            
+            const params = new URLSearchParams({
+                breite: basisBreite,
+                hoehe: hoehe,
+                typ: 'gleichschenkliges-dreieck'
+            });
+            
+            window.location.href = `lattenrechner.html?${params.toString()}`;
         }
 
         // Initialize everything
