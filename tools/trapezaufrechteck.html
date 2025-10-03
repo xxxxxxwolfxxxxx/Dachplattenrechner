@@ -338,11 +338,11 @@ function loadAdSense() {
         /* Mobile Optimierung */
 @media (max-width: 768px) {
     body {
-        background-attachment: scroll; /* Bessere Performance auf Mobile */
+        background-attachment: scroll;
     }
     
     .container {
-        padding: 15px 10px; /* Reduziert von 20px 15px */
+        padding: 15px 10px;
     }
     
     .nav-header .container {
@@ -350,36 +350,34 @@ function loadAdSense() {
     }
     
     .nav-title {
-        font-size: 1.2em; /* Reduziert von 1.4em */
+        font-size: 1.2em;
     }
     
     .section {
-        padding: 20px 15px; /* Reduziert von 25px */
-        margin-bottom: 20px; /* Reduziert von 25px */
+        padding: 20px 15px;
+        margin-bottom: 20px;
     }
     
     .section h2 {
-        font-size: 1.3em; /* Reduziert von 1.5em */
+        font-size: 1.3em;
     }
     
-    /* SVG Skizzen - deutlich kleiner auf Mobile */
     .section svg, 
     div[style*="svg"] svg {
         width: 100% !important;
-        max-width: 220px !important; /* Deutlich reduziert von 280px */
+        max-width: 220px !important;
         height: auto !important;
-        max-height: 120px !important; /* Deutlich reduziert von 180px */
+        max-height: 120px !important;
     }
     
-    /* Container für SVG-Skizzen */
     div[style*="text-align: center"] > div[style*="display: inline-block"] {
-        padding: 15px !important; /* Reduziert von 20px */
-        margin-bottom: 20px !important; /* Reduziert von 30px */
+        padding: 15px !important;
+        margin-bottom: 20px !important;
     }
     
     .input-row {
         flex-direction: column;
-        gap: 12px; /* Reduziert von 15px */
+        gap: 12px;
     }
     
     .input-group {
@@ -387,33 +385,33 @@ function loadAdSense() {
     }
     
     .input-group input {
-        font-size: 16px; /* Verhindert Zoom auf iOS */
-        padding: 10px 12px; /* Reduziert von 12px 15px */
+        font-size: 16px;
+        padding: 10px 12px;
     }
     
     .input-group label {
-        font-size: 14px; /* Etwas kleiner */
-        margin-bottom: 6px; /* Reduziert von 8px */
+        font-size: 14px;
+        margin-bottom: 6px;
     }
     
     .info-box {
-        padding: 12px; /* Reduziert von 15px */
-        font-size: 13px; /* Reduziert von 14px */
+        padding: 12px;
+        font-size: 13px;
     }
     
     .calculate-btn, .anriss-btn {
-        padding: 12px 25px; /* Reduziert von 15px 30px */
-        font-size: 15px; /* Reduziert von 16px */
-        min-width: 180px; /* Reduziert von 200px */
+        padding: 12px 25px;
+        font-size: 15px;
+        min-width: 180px;
     }
     
     .results {
-        padding: 20px 15px; /* Reduziert von 25px */
+        padding: 20px 15px;
     }
     
     .result-item {
-        padding: 10px 0; /* Reduziert von 12px */
-        font-size: 14px; /* Kleiner */
+        padding: 10px 0;
+        font-size: 14px;
         flex-direction: column;
         text-align: left;
         gap: 2px;
@@ -433,20 +431,20 @@ function loadAdSense() {
     
     .schnitt-table th,
     .schnitt-table td {
-        padding: 8px 6px; /* Deutlich reduziert von 12px */
-        font-size: 12px; /* Kleiner */
+        padding: 8px 6px;
+        font-size: 12px;
     }
     
     #vorschau-svg svg {
         max-width: 100% !important;
         height: auto !important;
-        max-height: 200px !important; /* Deutlich reduziert */
+        max-height: 200px !important;
     }
     
     #vorschau-legende {
         flex-direction: column;
         gap: 8px !important;
-        font-size: 11px !important; /* Reduziert von 13px */
+        font-size: 11px !important;
         align-items: center;
     }
     
@@ -465,7 +463,7 @@ function loadAdSense() {
 /* Hochkant-spezifische Optimierungen */
 @media (max-width: 480px) and (orientation: portrait) {
     .container {
-        padding: 12px 8px; /* Noch kleiner für sehr kleine Displays */
+        padding: 12px 8px;
     }
     
     .section {
@@ -474,7 +472,7 @@ function loadAdSense() {
     }
     
     .section h2 {
-        font-size: 1.2em; /* Noch kleiner */
+        font-size: 1.2em;
         margin-bottom: 15px;
     }
     
@@ -507,40 +505,40 @@ function loadAdSense() {
 /* Querformat - 5% kleiner für bessere Darstellung */
 @media (max-width: 768px) and (orientation: landscape) {
     .container {
-        padding: 18px 14px; /* 5% kleiner als mobile Standard */
+        padding: 18px 14px;
     }
     
     .section {
-        padding: 19px 14px; /* 5% kleiner */
+        padding: 19px 14px;
         margin-bottom: 19px;
     }
     
     .section h2 {
-        font-size: 1.25em; /* 5% kleiner */
+        font-size: 1.25em;
     }
     
     .section svg, 
     div[style*="svg"] svg {
-        max-width: 210px !important; /* 5% kleiner */
+        max-width: 210px !important;
         max-height: 115px !important;
     }
     
     .nav-title {
-        font-size: 1.15em; /* 5% kleiner */
+        font-size: 1.15em;
     }
     
     .calculate-btn, .anriss-btn {
-        padding: 11px 24px; /* 5% kleiner */
+        padding: 11px 24px;
         font-size: 14px;
         min-width: 170px;
     }
     
     .results {
-        padding: 19px 14px; /* 5% kleiner */
+        padding: 19px 14px;
     }
     
     #vorschau-svg svg {
-        max-height: 190px !important; /* 5% kleiner */
+        max-height: 190px !important;
     }
 }
             
@@ -763,7 +761,10 @@ function loadAdSense() {
                     <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
                         <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal über beide Bereiche (Trapez + Rechteck)
                     </div>
-                    <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
+                        <button class="anriss-btn" onclick="erstelleLattenrechner()" style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);">🔨 Lattenrechner</button>
+                    </div>
                 </div>
             </div>
         </main>
@@ -1097,6 +1098,35 @@ function loadAdSense() {
             
             const encodedData = encodeURIComponent(JSON.stringify(planData));
             window.location.href = `anrissplan.html?type=trapez-auf-rechteck&data=${encodedData}`;
+        }
+
+        function erstelleLattenrechner() {
+            const untereBreite = parseFloat(document.getElementById('untere-breite').value);
+            const trapezHoehe = parseFloat(document.getElementById('trapez-hoehe').value);
+            const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
+            const gesamtHoehe = trapezHoehe + rechteckHoehe;
+            
+            if (!untereBreite || !trapezHoehe || !rechteckHoehe) {
+                alert('Bitte führen Sie zuerst eine Berechnung durch, bevor Sie den Lattenrechner aufrufen.');
+                return;
+            }
+            
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'lattenrechner_opened', {
+                    'event_category': 'trapez_auf_rechteck',
+                    'event_label': 'redirected_to_lattenrechner'
+                });
+            }
+            
+            const params = new URLSearchParams({
+                breite: untereBreite,
+                hoehe: gesamtHoehe,
+                typ: 'trapez-auf-rechteck',
+                trapezHoehe: trapezHoehe,
+                rechteckHoehe: rechteckHoehe
+            });
+            
+            window.location.href = `lattenrechner.html?${params.toString()}`;
         }
 
         // Initialize everything
