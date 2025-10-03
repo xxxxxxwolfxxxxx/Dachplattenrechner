@@ -522,7 +522,8 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
 function berechneReihenBreite(fortschritt) {
     switch(dachTyp) {
         case 'trapez':
-            return obereBreite + (dachBreite - obereBreite) * fortschritt;
+            // Bei Trapez: unten breit (dachBreite), oben schmal (obereBreite)
+            return dachBreite - (dachBreite - obereBreite) * fortschritt;
         
         case 'trapez-auf-rechteck':
             const urlParams = new URLSearchParams(window.location.search);
@@ -535,17 +536,17 @@ function berechneReihenBreite(fortschritt) {
             const aktuelleHoehe = fortschritt * gesamtHoehe;
             
             if (aktuelleHoehe <= rechteckHoehe) {
-                // Im Rechteck-Bereich: konstante Breite
+                // Im Rechteck-Bereich (unten): konstante volle Breite
                 return dachBreite;
             } else {
-                // Im Trapez-Bereich: linear von dachBreite zu obereBreite
+                // Im Trapez-Bereich (oben): linear von dachBreite zu obereBreite
                 const trapezFortschritt = (aktuelleHoehe - rechteckHoehe) / trapezHoehe;
                 return dachBreite - (dachBreite - obereBreite) * trapezFortschritt;
             }
         
         case 'gleichschenkliges-dreieck':
         case 'ungleichschenkliges-dreieck':
-            // Bei Dreiecken: linear von dachBreite (unten) zu 0 (oben)
+            // Bei Dreiecken: unten breit (dachBreite), oben Spitze (0)
             return dachBreite * (1 - fortschritt);
         
         default:
@@ -607,7 +608,7 @@ function optimiereKonterlatten(benoetigteLaenge, verfuegbareLaengen) {
 function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabstand, anzahlSparren) {
     document.getElementById('konterlatte-gesamtlaenge').textContent = konterlatten.gesamtLaenge.toFixed(1) + ' m';
     document.getElementById('konterlatte-anzahl').textContent = konterlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
-    document.getElementById('konterlatte-verschnitt').textContent = konterlatten.verschnitt.toFixed(1) + ' m';
+    document.getElementById('konterlatte-verschnitt').textContent = konterlatten.verschnitt.toFixed(1)+ ' m';
 
     document.getElementById('dachlatte-gesamtlaenge').textContent = dachlatten.gesamtLaenge.toFixed(1) + ' m';
     document.getElementById('dachlatte-anzahl').textContent = dachlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
@@ -811,12 +812,13 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<line x1="${rechteObenX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     }
     
-    // Dachlatten zeichnen
+    // Dachlatten zeichnen - KORRIGIERT: Index wird invertiert
     const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
     const restFarbe = '#e74c3c';
     
     for (let i = 0; i < anzahlLattenReihen; i++) {
-        const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
+        // WICHTIG: fortschritt wird invertiert, damit die Darstellung mit der Berechnung übereinstimmt
+        const fortschritt = (anzahlLattenReihen - 1 - i) / Math.max(1, anzahlLattenReihen - 1);
         const reihenBreite = berechneReihenBreite(fortschritt);
         const lattenY = dachStartY + fortschritt * dachHoehe * scaleY;
         
