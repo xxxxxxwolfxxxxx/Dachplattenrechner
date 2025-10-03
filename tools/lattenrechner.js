@@ -318,7 +318,8 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     
     // PHASE 1: Grobe Abdeckung mit optimalen Kombinationen
     for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
-        const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
+        // KORREKTUR: fortschritt muss invertiert werden, weil die Schleife rückwärts läuft
+        const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
         let reihenBreite = berechneReihenBreite(fortschritt);
         
         gesamtBenoetigteLaenge += reihenBreite;
@@ -608,7 +609,7 @@ function optimiereKonterlatten(benoetigteLaenge, verfuegbareLaengen) {
 function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabstand, anzahlSparren) {
     document.getElementById('konterlatte-gesamtlaenge').textContent = konterlatten.gesamtLaenge.toFixed(1) + ' m';
     document.getElementById('konterlatte-anzahl').textContent = konterlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
-    document.getElementById('konterlatte-verschnitt').textContent = konterlatten.verschnitt.toFixed(1)+ ' m';
+    document.getElementById('konterlatte-verschnitt').textContent = konterlatten.verschnitt.toFixed(1) + ' m';
 
     document.getElementById('dachlatte-gesamtlaenge').textContent = dachlatten.gesamtLaenge.toFixed(1) + ' m';
     document.getElementById('dachlatte-anzahl').textContent = dachlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
@@ -812,7 +813,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<line x1="${rechteObenX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     }
     
-    // Dachlatten zeichnen - KORRIGIERT
+    // Dachlatten zeichnen
     const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
     const restFarbe = '#e74c3c';
     
@@ -824,7 +825,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
         const reihenStartX = margin + reihenStartAbsolut * scaleX;
         
-        // WICHTIG: lattenPlan-Index ist umgekehrt zur Visualisierung
+        // lattenPlan-Index ist umgekehrt zur Visualisierung
         const lattenPlanIndex = anzahlLattenReihen - 1 - i;
         
         if (window.lattenPlan && window.lattenPlan[lattenPlanIndex]) {
