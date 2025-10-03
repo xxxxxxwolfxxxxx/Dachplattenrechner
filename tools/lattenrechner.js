@@ -318,8 +318,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     
     // PHASE 1: Grobe Abdeckung mit optimalen Kombinationen
     for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
-        // KORREKTUR: fortschritt muss invertiert werden, weil die Schleife rückwärts läuft
-        const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
+        const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
         let reihenBreite = berechneReihenBreite(fortschritt);
         
         gesamtBenoetigteLaenge += reihenBreite;
@@ -541,7 +540,8 @@ function berechneReihenBreite(fortschritt) {
                 return dachBreite;
             } else {
                 // Im Trapez-Bereich (oben): linear von dachBreite zu obereBreite
-                const trapezFortschritt = (aktuelleHoehe - rechteckHoehe) / trapezHoehe;
+                const hoehImTrapez = aktuelleHoehe - rechteckHoehe;
+                const trapezFortschritt = hoehImTrapez / trapezHoehe;
                 return dachBreite - (dachBreite - obereBreite) * trapezFortschritt;
             }
         
@@ -609,7 +609,7 @@ function optimiereKonterlatten(benoetigteLaenge, verfuegbareLaengen) {
 function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabstand, anzahlSparren) {
     document.getElementById('konterlatte-gesamtlaenge').textContent = konterlatten.gesamtLaenge.toFixed(1) + ' m';
     document.getElementById('konterlatte-anzahl').textContent = konterlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
-    document.getElementById('konterlatte-verschnitt').textContent = konterlatten.verschnitt.toFixed(1) + ' m';
+    document.getElementById('konterlatte-verschnitt').textContent= konterlatten.verschnitt.toFixed(1) + ' m';
 
     document.getElementById('dachlatte-gesamtlaenge').textContent = dachlatten.gesamtLaenge.toFixed(1) + ' m';
     document.getElementById('dachlatte-anzahl').textContent = dachlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
