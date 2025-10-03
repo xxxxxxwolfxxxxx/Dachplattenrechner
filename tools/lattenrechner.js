@@ -537,14 +537,19 @@ function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabs
 
 function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     const svgWidth = 500;
-    const svgHeight = 350;
-    const margin = 50;
+    const svgHeight = 400;
+    const margin = 60;
     
     const scaleX = (svgWidth - 2 * margin) / dachBreite;
-    const scaleY = (svgHeight - 2 * margin - 40) / dachHoehe;
+    const scaleY = (svgHeight - 2 * margin - 80) / dachHoehe;
     
     let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
     svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
+    
+    // Logo/Titel
+    svg += `<text x="${svgWidth/2}" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3c72">Dachplattenrechner.de</text>`;
+    
+    const dachStartY = margin + 40;
     
     if (dachTyp === 'trapez') {
         const seitenAbstand = (dachBreite - obereBreite) / 2;
@@ -552,22 +557,54 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         const trapezObenRechts = margin + (obereBreite + seitenAbstand) * scaleX;
         const trapezUntenLinks = margin;
         const trapezUntenRechts = margin + dachBreite * scaleX;
-        const trapezUntenY = margin + dachHoehe * scaleY;
+        const trapezUntenY = dachStartY + dachHoehe * scaleY;
         
-        svg += `<polygon points="${trapezObenLinks},${margin} ${trapezObenRechts},${margin} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        svg += `<polygon points="${trapezObenLinks},${dachStartY} ${trapezObenRechts},${dachStartY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        
+        // Obere Breite
+        svg += `<line x1="${trapezObenLinks}" y1="${dachStartY - 15}" x2="${trapezObenRechts}" y2="${dachStartY - 15}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${trapezObenLinks}" y1="${dachStartY - 18}" x2="${trapezObenLinks}" y2="${dachStartY - 12}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${trapezObenRechts}" y1="${dachStartY - 18}" x2="${trapezObenRechts}" y2="${dachStartY - 12}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<text x="${(trapezObenLinks + trapezObenRechts)/2}" y="${dachStartY - 20}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${obereBreite.toFixed(1)}m</text>`;
+        
+        // Linke Schräge
+        const linkeSchraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + seitenAbstand * seitenAbstand);
+        const linkeMitteX = (trapezObenLinks + trapezUntenLinks) / 2 - 25;
+        const linkeMitteY = (dachStartY + trapezUntenY) / 2;
+        const linkerWinkel = -Math.atan2(dachHoehe, seitenAbstand) * 180 / Math.PI;
+        svg += `<text x="${linkeMitteX}" y="${linkeMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${linkerWinkel}, ${linkeMitteX}, ${linkeMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
+        
+        // Rechte Schräge
+        const rechteMitteX = (trapezObenRechts + trapezUntenRechts) / 2 + 25;
+        const rechteMitteY = (dachStartY + trapezUntenY) / 2;
+        const rechterWinkel = Math.atan2(dachHoehe, seitenAbstand) * 180 / Math.PI;
+        svg += `<text x="${rechteMitteX}" y="${rechteMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${rechterWinkel}, ${rechteMitteX}, ${rechteMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
+        
+        // Höhe
+        svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${trapezUntenY}" x2="${margin - 17}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<text x="${margin - 30}" y="${(dachStartY + trapezUntenY)/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${(dachStartY + trapezUntenY)/2})">${dachHoehe.toFixed(1)}m</text>`;
+        
     } else {
-        svg += `<rect x="${margin}" y="${margin}" width="${dachBreite * scaleX}" height="${dachHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        svg += `<rect x="${margin}" y="${dachStartY}" width="${dachBreite * scaleX}" height="${dachHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        
+        // Höhe
+        svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${dachStartY + dachHoehe * scaleY}" x2="${margin - 17}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<text x="${margin - 30}" y="${dachStartY + dachHoehe * scaleY / 2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${dachStartY + dachHoehe * scaleY / 2})">${dachHoehe.toFixed(1)}m</text>`;
     }
     
     for (let i = 0; i < anzahlSparren && i < sparrenPositionen.length; i++) {
         const sparrenX = margin + sparrenPositionen[i] * scaleX;
-        let sparrenY = margin;
+        let sparrenY = dachStartY;
         let sparrenHeight = dachHoehe * scaleY;
         
         if (sparrenLaengen[i] !== undefined) {
             sparrenHeight = sparrenLaengen[i] * scaleY;
             if (dachTyp === 'trapez') {
-                sparrenY = margin + (dachHoehe - sparrenLaengen[i]) * scaleY;
+                sparrenY = dachStartY + (dachHoehe - sparrenLaengen[i]) * scaleY;
             }
         }
         
@@ -579,10 +616,10 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         const seitenAbstand = (dachBreite - obereBreite) / 2;
         const linkeObenX = margin + seitenAbstand * scaleX;
         const rechteObenX = margin + (dachBreite - seitenAbstand) * scaleX;
-        const untenY = margin + dachHoehe * scaleY;
+        const untenY = dachStartY + dachHoehe * scaleY;
         
-        svg += `<line x1="${linkeObenX}" y1="${margin}" x2="${margin}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
-        svg += `<line x1="${rechteObenX}" y1="${margin}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+        svg += `<line x1="${linkeObenX}" y1="${dachStartY}" x2="${margin}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+        svg += `<line x1="${rechteObenX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     }
     
     const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
@@ -591,7 +628,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     for (let i = 0; i < anzahlLattenReihen; i++) {
         const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
         const reihenBreite = berechneReihenBreite(fortschritt);
-        const lattenY = margin + fortschritt * dachHoehe * scaleY;
+        const lattenY = dachStartY + fortschritt * dachHoehe * scaleY;
         
         const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
         const reihenStartX = margin + reihenStartAbsolut * scaleX;
@@ -620,8 +657,12 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         }
     }
     
-    svg += `<line x1="${margin}" y1="${margin + dachHoehe * scaleY + 35}" x2="${margin + dachBreite * scaleX}" y2="${margin + dachHoehe * scaleY + 35}" stroke="#333" stroke-width="1"/>`;
-    svg += `<text x="${margin + dachBreite * scaleX/2}" y="${margin + dachHoehe * scaleY + 50}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
+    // Untere Breite
+    const breiteY = dachStartY + dachHoehe * scaleY + 40;
+    svg += `<line x1="${margin}" y1="${breiteY}" x2="${margin + dachBreite * scaleX}" y2="${breiteY}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<line x1="${margin}" y1="${breiteY - 3}" x2="${margin}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<line x1="${margin + dachBreite * scaleX}" y1="${breiteY - 3}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<text x="${margin + dachBreite * scaleX/2}" y="${breiteY + 15}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
     
     svg += `</svg>`;
     
