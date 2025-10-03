@@ -812,21 +812,23 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<line x1="${rechteObenX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     }
     
-    // Dachlatten zeichnen - KORRIGIERT: Index wird invertiert
+    // Dachlatten zeichnen - KORRIGIERT
     const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
     const restFarbe = '#e74c3c';
     
     for (let i = 0; i < anzahlLattenReihen; i++) {
-        // WICHTIG: fortschritt wird invertiert, damit die Darstellung mit der Berechnung übereinstimmt
-        const fortschritt = (anzahlLattenReihen - 1 - i) / Math.max(1, anzahlLattenReihen - 1);
+        const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
         const reihenBreite = berechneReihenBreite(fortschritt);
         const lattenY = dachStartY + fortschritt * dachHoehe * scaleY;
         
         const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
         const reihenStartX = margin + reihenStartAbsolut * scaleX;
         
-        if (window.lattenPlan && window.lattenPlan[i]) {
-            const segmente = window.lattenPlan[i];
+        // WICHTIG: lattenPlan-Index ist umgekehrt zur Visualisierung
+        const lattenPlanIndex = anzahlLattenReihen - 1 - i;
+        
+        if (window.lattenPlan && window.lattenPlan[lattenPlanIndex]) {
+            const segmente = window.lattenPlan[lattenPlanIndex];
             
             for (let j = 0; j < segmente.length; j++) {
                 const segment = segmente[j];
