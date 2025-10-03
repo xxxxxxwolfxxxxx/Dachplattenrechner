@@ -91,6 +91,25 @@ function generiereSimpleDachSVG() {
                 <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Trapez</text>
             </svg>`;
             break;
+        case 'trapez-auf-rechteck':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <rect x="20" y="60" width="160" height="40" fill="#e8f4fd" stroke="#1976d2" stroke-width="2"/>
+                <polygon points="60,20 140,20 180,60 20,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="65" text-anchor="middle" font-size="11" fill="#333">Trapez+Rechteck</text>
+            </svg>`;
+            break;
+        case 'gleichschenkliges-dreieck':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <polygon points="100,20 20,100 180,100" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="75" text-anchor="middle" font-size="11" fill="#333">Gleichschenkliges Dreieck</text>
+            </svg>`;
+            break;
+        case 'ungleichschenkliges-dreieck':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <polygon points="80,20 20,100 180,100" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="75" text-anchor="middle" font-size="10" fill="#333">Ungleichschenkliges Dreieck</text>
+            </svg>`;
+            break;
         default:
             svg = `<svg width="200" height="120" viewBox="0 0 200 120">
                 <rect x="20" y="60" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
@@ -194,6 +213,77 @@ function berechneSpitzdachSparren(anzahlSparren) {
                 sparrenLaengen.push(Math.max(0, sparrenLaenge));
             }
             break;
+        
+        case 'trapez-auf-rechteck':
+            const urlParams = new URLSearchParams(window.location.search);
+            const trapezHoehe = parseFloat(urlParams.get('trapezHoehe')) || 0;
+            const rechteckHoehe = parseFloat(urlParams.get('rechteckHoehe')) || 0;
+            const gesamtHoehe = trapezHoehe + rechteckHoehe;
+            const seitenAbstandTA = (dachBreite - obereBreite) / 2;
+            const linkeObereEckeTA = seitenAbstandTA;
+            const rechteObereEckeTA = dachBreite - seitenAbstandTA;
+            
+            for (let i = 0; i < anzahlSparren; i++) {
+                const xPosition = sparrenPositionen[i];
+                let sparrenLaenge = gesamtHoehe;
+                
+                // Wenn Sparren außerhalb des mittleren Rechteckbereichs (im Trapez)
+                if (xPosition < linkeObereEckeTA) {
+                    // Links: von rechteckHoehe bis gesamtHoehe
+                    const anteil = xPosition / linkeObereEckeTA;
+                    sparrenLaenge = rechteckHoehe + (trapezHoehe * anteil);
+                } else if (xPosition > rechteObereEckeTA) {
+                    // Rechts: von rechteckHoehe bis gesamtHoehe
+                    const anteil = (dachBreite - xPosition) / seitenAbstandTA;
+                    sparrenLaenge = rechteckHoehe + (trapezHoehe * anteil);
+                }
+                
+                sparrenLaengen.push(Math.max(0, sparrenLaenge));
+            }
+            break;
+        
+        case 'gleichschenkliges-dreieck':
+            const spitzenPosGleich = dachBreite / 2;
+            
+            for (let i = 0; i < anzahlSparren; i++) {
+                const xPosition = sparrenPositionen[i];
+                const abstandVonSpitze = Math.abs(xPosition - spitzenPosGleich);
+                const maxAbstand = dachBreite / 2;
+                
+                const sparrenLaenge = dachHoehe * (1 - abstandVonSpitze / maxAbstand);
+                sparrenLaengen.push(Math.max(0, sparrenLaenge));
+            }
+            break;
+        
+        case 'ungleichschenkliges-dreieck':
+            // Bei ungleichschenkligen Dreiecken brauchen wir die Spitzenposition
+            const urlParamsUngleich = new URLSearchParams(window.location.search);
+            const spitzenPosition = parseFloat(urlParamsUngleich.get('spitzenPosition')) || dachBreite / 2;
+            
+            for (let i = 0; i < anzahlSparren; i++) {
+                const xPosition = sparrenPositionen[i];
+                let sparrenLaenge;
+                
+                if (xPosition <= spitzenPosition) {
+                    // Linke Seite
+                    if (spitzenPosition === 0) {
+                        sparrenLaenge = 0;
+                    } else {
+                        sparrenLaenge = dachHoehe * (xPosition / spitzenPosition);
+                    }
+                } else {
+                    // Rechte Seite
+                    const rechteSeite = dachBreite - spitzenPosition;
+                    if (rechteSeite === 0) {
+                        sparrenLaenge = 0;
+                    } else {
+                        sparrenLaenge = dachHoehe * ((dachBreite - xPosition) / rechteSeite);
+                    }
+                }
+                
+                sparrenLaengen.push(Math.max(0, sparrenLaenge));
+            }
+            break;
             
         default:
             for (let i = 0; i < anzahlSparren; i++) {
@@ -224,7 +314,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     let gesamtBenoetigteLaenge = 0;
     
     window.lattenPlan = [];
-    const luecken = []; // Sammelt alle Lücken aus Phase 1
+    const luecken = [];
     
     // PHASE 1: Grobe Abdeckung mit optimalen Kombinationen
     for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
@@ -433,6 +523,31 @@ function berechneReihenBreite(fortschritt) {
     switch(dachTyp) {
         case 'trapez':
             return obereBreite + (dachBreite - obereBreite) * fortschritt;
+        
+        case 'trapez-auf-rechteck':
+            const urlParams = new URLSearchParams(window.location.search);
+            const trapezHoehe = parseFloat(urlParams.get('trapezHoehe')) || 0;
+            const rechteckHoehe = parseFloat(urlParams.get('rechteckHoehe')) || 0;
+            const gesamtHoehe = trapezHoehe + rechteckHoehe;
+            
+            if (gesamtHoehe === 0) return dachBreite;
+            
+            const aktuelleHoehe = fortschritt * gesamtHoehe;
+            
+            if (aktuelleHoehe <= rechteckHoehe) {
+                // Im Rechteck-Bereich: konstante Breite
+                return dachBreite;
+            } else {
+                // Im Trapez-Bereich: linear von dachBreite zu obereBreite
+                const trapezFortschritt = (aktuelleHoehe - rechteckHoehe) / trapezHoehe;
+                return dachBreite - (dachBreite - obereBreite) * trapezFortschritt;
+            }
+        
+        case 'gleichschenkliges-dreieck':
+        case 'ungleichschenkliges-dreieck':
+            // Bei Dreiecken: linear von dachBreite (unten) zu 0 (oben)
+            return dachBreite * (1 - fortschritt);
+        
         default:
             return dachBreite;
     }
@@ -494,7 +609,7 @@ function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabs
     document.getElementById('konterlatte-anzahl').textContent = konterlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
     document.getElementById('konterlatte-verschnitt').textContent = konterlatten.verschnitt.toFixed(1) + ' m';
 
-    document.getElementById('dachlatte-gesamtlaenge').textContent = dachlatten.gesamtLaenge.toFixed(1) + ' m';
+    document.getElementById('dachlatte-gesamtlaenge').textContent = dachlatten.gesamtLa.toFixed(1) + ' m';
     document.getElementById('dachlatte-anzahl').textContent = dachlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
     document.getElementById('dachlatte-verschnitt').textContent = dachlatten.verschnitt.toFixed(1) + ' m';
 
@@ -551,51 +666,114 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     
     const dachStartY = margin + 40;
     
-    if (dachTyp === 'trapez') {
-        const seitenAbstand = (dachBreite - obereBreite) / 2;
-        const trapezObenLinks = margin + seitenAbstand * scaleX;
-        const trapezObenRechts = margin + (obereBreite + seitenAbstand) * scaleX;
-        const trapezUntenLinks = margin;
-        const trapezUntenRechts = margin + dachBreite * scaleX;
-        const trapezUntenY = dachStartY + dachHoehe * scaleY;
+    // Dach-Umriss je nach Typ
+    switch(dachTyp) {
+        case 'trapez':
+            const seitenAbstand = (dachBreite - obereBreite) / 2;
+            const trapezObenLinks = margin + seitenAbstand * scaleX;
+            const trapezObenRechts = margin + (obereBreite + seitenAbstand) * scaleX;
+            const trapezUntenLinks = margin;
+            const trapezUntenRechts = margin + dachBreite * scaleX;
+            const trapezUntenY = dachStartY + dachHoehe * scaleY;
+            
+            svg += `<polygon points="${trapezObenLinks},${dachStartY} ${trapezObenRechts},${dachStartY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Obere Breite
+            svg += `<line x1="${trapezObenLinks}" y1="${dachStartY - 15}" x2="${trapezObenRechts}" y2="${dachStartY - 15}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<line x1="${trapezObenLinks}" y1="${dachStartY - 18}" x2="${trapezObenLinks}" y2="${dachStartY - 12}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<line x1="${trapezObenRechts}" y1="${dachStartY - 18}" x2="${trapezObenRechts}" y2="${dachStartY - 12}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<text x="${(trapezObenLinks + trapezObenRechts)/2}" y="${dachStartY - 20}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${obereBreite.toFixed(1)}m</text>`;
+            
+            // Linke Schräge
+            const linkeSchraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + seitenAbstand * seitenAbstand);
+            const linkeMitteX = (trapezObenLinks + trapezUntenLinks) / 2 - 25;
+            const linkeMitteY = (dachStartY + trapezUntenY) / 2;
+            const linkerWinkel = -Math.atan2(dachHoehe, seitenAbstand) * 180 / Math.PI;
+            svg += `<text x="${linkeMitteX}" y="${linkeMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${linkerWinkel}, ${linkeMitteX}, ${linkeMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
+            
+            // Rechte Schräge
+            const rechteMitteX = (trapezObenRechts + trapezUntenRechts) / 2 + 25;
+            const rechteMitteY = (dachStartY + trapezUntenY) / 2;
+            const rechterWinkel = Math.atan2(dachHoehe, seitenAbstand) * 180 / Math.PI;
+            svg += `<text x="${rechteMitteX}" y="${rechteMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${rechterWinkel}, ${rechteMitteX}, ${rechteMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
+            
+            // Höhe
+            svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<line x1="${margin - 23}" y1="${trapezUntenY}" x2="${margin - 17}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<text x="${margin - 30}" y="${(dachStartY + trapezUntenY)/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${(dachStartY + trapezUntenY)/2})">${dachHoehe.toFixed(1)}m</text>`;
+            break;
         
-        svg += `<polygon points="${trapezObenLinks},${dachStartY} ${trapezObenRechts},${dachStartY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        case 'trapez-auf-rechteck':
+            const urlParams = new URLSearchParams(window.location.search);
+            const trapezHoehe = parseFloat(urlParams.get('trapezHoehe')) || 0;
+            const rechteckHoehe = parseFloat(urlParams.get('rechteckHoehe')) || 0;
+            const gesamtHoehe = trapezHoehe + rechteckHoehe;
+            
+            const rechteckY = dachStartY + trapezHoehe * scaleY;
+            const rechteckHeight = rechteckHoehe * scaleY;
+            
+            // Rechteck
+            svg += `<rect x="${margin}" y="${rechteckY}" width="${dachBreite * scaleX}" height="${rechteckHeight}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Trapez
+            const seitenAbstandTA = (dachBreite - obereBreite) / 2;
+            const trapezObenLinksTA = margin + seitenAbstandTA * scaleX;
+            const trapezObenRechtsTA = margin + (dachBreite - seitenAbstandTA) * scaleX;
+            
+            svg += `<polygon points="${trapezObenLinksTA},${dachStartY} ${trapezObenRechtsTA},${dachStartY} ${margin + dachBreite * scaleX},${rechteckY} ${margin},${rechteckY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Übergang
+            svg += `<line x1="${margin}" y1="${rechteckY}" x2="${margin + dachBreite * scaleX}" y2="${rechteckY}" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,5"/>`;
+            
+            // Höhe
+            svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${dachStartY + gesamtHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<line x1="${margin - 23}" y1="${dachStartY + gesamtHoehe * scaleY}" x2="${margin - 17}" y2="${dachStartY + gesamtHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<text x="${margin - 30}" y="${dachStartY + gesamtHoehe * scaleY / 2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${dachStartY + gesamtHoehe * scaleY / 2})">${gesamtHoehe.toFixed(1)}m</text>`;
+            break;
         
-        // Obere Breite
-        svg += `<line x1="${trapezObenLinks}" y1="${dachStartY - 15}" x2="${trapezObenRechts}" y2="${dachStartY - 15}" stroke="#333" stroke-width="1.5"/>`;
-        svg += `<line x1="${trapezObenLinks}" y1="${dachStartY - 18}" x2="${trapezObenLinks}" y2="${dachStartY - 12}" stroke="#333" stroke-width="1.5"/>`;
-        svg += `<line x1="${trapezObenRechts}" y1="${dachStartY - 18}" x2="${trapezObenRechts}" y2="${dachStartY - 12}" stroke="#333" stroke-width="1.5"/>`;
-        svg += `<text x="${(trapezObenLinks + trapezObenRechts)/2}" y="${dachStartY - 20}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${obereBreite.toFixed(1)}m</text>`;
+        case 'gleichschenkliges-dreieck':
+        case 'ungleichschenkliges-dreieck':
+            const urlParamsDreieck = new URLSearchParams(window.location.search);
+            let spitzenPosition = dachBreite / 2;
+            
+            if (dachTyp === 'ungleichschenkliges-dreieck') {
+                spitzenPosition = parseFloat(urlParamsDreieck.get('spitzenPosition')) || dachBreite / 2;
+            }
+            
+            const dreieckSpitzeX = margin + spitzenPosition * scaleX;
+            const dreieckSpitzeY = dachStartY;
+            const dreieckLinksX = margin;
+            const dreieckLinksY = dachStartY + dachHoehe * scaleY;
+            const dreieckRechtsX = margin + dachBreite * scaleX;
+            const dreieckRechtsY = dachStartY + dachHoehe * scaleY;
+            
+            svg += `<polygon points="${dreieckSpitzeX},${dreieckSpitzeY} ${dreieckLinksX},${dreieckLinksY} ${dreieckRechtsX},${dreieckRechtsY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Spitze markieren
+            svg += `<circle cx="${dreieckSpitzeX}" cy="${dreieckSpitzeY}" r="3" fill="#ffc107"/>`;
+            svg += `<text x="${dreieckSpitzeX}" y="${dreieckSpitzeY - 8}" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffc107">SPITZE</text>`;
+            
+            // Höhe
+            svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<line x1="${margin - 23}" y1="${dachStartY + dachHoehe * scaleY}" x2="${margin - 17}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<text x="${margin - 30}" y="${dachStartY + dachHoehe * scaleY / 2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${dachStartY + dachHoehe * scaleY / 2})">${dachHoehe.toFixed(1)}m</text>`;
+            break;
         
-        // Linke Schräge
-        const linkeSchraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + seitenAbstand * seitenAbstand);
-        const linkeMitteX = (trapezObenLinks + trapezUntenLinks) / 2 - 25;
-        const linkeMitteY = (dachStartY + trapezUntenY) / 2;
-        const linkerWinkel = -Math.atan2(dachHoehe, seitenAbstand) * 180 / Math.PI;
-        svg += `<text x="${linkeMitteX}" y="${linkeMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${linkerWinkel}, ${linkeMitteX}, ${linkeMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
-        
-        // Rechte Schräge
-        const rechteMitteX = (trapezObenRechts + trapezUntenRechts) / 2 + 25;
-        const rechteMitteY = (dachStartY + trapezUntenY) / 2;
-        const rechterWinkel = Math.atan2(dachHoehe, seitenAbstand) * 180 / Math.PI;
-        svg += `<text x="${rechteMitteX}" y="${rechteMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${rechterWinkel}, ${rechteMitteX}, ${rechteMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
-        
-        // Höhe
-        svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
-        svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
-        svg += `<line x1="${margin - 23}" y1="${trapezUntenY}" x2="${margin - 17}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
-        svg += `<text x="${margin - 30}" y="${(dachStartY + trapezUntenY)/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${(dachStartY + trapezUntenY)/2})">${dachHoehe.toFixed(1)}m</text>`;
-        
-    } else {
-        svg += `<rect x="${margin}" y="${dachStartY}" width="${dachBreite * scaleX}" height="${dachHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
-        
-        // Höhe
-        svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
-        svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
-        svg += `<line x1="${margin - 23}" y1="${dachStartY + dachHoehe * scaleY}" x2="${margin - 17}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
-        svg += `<text x="${margin - 30}" y="${dachStartY + dachHoehe * scaleY / 2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${dachStartY + dachHoehe * scaleY / 2})">${dachHoehe.toFixed(1)}m</text>`;
+        default:
+            // Rechteck
+            svg += `<rect x="${margin}" y="${dachStartY}" width="${dachBreite * scaleX}" height="${dachHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // Höhe
+            svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<line x1="${margin - 23}" y1="${dachStartY + dachHoehe * scaleY}" x2="${margin - 17}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
+            svg += `<text x="${margin - 30}" y="${dachStartY + dachHoehe * scaleY / 2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${dachStartY + dachHoehe * scaleY / 2})">${dachHoehe.toFixed(1)}m</text>`;
     }
     
+    // Sparren zeichnen
     for (let i = 0; i < anzahlSparren && i < sparrenPositionen.length; i++) {
         const sparrenX = margin + sparrenPositionen[i] * scaleX;
         let sparrenY = dachStartY;
@@ -603,8 +781,18 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         
         if (sparrenLaengen[i] !== undefined) {
             sparrenHeight = sparrenLaengen[i] * scaleY;
-            if (dachTyp === 'trapez') {
+            
+            // Bei Trapez und Dreiecken: Sparren startet von oben
+            if (dachTyp === 'trapez' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
                 sparrenY = dachStartY + (dachHoehe - sparrenLaengen[i]) * scaleY;
+            }
+            // Bei Trapez-auf-Rechteck: Sparren startet von oben
+            else if (dachTyp === 'trapez-auf-rechteck') {
+                const urlParams = new URLSearchParams(window.location.search);
+                const trapezHoehe = parseFloat(urlParams.get('trapezHoehe')) || 0;
+                const rechteckHoehe = parseFloat(urlParams.get('rechteckHoehe')) || 0;
+                const gesamtHoehe = trapezHoehe + rechteckHoehe;
+                sparrenY = dachStartY + (gesamtHoehe - sparrenLaengen[i]) * scaleY;
             }
         }
         
@@ -612,6 +800,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<rect x="${sparrenX - 1}" y="${sparrenY}" width="2" height="${sparrenHeight}" fill="#ff6b35" opacity="0.9"/>`;
     }
     
+    // Konterlatten bei Trapez (schräge Kanten)
     if (dachTyp === 'trapez') {
         const seitenAbstand = (dachBreite - obereBreite) / 2;
         const linkeObenX = margin + seitenAbstand * scaleX;
@@ -622,6 +811,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<line x1="${rechteObenX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     }
     
+    // Dachlatten zeichnen
     const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
     const restFarbe = '#e74c3c';
     
