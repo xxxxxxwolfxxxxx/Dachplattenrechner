@@ -699,19 +699,20 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<text x="${margin - 30}" y="${(dachStartY + dreieckUntenY)/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${(dachStartY + dreieckUntenY)/2})">${dachHoehe.toFixed(1)}m</text>`;
         
     } else if (dachTyp === 'trapez-auf-rechteck') {
-        const trapezObenY = dachStartY;
-        const rechteckObenY = dachStartY + trapezHoehe * scaleY;
-        const rechteckUntenY = dachStartY + dachHoehe * scaleY;
-        
         const seitenAbstand = (dachBreite - obereBreite) / 2;
         const trapezObenLinks = margin + seitenAbstand * scaleX;
         const trapezObenRechts = margin + (obereBreite + seitenAbstand) * scaleX;
+        const trapezUntenLinks = margin;
+        const trapezUntenRechts = margin + dachBreite * scaleX;
+        const trapezObenY = dachStartY;
+        const trapezUntenY = dachStartY + trapezHoehe * scaleY;
+        const rechteckUntenY = dachStartY + dachHoehe * scaleY;
         
         // Trapez oben
-        svg += `<polygon points="${trapezObenLinks},${trapezObenY} ${trapezObenRechts},${trapezObenY} ${margin + dachBreite * scaleX},${rechteckObenY} ${margin},${rechteckObenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        svg += `<polygon points="${trapezObenLinks},${trapezObenY} ${trapezObenRechts},${trapezObenY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
         
         // Rechteck unten
-        svg += `<rect x="${margin}" y="${rechteckObenY}" width="${dachBreite * scaleX}" height="${rechteckHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        svg += `<rect x="${margin}" y="${trapezUntenY}" width="${dachBreite * scaleX}" height="${rechteckHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
         
         // Obere Breite
         svg += `<line x1="${trapezObenLinks}" y1="${trapezObenY - 15}" x2="${trapezObenRechts}" y2="${trapezObenY - 15}" stroke="#333" stroke-width="1.5"/>`;
@@ -783,7 +784,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     for (let i = 0; i < anzahlLattenReihen; i++) {
         const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
         const reihenBreite = berechneReihenBreite(fortschritt);
-        const lattenY = dachStartY + fortschritt * dachHoehe * scaleY;
+        const lattenY = dachStartY + (1 - fortschritt) * dachHoehe * scaleY;
         
         const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
         const reihenStartX = margin + reihenStartAbsolut * scaleX;
