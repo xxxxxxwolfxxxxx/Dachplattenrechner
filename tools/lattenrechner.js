@@ -934,4 +934,4 @@ document.addEventListener('DOMContentLoaded', function() {
     aktualisiereLattenabstandsfeld();
     aktualisiereAutomatischeSparrenBerechnung();
 }); 
-                <td style="color: #333;
+        
