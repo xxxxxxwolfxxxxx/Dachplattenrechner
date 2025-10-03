@@ -675,7 +675,7 @@ function loadAdSense() {
                 <!-- Parameter-Auswahl -->
                 <div class="parameter-switch">
                     <button id="btn-kantenlaengen" class="active" onclick="wechsleParameterModus('kantenlaengen')">
-                        📏 Kantenlängen eingeben
+                        🔹 Kantenlängen eingeben
                     </button>
                     <button id="btn-position" onclick="wechsleParameterModus('position')">
                         📐 Spitzen-Position + Höhe eingeben
@@ -835,7 +835,10 @@ function loadAdSense() {
                     <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
                         <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (oben → unten)
                     </div>
-                    <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
+                        <button class="anriss-btn" onclick="erstelleLattenrechner()" style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);">🔨 Lattenrechner</button>
+                    </div>
                 </div>
             </div>
         </main>
@@ -1185,6 +1188,32 @@ function loadAdSense() {
             
             const encodedData = encodeURIComponent(JSON.stringify(planData));
             window.location.href = `anrissplan.html?type=ungleichschenkliges-dreieck&data=${encodedData}`;
+        }
+
+        function erstelleLattenrechner() {
+            const basisBreite = parseFloat(document.getElementById('basis-breite').value);
+            const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
+            
+            if (!basisBreite || !hoehe) {
+                alert('Bitte führen Sie zuerst eine Berechnung durch, bevor Sie den Lattenrechner aufrufen.');
+                return;
+            }
+            
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'lattenrechner_opened', {
+                    'event_category': 'ungleichschenkliges_dreieck',
+                    'event_label': 'redirected_to_lattenrechner'
+                });
+            }
+            
+            const params = new URLSearchParams({
+                breite: basisBreite,
+                hoehe: hoehe,
+                typ: 'ungleichschenkliges-dreieck',
+                spitzenPosition: spitzenPosition
+            });
+            
+            window.location.href = `lattenrechner.html?${params.toString()}`;
         }
 
         // Initialize everything
