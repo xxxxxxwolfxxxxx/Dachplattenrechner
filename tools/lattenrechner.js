@@ -315,19 +315,29 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
 function findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke) {
     let besteAufteilung = null;
     let minVerschnitt = Infinity;
+    let besteAnzahlSegmente = 0;
     
     // Versuche verschiedene Anzahlen von Segmenten (2 bis 4)
     for (let anzahlSegmente = 2; anzahlSegmente <= 4; anzahlSegmente++) {
-        const aufteilung = verteileLattenAufSparrenMitResten(0, reihenBreite, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente, []);
-        if (aufteilung) {
-            const verschnitt = aufteilung.segmente.reduce((sum, seg) => sum + seg.verschnitt, 0);
-            if (verschnitt < minVerschnitt) {
+        const alleLoesungen = findeAlleStosspunktKombinationen(0, reihenBreite, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente);
+        
+        for (let loesung of alleLoesungen) {
+            const verschnitt = loesung.segmente.reduce((sum, seg) => sum + seg.verschnitt, 0);
+            
+            // Bevorzuge Lösungen mit weniger Verschnitt, bei Gleichstand weniger Segmente
+            if (verschnitt < minVerschnitt || (verschnitt === minVerschnitt && anzahlSegmente < besteAnzahlSegmente)) {
                 minVerschnitt = verschnitt;
-                besteAufteilung = aufteilung;
+                besteAufteilung = loesung;
+                besteAnzahlSegmente = anzahlSegmente;
             }
-            // Bei 0 Verschnitt sofort beenden
-            if (verschnitt === 0) break;
+            
+            // Bei 0 Verschnitt und 3 Segmenten haben wir die optimale Lösung
+            if (verschnitt === 0 && anzahlSegmente === 3) {
+                break;
+            }
         }
+        
+        if (minVerschnitt === 0) break;
     }
     
     if (besteAufteilung) {
@@ -339,6 +349,110 @@ function findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaenge
     }
     
     return null;
+}
+
+function findeAlleStosspunktKombinationen(start, ende, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente) {
+    const alleLoesungen = [];
+    
+    if (anzahlSegmente === 1) {
+        const benoetigteLattenlaenge = ende - start;
+        
+        // Zuerst in Resten suchen
+        for (let i = 0; i < resteStuecke.length; i++) {
+            if (resteStuecke[i] >= benoetigteLattenlaenge) {
+                alleLoesungen.push({
+                    segmente: [{
+                        start: start,
+                        ende: ende,
+                        laenge: benoetigteLattenlaenge,
+                        originalLaenge: resteStuecke[i],
+                        verschnitt: resteStuecke[i] - benoetigteLattenlaenge,
+                        istRest: true
+                    }],
+                    verwendeteReste: [i]
+                });
+            }
+        }
+        
+        // Dann neue Latte
+        const passendeLatte = verfuegbareLaengen.find(l => l >= benoetigteLattenlaenge);
+        if (passendeLatte) {
+            alleLoesungen.push({
+                segmente: [{
+                    start: start,
+                    ende: ende,
+                    laenge: benoetigteLattenlaenge,
+                    originalLaenge: passendeLatte,
+                    verschnitt: passendeLatte - benoetigteLattenlaenge,
+                    istRest: false
+                }],
+                verwendeteReste: []
+            });
+        }
+        
+        return alleLoesungen;
+    }
+    
+    // Mögliche Stoßpunkte auf Sparren
+    const moeglicheStosspunkte = sparren.filter(s => s > start + 0.5 && s < ende - 0.5);
+    
+    for (let stosspunkt of moeglicheStosspunkte) {
+        const benoetigteLattenlaenge = stosspunkt - start;
+        
+        // Versuche Reststück zu verwenden
+        for (let i = 0; i < resteStuecke.length; i++) {
+            if (resteStuecke[i] >= benoetigteLattenlaenge) {
+                const restLoesungen = findeAlleStosspunktKombinationen(
+                    stosspunkt, ende, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente - 1
+                );
+                
+                for (let restLoesung of restLoesungen) {
+                    // Prüfe ob dieser Rest nicht schon in der Restlösung verwendet wird
+                    if (!restLoesung.verwendeteReste.includes(i)) {
+                        const aktuellesSegment = {
+                            start: start,
+                            ende: stosspunkt,
+                            laenge: benoetigteLattenlaenge,
+                            originalLaenge: resteStuecke[i],
+                            verschnitt: resteStuecke[i] - benoetigteLattenlaenge,
+                            istRest: true
+                        };
+                        
+                        alleLoesungen.push({
+                            segmente: [aktuellesSegment, ...restLoesung.segmente],
+                            verwendeteReste: [i, ...restLoesung.verwendeteReste]
+                        });
+                    }
+                }
+            }
+        }
+        
+        // Versuche neue Latte
+        const passendeLatte = verfuegbareLaengen.find(l => l >= benoetigteLattenlaenge);
+        if (passendeLatte) {
+            const restLoesungen = findeAlleStosspunktKombinationen(
+                stosspunkt, ende, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente - 1
+            );
+            
+            for (let restLoesung of restLoesungen) {
+                const aktuellesSegment = {
+                    start: start,
+                    ende: stosspunkt,
+                    laenge: benoetigteLattenlaenge,
+                    originalLaenge: passendeLatte,
+                    verschnitt: passendeLatte - benoetigteLattenlaenge,
+                    istRest: false
+                };
+                
+                alleLoesungen.push({
+                    segmente: [aktuellesSegment, ...restLoesung.segmente],
+                    verwendeteReste: restLoesung.verwendeteReste
+                });
+            }
+        }
+    }
+    
+    return alleLoesungen;
 }
 
 function verteileLattenAufSparrenMitResten(start, ende, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente, verwendeteReste) {
