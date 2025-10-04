@@ -283,29 +283,148 @@ function aktualisiereLattenabstandsfeld() {
     });
 }
 
+function berechneDachlattenRechteck(sparrenPositionen, reihenBreite, verfuegbareLaengen, reihenStartAbsolut) {
+    // Finde relevante Sparren für diese Reihe
+    const relevanteSparren = sparrenPositionen.filter(pos => 
+        pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
+    ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
+    
+    if (relevanteSparren.length < 2) return null;
+    
+    const segmente = [];
+    const verwendeteMaterialien = [];
+    let abgedecktBis = 0;
+    
+    // Gehe von Sparren zu Sparren und finde optimale Latten
+    while (abgedecktBis < reihenBreite - 0.01) {
+        // Finde den nächsten Zielsparren (mindestens 2 Sparren überspannen)
+        let zielSparrenIndex = relevanteSparren.findIndex(s => s > abgedecktBis + 0.5);
+        if (zielSparrenIndex === -1) break;
+        
+        // Suche den weitesten erreichbaren Sparren mit verfügbaren Latten
+        let besteLattenLaenge = null;
+        let besterZielSparren = null;
+        
+        for (let i = relevanteSparren.length - 1; i >= zielSparrenIndex; i--) {
+            const benoetigteLattenLaenge = relevanteSparren[i] - abgedecktBis;
+            
+            // Finde passende Latte (mit minimalem Verschnitt)
+            const passendeLatte = verfuegbareLaengen
+                .filter(l => l >= benoetigteLattenLaenge - 0.01)
+                .sort((a, b) => (a - benoetigteLattenLaenge) - (b - benoetigteLattenLaenge))[0];
+            
+            if (passendeLatte) {
+                besteLattenLaenge = passendeLatte;
+                besterZielSparren = relevanteSparren[i];
+                break;
+            }
+        }
+        
+        if (!besteLattenLaenge || !besterZielSparren) {
+            // Keine passende Latte gefunden - nimm kleinste verfügbare bis zum nächsten Sparren
+            const naechsterSparren = relevanteSparren[zielSparrenIndex];
+            const kleinsteVerfuegbar = Math.min(...verfuegbareLaengen);
+            
+            segmente.push({
+                start: abgedecktBis,
+                ende: naechsterSparren,
+                laenge: naechsterSparren - abgedecktBis,
+                originalLaenge: kleinsteVerfuegbar,
+                istRest: true
+            });
+            
+            verwendeteMaterialien.push(kleinsteVerfuegbar);
+            abgedecktBis = naechsterSparren;
+        } else {
+            segmente.push({
+                start: abgedecktBis,
+                ende: besterZielSparren,
+                laenge: besterZielSparren - abgedecktBis,
+                originalLaenge: besteLattenLaenge,
+                istRest: false
+            });
+            
+            verwendeteMaterialien.push(besteLattenLaenge);
+            abgedecktBis = besterZielSparren;
+        }
+    }
+    
+    return { segmente, verwendeteMaterialien };
+}
+
 function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
     const tatsaechlichVerfuegbar = verfuegbareLaengen.filter(l => l > 0);
     if (tatsaechlichVerfuegbar.length === 0) {
         return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
     }
     
-    tatsaechlichVerfuegbar.sort((a, b) => b - a); // Sortiere absteigend für Rechteck-Logik
+    tatsaechlichVerfuegbar.sort((a, b) => b - a);
     
     const materialListe = [];
     let gesamtVerschnitt = 0;
     let gesamtBenoetigteLaenge = 0;
     
     window.lattenPlan = [];
-    const luecken = [];
     
-    // PHASE 1: Grobe Abdeckung mit optimalen Kombinationen
+    // Berechne jede Reihe
     for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
         const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
         let reihenBreite = berechneReihenBreite(fortschritt);
-        
         gesamtBenoetigteLaenge += reihenBreite;
         
         const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+        
+        // RECHTECK-DACH: Spezielle statisch korrekte Berechnung
+        if (dachTyp === 'rechteck') {
+            const ergebnis = berechneDachlattenRechteck(sparrenPositionen, reihenBreite, tatsaechlichVerfuegbar, reihenStartAbsolut);
+            
+            if (ergebnis) {
+                window.lattenPlan[reihe] = ergebnis.segmente;
+                
+                // Zähle verwendete Materialien
+                ergebnis.verwendeteMaterialien.forEach(laenge => {
+                    const existierend = materialListe.find(m => m.laenge === laenge);
+                    if (existierend) {
+                        existierend.anzahl++;
+                    } else {
+                        materialListe.push({ laenge: laenge, anzahl: 1 });
+                    }
+                });
+            } else {
+                window.lattenPlan[reihe] = [];
+            }
+            
+            continue;
+        }
+        
+        // TRAPEZ-AUF-RECHTECK: Prüfe ob wir im Rechteck-Teil sind
+        if (dachTyp === 'trapez-auf-rechteck') {
+            const trapezAnteil = trapezHoehe / dachHoehe;
+            
+            if (fortschritt > trapezAnteil) {
+                // Im Rechteck-Teil - verwende Rechteck-Logik
+                const ergebnis = berechneDachlattenRechteck(sparrenPositionen, reihenBreite, tatsaechlichVerfuegbar, reihenStartAbsolut);
+                
+                if (ergebnis) {
+                    window.lattenPlan[reihe] = ergebnis.segmente;
+                    
+                    ergebnis.verwendeteMaterialien.forEach(laenge => {
+                        const existierend = materialListe.find(m => m.laenge === laenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: laenge, anzahl: 1 });
+                        }
+                    });
+                } else {
+                    window.lattenPlan[reihe] = [];
+                }
+                
+                continue;
+            }
+        }
+        
+        // TRAPEZ/DREIECK: Alte Logik (hier ist Auflage an den Schrägen vorhanden)
         const relevanteSparren = sparrenPositionen.filter(pos => 
             pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
         ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
@@ -317,11 +436,10 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             relevanteSparren.push(reihenBreite);
         }
         
-        // Finde beste Kombination für diese Reihe
         let besteKombination = null;
         let minVerschnitt = Infinity;
         
-        // Versuche Kombinationen aus 1-3 Latten
+        // Finde beste Kombination für Trapez/Dreieck
         for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
             const summe = tatsaechlichVerfuegbar[i];
             if (summe >= reihenBreite - 0.01) {
@@ -361,175 +479,49 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             }
         }
         
-        // Verteile die Kombination auf Sparren
         const reihenSegmente = [];
         let aktuellePosition = 0;
         
         if (besteKombination) {
-            // RECHTECK: Längste Latten außen, Reste innen
-            if (dachTyp === 'rechteck') {
-                besteKombination.sort((a, b) => b - a); // Längste zuerst
+            for (let lattenLaenge of besteKombination) {
+                if (aktuellePosition >= reihenBreite - 0.01) break;
                 
-                for (let lattenLaenge of besteKombination) {
-                    if (aktuellePosition >= reihenBreite - 0.01) break;
-                    
-                    const maxEnde = Math.min(aktuellePosition + lattenLaenge, reihenBreite);
-                    
-                    let zielSparren = null;
-                    for (let j = relevanteSparren.length - 1; j >= 0; j--) {
-                        if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= maxEnde + 0.05) {
-                            zielSparren = relevanteSparren[j];
-                            break;
-                        }
-                    }
-                    
-                    if (zielSparren) {
-                        reihenSegmente.push({
-                            start: aktuellePosition,
-                            ende: zielSparren,
-                            laenge: zielSparren - aktuellePosition,
-                            originalLaenge: lattenLaenge,
-                            istRest: false
-                        });
-                        
-                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
-                        if (existierend) {
-                            existierend.anzahl++;
-                        } else {
-                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
-                        }
-                        
-                        aktuellePosition = zielSparren;
+                const maxEnde = Math.min(aktuellePosition + lattenLaenge, reihenBreite);
+                
+                let zielSparren = null;
+                for (let j = relevanteSparren.length - 1; j >= 0; j--) {
+                    if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= maxEnde + 0.05) {
+                        zielSparren = relevanteSparren[j];
+                        break;
                     }
                 }
-            } else {
-                // TRAPEZ/DREIECK: Bisherige Logik beibehalten
-                for (let lattenLaenge of besteKombination) {
-                    if (aktuellePosition >= reihenBreite - 0.01) break;
+                
+                if (zielSparren) {
+                    reihenSegmente.push({
+                        start: aktuellePosition,
+                        ende: zielSparren,
+                        laenge: zielSparren - aktuellePosition,
+                        originalLaenge: lattenLaenge,
+                        istRest: false
+                    });
                     
-                    const maxEnde = Math.min(aktuellePosition + lattenLaenge, reihenBreite);
-                    
-                    let zielSparren = null;
-                    for (let j = relevanteSparren.length - 1; j >= 0; j--) {
-                        if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= maxEnde + 0.05) {
-                            zielSparren = relevanteSparren[j];
-                            break;
-                        }
+                    const existierend = materialListe.find(m => m.laenge === lattenLaenge);
+                    if (existierend) {
+                        existierend.anzahl++;
+                    } else {
+                        materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
                     }
                     
-                    if (zielSparren) {
-                        reihenSegmente.push({
-                            start: aktuellePosition,
-                            ende: zielSparren,
-                            laenge: zielSparren - aktuellePosition,
-                            originalLaenge: lattenLaenge,
-                            istRest: false
-                        });
-                        
-                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
-                        if (existierend) {
-                            existierend.anzahl++;
-                        } else {
-                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
-                        }
-                        
-                        aktuellePosition = zielSparren;
-                    }
+                    aktuellePosition = zielSparren;
                 }
             }
-        }
-        
-        // Sammle Lücken
-        if (aktuellePosition < reihenBreite - 0.1) {
-            luecken.push({
-                reihe: reihe,
-                start: aktuellePosition,
-                ende: reihenBreite,
-                benoetigteLattenlaenge: reihenBreite - aktuellePosition,
-                relevanteSparren: relevanteSparren.filter(pos => pos > aktuellePosition)
-            });
         }
         
         window.lattenPlan[reihe] = reihenSegmente;
     }
     
-    // PHASE 2: Lücken optimal füllen
-    if (luecken.length > 0) {
-        let restPool = [];
-        
-        for (let luecke of luecken) {
-            let gefuellt = false;
-            
-            // Versuche Rest zu verwenden
-            for (let i = 0; i < restPool.length; i++) {
-                const restLaenge = restPool[i];
-                
-                let zielSparren = null;
-                for (let sparrenPos of luecke.relevanteSparren) {
-                    if (sparrenPos <= luecke.start + restLaenge + 0.05) {
-                        zielSparren = sparrenPos;
-                        break;
-                    }
-                }
-                
-                if (zielSparren && zielSparren >= luecke.ende - 0.05) {
-                    window.lattenPlan[luecke.reihe].push({
-                        start: luecke.start,
-                        ende: luecke.ende,
-                        laenge: luecke.benoetigteLattenlaenge,
-                        originalLaenge: restLaenge,
-                        istRest: true
-                    });
-                    
-                    const neuerRest = restLaenge - luecke.benoetigteLattenlaenge;
-                    restPool.splice(i, 1);
-                    
-                    if (neuerRest > 0.5) {
-                        restPool.push(neuerRest);
-                        restPool.sort((a, b) => b - a);
-                    } else if (neuerRest > 0.01) {
-                        gesamtVerschnitt += neuerRest;
-                    }
-                    
-                    gefuellt = true;
-                    break;
-                }
-            }
-            
-            // Neue Latte kaufen
-            if (!gefuellt) {
-                const passendeLatte = tatsaechlichVerfuegbar.find(l => l >= luecke.benoetigteLattenlaenge);
-                if (passendeLatte) {
-                    window.lattenPlan[luecke.reihe].push({
-                        start: luecke.start,
-                        ende: luecke.ende,
-                        laenge: luecke.benoetigteLattenlaenge,
-                        originalLaenge: passendeLatte,
-                        istRest: false
-                    });
-                    
-                    const existierend = materialListe.find(m => m.laenge === passendeLatte);
-                    if (existierend) {
-                        existierend.anzahl++;
-                    } else {
-                        materialListe.push({ laenge: passendeLatte, anzahl: 1 });
-                    }
-                    
-                    const neuerRest = passendeLatte - luecke.benoetigteLattenlaenge;
-                    if (neuerRest > 0.5) {
-                        restPool.push(neuerRest);
-                        restPool.sort((a, b) => b - a);
-                    } else if (neuerRest > 0.01) {
-                        gesamtVerschnitt += neuerRest;
-                    }
-                }
-            }
-        }
-        
-        gesamtVerschnitt += restPool.reduce((sum, rest) => sum + rest, 0);
-    }
-    
     const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
+    gesamtVerschnitt = gesamtLaenge - gesamtBenoetigteLaenge;
     
     return {
         kombination: materialListe,
