@@ -222,17 +222,25 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     let gesamtVerschnitt = 0;
     let gesamtBenoetigteLaenge = 0;
     window.lattenPlan = [];
+    
     for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
         const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
         let reihenBreite = berechneReihenBreite(fortschritt);
         gesamtBenoetigteLaenge += reihenBreite;
         const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+        
+        // Relevante Sparren für diese Reihe finden
         const relevanteSparren = sparrenPositionen
             .filter(pos => pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05)
             .map(pos => pos - reihenStartAbsolut)
             .sort((a, b) => a - b);
+        
         if (relevanteSparren.length === 0) continue;
+        
+        // Optimale Aufteilung finden
         const reihenSegmente = findeOptimaleLattenaufteilung(reihenBreite, relevanteSparren, tatsaechlichVerfuegbar);
+        
+        // Material zählen
         for (let segment of reihenSegmente) {
             const existierend = materialListe.find(m => m.laenge === segment.originalLaenge);
             if (existierend) {
@@ -240,10 +248,12 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             } else {
                 materialListe.push({ laenge: segment.originalLaenge, anzahl: 1 });
             }
-            if (segment.verschnitt > 0) gesamtVerschnitt += segment.verschnitt;
+            gesamtVerschnitt += segment.verschnitt;
         }
+        
         window.lattenPlan[reihe] = reihenSegmente;
     }
+    
     const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
     return {
         kombination: materialListe,
