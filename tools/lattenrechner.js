@@ -800,8 +800,11 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         if (window.lattenPlan && window.lattenPlan[i]) {
             const segmente = window.lattenPlan[i];
             
-            for (let j = 0; j < segmente.length; j++) {
-                const segment = segmente[j];
+            // Versatz-Logik: Gerade Reihen normal, ungerade Reihen umgekehrt
+            const segmenteZuZeichnen = (i % 2 === 0) ? segmente : [...segmente].reverse();
+            
+            for (let j = 0; j < segmenteZuZeichnen.length; j++) {
+                const segment = segmenteZuZeichnen[j];
                 const segmentStartX = reihenStartX + segment.start * scaleX;
                 const segmentEndX = reihenStartX + segment.ende * scaleX;
                 
