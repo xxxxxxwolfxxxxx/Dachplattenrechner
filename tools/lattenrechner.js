@@ -749,7 +749,9 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         
         if (sparrenLaengen[i] !== undefined) {
             sparrenHeight = sparrenLaengen[i] * scaleY;
-            if (dachTyp === 'trapez' || dachTyp === 'dreieck' || dachTyp === 'trapez-auf-rechteck') {
+            if (dachTyp === 'trapez' || dachTyp === 'trapez-auf-rechteck') {
+                sparrenY = dachStartY + (dachHoehe - sparrenLaengen[i]) * scaleY;
+            } else if (dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
                 sparrenY = dachStartY + (dachHoehe - sparrenLaengen[i]) * scaleY;
             }
         }
