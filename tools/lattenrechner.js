@@ -300,7 +300,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     
     // PHASE 1: Grobe Abdeckung mit optimalen Kombinationen
     for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
-        const fortschritt = reihe / Math.max(1, anzahlReihen - 1);
+        const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
         let reihenBreite = berechneReihenBreite(fortschritt);
         
         gesamtBenoetigteLaenge += reihenBreite;
@@ -792,13 +792,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     for (let i = 0; i < anzahlLattenReihen; i++) {
         const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
         const reihenBreite = berechneReihenBreite(fortschritt);
-        
-        let lattenY;
-        if (dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
-            lattenY = dachStartY + fortschritt * dachHoehe * scaleY;
-        } else {
-            lattenY = dachStartY + (1 - fortschritt) * dachHoehe * scaleY;
-        }
+        const lattenY = dachStartY + (1 - fortschritt) * dachHoehe * scaleY;
         
         const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
         const reihenStartX = margin + reihenStartAbsolut * scaleX;
