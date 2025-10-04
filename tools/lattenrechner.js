@@ -223,6 +223,9 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     let gesamtBenoetigteLaenge = 0;
     window.lattenPlan = [];
     
+    // Resteverwaltung: Array mit verfügbaren Reststücken
+    const resteStuecke = [];
+    
     for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
         const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
         let reihenBreite = berechneReihenBreite(fortschritt);
@@ -237,22 +240,32 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
         
         if (relevanteSparren.length === 0) continue;
         
-        // Optimale Aufteilung finden
-        const reihenSegmente = findeOptimaleLattenaufteilung(reihenBreite, relevanteSparren, tatsaechlichVerfuegbar);
+        // Optimale Aufteilung finden (mit Resteverwaltung)
+        const reihenSegmente = findeOptimaleLattenaufteilungMitResten(reihenBreite, relevanteSparren, tatsaechlichVerfuegbar, resteStuecke);
         
-        // Material zählen
+        // Material zählen und neue Reste hinzufügen
         for (let segment of reihenSegmente) {
-            const existierend = materialListe.find(m => m.laenge === segment.originalLaenge);
-            if (existierend) {
-                existierend.anzahl++;
-            } else {
-                materialListe.push({ laenge: segment.originalLaenge, anzahl: 1 });
+            if (!segment.istRest) {
+                const existierend = materialListe.find(m => m.laenge === segment.originalLaenge);
+                if (existierend) {
+                    existierend.anzahl++;
+                } else {
+                    materialListe.push({ laenge: segment.originalLaenge, anzahl: 1 });
+                }
+                
+                // Wenn Verschnitt entsteht, als Reststück speichern
+                if (segment.verschnitt > 0.1) {
+                    resteStuecke.push(segment.verschnitt);
+                    resteStuecke.sort((a, b) => b - a); // Größte Reste zuerst
+                }
             }
-            gesamtVerschnitt += segment.verschnitt;
         }
         
         window.lattenPlan[reihe] = reihenSegmente;
     }
+    
+    // Nur ungenutzte Reste zählen als Verschnitt
+    gesamtVerschnitt = resteStuecke.reduce((sum, rest) => sum + rest, 0);
     
     const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
     return {
@@ -264,7 +277,23 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     };
 }
 
-function findeOptimaleLattenaufteilung(reihenBreite, sparren, verfuegbareLaengen) {
+function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke) {
+    // Prüfen ob ein Reststück ausreicht
+    for (let i = 0; i < resteStuecke.length; i++) {
+        if (resteStuecke[i] >= reihenBreite) {
+            const rest = resteStuecke.splice(i, 1)[0]; // Reststück entnehmen
+            return [{
+                start: 0,
+                ende: reihenBreite,
+                laenge: reihenBreite,
+                originalLaenge: rest,
+                verschnitt: rest - reihenBreite,
+                istRest: true
+            }];
+        }
+    }
+    
+    // Prüfen ob eine neue Latte ausreicht
     for (let laenge of verfuegbareLaengen) {
         if (laenge >= reihenBreite) {
             return [{
@@ -277,50 +306,131 @@ function findeOptimaleLattenaufteilung(reihenBreite, sparren, verfuegbareLaengen
             }];
         }
     }
-    const besteAufteilung = findeBesteStosspunkte(reihenBreite, sparren, verfuegbareLaengen);
+    
+    // Mehrere Latten/Reste nötig - optimale Stoßpunkte auf Sparren finden
+    const besteAufteilung = findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke);
     return besteAufteilung || [];
 }
 
-function findeBesteStosspunkte(reihenBreite, sparren, verfuegbareLaengen) {
+function findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke) {
     let besteAufteilung = null;
     let minVerschnitt = Infinity;
-    for (let anzahlLatten = 2; anzahlLatten <= 4; anzahlLatten++) {
-        const aufteilung = verteileLattenAufSparren(0, reihenBreite, sparren, verfuegbareLaengen, anzahlLatten);
+    
+    // Versuche verschiedene Anzahlen von Segmenten (2 bis 4)
+    for (let anzahlSegmente = 2; anzahlSegmente <= 4; anzahlSegmente++) {
+        const aufteilung = verteileLattenAufSparrenMitResten(0, reihenBreite, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente, []);
         if (aufteilung) {
-            const verschnitt = aufteilung.reduce((sum, seg) => sum + seg.verschnitt, 0);
+            const verschnitt = aufteilung.segmente.reduce((sum, seg) => sum + seg.verschnitt, 0);
             if (verschnitt < minVerschnitt) {
                 minVerschnitt = verschnitt;
                 besteAufteilung = aufteilung;
             }
+            // Bei 0 Verschnitt sofort beenden
+            if (verschnitt === 0) break;
         }
     }
-    return besteAufteilung;
+    
+    if (besteAufteilung) {
+        // Verwendete Reste aus dem Pool entfernen
+        for (let restIndex of besteAufteilung.verwendeteReste.sort((a, b) => b - a)) {
+            resteStuecke.splice(restIndex, 1);
+        }
+        return besteAufteilung.segmente;
+    }
+    
+    return null;
 }
 
-function verteileLattenAufSparren(start, ende, sparren, verfuegbareLaengen, anzahlLatten) {
-    if (anzahlLatten === 1) {
+function verteileLattenAufSparrenMitResten(start, ende, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente, verwendeteReste) {
+    if (anzahlSegmente === 1) {
         const benoetigteLattenlaenge = ende - start;
+        
+        // Zuerst in Resten suchen
+        for (let i = 0; i < resteStuecke.length; i++) {
+            if (resteStuecke[i] >= benoetigteLattenlaenge && !verwendeteReste.includes(i)) {
+                return {
+                    segmente: [{
+                        start: start,
+                        ende: ende,
+                        laenge: benoetigteLattenlaenge,
+                        originalLaenge: resteStuecke[i],
+                        verschnitt: resteStuecke[i] - benoetigteLattenlaenge,
+                        istRest: true
+                    }],
+                    verwendeteReste: [...verwendeteReste, i]
+                };
+            }
+        }
+        
+        // Dann neue Latte verwenden
         const passendeLatte = verfuegbareLaengen.find(l => l >= benoetigteLattenlaenge);
         if (passendeLatte) {
-            return [{
-                start: start,
-                ende: ende,
-                laenge: benoetigteLattenlaenge,
-                originalLaenge: passendeLatte,
-                verschnitt: passendeLatte - benoetigteLattenlaenge,
-                istRest: false
-            }];
+            return {
+                segmente: [{
+                    start: start,
+                    ende: ende,
+                    laenge: benoetigteLattenlaenge,
+                    originalLaenge: passendeLatte,
+                    verschnitt: passendeLatte - benoetigteLattenlaenge,
+                    istRest: false
+                }],
+                verwendeteReste: verwendeteReste
+            };
         }
         return null;
     }
+    
     let besteLoesung = null;
     let minVerschnitt = Infinity;
+    
+    // Mögliche Stoßpunkte auf Sparren
     const moeglicheStosspunkte = sparren.filter(s => s > start + 0.5 && s < ende - 0.5);
+    
     for (let stosspunkt of moeglicheStosspunkte) {
         const benoetigteLattenlaenge = stosspunkt - start;
+        
+        // Versuche Reststück zu verwenden
+        for (let i = 0; i < resteStuecke.length; i++) {
+            if (resteStuecke[i] >= benoetigteLattenlaenge && !verwendeteReste.includes(i)) {
+                const restAufteilung = verteileLattenAufSparrenMitResten(
+                    stosspunkt, ende, sparren, verfuegbareLaengen, resteStuecke, 
+                    anzahlSegmente - 1, [...verwendeteReste, i]
+                );
+                
+                if (restAufteilung) {
+                    const aktuellesSegment = {
+                        start: start,
+                        ende: stosspunkt,
+                        laenge: benoetigteLattenlaenge,
+                        originalLaenge: resteStuecke[i],
+                        verschnitt: resteStuecke[i] - benoetigteLattenlaenge,
+                        istRest: true
+                    };
+                    
+                    const gesamtSegmente = [aktuellesSegment, ...restAufteilung.segmente];
+                    const gesamtVerschnitt = gesamtSegmente.reduce((sum, seg) => sum + seg.verschnitt, 0);
+                    
+                    if (gesamtVerschnitt < minVerschnitt) {
+                        minVerschnitt = gesamtVerschnitt;
+                        besteLoesung = {
+                            segmente: gesamtSegmente,
+                            verwendeteReste: restAufteilung.verwendeteReste
+                        };
+                    }
+                    
+                    if (gesamtVerschnitt === 0) return besteLoesung;
+                }
+            }
+        }
+        
+        // Versuche neue Latte
         const passendeLatte = verfuegbareLaengen.find(l => l >= benoetigteLattenlaenge);
         if (passendeLatte) {
-            const restAufteilung = verteileLattenAufSparren(stosspunkt, ende, sparren, verfuegbareLaengen, anzahlLatten - 1);
+            const restAufteilung = verteileLattenAufSparrenMitResten(
+                stosspunkt, ende, sparren, verfuegbareLaengen, resteStuecke, 
+                anzahlSegmente - 1, verwendeteReste
+            );
+            
             if (restAufteilung) {
                 const aktuellesSegment = {
                     start: start,
@@ -330,15 +440,23 @@ function verteileLattenAufSparren(start, ende, sparren, verfuegbareLaengen, anza
                     verschnitt: passendeLatte - benoetigteLattenlaenge,
                     istRest: false
                 };
-                const gesamtAufteilung = [aktuellesSegment, ...restAufteilung];
-                const gesamtVerschnitt = gesamtAufteilung.reduce((sum, seg) => sum + seg.verschnitt, 0);
+                
+                const gesamtSegmente = [aktuellesSegment, ...restAufteilung.segmente];
+                const gesamtVerschnitt = gesamtSegmente.reduce((sum, seg) => sum + seg.verschnitt, 0);
+                
                 if (gesamtVerschnitt < minVerschnitt) {
                     minVerschnitt = gesamtVerschnitt;
-                    besteLoesung = gesamtAufteilung;
+                    besteLoesung = {
+                        segmente: gesamtSegmente,
+                        verwendeteReste: restAufteilung.verwendeteReste
+                    };
                 }
+                
+                if (gesamtVerschnitt === 0) return besteLoesung;
             }
         }
     }
+    
     return besteLoesung;
 }
 
