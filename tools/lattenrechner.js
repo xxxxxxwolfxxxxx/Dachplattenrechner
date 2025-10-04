@@ -512,7 +512,7 @@ function berechneReihenBreite(fortschritt) {
         case 'dreieck':
         case 'gleichschenkliges-dreieck':
         case 'ungleichschenkliges-dreieck':
-            return dachBreite * fortschritt;
+            return dachBreite * (1 - fortschritt);
             
         case 'trapez-auf-rechteck':
             const trapezAnteil = trapezHoehe / dachHoehe;
@@ -792,7 +792,13 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     for (let i = 0; i < anzahlLattenReihen; i++) {
         const fortschritt = i / Math.max(1, anzahlLattenReihen - 1);
         const reihenBreite = berechneReihenBreite(fortschritt);
-        const lattenY = dachStartY + (1 - fortschritt) * dachHoehe * scaleY;
+        
+        let lattenY;
+        if (dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
+            lattenY = dachStartY + fortschritt * dachHoehe * scaleY;
+        } else {
+            lattenY = dachStartY + (1 - fortschritt) * dachHoehe * scaleY;
+        }
         
         const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
         const reihenStartX = margin + reihenStartAbsolut * scaleX;
