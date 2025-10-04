@@ -1101,33 +1101,35 @@ function loadAdSense() {
         }
 
         function erstelleLattenrechner() {
-            const untereBreite = parseFloat(document.getElementById('untere-breite').value);
-            const trapezHoehe = parseFloat(document.getElementById('trapez-hoehe').value);
-            const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
-            const gesamtHoehe = trapezHoehe + rechteckHoehe;
-            
-            if (!untereBreite || !trapezHoehe || !rechteckHoehe) {
-                alert('Bitte führen Sie zuerst eine Berechnung durch, bevor Sie den Lattenrechner aufrufen.');
-                return;
-            }
-            
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'lattenrechner_opened', {
-                    'event_category': 'trapez_auf_rechteck',
-                    'event_label': 'redirected_to_lattenrechner'
-                });
-            }
-            
-            const params = new URLSearchParams({
-                breite: untereBreite,
-                hoehe: gesamtHoehe,
-                typ: 'trapez-auf-rechteck',
-                trapezHoehe: trapezHoehe,
-                rechteckHoehe: rechteckHoehe
-            });
-            
-            window.location.href = `lattenrechner.html?${params.toString()}`;
-        }
+    const obereBreite = parseFloat(document.getElementById('obere-breite').value);
+    const untereBreite = parseFloat(document.getElementById('untere-breite').value);
+    const trapezHoehe = parseFloat(document.getElementById('trapez-hoehe').value);
+    const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
+    const gesamtHoehe = trapezHoehe + rechteckHoehe;
+    
+    if (!obereBreite || !untereBreite || !trapezHoehe || !rechteckHoehe) {
+        alert('Bitte führen Sie zuerst eine Berechnung durch, bevor Sie den Lattenrechner aufrufen.');
+        return;
+    }
+    
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'lattenrechner_opened', {
+            'event_category': 'trapez_auf_rechteck',
+            'event_label': 'redirected_to_lattenrechner'
+        });
+    }
+    
+    const params = new URLSearchParams({
+        breite: untereBreite,
+        hoehe: gesamtHoehe,
+        typ: 'trapez-auf-rechteck',
+        obereBreite: obereBreite,
+        trapezHoehe: trapezHoehe,
+        rechteckHoehe: rechteckHoehe
+    });
+    
+    window.location.href = `lattenrechner.html?${params.toString()}`;
+}
 
         // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
