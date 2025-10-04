@@ -790,7 +790,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     const restFarbe = '#e74c3c';
     
     for (let i = 0; i < anzahlLattenReihen; i++) {
-        const fortschritt = (anzahlReihen - 1 - i) / Math.max(1, anzahlLattenReihen - 1);
+        const fortschritt = (anzahlLattenReihen - 1 - i) / Math.max(1, anzahlLattenReihen - 1);
         const reihenBreite = berechneReihenBreite(fortschritt);
         const lattenY = dachStartY + (1 - fortschritt) * dachHoehe * scaleY;
         
