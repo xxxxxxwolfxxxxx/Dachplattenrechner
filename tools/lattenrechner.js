@@ -59,7 +59,7 @@ function ladeDachParameter() {
 }
 
 function aktualisiereAnzeige() {
-    let massText = `Breite: ${dachBreite}m, HÃ¶he: ${dachHoehe}m, Typ: ${dachTyp}`;
+    let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
     
     const urlParams = new URLSearchParams(window.location.search);
     
