@@ -223,7 +223,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     let gesamtBenoetigteLaenge = 0;
     window.lattenPlan = [];
     
-    // Resteverwaltung: Array mit verfügbaren Reststücken
     const resteStuecke = [];
     
     for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
@@ -232,7 +231,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
         gesamtBenoetigteLaenge += reihenBreite;
         const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
         
-        // Relevante Sparren für diese Reihe finden
         const relevanteSparren = sparrenPositionen
             .filter(pos => pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05)
             .map(pos => pos - reihenStartAbsolut)
@@ -240,10 +238,8 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
         
         if (relevanteSparren.length === 0) continue;
         
-        // Optimale Aufteilung finden (mit Resteverwaltung)
         const reihenSegmente = findeOptimaleLattenaufteilungMitResten(reihenBreite, relevanteSparren, tatsaechlichVerfuegbar, resteStuecke);
         
-        // Material zählen und neue Reste hinzufügen
         for (let segment of reihenSegmente) {
             if (!segment.istRest) {
                 const existierend = materialListe.find(m => m.laenge === segment.originalLaenge);
@@ -253,10 +249,9 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                     materialListe.push({ laenge: segment.originalLaenge, anzahl: 1 });
                 }
                 
-                // Wenn Verschnitt entsteht, als Reststück speichern
                 if (segment.verschnitt > 0.1) {
                     resteStuecke.push(segment.verschnitt);
-                    resteStuecke.sort((a, b) => b - a); // Größte Reste zuerst
+                    resteStuecke.sort((a, b) => b - a);
                 }
             }
         }
@@ -264,7 +259,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
         window.lattenPlan[reihe] = reihenSegmente;
     }
     
-    // Nur ungenutzte Reste zählen als Verschnitt
     gesamtVerschnitt = resteStuecke.reduce((sum, rest) => sum + rest, 0);
     
     const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
@@ -278,7 +272,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
 }
 
 function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke) {
-    // Debug-Ausgabe für erste Reihe
     if (window.debugReihe === undefined) {
         window.debugReihe = 0;
         console.log('=== DEBUG: Erste Reihe ===');
@@ -288,7 +281,6 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
         console.log('Reste:', resteStuecke);
     }
     
-    // Prüfen ob ein Reststück ausreicht
     for (let i = 0; i < resteStuecke.length; i++) {
         if (resteStuecke[i] >= reihenBreite) {
             const rest = resteStuecke.splice(i, 1)[0];
@@ -308,7 +300,6 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
         }
     }
     
-    // Prüfen ob eine neue Latte ausreicht
     for (let laenge of verfuegbareLaengen) {
         if (laenge >= reihenBreite) {
             const result = [{
@@ -328,7 +319,6 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
         }
     }
     
-    // Mehrere Latten/Reste nötig
     const besteAufteilung = findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke);
     
     if (window.debugReihe === 0 && besteAufteilung) {
@@ -354,23 +344,16 @@ function findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaenge
     let minVerschnitt = Infinity;
     let besteAnzahlSegmente = 0;
     
-    // Versuche verschiedene Anzahlen von Segmenten (2 bis 4)
     for (let anzahlSegmente = 2; anzahlSegmente <= 4; anzahlSegmente++) {
         const alleLoesungen = findeAlleStosspunktKombinationen(0, reihenBreite, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente);
         
         for (let loesung of alleLoesungen) {
             const verschnitt = loesung.segmente.reduce((sum, seg) => sum + seg.verschnitt, 0);
             
-            // Bevorzuge Lösungen mit weniger Verschnitt, bei Gleichstand weniger Segmente
             if (verschnitt < minVerschnitt || (verschnitt === minVerschnitt && anzahlSegmente < besteAnzahlSegmente)) {
                 minVerschnitt = verschnitt;
                 besteAufteilung = loesung;
                 besteAnzahlSegmente = anzahlSegmente;
-            }
-            
-            // Bei 0 Verschnitt und 3 Segmenten haben wir die optimale Lösung
-            if (verschnitt === 0 && anzahlSegmente === 3) {
-                break;
             }
         }
         
@@ -378,7 +361,6 @@ function findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaenge
     }
     
     if (besteAufteilung) {
-        // Verwendete Reste aus dem Pool entfernen
         for (let restIndex of besteAufteilung.verwendeteReste.sort((a, b) => b - a)) {
             resteStuecke.splice(restIndex, 1);
         }
@@ -394,7 +376,6 @@ function findeAlleStosspunktKombinationen(start, ende, sparren, verfuegbareLaeng
     if (anzahlSegmente === 1) {
         const benoetigteLattenlaenge = ende - start;
         
-        // Zuerst in Resten suchen
         for (let i = 0; i < resteStuecke.length; i++) {
             if (resteStuecke[i] >= benoetigteLattenlaenge) {
                 alleLoesungen.push({
@@ -411,7 +392,6 @@ function findeAlleStosspunktKombinationen(start, ende, sparren, verfuegbareLaeng
             }
         }
         
-        // Dann neue Latte
         const passendeLatte = verfuegbareLaengen.find(l => l >= benoetigteLattenlaenge);
         if (passendeLatte) {
             alleLoesungen.push({
@@ -430,21 +410,17 @@ function findeAlleStosspunktKombinationen(start, ende, sparren, verfuegbareLaeng
         return alleLoesungen;
     }
     
-    // Mögliche Stoßpunkte auf Sparren - ALLE durchprobieren
     const moeglicheStosspunkte = sparren.filter(s => s > start + 0.5 && s < ende - 0.5);
     
-    // Für JEDEN möglichen Stoßpunkt alle Lösungen sammeln
     for (let stosspunkt of moeglicheStosspunkte) {
         const benoetigteLattenlaenge = stosspunkt - start;
         
-        // Versuche Reststück zu verwenden
         for (let i = 0; i < resteStuecke.length; i++) {
             if (resteStuecke[i] >= benoetigteLattenlaenge) {
                 const restLoesungen = findeAlleStosspunktKombinationen(
                     stosspunkt, ende, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente - 1
                 );
                 
-                // ALLE Restlösungen mit diesem Segment kombinieren
                 for (let restLoesung of restLoesungen) {
                     if (!restLoesung.verwendeteReste.includes(i)) {
                         const aktuellesSegment = {
@@ -465,14 +441,12 @@ function findeAlleStosspunktKombinationen(start, ende, sparren, verfuegbareLaeng
             }
         }
         
-        // Versuche neue Latte
         const passendeLatte = verfuegbareLaengen.find(l => l >= benoetigteLattenlaenge);
         if (passendeLatte) {
             const restLoesungen = findeAlleStosspunktKombinationen(
                 stosspunkt, ende, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente - 1
             );
             
-            // ALLE Restlösungen mit diesem Segment kombinieren
             for (let restLoesung of restLoesungen) {
                 const aktuellesSegment = {
                     start: start,
@@ -492,11 +466,6 @@ function findeAlleStosspunktKombinationen(start, ende, sparren, verfuegbareLaeng
     }
     
     return alleLoesungen;
-}
-
-function verteileLattenAufSparrenMitResten(start, ende, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente, verwendeteReste) {
-    // Diese Funktion wird nicht mehr verwendet - durch findeAlleStosspunktKombinationen ersetzt
-    return null;
 }
 
 function berechneReihenBreite(fortschritt) {
