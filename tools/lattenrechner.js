@@ -294,39 +294,31 @@ function aktualisiereLattenabstandsfeld() {
 }
 
 function berechneDachlattenRechteck(sparrenPositionen, reihenBreite, verfuegbareLaengen, reihenStartAbsolut) {
-    // Finde relevante Sparren für diese Reihe
+    // Finde ECHTE Sparren für diese Reihe (keine virtuellen Randpunkte)
     const relevanteSparren = sparrenPositionen.filter(pos => 
         pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
     ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
     
     if (relevanteSparren.length < 2) return null;
     
-    // Stelle sicher, dass Start und Ende der Reihe als "virtuelle Sparren" existieren
-    if (relevanteSparren[0] > 0.05) {
-        relevanteSparren.unshift(0);
-    }
-    if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
-        relevanteSparren.push(reihenBreite);
-    }
-    
     const segmente = [];
     const verwendeteMaterialien = [];
-    let abgedecktBis = 0;
     
-    // Gehe von Sparren zu Sparren und finde optimale Latten
-    while (abgedecktBis < reihenBreite - 0.01) {
-        // Finde den nächsten Zielsparren (mindestens 2 Sparren überspannen)
-        let zielSparrenIndex = relevanteSparren.findIndex(s => s > abgedecktBis + 0.5);
-        if (zielSparrenIndex === -1) break;
-        
-        // Suche den weitesten erreichbaren Sparren mit verfügbaren Latten
+    // VON AUSSEN NACH INNEN DECKEN
+    // 1. Links außen nach innen
+    let linksAbgedecktBis = 0;
+    let linkeFertig = false;
+    
+    while (!linkeFertig && linksAbgedecktBis < reihenBreite / 2) {
+        // Finde den weitesten erreichbaren Sparren von links
         let besteLattenLaenge = null;
         let besterZielSparren = null;
         
-        for (let i = relevanteSparren.length - 1; i >= zielSparrenIndex; i--) {
-            const benoetigteLattenLaenge = relevanteSparren[i] - abgedecktBis;
+        for (let i = relevanteSparren.length - 1; i >= 0; i--) {
+            if (relevanteSparren[i] <= linksAbgedecktBis + 0.01) continue;
             
-            // Finde passende Latte (mit minimalem Verschnitt)
+            const benoetigteLattenLaenge = relevanteSparren[i] - linksAbgedecktBis;
+            
             const passendeLatte = verfuegbareLaengen
                 .filter(l => l >= benoetigteLattenLaenge - 0.01)
                 .sort((a, b) => (a - benoetigteLattenLaenge) - (b - benoetigteLattenLaenge))[0];
@@ -338,34 +330,84 @@ function berechneDachlattenRechteck(sparrenPositionen, reihenBreite, verfuegbare
             }
         }
         
-        if (!besteLattenLaenge || !besterZielSparren) {
-            // Keine passende Latte gefunden - nimm kleinste verfügbare bis zum nächsten Sparren
-            const naechsterSparren = relevanteSparren[zielSparrenIndex];
-            const kleinsteVerfuegbar = Math.min(...verfuegbareLaengen);
-            
+        if (besteLattenLaenge && besterZielSparren) {
             segmente.push({
-                start: abgedecktBis,
-                ende: naechsterSparren,
-                laenge: naechsterSparren - abgedecktBis,
-                originalLaenge: kleinsteVerfuegbar,
-                istRest: true
-            });
-            
-            verwendeteMaterialien.push(kleinsteVerfuegbar);
-            abgedecktBis = naechsterSparren;
-        } else {
-            segmente.push({
-                start: abgedecktBis,
+                start: linksAbgedecktBis,
                 ende: besterZielSparren,
-                laenge: besterZielSparren - abgedecktBis,
+                laenge: besterZielSparren - linksAbgedecktBis,
                 originalLaenge: besteLattenLaenge,
                 istRest: false
             });
-            
             verwendeteMaterialien.push(besteLattenLaenge);
-            abgedecktBis = besterZielSparren;
+            linksAbgedecktBis = besterZielSparren;
+        } else {
+            linkeFertig = true;
         }
     }
+    
+    // 2. Rechts außen nach innen
+    let rechtsAbgedecktBis = reihenBreite;
+    let rechtsFertig = false;
+    
+    while (!rechtsFertig && rechtsAbgedecktBis > reihenBreite / 2) {
+        // Finde den weitesten erreichbaren Sparren von rechts
+        let besteLattenLaenge = null;
+        let besterZielSparren = null;
+        
+        for (let i = 0; i < relevanteSparren.length; i++) {
+            if (relevanteSparren[i] >= rechtsAbgedecktBis - 0.01) continue;
+            
+            const benoetigteLattenLaenge = rechtsAbgedecktBis - relevanteSparren[i];
+            
+            const passendeLatte = verfuegbareLaengen
+                .filter(l => l >= benoetigteLattenLaenge - 0.01)
+                .sort((a, b) => (a - benoetigteLattenLaenge) - (b - benoetigteLattenLaenge))[0];
+            
+            if (passendeLatte) {
+                besteLattenLaenge = passendeLatte;
+                besterZielSparren = relevanteSparren[i];
+                break;
+            }
+        }
+        
+        if (besteLattenLaenge && besterZielSparren) {
+            segmente.push({
+                start: besterZielSparren,
+                ende: rechtsAbgedecktBis,
+                laenge: rechtsAbgedecktBis - besterZielSparren,
+                originalLaenge: besteLattenLaenge,
+                istRest: false
+            });
+            verwendeteMaterialien.push(besteLattenLaenge);
+            rechtsAbgedecktBis = besterZielSparren;
+        } else {
+            rechtsFertig = true;
+        }
+    }
+    
+    // 3. Lücke in der Mitte füllen (falls vorhanden)
+    if (rechtsAbgedecktBis > linksAbgedecktBis + 0.01) {
+        const lueckenBreite = rechtsAbgedecktBis - linksAbgedecktBis;
+        
+        // Finde passende Latte für die Lücke
+        const passendeLatte = verfuegbareLaengen
+            .filter(l => l >= lueckenBreite - 0.01)
+            .sort((a, b) => (a - lueckenBreite) - (b - lueckenBreite))[0];
+        
+        if (passendeLatte) {
+            segmente.push({
+                start: linksAbgedecktBis,
+                ende: rechtsAbgedecktBis,
+                laenge: lueckenBreite,
+                originalLaenge: passendeLatte,
+                istRest: true
+            });
+            verwendeteMaterialien.push(passendeLatte);
+        }
+    }
+    
+    // Sortiere Segmente nach Start-Position
+    segmente.sort((a, b) => a.start - b.start);
     
     return { segmente, verwendeteMaterialien };
 }
