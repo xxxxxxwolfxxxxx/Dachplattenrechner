@@ -453,7 +453,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         const rechteMitteX = (trapezObenRechts + trapezUntenRechts) / 2 + 25;
         const rechteMitteY = (dachStartY + trapezUntenY) / 2;
         const rechterWinkel = Math.atan2(dachHoehe, seitenAbstand) * 180 / Math.PI;
-        svg += `<text x="${rechteMitteX}" y="${rechteMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${rechterWinkel}, ${rechteMitteX}, ${rechteMitteY})">${linkeSchraegeLaenge.toFixed(let dachBreite = 10;
+        svg += `<text x="${linkeMitteX}" y="${linkeMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${linkerWinkel}, ${linkeMitteX}, ${linkeMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
 let dachHoehe = 6;
 let dachTyp = 'rechteck';
 let obereBreite = 0;
