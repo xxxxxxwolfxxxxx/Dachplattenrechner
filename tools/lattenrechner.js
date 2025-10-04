@@ -103,6 +103,8 @@ function generiereSimpleDachSVG() {
             </svg>`;
             break;
         case 'dreieck':
+        case 'gleichschenkliges-dreieck':
+        case 'ungleichschenkliges-dreieck':
             svg = `<svg width="200" height="120" viewBox="0 0 200 120">
                 <polygon points="100,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
                 <text x="100" y="75" text-anchor="middle" font-size="12" fill="#333">Dreieck</text>
@@ -226,6 +228,8 @@ function berechneSpitzdachSparren(anzahlSparren) {
             break;
             
         case 'dreieck':
+        case 'gleichschenkliges-dreieck':
+        case 'ungleichschenkliges-dreieck':
             const halbBreite = dachBreite / 2;
             
             for (let i = 0; i < anzahlSparren; i++) {
@@ -506,16 +510,18 @@ function berechneReihenBreite(fortschritt) {
             return obereBreite + (dachBreite - obereBreite) * fortschritt;
             
         case 'dreieck':
+        case 'gleichschenkliges-dreieck':
+        case 'ungleichschenkliges-dreieck':
             return dachBreite * fortschritt;
             
         case 'trapez-auf-rechteck':
-            const rechteckAnteil = rechteckHoehe / dachHoehe;
+            const trapezAnteil = trapezHoehe / dachHoehe;
             
-            if (fortschritt <= rechteckAnteil) {
-                return dachBreite;
+            if (fortschritt <= trapezAnteil) {
+                const trapezFortschritt = fortschritt / trapezAnteil;
+                return obereBreite + (dachBreite - obereBreite) * trapezFortschritt;
             } else {
-                const trapezFortschritt = (fortschritt - rechteckAnteil) / (1 - rechteckAnteil);
-                return obereBreite + (dachBreite - obereBreite) * (1 - trapezFortschritt);
+                return dachBreite;
             }
             
         default:
@@ -671,7 +677,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<line x1="${margin - 23}" y1="${trapezUntenY}" x2="${margin - 17}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<text x="${margin - 30}" y="${(dachStartY + trapezUntenY)/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${(dachStartY + trapezUntenY)/2})">${dachHoehe.toFixed(1)}m</text>`;
         
-    } else if (dachTyp === 'dreieck') {
+    } else if (dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
         const dreieckSpitzeX = margin + (dachBreite / 2) * scaleX;
         const dreieckLinksX = margin;
         const dreieckRechtsX = margin + dachBreite * scaleX;
@@ -760,7 +766,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         
         svg += `<line x1="${linkeObenX}" y1="${dachStartY}" x2="${margin}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
         svg += `<line x1="${rechteObenX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
-    } else if (dachTyp === 'dreieck') {
+    } else if (dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
         const spitzeX = margin + (dachBreite / 2) * scaleX;
         const untenY = dachStartY + dachHoehe * scaleY;
         
@@ -768,14 +774,14 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<line x1="${spitzeX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     } else if (dachTyp === 'trapez-auf-rechteck') {
         const trapezObenY = dachStartY;
-        const rechteckObenY = dachStartY + trapezHoehe * scaleY;
+        const trapezUntenY = dachStartY + trapezHoehe * scaleY;
         
         const seitenAbstand = (dachBreite - obereBreite) / 2;
         const linkeObenX = margin + seitenAbstand * scaleX;
         const rechteObenX = margin + (dachBreite - seitenAbstand) * scaleX;
         
-        svg += `<line x1="${linkeObenX}" y1="${trapezObenY}" x2="${margin}" y2="${rechteckObenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
-        svg += `<line x1="${rechteObenX}" y1="${trapezObenY}" x2="${margin + dachBreite * scaleX}" y2="${rechteckObenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+        svg += `<line x1="${linkeObenX}" y1="${trapezObenY}" x2="${margin}" y2="${trapezUntenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+        svg += `<line x1="${rechteObenX}" y1="${trapezObenY}" x2="${margin + dachBreite * scaleX}" y2="${trapezUntenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     }
     
     const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
