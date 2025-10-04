@@ -1,41 +1,4 @@
-function berechneDachlattenRechteck(sparrenPositionen, reihenBreite, verfuegbareLaengen, reihenStartAbsolut) {
-    // Finde ECHTE Sparren für diese Reihe (keine virtuellen Randpunkte!)
-    const relevanteSparren = sparrenPositionen.filter(pos => 
-        pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
-    ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
-    
-    if (relevanteSparren.length < 2) return null;
-    
-    const segmente = [];
-    const verwendeteMaterialien = [];
-    let abgedecktBis = 0;
-    
-    // Gehe von Sparren zu Sparren und finde optimale Latten
-    while (abgedecktBis < reihenBreite - 0.01) {
-        // Finde den nächsten Zielsparren für das Ende der Latte
-        let zielSparrenIndex = -1;
-        let besteLattenLaenge = null;
-        let besterZielSparren = null;
-        
-        // Prüfe ob wir am Anfang sind (Dachüberstand links)
-        const istAmAnfang = abgedecktBis < 0.01;
-        
-        if (istAmAnfang) {
-            // Am Anfang: Latte muss auf den ersten BEIDEN Sparren aufliegen
-            // und kann bis zum Rand (0) oder weiter reichen
-            if (relevanteSparren.length >= 2) {
-                const zweitSparren = relevanteSparren[1];
-                
-                // Suche längste Latte, die mindestens bis zum zweiten Sparren reicht
-                for (let i = relevanteSparren.length - 1; i >= 1; i--) {
-                    const benoetigteLattenLaenge = relevanteSparren[i] - abgedecktBis;
-                    
-                    const passendeLatte = verfuegbareLaengen
-                        .filter(l => l >= benoetigteLattenLaenge - 0.01)
-                        .sort((a, b) => (a - benoetigteLattenLaenge) - (b - benoetigteLattenLaenge))[0];
-                    
-                    if (passendeLatte) {
-                        besteLattenLaenge = passendeLatte;let dachBreite = 10;
+let dachBreite = 10;
 let dachHoehe = 6;
 let dachTyp = 'rechteck';
 let obereBreite = 0;
@@ -43,6 +6,16 @@ let trapezHoehe = 0;
 let rechteckHoehe = 0;
 let sparrenLaengen = [];
 let sparrenPositionen = [];
+
+function loadAdSense() {
+    // AdSense-Initialisierung (falls benötigt)
+    console.log('AdSense wird geladen...');
+}
+
+function loadAnalytics() {
+    // Analytics-Initialisierung (falls benötigt)
+    console.log('Analytics wird geladen...');
+}
 
 function showAds() {
     document.getElementById('top-ad-container').style.display = 'block';
