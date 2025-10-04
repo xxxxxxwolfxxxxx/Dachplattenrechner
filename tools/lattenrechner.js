@@ -59,7 +59,7 @@ function ladeDachParameter() {
 }
 
 function aktualisiereAnzeige() {
-    let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
+    let massText = `Breite: ${dachBreite}m, HÃ¶he: ${dachHoehe}m, Typ: ${dachTyp}`;
     
     const urlParams = new URLSearchParams(window.location.search);
     
@@ -289,7 +289,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
         return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
     }
     
-    tatsaechlichVerfuegbar.sort((a, b) => a - b);
+    tatsaechlichVerfuegbar.sort((a, b) => b - a); // Sortiere absteigend für Rechteck-Logik
     
     const materialListe = [];
     let gesamtVerschnitt = 0;
@@ -366,36 +366,75 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
         let aktuellePosition = 0;
         
         if (besteKombination) {
-            for (let lattenLaenge of besteKombination) {
-                if (aktuellePosition >= reihenBreite - 0.01) break;
+            // RECHTECK: Längste Latten außen, Reste innen
+            if (dachTyp === 'rechteck') {
+                besteKombination.sort((a, b) => b - a); // Längste zuerst
                 
-                const maxEnde = Math.min(aktuellePosition + lattenLaenge, reihenBreite);
-                
-                let zielSparren = null;
-                for (let j = relevanteSparren.length - 1; j >= 0; j--) {
-                    if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= maxEnde + 0.05) {
-                        zielSparren = relevanteSparren[j];
-                        break;
+                for (let lattenLaenge of besteKombination) {
+                    if (aktuellePosition >= reihenBreite - 0.01) break;
+                    
+                    const maxEnde = Math.min(aktuellePosition + lattenLaenge, reihenBreite);
+                    
+                    let zielSparren = null;
+                    for (let j = relevanteSparren.length - 1; j >= 0; j--) {
+                        if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= maxEnde + 0.05) {
+                            zielSparren = relevanteSparren[j];
+                            break;
+                        }
+                    }
+                    
+                    if (zielSparren) {
+                        reihenSegmente.push({
+                            start: aktuellePosition,
+                            ende: zielSparren,
+                            laenge: zielSparren - aktuellePosition,
+                            originalLaenge: lattenLaenge,
+                            istRest: false
+                        });
+                        
+                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
+                        }
+                        
+                        aktuellePosition = zielSparren;
                     }
                 }
-                
-                if (zielSparren) {
-                    reihenSegmente.push({
-                        start: aktuellePosition,
-                        ende: zielSparren,
-                        laenge: zielSparren - aktuellePosition,
-                        originalLaenge: lattenLaenge,
-                        istRest: false
-                    });
+            } else {
+                // TRAPEZ/DREIECK: Bisherige Logik beibehalten
+                for (let lattenLaenge of besteKombination) {
+                    if (aktuellePosition >= reihenBreite - 0.01) break;
                     
-                    const existierend = materialListe.find(m => m.laenge === lattenLaenge);
-                    if (existierend) {
-                        existierend.anzahl++;
-                    } else {
-                        materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
+                    const maxEnde = Math.min(aktuellePosition + lattenLaenge, reihenBreite);
+                    
+                    let zielSparren = null;
+                    for (let j = relevanteSparren.length - 1; j >= 0; j--) {
+                        if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= maxEnde + 0.05) {
+                            zielSparren = relevanteSparren[j];
+                            break;
+                        }
                     }
                     
-                    aktuellePosition = zielSparren;
+                    if (zielSparren) {
+                        reihenSegmente.push({
+                            start: aktuellePosition,
+                            ende: zielSparren,
+                            laenge: zielSparren - aktuellePosition,
+                            originalLaenge: lattenLaenge,
+                            istRest: false
+                        });
+                        
+                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
+                        }
+                        
+                        aktuellePosition = zielSparren;
+                    }
                 }
             }
         }
