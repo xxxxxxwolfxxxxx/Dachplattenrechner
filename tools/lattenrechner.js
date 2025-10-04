@@ -430,9 +430,10 @@ function findeAlleStosspunktKombinationen(start, ende, sparren, verfuegbareLaeng
         return alleLoesungen;
     }
     
-    // Mögliche Stoßpunkte auf Sparren
+    // Mögliche Stoßpunkte auf Sparren - ALLE durchprobieren
     const moeglicheStosspunkte = sparren.filter(s => s > start + 0.5 && s < ende - 0.5);
     
+    // Für JEDEN möglichen Stoßpunkt alle Lösungen sammeln
     for (let stosspunkt of moeglicheStosspunkte) {
         const benoetigteLattenlaenge = stosspunkt - start;
         
@@ -443,8 +444,8 @@ function findeAlleStosspunktKombinationen(start, ende, sparren, verfuegbareLaeng
                     stosspunkt, ende, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente - 1
                 );
                 
+                // ALLE Restlösungen mit diesem Segment kombinieren
                 for (let restLoesung of restLoesungen) {
-                    // Prüfe ob dieser Rest nicht schon in der Restlösung verwendet wird
                     if (!restLoesung.verwendeteReste.includes(i)) {
                         const aktuellesSegment = {
                             start: start,
@@ -471,6 +472,7 @@ function findeAlleStosspunktKombinationen(start, ende, sparren, verfuegbareLaeng
                 stosspunkt, ende, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente - 1
             );
             
+            // ALLE Restlösungen mit diesem Segment kombinieren
             for (let restLoesung of restLoesungen) {
                 const aktuellesSegment = {
                     start: start,
