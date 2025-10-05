@@ -343,21 +343,29 @@ function findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaenge
     let besteAufteilung = null;
     let minVerschnitt = Infinity;
     let besteAnzahlSegmente = 0;
+    let maxResteVerwendet = -1;
     
     for (let anzahlSegmente = 2; anzahlSegmente <= 4; anzahlSegmente++) {
         const alleLoesungen = findeAlleStosspunktKombinationen(0, reihenBreite, sparren, verfuegbareLaengen, resteStuecke, anzahlSegmente);
         
         for (let loesung of alleLoesungen) {
             const verschnitt = loesung.segmente.reduce((sum, seg) => sum + seg.verschnitt, 0);
+            const anzahlResteVerwendet = loesung.verwendeteReste.length;
             
-            if (verschnitt < minVerschnitt || (verschnitt === minVerschnitt && anzahlSegmente < besteAnzahlSegmente)) {
+            // Bevorzuge: 1) weniger Verschnitt, 2) mehr Reste verwendet, 3) weniger Segmente
+            const istBesser = verschnitt < minVerschnitt || 
+                            (verschnitt === minVerschnitt && anzahlResteVerwendet > maxResteVerwendet) ||
+                            (verschnitt === minVerschnitt && anzahlResteVerwendet === maxResteVerwendet && anzahlSegmente < besteAnzahlSegmente);
+            
+            if (istBesser) {
                 minVerschnitt = verschnitt;
                 besteAufteilung = loesung;
                 besteAnzahlSegmente = anzahlSegmente;
+                maxResteVerwendet = anzahlResteVerwendet;
             }
         }
         
-        if (minVerschnitt === 0) break;
+        if (minVerschnitt === 0 && maxResteVerwendet >= 1) break;
     }
     
     if (besteAufteilung) {
