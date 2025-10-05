@@ -225,6 +225,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     const resteStuecke = [];
     
     for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
+        window.aktuelleReihe = reihe;  // Für Variation in der Lattenaufteilung
         const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
         let reihenBreite = berechneReihenBreite(fortschritt);
         gesamtBenoetigteLaenge += reihenBreite;
