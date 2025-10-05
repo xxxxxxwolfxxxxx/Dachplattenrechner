@@ -248,9 +248,17 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                     materialListe.push({ laenge: segment.originalLaenge, anzahl: 1 });
                 }
                 
+                // Verschnitt als Rest speichern (aber nicht bei direktem Restverbrauch in derselben Reihe)
                 if (segment.verschnitt > 0.1) {
-                    resteStuecke.push(segment.verschnitt);
-                    resteStuecke.sort((a, b) => b - a);
+                    // Prüfe ob dieser Rest sofort in derselben Reihe verwendet wird
+                    const restWirdSofortVerwendet = reihenSegmente.some(s => 
+                        s.istRest && Math.abs(s.laenge - segment.verschnitt) < 0.01
+                    );
+                    
+                    if (!restWirdSofortVerwendet) {
+                        resteStuecke.push(segment.verschnitt);
+                        resteStuecke.sort((a, b) => b - a);
+                    }
                 }
             }
         }
@@ -348,17 +356,21 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
                         if (Math.abs(schneideLaenge - benoetigteRandlaenge) < 0.01) {
                             if (0 < minVerschnitt) {
                                 minVerschnitt = 0;
+                                
+                                // Das erste Segment wird geschnitten und erzeugt einen Rest
+                                // Dieser Rest wird sofort für das dritte Segment verwendet
                                 besteLoesung = {
                                     segmente: [
                                         { start: 0, ende: linkesRandstueck, laenge: linkesRandstueck, 
-                                          originalLaenge: schneideLaenge, verschnitt: 0, istRest: false },
+                                          originalLaenge: schneideLaenge, verschnitt: rechtesRandstueck, istRest: false },
                                         { start: linkerSparren, ende: rechterStosspunkt, laenge: mittlereLaenge, 
                                           originalLaenge: mittlereLaenge, verschnitt: 0, istRest: false },
                                         { start: rechterStosspunkt, ende: reihenBreite, laenge: rechtesRandstueck, 
-                                          originalLaenge: schneideLaenge, verschnitt: 0, istRest: false }
+                                          originalLaenge: rechtesRandstueck, verschnitt: 0, istRest: true }
                                     ],
                                     restIndex: -1,
-                                    verwendeteReste: []
+                                    verwendeteReste: [],
+                                    direkterRestVerbrauch: true  // Markierung dass Rest in derselben Reihe verwendet wird
                                 };
                                 break;
                             }
