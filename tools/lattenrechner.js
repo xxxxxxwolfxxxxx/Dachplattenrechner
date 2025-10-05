@@ -283,7 +283,7 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
     let besteLoesung = null;
     let minVerschnitt = Infinity;
     
-    // 1. Prüfen ob ein Reststück ausreicht
+    // 1. Prüfen: Ein Reststück reicht?
     for (let i = 0; i < resteStuecke.length; i++) {
         if (resteStuecke[i] >= reihenBreite) {
             const verschnitt = resteStuecke[i] - reihenBreite;
@@ -291,12 +291,8 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
                 minVerschnitt = verschnitt;
                 besteLoesung = {
                     segmente: [{
-                        start: 0,
-                        ende: reihenBreite,
-                        laenge: reihenBreite,
-                        originalLaenge: resteStuecke[i],
-                        verschnitt: verschnitt,
-                        istRest: true
+                        start: 0, ende: reihenBreite, laenge: reihenBreite,
+                        originalLaenge: resteStuecke[i], verschnitt: verschnitt, istRest: true
                     }],
                     restIndex: i
                 };
@@ -304,7 +300,7 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
         }
     }
     
-    // 2. Prüfen ob eine neue Latte ausreicht
+    // 2. Prüfen: Eine neue Latte reicht?
     for (let laenge of verfuegbareLaengen) {
         if (laenge >= reihenBreite) {
             const verschnitt = laenge - reihenBreite;
@@ -312,12 +308,8 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
                 minVerschnitt = verschnitt;
                 besteLoesung = {
                     segmente: [{
-                        start: 0,
-                        ende: reihenBreite,
-                        laenge: reihenBreite,
-                        originalLaenge: laenge,
-                        verschnitt: verschnitt,
-                        istRest: false
+                        start: 0, ende: reihenBreite, laenge: reihenBreite,
+                        originalLaenge: laenge, verschnitt: verschnitt, istRest: false
                     }],
                     restIndex: -1
                 };
@@ -325,13 +317,39 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
         }
     }
     
-    // 3. Mehrere Latten/Reste nötig - auf Sparren stoßen
-    const mehrteiligeLoesung = findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke);
-    if (mehrteiligeLoesung && mehrteiligeLoesung.segmente) {
-        const verschnitt = mehrteiligeLoesung.segmente.reduce((sum, seg) => sum + seg.verschnitt, 0);
-        if (verschnitt < minVerschnitt) {
-            minVerschnitt = verschnitt;
-            besteLoesung = mehrteiligeLoesung;
+    // 3. Mehrere Latten: Einfache Kombinationen testen (z.B. 2×5m für 10m)
+    for (let i = 0; i < verfuegbareLaengen.length; i++) {
+        for (let j = i; j < verfuegbareLaengen.length; j++) {
+            const l1 = verfuegbareLaengen[i];
+            const l2 = verfuegbareLaengen[j];
+            
+            if (Math.abs((l1 + l2) - reihenBreite) < 0.01) {
+                // Perfekte 2er-Kombination ohne Verschnitt
+                if (0 < minVerschnitt) {
+                    minVerschnitt = 0;
+                    besteLoesung = {
+                        segmente: [
+                            { start: 0, ende: l1, laenge: l1, originalLaenge: l1, verschnitt: 0, istRest: false },
+                            { start: l1, ende: reihenBreite, laenge: l2, originalLaenge: l2, verschnitt: 0, istRest: false }
+                        ],
+                        restIndex: -1,
+                        verwendeteReste: []
+                    };
+                }
+            }
+        }
+    }
+    
+    // 4. Wenn nötig: Komplexe Lösung mit Stoßpunkten auf Sparren
+    if (minVerschnitt > 0.5) {
+        const komplexeLoesung = findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke);
+        if (komplexeLoesung) {
+            const verschnitt = komplexeLoesung.segmente ? 
+                komplexeLoesung.segmente.reduce((sum, seg) => sum + seg.verschnitt, 0) : Infinity;
+            if (verschnitt < minVerschnitt) {
+                besteLoesung = komplexeLoesung;
+                minVerschnitt = verschnitt;
+            }
         }
     }
     
@@ -339,20 +357,20 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
     if (besteLoesung) {
         if (besteLoesung.restIndex >= 0) {
             resteStuecke.splice(besteLoesung.restIndex, 1);
-        } else if (besteLoesung.verwendeteReste) {
+        } else if (besteLoesung.verwendeteReste && besteLoesung.verwendeteReste.length > 0) {
             for (let restIndex of besteLoesung.verwendeteReste.sort((a, b) => b - a)) {
                 resteStuecke.splice(restIndex, 1);
             }
         }
         
         if (window.debugReihe === 0) {
-            console.log('Beste Lösung:');
-            console.log('Verschnitt:', minVerschnitt.toFixed(2));
-            console.log('Segmente:', besteLoesung.segmente.length);
+            console.log('Beste Lösung gefunden');
+            console.log('Verschnitt:', minVerschnitt);
+            console.log('Segmente:', besteLoesung.segmente ? besteLoesung.segmente.length : 0);
             window.debugReihe++;
         }
         
-        return besteLoesung.segmente || besteLoesung;
+        return besteLoesung.segmente ? besteLoesung.segmente : besteLoesung;
     }
     
     return [];
@@ -437,7 +455,20 @@ function findeAlleStosspunktKombinationen(start, ende, sparren, verfuegbareLaeng
         return alleLoesungen;
     }
     
-    const moeglicheStosspunkte = sparren.filter(s => s > start + 0.5 && s < ende - 0.5);
+    // Mögliche Stoßpunkte: auf Sparren UND optimale Teilungen
+    const moeglicheStosspunkte = [...sparren.filter(s => s > start + 0.5 && s < ende - 0.5)];
+    
+    // Füge auch optimale Teilungspunkte hinzu (z.B. bei 10m: 5m für 2×5m)
+    for (let laenge of verfuegbareLaengen) {
+        const teilungspunkt = start + laenge;
+        if (teilungspunkt > start + 0.5 && teilungspunkt < ende - 0.5) {
+            if (!moeglicheStosspunkte.includes(teilungspunkt)) {
+                moeglicheStosspunkte.push(teilungspunkt);
+            }
+        }
+    }
+    
+    moeglicheStosspunkte.sort((a, b) => a - b);
     
     for (let stosspunkt of moeglicheStosspunkte) {
         const benoetigteLattenlaenge = stosspunkt - start;
