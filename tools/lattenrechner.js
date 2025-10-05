@@ -280,44 +280,65 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
         console.log('Reste:', resteStuecke);
     }
     
+    let besteLoesung = null;
+    let minVerschnitt = Infinity;
+    
+    // Prüfen ob ein Reststück ausreicht
     for (let i = 0; i < resteStuecke.length; i++) {
         if (resteStuecke[i] >= reihenBreite) {
-            const rest = resteStuecke.splice(i, 1)[0];
-            const result = [{
-                start: 0,
-                ende: reihenBreite,
-                laenge: reihenBreite,
-                originalLaenge: rest,
-                verschnitt: rest - reihenBreite,
-                istRest: true
-            }];
-            if (window.debugReihe === 0) {
-                console.log('Lösung: Ein Reststück reicht aus');
-                window.debugReihe++;
+            const verschnitt = resteStuecke[i] - reihenBreite;
+            if (verschnitt < minVerschnitt) {
+                minVerschnitt = verschnitt;
+                besteLoesung = {
+                    segmente: [{
+                        start: 0,
+                        ende: reihenBreite,
+                        laenge: reihenBreite,
+                        originalLaenge: resteStuecke[i],
+                        verschnitt: verschnitt,
+                        istRest: true
+                    }],
+                    restIndex: i
+                };
             }
-            return result;
         }
     }
     
+    // Prüfen ob eine neue Latte ausreicht
     for (let laenge of verfuegbareLaengen) {
         if (laenge >= reihenBreite) {
-            const result = [{
-                start: 0,
-                ende: reihenBreite,
-                laenge: reihenBreite,
-                originalLaenge: laenge,
-                verschnitt: laenge - reihenBreite,
-                istRest: false
-            }];
-            if (window.debugReihe === 0) {
-                console.log('Lösung: Eine Latte reicht aus');
-                console.log('Verschnitt:', laenge - reihenBreite);
-                window.debugReihe++;
+            const verschnitt = laenge - reihenBreite;
+            if (verschnitt < minVerschnitt) {
+                minVerschnitt = verschnitt;
+                besteLoesung = {
+                    segmente: [{
+                        start: 0,
+                        ende: reihenBreite,
+                        laenge: reihenBreite,
+                        originalLaenge: laenge,
+                        verschnitt: verschnitt,
+                        istRest: false
+                    }],
+                    restIndex: -1
+                };
             }
-            return result;
         }
     }
     
+    // Wenn eine Einzellösung gefunden wurde
+    if (besteLoesung) {
+        if (besteLoesung.restIndex >= 0) {
+            resteStuecke.splice(besteLoesung.restIndex, 1);
+        }
+        if (window.debugReihe === 0) {
+            console.log('Lösung: Eine Latte/Rest reicht aus');
+            console.log('Verschnitt:', minVerschnitt);
+            window.debugReihe++;
+        }
+        return besteLoesung.segmente;
+    }
+    
+    // Mehrere Latten/Reste nötig
     const besteAufteilung = findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke);
     
     if (window.debugReihe === 0 && besteAufteilung) {
