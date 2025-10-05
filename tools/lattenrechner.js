@@ -283,7 +283,7 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
     let besteLoesung = null;
     let minVerschnitt = Infinity;
     
-    // Prüfen ob ein Reststück ausreicht
+    // 1. Prüfen ob ein Reststück ausreicht
     for (let i = 0; i < resteStuecke.length; i++) {
         if (resteStuecke[i] >= reihenBreite) {
             const verschnitt = resteStuecke[i] - reihenBreite;
@@ -304,7 +304,7 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
         }
     }
     
-    // Prüfen ob eine neue Latte ausreicht
+    // 2. Prüfen ob eine neue Latte ausreicht
     for (let laenge of verfuegbareLaengen) {
         if (laenge >= reihenBreite) {
             const verschnitt = laenge - reihenBreite;
@@ -325,38 +325,37 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
         }
     }
     
-    // Wenn eine Einzellösung gefunden wurde
+    // 3. Mehrere Latten/Reste nötig - auf Sparren stoßen
+    const mehrteiligeLoesung = findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke);
+    if (mehrteiligeLoesung && mehrteiligeLoesung.segmente) {
+        const verschnitt = mehrteiligeLoesung.segmente.reduce((sum, seg) => sum + seg.verschnitt, 0);
+        if (verschnitt < minVerschnitt) {
+            minVerschnitt = verschnitt;
+            besteLoesung = mehrteiligeLoesung;
+        }
+    }
+    
+    // Beste Lösung anwenden
     if (besteLoesung) {
         if (besteLoesung.restIndex >= 0) {
             resteStuecke.splice(besteLoesung.restIndex, 1);
+        } else if (besteLoesung.verwendeteReste) {
+            for (let restIndex of besteLoesung.verwendeteReste.sort((a, b) => b - a)) {
+                resteStuecke.splice(restIndex, 1);
+            }
         }
+        
         if (window.debugReihe === 0) {
-            console.log('Lösung: Eine Latte/Rest reicht aus');
-            console.log('Verschnitt:', minVerschnitt);
+            console.log('Beste Lösung:');
+            console.log('Verschnitt:', minVerschnitt.toFixed(2));
+            console.log('Segmente:', besteLoesung.segmente.length);
             window.debugReihe++;
         }
-        return besteLoesung.segmente;
+        
+        return besteLoesung.segmente || besteLoesung;
     }
     
-    // Mehrere Latten/Reste nötig
-    const besteAufteilung = findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke);
-    
-    if (window.debugReihe === 0 && besteAufteilung) {
-        console.log('Lösung: Mehrere Segmente');
-        console.log('Segmente:', besteAufteilung.map(s => ({
-            start: s.start.toFixed(1),
-            ende: s.ende.toFixed(1),
-            laenge: s.laenge.toFixed(1),
-            original: s.originalLaenge,
-            verschnitt: s.verschnitt.toFixed(2),
-            istRest: s.istRest
-        })));
-        const totalVerschnitt = besteAufteilung.reduce((sum, seg) => sum + seg.verschnitt, 0);
-        console.log('Total Verschnitt:', totalVerschnitt.toFixed(2));
-        window.debugReihe++;
-    }
-    
-    return besteAufteilung || [];
+    return [];
 }
 
 function findeBesteStosspunkteMitResten(reihenBreite, sparren, verfuegbareLaengen, resteStuecke) {
