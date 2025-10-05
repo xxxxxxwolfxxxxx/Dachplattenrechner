@@ -219,7 +219,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     }
     tatsaechlichVerfuegbar.sort((a, b) => b - a);
     const materialListe = [];
-    let gesamtVerschnitt = 0;
     let gesamtBenoetigteLaenge = 0;
     window.lattenPlan = [];
     
@@ -259,9 +258,9 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
         window.lattenPlan[reihe] = reihenSegmente;
     }
     
-    gesamtVerschnitt = resteStuecke.reduce((sum, rest) => sum + rest, 0);
-    
     const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
+    const gesamtVerschnitt = gesamtLaenge - gesamtBenoetigteLaenge;
+    
     return {
         kombination: materialListe,
         gesamtLaenge: gesamtLaenge,
