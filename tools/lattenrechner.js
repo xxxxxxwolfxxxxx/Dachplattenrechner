@@ -317,44 +317,58 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
         }
     }
     
-    // 3. Clevere 3-Segment-Lösung: Mittlere Latte + geschnittene Latte für Ränder
+    // 3. Clevere 3-Segment-Lösung: Mittlere Latte zentral + geschnittene Latte für Ränder
     for (let mittlereLaenge of verfuegbareLaengen) {
-        // Suche Position für mittlere Latte mit Stößen auf Sparren
-        for (let linkerSparren of sparren) {
+        // Berechne zentrale Position (±1 Feld für Variation)
+        const zentrum = reihenBreite / 2;
+        const idealeStartPos = zentrum - (mittlereLaenge / 2);
+        
+        // Suche Sparren nahe der idealen Position (±1.5m Toleranz)
+        const kandidatenSparren = sparren.filter(s => 
+            s >= idealeStartPos - 1.5 && 
+            s <= idealeStartPos + 1.5 &&
+            s >= 1.0  // Mindestens 1m vom Rand für ausreichende Auflage
+        );
+        
+        for (let linkerSparren of kandidatenSparren) {
             const rechterStosspunkt = linkerSparren + mittlereLaenge;
             
-            // Prüfe ob rechter Stoßpunkt auch auf einem Sparren liegt
+            // Prüfe ob rechter Stoßpunkt auf Sparren liegt
             const rechterSparrenGefunden = sparren.some(s => Math.abs(s - rechterStosspunkt) < 0.05);
             
-            if (rechterSparrenGefunden && rechterStosspunkt < reihenBreite - 0.1) {
-                // Berechne benötigte Randstücke
+            if (rechterSparrenGefunden && rechterStosspunkt <= reihenBreite - 1.0) {
                 const linkesRandstueck = linkerSparren;
                 const rechtesRandstueck = reihenBreite - rechterStosspunkt;
-                const benoetigteRandlaenge = linkesRandstueck + rechtesRandstueck;
                 
-                // Suche Latte die geschnitten werden kann
-                for (let schneideLaenge of verfuegbareLaengen) {
-                    if (Math.abs(schneideLaenge - benoetigteRandlaenge) < 0.01) {
-                        // Perfekte 3-Segment-Lösung gefunden!
-                        if (0 < minVerschnitt) {
-                            minVerschnitt = 0;
-                            besteLoesung = {
-                                segmente: [
-                                    { start: 0, ende: linkesRandstueck, laenge: linkesRandstueck, 
-                                      originalLaenge: schneideLaenge, verschnitt: 0, istRest: false },
-                                    { start: linkerSparren, ende: rechterStosspunkt, laenge: mittlereLaenge, 
-                                      originalLaenge: mittlereLaenge, verschnitt: 0, istRest: false },
-                                    { start: rechterStosspunkt, ende: reihenBreite, laenge: rechtesRandstueck, 
-                                      originalLaenge: schneideLaenge, verschnitt: 0, istRest: false }
-                                ],
-                                restIndex: -1,
-                                verwendeteReste: []
-                            };
+                // Beide Randstücke müssen mindestens 1m sein (2 Sparren Auflage)
+                if (linkesRandstueck >= 1.0 && rechtesRandstueck >= 1.0) {
+                    const benoetigteRandlaenge = linkesRandstueck + rechtesRandstueck;
+                    
+                    for (let schneideLaenge of verfuegbareLaengen) {
+                        if (Math.abs(schneideLaenge - benoetigteRandlaenge) < 0.01) {
+                            if (0 < minVerschnitt) {
+                                minVerschnitt = 0;
+                                besteLoesung = {
+                                    segmente: [
+                                        { start: 0, ende: linkesRandstueck, laenge: linkesRandstueck, 
+                                          originalLaenge: schneideLaenge, verschnitt: 0, istRest: false },
+                                        { start: linkerSparren, ende: rechterStosspunkt, laenge: mittlereLaenge, 
+                                          originalLaenge: mittlereLaenge, verschnitt: 0, istRest: false },
+                                        { start: rechterStosspunkt, ende: reihenBreite, laenge: rechtesRandstueck, 
+                                          originalLaenge: schneideLaenge, verschnitt: 0, istRest: false }
+                                    ],
+                                    restIndex: -1,
+                                    verwendeteReste: []
+                                };
+                                break;
+                            }
                         }
                     }
+                    if (minVerschnitt === 0) break;
                 }
             }
         }
+        if (minVerschnitt === 0) break;
     }
     
     // 4. Einfache 2-Latten-Kombination (falls keine 3-Segment-Lösung gefunden)
