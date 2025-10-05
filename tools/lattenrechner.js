@@ -59,7 +59,7 @@ function ladeDachParameter() {
 }
 
 function aktualisiereAnzeige() {
-    let massText = `Breite: ${dachBreite}m, HÃ¶he: ${dachHoehe}m, Typ: ${dachTyp}`;
+    let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
     
     const urlParams = new URLSearchParams(window.location.search);
     
@@ -298,196 +298,385 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
     window.lattenPlan = [];
     const luecken = [];
     
-    // PHASE 1: Grobe Abdeckung mit optimalen Kombinationen
-    for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
-        const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
-        let reihenBreite = berechneReihenBreite(fortschritt);
-        
-        gesamtBenoetigteLaenge += reihenBreite;
-        
-        const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
-        const relevanteSparren = sparrenPositionen.filter(pos => 
-            pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
-        ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
-        
-        if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
-            relevanteSparren.unshift(0);
-        }
-        if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
-            relevanteSparren.push(reihenBreite);
-        }
-        
-        // Finde beste Kombination fÃ¼r diese Reihe
-        let besteKombination = null;
-        let minVerschnitt = Infinity;
-        
-        // Versuche Kombinationen aus 1-3 Latten
-        for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-            const summe = tatsaechlichVerfuegbar[i];
-            if (summe >= reihenBreite - 0.01) {
-                const verschnitt = summe - reihenBreite;
-                if (verschnitt < minVerschnitt) {
-                    minVerschnitt = verschnitt;
-                    besteKombination = [tatsaechlichVerfuegbar[i]];
-                }
-            }
-        }
-        
-        for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-            for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
-                const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j];
-                if (summe >= reihenBreite - 0.01) {
-                    const verschnitt = summe - reihenBreite;
+    // SONDERFALL RECHTECK: Prüfen ob Sparren nicht an den Außenkanten liegen
+    const istRechteckSonderfall = (dachTyp === 'rechteck' && 
+        sparrenPositionen.length > 0 && 
+        (sparrenPositionen[0] > 0.05 || sparrenPositionen[sparrenPositionen.length - 1] < dachBreite - 0.05));
+    
+    if (istRechteckSonderfall) {
+        // Rechteck-Sonderfall: Intelligente Lattenteilung
+        for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
+            const reihenBreite = dachBreite;
+            gesamtBenoetigteLaenge += reihenBreite;
+            
+            const reihenSegmente = [];
+            
+            // Finde beste Kombination aus verfügbaren Latten
+            let besteKombination = null;
+            let minVerschnitt = Infinity;
+            
+            // Versuche alle Kombinationen
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                if (tatsaechlichVerfuegbar[i] >= reihenBreite - 0.01) {
+                    const verschnitt = tatsaechlichVerfuegbar[i] - reihenBreite;
                     if (verschnitt < minVerschnitt) {
                         minVerschnitt = verschnitt;
-                        besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j]];
+                        besteKombination = [tatsaechlichVerfuegbar[i]];
                     }
                 }
             }
-        }
-        
-        for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-            for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
-                for (let k = j; k < tatsaechlichVerfuegbar.length; k++) {
-                    const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j] + tatsaechlichVerfuegbar[k];
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j];
                     if (summe >= reihenBreite - 0.01) {
                         const verschnitt = summe - reihenBreite;
                         if (verschnitt < minVerschnitt) {
                             minVerschnitt = verschnitt;
-                            besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j], tatsaechlichVerfuegbar[k]];
+                            besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j]];
                         }
                     }
                 }
             }
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    for (let k = j; k < tatsaechlichVerfuegbar.length; k++) {
+                        const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j] + tatsaechlichVerfuegbar[k];
+                        if (summe >= reihenBreite - 0.01) {
+                            const verschnitt = summe - reihenBreite;
+                            if (verschnitt < minVerschnitt) {
+                                minVerschnitt = verschnitt;
+                                besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j], tatsaechlichVerfuegbar[k]];
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (besteKombination) {
+                // Variante im Lattenbild: Wechselnde Schnittmuster
+                const variante = reihe % 3;
+                let segmente = [];
+                
+                if (besteKombination.length === 1) {
+                    // Eine Latte - direkt verwenden
+                    segmente.push({
+                        start: 0,
+                        ende: reihenBreite,
+                        laenge: reihenBreite,
+                        originalLaenge: besteKombination[0],
+                        istRest: false
+                    });
+                    
+                    const existierend = materialListe.find(m => m.laenge === besteKombination[0]);
+                    if (existierend) {
+                        existierend.anzahl++;
+                    } else {
+                        materialListe.push({ laenge: besteKombination[0], anzahl: 1 });
+                    }
+                    
+                    gesamtVerschnitt += (besteKombination[0] - reihenBreite);
+                    
+                } else if (besteKombination.length === 2) {
+                    // Zwei Latten - intelligente Aufteilung
+                    const lattenSumme = besteKombination[0] + besteKombination[1];
+                    const verschnitt = lattenSumme - reihenBreite;
+                    
+                    // Berechne optimale Schnittlängen
+                    let laenge1, laenge2;
+                    
+                    if (variante === 0) {
+                        // Gleichmäßig aufteilen
+                        laenge1 = reihenBreite / 2;
+                        laenge2 = reihenBreite / 2;
+                    } else if (variante === 1) {
+                        // 40/60 Aufteilung
+                        laenge1 = reihenBreite * 0.4;
+                        laenge2 = reihenBreite * 0.6;
+                    } else {
+                        // 60/40 Aufteilung
+                        laenge1 = reihenBreite * 0.6;
+                        laenge2 = reihenBreite * 0.4;
+                    }
+                    
+                    segmente.push({
+                        start: 0,
+                        ende: laenge1,
+                        laenge: laenge1,
+                        originalLaenge: besteKombination[0],
+                        istRest: false
+                    });
+                    
+                    segmente.push({
+                        start: laenge1,
+                        ende: reihenBreite,
+                        laenge: laenge2,
+                        originalLaenge: besteKombination[1],
+                        istRest: false
+                    });
+                    
+                    besteKombination.forEach(laenge => {
+                        const existierend = materialListe.find(m => m.laenge === laenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: laenge, anzahl: 1 });
+                        }
+                    });
+                    
+                    gesamtVerschnitt += verschnitt;
+                    
+                } else if (besteKombination.length === 3) {
+                    // Drei Latten - drei verschiedene Muster
+                    const lattenSumme = besteKombination[0] + besteKombination[1] + besteKombination[2];
+                    const verschnitt = lattenSumme - reihenBreite;
+                    
+                    let laenge1, laenge2, laenge3;
+                    
+                    if (variante === 0) {
+                        // Muster 1: 25% + 50% + 25%
+                        laenge1 = reihenBreite * 0.25;
+                        laenge2 = reihenBreite * 0.5;
+                        laenge3 = reihenBreite * 0.25;
+                    } else if (variante === 1) {
+                        // Muster 2: 15% + 50% + 35%
+                        laenge1 = reihenBreite * 0.15;
+                        laenge2 = reihenBreite * 0.5;
+                        laenge3 = reihenBreite * 0.35;
+                    } else {
+                        // Muster 3: 35% + 50% + 15%
+                        laenge1 = reihenBreite * 0.35;
+                        laenge2 = reihenBreite * 0.5;
+                        laenge3 = reihenBreite * 0.15;
+                    }
+                    
+                    segmente.push({
+                        start: 0,
+                        ende: laenge1,
+                        laenge: laenge1,
+                        originalLaenge: besteKombination[0],
+                        istRest: false
+                    });
+                    
+                    segmente.push({
+                        start: laenge1,
+                        ende: laenge1 + laenge2,
+                        laenge: laenge2,
+                        originalLaenge: besteKombination[1],
+                        istRest: false
+                    });
+                    
+                    segmente.push({
+                        start: laenge1 + laenge2,
+                        ende: reihenBreite,
+                        laenge: laenge3,
+                        originalLaenge: besteKombination[2],
+                        istRest: false
+                    });
+                    
+                    besteKombination.forEach(laenge => {
+                        const existierend = materialListe.find(m => m.laenge === laenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: laenge, anzahl: 1 });
+                        }
+                    });
+                    
+                    gesamtVerschnitt += verschnitt;
+                }
+                
+                window.lattenPlan[reihe] = segmente;
+            }
         }
         
-        // Verteile die Kombination auf Sparren
-        const reihenSegmente = [];
-        let aktuellePosition = 0;
+    } else {
+        // NORMALER FALL: Alte Logik für Trapez/Dreieck/etc.
+        for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
+            const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
+            let reihenBreite = berechneReihenBreite(fortschritt);
+            
+            gesamtBenoetigteLaenge += reihenBreite;
+            
+            const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+            const relevanteSparren = sparrenPositionen.filter(pos => 
+                pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
+            ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
+            
+            if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
+                relevanteSparren.unshift(0);
+            }
+            if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
+                relevanteSparren.push(reihenBreite);
+            }
+            
+            let besteKombination = null;
+            let minVerschnitt = Infinity;
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                const summe = tatsaechlichVerfuegbar[i];
+                if (summe >= reihenBreite - 0.01) {
+                    const verschnitt = summe - reihenBreite;
+                    if (verschnitt < minVerschnitt) {
+                        minVerschnitt = verschnitt;
+                        besteKombination = [tatsaechlichVerfuegbar[i]];
+                    }
+                }
+            }
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j];
+                    if (summe >= reihenBreite - 0.01) {
+                        const verschnitt = summe - reihenBreite;
+                        if (verschnitt < minVerschnitt) {
+                            minVerschnitt = verschnitt;
+                            besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j]];
+                        }
+                    }
+                }
+            }
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    for (let k = j; k < tatsaechlichVerfuegbar.length; k++) {
+                        const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j] + tatsaechlichVerfuegbar[k];
+                        if (summe >= reihenBreite - 0.01) {
+                            const verschnitt = summe - reihenBreite;
+                            if (verschnitt < minVerschnitt) {
+                                minVerschnitt = verschnitt;
+                                besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j], tatsaechlichVerfuegbar[k]];
+                            }
+                        }
+                    }
+                }
+            }
+            
+            const reihenSegmente = [];
+            let aktuellePosition = 0;
+            
+            if (besteKombination) {
+                for (let lattenLaenge of besteKombination) {
+                    if (aktuellePosition >= reihenBreite - 0.01) break;
+                    
+                    const maxEnde = Math.min(aktuellePosition + lattenLaenge, reihenBreite);
+                    
+                    let zielSparren = null;
+                    for (let j = relevanteSparren.length - 1; j >= 0; j--) {
+                        if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= maxEnde + 0.05) {
+                            zielSparren = relevanteSparren[j];
+                            break;
+                        }
+                    }
+                    
+                    if (zielSparren) {
+                        reihenSegmente.push({
+                            start: aktuellePosition,
+                            ende: zielSparren,
+                            laenge: zielSparren - aktuellePosition,
+                            originalLaenge: lattenLaenge,
+                            istRest: false
+                        });
+                        
+                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
+                        }
+                        
+                        aktuellePosition = zielSparren;
+                    }
+                }
+            }
+            
+            if (aktuellePosition < reihenBreite - 0.1) {
+                luecken.push({
+                    reihe: reihe,
+                    start: aktuellePosition,
+                    ende: reihenBreite,
+                    benoetigteLattenlaenge: reihenBreite - aktuellePosition,
+                    relevanteSparren: relevanteSparren.filter(pos => pos > aktuellePosition)
+                });
+            }
+            
+            window.lattenPlan[reihe] = reihenSegmente;
+        }
         
-        if (besteKombination) {
-            for (let lattenLaenge of besteKombination) {
-                if (aktuellePosition >= reihenBreite - 0.01) break;
+        // PHASE 2: Lücken optimal füllen
+        if (luecken.length > 0) {
+            let restPool = [];
+            
+            for (let luecke of luecken) {
+                let gefuellt = false;
                 
-                const maxEnde = Math.min(aktuellePosition + lattenLaenge, reihenBreite);
-                
-                let zielSparren = null;
-                for (let j = relevanteSparren.length - 1; j >= 0; j--) {
-                    if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= maxEnde + 0.05) {
-                        zielSparren = relevanteSparren[j];
+                for (let i = 0; i < restPool.length; i++) {
+                    const restLaenge = restPool[i];
+                    
+                    let zielSparren = null;
+                    for (let sparrenPos of luecke.relevanteSparren) {
+                        if (sparrenPos <= luecke.start + restLaenge + 0.05) {
+                            zielSparren = sparrenPos;
+                            break;
+                        }
+                    }
+                    
+                    if (zielSparren && zielSparren >= luecke.ende - 0.05) {
+                        window.lattenPlan[luecke.reihe].push({
+                            start: luecke.start,
+                            ende: luecke.ende,
+                            laenge: luecke.benoetigteLattenlaenge,
+                            originalLaenge: restLaenge,
+                            istRest: true
+                        });
+                        
+                        const neuerRest = restLaenge - luecke.benoetigteLattenlaenge;
+                        restPool.splice(i, 1);
+                        
+                        if (neuerRest > 0.5) {
+                            restPool.push(neuerRest);
+                            restPool.sort((a, b) => b - a);
+                        } else if (neuerRest > 0.01) {
+                            gesamtVerschnitt += neuerRest;
+                        }
+                        
+                        gefuellt = true;
                         break;
                     }
                 }
                 
-                if (zielSparren) {
-                    reihenSegmente.push({
-                        start: aktuellePosition,
-                        ende: zielSparren,
-                        laenge: zielSparren - aktuellePosition,
-                        originalLaenge: lattenLaenge,
-                        istRest: false
-                    });
-                    
-                    const existierend = materialListe.find(m => m.laenge === lattenLaenge);
-                    if (existierend) {
-                        existierend.anzahl++;
-                    } else {
-                        materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
+                if (!gefuellt) {
+                    const passendeLatte = tatsaechlichVerfuegbar.find(l => l >= luecke.benoetigteLattenlaenge);
+                    if (passendeLatte) {
+                        window.lattenPlan[luecke.reihe].push({
+                            start: luecke.start,
+                            ende: luecke.ende,
+                            laenge: luecke.benoetigteLattenlaenge,
+                            originalLaenge: passendeLatte,
+                            istRest: false
+                        });
+                        
+                        const existierend = materialListe.find(m => m.laenge === passendeLatte);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: passendeLatte, anzahl: 1 });
+                        }
+                        
+                        const neuerRest = passendeLatte - luecke.benoetigteLattenlaenge;
+                        if (neuerRest > 0.5) {
+                            restPool.push(neuerRest);
+                            restPool.sort((a, b) => b - a);
+                        } else if (neuerRest > 0.01) {
+                            gesamtVerschnitt += neuerRest;
+                        }
                     }
-                    
-                    aktuellePosition = zielSparren;
-                }
-            }
-        }
-        
-        // Sammle LÃ¼cken
-        if (aktuellePosition < reihenBreite - 0.1) {
-            luecken.push({
-                reihe: reihe,
-                start: aktuellePosition,
-                ende: reihenBreite,
-                benoetigteLattenlaenge: reihenBreite - aktuellePosition,
-                relevanteSparren: relevanteSparren.filter(pos => pos > aktuellePosition)
-            });
-        }
-        
-        window.lattenPlan[reihe] = reihenSegmente;
-    }
-    
-    // PHASE 2: LÃ¼cken optimal fÃ¼llen
-    if (luecken.length > 0) {
-        let restPool = [];
-        
-        for (let luecke of luecken) {
-            let gefuellt = false;
-            
-            // Versuche Rest zu verwenden
-            for (let i = 0; i < restPool.length; i++) {
-                const restLaenge = restPool[i];
-                
-                let zielSparren = null;
-                for (let sparrenPos of luecke.relevanteSparren) {
-                    if (sparrenPos <= luecke.start + restLaenge + 0.05) {
-                        zielSparren = sparrenPos;
-                        break;
-                    }
-                }
-                
-                if (zielSparren && zielSparren >= luecke.ende - 0.05) {
-                    window.lattenPlan[luecke.reihe].push({
-                        start: luecke.start,
-                        ende: luecke.ende,
-                        laenge: luecke.benoetigteLattenlaenge,
-                        originalLaenge: restLaenge,
-                        istRest: true
-                    });
-                    
-                    const neuerRest = restLaenge - luecke.benoetigteLattenlaenge;
-                    restPool.splice(i, 1);
-                    
-                    if (neuerRest > 0.5) {
-                        restPool.push(neuerRest);
-                        restPool.sort((a, b) => b - a);
-                    } else if (neuerRest > 0.01) {
-                        gesamtVerschnitt += neuerRest;
-                    }
-                    
-                    gefuellt = true;
-                    break;
                 }
             }
             
-            // Neue Latte kaufen
-            if (!gefuellt) {
-                const passendeLatte = tatsaechlichVerfuegbar.find(l => l >= luecke.benoetigteLattenlaenge);
-                if (passendeLatte) {
-                    window.lattenPlan[luecke.reihe].push({
-                        start: luecke.start,
-                        ende: luecke.ende,
-                        laenge: luecke.benoetigteLattenlaenge,
-                        originalLaenge: passendeLatte,
-                        istRest: false
-                    });
-                    
-                    const existierend = materialListe.find(m => m.laenge === passendeLatte);
-                    if (existierend) {
-                        existierend.anzahl++;
-                    } else {
-                        materialListe.push({ laenge: passendeLatte, anzahl: 1 });
-                    }
-                    
-                    const neuerRest = passendeLatte - luecke.benoetigteLattenlaenge;
-                    if (neuerRest > 0.5) {
-                        restPool.push(neuerRest);
-                        restPool.sort((a, b) => b - a);
-                    } else if (neuerRest > 0.01) {
-                        gesamtVerschnitt += neuerRest;
-                    }
-                }
-            }
+            gesamtVerschnitt += restPool.reduce((sum, rest) => sum + rest, 0);
         }
-        
-        gesamtVerschnitt += restPool.reduce((sum, rest) => sum + rest, 0);
     }
     
     const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
@@ -582,11 +771,11 @@ function optimiereKonterlatten(benoetigteLaenge, verfuegbareLaengen) {
 
 function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabstand, anzahlSparren) {
     document.getElementById('konterlatte-gesamtlaenge').textContent = konterlatten.gesamtLaenge.toFixed(1) + ' m';
-    document.getElementById('konterlatte-anzahl').textContent = konterlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' StÃ¼ck';
+    document.getElementById('konterlatte-anzahl').textContent = konterlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
     document.getElementById('konterlatte-verschnitt').textContent = konterlatten.verschnitt.toFixed(1) + ' m';
 
     document.getElementById('dachlatte-gesamtlaenge').textContent = dachlatten.gesamtLaenge.toFixed(1) + ' m';
-    document.getElementById('dachlatte-anzahl').textContent = dachlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' StÃ¼ck';
+    document.getElementById('dachlatte-anzahl').textContent = dachlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
     document.getElementById('dachlatte-verschnitt').textContent = dachlatten.verschnitt.toFixed(1) + ' m';
 
     const tbody = document.getElementById('material-details');
@@ -637,7 +826,6 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
     svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
     
-    // Logo/Titel
     svg += `<text x="${svgWidth/2}" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3c72">Dachplattenrechner.de</text>`;
     
     const dachStartY = margin + 40;
@@ -652,26 +840,22 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         
         svg += `<polygon points="${trapezObenLinks},${dachStartY} ${trapezObenRechts},${dachStartY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
         
-        // Obere Breite
         svg += `<line x1="${trapezObenLinks}" y1="${dachStartY - 15}" x2="${trapezObenRechts}" y2="${dachStartY - 15}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${trapezObenLinks}" y1="${dachStartY - 18}" x2="${trapezObenLinks}" y2="${dachStartY - 12}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${trapezObenRechts}" y1="${dachStartY - 18}" x2="${trapezObenRechts}" y2="${dachStartY - 12}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<text x="${(trapezObenLinks + trapezObenRechts)/2}" y="${dachStartY - 20}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${obereBreite.toFixed(1)}m</text>`;
         
-        // Linke SchrÃ¤ge
         const linkeSchraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + seitenAbstand * seitenAbstand);
         const linkeMitteX = (trapezObenLinks + trapezUntenLinks) / 2 - 25;
         const linkeMitteY = (dachStartY + trapezUntenY) / 2;
         const linkerWinkel = -Math.atan2(dachHoehe, seitenAbstand) * 180 / Math.PI;
         svg += `<text x="${linkeMitteX}" y="${linkeMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${linkerWinkel}, ${linkeMitteX}, ${linkeMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
         
-        // Rechte SchrÃ¤ge
         const rechteMitteX = (trapezObenRechts + trapezUntenRechts) / 2 + 25;
         const rechteMitteY = (dachStartY + trapezUntenY) / 2;
         const rechterWinkel = Math.atan2(dachHoehe, seitenAbstand) * 180 / Math.PI;
         svg += `<text x="${rechteMitteX}" y="${rechteMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${rechterWinkel}, ${rechteMitteX}, ${rechteMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
         
-        // HÃ¶he
         svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${margin - 23}" y1="${trapezUntenY}" x2="${margin - 17}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
@@ -685,20 +869,17 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         
         svg += `<polygon points="${dreieckSpitzeX},${dachStartY} ${dreieckRechtsX},${dreieckUntenY} ${dreieckLinksX},${dreieckUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
         
-        // Linke SchrÃ¤ge
         const linkeSchraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + (dachBreite/2) * (dachBreite/2));
         const linkeMitteX = (dreieckSpitzeX + dreieckLinksX) / 2 - 25;
         const linkeMitteY = (dachStartY + dreieckUntenY) / 2;
         const linkerWinkel = -Math.atan2(dachHoehe, dachBreite/2) * 180 / Math.PI;
         svg += `<text x="${linkeMitteX}" y="${linkeMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${linkerWinkel}, ${linkeMitteX}, ${linkeMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
         
-        // Rechte SchrÃ¤ge
         const rechteMitteX = (dreieckSpitzeX + dreieckRechtsX) / 2 + 25;
         const rechteMitteY = (dachStartY + dreieckUntenY) / 2;
         const rechterWinkel = Math.atan2(dachHoehe, dachBreite/2) * 180 / Math.PI;
         svg += `<text x="${rechteMitteX}" y="${rechteMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${rechterWinkel}, ${rechteMitteX}, ${rechteMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
         
-        // HÃ¶he
         svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${dreieckUntenY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${margin - 23}" y1="${dreieckUntenY}" x2="${margin - 17}" y2="${dreieckUntenY}" stroke="#333" stroke-width="1.5"/>`;
@@ -714,19 +895,15 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         const trapezUntenY = dachStartY + trapezHoehe * scaleY;
         const rechteckUntenY = dachStartY + dachHoehe * scaleY;
         
-        // Trapez oben
         svg += `<polygon points="${trapezObenLinks},${trapezObenY} ${trapezObenRechts},${trapezObenY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
         
-        // Rechteck unten
         svg += `<rect x="${margin}" y="${trapezUntenY}" width="${dachBreite * scaleX}" height="${rechteckHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
         
-        // Obere Breite
         svg += `<line x1="${trapezObenLinks}" y1="${trapezObenY - 15}" x2="${trapezObenRechts}" y2="${trapezObenY - 15}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${trapezObenLinks}" y1="${trapezObenY - 18}" x2="${trapezObenLinks}" y2="${trapezObenY - 12}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${trapezObenRechts}" y1="${trapezObenY - 18}" x2="${trapezObenRechts}" y2="${trapezObenY - 12}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<text x="${(trapezObenLinks + trapezObenRechts)/2}" y="${trapezObenY - 20}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${obereBreite.toFixed(1)}m</text>`;
         
-        // Gesamt-HÃ¶he
         svg += `<line x1="${margin - 20}" y1="${trapezObenY}" x2="${margin - 20}" y2="${rechteckUntenY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${margin - 23}" y1="${trapezObenY}" x2="${margin - 17}" y2="${trapezObenY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${margin - 23}" y1="${rechteckUntenY}" x2="${margin - 17}" y2="${rechteckUntenY}" stroke="#333" stroke-width="1.5"/>`;
@@ -735,7 +912,6 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     } else {
         svg += `<rect x="${margin}" y="${dachStartY}" width="${dachBreite * scaleX}" height="${dachHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
         
-        // HÃ¶he
         svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${margin - 23}" y1="${dachStartY + dachHoehe * scaleY}" x2="${margin - 17}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
@@ -800,7 +976,6 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         if (window.lattenPlan && window.lattenPlan[i]) {
             const segmente = window.lattenPlan[i];
             
-            // Versatz-Logik: Gerade Reihen normal, ungerade Reihen umgekehrt
             const segmenteZuZeichnen = (i % 2 === 0) ? segmente : [...segmente].reverse();
             
             for (let j = 0; j < segmenteZuZeichnen.length; j++) {
@@ -823,129 +998,3 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
             }
         }
     }
-    
-    // Untere Breite
-    const breiteY = dachStartY + dachHoehe * scaleY + 40;
-    svg += `<line x1="${margin}" y1="${breiteY}" x2="${margin + dachBreite * scaleX}" y2="${breiteY}" stroke="#333" stroke-width="1.5"/>`;
-    svg += `<line x1="${margin}" y1="${breiteY - 3}" x2="${margin}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
-    svg += `<line x1="${margin + dachBreite * scaleX}" y1="${breiteY - 3}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
-    svg += `<text x="${margin + dachBreite * scaleX/2}" y="${breiteY + 15}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
-    
-    svg += `</svg>`;
-    
-    document.getElementById('vorschau-svg').innerHTML = svg;
-}
-
-function druckeLattenplan() {
-    const druckInhalt = `<!DOCTYPE html><html><head><title>Lattenplan</title><style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h2 { color: #1e3c72; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #f5f5f5; font-weight: bold; }
-    </style></head><body>
-        <h2>Lattenplan</h2>
-        <p><strong>Dach:</strong> ${dachBreite}m Ã— ${dachHoehe}m (${dachTyp})</p>
-        <div style="text-align: center; margin: 20px 0;">
-            ${document.getElementById('vorschau-svg').innerHTML}
-        </div>
-        <table><thead><tr><th>Material</th><th>LÃ¤nge</th><th>Anzahl</th><th>GesamtlÃ¤nge</th></tr></thead>
-            ${document.getElementById('material-details').outerHTML.replace('<tbody id="material-details">', '<tbody>')}
-        </table>
-    </body></html>`;
-    
-    const druckFenster = window.open('', '_blank');
-    druckFenster.document.write(druckInhalt);
-    druckFenster.document.close();
-    
-    setTimeout(() => {
-        druckFenster.print();
-        druckFenster.close();
-    }, 500);
-}
-
-function berechnen() {
-    const anzahlSparren = parseInt(document.getElementById('anzahl-sparren').value);
-    const sparrenAbstand = parseFloat(document.getElementById('sparren-abstand').value);
-    const dachueberstand = parseFloat(document.getElementById('dachueberstand').value) || 0;
-    const lattenabstandSelect = document.getElementById('lattenabstand');
-
-    if (!anzahlSparren || anzahlSparren < 2) {
-        alert('Bitte geben Sie eine gÃ¼ltige Anzahl Sparren ein (mindestens 2)!');
-        return;
-    }
-
-    if (!sparrenAbstand || sparrenAbstand <= 0) {
-        alert('Bitte geben Sie einen gÃ¼ltigen Sparren-Abstand ein!');
-        return;
-    }
-
-    if (typeof gtag !== 'undefined') {
-        gtag('event', 'calculation', {
-            'event_category': 'lattenrechner',
-            'event_label': 'latten_berechnung_durchgefÃ¼hrt'
-        });
-    }
-
-    let lattenabstand;
-    if (lattenabstandSelect.value === 'custom') {
-        lattenabstand = parseFloat(document.getElementById('custom-lattenabstand').value);
-        if (!lattenabstand) {
-            alert('Bitte geben Sie einen benutzerdefinierten Lattenabstand ein!');
-            return;
-        }
-    } else {
-        lattenabstand = parseFloat(lattenabstandSelect.value);
-    }
-
-    const verfuegbareKonterlatten = [];
-    const verfuegbareDachlatten = [];
-    
-    [3, 4, 5, 6].forEach(laenge => {
-        const konterlatteCheckbox = document.getElementById(`konterlatte-${laenge}m`);
-        const dachlatteCheckbox = document.getElementById(`dachlatte-${laenge}m`);
-        
-        if (konterlatteCheckbox && konterlatteCheckbox.checked) {
-            verfuegbareKonterlatten.push(laenge);
-        }
-        if (dachlatteCheckbox && dachlatteCheckbox.checked) {
-            verfuegbareDachlatten.push(laenge);
-        }
-    });
-
-    if (verfuegbareKonterlatten.length === 0) {
-        alert('Bitte wÃ¤hlen Sie mindestens eine KonterlattenlÃ¤nge aus!');
-        return;
-    }
-    
-    if (verfuegbareDachlatten.length === 0) {
-        alert('Bitte wÃ¤hlen Sie mindestens eine DachlattenlÃ¤nge aus!');
-        return;
-    }
-
-    berechneSparrenPositionen(anzahlSparren, sparrenAbstand, dachueberstand);
-    berechneSpitzdachSparren(anzahlSparren);
-
-    const konterlattenGesamtlaenge = sparrenLaengen.reduce((sum, laenge) => sum + laenge, 0);
-    const konterlattenKombination = optimiereKonterlatten(konterlattenGesamtlaenge, verfuegbareKonterlatten);
-    
-    const anzahlLattenReihen = Math.ceil((dachHoehe * 100) / lattenabstand) + 1;
-    const dachlattenKombination = berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareDachlatten, anzahlLattenReihen);
-
-    zeigeErgebnisse(konterlattenKombination, dachlattenKombination, anzahlLattenReihen, lattenabstand, anzahlSparren);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    loadAdSense();
-    
-    const cookieConsent = localStorage.getItem('cookieConsent');
-    if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
-        loadAnalytics();
-    }
-    
-    showAds();
-    
-    ladeDachParameter();
-    aktualisiereLattenabstandsfeld();
-    aktualisiereAutomatischeSparrenBerechnung();
-});
