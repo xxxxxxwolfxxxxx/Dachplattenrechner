@@ -292,6 +292,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             const reihenBreite = dachBreite;
             gesamtBenoetigteLaenge += reihenBreite;
             
+            // Finde beste Kombination
             let besteKombination = null;
             let minVerschnitt = Infinity;
             
@@ -334,125 +335,112 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             }
             
             if (besteKombination) {
-                const variante = reihe % 3;
                 let segmente = [];
+                const variante = reihe % 3;
                 
                 if (besteKombination.length === 1) {
+                    // Eine Latte: Nicht schneiden, einfach von erstem bis letztem Sparren
                     segmente.push({
-                        start: 0,
-                        ende: reihenBreite,
-                        laenge: reihenBreite,
+                        start: sparrenPositionen[0],
+                        ende: sparrenPositionen[sparrenPositionen.length - 1],
+                        laenge: sparrenPositionen[sparrenPositionen.length - 1] - sparrenPositionen[0],
                         originalLaenge: besteKombination[0],
                         istRest: false
                     });
                     
                     const existierend = materialListe.find(m => m.laenge === besteKombination[0]);
-                    if (existierend) {
-                        existierend.anzahl++;
-                    } else {
-                        materialListe.push({ laenge: besteKombination[0], anzahl: 1 });
-                    }
+                    if (existierend) existierend.anzahl++;
+                    else materialListe.push({ laenge: besteKombination[0], anzahl: 1 });
                     
-                    gesamtVerschnitt += (besteKombination[0] - reihenBreite);
+                    gesamtVerschnitt += (besteKombination[0] - (sparrenPositionen[sparrenPositionen.length - 1] - sparrenPositionen[0]));
                     
                 } else if (besteKombination.length === 2) {
+                    // Zwei Latten: Schneide eine auf die benötigte Länge
                     const lattenSumme = besteKombination[0] + besteKombination[1];
-                    const verschnitt = lattenSumme - reihenBreite;
+                    const benoetigteGesamtLaenge = sparrenPositionen[sparrenPositionen.length - 1] - sparrenPositionen[0];
                     
-                    let laenge1, laenge2;
+                    // Finde optimalen Schnittpunkt auf einem Sparren
+                    let schnittpunkt = sparrenPositionen[Math.floor(sparrenPositionen.length / 2)];
                     
-                    if (variante === 0) {
-                        laenge1 = reihenBreite / 2;
-                        laenge2 = reihenBreite / 2;
-                    } else if (variante === 1) {
-                        laenge1 = reihenBreite * 0.4;
-                        laenge2 = reihenBreite * 0.6;
-                    } else {
-                        laenge1 = reihenBreite * 0.6;
-                        laenge2 = reihenBreite * 0.4;
+                    if (variante === 1) {
+                        schnittpunkt = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.4)];
+                    } else if (variante === 2) {
+                        schnittpunkt = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.6)];
                     }
                     
                     segmente.push({
-                        start: 0,
-                        ende: laenge1,
-                        laenge: laenge1,
+                        start: sparrenPositionen[0],
+                        ende: schnittpunkt,
+                        laenge: schnittpunkt - sparrenPositionen[0],
                         originalLaenge: besteKombination[0],
                         istRest: false
                     });
                     
                     segmente.push({
-                        start: laenge1,
-                        ende: reihenBreite,
-                        laenge: laenge2,
+                        start: schnittpunkt,
+                        ende: sparrenPositionen[sparrenPositionen.length - 1],
+                        laenge: sparrenPositionen[sparrenPositionen.length - 1] - schnittpunkt,
                         originalLaenge: besteKombination[1],
                         istRest: false
                     });
                     
                     besteKombination.forEach(laenge => {
                         const existierend = materialListe.find(m => m.laenge === laenge);
-                        if (existierend) {
-                            existierend.anzahl++;
-                        } else {
-                            materialListe.push({ laenge: laenge, anzahl: 1 });
-                        }
+                        if (existierend) existierend.anzahl++;
+                        else materialListe.push({ laenge: laenge, anzahl: 1 });
                     });
                     
-                    gesamtVerschnitt += verschnitt;
+                    gesamtVerschnitt += (lattenSumme - benoetigteGesamtLaenge);
                     
                 } else if (besteKombination.length === 3) {
+                    // Drei Latten
                     const lattenSumme = besteKombination[0] + besteKombination[1] + besteKombination[2];
-                    const verschnitt = lattenSumme - reihenBreite;
+                    const benoetigteGesamtLaenge = sparrenPositionen[sparrenPositionen.length - 1] - sparrenPositionen[0];
                     
-                    let laenge1, laenge2, laenge3;
+                    let schnittpunkt1, schnittpunkt2;
                     
                     if (variante === 0) {
-                        laenge1 = reihenBreite * 0.25;
-                        laenge2 = reihenBreite * 0.5;
-                        laenge3 = reihenBreite * 0.25;
+                        schnittpunkt1 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.33)];
+                        schnittpunkt2 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.67)];
                     } else if (variante === 1) {
-                        laenge1 = reihenBreite * 0.15;
-                        laenge2 = reihenBreite * 0.5;
-                        laenge3 = reihenBreite * 0.35;
+                        schnittpunkt1 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.25)];
+                        schnittpunkt2 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.75)];
                     } else {
-                        laenge1 = reihenBreite * 0.35;
-                        laenge2 = reihenBreite * 0.5;
-                        laenge3 = reihenBreite * 0.15;
+                        schnittpunkt1 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.4)];
+                        schnittpunkt2 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.6)];
                     }
                     
                     segmente.push({
-                        start: 0,
-                        ende: laenge1,
-                        laenge: laenge1,
+                        start: sparrenPositionen[0],
+                        ende: schnittpunkt1,
+                        laenge: schnittpunkt1 - sparrenPositionen[0],
                         originalLaenge: besteKombination[0],
                         istRest: false
                     });
                     
                     segmente.push({
-                        start: laenge1,
-                        ende: laenge1 + laenge2,
-                        laenge: laenge2,
+                        start: schnittpunkt1,
+                        ende: schnittpunkt2,
+                        laenge: schnittpunkt2 - schnittpunkt1,
                         originalLaenge: besteKombination[1],
                         istRest: false
                     });
                     
                     segmente.push({
-                        start: laenge1 + laenge2,
-                        ende: reihenBreite,
-                        laenge: laenge3,
+                        start: schnittpunkt2,
+                        ende: sparrenPositionen[sparrenPositionen.length - 1],
+                        laenge: sparrenPositionen[sparrenPositionen.length - 1] - schnittpunkt2,
                         originalLaenge: besteKombination[2],
                         istRest: false
                     });
                     
                     besteKombination.forEach(laenge => {
                         const existierend = materialListe.find(m => m.laenge === laenge);
-                        if (existierend) {
-                            existierend.anzahl++;
-                        } else {
-                            materialListe.push({ laenge: laenge, anzahl: 1 });
-                        }
+                        if (existierend) existierend.anzahl++;
+                        else materialListe.push({ laenge: laenge, anzahl: 1 });
                     });
                     
-                    gesamtVerschnitt += verschnitt;
+                    gesamtVerschnitt += (lattenSumme - benoetigteGesamtLaenge);
                 }
                 
                 window.lattenPlan[reihe] = segmente;
