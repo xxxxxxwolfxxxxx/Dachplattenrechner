@@ -317,24 +317,65 @@ function findeOptimaleLattenaufteilungMitResten(reihenBreite, sparren, verfuegba
         }
     }
     
-    // 3. Mehrere Latten: Einfache Kombinationen testen (z.B. 2×5m für 10m)
-    for (let i = 0; i < verfuegbareLaengen.length; i++) {
-        for (let j = i; j < verfuegbareLaengen.length; j++) {
-            const l1 = verfuegbareLaengen[i];
-            const l2 = verfuegbareLaengen[j];
+    // 3. Clevere 3-Segment-Lösung: Mittlere Latte + geschnittene Latte für Ränder
+    for (let mittlereLaenge of verfuegbareLaengen) {
+        // Suche Position für mittlere Latte mit Stößen auf Sparren
+        for (let linkerSparren of sparren) {
+            const rechterStosspunkt = linkerSparren + mittlereLaenge;
             
-            if (Math.abs((l1 + l2) - reihenBreite) < 0.01) {
-                // Perfekte 2er-Kombination ohne Verschnitt
-                if (0 < minVerschnitt) {
-                    minVerschnitt = 0;
-                    besteLoesung = {
-                        segmente: [
-                            { start: 0, ende: l1, laenge: l1, originalLaenge: l1, verschnitt: 0, istRest: false },
-                            { start: l1, ende: reihenBreite, laenge: l2, originalLaenge: l2, verschnitt: 0, istRest: false }
-                        ],
-                        restIndex: -1,
-                        verwendeteReste: []
-                    };
+            // Prüfe ob rechter Stoßpunkt auch auf einem Sparren liegt
+            const rechterSparrenGefunden = sparren.some(s => Math.abs(s - rechterStosspunkt) < 0.05);
+            
+            if (rechterSparrenGefunden && rechterStosspunkt < reihenBreite - 0.1) {
+                // Berechne benötigte Randstücke
+                const linkesRandstueck = linkerSparren;
+                const rechtesRandstueck = reihenBreite - rechterStosspunkt;
+                const benoetigteRandlaenge = linkesRandstueck + rechtesRandstueck;
+                
+                // Suche Latte die geschnitten werden kann
+                for (let schneideLaenge of verfuegbareLaengen) {
+                    if (Math.abs(schneideLaenge - benoetigteRandlaenge) < 0.01) {
+                        // Perfekte 3-Segment-Lösung gefunden!
+                        if (0 < minVerschnitt) {
+                            minVerschnitt = 0;
+                            besteLoesung = {
+                                segmente: [
+                                    { start: 0, ende: linkesRandstueck, laenge: linkesRandstueck, 
+                                      originalLaenge: schneideLaenge, verschnitt: 0, istRest: false },
+                                    { start: linkerSparren, ende: rechterStosspunkt, laenge: mittlereLaenge, 
+                                      originalLaenge: mittlereLaenge, verschnitt: 0, istRest: false },
+                                    { start: rechterStosspunkt, ende: reihenBreite, laenge: rechtesRandstueck, 
+                                      originalLaenge: schneideLaenge, verschnitt: 0, istRest: false }
+                                ],
+                                restIndex: -1,
+                                verwendeteReste: []
+                            };
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // 4. Einfache 2-Latten-Kombination (falls keine 3-Segment-Lösung gefunden)
+    if (minVerschnitt > 0) {
+        for (let i = 0; i < verfuegbareLaengen.length; i++) {
+            for (let j = i; j < verfuegbareLaengen.length; j++) {
+                const l1 = verfuegbareLaengen[i];
+                const l2 = verfuegbareLaengen[j];
+                
+                if (Math.abs((l1 + l2) - reihenBreite) < 0.01) {
+                    if (0 < minVerschnitt) {
+                        minVerschnitt = 0;
+                        besteLoesung = {
+                            segmente: [
+                                { start: 0, ende: l1, laenge: l1, originalLaenge: l1, verschnitt: 0, istRest: false },
+                                { start: l1, ende: reihenBreite, laenge: l2, originalLaenge: l2, verschnitt: 0, istRest: false }
+                            ],
+                            restIndex: -1,
+                            verwendeteReste: []
+                        };
+                    }
                 }
             }
         }
