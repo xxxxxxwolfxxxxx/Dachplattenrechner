@@ -355,20 +355,39 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                     gesamtVerschnitt += (besteKombination[0] - reihenBreite);
                     
                 } else if (besteKombination.length === 2) {
-                    // Zwei Latten: Schneide auf Sparren
+                    // Zwei Latten: z.B. 2x5m = 2,5m + 5m + 2,5m geschnitten
                     const lattenSumme = besteKombination[0] + besteKombination[1];
                     
-                    // Finde optimalen Schnittpunkt auf einem Sparren in der Mitte
-                    let schnittpunktIndex;
+                    // Berechne die tatsächlichen Schnittlängen
+                    let laenge1, laenge2;
+                    
+                    // Eine der beiden Latten wird halbiert
                     if (variante === 0) {
-                        schnittpunktIndex = Math.floor(sparrenPositionen.length / 2);
+                        // 50/50: Eine Latte wird in der Mitte geschnitten
+                        laenge1 = reihenBreite / 2;
+                        laenge2 = reihenBreite / 2;
                     } else if (variante === 1) {
-                        schnittpunktIndex = Math.floor(sparrenPositionen.length * 0.4);
+                        // 40/60 Aufteilung
+                        laenge1 = reihenBreite * 0.4;
+                        laenge2 = reihenBreite * 0.6;
                     } else {
-                        schnittpunktIndex = Math.floor(sparrenPositionen.length * 0.6);
+                        // 60/40 Aufteilung
+                        laenge1 = reihenBreite * 0.6;
+                        laenge2 = reihenBreite * 0.4;
                     }
                     
-                    const schnittpunkt = sparrenPositionen[schnittpunktIndex];
+                    // Finde nächstgelegenen Sparren für Schnittpunkt
+                    const zielSchnittpunkt = laenge1;
+                    let schnittpunkt = sparrenPositionen[0];
+                    let minAbstand = Math.abs(sparrenPositionen[0] - zielSchnittpunkt);
+                    
+                    for (let sparrenPos of sparrenPositionen) {
+                        const abstand = Math.abs(sparrenPos - zielSchnittpunkt);
+                        if (abstand < minAbstand) {
+                            minAbstand = abstand;
+                            schnittpunkt = sparrenPos;
+                        }
+                    }
                     
                     segmente.push({
                         start: 0,
@@ -395,24 +414,54 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                     gesamtVerschnitt += (lattenSumme - reihenBreite);
                     
                 } else if (besteKombination.length === 3) {
-                    // Drei Latten
+                    // Drei Latten: z.B. 2,5m + 5m + 2,5m
                     const lattenSumme = besteKombination[0] + besteKombination[1] + besteKombination[2];
                     
-                    let schnittpunkt1Index, schnittpunkt2Index;
+                    // Bestimme Aufteilung basierend auf Variante
+                    let laenge1, laenge2, laenge3;
                     
                     if (variante === 0) {
-                        schnittpunkt1Index = Math.floor(sparrenPositionen.length * 0.33);
-                        schnittpunkt2Index = Math.floor(sparrenPositionen.length * 0.67);
+                        // 2,5m + 5m + 2,5m (symmetrisch)
+                        laenge1 = reihenBreite * 0.25;
+                        laenge2 = reihenBreite * 0.5;
+                        laenge3 = reihenBreite * 0.25;
                     } else if (variante === 1) {
-                        schnittpunkt1Index = Math.floor(sparrenPositionen.length * 0.25);
-                        schnittpunkt2Index = Math.floor(sparrenPositionen.length * 0.75);
+                        // 1,5m + 5m + 3,5m
+                        laenge1 = reihenBreite * 0.15;
+                        laenge2 = reihenBreite * 0.5;
+                        laenge3 = reihenBreite * 0.35;
                     } else {
-                        schnittpunkt1Index = Math.floor(sparrenPositionen.length * 0.4);
-                        schnittpunkt2Index = Math.floor(sparrenPositionen.length * 0.6);
+                        // 3,5m + 5m + 1,5m
+                        laenge1 = reihenBreite * 0.35;
+                        laenge2 = reihenBreite * 0.5;
+                        laenge3 = reihenBreite * 0.15;
                     }
                     
-                    const schnittpunkt1 = sparrenPositionen[schnittpunkt1Index];
-                    const schnittpunkt2 = sparrenPositionen[schnittpunkt2Index];
+                    // Finde nächstgelegene Sparren für beide Schnittpunkte
+                    const zielSchnittpunkt1 = laenge1;
+                    const zielSchnittpunkt2 = laenge1 + laenge2;
+                    
+                    let schnittpunkt1 = sparrenPositionen[0];
+                    let minAbstand1 = Math.abs(sparrenPositionen[0] - zielSchnittpunkt1);
+                    
+                    for (let sparrenPos of sparrenPositionen) {
+                        const abstand = Math.abs(sparrenPos - zielSchnittpunkt1);
+                        if (abstand < minAbstand1) {
+                            minAbstand1 = abstand;
+                            schnittpunkt1 = sparrenPos;
+                        }
+                    }
+                    
+                    let schnittpunkt2 = sparrenPositionen[sparrenPositionen.length - 1];
+                    let minAbstand2 = Math.abs(sparrenPositionen[sparrenPositionen.length - 1] - zielSchnittpunkt2);
+                    
+                    for (let sparrenPos of sparrenPositionen) {
+                        const abstand = Math.abs(sparrenPos - zielSchnittpunkt2);
+                        if (abstand < minAbstand2 && sparrenPos > schnittpunkt1) {
+                            minAbstand2 = abstand;
+                            schnittpunkt2 = sparrenPos;
+                        }
+                    }
                     
                     segmente.push({
                         start: 0,
