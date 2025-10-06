@@ -583,7 +583,8 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                             start: aktuellePosition,
                             ende: zielSparren,
                             laenge: zielSparren - aktuellePosition,
-                            originalLaenge: lattenLaenge,istRest: false
+                            originalLaenge: lattenLaenge,
+                            istRest: false
                         });
                         
                         const existierend = materialListe.find(m => m.laenge === lattenLaenge);
@@ -967,10 +968,9 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         
         if (window.lattenPlan && window.lattenPlan[i]) {
             const segmente = window.lattenPlan[i];
-            const segmenteZuZeichnen = (i % 2 === 0) ? segmente : [...segmente].reverse();
             
-            for (let j = 0; j < segmenteZuZeichnen.length; j++) {
-                const segment = segmenteZuZeichnen[j];
+            for (let j = 0; j < segmente.length; j++) {
+                const segment = segmente[j];
                 const segmentStartX = reihenStartX + segment.start * scaleX;
                 const segmentEndX = reihenStartX + segment.ende * scaleX;
                 const segmentFarbe = segment.istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || '#27ae60');
@@ -992,7 +992,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     const breiteY = dachStartY + dachHoehe * scaleY + 40;
     svg += `<line x1="${margin}" y1="${breiteY}" x2="${margin + dachBreite * scaleX}" y2="${breiteY}" stroke="#333" stroke-width="1.5"/>`;
     svg += `<line x1="${margin}" y1="${breiteY - 3}" x2="${margin}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
-    svg += `<line x1="${margin + dachBreite * scaleX}" y1="${breiteY - 3}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<line x1="${margin + dachBreite * scaleX}"y1="${breiteY - 3}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
     svg += `<text x="${margin + dachBreite * scaleX/2}" y="${breiteY + 15}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
     svg += `</svg>`;
     
