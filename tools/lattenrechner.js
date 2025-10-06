@@ -339,11 +339,11 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                 const variante = reihe % 3;
                 
                 if (besteKombination.length === 1) {
-                    // Eine Latte: Nicht schneiden, einfach von erstem bis letztem Sparren
+                    // Eine Latte: gesamte Breite abdecken
                     segmente.push({
-                        start: sparrenPositionen[0],
-                        ende: sparrenPositionen[sparrenPositionen.length - 1],
-                        laenge: sparrenPositionen[sparrenPositionen.length - 1] - sparrenPositionen[0],
+                        start: 0,
+                        ende: reihenBreite,
+                        laenge: reihenBreite,
                         originalLaenge: besteKombination[0],
                         istRest: false
                     });
@@ -352,34 +352,36 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                     if (existierend) existierend.anzahl++;
                     else materialListe.push({ laenge: besteKombination[0], anzahl: 1 });
                     
-                    gesamtVerschnitt += (besteKombination[0] - (sparrenPositionen[sparrenPositionen.length - 1] - sparrenPositionen[0]));
+                    gesamtVerschnitt += (besteKombination[0] - reihenBreite);
                     
                 } else if (besteKombination.length === 2) {
-                    // Zwei Latten: Schneide eine auf die benötigte Länge
+                    // Zwei Latten: Schneide auf Sparren
                     const lattenSumme = besteKombination[0] + besteKombination[1];
-                    const benoetigteGesamtLaenge = sparrenPositionen[sparrenPositionen.length - 1] - sparrenPositionen[0];
                     
-                    // Finde optimalen Schnittpunkt auf einem Sparren
-                    let schnittpunkt = sparrenPositionen[Math.floor(sparrenPositionen.length / 2)];
-                    
-                    if (variante === 1) {
-                        schnittpunkt = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.4)];
-                    } else if (variante === 2) {
-                        schnittpunkt = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.6)];
+                    // Finde optimalen Schnittpunkt auf einem Sparren in der Mitte
+                    let schnittpunktIndex;
+                    if (variante === 0) {
+                        schnittpunktIndex = Math.floor(sparrenPositionen.length / 2);
+                    } else if (variante === 1) {
+                        schnittpunktIndex = Math.floor(sparrenPositionen.length * 0.4);
+                    } else {
+                        schnittpunktIndex = Math.floor(sparrenPositionen.length * 0.6);
                     }
                     
+                    const schnittpunkt = sparrenPositionen[schnittpunktIndex];
+                    
                     segmente.push({
-                        start: sparrenPositionen[0],
+                        start: 0,
                         ende: schnittpunkt,
-                        laenge: schnittpunkt - sparrenPositionen[0],
+                        laenge: schnittpunkt,
                         originalLaenge: besteKombination[0],
                         istRest: false
                     });
                     
                     segmente.push({
                         start: schnittpunkt,
-                        ende: sparrenPositionen[sparrenPositionen.length - 1],
-                        laenge: sparrenPositionen[sparrenPositionen.length - 1] - schnittpunkt,
+                        ende: reihenBreite,
+                        laenge: reihenBreite - schnittpunkt,
                         originalLaenge: besteKombination[1],
                         istRest: false
                     });
@@ -390,30 +392,32 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                         else materialListe.push({ laenge: laenge, anzahl: 1 });
                     });
                     
-                    gesamtVerschnitt += (lattenSumme - benoetigteGesamtLaenge);
+                    gesamtVerschnitt += (lattenSumme - reihenBreite);
                     
                 } else if (besteKombination.length === 3) {
                     // Drei Latten
                     const lattenSumme = besteKombination[0] + besteKombination[1] + besteKombination[2];
-                    const benoetigteGesamtLaenge = sparrenPositionen[sparrenPositionen.length - 1] - sparrenPositionen[0];
                     
-                    let schnittpunkt1, schnittpunkt2;
+                    let schnittpunkt1Index, schnittpunkt2Index;
                     
                     if (variante === 0) {
-                        schnittpunkt1 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.33)];
-                        schnittpunkt2 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.67)];
+                        schnittpunkt1Index = Math.floor(sparrenPositionen.length * 0.33);
+                        schnittpunkt2Index = Math.floor(sparrenPositionen.length * 0.67);
                     } else if (variante === 1) {
-                        schnittpunkt1 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.25)];
-                        schnittpunkt2 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.75)];
+                        schnittpunkt1Index = Math.floor(sparrenPositionen.length * 0.25);
+                        schnittpunkt2Index = Math.floor(sparrenPositionen.length * 0.75);
                     } else {
-                        schnittpunkt1 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.4)];
-                        schnittpunkt2 = sparrenPositionen[Math.floor(sparrenPositionen.length * 0.6)];
+                        schnittpunkt1Index = Math.floor(sparrenPositionen.length * 0.4);
+                        schnittpunkt2Index = Math.floor(sparrenPositionen.length * 0.6);
                     }
                     
+                    const schnittpunkt1 = sparrenPositionen[schnittpunkt1Index];
+                    const schnittpunkt2 = sparrenPositionen[schnittpunkt2Index];
+                    
                     segmente.push({
-                        start: sparrenPositionen[0],
+                        start: 0,
                         ende: schnittpunkt1,
-                        laenge: schnittpunkt1 - sparrenPositionen[0],
+                        laenge: schnittpunkt1,
                         originalLaenge: besteKombination[0],
                         istRest: false
                     });
@@ -428,8 +432,8 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                     
                     segmente.push({
                         start: schnittpunkt2,
-                        ende: sparrenPositionen[sparrenPositionen.length - 1],
-                        laenge: sparrenPositionen[sparrenPositionen.length - 1] - schnittpunkt2,
+                        ende: reihenBreite,
+                        laenge: reihenBreite - schnittpunkt2,
                         originalLaenge: besteKombination[2],
                         istRest: false
                     });
@@ -440,7 +444,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                         else materialListe.push({ laenge: laenge, anzahl: 1 });
                     });
                     
-                    gesamtVerschnitt += (lattenSumme - benoetigteGesamtLaenge);
+                    gesamtVerschnitt += (lattenSumme - reihenBreite);
                 }
                 
                 window.lattenPlan[reihe] = segmente;
