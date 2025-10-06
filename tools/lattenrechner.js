@@ -1,4 +1,634 @@
-if (zielSparren && zielSparren >= luecke.ende - 0.05) {
+let dachBreite = 10;
+let dachHoehe = 6;
+let dachTyp = 'rechteck';
+let obereBreite = 0;
+let trapezHoehe = 0;
+let rechteckHoehe = 0;
+let sparrenLaengen = [];
+let sparrenPositionen = [];
+
+function showAds() {
+    document.getElementById('top-ad-container').style.display = 'block';
+    document.getElementById('middle-ad-container').style.display = 'block';
+    document.getElementById('bottom-ad-container').style.display = 'block';
+    
+    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+    
+    setTimeout(function() {
+        if (window.adsbygoogle) {
+            try {
+                const ads = document.querySelectorAll('.adsbygoogle');
+                ads.forEach(ad => {
+                    if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-adsbygoogle-status')) {
+                        if (!allowPersonalized) {
+                            ad.setAttribute('data-npa', '1');
+                        }
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    }
+                });
+            } catch (e) {
+                console.log('AdSense loading error:', e);
+            }
+        }
+    }, 1000);
+}
+
+function ladeDachParameter() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has('breite')) dachBreite = parseFloat(urlParams.get('breite'));
+    if (urlParams.has('hoehe')) dachHoehe = parseFloat(urlParams.get('hoehe'));
+    if (urlParams.has('typ')) dachTyp = urlParams.get('typ');
+    if (urlParams.has('obereBreite')) obereBreite = parseFloat(urlParams.get('obereBreite'));
+    if (urlParams.has('trapezHoehe')) trapezHoehe = parseFloat(urlParams.get('trapezHoehe'));
+    if (urlParams.has('rechteckHoehe')) rechteckHoehe = parseFloat(urlParams.get('rechteckHoehe'));
+
+    aktualisiereAnzeige();
+}
+
+function aktualisiereAnzeige() {
+    let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    switch(dachTyp) {
+        case 'trapez':
+            if (obereBreite) massText += `, Obere Breite: ${obereBreite.toFixed(1)}m`;
+            break;
+        case 'dreieck':
+            massText += `, Spitzdach`;
+            break;
+        case 'trapez-auf-rechteck':
+            const obereBreiteTA = urlParams.get('obereBreite');
+            const trapezHoeheTA = urlParams.get('trapezHoehe');
+            const rechteckHoeheTA = urlParams.get('rechteckHoehe');
+            if (obereBreiteTA && trapezHoeheTA && rechteckHoeheTA) {
+                massText += `, Obere Breite: ${parseFloat(obereBreiteTA).toFixed(1)}m`;
+            }
+            break;
+    }
+    
+    document.getElementById('dach-masse').textContent = massText;
+    document.getElementById('dach-darstellung').innerHTML = generiereSimpleDachSVG();
+}
+
+function generiereSimpleDachSVG() {
+    let svg = '';
+    
+    switch(dachTyp) {
+        case 'rechteck':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <rect x="20" y="30" width="160" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Rechteck</text>
+            </svg>`;
+            break;
+        case 'trapez':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <polygon points="60,30 140,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Trapez</text>
+            </svg>`;
+            break;
+        case 'dreieck':
+        case 'gleichschenkliges-dreieck':
+        case 'ungleichschenkliges-dreieck':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <polygon points="100,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="75" text-anchor="middle" font-size="12" fill="#333">Dreieck</text>
+            </svg>`;
+            break;
+        case 'trapez-auf-rechteck':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <rect x="20" y="60" width="160" height="30" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <polygon points="60,30 140,30 180,60 20,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="75" text-anchor="middle" font-size="11" fill="#333">Trapez+Rechteck</text>
+            </svg>`;
+            break;
+        default:
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <rect x="20" y="60" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+            </svg>`;
+    }
+    
+    return svg;
+}
+
+let berechnungsTimer = null;
+
+function aktualisiereAutomatischeSparrenBerechnung() {
+    const anzahlInput = document.getElementById('anzahl-sparren');
+    const abstandInput = document.getElementById('sparren-abstand');
+    const ueberstandInput = document.getElementById('dachueberstand');
+    
+    [anzahlInput, abstandInput, ueberstandInput].forEach(input => {
+        input.addEventListener('input', function() {
+            if (berechnungsTimer) clearTimeout(berechnungsTimer);
+            berechnungsTimer = setTimeout(() => berechneSparrenParameter(), 800);
+        });
+    });
+}
+
+function berechneSparrenParameter() {
+    const anzahlInput = document.getElementById('anzahl-sparren');
+    const abstandInput = document.getElementById('sparren-abstand');
+    const ueberstandInput = document.getElementById('dachueberstand');
+    
+    const anzahl = parseFloat(anzahlInput.value) || 0;
+    const abstand = parseFloat(abstandInput.value) || 0;
+    const ueberstand = parseFloat(ueberstandInput.value) || 0;
+    
+    let gefuellteFelder = 0;
+    if (anzahl > 0 && anzahlInput.value.trim() !== '') gefuellteFelder++;
+    if (abstand > 0 && abstandInput.value.trim() !== '') gefuellteFelder++;
+    if (ueberstand >= 0 && ueberstandInput.value.trim() !== '') gefuellteFelder++;
+    
+    [anzahlInput, abstandInput, ueberstandInput].forEach(input => {
+        if (input.style.backgroundColor === 'rgb(232, 245, 232)') {
+            input.style.backgroundColor = '';
+        }
+    });
+    
+    if (gefuellteFelder === 2) {
+        if (anzahl > 0 && abstand > 0 && ueberstandInput.value.trim() === '') {
+            const sparrenBreite = (anzahl - 1) * (abstand / 100);
+            const neuerUeberstand = ((dachBreite - sparrenBreite) / 2) * 100;
+            ueberstandInput.value = Math.max(0, neuerUeberstand).toFixed(1);
+            ueberstandInput.style.backgroundColor = '#e8f5e8';
+        }
+        else if (anzahl > 0 && ueberstand >= 0 && abstandInput.value.trim() === '') {
+            const verfuegbareBreite = dachBreite - (2 * ueberstand / 100);
+            const neuerAbstand = (verfuegbareBreite / (anzahl - 1)) * 100;
+            abstandInput.value = neuerAbstand.toFixed(1);
+            abstandInput.style.backgroundColor = '#e8f5e8';
+        }
+        else if (abstand > 0 && ueberstand >= 0 && anzahlInput.value.trim() === '') {
+            const verfuegbareBreite = dachBreite - (2 * ueberstand / 100);
+            const neueAnzahl = Math.round((verfuegbareBreite / (abstand / 100)) + 1);
+            anzahlInput.value = Math.max(2, neueAnzahl);
+            anzahlInput.style.backgroundColor = '#e8f5e8';
+        }
+    }
+    
+    if (anzahlInput.value && abstandInput.value && ueberstandInput.value !== '') {
+        berechneSparrenPositionen(parseInt(anzahlInput.value), parseFloat(abstandInput.value), parseFloat(ueberstandInput.value));
+        berechneSpitzdachSparren(parseInt(anzahlInput.value));
+    }
+}
+
+function berechneSparrenPositionen(anzahl, abstand, ueberstand) {
+    sparrenPositionen = [];
+    const ueberstandM = ueberstand / 100;
+    
+    for (let i = 0; i < anzahl; i++) {
+        sparrenPositionen.push(ueberstandM + (i * abstand / 100));
+    }
+}
+
+function berechneSpitzdachSparren(anzahlSparren) {
+    sparrenLaengen = [];
+    
+    switch(dachTyp) {
+        case 'rechteck':
+            for (let i = 0; i < anzahlSparren; i++) {
+                sparrenLaengen.push(dachHoehe);
+            }
+            break;
+            
+        case 'trapez':
+            const seitenAbstand = (dachBreite - obereBreite) / 2;
+            const linkeObereEcke = seitenAbstand;
+            const rechteObereEcke = dachBreite - seitenAbstand;
+            
+            for (let i = 0; i < anzahlSparren; i++) {
+                const xPosition = sparrenPositionen[i];
+                let sparrenLaenge;
+                
+                if (xPosition <= linkeObereEcke) {
+                    sparrenLaenge = (xPosition / linkeObereEcke) * dachHoehe;
+                } else if (xPosition >= rechteObereEcke) {
+                    sparrenLaenge = ((dachBreite - xPosition) / seitenAbstand) * dachHoehe;
+                } else {
+                    sparrenLaenge = dachHoehe;
+                }
+                sparrenLaengen.push(Math.max(0, sparrenLaenge));
+            }
+            break;
+            
+        case 'dreieck':
+        case 'gleichschenkliges-dreieck':
+        case 'ungleichschenkliges-dreieck':
+            const halbBreite = dachBreite / 2;
+            
+            for (let i = 0; i < anzahlSparren; i++) {
+                const xPosition = sparrenPositionen[i];
+                let sparrenLaenge;
+                
+                if (xPosition <= halbBreite) {
+                    sparrenLaenge = (xPosition / halbBreite) * dachHoehe;
+                } else {
+                    sparrenLaenge = ((dachBreite - xPosition) / halbBreite) * dachHoehe;
+                }
+                
+                sparrenLaengen.push(Math.max(0, sparrenLaenge));
+            }
+            break;
+            
+        case 'trapez-auf-rechteck':
+            const seitenAbstandTA = (dachBreite - obereBreite) / 2;
+            const linkeObereEckeTA = seitenAbstandTA;
+            const rechteObereEckeTA = dachBreite - seitenAbstandTA;
+            
+            for (let i = 0; i < anzahlSparren; i++) {
+                const xPosition = sparrenPositionen[i];
+                let sparrenLaenge = rechteckHoehe;
+                
+                if (xPosition <= linkeObereEckeTA) {
+                    sparrenLaenge += (xPosition / linkeObereEckeTA) * trapezHoehe;
+                } else if (xPosition >= rechteObereEckeTA) {
+                    sparrenLaenge += ((dachBreite - xPosition) / seitenAbstandTA) * trapezHoehe;
+                } else {
+                    sparrenLaenge += trapezHoehe;
+                }
+                
+                sparrenLaengen.push(Math.max(0, sparrenLaenge));
+            }
+            break;
+            
+        default:
+            for (let i = 0; i < anzahlSparren; i++) {
+                sparrenLaengen.push(dachHoehe);
+            }
+    }
+}
+
+function aktualisiereLattenabstandsfeld() {
+    const select = document.getElementById('lattenabstand');
+    const customGroup = document.getElementById('custom-lattenabstand-group');
+    
+    select.addEventListener('change', function() {
+        customGroup.style.display = this.value === 'custom' ? 'block' : 'none';
+    });
+}
+
+function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
+    const tatsaechlichVerfuegbar = verfuegbareLaengen.filter(l => l > 0);
+    if (tatsaechlichVerfuegbar.length === 0) {
+        return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
+    }
+    
+    tatsaechlichVerfuegbar.sort((a, b) => a - b);
+    
+    const materialListe = [];
+    let gesamtVerschnitt = 0;
+    let gesamtBenoetigteLaenge = 0;
+    
+    window.lattenPlan = [];
+    
+    const istRechteckSonderfall = (dachTyp === 'rechteck' && 
+        sparrenPositionen.length > 0 && 
+        (sparrenPositionen[0] > 0.05 || sparrenPositionen[sparrenPositionen.length - 1] < dachBreite - 0.05));
+    
+    if (istRechteckSonderfall) {
+        for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
+            const reihenBreite = dachBreite;
+            gesamtBenoetigteLaenge += reihenBreite;
+            
+            // Finde beste Kombination
+            let besteKombination = null;
+            let minVerschnitt = Infinity;
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                if (tatsaechlichVerfuegbar[i] >= reihenBreite - 0.01) {
+                    const verschnitt = tatsaechlichVerfuegbar[i] - reihenBreite;
+                    if (verschnitt < minVerschnitt) {
+                        minVerschnitt = verschnitt;
+                        besteKombination = [tatsaechlichVerfuegbar[i]];
+                    }
+                }
+            }
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j];
+                    if (summe >= reihenBreite - 0.01) {
+                        const verschnitt = summe - reihenBreite;
+                        if (verschnitt < minVerschnitt) {
+                            minVerschnitt = verschnitt;
+                            besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j]];
+                        }
+                    }
+                }
+            }
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    for (let k = j; k < tatsaechlichVerfuegbar.length; k++) {
+                        const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j] + tatsaechlichVerfuegbar[k];
+                        if (summe >= reihenBreite - 0.01) {
+                            const verschnitt = summe - reihenBreite;
+                            if (verschnitt < minVerschnitt) {
+                                minVerschnitt = verschnitt;
+                                besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j], tatsaechlichVerfuegbar[k]];
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (besteKombination) {
+                let segmente = [];
+                const variante = reihe % 3;
+                
+                if (besteKombination.length === 1) {
+                    // Eine Latte: gesamte Breite abdecken
+                    segmente.push({
+                        start: 0,
+                        ende: reihenBreite,
+                        laenge: reihenBreite,
+                        originalLaenge: besteKombination[0],
+                        istRest: false
+                    });
+                    
+                    const existierend = materialListe.find(m => m.laenge === besteKombination[0]);
+                    if (existierend) existierend.anzahl++;
+                    else materialListe.push({ laenge: besteKombination[0], anzahl: 1 });
+                    
+                    gesamtVerschnitt += (besteKombination[0] - reihenBreite);
+                    
+                } else if (besteKombination.length === 2) {
+                    // Zwei Latten: z.B. 2x5m = 2,5m + 5m + 2,5m geschnitten
+                    const lattenSumme = besteKombination[0] + besteKombination[1];
+                    
+                    let zielLaenge1, zielLaenge2;
+                    
+                    if (variante === 0) {
+                        // 50/50: Eine Latte wird in der Mitte geschnitten
+                        zielLaenge1 = reihenBreite * 0.5;
+                        zielLaenge2 = reihenBreite * 0.5;
+                    } else if (variante === 1) {
+                        // 40/60 Aufteilung
+                        zielLaenge1 = reihenBreite * 0.4;
+                        zielLaenge2 = reihenBreite * 0.6;
+                    } else {
+                        // 60/40 Aufteilung
+                        zielLaenge1 = reihenBreite * 0.6;
+                        zielLaenge2 = reihenBreite * 0.4;
+                    }
+                    
+                    // Finde nächstgelegenen Sparren für Schnittpunkt
+                    const zielSchnittpunkt = zielLaenge1;
+                    let schnittpunkt = sparrenPositionen[0];
+                    let minAbstand = Math.abs(sparrenPositionen[0] - zielSchnittpunkt);
+                    
+                    for (let sparrenPos of sparrenPositionen) {
+                        const abstand = Math.abs(sparrenPos - zielSchnittpunkt);
+                        if (abstand < minAbstand) {
+                            minAbstand = abstand;
+                            schnittpunkt = sparrenPos;
+                        }
+                    }
+                    
+                    segmente.push({
+                        start: 0,
+                        ende: schnittpunkt,
+                        laenge: schnittpunkt,
+                        originalLaenge: besteKombination[0],
+                        istRest: false
+                    });
+                    
+                    segmente.push({
+                        start: schnittpunkt,
+                        ende: reihenBreite,
+                        laenge: reihenBreite - schnittpunkt,
+                        originalLaenge: besteKombination[1],
+                        istRest: false
+                    });
+                    
+                    besteKombination.forEach(laenge => {
+                        const existierend = materialListe.find(m => m.laenge === laenge);
+                        if (existierend) existierend.anzahl++;
+                        else materialListe.push({ laenge: laenge, anzahl: 1 });
+                    });
+                    
+                    gesamtVerschnitt += (lattenSumme - reihenBreite);
+                    
+                } else if (besteKombination.length === 3) {
+                    // Drei Latten: z.B. 2,5m + 5m + 2,5m
+                    const lattenSumme = besteKombination[0] + besteKombination[1] + besteKombination[2];
+                    
+                    // Bestimme Aufteilung basierend auf Variante
+                    let laenge1, laenge2, laenge3;
+                    
+                    if (variante === 0) {
+                        // 2,5m + 5m + 2,5m (symmetrisch)
+                        laenge1 = reihenBreite * 0.25;
+                        laenge2 = reihenBreite * 0.5;
+                        laenge3 = reihenBreite * 0.25;
+                    } else if (variante === 1) {
+                        // 1,5m + 5m + 3,5m
+                        laenge1 = reihenBreite * 0.15;
+                        laenge2 = reihenBreite * 0.5;
+                        laenge3 = reihenBreite * 0.35;
+                    } else {
+                        // 3,5m + 5m + 1,5m
+                        laenge1 = reihenBreite * 0.35;
+                        laenge2 = reihenBreite * 0.5;
+                        laenge3 = reihenBreite * 0.15;
+                    }
+                    
+                    // Finde nächstgelegene Sparren für beide Schnittpunkte
+                    const zielSchnittpunkt1 = laenge1;
+                    const zielSchnittpunkt2 = laenge1 + laenge2;
+                    
+                    let schnittpunkt1 = sparrenPositionen[0];
+                    let minAbstand1 = Math.abs(sparrenPositionen[0] - zielSchnittpunkt1);
+                    
+                    for (let sparrenPos of sparrenPositionen) {
+                        const abstand = Math.abs(sparrenPos - zielSchnittpunkt1);
+                        if (abstand < minAbstand1) {
+                            minAbstand1 = abstand;
+                            schnittpunkt1 = sparrenPos;
+                        }
+                    }
+                    
+                    let schnittpunkt2 = sparrenPositionen[sparrenPositionen.length - 1];
+                    let minAbstand2 = Math.abs(sparrenPositionen[sparrenPositionen.length - 1] - zielSchnittpunkt2);
+                    
+                    for (let sparrenPos of sparrenPositionen) {
+                        const abstand = Math.abs(sparrenPos - zielSchnittpunkt2);
+                        if (abstand < minAbstand2 && sparrenPos > schnittpunkt1) {
+                            minAbstand2 = abstand;
+                            schnittpunkt2 = sparrenPos;
+                        }
+                    }
+                    
+                    segmente.push({
+                        start: 0,
+                        ende: schnittpunkt1,
+                        laenge: schnittpunkt1,
+                        originalLaenge: besteKombination[0],
+                        istRest: false
+                    });
+                    
+                    segmente.push({
+                        start: schnittpunkt1,
+                        ende: schnittpunkt2,
+                        laenge: schnittpunkt2 - schnittpunkt1,
+                        originalLaenge: besteKombination[1],
+                        istRest: false
+                    });
+                    
+                    segmente.push({
+                        start: schnittpunkt2,
+                        ende: reihenBreite,
+                        laenge: reihenBreite - schnittpunkt2,
+                        originalLaenge: besteKombination[2],
+                        istRest: false
+                    });
+                    
+                    besteKombination.forEach(laenge => {
+                        const existierend = materialListe.find(m => m.laenge === laenge);
+                        if (existierend) existierend.anzahl++;
+                        else materialListe.push({ laenge: laenge, anzahl: 1 });
+                    });
+                    
+                    gesamtVerschnitt += (lattenSumme - reihenBreite);
+                }
+                
+                window.lattenPlan[reihe] = segmente;
+            }
+        }
+        
+    } else {
+        const luecken = [];
+        
+        for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
+            const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
+            let reihenBreite = berechneReihenBreite(fortschritt);
+            
+            gesamtBenoetigteLaenge += reihenBreite;
+            
+            const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+            const relevanteSparren = sparrenPositionen.filter(pos => 
+                pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
+            ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
+            
+            if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
+                relevanteSparren.unshift(0);
+            }
+            if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
+                relevanteSparren.push(reihenBreite);
+            }
+            
+            let besteKombination = null;
+            let minVerschnitt = Infinity;
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                const summe = tatsaechlichVerfuegbar[i];
+                if (summe >= reihenBreite - 0.01) {
+                    const verschnitt = summe - reihenBreite;
+                    if (verschnitt < minVerschnitt) {
+                        minVerschnitt = verschnitt;
+                        besteKombination = [tatsaechlichVerfuegbar[i]];
+                    }
+                }
+            }
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j];
+                    if (summe >= reihenBreite - 0.01) {
+                        const verschnitt = summe - reihenBreite;
+                        if (verschnitt < minVerschnitt) {
+                            minVerschnitt = verschnitt;
+                            besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j]];
+                        }
+                    }
+                }
+            }
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    for (let k = j; k < tatsaechlichVerfuegbar.length; k++) {
+                        const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j] + tatsaechlichVerfuegbar[k];
+                        if (summe >= reihenBreite - 0.01) {
+                            const verschnitt = summe - reihenBreite;
+                            if (verschnitt < minVerschnitt) {
+                                minVerschnitt = verschnitt;
+                                besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j], tatsaechlichVerfuegbar[k]];
+                            }
+                        }
+                    }
+                }
+            }
+            
+            const reihenSegmente = [];
+            let aktuellePosition = 0;
+            
+            if (besteKombination) {
+                for (let lattenLaenge of besteKombination) {
+                    if (aktuellePosition >= reihenBreite - 0.01) break;
+                    
+                    const maxEnde = Math.min(aktuellePosition + lattenLaenge, reihenBreite);
+                    
+                    let zielSparren = null;
+                    for (let j = relevanteSparren.length - 1; j >= 0; j--) {
+                        if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= maxEnde + 0.05) {
+                            zielSparren = relevanteSparren[j];
+                            break;
+                        }
+                    }
+                    
+                    if (zielSparren) {
+                        reihenSegmente.push({
+                            start: aktuellePosition,
+                            ende: zielSparren,
+                            laenge: zielSparren - aktuellePosition,
+                            originalLaenge: lattenLaenge,istRest: false
+                        });
+                        
+                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
+                        }
+                        
+                        aktuellePosition = zielSparren;
+                    }
+                }
+            }
+            
+            if (aktuellePosition < reihenBreite - 0.1) {
+                luecken.push({
+                    reihe: reihe,
+                    start: aktuellePosition,
+                    ende: reihenBreite,
+                    benoetigteLattenlaenge: reihenBreite - aktuellePosition,
+                    relevanteSparren: relevanteSparren.filter(pos => pos > aktuellePosition)
+                });
+            }
+            
+            window.lattenPlan[reihe] = reihenSegmente;
+        }
+        
+        if (luecken.length > 0) {
+            let restPool = [];
+            
+            for (let luecke of luecken) {
+                let gefuellt = false;
+                
+                for (let i = 0; i < restPool.length; i++) {
+                    const restLaenge = restPool[i];
+                    
+                    let zielSparren = null;
+                    for (let sparrenPos of luecke.relevanteSparren) {
+                        if (sparrenPos <= luecke.start + restLaenge + 0.05) {
+                            zielSparren = sparrenPos;
+                            break;
+                        }
+                    }
+                    
+                    if (zielSparren && zielSparren >= luecke.ende - 0.05) {
                         window.lattenPlan[luecke.reihe].push({
                             start: luecke.start,
                             ende: luecke.ende,
@@ -328,7 +958,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     const restFarbe = '#e74c3c';
     
     for (let i = 0; i < anzahlLattenReihen; i++) {
-        const fortschritt = (anzahlLattenReihen - 1 - i) / Math.max(1, anzahlReihen - 1);
+        const fortschritt = (anzahlLattenReihen - 1 - i) / Math.max(1, anzahlLattenReihen - 1);
         const reihenBreite = berechneReihenBreite(fortschritt);
         const lattenY = dachStartY + (1 - fortschritt) * dachHoehe * scaleY;
         
@@ -341,8 +971,8 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
             
             for (let j = 0; j < segmenteZuZeichnen.length; j++) {
                 const segment = segmenteZuZeichnen[j];
-                const segmentStartX = margin + segment.start * scaleX;
-                const segmentEndX = margin + segment.ende * scaleX;
+                const segmentStartX = reihenStartX + segment.start * scaleX;
+                const segmentEndX = reihenStartX + segment.ende * scaleX;
                 const segmentFarbe = segment.istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || '#27ae60');
                 
                 svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
@@ -482,597 +1112,3 @@ document.addEventListener('DOMContentLoaded', function() {
     aktualisiereLattenabstandsfeld();
     aktualisiereAutomatischeSparrenBerechnung();
 });
-    let dachBreite = 10;
-let dachHoehe = 6;
-let dachTyp = 'rechteck';
-let obereBreite = 0;
-let trapezHoehe = 0;
-let rechteckHoehe = 0;
-let sparrenLaengen = [];
-let sparrenPositionen = [];
-
-function showAds() {
-    document.getElementById('top-ad-container').style.display = 'block';
-    document.getElementById('middle-ad-container').style.display = 'block';
-    document.getElementById('bottom-ad-container').style.display = 'block';
-    
-    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
-    
-    setTimeout(function() {
-        if (window.adsbygoogle) {
-            try {
-                const ads = document.querySelectorAll('.adsbygoogle');
-                ads.forEach(ad => {
-                    if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-adsbygoogle-status')) {
-                        if (!allowPersonalized) {
-                            ad.setAttribute('data-npa', '1');
-                        }
-                        (window.adsbygoogle = window.adsbygoogle || []).push({});
-                    }
-                });
-            } catch (e) {
-                console.log('AdSense loading error:', e);
-            }
-        }
-    }, 1000);
-}
-
-function ladeDachParameter() {
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    if (urlParams.has('breite')) dachBreite = parseFloat(urlParams.get('breite'));
-    if (urlParams.has('hoehe')) dachHoehe = parseFloat(urlParams.get('hoehe'));
-    if (urlParams.has('typ')) dachTyp = urlParams.get('typ');
-    if (urlParams.has('obereBreite')) obereBreite = parseFloat(urlParams.get('obereBreite'));
-    if (urlParams.has('trapezHoehe')) trapezHoehe = parseFloat(urlParams.get('trapezHoehe'));
-    if (urlParams.has('rechteckHoehe')) rechteckHoehe = parseFloat(urlParams.get('rechteckHoehe'));
-
-    aktualisiereAnzeige();
-}
-
-function aktualisiereAnzeige() {
-    let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    switch(dachTyp) {
-        case 'trapez':
-            if (obereBreite) massText += `, Obere Breite: ${obereBreite.toFixed(1)}m`;
-            break;
-        case 'dreieck':
-            massText += `, Spitzdach`;
-            break;
-        case 'trapez-auf-rechteck':
-            const obereBreiteTA = urlParams.get('obereBreite');
-            const trapezHoeheTA = urlParams.get('trapezHoehe');
-            const rechteckHoeheTA = urlParams.get('rechteckHoehe');
-            if (obereBreiteTA && trapezHoeheTA && rechteckHoeheTA) {
-                massText += `, Obere Breite: ${parseFloat(obereBreiteTA).toFixed(1)}m`;
-            }
-            break;
-    }
-    
-    document.getElementById('dach-masse').textContent = massText;
-    document.getElementById('dach-darstellung').innerHTML = generiereSimpleDachSVG();
-}
-
-function generiereSimpleDachSVG() {
-    let svg = '';
-    
-    switch(dachTyp) {
-        case 'rechteck':
-            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
-                <rect x="20" y="30" width="160" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Rechteck</text>
-            </svg>`;
-            break;
-        case 'trapez':
-            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
-                <polygon points="60,30 140,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Trapez</text>
-            </svg>`;
-            break;
-        case 'dreieck':
-        case 'gleichschenkliges-dreieck':
-        case 'ungleichschenkliges-dreieck':
-            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
-                <polygon points="100,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                <text x="100" y="75" text-anchor="middle" font-size="12" fill="#333">Dreieck</text>
-            </svg>`;
-            break;
-        case 'trapez-auf-rechteck':
-            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
-                <rect x="20" y="60" width="160" height="30" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                <polygon points="60,30 140,30 180,60 20,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                <text x="100" y="75" text-anchor="middle" font-size="11" fill="#333">Trapez+Rechteck</text>
-            </svg>`;
-            break;
-        default:
-            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
-                <rect x="20" y="60" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-            </svg>`;
-    }
-    
-    return svg;
-}
-
-let berechnungsTimer = null;
-
-function aktualisiereAutomatischeSparrenBerechnung() {
-    const anzahlInput = document.getElementById('anzahl-sparren');
-    const abstandInput = document.getElementById('sparren-abstand');
-    const ueberstandInput = document.getElementById('dachueberstand');
-    
-    [anzahlInput, abstandInput, ueberstandInput].forEach(input => {
-        input.addEventListener('input', function() {
-            if (berechnungsTimer) clearTimeout(berechnungsTimer);
-            berechnungsTimer = setTimeout(() => berechneSparrenParameter(), 800);
-        });
-    });
-}
-
-function berechneSparrenParameter() {
-    const anzahlInput = document.getElementById('anzahl-sparren');
-    const abstandInput = document.getElementById('sparren-abstand');
-    const ueberstandInput = document.getElementById('dachueberstand');
-    
-    const anzahl = parseFloat(anzahlInput.value) || 0;
-    const abstand = parseFloat(abstandInput.value) || 0;
-    const ueberstand = parseFloat(ueberstandInput.value) || 0;
-    
-    let gefuellteFelder = 0;
-    if (anzahl > 0 && anzahlInput.value.trim() !== '') gefuellteFelder++;
-    if (abstand > 0 && abstandInput.value.trim() !== '') gefuellteFelder++;
-    if (ueberstand >= 0 && ueberstandInput.value.trim() !== '') gefuellteFelder++;
-    
-    [anzahlInput, abstandInput, ueberstandInput].forEach(input => {
-        if (input.style.backgroundColor === 'rgb(232, 245, 232)') {
-            input.style.backgroundColor = '';
-        }
-    });
-    
-    if (gefuellteFelder === 2) {
-        if (anzahl > 0 && abstand > 0 && ueberstandInput.value.trim() === '') {
-            const sparrenBreite = (anzahl - 1) * (abstand / 100);
-            const neuerUeberstand = ((dachBreite - sparrenBreite) / 2) * 100;
-            ueberstandInput.value = Math.max(0, neuerUeberstand).toFixed(1);
-            ueberstandInput.style.backgroundColor = '#e8f5e8';
-        }
-        else if (anzahl > 0 && ueberstand >= 0 && abstandInput.value.trim() === '') {
-            const verfuegbareBreite = dachBreite - (2 * ueberstand / 100);
-            const neuerAbstand = (verfuegbareBreite / (anzahl - 1)) * 100;
-            abstandInput.value = neuerAbstand.toFixed(1);
-            abstandInput.style.backgroundColor = '#e8f5e8';
-        }
-        else if (abstand > 0 && ueberstand >= 0 && anzahlInput.value.trim() === '') {
-            const verfuegbareBreite = dachBreite - (2 * ueberstand / 100);
-            const neueAnzahl = Math.round((verfuegbareBreite / (abstand / 100)) + 1);
-            anzahlInput.value = Math.max(2, neueAnzahl);
-            anzahlInput.style.backgroundColor = '#e8f5e8';
-        }
-    }
-    
-    if (anzahlInput.value && abstandInput.value && ueberstandInput.value !== '') {
-        berechneSparrenPositionen(parseInt(anzahlInput.value), parseFloat(abstandInput.value), parseFloat(ueberstandInput.value));
-        berechneSpitzdachSparren(parseInt(anzahlInput.value));
-    }
-}
-
-function berechneSparrenPositionen(anzahl, abstand, ueberstand) {
-    sparrenPositionen = [];
-    const ueberstandM = ueberstand / 100;
-    
-    for (let i = 0; i < anzahl; i++) {
-        sparrenPositionen.push(ueberstandM + (i * abstand / 100));
-    }
-}
-
-function berechneSpitzdachSparren(anzahlSparren) {
-    sparrenLaengen = [];
-    
-    switch(dachTyp) {
-        case 'rechteck':
-            for (let i = 0; i < anzahlSparren; i++) {
-                sparrenLaengen.push(dachHoehe);
-            }
-            break;
-            
-        case 'trapez':
-            const seitenAbstand = (dachBreite - obereBreite) / 2;
-            const linkeObereEcke = seitenAbstand;
-            const rechteObereEcke = dachBreite - seitenAbstand;
-            
-            for (let i = 0; i < anzahlSparren; i++) {
-                const xPosition = sparrenPositionen[i];
-                let sparrenLaenge;
-                
-                if (xPosition <= linkeObereEcke) {
-                    sparrenLaenge = (xPosition / linkeObereEcke) * dachHoehe;
-                } else if (xPosition >= rechteObereEcke) {
-                    sparrenLaenge = ((dachBreite - xPosition) / seitenAbstand) * dachHoehe;
-                } else {
-                    sparrenLaenge = dachHoehe;
-                }
-                sparrenLaengen.push(Math.max(0, sparrenLaenge));
-            }
-            break;
-            
-        case 'dreieck':
-        case 'gleichschenkliges-dreieck':
-        case 'ungleichschenkliges-dreieck':
-            const halbBreite = dachBreite / 2;
-            
-            for (let i = 0; i < anzahlSparren; i++) {
-                const xPosition = sparrenPositionen[i];
-                let sparrenLaenge;
-                
-                if (xPosition <= halbBreite) {
-                    sparrenLaenge = (xPosition / halbBreite) * dachHoehe;
-                } else {
-                    sparrenLaenge = ((dachBreite - xPosition) / halbBreite) * dachHoehe;
-                }
-                
-                sparrenLaengen.push(Math.max(0, sparrenLaenge));
-            }
-            break;
-            
-        case 'trapez-auf-rechteck':
-            const seitenAbstandTA = (dachBreite - obereBreite) / 2;
-            const linkeObereEckeTA = seitenAbstandTA;
-            const rechteObereEckeTA = dachBreite - seitenAbstandTA;
-            
-            for (let i = 0; i < anzahlSparren; i++) {
-                const xPosition = sparrenPositionen[i];
-                let sparrenLaenge = rechteckHoehe;
-                
-                if (xPosition <= linkeObereEckeTA) {
-                    sparrenLaenge += (xPosition / linkeObereEckeTA) * trapezHoehe;
-                } else if (xPosition >= rechteObereEckeTA) {
-                    sparrenLaenge += ((dachBreite - xPosition) / seitenAbstandTA) * trapezHoehe;
-                } else {
-                    sparrenLaenge += trapezHoehe;
-                }
-                
-                sparrenLaengen.push(Math.max(0, sparrenLaenge));
-            }
-            break;
-            
-        default:
-            for (let i = 0; i < anzahlSparren; i++) {
-                sparrenLaengen.push(dachHoehe);
-            }
-    }
-}
-
-function aktualisiereLattenabstandsfeld() {
-    const select = document.getElementById('lattenabstand');
-    const customGroup = document.getElementById('custom-lattenabstand-group');
-    
-    select.addEventListener('change', function() {
-        customGroup.style.display = this.value === 'custom' ? 'block' : 'none';
-    });
-}
-
-function findeNaechstenSparren(zielPosition, sparrenListe) {
-    let naechsterSparren = sparrenListe[0];
-    let minAbstand = Math.abs(sparrenListe[0] - zielPosition);
-    
-    for (let sparrenPos of sparrenListe) {
-        const abstand = Math.abs(sparrenPos - zielPosition);
-        if (abstand < minAbstand) {
-            minAbstand = abstand;
-            naechsterSparren = sparrenPos;
-        }
-    }
-    
-    return naechsterSparren;
-}
-
-function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
-    const tatsaechlichVerfuegbar = verfuegbareLaengen.filter(l => l > 0);
-    if (tatsaechlichVerfuegbar.length === 0) {
-        return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
-    }
-    
-    tatsaechlichVerfuegbar.sort((a, b) => a - b);
-    
-    const materialListe = [];
-    let gesamtVerschnitt = 0;
-    let gesamtBenoetigteLaenge = 0;
-    
-    window.lattenPlan = [];
-    
-    const istRechteckSonderfall = (dachTyp === 'rechteck' && 
-        sparrenPositionen.length > 0 && 
-        (sparrenPositionen[0] > 0.05 || sparrenPositionen[sparrenPositionen.length - 1] < dachBreite - 0.05));
-    
-    if (istRechteckSonderfall) {
-        // RECHTECK-SONDERFALL: Latten mit gezielten Schnitten (2,5+5+2,5 etc.)
-        for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
-            const reihenBreite = dachBreite;
-            gesamtBenoetigteLaenge += reihenBreite;
-            
-            // Finde beste Kombination
-            let besteKombination = null;
-            let minVerschnitt = Infinity;
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                if (tatsaechlichVerfuegbar[i] >= reihenBreite - 0.01) {
-                    const verschnitt = tatsaechlichVerfuegbar[i] - reihenBreite;
-                    if (verschnitt < minVerschnitt) {
-                        minVerschnitt = verschnitt;
-                        besteKombination = [tatsaechlichVerfuegbar[i]];
-                    }
-                }
-            }
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
-                    const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j];
-                    if (summe >= reihenBreite - 0.01) {
-                        const verschnitt = summe - reihenBreite;
-                        if (verschnitt < minVerschnitt) {
-                            minVerschnitt = verschnitt;
-                            besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j]];
-                        }
-                    }
-                }
-            }
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
-                    for (let k = j; k < tatsaechlichVerfuegbar.length; k++) {
-                        const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j] + tatsaechlichVerfuegbar[k];
-                        if (summe >= reihenBreite - 0.01) {
-                            const verschnitt = summe - reihenBreite;
-                            if (verschnitt < minVerschnitt) {
-                                minVerschnitt = verschnitt;
-                                besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j], tatsaechlichVerfuegbar[k]];
-                            }
-                        }
-                    }
-                }
-            }
-            
-            if (besteKombination) {
-                let segmente = [];
-                const variante = reihe % 3;
-                
-                if (besteKombination.length === 1) {
-                    segmente.push({
-                        start: 0,
-                        ende: reihenBreite,
-                        laenge: reihenBreite,
-                        originalLaenge: besteKombination[0],
-                        istRest: false
-                    });
-                    
-                    const existierend = materialListe.find(m => m.laenge === besteKombination[0]);
-                    if (existierend) existierend.anzahl++;
-                    else materialListe.push({ laenge: besteKombination[0], anzahl: 1 });
-                    
-                    gesamtVerschnitt += (besteKombination[0] - reihenBreite);
-                    
-                } else if (besteKombination.length === 2) {
-                    // 2 Latten: Schnitt bei 50%
-                    const zielPos = reihenBreite * 0.5;
-                    const schnitt = findeNaechstenSparren(zielPos, sparrenPositionen);
-                    
-                    segmente.push({
-                        start: 0,
-                        ende: schnitt,
-                        laenge: schnitt,
-                        originalLaenge: besteKombination[0],
-                        istRest: false
-                    });
-                    
-                    segmente.push({
-                        start: schnitt,
-                        ende: reihenBreite,
-                        laenge: reihenBreite - schnitt,
-                        originalLaenge: besteKombination[1],
-                        istRest: false
-                    });
-                    
-                    besteKombination.forEach(laenge => {
-                        const existierend = materialListe.find(m => m.laenge === laenge);
-                        if (existierend) existierend.anzahl++;
-                        else materialListe.push({ laenge: laenge, anzahl: 1 });
-                    });
-                    
-                    gesamtVerschnitt += (besteKombination[0] + besteKombination[1] - reihenBreite);
-                    
-                } else if (besteKombination.length === 3) {
-                    // 3 Latten: Muster je nach Variante
-                    let zielPos1, zielPos2;
-                    
-                    if (variante === 0) {
-                        // 2,5m + 5m + 2,5m
-                        zielPos1 = reihenBreite * 0.25;
-                        zielPos2 = reihenBreite * 0.75;
-                    } else if (variante === 1) {
-                        // 1,5m + 5m + 3,5m
-                        zielPos1 = reihenBreite * 0.15;
-                        zielPos2 = reihenBreite * 0.65;
-                    } else {
-                        // 3,5m + 5m + 1,5m
-                        zielPos1 = reihenBreite * 0.35;
-                        zielPos2 = reihenBreite * 0.85;
-                    }
-                    
-                    const schnitt1 = findeNaechstenSparren(zielPos1, sparrenPositionen);
-                    const schnitt2 = findeNaechstenSparren(zielPos2, sparrenPositionen.filter(p => p > schnitt1));
-                    
-                    segmente.push({
-                        start: 0,
-                        ende: schnitt1,
-                        laenge: schnitt1,
-                        originalLaenge: besteKombination[0],
-                        istRest: false
-                    });
-                    
-                    segmente.push({
-                        start: schnitt1,
-                        ende: schnitt2,
-                        laenge: schnitt2 - schnitt1,
-                        originalLaenge: besteKombination[1],
-                        istRest: false
-                    });
-                    
-                    segmente.push({
-                        start: schnitt2,
-                        ende: reihenBreite,
-                        laenge: reihenBreite - schnitt2,
-                        originalLaenge: besteKombination[2],
-                        istRest: false
-                    });
-                    
-                    besteKombination.forEach(laenge => {
-                        const existierend = materialListe.find(m => m.laenge === laenge);
-                        if (existierend) existierend.anzahl++;
-                        else materialListe.push({ laenge: laenge, anzahl: 1 });
-                    });
-                    
-                    gesamtVerschnitt += (besteKombination[0] + besteKombination[1] + besteKombination[2] - reihenBreite);
-                }
-                
-                window.lattenPlan[reihe] = segmente;
-            }
-        }
-        
-    } else {
-        // NORMALER FALL für Trapez/Dreieck
-        const luecken = [];
-        
-        for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
-            const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
-            let reihenBreite = berechneReihenBreite(fortschritt);
-            
-            gesamtBenoetigteLaenge += reihenBreite;
-            
-            const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
-            const relevanteSparren = sparrenPositionen.filter(pos => 
-                pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
-            ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
-            
-            if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
-                relevanteSparren.unshift(0);
-            }
-            if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
-                relevanteSparren.push(reihenBreite);
-            }
-            
-            let besteKombination = null;
-            let minVerschnitt = Infinity;
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                const summe = tatsaechlichVerfuegbar[i];
-                if (summe >= reihenBreite - 0.01) {
-                    const verschnitt = summe - reihenBreite;
-                    if (verschnitt < minVerschnitt) {
-                        minVerschnitt = verschnitt;
-                        besteKombination = [tatsaechlichVerfuegbar[i]];
-                    }
-                }
-            }
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
-                    const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j];
-                    if (summe >= reihenBreite - 0.01) {
-                        const verschnitt = summe - reihenBreite;
-                        if (verschnitt < minVerschnitt) {
-                            minVerschnitt = verschnitt;
-                            besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j]];
-                        }
-                    }
-                }
-            }
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
-                    for (let k = j; k < tatsaechlichVerfuegbar.length; k++) {
-                        const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j] + tatsaechlichVerfuegbar[k];
-                        if (summe >= reihenBreite - 0.01) {
-                            const verschnitt = summe - reihenBreite;
-                            if (verschnitt < minVerschnitt) {
-                                minVerschnitt = verschnitt;
-                                besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j], tatsaechlichVerfuegbar[k]];
-                            }
-                        }
-                    }
-                }
-            }
-            
-            const reihenSegmente = [];
-            let aktuellePosition = 0;
-            
-            if (besteKombination) {
-                for (let lattenLaenge of besteKombination) {
-                    if (aktuellePosition >= reihenBreite - 0.01) break;
-                    
-                    const maxEnde = Math.min(aktuellePosition + lattenLaenge, reihenBreite);
-                    
-                    let zielSparren = null;
-                    for (let j = relevanteSparren.length - 1; j >= 0; j--) {
-                        if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= maxEnde + 0.05) {
-                            zielSparren = relevanteSparren[j];
-                            break;
-                        }
-                    }
-                    
-                    if (zielSparren) {
-                        reihenSegmente.push({
-                            start: aktuellePosition,
-                            ende: zielSparren,
-                            laenge: zielSparren - aktuellePosition,
-                            originalLaenge: lattenLaenge,
-                            istRest: false
-                        });
-                        
-                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
-                        if (existierend) {
-                            existierend.anzahl++;
-                        } else {
-                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
-                        }
-                        
-                        aktuellePosition = zielSparren;
-                    }
-                }
-            }
-            
-            if (aktuellePosition < reihenBreite - 0.1) {
-                luecken.push({
-                    reihe: reihe,
-                    start: aktuellePosition,
-                    ende: reihenBreite,
-                    benoetigteLattenlaenge: reihenBreite - aktuellePosition,
-                    relevanteSparren: relevanteSparren.filter(pos => pos > aktuellePosition)
-                });
-            }
-            
-            window.lattenPlan[reihe] = reihenSegmente;
-        }
-        
-        if (luecken.length > 0) {
-            let restPool = [];
-            
-            for (let luecke of luecken) {
-                let gefuellt = false;
-                
-                for (let i = 0; i < restPool.length; i++) {
-                    const restLaenge = restPool[i];
-                    
-                    let zielSparren = null;
-                    for (let sparrenPos of luecke.relevanteSparren) {
-                        if (sparrenPos <= luecke.start + restLaenge + 0.05) {
-                            zielSparren = sparrenPos;
-                            break;
-                        }
-                    }
-                    
-                    if (zielSparren && zielSparren >= luecke.ende - 0.05) {
-                        window.lattenPlan[luecke.reihe].push({
-                            start: luecke.start,
-                            ende: luecke.ende,
