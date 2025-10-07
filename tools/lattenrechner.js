@@ -336,7 +336,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             
             if (besteKombination) {
                 let segmente = [];
-                const variante = reihe % 3;
                 
                 if (besteKombination.length === 1) {
                     // Eine Latte: gesamte Breite abdecken
@@ -355,72 +354,56 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                     gesamtVerschnitt += (besteKombination[0] - reihenBreite);
                     
                 } else if (besteKombination.length === 2) {
-                    // Zwei Latten: Eine wird geschnitten
-                    // System: stueck1 + ganzeLatte + stueck2 = reihenBreite
-                    // wobei stueck1 + stueck2 = eine der beiden Latten
-                    
                     const lattenSumme = besteKombination[0] + besteKombination[1];
                     
-                    // Welche Latte wird geschnitten? Die, die alleine nicht passt
+                    // Welche Latte wird geschnitten?
                     let zuSchneidendeLatte, ganzeLatte;
-                    if (besteKombination[0] >= reihenBreite - 0.01) {
-                        ganzeLatte = besteKombination[0];
-                        zuSchneidendeLatte = besteKombination[1];
-                    } else if (besteKombination[1] >= reihenBreite - 0.01) {
-                        ganzeLatte = besteKombination[1];
+                    if (besteKombination[0] < besteKombination[1]) {
                         zuSchneidendeLatte = besteKombination[0];
+                        ganzeLatte = besteKombination[1];
                     } else {
-                        // Beide passen nicht alleine - nimm die längere als "ganze"
-                        ganzeLatte = Math.max(besteKombination[0], besteKombination[1]);
-                        zuSchneidendeLatte = Math.min(besteKombination[0], besteKombination[1]);
+                        zuSchneidendeLatte = besteKombination[1];
+                        ganzeLatte = besteKombination[0];
                     }
                     
-                    // Berechne Schnittpositionen basierend auf Variante
-                    // Die zu schneidende Latte wird in stueck1 und stueck2 geteilt
-                    let stueck1Laenge;
-                    
-                    // Mindestlänge 1m für Stücke
+                    // Probiere verschiedene Schnittpositionen durch
                     const minStueckLaenge = 1.0;
-                    const maxStueck1 = zuSchneidendeLatte - minStueckLaenge;
+                    const maxSchnittPos = zuSchneidendeLatte - minStueckLaenge;
                     
-                    if (variante === 0) {
-                        // Symmetrisch: stueck1 = stueck2
-                        stueck1Laenge = zuSchneidendeLatte / 2;
-                    } else if (variante === 1) {
-                        // 40/60
-                        stueck1Laenge = zuSchneidendeLatte * 0.4;
-                    } else {
-                        // 60/40
-                        stueck1Laenge = zuSchneidendeLatte * 0.6;
-                    }
+                    let besteSchnittPos = null;
+                    let besteQualitaet = Infinity;
                     
-                    // Begrenze auf Mindestlänge
-                    stueck1Laenge = Math.max(minStueckLaenge, Math.min(maxStueck1, stueck1Laenge));
-                    const stueck2Laenge = zuSchneidendeLatte - stueck1Laenge;
-                    
-                    // Finde Sparren für Stoß 1 (nach stueck1)
-                    let stoss1 = stueck1Laenge;
-                    let minAbstand1 = Infinity;
-                    for (let sparrenPos of sparrenPositionen) {
-                        const abstand = Math.abs(sparrenPos - stoss1);
-                        if (abstand < minAbstand1) {
-                            minAbstand1 = abstand;
-                            stoss1 = sparrenPos;
+                    // Teste Schnittpositionen in 0,1m Schritten
+                    for (let schnittPos = minStueckLaenge; schnittPos <= maxSchnittPos; schnittPos += 0.1) {
+                        // Stöße wären bei: schnittPos und (schnittPos + ganzeLatte)
+                        const stoss1 = schnittPos;
+                        const stoss2 = schnittPos + ganzeLatte;
+                        
+                        // Finde nächste Sparren
+                        let abstand1 = Infinity;
+                        for (let sparrenPos of sparrenPositionen) {
+                            abstand1 = Math.min(abstand1, Math.abs(sparrenPos - stoss1));
+                        }
+                        
+                        let abstand2 = Infinity;
+                        for (let sparrenPos of sparrenPositionen) {
+                            abstand2 = Math.min(abstand2, Math.abs(sparrenPos - stoss2));
+                        }
+                        
+                        // Qualität: Summe der Abstände zu nächsten Sparren
+                        const qualitaet = abstand1 + abstand2;
+                        
+                        if (qualitaet < besteQualitaet) {
+                            besteQualitaet = qualitaet;
+                            besteSchnittPos = schnittPos;
                         }
                     }
                     
-                    // Stoß 2 liegt bei stoss1 + ganzeLatte
-                    const stoss2 = stoss1 + ganzeLatte;
-                    
-                    // Prüfe ob stoss2 nahe einem Sparren liegt
-                    let minAbstand2 = Infinity;
-                    for (let sparrenPos of sparrenPositionen) {
-                        const abstand = Math.abs(sparrenPos - stoss2);
-                        minAbstand2 = Math.min(minAbstand2, abstand);
-                    }
-                    
-                    // Wenn beide Stöße akzeptabel sind (< 30cm zum nächsten Sparren)
-                    if (minAbstand1 < 0.3 && minAbstand2 < 0.3) {
+                    // Verwende beste Schnittposition
+                    if (besteSchnittPos && besteQualitaet < 0.6) { // Beide Stöße müssen max 30cm vom Sparren sein
+                        const stoss1 = besteSchnittPos;
+                        const stoss2 = besteSchnittPos + ganzeLatte;
+                        
                         segmente.push({
                             start: 0,
                             ende: stoss1,
@@ -453,7 +436,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                         
                         gesamtVerschnitt += (lattenSumme - reihenBreite);
                     } else {
-                        // Fallback: einfache Aufteilung ohne Sparren-Optimierung
+                        // Fallback wenn keine gute Position gefunden
                         const stoss = reihenBreite / 2;
                         segmente.push({
                             start: 0,
@@ -1011,7 +994,8 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         const reihenBreite = berechneReihenBreite(fortschritt);
         const lattenY = dachStartY + (1 - fortschritt) * dachHoehe * scaleY;
         
-        const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;const reihenStartX = margin + reihenStartAbsolut * scaleX;
+        const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+        const reihenStartX = margin + reihenStartAbsolut * scaleX;
         
         if (window.lattenPlan && window.lattenPlan[i]) {
             const segmente = window.lattenPlan[i];
