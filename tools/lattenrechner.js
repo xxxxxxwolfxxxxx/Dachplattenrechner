@@ -353,80 +353,39 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                     
                     gesamtVerschnitt += (besteKombination[0] - reihenBreite);
                     
-                } else if (besteKombination.length === 2) {
-                    const lattenSumme = besteKombination[0] + besteKombination[1];
+                } else {
+                    // Mehrere Latten: Intelligente Aufteilung
+                    const lattenSumme = besteKombination.reduce((sum, l) => sum + l, 0);
                     
-                    // Welche Latte wird geschnitten?
-                    let zuSchneidendeLatte, ganzeLatte;
-                    if (besteKombination[0] < besteKombination[1]) {
-                        zuSchneidendeLatte = besteKombination[0];
-                        ganzeLatte = besteKombination[1];
-                    } else {
-                        zuSchneidendeLatte = besteKombination[1];
-                        ganzeLatte = besteKombination[0];
-                    }
+                    // Sortiere Latten: kürzeste zuerst (die wird geschnitten)
+                    const sortierteLatten = [...besteKombination].sort((a, b) => a - b);
+                    const zuSchneidendeLatte = sortierteLatten[0];
+                    const ganzeLatten = sortierteLatten.slice(1);
+                    const summeGanzeLatten = ganzeLatten.reduce((sum, l) => sum + l, 0);
                     
-                    // Probiere verschiedene Schnittpositionen durch
-                    const minStueckLaenge = 1.0;
-                    const maxSchnittPos = zuSchneidendeLatte - minStueckLaenge;
+                    // Variante basierend auf Reihe
+                    const variante = reihe % 3;
                     
-                    let besteSchnittPos = null;
-                    let besteQualitaet = Infinity;
+                    // Die zu schneidende Latte muss die verbleibende Länge füllen
+                    const restLaenge = reihenBreite - summeGanzeLatten;
                     
-                    // Teste Schnittpositionen in 0,1m Schritten
-                    for (let schnittPos = minStueckLaenge; schnittPos <= maxSchnittPos; schnittPos += 0.1) {
-                        // Stöße wären bei: schnittPos und (schnittPos + ganzeLatte)
-                        const stoss1 = schnittPos;
-                        const stoss2 = schnittPos + ganzeLatte;
+                    // Wenn die zu schneidende Latte nicht ausreicht, verwende Fallback
+                    if (zuSchneidendeLatte < restLaenge - 0.01) {
+                        // Fallback: einfache gleichmäßige Aufteilung
+                        const stueckLaenge = reihenBreite / besteKombination.length;
+                        let aktPos = 0;
                         
-                        // Finde nächste Sparren
-                        let abstand1 = Infinity;
-                        for (let sparrenPos of sparrenPositionen) {
-                            abstand1 = Math.min(abstand1, Math.abs(sparrenPos - stoss1));
+                        for (let i = 0; i < besteKombination.length; i++) {
+                            const ende = (i === besteKombination.length - 1) ? reihenBreite : aktPos + stueckLaenge;
+                            segmente.push({
+                                start: aktPos,
+                                ende: ende,
+                                laenge: ende - aktPos,
+                                originalLaenge: besteKombination[i],
+                                istRest: false
+                            });
+                            aktPos = ende;
                         }
-                        
-                        let abstand2 = Infinity;
-                        for (let sparrenPos of sparrenPositionen) {
-                            abstand2 = Math.min(abstand2, Math.abs(sparrenPos - stoss2));
-                        }
-                        
-                        // Qualität: Summe der Abstände zu nächsten Sparren
-                        const qualitaet = abstand1 + abstand2;
-                        
-                        if (qualitaet < besteQualitaet) {
-                            besteQualitaet = qualitaet;
-                            besteSchnittPos = schnittPos;
-                        }
-                    }
-                    
-                    // Verwende beste Schnittposition
-                    if (besteSchnittPos && besteQualitaet < 0.6) { // Beide Stöße müssen max 30cm vom Sparren sein
-                        const stoss1 = besteSchnittPos;
-                        const stoss2 = besteSchnittPos + ganzeLatte;
-                        
-                        segmente.push({
-                            start: 0,
-                            ende: stoss1,
-                            laenge: stoss1,
-                            originalLaenge: zuSchneidendeLatte,
-                            istRest: false
-                        });
-                        
-                        segmente.push({
-                            start: stoss1,
-                            ende: stoss2,
-                            laenge: ganzeLatte,
-                            originalLaenge: ganzeLatte,
-                            istRest: false
-                        });
-                        
-                        segmente.push({
-                            start: stoss2,
-                            ende: reihenBreite,
-                            laenge: reihenBreite - stoss2,
-                            originalLaenge: zuSchneidendeLatte,
-                            istRest: false
-                        });
                         
                         besteKombination.forEach(laenge => {
                             const existierend = materialListe.find(m => m.laenge === laenge);
@@ -435,94 +394,104 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                         });
                         
                         gesamtVerschnitt += (lattenSumme - reihenBreite);
+                        
                     } else {
-                        // Fallback wenn keine gute Position gefunden
-                        const stoss = reihenBreite / 2;
-                        segmente.push({
-                            start: 0,
-                            ende: stoss,
-                            laenge: stoss,
-                            originalLaenge: besteKombination[0],
-                            istRest: false
-                        });
+                        // Intelligente Aufteilung: Anfangsstück + ganze Latten + Endstück
+                        const minStueckLaenge = 1.0;
+                        const maxSchnittPos = zuSchneidendeLatte - minStueckLaenge;
                         
-                        segmente.push({
-                            start: stoss,
-                            ende: reihenBreite,
-                            laenge: reihenBreite - stoss,
-                            originalLaenge: besteKombination[1],
-                            istRest: false
-                        });
+                        let besteSchnittPos = null;
+                        let besteQualitaet = Infinity;
                         
-                        besteKombination.forEach(laenge => {
-                            const existierend = materialListe.find(m => m.laenge === laenge);
-                            if (existierend) existierend.anzahl++;
-                            else materialListe.push({ laenge: laenge, anzahl: 1 });
-                        });
+                        // Bevorzugte Schnittposition basierend auf Variante
+                        let bevorzugteSchnittPos;
+                        if (variante === 0) {
+                            bevorzugteSchnittPos = restLaenge * 0.5; // 50/50
+                        } else if (variante === 1) {
+                            bevorzugteSchnittPos = restLaenge * 0.3; // 30/70
+                        } else {
+                            bevorzugteSchnittPos = restLaenge * 0.7; // 70/30
+                        }
                         
-                        gesamtVerschnitt += (lattenSumme - reihenBreite);
-                    }
-                    
-                } else if (besteKombination.length === 3) {
-                    // Drei Latten: mindestens eine wird geschnitten
-                    const lattenSumme = besteKombination[0] + besteKombination[1] + besteKombination[2];
-                    
-                    // Einfache Aufteilung in drei Teile
-                    const stoss1 = reihenBreite * 0.25;
-                    const stoss2 = reihenBreite * 0.75;
-                    
-                    // Finde nächste Sparren
-                    let tatsStoss1 = stoss1;
-                    let minAbstand1 = Infinity;
-                    for (let sparrenPos of sparrenPositionen) {
-                        const abstand = Math.abs(sparrenPos - stoss1);
-                        if (abstand < minAbstand1) {
-                            minAbstand1 = abstand;
-                            tatsStoss1 = sparrenPos;
+                        // Teste Schnittpositionen in 0,1m Schritten
+                        for (let schnittPos = minStueckLaenge; schnittPos <= Math.min(maxSchnittPos, restLaenge - minStueckLaenge); schnittPos += 0.1) {
+                            // Anfangsstück
+                            const stoss1 = schnittPos;
+                            
+                            // Dann kommen die ganzen Latten
+                            let aktPos = stoss1;
+                            const alleStossPositionen = [stoss1];
+                            
+                            for (let ganzeLatte of ganzeLatten) {
+                                aktPos += ganzeLatte;
+                                alleStossPositionen.push(aktPos);
+                            }
+                            
+                            // Das letzte Stück (Rest der geschnittenen Latte) endet bei reihenBreite
+                            // alleStossPositionen enthält jetzt alle Stoß-Positionen
+                            
+                            // Berechne Qualität: Summe aller Abstände zu nächsten Sparren
+                            let sparrenQualitaet = 0;
+                            for (let stossPos of alleStossPositionen) {
+                                let minAbstand = Infinity;
+                                for (let sparrenPos of sparrenPositionen) {
+                                    minAbstand = Math.min(minAbstand, Math.abs(sparrenPos - stossPos));
+                                }
+                                sparrenQualitaet += minAbstand;
+                            }
+                            
+                            // Füge leichte Präferenz für gewünschte Variante hinzu
+                            const positionsAbweichung = Math.abs(schnittPos - bevorzugteSchnittPos) * 0.1;
+                            const qualitaet = sparrenQualitaet + positionsAbweichung;
+                            
+                            if (qualitaet < besteQualitaet) {
+                                besteQualitaet = qualitaet;
+                                besteSchnittPos = schnittPos;
+                            }
+                        }
+                        
+                        // Verwende beste Schnittposition
+                        if (besteSchnittPos) {
+                            // Anfangsstück (von geschnittener Latte)
+                            segmente.push({
+                                start: 0,
+                                ende: besteSchnittPos,
+                                laenge: besteSchnittPos,
+                                originalLaenge: zuSchneidendeLatte,
+                                istRest: false
+                            });
+                            
+                            // Ganze Latten
+                            let aktPos = besteSchnittPos;
+                            for (let ganzeLatte of ganzeLatten) {
+                                segmente.push({
+                                    start: aktPos,
+                                    ende: aktPos + ganzeLatte,
+                                    laenge: ganzeLatte,
+                                    originalLaenge: ganzeLatte,
+                                    istRest: false
+                                });
+                                aktPos += ganzeLatte;
+                            }
+                            
+                            // Endstück (Rest der geschnittenen Latte)
+                            segmente.push({
+                                start: aktPos,
+                                ende: reihenBreite,
+                                laenge: reihenBreite - aktPos,
+                                originalLaenge: zuSchneidendeLatte,
+                                istRest: true  // Dies ist das Rest-Stück!
+                            });
+                            
+                            besteKombination.forEach(laenge => {
+                                const existierend = materialListe.find(m => m.laenge === laenge);
+                                if (existierend) existierend.anzahl++;
+                                else materialListe.push({ laenge: laenge, anzahl: 1 });
+                            });
+                            
+                            gesamtVerschnitt += (lattenSumme - reihenBreite);
                         }
                     }
-                    
-                    let tatsStoss2 = stoss2;
-                    let minAbstand2 = Infinity;
-                    for (let sparrenPos of sparrenPositionen) {
-                        const abstand = Math.abs(sparrenPos - stoss2);
-                        if (abstand < minAbstand2 && sparrenPos > tatsStoss1) {
-                            minAbstand2 = abstand;
-                            tatsStoss2 = sparrenPos;
-                        }
-                    }
-                    
-                    segmente.push({
-                        start: 0,
-                        ende: tatsStoss1,
-                        laenge: tatsStoss1,
-                        originalLaenge: besteKombination[0],
-                        istRest: false
-                    });
-                    
-                    segmente.push({
-                        start: tatsStoss1,
-                        ende: tatsStoss2,
-                        laenge: tatsStoss2 - tatsStoss1,
-                        originalLaenge: besteKombination[1],
-                        istRest: false
-                    });
-                    
-                    segmente.push({
-                        start: tatsStoss2,
-                        ende: reihenBreite,
-                        laenge: reihenBreite - tatsStoss2,
-                        originalLaenge: besteKombination[2],
-                        istRest: false
-                    });
-                    
-                    besteKombination.forEach(laenge => {
-                        const existierend = materialListe.find(m => m.laenge === laenge);
-                        if (existierend) existierend.anzahl++;
-                        else materialListe.push({ laenge: laenge, anzahl: 1 });
-                    });
-                    
-                    gesamtVerschnitt += (lattenSumme - reihenBreite);
                 }
                 
                 window.lattenPlan[reihe] = segmente;
@@ -618,7 +587,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                             istRest: false
                         });
                         
-                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
+                        constexistierend = materialListe.find(m => m.laenge === lattenLaenge);
                         if (existierend) {
                             existierend.anzahl++;
                         } else {
@@ -1023,7 +992,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     const breiteY = dachStartY + dachHoehe * scaleY + 40;
     svg += `<line x1="${margin}" y1="${breiteY}" x2="${margin + dachBreite * scaleX}" y2="${breiteY}" stroke="#333" stroke-width="1.5"/>`;
     svg += `<line x1="${margin}" y1="${breiteY - 3}" x2="${margin}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
-    svg += `<line x1="${margin + dachBreite * scaleX}" y1="${breiteY - 3}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<linex1="${margin + dachBreite * scaleX}" y1="${breiteY - 3}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
     svg += `<text x="${margin + dachBreite * scaleX/2}" y="${breiteY + 15}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
     svg += `</svg>`;
     
