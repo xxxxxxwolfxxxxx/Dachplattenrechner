@@ -442,21 +442,31 @@ function loadAdSense() {
         </div>
     </footer>
 
-    <!-- Cookie-Banner -->
-    <div id="cookieBanner" class="cookie-banner">
-        <div class="cookie-content">
-            <div class="cookie-text">
-                <h3 style="margin: 0 0 10px 0; color: white;">🍪 Cookie-Einstellungen</h3>
-                <p>Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung zu bieten. Dazu gehören essentielle Cookies für die Funktionalität, Analyse-Cookies für die Optimierung und Marketing-Cookies für personalisierte Werbung.</p>
-            </div>
-            <div class="cookie-buttons">
-                <button class="cookie-btn accept" onclick="acceptAllCookies()" ontouchstart="">Alle akzeptieren</button>
-                <button class="cookie-btn decline" onclick="acceptOnlyEssential()" ontouchstart="">Nur Essentielle</button>
-                <button class="cookie-btn settings" onclick="openModal('cookies')" ontouchstart="">Einstellungen</button>
-            </div>
-        </div>
+   <!-- Cookie-Banner -->
+<div id="cookieBanner" class="cookie-banner">
+  <div class="cookie-content">
+    <div class="cookie-text">
+      <h3 style="margin: 0 0 10px 0; color: white;">🍪 Cookie-Einstellungen</h3>
+      <p>
+        Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung zu bieten. 
+        Dazu gehören essentielle Cookies für die Funktionalität, Analyse-Cookies für die Optimierung 
+        und Marketing-Cookies für personalisierte Werbung.
+      </p>
+
+      <!-- 💡 Haftungshinweis -->
+      <p style="margin-top: 10px; font-size: 0.9em; color: #ddd;">
+        ⚠️ <strong>Wichtiger Hinweis:</strong> Berechnungen erfolgen ohne Gewähr –
+        siehe <a href="/agb" style="color: #fff; text-decoration: underline;">AGB § 6</a>.
+      </p>
     </div>
 
+    <div class="cookie-buttons">
+      <button class="cookie-btn accept" onclick="acceptAllCookies()" ontouchstart="">Alle akzeptieren</button>
+      <button class="cookie-btn decline" onclick="acceptOnlyEssential()" ontouchstart="">Nur Essentielle</button>
+      <button class="cookie-btn settings" onclick="openModal('cookies')" ontouchstart="">Einstellungen</button>
+    </div>
+  </div>
+</div>
     <!-- Modal für allgemeine Inhalte -->
     <div id="modal" class="modal">
         <div class="modal-content">
