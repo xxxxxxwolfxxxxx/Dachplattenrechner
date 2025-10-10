@@ -12,15 +12,7 @@
     <link rel="icon" type="image/png" sizes="64x64" href="/images/favicon.png">
     <script>
        // AdSense für alle laden - personalisiert oder nicht-personalisiert
-function loadAdSense() {
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033';
-    script.crossOrigin = 'anonymous';
-    document.head.appendChild(script);
-    
-// AdSense Auto-Ads aktivieren
-   let adsenseLoaded = false;
+let adsenseLoaded = false;
 
 function loadAdSense() {
     if (adsenseLoaded) return; // Nur einmal laden
