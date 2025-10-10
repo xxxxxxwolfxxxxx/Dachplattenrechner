@@ -701,7 +701,7 @@ function acceptAllCookies() {
             alert('Ihr Browser unterstützt keine lokale Speicherung. Cookies werden für diese Sitzung gespeichert.');
             // Fallback: Verwende Cookies statt localStorage
             setCookie('cookieConsent', 'all', 365);
-            setCookie('analyticsCookies', 'true', 365);
+            setCookie('analyticsCookies','true', 365);
             setCookie('marketingCookies', 'true', 365);
         } else {
             // Normale localStorage-Speicherung
@@ -878,28 +878,28 @@ function showAds() {
     document.getElementById('middle-ad-container-1').style.display = 'block';
     document.getElementById('middle-ad-container-2').style.display = 'block';
     
-    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+    const allowPersonalized = getCookieSetting('marketingCookies') === 'true';
     
-    if (window.adsbygoogle) {
-        try {
-            const ads = document.querySelectorAll('.adsbygoogle');
-            ads.forEach(ad => {
-                if (!ad.getAttribute('data-ad-status')) {
-                    if (!allowPersonalized) {
-                        ad.setAttribute('data-npa', '1');
+    // Warte kurz bis AdSense geladen ist
+    setTimeout(() => {
+        if (window.adsbygoogle) {
+            try {
+                const ads = document.querySelectorAll('.adsbygoogle');
+                ads.forEach(ad => {
+                    if (!ad.getAttribute('data-ad-status')) {
+                        if (!allowPersonalized) {
+                            ad.setAttribute('data-npa', '1'); // Nicht-personalisierte Werbung
+                        }
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
                     }
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
-                }
-            });
-        } catch (e) {
-            console.log('AdSense loading error:', e);
+                });
+            } catch (e) {
+                console.log('AdSense loading error:', e);
+            }
+        } else {
+            console.log('AdSense not loaded yet');
         }
-    }
-}
-
-function hideAds() {
-    document.getElementById('middle-ad-container-1').style.display = 'none';
-    document.getElementById('middle-ad-container-2').style.display = 'none';
+    }, 1000);
 }
 
 // Modal AdSense Integration - VERBESSERTE VERSION
@@ -962,7 +962,7 @@ function attemptModalAdLoad() {
     newAd.setAttribute('data-ad-format', 'rectangle');
     newAd.setAttribute('data-full-width-responsive', 'true');
     
-    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+    const allowPersonalized = getCookieSetting('marketingCookies') === 'true';
     if (!allowPersonalized) {
         newAd.setAttribute('data-npa', '1');
     }
@@ -1272,18 +1272,15 @@ function openModal(type) {
     
     modalBody.innerHTML = content;
     
-    // Load current cookie settings if opening cookie modal
     if (type === 'cookies') {
-        const analyticsCookies = localStorage.getItem('analyticsCookies') === 'true';
-        const marketingCookies = localStorage.getItem('marketingCookies') === 'true';
+        const analyticsCookies = getCookieSetting('analyticsCookies') === 'true';
+        const marketingCookies = getCookieSetting('marketingCookies') === 'true';
         document.getElementById('analyticsCookies').checked = analyticsCookies;
         document.getElementById('marketingCookies').checked = marketingCookies;
     }
     
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
-    
-    // Setup email protection after modal content is loaded
     setupEmailProtection();
 }
 
@@ -1296,16 +1293,15 @@ function saveCookieSettings() {
     const analyticsCookies = document.getElementById('analyticsCookies').checked;
     const marketingCookies = document.getElementById('marketingCookies').checked;
     
-    console.log('Saving cookie settings:', { analyticsCookies, marketingCookies }); // Debug
+    console.log('Saving cookie settings:', { analyticsCookies, marketingCookies });
     
     try {
         localStorage.setItem('cookieConsent', 'custom');
         localStorage.setItem('analyticsCookies', analyticsCookies.toString());
         localStorage.setItem('marketingCookies', marketingCookies.toString());
         
-        // Prüfe ob gespeichert wurde
         const saved = localStorage.getItem('cookieConsent');
-        console.log('Cookie settings saved as:', saved); // Debug
+        console.log('Cookie settings saved as:', saved);
         
         if (saved !== 'custom') {
             console.error('Failed to save to localStorage, using sessionStorage');
@@ -1316,46 +1312,32 @@ function saveCookieSettings() {
         
     } catch (error) {
         console.error('Error saving cookie settings:', error);
-        // Fallback zu sessionStorage
         sessionStorage.setItem('cookieConsent', 'custom');
         sessionStorage.setItem('analyticsCookies', analyticsCookies.toString());
         sessionStorage.setItem('marketingCookies', marketingCookies.toString());
     }
     
-    // Analytics laden/entladen
     if (analyticsCookies) {
         loadAnalytics();
     } else {
         window['ga-disable-G-6NSYG8B1T9'] = true;
     }
     
-    // AdSense laden/entladen
-    if (marketingCookies) {
-        loadAdSense();
-        showAds();
-    } else {
-        hideAds();
-    }
-    
+    showAds();
     closeModal();
     alert('Cookie-Einstellungen gespeichert!');
-    
-    // Debug
     debugCookieStatus();
 }
 
-// Sketch Modal Functions
 function openSketchModal() {
     const modal = document.getElementById('modal');
     const modalBody = document.getElementById('modal-body');
     
     const content = `
         <h2>Bemaßungsskizzen Download</h2>
-        
         <p>Professionelle DIN A4 Bemaßungsskizzen für verschiedene Dachformen - direkt drucken oder als PDF speichern.</p>
         
         <div class="sketch-downloads" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
-            
             <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
                 <div style="display: flex; align-items: flex-start; gap: 12px;">
                     <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
@@ -1376,7 +1358,6 @@ function openSketchModal() {
                 </div>
             </div>
 
-            <!-- Satteldach -->
             <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
                 <div style="display: flex; align-items: flex-start; gap: 12px;">
                     <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
@@ -1394,7 +1375,6 @@ function openSketchModal() {
                 </div>
             </div>
             
-            <!-- Walmdach -->
             <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
                 <div style="display: flex; align-items: flex-start; gap: 12px;">
                     <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
@@ -1415,7 +1395,6 @@ function openSketchModal() {
                 </div>
             </div>
             
-            <!-- Pyramidendach -->
             <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
                 <div style="display: flex; align-items: flex-start; gap: 12px;">
                     <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
@@ -1435,7 +1414,6 @@ function openSketchModal() {
                 </div>
             </div>
             
-            <!-- Pultdach -->
             <div class="sketch-item" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white;">
                 <div style="display: flex; align-items: flex-start; gap: 12px;">
                     <div class="sketch-preview" style="flex-shrink: 0; width: 60px; height: 80px; border: 1px solid #ccc; border-radius: 4px; background: white; position: relative; overflow: hidden;">
@@ -1450,7 +1428,6 @@ function openSketchModal() {
                     </div>
                 </div>
             </div>
-            
         </div>
         
         <div class="sketch-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; color: #333;">
@@ -1470,7 +1447,6 @@ function openSketchModal() {
 }
 
 function printSketch(filename) {
-    // Öffne die Skizze in einem neuen Fenster zum Drucken
     const printWindow = window.open(filename, '_blank');
     if (printWindow) {
         printWindow.onload = function() {
@@ -1479,7 +1455,6 @@ function printSketch(filename) {
     }
 }
 
-// Close modal when clicking outside
 window.onclick = function(event) {
     const modal = document.getElementById('modal');
     const calculationModal = document.getElementById('calculationModal');
@@ -1492,7 +1467,6 @@ window.onclick = function(event) {
     }
 }
 
-// Email protection
 function setupEmailProtection() {
     const email = 'xxxxwolfxxxx@me.com';
     const emailElements = ['email-contact', 'email-privacy', 'email-display', 'email-footer', 'email-support'];
@@ -1512,7 +1486,6 @@ function revealEmail(elementId, email) {
     }
 }
 
-// Debug-Funktion für Layout-Probleme
 function debugMobileLayout() {
     if (window.innerWidth <= 1024) {
         console.log('Mobile Debug Info:');
@@ -1531,28 +1504,18 @@ function debugMobileLayout() {
     }
 }
 
-// Initialize everything
 document.addEventListener('DOMContentLoaded', function() {
     setupEmailProtection();
-    
-    // DEBUG: Cookie-Status anzeigen
     debugCookieStatus();
     
-    // Mobile fixes
     fixIOSViewport();
     initMobileAds();
-    handleOrientationChange(); // Initial Layout-Fix
-    
-    // MOBILE COOKIE BUTTON FIXES
+    handleOrientationChange();
     setupMobileCookieButtons();
-    
-    // Lade Hintergrundbild optimiert
     loadBackgroundImage();
     
-    // AdSense immer laden
     loadAdSense();
     
-    // Initialize tracking based on existing consent - VERBESSERT
     const cookieConsent = getCookieSetting('cookieConsent');
     const analyticsCookies = getCookieSetting('analyticsCookies');
     
@@ -1562,15 +1525,12 @@ document.addEventListener('DOMContentLoaded', function() {
         loadAnalytics();
     }
     
-    // Werbung immer anzeigen
     showAds();
     
-    // Show cookie banner for first-time visitors - VERBESSERT
     setTimeout(() => {
         showCookieBanner();
-    }, 500); // Kurze Verzögerung für bessere localStorage-Erkennung
+    }, 500);
     
-    // Debug nur im Development
     if (window.location.hostname === 'localhost' || window.location.hostname.includes('test')) {
         window.debugMobile = debugMobileLayout;
         window.debugCookies = debugCookieStatus;
@@ -1578,9 +1538,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// NEUE FUNKTION: Mobile Cookie Button Setup
 function setupMobileCookieButtons() {
-    // Touch-Events für bessere Mobile-Kompatibilität
     const acceptBtn = document.querySelector('.cookie-btn.accept');
     const declineBtn = document.querySelector('.cookie-btn.decline');
     const settingsBtn = document.querySelector('.cookie-btn.settings');
@@ -1590,7 +1548,6 @@ function setupMobileCookieButtons() {
             e.preventDefault();
             e.stopPropagation();
             acceptAllCookies();
-            // ZOOM-FIX: Viewport neu setzen
             setTimeout(fixViewportAfterCookieAction, 100);
         }, { passive: false });
         
@@ -1633,25 +1590,18 @@ function setupMobileCookieButtons() {
     }
 }
 
-// NEUER FIX: Viewport nach Cookie-Aktion korrigieren
 function fixViewportAfterCookieAction() {
-    // Viewport Meta-Tag neu setzen
     updateViewportMeta();
     
-    // Body-Zoom zurücksetzen
     document.body.style.zoom = '1';
     document.documentElement.style.zoom = '1';
     
-    // Layout neu triggern
     window.scrollTo(0, window.scrollY);
     
-    // Falls iOS: spezielle Behandlung
     if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-        // Kurz warten und dann Layout neu berechnen
         setTimeout(() => {
             const currentScale = window.visualViewport ? window.visualViewport.scale : 1;
             if (currentScale !== 1) {
-                // Versuche Zoom zurückzusetzen
                 const viewport = document.querySelector('meta[name="viewport"]');
                 if (viewport) {
                     viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
@@ -1666,11 +1616,9 @@ function fixViewportAfterCookieAction() {
     console.log('Viewport after cookie action fixed');
 }
 
-// Event Listener für Orientierungswechsel
 window.addEventListener('orientationchange', handleOrientationChange);
 window.addEventListener('resize', handleOrientationChange);
 
-// Initial und bei Orientierungswechsel
 updateViewportMeta();
 window.addEventListener('orientationchange', () => {
     setTimeout(updateViewportMeta, 100);
