@@ -205,7 +205,7 @@
             }
             
             .container {
-                padding: 15px 10px; /* Reduziert von 30px 20px */
+                padding: 15px 10px;
             }
             
             .nav-header .container {
@@ -213,72 +213,70 @@
             }
             
             .nav-title {
-                font-size: 1.2em; /* Reduziert von 1.4em */
+                font-size: 1.2em;
             }
             
             .anrissplan-header {
-                padding: 20px 15px; /* Reduziert von 30px */
-                margin-bottom: 20px; /* Reduziert von 25px */
+                padding: 20px 15px;
+                margin-bottom: 20px;
             }
             
             .anrissplan-header h1 {
-                font-size: 1.6em; /* Reduziert von 2em */
-                margin-bottom: 12px; /* Reduziert von 15px */
+                font-size: 1.6em;
+                margin-bottom: 12px;
             }
             
             .anrissplan-info {
-                padding: 12px; /* Reduziert von 15px */
-                font-size: 13px; /* Reduziert */
-                margin-bottom: 15px; /* Reduziert von 20px */
+                padding: 12px;
+                font-size: 13px;
+                margin-bottom: 15px;
             }
             
             .anrissplan-controls {
                 flex-direction: column;
                 align-items: center;
-                gap: 12px; /* Reduziert von 15px */
-                margin-bottom: 20px; /* Reduziert von 25px */
+                gap: 12px;
+                margin-bottom: 20px;
             }
             
             .btn {
                 width: 100%;
-                max-width: 280px; /* Reduziert von 300px */
+                max-width: 280px;
                 justify-content: center;
-                padding: 10px 20px; /* Reduziert von 12px 24px */
-                font-size: 15px; /* Reduziert von 16px */
+                padding: 10px 20px;
+                font-size: 15px;
             }
             
             .overview-section {
-                padding: 20px 15px; /* Reduziert von 25px */
-                margin-bottom: 20px; /* Reduziert von 25px */
+                padding: 20px 15px;
+                margin-bottom: 20px;
             }
             
             .overview-section h3 {
-                font-size: 1.2em; /* Reduziert von 1.3em */
-                margin-bottom: 15px; /* Reduziert von 20px */
+                font-size: 1.2em;
+                margin-bottom: 15px;
             }
             
-            /* Übersichts-SVGs für Mobile optimieren */
             .overview-section svg {
                 max-width: 100% !important;
                 height: auto !important;
-                max-height: 250px !important; /* Deutlich reduziert */
+                max-height: 250px !important;
             }
             
             .anriss-plate {
-                padding: 15px 12px; /* Reduziert von 20px */
-                margin-bottom: 20px; /* Reduziert von 25px */
-                position: relative; /* Für korrekte Positionierung */
-                overflow: hidden; /* Verhindert Überlauf */
+                padding: 15px 12px;
+                margin-bottom: 20px;
+                position: relative;
+                overflow: hidden;
             }
             
             .anriss-plate h3 {
-                font-size: 1.1em; /* Reduziert von 1.2em */
-                margin-bottom: 15px; /* Reduziert von 20px */
+                font-size: 1.1em;
+                margin-bottom: 15px;
             }
             
-            /* Plattendiagramme im Anrissplan für Mobile */
             .anriss-plate div[style*="flex: 1"] {
-                height: 220px !important; /* Reduziert von 280px */
+                height: 220px !important;
                 position: relative !important;
                 overflow: visible !important;
             }
@@ -288,15 +286,14 @@
                 height: auto !important;
                 max-height: 200px !important;
                 position: relative !important;
-                z-index: 10 !important; /* Über dem Wasserzeichen */
+                z-index: 10 !important;
             }
             
-            /* Flex-Layout der Platten für Mobile anpassen */
             .anriss-plate div[style*="display: flex"] {
                 flex-direction: column !important;
                 gap: 15px !important;
                 position: relative !important;
-                z-index: 10 !important; /* Über dem Wasserzeichen */
+                z-index: 10 !important;
             }
             
             .anriss-plate div[style*="flex: 0 0 350px"] {
@@ -306,24 +303,21 @@
                 z-index: 10 !important;
             }
             
-            /* Text in Anweisungen kleiner */
             .anriss-plate div[style*="background: #f8f9fa"] {
-                font-size: 12px !important; /* Reduziert von 13px */
-                padding: 10px !important; /* Reduziert von 12px */
-                line-height: 1.3 !important; /* Reduziert von 1.4 */
+                font-size: 12px !important;
+                padding: 10px !important;
+                line-height: 1.3 !important;
                 position: relative !important;
                 z-index: 10 !important;
             }
             
-            /* Maße-Box kompakter */
             .anriss-plate div[style*="background: #f0f8ff"] {
-                padding: 8px !important; /* Reduziert von 10px */
-                font-size: 13px; /* Etwas kleiner */
+                padding: 8px !important;
+                font-size: 13px;
                 position: relative !important;
                 z-index: 10 !important;
             }
             
-            /* WASSERZEICHEN AUF MOBILE VERSTECKEN */
             .anriss-plate::before,
             .anrissplan-header::before,
             .overview-section::before {
@@ -331,10 +325,9 @@
             }
         }
 
-        /* Hochkant-spezifische Optimierungen für Anrissplan */
         @media (max-width: 480px) and (orientation: portrait) {
             .container {
-                padding: 12px 8px; /* Noch kleiner für sehr kleine Displays */
+                padding: 12px 8px;
             }
             
             .anrissplan-header {
@@ -342,7 +335,7 @@
             }
             
             .anrissplan-header h1 {
-                font-size: 1.4em; /* Noch kleiner */
+                font-size: 1.4em;
             }
             
             .overview-section {
@@ -350,7 +343,7 @@
             }
             
             .overview-section svg {
-                max-height: 220px !important; /* Noch kleiner für Portrait */
+                max-height: 220px !important;
             }
             
             .anriss-plate {
@@ -358,51 +351,50 @@
             }
             
             .anriss-plate div[style*="flex: 1"] {
-                height: 200px !important; /* Noch kleiner */
+                height: 200px !important;
             }
             
             .btn {
-                max-width: 250px; /* Noch kleiner */
+                max-width: 250px;
                 padding: 8px 16px;
                 font-size: 14px;
             }
         }
 
-        /* Querformat - 5% kleiner für bessere Darstellung */
         @media (max-width: 768px) and (orientation: landscape) {
             .container {
-                padding: 14px 9px; /* 5% kleiner als mobile Standard */
+                padding: 14px 9px;
             }
             
             .anrissplan-header {
-                padding: 19px 14px; /* 5% kleiner */
+                padding: 19px 14px;
                 margin-bottom: 19px;
             }
             
             .anrissplan-header h1 {
-                font-size: 1.5em; /* 5% kleiner */
+                font-size: 1.5em;
             }
             
             .overview-section {
-                padding: 19px 14px; /* 5% kleiner */
+                padding: 19px 14px;
                 margin-bottom: 19px;
             }
             
             .overview-section svg {
-                max-height: 240px !important; /* 5% kleiner */
+                max-height: 240px !important;
             }
             
             .anriss-plate {
-                padding: 14px 11px; /* 5% kleiner */
+                padding: 14px 11px;
                 margin-bottom: 19px;
             }
             
             .anriss-plate div[style*="flex: 1"] {
-                height: 210px !important; /* 5% kleiner */
+                height: 210px !important;
             }
             
             .btn {
-                max-width: 265px; /* 5% kleiner */
+                max-width: 265px;
                 padding: 9px 19px;
             }
         }
@@ -415,7 +407,10 @@
                 <span>←</span>
                 <span>Zurück zur Übersicht</span>
             </a>
-            <div class="nav-title">Anrissplan</div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                <div class="nav-title">Anrissplan</div>
+                <div style="font-size: 0.75em; opacity: 0.9; font-weight: 500;">Dachplattenrechner.de</div>
+            </div>
         </div>
     </div>
 
@@ -433,7 +428,6 @@
             </button>
         </div>
 
-        <!-- Übersichtssektion (wird beim Drucken ausgeblendet) -->
         <div class="overview-section" id="overview-section">
             <h3>Dachflächen-Übersicht</h3>
             <div id="overview-content">
@@ -441,19 +435,15 @@
             </div>
         </div>
 
-        <!-- Plattencontainer -->
         <div id="plates-container">
             <!-- Wird dynamisch mit Platten gefüllt -->
         </div>
     </div>
 
-    <!-- Externer JavaScript -->
     <script src="anrissplan.js"></script>
     
     <script>
-        // AdSense NUR laden wenn Container existieren - im Anrissplan NICHT
         function loadAdSense() {
-            // Prüfe ob Ad-Container existieren
             const adContainers = document.querySelectorAll('.adsbygoogle');
             if (adContainers.length === 0) {
                 console.log('Keine Ad-Container gefunden - AdSense wird nicht geladen');
@@ -478,15 +468,11 @@
             }
         }
 
-        // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
             const cookieConsent = localStorage.getItem('cookieConsent');
             if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
                 loadAnalytics();
             }
-            
-            // AdSense NICHT laden im Anrissplan (keine Container vorhanden)
-            // loadAdSense(); // <- Diese Zeile entfernt/auskommentiert
             
             init();
         });
