@@ -87,7 +87,8 @@ function generateOverview(type, data) {
             svg = '<p>Unbekannte Dachform</p>';
     }
     
-    container.innerHTML = '<div style="text-align: center; border: 2px solid #1e3c72; border-radius: 8px; padding: 20px; background: white; display: inline-block;">' + svg + '<div style="margin-top: 15px; font-size: 14px; color: #666;"><strong>Plattenaufteilung für ' + data.schnittliste.length + ' Platten</strong></div></div>';
+    // BRANDING-STELLE 1: In der Übersicht
+    container.innerHTML = '<div style="text-align: center; border: 2px solid #1e3c72; border-radius: 8px; padding: 20px; background: white; display: inline-block;">' + svg + '<div style="margin-top: 15px; font-size: 14px; color: #666;"><strong>Plattenaufteilung für ' + data.schnittliste.length + ' Platten</strong></div><div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0; font-size: 11px; color: #999;">erstellt mit <strong style="color: #1e3c72;">Dachplattenrechner.de</strong></div></div>';
 }
 
 // Dreieck Übersicht
@@ -172,8 +173,6 @@ function generateTriangleOverview(data, isGleichschenklig) {
 }
 
 // Trapez Übersicht
-// Ersetzen Sie die unvollständige generateTrapezOverview Funktion (ab Zeile 136) mit dieser korrigierten Version:
-
 function generateTrapezOverview(data) {
     const width = 800;
     const height = 300;
@@ -412,7 +411,7 @@ function berechneHoeheAnPositionTrapezOverview(position, seitenAbstand, untereBr
     }
 }
 
-// Anrissmaße berechnen
+// Anreissmaße berechnen
 function calculateAnreissMasse(plattenStart, plattenEnde, type, data) {
     let anreissLinks = 0;
     let anreissRechts = 0;
@@ -469,7 +468,7 @@ function calculateAnreissMasse(plattenStart, plattenEnde, type, data) {
             break;
 
         case 'rechteck':
-            // Bei Rechtecken gibt es keine Anrissmaße - alle Platten haben die volle Höhe
+            // Bei Rechtecken gibt es keine Anreissmaße - alle Platten haben die volle Höhe
             const rechteckHoehe = parseFloat(data.hoehe);
             anreissLinks = Math.round(rechteckHoehe * 100);
             anreissRechts = Math.round(rechteckHoehe * 100);
@@ -632,7 +631,7 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         return svg;
     }
     
-    // Rest der Funktion für andere Dachformen (komplett mit korrekten Umlauten)
+    // Rest der Funktion für andere Dachformen
     const anrissHoeheLinks = (anreissMasse.links / 100 / benoetigteLaengeM) * plattenHeight;
     const anrissHoeheRechts = (anreissMasse.rechts / 100 / benoetigteLaengeM) * plattenHeight;
     
@@ -699,7 +698,7 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
     svg += '<line x1="' + plattenX + '" y1="' + (plattenY + plattenHeight) + '" x2="' + plattenX + '" y2="' + nutzenStartY + '" stroke="#dc3545" stroke-width="4"/>';
     svg += '<line x1="' + (plattenX + endX) + '" y1="' + (plattenY + plattenHeight) + '" x2="' + (plattenX + endX) + '" y2="' + nutzenEndY + '" stroke="#dc3545" stroke-width="4"/>';
     
-    // Anrissmaße
+    // Anreissmaße
     if (anreissMasse.links === 0) {
         svg += '<text x="10" y="' + (plattenY + plattenHeight + 10) + '" text-anchor="middle" font-size="14" fill="#dc3545" font-weight="bold" transform="rotate(-90 10 ' + (plattenY + plattenHeight + 10) + ')">' + anreissMasse.links + 'cm</text>';
     } else {
@@ -750,7 +749,6 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
         }
     } else if (type === 'trapez' || type === 'trapez-auf-rechteck') {
         // Bei Trapez-Formen: Nur "Abschnitt" wenn die Platte in den schrägen Bereichen liegt
-        // Prüfe ob Platte außerhalb des geraden mittleren Bereichs liegt
         const obereBreite = parseFloat(data.obereBreite);
         const untereBreite = parseFloat(data.untereBreite);
         const seitenAbstand = (untereBreite - obereBreite) / 2;
@@ -894,6 +892,10 @@ function generatePlate(item, index, type, data) {
     html += generatePlateDiagram(item, anreissMasse, type, data);
     html += '</div>';
     html += '</div>';
+    
+    // BRANDING-STELLE 2: Unter jeder Platte
+    html += '<div style="text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #e0e0e0; font-size: 11px; color: #999;">erstellt mit <strong style="color: #1e3c72;">Dachplattenrechner.de</strong></div>';
+    
     html += '</div>';
     
     return html;
