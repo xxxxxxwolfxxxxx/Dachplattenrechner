@@ -6,10 +6,9 @@
     <title>Trapez - Trapezplattenrechner</title>
     <meta name="description" content="Berechnen Sie Trapezbleche für trapezförmige Dachflächen. Ideal für Pultdächer, Mansarden und asymmetrische Dachformen.">
     
-    <!-- Google AdSense - wird nur geladen wenn Marketing-Cookies akzeptiert -->
+    <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-8687929894744033">
     <script>
-       // AdSense für alle laden - personalisiert oder nicht-personalisiert
 function loadAdSense() {
     const script = document.createElement('script');
     script.async = true;
@@ -270,43 +269,57 @@ function loadAdSense() {
             box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
         }
 
-        /* Werbung Container Styles - Verbesserte Version */
+        /* Verlegerichtung Radio Buttons */
+        input[type="radio"]:checked + span {
+            color: #1e3c72;
+        }
+        
+        input[type="radio"]:checked {
+            accent-color: #1e3c72;
+        }
+        
+        label:has(input[type="radio"]:checked) {
+            border-color: #1e3c72 !important;
+            background: #e3f2fd;
+        }
+
+        /* SCHLANKE WERBUNG WIE INDEX.HTML */
         .ad-wrapper {
             grid-column: 1 / -1 !important;
-            margin: var(--spacing-lg) auto !important;
+            margin: 10px auto !important;
             width: 100% !important;
             max-width: none !important;
             text-align: center !important;
             display: block !important;
-            min-height: 90px;
+            min-height: 70px;
         }
 
         .ad-with-label {
             position: relative;
             width: 100%;
             display: block;
-            margin: 20px auto;
+            margin: 10px auto;
             background: rgba(255, 255, 255, 0.95);
             border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
+            border-radius: 8px;
             overflow: hidden;
-            min-height: 90px;
-            max-height: 300px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-height: 70px;
+            max-height: 100px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         .ad-label {
             position: absolute;
-            top: 6px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 3px 8px;
-            font-size: 9px;
+            top: 4px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 2px 6px;
+            font-size: 8px;
             font-weight: 600;
-            border-radius: 3px;
+            border-radius: 2px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             z-index: 10;
             pointer-events: none;
         }
@@ -316,13 +329,13 @@ function loadAdSense() {
             text-align: center !important;
             margin: 0 auto !important;
             width: 100% !important;
-            min-height: 90px !important;
-            max-height: 250px !important;
+            min-height: 70px !important;
+            max-height: 100px !important;
             border: none !important;
             background: transparent !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            padding: 5px;
+            padding: 2px;
             overflow: hidden;
         }
 
@@ -336,217 +349,213 @@ function loadAdSense() {
         }
 
         /* Mobile Optimierung */
-@media (max-width: 768px) {
-    body {
-        background-attachment: scroll; /* Bessere Performance auf Mobile */
-    }
-    
-    .container {
-        padding: 15px 10px; /* Reduziert von 20px 15px */
-    }
-    
-    .nav-header .container {
-        padding: 0 15px;
-    }
-    
-    .nav-title {
-        font-size: 1.2em; /* Reduziert von 1.4em */
-    }
-    
-    .section {
-        padding: 20px 15px; /* Reduziert von 25px */
-        margin-bottom: 20px; /* Reduziert von 25px */
-    }
-    
-    .section h2 {
-        font-size: 1.3em; /* Reduziert von 1.5em */
-    }
-    
-    /* SVG Skizzen - deutlich kleiner auf Mobile */
-    .section svg, 
-    div[style*="svg"] svg {
-        width: 100% !important;
-        max-width: 220px !important; /* Deutlich reduziert von 280px */
-        height: auto !important;
-        max-height: 120px !important; /* Deutlich reduziert von 160px */
-    }
-    
-    /* Container für SVG-Skizzen */
-    div[style*="text-align: center"] > div[style*="display: inline-block"] {
-        padding: 15px !important; /* Reduziert von 20px */
-        margin-bottom: 20px !important; /* Reduziert von 30px */
-    }
-    
-    .input-row {
-        flex-direction: column;
-        gap: 12px; /* Reduziert von 15px */
-    }
-    
-    .input-group {
-        min-width: auto;
-    }
-    
-    .input-group input {
-        font-size: 16px; /* Verhindert Zoom auf iOS */
-        padding: 10px 12px; /* Reduziert von 12px 15px */
-    }
-    
-    .input-group label {
-        font-size: 14px; /* Etwas kleiner */
-        margin-bottom: 6px; /* Reduziert von 8px */
-    }
-    
-    .info-box {
-        padding: 12px; /* Reduziert von 15px */
-        font-size: 13px; /* Reduziert von 14px */
-    }
-    
-    .calculate-btn, .anriss-btn {
-        padding: 12px 25px; /* Reduziert von 15px 30px */
-        font-size: 15px; /* Reduziert von 16px */
-        min-width: 180px; /* Reduziert von 200px */
-    }
-    
-    .results {
-        padding: 20px 15px; /* Reduziert von 25px */
-    }
-    
-    .result-item {
-        padding: 10px 0; /* Reduziert von 12px */
-        font-size: 14px; /* Kleiner */
-        flex-direction: column;
-        text-align: left;
-        gap: 2px;
-    }
-    
-    .result-item span:first-child {
-        font-weight: 600;
-        font-size: 13px;
-    }
-    
-    .result-item span:last-child {
-        font-weight: bold;
-        font-size: 15px;
-        color: #ffd700;
-        margin-left: 10px;
-    }
-    
-    .schnitt-table th,
-    .schnitt-table td {
-        padding: 8px 6px; /* Deutlich reduziert von 12px */
-        font-size: 12px; /* Kleiner */
-    }
-    
-    #vorschau-svg svg {
-        max-width: 100% !important;
-        height: auto !important;
-        max-height: 200px !important; /* Deutlich reduziert */
-    }
-    
-    #vorschau-legende {
-        flex-direction: column;
-        gap: 8px !important;
-        font-size: 11px !important; /* Reduziert von 13px */
-        align-items: center;
-    }
-    
-    .ad-wrapper {
-        margin: 15px 10px !important;
-        min-height: 70px;
-    }
-    
-    .ad-wrapper .adsbygoogle {
-        min-height: 70px !important;
-        max-height: 120px !important;
-        padding: 3px;
-    }
-}
-
-/* Hochkant-spezifische Optimierungen */
-@media (max-width: 480px) and (orientation: portrait) {
-    .container {
-        padding: 12px 8px; /* Noch kleiner für sehr kleine Displays */
-    }
-    
-    .section {
-        padding: 15px 12px;
-        margin-bottom: 15px;
-    }
-    
-    .section h2 {
-        font-size: 1.2em; /* Noch kleiner */
-        margin-bottom: 15px;
-    }
-    
-    .section svg, 
-    div[style*="svg"] svg {
-        max-width: 200px !important;
-        max-height: 110px !important;
-    }
-    
-    .nav-title {
-        font-size: 1.1em;
-    }
-    
-    .input-group label {
-        font-size: 13px;
-    }
-    
-    .info-box {
-        font-size: 12px;
-        padding: 10px;
-    }
-    
-    .calculate-btn, .anriss-btn {
-        padding: 10px 20px;
-        font-size: 14px;
-        min-width: 160px;
-    }
-}
-
-/* Querformat - 5% kleiner für bessere Darstellung */
-@media (max-width: 768px) and (orientation: landscape) {
-    .container {
-        padding: 18px 14px; /* 5% kleiner als mobile Standard */
-    }
-    
-    .section {
-        padding: 19px 14px; /* 5% kleiner */
-        margin-bottom: 19px;
-    }
-    
-    .section h2 {
-        font-size: 1.25em; /* 5% kleiner */
-    }
-    
-    .section svg, 
-    div[style*="svg"] svg {
-        max-width: 210px !important; /* 5% kleiner */
-        max-height: 115px !important;
-    }
-    
-    .nav-title {
-        font-size: 1.15em; /* 5% kleiner */
-    }
-    
-    .calculate-btn, .anriss-btn {
-        padding: 11px 24px; /* 5% kleiner */
-        font-size: 14px;
-        min-width: 170px;
-    }
-    
-    .results {
-        padding: 19px 14px; /* 5% kleiner */
-    }
-    
-    #vorschau-svg svg {
-        max-height: 190px !important; /* 5% kleiner */
-    }
-}
+        @media (max-width: 768px) {
+            body {
+                background-attachment: scroll;
+            }
             
+            .container {
+                padding: 15px 10px;
+            }
+            
+            .nav-header .container {
+                padding: 0 15px;
+            }
+            
+            .nav-title {
+                font-size: 1.2em;
+            }
+            
+            .section {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+            
+            .section h2 {
+                font-size: 1.3em;
+            }
+            
+            .section svg, 
+            div[style*="svg"] svg {
+                width: 100% !important;
+                max-width: 220px !important;
+                height: auto !important;
+                max-height: 120px !important;
+            }
+            
+            div[style*="text-align: center"] > div[style*="display: inline-block"] {
+                padding: 15px !important;
+                margin-bottom: 20px !important;
+            }
+            
+            .input-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .input-group {
+                min-width: auto;
+            }
+            
+            .input-group input {
+                font-size: 16px;
+                padding: 10px 12px;
+            }
+            
+            .input-group label {
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
+            
+            .info-box {
+                padding: 12px;
+                font-size: 13px;
+            }
+            
+            .calculate-btn, .anriss-btn {
+                padding: 12px 25px;
+                font-size: 15px;
+                min-width: 180px;
+            }
+            
+            .results {
+                padding: 20px 15px;
+            }
+            
+            .result-item {
+                padding: 10px 0;
+                font-size: 14px;
+                flex-direction: column;
+                text-align: left;
+                gap: 2px;
+            }
+            
+            .result-item span:first-child {
+                font-weight: 600;
+                font-size: 13px;
+            }
+            
+            .result-item span:last-child {
+                font-weight: bold;
+                font-size: 15px;
+                color: #ffd700;
+                margin-left: 10px;
+            }
+            
+            .schnitt-table th,
+            .schnitt-table td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+            
+            #vorschau-svg svg {
+                max-width: 100% !important;
+                height: auto !important;
+                max-height: 200px !important;
+            }
+            
+            #vorschau-legende {
+                flex-direction: column;
+                gap: 8px !important;
+                font-size: 11px !important;
+                align-items: center;
+            }
+            
+            .ad-wrapper {
+                margin: 8px 5px !important;
+                min-height: 60px;
+            }
+            
+            .ad-wrapper .adsbygoogle {
+                min-height: 60px !important;
+                max-height: 90px !important;
+            }
+        }
+
+        /* Hochkant-spezifische Optimierungen */
+        @media (max-width: 480px) and (orientation: portrait) {
+            .container {
+                padding: 12px 8px;
+            }
+            
+            .section {
+                padding: 15px 12px;
+                margin-bottom: 15px;
+            }
+            
+            .section h2 {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+            }
+            
+            .section svg, 
+            div[style*="svg"] svg {
+                max-width: 200px !important;
+                max-height: 110px !important;
+            }
+            
+            .nav-title {
+                font-size: 1.1em;
+            }
+            
+            .input-group label {
+                font-size: 13px;
+            }
+            
+            .info-box {
+                font-size: 12px;
+                padding: 10px;
+            }
+            
+            .calculate-btn, .anriss-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+                min-width: 160px;
+            }
+        }
+
+        /* Querformat - 5% kleiner für bessere Darstellung */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .container {
+                padding: 18px 14px;
+            }
+            
+            .section {
+                padding: 19px 14px;
+                margin-bottom: 19px;
+            }
+            
+            .section h2 {
+                font-size: 1.25em;
+            }
+            
+            .section svg, 
+            div[style*="svg"] svg {
+                max-width: 210px !important;
+                max-height: 115px !important;
+            }
+            
+            .nav-title {
+                font-size: 1.15em;
+            }
+            
+            .calculate-btn, .anriss-btn {
+                padding: 11px 24px;
+                font-size: 14px;
+                min-width: 170px;
+            }
+            
+            .results {
+                padding: 19px 14px;
+            }
+            
+            #vorschau-svg svg {
+                max-height: 190px !important;
+            }
+        }
     </style>
 </head>
-<body>
+    <body>
     <div class="nav-header">
         <div class="container">
             <a href="../index.html" class="back-btn">
@@ -567,7 +576,7 @@ function loadAdSense() {
                          style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
                          data-ad-slot="2952663401"
-                         data-ad-format="auto"
+                         data-ad-format="horizontal"
                          data-full-width-responsive="true"></ins>
                 </div>
             </div>
@@ -644,7 +653,7 @@ function loadAdSense() {
                          style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
                          data-ad-slot="6038540481"
-                         data-ad-format="auto"
+                         data-ad-format="horizontal"
                          data-full-width-responsive="true"></ins>
                 </div>
             </div>
@@ -664,6 +673,31 @@ function loadAdSense() {
                 </div>
             </div>
 
+            <!-- NEU: Verlegerichtung -->
+            <div class="section">
+                <h2>3. Verlegerichtung</h2>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #2c3e50;">Verlegung von:</label>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px 20px; border: 2px solid #e1e8ed; border-radius: 8px; transition: all 0.3s ease;" onclick="setVerlegerichtung('links')">
+                            <input type="radio" name="verlegerichtung" value="links" checked style="cursor: pointer;">
+                            <span style="font-weight: 500;">Links nach Rechts →</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px 20px; border: 2px solid #e1e8ed; border-radius: 8px; transition: all 0.3s ease;" onclick="setVerlegerichtung('rechts')">
+                            <input type="radio" name="verlegerichtung" value="rechts" style="cursor: pointer;">
+                            <span style="font-weight: 500;">← Rechts nach Links</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="info-box" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+                    <strong>💡 Wichtig - Wetterseite beachten!</strong><br>
+                    <strong>Überlappung bei Wellplatten:</strong> Jede Platte überlappt die vorherige um die Differenz zwischen Lieferbreite und Deckbreite. Die obere Platte liegt dabei ÜBER der unteren.<br><br>
+                    <strong>Verlegerichtung wählen:</strong> Die Verlegung sollte so erfolgen, dass die Hauptwindrichtung (meist West) ÜBER die Überlappungen weht. So kann kein Wasser unter die Platten gedrückt werden.<br><br>
+                    <strong>Beispiel:</strong> Bei Westwind → von Ost nach West verlegen (rechts nach links), damit der Wind über die Überlappungen streicht.<br><br>
+                    <strong>⚠️ Ausnahmen:</strong> Bei Pfannenblechen, isolierten Platten oder Antikondensvlies-beschichteten Platten mit Freischnitt ist die Verlegerichtung durch die Konstruktion vorgegeben und kann nicht frei gewählt werden!
+                </div>
+            </div>
+
             <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
 
             <!-- Werbeplatz nach dem Berechnen-Button -->
@@ -674,7 +708,7 @@ function loadAdSense() {
                          style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
                          data-ad-slot="8536162573"
-                         data-ad-format="auto"
+                         data-ad-format="horizontal"
                          data-full-width-responsive="true"></ins>
                 </div>
             </div>
@@ -742,7 +776,7 @@ function loadAdSense() {
                         </tbody>
                     </table>
                     <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
-                        <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (unten → oben)
+                        <strong>Verlegung:</strong> <span id="verlege-info">Von links nach rechts, Platten verlaufen vertikal (unten → oben)</span>
                     </div>
                     <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                         <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
@@ -751,10 +785,16 @@ function loadAdSense() {
                 </div>
             </div>
         </main>
-    </div>
-
-    <script>
+    </div><script>
         let aktuelleSchnittliste = [];
+        let verlegerichtung = 'links';
+
+        function setVerlegerichtung(richtung) {
+            verlegerichtung = richtung;
+            if (aktuelleSchnittliste.length > 0) {
+                berechnen();
+            }
+        }
 
         // Cookie Management System
         function showAds() {
@@ -796,9 +836,18 @@ function loadAdSense() {
             let anzahlPlatten = Math.ceil((untereBreite - lieferbreite + deckbreite) / deckbreite);
             
             for (let i = 0; i < anzahlPlatten; i++) {
-                let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
-                let positionVonLinksEnde = positionVonLinks + lieferbreite;
-                positionVonLinksEnde = Math.min(positionVonLinksEnde, untereBreite);
+                let positionVonLinks, positionVonLinksEnde;
+                
+                if (verlegerichtung === 'links') {
+                    positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+                    positionVonLinksEnde = positionVonLinks + lieferbreite;
+                    positionVonLinksEnde = Math.min(positionVonLinksEnde, untereBreite);
+                } else {
+                    let positionVonRechts = (i === 0) ? 0 : i * deckbreite;
+                    positionVonLinks = untereBreite - positionVonRechts - lieferbreite;
+                    positionVonLinks = Math.max(0, positionVonLinks);
+                    positionVonLinksEnde = positionVonLinks + lieferbreite;
+                }
                 
                 // Höhe an beiden Positionen berechnen
                 function hoeheAnPosition(pos) {
@@ -816,7 +865,7 @@ function loadAdSense() {
                 const hoeheEnde = hoeheAnPosition(positionVonLinksEnde);
                 const benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
                 
-                if (benoetigteLaenge > 0 && positionVonLinks < untereBreite) {
+                if (benoetigteLaenge > 0 && positionVonLinks < untereBreite && positionVonLinks >= 0) {
                     schnittliste.push({
                         plattenNr: i + 1,
                         positionVonLinks: positionVonLinks.toFixed(2),
@@ -888,6 +937,9 @@ function loadAdSense() {
                 tbody.appendChild(row);
             });
 
+            const verlegerichtungText = verlegerichtung === 'links' ? 'Von links nach rechts →' : '← Von rechts nach links';
+            document.getElementById('verlege-info').textContent = `${verlegerichtungText}, Platten verlaufen vertikal (unten → oben)`;
+
             aktuelleSchnittliste = trapezBerechnung.schnittliste;
             document.getElementById('results').style.display = 'block';
             document.getElementById('schnittliste').style.display = 'block';
@@ -933,6 +985,26 @@ function loadAdSense() {
             const trapezUntenY = margin + trapezHeight;
             
             svg += `<polygon points="${trapezObenLinks},${trapezObenY} ${trapezObenRechts},${trapezObenY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            
+           // PFEIL FÜR VERLEGERICHTUNG - GANZ UNTEN
+const pfeilY = svgHeight - 15;
+if (verlegerichtung === 'links') {
+    svg += `<line x1="${margin + 5}" y1="${pfeilY}" x2="${margin + trapezWidth - 5}" y2="${pfeilY}" stroke="#ff6b35" stroke-width="2.5" marker-end="url(#arrow-right)"/>`;
+    svg += `<text x="${margin + trapezWidth/2}" y="${pfeilY - 6}" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b35">Verlegerichtung →</text>`;
+} else {
+    svg += `<line x1="${margin + trapezWidth - 5}" y1="${pfeilY}" x2="${margin + 5}" y2="${pfeilY}" stroke="#ff6b35" stroke-width="2.5" marker-end="url(#arrow-left)"/>`;
+    svg += `<text x="${margin + trapezWidth/2}" y="${pfeilY - 6}" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b35">← Verlegerichtung</text>`;
+}
+            
+            // MARKER DEFINITIONEN
+            svg += `<defs>
+                <marker id="arrow-right" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="0">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff6b35"/>
+                </marker>
+                <marker id="arrow-left" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="8" markerHeight="8" orient="180">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff6b35"/>
+                </marker>
+            </defs>`;
             
             schnittliste.forEach((platte, index) => {
                 const plattenStart = parseFloat(platte.positionVonLinks);
@@ -998,7 +1070,11 @@ function loadAdSense() {
                 
                 if (index > 0 && ueberlappung > 0) {
                     const ueberlappungsWidth = ueberlappung * scaleX;
-                    svg += `<rect x="${plattenX}" y="${plattenY}" width="${ueberlappungsWidth}" height="${plattenHoehe}" fill="#28a745" opacity="0.25"/>`;
+                    if (verlegerichtung === 'links') {
+                        svg += `<rect x="${plattenX}" y="${plattenY}" width="${ueberlappungsWidth}" height="${plattenHoehe}" fill="#28a745" opacity="0.25"/>`;
+                    } else {
+                        svg += `<rect x="${plattenX + plattenWidth - ueberlappungsWidth}" y="${plattenY}" width="${ueberlappungsWidth}" height="${plattenHoehe}" fill="#28a745" opacity="0.25"/>`;
+                    }
                 }
                 
                 svg += `<text x="${plattenX + plattenWidth/2}" y="${margin + trapezHeight + 18}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${platte.plattenNr}</text>`;
@@ -1048,6 +1124,7 @@ function loadAdSense() {
                 untereBreite: untereBreite,
                 hoehe: hoehe,
                 schnittliste: aktuelleSchnittliste,
+                verlegerichtung: verlegerichtung
             };
             
             const encodedData = encodeURIComponent(JSON.stringify(planData));

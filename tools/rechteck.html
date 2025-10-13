@@ -270,43 +270,57 @@ function loadAdSense() {
             box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
         }
 
-        /* Werbung Container Styles */
+        /* Verlegerichtung Radio Buttons */
+        input[type="radio"]:checked + span {
+            color: #1e3c72;
+        }
+        
+        input[type="radio"]:checked {
+            accent-color: #1e3c72;
+        }
+        
+        label:has(input[type="radio"]:checked) {
+            border-color: #1e3c72 !important;
+            background: #e3f2fd;
+        }
+
+        /* Werbung Container Styles - SCHLANK WIE INDEX.HTML */
         .ad-wrapper {
             grid-column: 1 / -1 !important;
-            margin: var(--spacing-lg) auto !important;
+            margin: 10px auto !important;
             width: 100% !important;
             max-width: none !important;
             text-align: center !important;
             display: block !important;
-            min-height: 90px;
+            min-height: 70px;
         }
 
         .ad-with-label {
             position: relative;
             width: 100%;
             display: block;
-            margin: 20px auto;
+            margin: 10px auto;
             background: rgba(255, 255, 255, 0.95);
             border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
+            border-radius: 8px;
             overflow: hidden;
-            min-height: 90px;
-            max-height: 300px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-height: 70px;
+            max-height: 100px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         .ad-label {
             position: absolute;
-            top: 6px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 3px 8px;
-            font-size: 9px;
+            top: 4px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 2px 6px;
+            font-size: 8px;
             font-weight: 600;
-            border-radius: 3px;
+            border-radius: 2px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             z-index: 10;
             pointer-events: none;
         }
@@ -316,13 +330,13 @@ function loadAdSense() {
             text-align: center !important;
             margin: 0 auto !important;
             width: 100% !important;
-            min-height: 90px !important;
-            max-height: 250px !important;
+            min-height: 70px !important;
+            max-height: 100px !important;
             border: none !important;
             background: transparent !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            padding: 5px;
+            padding: 2px;
             overflow: hidden;
         }
 
@@ -449,14 +463,14 @@ function loadAdSense() {
             }
             
             .ad-wrapper {
-                margin: 15px 10px !important;
-                min-height: 70px;
+                margin: 8px 5px !important;
+                min-height: 60px;
             }
             
             .ad-wrapper .adsbygoogle {
-                min-height: 70px !important;
-                max-height: 120px !important;
-                padding: 3px;
+                min-height: 60px !important;
+                max-height: 90px !important;
+                padding: 2px;
             }
         }
 
@@ -564,7 +578,7 @@ function loadAdSense() {
                          style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
                          data-ad-slot="2952663401"
-                         data-ad-format="auto"
+                         data-ad-format="horizontal"
                          data-full-width-responsive="true"></ins>
                 </div>
             </div>
@@ -572,10 +586,7 @@ function loadAdSense() {
             <div style="text-align: center; margin-bottom: 30px;">
                 <div style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                     <svg width="250" height="160" viewBox="0 0 250 160" style="margin-bottom: 15px;">
-                        <!-- Rechteck/Quadrat -->
                         <rect x="40" y="30" width="170" height="100" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                        
-                        <!-- Trapezbleche (senkrecht, gleichmäßige Abstände) -->
                         <line x1="60" y1="30" x2="60" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
                         <line x1="80" y1="30" x2="80" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
                         <line x1="100" y1="30" x2="100" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
@@ -583,14 +594,10 @@ function loadAdSense() {
                         <line x1="150" y1="30" x2="150" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
                         <line x1="170" y1="30" x2="170" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
                         <line x1="190" y1="30" x2="190" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-                        
-                        <!-- Breite-Maß -->
                         <line x1="40" y1="145" x2="210" y2="145" stroke="#333" stroke-width="1"/>
                         <line x1="40" y1="142" x2="40" y2="148" stroke="#333" stroke-width="1"/>
                         <line x1="210" y1="142" x2="210" y2="148" stroke="#333" stroke-width="1"/>
                         <text x="125" y="160" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Breite</text>
-                        
-                        <!-- Höhen-Maß -->
                         <line x1="25" y1="30" x2="25" y2="130" stroke="#333" stroke-width="1"/>
                         <line x1="22" y1="30" x2="28" y2="30" stroke="#333" stroke-width="1"/>
                         <line x1="22" y1="130" x2="28" y2="130" stroke="#333" stroke-width="1"/>
@@ -599,7 +606,6 @@ function loadAdSense() {
                 </div>
             </div>
 
-            <!-- Rechteck-Geometrie -->
             <div class="section">
                 <h2>1. Rechteck-Geometrie</h2>
                 <div class="input-row">
@@ -612,18 +618,13 @@ function loadAdSense() {
                         <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 8.00">
                     </div>
                 </div>
-               <div class="info-box">
+                <div class="info-box">
                     <strong>Hinweis:</strong> Berechnung für rechteckige und quadratische Dachflächen.
                     Verwendbar für Flachdächer, Garagen, einfache Pultdächer oder Carports.
                     Die Bleche verlaufen senkrecht von oben nach unten.
-                    <br><br>
-                    <strong>💡 Tipp:</strong> Falls beim Messen ein Maß fehlt, können Sie es mit unserem 
-                    <a href="https://dreieck-berechnen.de" target="_blank" rel="noopener noreferrer" style="color: #1976d2; font-weight: 600; text-decoration: underline;">Dreiecksrechner</a> 
-                    berechnen – ohne nochmal aufs Dach zu müssen!
                 </div>
             </div>
 
-            <!-- Werbeplatz mittig -->
             <div class="ad-wrapper" id="middle-ad-container" style="display: none;">
                 <div class="ad-with-label">
                     <span class="ad-label">Werbung</span>
@@ -631,12 +632,11 @@ function loadAdSense() {
                          style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
                          data-ad-slot="6038540481"
-                         data-ad-format="auto"
+                         data-ad-format="horizontal"
                          data-full-width-responsive="true"></ins>
                 </div>
             </div>
 
-            <!-- Material -->
             <div class="section">
                 <h2>2. Materialangaben</h2>
                 <div class="input-row">
@@ -651,9 +651,32 @@ function loadAdSense() {
                 </div>
             </div>
 
+            <div class="section">
+                <h2>3. Verlegerichtung</h2>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #2c3e50;">Verlegung von:</label>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px 20px; border: 2px solid #e1e8ed; border-radius: 8px; transition: all 0.3s ease;" onclick="setVerlegerichtung('links')">
+                            <input type="radio" name="verlegerichtung" value="links" checked style="cursor: pointer;">
+                            <span style="font-weight: 500;">Links nach Rechts →</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px 20px; border: 2px solid #e1e8ed; border-radius: 8px; transition: all 0.3s ease;" onclick="setVerlegerichtung('rechts')">
+                            <input type="radio" name="verlegerichtung" value="rechts" style="cursor: pointer;">
+                            <span style="font-weight: 500;">← Rechts nach Links</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="info-box" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+                    <strong>💡 Wichtig - Wetterseite beachten!</strong><br>
+                    <strong>Überlappung bei Wellplatten:</strong> Jede Platte überlappt die vorherige um die Differenz zwischen Lieferbreite und Deckbreite. Die obere Platte liegt dabei ÜBER der unteren.<br><br>
+                    <strong>Verlegerichtung wählen:</strong> Die Verlegung sollte so erfolgen, dass die Hauptwindrichtung (meist West) ÜBER die Überlappungen weht. So kann kein Wasser unter die Platten gedrückt werden.<br><br>
+                    <strong>Beispiel:</strong> Bei Westwind → von Ost nach West verlegen (rechts nach links), damit der Wind über die Überlappungen streicht.<br><br>
+                    <strong>⚠️ Ausnahmen:</strong> Bei Pfannenblechen, isolierten Platten oder Antikondensvlies-beschichteten Platten mit Freischnitt ist die Verlegerichtung durch die Konstruktion vorgegeben und kann nicht frei gewählt werden!
+                </div>
+            </div>
+
             <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
 
-            <!-- Werbeplatz nach dem Berechnen-Button -->
             <div class="ad-wrapper" id="bottom-ad-container" style="display: none;">
                 <div class="ad-with-label">
                     <span class="ad-label">Werbung</span>
@@ -661,7 +684,7 @@ function loadAdSense() {
                          style="display:block"
                          data-ad-client="ca-pub-8687929894744033"
                          data-ad-slot="8536162573"
-                         data-ad-format="auto"
+                         data-ad-format="horizontal"
                          data-full-width-responsive="true"></ins>
                 </div>
             </div>
@@ -688,7 +711,6 @@ function loadAdSense() {
                     <span id="gesamt-bleche">-</span>
                 </div>
                 
-                <!-- Visuelles Vorschaufenster -->
                 <div id="vorschau" style="display: none; margin-top: 25px;">
                     <h4 style="color: #ffffff; font-size: 1.2em; margin-bottom: 15px;">Visuelle Vorschau</h4>
                     <div style="text-align: center; margin-bottom: 15px;">
@@ -721,7 +743,7 @@ function loadAdSense() {
                         </tbody>
                     </table>
                     <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
-                        <strong>Verlegung:</strong> Von links nach rechts, Platten verlaufen vertikal (oben → unten)
+                        <strong>Verlegung:</strong> <span id="verlege-info">Von links nach rechts, Platten verlaufen vertikal (oben → unten)</span>
                     </div>
                     <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                         <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
@@ -734,8 +756,15 @@ function loadAdSense() {
 
     <script>
         let aktuelleSchnittliste = [];
+        let verlegerichtung = 'links';
 
-        // Cookie Management System
+        function setVerlegerichtung(richtung) {
+            verlegerichtung = richtung;
+            if (aktuelleSchnittliste.length > 0) {
+                berechnen();
+            }
+        }
+
         function showAds() {
             document.getElementById('top-ad-container').style.display = 'block';
             document.getElementById('middle-ad-container').style.display = 'block';
@@ -743,13 +772,11 @@ function loadAdSense() {
             
             const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
             
-            // Warte bis AdSense geladen ist
             setTimeout(function() {
                 if (window.adsbygoogle) {
                     try {
                         const ads = document.querySelectorAll('.adsbygoogle');
                         ads.forEach(ad => {
-                            // Prüfe ob Ad bereits geladen ist
                             if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-adsbygoogle-status')) {
                                 if (!allowPersonalized) {
                                     ad.setAttribute('data-npa', '1');
@@ -771,21 +798,38 @@ function loadAdSense() {
             let anzahlPlatten = Math.ceil((breite - lieferbreite + deckbreite) / deckbreite);
             
             for (let i = 0; i < anzahlPlatten; i++) {
-                let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
-                let positionVonLinksEnde = positionVonLinks + lieferbreite;
-                positionVonLinksEnde = Math.min(positionVonLinksEnde, breite);
-                
-                // Bei Rechtecken ist die benötigte Länge immer die Höhe
-                const benoetigteLaenge = hoehe;
-                
-                if (positionVonLinks < breite) {
-                    schnittliste.push({
-                        plattenNr: i + 1,
-                        positionVonLinks: positionVonLinks.toFixed(2),
-                        positionBis: positionVonLinksEnde.toFixed(2),
-                        benoetigteLaenge: benoetigteLaenge.toFixed(2),
-                        plattenbreite: lieferbreite.toFixed(2)
-                    });
+                if (verlegerichtung === 'links') {
+                    let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+                    let positionVonLinksEnde = positionVonLinks + lieferbreite;
+                    positionVonLinksEnde = Math.min(positionVonLinksEnde, breite);
+                    
+                    if (positionVonLinks < breite) {
+                        schnittliste.push({
+                            plattenNr: i + 1,
+                            positionVonLinks: positionVonLinks.toFixed(2),
+                            positionBis: positionVonLinksEnde.toFixed(2),
+                            benoetigteLaenge: hoehe.toFixed(2),
+                            plattenbreite: lieferbreite.toFixed(2),
+                            richtung: 'links'
+                        });
+                    }
+                } else {
+                    let positionVonRechts = (i === 0) ? 0 : i * deckbreite;
+                    let positionVonLinks = breite - positionVonRechts - lieferbreite;
+                    positionVonLinks = Math.max(0, positionVonLinks);
+                    let positionVonLinksEnde = positionVonLinks + lieferbreite;
+                    
+                    if (positionVonRechts < breite && positionVonLinks >= 0) {
+                        schnittliste.push({
+                            plattenNr: i + 1,
+                            positionVonRechts: positionVonRechts.toFixed(2),
+                            positionVonLinks: positionVonLinks.toFixed(2),
+                            positionBis: positionVonLinksEnde.toFixed(2),
+                            benoetigteLaenge: hoehe.toFixed(2),
+                            plattenbreite: lieferbreite.toFixed(2),
+                            richtung: 'rechts'
+                        });
+                    }
                 }
             }
 
@@ -828,14 +872,21 @@ function loadAdSense() {
             
             rechteckBerechnung.schnittliste.forEach(item => {
                 const row = document.createElement('tr');
+                const positionText = verlegerichtung === 'links' 
+                    ? `${item.positionVonLinks} - ${item.positionBis}` 
+                    : `${item.positionVonLinks} - ${item.positionBis} (von rechts: ${item.positionVonRechts})`;
+                
                 row.innerHTML = `
                     <td>${item.plattenNr}</td>
-                    <td>${item.positionVonLinks} - ${item.positionBis}</td>
+                    <td>${positionText}</td>
                     <td style="font-weight: bold; color: #28a745;">${item.plattenbreite}</td>
                     <td style="font-weight: bold; color: #28a745; background-color: #f8fff9; padding: 8px;">${item.benoetigteLaenge}</td>
                 `;
                 tbody.appendChild(row);
             });
+
+            const verlegerichtungText = verlegerichtung === 'links' ? 'Von links nach rechts →' : '← Von rechts nach links';
+            document.getElementById('verlege-info').textContent = `${verlegerichtungText}, Platten verlaufen vertikal (oben → unten)`;
 
             aktuelleSchnittliste = rechteckBerechnung.schnittliste;
             document.getElementById('results').style.display = 'block';
@@ -869,41 +920,59 @@ function loadAdSense() {
             let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" style="border: 1px solid #ddd; border-radius: 8px;">`;
             
             svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#fdfdfd"/>`;
-            
-            // Rechteck-Umriss
             svg += `<rect x="${margin}" y="${margin}" width="${rechteckWidth}" height="${rechteckHeight}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+            
+            // KORRIGIERTE PFEILRICHTUNG
+            const pfeilY = margin - 20;
+            if (verlegerichtung === 'links') {
+                // Links nach rechts: Pfeil zeigt nach rechts
+                svg += `<line x1="${margin + 5}" y1="${pfeilY}" x2="${margin + rechteckWidth - 5}" y2="${pfeilY}" stroke="#ff6b35" stroke-width="2.5" marker-end="url(#arrow-right)"/>`;
+                svg += `<text x="${margin + rechteckWidth/2}" y="${pfeilY - 6}" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b35">Verlegerichtung →</text>`;
+            } else {
+                // Rechts nach links: Pfeil zeigt nach links
+                svg += `<line x1="${margin + rechteckWidth - 5}" y1="${pfeilY}" x2="${margin + 5}" y2="${pfeilY}" stroke="#ff6b35" stroke-width="2.5" marker-end="url(#arrow-left)"/>`;
+                svg += `<text x="${margin + rechteckWidth/2}" y="${pfeilY - 6}" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b35">← Verlegerichtung</text>`;
+            }
+            
+            // KORRIGIERTE MARKER-DEFINITIONEN MIT ORIENT
+            svg += `<defs>
+                <marker id="arrow-right" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="0">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff6b35"/>
+                </marker>
+                <marker id="arrow-left" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="8" markerHeight="8" orient="180">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff6b35"/>
+                </marker>
+            </defs>`;
             
             schnittliste.forEach((platte, index) => {
                 const plattenStart = parseFloat(platte.positionVonLinks);
                 const plattenEnde = parseFloat(platte.positionBis);
-                const plattenBreite = parseFloat(platte.plattenbreite);
-                const originalPlattenEnde = plattenStart + plattenBreite;
-                
-                const istLetztePlatte = originalPlattenEnde > breite;
-                const plattenEndeReal = istLetztePlatte ? breite : originalPlattenEnde;
                 
                 const plattenX = margin + plattenStart * scaleX;
-                const plattenWidth = (plattenEndeReal - plattenStart) * scaleX;
+                const plattenWidth = (plattenEnde - plattenStart) * scaleX;
                 
-                // Nutzen (gesamte Höhe bei Rechtecken)
                 svg += `<rect x="${plattenX}" y="${margin}" width="${plattenWidth}" height="${rechteckHeight}" fill="#1e3c72" opacity="0.4"/>`;
                 
-                // Überlappung anzeigen (außer bei erster Platte)
                 if (index > 0 && ueberlappung > 0) {
                     const ueberlappungsWidth = ueberlappung * scaleX;
-                    svg += `<rect x="${plattenX}" y="${margin}" width="${ueberlappungsWidth}" height="${rechteckHeight}" fill="#28a745" opacity="0.25"/>`;
+                    if (verlegerichtung === 'links') {
+                        svg += `<rect x="${plattenX}" y="${margin}" width="${ueberlappungsWidth}" height="${rechteckHeight}" fill="#28a745" opacity="0.25"/>`;
+                    } else {
+                        svg += `<rect x="${plattenX + plattenWidth - ueberlappungsWidth}" y="${margin}" width="${ueberlappungsWidth}" height="${rechteckHeight}" fill="#28a745" opacity="0.25"/>`;
+                    }
                 }
                 
-                // Plattennummer
                 svg += `<text x="${plattenX + plattenWidth/2}" y="${margin + rechteckHeight + 18}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${platte.plattenNr}</text>`;
                 
-                // Trennlinie zwischen Platten
                 if (index > 0) {
-                    svg += `<line x1="${plattenX}" y1="${margin}" x2="${plattenX}" y2="${margin + rechteckHeight}" stroke="#666" stroke-width="1" opacity="0.5"/>`;
+                    if (verlegerichtung === 'links') {
+                        svg += `<line x1="${plattenX}" y1="${margin}" x2="${plattenX}" y2="${margin + rechteckHeight}" stroke="#666" stroke-width="1" opacity="0.5"/>`;
+                    } else {
+                        svg += `<line x1="${plattenX + plattenWidth}" y1="${margin}" x2="${plattenX + plattenWidth}" y2="${margin + rechteckHeight}" stroke="#666" stroke-width="1" opacity="0.5"/>`;
+                    }
                 }
             });
             
-            // Maßlinien
             svg += `<line x1="${margin}" y1="${margin + rechteckHeight + 30}" x2="${margin + rechteckWidth}" y2="${margin + rechteckHeight + 30}" stroke="#666" stroke-width="1"/>`;
             svg += `<text x="${margin + rechteckWidth/2}" y="${margin + rechteckHeight + 42}" text-anchor="middle" font-size="11" font-weight="bold" fill="#666">Breite: ${breite}m</text>`;
             
@@ -932,6 +1001,7 @@ function loadAdSense() {
                 breite: breite,
                 hoehe: hoehe,
                 schnittliste: aktuelleSchnittliste,
+                verlegerichtung: verlegerichtung
             };
             
             const encodedData = encodeURIComponent(JSON.stringify(planData));
@@ -963,18 +1033,14 @@ function loadAdSense() {
             window.location.href = `lattenrechner.html?${params.toString()}`;
         }
 
-        // Initialize everything
         document.addEventListener('DOMContentLoaded', function() {
-            // AdSense immer laden
             loadAdSense();
             
-            // Initialize tracking based on existing consent
             const cookieConsent = localStorage.getItem('cookieConsent');
             if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
                 loadAnalytics();
             }
             
-            // Werbung immer anzeigen
             showAds();
         });
     </script>
