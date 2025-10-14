@@ -286,12 +286,12 @@
             margin-bottom: 8px;
         }
         
-        /* WERBUNG - KORRIGIERT: FESTE HÖHE + RICHTIGE BREITE */
+        /* WERBUNG - FESTE HÖHE + RICHTIGE BREITE */
         .ad-wrapper {
-            max-width: 1000px !important;  /* Breite wie main-content */
-            margin: 10px auto !important;  /* Zentrieren */
-            height: 70px !important;  /* FESTE Höhe */
-            overflow: hidden !important;  /* Abschneiden */
+            max-width: 1000px !important;
+            margin: 10px auto !important;
+            height: 70px !important;
+            overflow: hidden !important;
             text-align: center !important;
             display: block !important;
         }
@@ -303,7 +303,7 @@
             background: rgba(255, 255, 255, 0.95);
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            height: 70px !important;  /* FESTE Höhe */
+            height: 70px !important;
             max-height: 70px !important;
             overflow: hidden !important;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -331,7 +331,7 @@
             text-align: center !important;
             margin: 0 auto !important;
             width: 100% !important;
-            height: 65px !important;  /* Feste Höhe - Platz für Label */
+            height: 65px !important;
             max-height: 65px !important;
             min-height: 65px !important;
             border: none !important;
@@ -690,9 +690,85 @@
             }
         });
 
+        // WERBEGRÖSSE ERZWINGEN
+        function enforceAdSize(adWrapper) {
+            if (!adWrapper) return;
+            
+            // Wrapper fixieren
+            adWrapper.style.setProperty('max-width', '1000px', 'important');
+            adWrapper.style.setProperty('width', '100%', 'important');
+            adWrapper.style.setProperty('height', '70px', 'important');
+            adWrapper.style.setProperty('max-height', '70px', 'important');
+            adWrapper.style.setProperty('overflow', 'hidden', 'important');
+            adWrapper.style.setProperty('margin', '10px auto', 'important');
+            
+            // Label Container fixieren
+            const adLabel = adWrapper.querySelector('.ad-with-label');
+            if (adLabel) {
+                adLabel.style.setProperty('height', '70px', 'important');
+                adLabel.style.setProperty('max-height', '70px', 'important');
+                adLabel.style.setProperty('overflow', 'hidden', 'important');
+            }
+            
+            // AdSense Element fixieren
+            const adElement = adWrapper.querySelector('.adsbygoogle');
+            if (adElement) {
+                adElement.style.setProperty('height', '65px', 'important');
+                adElement.style.setProperty('max-height', '65px', 'important');
+                adElement.style.setProperty('min-height', '65px', 'important');
+                adElement.style.setProperty('overflow', 'hidden', 'important');
+            }
+        }
+
+        // MUTATION OBSERVER: Überwacht Änderungen durch Google
+        function setupAdObserver(adWrapper) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        enforceAdSize(adWrapper);
+                    }
+                });
+            });
+            
+            // Überwache alle Elemente
+            observer.observe(adWrapper, {
+                attributes: true,
+                attributeOldValue: true,
+                subtree: true
+            });
+            
+            // Überwache auch Label und AdSense Element
+            const adLabel = adWrapper.querySelector('.ad-with-label');
+            const adElement = adWrapper.querySelector('.adsbygoogle');
+            
+            if (adLabel) {
+                observer.observe(adLabel, {
+                    attributes: true,
+                    attributeOldValue: true,
+                    subtree: true
+                });
+            }
+            
+            if (adElement) {
+                observer.observe(adElement, {
+                    attributes: true,
+                    attributeOldValue: true,
+                    subtree: true
+                });
+            }
+            
+            console.log('MutationObserver installed for ad wrapper');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             updateColorPreview();
             updateSelectedColorDisplay();
+            
+            // SOFORT alle Werbegrößen fixieren
+            document.querySelectorAll('.ad-wrapper').forEach(function(wrapper) {
+                enforceAdSize(wrapper);
+                setupAdObserver(wrapper);
+            });
             
             setTimeout(function() {
                 try {
@@ -711,11 +787,35 @@
                         }
                     });
                     
+                    // AdSense Push
                     (adsbygoogle = window.adsbygoogle || []).push({});
                     (adsbygoogle = window.adsbygoogle || []).push({});
                     
                     console.log('AdSense ads pushed');
                     
+                    // Nach AdSense-Load: Größe SOFORT wieder erzwingen
+                    setTimeout(function() {
+                        document.querySelectorAll('.ad-wrapper').forEach(function(wrapper) {
+                            enforceAdSize(wrapper);
+                        });
+                        console.log('Ad sizes enforced after AdSense load');
+                    }, 100);
+                    
+                    // Nochmal nach 500ms
+                    setTimeout(function() {
+                        document.querySelectorAll('.ad-wrapper').forEach(function(wrapper) {
+                            enforceAdSize(wrapper);
+                        });
+                    }, 500);
+                    
+                    // Nochmal nach 2 Sekunden
+                    setTimeout(function() {
+                        document.querySelectorAll('.ad-wrapper').forEach(function(wrapper) {
+                            enforceAdSize(wrapper);
+                        });
+                    }, 2000);
+                    
+                    // Status prüfen
                     setTimeout(function() {
                         document.querySelectorAll('.ad-wrapper').forEach(function(container, index) {
                             const adElement = container.querySelector('.adsbygoogle');
@@ -731,7 +831,8 @@
                                     container.style.padding = '0';
                                     console.log('Ad container', index + 1, 'hidden - no content loaded');
                                 } else {
-                                    console.log('Ad container', index + 1, 'loaded successfully');
+                                    enforceAdSize(container);
+                                    console.log('Ad container', index + 1, 'loaded and sized');
                                 }
                             }
                         });
