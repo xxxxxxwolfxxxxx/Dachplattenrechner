@@ -286,11 +286,12 @@
             margin-bottom: 8px;
         }
         
-        /* WERBUNG - FESTE HÖHE + RICHTIGE BREITE */
+        /* WERBUNG - KORRIGIERT: 90px HÖHE + PADDING FÜR BREITE */
         .ad-wrapper {
             max-width: 1000px !important;
             margin: 10px auto !important;
-            height: 70px !important;
+            padding: 0 20px !important;  /* WICHTIG: Padding wie main-content */
+            height: 90px !important;  /* ERHÖHT auf 90px */
             overflow: hidden !important;
             text-align: center !important;
             display: block !important;
@@ -303,8 +304,8 @@
             background: rgba(255, 255, 255, 0.95);
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            height: 70px !important;
-            max-height: 70px !important;
+            height: 90px !important;  /* ERHÖHT auf 90px */
+            max-height: 90px !important;
             overflow: hidden !important;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             padding: 2px;
@@ -331,9 +332,9 @@
             text-align: center !important;
             margin: 0 auto !important;
             width: 100% !important;
-            height: 65px !important;
-            max-height: 65px !important;
-            min-height: 65px !important;
+            height: 85px !important;  /* ERHÖHT auf 85px (Platz für Label) */
+            max-height: 85px !important;
+            min-height: 85px !important;
             border: none !important;
             background: transparent !important;
             box-shadow: none !important;
@@ -396,17 +397,18 @@
             .ad-wrapper {
                 max-width: 95% !important;
                 margin: 8px auto !important;
-                height: 70px !important;
+                padding: 0 10px !important;
+                height: 90px !important;
             }
             
             .ad-with-label {
-                height: 70px !important;
+                height: 90px !important;
             }
             
             .ad-wrapper .adsbygoogle {
-                height: 65px !important;
-                max-height: 65px !important;
-                min-height: 65px !important;
+                height: 85px !important;
+                max-height: 85px !important;
+                min-height: 85px !important;
             }
         }
         
@@ -414,17 +416,18 @@
         @media (max-width: 480px) and (orientation: portrait) {
             .ad-wrapper {
                 max-width: 95% !important;
-                height: 70px !important;
+                padding: 0 10px !important;
+                height: 90px !important;
             }
             
             .ad-with-label {
-                height: 70px !important;
+                height: 90px !important;
             }
             
             .ad-wrapper .adsbygoogle {
-                height: 65px !important;
-                max-height: 65px !important;
-                min-height: 65px !important;
+                height: 85px !important;
+                max-height: 85px !important;
+                min-height: 85px !important;
             }
         }
     </style>
@@ -476,7 +479,7 @@
                  style="display:block"
                  data-ad-client="ca-pub-8687929894744033"
                  data-ad-slot="8222453332"
-                 data-ad-format="auto"
+                 data-ad-format="horizontal"
                  data-full-width-responsive="true"
                  data-ad-channel="trapezbleche,kantteile,spengler,blechbearbeitung"></ins>
         </div>
@@ -552,7 +555,7 @@
                      style="display:block"
                      data-ad-client="ca-pub-8687929894744033"
                      data-ad-slot="7268464318"
-                     data-ad-format="auto"
+                     data-ad-format="horizontal"
                      data-full-width-responsive="true"
                      data-ad-channel="trapezbleche,schwedenbleche,kantteile,spengler,blechbearbeitung"></ins>
             </div>
@@ -690,32 +693,33 @@
             }
         });
 
-        // WERBEGRÖSSE ERZWINGEN
+        // WERBEGRÖSSE ERZWINGEN - ANGEPASST AUF 90px
         function enforceAdSize(adWrapper) {
             if (!adWrapper) return;
             
             // Wrapper fixieren
             adWrapper.style.setProperty('max-width', '1000px', 'important');
             adWrapper.style.setProperty('width', '100%', 'important');
-            adWrapper.style.setProperty('height', '70px', 'important');
-            adWrapper.style.setProperty('max-height', '70px', 'important');
+            adWrapper.style.setProperty('padding', '0 20px', 'important');  // NEU: Padding
+            adWrapper.style.setProperty('height', '90px', 'important');  // ERHÖHT
+            adWrapper.style.setProperty('max-height', '90px', 'important');
             adWrapper.style.setProperty('overflow', 'hidden', 'important');
             adWrapper.style.setProperty('margin', '10px auto', 'important');
             
             // Label Container fixieren
             const adLabel = adWrapper.querySelector('.ad-with-label');
             if (adLabel) {
-                adLabel.style.setProperty('height', '70px', 'important');
-                adLabel.style.setProperty('max-height', '70px', 'important');
+                adLabel.style.setProperty('height', '90px', 'important');  // ERHÖHT
+                adLabel.style.setProperty('max-height', '90px', 'important');
                 adLabel.style.setProperty('overflow', 'hidden', 'important');
             }
             
             // AdSense Element fixieren
             const adElement = adWrapper.querySelector('.adsbygoogle');
             if (adElement) {
-                adElement.style.setProperty('height', '65px', 'important');
-                adElement.style.setProperty('max-height', '65px', 'important');
-                adElement.style.setProperty('min-height', '65px', 'important');
+                adElement.style.setProperty('height', '85px', 'important');  // ERHÖHT
+                adElement.style.setProperty('max-height', '85px', 'important');
+                adElement.style.setProperty('min-height', '85px', 'important');
                 adElement.style.setProperty('overflow', 'hidden', 'important');
             }
         }
