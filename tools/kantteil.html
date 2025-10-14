@@ -286,47 +286,67 @@
             margin-bottom: 8px;
         }
         
-        /* Werbung Styling - KORRIGIERT */
+        /* WERBUNG WIE IN GLEICHSCHENKLIGES-DREIECK.HTML */
         .ad-wrapper {
-            margin: 30px auto;
-            max-width: 1000px; /* Breite wie main-content */
-            border-radius: 12px;
-            overflow: hidden; /* WICHTIG: Verhindert Überlauf */
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            text-align: center;
+            margin: 10px auto !important;
+            width: 100% !important;
+            max-width: 1000px !important;
+            text-align: center !important;
+            display: block !important;
+            min-height: 70px;
         }
-        
+
         .ad-with-label {
             position: relative;
+            width: 100%;
+            display: block;
+            margin: 10px auto;
             background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            padding: 5px 10px; /* REDUZIERT: weniger Padding */
-            backdrop-filter: blur(5px);
-            height: 70px; /* FIXIERT: height statt min/max */
-            overflow: hidden; /* WICHTIG: Verhindert Überlauf */
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            min-height: 70px;
+            max-height: 100px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
-        
+
         .ad-label {
             position: absolute;
-            top: 2px; /* ANGEPASST */
-            left: 8px;
-            font-size: 9px; /* KLEINER */
-            color: #666;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 1px 4px; /* REDUZIERT */
-            border-radius: 3px;
+            top: 4px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 2px 6px;
+            font-size: 8px;
+            font-weight: 600;
+            border-radius: 2px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             z-index: 10;
+            pointer-events: none;
         }
-        
-        .adsbygoogle {
-            height: 60px !important; /* FIXIERT: 60px für Inhalt */
-            max-height: 60px !important;
-            min-height: 60px !important;
+
+        .ad-wrapper .adsbygoogle {
             display: block !important;
-            overflow: hidden !important; /* WICHTIG */
+            text-align: center !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            min-height: 70px !important;
+            max-height: 100px !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding: 2px;
+            overflow: hidden;
+        }
+
+        /* Versteckte Container sollen keinen Platz einnehmen */
+        .ad-wrapper[style*="display: none"] {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
         
         /* Editor Container */
@@ -375,37 +395,26 @@
             
             /* Mobile Werbung */
             .ad-wrapper {
-                margin: 20px auto;
-                max-width: 95%;
+                margin: 8px 5px !important;
+                min-height: 60px;
             }
             
-            .ad-with-label {
-                padding: 5px;
-                height: 70px;
-            }
-            
-            .adsbygoogle {
-                height: 60px !important;
-                max-height: 60px !important;
+            .ad-wrapper .adsbygoogle {
                 min-height: 60px !important;
+                max-height: 90px !important;
             }
         }
         
         /* Portrait Handy */
         @media (max-width: 480px) and (orientation: portrait) {
             .ad-wrapper {
-                margin: 15px auto;
-                max-width: 95%;
+                margin: 8px 5px !important;
+                min-height: 60px;
             }
             
-            .ad-with-label {
-                height: 70px;
-            }
-            
-            .adsbygoogle {
-                height: 60px !important;
-                max-height: 60px !important;
+            .ad-wrapper .adsbygoogle {
                 min-height: 60px !important;
+                max-height: 90px !important;
             }
         }
     </style>
@@ -690,7 +699,7 @@
             updateColorPreview();
             updateSelectedColorDisplay();
             
-            // AdSense nach Verzögerung laden (wie in farben.html)
+            // AdSense nach Verzögerung laden
             setTimeout(function() {
                 try {
                     // Cookie-Status prüfen
@@ -705,12 +714,12 @@
                     
                     ads.forEach((ad, index) => {
                         if (!allowPersonalized) {
-                            ad.setAttribute('data-npa', '1'); // Nicht-personalisierte Werbung
+                            ad.setAttribute('data-npa', '1');
                             console.log('Ad', index, 'set to non-personalized');
                         }
                     });
                     
-                    // AdSense Push für beide Ads (wie in farben.html)
+                    // AdSense Push für beide Ads
                     (adsbygoogle = window.adsbygoogle || []).push({});
                     (adsbygoogle = window.adsbygoogle || []).push({});
                     
@@ -744,7 +753,7 @@
                         container.style.display = 'none';
                     });
                 }
-            }, 1000); // 1 Sekunde Verzögerung wie in farben.html
+            }, 1000);
         });
     </script>
 </body>
