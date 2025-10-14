@@ -286,13 +286,12 @@
             margin-bottom: 8px;
         }
         
-        /* Werbung Styling - ANGEPASST AN INDEX.HTML */
+        /* Werbung Styling - KORRIGIERT */
         .ad-wrapper {
             margin: 30px auto;
-            max-width: 1000px; /* GLEICHE BREITE WIE MAIN-CONTENT */
+            max-width: 1000px; /* Breite wie main-content */
             border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
+            overflow: hidden; /* WICHTIG: Verhindert Überlauf */
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             text-align: center;
         }
@@ -302,29 +301,32 @@
             background: rgba(255, 255, 255, 0.95);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 12px;
-            padding: 15px;
+            padding: 5px 10px; /* REDUZIERT: weniger Padding */
             backdrop-filter: blur(5px);
-            min-height: 70px; /* FIXIERT AUF 70px */
-            max-height: 70px; /* FIXIERT AUF 70px */
+            height: 70px; /* FIXIERT: height statt min/max */
+            overflow: hidden; /* WICHTIG: Verhindert Überlauf */
         }
         
         .ad-label {
             position: absolute;
-            top: 5px;
-            left: 10px;
-            font-size: 10px;
+            top: 2px; /* ANGEPASST */
+            left: 8px;
+            font-size: 9px; /* KLEINER */
             color: #666;
             background: rgba(255, 255, 255, 0.9);
-            padding: 2px 6px;
+            padding: 1px 4px; /* REDUZIERT */
             border-radius: 3px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            z-index: 10;
         }
         
         .adsbygoogle {
-            min-height: 70px; /* FIXIERT AUF 70px */
-            max-height: 70px; /* FIXIERT AUF 70px */
-            display: block;
+            height: 60px !important; /* FIXIERT: 60px für Inhalt */
+            max-height: 60px !important;
+            min-height: 60px !important;
+            display: block !important;
+            overflow: hidden !important; /* WICHTIG */
         }
         
         /* Editor Container */
@@ -371,28 +373,39 @@
                 gap: 15px;
             }
             
-            /* Mobile Werbung - AUCH 70px */
-            .adsbygoogle {
-                min-height: 70px;
-                max-height: 70px;
-            }
-            
+            /* Mobile Werbung */
             .ad-wrapper {
                 margin: 20px auto;
                 max-width: 95%;
+            }
+            
+            .ad-with-label {
+                padding: 5px;
+                height: 70px;
+            }
+            
+            .adsbygoogle {
+                height: 60px !important;
+                max-height: 60px !important;
+                min-height: 60px !important;
             }
         }
         
         /* Portrait Handy */
         @media (max-width: 480px) and (orientation: portrait) {
-            .adsbygoogle {
-                min-height: 70px; /* KORRIGIERT: 70px statt 100px */
-                max-height: 70px;
-            }
-            
             .ad-wrapper {
                 margin: 15px auto;
                 max-width: 95%;
+            }
+            
+            .ad-with-label {
+                height: 70px;
+            }
+            
+            .adsbygoogle {
+                height: 60px !important;
+                max-height: 60px !important;
+                min-height: 60px !important;
             }
         }
     </style>
