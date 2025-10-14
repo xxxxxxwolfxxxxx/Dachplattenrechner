@@ -286,10 +286,10 @@
             margin-bottom: 8px;
         }
         
-        /* Werbung Styling */
+        /* Werbung Styling - ANGEPASST AN INDEX.HTML */
         .ad-wrapper {
             margin: 30px auto;
-            max-width: 800px;
+            max-width: 1000px; /* GLEICHE BREITE WIE MAIN-CONTENT */
             border-radius: 12px;
             overflow: hidden;
             transition: all 0.3s ease;
@@ -304,6 +304,8 @@
             border-radius: 12px;
             padding: 15px;
             backdrop-filter: blur(5px);
+            min-height: 70px; /* FIXIERT AUF 70px */
+            max-height: 70px; /* FIXIERT AUF 70px */
         }
         
         .ad-label {
@@ -320,7 +322,8 @@
         }
         
         .adsbygoogle {
-            min-height: 90px;
+            min-height: 70px; /* FIXIERT AUF 70px */
+            max-height: 70px; /* FIXIERT AUF 70px */
             display: block;
         }
         
@@ -368,20 +371,23 @@
                 gap: 15px;
             }
             
-            /* Mobile Werbung - kleinere Höhe */
+            /* Mobile Werbung - AUCH 70px */
             .adsbygoogle {
                 min-height: 70px;
+                max-height: 70px;
             }
             
             .ad-wrapper {
                 margin: 20px auto;
+                max-width: 95%;
             }
         }
         
-        /* Portrait Handy - spezielle Anpassungen */
+        /* Portrait Handy */
         @media (max-width: 480px) and (orientation: portrait) {
             .adsbygoogle {
-                min-height: 100px;
+                min-height: 70px; /* KORRIGIERT: 70px statt 100px */
+                max-height: 70px;
             }
             
             .ad-wrapper {
@@ -390,6 +396,36 @@
             }
         }
     </style>
+    <script>
+        // Mobile Detection Script
+        function detectMobileDevice() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+            const isTablet = /ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP)))/i.test(userAgent);
+            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const isSmallScreen = window.innerWidth <= 768;
+            
+            return (isMobile || isTablet || hasTouch) && isSmallScreen;
+        }
+
+        function redirectToMobile() {
+            if (detectMobileDevice()) {
+                // Übertrage URL-Parameter zur mobilen Version
+                const currentUrl = new URL(window.location);
+                const mobileUrl = new URL('kantteil-editor-mobile.html', window.location);
+                
+                // Kopiere alle Parameter
+                currentUrl.searchParams.forEach((value, key) => {
+                    mobileUrl.searchParams.set(key, value);
+                });
+                
+                window.location.href = mobileUrl.toString();
+            }
+        }
+
+        // Prüfe beim Laden der Seite
+        document.addEventListener('DOMContentLoaded', redirectToMobile);
+    </script>
 </head>
 <body>
     <!-- Navigation Header -->
