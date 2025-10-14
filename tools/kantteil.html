@@ -286,28 +286,28 @@
             margin-bottom: 8px;
         }
         
-        /* WERBUNG WIE IN GLEICHSCHENKLIGES-DREIECK.HTML */
+        /* WERBUNG - KORRIGIERT: FESTE HÖHE + RICHTIGE BREITE */
         .ad-wrapper {
-            margin: 10px auto !important;
-            width: 100% !important;
-            max-width: 1000px !important;
+            max-width: 1000px !important;  /* Breite wie main-content */
+            margin: 10px auto !important;  /* Zentrieren */
+            height: 70px !important;  /* FESTE Höhe */
+            overflow: hidden !important;  /* Abschneiden */
             text-align: center !important;
             display: block !important;
-            min-height: 70px;
         }
 
         .ad-with-label {
             position: relative;
             width: 100%;
             display: block;
-            margin: 10px auto;
             background: rgba(255, 255, 255, 0.95);
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            overflow: hidden;
-            min-height: 70px;
-            max-height: 100px;
+            height: 70px !important;  /* FESTE Höhe */
+            max-height: 70px !important;
+            overflow: hidden !important;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 2px;
         }
 
         .ad-label {
@@ -331,17 +331,16 @@
             text-align: center !important;
             margin: 0 auto !important;
             width: 100% !important;
-            min-height: 70px !important;
-            max-height: 100px !important;
+            height: 65px !important;  /* Feste Höhe - Platz für Label */
+            max-height: 65px !important;
+            min-height: 65px !important;
             border: none !important;
             background: transparent !important;
             box-shadow: none !important;
-            border-radius: 0 !important;
-            padding: 2px;
-            overflow: hidden;
+            overflow: hidden !important;
         }
 
-        /* Versteckte Container sollen keinen Platz einnehmen */
+        /* Versteckte Container */
         .ad-wrapper[style*="display: none"] {
             display: none !important;
             height: 0 !important;
@@ -395,26 +394,37 @@
             
             /* Mobile Werbung */
             .ad-wrapper {
-                margin: 8px 5px !important;
-                min-height: 60px;
+                max-width: 95% !important;
+                margin: 8px auto !important;
+                height: 70px !important;
+            }
+            
+            .ad-with-label {
+                height: 70px !important;
             }
             
             .ad-wrapper .adsbygoogle {
-                min-height: 60px !important;
-                max-height: 90px !important;
+                height: 65px !important;
+                max-height: 65px !important;
+                min-height: 65px !important;
             }
         }
         
         /* Portrait Handy */
         @media (max-width: 480px) and (orientation: portrait) {
             .ad-wrapper {
-                margin: 8px 5px !important;
-                min-height: 60px;
+                max-width: 95% !important;
+                height: 70px !important;
+            }
+            
+            .ad-with-label {
+                height: 70px !important;
             }
             
             .ad-wrapper .adsbygoogle {
-                min-height: 60px !important;
-                max-height: 90px !important;
+                height: 65px !important;
+                max-height: 65px !important;
+                min-height: 65px !important;
             }
         }
     </style>
@@ -432,11 +442,9 @@
 
         function redirectToMobile() {
             if (detectMobileDevice()) {
-                // Übertrage URL-Parameter zur mobilen Version
                 const currentUrl = new URL(window.location);
                 const mobileUrl = new URL('kantteil-editor-mobile.html', window.location);
                 
-                // Kopiere alle Parameter
                 currentUrl.searchParams.forEach((value, key) => {
                     mobileUrl.searchParams.set(key, value);
                 });
@@ -445,7 +453,6 @@
             }
         }
 
-        // Prüfe beim Laden der Seite
         document.addEventListener('DOMContentLoaded', redirectToMobile);
     </script>
 </head>
@@ -589,7 +596,6 @@
     </div>
 
     <script>
-        // Globale Variablen für die Einstellungen
         window.kantteilSettings = {
             thickness: 0.6,
             firstLineType: 'horizontal',
@@ -598,7 +604,6 @@
             selectedColorCode: '8004'
         };
 
-        // Cookie-Status aus localStorage lesen
         function getCookieSetting(key) {
             try {
                 let value = localStorage.getItem(key);
@@ -618,7 +623,6 @@
             }
         }
 
-        // Event Listeners für Einstellungen
         document.getElementById('thickness').addEventListener('change', function() {
             window.kantteilSettings.thickness = parseFloat(this.value);
         });
@@ -627,12 +631,10 @@
             window.kantteilSettings.firstLineType = this.value;
         });
 
-        // Farbauswahl öffnen
         function openColorSelection() {
             window.open('farben.html', 'colorSelection', 'width=1000,height=700,scrollbars=yes,resizable=yes');
         }
 
-        // Callback für Farbauswahl
         window.onColorSelected = function(colorData) {
             window.kantteilSettings.frontColor = colorData.color;
             window.kantteilSettings.selectedColorCode = colorData.code;
@@ -643,7 +645,6 @@
             updateSelectedColorDisplay();
         };
 
-        // Farbvorschau aktualisieren
         function updateColorPreview() {
             const colorFront = document.getElementById('colorFront');
             const colorBack = document.getElementById('colorBack');
@@ -652,7 +653,6 @@
             colorBack.style.background = window.kantteilSettings.backColor;
         }
 
-        // Ausgewählte Farbe anzeigen
         function updateSelectedColorDisplay() {
             const display = document.getElementById('selectedColorDisplay');
             const settings = window.kantteilSettings;
@@ -664,12 +664,10 @@
             }
         }
 
-        // Editor starten
         function startEditor() {
             const editorContainer = document.getElementById('editorContainer');
             const editorFrame = document.getElementById('editorFrame');
             
-            // Übergebe die Einstellungen als URL-Parameter
             const params = new URLSearchParams(window.kantteilSettings);
             editorFrame.src = `kantteil-editor.html?${params.toString()}`;
             
@@ -677,14 +675,12 @@
             document.body.style.overflow = 'hidden';
         }
 
-        // Editor schließen (wird vom Editor aufgerufen)
         window.closeEditor = function() {
             const editorContainer = document.getElementById('editorContainer');
             editorContainer.style.display = 'none';
             document.body.style.overflow = 'auto';
         };
 
-        // Escape-Taste zum Schließen des Editors
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 const editorContainer = document.getElementById('editorContainer');
@@ -694,21 +690,17 @@
             }
         });
 
-        // Initialisierung
         document.addEventListener('DOMContentLoaded', function() {
             updateColorPreview();
             updateSelectedColorDisplay();
             
-            // AdSense nach Verzögerung laden
             setTimeout(function() {
                 try {
-                    // Cookie-Status prüfen
                     const marketingCookies = getCookieSetting('marketingCookies');
                     const allowPersonalized = marketingCookies === 'true';
                     
                     console.log('Initializing AdSense with personalization:', allowPersonalized);
                     
-                    // Alle Werbeanzeigen konfigurieren
                     const ads = document.querySelectorAll('.adsbygoogle');
                     console.log('Found', ads.length, 'ad slots');
                     
@@ -719,13 +711,11 @@
                         }
                     });
                     
-                    // AdSense Push für beide Ads
                     (adsbygoogle = window.adsbygoogle || []).push({});
                     (adsbygoogle = window.adsbygoogle || []).push({});
                     
                     console.log('AdSense ads pushed');
                     
-                    // Status nach 5 Sekunden prüfen
                     setTimeout(function() {
                         document.querySelectorAll('.ad-wrapper').forEach(function(container, index) {
                             const adElement = container.querySelector('.adsbygoogle');
