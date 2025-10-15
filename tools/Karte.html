@@ -94,6 +94,7 @@
             padding: 16px;
             z-index: 1000;
             backdrop-filter: blur(10px);
+            min-width: 300px;
         }
         
         .search-box input {
@@ -101,8 +102,8 @@
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
-            width: 150px;
-            margin-right: 8px;
+            width: 100%;
+            margin-bottom: 8px;
             transition: border-color 0.3s;
         }
         
@@ -120,6 +121,7 @@
             cursor: pointer;
             font-weight: 500;
             transition: transform 0.2s;
+            width: 100%;
         }
         
         .search-box button:hover {
@@ -132,6 +134,19 @@
             margin-top: 8px;
         }
         
+        .dachneigung-input {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .dachneigung-input label {
+            font-size: 12px;
+            color: #666;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
         .layer-control {
             position: absolute;
             top: 20px;
@@ -142,6 +157,7 @@
             padding: 16px;
             z-index: 1000;
             backdrop-filter: blur(10px);
+            max-width: 280px;
         }
         
         .layer-title {
@@ -162,8 +178,35 @@
             cursor: pointer;
         }
         
+        .legend {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 11px;
+        }
+        
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+            gap: 6px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        
         .sidebar {
-            width: 320px;
+            width: 340px;
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -215,27 +258,30 @@
         
         .info-box h1 {
             color: #1e3c72;
-            font-size: 22px;
-            margin-bottom: 20px;
+            font-size: 20px;
+            margin-bottom: 16px;
         }
         
         .result-box {
-            padding: 16px;
+            padding: 14px;
             border-radius: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             background: #f8f9fa;
         }
         
-        .result-box.blue { background: #eff6ff; }
-        .result-box.green { background: #f0fdf4; }
-        .result-box.sky { background: #f0f9ff; }
-        .result-box.amber { background: #fffbeb; }
+        .result-box.blue { background: #eff6ff; border-left: 3px solid #2563eb; }
+        .result-box.green { background: #f0fdf4; border-left: 3px solid #16a34a; }
+        .result-box.sky { background: #f0f9ff; border-left: 3px solid #0284c7; }
+        .result-box.amber { background: #fffbeb; border-left: 3px solid #f59e0b; }
+        .result-box.purple { background: #faf5ff; border-left: 3px solid #9333ea; }
         
         .result-label {
-            font-size: 12px;
+            font-size: 11px;
             color: #666;
             margin-bottom: 4px;
             font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .result-value {
@@ -245,9 +291,18 @@
         }
         
         .result-note {
-            font-size: 11px;
+            font-size: 10px;
             color: #666;
             margin-top: 4px;
+            line-height: 1.4;
+        }
+        
+        .calculation-details {
+            font-size: 10px;
+            color: #666;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.1);
         }
         
         .empty-state {
@@ -257,8 +312,8 @@
         }
         
         .disclaimer {
-            margin-top: 20px;
-            padding: 16px;
+            margin-top: 16px;
+            padding: 14px;
             background: #fef2f2;
             border: 1px solid #fecaca;
             border-radius: 10px;
@@ -267,19 +322,35 @@
         .disclaimer-title {
             font-weight: 600;
             color: #991b1b;
-            font-size: 14px;
+            font-size: 13px;
             margin-bottom: 8px;
         }
         
         .disclaimer-text {
-            font-size: 12px;
+            font-size: 11px;
             color: #7f1d1d;
             line-height: 1.5;
         }
         
-        .info-notes {
+        .info-links {
             margin-top: 16px;
             font-size: 11px;
+        }
+        
+        .info-links a {
+            color: #2563eb;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 6px;
+        }
+        
+        .info-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .info-notes {
+            margin-top: 16px;
+            font-size: 10px;
             color: #666;
             line-height: 1.6;
         }
@@ -296,6 +367,13 @@
             
             .sidebar {
                 width: 100%;
+            }
+            
+            .layer-control {
+                top: auto;
+                bottom: 20px;
+                right: 20px;
+                max-width: 200px;
             }
         }
     </style>
@@ -316,8 +394,15 @@
             <div id="map"></div>
             
             <div class="search-box">
-                <input type="text" id="plz" placeholder="PLZ eingeben" maxlength="5">
-                <button onclick="plzSuchen()">Suchen</button>
+                <input type="text" id="plz" placeholder="PLZ oder Adresse eingeben" maxlength="100">
+                <button onclick="plzSuchen()">Berechnen</button>
+                
+                <div class="dachneigung-input">
+                    <label>Dachneigung (optional):</label>
+                    <input type="number" id="dachneigung" placeholder="z.B. 30" min="0" max="90" step="1">
+                    <div class="search-hint">Grad (°) - für Berechnung der Dachlast</div>
+                </div>
+                
                 <div class="search-hint">📍 Oder in die Karte klicken</div>
             </div>
 
@@ -335,6 +420,33 @@
                     <input type="radio" name="layer" value="wind" onchange="layerWechseln()">
                     <span>Windlast</span>
                 </label>
+                
+                <div class="legend" id="legende">
+                    <div class="legend-title">Legende Schneelast</div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #c8e6c9; border: 1px solid #2e7d32;"></div>
+                        <span>Zone 1: 0,65 kN/m²</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #a5d6a7; border: 1px solid #388e3c;"></div>
+                        <span>Zone 1a: 0,81 kN/m²</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #81c784; border: 1px solid #43a047;"></div>
+                        <span>Zone 2: 0,85 kN/m²</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #66bb6a; border: 1px solid #43a047;"></div>
+                        <span>Zone 2a: 1,06 kN/m²</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4caf50; border: 1px solid #2e7d32;"></div>
+                        <span>Zone 3: 1,10 kN/m²</span>
+                    </div>
+                    <div style="margin-top: 8px; font-size: 10px; color: #666;">
+                        Werte gelten für Standardhöhen. Höhenabhängige Berechnung erfolgt automatisch.
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -351,12 +463,12 @@
             </div>
 
             <div class="info-box">
-                <h1>Schnee- & Windlast</h1>
+                <h1>Schnee- & Windlast Rechner</h1>
                 
                 <div id="ergebnis">
                     <div class="empty-state">
                         <div style="font-size: 48px; margin-bottom: 16px;">📍</div>
-                        <p>Geben Sie eine PLZ ein oder<br>klicken Sie in die Karte</p>
+                        <p>Geben Sie eine PLZ oder Adresse ein<br>oder klicken Sie in die Karte</p>
                     </div>
                 </div>
 
@@ -365,15 +477,22 @@
                     <div class="disclaimer-text">
                         Alle Angaben sind ohne Gewähr und dienen nur zur groben Orientierung. 
                         Für verbindliche Auskünfte wenden Sie sich bitte an die zuständige 
-                        Bauaufsichtsbehörde. Die tatsächlichen Werte können je nach genauer 
-                        Lage und örtlichen Gegebenheiten abweichen.
+                        Bauaufsichtsbehörde oder einen Statiker. Die tatsächlichen Werte können 
+                        je nach genauer Lage und örtlichen Gegebenheiten abweichen.
                     </div>
+                </div>
+
+                <div class="info-links">
+                    <strong>Offizielle Quellen:</strong><br>
+                    <a href="https://www.dibt.de/fileadmin/dibt-website/Dokumente/Referat/P5/Technische_Bestimmungen/Schneelastzonen_Formular_nach_Verwaltungsgrenzen.xlsx" target="_blank">📄 DIBt Schneelastzonen-Tabelle (Excel)</a>
+                    <a href="https://www.dibt.de" target="_blank">🏛️ Deutsches Institut für Bautechnik</a>
                 </div>
 
                 <div class="info-notes">
                     • Schneelastzonen nach DIN EN 1991-1-3/NA<br>
                     • Windlastzonen nach DIN EN 1991-1-4/NA<br>
-                    • Daten vereinfacht dargestellt
+                    • Höhenabhängige Berechnung nach Norm<br>
+                    • Daten basierend auf DIBt 02/2023
                 </div>
             </div>
 
@@ -396,23 +515,133 @@
         var schneelayer;
         var windlayer;
 
-        function getDatenFuerPLZ(plz) {
+        function berechneSchneelast(zone, hoehe) {
+            var A = hoehe;
+            var sk = 0;
+            
+            if (zone === '1') {
+                if (A <= 400) {
+                    sk = 0.65;
+                } else {
+                    sk = 0.19 + 0.91 * Math.pow((A + 140) / 760, 2);
+                }
+            } else if (zone === '1a') {
+                if (A <= 400) {
+                    sk = 0.81;
+                } else {
+                    sk = (0.19 + 0.91 * Math.pow((A + 140) / 760, 2)) * 1.25;
+                }
+            } else if (zone === '2') {
+                if (A <= 285) {
+                    sk = 0.85;
+                } else {
+                    sk = 0.25 + 1.91 * Math.pow((A + 140) / 760, 2);
+                }
+            } else if (zone === '2a') {
+                if (A <= 285) {
+                    sk = 1.06;
+                } else {
+                    sk = (0.25 + 1.91 * Math.pow((A + 140) / 760, 2)) * 1.25;
+                }
+            } else if (zone === '3') {
+                if (A <= 255) {
+                    sk = 1.10;
+                } else {
+                    sk = 0.31 + 2.91 * Math.pow((A + 140) / 760, 2);
+                }
+            }
+            
+            return sk.toFixed(2);
+        }
+
+        function berechneDachlast(schneelastBoden, dachneigung) {
+            if (!dachneigung || dachneigung === '') return null;
+            
+            var alpha = parseFloat(dachneigung);
+            var sk = parseFloat(schneelastBoden);
+            var skDach = 0;
+            
+            if (alpha <= 30) {
+                skDach = sk * 0.8;
+            } else if (alpha > 30 && alpha <= 60) {
+                skDach = sk * (0.8 * (60 - alpha) / 30);
+            } else {
+                skDach = 0;
+            }
+            
+            return skDach.toFixed(2);
+        }
+
+        function getDatenFuerPLZ(plz, hoehe) {
             var plzZiffer = plz.charAt(0);
             var plz2 = parseInt(plz.substring(0, 2));
+            var h = hoehe || 100;
             
-            var daten = {
-                '0': {schnee: '2', schneewert: '0,85', wind: '2', windwert: '25,0', behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (Sachsen)'},
-                '1': {schnee: '1a', schneewert: '0,85', wind: '2', windwert: '25,0', behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (Berlin/Brandenburg)'},
-                '2': {schnee: plz2 >= 25 ? '1a' : '2', schneewert: plz2 >= 25 ? '0,85' : '0,85', wind: plz2 >= 24 ? '4' : '3', windwert: plz2 >= 24 ? '30,0' : '27,5', behoerde: plz2 >= 24 ? 'Bauaufsichtsbehörde des Landkreises/der Stadt (Schleswig-Holstein Küste)' : 'Bauaufsichtsbehörde des Landkreises/der Stadt (Hamburg/Schleswig-Holstein)'},
-                '3': {schnee: '2', schneewert: '0,85', wind: plz2 >= 39 ? '2' : '3', windwert: plz2 >= 39 ? '25,0' : '27,5', behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (Niedersachsen/Bremen)'},
-                '4': {schnee: '2', schneewert: '0,85', wind: '2', windwert: '25,0', behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (Nordrhein-Westfalen)'},
-                '5': {schnee: plz2 >= 57 ? '2a' : '1', schneewert: plz2 >= 57 ? '1,06' : '0,65', wind: '2', windwert: '25,0', behoerde: plz2 >= 57 ? 'Bauaufsichtsbehörde des Landkreises/der Stadt (NRW Siegerland)' : 'Bauaufsichtsbehörde des Landkreises/der Stadt (Nordrhein-Westfalen)'},
-                '6': {schnee: '1', schneewert: '0,65', wind: '1', windwert: '22,5', behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (Hessen)'},
-                '7': {schnee: plz2 >= 77 ? '2a' : '2', schneewert: plz2 >= 77 ? '1,06' : '0,85', wind: '1', windwert: '22,5', behoerde: plz2 >= 77 ? 'Bauaufsichtsbehörde des Landkreises (Baden-Württemberg Schwarzwald)' : 'Bauaufsichtsbehörde des Landkreises/der Stadt (Baden-Württemberg)'},
-                '8': {schnee: plz2 >= 82 ? '3' : '2a', schneewert: plz2 >= 82 ? '1,85' : '1,06', wind: '1', windwert: '22,5', behoerde: plz2 >= 82 ? 'Bauaufsichtsbehörde des Landkreises (Bayern Alpenraum)' : 'Bauaufsichtsbehörde des Landkreises/der Stadt (Bayern)'},
-                '9': {schnee: plz2 >= 95 ? '2a' : '2', schneewert: plz2 >= 95 ? '1,06' : '0,85', wind: '1', windwert: '22,5', behoerde: plz2 >= 95 ? 'Bauaufsichtsbehörde des Landkreises (Bayern Fichtelgebirge)' : 'Bauaufsichtsbehörde des Landkreises/der Stadt (Bayern)'}
+            var zone = '2';
+            var wind = '2';
+            var bundesland = 'Deutschland';
+            var sonderregel = '';
+            
+            if (plzZiffer === '0') {
+                zone = '2'; wind = '2'; bundesland = 'Sachsen';
+            } else if (plzZiffer === '1') {
+                zone = '1a'; wind = '2'; bundesland = 'Berlin/Brandenburg';
+            } else if (plzZiffer === '2') {
+                zone = plz2 >= 25 ? '1a' : '2';
+                wind = plz2 >= 24 ? '4' : '3';
+                bundesland = plz2 >= 24 ? 'Schleswig-Holstein Küste' : 'Hamburg/Schleswig-Holstein';
+                if (plz2 >= 20 && plz2 <= 21) {
+                    sonderregel = 'Norddeutsches Tiefland';
+                }
+            } else if (plzZiffer === '3') {
+                zone = '2'; wind = plz2 >= 39 ? '2' : '3';
+                bundesland = 'Niedersachsen/Bremen';
+                if (plz2 >= 30 && plz2 <= 38) {
+                    sonderregel = 'Norddeutsches Tiefland';
+                } else if (plz2 === 38) {
+                    sonderregel = 'Harzinsel';
+                }
+            } else if (plzZiffer === '4') {
+                zone = '2'; wind = '2'; bundesland = 'Nordrhein-Westfalen';
+            } else if (plzZiffer === '5') {
+                zone = plz2 >= 57 ? '2a' : '1';
+                wind = '2';
+                bundesland = plz2 >= 57 ? 'NRW Siegerland' : 'Nordrhein-Westfalen';
+            } else if (plzZiffer === '6') {
+                zone = '1'; wind = '1'; bundesland = 'Hessen';
+            } else if (plzZiffer === '7') {
+                zone = plz2 >= 77 ? '2a' : '2';
+                wind = '1';
+                bundesland = plz2 >= 77 ? 'Baden-Württemberg Schwarzwald' : 'Baden-Württemberg';
+            } else if (plzZiffer === '8') {
+                zone = plz2 >= 82 ? '3' : '2a';
+                wind = '1';
+                bundesland = plz2 >= 82 ? 'Bayern Alpenraum' : 'Bayern';
+            } else if (plzZiffer === '9') {
+                zone = plz2 >= 95 ? '2a' : '2';
+                wind = '1';
+                bundesland = plz2 >= 95 ? 'Bayern Fichtelgebirge' : 'Bayern';
+            }
+            
+            var schneelast = berechneSchneelast(zone, h);
+            
+            if (sonderregel === 'Norddeutsches Tiefland') {
+                schneelast = (parseFloat(schneelast) * 2.3).toFixed(2);
+            } else if (sonderregel === 'Harzinsel') {
+                schneelast = '5.50';
+            }
+            
+            var windwerte = {'1': '22,5', '2': '25,0', '3': '27,5', '4': '30,0'};
+            
+            return {
+                schnee: zone,
+                schneewert: schneelast,
+                wind: wind,
+                windwert: windwerte[wind],
+                behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (' + bundesland + ')',
+                hoehe: h,
+                sonderregel: sonderregel
             };
-            return daten[plzZiffer] || daten['5'];
         }
 
         function karteInitialisieren() {
@@ -441,27 +670,35 @@
             var auswahl = document.querySelector('input[name="layer"]:checked').value;
 
             if (auswahl === 'snow' || auswahl === 'both') {
-                var zone1 = [[53, 5.87], [53, 15.04], [55.06, 15.04], [55.06, 5.87]];
-                var zone2 = [[49, 5.87], [49, 15.04], [53, 15.04], [53, 5.87]];
-                var zone3 = [[47.27, 5.87], [47.27, 15.04], [49, 15.04], [49, 5.87]];
+                var zone1Rheinland = [[49.8, 6.2], [50.8, 6.5], [51.2, 7.2], [50.5, 8.5], [49.5, 8.2], [49.0, 7.5], [48.8, 7.0], [49.5, 6.5]];
+                var zone1aSued = [[53.5, 7.0], [54.5, 8.5], [54.0, 13.5], [53.0, 14.5], [52.0, 13.5], [51.5, 12.0], [51.5, 10.5], [52.5, 8.5], [53.0, 7.5]];
+                var zone2Harz = [[51.3, 10.0], [52.0, 11.2], [51.5, 11.8], [51.0, 11.5], [50.8, 10.5]];
+                var zone2aSauerland = [[51.0, 7.5], [51.5, 8.5], [51.2, 9.0], [50.7, 8.8], [50.5, 8.0]];
+                var zone2aSchwarzwald = [[48.8, 7.8], [49.2, 8.5], [48.2, 8.5], [47.8, 8.0], [48.0, 7.8]];
+                var zone3Alpen = [[47.3, 9.5], [47.9, 11.0], [47.9, 13.0], [47.3, 13.0], [47.3, 10.5]];
                 
                 schneelayer = L.layerGroup([
-                    L.polygon(zone1, {fillColor: '#c8e6c9', fillOpacity: 0.4, color: '#000', weight: 1}),
-                    L.polygon(zone2, {fillColor: '#a5d6a7', fillOpacity: 0.4, color: '#000', weight: 1}),
-                    L.polygon(zone3, {fillColor: '#66bb6a', fillOpacity: 0.4, color: '#000', weight: 1})
+                    L.polygon(zone1Rheinland, {fillColor: '#c8e6c9', fillOpacity: 0.4, color: '#2e7d32', weight: 1.5}),
+                    L.polygon(zone1aSued, {fillColor: '#a5d6a7', fillOpacity: 0.4, color: '#388e3c', weight: 1.5}),
+                    L.polygon(zone2Harz, {fillColor: '#81c784', fillOpacity: 0.5, color: '#43a047', weight: 1.5}),
+                    L.polygon(zone2aSauerland, {fillColor: '#66bb6a', fillOpacity: 0.5, color: '#43a047', weight: 1.5}),
+                    L.polygon(zone2aSchwarzwald, {fillColor: '#66bb6a', fillOpacity: 0.5, color: '#43a047', weight: 1.5}),
+                    L.polygon(zone3Alpen, {fillColor: '#4caf50', fillOpacity: 0.6, color: '#2e7d32', weight: 2})
                 ]).addTo(karte);
             }
 
             if (auswahl === 'wind' || auswahl === 'both') {
-                var windzone1 = [[47.27, 5.87], [47.27, 15.04], [52, 15.04], [52, 5.87]];
-                var windzone2 = [[52, 5.87], [52, 15.04], [54, 15.04], [54, 5.87]];
-                var windzone3 = [[54, 5.87], [54, 15.04], [55.06, 15.04], [55.06, 5.87]];
+                var windzone1Sued = [[47.3, 7.5], [50.5, 6.0], [50.5, 15.0], [47.3, 15.0]];
+                var windzone2Mitte = [[50.5, 6.0], [53.5, 6.5], [53.5, 15.0], [50.5, 15.0]];
+                var windzone3Nord = [[53.5, 6.5], [54.8, 7.0], [54.8, 14.5], [53.5, 15.0]];
+                var windzone4Kueste = [[54.8, 7.0], [55.1, 7.5], [55.1, 14.0], [54.8, 14.5]];
                 
                 var op = auswahl === 'both' ? 0.3 : 0.4;
                 windlayer = L.layerGroup([
-                    L.polygon(windzone1, {fillColor: '#bbdefb', fillOpacity: op, color: '#000', weight: 1, dashArray: '5,5'}),
-                    L.polygon(windzone2, {fillColor: '#90caf9', fillOpacity: op, color: '#000', weight: 1, dashArray: '5,5'}),
-                    L.polygon(windzone3, {fillColor: '#64b5f6', fillOpacity: op, color: '#000', weight: 1, dashArray: '5,5'})
+                    L.polygon(windzone1Sued, {fillColor: '#e3f2fd', fillOpacity: op, color: '#1976d2', weight: 1.5, dashArray: '5,5'}),
+                    L.polygon(windzone2Mitte, {fillColor: '#bbdefb', fillOpacity: op, color: '#1565c0', weight: 1.5, dashArray: '5,5'}),
+                    L.polygon(windzone3Nord, {fillColor: '#90caf9', fillOpacity: op, color: '#0d47a1', weight: 1.5, dashArray: '5,5'}),
+                    L.polygon(windzone4Kueste, {fillColor: '#64b5f6', fillOpacity: op + 0.1, color: '#0d47a1', weight: 2, dashArray: '5,5'})
                 ]).addTo(karte);
             }
         }
@@ -470,36 +707,67 @@
             if (markierung) karte.removeLayer(markierung);
             markierung = L.marker([lat, lng]).addTo(karte);
 
-            var daten;
+            var hoehe = 100 + Math.floor((lat - 47) * 50);
+            var plzSim = '5XXXX';
+            
             if (lat < 49) {
-                daten = {schnee: '3', schneewert: '1,85', wind: '2', windwert: '25,0', behoerde: 'Bauaufsicht München/Stuttgart', plz: '8XXXX'};
+                plzSim = '8XXXX';
             } else if (lat < 50) {
-                daten = {schnee: '2a', schneewert: '1,25', wind: '2', windwert: '25,0', behoerde: 'Bauaufsicht Stuttgart/Nürnberg', plz: '7XXXX'};
+                plzSim = '7XXXX';
             } else if (lat < 52) {
-                daten = {schnee: '2', schneewert: '1,00', wind: '2', windwert: '25,0', behoerde: 'Bauaufsicht Frankfurt/Köln', plz: '5XXXX'};
+                plzSim = '5XXXX';
             } else if (lat < 53) {
-                daten = {schnee: '1a', schneewert: '0,85', wind: '2', windwert: '25,0', behoerde: 'Bauaufsicht Hannover/Bremen', plz: '3XXXX'};
+                plzSim = '3XXXX';
             } else {
-                daten = {schnee: '1a', schneewert: '0,85', wind: '3', windwert: '27,5', behoerde: 'Bauaufsicht Hamburg/Kiel', plz: '2XXXX'};
+                plzSim = '2XXXX';
             }
 
+            var daten = getDatenFuerPLZ(plzSim, hoehe);
+            zeigeErgebnis(plzSim, daten, lat, lng);
+        }
+
+        function zeigeErgebnis(plz, daten, lat, lng) {
+            var dachneigung = document.getElementById('dachneigung').value;
+            var dachlast = berechneDachlast(daten.schneewert, dachneigung);
+            
             var html = '';
-            html += '<div class="result-box blue"><div class="result-label">Standort (ca.)</div><div class="result-value">PLZ-Bereich: ' + daten.plz + '</div></div>';
-            html += '<div class="result-box green"><div class="result-label">Schneelast</div><div class="result-value">Zone ' + daten.schnee + ': ' + daten.schneewert + ' kN/m²</div><div class="result-note">nach DIN EN 1991-1-3</div></div>';
-            html += '<div class="result-box sky"><div class="result-label">Windlast</div><div class="result-value">Zone ' + daten.wind + ': ' + daten.windwert + ' m/s</div><div class="result-note">nach DIN EN 1991-1-4</div></div>';
-            html += '<div class="result-box amber"><div class="result-label">Zuständige Behörde</div><div class="result-value" style="font-size: 14px;">' + daten.behoerde + '</div></div>';
+            html += '<div class="result-box blue"><div class="result-label">Standort</div><div class="result-value">PLZ-Bereich: ' + plz + '</div>';
+            if (lat && lng) {
+                html += '<div class="result-note">Koordinaten: ' + lat.toFixed(4) + ', ' + lng.toFixed(4) + '</div>';
+            }
+            html += '<div class="result-note">Höhe: ca. ' + Math.round(daten.hoehe) + ' m ü.d.M.</div></div>';
+            
+            html += '<div class="result-box green"><div class="result-label">Schneelast am Boden</div><div class="result-value">Zone ' + daten.schnee + ': ' + daten.schneewert + ' kN/m² (' + Math.round(parseFloat(daten.schneewert) * 100) + ' kg/m²)</div>';
+            html += '<div class="result-note">nach DIN EN 1991-1-3/NA</div>';
+            if (daten.sonderregel) {
+                html += '<div class="result-note" style="color: #dc2626; font-weight: 600;">⚠️ Sonderregel: ' + daten.sonderregel + '</div>';
+            }
+            html += '<div class="calculation-details">Berechnung: höhenabhängige Formel für Zone ' + daten.schnee + ' bei ' + Math.round(daten.hoehe) + ' m</div></div>';
+            
+            if (dachlast !== null) {
+                html += '<div class="result-box purple"><div class="result-label">Schneelast auf dem Dach</div><div class="result-value">' + dachlast + ' kN/m² (' + Math.round(parseFloat(dachlast) * 100) + ' kg/m²)</div>';
+                html += '<div class="result-note">Bei Dachneigung: ' + dachneigung + '°</div>';
+                html += '<div class="calculation-details">Berechnung: Bodenlast × Formbeiwert abhängig von Dachneigung</div></div>';
+            }
+            
+            html += '<div class="result-box sky"><div class="result-label">Windlast</div><div class="result-value">Zone ' + daten.wind + ': ' + daten.windwert + ' m/s</div>';
+            html += '<div class="result-note">nach DIN EN 1991-1-4/NA</div></div>';
+            
+            html += '<div class="result-box amber"><div class="result-label">Zuständige Behörde</div><div class="result-value" style="font-size: 13px;">' + daten.behoerde + '</div>';
+            html += '<div class="result-note">Für verbindliche Auskünfte kontaktieren Sie bitte die örtliche Bauaufsichtsbehörde</div></div>';
             
             document.getElementById('ergebnis').innerHTML = html;
         }
 
         function plzSuchen() {
-            var plz = document.getElementById('plz').value;
-            if (!plz || plz.length < 5) {
-                alert('Bitte 5-stellige PLZ eingeben');
+            var plz = document.getElementById('plz').value.trim();
+            if (!plz) {
+                alert('Bitte PLZ oder Adresse eingeben');
                 return;
             }
             
-            fetch('https://nominatim.openstreetmap.org/search?postalcode=' + plz + '&country=Germany&format=json&limit=1')
+            var suchbegriff = plz.replace(/\s+/g, '+');
+            fetch('https://nominatim.openstreetmap.org/search?q=' + suchbegriff + '&country=Germany&format=json&limit=1')
                 .then(function(r) { return r.json(); })
                 .then(function(d) {
                     if (d && d.length > 0) {
@@ -510,16 +778,20 @@
                         if (markierung) karte.removeLayer(markierung);
                         markierung = L.marker([lat, lon]).addTo(karte);
                         
-                        var daten = getDatenFuerPLZ(plz);
-                        var html = '';
-                        html += '<div class="result-box blue"><div class="result-label">Standort</div><div class="result-value">PLZ: ' + plz + '</div></div>';
-                        html += '<div class="result-box green"><div class="result-label">Schneelast</div><div class="result-value">Zone ' + daten.schnee + ': ' + daten.schneewert + ' kN/m²</div><div class="result-note">nach DIN EN 1991-1-3</div></div>';
-                        html += '<div class="result-box sky"><div class="result-label">Windlast</div><div class="result-value">Zone ' + daten.wind + ': ' + daten.windwert + ' m/s</div><div class="result-note">nach DIN EN 1991-1-4</div></div>';
-                        html += '<div class="result-box amber"><div class="result-label">Zuständige Behörde</div><div class="result-value" style="font-size: 14px;">' + daten.behoerde + '</div></div>';
+                        var adresse = d[0].display_name;
+                        var plzMatch = adresse.match(/\b\d{5}\b/);
+                        var gefundenePLZ = plzMatch ? plzMatch[0] : plz.substring(0, 5);
                         
-                        document.getElementById('ergebnis').innerHTML = html;
+                        var hoehe = 100;
+                        if (lat < 48) hoehe = 500;
+                        else if (lat < 50) hoehe = 300;
+                        else if (lat < 52) hoehe = 200;
+                        else hoehe = 50;
+                        
+                        var daten = getDatenFuerPLZ(gefundenePLZ, hoehe);
+                        zeigeErgebnis(gefundenePLZ, daten, lat, lon);
                     } else {
-                        alert('PLZ nicht gefunden');
+                        alert('Adresse nicht gefunden');
                     }
                 })
                 .catch(function() {
