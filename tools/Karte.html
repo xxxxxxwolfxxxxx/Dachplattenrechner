@@ -345,7 +345,7 @@
                 <ins class="adsbygoogle"
                      style="display:block"
                      data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="1234567890"
+                     data-ad-slot="1581807497"
                      data-ad-format="auto"
                      data-full-width-responsive="true"></ins>
             </div>
@@ -383,7 +383,7 @@
                 <ins class="adsbygoogle"
                      style="display:block"
                      data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="9876543210"
+                     data-ad-slot="9480973653"
                      data-ad-format="auto"
                      data-full-width-responsive="true"></ins>
             </div>
@@ -396,22 +396,24 @@
         var schneelayer;
         var windlayer;
 
-        var schneedaten = ['1', '1', '1a', '2', '2', '2', '2', '2a', '3', '2'];
-        var schneewerte = ['0,65', '0,65', '0,85', '1,00', '1,00', '1,00', '1,00', '1,25', '1,85', '1,00'];
-        var windzonen = ['1', '1', '2', '2', '2', '2', '2', '3', '3', '2'];
-        var windwerte = ['22,5', '22,5', '25,0', '25,0', '25,0', '25,0', '25,0', '27,5', '27,5', '25,0'];
-        var behoerden = [
-            'Bauaufsichtsbehörde Berlin',
-            'Bauaufsichtsbehörde Hamburg',
-            'Bauaufsichtsbehörde Hannover',
-            'Bauaufsichtsbehörde Düsseldorf',
-            'Bauaufsichtsbehörde Dortmund',
-            'Bauaufsichtsbehörde Frankfurt',
-            'Bauaufsichtsbehörde Stuttgart',
-            'Bauaufsichtsbehörde München',
-            'Bauaufsichtsbehörde Nürnberg',
-            'Bauaufsichtsbehörde Dresden'
-        ];
+        function getDatenFuerPLZ(plz) {
+            var plzZiffer = plz.charAt(0);
+            var plz2 = parseInt(plz.substring(0, 2));
+            
+            var daten = {
+                '0': {schnee: '2', schneewert: '0,85', wind: '2', windwert: '25,0', behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (Sachsen)'},
+                '1': {schnee: '1a', schneewert: '0,85', wind: '2', windwert: '25,0', behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (Berlin/Brandenburg)'},
+                '2': {schnee: plz2 >= 25 ? '1a' : '2', schneewert: plz2 >= 25 ? '0,85' : '0,85', wind: plz2 >= 24 ? '4' : '3', windwert: plz2 >= 24 ? '30,0' : '27,5', behoerde: plz2 >= 24 ? 'Bauaufsichtsbehörde des Landkreises/der Stadt (Schleswig-Holstein Küste)' : 'Bauaufsichtsbehörde des Landkreises/der Stadt (Hamburg/Schleswig-Holstein)'},
+                '3': {schnee: '2', schneewert: '0,85', wind: plz2 >= 39 ? '2' : '3', windwert: plz2 >= 39 ? '25,0' : '27,5', behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (Niedersachsen/Bremen)'},
+                '4': {schnee: '2', schneewert: '0,85', wind: '2', windwert: '25,0', behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (Nordrhein-Westfalen)'},
+                '5': {schnee: plz2 >= 57 ? '2a' : '1', schneewert: plz2 >= 57 ? '1,06' : '0,65', wind: '2', windwert: '25,0', behoerde: plz2 >= 57 ? 'Bauaufsichtsbehörde des Landkreises/der Stadt (NRW Siegerland)' : 'Bauaufsichtsbehörde des Landkreises/der Stadt (Nordrhein-Westfalen)'},
+                '6': {schnee: '1', schneewert: '0,65', wind: '1', windwert: '22,5', behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (Hessen)'},
+                '7': {schnee: plz2 >= 77 ? '2a' : '2', schneewert: plz2 >= 77 ? '1,06' : '0,85', wind: '1', windwert: '22,5', behoerde: plz2 >= 77 ? 'Bauaufsichtsbehörde des Landkreises (Baden-Württemberg Schwarzwald)' : 'Bauaufsichtsbehörde des Landkreises/der Stadt (Baden-Württemberg)'},
+                '8': {schnee: plz2 >= 82 ? '3' : '2a', schneewert: plz2 >= 82 ? '1,85' : '1,06', wind: '1', windwert: '22,5', behoerde: plz2 >= 82 ? 'Bauaufsichtsbehörde des Landkreises (Bayern Alpenraum)' : 'Bauaufsichtsbehörde des Landkreises/der Stadt (Bayern)'},
+                '9': {schnee: plz2 >= 95 ? '2a' : '2', schneewert: plz2 >= 95 ? '1,06' : '0,85', wind: '1', windwert: '22,5', behoerde: plz2 >= 95 ? 'Bauaufsichtsbehörde des Landkreises (Bayern Fichtelgebirge)' : 'Bauaufsichtsbehörde des Landkreises/der Stadt (Bayern)'}
+            };
+            return daten[plzZiffer] || daten['5'];
+        }
 
         function karteInitialisieren() {
             karte = L.map('map').setView([51.1657, 10.4515], 6);
@@ -439,27 +441,27 @@
             var auswahl = document.querySelector('input[name="layer"]:checked').value;
 
             if (auswahl === 'snow' || auswahl === 'both') {
-                var coords1 = [[47.27, 5.87], [47.27, 15.04], [50.5, 15.04], [50.5, 5.87]];
-                var coords2 = [[50.5, 5.87], [50.5, 15.04], [52.5, 15.04], [52.5, 5.87]];
-                var coords3 = [[52.5, 5.87], [52.5, 15.04], [55.06, 15.04], [55.06, 5.87]];
+                var zone1 = [[53, 5.87], [53, 15.04], [55.06, 15.04], [55.06, 5.87]];
+                var zone2 = [[49, 5.87], [49, 15.04], [53, 15.04], [53, 5.87]];
+                var zone3 = [[47.27, 5.87], [47.27, 15.04], [49, 15.04], [49, 5.87]];
                 
                 schneelayer = L.layerGroup([
-                    L.polygon(coords1, {fillColor: '#e8f5e9', fillOpacity: 0.4, color: '#000', weight: 1}),
-                    L.polygon(coords2, {fillColor: '#a5d6a7', fillOpacity: 0.4, color: '#000', weight: 1}),
-                    L.polygon(coords3, {fillColor: '#66bb6a', fillOpacity: 0.4, color: '#000', weight: 1})
+                    L.polygon(zone1, {fillColor: '#c8e6c9', fillOpacity: 0.4, color: '#000', weight: 1}),
+                    L.polygon(zone2, {fillColor: '#a5d6a7', fillOpacity: 0.4, color: '#000', weight: 1}),
+                    L.polygon(zone3, {fillColor: '#66bb6a', fillOpacity: 0.4, color: '#000', weight: 1})
                 ]).addTo(karte);
             }
 
             if (auswahl === 'wind' || auswahl === 'both') {
-                var coords1 = [[47.27, 5.87], [47.27, 15.04], [50.5, 15.04], [50.5, 5.87]];
-                var coords2 = [[50.5, 5.87], [50.5, 15.04], [52.5, 15.04], [52.5, 5.87]];
-                var coords3 = [[52.5, 5.87], [52.5, 15.04], [55.06, 15.04], [55.06, 5.87]];
+                var windzone1 = [[47.27, 5.87], [47.27, 15.04], [52, 15.04], [52, 5.87]];
+                var windzone2 = [[52, 5.87], [52, 15.04], [54, 15.04], [54, 5.87]];
+                var windzone3 = [[54, 5.87], [54, 15.04], [55.06, 15.04], [55.06, 5.87]];
                 
                 var op = auswahl === 'both' ? 0.3 : 0.4;
                 windlayer = L.layerGroup([
-                    L.polygon(coords1, {fillColor: '#e3f2fd', fillOpacity: op, color: '#000', weight: 1, dashArray: '5,5'}),
-                    L.polygon(coords2, {fillColor: '#bbdefb', fillOpacity: op, color: '#000', weight: 1, dashArray: '5,5'}),
-                    L.polygon(coords3, {fillColor: '#90caf9', fillOpacity: op, color: '#000', weight: 1, dashArray: '5,5'})
+                    L.polygon(windzone1, {fillColor: '#bbdefb', fillOpacity: op, color: '#000', weight: 1, dashArray: '5,5'}),
+                    L.polygon(windzone2, {fillColor: '#90caf9', fillOpacity: op, color: '#000', weight: 1, dashArray: '5,5'}),
+                    L.polygon(windzone3, {fillColor: '#64b5f6', fillOpacity: op, color: '#000', weight: 1, dashArray: '5,5'})
                 ]).addTo(karte);
             }
         }
@@ -468,14 +470,24 @@
             if (markierung) karte.removeLayer(markierung);
             markierung = L.marker([lat, lng]).addTo(karte);
 
-            var idx = Math.floor(Math.random() * 10);
-            var plzSim = idx + 'XXXX';
+            var daten;
+            if (lat < 49) {
+                daten = {schnee: '3', schneewert: '1,85', wind: '2', windwert: '25,0', behoerde: 'Bauaufsicht München/Stuttgart', plz: '8XXXX'};
+            } else if (lat < 50) {
+                daten = {schnee: '2a', schneewert: '1,25', wind: '2', windwert: '25,0', behoerde: 'Bauaufsicht Stuttgart/Nürnberg', plz: '7XXXX'};
+            } else if (lat < 52) {
+                daten = {schnee: '2', schneewert: '1,00', wind: '2', windwert: '25,0', behoerde: 'Bauaufsicht Frankfurt/Köln', plz: '5XXXX'};
+            } else if (lat < 53) {
+                daten = {schnee: '1a', schneewert: '0,85', wind: '2', windwert: '25,0', behoerde: 'Bauaufsicht Hannover/Bremen', plz: '3XXXX'};
+            } else {
+                daten = {schnee: '1a', schneewert: '0,85', wind: '3', windwert: '27,5', behoerde: 'Bauaufsicht Hamburg/Kiel', plz: '2XXXX'};
+            }
 
             var html = '';
-            html += '<div class="result-box blue"><div class="result-label">Standort</div><div class="result-value">PLZ: ' + plzSim + '</div></div>';
-            html += '<div class="result-box green"><div class="result-label">Schneelast</div><div class="result-value">Zone ' + schneedaten[idx] + ': ' + schneewerte[idx] + ' kN/m²</div><div class="result-note">nach DIN EN 1991-1-3</div></div>';
-            html += '<div class="result-box sky"><div class="result-label">Windlast</div><div class="result-value">Zone ' + windzonen[idx] + ': ' + windwerte[idx] + ' m/s</div><div class="result-note">nach DIN EN 1991-1-4</div></div>';
-            html += '<div class="result-box amber"><div class="result-label">Zuständige Behörde</div><div class="result-value" style="font-size: 14px;">' + behoerden[idx] + '</div></div>';
+            html += '<div class="result-box blue"><div class="result-label">Standort (ca.)</div><div class="result-value">PLZ-Bereich: ' + daten.plz + '</div></div>';
+            html += '<div class="result-box green"><div class="result-label">Schneelast</div><div class="result-value">Zone ' + daten.schnee + ': ' + daten.schneewert + ' kN/m²</div><div class="result-note">nach DIN EN 1991-1-3</div></div>';
+            html += '<div class="result-box sky"><div class="result-label">Windlast</div><div class="result-value">Zone ' + daten.wind + ': ' + daten.windwert + ' m/s</div><div class="result-note">nach DIN EN 1991-1-4</div></div>';
+            html += '<div class="result-box amber"><div class="result-label">Zuständige Behörde</div><div class="result-value" style="font-size: 14px;">' + daten.behoerde + '</div></div>';
             
             document.getElementById('ergebnis').innerHTML = html;
         }
@@ -494,7 +506,18 @@
                         var lat = parseFloat(d[0].lat);
                         var lon = parseFloat(d[0].lon);
                         karte.setView([lat, lon], 10);
-                        karteKlick(lat, lon);
+                        
+                        if (markierung) karte.removeLayer(markierung);
+                        markierung = L.marker([lat, lon]).addTo(karte);
+                        
+                        var daten = getDatenFuerPLZ(plz);
+                        var html = '';
+                        html += '<div class="result-box blue"><div class="result-label">Standort</div><div class="result-value">PLZ: ' + plz + '</div></div>';
+                        html += '<div class="result-box green"><div class="result-label">Schneelast</div><div class="result-value">Zone ' + daten.schnee + ': ' + daten.schneewert + ' kN/m²</div><div class="result-note">nach DIN EN 1991-1-3</div></div>';
+                        html += '<div class="result-box sky"><div class="result-label">Windlast</div><div class="result-value">Zone ' + daten.wind + ': ' + daten.windwert + ' m/s</div><div class="result-note">nach DIN EN 1991-1-4</div></div>';
+                        html += '<div class="result-box amber"><div class="result-label">Zuständige Behörde</div><div class="result-value" style="font-size: 14px;">' + daten.behoerde + '</div></div>';
+                        
+                        document.getElementById('ergebnis').innerHTML = html;
                     } else {
                         alert('PLZ nicht gefunden');
                     }
