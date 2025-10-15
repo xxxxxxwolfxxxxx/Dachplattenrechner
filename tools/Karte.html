@@ -18,9 +18,9 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f5f7fa;
             color: #333;
-            line-height: 1.6;
+            overflow: hidden;
         }
         
         .nav-header {
@@ -58,22 +58,8 @@
             font-weight: 600;
         }
         
-        .main-container {
-            display: flex;
+        .map-container {
             height: calc(100vh - 60px);
-            max-width: 1400px;
-            margin: 20px auto;
-            gap: 20px;
-            padding: 0 20px;
-        }
-        
-        .map-section {
-            flex: 1;
-            position: relative;
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
         }
@@ -116,231 +102,6 @@
         .map-frame.active {
             display: block;
         }
-        
-        .sidebar {
-            width: 340px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .ad-container {
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
-            overflow: hidden;
-            min-height: 250px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            position: relative;
-        }
-
-        .ad-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-        }
-
-        .ad-label {
-            position: absolute;
-            top: 6px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 3px 8px;
-            font-size: 9px;
-            font-weight: 600;
-            border-radius: 3px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            z-index: 10;
-        }
-        
-        .info-box {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            flex: 1;
-            overflow-y: auto;
-        }
-        
-        .info-box h1 {
-            color: #1e3c72;
-            font-size: 20px;
-            margin-bottom: 16px;
-        }
-        
-        .input-section {
-            margin-bottom: 20px;
-        }
-        
-        .input-section input {
-            padding: 10px 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            width: 100%;
-            margin-bottom: 10px;
-            transition: border-color 0.3s;
-        }
-        
-        .input-section input:focus {
-            outline: none;
-            border-color: #1e3c72;
-        }
-        
-        .input-section label {
-            font-size: 12px;
-            color: #666;
-            display: block;
-            margin-bottom: 4px;
-            font-weight: 500;
-        }
-        
-        .input-section button {
-            padding: 12px 16px;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.2s;
-            width: 100%;
-            font-size: 14px;
-        }
-        
-        .input-section button:hover {
-            transform: translateY(-2px);
-        }
-        
-        .input-hint {
-            font-size: 11px;
-            color: #666;
-            margin-top: 4px;
-        }
-        
-        .result-box {
-            padding: 14px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            background: #f8f9fa;
-        }
-        
-        .result-box.blue { background: #eff6ff; border-left: 3px solid #2563eb; }
-        .result-box.green { background: #f0fdf4; border-left: 3px solid #16a34a; }
-        .result-box.sky { background: #f0f9ff; border-left: 3px solid #0284c7; }
-        .result-box.amber { background: #fffbeb; border-left: 3px solid #f59e0b; }
-        .result-box.purple { background: #faf5ff; border-left: 3px solid #9333ea; }
-        
-        .result-label {
-            font-size: 11px;
-            color: #666;
-            margin-bottom: 4px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .result-value {
-            font-weight: 600;
-            color: #1f2937;
-            font-size: 15px;
-        }
-        
-        .result-note {
-            font-size: 10px;
-            color: #666;
-            margin-top: 4px;
-            line-height: 1.4;
-        }
-        
-        .calculation-details {
-            font-size: 10px;
-            color: #666;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid rgba(0,0,0,0.1);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 0;
-            color: #666;
-        }
-        
-        .disclaimer {
-            margin-top: 16px;
-            padding: 14px;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 10px;
-        }
-        
-        .disclaimer-title {
-            font-weight: 600;
-            color: #991b1b;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-        
-        .disclaimer-text {
-            font-size: 11px;
-            color: #7f1d1d;
-            line-height: 1.5;
-        }
-        
-        .info-links {
-            margin-top: 16px;
-            font-size: 11px;
-        }
-        
-        .info-links a {
-            color: #2563eb;
-            text-decoration: none;
-            display: block;
-            margin-bottom: 6px;
-        }
-        
-        .info-links a:hover {
-            text-decoration: underline;
-        }
-        
-        .info-notes {
-            margin-top: 16px;
-            font-size: 10px;
-            color: #666;
-            line-height: 1.6;
-        }
-        
-        .info-hint {
-            background: #e0f2fe;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #0c4a6e;
-            margin-bottom: 16px;
-            border-left: 3px solid #0284c7;
-        }
-        
-        @media (max-width: 1024px) {
-            .main-container {
-                flex-direction: column;
-                height: auto;
-            }
-            
-            .map-section {
-                height: 600px;
-            }
-            
-            .sidebar {
-                width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -350,105 +111,28 @@
                 <span>←</span>
                 <span>Zurück zur Übersicht</span>
             </a>
-            <div class="nav-title">Schnee- & Windlastkarte</div>
+            <div class="nav-title">Schnee- & Windlastkarte Deutschland</div>
         </div>
     </div>
 
-    <div class="main-container">
-        <div class="map-section">
-            <div class="tab-buttons">
-                <button class="tab-btn active" onclick="wechselTab('schnee')">Schneelastkarte</button>
-                <button class="tab-btn" onclick="wechselTab('wind')">Windlastkarte</button>
-                <button class="tab-btn" onclick="wechselTab('erdbeben')">Erdbebenkarte</button>
-            </div>
-            
-            <iframe id="schneeFrame" class="map-frame active" 
-                src="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen/schnee-din-en-1991-1-3.html">
-            </iframe>
-            
-            <iframe id="windFrame" class="map-frame" 
-                src="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen/wind-din-en-1991-1-4.html">
-            </iframe>
-            
-            <iframe id="erdbebenFrame" class="map-frame" 
-                src="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen/erdbeben-din-en-1998-1.html">
-            </iframe>
+    <div class="map-container">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="wechselTab('schnee')">Schneelastkarte</button>
+            <button class="tab-btn" onclick="wechselTab('wind')">Windlastkarte</button>
+            <button class="tab-btn" onclick="wechselTab('erdbeben')">Erdbebenkarte</button>
         </div>
-
-        <div class="sidebar">
-            <!-- Werbung Oben -->
-            <div class="ad-container">
-                <span class="ad-label">Werbung</span>
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="1581807497"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-            </div>
-
-            <div class="info-box">
-                <h1>Schnee- & Windlast Rechner</h1>
-                
-                <div class="info-hint">
-                    💡 <strong>Tipp:</strong> Klicken Sie direkt in die Karte links oder geben Sie hier Ihre PLZ ein
-                </div>
-                
-                <div class="input-section">
-                    <label>PLZ oder Adresse:</label>
-                    <input type="text" id="plz" placeholder="z.B. 10115 oder Berlin" maxlength="100">
-                    
-                    <label style="margin-top: 12px;">Dachneigung (optional):</label>
-                    <input type="number" id="dachneigung" placeholder="z.B. 30" min="0" max="90" step="1">
-                    <div class="input-hint">Grad (°) - für Berechnung der Dachlast</div>
-                    
-                    <button onclick="plzSuchen()" style="margin-top: 12px;">Berechnen</button>
-                </div>
-                
-                <div id="ergebnis">
-                    <div class="empty-state">
-                        <div style="font-size: 48px; margin-bottom: 16px;">📍</div>
-                        <p>Geben Sie eine PLZ oder Adresse ein<br>für eine detaillierte Berechnung</p>
-                    </div>
-                </div>
-
-                <div class="disclaimer">
-                    <div class="disclaimer-title">⚠️ Haftungsausschluss</div>
-                    <div class="disclaimer-text">
-                        Alle Angaben sind ohne Gewähr und dienen nur zur groben Orientierung. 
-                        Für verbindliche Auskünfte wenden Sie sich bitte an die zuständige 
-                        Bauaufsichtsbehörde oder einen Statiker. Die tatsächlichen Werte können 
-                        je nach genauer Lage und örtlichen Gegebenheiten abweichen.
-                    </div>
-                </div>
-
-                <div class="info-links">
-                    <strong>Offizielle Quellen:</strong><br>
-                    <a href="https://www.dibt.de/fileadmin/dibt-website/Dokumente/Referat/P5/Technische_Bestimmungen/Schneelastzonen_Formular_nach_Verwaltungsgrenzen.xlsx" target="_blank">📄 DIBt Schneelastzonen-Tabelle (Excel)</a>
-                    <a href="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen" target="_blank">🗺️ Dlubal Lastzonenkarten</a>
-                    <a href="https://www.dibt.de" target="_blank">🏛️ Deutsches Institut für Bautechnik</a>
-                </div>
-
-                <div class="info-notes">
-                    • Schneelastzonen nach DIN EN 1991-1-3/NA<br>
-                    • Windlastzonen nach DIN EN 1991-1-4/NA<br>
-                    • Erdbebenzonen nach DIN EN 1998-1/NA<br>
-                    • Höhenabhängige Berechnung nach Norm<br>
-                    • Karten bereitgestellt von Dlubal Software
-                </div>
-            </div>
-
-            <!-- Werbung Unten -->
-            <div class="ad-container">
-                <span class="ad-label">Werbung</span>
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="9480973653"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-            </div>
-        </div>
+        
+        <iframe id="schneeFrame" class="map-frame active" 
+            src="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen/schnee-din-en-1991-1-3.html">
+        </iframe>
+        
+        <iframe id="windFrame" class="map-frame" 
+            src="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen/wind-din-en-1991-1-4.html">
+        </iframe>
+        
+        <iframe id="erdbebenFrame" class="map-frame" 
+            src="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen/erdbeben-din-en-1998-1.html">
+        </iframe>
     </div>
 
     <script>
@@ -467,211 +151,8 @@
             }
         }
 
-        function berechneSchneelast(zone, hoehe) {
-            var A = hoehe;
-            var sk = 0;
-            
-            if (zone === '1') {
-                if (A <= 400) {
-                    sk = 0.65;
-                } else {
-                    sk = 0.19 + 0.91 * Math.pow((A + 140) / 760, 2);
-                }
-            } else if (zone === '1a') {
-                if (A <= 400) {
-                    sk = 0.81;
-                } else {
-                    sk = (0.19 + 0.91 * Math.pow((A + 140) / 760, 2)) * 1.25;
-                }
-            } else if (zone === '2') {
-                if (A <= 285) {
-                    sk = 0.85;
-                } else {
-                    sk = 0.25 + 1.91 * Math.pow((A + 140) / 760, 2);
-                }
-            } else if (zone === '2a') {
-                if (A <= 285) {
-                    sk = 1.06;
-                } else {
-                    sk = (0.25 + 1.91 * Math.pow((A + 140) / 760, 2)) * 1.25;
-                }
-            } else if (zone === '3') {
-                if (A <= 255) {
-                    sk = 1.10;
-                } else {
-                    sk = 0.31 + 2.91 * Math.pow((A + 140) / 760, 2);
-                }
-            }
-            
-            return sk.toFixed(2);
-        }
-
-        function berechneDachlast(schneelastBoden, dachneigung) {
-            if (!dachneigung || dachneigung === '') return null;
-            
-            var alpha = parseFloat(dachneigung);
-            var sk = parseFloat(schneelastBoden);
-            var skDach = 0;
-            
-            if (alpha <= 30) {
-                skDach = sk * 0.8;
-            } else if (alpha > 30 && alpha <= 60) {
-                skDach = sk * (0.8 * (60 - alpha) / 30);
-            } else {
-                skDach = 0;
-            }
-            
-            return skDach.toFixed(2);
-        }
-
-        function getDatenFuerPLZ(plz, hoehe) {
-            var plz1 = plz.charAt(0);
-            var plz2 = parseInt(plz.substring(0, 2));
-            var h = hoehe || 100;
-            
-            var zone = '2';
-            var wind = '2';
-            var bundesland = 'Deutschland';
-            var sonderregel = '';
-            
-            if (plz1 === '0') {
-                zone = '2'; wind = '2'; bundesland = 'Sachsen/Thüringen';
-            } else if (plz1 === '1') {
-                zone = '1a'; wind = '2'; bundesland = 'Berlin/Brandenburg';
-            } else if (plz1 === '2') {
-                zone = plz2 >= 25 ? '1a' : '2';
-                wind = plz2 >= 24 ? '4' : '3';
-                bundesland = plz2 >= 24 ? 'Schleswig-Holstein Küste' : 'Hamburg/Schleswig-Holstein';
-                if (plz2 >= 20 && plz2 <= 21) {
-                    sonderregel = 'Norddeutsches Tiefland';
-                }
-            } else if (plz1 === '3') {
-                zone = '2'; wind = plz2 >= 39 ? '2' : '3';
-                bundesland = 'Niedersachsen/Bremen';
-                if (plz2 >= 30 && plz2 <= 38) {
-                    sonderregel = 'Norddeutsches Tiefland';
-                } else if (plz2 === 38) {
-                    sonderregel = 'Harzinsel';
-                }
-            } else if (plz1 === '4') {
-                zone = '2'; wind = '2'; bundesland = 'Nordrhein-Westfalen';
-            } else if (plz1 === '5') {
-                zone = plz2 >= 57 ? '2a' : '1';
-                wind = '2';
-                bundesland = plz2 >= 57 ? 'NRW Siegerland' : 'Nordrhein-Westfalen';
-            } else if (plz1 === '6') {
-                zone = '1'; wind = '1'; bundesland = 'Hessen';
-            } else if (plz1 === '7') {
-                zone = plz2 >= 77 ? '2a' : '2';
-                wind = '1';
-                bundesland = plz2 >= 77 ? 'Baden-Württemberg Schwarzwald' : 'Baden-Württemberg';
-            } else if (plz1 === '8') {
-                zone = plz2 >= 82 ? '3' : '2a';
-                wind = '1';
-                bundesland = plz2 >= 82 ? 'Bayern Alpenraum' : 'Bayern';
-            } else if (plz1 === '9') {
-                zone = plz2 >= 95 ? '2a' : '2';
-                wind = '1';
-                bundesland = plz2 >= 95 ? 'Bayern Fichtelgebirge' : 'Bayern';
-            }
-            
-            var schneelast = berechneSchneelast(zone, h);
-            
-            if (sonderregel === 'Norddeutsches Tiefland') {
-                schneelast = (parseFloat(schneelast) * 2.3).toFixed(2);
-            } else if (sonderregel === 'Harzinsel') {
-                schneelast = '5.50';
-            }
-            
-            var windwerte = {'1': '22,5', '2': '25,0', '3': '27,5', '4': '30,0'};
-            
-            return {
-                schnee: zone,
-                schneewert: schneelast,
-                wind: wind,
-                windwert: windwerte[wind],
-                behoerde: 'Bauaufsichtsbehörde des Landkreises/der Stadt (' + bundesland + ')',
-                hoehe: h,
-                sonderregel: sonderregel
-            };
-        }
-
-        function zeigeErgebnis(plz, daten, lat, lng) {
-            var dachneigung = document.getElementById('dachneigung').value;
-            var dachlast = berechneDachlast(daten.schneewert, dachneigung);
-            
-            var html = '';
-            html += '<div class="result-box blue"><div class="result-label">Standort</div><div class="result-value">PLZ: ' + plz + '</div>';
-            if (lat && lng) {
-                html += '<div class="result-note">Koordinaten: ' + lat.toFixed(4) + ', ' + lng.toFixed(4) + '</div>';
-            }
-            html += '<div class="result-note">Höhe: ca. ' + Math.round(daten.hoehe) + ' m ü.d.M.</div></div>';
-            
-            html += '<div class="result-box green"><div class="result-label">Schneelast am Boden</div><div class="result-value">Zone ' + daten.schnee + ': ' + daten.schneewert + ' kN/m² (' + Math.round(parseFloat(daten.schneewert) * 100) + ' kg/m²)</div>';
-            html += '<div class="result-note">nach DIN EN 1991-1-3/NA</div>';
-            if (daten.sonderregel) {
-                html += '<div class="result-note" style="color: #dc2626; font-weight: 600;">⚠️ Sonderregel: ' + daten.sonderregel + '</div>';
-            }
-            html += '<div class="calculation-details">Berechnung: höhenabhängige Formel für Zone ' + daten.schnee + ' bei ' + Math.round(daten.hoehe) + ' m</div></div>';
-            
-            if (dachlast !== null) {
-                html += '<div class="result-box purple"><div class="result-label">Schneelast auf dem Dach</div><div class="result-value">' + dachlast + ' kN/m² (' + Math.round(parseFloat(dachlast) * 100) + ' kg/m²)</div>';
-                html += '<div class="result-note">Bei Dachneigung: ' + dachneigung + '°</div>';
-                html += '<div class="calculation-details">Berechnung: Bodenlast × Formbeiwert abhängig von Dachneigung</div></div>';
-            }
-            
-            html += '<div class="result-box sky"><div class="result-label">Windlast</div><div class="result-value">Zone ' + daten.wind + ': ' + daten.windwert + ' m/s</div>';
-            html += '<div class="result-note">nach DIN EN 1991-1-4/NA</div></div>';
-            
-            html += '<div class="result-box amber"><div class="result-label">Zuständige Behörde</div><div class="result-value" style="font-size: 13px;">' + daten.behoerde + '</div>';
-            html += '<div class="result-note">Für verbindliche Auskünfte kontaktieren Sie bitte die örtliche Bauaufsichtsbehörde</div></div>';
-            
-            document.getElementById('ergebnis').innerHTML = html;
-        }
-
-        function plzSuchen() {
-            var plz = document.getElementById('plz').value.trim();
-            if (!plz) {
-                alert('Bitte PLZ oder Adresse eingeben');
-                return;
-            }
-            
-            var suchbegriff = plz.replace(/\s+/g, '+');
-            fetch('https://nominatim.openstreetmap.org/search?q=' + suchbegriff + '&country=Germany&format=json&limit=1')
-                .then(function(r) { return r.json(); })
-                .then(function(d) {
-                    if (d && d.length > 0) {
-                        var lat = parseFloat(d[0].lat);
-                        var lon = parseFloat(d[0].lon);
-                        
-                        var adresse = d[0].display_name;
-                        var plzMatch = adresse.match(/\b\d{5}\b/);
-                        var gefundenePLZ = plzMatch ? plzMatch[0] : plz.substring(0, 5);
-                        
-                        var hoehe = 100;
-                        if (lat < 48) hoehe = 500;
-                        else if (lat < 50) hoehe = 300;
-                        else if (lat < 52) hoehe = 200;
-                        else hoehe = 50;
-                        
-                        var daten = getDatenFuerPLZ(gefundenePLZ, hoehe);
-                        zeigeErgebnis(gefundenePLZ, daten, lat, lon);
-                    } else {
-                        alert('Adresse nicht gefunden');
-                    }
-                })
-                .catch(function() {
-                    alert('Fehler bei der Suche');
-                });
-        }
-
-        document.getElementById('plz').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') plzSuchen();
-        });
-
         window.onload = function() {
             setTimeout(function() {
-                (adsbygoogle = window.adsbygoogle || []).push({});
                 (adsbygoogle = window.adsbygoogle || []).push({});
             }, 1000);
         };
