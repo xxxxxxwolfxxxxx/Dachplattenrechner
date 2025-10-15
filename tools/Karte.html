@@ -117,69 +117,6 @@
             display: block;
         }
         
-        .search-box {
-            position: absolute;
-            top: 80px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            padding: 16px;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-            min-width: 300px;
-        }
-        
-        .search-box input {
-            padding: 10px 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            width: 100%;
-            margin-bottom: 8px;
-            transition: border-color 0.3s;
-        }
-        
-        .search-box input:focus {
-            outline: none;
-            border-color: #1e3c72;
-        }
-        
-        .search-box button {
-            padding: 10px 16px;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: transform 0.2s;
-            width: 100%;
-        }
-        
-        .search-box button:hover {
-            transform: translateY(-2px);
-        }
-        
-        .search-hint {
-            font-size: 11px;
-            color: #666;
-            margin-top: 8px;
-        }
-        
-        .dachneigung-input {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .dachneigung-input label {
-            font-size: 12px;
-            color: #666;
-            display: block;
-            margin-bottom: 4px;
-        }
-        
         .sidebar {
             width: 340px;
             display: flex;
@@ -235,6 +172,56 @@
             color: #1e3c72;
             font-size: 20px;
             margin-bottom: 16px;
+        }
+        
+        .input-section {
+            margin-bottom: 20px;
+        }
+        
+        .input-section input {
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-section input:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+        
+        .input-section label {
+            font-size: 12px;
+            color: #666;
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        
+        .input-section button {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+            width: 100%;
+            font-size: 14px;
+        }
+        
+        .input-section button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .input-hint {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
         }
         
         .result-box {
@@ -353,13 +340,6 @@
             .sidebar {
                 width: 100%;
             }
-            
-            .search-box {
-                position: relative;
-                top: 0;
-                left: 0;
-                margin: 20px;
-            }
         }
     </style>
 </head>
@@ -393,20 +373,6 @@
             <iframe id="erdbebenFrame" class="map-frame" 
                 src="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen/erdbeben-din-en-1998-1.html">
             </iframe>
-            
-            <div class="search-box">
-                <div class="info-hint">
-                    💡 <strong>Tipp:</strong> Klicken Sie direkt in die Karte oben oder geben Sie unten Ihre PLZ ein für eine detaillierte Berechnung
-                </div>
-                <input type="text" id="plz" placeholder="PLZ oder Adresse eingeben" maxlength="100">
-                <button onclick="plzSuchen()">Berechnen</button>
-                
-                <div class="dachneigung-input">
-                    <label>Dachneigung (optional):</label>
-                    <input type="number" id="dachneigung" placeholder="z.B. 30" min="0" max="90" step="1">
-                    <div class="search-hint">Grad (°) - für Berechnung der Dachlast</div>
-                </div>
-            </div>
         </div>
 
         <div class="sidebar">
@@ -423,6 +389,21 @@
 
             <div class="info-box">
                 <h1>Schnee- & Windlast Rechner</h1>
+                
+                <div class="info-hint">
+                    💡 <strong>Tipp:</strong> Klicken Sie direkt in die Karte links oder geben Sie hier Ihre PLZ ein
+                </div>
+                
+                <div class="input-section">
+                    <label>PLZ oder Adresse:</label>
+                    <input type="text" id="plz" placeholder="z.B. 10115 oder Berlin" maxlength="100">
+                    
+                    <label style="margin-top: 12px;">Dachneigung (optional):</label>
+                    <input type="number" id="dachneigung" placeholder="z.B. 30" min="0" max="90" step="1">
+                    <div class="input-hint">Grad (°) - für Berechnung der Dachlast</div>
+                    
+                    <button onclick="plzSuchen()" style="margin-top: 12px;">Berechnen</button>
+                </div>
                 
                 <div id="ergebnis">
                     <div class="empty-state">
