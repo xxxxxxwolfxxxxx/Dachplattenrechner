@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schnee- und Windlastkarte Deutschland - Dachplattenrechner</title>
+    <title>Schnee- und Windlastkarte Deutschland</title>
     
-    <!-- Google AdSense -->
-    <meta name="google-adsense-account" content="ca-pub-8687929894744033">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8687929894744033" crossorigin="anonymous"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
         * {
@@ -83,6 +82,7 @@
             background: #f8f9fa;
             border-bottom: 2px solid #e0e0e0;
             padding: 10px 20px;
+            z-index: 1000;
         }
         
         .tab-btn {
@@ -106,15 +106,10 @@
             border-bottom-color: #1e3c72;
         }
         
-        .map-frame {
+        #map {
             flex: 1;
             width: 100%;
-            border: none;
-            display: none;
-        }
-        
-        .map-frame.active {
-            display: block;
+            z-index: 1;
         }
         
         .sidebar {
@@ -124,39 +119,85 @@
             gap: 20px;
         }
         
-        .ad-container {
+        .search-box {
             background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 15px;
-            overflow: hidden;
-            min-height: 250px;
+            padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            position: relative;
         }
-
-        .ad-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
+        
+        .search-box h2 {
+            color: #1e3c72;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        
+        .plz-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .plz-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .plz-input:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+        
+        .search-btn {
+            padding: 10px 20px;
             background: linear-gradient(135deg, #1e3c72, #2a5298);
-        }
-
-        .ad-label {
-            position: absolute;
-            top: 6px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 3px 8px;
-            font-size: 9px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
             font-weight: 600;
-            border-radius: 3px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            z-index: 10;
+            transition: transform 0.2s;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #0284c7;
+            display: none;
+        }
+        
+        .result-box.show {
+            display: block;
+        }
+        
+        .result-item {
+            margin-bottom: 10px;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #1e3c72;
+        }
+        
+        .result-value {
+            font-size: 24px;
+            color: #0284c7;
+            font-weight: bold;
+        }
+        
+        .result-unit {
+            font-size: 14px;
+            color: #666;
         }
         
         .info-box {
@@ -168,21 +209,35 @@
             overflow-y: auto;
         }
         
-        .info-box h1 {
-            color: #1e3c72;
-            font-size: 20px;
-            margin-bottom: 16px;
+        .legend {
+            margin-top: 20px;
         }
         
-        .info-hint {
-            background: #e0f2fe;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #0c4a6e;
-            margin-bottom: 16px;
-            border-left: 3px solid #0284c7;
+        .legend-title {
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 10px;
         }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        
+        .zone-1 { background-color: rgba(255, 255, 200, 0.7); }
+        .zone-1a { background-color: rgba(255, 235, 150, 0.7); }
+        .zone-2 { background-color: rgba(255, 215, 100, 0.7); }
+        .zone-2a { background-color: rgba(255, 195, 50, 0.7); }
+        .zone-3 { background-color: rgba(255, 175, 0, 0.7); }
         
         .disclaimer {
             margin-top: 16px;
@@ -205,27 +260,28 @@
             line-height: 1.5;
         }
         
-        .info-links {
-            margin-top: 16px;
-            font-size: 11px;
+        .map-popup {
+            font-size: 14px;
         }
         
-        .info-links a {
-            color: #2563eb;
-            text-decoration: none;
-            display: block;
-            margin-bottom: 6px;
+        .map-popup h3 {
+            margin: 0 0 10px 0;
+            color: #1e3c72;
         }
         
-        .info-links a:hover {
-            text-decoration: underline;
+        .map-popup p {
+            margin: 5px 0;
         }
         
-        .info-notes {
-            margin-top: 16px;
-            font-size: 10px;
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
             color: #666;
-            line-height: 1.6;
+        }
+        
+        .loading.show {
+            display: block;
         }
         
         @media (max-width: 1024px) {
@@ -263,99 +319,260 @@
                 <button class="tab-btn" onclick="wechselTab('erdbeben')">Erdbebenkarte</button>
             </div>
             
-            <iframe id="schneeFrame" class="map-frame active" 
-                src="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen/schnee-din-en-1991-1-3.html">
-            </iframe>
-            
-            <iframe id="windFrame" class="map-frame" 
-                src="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen/wind-din-en-1991-1-4.html">
-            </iframe>
-            
-            <iframe id="erdbebenFrame" class="map-frame" 
-                src="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen/erdbeben-din-en-1998-1.html">
-            </iframe>
+            <div id="map"></div>
         </div>
 
         <div class="sidebar">
-            <!-- Werbung Oben -->
-            <div class="ad-container">
-                <span class="ad-label">Werbung</span>
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="1581807497"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
+            <div class="search-box">
+                <h2>PLZ-Suche</h2>
+                <div class="plz-input-group">
+                    <input type="text" id="plzInput" class="plz-input" placeholder="PLZ eingeben (z.B. 10115)" maxlength="5">
+                    <button onclick="suchePLZ()" class="search-btn">Suchen</button>
+                </div>
+                
+                <div id="resultBox" class="result-box">
+                    <div class="result-item">
+                        <div class="result-label">Schneelastzone:</div>
+                        <div class="result-value" id="schneeZone">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Charakteristische Schneelast:</div>
+                        <div><span class="result-value" id="schneeWert">-</span> <span class="result-unit">kN/m²</span></div>
+                    </div>
+                    <div class="result-item" style="margin-top: 15px;">
+                        <div class="result-label">Windzone:</div>
+                        <div class="result-value" id="windZone">-</div>
+                    </div>
+                </div>
+                
+                <div class="loading" id="loading">
+                    Suche läuft...
+                </div>
             </div>
 
             <div class="info-box">
-                <h1>Schnee- & Windlast Rechner</h1>
-                
-                <div class="info-hint">
-                    💡 <strong>Tipp:</strong> Klicken Sie direkt in die Karte links und geben Sie Ihre PLZ ein für eine detaillierte Berechnung
-                </div>
-
-                <div class="disclaimer">
-                    <div class="disclaimer-title">⚠️ Haftungsausschluss</div>
-                    <div class="disclaimer-text">
-                        Alle Angaben sind ohne Gewähr und dienen nur zur groben Orientierung. 
-                        Für verbindliche Auskünfte wenden Sie sich bitte an die zuständige 
-                        Bauaufsichtsbehörde oder einen Statiker. Die tatsächlichen Werte können 
-                        je nach genauer Lage und örtlichen Gegebenheiten abweichen.
+                <div class="legend">
+                    <div class="legend-title">Schneelastzonen</div>
+                    <div class="legend-item">
+                        <div class="legend-color zone-1"></div>
+                        <span>Zone 1: 0,65 kN/m²</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color zone-1a"></div>
+                        <span>Zone 1a: 0,81 kN/m²</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color zone-2"></div>
+                        <span>Zone 2: 0,85 kN/m²</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color zone-2a"></div>
+                        <span>Zone 2a: 1,06 kN/m²</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color zone-3"></div>
+                        <span>Zone 3: 1,10 kN/m²</span>
                     </div>
                 </div>
 
-                <div class="info-links">
-                    <strong>Offizielle Quellen:</strong><br>
-                    <a href="https://www.dibt.de/fileadmin/dibt-website/Dokumente/Referat/P5/Technische_Bestimmungen/Schneelastzonen_Formular_nach_Verwaltungsgrenzen.xlsx" target="_blank">📄 DIBt Schneelastzonen-Tabelle (Excel)</a>
-                    <a href="https://www.dlubal.com/de/schnee-wind-erdbeben-lastzonen" target="_blank">🗺️ Dlubal Lastzonenkarten</a>
-                    <a href="https://www.dibt.de" target="_blank">🏛️ Deutsches Institut für Bautechnik</a>
+                <div class="disclaimer">
+                    <div class="disclaimer-title">⚠️ Wichtiger Hinweis</div>
+                    <div class="disclaimer-text">
+                        Dies ist eine vereinfachte Darstellung. Die tatsächlichen Zonengrenzen können abweichen.
+                        Für verbindliche Auskünfte konsultieren Sie bitte die offiziellen DIBt-Unterlagen oder einen Statiker.
+                        Die Werte gelten für Höhen bis 1000m ü. NN.
+                    </div>
                 </div>
 
-                <div class="info-notes">
-                    • Schneelastzonen nach DIN EN 1991-1-3/NA<br>
-                    • Windlastzonen nach DIN EN 1991-1-4/NA<br>
-                    • Erdbebenzonen nach DIN EN 1998-1/NA<br>
-                    • Höhenabhängige Berechnung nach Norm<br>
-                    • Karten bereitgestellt von Dlubal Software
+                <div style="margin-top: 20px; font-size: 12px; color: #666;">
+                    <strong>Datenquellen:</strong><br>
+                    • DIN EN 1991-1-3/NA (Schneelast)<br>
+                    • DIN EN 1991-1-4/NA (Windlast)<br>
+                    • DIBt Schneelastzonen-Tabelle
                 </div>
-            </div>
-
-            <!-- Werbung Unten -->
-            <div class="ad-container">
-                <span class="ad-label">Werbung</span>
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-8687929894744033"
-                     data-ad-slot="9480973653"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
             </div>
         </div>
     </div>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script>
+        // Initialisiere Karte
+        let map = L.map('map').setView([51.1657, 10.4515], 6);
+        let currentLayer = 'schnee';
+        let zonesLayer = null;
+        
+        // Basis-Kartenlayer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Beispiel-Zonen für Demonstration (vereinfacht)
+        // In einer echten Implementierung würden diese aus einer Datenbank oder GeoJSON kommen
+        const schneeZonen = {
+            "zone1": {
+                name: "Zone 1",
+                value: "0,65 kN/m²",
+                color: "rgba(255, 255, 200, 0.5)",
+                // Vereinfachte Polygone für Nord-/Westdeutschland
+                bounds: [[53.5, 6.0], [53.5, 11.0], [51.0, 11.0], [51.0, 6.0]]
+            },
+            "zone1a": {
+                name: "Zone 1a",
+                value: "0,81 kN/m²",
+                color: "rgba(255, 235, 150, 0.5)",
+                bounds: [[52.0, 11.0], [52.0, 14.0], [50.5, 14.0], [50.5, 11.0]]
+            },
+            "zone2": {
+                name: "Zone 2",
+                value: "0,85 kN/m²",
+                color: "rgba(255, 215, 100, 0.5)",
+                bounds: [[50.5, 8.0], [50.5, 11.0], [49.0, 11.0], [49.0, 8.0]]
+            },
+            "zone2a": {
+                name: "Zone 2a",
+                value: "1,06 kN/m²",
+                color: "rgba(255, 195, 50, 0.5)",
+                bounds: [[49.5, 11.0], [49.5, 13.5], [48.0, 13.5], [48.0, 11.0]]
+            },
+            "zone3": {
+                name: "Zone 3",
+                value: "1,10 kN/m²",
+                color: "rgba(255, 175, 0, 0.5)",
+                bounds: [[48.0, 8.0], [48.0, 13.0], [47.0, 13.0], [47.0, 8.0]]
+            }
+        };
+        
+        // PLZ-Datenbank (vereinfacht - normalerweise aus einer API oder Datenbank)
+        const plzDaten = {
+            "10115": { lat: 52.5318, lon: 13.3847, schneeZone: "1", windZone: "2", ort: "Berlin-Mitte" },
+            "80331": { lat: 48.1351, lon: 11.5820, schneeZone: "2", windZone: "1", ort: "München" },
+            "20095": { lat: 53.5511, lon: 9.9937, schneeZone: "1", windZone: "3", ort: "Hamburg" },
+            "50667": { lat: 50.9375, lon: 6.9603, schneeZone: "1", windZone: "2", ort: "Köln" },
+            "60311": { lat: 50.1109, lon: 8.6821, schneeZone: "1a", windZone: "1", ort: "Frankfurt" },
+            "70173": { lat: 48.7758, lon: 9.1829, schneeZone: "2", windZone: "1", ort: "Stuttgart" },
+            "01067": { lat: 51.0504, lon: 13.7373, schneeZone: "1a", windZone: "2", ort: "Dresden" },
+            "04109": { lat: 51.3397, lon: 12.3731, schneeZone: "1", windZone: "2", ort: "Leipzig" }
+        };
+        
+        const schneeWerte = {
+            "1": "0,65",
+            "1a": "0,81",
+            "2": "0,85",
+            "2a": "1,06",
+            "3": "1,10"
+        };
+        
+        function zeichneZonen() {
+            // Entferne alte Zonen
+            if (zonesLayer) {
+                map.removeLayer(zonesLayer);
+            }
+            
+            zonesLayer = L.layerGroup();
+            
+            // Zeichne Zonen
+            Object.values(schneeZonen).forEach(zone => {
+                const polygon = L.polygon(zone.bounds, {
+                    color: '#666',
+                    weight: 1,
+                    fillColor: zone.color,
+                    fillOpacity: 0.5
+                });
+                
+                polygon.bindPopup(`
+                    <div class="map-popup">
+                        <h3>${zone.name}</h3>
+                        <p><strong>Grundwert:</strong> ${zone.value}</p>
+                        <p style="font-size: 12px; color: #666;">
+                            Höhenabhängige Berechnung nach DIN EN 1991-1-3
+                        </p>
+                    </div>
+                `);
+                
+                zonesLayer.addLayer(polygon);
+            });
+            
+            zonesLayer.addTo(map);
+        }
+        
         function wechselTab(typ) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.map-frame').forEach(frame => frame.classList.remove('active'));
-            
             event.target.classList.add('active');
+            currentLayer = typ;
             
+            // Hier würden verschiedene Zonen-Layer geladen werden
             if (typ === 'schnee') {
-                document.getElementById('schneeFrame').classList.add('active');
-            } else if (typ === 'wind') {
-                document.getElementById('windFrame').classList.add('active');
-            } else if (typ === 'erdbeben') {
-                document.getElementById('erdbebenFrame').classList.add('active');
+                zeichneZonen();
+            } else {
+                // Für Wind und Erdbeben würden andere Zonen geladen
+                if (zonesLayer) {
+                    map.removeLayer(zonesLayer);
+                }
             }
         }
-
-        window.onload = function() {
-            setTimeout(function() {
-                (adsbygoogle = window.adsbygoogle || []).push({});
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            }, 1000);
-        };
+        
+        function suchePLZ() {
+            const plz = document.getElementById('plzInput').value.trim();
+            const resultBox = document.getElementById('resultBox');
+            const loading = document.getElementById('loading');
+            
+            if (plz.length !== 5 || !/^\d+$/.test(plz)) {
+                alert('Bitte geben Sie eine gültige 5-stellige PLZ ein.');
+                return;
+            }
+            
+            loading.classList.add('show');
+            resultBox.classList.remove('show');
+            
+            // Simuliere Ladezeit
+            setTimeout(() => {
+                loading.classList.remove('show');
+                
+                if (plzDaten[plz]) {
+                    const data = plzDaten[plz];
+                    
+                    // Zeige Ergebnisse
+                    document.getElementById('schneeZone').textContent = `Zone ${data.schneeZone}`;
+                    document.getElementById('schneeWert').textContent = schneeWerte[data.schneeZone];
+                    document.getElementById('windZone').textContent = `Zone ${data.windZone}`;
+                    
+                    resultBox.classList.add('show');
+                    
+                    // Zoom zur PLZ auf der Karte
+                    map.setView([data.lat, data.lon], 10);
+                    
+                    // Füge Marker hinzu
+                    L.marker([data.lat, data.lon])
+                        .addTo(map)
+                        .bindPopup(`
+                            <strong>${plz} ${data.ort}</strong><br>
+                            Schneezone: ${data.schneeZone}<br>
+                            Windzone: ${data.windZone}
+                        `)
+                        .openPopup();
+                } else {
+                    // Zeige Beispiel-Werte für nicht gefundene PLZ
+                    document.getElementById('schneeZone').textContent = 'Zone 1';
+                    document.getElementById('schneeWert').textContent = '0,65';
+                    document.getElementById('windZone').textContent = 'Zone 2';
+                    resultBox.classList.add('show');
+                    
+                    alert('PLZ nicht in der Demo-Datenbank gefunden. Beispielwerte werden angezeigt.\n\nVerfügbare Demo-PLZ: 10115, 80331, 20095, 50667, 60311, 70173, 01067, 04109');
+                }
+            }, 500);
+        }
+        
+        // Initialisiere Zonen beim Laden
+        zeichneZonen();
+        
+        // Enter-Taste für Suche
+        document.getElementById('plzInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                suchePLZ();
+            }
+        });
     </script>
 </body>
 </html>
