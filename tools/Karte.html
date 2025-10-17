@@ -618,10 +618,10 @@
                 console.log('=== START LADEVORGANG ===');
                 
                 // Lade Schneetabelle
-                await ladeTabelle('../images/Schneelastzonen_Formular_nach_Verwaltungsgrenzen.xlsx', 'schnee');
+                await ladeTabelle('../tools/Schneelastzonen_Formular_nach_Verwaltungsgrenzen.xlsx', 'schnee');
                 
                 // Lade Windtabelle  
-                await ladeTabelle('../images/Windzonen_Formular_nach_Verwaltungsgrenzen.xlsx', 'wind');
+                await ladeTabelle('../tools/Windzonen_Formular_nach_Verwaltungsgrenzen.xlsx', 'wind');
                 
                 // Verstecke Ladebildschirm
                 document.getElementById('initialLoading').classList.add('hidden');
