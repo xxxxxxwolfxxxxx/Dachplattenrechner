@@ -4,28 +4,78 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dachplattenrechner.de - Schnee- & Windlastzonen</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #eff6ff 0%, #e2e8f0 100%); min-height: 100vh; }
+.container { max-width: 896px; margin: 0 auto; padding: 2rem 1rem; }
+.header { text-align: center; margin-bottom: 2rem; }
+.header h1 { font-size: 2.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; }
+.header p { font-size: 1.125rem; color: #475569; }
+.search-box { background: white; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); padding: 1.5rem; margin-bottom: 1.5rem; }
+.search-flex { display: flex; gap: 0.5rem; flex-direction: column; }
+@media (min-width: 768px) { .search-flex { flex-direction: row; } .header h1 { font-size: 3rem; } }
+.search-wrapper { position: relative; flex: 1; }
+.search-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af; width: 1.25rem; height: 1.25rem; }
+#si { width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 2px solid #e5e7eb; border-radius: 0.75rem; font-size: 1.125rem; }
+#si:focus { outline: none; border-color: #2563eb; }
+.btn { background: #2563eb; color: white; padding: 0.75rem 2rem; border: none; border-radius: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: background 0.2s; }
+.btn:hover { background: #1d4ed8; }
+.btn svg { width: 1.25rem; height: 1.25rem; }
+.example { font-size: 0.875rem; color: #6b7280; margin-top: 0.75rem; }
+#res { margin-bottom: 1.5rem; }
+.grid { display: grid; gap: 1.5rem; margin-bottom: 1.5rem; }
+@media (min-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+.card { background: white; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); padding: 1.5rem; }
+.card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.icon-wrapper { padding: 0.75rem; border-radius: 0.75rem; }
+.icon-blue { background: #dbeafe; }
+.icon-orange { background: #fed7aa; }
+.icon-wrapper svg { width: 1.5rem; height: 1.5rem; }
+.icon-blue svg { color: #2563eb; }
+.icon-orange svg { color: #ea580c; }
+.card h2 { font-size: 1.5rem; font-weight: 700; color: #1e293b; }
+.zone-badge { border-radius: 0.75rem; padding: 1.5rem; text-align: center; margin-bottom: 1rem; }
+.zone-number { font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; }
+.zone-label { font-size: 0.875rem; font-weight: 600; }
+.bg-blue-100 { background: #dbeafe; color: #1e3a8a; }
+.bg-blue-300 { background: #93c5fd; color: #1e3a8a; }
+.bg-blue-500 { background: #3b82f6; color: white; }
+.bg-green-100 { background: #dcfce7; color: #166534; }
+.bg-yellow-100 { background: #fef9c3; color: #854d0e; }
+.bg-orange-100 { background: #ffedd5; color: #9a3412; }
+.bg-red-100 { background: #fee2e2; color: #991b1b; }
+.info { font-size: 0.875rem; color: #4b5563; }
+.info p { margin-bottom: 0.25rem; }
+.info strong { font-weight: 600; }
+.hinweise { background: white; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); padding: 1.5rem; }
+.hinweise h3 { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; }
+.hinweise ul { font-size: 0.875rem; color: #4b5563; list-style: none; }
+.hinweise li { margin-bottom: 0.5rem; }
+.error-box { background: white; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); padding: 2rem; text-align: center; margin-bottom: 1.5rem; }
+.error-box p:first-child { color: #4b5563; font-size: 1.125rem; }
+.error-box p:last-child { color: #6b7280; margin-top: 0.5rem; }
+</style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-slate-100 min-h-screen">
-<div class="max-w-4xl mx-auto p-4 md:p-8">
-<div class="text-center mb-8">
-<h1 class="text-4xl md:text-5xl font-bold text-slate-800 mb-2">Dachplattenrechner.de</h1>
-<p class="text-lg text-slate-600">Schnee- und Windlastzonen für ganz Deutschland</p>
+<body>
+<div class="container">
+<div class="header">
+<h1>Dachplattenrechner.de</h1>
+<p>Schnee- und Windlastzonen für ganz Deutschland</p>
 </div>
-<div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
-<div class="flex flex-col md:flex-row gap-2">
-<div class="relative flex-1">
-<svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-<input type="text" id="si" placeholder="Ort, Stadt oder Landkreis eingeben..." class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none text-lg" onkeypress="if(event.key==='Enter')search()">
+<div class="search-box">
+<div class="search-flex">
+<div class="search-wrapper">
+<svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+<input type="text" id="si" placeholder="Ort, Stadt oder Landkreis eingeben..." onkeypress="if(event.key==='Enter')search()">
 </div>
-<button onclick="search()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>Suchen</button>
+<button onclick="search()" class="btn"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>Suchen</button>
 </div>
-<p class="text-sm text-gray-500 mt-3">Beispiele: Berlin, München, Kreis Dithmarschen, Flensburg</p>
+<p class="example">Beispiele: Berlin, München, Kreis Dithmarschen, Flensburg</p>
 </div>
 <div id="res"></div>
-<div class="bg-white rounded-2xl shadow-xl p-6">
-<h3 class="text-xl font-bold text-slate-800 mb-3">Hinweise</h3>
-<ul class="text-sm text-gray-600 space-y-2">
+<div class="hinweise">
+<h3>Hinweise</h3>
+<ul>
 <li>• Die Daten basieren auf den offiziellen Verwaltungsgrenzen nach DIN EN 1991-1-3 und DIN EN 1991-1-4</li>
 <li>• Schneelastzonen: 1 (niedrig) bis 3 (hoch)</li>
 <li>• Windzonen: 1 (niedrig) bis 4 (sehr hoch)</li>
@@ -61,7 +111,7 @@ function search() {
   );
   
   if (!schneeLast.length && !wind.length) {
-    res.innerHTML = '<div class="bg-white rounded-2xl shadow-xl p-8 text-center mb-6"><p class="text-gray-600 text-lg">Keine Ergebnisse für "' + input + '" gefunden.</p><p class="text-gray-500 mt-2">Bitte versuchen Sie es mit einem anderen Ort oder Landkreis.</p></div>';
+    res.innerHTML = '<div class="error-box"><p>Keine Ergebnisse für "' + input + '" gefunden.</p><p>Bitte versuchen Sie es mit einem anderen Ort oder Landkreis.</p></div>';
     return;
   }
   
@@ -69,47 +119,47 @@ function search() {
   const wz = wind.length > 0 ? wind[0].z : null;
   
   const szColors = {
-    1: "bg-blue-100 text-blue-800",
-    2: "bg-blue-300 text-blue-900",
-    3: "bg-blue-500 text-white"
+    1: "bg-blue-100",
+    2: "bg-blue-300",
+    3: "bg-blue-500"
   };
   
   const wzColors = {
-    1: "bg-green-100 text-green-800",
-    2: "bg-yellow-100 text-yellow-800",
-    3: "bg-orange-100 text-orange-800",
-    4: "bg-red-100 text-red-800"
+    1: "bg-green-100",
+    2: "bg-yellow-100",
+    3: "bg-orange-100",
+    4: "bg-red-100"
   };
   
-  let html = '<div class="grid md:grid-cols-2 gap-6 mb-6">';
+  let html = '<div class="grid">';
   
   if (sz) {
-    html += '<div class="bg-white rounded-2xl shadow-xl p-6">';
-    html += '<div class="flex items-center gap-3 mb-4">';
-    html += '<div class="bg-blue-100 p-3 rounded-xl"><svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg></div>';
-    html += '<h2 class="text-2xl font-bold text-slate-800">Schneelastzone</h2>';
+    html += '<div class="card">';
+    html += '<div class="card-header">';
+    html += '<div class="icon-wrapper icon-blue"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg></div>';
+    html += '<h2>Schneelastzone</h2>';
     html += '</div>';
-    html += '<div class="' + szColors[sz] + ' rounded-xl p-6 text-center mb-4">';
-    html += '<div class="text-5xl font-bold mb-2">' + sz + '</div>';
-    html += '<div class="text-sm font-semibold">Schneelastzone ' + sz + '</div>';
+    html += '<div class="zone-badge ' + szColors[sz] + '">';
+    html += '<div class="zone-number">' + sz + '</div>';
+    html += '<div class="zone-label">Schneelastzone ' + sz + '</div>';
     html += '</div>';
-    html += '<div class="text-sm text-gray-600 space-y-1">';
+    html += '<div class="info">';
     html += '<p><strong>Landkreis:</strong> ' + schneeLast[0].k + '</p>';
     html += '<p><strong>Gemeinde:</strong> ' + schneeLast[0].g + '</p>';
     html += '</div></div>';
   }
   
   if (wz) {
-    html += '<div class="bg-white rounded-2xl shadow-xl p-6">';
-    html += '<div class="flex items-center gap-3 mb-4">';
-    html += '<div class="bg-orange-100 p-3 rounded-xl"><svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg></div>';
-    html += '<h2 class="text-2xl font-bold text-slate-800">Windzone</h2>';
+    html += '<div class="card">';
+    html += '<div class="card-header">';
+    html += '<div class="icon-wrapper icon-orange"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg></div>';
+    html += '<h2>Windzone</h2>';
     html += '</div>';
-    html += '<div class="' + wzColors[wz] + ' rounded-xl p-6 text-center mb-4">';
-    html += '<div class="text-5xl font-bold mb-2">' + wz + '</div>';
-    html += '<div class="text-sm font-semibold">Windzone ' + wz + '</div>';
+    html += '<div class="zone-badge ' + wzColors[wz] + '">';
+    html += '<div class="zone-number">' + wz + '</div>';
+    html += '<div class="zone-label">Windzone ' + wz + '</div>';
     html += '</div>';
-    html += '<div class="text-sm text-gray-600 space-y-1">';
+    html += '<div class="info">';
     html += '<p><strong>Region:</strong> ' + wind[0].k + '</p>';
     if (wind[0].g) {
       html += '<p><strong>Details:</strong> ' + wind[0].g + '</p>';
