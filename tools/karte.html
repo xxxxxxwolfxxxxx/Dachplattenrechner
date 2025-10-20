@@ -199,10 +199,11 @@ const BL = {
 
 const schneeWerte = {
   1: {kn: 0.65, kg: 65},
- 1a: {kn: 0.81, kg: 81},
+  '1a': {kn: 0.81, kg: 81},
   2: {kn: 0.85, kg: 85},
- 2a: {kn: 1.06, kg: 106},
-  3: {kn: 1.10, kg: 110}
+  '2a': {kn: 1.06, kg: 106},
+  3: {kn: 1.10, kg: 110},
+  '3a': {kn: 1.37, kg: 137}
 };
 
 const windWerte = {
@@ -279,7 +280,7 @@ function showResult() {
   const sz = info.sz;
   const wz = info.wz;
   
-  const szColors = {1: "bg-blue-100", 2: "bg-blue-300", 3: "bg-blue-500"};
+  const szColors = {1: "bg-blue-100", '1a': "bg-blue-100", 2: "bg-blue-300", '2a': "bg-blue-300", 3: "bg-blue-500", '3a': "bg-blue-500"};
   const wzColors = {1: "bg-green-100", 2: "bg-yellow-100", 3: "bg-orange-100", 4: "bg-red-100"};
   
   let html = '<div class="grid">';
@@ -328,8 +329,11 @@ function updateMapLegend() {
     html = '<h4>Schneelastzonen - Belastungswerte</h4>';
     html += '<div class="legend-grid">';
     html += '<div class="legend-item"><div class="legend-color" style="background: #dbeafe;"></div><span>Zone 1: 65 kg/m²</span></div>';
+    html += '<div class="legend-item"><div class="legend-color" style="background: #bfdbfe;"></div><span>Zone 1a: 81 kg/m²</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background: #93c5fd;"></div><span>Zone 2: 85 kg/m²</span></div>';
+    html += '<div class="legend-item"><div class="legend-color" style="background: #60a5fa;"></div><span>Zone 2a: 106 kg/m²</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background: #3b82f6;"></div><span>Zone 3: 110 kg/m²</span></div>';
+    html += '<div class="legend-item"><div class="legend-color" style="background: #2563eb;"></div><span>Zone 3a: 137 kg/m²</span></div>';
     html += '</div>';
   } else {
     html = '<h4>Windzonen - Staudruckwerte</h4>';
