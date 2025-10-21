@@ -587,7 +587,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                             istRest: false
                         });
                         
-                        constexistierend = materialListe.find(m => m.laenge === lattenLaenge);
+                        const existierend = materialListe.find(m => m.laenge === lattenLaenge);
                         if (existierend) {
                             existierend.anzahl++;
                         } else {
@@ -992,7 +992,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     const breiteY = dachStartY + dachHoehe * scaleY + 40;
     svg += `<line x1="${margin}" y1="${breiteY}" x2="${margin + dachBreite * scaleX}" y2="${breiteY}" stroke="#333" stroke-width="1.5"/>`;
     svg += `<line x1="${margin}" y1="${breiteY - 3}" x2="${margin}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
-    svg += `<linex1="${margin + dachBreite * scaleX}" y1="${breiteY - 3}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<line x1="${margin + dachBreite * scaleX}" y1="${breiteY - 3}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
     svg += `<text x="${margin + dachBreite * scaleX/2}" y="${breiteY + 15}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
     svg += `</svg>`;
     
