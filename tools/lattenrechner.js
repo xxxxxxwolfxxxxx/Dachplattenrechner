@@ -1,951 +1,1114 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schnee- und Windlastrechner mit DIBt-Daten</title>
-    
-    <!-- SheetJS für Excel-Verarbeitung -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Chart.js für Diagramme -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            padding: 30px;
-            color: white;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 10px;
-        }
-        
-        .status-bar {
-            background: #f8f9fa;
-            padding: 15px 30px;
-            border-bottom: 1px solid #dee2e6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ffc107;
-        }
-        
-        .status-dot.active {
-            background: #28a745;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-        }
-        
-        .content {
-            padding: 30px;
-        }
-        
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.95);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-        
-        .loading-overlay.hidden {
-            display: none;
-        }
-        
-        .search-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-        }
-        
-        .search-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .input-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .input-field {
-            padding: 10px 12px;
-            border: 2px solid #ced4da;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .input-field:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-        }
-        
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
-        }
-        
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .results-section {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .results-section.show {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .result-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .result-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-left: 4px solid;
-        }
-        
-        .result-card.snow { border-left-color: #3498db; }
-        .result-card.wind { border-left-color: #2ecc71; }
-        
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .card-icon {
-            font-size: 24px;
-        }
-        
-        .card-title {
-            font-size: 14px;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .card-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        
-        .card-unit {
-            font-size: 16px;
-            color: #6c757d;
-            font-weight: normal;
-        }
-        
-        .card-details {
-            border-top: 1px solid #e9ecef;
-            padding-top: 10px;
-            margin-top: 10px;
-        }
-        
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-        
-        .detail-label {
-            color: #6c757d;
-        }
-        
-        .detail-value {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .chart-container {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        
-        .warning-box {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: start;
-            gap: 15px;
-        }
-        
-        .warning-icon {
-            font-size: 24px;
-            color: #856404;
-        }
-        
-        .warning-text {
-            flex: 1;
-            color: #856404;
-            line-height: 1.6;
-        }
-        
-        .info-box {
-            background: #d1ecf1;
-            border: 1px solid #bee5eb;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 30px;
-        }
-        
-        .info-box h3 {
-            color: #0c5460;
-            margin-bottom: 15px;
-        }
-        
-        .info-box ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .info-box li {
-            padding-left: 20px;
-            margin-bottom: 8px;
-            position: relative;
-            color: #0c5460;
-        }
-        
-        .info-box li:before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: #17a2b8;
-        }
-        
-        .disclaimer {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 30px;
-        }
-        
-        .disclaimer h3 {
-            color: #721c24;
-            margin-bottom: 10px;
-        }
-        
-        .disclaimer p {
-            color: #721c24;
-            line-height: 1.6;
-            font-size: 14px;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .loading.show {
-            display: block;
-        }
-        
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #007bff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .error-message {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
-        .error-message.show {
-            display: block;
-        }
-        
-        .autocomplete-suggestions {
-            position: absolute;
-            background: white;
-            border: 1px solid #ced4da;
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-            width: 100%;
-        }
-        
-        .autocomplete-suggestions.show {
-            display: block;
-        }
-        
-        .suggestion-item {
-            padding: 10px 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .suggestion-item:hover {
-            background: #f8f9fa;
-        }
-        
-        .suggestion-item strong {
-            color: #007bff;
-        }
-        
-        .plz-input-wrapper {
-            position: relative;
-        }
-    </style>
-</head>
-<body>
-    <!-- Ladebildschirm -->
-    <div class="loading-overlay" id="initialLoading">
-        <div class="spinner"></div>
-        <h2 style="margin-top: 20px; color: #333;">Lade DIBt-Datenbanken...</h2>
-        <p style="color: #666; margin-top: 10px;">Schneelast- und Windlastzonen werden geladen</p>
-    </div>
+let dachBreite = 10;
+let dachHoehe = 6;
+let dachTyp = 'rechteck';
+let obereBreite = 0;
+let trapezHoehe = 0;
+let rechteckHoehe = 0;
+let sparrenLaengen = [];
+let sparrenPositionen = [];
 
-    <div class="container">
-        <div class="header">
-            <h1>🏗️ Schnee- und Windlastrechner</h1>
-            <p>Nach DIN EN 1991 mit offiziellen DIBt-Daten</p>
-        </div>
-        
-        <div class="status-bar">
-            <div class="status-indicator">
-                <span class="status-dot" id="schneeStatus"></span>
-                <span id="schneeStatusText">Schneelastzonen laden...</span>
-            </div>
-            <div class="status-indicator">
-                <span class="status-dot" id="windStatus"></span>
-                <span id="windStatusText">Windlastzonen laden...</span>
-            </div>
-            <div class="status-indicator">
-                <span class="status-dot active"></span>
-                <span id="plzCountText">Bereit</span>
-            </div>
-        </div>
-        
-        <div class="content">
-            <div class="error-message" id="errorMessage"></div>
-            
-            <div class="search-section">
-                <div class="search-grid">
-                    <div class="input-group">
-                        <label class="input-label">Postleitzahl</label>
-                        <div class="plz-input-wrapper">
-                            <input type="text" id="plzInput" class="input-field" 
-                                   placeholder="z.B. 10115" maxlength="5"
-                                   oninput="handlePLZInput(this.value)">
-                            <div class="autocomplete-suggestions" id="plzSuggestions"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label class="input-label">Höhe über NN (m)</label>
-                        <input type="number" id="heightInput" class="input-field" 
-                               placeholder="z.B. 500" value="200">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label class="input-label">Geländekategorie</label>
-                        <select id="terrainSelect" class="input-field">
-                            <option value="2">II - Offenes Gelände</option>
-                            <option value="1">I - Offene See, Seen</option>
-                            <option value="3">III - Vorstädte, Industriegelände</option>
-                            <option value="4">IV - Stadtgebiete</option>
-                        </select>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label class="input-label">Gebäudehöhe (m)</label>
-                        <input type="number" id="buildingHeight" class="input-field" 
-                               placeholder="z.B. 10" value="10">
-                    </div>
-                </div>
-                
-                <button id="calculateBtn" class="btn btn-primary" onclick="berechneLasten()">
-                    Lasten berechnen
-                </button>
-            </div>
-            
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p style="margin-top: 15px; color: #6c757d;">Berechnung läuft...</p>
-            </div>
-            
-            <div class="results-section" id="resultsSection">
-                <div class="result-cards">
-                    <div class="result-card snow">
-                        <div class="card-header">
-                            <span class="card-icon">❄️</span>
-                            <span class="card-title">Schneelast</span>
-                        </div>
-                        <div class="card-value">
-                            <span id="snowLoad">-</span>
-                            <span class="card-unit">kg/m²</span>
-                        </div>
-                        <div class="card-details">
-                            <div class="detail-row">
-                                <span class="detail-label">Zone:</span>
-                                <span class="detail-value" id="snowZone">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Grundwert:</span>
-                                <span class="detail-value" id="snowBase">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">PLZ-Bereich:</span>
-                                <span class="detail-value" id="plzBereich">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Gemeinde:</span>
-                                <span class="detail-value" id="gemeinde">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="result-card wind">
-                        <div class="card-header">
-                            <span class="card-icon">💨</span>
-                            <span class="card-title">Windlasten</span>
-                        </div>
-                        <div class="card-value">
-                            <span id="windPressure">-</span>
-                            <span class="card-unit">kg/m²</span>
-                        </div>
-                        <div class="card-details">
-                            <div class="detail-row">
-                                <span class="detail-label">Zone:</span>
-                                <span class="detail-value" id="windZone">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Grundgeschw.:</span>
-                                <span class="detail-value" id="windSpeed">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Windsog:</span>
-                                <span class="detail-value" id="windSuction">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Lage:</span>
-                                <span class="detail-value" id="windLage">-</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <h3 style="margin-bottom: 20px;">Lastvergleich</h3>
-                    <canvas id="loadChart" width="400" height="200"></canvas>
-                </div>
-            </div>
-            
-            <div class="warning-box">
-                <span class="warning-icon">⚠️</span>
-                <div class="warning-text">
-                    <strong>Wichtiger Hinweis:</strong> Diese Berechnung dient nur zur groben Orientierung und Vorplanung. 
-                    Für verbindliche Berechnungen konsultieren Sie unbedingt die zuständige Bauaufsichtsbehörde und einen 
-                    qualifizierten Statiker. Die tatsächlichen Lasten können je nach lokalen Gegebenheiten erheblich abweichen.
-                </div>
-            </div>
-            
-            <div class="info-box">
-                <h3>ℹ️ Verwendete Normen und Formeln</h3>
-                <ul>
-                    <li>Schneelast: DIN EN 1991-1-3/NA (Nationale Anhänge)</li>
-                    <li>Windlast: DIN EN 1991-1-4/NA</li>
-                    <li>Umrechnung: 1 kN/m² = 101,97 kg/m²</li>
-                    <li>Höhenformel Schnee: sk = sk,grund × [1 + (A/728)²] für A > 1000m</li>
-                    <li>Winddruck: qp = 0,5 × ρ × v² (mit ρ = 1,25 kg/m³)</li>
-                    <li>Datenquelle: DIBt - Deutsches Institut für Bautechnik</li>
-                </ul>
-            </div>
-            
-            <div class="disclaimer">
-                <h3>⛔ Haftungsausschluss</h3>
-                <p>
-                    <strong>Alle Angaben ohne Gewähr!</strong> Dieser Rechner ersetzt keine fachgerechte statische Berechnung. 
-                    Die ermittelten Werte sind unverbindlich und dienen ausschließlich der Vorinformation. 
-                    Maßgebend sind ausschließlich die von einem Statiker erstellten und von der Bauaufsicht 
-                    genehmigten Unterlagen. Der Betreiber übernimmt keinerlei Haftung für die Richtigkeit, 
-                    Vollständigkeit oder Aktualität der Berechnungen.
-                </p>
-            </div>
-        </div>
-    </div>
+function showAds() {
+    document.getElementById('top-ad-container').style.display = 'block';
+    document.getElementById('middle-ad-container').style.display = 'block';
+    document.getElementById('bottom-ad-container').style.display = 'block';
     
-    <script>
-        let schneeDaten = null;
-        let windDaten = null;
-        let lastChart = null;
-        let allePLZ = [];
-        
-        // Schneelast Grundwerte nach Zone (kN/m²)
-        const schneeGrundwerte = {
-            '1': 0.65,
-            '1a': 0.81,
-            '2': 0.85,
-            '2a': 1.06,
-            '3': 1.10
-        };
-        
-        // Windgeschwindigkeiten nach Zone (m/s)
-        const windGeschwindigkeiten = {
-            '1': 22.5,
-            '2': 25.0,
-            '3': 27.5,
-            '4': 30.0
-        };
-        
-        // Automatisches Laden der Tabellen beim Seitenaufruf
-        window.addEventListener('DOMContentLoaded', async function() {
+    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
+    
+    setTimeout(function() {
+        if (window.adsbygoogle) {
             try {
-                // Lade Schneetabelle
-                await ladeTabelle('images/Schneelastzonen_Formular_nach_Verwaltungsgrenzen.xlsx', 'schnee');
-                
-                // Lade Windtabelle  
-                await ladeTabelle('images/Windzonen_Formular_nach_Verwaltungsgrenzen.xlsx', 'wind');
-                
-                // Verstecke Ladebildschirm
-                document.getElementById('initialLoading').classList.add('hidden');
-                
-            } catch (error) {
-                console.error('Fehler beim Laden der Tabellen:', error);
-                document.getElementById('initialLoading').classList.add('hidden');
-                
-                const errorMsg = document.getElementById('errorMessage');
-                errorMsg.innerHTML = `
-                    <strong>Fehler beim Laden der DIBt-Tabellen:</strong><br>
-                    ${error.message}<br><br>
-                    Bitte stellen Sie sicher, dass die Excel-Dateien im /images Ordner vorhanden sind:<br>
-                    • Schneelastzonen_Formular_nach_Verwaltungsgrenzen.xlsx<br>
-                    • Windzonen_Formular_nach_Verwaltungsgrenzen.xlsx
-                `;
-                errorMsg.classList.add('show');
-            }
-        });
-        
-        async function ladeTabelle(url, typ) {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Datei nicht gefunden: ${url}`);
-                }
-                
-                const arrayBuffer = await response.arrayBuffer();
-                const data = new Uint8Array(arrayBuffer);
-                const workbook = XLSX.read(data, { type: 'array' });
-                
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                
-                if (typ === 'schnee') {
-                    verarbeiteSchneedaten(jsonData);
-                } else if (typ === 'wind') {
-                    verarbeiteWinddaten(jsonData);
-                }
-                
-            } catch (error) {
-                throw new Error(`Fehler beim Laden von ${url}: ${error.message}`);
-            }
-        }
-        
-        function verarbeiteSchneedaten(jsonData) {
-            schneeDaten = {};
-            let plzColumn = -1;
-            let zoneColumn = -1;
-            let gemeindeColumn = -1;
-            let plzBereichColumn = -1;
-            
-            // Finde Spalten
-            for (let row of jsonData.slice(0, 10)) {
-                if (!row) continue;
-                for (let i = 0; i < row.length; i++) {
-                    const cell = String(row[i]).toLowerCase();
-                    if (cell.includes('postleitzahl') || cell === 'plz') plzColumn = i;
-                    if (cell.includes('schneelastzone') || (cell.includes('zone') && !cell.includes('wind'))) zoneColumn = i;
-                    if (cell.includes('gemeinde') || cell.includes('ort')) gemeindeColumn = i;
-                    if (cell.includes('plz-bereich')) plzBereichColumn = i;
-                }
-                if (plzColumn >= 0 && zoneColumn >= 0) break;
-            }
-            
-            // Verarbeite Daten
-            for (let row of jsonData) {
-                if (!row[plzColumn] || !row[zoneColumn]) continue;
-                const plz = String(row[plzColumn]).trim();
-                if (/^\d{5}$/.test(plz)) {
-                    schneeDaten[plz] = {
-                        zone: String(row[zoneColumn]).trim(),
-                        gemeinde: row[gemeindeColumn] ? String(row[gemeindeColumn]).trim() : '',
-                        plzBereich: row[plzBereichColumn] ? String(row[plzBereichColumn]).trim() : plz
-                    };
-                }
-            }
-            
-            // Update UI
-            document.getElementById('schneeStatus').classList.add('active');
-            document.getElementById('schneeStatusText').textContent = 
-                `${Object.keys(schneeDaten).length.toLocaleString()} Schneelastzonen geladen`;
-            
-            updateStatus();
-        }
-        
-        function verarbeiteWinddaten(jsonData) {
-            windDaten = {};
-            let plzColumn = -1;
-            let zoneColumn = -1;
-            
-            // Finde Spalten
-            for (let row of jsonData.slice(0, 10)) {
-                if (!row) continue;
-                for (let i = 0; i < row.length; i++) {
-                    const cell = String(row[i]).toLowerCase();
-                    if (cell.includes('postleitzahl') || cell === 'plz') plzColumn = i;
-                    if (cell.includes('windzone') || (cell.includes('zone') && !cell.includes('schnee'))) zoneColumn = i;
-                }
-                if (plzColumn >= 0 && zoneColumn >= 0) break;
-            }
-            
-            // Verarbeite Daten
-            for (let row of jsonData) {
-                if (!row[plzColumn] || !row[zoneColumn]) continue;
-                const plz = String(row[plzColumn]).trim();
-                if (/^\d{5}$/.test(plz)) {
-                    const zoneValue = String(row[zoneColumn]).trim();
-                    // Extrahiere Zone und Lage
-                    const parts = zoneValue.split(/\s+/);
-                    windDaten[plz] = {
-                        zone: parts[0],
-                        lage: parts.length > 1 ? parts.slice(1).join(' ') : 'Binnenland'
-                    };
-                }
-            }
-            
-            // Update UI
-            document.getElementById('windStatus').classList.add('active');
-            document.getElementById('windStatusText').textContent = 
-                `${Object.keys(windDaten).length.toLocaleString()} Windlastzonen geladen`;
-            
-            updateStatus();
-        }
-        
-        function updateStatus() {
-            if (schneeDaten && windDaten) {
-                // Sammle alle PLZ für Autocomplete
-                const plzSet = new Set([
-                    ...Object.keys(schneeDaten),
-                    ...Object.keys(windDaten)
-                ]);
-                allePLZ = Array.from(plzSet).sort();
-                
-                document.getElementById('plzCountText').textContent = 
-                    `${allePLZ.length.toLocaleString()} PLZ verfügbar`;
-            }
-        }
-        
-        function handlePLZInput(value) {
-            const suggestions = document.getElementById('plzSuggestions');
-            
-            if (value.length < 2) {
-                suggestions.classList.remove('show');
-                return;
-            }
-            
-            // Finde passende PLZ
-            const matches = allePLZ.filter(plz => plz.startsWith(value)).slice(0, 10);
-            
-            if (matches.length > 0) {
-                suggestions.innerHTML = matches.map(plz => {
-                    const gemeinde = schneeDaten[plz]?.gemeinde || '';
-                    return `
-                        <div class="suggestion-item" onclick="selectPLZ('${plz}')">
-                            <strong>${plz}</strong> ${gemeinde ? `- ${gemeinde}` : ''}
-                        </div>
-                    `;
-                }).join('');
-                suggestions.classList.add('show');
-            } else {
-                suggestions.classList.remove('show');
-            }
-        }
-        
-        function selectPLZ(plz) {
-            document.getElementById('plzInput').value = plz;
-            document.getElementById('plzSuggestions').classList.remove('show');
-        }
-        
-        // Schließe Autocomplete bei Klick außerhalb
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.plz-input-wrapper')) {
-                document.getElementById('plzSuggestions').classList.remove('show');
-            }
-        });
-        
-        function berechneLasten() {
-            const plz = document.getElementById('plzInput').value.trim();
-            const height = parseFloat(document.getElementById('heightInput').value) || 200;
-            const terrain = document.getElementById('terrainSelect').value;
-            const buildingHeight = parseFloat(document.getElementById('buildingHeight').value) || 10;
-            
-            if (!plz || !/^\d{5}$/.test(plz)) {
-                alert('Bitte geben Sie eine gültige 5-stellige Postleitzahl ein.');
-                return;
-            }
-            
-            if (!schneeDaten || !windDaten) {
-                alert('Die Datenbanken werden noch geladen. Bitte warten Sie einen Moment.');
-                return;
-            }
-            
-            // Zeige Ladeanimation
-            document.getElementById('loading').classList.add('show');
-            document.getElementById('resultsSection').classList.remove('show');
-            
-            setTimeout(() => {
-                document.getElementById('loading').classList.remove('show');
-                
-                // Hole Daten aus Tabellen
-                const schneeDatenPLZ = schneeDaten[plz];
-                const windDatenPLZ = windDaten[plz];
-                
-                if (!schneeDatenPLZ || !windDatenPLZ) {
-                    alert(`PLZ ${plz} nicht in den DIBt-Tabellen gefunden. Bitte prüfen Sie die PLZ.`);
-                    return;
-                }
-                
-                // Schneelast berechnen
-                const schneeZone = schneeDatenPLZ.zone;
-                const schneeGrund = schneeGrundwerte[schneeZone] || 0.65;
-                let schneeFaktor = 1.0;
-                if (height > 1000) {
-                    schneeFaktor = 1 + Math.pow((height - 1000) / 728, 2);
-                }
-                const schneelastKN = schneeGrund * schneeFaktor;
-                const schneelastKG = schneelastKN * 101.97;
-                
-                // Windlast berechnen
-                const windZone = windDatenPLZ.zone;
-                const windLage = windDatenPLZ.lage;
-                const windSpeed = windGeschwindigkeiten[windZone] || 25.0;
-                
-                // Geländefaktoren
-                const terrainFactors = { 
-                    '1': 1.3,
-                    '2': 1.0,
-                    '3': 0.85,
-                    '4': 0.7
-                };
-                const terrainFactor = terrainFactors[terrain] || 1.0;
-                
-                // Küsten-/Binnenland-Faktor
-                const lageFactor = windLage.toLowerCase().includes('küste') ? 1.1 : 1.0;
-                
-                // Höhenfaktor (vereinfacht)
-                const heightFactor = Math.pow(Math.max(buildingHeight, 10) / 10, 0.16);
-                
-                const effectiveSpeed = windSpeed * terrainFactor * lageFactor * heightFactor;
-                const windPressurePA = 0.5 * 1.25 * Math.pow(effectiveSpeed, 2);
-                const windPressureKG = windPressurePA / 9.81;
-                const windSuctionKG = windPressureKG * 0.8;
-                
-                // Ergebnisse anzeigen
-                document.getElementById('snowLoad').textContent = schneelastKG.toFixed(1);
-                document.getElementById('snowZone').textContent = `Zone ${schneeZone}`;
-                document.getElementById('snowBase').textContent = `${schneeGrund} kN/m²`;
-                document.getElementById('plzBereich').textContent = schneeDatenPLZ.plzBereich || plz;
-                document.getElementById('gemeinde').textContent = schneeDatenPLZ.gemeinde || 'N/A';
-                
-                document.getElementById('windPressure').textContent = windPressureKG.toFixed(1);
-                document.getElementById('windZone').textContent = `Zone ${windZone}`;
-                document.getElementById('windSpeed').textContent = `${effectiveSpeed.toFixed(1)} m/s`;
-                document.getElementById('windSuction').textContent = `${windSuctionKG.toFixed(1)} kg/m²`;
-                document.getElementById('windLage').textContent = windLage;
-                
-                // Diagramm erstellen
-                erstelleDiagramm(schneelastKG, windPressureKG);
-                
-                document.getElementById('resultsSection').classList.add('show');
-                
-            }, 500);
-        }
-        
-        function erstelleDiagramm(schnee, wind) {
-            const ctx = document.getElementById('loadChart').getContext('2d');
-            
-            if (lastChart) {
-                lastChart.destroy();
-            }
-            
-            lastChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Schneelast', 'Winddruck', 'Windsog'],
-                    datasets: [{
-                        data: [schnee, wind, wind * 0.8],
-                        backgroundColor: [
-                            'rgba(52, 152, 219, 0.6)',
-                            'rgba(46, 204, 113, 0.6)',
-                            'rgba(241, 196, 15, 0.6)'
-                        ],
-                        borderColor: [
-                            'rgba(52, 152, 219, 1)',
-                            'rgba(46, 204, 113, 1)',
-                            'rgba(241, 196, 15, 1)'
-                        ],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.parsed.y.toFixed(1) + ' kg/m²';
-                                }
-                            }
+                const ads = document.querySelectorAll('.adsbygoogle');
+                ads.forEach(ad => {
+                    if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-adsbygoogle-status')) {
+                        if (!allowPersonalized) {
+                            ad.setAttribute('data-npa', '1');
                         }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Last (kg/m²)'
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    }
+                });
+            } catch (e) {
+                console.log('AdSense loading error:', e);
+            }
+        }
+    }, 1000);
+}
+
+function ladeDachParameter() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has('breite')) dachBreite = parseFloat(urlParams.get('breite'));
+    if (urlParams.has('hoehe')) dachHoehe = parseFloat(urlParams.get('hoehe'));
+    if (urlParams.has('typ')) dachTyp = urlParams.get('typ');
+    if (urlParams.has('obereBreite')) obereBreite = parseFloat(urlParams.get('obereBreite'));
+    if (urlParams.has('trapezHoehe')) trapezHoehe = parseFloat(urlParams.get('trapezHoehe'));
+    if (urlParams.has('rechteckHoehe')) rechteckHoehe = parseFloat(urlParams.get('rechteckHoehe'));
+
+    aktualisiereAnzeige();
+}
+
+function aktualisiereAnzeige() {
+    let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    switch(dachTyp) {
+        case 'trapez':
+            if (obereBreite) massText += `, Obere Breite: ${obereBreite.toFixed(1)}m`;
+            break;
+        case 'dreieck':
+            massText += `, Spitzdach`;
+            break;
+        case 'trapez-auf-rechteck':
+            const obereBreiteTA = urlParams.get('obereBreite');
+            const trapezHoeheTA = urlParams.get('trapezHoehe');
+            const rechteckHoeheTA = urlParams.get('rechteckHoehe');
+            if (obereBreiteTA && trapezHoeheTA && rechteckHoeheTA) {
+                massText += `, Obere Breite: ${parseFloat(obereBreiteTA).toFixed(1)}m`;
+            }
+            break;
+    }
+    
+    document.getElementById('dach-masse').textContent = massText;
+    document.getElementById('dach-darstellung').innerHTML = generiereSimpleDachSVG();
+}
+
+function generiereSimpleDachSVG() {
+    let svg = '';
+    
+    switch(dachTyp) {
+        case 'rechteck':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <rect x="20" y="30" width="160" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Rechteck</text>
+            </svg>`;
+            break;
+        case 'trapez':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <polygon points="60,30 140,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Trapez</text>
+            </svg>`;
+            break;
+        case 'dreieck':
+        case 'gleichschenkliges-dreieck':
+        case 'ungleichschenkliges-dreieck':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <polygon points="100,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="75" text-anchor="middle" font-size="12" fill="#333">Dreieck</text>
+            </svg>`;
+            break;
+        case 'trapez-auf-rechteck':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <rect x="20" y="60" width="160" height="30" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <polygon points="60,30 140,30 180,60 20,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="75" text-anchor="middle" font-size="11" fill="#333">Trapez+Rechteck</text>
+            </svg>`;
+            break;
+        default:
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <rect x="20" y="60" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+            </svg>`;
+    }
+    
+    return svg;
+}
+
+let berechnungsTimer = null;
+
+function aktualisiereAutomatischeSparrenBerechnung() {
+    const anzahlInput = document.getElementById('anzahl-sparren');
+    const abstandInput = document.getElementById('sparren-abstand');
+    const ueberstandInput = document.getElementById('dachueberstand');
+    
+    [anzahlInput, abstandInput, ueberstandInput].forEach(input => {
+        input.addEventListener('input', function() {
+            if (berechnungsTimer) clearTimeout(berechnungsTimer);
+            berechnungsTimer = setTimeout(() => berechneSparrenParameter(), 800);
+        });
+    });
+}
+
+function berechneSparrenParameter() {
+    const anzahlInput = document.getElementById('anzahl-sparren');
+    const abstandInput = document.getElementById('sparren-abstand');
+    const ueberstandInput = document.getElementById('dachueberstand');
+    
+    const anzahl = parseFloat(anzahlInput.value) || 0;
+    const abstand = parseFloat(abstandInput.value) || 0;
+    const ueberstand = parseFloat(ueberstandInput.value) || 0;
+    
+    let gefuellteFelder = 0;
+    if (anzahl > 0 && anzahlInput.value.trim() !== '') gefuellteFelder++;
+    if (abstand > 0 && abstandInput.value.trim() !== '') gefuellteFelder++;
+    if (ueberstand >= 0 && ueberstandInput.value.trim() !== '') gefuellteFelder++;
+    
+    [anzahlInput, abstandInput, ueberstandInput].forEach(input => {
+        if (input.style.backgroundColor === 'rgb(232, 245, 232)') {
+            input.style.backgroundColor = '';
+        }
+    });
+    
+    if (gefuellteFelder === 2) {
+        if (anzahl > 0 && abstand > 0 && ueberstandInput.value.trim() === '') {
+            const sparrenBreite = (anzahl - 1) * (abstand / 100);
+            const neuerUeberstand = ((dachBreite - sparrenBreite) / 2) * 100;
+            ueberstandInput.value = Math.max(0, neuerUeberstand).toFixed(1);
+            ueberstandInput.style.backgroundColor = '#e8f5e8';
+        }
+        else if (anzahl > 0 && ueberstand >= 0 && abstandInput.value.trim() === '') {
+            const verfuegbareBreite = dachBreite - (2 * ueberstand / 100);
+            const neuerAbstand = (verfuegbareBreite / (anzahl - 1)) * 100;
+            abstandInput.value = neuerAbstand.toFixed(1);
+            abstandInput.style.backgroundColor = '#e8f5e8';
+        }
+        else if (abstand > 0 && ueberstand >= 0 && anzahlInput.value.trim() === '') {
+            const verfuegbareBreite = dachBreite - (2 * ueberstand / 100);
+            const neueAnzahl = Math.round((verfuegbareBreite / (abstand / 100)) + 1);
+            anzahlInput.value = Math.max(2, neueAnzahl);
+            anzahlInput.style.backgroundColor = '#e8f5e8';
+        }
+    }
+    
+    if (anzahlInput.value && abstandInput.value && ueberstandInput.value !== '') {
+        berechneSparrenPositionen(parseInt(anzahlInput.value), parseFloat(abstandInput.value), parseFloat(ueberstandInput.value));
+        berechneSpitzdachSparren(parseInt(anzahlInput.value));
+    }
+}
+
+function berechneSparrenPositionen(anzahl, abstand, ueberstand) {
+    sparrenPositionen = [];
+    const ueberstandM = ueberstand / 100;
+    
+    for (let i = 0; i < anzahl; i++) {
+        sparrenPositionen.push(ueberstandM + (i * abstand / 100));
+    }
+}
+
+function berechneSpitzdachSparren(anzahlSparren) {
+    sparrenLaengen = [];
+    
+    switch(dachTyp) {
+        case 'rechteck':
+            for (let i = 0; i < anzahlSparren; i++) {
+                sparrenLaengen.push(dachHoehe);
+            }
+            break;
+            
+        case 'trapez':
+            const seitenAbstand = (dachBreite - obereBreite) / 2;
+            const linkeObereEcke = seitenAbstand;
+            const rechteObereEcke = dachBreite - seitenAbstand;
+            
+            for (let i = 0; i < anzahlSparren; i++) {
+                const xPosition = sparrenPositionen[i];
+                let sparrenLaenge;
+                
+                if (xPosition <= linkeObereEcke) {
+                    sparrenLaenge = (xPosition / linkeObereEcke) * dachHoehe;
+                } else if (xPosition >= rechteObereEcke) {
+                    sparrenLaenge = ((dachBreite - xPosition) / seitenAbstand) * dachHoehe;
+                } else {
+                    sparrenLaenge = dachHoehe;
+                }
+                sparrenLaengen.push(Math.max(0, sparrenLaenge));
+            }
+            break;
+            
+        case 'dreieck':
+        case 'gleichschenkliges-dreieck':
+        case 'ungleichschenkliges-dreieck':
+            const halbBreite = dachBreite / 2;
+            
+            for (let i = 0; i < anzahlSparren; i++) {
+                const xPosition = sparrenPositionen[i];
+                let sparrenLaenge;
+                
+                if (xPosition <= halbBreite) {
+                    sparrenLaenge = (xPosition / halbBreite) * dachHoehe;
+                } else {
+                    sparrenLaenge = ((dachBreite - xPosition) / halbBreite) * dachHoehe;
+                }
+                
+                sparrenLaengen.push(Math.max(0, sparrenLaenge));
+            }
+            break;
+            
+        case 'trapez-auf-rechteck':
+            const seitenAbstandTA = (dachBreite - obereBreite) / 2;
+            const linkeObereEckeTA = seitenAbstandTA;
+            const rechteObereEckeTA = dachBreite - seitenAbstandTA;
+            
+            for (let i = 0; i < anzahlSparren; i++) {
+                const xPosition = sparrenPositionen[i];
+                let sparrenLaenge = rechteckHoehe;
+                
+                if (xPosition <= linkeObereEckeTA) {
+                    sparrenLaenge += (xPosition / linkeObereEckeTA) * trapezHoehe;
+                } else if (xPosition >= rechteObereEckeTA) {
+                    sparrenLaenge += ((dachBreite - xPosition) / seitenAbstandTA) * trapezHoehe;
+                } else {
+                    sparrenLaenge += trapezHoehe;
+                }
+                
+                sparrenLaengen.push(Math.max(0, sparrenLaenge));
+            }
+            break;
+            
+        default:
+            for (let i = 0; i < anzahlSparren; i++) {
+                sparrenLaengen.push(dachHoehe);
+            }
+    }
+}
+
+function aktualisiereLattenabstandsfeld() {
+    const select = document.getElementById('lattenabstand');
+    const customGroup = document.getElementById('custom-lattenabstand-group');
+    
+    select.addEventListener('change', function() {
+        customGroup.style.display = this.value === 'custom' ? 'block' : 'none';
+    });
+}
+
+function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
+    const tatsaechlichVerfuegbar = verfuegbareLaengen.filter(l => l > 0);
+    if (tatsaechlichVerfuegbar.length === 0) {
+        return { kombination: [], gesamtLaenge: 0, verschnitt: 0, anzahlReihen: 0 };
+    }
+    
+    tatsaechlichVerfuegbar.sort((a, b) => a - b);
+    
+    const materialListe = [];
+    let gesamtVerschnitt = 0;
+    let gesamtBenoetigteLaenge = 0;
+    
+    window.lattenPlan = [];
+    
+    const istRechteckSonderfall = (dachTyp === 'rechteck' && 
+        sparrenPositionen.length > 0 && 
+        (sparrenPositionen[0] > 0.05 || sparrenPositionen[sparrenPositionen.length - 1] < dachBreite - 0.05));
+    
+    if (istRechteckSonderfall) {
+        for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
+            const reihenBreite = dachBreite;
+            gesamtBenoetigteLaenge += reihenBreite;
+            
+            // Finde beste Kombination
+            let besteKombination = null;
+            let minVerschnitt = Infinity;
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                if (tatsaechlichVerfuegbar[i] >= reihenBreite - 0.01) {
+                    const verschnitt = tatsaechlichVerfuegbar[i] - reihenBreite;
+                    if (verschnitt < minVerschnitt) {
+                        minVerschnitt = verschnitt;
+                        besteKombination = [tatsaechlichVerfuegbar[i]];
+                    }
+                }
+            }
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j];
+                    if (summe >= reihenBreite - 0.01) {
+                        const verschnitt = summe - reihenBreite;
+                        if (verschnitt < minVerschnitt) {
+                            minVerschnitt = verschnitt;
+                            besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j]];
+                        }
+                    }
+                }
+            }
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    for (let k = j; k < tatsaechlichVerfuegbar.length; k++) {
+                        const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j] + tatsaechlichVerfuegbar[k];
+                        if (summe >= reihenBreite - 0.01) {
+                            const verschnitt = summe - reihenBreite;
+                            if (verschnitt < minVerschnitt) {
+                                minVerschnitt = verschnitt;
+                                besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j], tatsaechlichVerfuegbar[k]];
                             }
                         }
                     }
                 }
-            });
+            }
+            
+            if (besteKombination) {
+                let segmente = [];
+                
+                if (besteKombination.length === 1) {
+                    // Eine Latte: gesamte Breite abdecken
+                    segmente.push({
+                        start: 0,
+                        ende: reihenBreite,
+                        laenge: reihenBreite,
+                        originalLaenge: besteKombination[0],
+                        istRest: false
+                    });
+                    
+                    const existierend = materialListe.find(m => m.laenge === besteKombination[0]);
+                    if (existierend) existierend.anzahl++;
+                    else materialListe.push({ laenge: besteKombination[0], anzahl: 1 });
+                    
+                    gesamtVerschnitt += (besteKombination[0] - reihenBreite);
+                    
+                } else {
+                    // Mehrere Latten: Intelligente Aufteilung
+                    const lattenSumme = besteKombination.reduce((sum, l) => sum + l, 0);
+                    
+                    // Sortiere Latten: kürzeste zuerst (die wird geschnitten)
+                    const sortierteLatten = [...besteKombination].sort((a, b) => a - b);
+                    const zuSchneidendeLatte = sortierteLatten[0];
+                    const ganzeLatten = sortierteLatten.slice(1);
+                    const summeGanzeLatten = ganzeLatten.reduce((sum, l) => sum + l, 0);
+                    
+                    // Variante basierend auf Reihe
+                    const variante = reihe % 3;
+                    
+                    // Die zu schneidende Latte muss die verbleibende Länge füllen
+                    const restLaenge = reihenBreite - summeGanzeLatten;
+                    
+                    // Wenn die zu schneidende Latte nicht ausreicht, verwende Fallback
+                    if (zuSchneidendeLatte < restLaenge - 0.01) {
+                        // Fallback: einfache gleichmäßige Aufteilung
+                        const stueckLaenge = reihenBreite / besteKombination.length;
+                        let aktPos = 0;
+                        
+                        for (let i = 0; i < besteKombination.length; i++) {
+                            const ende = (i === besteKombination.length - 1) ? reihenBreite : aktPos + stueckLaenge;
+                            segmente.push({
+                                start: aktPos,
+                                ende: ende,
+                                laenge: ende - aktPos,
+                                originalLaenge: besteKombination[i],
+                                istRest: false
+                            });
+                            aktPos = ende;
+                        }
+                        
+                        besteKombination.forEach(laenge => {
+                            const existierend = materialListe.find(m => m.laenge === laenge);
+                            if (existierend) existierend.anzahl++;
+                            else materialListe.push({ laenge: laenge, anzahl: 1 });
+                        });
+                        
+                        gesamtVerschnitt += (lattenSumme - reihenBreite);
+                        
+                    } else {
+                        // Intelligente Aufteilung: Anfangsstück + ganze Latten + Endstück
+                        const minStueckLaenge = 1.0;
+                        const maxSchnittPos = zuSchneidendeLatte - minStueckLaenge;
+                        
+                        let besteSchnittPos = null;
+                        let besteQualitaet = Infinity;
+                        
+                        // Bevorzugte Schnittposition basierend auf Variante
+                        let bevorzugteSchnittPos;
+                        if (variante === 0) {
+                            bevorzugteSchnittPos = restLaenge * 0.5; // 50/50
+                        } else if (variante === 1) {
+                            bevorzugteSchnittPos = restLaenge * 0.3; // 30/70
+                        } else {
+                            bevorzugteSchnittPos = restLaenge * 0.7; // 70/30
+                        }
+                        
+                        // Teste Schnittpositionen in 0,1m Schritten
+                        for (let schnittPos = minStueckLaenge; schnittPos <= Math.min(maxSchnittPos, restLaenge - minStueckLaenge); schnittPos += 0.1) {
+                            // Anfangsstück
+                            const stoss1 = schnittPos;
+                            
+                            // Dann kommen die ganzen Latten
+                            let aktPos = stoss1;
+                            const alleStossPositionen = [stoss1];
+                            
+                            for (let ganzeLatte of ganzeLatten) {
+                                aktPos += ganzeLatte;
+                                alleStossPositionen.push(aktPos);
+                            }
+                            
+                            // Das letzte Stück (Rest der geschnittenen Latte) endet bei reihenBreite
+                            // alleStossPositionen enthält jetzt alle Stoß-Positionen
+                            
+                            // Berechne Qualität: Summe aller Abstände zu nächsten Sparren
+                            let sparrenQualitaet = 0;
+                            for (let stossPos of alleStossPositionen) {
+                                let minAbstand = Infinity;
+                                for (let sparrenPos of sparrenPositionen) {
+                                    minAbstand = Math.min(minAbstand, Math.abs(sparrenPos - stossPos));
+                                }
+                                sparrenQualitaet += minAbstand;
+                            }
+                            
+                            // Füge leichte Präferenz für gewünschte Variante hinzu
+                            const positionsAbweichung = Math.abs(schnittPos - bevorzugteSchnittPos) * 0.1;
+                            const qualitaet = sparrenQualitaet + positionsAbweichung;
+                            
+                            if (qualitaet < besteQualitaet) {
+                                besteQualitaet = qualitaet;
+                                besteSchnittPos = schnittPos;
+                            }
+                        }
+                        
+                        // Verwende beste Schnittposition
+                        if (besteSchnittPos) {
+                            // Anfangsstück (von geschnittener Latte)
+                            segmente.push({
+                                start: 0,
+                                ende: besteSchnittPos,
+                                laenge: besteSchnittPos,
+                                originalLaenge: zuSchneidendeLatte,
+                                istRest: false
+                            });
+                            
+                            // Ganze Latten
+                            let aktPos = besteSchnittPos;
+                            for (let ganzeLatte of ganzeLatten) {
+                                segmente.push({
+                                    start: aktPos,
+                                    ende: aktPos + ganzeLatte,
+                                    laenge: ganzeLatte,
+                                    originalLaenge: ganzeLatte,
+                                    istRest: false
+                                });
+                                aktPos += ganzeLatte;
+                            }
+                            
+                            // Endstück (Rest der geschnittenen Latte)
+                            segmente.push({
+                                start: aktPos,
+                                ende: reihenBreite,
+                                laenge: reihenBreite - aktPos,
+                                originalLaenge: zuSchneidendeLatte,
+                                istRest: true  // Dies ist das Rest-Stück!
+                            });
+                            
+                            besteKombination.forEach(laenge => {
+                                const existierend = materialListe.find(m => m.laenge === laenge);
+                                if (existierend) existierend.anzahl++;
+                                else materialListe.push({ laenge: laenge, anzahl: 1 });
+                            });
+                            
+                            gesamtVerschnitt += (lattenSumme - reihenBreite);
+                        }
+                    }
+                }
+                
+                window.lattenPlan[reihe] = segmente;
+            }
         }
         
-        // Enter-Taste für Berechnung
-        document.getElementById('plzInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                berechneLasten();
+    } else {
+        const luecken = [];
+        
+        for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
+            const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
+            let reihenBreite = berechneReihenBreite(fortschritt);
+            
+            gesamtBenoetigteLaenge += reihenBreite;
+            
+            const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+            const relevanteSparren = sparrenPositionen.filter(pos => 
+                pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
+            ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
+            
+            if (relevanteSparren.length === 0 || relevanteSparren[0] > 0.05) {
+                relevanteSparren.unshift(0);
             }
+            if (relevanteSparren[relevanteSparren.length - 1] < reihenBreite - 0.05) {
+                relevanteSparren.push(reihenBreite);
+            }
+            
+            let besteKombination = null;
+            let minVerschnitt = Infinity;
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                const summe = tatsaechlichVerfuegbar[i];
+                if (summe >= reihenBreite - 0.01) {
+                    const verschnitt = summe - reihenBreite;
+                    if (verschnitt < minVerschnitt) {
+                        minVerschnitt = verschnitt;
+                        besteKombination = [tatsaechlichVerfuegbar[i]];
+                    }
+                }
+            }
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j];
+                    if (summe >= reihenBreite - 0.01) {
+                        const verschnitt = summe - reihenBreite;
+                        if (verschnitt < minVerschnitt) {
+                            minVerschnitt = verschnitt;
+                            besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j]];
+                        }
+                    }
+                }
+            }
+            
+            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
+                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
+                    for (let k = j; k < tatsaechlichVerfuegbar.length; k++) {
+                        const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j] + tatsaechlichVerfuegbar[k];
+                        if (summe >= reihenBreite - 0.01) {
+                            const verschnitt = summe - reihenBreite;
+                            if (verschnitt < minVerschnitt) {
+                                minVerschnitt = verschnitt;
+                                besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j], tatsaechlichVerfuegbar[k]];
+                            }
+                        }
+                    }
+                }
+            }
+            
+            const reihenSegmente = [];
+            let aktuellePosition = 0;
+            
+            if (besteKombination) {
+                for (let lattenLaenge of besteKombination) {
+                    if (aktuellePosition >= reihenBreite - 0.01) break;
+                    
+                    const maxEnde = Math.min(aktuellePosition + lattenLaenge, reihenBreite);
+                    
+                    let zielSparren = null;
+                    for (let j = relevanteSparren.length - 1; j >= 0; j--) {
+                        if (relevanteSparren[j] > aktuellePosition + 0.5 && relevanteSparren[j] <= maxEnde + 0.05) {
+                            zielSparren = relevanteSparren[j];
+                            break;
+                        }
+                    }
+                    
+                    if (zielSparren) {
+                        reihenSegmente.push({
+                            start: aktuellePosition,
+                            ende: zielSparren,
+                            laenge: zielSparren - aktuellePosition,
+                            originalLaenge: lattenLaenge,
+                            istRest: false
+                        });
+                        
+                        constexistierend = materialListe.find(m => m.laenge === lattenLaenge);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
+                        }
+                        
+                        aktuellePosition = zielSparren;
+                    }
+                }
+            }
+            
+            if (aktuellePosition < reihenBreite - 0.1) {
+                luecken.push({
+                    reihe: reihe,
+                    start: aktuellePosition,
+                    ende: reihenBreite,
+                    benoetigteLattenlaenge: reihenBreite - aktuellePosition,
+                    relevanteSparren: relevanteSparren.filter(pos => pos > aktuellePosition)
+                });
+            }
+            
+            window.lattenPlan[reihe] = reihenSegmente;
+        }
+        
+        if (luecken.length > 0) {
+            let restPool = [];
+            
+            for (let luecke of luecken) {
+                let gefuellt = false;
+                
+                for (let i = 0; i < restPool.length; i++) {
+                    const restLaenge = restPool[i];
+                    
+                    let zielSparren = null;
+                    for (let sparrenPos of luecke.relevanteSparren) {
+                        if (sparrenPos <= luecke.start + restLaenge + 0.05) {
+                            zielSparren = sparrenPos;
+                            break;
+                        }
+                    }
+                    
+                    if (zielSparren && zielSparren >= luecke.ende - 0.05) {
+                        window.lattenPlan[luecke.reihe].push({
+                            start: luecke.start,
+                            ende: luecke.ende,
+                            laenge: luecke.benoetigteLattenlaenge,
+                            originalLaenge: restLaenge,
+                            istRest: true
+                        });
+                        
+                        const neuerRest = restLaenge - luecke.benoetigteLattenlaenge;
+                        restPool.splice(i, 1);
+                        
+                        if (neuerRest > 0.5) {
+                            restPool.push(neuerRest);
+                            restPool.sort((a, b) => b - a);
+                        } else if (neuerRest > 0.01) {
+                            gesamtVerschnitt += neuerRest;
+                        }
+                        
+                        gefuellt = true;
+                        break;
+                    }
+                }
+                
+                if (!gefuellt) {
+                    const passendeLatte = tatsaechlichVerfuegbar.find(l => l >= luecke.benoetigteLattenlaenge);
+                    if (passendeLatte) {
+                        window.lattenPlan[luecke.reihe].push({
+                            start: luecke.start,
+                            ende: luecke.ende,
+                            laenge: luecke.benoetigteLattenlaenge,
+                            originalLaenge: passendeLatte,
+                            istRest: false
+                        });
+                        
+                        const existierend = materialListe.find(m => m.laenge === passendeLatte);
+                        if (existierend) {
+                            existierend.anzahl++;
+                        } else {
+                            materialListe.push({ laenge: passendeLatte, anzahl: 1 });
+                        }
+                        
+                        const neuerRest = passendeLatte - luecke.benoetigteLattenlaenge;
+                        if (neuerRest > 0.5) {
+                            restPool.push(neuerRest);
+                            restPool.sort((a, b) => b - a);
+                        } else if (neuerRest > 0.01) {
+                            gesamtVerschnitt += neuerRest;
+                        }
+                    }
+                }
+            }
+            
+            gesamtVerschnitt += restPool.reduce((sum, rest) => sum + rest, 0);
+        }
+    }
+    
+    const gesamtLaenge = materialListe.reduce((sum, m) => sum + (m.laenge * m.anzahl), 0);
+    
+    return {
+        kombination: materialListe,
+        gesamtLaenge: gesamtLaenge,
+        verschnitt: gesamtVerschnitt,
+        benoetigteLaenge: gesamtBenoetigteLaenge,
+        anzahlReihen: anzahlReihen
+    };
+}
+
+function berechneReihenBreite(fortschritt) {
+    switch(dachTyp) {
+        case 'rechteck':
+            return dachBreite;
+            
+        case 'trapez':
+            return obereBreite + (dachBreite - obereBreite) * fortschritt;
+            
+        case 'dreieck':
+        case 'gleichschenkliges-dreieck':
+        case 'ungleichschenkliges-dreieck':
+            return dachBreite * (1 - fortschritt);
+            
+        case 'trapez-auf-rechteck':
+            const trapezAnteil = trapezHoehe / dachHoehe;
+            
+            if (fortschritt <= trapezAnteil) {
+                const trapezFortschritt = fortschritt / trapezAnteil;
+                return obereBreite + (dachBreite - obereBreite) * trapezFortschritt;
+            } else {
+                return dachBreite;
+            }
+            
+        default:
+            return dachBreite;
+    }
+}
+
+function optimiereKonterlatten(benoetigteLaenge, verfuegbareLaengen) {
+    verfuegbareLaengen.sort((a, b) => b - a);
+    
+    const kombination = [];
+    let verbleibendelaenge = benoetigteLaenge;
+    
+    if (dachTyp === 'trapez') {
+        const seitenAbstand = (dachBreite - obereBreite) / 2;
+        const schraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + seitenAbstand * seitenAbstand);
+        verbleibendelaenge += 2 * schraegeLaenge;
+    }
+    
+    while (verbleibendelaenge > 0) {
+        let gefunden = false;
+        for (let laenge of verfuegbareLaengen) {
+            if (laenge <= verbleibendelaenge + 0.01) {
+                const existierend = kombination.find(k => k.laenge === laenge);
+                if (existierend) {
+                    existierend.anzahl++;
+                } else {
+                    kombination.push({ laenge: laenge, anzahl: 1 });
+                }
+                verbleibendelaenge -= laenge;
+                gefunden = true;
+                break;
+            }
+        }
+        
+        if (!gefunden) {
+            const kleinste = Math.min(...verfuegbareLaengen);
+            const existierend = kombination.find(k => k.laenge === kleinste);
+            if (existierend) {
+                existierend.anzahl++;
+            } else {
+                kombination.push({ laenge: kleinste, anzahl: 1 });
+            }
+            verbleibendelaenge -= kleinste;
+        }
+    }
+    
+    const gesamtLaenge = kombination.reduce((sum, k) => sum + (k.laenge * k.anzahl), 0);
+    const verschnitt = gesamtLaenge - benoetigteLaenge;
+    
+    return {
+        kombination: kombination,
+        gesamtLaenge: gesamtLaenge,
+        benoetigteLaenge: benoetigteLaenge,
+        verschnitt: verschnitt
+    };
+}
+
+function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabstand, anzahlSparren) {
+    document.getElementById('konterlatte-gesamtlaenge').textContent = konterlatten.gesamtLaenge.toFixed(1) + ' m';
+    document.getElementById('konterlatte-anzahl').textContent = konterlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
+    document.getElementById('konterlatte-verschnitt').textContent = konterlatten.verschnitt.toFixed(1) + ' m';
+
+    document.getElementById('dachlatte-gesamtlaenge').textContent = dachlatten.gesamtLaenge.toFixed(1) + ' m';
+    document.getElementById('dachlatte-anzahl').textContent = dachlatten.kombination.reduce((sum, k) => sum + k.anzahl, 0) + ' Stück';
+    document.getElementById('dachlatte-verschnitt').textContent = dachlatten.verschnitt.toFixed(1) + ' m';
+
+    const tbody = document.getElementById('material-details');
+    tbody.innerHTML = '';
+    
+    if (konterlatten && konterlatten.kombination) {
+        konterlatten.kombination.forEach(k => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="font-weight: bold;">Konterlatten</td>
+                <td>${k.laenge.toFixed(1)} m</td>
+                <td style="color: #333; font-weight: bold;">${k.anzahl}</td>
+                <td style="color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
+            `;
+            tbody.appendChild(row);
         });
-    </script>
-</body>
-</html>
+    }
+    
+    if (dachlatten && dachlatten.kombination) {
+        dachlatten.kombination.forEach(k => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="font-weight: bold;">Dachlatten</td>
+                <td>${k.laenge.toFixed(1)} m</td>
+                <td style="color: #333; font-weight: bold;">${k.anzahl}</td>
+                <td style="color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+                
+    document.getElementById('results').style.display = 'block';
+    generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand);
+
+    setTimeout(() => {
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
+    const svgWidth = 500;
+    const svgHeight = 400;
+    const margin = 60;
+    
+    const scaleX = (svgWidth - 2 * margin) / dachBreite;
+    const scaleY = (svgHeight - 2 * margin - 80) / dachHoehe;
+    
+    let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
+    svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
+    svg += `<text x="${svgWidth/2}" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3c72">Dachplattenrechner.de</text>`;
+    
+    const dachStartY = margin + 40;
+    
+    if (dachTyp === 'trapez') {
+        const seitenAbstand = (dachBreite - obereBreite) / 2;
+        const trapezObenLinks = margin + seitenAbstand * scaleX;
+        const trapezObenRechts = margin + (obereBreite + seitenAbstand) * scaleX;
+        const trapezUntenLinks = margin;
+        const trapezUntenRechts = margin + dachBreite * scaleX;
+        const trapezUntenY = dachStartY + dachHoehe * scaleY;
+        
+        svg += `<polygon points="${trapezObenLinks},${dachStartY} ${trapezObenRechts},${dachStartY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        svg += `<line x1="${trapezObenLinks}" y1="${dachStartY - 15}" x2="${trapezObenRechts}" y2="${dachStartY - 15}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${trapezObenLinks}" y1="${dachStartY - 18}" x2="${trapezObenLinks}" y2="${dachStartY - 12}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${trapezObenRechts}" y1="${dachStartY - 18}" x2="${trapezObenRechts}" y2="${dachStartY - 12}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<text x="${(trapezObenLinks + trapezObenRechts)/2}" y="${dachStartY - 20}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${obereBreite.toFixed(1)}m</text>`;
+        
+        const linkeSchraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + seitenAbstand * seitenAbstand);
+        const linkeMitteX = (trapezObenLinks + trapezUntenLinks) / 2 - 25;
+        const linkeMitteY = (dachStartY + trapezUntenY) / 2;
+        const linkerWinkel = -Math.atan2(dachHoehe, seitenAbstand) * 180 / Math.PI;
+        svg += `<text x="${linkeMitteX}" y="${linkeMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${linkerWinkel}, ${linkeMitteX}, ${linkeMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
+        
+        const rechteMitteX = (trapezObenRechts + trapezUntenRechts) / 2 + 25;
+        const rechteMitteY = (dachStartY + trapezUntenY) / 2;
+        const rechterWinkel = Math.atan2(dachHoehe, seitenAbstand) * 180 / Math.PI;
+        svg += `<text x="${rechteMitteX}" y="${rechteMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${rechterWinkel}, ${rechteMitteX}, ${rechteMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
+        svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${trapezUntenY}" x2="${margin - 17}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<text x="${margin - 30}" y="${(dachStartY + trapezUntenY)/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${(dachStartY + trapezUntenY)/2})">${dachHoehe.toFixed(1)}m</text>`;
+    } else if (dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
+        const dreieckSpitzeX = margin + (dachBreite / 2) * scaleX;
+        const dreieckLinksX = margin;
+        const dreieckRechtsX = margin + dachBreite * scaleX;
+        const dreieckUntenY = dachStartY + dachHoehe * scaleY;
+        
+        svg += `<polygon points="${dreieckSpitzeX},${dachStartY} ${dreieckRechtsX},${dreieckUntenY} ${dreieckLinksX},${dreieckUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        
+        const linkeSchraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + (dachBreite/2) * (dachBreite/2));
+        const linkeMitteX = (dreieckSpitzeX + dreieckLinksX) / 2 - 25;
+        const linkeMitteY = (dachStartY + dreieckUntenY) / 2;
+        const linkerWinkel = -Math.atan2(dachHoehe, dachBreite/2) * 180 / Math.PI;
+        svg += `<text x="${linkeMitteX}" y="${linkeMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${linkerWinkel}, ${linkeMitteX}, ${linkeMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
+        
+        const rechteMitteX = (dreieckSpitzeX + dreieckRechtsX) / 2 + 25;
+        const rechteMitteY = (dachStartY + dreieckUntenY) / 2;
+        const rechterWinkel = Math.atan2(dachHoehe, dachBreite/2) * 180 / Math.PI;
+        svg += `<text x="${rechteMitteX}" y="${rechteMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${rechterWinkel}, ${rechteMitteX}, ${rechteMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
+        svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${dreieckUntenY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${dreieckUntenY}" x2="${margin - 17}" y2="${dreieckUntenY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<text x="${margin - 30}" y="${(dachStartY + dreieckUntenY)/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${(dachStartY + dreieckUntenY)/2})">${dachHoehe.toFixed(1)}m</text>`;
+    } else if (dachTyp === 'trapez-auf-rechteck') {
+        const seitenAbstand = (dachBreite - obereBreite) / 2;
+        const trapezObenLinks = margin + seitenAbstand * scaleX;
+        const trapezObenRechts = margin + (obereBreite + seitenAbstand) * scaleX;
+        const trapezUntenLinks = margin;
+        const trapezUntenRechts = margin + dachBreite * scaleX;
+        const trapezObenY = dachStartY;
+        const trapezUntenY = dachStartY + trapezHoehe * scaleY;
+        const rechteckUntenY = dachStartY + dachHoehe * scaleY;
+        
+        svg += `<polygon points="${trapezObenLinks},${trapezObenY} ${trapezObenRechts},${trapezObenY} ${trapezUntenRechts},${trapezUntenY} ${trapezUntenLinks},${trapezUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        svg += `<rect x="${margin}" y="${trapezUntenY}" width="${dachBreite * scaleX}" height="${rechteckHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        svg += `<line x1="${trapezObenLinks}" y1="${trapezObenY - 15}" x2="${trapezObenRechts}" y2="${trapezObenY - 15}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${trapezObenLinks}" y1="${trapezObenY - 18}" x2="${trapezObenLinks}" y2="${trapezObenY - 12}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${trapezObenRechts}" y1="${trapezObenY - 18}" x2="${trapezObenRechts}" y2="${trapezObenY - 12}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<text x="${(trapezObenLinks + trapezObenRechts)/2}" y="${trapezObenY - 20}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${obereBreite.toFixed(1)}m</text>`;
+        svg += `<line x1="${margin - 20}" y1="${trapezObenY}" x2="${margin - 20}" y2="${rechteckUntenY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${trapezObenY}" x2="${margin - 17}" y2="${trapezObenY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${rechteckUntenY}" x2="${margin - 17}" y2="${rechteckUntenY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<text x="${margin - 30}" y="${(trapezObenY + rechteckUntenY)/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${(trapezObenY + rechteckUntenY)/2})">${dachHoehe.toFixed(1)}m</text>`;
+    } else {
+        svg += `<rect x="${margin}" y="${dachStartY}" width="${dachBreite * scaleX}" height="${dachHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+        svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<line x1="${margin - 23}" y1="${dachStartY + dachHoehe * scaleY}" x2="${margin - 17}" y2="${dachStartY + dachHoehe * scaleY}" stroke="#333" stroke-width="1.5"/>`;
+        svg += `<text x="${margin - 30}" y="${dachStartY + dachHoehe * scaleY / 2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${dachStartY + dachHoehe * scaleY / 2})">${dachHoehe.toFixed(1)}m</text>`;
+    }
+    
+    for (let i = 0; i < anzahlSparren && i < sparrenPositionen.length; i++) {
+        const sparrenX = margin + sparrenPositionen[i] * scaleX;
+        let sparrenY = dachStartY;
+        let sparrenHeight = dachHoehe * scaleY;
+        
+        if (sparrenLaengen[i] !== undefined) {
+            sparrenHeight = sparrenLaengen[i] * scaleY;
+            if (dachTyp === 'trapez' || dachTyp === 'trapez-auf-rechteck' || dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
+                sparrenY = dachStartY + (dachHoehe - sparrenLaengen[i]) * scaleY;
+            }
+        }
+        
+        svg += `<rect x="${sparrenX - 2}" y="${sparrenY}" width="4" height="${sparrenHeight}" fill="#666" opacity="0.8"/>`;
+        svg += `<rect x="${sparrenX - 1}" y="${sparrenY}" width="2" height="${sparrenHeight}" fill="#ff6b35" opacity="0.9"/>`;
+    }
+    
+    if (dachTyp === 'trapez') {
+        const seitenAbstand = (dachBreite - obereBreite) / 2;
+        const linkeObenX = margin + seitenAbstand * scaleX;
+        const rechteObenX = margin + (dachBreite - seitenAbstand) * scaleX;
+        const untenY = dachStartY + dachHoehe * scaleY;
+        
+        svg += `<line x1="${linkeObenX}" y1="${dachStartY}" x2="${margin}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+        svg += `<line x1="${rechteObenX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+    } else if (dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
+        const spitzeX = margin + (dachBreite / 2) * scaleX;
+        const untenY = dachStartY + dachHoehe * scaleY;
+        
+        svg += `<line x1="${spitzeX}" y1="${dachStartY}" x2="${margin}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+        svg += `<line x1="${spitzeX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+    } else if (dachTyp === 'trapez-auf-rechteck') {
+        const trapezObenY = dachStartY;
+        const trapezUntenY = dachStartY + trapezHoehe * scaleY;
+        const seitenAbstand = (dachBreite - obereBreite) / 2;
+        const linkeObenX = margin + seitenAbstand * scaleX;
+        const rechteObenX = margin + (dachBreite - seitenAbstand) * scaleX;
+        
+        svg += `<line x1="${linkeObenX}" y1="${trapezObenY}" x2="${margin}" y2="${trapezUntenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+        svg += `<line x1="${rechteObenX}" y1="${trapezObenY}" x2="${margin + dachBreite * scaleX}" y2="${trapezUntenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+    }
+    
+    const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
+    const restFarbe = '#e74c3c';
+    
+    for (let i = 0; i < anzahlLattenReihen; i++) {
+        const fortschritt = (anzahlLattenReihen - 1 - i) / Math.max(1, anzahlLattenReihen - 1);
+        const reihenBreite = berechneReihenBreite(fortschritt);
+        const lattenY = dachStartY + (1 - fortschritt) * dachHoehe * scaleY;
+        
+        const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+        const reihenStartX = margin + reihenStartAbsolut * scaleX;
+        
+        if (window.lattenPlan && window.lattenPlan[i]) {
+            const segmente = window.lattenPlan[i];
+            
+            for (let j = 0; j < segmente.length; j++) {
+                const segment = segmente[j];
+                const segmentStartX = reihenStartX + segment.start * scaleX;
+                const segmentEndX = reihenStartX + segment.ende * scaleX;
+                const segmentFarbe = segment.istRest ? restFarbe : (lattenFarben[segment.originalLaenge] || '#27ae60');
+                
+                svg += `<line x1="${segmentStartX}" y1="${lattenY}" x2="${segmentEndX}" y2="${lattenY}" stroke="${segmentFarbe}" stroke-width="4" opacity="0.9"/>`;
+                
+                if (j < segmente.length - 1) {
+                    svg += `<line x1="${segmentEndX}" y1="${lattenY - 6}" x2="${segmentEndX}" y2="${lattenY + 6}" stroke="#1976d2" stroke-width="3"/>`;
+                }
+                
+                if (segment.istRest) {
+                    const mitteX = segmentStartX + (segmentEndX - segmentStartX) / 2;
+                    svg += `<text x="${mitteX}" y="${lattenY - 8}" text-anchor="middle" font-size="8" font-weight="bold" fill="#dc3545">R</text>`;
+                }
+            }
+        }
+    }
+    
+    const breiteY = dachStartY + dachHoehe * scaleY + 40;
+    svg += `<line x1="${margin}" y1="${breiteY}" x2="${margin + dachBreite * scaleX}" y2="${breiteY}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<line x1="${margin}" y1="${breiteY - 3}" x2="${margin}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<linex1="${margin + dachBreite * scaleX}" y1="${breiteY - 3}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
+    svg += `<text x="${margin + dachBreite * scaleX/2}" y="${breiteY + 15}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
+    svg += `</svg>`;
+    
+    document.getElementById('vorschau-svg').innerHTML = svg;
+}
+
+function druckeLattenplan() {
+    const druckInhalt = `<!DOCTYPE html><html><head><title>Lattenplan</title><style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { color: #1e3c72; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f5f5f5; font-weight: bold; }
+    </style></head><body>
+        <h2>Lattenplan</h2>
+        <p><strong>Dach:</strong> ${dachBreite}m × ${dachHoehe}m (${dachTyp})</p>
+        <div style="text-align: center; margin: 20px 0;">
+            ${document.getElementById('vorschau-svg').innerHTML}
+        </div>
+        <table><thead><tr><th>Material</th><th>Länge</th><th>Anzahl</th><th>Gesamtlänge</th></tr></thead>
+            ${document.getElementById('material-details').outerHTML.replace('<tbody id="material-details">', '<tbody>')}
+        </table>
+    </body></html>`;
+    
+    const druckFenster = window.open('', '_blank');
+    druckFenster.document.write(druckInhalt);
+    druckFenster.document.close();
+    
+    setTimeout(() => {
+        druckFenster.print();
+        druckFenster.close();
+    }, 500);
+}
+
+function berechnen() {
+    const anzahlSparren = parseInt(document.getElementById('anzahl-sparren').value);
+    const sparrenAbstand = parseFloat(document.getElementById('sparren-abstand').value);
+    const dachueberstand = parseFloat(document.getElementById('dachueberstand').value) || 0;
+    const lattenabstandSelect = document.getElementById('lattenabstand');
+
+    if (!anzahlSparren || anzahlSparren < 2) {
+        alert('Bitte geben Sie eine gültige Anzahl Sparren ein (mindestens 2)!');
+        return;
+    }
+
+    if (!sparrenAbstand || sparrenAbstand <= 0) {
+        alert('Bitte geben Sie einen gültigen Sparren-Abstand ein!');
+        return;
+    }
+
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'calculation', {
+            'event_category': 'lattenrechner',
+            'event_label': 'latten_berechnung_durchgeführt'
+        });
+    }
+
+    let lattenabstand;
+    if (lattenabstandSelect.value === 'custom') {
+        lattenabstand = parseFloat(document.getElementById('custom-lattenabstand').value);
+        if (!lattenabstand) {
+            alert('Bitte geben Sie einen benutzerdefinierten Lattenabstand ein!');
+            return;
+        }
+    } else {
+        lattenabstand = parseFloat(lattenabstandSelect.value);
+    }
+
+    const verfuegbareKonterlatten = [];
+    const verfuegbareDachlatten = [];
+    
+    [3, 4, 5, 6].forEach(laenge => {
+        const konterlatteCheckbox = document.getElementById(`konterlatte-${laenge}m`);
+        const dachlatteCheckbox = document.getElementById(`dachlatte-${laenge}m`);
+        
+        if (konterlatteCheckbox && konterlatteCheckbox.checked) {
+            verfuegbareKonterlatten.push(laenge);
+        }
+        if (dachlatteCheckbox && dachlatteCheckbox.checked) {
+            verfuegbareDachlatten.push(laenge);
+        }
+    });
+
+    if (verfuegbareKonterlatten.length === 0) {
+        alert('Bitte wählen Sie mindestens eine Konterlattenlänge aus!');
+        return;
+    }
+    
+    if (verfuegbareDachlatten.length === 0) {
+        alert('Bitte wählen Sie mindestens eine Dachlattenlänge aus!');
+        return;
+    }
+
+    berechneSparrenPositionen(anzahlSparren, sparrenAbstand, dachueberstand);
+    berechneSpitzdachSparren(anzahlSparren);
+
+    const konterlattenGesamtlaenge = sparrenLaengen.reduce((sum, laenge) => sum + laenge, 0);
+    const konterlattenKombination = optimiereKonterlatten(konterlattenGesamtlaenge, verfuegbareKonterlatten);
+    
+    const anzahlLattenReihen = Math.ceil((dachHoehe * 100) / lattenabstand) + 1;
+    const dachlattenKombination = berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareDachlatten, anzahlLattenReihen);
+
+    zeigeErgebnisse(konterlattenKombination, dachlattenKombination, anzahlLattenReihen, lattenabstand, anzahlSparren);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadAdSense();
+    
+    const cookieConsent = localStorage.getItem('cookieConsent');
+    if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
+        loadAnalytics();
+    }
+    
+    showAds();
+    
+    ladeDachParameter();
+    aktualisiereLattenabstandsfeld();
+    aktualisiereAutomatischeSparrenBerechnung();
+});
