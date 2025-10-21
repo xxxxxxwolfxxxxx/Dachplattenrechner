@@ -104,6 +104,11 @@
             min-height: 0 !important;
         }
 
+        /* Beispielrechnung hell machen */
+        .calculation-table h4 {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
         @media (max-width: 768px) {
             .ad-container {
                 margin: 20px auto;
@@ -181,7 +186,7 @@
                 <p>Die meisten unserer Kunden sanieren ein bestehendes Dach. Kein Bauantrag, kein Architekt – einfach ran an die Substanz. Und das ist oft einfacher, als man denkt. Du musst nur wissen, was dein Dach tragen kann. Zwei Augen sehen mehr, vier Hände arbeiten schneller – und sechs Schultern tragen auch mal eine Dachplatte mehr.</p>
 
                 <h3>Statik – heute stabil, morgen solarbereit</h3>
-                <p>Ein Blechdach ist angenehm leicht – meist zwischen 5 und 8 kg/m². Dazu kommt die Unterkonstruktion, Trennlage, ggf. Dämmung – sagen wir insgesamt rund 25 kg/m². Dann kommt die Schneelast. Die ist regional unterschiedlich, aber du kannst sie ganz einfach online nachschauen – z. B. über die Schneelastkarte Deutschland.</p>
+                <p>Ein Blechdach ist angenehm leicht – meist zwischen 5 und 8 kg/m². Dazu kommt die Unterkonstruktion, Trennlage, ggf. Dämmung – sagen wir insgesamt rund 25 kg/m². Dann kommt die <a href="/tools/karte.html" style="color: #0ea5e9; text-decoration: underline;">Schneelast</a>. Die ist regional unterschiedlich, aber du kannst sie ganz einfach online nachschauen – z. B. über die <a href="/tools/karte.html" style="color: #0ea5e9; text-decoration: underline;">Schneelastkarte Deutschland</a>.</p>
 
                 <div class="calculation-table">
                     <h4>Beispielrechnung:</h4>
@@ -360,6 +365,9 @@
         <a href="../index.html" class="nav-button nav-back">
             <span class="nav-icon">←</span>
             <span class="nav-text">Zurück zur Startseite</span>
+        </a>
+        <a href="/tools/karte.html" class="nav-button nav-center">
+            <span class="nav-text">Schnee- & Windlastkarte</span>
         </a>
         <a href="messen.html" class="nav-button nav-forward">
             <span class="nav-text">Zum Messen</span>
