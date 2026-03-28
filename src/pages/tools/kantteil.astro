@@ -1,0 +1,162 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import InfoBox from '../../components/InfoBox.astro';
+import AdUnit from '../../components/AdUnit.astro';
+---
+
+<ToolLayout
+  title="Kantteile Zeichenprogramm – Blech-Kantteile planen"
+  description="Planen und zeichnen Sie Kantteile für Trapezbleche und Dacheindeckungen. Interaktiver Editor für Blechstärke, Farbe und individuelle Biegungen."
+  navTitle="Kantteil-Rechner"
+>
+  <InfoBox title="Wann verwende ich dieses Tool?" icon="✏️">
+    <p>Das <strong>Kantteile Zeichenprogramm</strong> hilft bei der Planung von Blechkantteilen:</p>
+    <ul>
+      <li>Firstbleche, Ortgangbleche und Traufbleche</li>
+      <li>Wandanschlüsse und Regenabweiser</li>
+      <li>Individuelle Kantprofile für Sonderformen</li>
+      <li>Planung von Biegungen mit korrektem Biegeradius</li>
+    </ul>
+    <p>Wählen Sie Blechstärke und Farbe, dann starten Sie den interaktiven Zeichen-Editor.</p>
+  </InfoBox>
+
+  <!-- Grundeinstellungen -->
+  <div class="section">
+    <h2>1. Grundeinstellungen</h2>
+    <div class="controls">
+      <div class="control-group">
+        <label>Blechstärke</label>
+        <select id="thickness">
+          <option value="0.5">0,5 mm</option>
+          <option value="0.6" selected>0,6 mm</option>
+          <option value="0.7">0,7 mm</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label>Erste Linie</label>
+        <select id="firstLineType">
+          <option value="horizontal">Waagerecht</option>
+          <option value="vertical">Senkrecht</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Farbauswahl -->
+  <div class="section">
+    <h2>2. Farbauswahl</h2>
+    <div class="controls">
+      <div class="control-group">
+        <label>Vorderseite (Sichtseite)</label>
+        <div class="color-selection">
+          <div class="color-preview" id="colorPreview">
+            <div class="color-front" id="colorFront">Vorder</div>
+            <div class="color-back" id="colorBack">Rück</div>
+          </div>
+          <button class="color-select-btn" onclick="openColorSelection()">
+            Farbe wählen
+          </button>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Ausgewählte Farbe</label>
+        <div id="selectedColorDisplay" style="padding: 12px; background: #f8f9fa; border-radius: 8px; border: 2px solid #e0e0e0; font-weight: 600; color: #1e3c72;">
+          RAL 8004 - Kupferbraun
+        </div>
+      </div>
+    </div>
+    <div class="info-panel">
+      <strong>Hinweis:</strong> Die Rückseite ist oft betongrau (RAL 7032).
+      Die Farbseite wird im Editor festgelegt (oben/unten).
+      <br><strong>Tipp:</strong> Drehen Sie Ihr Bildschirmhelligkeit hoch für bessere Farbdarstellung.
+    </div>
+  </div>
+
+  <!-- Status und Steuerung -->
+  <div class="status" id="statusDisplay">
+    <div>Wählen Sie die Einstellungen und starten Sie die Zeichnung</div>
+    <div class="button-group">
+      <button id="startDrawing" onclick="startEditor()">Zeichnung starten</button>
+    </div>
+  </div>
+
+  <AdUnit position="middle" />
+
+  <!-- Bedienungsanleitung -->
+  <div class="anleitung-section">
+    <h3>Bedienungsanleitung</h3>
+    <div class="anleitung-grid">
+      <div class="anleitung-item">
+        <strong>Schritt 1: Einstellungen</strong>
+        Wählen Sie Blechstärke, Linienrichtung und Farben aus
+      </div>
+      <div class="anleitung-item">
+        <strong>Schritt 2: Zeichnung starten</strong>
+        Klicken Sie "Zeichnung starten" und bewegen Sie die Maus
+      </div>
+      <div class="anleitung-item">
+        <strong>Schritt 3: Länge eingeben</strong>
+        Leertaste für manuelle Eingabe oder Mausbewegung
+      </div>
+      <div class="anleitung-item">
+        <strong>Schritt 4: Bestätigen</strong>
+        Linksklick oder Enter-Taste zum Bestätigen
+      </div>
+      <div class="anleitung-item">
+        <strong>Schritt 5: Kurven hinzufügen</strong>
+        Klicken Sie auf die blauen Punkte für Biegungen
+      </div>
+      <div class="anleitung-item">
+        <strong>Navigation</strong>
+        Mausrad = Zoom, Mittlere Maustaste = Verschieben
+      </div>
+    </div>
+  </div>
+
+  <InfoBox title="⚠️ Hinweis zur Genauigkeit" variant="warning">
+    <p>Alle Ergebnisse dienen als Planungshilfe. Vor der Ausführung bitte von Fachkraft prüfen lassen.</p>
+  </InfoBox>
+
+  <!-- Editor Container -->
+  <div id="editorContainer">
+    <iframe id="editorFrame" src=""></iframe>
+  </div>
+
+</ToolLayout>
+
+<style>
+  .section { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 15px; padding: 30px; margin-bottom: 30px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); }
+  .section h2 { color: #1e3c72; margin-bottom: 20px; font-size: 1.5em; font-weight: 600; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+  .control-group { display: flex; flex-direction: column; }
+  .control-group label { font-weight: 600; color: #1e3c72; margin-bottom: 8px; font-size: 0.95em; }
+  select, input { padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: all 0.3s ease; background: #fafafa; }
+  select:focus, input:focus { outline: none; border-color: #2a5298; background: white; box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1); }
+  .color-selection { display: grid; grid-template-columns: 1fr 2fr; gap: 15px; align-items: end; }
+  .color-preview { width: 100%; height: 40px; border: 2px solid #ddd; border-radius: 8px; background: linear-gradient(45deg, #8b4513 50%, #666 50%); position: relative; overflow: hidden; }
+  .color-front, .color-back { position: absolute; top: 0; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+  .color-front { left: 0; width: 50%; background: #8b4513; }
+  .color-back { right: 0; width: 50%; background: #666; }
+  button { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 10px 5px; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: all 0.3s ease; min-width: 150px; }
+  button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4); background: linear-gradient(135deg, #0056b3 0%, #004085 100%); }
+  button:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; box-shadow: none; }
+  .button-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 20px 0; }
+  .color-select-btn { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); }
+  .color-select-btn:hover { background: linear-gradient(135deg, #0056b3 0%, #004085 100%); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4); }
+  .status { background: rgba(232, 245, 232, 0.95); color: #27ae60; padding: 20px; border-radius: 12px; margin: 20px 0; font-weight: 600; text-align: center; backdrop-filter: blur(5px); border: 1px solid rgba(39, 174, 96, 0.3); }
+  .info-panel { background: rgba(227, 242, 253, 0.95); padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 5px solid #2196f3; backdrop-filter: blur(5px); }
+  .anleitung-section { background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 25px; margin: 30px 0; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(5px); }
+  .anleitung-section h3 { color: #1e3c72; margin-bottom: 15px; font-size: 1.3rem; text-align: center; }
+  .anleitung-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+  .anleitung-item { background: rgba(30, 60, 114, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #1e3c72; }
+  .anleitung-item strong { color: #1e3c72; display: block; margin-bottom: 8px; }
+  #editorContainer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; }
+  #editorFrame { width: 100%; height: 100%; border: none; }
+  @media (max-width: 768px) {
+    .controls { grid-template-columns: 1fr; gap: 15px; }
+    .anleitung-grid { grid-template-columns: 1fr; gap: 15px; }
+  }
+</style>
+
+<script src="/tools-js/kantteil.js" defer></script>

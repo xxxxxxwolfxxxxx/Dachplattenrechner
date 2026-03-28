@@ -1,0 +1,148 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  description: string;
+  icon?: string;       // Bildpfad aus /images/ oder Emoji-String
+  badge?: string;      // z.B. "NEU"
+  features?: string[];
+  external?: boolean;
+}
+const { href, title, description, icon, badge, features = [], external = false } = Astro.props;
+const isEmoji = icon && !icon.startsWith('/') && !icon.startsWith('http');
+---
+<a
+  href={href}
+  class="calc-card"
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener noreferrer' : undefined}
+>
+  {badge && <span class="card-badge">{badge}</span>}
+  {icon && (
+    <div class="card-icon">
+      {isEmoji
+        ? <span class="card-emoji">{icon}</span>
+        : <img src={icon} alt={title} loading="lazy" width="70" height="70" />
+      }
+    </div>
+  )}
+  <h2 class="card-title">{title}</h2>
+  <p class="card-desc">{description}</p>
+  {features.length > 0 && (
+    <ul class="card-features">
+      {features.map(f => <li>{f}</li>)}
+    </ul>
+  )}
+  <span class="card-cta">Rechner öffnen →</span>
+</a>
+
+<style>
+  .calc-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, rgba(30, 45, 74, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+  .calc-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0ea5e9, #06b6d4);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .calc-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(14, 165, 233, 0.4);
+  }
+  .calc-card:hover::before { opacity: 1; }
+
+  .card-badge {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .card-icon {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .card-icon img {
+    height: 70px;
+    width: auto;
+    max-width: 100px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(14, 165, 233, 0.3));
+  }
+  .card-emoji { font-size: 3rem; line-height: 1; }
+
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #f8fafc;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    min-height: 2.5em;
+    display: flex;
+    align-items: center;
+  }
+  .card-desc {
+    color: #94a3b8;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    flex-grow: 1;
+    margin-bottom: 12px;
+  }
+  .card-features {
+    list-style: none;
+    margin-bottom: 16px;
+  }
+  .card-features li {
+    font-size: 0.78rem;
+    color: #64748b;
+    padding: 3px 0 3px 18px;
+    position: relative;
+    line-height: 1.3;
+  }
+  .card-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: 700;
+  }
+  .card-cta {
+    display: block;
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+    color: white;
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: auto;
+    transition: filter 0.2s;
+  }
+  .calc-card:hover .card-cta { filter: brightness(1.1); }
+</style>

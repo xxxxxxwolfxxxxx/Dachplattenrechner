@@ -1,17 +1,296 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CalculatorCard from '../components/CalculatorCard.astro';
+import Footer from '../components/Footer.astro';
+import AdUnit from '../components/AdUnit.astro';
 
+const tools = [
+  {
+    href: '/tools/gleichschenkliges-dreieck',
+    title: 'Gleichschenkliges Dreieck',
+    icon: '/images/gleichschenkliges-dreieck.png',
+    description: 'Trapezbleche für symmetrische Dreiecksflächen – ideal für Pyramidendächer und Giebelseiten.',
+    features: ['Schnittliste mit Längen', 'Druckbarer Anrissplan', 'Verschnittoptimierung'],
+  },
+  {
+    href: '/tools/ungleichschenkliges-dreieck',
+    title: 'Ungleichschenkliges Dreieck',
+    icon: '/images/ungleichschenkliges-dreieck.png',
+    description: 'Asymmetrische Dreiecksflächen mit unterschiedlich langen Schenkeln und freiem Winkel.',
+    features: ['Beliebige Dreiecksformen', 'Anrissplan mit Bemaßung'],
+  },
+  {
+    href: '/tools/trapez',
+    title: 'Trapez',
+    icon: '/images/trapez.png',
+    description: 'Trapezförmige Dachflächen berechnen – mit parallelen Seiten und wählbarem Winkel.',
+    features: ['Schnittliste', 'Kantteil-Export'],
+  },
+  {
+    href: '/tools/trapezaufrechteck',
+    title: 'Trapez auf Rechteck',
+    icon: '/images/trapezaufrechteck.png',
+    description: 'Walmdächer und Krüppelwalmdächer – Trapezfläche liegt auf Rechteck auf.',
+    features: ['Walmdach-Optimierung', 'Druckfertige Pläne'],
+  },
+  {
+    href: '/tools/rechteck',
+    title: 'Rechteck / Parallelogramm',
+    icon: '/images/rechteck.png',
+    description: 'Einfache rechteckige Dachflächen sowie schiefe Parallelogrammflächen.',
+    features: ['Schnell berechnet', 'Anrissplan'],
+  },
+  {
+    href: '/tools/lattenrechner',
+    title: 'Lattenrechner',
+    icon: '/images/lattenrechner.png',
+    description: 'Dachlatten, Konterlatten und UK-Abstand für jede Dacheindeckung berechnen.',
+    features: ['Lattungsabstand', 'Materialmengen', 'Unterkonstruktion'],
+  },
+  {
+    href: '/tools/verschnitt-optimierung',
+    title: 'Verschnitt-Optimierung',
+    icon: '/images/verschnitt.png',
+    description: 'Optimale Aufteilung der Trapezbleche aus Lieferrohlingen – weniger Abfall, weniger Kosten.',
+    features: ['Visuelle Darstellung', 'Bestellliste', 'Kostenersparnis'],
+  },
+  {
+    href: '/tools/u-wert',
+    title: 'U-Wert Rechner',
+    icon: '🌡️',
+    description: 'Wärmeschutz-Nachweis nach DIN EN ISO 6946 mit Taupunktanalyse nach Glaser-Verfahren.',
+    features: ['DIN EN ISO 6946', 'Glaser-Verfahren', '100+ Baustoffe', 'Druckbarer Nachweis'],
+    badge: 'NEU',
+  },
+  {
+    href: '/tools/farben',
+    title: 'Farbkatalog',
+    icon: '/images/farben.png',
+    description: 'RAL-Farbtöne für Trapezbleche und Sandwichpaneele mit visueller Farbvorschau.',
+    features: ['RAL-Farbtöne', 'Visuelle Vorschau', 'Bestellangaben'],
+  },
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout
+  title="Dachplattenrechner.de"
+  description="Kostenlose Berechnungstools für Trapezbleche, Dachplatten und Wärmeschutz. Anrisspläne, Schnittlisten und U-Wert-Nachweis – direkt im Browser."
+>
+  <!-- Hintergrundbild -->
+  <div class="hero-bg"></div>
+
+  <!-- Header -->
+  <header class="site-header no-print">
+    <div class="container">
+      <div class="header-inner">
+        <h1>🏗️ Dachplattenrechner<span>.de</span></h1>
+        <p class="header-sub">Professionelle Berechnungstools für Trapezbleche &amp; Dachplatten</p>
+        <p class="header-desc">
+          Kostenlos &amp; ohne Registrierung – für Dachdecker, Architekten und Heimwerker.
+          Alle Berechnungen laufen lokal in Ihrem Browser.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Werbeanzeige oben -->
+  <div class="container">
+    <AdUnit position="top" adSlot="9678418506" />
+  </div>
+
+  <main class="container main-content">
+
+    <!-- Kachel-Grid -->
+    <section aria-label="Alle Rechner">
+      <h2 class="section-title" style="text-align:center; margin-bottom:2rem">
+        Alle <span>Rechner</span>
+      </h2>
+      <div class="tools-grid">
+        {tools.map(t => <CalculatorCard {...t} />)}
+      </div>
+    </section>
+
+    <AdUnit position="middle" />
+
+    <!-- Wie funktioniert es? -->
+    <section class="info-section" aria-label="Anleitung">
+      <h2 class="section-title"><span>Wie</span> funktioniert es?</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>Rechner wählen</h3>
+          <p>Wählen Sie den passenden Rechner für Ihre Dachform – Dreieck, Trapez, Walm oder Rechteck.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>Maße eingeben</h3>
+          <p>Geben Sie Länge, Breite, Höhe und die Deckbreite Ihrer Trapezbleche ein.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>Schnittliste erhalten</h3>
+          <p>Sofort erhalten Sie eine vollständige Schnittliste mit allen benötigten Längen und Stückzahlen.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <h3>Anrissplan drucken</h3>
+          <p>Drucken Sie den maßstäblichen Anrissplan – fertig für die Baustelle oder den Kunden.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section" aria-label="Häufige Fragen">
+      <h2 class="section-title"><span>Häufige</span> Fragen</h2>
+      <div class="faq-grid">
+        <details class="faq-item">
+          <summary>Was ist der Unterschied zwischen Deckbreite und Lieferbreite?</summary>
+          <div class="faq-body">
+            <p>Die <strong>Deckbreite</strong> ist die nutzbare Breite des Trapezbleches nach dem Verlegen (meist 1,00&thinsp;m). Die <strong>Lieferbreite</strong> ist die tatsächliche Gesamtbreite des Bleches (meist 1,06&thinsp;m). Die Differenz ergibt die Überlappung.</p>
+            <p>Im Rechner immer die <strong>Deckbreite</strong> eingeben – die Überlappung wird automatisch berücksichtigt.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Sind die Berechnungen für gewerbliche Nutzung erlaubt?</summary>
+          <div class="faq-body">
+            <p>Ja. Dachdecker, Architekten und Handwerker dürfen die Ergebnisse und Anrisspläne kostenfrei an Kunden weitergeben, solange Wasserzeichen und Quellenangaben erhalten bleiben.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Wie genau sind die Berechnungen?</summary>
+          <div class="faq-body">
+            <p>Die Berechnungen basieren auf geometrisch-mathematischen Grundlagen und sind sehr präzise. Dennoch sollten alle Ergebnisse vor der Ausführung von einer Fachkraft geprüft und auf der Baustelle nachgemessen werden.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Funktioniert der Rechner auf dem Smartphone?</summary>
+          <div class="faq-body">
+            <p>Ja, alle Rechner sind vollständig responsiv und für mobile Geräte optimiert. Die Anrisspläne sind für DIN A4 optimiert und lassen sich direkt aus dem Browser drucken.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Werden meine Daten gespeichert?</summary>
+          <div class="faq-body">
+            <p>Nein. Alle Berechnungen laufen lokal in Ihrem Browser. Es werden keine Projektdaten an einen Server gesendet. Nur anonyme Nutzungsstatistiken werden erfasst, sofern Sie dem zugestimmt haben.</p>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Was ist der U-Wert Rechner?</summary>
+          <div class="faq-body">
+            <p>Der U-Wert Rechner berechnet den Wärmedurchgangskoeffizienten nach DIN EN ISO 6946 und analysiert Taupunkt und Kondensatrisiko nach dem Glaser-Verfahren (DIN 4108-3). Er eignet sich für Wände, Dächer und Böden.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .hero-bg {
+    position: fixed;
+    inset: 0;
+    background: #0f172a url('/images/index.png') center top / cover no-repeat;
+    z-index: -1;
+    opacity: 0.18;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    padding: 64px 0 44px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, transparent 100%);
+  }
+  .header-inner { max-width: 680px; margin: 0 auto; }
+  .site-header h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    color: #f8fafc;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+    line-height: 1.1;
+  }
+  .site-header h1 span { color: #0ea5e9; }
+  .header-sub {
+    font-size: 1rem;
+    color: #93c5fd;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+  .header-desc { font-size: 0.88rem; color: #64748b; max-width: 480px; margin: 0 auto; }
+
+  /* ── Main ── */
+  .main-content { padding-bottom: 80px; }
+
+  /* ── Kachel-Grid ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 48px;
+  }
+
+  /* ── Schritte ── */
+  .info-section { margin: 64px 0; }
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+  }
+  .step-card {
+    background: linear-gradient(135deg, rgba(30, 45, 74, 0.8), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 14px;
+    padding: 28px 20px;
+    text-align: center;
+  }
+  .step-num {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: 700; color: white;
+    margin: 0 auto 16px;
+  }
+  .step-card h3 { color: #f8fafc; font-size: 1rem; font-weight: 600; margin-bottom: 10px; }
+  .step-card p { color: #94a3b8; font-size: 0.84rem; line-height: 1.55; }
+
+  /* ── FAQ ── */
+  .faq-section { margin: 64px 0; }
+  .faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 14px;
+  }
+  .faq-item {
+    background: linear-gradient(135deg, rgba(30, 45, 74, 0.7), rgba(15, 23, 42, 0.8));
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .faq-item summary {
+    font-weight: 600;
+    color: #f8fafc;
+    cursor: pointer;
+    list-style: none;
+    font-size: 0.92rem;
+    padding: 16px 20px;
+    transition: background 0.2s;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::before { content: '▶  '; color: #0ea5e9; font-size: 0.75rem; }
+  .faq-item[open] summary::before { content: '▼  '; }
+  .faq-item summary:hover { background: rgba(14, 165, 233, 0.06); }
+  .faq-body { padding: 0 20px 16px; color: #94a3b8; font-size: 0.85rem; line-height: 1.65; }
+  .faq-body p { margin-bottom: 8px; }
+  .faq-body p:last-child { margin-bottom: 0; }
+
+  @media (max-width: 480px) {
+    .faq-grid { grid-template-columns: 1fr; }
+    .tools-grid { grid-template-columns: 1fr; }
+  }
+</style>

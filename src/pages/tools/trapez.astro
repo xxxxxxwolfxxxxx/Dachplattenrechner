@@ -1,0 +1,226 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import InfoBox from '../../components/InfoBox.astro';
+import AdUnit from '../../components/AdUnit.astro';
+---
+
+<ToolLayout
+  title="Trapez – Trapezplatten berechnen"
+  description="Berechnen Sie Trapezbleche für trapezförmige Dachflächen. Ideal für Pultdächer, Mansarden und asymmetrische Dachformen mit Schnittliste."
+  navTitle="Trapez"
+>
+  <InfoBox title="Wann verwende ich diesen Rechner?" icon="📐">
+    <p>Dieser Rechner eignet sich für <strong>trapezförmige Dachflächen</strong> wie:</p>
+    <ul>
+      <li>Pultdächer mit schräger Seitenabschluss-Fläche</li>
+      <li>Mansardendächer</li>
+      <li>Gauben und asymmetrische Dachformen</li>
+      <li>Walmdach-Seitenflächen</li>
+    </ul>
+    <p>Das Trapez hat eine obere und eine untere Parallele. Die Bleche verlaufen senkrecht von unten nach oben.</p>
+  </InfoBox>
+
+  <div style="text-align: center; margin-bottom: 30px;">
+    <div style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      <svg width="280" height="160" viewBox="0 0 280 160" style="margin-bottom: 15px;">
+        <polygon points="80,20 200,20 240,120 40,120" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+        <line x1="60" y1="120" x2="60" y2="70" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+        <line x1="80" y1="120" x2="80" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+        <line x1="100" y1="120" x2="100" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+        <line x1="120" y1="120" x2="120" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+        <line x1="140" y1="120" x2="140" y2="20" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
+        <line x1="160" y1="120" x2="160" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+        <line x1="180" y1="120" x2="180" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+        <line x1="200" y1="120" x2="200" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+        <line x1="220" y1="120" x2="220" y2="70" stroke="#666" stroke-width="1.5" opacity="0.8"/>
+        <line x1="80" y1="20" x2="200" y2="20" stroke="#28a745" stroke-width="3"/>
+        <text x="140" y="15" text-anchor="middle" font-size="10" fill="#28a745" font-weight="bold">Obere Breite</text>
+        <line x1="40" y1="120" x2="240" y2="120" stroke="#dc3545" stroke-width="3"/>
+        <text x="140" y="138" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">Untere Breite</text>
+        <line x1="25" y1="20" x2="25" y2="120" stroke="#333" stroke-width="1"/>
+        <line x1="22" y1="20" x2="28" y2="20" stroke="#333" stroke-width="1"/>
+        <line x1="22" y1="120" x2="28" y2="120" stroke="#333" stroke-width="1"/>
+        <text x="18" y="70" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 18 70)">Höhe</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>1. Trapez-Geometrie</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="obere-breite">Obere Breite (m)</label>
+        <input type="number" id="obere-breite" step="0.01" min="0" placeholder="z.B. 8.00">
+      </div>
+      <div class="input-group">
+        <label for="untere-breite">Untere Breite (m)</label>
+        <input type="number" id="untere-breite" step="0.01" min="0" placeholder="z.B. 12.00">
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="hoehe">Höhe (m)</label>
+        <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 4.00">
+      </div>
+    </div>
+    <div class="info-box">
+      <strong>💡 Hinweis:</strong> Berechnung für trapezförmige Dachflächen.
+      Die Bleche verlaufen senkrecht von unten nach oben.
+      <br><br>
+      <strong>💡 Tipp:</strong> Falls beim Messen ein Maß fehlt, können Sie es mit unserem
+      <a href="https://dreieck-berechnen.de" target="_blank" rel="noopener noreferrer" style="color: #1976d2; font-weight: 600; text-decoration: underline;">Dreiecksrechner</a>
+      berechnen – ohne nochmal aufs Dach zu müssen!
+    </div>
+  </div>
+
+  <AdUnit position="middle" />
+
+  <div class="section">
+    <h2>2. Materialangaben</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="deckbreite">Deckbreite (m)</label>
+        <input type="number" id="deckbreite" step="0.01" min="0" value="1.00">
+      </div>
+      <div class="input-group">
+        <label for="lieferbreite">Lieferbreite (m)</label>
+        <input type="number" id="lieferbreite" step="0.01" min="0" value="1.05">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>3. Verlegerichtung</h2>
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #2c3e50;">Verlegung von:</label>
+      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px 20px; border: 2px solid #e1e8ed; border-radius: 8px; transition: all 0.3s ease;" onclick="setVerlegerichtung('links')">
+          <input type="radio" name="verlegerichtung" value="links" checked style="cursor: pointer;">
+          <span style="font-weight: 500;">Links nach Rechts →</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px 20px; border: 2px solid #e1e8ed; border-radius: 8px; transition: all 0.3s ease;" onclick="setVerlegerichtung('rechts')">
+          <input type="radio" name="verlegerichtung" value="rechts" style="cursor: pointer;">
+          <span style="font-weight: 500;">← Rechts nach Links</span>
+        </label>
+      </div>
+    </div>
+    <div class="info-box" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+      <strong>💡 Wichtig - Wetterseite beachten!</strong><br>
+      Die Verlegung sollte so erfolgen, dass die Hauptwindrichtung (meist West) ÜBER die Überlappungen weht.<br><br>
+      <strong>⚠️ Ausnahmen:</strong> Bei Pfannenblechen oder Antikondensvlies-beschichteten Platten ist die Verlegerichtung vorgegeben!
+    </div>
+  </div>
+
+  <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
+
+  <div id="results" class="results" style="display: none;">
+    <div class="result-item">
+      <span>Überlappung pro Blech:</span>
+      <span id="ueberlappung">-</span>
+    </div>
+    <div class="result-item">
+      <span>Berechnete Seitenlängen:</span>
+      <span id="seiten-result">-</span>
+    </div>
+    <div class="result-item">
+      <span>Benötigte max. Plattenlänge:</span>
+      <span id="benoetigte-plattenlaenge">-</span>
+    </div>
+    <div class="result-item">
+      <span>Benötigte Anzahl Bleche:</span>
+      <span id="anzahl-bleche-breite">-</span>
+    </div>
+    <div class="result-item">
+      <span>Gesamtanzahl Bleche:</span>
+      <span id="gesamt-bleche">-</span>
+    </div>
+
+    <div id="vorschau" style="display: none; margin-top: 25px;">
+      <h4 style="color: #ffffff; font-size: 1.2em; margin-bottom: 15px;">Visuelle Vorschau</h4>
+      <div style="text-align: center; margin-bottom: 15px;">
+        <div id="vorschau-svg"></div>
+      </div>
+      <div id="vorschau-legende" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 13px; margin-bottom: 10px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div style="width: 16px; height: 12px; background: #1e3c72; opacity: 0.4; border-radius: 2px;"></div>
+          <span>Nutzen</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div style="width: 16px; height: 12px; background: #dc3545; opacity: 0.3; border-radius: 2px;"></div>
+          <span>Verschnitt</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div style="width: 16px; height: 12px; background: #28a745; opacity: 0.25; border-radius: 2px;"></div>
+          <span>Überlappung</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div style="width: 16px; height: 12px; background: #ffc107; border-radius: 2px;"></div>
+          <span>Trapez-Ecken</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="schnittliste" style="display: none;">
+      <h4 style="margin-top: 25px; color: #ffffff; font-size: 1.3em;">Schnittliste (pro Trapezfläche):</h4>
+      <table class="schnitt-table">
+        <thead>
+          <tr>
+            <th>Platte Nr.</th>
+            <th>Position von links (m)</th>
+            <th>Plattenbreite (m)</th>
+            <th>Benötigte Länge (m)</th>
+          </tr>
+        </thead>
+        <tbody id="schnitt-details"></tbody>
+      </table>
+      <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
+        <strong>Verlegung:</strong> <span id="verlege-info">Von links nach rechts, Platten verlaufen vertikal (unten → oben)</span>
+      </div>
+      <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+        <button class="anriss-btn" onclick="erstelleAnrissplan()">📋 Anrissplan öffnen</button>
+        <button class="anriss-btn" onclick="erstelleLattenrechner()" style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);">🔨 Lattenrechner</button>
+      </div>
+    </div>
+  </div>
+
+  <InfoBox title="💡 Tipp: Deckbreite vs. Lieferbreite" variant="tip">
+    <p><strong>Deckbreite</strong> = nutzbare Breite des Bleches (z.B. 1,00 m)<br />
+    <strong>Lieferbreite</strong> = tatsächliche Breite mit Überlappung (z.B. 1,06 m)</p>
+  </InfoBox>
+
+  <InfoBox title="⚠️ Hinweis zur Genauigkeit" variant="warning">
+    <p>Alle Ergebnisse dienen als Planungshilfe. Vor der Ausführung bitte von Fachkraft prüfen lassen.</p>
+  </InfoBox>
+
+</ToolLayout>
+
+<style>
+  .section { background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px); }
+  .section h2 { color: #1e3c72; margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
+  .input-row { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 250px; }
+  .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; }
+  .input-group input { width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px; transition: all 0.3s ease; }
+  .input-group input:focus { outline: none; border-color: #1e3c72; box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1); }
+  .info-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
+  .calculate-btn { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 20px auto; display: block; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: all 0.3s ease; min-width: 200px; }
+  .calculate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4); background: linear-gradient(135deg, #0056b3 0%, #004085 100%); }
+  .results { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 15px; padding: 25px; margin-top: 25px; color: white; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
+  .result-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+  .result-item:last-child { border-bottom: none; }
+  .result-item span:last-child { font-weight: bold; font-size: 1.1em; color: #ffd700; }
+  .schnitt-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; overflow: hidden; }
+  .schnitt-table th, .schnitt-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+  .schnitt-table th { background: rgba(255, 255, 255, 0.2); font-weight: 600; }
+  .anriss-btn { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 20px auto; display: block; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); transition: all 0.3s ease; min-width: 200px; }
+  .anriss-btn:hover { transform: translateY(-2px); }
+  input[type="radio"]:checked { accent-color: #1e3c72; }
+  label:has(input[type="radio"]:checked) { border-color: #1e3c72 !important; background: #e3f2fd; }
+  @media (max-width: 768px) {
+    .input-row { flex-direction: column; gap: 12px; }
+    .input-group { min-width: auto; }
+    .result-item { flex-direction: column; text-align: left; gap: 2px; }
+  }
+</style>
+
+<script src="/tools-js/trapez.js" defer></script>
