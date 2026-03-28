@@ -1,0 +1,271 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import InfoBox from '../../components/InfoBox.astro';
+import AdUnit from '../../components/AdUnit.astro';
+---
+
+<ToolLayout
+  title="Schnee- & Windlastzonen Deutschland"
+  description="Schneelastzone und Windzone für Ihren Landkreis nachschlagen – nach DIN EN 1991-1-3 und DIN EN 1991-1-4. Mit Zonenkarte Deutschland."
+  navTitle="Schnee- & Windlastzonen"
+  background="url('/images/Schneelast.png')"
+>
+
+  <InfoBox title="Zonenwerte nach DIN-Norm">
+    <ul>
+      <li><strong>Schneelastzonen 1–3</strong> nach DIN EN 1991-1-3 (Eurocode 1)</li>
+      <li><strong>Windzonen 1–4</strong> nach DIN EN 1991-1-4 (Eurocode 1)</li>
+      <li>Bundesland und Landkreis wählen – Werte werden sofort angezeigt</li>
+      <li>Bei Höhenlagen oder Sonderfällen können abweichende Werte gelten</li>
+    </ul>
+  </InfoBox>
+
+  <!-- Auswahl -->
+  <div class="select-box">
+    <div class="select-row">
+      <div class="select-group">
+        <label for="bundesland">Bundesland:</label>
+        <select id="bundesland" onchange="updateKreise()">
+          <option value="">-- Bitte wählen --</option>
+        </select>
+      </div>
+      <div class="select-group">
+        <label for="kreis">Landkreis / Stadt:</label>
+        <select id="kreis" disabled onchange="checkButton()">
+          <option value="">-- Erst Bundesland wählen --</option>
+        </select>
+      </div>
+      <button class="btn-zone" id="showBtn" onclick="showResult()" disabled>Zonen anzeigen</button>
+    </div>
+  </div>
+
+  <div id="result"></div>
+
+  <AdUnit position="middle" adSlot="1581807497" />
+
+  <!-- Karte -->
+  <div class="map-box">
+    <h3>Zonenkarte Deutschland</h3>
+    <div class="map-toggle">
+      <button id="btnSchnee" class="active" onclick="toggleMap('schnee')">Schneelastzonen</button>
+      <button id="btnWind" onclick="toggleMap('wind')">Windzonen</button>
+    </div>
+    <img src="/images/Schneelast.png" alt="Schneelastzonen Deutschland" class="map-image" id="mapSchnee" />
+    <img src="/images/Windlast.png" alt="Windzonen Deutschland" class="map-image hidden" id="mapWind" />
+    <div class="map-legend" id="mapLegend"></div>
+  </div>
+
+  <InfoBox title="Hinweise" variant="warning">
+    <ul>
+      <li>Die Daten basieren auf den offiziellen Verwaltungsgrenzen nach DIN EN 1991-1-3 und DIN EN 1991-1-4</li>
+      <li>Schneelastzonen: 1 (niedrig) bis 3 (hoch) – Zone 1a/2a/3a sind erhöhte Sonderzonen</li>
+      <li>Windzonen: 1 (niedrig) bis 4 (sehr hoch, Küste/Nordseeinseln)</li>
+      <li>Bei Sonderfällen, Höhenlagen über 400 m oder Hanglagen sind Rücksprachen mit dem Statiker erforderlich</li>
+    </ul>
+  </InfoBox>
+
+  <script src="/tools-js/karte.js" defer></script>
+
+</ToolLayout>
+
+<style>
+  .select-box {
+    background: rgba(30, 45, 74, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+  }
+
+  .select-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .select-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .select-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #93c5fd;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .select-group select {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 8px;
+    color: #f8fafc;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    appearance: auto;
+  }
+
+  .select-group select:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-zone {
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+    white-space: nowrap;
+    height: 42px;
+  }
+
+  .btn-zone:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-zone:not(:disabled):hover { transform: translateY(-2px); }
+
+  /* Ergebnis-Karten */
+  :global(.karte-grid) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 24px 0;
+  }
+
+  :global(.karte-card) {
+    background: rgba(30, 45, 74, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  :global(.karte-card-header) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  :global(.karte-card-header h3) {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+
+  :global(.karte-blue svg) { stroke: #0ea5e9; }
+  :global(.karte-orange svg) { stroke: #f59e0b; }
+
+  :global(.karte-zone-num) {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #0ea5e9;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  :global(.karte-card p) {
+    color: #94a3b8;
+    font-size: 0.88rem;
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+
+  :global(.karte-card strong) { color: #e2e8f0; }
+
+  /* Karte */
+  .map-box {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 14px;
+    padding: 24px;
+    margin: 32px 0;
+  }
+
+  .map-box h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e3c72;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .map-toggle {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .map-toggle button {
+    padding: 8px 20px;
+    border: 2px solid #1e3c72;
+    background: white;
+    color: #1e3c72;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+  }
+
+  .map-toggle button.active { background: #1e3c72; color: white; }
+  .map-toggle button:hover:not(.active) { background: #e8f0fe; }
+
+  .map-image {
+    width: 100%;
+    max-width: 700px;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .map-image.hidden { display: none; }
+
+  .map-legend {
+    margin-top: 20px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  :global(.map-legend h4) {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e3c72;
+    margin-bottom: 12px;
+  }
+
+  :global(.legend-grid) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
+
+  :global(.legend-item) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #374151;
+  }
+
+  :global(.legend-color) {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.1);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 600px) {
+    .select-row { flex-direction: column; }
+    .btn-zone { width: 100%; }
+  }
+</style>
