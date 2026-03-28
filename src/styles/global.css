@@ -1,0 +1,110 @@
+/* ── Design Tokens (übernommen aus Dachplattenrechner-main/style.css) ── */
+:root {
+  --bg-primary:        #0f172a;
+  --bg-secondary:      #1e2d4a;
+  --bg-surface:        #1a2744;
+  --accent-blue:       #0ea5e9;
+  --accent-cyan:       #06b6d4;
+  --accent-green:      #10b981;
+  --accent-orange:     #f59e0b;
+  --text-primary:      #f8fafc;
+  --text-secondary:    #94a3b8;
+  --text-muted:        #64748b;
+  --border-color:      rgba(148, 163, 184, 0.15);
+  --gradient-primary:  linear-gradient(135deg, #0ea5e9, #06b6d4);
+  --gradient-secondary: linear-gradient(135deg, #1a2744 0%, #0f172a 100%);
+  --gradient-surface:  linear-gradient(135deg, rgba(30, 45, 74, 0.8), rgba(15, 23, 42, 0.8));
+  --shadow-md:         0 4px 15px rgba(0, 0, 0, 0.3);
+  --shadow-xl:         0 20px 40px rgba(0, 0, 0, 0.4);
+  --radius-sm:         6px;
+  --radius-md:         10px;
+  --radius-lg:         14px;
+  --radius-xl:         20px;
+  --spacing-sm:        8px;
+  --spacing-md:        16px;
+  --spacing-lg:        24px;
+  --spacing-xl:        32px;
+  --spacing-xxl:       48px;
+  --transition-fast:   0.15s ease;
+  --transition-normal: 0.3s ease;
+}
+
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── Utility Classes ── */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.glass {
+  background: var(--gradient-surface);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-normal);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
+}
+
+.section-title {
+  color: var(--text-primary);
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-lg);
+}
+.section-title span {
+  color: var(--accent-blue);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--bg-secondary); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+/* ── Drucken ── */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+}

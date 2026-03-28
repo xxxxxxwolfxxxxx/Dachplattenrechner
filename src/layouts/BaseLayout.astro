@@ -1,0 +1,49 @@
+---
+import CookieBanner from '../components/CookieBanner.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+const {
+  title,
+  description = 'Kostenlose Berechnungstools für Trapezbleche, Dachplatten und Wärmeschutz.',
+  ogImage,
+} = Astro.props;
+
+const GA_ID = 'G-6NSYG8B1T9';
+const fullTitle = title.includes('Dachplattenrechner') ? title : `${title} | Dachplattenrechner.de`;
+---
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{fullTitle}</title>
+  <meta name="description" content={description} />
+  <meta name="google-adsense-account" content="ca-pub-8687929894744033" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="canonical" href={Astro.url.href} />
+  <!-- Open Graph -->
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={Astro.url.href} />
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <!-- Google Analytics (gtag geladen; Konfiguration erst nach Cookie-Consent) -->
+  <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
+  <script define:vars={{ GA_ID }}>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { window.dataLayer.push(arguments); }
+    gtag('js', new Date());
+    // gtag('config', GA_ID) wird erst nach Cookie-Consent aus cookie-consent.ts aufgerufen
+  </script>
+</head>
+<body>
+  <slot />
+  <CookieBanner />
+</body>
+</html>

@@ -1,0 +1,32 @@
+---
+interface Props {
+  position?: 'top' | 'middle' | 'bottom';
+  adSlot?: string;
+}
+const { position = 'middle', adSlot = '9678418506' } = Astro.props;
+---
+<div class={`ad-container ad-${position} no-print`} style="display:none">
+  <p class="ad-label">Anzeige</p>
+  <ins
+    class="adsbygoogle"
+    style="display:block"
+    data-ad-client="ca-pub-8687929894744033"
+    data-ad-slot={adSlot}
+    data-ad-format="auto"
+    data-full-width-responsive="true"
+  ></ins>
+</div>
+
+<style>
+  .ad-container {
+    margin: 28px 0;
+    text-align: center;
+  }
+  .ad-label {
+    font-size: 0.68rem;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+</style>
