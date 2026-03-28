@@ -1,0 +1,49 @@
+---
+interface Props {
+  title?: string;
+  icon?: string;
+  variant?: 'info' | 'tip' | 'warning';
+}
+const { title, icon = 'ℹ️', variant = 'info' } = Astro.props;
+---
+<div class={`info-box info-box--${variant}`}>
+  {title && <h4>{icon} {title}</h4>}
+  <slot />
+</div>
+
+<style>
+  .info-box {
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .info-box h4 {
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+  .info-box :global(p) { margin-bottom: 6px; }
+  .info-box :global(p:last-child) { margin-bottom: 0; }
+  .info-box :global(ul) { padding-left: 18px; margin-top: 6px; }
+  .info-box :global(li) { margin-bottom: 4px; }
+  .info-box--info {
+    background: rgba(14, 165, 233, 0.08);
+    border: 1px solid rgba(14, 165, 233, 0.25);
+    color: #93c5fd;
+  }
+  .info-box--info h4 { color: #0ea5e9; }
+  .info-box--tip {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #6ee7b7;
+  }
+  .info-box--tip h4 { color: #10b981; }
+  .info-box--warning {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    color: #fcd34d;
+  }
+  .info-box--warning h4 { color: #f59e0b; }
+</style>

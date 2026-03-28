@@ -1,0 +1,92 @@
+---
+const year = new Date().getFullYear();
+---
+<footer class="site-footer no-print">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <h3>Dachplattenrechner.de</h3>
+        <p>Kostenlose Berechnungstools für Dachdecker, Architekten und Heimwerker. Alle Berechnungen laufen direkt im Browser – keine Registrierung nötig.</p>
+      </div>
+      <div>
+        <h3>Rechner</h3>
+        <ul>
+          <li><a href="/tools/gleichschenkliges-dreieck">Gleichschenkliges Dreieck</a></li>
+          <li><a href="/tools/ungleichschenkliges-dreieck">Ungleichschenkliges Dreieck</a></li>
+          <li><a href="/tools/trapez">Trapez</a></li>
+          <li><a href="/tools/trapezaufrechteck">Trapez auf Rechteck</a></li>
+          <li><a href="/tools/lattenrechner">Lattenrechner</a></li>
+          <li><a href="/tools/u-wert">U-Wert Rechner</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Info &amp; Recht</h3>
+        <ul>
+          <li><a href="/impressum">Impressum</a></li>
+          <li><a href="/datenschutz">Datenschutz</a></li>
+          <li><a href="/agb">AGB</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="footer-copy">&copy; {year} Dachplattenrechner.de &ndash; Matthias Dührkop &bull; Boizenburg/Elbe</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 100%);
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+    padding: 48px 0 24px;
+    margin-top: 60px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 36px;
+  }
+  .footer-about p {
+    color: #475569;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    margin-top: 8px;
+    max-width: 320px;
+  }
+  .site-footer h3 {
+    color: #f8fafc;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+  .site-footer ul {
+    list-style: none;
+  }
+  .site-footer li {
+    margin-bottom: 8px;
+  }
+  .site-footer a {
+    color: #475569;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+  }
+  .site-footer a:hover {
+    color: #0ea5e9;
+  }
+  .footer-copy {
+    color: #374151;
+    font-size: 0.78rem;
+    text-align: center;
+    border-top: 1px solid rgba(148, 163, 184, 0.08);
+    padding-top: 20px;
+  }
+  @media (max-width: 768px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .footer-about { grid-column: 1 / -1; }
+  }
+  @media (max-width: 480px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer-about { grid-column: auto; }
+  }
+</style>

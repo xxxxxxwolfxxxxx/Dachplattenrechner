@@ -1,0 +1,159 @@
+---
+// CookieBanner.astro – Cookie-Banner mit sauberer Consent-Logik
+---
+
+<div id="cookie-banner" class="cookie-banner no-print" role="dialog" aria-label="Cookie-Einstellungen">
+  <div class="cookie-inner">
+    <div class="cookie-text">
+      <strong>🍪 Cookies &amp; Datenschutz</strong>
+      <p>
+        Diese Website nutzt Cookies für Analyse (Google Analytics) und Werbung (Google AdSense).
+        <a href="/datenschutz">Datenschutzerklärung</a>
+      </p>
+    </div>
+    <div class="cookie-actions">
+      <button id="cookie-accept-all" class="btn-cookie-primary">Alle akzeptieren</button>
+      <button id="cookie-accept-essential" class="btn-cookie-ghost">Nur essentielle</button>
+      <button id="cookie-settings-open" class="btn-cookie-ghost">Einstellungen</button>
+    </div>
+  </div>
+
+  <!-- Erweiterte Einstellungen (anfangs versteckt) -->
+  <div id="cookie-settings-panel" class="cookie-settings-panel" hidden>
+    <label class="cookie-option">
+      <input type="checkbox" id="cb-analytics" />
+      <span>Analyse-Cookies (Google Analytics) – hilft uns, die Seite zu verbessern</span>
+    </label>
+    <label class="cookie-option">
+      <input type="checkbox" id="cb-marketing" />
+      <span>Marketing-Cookies (Google AdSense) – finanziert diese kostenlose Website</span>
+    </label>
+    <button id="cookie-save-custom" class="btn-cookie-primary" style="margin-top:12px">Einstellungen speichern</button>
+  </div>
+</div>
+
+<style>
+  .cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: linear-gradient(135deg, #1a2744 0%, #0f172a 100%);
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
+    padding: 16px 20px;
+    transform: translateY(100%);
+    transition: transform 0.35s ease;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+  }
+  .cookie-banner.show {
+    transform: translateY(0);
+  }
+  .cookie-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .cookie-text strong {
+    display: block;
+    color: #f8fafc;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+  }
+  .cookie-text p {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    margin: 0;
+  }
+  .cookie-text a {
+    color: #0ea5e9;
+    text-decoration: none;
+  }
+  .cookie-text a:hover { text-decoration: underline; }
+  .cookie-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .btn-cookie-primary {
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .btn-cookie-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+  }
+  .btn-cookie-ghost {
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #94a3b8;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .btn-cookie-ghost:hover {
+    border-color: #0ea5e9;
+    color: #0ea5e9;
+  }
+  .cookie-settings-panel {
+    max-width: 1200px;
+    margin: 14px auto 0;
+    padding-top: 14px;
+    border-top: 1px solid rgba(148, 163, 184, 0.15);
+  }
+  .cookie-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #94a3b8;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+  .cookie-option input {
+    accent-color: #0ea5e9;
+    transform: scale(1.2);
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  @media (max-width: 640px) {
+    .cookie-inner { flex-direction: column; align-items: flex-start; }
+    .cookie-actions { width: 100%; }
+  }
+</style>
+
+<script>
+  import { acceptAll, acceptEssential, saveCustom, initCookieBanner } from '../scripts/cookie-consent.ts';
+
+  document.getElementById('cookie-accept-all')!.addEventListener('click', acceptAll);
+  document.getElementById('cookie-accept-essential')!.addEventListener('click', acceptEssential);
+  document.getElementById('cookie-settings-open')!.addEventListener('click', () => {
+    const panel = document.getElementById('cookie-settings-panel')!;
+    panel.hidden = !panel.hidden;
+  });
+  document.getElementById('cookie-save-custom')!.addEventListener('click', () => {
+    const analytics = (document.getElementById('cb-analytics') as HTMLInputElement).checked;
+    const marketing = (document.getElementById('cb-marketing') as HTMLInputElement).checked;
+    saveCustom(analytics, marketing);
+  });
+
+  initCookieBanner();
+</script>

@@ -1,0 +1,64 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description } = Astro.props;
+---
+<BaseLayout title={title} description={description}>
+  <Nav title={title} />
+  <main class="container legal-content">
+    <h1>{title}</h1>
+    <slot />
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .legal-content {
+    padding: 48px 20px 80px;
+    max-width: 860px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+  .legal-content h1 {
+    color: var(--text-primary);
+    font-size: 2rem;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--accent-blue);
+  }
+  .legal-content :global(h2) {
+    color: var(--accent-blue);
+    font-size: 1.1rem;
+    margin: 28px 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .legal-content :global(h3) {
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin: 20px 0 8px;
+  }
+  .legal-content :global(h4) {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 14px 0 6px;
+  }
+  .legal-content :global(p) { margin-bottom: 14px; }
+  .legal-content :global(ul) { padding-left: 24px; margin-bottom: 14px; }
+  .legal-content :global(li) { margin-bottom: 6px; }
+  .legal-content :global(a) { color: var(--accent-blue); }
+  .legal-content :global(.contact-box) {
+    background: rgba(14, 165, 233, 0.08);
+    border: 1px solid rgba(14, 165, 233, 0.25);
+    border-left: 4px solid var(--accent-blue);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+</style>
