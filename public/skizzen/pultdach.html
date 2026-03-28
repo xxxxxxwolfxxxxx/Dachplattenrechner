@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pultdach Skizze</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+        
+        body {
+            margin: 0;
+            padding: 15px;
+            font-family: Arial, sans-serif;
+            background: white;
+        }
+        
+        .container {
+            width: 180mm;
+            height: 148.5mm; /* Obere Hälfte von A4 hochkant */
+            position: relative;
+            background: white;
+            margin: 0 auto;
+        }
+        
+        .sketch-area {
+            position: relative;
+            width: 160mm;
+            height: 100mm;
+            margin: 15mm auto 0;
+            background: white;
+        }
+        
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 20px;
+            color: rgba(0, 0, 0, 0.08);
+            font-weight: bold;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .roof-outline {
+            position: absolute;
+            top: 25mm;
+            left: 30mm;
+            width: 100mm;
+            height: 50mm;
+            border: 2px solid #000;
+            background: rgba(240, 240, 240, 0.05);
+        }
+        
+        .diagonal {
+            position: absolute;
+            border-top: 1px dashed #666;
+            transform-origin: left center;
+        }
+        
+        .diagonal1 {
+            top: 25mm;
+            left: 30mm;
+            width: 111.8mm; /* √(100² + 50²) */
+            transform: rotate(26.57deg);
+        }
+        
+        .diagonal2 {
+            top: 75mm;
+            left: 30mm;
+            width: 111.8mm;
+            transform: rotate(-26.57deg);
+        }
+        
+        .label {
+            position: absolute;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .pultfirst {
+            top: 20mm;
+            left: 80mm;
+            transform: translateX(-50%);
+        }
+        
+        .traufe {
+            top: 80mm;
+            left: 80mm;
+            transform: translateX(-50%);
+        }
+        
+        .dimension-line {
+            position: absolute;
+            border-top: 1px solid #000;
+        }
+        
+        .dimension-tick {
+            position: absolute;
+            background: #000;
+        }
+        
+        /* Horizontale Bemaßung oben */
+        .dim-top {
+            top: 15mm;
+            left: 30mm;
+            width: 100mm;
+        }
+        
+        .tick-top-left {
+            top: 13mm;
+            left: 30mm;
+            width: 1px;
+            height: 4mm;
+        }
+        
+        .tick-top-right {
+            top: 13mm;
+            left: 130mm;
+            width: 1px;
+            height: 4mm;
+        }
+        
+        /* Horizontale Bemaßung unten */
+        .dim-bottom {
+            top: 85mm;
+            left: 30mm;
+            width: 100mm;
+        }
+        
+        .tick-bottom-left {
+            top: 83mm;
+            left: 30mm;
+            width: 1px;
+            height: 4mm;
+        }
+        
+        .tick-bottom-right {
+            top: 83mm;
+            left: 130mm;
+            width: 1px;
+            height: 4mm;
+        }
+        
+        /* Vertikale Bemaßung links */
+        .dim-left {
+            top: 25mm;
+            left: 20mm;
+            width: 1px;
+            height: 50mm;
+            border-left: 1px solid #000;
+            border-top: none;
+        }
+        
+        .tick-left-top {
+            top: 25mm;
+            left: 18mm;
+            width: 4mm;
+            height: 1px;
+        }
+        
+        .tick-left-bottom {
+            top: 75mm;
+            left: 18mm;
+            width: 4mm;
+            height: 1px;
+        }
+        
+        /* Vertikale Bemaßung rechts */
+        .dim-right {
+            top: 25mm;
+            left: 140mm;
+            width: 1px;
+            height: 50mm;
+            border-left: 1px solid #000;
+            border-top: none;
+        }
+        
+        .tick-right-top {
+            top: 25mm;
+            left: 138mm;
+            width: 4mm;
+            height: 1px;
+        }
+        
+        .tick-right-bottom {
+            top: 75mm;
+            left: 138mm;
+            width: 4mm;
+            height: 1px;
+        }
+        
+        /* Diagonale Bemaßungslinien */
+        .diagonal-dim-line1 {
+            position: absolute;
+            top: 75mm;
+            left: 130mm;
+            width: 22.4mm; /* √(20² + 10²) */
+            height: 1px;
+            border-top: 1px solid #000;
+            transform-origin: left center;
+            transform: rotate(26.57deg);
+        }
+        
+        .diagonal-dim-horizontal1 {
+            position: absolute;
+            top: 85mm; /* 75mm + 10mm (vertikaler Anteil der 22.4mm langen Linie) */
+            left: 150.4mm; /* 2mm nach links verschoben */
+            width: 29.6mm; /* bis zum rechten Rand */
+            height: 1px;
+            border-top: 1px solid #000;
+        }
+        
+        .diagonal-dim-line2 {
+            position: absolute;
+            top: 25mm;
+            left: 130mm;
+            width: 22.4mm;
+            height: 1px;
+            border-top: 1px solid #000;
+            transform-origin: left center;
+            transform: rotate(-26.57deg);
+        }
+        
+        .diagonal-dim-horizontal2 {
+            position: absolute;
+            top: 15mm; /* 25mm - 10mm (vertikaler Anteil der 22.4mm langen Linie) */
+            left: 150.4mm; /* 2mm nach links verschoben */
+            width: 29.6mm; /* bis zum rechten Rand */
+            height: 1px;
+            border-top: 1px solid #000;
+        }
+        
+        .legend {
+            position: absolute;
+            bottom: 5mm;
+            left: 10mm;
+            right: 10mm;
+            font-size: 10px;
+        }
+        
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 11px;
+        }
+        
+        .legend-grid {
+            display: grid;
+            grid-template-columns: 25mm 35mm 1fr 25mm;
+            gap: 2mm;
+            align-items: center;
+        }
+        
+        .legend-item {
+            display: contents;
+        }
+        
+        .legend-symbol {
+            width: 20mm;
+            height: 12px;
+            border: 1px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            background: white;
+        }
+        
+        .legend-text {
+            font-size: 10px;
+        }
+        
+        .legend-line {
+            border-bottom: 1px solid #ccc;
+            height: 1px;
+        }
+        
+        .legend-measure {
+            font-size: 8px;
+            color: #666;
+        }
+        
+        /* Symbole für die Legende */
+        .symbol-window::before { content: "□"; font-size: 10px; }
+        .symbol-walkway::before { content: "═"; font-size: 10px; }
+        .symbol-ladder::before { content: "|||"; font-size: 7px; }
+        .symbol-pipe::before { content: "○"; font-size: 10px; }
+        .symbol-cable::before { content: "◊"; font-size: 8px; }
+        .symbol-chimney::before { content: "▬"; font-size: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sketch-area">
+            <div class="watermark">Dachplattenrechner.de</div>
+            
+            <!-- Dach-Umriss -->
+            <div class="roof-outline"></div>
+            
+            <!-- Diagonalen -->
+            <div class="diagonal diagonal1"></div>
+            <div class="diagonal diagonal2"></div>
+            
+            <!-- Beschriftungen -->
+            <div class="label pultfirst">Pultfirst</div>
+            <div class="label traufe">Traufe</div>
+            
+            <!-- Bemaßungslinien oben -->
+            <div class="dimension-line dim-top"></div>
+            <div class="dimension-tick tick-top-left"></div>
+            <div class="dimension-tick tick-top-right"></div>
+            
+            <!-- Bemaßungslinien unten -->
+            <div class="dimension-line dim-bottom"></div>
+            <div class="dimension-tick tick-bottom-left"></div>
+            <div class="dimension-tick tick-bottom-right"></div>
+            
+            <!-- Bemaßungslinien links -->
+            <div class="dimension-line dim-left"></div>
+            <div class="dimension-tick tick-left-top"></div>
+            <div class="dimension-tick tick-left-bottom"></div>
+            
+            <!-- Bemaßungslinien rechts -->
+            <div class="dimension-line dim-right"></div>
+            <div class="dimension-tick tick-right-top"></div>
+            <div class="dimension-tick tick-right-bottom"></div>
+            
+            <!-- Diagonale Bemaßungslinien -->
+            <div class="diagonal-dim-line1"></div>
+            <div class="diagonal-dim-horizontal1"></div>
+            <div class="diagonal-dim-line2"></div>
+            <div class="diagonal-dim-horizontal2"></div>
+        </div>
+        
+        <!-- Legende -->
+        <div class="legend">
+            <div class="legend-title">Legende:</div>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-window"></div>
+                    <div class="legend-text">Dachfenster</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">B: ___mm H: ___mm</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-walkway"></div>
+                    <div class="legend-text">Dachsteg</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">L: ___mm B: ___mm</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-ladder"></div>
+                    <div class="legend-text">Dachleiter</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">L: ___mm Abst: ___mm</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-pipe"></div>
+                    <div class="legend-text">Rohrdurchführung</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">Ø: ___mm Abst: ___mm</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-cable"></div>
+                    <div class="legend-text">Kabeldurchführung</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">Ø: ___mm Abst: ___mm</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-symbol symbol-chimney"></div>
+                    <div class="legend-text">Schornstein</div>
+                    <div class="legend-line"></div>
+                    <div class="legend-measure">B: ___mm T: ___mm</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
