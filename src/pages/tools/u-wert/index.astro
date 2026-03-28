@@ -1,0 +1,74 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import InfoBox from '../../../components/InfoBox.astro';
+---
+
+<ToolLayout
+  title="U-Wert Rechner"
+  description="U-Wert-Berechnung nach DIN EN ISO 6946. Taupunktanalyse nach Glaser-Verfahren. Wärmeschutz-Nachweis mit 100+ Baustoffen – kostenlos im Browser."
+  navTitle="U-Wert Rechner"
+  background="url('/images/index.png')"
+>
+  <div class="u-wert-intro">
+    <InfoBox title="Wärmeschutz-Nachweis nach DIN-Norm">
+      <ul>
+        <li><strong>U-Wert</strong>: Wärmedurchgangskoeffizient in W/(m²K) nach <strong>DIN EN ISO 6946</strong></li>
+        <li><strong>Taupunktanalyse</strong>: Glaser-Verfahren nach <strong>DIN 4108-3</strong> – erkennt Kondensatrisiken im Schichtaufbau</li>
+        <li><strong>100+ Baustoffe</strong>: Sandwichplatten PUR/PIR, Mineralwolle, Hanf, Seegras und viele mehr</li>
+        <li><strong>Druckbarer Nachweis</strong>: Vollständiger Wärmeschutz-Nachweis als PDF druckbar</li>
+      </ul>
+    </InfoBox>
+  </div>
+
+  <!-- U-Wert-Rechner als iframe (eigenständige Vite-React-App) -->
+  <div class="iframe-wrapper">
+    <iframe
+      src="/tools/u-wert-app/"
+      title="U-Wert Rechner – Wärmeschutz nach DIN EN ISO 6946"
+      class="u-wert-frame"
+      loading="lazy"
+      allowfullscreen
+    ></iframe>
+  </div>
+
+  <InfoBox title="Was bedeuten die Eingabewerte?" variant="tip">
+    <ul>
+      <li><strong>λ (Lambda)</strong>: Wärmeleitfähigkeit des Baustoffs in W/(mK) – je kleiner, desto besser isolierend</li>
+      <li><strong>μ (Mu)</strong>: Dampfdiffusionswiderstandszahl – je höher, desto dampfdichter (∞ = dampfdicht, z.B. Metalldeckung)</li>
+      <li><strong>Schichtaufbau</strong>: Immer von <em>innen nach außen</em> eingeben</li>
+      <li><strong>U-Wert-Ziel</strong>: Für moderne Dächer unter 0,24 W/(m²K), für Außenwände unter 0,28 W/(m²K)</li>
+    </ul>
+  </InfoBox>
+
+  <InfoBox title="⚠️ Hinweis" variant="warning">
+    <p>Die Berechnungen basieren auf normierten Verfahren und dienen als Planungshilfe. Für einen rechtsverbindlichen Energieausweis oder Bauantrag ist die Prüfung durch einen qualifizierten Energieberater erforderlich.</p>
+  </InfoBox>
+</ToolLayout>
+
+<style>
+  .u-wert-intro { margin-bottom: 0; }
+
+  .iframe-wrapper {
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    margin: 20px 0;
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .u-wert-frame {
+    width: 100%;
+    height: 920px;
+    border: none;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .u-wert-frame { height: 1100px; }
+  }
+  @media (max-width: 480px) {
+    .u-wert-frame { height: 1300px; }
+  }
+</style>

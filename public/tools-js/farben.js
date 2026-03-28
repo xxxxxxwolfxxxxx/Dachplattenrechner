@@ -1,0 +1,452 @@
+        // RAL Farben Datenbank - vollständig
+        const RAL_COLORS = {
+              '1000': { color: '#CDBA88', name: 'Grünbeige' },
+              '1001': { color: '#D0B084', name: 'Beige' },
+              '1002': { color: '#D2AA6D', name: 'Sandgelb' },
+              '1003': { color: '#E5BE01', name: 'Signalgelb' },
+              '1004': { color: '#CDA434', name: 'Goldgelb' },
+              '1005': { color: '#A98307', name: 'Honiggelb' },
+              '1006': { color: '#E4A010', name: 'Maisgelb' },
+              '1007': { color: '#DC9D00', name: 'Narzissengelb' },
+              '1011': { color: '#8A6642', name: 'Braunbeige' },
+              '1012': { color: '#C7B446', name: 'Zitronengelb' },
+              '1013': { color: '#EAE6CA', name: 'Perlweiß' },
+              '1014': { color: '#E1CC4F', name: 'Elfenbein' },
+              '1015': { color: '#E6D690', name: 'Hellelfenbein' },
+              '1016': { color: '#EDFF21', name: 'Schwefelgelb' },
+              '1017': { color: '#F5D033', name: 'Safrangelb' },
+              '1018': { color: '#F8F32B', name: 'Zinkgelb' },
+              '1019': { color: '#9E9764', name: 'Graubeige' },
+              '1020': { color: '#999950', name: 'Olivgelb' },
+              '1021': { color: '#F3DA0B', name: 'Rapsgelb' },
+              '1023': { color: '#FAD201', name: 'Verkehrsgelb' },
+              '1024': { color: '#AEA04B', name: 'Ockergelb' },
+              '1026': { color: '#FFFF00', name: 'Leuchtgelb' },
+              '1027': { color: '#9D9101', name: 'Currygelb' },
+              '1028': { color: '#F4A900', name: 'Melonengelb' },
+              '1032': { color: '#D6AE01', name: 'Ginstergelb' },
+              '1033': { color: '#F3A505', name: 'Dahliengelb' },
+              '1034': { color: '#EFA94A', name: 'Pastellgelb' },
+              '1035': { color: '#908370', name: 'Perlbeige' },
+              '1036': { color: '#80643F', name: 'Perlgold' },
+              '1037': { color: '#F09200', name: 'Sonnengelb' },
+              '2000': { color: '#ED760E', name: 'Gelborange' },
+              '2001': { color: '#C93C20', name: 'Rotorange' },
+              '2002': { color: '#CB2821', name: 'Blutorange' },
+              '2003': { color: '#FF7514', name: 'Pastellorange' },
+              '2004': { color: '#F44611', name: 'Reinorange' },
+              '2005': { color: '#FF6200', name: 'Leuchtorange' },
+              '2007': { color: '#FFA000', name: 'Leuchtorange' },
+              '2008': { color: '#F75E25', name: 'Hellorange' },
+              '2009': { color: '#F54021', name: 'Verkehrsorange' },
+              '2010': { color: '#D84B20', name: 'Signalorange' },
+              '2011': { color: '#EC7C26', name: 'Tieforange' },
+              '2012': { color: '#E55137', name: 'Lachsorange' },
+              '2013': { color: '#FF4500', name: 'Perlorange' },
+              '2017': { color: '#E1722B', name: 'RAL-Orange' },
+              '3000': { color: '#AF2B1E', name: 'Feuerrot' },
+              '3001': { color: '#A52019', name: 'Signalrot' },
+              '3002': { color: '#A2231D', name: 'Karminrot' },
+              '3003': { color: '#9B111E', name: 'Rubinrot' },
+              '3004': { color: '#75151E', name: 'Purpurrot' },
+              '3005': { color: '#5E2129', name: 'Weinrot' },
+              '3007': { color: '#412227', name: 'Schwarzrot' },
+              '3009': { color: '#642424', name: 'Oxidrot' },
+              '3011': { color: '#781F19', name: 'Braunrot' },
+              '3012': { color: '#C1876B', name: 'Beigerot' },
+              '3013': { color: '#A12312', name: 'Tomatenrot' },
+              '3014': { color: '#D36E70', name: 'Altrosa' },
+              '3015': { color: '#EA899A', name: 'Hellrosa' },
+              '3016': { color: '#B32821', name: 'Korallenrot' },
+              '3017': { color: '#E63244', name: 'Rosé' },
+              '3018': { color: '#D53032', name: 'Erdbeerrot' },
+              '3020': { color: '#CC0605', name: 'Verkehrsrot' },
+              '3022': { color: '#D95030', name: 'Lachsrot' },
+              '3027': { color: '#C51D34', name: 'Himbeerrot' },
+              '3031': { color: '#B32428', name: 'Orientrot' },
+              '3033': { color: '#EFA9A0', name: 'Perlrosa' },
+              '4001': { color: '#6D3F5B', name: 'Rotlila' },
+              '4002': { color: '#922B3E', name: 'Rotviolett' },
+              '4003': { color: '#DE4C8A', name: 'Erikaviolett' },
+              '4004': { color: '#641C34', name: 'Bordeauxviolett' },
+              '4005': { color: '#6C4675', name: 'Blaulila' },
+              '4006': { color: '#A03472', name: 'Verkehrspurpur' },
+              '4007': { color: '#4A192C', name: 'Purpurviolett' },
+              '4008': { color: '#924B87', name: 'Signalviolett' },
+              '4009': { color: '#A18594', name: 'Pastellviolett' },
+              '4010': { color: '#CF3476', name: 'Telemagenta' },
+              '5000': { color: '#354D73', name: 'Violettblau' },
+              '5001': { color: '#1F3438', name: 'Grünblau' },
+              '5002': { color: '#20214F', name: 'Ultramarinblau' },
+              '5003': { color: '#1D1E33', name: 'Saphirblau' },
+              '5004': { color: '#18171C', name: 'Schwarzblau' },
+              '5005': { color: '#1E2460', name: 'Signalblau' },
+              '5007': { color: '#3E5F8A', name: 'Brillantblau' },
+              '5008': { color: '#26252D', name: 'Graublau' },
+              '5009': { color: '#025669', name: 'Azurblau' },
+              '5010': { color: '#0E294B', name: 'Enzianblau' },
+              '5011': { color: '#231A24', name: 'Stahlblau' },
+              '5012': { color: '#3B83BD', name: 'Lichtblau' },
+              '5013': { color: '#1E213D', name: 'Kobaltblau' },
+              '5014': { color: '#606E8C', name: 'Taubenblau' },
+              '5015': { color: '#2271B3', name: 'Himmelblau' },
+              '5017': { color: '#063971', name: 'Verkehrsblau' },
+              '5018': { color: '#3F888F', name: 'Türkisblau' },
+              '5019': { color: '#1B5583', name: 'Capriblau' },
+              '5020': { color: '#1D334A', name: 'Ozeanblau' },
+              '5021': { color: '#256D7B', name: 'Wasserblau' },
+              '5022': { color: '#252850', name: 'Nachtblau' },
+              '5023': { color: '#49678D', name: 'Fernblau' },
+              '5024': { color: '#5D9B9B', name: 'Pastellblau' },
+              '6000': { color: '#316650', name: 'Patinagrün' },
+              '6001': { color: '#287233', name: 'Smaragdgrün' },
+              '6002': { color: '#2D5016', name: 'Laubgrün' },
+              '6003': { color: '#424632', name: 'Olivgrün' },
+              '6004': { color: '#1F3A3D', name: 'Blaugrün' },
+              '6005': { color: '#2F4B26', name: 'Moosgrün' },
+              '6006': { color: '#3E3B32', name: 'Grauoliv' },
+              '6007': { color: '#343B29', name: 'Flaschengrün' },
+              '6008': { color: '#39352A', name: 'Braungrün' },
+              '6009': { color: '#31372B', name: 'Tannengrün' },
+              '6010': { color: '#35682D', name: 'Grasgrün' },
+              '6011': { color: '#587246', name: 'Resedagrün' },
+              '6012': { color: '#343E40', name: 'Schwarzgrün' },
+              '6013': { color: '#6C7156', name: 'Schilfgrün' },
+              '6014': { color: '#47402E', name: 'Gelboliv' },
+              '6015': { color: '#3B3C36', name: 'Schwarzoliv' },
+              '6016': { color: '#1E5945', name: 'Türkisgrün' },
+              '6017': { color: '#4C9141', name: 'Maigrün' },
+              '6018': { color: '#57A639', name: 'Gelbgrün' },
+              '6019': { color: '#BDECB6', name: 'Weißgrün' },
+              '6020': { color: '#2E3A23', name: 'Chromoxidgrün' },
+              '6021': { color: '#89AC76', name: 'Blassgrün' },
+              '6024': { color: '#308446', name: 'Verkehrsgrün' },
+              '6025': { color: '#3D642D', name: 'Farngrün' },
+              '6026': { color: '#015D52', name: 'Opalgrün' },
+              '6027': { color: '#84C3BE', name: 'Lichtgrün' },
+              '6028': { color: '#2C5545', name: 'Kieferngrün' },
+              '6029': { color: '#20603D', name: 'Minzgrün' },
+              '6032': { color: '#317F43', name: 'Signalgrün' },
+              '6033': { color: '#497E76', name: 'Minttürkis' },
+              '6034': { color: '#7FB5B5', name: 'Pastelltürkis' },
+              '7000': { color: '#78858B', name: 'Fehgrau' },
+              '7001': { color: '#8A9597', name: 'Silbergrau' },
+              '7002': { color: '#7E7B52', name: 'Olivgrau' },
+              '7003': { color: '#6C7059', name: 'Moosgrau' },
+              '7004': { color: '#969992', name: 'Signalgrau' },
+              '7005': { color: '#646B63', name: 'Mausgrau' },
+              '7006': { color: '#6D6552', name: 'Beigegrau' },
+              '7008': { color: '#6A5F31', name: 'Khakigrau' },
+              '7009': { color: '#4D5645', name: 'Grüngrau' },
+              '7010': { color: '#4C514A', name: 'Zeltgrau' },
+              '7011': { color: '#434B4D', name: 'Eisengrau' },
+              '7012': { color: '#4E5754', name: 'Basaltgrau' },
+              '7013': { color: '#464531', name: 'Braungrau' },
+              '7015': { color: '#434750', name: 'Schiefergrau' },
+              '7016': { color: '#293133', name: 'Anthrazitgrau' },
+              '7021': { color: '#23282B', name: 'Schwarzgrau' },
+              '7022': { color: '#332F2C', name: 'Umbragrau' },
+              '7023': { color: '#686C5E', name: 'Betongrau' },
+              '7024': { color: '#474A51', name: 'Graphitgrau' },
+              '7026': { color: '#2F353B', name: 'Granitgrau' },
+              '7030': { color: '#8B8C7A', name: 'Steingrau' },
+              '7031': { color: '#474B4E', name: 'Blaugrau' },
+              '7032': { color: '#B8B799', name: 'Kieselgrau' },
+              '7033': { color: '#7D8471', name: 'Zementgrau' },
+              '7034': { color: '#8F8B66', name: 'Gelbgrau' },
+              '7035': { color: '#D7D3C0', name: 'Lichtgrau' },
+              '7036': { color: '#7F7679', name: 'Platingrau' },
+              '7037': { color: '#7D7F7D', name: 'Staubgrau' },
+              '7038': { color: '#B5B8B1', name: 'Achatgrau' },
+              '7039': { color: '#6C6960', name: 'Quarzgrau' },
+              '7040': { color: '#9DA1AA', name: 'Fenstergrau' },
+              '7042': { color: '#8D948D', name: 'Verkehrsgrau A' },
+              '7043': { color: '#4E5452', name: 'Verkehrsgrau B' },
+              '7044': { color: '#CAC4B0', name: 'Seidengrau' },
+              '7045': { color: '#909090', name: 'Telegrau 1' },
+              '7046': { color: '#82898F', name: 'Telegrau 2' },
+              '7047': { color: '#D0D0D0', name: 'Telegrau 4' },
+              '7048': { color: '#898176', name: 'Perlmausgrau' },
+              '8000': { color: '#826C34', name: 'Grünbraun' },
+              '8001': { color: '#955F20', name: 'Ockerbraun' },
+              '8002': { color: '#6C3B2A', name: 'Signalbraun' },
+              '8003': { color: '#734222', name: 'Lehmbraun' },
+              '8004': { color: '#8B4513', name: 'Kupferbraun' },
+              '8007': { color: '#59351F', name: 'Rehbraun' },
+              '8008': { color: '#6F4F28', name: 'Olivbraun' },
+              '8011': { color: '#5B3A29', name: 'Nussbraun' },
+              '8012': { color: '#592321', name: 'Rotbraun' },
+              '8014': { color: '#382C1E', name: 'Sepiabraun' },
+              '8015': { color: '#633A34', name: 'Kastanienbraun' },
+              '8016': { color: '#4C2F27', name: 'Mahagonibraun' },
+              '8017': { color: '#45322E', name: 'Schokoladenbraun' },
+              '8019': { color: '#403A3A', name: 'Graubraun' },
+              '8022': { color: '#212121', name: 'Schwarzbraun' },
+              '8023': { color: '#A65E2E', name: 'Orangebraun' },
+              '8024': { color: '#79553D', name: 'Beigebraun' },
+              '8025': { color: '#755C48', name: 'Blassbraun' },
+              '8028': { color: '#4E3629', name: 'Terrabraun' },
+              '9001': { color: '#F4F4F4', name: 'Cremeweiß' },
+              '9002': { color: '#E7EBDA', name: 'Grauweiß' },
+              '9003': { color: '#F4F4F4', name: 'Signalweiß' },
+              '9004': { color: '#282828', name: 'Signalschwarz' },
+              '9005': { color: '#0A0A0A', name: 'Tiefschwarz' },
+              '9006': { color: '#A5A5A5', name: 'Weißaluminium' },
+              '9007': { color: '#8F8F8F', name: 'Graualuminium' },
+              '9010': { color: '#FFFFFF', name: 'Reinweiß' },
+              '9011': { color: '#1C1C1C', name: 'Graphitschwarz' },
+              '9016': { color: '#F6F6F6', name: 'Verkehrsweiß' },
+              '9017': { color: '#1E1E1E', name: 'Verkehrsschwarz' },
+              '9018': { color: '#D7D7D7', name: 'Papyrusweiß' },
+              '9022': { color: '#9C9C9C', name: 'Perlhellgrau' },
+              '9023': { color: '#828282', name: 'Perldunkelgrau' }
+        };
+                  
+        // Prelaq Farben - vollständige Liste sortiert nach Code
+        const PRELAQ_COLORS = {
+            '001': { color: '#FFFFFF', name: 'Schneeweiß' },
+            '002': { color: '#F8F8FF', name: 'Arktikweiß' },
+            '005': { color: '#FEFEFE', name: 'Winterweiß' },
+            '015': { color: '#1C1C1C', name: 'Nordische Nacht' },
+            '020': { color: '#F5F5F5', name: 'Nordisches Weiß' },
+            '021': { color: '#F0F0F0', name: 'Puderweiß' },
+            '022': { color: '#E5E5DC', name: 'Kalksteingrau' },
+            '033': { color: '#8FBC8F', name: 'Olivenblattgrün' },
+            '035': { color: '#696969', name: 'Kammgrau' },
+            '036': { color: '#708090', name: 'Berggrau' },
+            '044': { color: '#2F4F4F', name: 'Metallic Dunkelsilber' },
+            '045': { color: '#C0C0C0', name: 'Metallic Silber' },
+            '061': { color: '#708090', name: 'Felsgrau' },
+            '080': { color: '#F8F8FF', name: 'Polarweiß' },
+            '087': { color: '#2F4F4F', name: 'Anthrazitgrau' },
+            '189': { color: '#DAA520', name: 'Erntegelb' },
+            '241': { color: '#A9A9A9', name: 'Kiesgrau' },
+            '244': { color: '#696969', name: 'Steinbruchgrau' },
+            '384': { color: '#8B4513', name: 'Kaffeebraun' },
+            '387': { color: '#8B4513', name: 'Nussbraun' },
+            '401': { color: '#8B4513', name: 'Kupferbraun' },
+            '434': { color: '#D2691E', name: 'Eichelbraun' },
+            '454': { color: '#708090', name: 'Gipfelgrau' },
+            '455': { color: '#696969', name: 'Klippengrau' },
+            '461': { color: '#B8B8B8', name: 'Gänsegrau' },
+            '502': { color: '#2E8B57', name: 'Seegrün' },
+            '505': { color: '#228B22', name: 'Waldgrün' },
+            '558': { color: '#4169E1', name: 'Seeblau' },
+            '602': { color: '#4682B4', name: 'Stahlblau' },
+            '610': { color: '#191970', name: 'Mitternachtsblau' },
+            '615': { color: '#778899', name: 'Metallic Rauchsilber' },
+            '701': { color: '#708090', name: 'Schiefergrau' },
+            '703': { color: '#2F4F4F', name: 'Dunkelgrau' },
+            '742': { color: '#B22222', name: 'Ziegelrot' },
+            '756': { color: '#DC143C', name: 'Karminrot' },
+            '757': { color: '#B22222', name: 'Feuerziegelrot' },
+            '758': { color: '#DC143C', name: 'Hüttenrot' },
+            '778': { color: '#CD853F', name: 'Metallic Kupfer' },
+            '780': { color: '#800080', name: 'Purpur' },
+            '801': { color: '#DAA520', name: 'Goldgelb' },
+            '830': { color: '#228B22', name: 'Kieferngrün' },
+            '850': { color: '#FFA500', name: 'Orange' },
+            '874': { color: '#32CD32', name: 'Blattgrün' },
+            '902': { color: '#000000', name: 'Schwarz' },
+            '950': { color: '#FFFFFF', name: 'Weiß' },
+            '975': { color: '#8FBC8F', name: 'Silbertannengrün' }
+        };
+
+        let selectedColor = null;
+        let currentTab = 'ral';
+
+        // Tab wechseln
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Tab Buttons aktualisieren
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Tab Content aktualisieren
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            // Suche zurücksetzen
+            document.getElementById('searchInput').value = '';
+            filterColors('');
+        }
+
+        // Farben rendern
+        function renderColors(colors, gridId, type) {
+            const grid = document.getElementById(gridId);
+            grid.innerHTML = '';
+            
+            Object.entries(colors).forEach(([code, data]) => {
+                const card = document.createElement('div');
+                card.className = 'color-card';
+                card.onclick = () => selectColor(code, data.color, data.name, type);
+                
+                card.innerHTML = `
+                    <div class="color-sample" style="background-color: ${data.color}">
+                        ${type.toUpperCase()} ${code}
+                    </div>
+                    <div class="color-info">
+                        <div class="color-code">${type.toUpperCase()} ${code}</div>
+                        <div class="color-name">${data.name}</div>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Farbe auswählen
+        function selectColor(code, color, name, type) {
+            // Vorherige Auswahl entfernen
+            document.querySelectorAll('.color-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Neue Auswahl markieren
+            event.currentTarget.classList.add('selected');
+            
+            selectedColor = {
+                code: code,
+                color: color,
+                name: name,
+                type: type
+            };
+            
+            // Selection Info anzeigen
+            const selectionInfo = document.getElementById('selectionInfo');
+            const selectedColorInfo = document.getElementById('selectedColorInfo');
+            
+            selectedColorInfo.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <div style="width: 30px; height: 30px; background: ${color}; border-radius: 6px; border: 2px solid #ddd;"></div>
+                    <div>
+                        <div style="font-weight: bold;">${type.toUpperCase()} ${code}</div>
+                        <div style="font-size: 12px; color: #666;">${name}</div>
+                    </div>
+                </div>
+            `;
+            
+            selectionInfo.style.display = 'block';
+            
+            // Prüfe ob es ein Standalone-Modus ist (kein Parent-Window)
+            if (!window.opener) {
+                // Standalone-Modus - automatisch nach kurzer Zeit schließen
+                setTimeout(() => {
+                    selectionInfo.style.display = 'none';
+                    document.querySelectorAll('.color-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    selectedColor = null;
+                }, 2000);
+            }
+        }
+
+        // Auswahl bestätigen
+        function confirmSelection() {
+            if (selectedColor && window.opener) {
+                // Callback an Parent-Fenster
+                if (window.opener.onColorSelected) {
+                    window.opener.onColorSelected(selectedColor);
+                }
+            }
+            window.close();
+        }
+
+        // Farben filtern
+        function filterColors(searchTerm) {
+            const term = searchTerm.toLowerCase();
+            const colors = currentTab === 'ral' ? RAL_COLORS : PRELAQ_COLORS;
+            const gridId = currentTab === 'ral' ? 'ralGrid' : 'prelaqGrid';
+            
+            if (!term) {
+                renderColors(colors, gridId, currentTab);
+                return;
+            }
+            
+            const filtered = {};
+            Object.entries(colors).forEach(([code, data]) => {
+                if (code.toLowerCase().includes(term) || 
+                    data.name.toLowerCase().includes(term)) {
+                    filtered[code] = data;
+                }
+            });
+            
+            renderColors(filtered, gridId, currentTab);
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', function() {
+            filterColors(this.value);
+        });
+
+        // Escape-Taste zum Schließen
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.close();
+            }
+        });
+
+        // Initialisierung
+        document.addEventListener('DOMContentLoaded', function() {
+            renderColors(RAL_COLORS, 'ralGrid', 'ral');
+            renderColors(PRELAQ_COLORS, 'prelaqGrid', 'prelaq');
+            
+            // AdSense Initialisierung
+            setTimeout(function() {
+                // Zeige Werbung an
+                document.getElementById('ad-colors-top').style.display = 'block';
+                document.getElementById('ad-colors-middle').style.display = 'block';
+                
+                // Lade AdSense Anzeigen
+                try {
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                    
+                    console.log('AdSense ads initialized');
+                    
+                    // Prüfe nach 3 Sekunden ob Anzeigen geladen wurden
+                    setTimeout(function() {
+                        document.querySelectorAll('.ad-wrapper').forEach(function(wrapper) {
+                            const adElement = wrapper.querySelector('.adsbygoogle');
+                            if (adElement) {
+                                const adStatus = adElement.getAttribute('data-ad-status');
+                                const hasHeight = adElement.offsetHeight > 50;
+                                
+                                if (adStatus === 'unfilled' || !hasHeight) {
+                                    wrapper.style.display = 'none';
+                                    console.log('Ad hidden - no content loaded');
+                                }
+                            }
+                        });
+                    }, 3000);
+                    
+                } catch (error) {
+                    console.log('AdSense error:', error);
+                    document.querySelectorAll('.ad-wrapper').forEach(function(wrapper) {
+                        wrapper.style.display = 'none';
+                    });
+                }
+            }, 1000);
+            
+            // Prüfe ob es ein Standalone-Modus ist
+            if (!window.opener) {
+                document.getElementById('headerDescription').textContent = 'Übersicht aller verfügbaren RAL- und Prelaq-Farben für Trapezblech, Kantteile und Metallverarbeitung';
+                
+                // Verstecke Bestätigen-Button im Standalone-Modus
+                const confirmBtn = document.querySelector('.confirm-btn');
+                if (confirmBtn) {
+                    confirmBtn.style.display = 'none';
+                }
+                
+                // Ändere Cancel-Button Text
+                const cancelBtn = document.querySelector('.cancel-btn');
+                if (cancelBtn) {
+                    cancelBtn.textContent = 'Fenster schließen';
+                }
+            }
+        });
