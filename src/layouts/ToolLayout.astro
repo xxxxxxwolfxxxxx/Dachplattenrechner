@@ -10,11 +10,13 @@ interface Props {
   navTitle?: string;
   background?: string;   // CSS background-image, z.B. "url('/images/lattung.png')"
   adSlot?: string;
+  backHref?: string;
+  backLabel?: string;
 }
-const { title, description, navTitle, background, adSlot } = Astro.props;
+const { title, description, navTitle, background, adSlot, backHref, backLabel } = Astro.props;
 ---
 <BaseLayout title={title} description={description}>
-  <Nav title={navTitle ?? title} />
+  <Nav title={navTitle ?? title} backHref={backHref} backLabel={backLabel} />
 
   {background && (
     <div class="tool-bg" style={`background-image: ${background};`}></div>
