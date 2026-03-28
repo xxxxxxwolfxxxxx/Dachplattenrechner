@@ -1,0 +1,77 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import CalculatorCard from '../../../components/CalculatorCard.astro';
+import InfoBox from '../../../components/InfoBox.astro';
+
+const shapes = [
+  {
+    href: '/tools/rechteck',
+    title: 'Rechteck / Quadrat',
+    icon: '/images/rechteck.png',
+    description: 'Für rechteckige und quadratische Dachflächen. Ideal für Flachdächer, Garagen und einfache Pultdächer.',
+    features: ['Schnittliste mit Längen', 'Druckbarer Anrissplan'],
+  },
+  {
+    href: '/tools/gleichschenkliges-dreieck',
+    title: 'Gleichschenkliges Dreieck',
+    icon: '/images/gleichschenkliges-dreieck.png',
+    description: 'Ideal für Pyramidendächer, Satteldachwalmflächen und symmetrische Dreiecksflächen.',
+    features: ['Schnittliste mit Längen', 'Druckbarer Anrissplan', 'Verschnittoptimierung'],
+  },
+  {
+    href: '/tools/ungleichschenkliges-dreieck',
+    title: 'Ungleichschenkliges Dreieck',
+    icon: '/images/ungleichschenkliges-dreieck.png',
+    description: 'Für asymmetrische Dachflächen mit verschobener Spitze und freiem Winkel.',
+    features: ['Beliebige Dreiecksformen', 'Anrissplan mit Bemaßung'],
+  },
+  {
+    href: '/tools/trapez',
+    title: 'Trapez',
+    icon: '/images/trapez.png',
+    description: 'Für trapezförmige Dachflächen mit parallelen oberen und unteren Kanten.',
+    features: ['Schnittliste', 'Kantteil-Export'],
+  },
+  {
+    href: '/tools/trapezaufrechteck',
+    title: 'Trapez auf Rechteck',
+    icon: '/images/trapez-rechteck.png',
+    description: 'Für Walmdächer und Krüppelwalmdächer – Trapezfläche liegt auf einem Rechteck auf.',
+    features: ['Walmdach-Optimierung', 'Druckfertige Pläne'],
+  },
+];
+---
+
+<ToolLayout
+  title="Dachflächenberechnung"
+  description="Dachplatten und Trapezbleche berechnen für alle Dachformen: Rechteck, Dreieck, Trapez und Walmdach. Schnittlisten und Anrisspläne kostenlos im Browser."
+  navTitle="Dachflächenberechnung"
+  background="url('/images/index.png')"
+>
+  <InfoBox title="Dachform wählen">
+    <p>Wählen Sie die passende Dachform für Ihre Berechnung. Nach der Berechnung erhalten Sie:</p>
+    <ul>
+      <li>Exakte Plattenlängen für jede einzelne Trapezplatte</li>
+      <li>Detaillierte Schnittliste mit allen Maßen</li>
+      <li>Optional: Lattenrechner für die perfekte Unterkonstruktion</li>
+      <li>Optional: Druckbarer Anrissplan für präzise Schrägschnitte</li>
+    </ul>
+  </InfoBox>
+
+  <div class="shapes-grid">
+    {shapes.map(s => <CalculatorCard {...s} />)}
+  </div>
+</ToolLayout>
+
+<style>
+  .shapes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    margin: 24px 0 40px;
+  }
+
+  @media (max-width: 480px) {
+    .shapes-grid { grid-template-columns: 1fr; }
+  }
+</style>
