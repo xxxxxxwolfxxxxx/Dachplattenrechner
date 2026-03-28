@@ -6,13 +6,6 @@ import AdUnit from '../components/AdUnit.astro';
 
 const tools = [
   {
-    href: '/projekt-dach',
-    title: 'Projekt Dach',
-    icon: '/images/plan-2.jpg',
-    description: 'An alles gedacht? Statik, Materialwahl, Unterkonstruktion, Blechverlegung und Winkelprofile – der komplette Guide in 5 Kapiteln.',
-    features: ['Statik & Schneelast', 'Materialwahl & Unterbau', 'Blechverlegung', 'Winkelprofile & Abschlüsse'],
-  },
-  {
     href: '/tools/dachformen',
     title: 'Dachflächenberechnung',
     icon: '/images/gleichschenkliges-dreieck.png',
@@ -87,6 +80,27 @@ const tools = [
       <div class="tools-grid">
         {tools.map(t => <CalculatorCard {...t} />)}
       </div>
+    </section>
+
+    <!-- Ratgeber -->
+    <section aria-label="Ratgeber" style="margin-bottom: 48px;">
+      <h2 class="section-title" style="text-align:center; margin-bottom:2rem">
+        <span>Ratgeber</span>
+      </h2>
+      <a href="/projekt-dach/" class="guide-card">
+        <img src="/images/plan-2.jpg" alt="Projekt Dach" class="guide-img" />
+        <div class="guide-body">
+          <h3>Projekt Dach</h3>
+          <p>An alles gedacht? Statik, Materialwahl, Unterkonstruktion, Blechverlegung und Winkelprofile – der komplette Guide in 5 Kapiteln.</p>
+          <ul>
+            <li>Statik &amp; Schneelast</li>
+            <li>Materialwahl &amp; Unterbau</li>
+            <li>Blechverlegung</li>
+            <li>Winkelprofile &amp; Abschlüsse</li>
+          </ul>
+          <span class="guide-cta">Guide lesen →</span>
+        </div>
+      </a>
     </section>
 
     <AdUnit position="middle" />
@@ -267,6 +281,62 @@ const tools = [
   .faq-body { padding: 0 20px 16px; color: #94a3b8; font-size: 0.85rem; line-height: 1.65; }
   .faq-body p { margin-bottom: 8px; }
   .faq-body p:last-child { margin-bottom: 0; }
+
+  /* ── Guide-Card ── */
+  .guide-card {
+    display: flex;
+    gap: 24px;
+    background: linear-gradient(135deg, rgba(30, 45, 74, 0.8), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 14px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .guide-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(14, 165, 233, 0.4);
+  }
+  .guide-img {
+    width: 220px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .guide-body {
+    padding: 24px 24px 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .guide-body h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #f8fafc;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .guide-body p { color: #94a3b8; font-size: 0.9rem; line-height: 1.6; }
+  .guide-body ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+  .guide-body ul li { color: #64748b; font-size: 0.83rem; }
+  .guide-body ul li::before { content: '✓ '; color: #0ea5e9; }
+  .guide-cta {
+    margin-top: auto;
+    color: #0ea5e9;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 640px) {
+    .guide-card { flex-direction: column; }
+    .guide-img { width: 100%; height: 160px; }
+    .guide-body { padding: 16px; }
+  }
 
   @media (max-width: 480px) {
     .faq-grid { grid-template-columns: 1fr; }
