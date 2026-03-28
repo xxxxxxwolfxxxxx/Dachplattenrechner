@@ -27,20 +27,6 @@ const tools = [
     features: ['DIN EN ISO 6946', 'Glaser-Verfahren', '100+ Baustoffe', 'Druckbarer Nachweis'],
     badge: 'NEU',
   },
-  {
-    href: '/tools/farben',
-    title: 'Farbkatalog',
-    icon: '/images/farben.png',
-    description: 'RAL-Farbtöne für Trapezbleche und Sandwichpaneele mit visueller Farbvorschau.',
-    features: ['RAL-Farbtöne', 'Visuelle Vorschau', 'Bestellangaben'],
-  },
-  {
-    href: '/tools/kantteil',
-    title: 'Kantteil-Zeichner',
-    icon: '/images/klemmbrett.png',
-    description: 'Blechkantteile planen und zeichnen – Firstbleche, Ortgangbleche, Wandanschlüsse und individuelle Kantprofile.',
-    features: ['Firstbleche & Ortgangbleche', 'Individuelle Kantprofile', 'Blechstärke & Farbe wählbar'],
-  },
 ];
 ---
 
@@ -79,6 +65,41 @@ const tools = [
       </h2>
       <div class="tools-grid">
         {tools.map(t => <CalculatorCard {...t} />)}
+      </div>
+    </section>
+
+    <!-- Weitere Tools -->
+    <section aria-label="Weitere Tools" style="margin-bottom: 48px;">
+      <h2 class="section-title" style="text-align:center; margin-bottom:2rem">
+        Weitere <span>Tools</span>
+      </h2>
+      <div class="extra-tools-grid">
+        <a href="/tools/farben/" class="guide-card">
+          <img src="/images/farben.png" alt="Farbkatalog" class="guide-img" />
+          <div class="guide-body">
+            <h3>Farbkatalog</h3>
+            <p>RAL-Farbtöne für Trapezbleche und Sandwichpaneele mit visueller Farbvorschau und Bestellangaben.</p>
+            <ul>
+              <li>RAL-Farbtöne</li>
+              <li>Visuelle Vorschau</li>
+              <li>Bestellangaben</li>
+            </ul>
+            <span class="guide-cta">Farben ansehen →</span>
+          </div>
+        </a>
+        <a href="/tools/kantteil/" class="guide-card">
+          <img src="/images/klemmbrett.png" alt="Kantteil-Zeichner" class="guide-img" />
+          <div class="guide-body">
+            <h3>Kantteil-Zeichner</h3>
+            <p>Blechkantteile planen und zeichnen – Firstbleche, Ortgangbleche, Wandanschlüsse und individuelle Kantprofile.</p>
+            <ul>
+              <li>Firstbleche &amp; Ortgangbleche</li>
+              <li>Individuelle Kantprofile</li>
+              <li>Blechstärke &amp; Farbe wählbar</li>
+            </ul>
+            <span class="guide-cta">Kantteil zeichnen →</span>
+          </div>
+        </a>
       </div>
     </section>
 
@@ -281,6 +302,13 @@ const tools = [
   .faq-body { padding: 0 20px 16px; color: #94a3b8; font-size: 0.85rem; line-height: 1.65; }
   .faq-body p { margin-bottom: 8px; }
   .faq-body p:last-child { margin-bottom: 0; }
+
+  /* ── Extra-Tools-Grid ── */
+  .extra-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 20px;
+  }
 
   /* ── Guide-Card ── */
   .guide-card {
