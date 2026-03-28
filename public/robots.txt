@@ -1,0 +1,40 @@
+# robots.txt für dachplattenrechner.de
+
+# Alle Suchmaschinen-Bots
+User-agent: *
+Allow: /
+
+# Unwichtige Bereiche vom Crawling ausschließen
+Disallow: /Images/
+Disallow: /admin/
+Disallow: /temp/
+Disallow: /backup/
+Disallow: /*.log$
+Disallow: /*?print=*
+Disallow: /*?debug=*
+
+# Spezielle Google-Anweisungen
+User-agent: Googlebot
+Allow: /Images/favicon.png
+Allow: /Images/*.jpg
+Allow: /Images/*.png
+
+# Andere Bots einschränken
+User-agent: CCBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Common Crawl
+Disallow: /
+
+# Crawl-Delay für andere Bots
+User-agent: *
+Crawl-delay: 1
+
+# Sitemap-Verweis
+Sitemap: https://dachplattenrechner.de/sitemap.xml
