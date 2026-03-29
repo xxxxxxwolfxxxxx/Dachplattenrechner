@@ -47,22 +47,7 @@ import AdUnit from '../../components/AdUnit.astro';
 
   <div class="preview-screenshot">
     <div class="preview-label">📊 So sieht dein Ergebnis aus:</div>
-    <svg width="100%" viewBox="0 0 500 200" style="max-width:500px;display:block;margin:0 auto;">
-      <rect width="500" height="200" rx="12" fill="url(#grad1)"/>
-      <defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1e3c72"/><stop offset="100%" style="stop-color:#2a5298"/></linearGradient></defs>
-      <text x="20" y="35" fill="#ffd700" font-size="14" font-weight="bold" font-family="sans-serif">Ergebnis – Rechteck 10 × 8 m</text>
-      <line x1="20" y1="45" x2="480" y2="45" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-      <text x="20" y="70" fill="#cbd5e1" font-size="12" font-family="sans-serif">Überlappung pro Blech:</text><text x="380" y="70" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">0,05 m</text>
-      <text x="20" y="95" fill="#cbd5e1" font-size="12" font-family="sans-serif">Fläche:</text><text x="380" y="95" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">80,00 m²</text>
-      <text x="20" y="120" fill="#cbd5e1" font-size="12" font-family="sans-serif">Benötigte Plattenlänge:</text><text x="380" y="120" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">8,00 m</text>
-      <text x="20" y="145" fill="#cbd5e1" font-size="12" font-family="sans-serif">Anzahl Bleche (Breite):</text><text x="380" y="145" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">10 Stück</text>
-      <text x="20" y="170" fill="#cbd5e1" font-size="12" font-family="sans-serif">Gesamtanzahl Bleche:</text><text x="380" y="170" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">10 Stück</text>
-      <rect x="410" y="58" width="80" height="122" rx="6" fill="rgba(255,255,255,0.08)"/>
-      <rect x="418" y="66" width="12" height="100" rx="2" fill="#1e3c72" opacity="0.6"/>
-      <rect x="434" y="66" width="12" height="100" rx="2" fill="#28a745" opacity="0.3"/>
-      <rect x="450" y="66" width="12" height="100" rx="2" fill="#1e3c72" opacity="0.6"/>
-      <rect x="466" y="66" width="12" height="100" rx="2" fill="#1e3c72" opacity="0.6"/>
-    </svg>
+    <img src="/images/preview-rechteck.png" alt="Beispiel-Ergebnis" class="preview-img">
   </div>
 
   <div class="section">
@@ -199,6 +184,7 @@ import AdUnit from '../../components/AdUnit.astro';
 <style>
   .preview-screenshot { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 14px; padding: 16px; margin-bottom: 28px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); }
   .preview-label { color: #cbd5e1; font-size: 13px; margin-bottom: 12px; font-weight: 500; }
+  .preview-img { width: 100%; border-radius: 10px; display: block; }
   .section { background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px); }
   .section h2 { color: #1e3c72; margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
   .input-row { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
