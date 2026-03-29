@@ -248,7 +248,7 @@
             };
             
             const encodedData = encodeURIComponent(JSON.stringify(planData));
-            window.location.href = `anrissplan.html?type=rechteck&data=${encodedData}`;
+            window.location.href = `/tools/anrissplan.html?type=rechteck&data=${encodedData}`;
         }
 
         function erstelleLattenrechner() {
@@ -273,7 +273,7 @@
                 typ: 'rechteck'
             });
             
-            window.location.href = `lattenrechner.html?${params.toString()}`;
+            window.location.href = `/tools/lattenrechner/?${params.toString()}`;
         }
 
         document.addEventListener('DOMContentLoaded', function() {

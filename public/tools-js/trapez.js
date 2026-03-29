@@ -340,7 +340,7 @@ if (verlegerichtung === 'links') {
             };
             
             const encodedData = encodeURIComponent(JSON.stringify(planData));
-            window.location.href = `anrissplan.html?type=trapez&data=${encodedData}`;
+            window.location.href = `/tools/anrissplan.html?type=trapez&data=${encodedData}`;
         }
 
         function erstelleLattenrechner() {
@@ -367,7 +367,7 @@ if (verlegerichtung === 'links') {
                 obereBreite: obereBreite
             });
             
-            window.location.href = `lattenrechner.html?${params.toString()}`;
+            window.location.href = `/tools/lattenrechner/?${params.toString()}`;
         }
 
         // Initialize everything
