@@ -7,14 +7,15 @@ import AdUnit from '../components/AdUnit.astro';
 interface Props {
   title: string;
   description?: string;
+  keywords?: string;
   navTitle?: string;
   background?: string;   // CSS background-image, z.B. "url('/images/lattung.png')"
   backHref?: string;
   backLabel?: string;
 }
-const { title, description, navTitle, background, backHref, backLabel } = Astro.props;
+const { title, description, keywords, navTitle, background, backHref, backLabel } = Astro.props;
 ---
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} keywords={keywords}>
   <Nav title={navTitle ?? title} backHref={backHref} backLabel={backLabel} />
 
   {background && (
