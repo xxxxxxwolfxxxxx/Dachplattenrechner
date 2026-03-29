@@ -357,26 +357,30 @@
             window.close();
         }
 
-        // Farben filtern
+        // Farben filtern (beide Grids)
         function filterColors(searchTerm) {
             const term = searchTerm.toLowerCase();
-            const colors = currentTab === 'ral' ? RAL_COLORS : PRELAQ_COLORS;
-            const gridId = currentTab === 'ral' ? 'ralGrid' : 'prelaqGrid';
-            
+
             if (!term) {
-                renderColors(colors, gridId, currentTab);
+                renderColors(RAL_COLORS, 'ralGrid', 'ral');
+                renderColors(PRELAQ_COLORS, 'prelaqGrid', 'prelaq');
                 return;
             }
-            
-            const filtered = {};
-            Object.entries(colors).forEach(([code, data]) => {
-                if (code.toLowerCase().includes(term) || 
-                    data.name.toLowerCase().includes(term)) {
-                    filtered[code] = data;
-                }
+
+            const filteredRal = {};
+            Object.entries(RAL_COLORS).forEach(([code, data]) => {
+                if (code.toLowerCase().includes(term) || data.name.toLowerCase().includes(term))
+                    filteredRal[code] = data;
             });
-            
-            renderColors(filtered, gridId, currentTab);
+
+            const filteredPrelaq = {};
+            Object.entries(PRELAQ_COLORS).forEach(([code, data]) => {
+                if (code.toLowerCase().includes(term) || data.name.toLowerCase().includes(term))
+                    filteredPrelaq[code] = data;
+            });
+
+            renderColors(filteredRal, 'ralGrid', 'ral');
+            renderColors(filteredPrelaq, 'prelaqGrid', 'prelaq');
         }
 
         // Event Listeners
