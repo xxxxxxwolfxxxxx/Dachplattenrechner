@@ -356,7 +356,7 @@
             };
             
             const encodedData = encodeURIComponent(JSON.stringify(planData));
-            window.location.href = `anrissplan.html?type=gleichschenkliges-dreieck&data=${encodedData}`;
+            window.location.href = `/tools/anrissplan.html?type=gleichschenkliges-dreieck&data=${encodedData}`;
         }
 
         function erstelleLattenrechner() {
@@ -383,7 +383,7 @@
                 typ: 'gleichschenkliges-dreieck'
             });
             
-            window.location.href = `lattenrechner.html?${params.toString()}`;
+            window.location.href = `/tools/lattenrechner/?${params.toString()}`;
         }
 
         // Initialize everything

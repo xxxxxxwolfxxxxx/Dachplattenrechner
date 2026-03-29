@@ -369,7 +369,7 @@
             };
             
             const encodedData = encodeURIComponent(JSON.stringify(planData));
-            window.location.href = `anrissplan.html?type=trapez-auf-rechteck&data=${encodedData}`;
+            window.location.href = `/tools/anrissplan.html?type=trapez-auf-rechteck&data=${encodedData}`;
         }
 
         function erstelleLattenrechner() {
@@ -400,7 +400,7 @@
                 rechteckHoehe: rechteckHoehe
             });
             
-            window.location.href = `lattenrechner.html?${params.toString()}`;
+            window.location.href = `/tools/lattenrechner/?${params.toString()}`;
         }
 
         // Initialize everything
