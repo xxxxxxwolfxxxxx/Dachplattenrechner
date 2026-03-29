@@ -53,6 +53,22 @@ import AdUnit from '../../components/AdUnit.astro';
     </div>
   </div>
 
+  <div class="preview-screenshot">
+    <div class="preview-label">📊 So sieht dein Ergebnis aus:</div>
+    <svg width="100%" viewBox="0 0 500 200" style="max-width:500px;display:block;margin:0 auto;">
+      <rect width="500" height="200" rx="12" fill="url(#grad5)"/>
+      <defs><linearGradient id="grad5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1e3c72"/><stop offset="100%" style="stop-color:#2a5298"/></linearGradient></defs>
+      <text x="20" y="35" fill="#ffd700" font-size="14" font-weight="bold" font-family="sans-serif">Ergebnis – Ungl. Dreieck: 3 m / 5 m, Höhe 6 m</text>
+      <line x1="20" y1="45" x2="480" y2="45" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+      <text x="20" y="70" fill="#cbd5e1" font-size="12" font-family="sans-serif">Dachfläche:</text><text x="380" y="70" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">24,00 m²</text>
+      <text x="20" y="95" fill="#cbd5e1" font-size="12" font-family="sans-serif">Schrägmaß links:</text><text x="380" y="95" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">6,71 m</text>
+      <text x="20" y="120" fill="#cbd5e1" font-size="12" font-family="sans-serif">Schrägmaß rechts:</text><text x="380" y="120" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">7,81 m</text>
+      <text x="20" y="145" fill="#cbd5e1" font-size="12" font-family="sans-serif">Anzahl Bleche:</text><text x="380" y="145" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">8 Stück</text>
+      <polygon points="415,165 455,70 475,165" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+      <line x1="455" y1="70" x2="455" y2="165" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4,3"/>
+    </svg>
+  </div>
+
   <div class="section">
     <h2>1. Dreiecks-Geometrie</h2>
     <div class="input-row">
@@ -219,7 +235,7 @@ import AdUnit from '../../components/AdUnit.astro';
         </thead>
         <tbody id="schnitt-details"></tbody>
       </table>
-      <div style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
+      <div style="margin-top: 15px; font-size: 14px; color: #cbd5e1; text-align: center;">
         <strong>Verlegung:</strong> <span id="verlege-info">Von links nach rechts, Platten verlaufen vertikal (oben → unten)</span>
       </div>
       <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
@@ -241,6 +257,8 @@ import AdUnit from '../../components/AdUnit.astro';
 </ToolLayout>
 
 <style>
+  .preview-screenshot { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 14px; padding: 16px; margin-bottom: 28px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); }
+  .preview-label { color: #cbd5e1; font-size: 13px; margin-bottom: 12px; font-weight: 500; }
   .section {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;

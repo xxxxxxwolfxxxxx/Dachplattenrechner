@@ -49,6 +49,14 @@ body {
   overflow-x: hidden;
 }
 
+/* Heller Karten-Hintergrund braucht dunklen Text */
+.section {
+  color: #1e293b;
+}
+.section .info-box {
+  color: #1e293b;
+}
+
 /* ── Utility Classes ── */
 .container {
   max-width: 1200px;
