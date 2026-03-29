@@ -24,23 +24,17 @@ import AdUnit from '../../components/AdUnit.astro';
     <p id="headerDescription">Wählen Sie die perfekte Farbe für Ihr Trapezblech oder Kantteil – über 300 RAL- und Prelaq-Farben verfügbar</p>
   </div>
 
-  <div class="color-tabs">
-    <button class="tab-btn active" onclick="switchTab('ral')">RAL Farben</button>
-    <button class="tab-btn" onclick="switchTab('prelaq')">Prelaq Farben</button>
-  </div>
-
   <div class="search-box">
     <input type="text" class="search-input" id="searchInput" placeholder="Farbe suchen (Code oder Name)...">
   </div>
 
-  <div id="ral-tab" class="tab-content active">
-    <div class="color-grid" id="ralGrid"></div>
-    <AdUnit position="middle" />
-  </div>
+  <h2 class="section-heading">RAL Farben</h2>
+  <div class="color-grid" id="ralGrid"></div>
 
-  <div id="prelaq-tab" class="tab-content">
-    <div class="color-grid" id="prelaqGrid"></div>
-  </div>
+  <AdUnit position="middle" />
+
+  <h2 class="section-heading">Prelaq Farben</h2>
+  <div class="color-grid" id="prelaqGrid"></div>
 
   <div class="selection-info" id="selectionInfo">
     <h3>Ausgewählte Farbe</h3>
@@ -63,37 +57,20 @@ import AdUnit from '../../components/AdUnit.astro';
   .header h1 { color: #1e3c72; margin-bottom: 10px; font-size: 1.8em; }
   .header p { color: #475569; font-size: 1.1em; }
 
-  .color-tabs {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 30px;
-    gap: 10px;
-    padding: 0 20px;
-  }
-  .tab-btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 25px;
-    background: rgba(255, 255, 255, 0.7);
-    color: #1e3c72;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 16px;
-  }
-  .tab-btn.active {
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
-  }
-  .tab-btn:hover:not(.active) {
-    background: rgba(255, 255, 255, 1);
-    transform: translateY(-2px);
+  .section-heading {
+    color: #f8fafc;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 32px 0 16px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, rgba(30,60,114,0.85), rgba(42,82,152,0.85));
+    border-radius: 10px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
   }
 
   .color-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 15px;
     max-width: 1200px;
     margin: 0 auto;
@@ -118,7 +95,7 @@ import AdUnit from '../../components/AdUnit.astro';
     box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3);
   }
   .color-sample {
-    height: 80px;
+    height: 120px;
     width: 100%;
     position: relative;
     display: flex;
@@ -196,12 +173,9 @@ import AdUnit from '../../components/AdUnit.astro';
   }
   .cancel-btn:hover { background: linear-gradient(135deg, #c0392b 0%, #a93226 100%); }
 
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-
   @media (max-width: 768px) {
-    .color-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
-    .color-sample { height: 60px; font-size: 10px; }
+    .color-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+    .color-sample { height: 90px; font-size: 10px; }
     .color-info { padding: 8px; }
     .selection-info { bottom: 10px; right: 10px; left: 10px; }
   }
