@@ -7,7 +7,7 @@ const { position = 'middle', adSlot = '9678418506' } = Astro.props;
 ---
 <div class={`ad-container ad-${position} no-print`} style="display:none">
   <p class="ad-label">Anzeige</p>
-  <div class="ad-row">
+  <div class="ad-row" style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
     <ins
       class="adsbygoogle"
       style="display:inline-block;width:300px;height:250px"
