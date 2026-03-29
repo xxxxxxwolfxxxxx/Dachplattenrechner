@@ -46,8 +46,21 @@ import AdUnit from '../../components/AdUnit.astro';
   </div>
 
   <div class="preview-screenshot">
-    <div class="preview-label">📊 So sieht dein Ergebnis aus:</div>
-    <img src="/images/preview-rechteck.png" alt="Beispiel-Ergebnis" class="preview-img">
+    <div class="preview-label">📊 So sehen deine Ergebnisse aus:</div>
+    <div class="preview-grid">
+      <div class="preview-col">
+        <img src="/images/preview-rechteck.png" alt="Berechnungs-Ergebnis" class="preview-img">
+        <span class="preview-col-label">Ergebnis & Schnittliste</span>
+      </div>
+      <div class="preview-col">
+        <img src="/images/preview-anrissplan.png" alt="Anrissplan" class="preview-img">
+        <span class="preview-col-label">Anrissplan</span>
+      </div>
+      <div class="preview-col">
+        <img src="/images/preview-lattenrechner.png" alt="Lattenrechner" class="preview-img">
+        <span class="preview-col-label">Lattenrechner</span>
+      </div>
+    </div>
   </div>
 
   <div class="section">
@@ -184,7 +197,11 @@ import AdUnit from '../../components/AdUnit.astro';
 <style>
   .preview-screenshot { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 14px; padding: 16px; margin-bottom: 28px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); }
   .preview-label { color: #cbd5e1; font-size: 13px; margin-bottom: 12px; font-weight: 500; }
-  .preview-img { width: 100%; border-radius: 10px; display: block; }
+  .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .preview-col { display: flex; flex-direction: column; gap: 6px; }
+  .preview-col-label { color: #94a3b8; font-size: 11px; text-align: center; font-weight: 500; }
+  .preview-img { width: 100%; border-radius: 8px; display: block; }
+  @media (max-width: 600px) { .preview-grid { grid-template-columns: 1fr; } }
   .section { background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px); }
   .section h2 { color: #1e3c72; margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
   .input-row { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
