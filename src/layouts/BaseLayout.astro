@@ -5,11 +5,13 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description?: string;
+  keywords?: string;
   ogImage?: string;
 }
 const {
   title,
   description = 'Kostenlose Berechnungstools für Trapezbleche, Dachplatten und Wärmeschutz.',
+  keywords = 'Trapezblech, Trapezbleche, Dachplatten, Lichtplatten, Trapezblech Rechner, Dachblech berechnen, Schnittliste, Anrissplan, Lattung berechnen, Dachdeckung, Trapezprofil, Stahlblech Dach, Wellblech, Sandwichpaneel, Dachrechner, Baurechner',
   ogImage,
 } = Astro.props;
 
@@ -23,6 +25,7 @@ const fullTitle = title.includes('Dachplattenrechner') ? title : `${title} | Dac
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{fullTitle}</title>
   <meta name="description" content={description} />
+  <meta name="keywords" content={keywords} />
   <meta name="google-adsense-account" content="ca-pub-8687929894744033" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -33,6 +36,11 @@ const fullTitle = title.includes('Dachplattenrechner') ? title : `${title} | Dac
   <meta property="og:type" content="website" />
   <meta property="og:url" content={Astro.url.href} />
   {ogImage && <meta property="og:image" content={ogImage} />}
+  <!-- AdSense Kontext-Hint: Bau & Handwerk, kein Entertainment -->
+  <script>
+    window.googletag = window.googletag || { cmd: [] };
+    (window.adsbygoogle = window.adsbygoogle || []).requestNonPersonalizedAds = 0;
+  </script>
   <!-- Google Analytics (gtag geladen; Konfiguration erst nach Cookie-Consent) -->
   <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
   <script define:vars={{ GA_ID }}>
