@@ -89,7 +89,7 @@ function startEditor() {
     if (!editorContainer || !editorFrame) return;
 
     const params = new URLSearchParams(window.kantteilSettings);
-    editorFrame.src = `/tools/kantteil-editor?${params.toString()}`;
+    editorFrame.src = `/tools/kantteil-editor.html?${params.toString()}`;
 
     editorContainer.style.display = 'block';
     document.body.style.overflow = 'hidden';

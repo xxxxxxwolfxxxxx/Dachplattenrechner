@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kantteile Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #2c3e50;
+            color: #ecf0f1;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .editor-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 100;
+            position: relative;
+        }
+        
+        .editor-title {
+            color: white;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .editor-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .color-side-selector {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .color-side-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .color-side-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .color-side-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .close-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+        }
+        
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 70px);
+            background: #34495e;
+            overflow: hidden;
+        }
+        
+        canvas {
+            background: white;
+            cursor: crosshair;
+            display: block;
+        }
+        
+        .status-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-text {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .status-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .status-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .status-btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #1f5582 100%);
+            transform: translateY(-2px);
+        }
+        
+        .status-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            min-width: 300px;
+            color: #333;
+        }
+        
+        .modal-content h3 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        
+        .modal-content input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .confirm-btn {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .confirm-btn:hover {
+            background: #219a52;
+        }
+        
+        .cancel-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .cancel-btn:hover {
+            background: #c0392b;
+        }
+        
+        .measurements-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            min-width: 250px;
+            color: #333;
+            display: none;
+        }
+        
+        .measurements-panel h4 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .help-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 300px;
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: center;
+            z-index: 1000;
+        }
+        
+        .help-overlay h4 {
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        
+        .help-overlay ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        
+        .help-overlay li {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            text-align: left;
+        }
+        
+        .help-overlay li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #3498db;
+        }
+        
+        .help-ok-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .help-ok-btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #1f5582 100%);
+        }
+        
+        .value-overlay {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+            z-index: 200;
+        }
+        
+        .value-text {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 80px;
+        }
+    </style>
+    <script>
+        // Mobile Detection Script
+        function detectMobileDevice() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+            const isTablet = /ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP)))/i.test(userAgent);
+            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const isSmallScreen = window.innerWidth <= 768;
+            
+            return (isMobile || isTablet || hasTouch) && isSmallScreen;
+        }
+
+        function redirectToMobile() {
+            if (detectMobileDevice()) {
+                // Übertrage URL-Parameter zur mobilen Version
+                const currentUrl = new URL(window.location);
+                const mobileUrl = new URL('kantteil-editor-mobile.html', window.location);
+                
+                // Kopiere alle Parameter
+                currentUrl.searchParams.forEach((value, key) => {
+                    mobileUrl.searchParams.set(key, value);
+                });
+                
+                window.location.href = mobileUrl.toString();
+            }
+        }
+
+        // Prüfe beim Laden der Seite
+        document.addEventListener('DOMContentLoaded', redirectToMobile);
+    </script>
+</head>
+<body>
+    <div class="editor-header">
+        <div class="editor-title">🔧 Kantteile Zeichenprogramm</div>
+        <div class="editor-controls">
+            <div class="color-side-selector">
+                <span style="color: white; font-size: 12px; margin-right: 8px;">Farbseite:</span>
+                <button class="color-side-btn active" id="colorSideTop" onclick="setColorSide('top')">Oben</button>
+                <button class="color-side-btn" id="colorSideBottom" onclick="setColorSide('bottom')">Unten</button>
+            </div>
+            <button class="control-btn" onclick="openColorSelection()">Farbe ändern</button>
+            <button class="control-btn" onclick="centerView()">Zentrieren</button>
+            <button class="control-btn" onclick="clearCanvas()">Löschen</button>
+            <button class="control-btn" onclick="exportSketch()">Exportieren</button>
+            <button class="close-btn" onclick="closeEditor()">× Schließen</button>
+        </div>
+    </div>
+    
+    <div class="canvas-container">
+        <canvas id="drawingCanvas"></canvas>
+        
+        <div class="help-overlay" id="helpOverlay">
+            <h4>Steuerung</h4>
+            <ul>
+                <li>Mausrad: Zoomen</li>
+                <li>Mittlere Taste: Verschieben</li>
+                <li>Leertaste: Manuelle Eingabe</li>
+                <li>Enter: Bestätigen</li>
+                <li>Escape: Editor schließen</li>
+            </ul>
+            <button class="help-ok-btn" onclick="closeHelp()">OK</button>
+        </div>
+        
+        <div class="value-overlay" id="valueOverlay">
+            <div class="value-text" id="valueText">0°</div>
+        </div>
+        
+        <div class="measurements-panel" id="measurementPanel">
+            <h4>Bauteilmaße</h4>
+            <div id="measurementList"></div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-text" id="statusText">
+                Bewegen Sie die Maus oder drücken Sie Leertaste für manuelle Eingabe. Bestätigen mit Linksklick oder Enter.
+            </div>
+            <div class="status-controls">
+                <button class="status-btn" id="startBtn" onclick="startDrawing()">Zeichnung starten</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="lengthModal">
+        <div class="modal-content">
+            <h3>Linienlänge eingeben</h3>
+            <p>Aktuelle Länge: <span id="currentLength">0</span> mm</p>
+            <input type="number" id="lengthInput" min="1" max="1000" step="1" placeholder="Länge in mm">
+            <div class="modal-buttons">
+                <button class="confirm-btn" onclick="confirmLength()">Bestätigen</button>
+                <button class="cancel-btn" onclick="closeModal('lengthModal')">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="angleModal">
+        <div class="modal-content">
+            <h3>Biegewinkel eingeben</h3>
+            <p>Aktueller Winkel: <span id="currentAngle">0</span>°</p>
+            <input type="number" id="angleInput" min="-180" max="180" step="1" placeholder="Winkel in Grad">
+            <div class="modal-buttons">
+                <button class="confirm-btn" onclick="confirmAngle()">Bestätigen</button>
+                <button class="cancel-btn" onclick="closeModal('angleModal')">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <h3>Skizze exportieren</h3>
+            <input type="text" id="partName" placeholder="Name des Kantteils" style="margin: 10px 0;">
+            <input type="number" id="quantityNeeded" placeholder="Benötigte Meterzahl" step="0.1" style="margin: 10px 0;">
+            <div class="modal-buttons">
+                <button class="confirm-btn" onclick="confirmExport()">Exportieren</button>
+                <button class="cancel-btn" onclick="closeModal('exportModal')">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="kantteil-editor.js"></script>
+</body>
+</html>

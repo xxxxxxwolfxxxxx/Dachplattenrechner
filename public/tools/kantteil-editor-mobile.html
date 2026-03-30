@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Kantteile Editor - Mobile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #2c3e50;
+            color: #ecf0f1;
+            overflow: hidden;
+            height: 100vh;
+            touch-action: manipulation;
+        }
+        
+        .mobile-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mobile-title {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .export-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .mobile-close {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 110px);
+            background: #34495e;
+            overflow: hidden;
+        }
+        
+        canvas {
+            background: white;
+            touch-action: none;
+            display: block;
+        }
+        
+        .mobile-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 300;
+        }
+        
+        .control-row {
+            display: flex;
+            gap: 6px;
+            justify-content: space-between;
+        }
+        
+        .mobile-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 4px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
+        }
+        
+        .mobile-btn:disabled {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+        }
+        
+        .mobile-btn.primary {
+            background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+            border-color: #27ae60;
+        }
+        
+        .mobile-btn.danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-color: #e74c3c;
+        }
+        
+        .mobile-btn.color-toggle {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            border-color: #f39c12;
+            font-size: 10px;
+        }
+        
+        .status-display {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 6px 10px;
+            text-align: center;
+            font-size: 13px;
+            border-radius: 6px;
+            margin-bottom: 3px;
+        }
+        
+        .value-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            display: none;
+            z-index: 200;
+            border: 2px solid #3498db;
+        }
+        
+        .measurements-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            color: #333;
+            display: none;
+            max-width: 200px;
+            font-size: 14px;
+        }
+        
+        /* Mobile Modals */
+        .mobile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .mobile-modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 350px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .mobile-modal h3 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .mobile-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 18px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .mobile-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .mobile-modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .mobile-modal-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .modal-confirm {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .modal-cancel {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .zoom-info {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            z-index: 150;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-header">
+        <div class="header-left">
+            <div class="mobile-title">🔧 Kantteile Editor</div>
+            <button class="export-btn" onclick="exportSketch()">📤 Export</button>
+        </div>
+        <button class="mobile-close" onclick="closeEditor()">✕ Schließen</button>
+    </div>
+    
+    <div class="canvas-container">
+        <canvas id="drawingCanvas"></canvas>
+        
+        <div class="value-display" id="valueDisplay">0°</div>
+        <div class="measurements-display" id="measurementsDisplay"></div>
+        <div class="zoom-info" id="zoomInfo">Zoom: 100%</div>
+    </div>
+    
+    <div class="mobile-controls">
+        <div class="status-display" id="statusDisplay">
+            Tippen Sie auf "Zeichnung starten" um zu beginnen
+        </div>
+        
+        <div class="control-row">
+            <button class="mobile-btn primary" id="startBtn" onclick="startDrawing()">Start</button>
+            <button class="mobile-btn color-toggle" onclick="toggleColorSide()">Farbe</button>
+            <button class="mobile-btn" onclick="centerView()">Zentrieren</button>
+        </div>
+        
+        <div class="control-row">
+            <button class="mobile-btn" onclick="undoLast()">Zurück</button>
+            <button class="mobile-btn danger" onclick="clearCanvas()">Löschen</button>
+        </div>
+    </div>
+
+    <!-- Mobile Modals -->
+    <div class="mobile-modal" id="inputModal">
+        <div class="mobile-modal-content">
+            <h3 id="inputTitle">Wert eingeben</h3>
+            <p id="inputDesc">Aktueller Wert: <span id="currentValue">0</span></p>
+            <input type="number" id="inputField" class="mobile-input" placeholder="Wert eingeben">
+            <div class="mobile-modal-buttons">
+                <button class="mobile-modal-btn modal-confirm" onclick="confirmInput()">Bestätigen</button>
+                <button class="mobile-modal-btn modal-cancel" onclick="closeModal('inputModal')">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-modal" id="exportModal">
+        <div class="mobile-modal-content">
+            <h3>Zeichnung exportieren</h3>
+            <input type="text" id="partName" class="mobile-input" placeholder="Name des Kantteils">
+            <input type="number" id="quantityNeeded" class="mobile-input" placeholder="Benötigte Meterzahl" step="0.1">
+            <div class="mobile-modal-buttons">
+                <button class="mobile-modal-btn modal-confirm" onclick="confirmExport()">Exportieren</button>
+                <button class="mobile-modal-btn modal-cancel" onclick="closeModal('exportModal')">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MobileKantteileEditor {
+            constructor() {
+                this.canvas = document.getElementById('drawingCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.elements = [];
+                this.currentElement = null;
+                this.activePoints = [];
+                this.isDrawing = false;
+                this.drawingMode = null;
+                this.startPos = { x: 400, y: 300 };
+                this.scale = 5; // KLEINERER GRUNDSCALE für größere Bauteile
+                this.zoom = 1;
+                this.panX = 0;
+                this.panY = 0;
+                
+                // Touch-Variablen
+                this.isPanning = false;
+                this.isZooming = false;
+                this.lastTouches = [];
+                this.lastDistance = 0;
+                this.touchStartTime = 0;
+                this.colorSide = 'top'; // Farbseite
+                
+                this.loadSettings();
+                this.initCanvas();
+                this.setupEventListeners();
+                this.render();
+            }
+            
+            loadSettings() {
+                const params = new URLSearchParams(window.location.search);
+                this.settings = {
+                    thickness: parseFloat(params.get('thickness')) || 0.6,
+                    firstLineType: params.get('firstLineType') || 'horizontal',
+                    frontColor: params.get('frontColor') || '#8B4513',
+                    backColor: params.get('backColor') || '#B8B799',
+                    selectedColorCode: params.get('selectedColorCode') || '8004'
+                };
+            }
+            
+            initCanvas() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+            
+            resizeCanvas() {
+                const container = this.canvas.parentElement;
+                this.canvas.width = container.clientWidth;
+                this.canvas.height = container.clientHeight;
+                this.render();
+            }
+            
+            setupEventListeners() {
+                // Touch Events
+                this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
+                this.canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+                this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: false });
+                
+                // Prevent context menu
+                this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+                
+                // Prevent scrolling
+                document.body.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+            }
+            
+            handleTouchStart(e) {
+                e.preventDefault();
+                this.lastTouches = Array.from(e.touches);
+                this.touchStartTime = Date.now();
+                
+                if (this.lastTouches.length === 1) {
+                    // Einzelner Touch
+                    const touch = this.lastTouches[0];
+                    const rect = this.canvas.getBoundingClientRect();
+                    const touchPos = {
+                        x: touch.clientX - rect.left,
+                        y: touch.clientY - rect.top
+                    };
+                    
+                    this.lastSingleTouchPos = touchPos;
+                    
+                } else if (this.lastTouches.length === 2) {
+                    // Zwei Finger - Zoom/Pan
+                    this.isZooming = true;
+                    this.lastDistance = this.getTouchDistance(this.lastTouches[0], this.lastTouches[1]);
+                    this.lastMidpoint = this.getTouchMidpoint(this.lastTouches[0], this.lastTouches[1]);
+                }
+            }
+            
+            handleTouchMove(e) {
+                e.preventDefault();
+                const touches = Array.from(e.touches);
+                
+                if (touches.length === 1 && !this.isZooming) {
+                    // Single touch - drawing or panning
+                    const touch = touches[0];
+                    const rect = this.canvas.getBoundingClientRect();
+                    const touchPos = {
+                        x: touch.clientX - rect.left,
+                        y: touch.clientY - rect.top
+                    };
+                    
+                    if (this.isDrawing) {
+                        // Update current element
+                        const worldPos = this.getWorldCoordinates(touchPos.x, touchPos.y);
+                        this.updateCurrentElement(worldPos);
+                        this.render();
+                    }
+                    
+                } else if (touches.length === 2) {
+                    // Two fingers - zoom and pan
+                    const distance = this.getTouchDistance(touches[0], touches[1]);
+                    const midpoint = this.getTouchMidpoint(touches[0], touches[1]);
+                    
+                    if (this.lastDistance > 0) {
+                        // Zoom
+                        const zoomFactor = distance / this.lastDistance;
+                        const newZoom = Math.max(0.05, Math.min(5, this.zoom * zoomFactor)); // VIEL GRÖSSERER ZOOM-BEREICH
+                        
+                        const worldMidX = (midpoint.x - this.panX) / this.zoom;
+                        const worldMidY = (midpoint.y - this.panY) / this.zoom;
+                        
+                        this.zoom = newZoom;
+                        
+                        this.panX = midpoint.x - worldMidX * this.zoom;
+                        this.panY = midpoint.y - worldMidY * this.zoom;
+                    }
+                    
+                    // Pan
+                    if (this.lastMidpoint) {
+                        const deltaX = midpoint.x - this.lastMidpoint.x;
+                        const deltaY = midpoint.y - this.lastMidpoint.y;
+                        
+                        this.panX += deltaX;
+                        this.panY += deltaY;
+                    }
+                    
+                    this.lastDistance = distance;
+                    this.lastMidpoint = midpoint;
+                    this.render();
+                }
+            }
+            
+            handleTouchEnd(e) {
+                e.preventDefault();
+                const touchDuration = Date.now() - this.touchStartTime;
+                
+                if (e.touches.length === 0) {
+                    // All touches ended
+                    if (this.lastTouches.length === 1 && touchDuration < 300 && !this.isZooming) {
+                        // Quick tap - handle as click
+                        this.handleTap(this.lastSingleTouchPos);
+                    }
+                    
+                    this.isZooming = false;
+                    this.isPanning = false;
+                    this.lastDistance = 0;
+                    this.lastMidpoint = null;
+                }
+                
+                this.lastTouches = Array.from(e.touches);
+            }
+            
+            handleTap(pos) {
+                const worldPos = this.getWorldCoordinates(pos.x, pos.y);
+                
+                // Check for active points - GRÖßERE TOUCH-BEREICHE
+                const clickedPoint = this.activePoints.find(point => {
+                    const screenPoint = this.getScreenCoordinates(point.x, point.y);
+                    const distance = Math.sqrt(
+                        Math.pow(pos.x - screenPoint.x, 2) + 
+                        Math.pow(pos.y - screenPoint.y, 2)
+                    );
+                    return distance < 50; // Viel größerer Touch-Bereich
+                });
+                
+                if (clickedPoint) {
+                    this.handlePointClick(clickedPoint);
+                } else if (this.isDrawing) {
+                    this.confirmCurrentElement();
+                }
+            }
+            
+            getTouchDistance(touch1, touch2) {
+                const dx = touch1.clientX - touch2.clientX;
+                const dy = touch1.clientY - touch2.clientY;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+            
+            getTouchMidpoint(touch1, touch2) {
+                return {
+                    x: (touch1.clientX + touch2.clientX) / 2,
+                    y: (touch1.clientY + touch2.clientY) / 2
+                };
+            }
+            
+            getWorldCoordinates(screenX, screenY) {
+                return {
+                    x: (screenX - this.panX) / this.zoom,
+                    y: (screenY - this.panY) / this.zoom
+                };
+            }
+            
+            getScreenCoordinates(worldX, worldY) {
+                return {
+                    x: worldX * this.zoom + this.panX,
+                    y: worldY * this.zoom + this.panY
+                };
+            }
+            
+            startDrawing() {
+                this.clearCanvas();
+                this.isDrawing = true;
+                this.drawingMode = 'line';
+                
+                this.currentElement = {
+                    type: 'line',
+                    start: { ...this.startPos },
+                    end: { ...this.startPos },
+                    direction: this.settings.firstLineType,
+                    length: 0,
+                    thickness: this.settings.thickness
+                };
+                
+                this.updateStatus('Berühren Sie den Bildschirm um die Linie zu positionieren. Tippen zum Bestätigen.');
+                document.getElementById('startBtn').style.display = 'none';
+                // ENTFERNT: confirmBtn wird nicht mehr aktiviert
+                this.showValueDisplay();
+                this.render();
+            }
+            
+            updateCurrentElement(mousePos) {
+                if (!this.currentElement) return;
+                
+                if (this.currentElement.type === 'line') {
+                    this.updateLineFromTouch(mousePos);
+                } else if (this.currentElement.type === 'curve') {
+                    this.updateCurveFromTouch(mousePos);
+                }
+            }
+            
+            updateLineFromTouch(touchPos) {
+                if (!this.currentElement || this.currentElement.type !== 'line') return;
+                
+                const start = this.currentElement.start;
+                let length;
+                
+                // AUTO-PAN wenn am Rand
+                this.checkAutoPan(touchPos);
+                
+                if (this.currentElement.direction === 'horizontal') {
+                    length = Math.abs(touchPos.x - start.x) / this.scale;
+                    this.currentElement.end = {
+                        x: touchPos.x,
+                        y: start.y
+                    };
+                } else if (this.currentElement.direction === 'vertical') {
+                    length = Math.abs(touchPos.y - start.y) / this.scale;
+                    this.currentElement.end = {
+                        x: start.x,
+                        y: touchPos.y
+                    };
+                } else if (this.currentElement.direction === 'tangential') {
+                    const lineAngle = this.currentElement.angle;
+                    const dx = touchPos.x - start.x;
+                    const dy = touchPos.y - start.y;
+                    
+                    const projectedLength = dx * Math.cos(lineAngle) + dy * Math.sin(lineAngle);
+                    
+                    if (projectedLength < 0) {
+                        this.currentElement.end = { ...start };
+                        length = 0;
+                    } else {
+                        length = projectedLength / this.scale;
+                        this.currentElement.end = {
+                            x: start.x + Math.cos(lineAngle) * projectedLength,
+                            y: start.y + Math.sin(lineAngle) * projectedLength
+                        };
+                    }
+                }
+                
+                this.currentElement.length = Math.round(length);
+                this.updateValueDisplay(this.currentElement.length + ' mm');
+            }
+            
+            checkAutoPan(worldPos) {
+                const screenPos = this.getScreenCoordinates(worldPos.x, worldPos.y);
+                const margin = 80; // Rand-Bereich
+                let panDelta = { x: 0, y: 0 };
+                
+                // Rechter Rand
+                if (screenPos.x > this.canvas.width - margin) {
+                    panDelta.x = -30;
+                }
+                // Linker Rand  
+                if (screenPos.x < margin) {
+                    panDelta.x = 30;
+                }
+                // Unterer Rand
+                if (screenPos.y > this.canvas.height - margin) {
+                    panDelta.y = -30;
+                }
+                // Oberer Rand
+                if (screenPos.y < margin) {
+                    panDelta.y = 30;
+                }
+                
+                if (panDelta.x !== 0 || panDelta.y !== 0) {
+                    this.panX += panDelta.x;
+                    this.panY += panDelta.y;
+                }
+            }
+            
+            updateCurveFromTouch(touchPos) {
+                if (!this.currentElement || this.currentElement.type !== 'curve') return;
+                
+                // VEREINFACHTE WINKELBERECHNUNG
+                const start = this.currentElement.start;
+                const dx = touchPos.x - start.x;
+                const dy = touchPos.y - start.y;
+                
+                // Berechne Winkel relativ zur aktuellen Fahrtrichtung
+                const mouseAngle = Math.atan2(dy, dx);
+                const startDirection = this.currentElement.startAngle;
+                
+                // Relativer Winkel zur Fahrtrichtung
+                let relativeAngle = mouseAngle - startDirection;
+                
+                // Normalisiere auf -π bis +π
+                while (relativeAngle > Math.PI) relativeAngle -= 2 * Math.PI;
+                while (relativeAngle < -Math.PI) relativeAngle += 2 * Math.PI;
+                
+                // Konvertiere zu Grad und runde
+                let angleDegrees = Math.round(relativeAngle * 180 / Math.PI);
+                
+                // Begrenze auf erlaubten Bereich
+                angleDegrees = Math.max(-180, Math.min(180, angleDegrees));
+                
+                this.currentElement.angle = angleDegrees;
+                this.calculateCurveEndpoint();
+                this.updateValueDisplay(angleDegrees + '°');
+            }
+            
+            calculateCurveEndpoint() {
+                if (!this.currentElement || this.currentElement.type !== 'curve') return;
+                
+                const { start, radius, startAngle, angle } = this.currentElement;
+                
+                if (angle === 0) {
+                    this.currentElement.end = { ...start };
+                    this.currentElement.endAngle = startAngle;
+                    this.helperLineEnd = null;
+                    return;
+                }
+                
+                const angleRad = angle * Math.PI / 180;
+                const centerAngle = startAngle + (angle > 0 ? Math.PI/2 : -Math.PI/2);
+                
+                const center = {
+                    x: start.x + Math.cos(centerAngle) * radius,
+                    y: start.y + Math.sin(centerAngle) * radius
+                };
+                
+                const startAngleFromCenter = startAngle + (angle > 0 ? -Math.PI/2 : Math.PI/2);
+                const endAngleFromCenter = startAngleFromCenter + angleRad;
+                
+                this.currentElement.end = {
+                    x: center.x + Math.cos(endAngleFromCenter) * radius,
+                    y: center.y + Math.sin(endAngleFromCenter) * radius
+                };
+                
+                this.currentElement.endAngle = startAngle + angleRad;
+                this.currentElement.center = center;
+                this.currentElement.startAngleFromCenter = startAngleFromCenter;
+                this.currentElement.endAngleFromCenter = endAngleFromCenter;
+                
+                // STABILERE Hilfslinie - nur aktualisieren wenn sich Winkel ändert
+                if (this.lastHelperAngle !== this.currentElement.endAngle) {
+                    const length = 60;
+                    const helperEndX = this.currentElement.end.x + Math.cos(this.currentElement.endAngle) * length;
+                    const helperEndY = this.currentElement.end.y + Math.sin(this.currentElement.endAngle) * length;
+                    this.helperLineEnd = { x: helperEndX, y: helperEndY };
+                    this.lastHelperAngle = this.currentElement.endAngle;
+                }
+            }
+            
+            handlePointClick(point) {
+                this.activePoints = this.activePoints.filter(p => p !== point);
+                
+                this.drawingMode = 'curve';
+                this.isDrawing = true;
+                
+                const lastElement = this.elements[this.elements.length - 1];
+                const travelDirection = this.getTravelDirection(lastElement);
+                
+                if (lastElement && lastElement.type === 'line') {
+                    const radiusMM = 1;
+                    this.shortenLastLine(lastElement, radiusMM);
+                    point = { ...lastElement.end };
+                }
+                
+                this.currentElement = {
+                    type: 'curve',
+                    start: { ...point },
+                    radius: 1 * this.scale,
+                    startAngle: travelDirection,
+                    angle: 0,
+                    end: { ...point }
+                };
+                
+                this.showValueDisplay();
+                this.updateStatus('Wählen Sie den Biegewinkel (-180° bis +180°)');
+                this.render();
+            }
+            
+            getTravelDirection(lastElement) {
+                if (!lastElement) return 0;
+                
+                if (lastElement.type === 'line') {
+                    if (lastElement.direction === 'tangential') {
+                        return lastElement.angle;
+                    } else if (lastElement.direction === 'horizontal') {
+                        return lastElement.end.x > lastElement.start.x ? 0 : Math.PI;
+                    } else {
+                        return lastElement.end.y > lastElement.start.y ? Math.PI/2 : -Math.PI/2;
+                    }
+                } else if (lastElement.type === 'curve') {
+                    return lastElement.endAngle;
+                }
+                
+                return 0;
+            }
+            
+            shortenLastLine(lineElement, radiusMM) {
+                const radiusPixels = radiusMM * this.scale;
+                
+                if (!lineElement.originalLength) {
+                    lineElement.originalLength = lineElement.length;
+                }
+                
+                if (lineElement.direction === 'tangential') {
+                    const lineAngle = lineElement.angle;
+                    lineElement.end = {
+                        x: lineElement.end.x - Math.cos(lineAngle) * radiusPixels,
+                        y: lineElement.end.y - Math.sin(lineAngle) * radiusPixels
+                    };
+                } else if (lineElement.direction === 'horizontal') {
+                    if (lineElement.end.x > lineElement.start.x) {
+                        lineElement.end.x -= radiusPixels;
+                    } else {
+                        lineElement.end.x += radiusPixels;
+                    }
+                } else {
+                    if (lineElement.end.y > lineElement.start.y) {
+                        lineElement.end.y -= radiusPixels;
+                    } else {
+                        lineElement.end.y += radiusPixels;
+                    }
+                }
+                
+                lineElement.length = Math.max(0, lineElement.originalLength - radiusMM);
+            }
+            
+            confirmCurrentElement() {
+                if (!this.currentElement) return;
+                
+                if (this.currentElement.type === 'line' && this.currentElement.length === 0) {
+                    this.updateStatus('Die Linie muss mindestens 1mm lang sein!');
+                    return;
+                }
+                
+                if (this.currentElement.type === 'curve' && this.currentElement.angle === 0) {
+                    this.updateStatus('Wählen Sie einen Winkel ungleich 0°!');
+                    return;
+                }
+                
+                this.elements.push({ ...this.currentElement });
+                
+                if (this.currentElement.type === 'curve') {
+                    this.currentElement = {
+                        type: 'line',
+                        start: { ...this.currentElement.end },
+                        end: { ...this.currentElement.end },
+                        direction: 'tangential',
+                        angle: this.currentElement.endAngle,
+                        length: 0,
+                        thickness: this.settings.thickness
+                    };
+                    
+                    this.drawingMode = 'line';
+                    this.updateStatus('Zeichnen Sie die nächste Linie. Tippen zum Bestätigen.');
+                } else {
+                    this.activePoints.push({ ...this.currentElement.end });
+                    this.currentElement = null;
+                    this.isDrawing = false;
+                    this.drawingMode = null;
+                    this.hideValueDisplay();
+                    this.updateStatus('Tippen Sie auf den blauen Punkt um eine Kurve hinzuzufügen');
+                    // ENTFERNT: confirmBtn wird nicht mehr deaktiviert
+                }
+                
+                this.updateMeasurements();
+                this.render();
+            }
+            
+            updateMeasurements() {
+                const display = document.getElementById('measurementsDisplay');
+                
+                let totalLength = 0;
+                let kantungen = 0;
+                
+                this.elements.forEach((element) => {
+                    if (element.type === 'line') {
+                        const lengthToAdd = element.originalLength || element.length;
+                        totalLength += lengthToAdd;
+                    } else if (element.type === 'curve') {
+                        kantungen++;
+                    }
+                });
+                
+                if (this.elements.length > 0) {
+                    display.innerHTML = `
+                        <div style="font-weight: bold; margin-bottom: 8px;">Maße:</div>
+                        <div>Länge: ${totalLength} mm</div>
+                        <div>Kantungen: ${kantungen}</div>
+                    `;
+                    display.style.display = 'block';
+                } else {
+                    display.style.display = 'none';
+                }
+            }
+            
+            render() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.ctx.save();
+                this.ctx.scale(this.zoom, this.zoom);
+                this.ctx.translate(this.panX / this.zoom, this.panY / this.zoom);
+                
+                this.drawGrid();
+                
+                // Zeichne fertige Elemente
+                this.elements.forEach(element => {
+                    this.drawElementWithColors(element, 6 / this.zoom);
+                });
+                
+                // Zeichne aktuelles Element
+                if (this.currentElement) {
+                    this.drawElement(this.currentElement, '#e74c3c', 6 / this.zoom);
+                    
+                    if (this.isDrawing) {
+                        this.drawCurrentValues();
+                        
+                        // Zeichne grüne Hilfslinie für Kurven
+                        if (this.currentElement.type === 'curve' && this.helperLineEnd) {
+                            this.drawHelperLine();
+                        }
+                    }
+                }
+                
+                // Zeichne aktive Punkte mit Animation
+                this.activePoints.forEach(point => {
+                    this.drawPoint(point, '#3498db', 15 / this.zoom);
+                });
+                
+                this.ctx.restore();
+                
+                this.drawZoomInfo();
+                
+                // Animation für leuchtende Punkte
+                if (!this.isInCurveMode && this.activePoints.length > 0) {
+                    setTimeout(() => this.render(), 50); // 20 FPS Animation
+                }
+            }
+            
+            drawElementWithColors(element, width) {
+                // DYNAMISCHE LINIENBREITE basierend auf Zoom
+                const dynamicWidth = Math.max(1, width * this.zoom);
+                
+                this.ctx.lineWidth = dynamicWidth;
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+                
+                const spurMapping = this.getSpurMappingForElement(element);
+                const offset = 0;
+                
+                if (element.type === 'line') {
+                    const dx = element.end.x - element.start.x;
+                    const dy = element.end.y - element.start.y;
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (length > 0) {
+                        const normalX = -dy / length;
+                        const normalY = dx / length;
+                        
+                        // Spur A
+                        this.ctx.strokeStyle = spurMapping.spurA;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(element.start.x + normalX * (dynamicWidth/2), element.start.y + normalY * (dynamicWidth/2));
+                        this.ctx.lineTo(element.end.x + normalX * (dynamicWidth/2), element.end.y + normalY * (dynamicWidth/2));
+                        this.ctx.stroke();
+                        
+                        // Spur B
+                        this.ctx.strokeStyle = spurMapping.spurB;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(element.start.x - normalX * (dynamicWidth/2), element.start.y - normalY * (dynamicWidth/2));
+                        this.ctx.lineTo(element.end.x - normalX * (dynamicWidth/2), element.end.y - normalY * (dynamicWidth/2));
+                        this.ctx.stroke();
+                    }
+                    
+                } else if (element.type === 'curve' && element.center && element.angle !== 0) {
+                    const startAngle = element.startAngleFromCenter;
+                    const endAngle = element.endAngleFromCenter;
+                    const counterClockwise = element.angle < 0;
+                    
+                    let ersteSpurColor, zweiteSpurColor;
+                    
+                    if (element.angle > 0) {
+                        ersteSpurColor = spurMapping.spurB;
+                        zweiteSpurColor = spurMapping.spurA;
+                    } else {
+                        ersteSpurColor = spurMapping.spurA;
+                        zweiteSpurColor = spurMapping.spurB;
+                    }
+                    
+                    // Äußerer Bogen
+                    this.ctx.strokeStyle = ersteSpurColor;
+                    this.ctx.beginPath();
+                    this.ctx.arc(element.center.x, element.center.y, element.radius + dynamicWidth/2, startAngle, endAngle, counterClockwise);
+                    this.ctx.stroke();
+                    
+                    // Innerer Bogen
+                    this.ctx.strokeStyle = zweiteSpurColor;
+                    this.ctx.beginPath();
+                    this.ctx.arc(element.center.x, element.center.y, element.radius - dynamicWidth/2, startAngle, endAngle, counterClockwise);
+                    this.ctx.stroke();
+                }
+            }
+            
+            getSpurMappingForElement(targetElement) {
+                let spurA, spurB;
+                if (this.colorSide === 'top') {
+                    spurA = this.settings.frontColor;
+                    spurB = this.settings.backColor;
+                } else {
+                    spurA = this.settings.backColor;
+                    spurB = this.settings.frontColor;
+                }
+                
+                return { spurA, spurB };
+            }
+            
+            drawElement(element, color, width) {
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = width;
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+                
+                if (element.type === 'line') {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(element.start.x, element.start.y);
+                    this.ctx.lineTo(element.end.x, element.end.y);
+                    this.ctx.stroke();
+                } else if (element.type === 'curve' && element.center && element.angle !== 0) {
+                    this.ctx.beginPath();
+                    
+                    const startAngle = element.startAngleFromCenter;
+                    const endAngle = element.endAngleFromCenter;
+                    const counterClockwise = element.angle < 0;
+                    
+                    this.ctx.arc(element.center.x, element.center.y, element.radius, startAngle, endAngle, counterClockwise);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawPoint(point, color, radius) {
+                // LEUCHTENDE ANIMATION für aktive Punkte
+                if (!this.isInCurveMode) {
+                    const time = Date.now() * 0.005;
+                    const pulse = 0.8 + 0.4 * Math.sin(time); // Pulsiert zwischen 0.8 und 1.2
+                    
+                    // Leuchtender äußerer Ring
+                    this.ctx.fillStyle = 'rgba(52, 152, 219, 0.3)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(point.x, point.y, radius * 1.8 * pulse, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    // Mittlerer Ring
+                    this.ctx.fillStyle = 'rgba(52, 152, 219, 0.6)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(point.x, point.y, radius * 1.3 * pulse, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                
+                // Hauptpunkt
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.strokeStyle = 'white';
+                this.ctx.lineWidth = 4 / this.zoom;
+                this.ctx.stroke();
+            }
+            
+            drawCurrentValues() {
+                if (!this.currentElement) return;
+                
+                let displayX, displayY, value, unit, color;
+                
+                if (this.currentElement.type === 'line') {
+                    displayX = this.currentElement.end.x;
+                    displayY = this.currentElement.end.y - 40 / this.zoom;
+                    value = this.currentElement.length;
+                    unit = 'mm';
+                    color = '#e74c3c';
+                } else if (this.currentElement.type === 'curve') {
+                    if (this.currentElement.center) {
+                        displayX = this.currentElement.center.x;
+                        displayY = this.currentElement.center.y - 30 / this.zoom;
+                    } else {
+                        displayX = this.currentElement.start.x;
+                        displayY = this.currentElement.start.y - 40 / this.zoom;
+                    }
+                    value = this.currentElement.angle;
+                    unit = '°';
+                    color = '#f39c12';
+                }
+                
+                const text = `${value}${unit}`;
+                const fontSize = 24 / this.zoom;
+                this.ctx.font = `${fontSize}px Arial`;
+                this.ctx.textAlign = 'center';
+                
+                const textMetrics = this.ctx.measureText(text);
+                const textWidth = textMetrics.width;
+                const textHeight = fontSize;
+                
+                const padding = 15 / this.zoom;
+                const bgX = displayX - textWidth/2 - padding;
+                const bgY = displayY - textHeight - padding;
+                const bgWidth = textWidth + 2 * padding;
+                const bgHeight = textHeight + 2 * padding;
+                
+                // Weißer Hintergrund
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                this.ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
+                
+                // Rahmen
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 3 / this.zoom;
+                this.ctx.strokeRect(bgX, bgY, bgWidth, bgHeight);
+                
+                // Text
+                this.ctx.fillStyle = color;
+                this.ctx.font = `bold ${fontSize}px Arial`;
+                this.ctx.fillText(text, displayX, displayY);
+            }
+            
+            drawGrid() {
+                this.ctx.strokeStyle = '#f0f0f0';
+                this.ctx.lineWidth = 1 / this.zoom;
+                
+                const visibleArea = {
+                    left: -this.panX / this.zoom,
+                    top: -this.panY / this.zoom,
+                    right: (this.canvas.width - this.panX) / this.zoom,
+                    bottom: (this.canvas.height - this.panY) / this.zoom
+                };
+                
+                const gridSize = this.scale * 5;
+                
+                const startX = Math.floor(visibleArea.left / gridSize) * gridSize;
+                for (let x = startX; x <= visibleArea.right; x += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, visibleArea.top);
+                    this.ctx.lineTo(x, visibleArea.bottom);
+                    this.ctx.stroke();
+                }
+                
+                const startY = Math.floor(visibleArea.top / gridSize) * gridSize;
+                for (let y = startY; y <= visibleArea.bottom; y += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(visibleArea.left, y);
+                    this.ctx.lineTo(visibleArea.right, y);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawHelperLine() {
+                if (!this.currentElement || this.currentElement.type !== 'curve' || !this.helperLineEnd) return;
+                
+                const curveEnd = this.currentElement.end || this.currentElement.start;
+                
+                this.ctx.strokeStyle = '#27ae60';
+                this.ctx.lineWidth = 4 / this.zoom;
+                this.ctx.setLineDash([10 / this.zoom, 10 / this.zoom]);
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(curveEnd.x, curveEnd.y);
+                this.ctx.lineTo(this.helperLineEnd.x, this.helperLineEnd.y);
+                this.ctx.stroke();
+                
+                this.ctx.setLineDash([]);
+                
+                // ENTFERNT: Doppelte Winkelanzeige
+            }
+            
+            drawZoomInfo() {
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                document.getElementById('zoomInfo').textContent = `Zoom: ${Math.round(this.zoom * 100)}%`;
+            }
+            
+            updateStatus(message) {
+                document.getElementById('statusDisplay').textContent = message;
+            }
+            
+            hideValueDisplay() {
+                document.getElementById('valueDisplay').style.display = 'none';
+            }
+            
+            updateValueDisplay(text) {
+                document.getElementById('valueDisplay').textContent = text;
+            }
+            
+            clearCanvas() {
+                this.elements = [];
+                this.activePoints = [];
+                this.currentElement = null;
+                this.isDrawing = false;
+                this.drawingMode = null;
+                
+                this.zoom = 0.5; // WEITER RAUSGEZOOMT beim Start
+                this.panX = this.canvas.width/2 - this.startPos.x * this.zoom;
+                this.panY = this.canvas.height/2 - this.startPos.y * this.zoom;
+                
+                document.getElementById('measurementsDisplay').style.display = 'none';
+                document.getElementById('startBtn').style.display = 'block';
+                // ENTFERNT: confirmBtn wird nicht mehr deaktiviert
+                this.hideValueDisplay();
+                this.updateStatus('Tippen Sie auf "Start" um zu beginnen');
+                this.render();
+            }
+            
+            centerView() {
+                if (this.elements.length === 0) {
+                    this.zoom = 0.5; // WEITER RAUSGEZOOMT
+                    this.panX = this.canvas.width/2 - this.startPos.x * this.zoom;
+                    this.panY = this.canvas.height/2 - this.startPos.y * this.zoom;
+                } else {
+                    let minX = Infinity, minY = Infinity;
+                    let maxX = -Infinity, maxY = -Infinity;
+                    
+                    this.elements.forEach(element => {
+                        if (element.type === 'line') {
+                            minX = Math.min(minX, element.start.x, element.end.x);
+                            maxX = Math.max(maxX, element.start.x, element.end.x);
+                            minY = Math.min(minY, element.start.y, element.end.y);
+                            maxY = Math.max(maxY, element.start.y, element.end.y);
+                        } else if (element.type === 'curve' && element.center) {
+                            const r = element.radius;
+                            minX = Math.min(minX, element.center.x - r);
+                            maxX = Math.max(maxX, element.center.x + r);
+                            minY = Math.min(minY, element.center.y - r);
+                            maxY = Math.max(maxY, element.center.y + r);
+                        }
+                    });
+                    
+                    const centerX = (minX + maxX) / 2;
+                    const centerY = (minY + maxY) / 2;
+                    const width = maxX - minX + 200; // MEHR RAND
+                    const height = maxY - minY + 200;
+                    
+                    const zoomX = this.canvas.width / width;
+                    const zoomY = this.canvas.height / height;
+                    this.zoom = Math.min(zoomX, zoomY, 3); // GRÖSSERER MAX-ZOOM
+                    
+                    this.panX = this.canvas.width/2 - centerX * this.zoom;
+                    this.panY = this.canvas.height/2 - centerY * this.zoom;
+                }
+                
+                this.render();
+                this.updateStatus('Ansicht zentriert');
+            }
+            
+            exportSketch() {
+                if (this.elements.length === 0) {
+                    this.updateStatus('Keine Zeichnung zum Exportieren vorhanden!');
+                    return;
+                }
+                
+                // Zeige Export-Modal
+                const modal = document.getElementById('exportModal');
+                modal.style.display = 'flex';
+            }
+            
+            confirmExport() {
+                const partName = document.getElementById('partName').value.trim();
+                const quantityNeeded = parseFloat(document.getElementById('quantityNeeded').value);
+                
+                if (!partName) {
+                    this.updateStatus('Bitte geben Sie einen Namen für das Kantteil ein!');
+                    return;
+                }
+                
+                if (!quantityNeeded || quantityNeeded <= 0) {
+                    this.updateStatus('Bitte geben Sie eine gültige Meterzahl ein!');
+                    return;
+                }
+                
+                try {
+                    this.generateTechnicalDrawing(partName, quantityNeeded);
+                    document.getElementById('exportModal').style.display = 'none';
+                } catch (error) {
+                    console.error('Export-Fehler:', error);
+                    this.updateStatus('Fehler beim Export: ' + error.message);
+                }
+            }
+            
+            generateTechnicalDrawing(partName, quantityNeeded) {
+                // Erweiterte technische Zeichnung mit Bemaßung
+                const techCanvas = document.createElement('canvas');
+                const techCtx = techCanvas.getContext('2d');
+                
+                // Bestimme Bounding Box der Zeichnung
+                let minX = Infinity, minY = Infinity;
+                let maxX = -Infinity, maxY = -Infinity;
+                
+                this.elements.forEach(element => {
+                    if (element.type === 'line') {
+                        minX = Math.min(minX, element.start.x, element.end.x);
+                        maxX = Math.max(maxX, element.start.x, element.end.x);
+                        minY = Math.min(minY, element.start.y, element.end.y);
+                        maxY = Math.max(maxY, element.start.y, element.end.y);
+                    } else if (element.type === 'curve' && element.center) {
+                        const r = element.radius + 20;
+                        minX = Math.min(minX, element.center.x - r);
+                        maxX = Math.max(maxX, element.center.x + r);
+                        minY = Math.min(minY, element.center.y - r);
+                        maxY = Math.max(maxY, element.center.y + r);
+                    }
+                });
+                
+                // Canvas-Größe mit viel Platz für Bemaßung
+                const margin = 300; // Mehr Platz für Bemaßung
+                const drawingWidth = maxX - minX;
+                const drawingHeight = maxY - minY;
+                
+                techCanvas.width = drawingWidth + 2 * margin;
+                techCanvas.height = drawingHeight + 2 * margin + 400; // Noch mehr Platz
+                
+                // Weißer Hintergrund
+                techCtx.fillStyle = 'white';
+                techCtx.fillRect(0, 0, techCanvas.width, techCanvas.height);
+                
+                // Titel und Informationen
+                techCtx.fillStyle = '#1e3c72';
+                techCtx.font = 'bold 64px Arial';
+                techCtx.textAlign = 'center';
+                techCtx.fillText('DACHPLATTENRECHNER.DE', techCanvas.width / 2, 60);
+                
+                techCtx.fillStyle = 'black';
+                techCtx.font = 'bold 48px Arial';
+                techCtx.fillText(`Technische Zeichnung - Kantteil`, techCanvas.width / 2, 120);
+                
+                techCtx.font = 'bold 36px Arial';
+                techCtx.fillText(partName, techCanvas.width / 2, 160);
+                
+                // Berechne Gesamtlänge und Kantungen
+                let totalLength = 0;
+                let kantungen = 0;
+                this.elements.forEach((element) => {
+                    if (element.type === 'line') {
+                        totalLength += element.originalLength || element.length;
+                    } else if (element.type === 'curve') {
+                        kantungen++;
+                    }
+                });
+                
+                // Informationen unten
+                techCtx.font = 'bold 32px Arial';
+                techCtx.textAlign = 'left';
+                techCtx.fillStyle = 'black';
+                techCtx.fillText(`Gesamtlänge: ${totalLength} mm`, 30, techCanvas.height - 160);
+                techCtx.fillText(`Kantungen: ${kantungen}`, 30, techCanvas.height - 120);
+                techCtx.fillText(`Benötigte Meter: ${quantityNeeded}`, 30, techCanvas.height - 80);
+                techCtx.fillText(`Farbcode: ${this.settings.selectedColorCode}`, 30, techCanvas.height - 40);
+                
+                techCtx.textAlign = 'right';
+                techCtx.fillText(`Materialstärke: ${this.settings.thickness} mm`, techCanvas.width - 30, techCanvas.height - 120);
+                techCtx.fillText(`Datum: ${new Date().toLocaleDateString('de-DE')}`, techCanvas.width - 30, techCanvas.height - 80);
+                techCtx.fillText(`erstellt mit dachplattenrechner.de`, techCanvas.width - 30, techCanvas.height - 40);
+                
+                // Verschiebe Koordinatensystem für Zeichnung
+                techCtx.translate(-minX + margin, -minY + margin + 200);
+                
+                // Zeichne Elemente mit Farben
+                this.drawTechnicalElements(techCtx);
+                
+                // WICHTIG: Füge Bemaßung hinzu
+                this.addTechnicalDimensions(techCtx);
+                
+                // Download als PNG
+                const link = document.createElement('a');
+                link.download = `${partName}_technische_zeichnung.png`;
+                link.href = techCanvas.toDataURL();
+                link.click();
+                
+                this.updateStatus('Technische Zeichnung mit Bemaßung wurde erstellt');
+            }
+            
+            getDrawingBounds() {
+                if (this.elements.length === 0) {
+                    return { centerX: 0, centerY: 0, width: 100, height: 100 };
+                }
+                
+                let minX = Infinity, minY = Infinity;
+                let maxX = -Infinity, maxY = -Infinity;
+                
+                this.elements.forEach(element => {
+                    if (element.type === 'line') {
+                        minX = Math.min(minX, element.start.x, element.end.x);
+                        maxX = Math.max(maxX, element.start.x, element.end.x);
+                        minY = Math.min(minY, element.start.y, element.end.y);
+                        maxY = Math.max(maxY, element.start.y, element.end.y);
+                    } else if (element.type === 'curve' && element.center) {
+                        const r = element.radius;
+                        minX = Math.min(minX, element.center.x - r);
+                        maxX = Math.max(maxX, element.center.x + r);
+                        minY = Math.min(minY, element.center.y - r);
+                        maxY = Math.max(maxY, element.center.y + r);
+                    }
+                });
+                
+                return {
+                    centerX: (minX + maxX) / 2,
+                    centerY: (minY + maxY) / 2,
+                    width: maxX - minX + 50,
+                    height: maxY - minY + 50
+                };
+            }
+            
+            addTechnicalDimensions(ctx) {
+                ctx.strokeStyle = 'blue';
+                ctx.fillStyle = 'blue';
+                ctx.lineWidth = 3;
+                ctx.font = 'bold 28px Arial';
+                ctx.textAlign = 'center';
+                
+                const usedDimensionLines = [];
+                
+                this.elements.forEach((element, index) => {
+                    if (element.type === 'line') {
+                        const length = element.originalLength || element.length;
+                        
+                        const dimPosition = this.findOptimalDimensionPosition(element, usedDimensionLines, index);
+                        
+                        this.drawDimensionLine(ctx, element, dimPosition, length);
+                        usedDimensionLines.push(dimPosition);
+                    }
+                });
+            }
+            
+            findOptimalDimensionPosition(element, usedLines, elementIndex) {
+                const dx = element.end.x - element.start.x;
+                const dy = element.end.y - element.start.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                
+                if (length === 0) return { offset: 80, side: 1 };
+                
+                const normalX = -dy / length;
+                const normalY = dx / length;
+                
+                // Berechne Zentrum der Zeichnung
+                const shapeCenter = this.calculateShapeCenter();
+                const lineCenter = {
+                    x: (element.start.x + element.end.x) / 2,
+                    y: (element.start.y + element.end.y) / 2
+                };
+                
+                const toCenter = {
+                    x: shapeCenter.x - lineCenter.x,
+                    y: shapeCenter.y - lineCenter.y
+                };
+                
+                const dotProduct = normalX * toCenter.x + normalY * toCenter.y;
+                const preferredSide = dotProduct > 0 ? -1 : 1;
+                
+                const lineLength = element.originalLength || element.length;
+                const useInside = lineLength < 15;
+                const finalSide = useInside ? -preferredSide : preferredSide;
+                
+                const possibleOffsets = useInside ? [40, 60, 80] : [80, 120, 160, 200];
+                const sides = [finalSide, -finalSide];
+                
+                for (const side of sides) {
+                    for (const offset of possibleOffsets) {
+                        const testPos = {
+                            startX: element.start.x + normalX * offset * side,
+                            startY: element.start.y + normalY * offset * side,
+                            endX: element.end.x + normalX * offset * side,
+                            endY: element.end.y + normalY * offset * side,
+                            offset: offset,
+                            side: side,
+                            isInside: useInside
+                        };
+                        
+                        const hasCollision = usedLines.some(usedLine => {
+                            return this.linesIntersect(testPos, usedLine);
+                        });
+                        
+                        if (!hasCollision) {
+                            return testPos;
+                        }
+                    }
+                }
+                
+                return { 
+                    startX: element.start.x + normalX * (useInside ? 40 : 80),
+                    startY: element.start.y + normalY * (useInside ? 40 : 80),
+                    endX: element.end.x + normalX * (useInside ? 40 : 80),
+                    endY: element.end.y + normalY * (useInside ? 40 : 80),
+                    offset: useInside ? 40 : 80,
+                    side: 1,
+                    isInside: useInside
+                };
+            }
+            
+            drawDimensionLine(ctx, element, dimPos, length) {
+                // Bemaßungslinie
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(dimPos.startX, dimPos.startY);
+                ctx.lineTo(dimPos.endX, dimPos.endY);
+                ctx.stroke();
+                
+                // Hilfslinien
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(element.start.x, element.start.y);
+                ctx.lineTo(dimPos.startX, dimPos.startY);
+                ctx.moveTo(element.end.x, element.end.y);
+                ctx.lineTo(dimPos.endX, dimPos.endY);
+                ctx.stroke();
+                
+                // Bemaßungstext
+                const textX = (dimPos.startX + dimPos.endX) / 2;
+                const textY = (dimPos.startY + dimPos.endY) / 2 - 15;
+                
+                // Weißer Hintergrund
+                ctx.fillStyle = 'white';
+                ctx.fillRect(textX - 50, textY - 20, 100, 40);
+                ctx.strokeStyle = 'blue';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(textX - 50, textY - 20, 100, 40);
+                
+                ctx.fillStyle = 'blue';
+                ctx.font = 'bold 28px Arial';
+                ctx.fillText(`${length}mm`, textX, textY + 10);
+            }
+            
+            calculateShapeCenter() {
+                if (this.elements.length === 0) return { x: 0, y: 0 };
+                
+                let totalX = 0, totalY = 0, pointCount = 0;
+                
+                this.elements.forEach(element => {
+                    if (element.type === 'line') {
+                        totalX += element.start.x + element.end.x;
+                        totalY += element.start.y + element.end.y;
+                        pointCount += 2;
+                    } else if (element.type === 'curve' && element.center) {
+                        totalX += element.start.x + element.end.x;
+                        totalY += element.start.y + element.end.y;
+                        pointCount += 2;
+                    }
+                });
+                
+                return {
+                    x: totalX / pointCount,
+                    y: totalY / pointCount
+                };
+            }
+            
+            linesIntersect(line1, line2) {
+                const dist1 = Math.sqrt(Math.pow(line1.startX - line2.startX, 2) + Math.pow(line1.startY - line2.startY, 2));
+                const dist2 = Math.sqrt(Math.pow(line1.endX - line2.endX, 2) + Math.pow(line1.endY - line2.endY, 2));
+                return (dist1 < 60 && dist2 < 60);
+            }
+        }
+
+        // Globale Funktionen
+        let editor;
+
+        function startDrawing() {
+            editor.startDrawing();
+        }
+
+        function clearCanvas() {
+            editor.clearCanvas();
+        }
+
+        function centerView() {
+            editor.centerView();
+        }
+
+        function exportSketch() {
+            if (editor && editor.exportSketch) {
+                editor.exportSketch();
+            } else {
+                console.error('Editor oder exportSketch nicht verfügbar');
+            }
+        }
+
+        function confirmElement() {
+            editor.confirmCurrentElement();
+        }
+
+        function closeEditor() {
+            if (window.parent && window.parent.closeEditor) {
+                window.parent.closeEditor();
+            } else {
+                window.close();
+            }
+        }
+
+        function showInputModal() {
+            if (!editor.currentElement) return;
+            
+            const modal = document.getElementById('inputModal');
+            const title = document.getElementById('inputTitle');
+            const desc = document.getElementById('inputDesc');
+            const input = document.getElementById('inputField');
+            const currentVal = document.getElementById('currentValue');
+            
+            if (editor.currentElement.type === 'line') {
+                title.textContent = 'Linienlänge eingeben';
+                desc.innerHTML = `Aktuelle Länge: <span id="currentValue">${editor.currentElement.length}</span> mm`;
+                input.placeholder = 'Länge in mm';
+                input.min = '1';
+                input.max = '1000';
+                input.value = editor.currentElement.length;
+            } else if (editor.currentElement.type === 'curve') {
+                title.textContent = 'Biegewinkel eingeben';
+                desc.innerHTML = `Aktueller Winkel: <span id="currentValue">${editor.currentElement.angle}</span>°`;
+                input.placeholder = 'Winkel in Grad';
+                input.min = '-180';
+                input.max = '180';
+                input.value = editor.currentElement.angle;
+            }
+            
+            showModal('inputModal');
+            input.focus();
+        }
+
+        function confirmInput() {
+            const value = parseInt(document.getElementById('inputField').value);
+            
+            if (editor.currentElement.type === 'line') {
+                if (value >= 1 && value <= 1000) {
+                    editor.currentElement.length = value;
+                    editor.updateLineFromLength(value);
+                    editor.render();
+                    // KEIN AUTO-CONFIRM mehr
+                }
+            } else if (editor.currentElement.type === 'curve') {
+                if (value >= -180 && value <= 180 && value !== 0) {
+                    editor.currentElement.angle = value;
+                    editor.calculateCurveEndpoint();
+                    editor.render();
+                    // KEIN AUTO-CONFIRM mehr
+                }
+            }
+            
+            closeModal('inputModal');
+        }
+
+        function updateLineFromLength(length) {
+            if (!editor.currentElement || editor.currentElement.type !== 'line') return;
+            
+            const start = editor.currentElement.start;
+            
+            if (editor.currentElement.direction === 'tangential') {
+                const lineAngle = editor.currentElement.angle;
+                const lengthPixels = length * editor.scale;
+                
+                editor.currentElement.end = {
+                    x: start.x + Math.cos(lineAngle) * lengthPixels,
+                    y: start.y + Math.sin(lineAngle) * lengthPixels
+                };
+            } else if (editor.currentElement.direction === 'horizontal') {
+                editor.currentElement.end = {
+                    x: start.x + length * editor.scale,
+                    y: start.y
+                };
+            } else {
+                editor.currentElement.end = {
+                    x: start.x,
+                    y: start.y + length * editor.scale
+                };
+            }
+        }
+
+        function setColorSide(side) {
+            editor.colorSide = side;
+            editor.render();
+            
+            // Update button text
+            const colorBtn = document.querySelector('.color-toggle');
+            colorBtn.textContent = side === 'top' ? 'Oben' : 'Unten';
+        }
+        
+        function undoLast() {
+            if (editor.elements.length === 0) {
+                editor.updateStatus('Nichts zum Rückgängigmachen');
+                return;
+            }
+            
+            // Entferne letztes Element
+            const lastElement = editor.elements.pop();
+            
+            // Wenn es eine Kurve war, stelle die ursprüngliche Linienlänge wieder her
+            if (lastElement.type === 'curve' && editor.elements.length > 0) {
+                const previousLine = editor.elements[editor.elements.length - 1];
+                if (previousLine.type === 'line' && previousLine.originalLength) {
+                    previousLine.length = previousLine.originalLength;
+                    delete previousLine.originalLength;
+                    
+                    // Stelle ursprünglichen Endpunkt wieder her
+                    const dx = previousLine.end.x - previousLine.start.x;
+                    const dy = previousLine.end.y - previousLine.start.y;
+                    const currentLength = Math.sqrt(dx * dx + dy * dy);
+                    const targetLength = previousLine.length * editor.scale;
+                    
+                    if (currentLength > 0) {
+                        const factor = targetLength / currentLength;
+                        previousLine.end = {
+                            x: previousLine.start.x + dx * factor,
+                            y: previousLine.start.y + dy * factor
+                        };
+                    }
+                }
+            }
+            
+            // Aktualisiere aktive Punkte
+            editor.activePoints = [];
+            if (editor.elements.length > 0) {
+                const lastEl = editor.elements[editor.elements.length - 1];
+                if (lastEl.type === 'line') {
+                    editor.activePoints.push({ ...lastEl.end });
+                }
+            }
+            
+            // Stoppe aktuelles Zeichnen
+            editor.currentElement = null;
+            editor.isDrawing = false;
+            editor.drawingMode = null;
+            editor.isInCurveMode = false;
+            editor.hideValueDisplay();
+            
+            if (editor.elements.length === 0) {
+                document.getElementById('startBtn').style.display = 'block';
+                editor.updateStatus('Tippen Sie auf "Start" um zu beginnen');
+            } else {
+                editor.updateStatus('Letzter Schritt rückgängig gemacht');
+            }
+            
+            editor.updateMeasurements();
+            editor.render();
+        }
+
+        function toggleColorSide() {
+            const newSide = editor.colorSide === 'top' ? 'bottom' : 'top';
+            setColorSide(newSide);
+        }
+
+        function confirmExport() {
+            if (!editor) {
+                console.error('Editor nicht verfügbar');
+                return;
+            }
+            
+            const partName = document.getElementById('partName').value.trim();
+            const quantityNeeded = parseFloat(document.getElementById('quantityNeeded').value);
+            
+            if (!partName) {
+                editor.updateStatus('Bitte geben Sie einen Namen für das Kantteil ein!');
+                return;
+            }
+            
+            if (!quantityNeeded || quantityNeeded <= 0) {
+                editor.updateStatus('Bitte geben Sie eine gültige Meterzahl ein!');
+                return;
+            }
+            
+            try {
+                editor.generateTechnicalDrawing(partName, quantityNeeded);
+                closeModal('exportModal');
+            } catch (error) {
+                console.error('Export-Fehler:', error);
+                editor.updateStatus('Fehler beim Export: ' + error.message);
+            }
+        }
+
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'flex';
+            } else {
+                console.error('Modal nicht gefunden:', modalId);
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Initialisierung
+        document.addEventListener('DOMContentLoaded', () => {
+            editor = new MobileKantteileEditor();
+        });
+    </script>
+</body>
+</html>
