@@ -8,29 +8,7 @@ let sparrenLaengen = [];
 let sparrenPositionen = [];
 
 function showAds() {
-    document.getElementById('top-ad-container').style.display = 'block';
-    document.getElementById('middle-ad-container').style.display = 'block';
-    document.getElementById('bottom-ad-container').style.display = 'block';
-    
-    const allowPersonalized = localStorage.getItem('marketingCookies') === 'true';
-    
-    setTimeout(function() {
-        if (window.adsbygoogle) {
-            try {
-                const ads = document.querySelectorAll('.adsbygoogle');
-                ads.forEach(ad => {
-                    if (!ad.getAttribute('data-ad-status') && !ad.hasAttribute('data-adsbygoogle-status')) {
-                        if (!allowPersonalized) {
-                            ad.setAttribute('data-npa', '1');
-                        }
-                        (window.adsbygoogle = window.adsbygoogle || []).push({});
-                    }
-                });
-            } catch (e) {
-                console.log('AdSense loading error:', e);
-            }
-        }
-    }, 1000);
+    // AdUnit-Komponenten werden automatisch durch AdSense geladen
 }
 
 function ladeDachParameter() {
