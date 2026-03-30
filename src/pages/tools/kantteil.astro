@@ -24,26 +24,72 @@ import AdUnit from '../../components/AdUnit.astro';
 
   <div class="preview-screenshot">
     <div class="preview-label">📊 So sieht dein Ergebnis aus:</div>
-    <svg width="100%" viewBox="0 0 500 200" style="max-width:500px;display:block;margin:0 auto;">
-      <rect width="500" height="200" rx="12" fill="url(#gradK)"/>
-      <defs><linearGradient id="gradK" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1e3c72"/><stop offset="100%" style="stop-color:#2a5298"/></linearGradient></defs>
-      <text x="20" y="35" fill="#ffd700" font-size="14" font-weight="bold" font-family="sans-serif">Beispiel – Traufblech mit Tropfkante</text>
-      <line x1="20" y1="45" x2="480" y2="45" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-      <!-- Traufblech-Profil: Dachschenkel (oben) → Traufe (senkrecht) → Tropfkante (kurz nach außen) -->
-      <!-- Dachschenkel: horizontal, 150mm -->
-      <polyline points="60,90 210,90 210,155 240,155 240,170" fill="none" stroke="#ffd700" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
-      <!-- Maßpfeile & Beschriftungen -->
-      <line x1="60" y1="78" x2="210" y2="78" stroke="#0ea5e9" stroke-width="1" marker-start="url(#arr)" marker-end="url(#arr)"/>
-      <text x="135" y="75" fill="#0ea5e9" font-size="10" font-family="sans-serif" text-anchor="middle">150 mm</text>
-      <line x1="222" y1="90" x2="222" y2="155" stroke="#0ea5e9" stroke-width="1"/>
-      <text x="236" y="125" fill="#0ea5e9" font-size="10" font-family="sans-serif" text-anchor="start">65 mm</text>
-      <text x="244" y="163" fill="#0ea5e9" font-size="10" font-family="sans-serif">30 mm</text>
+    <svg width="100%" viewBox="0 0 500 210" style="max-width:500px;display:block;margin:0 auto;">
+      <defs>
+        <linearGradient id="gradK" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#1e3c72"/>
+          <stop offset="100%" style="stop-color:#2a5298"/>
+        </linearGradient>
+      </defs>
+      <rect width="500" height="210" rx="12" fill="url(#gradK)"/>
+      <text x="20" y="30" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif">Beispiel – Traufblech 120mm · 120° · 70mm · 60° · 15mm</text>
+      <line x1="20" y1="38" x2="480" y2="38" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+
+      <!--
+        Geometrie (Innenmaße):
+          P0=(28,80)  → 120mm waagerecht →  P1=(148,80)
+          Innenwinkel 120° = Biegung 60° im Uhrzeigersinn (y-unten)
+          → Richtung 60° unter Waagerechte: dx=70*cos60°=35, dy=70*sin60°=60.6
+          P1=(148,80) → P2=(183,141)
+          Innenwinkel 60° = Biegung 120° im Uhrzeigersinn
+          → Richtung wird 180° (links): P3=(168,141)
+      -->
+
+      <!-- Traufblech-Profil -->
+      <polyline points="28,80 148,80 183,141 168,141"
+        fill="none" stroke="#ffd700" stroke-width="4"
+        stroke-linejoin="round" stroke-linecap="round"/>
+
+      <!-- Segment 1: 120mm (waagerecht) – Maßlinie oben -->
+      <line x1="28" y1="68" x2="148" y2="68" stroke="#0ea5e9" stroke-width="1"/>
+      <line x1="28" y1="64" x2="28" y2="72" stroke="#0ea5e9" stroke-width="1"/>
+      <line x1="148" y1="64" x2="148" y2="72" stroke="#0ea5e9" stroke-width="1"/>
+      <text x="88" y="63" fill="#0ea5e9" font-size="10" font-family="sans-serif" text-anchor="middle">120 mm</text>
+
+      <!-- Segment 2: 70mm (schräg) – Maßlinie seitlich rechts -->
+      <line x1="157" y1="83" x2="192" y2="144" stroke="#0ea5e9" stroke-width="1"/>
+      <line x1="153" y1="81" x2="161" y2="85" stroke="#0ea5e9" stroke-width="1"/>
+      <line x1="188" y1="142" x2="196" y2="146" stroke="#0ea5e9" stroke-width="1"/>
+      <text x="200" y="117" fill="#0ea5e9" font-size="10" font-family="sans-serif" text-anchor="start">70 mm</text>
+
+      <!-- Segment 3: 15mm (links) – Maßlinie unten -->
+      <line x1="168" y1="153" x2="183" y2="153" stroke="#0ea5e9" stroke-width="1"/>
+      <line x1="168" y1="149" x2="168" y2="157" stroke="#0ea5e9" stroke-width="1"/>
+      <line x1="183" y1="149" x2="183" y2="157" stroke="#0ea5e9" stroke-width="1"/>
+      <text x="175" y="167" fill="#0ea5e9" font-size="10" font-family="sans-serif" text-anchor="middle">15 mm</text>
+
+      <!-- Winkelmarkierung bei P1 (Innenwinkel 120°) -->
+      <!-- Bogen CCW von 180° → 60° (innen, 120°) -->
+      <path d="M 133,80 A 15,15 0 0,0 155.5,93" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="128" y="98" fill="#a78bfa" font-size="10" font-family="sans-serif" text-anchor="middle">120°</text>
+
+      <!-- Winkelmarkierung bei P2 (Innenwinkel 60°) -->
+      <path d="M 174,128 A 14,14 0 0,0 169,141" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="154" y="135" fill="#a78bfa" font-size="10" font-family="sans-serif" text-anchor="middle">60°</text>
+
       <!-- Legende rechts -->
-      <text x="290" y="80" fill="#cbd5e1" font-size="12" font-family="sans-serif">Dachschenkel A:</text><text x="480" y="80" fill="#ffd700" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="end">150 mm</text>
-      <text x="290" y="105" fill="#cbd5e1" font-size="12" font-family="sans-serif">Traufschenkel B:</text><text x="480" y="105" fill="#ffd700" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="end">65 mm</text>
-      <text x="290" y="130" fill="#cbd5e1" font-size="12" font-family="sans-serif">Tropfkante C:</text><text x="480" y="130" fill="#ffd700" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="end">30 mm</text>
-      <text x="290" y="155" fill="#cbd5e1" font-size="12" font-family="sans-serif">Abwicklung:</text><text x="480" y="155" fill="#ffd700" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="end">248 mm</text>
-      <text x="290" y="180" fill="#cbd5e1" font-size="12" font-family="sans-serif">Winkel:</text><text x="480" y="180" fill="#ffd700" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="end">90° / 90°</text>
+      <text x="265" y="75" fill="#cbd5e1" font-size="11" font-family="sans-serif">Dachschenkel A:</text>
+      <text x="490" y="75" fill="#ffd700" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="end">120 mm</text>
+      <text x="265" y="98" fill="#cbd5e1" font-size="11" font-family="sans-serif">Traufschenkel B:</text>
+      <text x="490" y="98" fill="#ffd700" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="end">70 mm</text>
+      <text x="265" y="121" fill="#cbd5e1" font-size="11" font-family="sans-serif">Tropfkante C:</text>
+      <text x="490" y="121" fill="#ffd700" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="end">15 mm</text>
+      <text x="265" y="144" fill="#cbd5e1" font-size="11" font-family="sans-serif">Abwicklung:</text>
+      <text x="490" y="144" fill="#ffd700" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="end">205 mm</text>
+      <text x="265" y="167" fill="#cbd5e1" font-size="11" font-family="sans-serif">Innenwinkel:</text>
+      <text x="490" y="167" fill="#ffd700" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="end">120° / 60°</text>
+      <text x="265" y="190" fill="#cbd5e1" font-size="11" font-family="sans-serif">Biegung:</text>
+      <text x="490" y="190" fill="#ffd700" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="end">60° / 120°</text>
     </svg>
   </div>
 

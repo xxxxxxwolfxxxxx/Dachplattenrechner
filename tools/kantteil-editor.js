@@ -18,7 +18,14 @@ class KantteileEditor {
         this.lastPanPoint = { x: 0, y: 0 };
         this.measurementLabels = [];
         this.colorSide = 'top'; // 'top' oder 'bottom'
-        
+
+        // Edge-Pan (Auto-Scroll beim Zeichnen am Rand)
+        this.edgePanVX = 0;
+        this.edgePanVY = 0;
+        this.edgePanFrame = null;
+        this.lastScreenX = 0;
+        this.lastScreenY = 0;
+
         // Touch-Support
         this.touches = [];
         this.lastTouchDistance = 0;
@@ -61,6 +68,14 @@ class KantteileEditor {
         this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
         this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
         this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // Mittelmaustaste: mouseup auch außerhalb des Canvas abfangen
+        document.addEventListener('mouseup', (e) => {
+            if (e.button === 1 && this.isPanning) {
+                this.isPanning = false;
+                this.canvas.style.cursor = this.isDrawing ? 'crosshair' : 'default';
+            }
+        });
         
         // Touch-Events für Handy
         this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e));
@@ -187,25 +202,45 @@ class KantteileEditor {
     
     handleMouseMove(e) {
         const rect = this.canvas.getBoundingClientRect();
-        const screenPos = {
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top
-        };
-        
+        const screenX = e.clientX - rect.left;
+        const screenY = e.clientY - rect.top;
+
+        // Mittelmaustaste: Ansicht verschieben
         if (this.isPanning) {
             const deltaX = e.clientX - this.lastPanPoint.x;
             const deltaY = e.clientY - this.lastPanPoint.y;
-            
             this.panX += deltaX;
             this.panY += deltaY;
-            
             this.lastPanPoint = { x: e.clientX, y: e.clientY };
             this.render();
             return;
         }
-        
-        this.mousePos = this.getWorldCoordinates(screenPos.x, screenPos.y);
-        
+
+        // Letzte Bildschirmposition speichern (für Edge-Pan rAF)
+        this.lastScreenX = screenX;
+        this.lastScreenY = screenY;
+
+        // Edge-Pan-Geschwindigkeit berechnen
+        if (this.isDrawing) {
+            const edgeThreshold = 60;
+            const panSpeed = 12;
+            this.edgePanVX = 0;
+            this.edgePanVY = 0;
+            if (screenX < edgeThreshold) this.edgePanVX = panSpeed;
+            else if (screenX > this.canvas.width - edgeThreshold) this.edgePanVX = -panSpeed;
+            if (screenY < edgeThreshold) this.edgePanVY = panSpeed;
+            else if (screenY > this.canvas.height - edgeThreshold) this.edgePanVY = -panSpeed;
+
+            if ((this.edgePanVX !== 0 || this.edgePanVY !== 0) && !this.edgePanFrame) {
+                this.runEdgePanLoop();
+            }
+        } else {
+            this.edgePanVX = 0;
+            this.edgePanVY = 0;
+        }
+
+        this.mousePos = this.getWorldCoordinates(screenX, screenY);
+
         if (this.isDrawing) {
             if (this.drawingMode === 'line') {
                 this.updateLineFromMouse();
@@ -214,6 +249,20 @@ class KantteileEditor {
             }
             this.render();
         }
+    }
+
+    runEdgePanLoop() {
+        if (!this.isDrawing || (this.edgePanVX === 0 && this.edgePanVY === 0)) {
+            this.edgePanFrame = null;
+            return;
+        }
+        this.panX += this.edgePanVX;
+        this.panY += this.edgePanVY;
+        this.mousePos = this.getWorldCoordinates(this.lastScreenX, this.lastScreenY);
+        if (this.drawingMode === 'line') this.updateLineFromMouse();
+        else if (this.drawingMode === 'curve') this.updateCurveFromMouse();
+        this.render();
+        this.edgePanFrame = requestAnimationFrame(() => this.runEdgePanLoop());
     }
     
     handleClick(e) {
@@ -611,6 +660,10 @@ class KantteileEditor {
             this.currentElement = null;
             this.isDrawing = false;
             this.drawingMode = null;
+            // Edge-Pan stoppen
+            this.edgePanVX = 0;
+            this.edgePanVY = 0;
+            this.edgePanFrame = null;
             this.hideValueOverlay();
             this.updateStatus('Klicken Sie auf den blauen Punkt um eine Kurve hinzuzufügen.');
         }
@@ -1081,7 +1134,7 @@ class KantteileEditor {
         });
         
         // Canvas-Größe mit Rand für Bemaßung und Titel
-        const margin = 250; // Noch mehr Platz für größere Schrift
+        const margin = 700; // Genug Platz für Bemaßungslinien außerhalb des Bauteils
         const drawingWidth = maxX - minX;
         const drawingHeight = maxY - minY;
         
@@ -1235,68 +1288,85 @@ class KantteileEditor {
         });
     }
     
+    getElementsBoundingBox() {
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        this.elements.forEach(el => {
+            if (el.type === 'line') {
+                minX = Math.min(minX, el.start.x, el.end.x);
+                maxX = Math.max(maxX, el.start.x, el.end.x);
+                minY = Math.min(minY, el.start.y, el.end.y);
+                maxY = Math.max(maxY, el.start.y, el.end.y);
+            } else if (el.type === 'curve' && el.center) {
+                const r = el.radius || 0;
+                minX = Math.min(minX, el.center.x - r);
+                maxX = Math.max(maxX, el.center.x + r);
+                minY = Math.min(minY, el.center.y - r);
+                maxY = Math.max(maxY, el.center.y + r);
+            }
+        });
+        return { minX, minY, maxX, maxY };
+    }
+
     findOptimalDimensionPosition(element, usedLines, elementIndex) {
         const dx = element.end.x - element.start.x;
         const dy = element.end.y - element.start.y;
         const length = Math.sqrt(dx * dx + dy * dy);
-        
-        if (length === 0) return { offset: 120, side: 1 }; // Noch größerer Standardabstand
-        
+
+        if (length === 0) return { startX: element.start.x, startY: element.start.y - 150, endX: element.end.x, endY: element.end.y - 150, offset: 150, side: -1 };
+
         const normalX = -dy / length;
         const normalY = dx / length;
-        
-        const shapeCenter = this.calculateShapeCenter();
-        const lineCenter = {
-            x: (element.start.x + element.end.x) / 2,
-            y: (element.start.y + element.end.y) / 2
-        };
-        
-        const toCenter = {
-            x: shapeCenter.x - lineCenter.x,
-            y: shapeCenter.y - lineCenter.y
-        };
-        
-        const dotProduct = normalX * toCenter.x + normalY * toCenter.y;
-        const preferredSide = dotProduct > 0 ? -1 : 1;
-        
-        const lineLength = element.originalLength || element.length;
-        const useInside = lineLength < 15;
-        const finalSide = useInside ? -preferredSide : preferredSide;
-        
-        // NOCH GRÖßERE ABSTÄNDE - BESCHRIFTUNG DARF NICHTS VERDECKEN
-        const possibleOffsets = useInside ? [60, 80, 100] : [120, 160, 200, 240, 280];
-        const sides = [finalSide, -finalSide];
-        
-        for (const side of sides) {
-            for (const offset of possibleOffsets) {
-                const testPos = {
-                    startX: element.start.x + normalX * offset * side,
-                    startY: element.start.y + normalY * offset * side,
-                    endX: element.end.x + normalX * offset * side,
-                    endY: element.end.y + normalY * offset * side,
-                    offset: offset,
-                    side: side,
-                    isInside: useInside
-                };
-                
-                const hasCollision = usedLines.some(usedLine => {
-                    return this.linesIntersect(testPos, usedLine);
-                });
-                
-                if (!hasCollision) {
-                    return testPos;
-                }
-            }
+
+        const lineCenter = { x: (element.start.x + element.end.x) / 2, y: (element.start.y + element.end.y) / 2 };
+
+        // Bauteil-Bounding-Box
+        const bbox = this.getElementsBoundingBox();
+        const bboxCenter = { x: (bbox.minX + bbox.maxX) / 2, y: (bbox.minY + bbox.maxY) / 2 };
+
+        // Normale soll vom BBox-Zentrum wegzeigen
+        const toCenter = { x: bboxCenter.x - lineCenter.x, y: bboxCenter.y - lineCenter.y };
+        const dot = normalX * toCenter.x + normalY * toCenter.y;
+        const side = dot > 0 ? -1 : 1;
+
+        // Wie weit reicht die BBox in Normalenrichtung (außen)?
+        const corners = [
+            { x: bbox.minX, y: bbox.minY }, { x: bbox.maxX, y: bbox.minY },
+            { x: bbox.minX, y: bbox.maxY }, { x: bbox.maxX, y: bbox.maxY }
+        ];
+        let maxProj = 0;
+        corners.forEach(c => {
+            const proj = ((c.x - lineCenter.x) * normalX + (c.y - lineCenter.y) * normalY) * side;
+            if (proj > maxProj) maxProj = proj;
+        });
+
+        // Mindestabstand: außerhalb BBox + Platz für Label
+        // World-Einheiten: scale=20 → 1mm = 20 Einheiten; 300 ≈ 15mm Abstand
+        const minOffset = Math.max(maxProj + 300, 400);
+
+        // Bis zu 6 Positionen versuchen (je 250 weiter raus), bei Kollision ausweichen
+        for (let step = 0; step <= 6; step++) {
+            const offset = minOffset + step * 250;
+            const testPos = {
+                startX: element.start.x + normalX * offset * side,
+                startY: element.start.y + normalY * offset * side,
+                endX: element.end.x + normalX * offset * side,
+                endY: element.end.y + normalY * offset * side,
+                offset,
+                side
+            };
+            const collision = usedLines.some(u => this.linesIntersect(testPos, u));
+            if (!collision) return testPos;
         }
-        
-        return { 
-            startX: element.start.x + normalX * (useInside ? 60 : 120),
-            startY: element.start.y + normalY * (useInside ? 60 : 120),
-            endX: element.end.x + normalX * (useInside ? 60 : 120),
-            endY: element.end.y + normalY * (useInside ? 60 : 120),
-            offset: useInside ? 60 : 120,
-            side: 1,
-            isInside: useInside
+
+        // Fallback
+        const fallbackOffset = minOffset + 1750;
+        return {
+            startX: element.start.x + normalX * fallbackOffset * side,
+            startY: element.start.y + normalY * fallbackOffset * side,
+            endX: element.end.x + normalX * fallbackOffset * side,
+            endY: element.end.y + normalY * fallbackOffset * side,
+            offset: fallbackOffset,
+            side
         };
     }
     
