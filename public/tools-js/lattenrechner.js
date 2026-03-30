@@ -681,22 +681,24 @@ function berechneReihenBreite(fortschritt) {
             return dachBreite;
             
         case 'trapez':
-            return obereBreite + (dachBreite - obereBreite) * fortschritt;
+            return obereBreite + (dachBreite - obereBreite) * (1 - fortschritt);
             
         case 'dreieck':
         case 'gleichschenkliges-dreieck':
         case 'ungleichschenkliges-dreieck':
             return dachBreite * (1 - fortschritt);
             
-        case 'trapez-auf-rechteck':
+        case 'trapez-auf-rechteck': {
             const trapezAnteil = trapezHoehe / dachHoehe;
-            
-            if (fortschritt <= trapezAnteil) {
-                const trapezFortschritt = fortschritt / trapezAnteil;
-                return obereBreite + (dachBreite - obereBreite) * trapezFortschritt;
+            if (fortschritt >= (1 - trapezAnteil)) {
+                // Trapez-Bereich (oben): schmal oben, breit unten
+                const trapezFortschritt = (fortschritt - (1 - trapezAnteil)) / trapezAnteil;
+                return obereBreite + (dachBreite - obereBreite) * (1 - trapezFortschritt);
             } else {
+                // Rechteck-Bereich (unten): volle Breite
                 return dachBreite;
             }
+        }
             
         default:
             return dachBreite;
