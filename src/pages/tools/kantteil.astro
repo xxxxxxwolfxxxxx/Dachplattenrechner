@@ -27,18 +27,23 @@ import AdUnit from '../../components/AdUnit.astro';
     <svg width="100%" viewBox="0 0 500 200" style="max-width:500px;display:block;margin:0 auto;">
       <rect width="500" height="200" rx="12" fill="url(#gradK)"/>
       <defs><linearGradient id="gradK" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1e3c72"/><stop offset="100%" style="stop-color:#2a5298"/></linearGradient></defs>
-      <text x="20" y="35" fill="#ffd700" font-size="14" font-weight="bold" font-family="sans-serif">Ergebnis – Traufblech mit Tropfkante</text>
+      <text x="20" y="35" fill="#ffd700" font-size="14" font-weight="bold" font-family="sans-serif">Beispiel – Traufblech mit Tropfkante</text>
       <line x1="20" y1="45" x2="480" y2="45" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-      <!-- Kantteil-Profil-Zeichnung -->
-      <polyline points="410,80 410,130 450,130 450,160 490,160" fill="none" stroke="#ffd700" stroke-width="3" stroke-linejoin="round"/>
-      <text x="395" y="108" fill="#cbd5e1" font-size="10" font-family="sans-serif" text-anchor="middle">80mm</text>
-      <line x1="405" y1="80" x2="415" y2="80" stroke="#0ea5e9" stroke-width="1"/>
-      <line x1="405" y1="130" x2="415" y2="130" stroke="#0ea5e9" stroke-width="1"/>
-      <text x="20" y="70" fill="#cbd5e1" font-size="12" font-family="sans-serif">Schenkel A:</text><text x="280" y="70" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">80 mm</text>
-      <text x="20" y="95" fill="#cbd5e1" font-size="12" font-family="sans-serif">Schenkel B:</text><text x="280" y="95" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">40 mm</text>
-      <text x="20" y="120" fill="#cbd5e1" font-size="12" font-family="sans-serif">Winkel:</text><text x="280" y="120" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">90°</text>
-      <text x="20" y="145" fill="#cbd5e1" font-size="12" font-family="sans-serif">Abwicklung gesamt:</text><text x="280" y="145" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">123 mm</text>
-      <text x="20" y="170" fill="#cbd5e1" font-size="12" font-family="sans-serif">Biegeabzug:</text><text x="280" y="170" fill="#ffd700" font-size="13" font-weight="bold" font-family="sans-serif" text-anchor="end">3 mm</text>
+      <!-- Traufblech-Profil: Dachschenkel (oben) → Traufe (senkrecht) → Tropfkante (kurz nach außen) -->
+      <!-- Dachschenkel: horizontal, 150mm -->
+      <polyline points="60,90 210,90 210,155 240,155 240,170" fill="none" stroke="#ffd700" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Maßpfeile & Beschriftungen -->
+      <line x1="60" y1="78" x2="210" y2="78" stroke="#0ea5e9" stroke-width="1" marker-start="url(#arr)" marker-end="url(#arr)"/>
+      <text x="135" y="75" fill="#0ea5e9" font-size="10" font-family="sans-serif" text-anchor="middle">150 mm</text>
+      <line x1="222" y1="90" x2="222" y2="155" stroke="#0ea5e9" stroke-width="1"/>
+      <text x="236" y="125" fill="#0ea5e9" font-size="10" font-family="sans-serif" text-anchor="start">65 mm</text>
+      <text x="244" y="163" fill="#0ea5e9" font-size="10" font-family="sans-serif">30 mm</text>
+      <!-- Legende rechts -->
+      <text x="290" y="80" fill="#cbd5e1" font-size="12" font-family="sans-serif">Dachschenkel A:</text><text x="480" y="80" fill="#ffd700" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="end">150 mm</text>
+      <text x="290" y="105" fill="#cbd5e1" font-size="12" font-family="sans-serif">Traufschenkel B:</text><text x="480" y="105" fill="#ffd700" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="end">65 mm</text>
+      <text x="290" y="130" fill="#cbd5e1" font-size="12" font-family="sans-serif">Tropfkante C:</text><text x="480" y="130" fill="#ffd700" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="end">30 mm</text>
+      <text x="290" y="155" fill="#cbd5e1" font-size="12" font-family="sans-serif">Abwicklung:</text><text x="480" y="155" fill="#ffd700" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="end">248 mm</text>
+      <text x="290" y="180" fill="#cbd5e1" font-size="12" font-family="sans-serif">Winkel:</text><text x="480" y="180" fill="#ffd700" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="end">90° / 90°</text>
     </svg>
   </div>
 
