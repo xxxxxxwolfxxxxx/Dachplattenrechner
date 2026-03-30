@@ -1077,15 +1077,6 @@ function berechnen() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    loadAdSense();
-    
-    const cookieConsent = localStorage.getItem('cookieConsent');
-    if (cookieConsent === 'all' || localStorage.getItem('analyticsCookies') === 'true') {
-        loadAnalytics();
-    }
-    
-    showAds();
-    
     ladeDachParameter();
     aktualisiereLattenabstandsfeld();
     aktualisiereAutomatischeSparrenBerechnung();
