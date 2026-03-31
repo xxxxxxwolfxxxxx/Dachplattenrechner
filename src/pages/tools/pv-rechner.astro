@@ -179,6 +179,14 @@ import InfoBox from '../../components/InfoBox.astro';
         <button class="orient-btn" data-orient="quer">📺 Querformat</button>
       </div>
     </div>
+
+    <!-- Format-Optimierer -->
+    <div style="margin-top:20px; padding-top:18px; border-top:1px solid #e8e8e8;">
+      <button class="optimize-btn" onclick="findeOptimalesFormat()">
+        🔍 Bestes Modulformat für dieses Dach finden
+      </button>
+      <div id="format-results" style="display:none; margin-top:16px;"></div>
+    </div>
   </div>
 
   <!-- Wirtschaftlichkeit -->
@@ -210,13 +218,24 @@ import InfoBox from '../../components/InfoBox.astro';
         🔋 Batteriespeicher hinzufügen
       </label>
       <div id="batterie-box" style="display:none; margin-top:14px; padding:18px; background:#e8f5e9; border-radius:12px; border:1px solid #a5d6a7;">
-        <div class="input-row" style="margin-bottom:0; align-items:flex-end;">
+        <div class="input-row" style="margin-bottom:12px; align-items:flex-end;">
           <div class="input-group" style="min-width:150px; max-width:200px;">
             <label for="batterie-kwh">Kapazität (kWh)</label>
             <input type="number" id="batterie-kwh" step="1" min="1" max="100" value="10" oninput="updateBatterieInfo()">
           </div>
-          <div id="batterie-info" style="flex:1; min-width:200px; font-size:13px; color:#2e7d32; line-height:1.7; padding-bottom:4px;"></div>
+          <div class="input-group" style="min-width:150px; max-width:220px;">
+            <label for="batterie-preis-kwh">Preis (€/kWh Speicher)</label>
+            <input type="number" id="batterie-preis-kwh" step="10" min="100" max="2000" value="650" oninput="updateBatterieInfo()">
+            <div class="input-hint">Herstellerpreis inkl. Einbau</div>
+          </div>
+          <div class="input-group" style="min-width:150px; max-width:220px;">
+            <label for="batterie-preis-gesamt">Oder Gesamtpreis (€)</label>
+            <input type="number" id="batterie-preis-gesamt" step="100" min="500" max="50000" placeholder="auto"
+              oninput="batteriePriceMode='gesamt'; updateBatterieInfo()">
+            <div class="input-hint">Überschreibt €/kWh-Feld</div>
+          </div>
         </div>
+        <div id="batterie-info" style="font-size:13px; color:#2e7d32; line-height:1.7;"></div>
       </div>
     </div>
   </div>
@@ -364,6 +383,17 @@ import InfoBox from '../../components/InfoBox.astro';
 
   /* Wirtschaftlichkeit */
   .input-hint { font-size: 12px; color: #888; margin-top: 4px; }
+
+  /* Format-Optimierer */
+  .optimize-btn { padding: 12px 22px; border: none; border-radius: 10px; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 3px 10px rgba(124,58,237,0.3); }
+  .optimize-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 16px rgba(124,58,237,0.45); }
+  .optim-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .optim-table th { background: #1e3c72; color: #ffd700; padding: 9px 12px; text-align: left; white-space: nowrap; }
+  .optim-table td { padding: 9px 12px; border-bottom: 1px solid #e8e8e8; vertical-align: top; }
+  .optim-table tbody tr:hover { background: #f0f4ff; cursor: pointer; }
+  .optim-table .optim-best { background: #fff8e1; }
+  .optim-table .optim-best td:first-child { font-size: 18px; }
+  .optim-waehlen { padding: 5px 12px; border: none; border-radius: 6px; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 
   /* Hindernisse */
   .add-hindernis-btn { padding: 10px 18px; border: none; border-radius: 10px; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; font-weight: 600; cursor: pointer; font-size: 14px; }

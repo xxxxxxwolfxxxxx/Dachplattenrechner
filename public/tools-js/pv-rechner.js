@@ -618,6 +618,8 @@ function removeHindernis(idx) { hindernisse.splice(idx, 1); renderHindernisListe
 function clearHindernisse()   { hindernisse = [];            renderHindernisListe(); drawHCanvas(); }
 
 // ---- Batterie-Hilfsfunktionen ----
+let batteriePriceMode = 'kwh'; // 'kwh' oder 'gesamt'
+
 function toggleBatterie() {
   const aktiv = document.getElementById('batterie-aktiv').checked;
   document.getElementById('batterie-box').style.display = aktiv ? 'block' : 'none';
@@ -625,15 +627,21 @@ function toggleBatterie() {
 }
 
 // Eigenverbrauchsrate mit Batterie berechnen
-// Basiert auf: wie viel des täglichen Überschusses die Batterie puffern kann
 function eigenverbrauchsmitBatterie(basisRate, ertragKwh, batterieKwh) {
   if (ertragKwh <= 0) return basisRate;
   const tagErtrag = ertragKwh / 365;
-  // Batterie kann ~85 % Wirkungsgrad abbilden; Überschuss über Basisverbrauch puffern
   const pufferbareFraktion = Math.min(0.90, (batterieKwh * 0.85) / Math.max(1, tagErtrag));
-  // Eigenverbrauch steigt: verbleibende Einspeisung schrumpft um Batterie-Anteil
   const verbesserung = (1 - basisRate) * pufferbareFraktion * 0.55;
   return Math.min(0.95, basisRate + verbesserung);
+}
+
+// Batteriekosten aus Eingaben ermitteln
+function getBatterieKosten() {
+  const batterieKwh   = parseFloat(document.getElementById('batterie-kwh').value) || 10;
+  const gesamtInput   = parseFloat(document.getElementById('batterie-preis-gesamt').value);
+  const preisProKwh   = parseFloat(document.getElementById('batterie-preis-kwh').value) || 650;
+  if (!isNaN(gesamtInput) && gesamtInput > 0) return gesamtInput;
+  return batterieKwh * preisProKwh;
 }
 
 function updateBatterieInfo() {
@@ -644,12 +652,122 @@ function updateBatterieInfo() {
 
   const batterieKwh = parseFloat(document.getElementById('batterie-kwh').value) || 10;
   const basisRate   = (parseFloat(document.getElementById('eigenverbrauch-rate').value) || 30) / 100;
-  // Schätzung ohne genauen Ertrag – nutze Platzhalter 4000 kWh
-  const evMit  = Math.round(eigenverbrauchsmitBatterie(basisRate, 4000, batterieKwh) * 100);
-  const kosten = Math.round(batterieKwh * 650);
+  const evMit       = Math.round(eigenverbrauchsmitBatterie(basisRate, 4000, batterieKwh) * 100);
+  const kosten      = Math.round(getBatterieKosten());
   infoEl.innerHTML =
     `⚡ Eigenverbrauchsquote steigt auf ca. <strong>${evMit} %</strong><br>` +
-    `💶 Batteriekosten ca. <strong>${kosten.toLocaleString('de-DE')} €</strong> (${batterieKwh} kWh × ~650 €/kWh)`;
+    `💶 Batteriekosten: <strong>${kosten.toLocaleString('de-DE')} €</strong>`;
+}
+
+// ---- Format-Optimierer ----
+const MODULE_PRESETS = [
+  { name: 'Halbzellen M10',       w: 1134, h: 1722, watt: 410 },
+  { name: 'Groß-Modul 72Z',       w: 1038, h: 2094, watt: 550 },
+  { name: 'TOPCon / HJT',         w: 1134, h: 2172, watt: 600 },
+  { name: 'Standard 72Z',         w:  992, h: 1956, watt: 390 },
+  { name: 'Standard 60Z',         w:  992, h: 1650, watt: 310 },
+  { name: 'Glas-Glas / Rahmenlos',w: 1002, h: 2008, watt: 420 },
+];
+
+function findeOptimalesFormat() {
+  const dachBreiteM = parseFloat(document.getElementById('dach-breite').value);
+  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value);
+  const randM       = parseFloat(document.getElementById('rand-abstand').value) || 0.2;
+  const abstandMM   = parseFloat(document.getElementById('mod-abstand').value) || 20;
+
+  if (!dachBreiteM || !dachLaengeM || dachBreiteM <= 0 || dachLaengeM <= 0) {
+    alert('Bitte zuerst Dachabmessungen eingeben.');
+    return;
+  }
+
+  const dachBMM = dachBreiteM * 1000;
+  const dachHMM = dachLaengeM * 1000;
+  const randMM  = randM * 1000;
+
+  const neigung       = parseInt(document.getElementById('neigung').value);
+  const region        = document.getElementById('region').value;
+  const baseSuedYield = interpolateNeigung(neigung);
+  const oriF          = orientFactor(selAzimuth);
+  const regionFak     = REGION_FACTOR[region] || 1.0;
+  const strompreisEur = parseFloat(document.getElementById('strompreis').value) || 0.32;
+  const einspeisungEur= parseFloat(document.getElementById('einspeisung-preis').value) || 0.082;
+  const basisEvRate   = (parseFloat(document.getElementById('eigenverbrauch-rate').value) || 30) / 100;
+
+  const results = [];
+  for (const mod of MODULE_PRESETS) {
+    for (const [orientLabel, orientKey, modB, modH] of [
+      ['Hochformat', 'hoch', mod.w, mod.h],
+      ['Querformat',  'quer', mod.h, mod.w],
+    ]) {
+      const layout = berechneLayoutFuerForm(dachBMM, dachHMM, randMM, modB, modH, abstandMM);
+      if (layout.anzahl === 0) continue;
+      const kwp    = (layout.anzahl * mod.watt) / 1000;
+      const ertrag = kwp * baseSuedYield * oriF * regionFak * 0.97;
+      const wert   = Math.round(ertrag * basisEvRate * strompreisEur + ertrag * (1 - basisEvRate) * einspeisungEur);
+      results.push({ name: mod.name, orientLabel, orientKey, modBeff: modB, modHeff: modH,
+                     w: mod.w, h: mod.h, watt: mod.watt, anzahl: layout.anzahl, kwp, ertrag: Math.round(ertrag), wert });
+    }
+  }
+
+  // Sortierung: primär nach kWp, sekundär nach Anzahl
+  results.sort((a, b) => b.kwp - a.kwp || b.anzahl - a.anzahl);
+
+  const container = document.getElementById('format-results');
+  container.style.display = 'block';
+  container.innerHTML = `
+    <h4 style="color:#1e3c72; margin-bottom:10px; font-size:1rem;">
+      📊 Alle ${results.length} Kombinationen für dieses Dach (sortiert nach kWp)
+    </h4>
+    <div style="overflow-x:auto;">
+      <table class="optim-table">
+        <thead>
+          <tr><th>#</th><th>Modulformat</th><th>Lage</th><th>Module</th><th>kWp</th><th>kWh/Jahr</th><th>€/Jahr</th><th></th></tr>
+        </thead>
+        <tbody>
+          ${results.map((r, i) => `
+            <tr class="${i === 0 ? 'optim-best' : ''}">
+              <td style="text-align:center;">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</td>
+              <td>
+                <strong>${r.name}</strong><br>
+                <span style="font-size:11px;color:#888;">${r.w}×${r.h} mm · ${r.watt} W</span>
+              </td>
+              <td style="white-space:nowrap;">${r.orientLabel}</td>
+              <td style="font-weight:700;">${r.anzahl}</td>
+              <td style="font-weight:700;">${r.kwp.toFixed(2)}</td>
+              <td>${r.ertrag.toLocaleString('de-DE')}</td>
+              <td>${r.wert.toLocaleString('de-DE')}</td>
+              <td><button class="optim-waehlen" onclick="waehleFormat(${r.w},${r.h},${r.watt},'${r.orientKey}',${r.modBeff},${r.modHeff})">Wählen</button></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:12px;color:#666;margin-top:8px;">
+      💡 „Wählen" übernimmt Format + Ausrichtung für die Berechnung.
+    </p>`;
+}
+
+function waehleFormat(origW, origH, watt, orientKey, modBeff, modHeff) {
+  selModBreite = modBeff;
+  selModHoehe  = modHeff;
+  selModWatt   = watt;
+
+  // Preset-Button aktivieren falls passend (nach Originaldimensionen)
+  document.querySelectorAll('.module-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.w) === origW && parseInt(b.dataset.h) === origH);
+  });
+  // Eigene Felder leeren
+  document.getElementById('mod-breite').value = '';
+  document.getElementById('mod-hoehe').value  = '';
+  document.getElementById('mod-watt').value   = '';
+
+  // Orientierung setzen
+  selOrient = orientKey;
+  document.querySelectorAll('.orient-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.orient === orientKey);
+  });
+
+  document.getElementById('format-results').style.display = 'none';
+  document.querySelector('.module-btn.active, #mod-breite')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ---- Hauptberechnung ----
@@ -715,7 +833,7 @@ function berechne() {
   const gesamtWert     = eigenverbrauch + einspeisung;
   const co2Kg          = (ertragKwh * 434) / 1000;
 
-  const batterieKosten = batterieAktiv ? batterieKwh * 650 : 0;
+  const batterieKosten = batterieAktiv ? getBatterieKosten() : 0;
   const investMin      = kwp * 1500 + batterieKosten * 0.85;
   const investMax      = kwp * 1900 + batterieKosten * 1.15;
   const amort          = gesamtWert > 0 ? ((investMin + investMax) / 2 / gesamtWert).toFixed(1) : '–';
