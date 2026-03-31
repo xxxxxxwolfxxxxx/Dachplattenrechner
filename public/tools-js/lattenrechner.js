@@ -1078,6 +1078,18 @@ function berechnen() {
     zeigeErgebnisse(konterlattenKombination, dachlattenKombination, anzahlLattenReihen, lattenabstand, anzahlSparren);
 }
 
+function zuVerschnitt() {
+    window.location.href = '/tools/verschnitt-optimierung/';
+}
+
+function zuPVRechner() {
+    const params = new URLSearchParams({
+        breite: dachBreite,
+        hoehe: dachHoehe,
+    });
+    window.location.href = `/tools/pv-rechner/?${params.toString()}`;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     ladeDachParameter();
     aktualisiereLattenabstandsfeld();
