@@ -38,29 +38,78 @@ import InfoBox from '../../components/InfoBox.astro';
   <div class="section">
     <h2>🧭 Ausrichtung &amp; Neigung</h2>
     <div class="input-row">
+      <!-- Himmelsrichtung: Gradgenaue Eingabe + visueller Kompass -->
       <div class="input-group">
         <label>Himmelsrichtung (Dachfläche zeigt nach…)</label>
-        <div class="compass-grid">
-          <button class="compass-btn" data-dir="NW">NW</button>
-          <button class="compass-btn" data-dir="N">N</button>
-          <button class="compass-btn" data-dir="NE">NO</button>
-          <button class="compass-btn" data-dir="W">W</button>
-          <div class="compass-center">☀️</div>
-          <button class="compass-btn" data-dir="E">O</button>
-          <button class="compass-btn" data-dir="SW">SW</button>
-          <button class="compass-btn active" data-dir="S">S</button>
-          <button class="compass-btn" data-dir="SE">SO</button>
-        </div>
-        <div style="margin-top:8px; font-size:13px; color:#666;">
-          <a href="https://maps.google.com" target="_blank" rel="noopener" style="color:#1e3c72;">📍 Google Maps öffnen</a>
-          um Ausrichtung zu prüfen
+        <div class="compass-wrap">
+          <!-- Visueller Kompasskreis -->
+          <div class="compass-dial-wrap">
+            <canvas id="compass-canvas" width="160" height="160"></canvas>
+          </div>
+          <!-- Grad-Eingabe + Schnellwahl -->
+          <div class="compass-inputs">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+              <input type="number" id="azimuth-input" min="0" max="359" value="180"
+                style="width:80px; padding:8px; border:2px solid #1e3c72; border-radius:8px; font-size:18px; font-weight:700; text-align:center;">
+              <span style="font-size:18px; font-weight:700; color:#1e3c72;">°</span>
+              <span id="azimuth-label" style="font-size:14px; color:#555; min-width:60px;">Süd</span>
+            </div>
+            <div class="compass-shortcuts">
+              <button class="cs-btn" data-az="0">N</button>
+              <button class="cs-btn" data-az="45">NO</button>
+              <button class="cs-btn" data-az="90">O</button>
+              <button class="cs-btn" data-az="135">SO</button>
+              <button class="cs-btn cs-active" data-az="180">S</button>
+              <button class="cs-btn" data-az="225">SW</button>
+              <button class="cs-btn" data-az="270">W</button>
+              <button class="cs-btn" data-az="315">NW</button>
+            </div>
+            <div style="margin-top:8px; font-size:12px; color:#666;">
+              <a href="https://maps.google.com" target="_blank" rel="noopener" style="color:#1e3c72;">📍 Google Maps</a>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- Neigung -->
       <div class="input-group">
         <label for="neigung">Dachneigung: <span id="neigung-wert">30</span>°</label>
-        <input type="range" id="neigung" min="5" max="60" value="30" step="1" class="slider">
+        <input type="range" id="neigung" min="1" max="75" value="30" step="1" class="slider">
         <div style="display:flex; justify-content:space-between; font-size:12px; color:#888; margin-top:4px;">
-          <span>5° (flach)</span><span>30° (Standard)</span><span>60° (steil)</span>
+          <span>1°</span><span>30°</span><span>75°</span>
+        </div>
+
+        <!-- Handy-Sensor -->
+        <div id="sensor-box" style="margin-top:14px; padding:12px; background:#e8f0fe; border-radius:10px; border:1px solid #c5d8fb;">
+          <div style="font-weight:600; color:#1e3c72; margin-bottom:8px; font-size:14px;">📱 Handy-Sensor</div>
+          <p style="font-size:13px; color:#444; margin-bottom:10px;">
+            Handy flach aufs Dach legen → Neigung &amp; Himmelsrichtung automatisch erfassen.
+          </p>
+          <button id="sensor-btn" onclick="startSensor()" style="background:linear-gradient(135deg,#1e3c72,#2a5298); color:white; border:none; padding:10px 18px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">
+            📡 Sensor starten
+          </button>
+          <div id="sensor-live" style="display:none; margin-top:12px;">
+            <div style="display:flex; gap:16px; flex-wrap:wrap;">
+              <div style="text-align:center;">
+                <div id="sensor-neigung" style="font-size:24px; font-weight:700; color:#1e3c72;">–°</div>
+                <div style="font-size:12px; color:#666;">Neigung</div>
+              </div>
+              <div style="text-align:center;">
+                <div id="sensor-richtung" style="font-size:24px; font-weight:700; color:#1e3c72;">–°</div>
+                <div style="font-size:12px; color:#666;">Richtung</div>
+              </div>
+              <div style="text-align:center;">
+                <div id="sensor-himmels" style="font-size:18px; font-weight:700; color:#2a5298;">–</div>
+                <div style="font-size:12px; color:#666;">Himmelsrichtung</div>
+              </div>
+            </div>
+            <button onclick="sensorUebernehmen()" style="margin-top:10px; background:linear-gradient(135deg,#28a745,#20c997); color:white; border:none; padding:10px 20px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">
+              ✅ Werte übernehmen
+            </button>
+            <button onclick="stopSensor()" style="margin-top:10px; margin-left:8px; background:#666; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:13px; cursor:pointer;">
+              ⏹ Stopp
+            </button>
+          </div>
         </div>
       </div>
       <div class="input-group">
@@ -255,12 +304,14 @@ import InfoBox from '../../components/InfoBox.astro';
   .slider { -webkit-appearance: none; appearance: none; height: 8px; border-radius: 4px; background: #dde1e7; outline: none; cursor: pointer; }
   .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #1e3c72; cursor: pointer; }
 
-  /* Kompass */
-  .compass-grid { display: grid; grid-template-columns: repeat(3, 48px); gap: 6px; margin-top: 10px; }
-  .compass-center { display: flex; align-items: center; justify-content: center; font-size: 20px; }
-  .compass-btn { padding: 8px 0; border: 2px solid #1e3c72; border-radius: 8px; background: white; color: #1e3c72; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; }
-  .compass-btn:hover { background: #e3f2fd; }
-  .compass-btn.active { background: #1e3c72; color: white; box-shadow: 0 2px 8px rgba(30,60,114,0.3); }
+  /* Kompass neu */
+  .compass-wrap { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-top: 8px; }
+  .compass-dial-wrap { flex-shrink: 0; }
+  .compass-inputs { flex: 1; min-width: 200px; }
+  .compass-shortcuts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cs-btn { padding: 6px 10px; border: 2px solid #1e3c72; border-radius: 7px; background: white; color: #1e3c72; font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+  .cs-btn:hover { background: #e3f2fd; }
+  .cs-btn.cs-active { background: #1e3c72; color: white; }
 
   /* Modul-Karten */
   .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }

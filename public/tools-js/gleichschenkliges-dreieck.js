@@ -360,30 +360,36 @@
         }
 
         function erstelleLattenrechner() {
-            const basisBreite = parameterModus === 'basis-hoehe' ? 
-                parseFloat(document.getElementById('basis-breite').value) : 
+            const basisBreite = parameterModus === 'basis-hoehe' ?
+                parseFloat(document.getElementById('basis-breite').value) :
                 parseFloat(document.getElementById('basis-breite-kante').value);
             const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
-            
+
             if (!basisBreite || !hoehe) {
                 alert('Bitte führen Sie zuerst eine Berechnung durch, bevor Sie den Lattenrechner aufrufen.');
                 return;
             }
-            
+
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'lattenrechner_opened', {
                     'event_category': 'gleichschenkliges_dreieck',
                     'event_label': 'redirected_to_lattenrechner'
                 });
             }
-            
+
             const params = new URLSearchParams({
                 breite: basisBreite,
                 hoehe: hoehe,
                 typ: 'gleichschenkliges-dreieck'
             });
-            
+
             window.location.href = `/tools/lattenrechner/?${params.toString()}`;
+        }
+
+        function erstellePVRechner() {
+            if (!basisBreite) { alert('Bitte führen Sie zuerst eine Berechnung durch.'); return; }
+            const params = new URLSearchParams({ breite: basisBreite, hoehe: hoehe });
+            window.location.href = `/tools/pv-rechner/?${params.toString()}`;
         }
 
         // Initialize everything

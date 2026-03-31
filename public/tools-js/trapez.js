@@ -347,27 +347,33 @@ if (verlegerichtung === 'links') {
             const obereBreite = parseFloat(document.getElementById('obere-breite').value);
             const untereBreite = parseFloat(document.getElementById('untere-breite').value);
             const hoehe = parseFloat(document.getElementById('hoehe').value);
-            
+
             if (!obereBreite || !untereBreite || !hoehe) {
                 alert('Bitte führen Sie zuerst eine Berechnung durch, bevor Sie den Lattenrechner aufrufen.');
                 return;
             }
-            
+
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'lattenrechner_opened', {
                     'event_category': 'trapez',
                     'event_label': 'redirected_to_lattenrechner'
                 });
             }
-            
+
             const params = new URLSearchParams({
                 breite: untereBreite,
                 hoehe: hoehe,
                 typ: 'trapez',
                 obereBreite: obereBreite
             });
-            
+
             window.location.href = `/tools/lattenrechner/?${params.toString()}`;
+        }
+
+        function erstellePVRechner() {
+            if (!untereBreite) { alert('Bitte führen Sie zuerst eine Berechnung durch.'); return; }
+            const params = new URLSearchParams({ breite: untereBreite, hoehe: hoehe });
+            window.location.href = `/tools/pv-rechner/?${params.toString()}`;
         }
 
         // Initialize everything

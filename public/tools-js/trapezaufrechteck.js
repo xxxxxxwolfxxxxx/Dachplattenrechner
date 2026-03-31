@@ -378,19 +378,19 @@
             const trapezHoehe = parseFloat(document.getElementById('trapez-hoehe').value);
             const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
             const gesamtHoehe = trapezHoehe + rechteckHoehe;
-            
+
             if (!obereBreite || !untereBreite || !trapezHoehe || !rechteckHoehe) {
                 alert('Bitte führen Sie zuerst eine Berechnung durch, bevor Sie den Lattenrechner aufrufen.');
                 return;
             }
-            
+
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'lattenrechner_opened', {
                     'event_category': 'trapez_auf_rechteck',
                     'event_label': 'redirected_to_lattenrechner'
                 });
             }
-            
+
             const params = new URLSearchParams({
                 breite: untereBreite,
                 hoehe: gesamtHoehe,
@@ -399,8 +399,17 @@
                 trapezHoehe: trapezHoehe,
                 rechteckHoehe: rechteckHoehe
             });
-            
+
             window.location.href = `/tools/lattenrechner/?${params.toString()}`;
+        }
+
+        function erstellePVRechner() {
+            const _b = parseFloat(document.getElementById('untere-breite').value);
+            const _t = parseFloat(document.getElementById('trapez-hoehe').value);
+            const _r = parseFloat(document.getElementById('rechteck-hoehe').value);
+            if (!_b || !_t || !_r) { alert('Bitte führen Sie zuerst eine Berechnung durch.'); return; }
+            const params = new URLSearchParams({ breite: _b, hoehe: _t + _r });
+            window.location.href = `/tools/pv-rechner/?${params.toString()}`;
         }
 
         // Initialize everything
