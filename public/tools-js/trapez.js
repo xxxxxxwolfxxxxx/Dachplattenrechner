@@ -371,8 +371,10 @@ if (verlegerichtung === 'links') {
         }
 
         function erstellePVRechner() {
-            if (!untereBreite) { alert('Bitte führen Sie zuerst eine Berechnung durch.'); return; }
-            const params = new URLSearchParams({ breite: untereBreite, hoehe: hoehe });
+            const _b = parseFloat(document.getElementById('untere-breite').value);
+            const _h = parseFloat(document.getElementById('hoehe').value);
+            if (!_b || !_h) { alert('Bitte führen Sie zuerst eine Berechnung durch.'); return; }
+            const params = new URLSearchParams({ breite: _b, hoehe: _h });
             window.location.href = `/tools/pv-rechner/?${params.toString()}`;
         }
 
