@@ -6,13 +6,6 @@ import AdUnit from '../components/AdUnit.astro';
 
 const tools = [
   {
-    href: '/tools/dachformen',
-    title: 'Dachflächenberechnung',
-    icon: '/images/gleichschenkliges-dreieck.png',
-    description: 'Berechnen Sie präzise Ihre Dachflächen für verschiedene geometrische Formen.',
-    features: ['Rechteck / Quadrat', 'Gleichschenkliges Dreieck', 'Ungleichschenkliges Dreieck', 'Trapez', 'Trapez auf Rechteck'],
-  },
-  {
     href: '/tools/verschnitt-optimierung',
     title: 'Verschnitt-Optimierung',
     icon: '/images/verschnitt.png',
@@ -25,14 +18,6 @@ const tools = [
     icon: '🌡️',
     description: 'Wärmeschutz-Nachweis nach DIN EN ISO 6946 mit Taupunktanalyse nach Glaser-Verfahren.',
     features: ['DIN EN ISO 6946', 'Glaser-Verfahren', '100+ Baustoffe', 'Druckbarer Nachweis'],
-  },
-  {
-    href: '/tools/pv-rechner',
-    title: 'PV-Rechner',
-    icon: '☀️',
-    description: 'Wie viele Solarmodule passen aufs Dach? Ertrag, kWp und Jahreswert berechnen – direkt aus den Dachmaßen.',
-    features: ['6 Modulformate + eigene Maße', 'Schornstein & Dachfenster', 'Ertrag & CO₂-Einsparung', 'Himmelsrichtung & Neigung'],
-    badge: 'NEU',
   },
 ];
 ---
@@ -71,7 +56,57 @@ const tools = [
       <h2 class="section-title" style="text-align:center; margin-bottom:2rem">
         Alle <span>Rechner</span>
       </h2>
-      <div class="tools-grid">
+
+      <!-- Hero: Dachflächenberechnung -->
+      <a href="/tools/dachformen" class="dach-hero">
+        <div class="dach-hero-left">
+          <div class="dach-hero-tag">Einstieg</div>
+          <img src="/images/gleichschenkliges-dreieck.png" alt="Dachflächenberechnung" class="dach-hero-img" loading="eager" />
+          <h2 class="dach-hero-title">Dachflächen&shy;berechnung</h2>
+          <p class="dach-hero-desc">
+            Präzise Dachflächen für alle Dachformen berechnen – Grundlage für Materialbedarf,
+            Lattenplan und Solarplanung. Schnittliste und maßstäblicher Anrissplan auf Knopfdruck.
+          </p>
+          <ul class="dach-hero-features">
+            <li>Rechteck &amp; Quadrat</li>
+            <li>Gleichsch. &amp; ungleichsch. Dreieck</li>
+            <li>Trapez &amp; Trapez auf Rechteck</li>
+            <li>Schnittliste &amp; Anrissplan druckbereit</li>
+          </ul>
+          <span class="dach-hero-cta">Dachfläche berechnen →</span>
+        </div>
+
+        <div class="dach-hero-right">
+          <div class="dach-next-label">Danach direkt weiter mit:</div>
+
+          <div class="dach-next-item">
+            <span class="dach-next-icon">🔨</span>
+            <div class="dach-next-body">
+              <strong>Lattenrechner</strong>
+              <span>Latten- &amp; Konterlattung mit kompletter Schnittliste und druckbarem Verlegeplan</span>
+            </div>
+          </div>
+
+          <div class="dach-next-item">
+            <span class="dach-next-icon">✂️</span>
+            <div class="dach-next-body">
+              <strong>Verschnitt-Optimierung</strong>
+              <span>Trapezbleche optimal aus Lieferrohlingen aufteilen – Abfall und Bestellmenge minimieren</span>
+            </div>
+          </div>
+
+          <div class="dach-next-item">
+            <span class="dach-next-icon">☀️</span>
+            <div class="dach-next-body">
+              <strong>PV-Rechner</strong>
+              <span>Solarmodule planen, kWp &amp; Jahresertrag berechnen – mit Batteriespeicher-Option</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Weitere Rechner -->
+      <div class="tools-grid" style="margin-top:20px;">
         {tools.map(t => <CalculatorCard {...t} />)}
       </div>
     </section>
@@ -267,6 +302,163 @@ const tools = [
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
     margin-bottom: 48px;
+  }
+
+  /* ── Dachflächen-Hero-Kachel ── */
+  .dach-hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background: linear-gradient(135deg, rgba(14, 30, 60, 0.97) 0%, rgba(6, 15, 35, 0.99) 100%);
+    border: 1px solid rgba(14, 165, 233, 0.30);
+    border-radius: 20px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .dach-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0ea5e9, #06b6d4, #10b981);
+  }
+  .dach-hero:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border-color: rgba(14, 165, 233, 0.55);
+  }
+
+  .dach-hero-left {
+    padding: 36px 32px 36px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border-right: 1px solid rgba(148, 163, 184, 0.12);
+  }
+  .dach-hero-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    width: fit-content;
+  }
+  .dach-hero-img {
+    height: 80px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(14, 165, 233, 0.4));
+  }
+  .dach-hero-title {
+    font-size: clamp(1.3rem, 2.5vw, 1.75rem);
+    font-weight: 800;
+    color: #f8fafc;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    line-height: 1.15;
+    margin: 0;
+  }
+  .dach-hero-desc {
+    color: #94a3b8;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    margin: 0;
+  }
+  .dach-hero-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .dach-hero-features li {
+    font-size: 0.82rem;
+    color: #64748b;
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .dach-hero-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: 700;
+  }
+  .dach-hero-cta {
+    display: inline-block;
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+    color: white;
+    padding: 13px 28px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: auto;
+    transition: filter 0.2s;
+    width: fit-content;
+  }
+  .dach-hero:hover .dach-hero-cta { filter: brightness(1.15); }
+
+  .dach-hero-right {
+    padding: 36px 36px 36px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    justify-content: center;
+  }
+  .dach-next-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 20px;
+  }
+  .dach-next-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+  }
+  .dach-next-item:last-child { border-bottom: none; }
+  .dach-next-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .dach-next-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .dach-next-body strong {
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+  .dach-next-body span {
+    color: #64748b;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 740px) {
+    .dach-hero { grid-template-columns: 1fr; }
+    .dach-hero-left { border-right: none; border-bottom: 1px solid rgba(148,163,184,0.12); padding: 28px 24px; }
+    .dach-hero-right { padding: 24px; }
   }
 
   /* ── Schritte ── */
