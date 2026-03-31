@@ -276,6 +276,23 @@
             window.location.href = `/tools/lattenrechner/?${params.toString()}`;
         }
 
+        function erstellePVRechner() {
+            const breite = parseFloat(document.getElementById('breite').value);
+            const hoehe = parseFloat(document.getElementById('hoehe').value);
+
+            if (!breite || !hoehe) {
+                alert('Bitte führen Sie zuerst eine Berechnung durch, bevor Sie den PV-Rechner aufrufen.');
+                return;
+            }
+
+            const params = new URLSearchParams({
+                breite: breite,
+                hoehe: hoehe,
+            });
+
+            window.location.href = `/tools/pv-rechner/?${params.toString()}`;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             loadAdSense();
             

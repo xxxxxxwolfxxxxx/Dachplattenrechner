@@ -181,9 +181,15 @@ import AdUnit from '../../components/AdUnit.astro';
         <tbody id="material-details"></tbody>
       </table>
 
-      <div style="text-align: center; margin-top: 20px;">
+      <div style="text-align: center; margin-top: 20px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
         <button onclick="druckeLattenplan()" style="background: linear-gradient(135deg, #6f42c1 0%, #563d7c 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3); transition: all 0.3s ease;">
           🖨️ Lattenplan drucken
+        </button>
+        <button onclick="zuVerschnitt()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(40,167,69,0.3); transition: all 0.3s ease;">
+          ✂️ Verschnitt-Optimierung
+        </button>
+        <button onclick="zuPVRechner()" style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #1a1a1a; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(247,151,30,0.3); transition: all 0.3s ease;">
+          ☀️ PV-Rechner
         </button>
       </div>
     </div>
