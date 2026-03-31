@@ -617,6 +617,41 @@ function renderHindernisListe() {
 function removeHindernis(idx) { hindernisse.splice(idx, 1); renderHindernisListe(); drawHCanvas(); }
 function clearHindernisse()   { hindernisse = [];            renderHindernisListe(); drawHCanvas(); }
 
+// ---- Batterie-Hilfsfunktionen ----
+function toggleBatterie() {
+  const aktiv = document.getElementById('batterie-aktiv').checked;
+  document.getElementById('batterie-box').style.display = aktiv ? 'block' : 'none';
+  updateBatterieInfo();
+}
+
+// Eigenverbrauchsrate mit Batterie berechnen
+// Basiert auf: wie viel des täglichen Überschusses die Batterie puffern kann
+function eigenverbrauchsmitBatterie(basisRate, ertragKwh, batterieKwh) {
+  if (ertragKwh <= 0) return basisRate;
+  const tagErtrag = ertragKwh / 365;
+  // Batterie kann ~85 % Wirkungsgrad abbilden; Überschuss über Basisverbrauch puffern
+  const pufferbareFraktion = Math.min(0.90, (batterieKwh * 0.85) / Math.max(1, tagErtrag));
+  // Eigenverbrauch steigt: verbleibende Einspeisung schrumpft um Batterie-Anteil
+  const verbesserung = (1 - basisRate) * pufferbareFraktion * 0.55;
+  return Math.min(0.95, basisRate + verbesserung);
+}
+
+function updateBatterieInfo() {
+  const infoEl = document.getElementById('batterie-info');
+  if (!infoEl) return;
+  const aktiv = document.getElementById('batterie-aktiv').checked;
+  if (!aktiv) { infoEl.innerHTML = ''; return; }
+
+  const batterieKwh = parseFloat(document.getElementById('batterie-kwh').value) || 10;
+  const basisRate   = (parseFloat(document.getElementById('eigenverbrauch-rate').value) || 30) / 100;
+  // Schätzung ohne genauen Ertrag – nutze Platzhalter 4000 kWh
+  const evMit  = Math.round(eigenverbrauchsmitBatterie(basisRate, 4000, batterieKwh) * 100);
+  const kosten = Math.round(batterieKwh * 650);
+  infoEl.innerHTML =
+    `⚡ Eigenverbrauchsquote steigt auf ca. <strong>${evMit} %</strong><br>` +
+    `💶 Batteriekosten ca. <strong>${kosten.toLocaleString('de-DE')} €</strong> (${batterieKwh} kWh × ~650 €/kWh)`;
+}
+
 // ---- Hauptberechnung ----
 function berechne() {
   const dachBreiteM = parseFloat(document.getElementById('dach-breite').value);
@@ -663,12 +698,26 @@ function berechne() {
   const regionFak     = REGION_FACTOR[region] || 1.0;
   const ertragKwh     = kwp * baseSuedYield * oriF * regionFak * 0.97;
 
-  const eigenverbrauch = ertragKwh * 0.70 * 0.32;
-  const einspeisung    = ertragKwh * 0.30 * 0.082;
+  // Wirtschaftlichkeits-Eingaben
+  const strompreisEur    = parseFloat(document.getElementById('strompreis').value)         || 0.32;
+  const einspeisungEur   = parseFloat(document.getElementById('einspeisung-preis').value)  || 0.082;
+  const basisEvRate      = (parseFloat(document.getElementById('eigenverbrauch-rate').value) || 30) / 100;
+  const batterieAktiv    = document.getElementById('batterie-aktiv').checked;
+  const batterieKwh      = parseFloat(document.getElementById('batterie-kwh').value) || 10;
+
+  // Eigenverbrauchsrate (mit Batterie erhöht)
+  const evRate = batterieAktiv
+    ? eigenverbrauchsmitBatterie(basisEvRate, ertragKwh, batterieKwh)
+    : basisEvRate;
+
+  const eigenverbrauch = ertragKwh * evRate        * strompreisEur;
+  const einspeisung    = ertragKwh * (1 - evRate)  * einspeisungEur;
   const gesamtWert     = eigenverbrauch + einspeisung;
   const co2Kg          = (ertragKwh * 434) / 1000;
-  const investMin      = kwp * 1500;
-  const investMax      = kwp * 1900;
+
+  const batterieKosten = batterieAktiv ? batterieKwh * 650 : 0;
+  const investMin      = kwp * 1500 + batterieKosten * 0.85;
+  const investMax      = kwp * 1900 + batterieKosten * 1.15;
   const amort          = gesamtWert > 0 ? ((investMin + investMax) / 2 / gesamtWert).toFixed(1) : '–';
 
   document.getElementById('res-anzahl').textContent = finalAnzahl;
@@ -699,10 +748,14 @@ function berechne() {
     ['Basisertrag Süd', `${baseSuedYield} kWh/kWp`],
     ['Regionfaktor', `× ${regionFak.toFixed(2)}`],
     ['Jahresertrag', `${Math.round(ertragKwh).toLocaleString('de-DE')} kWh`],
-    ['Eigenverbrauch (~70%)', `${Math.round(eigenverbrauch).toLocaleString('de-DE')} €/Jahr`],
-    ['Einspeisevergütung (~30%)', `${Math.round(einspeisung).toLocaleString('de-DE')} €/Jahr`],
+    ['Eigenverbrauchsquote', `${Math.round(evRate * 100)} %${batterieAktiv ? ` (mit ${batterieKwh} kWh Batterie)` : ''}`],
+    ['Strompreis', `${strompreisEur.toFixed(3)} €/kWh`],
+    ['Einspeisevergütung', `${einspeisungEur.toFixed(3)} €/kWh`],
+    ['Eigenverbrauchswert', `${Math.round(eigenverbrauch).toLocaleString('de-DE')} €/Jahr`],
+    ['Einspeisung', `${Math.round(einspeisung).toLocaleString('de-DE')} €/Jahr`],
     ['Gesamtwert', `${Math.round(gesamtWert).toLocaleString('de-DE')} €/Jahr`],
     ['CO₂-Einsparung', `${Math.round(co2Kg).toLocaleString('de-DE')} kg/Jahr`],
+    ...(batterieAktiv ? [['Batteriekosten (ca.)', `${Math.round(batterieKosten).toLocaleString('de-DE')} €`]] : []),
     ['Investitionsschätzung', `${Math.round(investMin).toLocaleString('de-DE')} – ${Math.round(investMax).toLocaleString('de-DE')} €`],
     ['Amortisation (ca.)', `${amort} Jahre`],
   ];
