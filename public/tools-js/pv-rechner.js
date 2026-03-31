@@ -6,26 +6,32 @@
 let selModBreite = 1038;
 let selModHoehe  = 2094;
 let selModWatt   = 550;
-let selAzimuth   = 180;   // Grad (0=N, 90=O, 180=S, 270=W)
+let selAzimuth   = 180;
 let selOrient    = 'auto';
 let hindernisse  = [];
 let currentHindernisTyp = 'schornstein';
 
-// Sensor
-let sensorActive   = false;
-let sensorAlpha    = null;
-let sensorBeta     = null;
+// Dachform
+let dachTyp        = 'rechteck';
+let dachBreiteOben = null; // Trapez: obere Breite in Metern
 
-// ---- Kontinuierlicher Ertragsfaktor nach Azimut ----
-// Basiert auf PVGis-Daten: Süd (180°) = optimal
-// Annäherungsformel: factor = 0.52 + 0.48 * cos(azimuth - 180°)
+// Sensor
+let sensorActive = false;
+let sensorAlpha  = null;
+let sensorBeta   = null;
+
+// Hindernis-Canvas
+let hCanvas  = null;
+let hMouseXm = -1;
+let hMouseYm = -1;
+
+// ---- Kontinuierlicher Ertragsfaktor ----
 function orientFactor(azimuthDeg) {
   const rad = (azimuthDeg - 180) * Math.PI / 180;
   return 0.52 + 0.48 * Math.cos(rad);
 }
 
-// ---- Spezifischer Basisertrag Süd (kWh/kWp/a) nach Neigung ----
-// Gilt für Süd (180°); andere Richtungen werden mit orientFactor() skaliert
+// ---- Basisertrag Süd nach Neigung ----
 const YIELD_SOUTH = {
   1:780, 5:860, 10:920, 15:960, 20:990, 25:1010, 30:1020,
   35:1025, 40:1020, 45:1010, 50:990, 55:965, 60:930, 70:850, 75:800
@@ -67,20 +73,23 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNeigungSlider();
   setupCustomModulInputs();
   drawCompassDial(selAzimuth);
+  initHindernisCanvas();
+  document.getElementById('dach-breite').addEventListener('input', updateHindernisCanvas);
+  document.getElementById('dach-laenge').addEventListener('input', updateHindernisCanvas);
 });
 
 function ladeDachParameter() {
   const p = new URLSearchParams(window.location.search);
-  if (p.has('breite'))  document.getElementById('dach-breite').value = parseFloat(p.get('breite'));
-  if (p.has('hoehe'))   document.getElementById('dach-laenge').value = parseFloat(p.get('hoehe'));
+  if (p.has('breite'))      document.getElementById('dach-breite').value = parseFloat(p.get('breite'));
+  if (p.has('hoehe'))       document.getElementById('dach-laenge').value = parseFloat(p.get('hoehe'));
+  if (p.has('typ'))         dachTyp = p.get('typ');
+  if (p.has('breite-oben')) dachBreiteOben = parseFloat(p.get('breite-oben'));
   if (p.has('neigung')) {
     const n = parseInt(p.get('neigung'));
     document.getElementById('neigung').value = n;
     document.getElementById('neigung-wert').textContent = n;
   }
-  if (p.has('azimuth')) {
-    setAzimuth(parseInt(p.get('azimuth')));
-  }
+  if (p.has('azimuth')) setAzimuth(parseInt(p.get('azimuth')));
 }
 
 // ---- Azimut-Eingabe ----
@@ -103,9 +112,7 @@ function setupAzimuthInput() {
 
 function setupShortcutButtons() {
   document.querySelectorAll('.cs-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      setAzimuth(parseInt(btn.dataset.az));
-    });
+    btn.addEventListener('click', () => setAzimuth(parseInt(btn.dataset.az)));
   });
 }
 
@@ -114,12 +121,9 @@ function setAzimuth(deg) {
   selAzimuth = deg;
   document.getElementById('azimuth-input').value = deg;
   document.getElementById('azimuth-label').textContent = azimuthLabel(deg);
-
-  // Shortcut-Buttons: aktiv wenn exakt auf einer Hauptrichtung
   document.querySelectorAll('.cs-btn').forEach(btn => {
     btn.classList.toggle('cs-active', parseInt(btn.dataset.az) === deg);
   });
-
   drawCompassDial(deg);
 }
 
@@ -132,7 +136,6 @@ function drawCompassDial(azimuthDeg) {
 
   ctx.clearRect(0, 0, 160, 160);
 
-  // Kreis
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fillStyle = '#f0f4ff';
@@ -141,7 +144,6 @@ function drawCompassDial(azimuthDeg) {
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Himmelsrichtungsbeschriftung
   const dirs = [['N',0],['O',90],['S',180],['W',270]];
   ctx.font = 'bold 12px Arial';
   ctx.textAlign = 'center';
@@ -154,12 +156,10 @@ function drawCompassDial(azimuthDeg) {
     ctx.fillText(label, lx, ly);
   });
 
-  // Zeiger (Azimut-Richtung)
   const rad = (azimuthDeg - 90) * Math.PI / 180;
   const px = cx + (r - 22) * Math.cos(rad);
   const py = cy + (r - 22) * Math.sin(rad);
 
-  // Zeiger-Linie
   ctx.beginPath();
   ctx.moveTo(cx, cy);
   ctx.lineTo(px, py);
@@ -168,13 +168,11 @@ function drawCompassDial(azimuthDeg) {
   ctx.lineCap = 'round';
   ctx.stroke();
 
-  // Zeiger-Spitze
   ctx.beginPath();
   ctx.arc(px, py, 5, 0, Math.PI * 2);
   ctx.fillStyle = '#f7971e';
   ctx.fill();
 
-  // Mittelpunkt
   ctx.beginPath();
   ctx.arc(cx, cy, 4, 0, Math.PI * 2);
   ctx.fillStyle = '#1e3c72';
@@ -234,15 +232,11 @@ function startSensor() {
     alert('Dein Browser unterstützt keine Sensor-Daten.');
     return;
   }
-  // iOS 13+ braucht Erlaubnis
   if (typeof DeviceOrientationEvent.requestPermission === 'function') {
     DeviceOrientationEvent.requestPermission()
       .then(state => {
-        if (state === 'granted') {
-          activateSensor();
-        } else {
-          alert('Sensorzugriff wurde verweigert. Bitte in den iPhone-Einstellungen erlauben.');
-        }
+        if (state === 'granted') activateSensor();
+        else alert('Sensorzugriff wurde verweigert. Bitte in den iPhone-Einstellungen erlauben.');
       })
       .catch(() => alert('Sensorzugriff konnte nicht angefordert werden.'));
   } else {
@@ -266,28 +260,15 @@ function stopSensor() {
 
 function handleOrientation(event) {
   if (!sensorActive) return;
-
-  // alpha: Kompassrichtung (0=Nord, 90=Ost, 180=Süd, 270=West)
-  // beta:  Neigung vorne/hinten (-180..180, 0=flach, 90=aufrecht nach vorne)
-  // gamma: Neigung links/rechts
-
-  // Neigung: absoluter Wert von beta (Handy flach auf Dach)
   const beta  = event.beta  !== null ? event.beta  : 0;
   const alpha = event.alpha !== null ? event.alpha : 0;
-
-  // Neigungswinkel: beta bei flach aufliegendem Handy
   const neigung = Math.round(Math.abs(beta));
-  // Azimut: alpha gibt Kompassrichtung der Handyvorderseite
-  // Wenn Handy aufs Dach gelegt wird (Oberkante zeigt zur Traufe/Richtung Dachausrichtung):
-  // Azimut = alpha
   const azimuth = Math.round(((alpha % 360) + 360) % 360);
-
   sensorAlpha = azimuth;
   sensorBeta  = neigung;
-
-  document.getElementById('sensor-neigung').textContent = neigung + '°';
+  document.getElementById('sensor-neigung').textContent  = neigung + '°';
   document.getElementById('sensor-richtung').textContent = azimuth + '°';
-  document.getElementById('sensor-himmels').textContent = azimuthLabel(azimuth);
+  document.getElementById('sensor-himmels').textContent  = azimuthLabel(azimuth);
 }
 
 function sensorUebernehmen() {
@@ -295,32 +276,245 @@ function sensorUebernehmen() {
     document.getElementById('neigung').value = Math.min(75, Math.max(1, sensorBeta));
     document.getElementById('neigung-wert').textContent = document.getElementById('neigung').value;
   }
-  if (sensorAlpha !== null) {
-    setAzimuth(sensorAlpha);
-  }
+  if (sensorAlpha !== null) setAzimuth(sensorAlpha);
   stopSensor();
 }
 
-// ---- Hindernisse ----
-function addHindernis(typ) {
-  currentHindernisTyp = typ;
-  document.getElementById('hindernis-modal-titel').textContent =
-    typ === 'schornstein' ? '🏭 Schornstein hinzufügen' : '🪟 Dachfenster hinzufügen';
-  document.getElementById('hindernis-modal').style.display = 'flex';
+// ---- Dachform-Pfad (wiederverwendbar) ----
+// Baut den Canvas-Pfad für die aktuelle Dachform.
+// W/H = Canvas-Dimensionen; verwendet globals dachTyp, dachBreiteOben
+function buildRoofPath(ctx, W, H) {
+  const dachBreiteM = parseFloat(document.getElementById('dach-breite').value) || 1;
+  ctx.beginPath();
+  if (dachTyp === 'trapez' && dachBreiteOben !== null && dachBreiteOben < dachBreiteM && dachBreiteOben > 0) {
+    // Trapez: unten breiter (Traufe), oben schmaler (First)
+    const offsetPx = W * (1 - dachBreiteOben / dachBreiteM) / 2;
+    ctx.moveTo(0, H);           // Traufe links
+    ctx.lineTo(W, H);           // Traufe rechts
+    ctx.lineTo(W - offsetPx, 0); // First rechts
+    ctx.lineTo(offsetPx, 0);    // First links
+    ctx.closePath();
+  } else if (dachTyp === 'dreieck') {
+    ctx.moveTo(0, H);
+    ctx.lineTo(W, H);
+    ctx.lineTo(W / 2, 0);
+    ctx.closePath();
+  } else {
+    ctx.rect(0, 0, W, H);
+  }
 }
 
-function closeHindernisModal() {
-  document.getElementById('hindernis-modal').style.display = 'none';
+// ---- Hindernis-Canvas: interaktive Platzierung ----
+function initHindernisCanvas() {
+  hCanvas = document.getElementById('hindernis-canvas');
+  if (!hCanvas) return;
+  hCanvas.addEventListener('mousemove',    onHMouseMove);
+  hCanvas.addEventListener('click',        onHClick);
+  hCanvas.addEventListener('contextmenu',  onHRightClick);
+  hCanvas.addEventListener('mouseleave',   () => { hMouseXm = -1; hMouseYm = -1; drawHCanvas(); });
+  hCanvas.addEventListener('touchmove',    onHTouchMove, { passive: false });
+  hCanvas.addEventListener('touchend',     onHTouchEnd,  { passive: false });
+  updateHindernisCanvas();
 }
 
-function confirmHindernis() {
-  const breiteM = parseFloat(document.getElementById('h-breite').value) || 0.5;
-  const hoeheM  = parseFloat(document.getElementById('h-hoehe').value)  || 0.5;
-  const leftM   = parseFloat(document.getElementById('h-left').value)   || 1.0;
-  const topM    = parseFloat(document.getElementById('h-top').value)    || 1.0;
-  hindernisse.push({ typ: currentHindernisTyp, breiteM, hoeheM, leftM, topM });
-  closeHindernisModal();
+function updateHindernisCanvas() {
+  if (!hCanvas) return;
+  const dachBreiteM = parseFloat(document.getElementById('dach-breite').value) || 0;
+  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 0;
+  const infoEl = document.getElementById('hindernis-pos-info');
+
+  if (!dachBreiteM || !dachLaengeM || dachBreiteM <= 0 || dachLaengeM <= 0) {
+    hCanvas.width  = 400;
+    hCanvas.height = 120;
+    const ctx = hCanvas.getContext('2d');
+    ctx.fillStyle = '#eef0f5';
+    ctx.fillRect(0, 0, 400, 120);
+    ctx.fillStyle = '#999';
+    ctx.font = '13px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Bitte zuerst Dachabmessungen eingeben', 200, 60);
+    if (infoEl) infoEl.textContent = '';
+    return;
+  }
+
+  const MAX_W = Math.min(700, (window.innerWidth || 800) - 60);
+  const scale = MAX_W / (dachBreiteM * 1000);
+  hCanvas.width  = Math.round(dachBreiteM * 1000 * scale);
+  hCanvas.height = Math.round(dachLaengeM * 1000 * scale);
+  hCanvas._scale = scale;
+
+  drawHCanvas();
+}
+
+function drawHCanvas() {
+  if (!hCanvas || !hCanvas._scale) return;
+  const ctx = hCanvas.getContext('2d');
+  const W   = hCanvas.width, H = hCanvas.height;
+  const sc  = hCanvas._scale;
+  const dachBreiteM = parseFloat(document.getElementById('dach-breite').value) || 0;
+  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 0;
+  if (!dachBreiteM || !dachLaengeM) return;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Dachfläche füllen
+  buildRoofPath(ctx, W, H);
+  ctx.fillStyle = '#c8a87a';
+  ctx.fill();
+
+  // Maßbeschriftungen
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.font = 'bold 12px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`↔ ${dachBreiteM.toFixed(1)} m`, W / 2, H - 8);
+  ctx.save();
+  ctx.translate(10, H / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(`${dachLaengeM.toFixed(1)} m`, 0, 0);
+  ctx.restore();
+  if (dachTyp === 'trapez' && dachBreiteOben !== null) {
+    ctx.fillText(`↔ ${dachBreiteOben.toFixed(1)} m (First)`, W / 2, 12);
+  }
+
+  // Dach-Umriss
+  buildRoofPath(ctx, W, H);
+  ctx.strokeStyle = '#7a5c10';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Platzierte Hindernisse
+  for (let i = 0; i < hindernisse.length; i++) {
+    const h   = hindernisse[i];
+    const hx  = h.leftM   * 1000 * sc;
+    const hy  = h.topM    * 1000 * sc;
+    const hbp = h.breiteM * 1000 * sc;
+    const hhp = h.hoeheM  * 1000 * sc;
+    ctx.fillStyle = 'rgba(239,83,80,0.85)';
+    ctx.fillRect(hx, hy, hbp, hhp);
+    ctx.strokeStyle = '#b71c1c';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(hx, hy, hbp, hhp);
+    ctx.fillStyle = 'white';
+    ctx.font = `${Math.max(10, Math.round(Math.min(hbp, hhp) * 0.55))}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(h.typ === 'schornstein' ? '🏭' : '🪟', hx + hbp / 2, hy + hhp / 2);
+  }
+
+  // Geist-Hindernis am Mauszeiger
+  if (hMouseXm >= 0 && hMouseYm >= 0) {
+    const hbM  = parseFloat(document.getElementById('h-breite').value) || 0.5;
+    const hhM  = parseFloat(document.getElementById('h-hoehe').value)  || 0.5;
+    const gx   = (hMouseXm - hbM / 2) * 1000 * sc;
+    const gy   = (hMouseYm - hhM / 2) * 1000 * sc;
+    const gw   = hbM * 1000 * sc;
+    const gh   = hhM * 1000 * sc;
+    ctx.fillStyle = 'rgba(239,83,80,0.30)';
+    ctx.fillRect(gx, gy, gw, gh);
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = '#e53935';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(gx, gy, gw, gh);
+    ctx.setLineDash([]);
+  }
+}
+
+function getCanvasPos(canvas, clientEvt) {
+  const rect   = canvas.getBoundingClientRect();
+  const scaleX = canvas.width  / rect.width;
+  const scaleY = canvas.height / rect.height;
+  return {
+    x: (clientEvt.clientX - rect.left) * scaleX,
+    y: (clientEvt.clientY - rect.top)  * scaleY
+  };
+}
+
+function onHMouseMove(evt) {
+  if (!hCanvas || !hCanvas._scale) return;
+  const pos  = getCanvasPos(hCanvas, evt);
+  hMouseXm   = pos.x / (hCanvas._scale * 1000);
+  hMouseYm   = pos.y / (hCanvas._scale * 1000);
+  updateHPosInfo();
+  drawHCanvas();
+}
+
+function updateHPosInfo() {
+  const infoEl = document.getElementById('hindernis-pos-info');
+  if (!infoEl) return;
+  const dachBreiteM = parseFloat(document.getElementById('dach-breite').value) || 0;
+  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 0;
+  if (!dachBreiteM || !dachLaengeM || hMouseXm < 0) { infoEl.textContent = ''; return; }
+  const vL = Math.max(0, hMouseXm).toFixed(2);
+  const vR = Math.max(0, dachBreiteM - hMouseXm).toFixed(2);
+  const vF = Math.max(0, hMouseYm).toFixed(2);
+  const vT = Math.max(0, dachLaengeM - hMouseYm).toFixed(2);
+  infoEl.textContent = `${vL} m von links  ·  ${vR} m von rechts  ·  ${vF} m vom First  ·  ${vT} m von der Traufe`;
+}
+
+function platzierHindernis(clickXm, clickYm) {
+  const dachBreiteM = parseFloat(document.getElementById('dach-breite').value) || 0;
+  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 0;
+  if (!dachBreiteM || !dachLaengeM) return;
+  const hbM  = parseFloat(document.getElementById('h-breite').value) || 0.5;
+  const hhM  = parseFloat(document.getElementById('h-hoehe').value)  || 0.5;
+  const leftM = Math.max(0, Math.min(clickXm - hbM / 2, dachBreiteM - hbM));
+  const topM  = Math.max(0, Math.min(clickYm - hhM / 2, dachLaengeM - hhM));
+  hindernisse.push({ typ: currentHindernisTyp, breiteM: hbM, hoeheM: hhM, leftM, topM });
   renderHindernisListe();
+  drawHCanvas();
+}
+
+function onHClick(evt) {
+  evt.preventDefault();
+  if (!hCanvas || !hCanvas._scale) return;
+  const pos  = getCanvasPos(hCanvas, evt);
+  platzierHindernis(pos.x / (hCanvas._scale * 1000), pos.y / (hCanvas._scale * 1000));
+}
+
+function onHRightClick(evt) {
+  evt.preventDefault();
+  if (!hCanvas || !hCanvas._scale) return;
+  const pos    = getCanvasPos(hCanvas, evt);
+  const clickX = pos.x / (hCanvas._scale * 1000);
+  const clickY = pos.y / (hCanvas._scale * 1000);
+  for (let i = hindernisse.length - 1; i >= 0; i--) {
+    const h = hindernisse[i];
+    if (clickX >= h.leftM && clickX <= h.leftM + h.breiteM &&
+        clickY >= h.topM  && clickY <= h.topM  + h.hoeheM) {
+      hindernisse.splice(i, 1);
+      renderHindernisListe();
+      drawHCanvas();
+      break;
+    }
+  }
+}
+
+function onHTouchMove(evt) {
+  evt.preventDefault();
+  if (!hCanvas || !hCanvas._scale || !evt.touches[0]) return;
+  const pos = getCanvasPos(hCanvas, evt.touches[0]);
+  hMouseXm  = pos.x / (hCanvas._scale * 1000);
+  hMouseYm  = pos.y / (hCanvas._scale * 1000);
+  updateHPosInfo();
+  drawHCanvas();
+}
+
+function onHTouchEnd(evt) {
+  evt.preventDefault();
+  if (!hCanvas || !hCanvas._scale) return;
+  if (evt.changedTouches && evt.changedTouches[0]) {
+    const pos = getCanvasPos(hCanvas, evt.changedTouches[0]);
+    platzierHindernis(pos.x / (hCanvas._scale * 1000), pos.y / (hCanvas._scale * 1000));
+  }
+  hMouseXm = -1; hMouseYm = -1;
+}
+
+function setHindernisTyp(btn) {
+  document.querySelectorAll('.htyp-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentHindernisTyp = btn.dataset.typ;
 }
 
 function renderHindernisListe() {
@@ -337,8 +531,8 @@ function renderHindernisListe() {
     </tr>`).join('');
 }
 
-function removeHindernis(idx) { hindernisse.splice(idx, 1); renderHindernisListe(); }
-function clearHindernisse() { hindernisse = []; renderHindernisListe(); }
+function removeHindernis(idx) { hindernisse.splice(idx, 1); renderHindernisListe(); drawHCanvas(); }
+function clearHindernisse()   { hindernisse = [];            renderHindernisListe(); drawHCanvas(); }
 
 // ---- Hauptberechnung ----
 function berechne() {
@@ -380,7 +574,6 @@ function berechne() {
   const finalAnzahl = Math.max(0, layout.anzahl - blocked);
   const kwp         = (finalAnzahl * selModWatt) / 1000;
 
-  // Ertrag: Basiswert Süd × Orientierungsfaktor × Regionfaktor × Wechselrichter
   const baseSuedYield = interpolateNeigung(neigung);
   const oriF          = orientFactor(selAzimuth);
   const regionFak     = REGION_FACTOR[region] || 1.0;
@@ -432,18 +625,22 @@ function berechne() {
   zeichneLayout(layout, dachBreiteM, dachLaengeM, randM, abstandMM, finalAnzahl);
 }
 
-// ---- Layout-Berechnung ----
+// ---- Layout-Berechnung (mit Zentrierung) ----
 function berechneLayout(nutzBreiteMM, nutzLaengeMM, modB, modH, abstandMM) {
   const spalten = Math.max(0, Math.floor((nutzBreiteMM + abstandMM) / (modB + abstandMM)));
   const reihen  = Math.max(0, Math.floor((nutzLaengeMM + abstandMM) / (modH + abstandMM)));
-  return { spalten, reihen, anzahl: spalten * reihen, modB, modH };
+  const totalW  = spalten > 0 ? spalten * (modB + abstandMM) - abstandMM : 0;
+  const totalH  = reihen  > 0 ? reihen  * (modH + abstandMM) - abstandMM : 0;
+  const offsetX = Math.max(0, (nutzBreiteMM - totalW) / 2);
+  const offsetY = Math.max(0, (nutzLaengeMM - totalH) / 2);
+  return { spalten, reihen, anzahl: spalten * reihen, modB, modH, offsetX, offsetY };
 }
 
-// ---- Blockierte Module ----
+// ---- Blockierte Module (mit Zentrierung) ----
 function zähleBlockierteModule(layout, randM, abstandMM) {
   if (hindernisse.length === 0 || layout.anzahl === 0) return 0;
-  const nutzStartX = randM * 1000;
-  const nutzStartY = randM * 1000;
+  const nutzStartX = randM * 1000 + layout.offsetX;
+  const nutzStartY = randM * 1000 + layout.offsetY;
   const { modB, modH } = layout;
   let blocked = 0;
   for (let r = 0; r < layout.reihen; r++) {
@@ -463,7 +660,7 @@ function zähleBlockierteModule(layout, randM, abstandMM) {
   return blocked;
 }
 
-// ---- Neigungsinterpolation (Basisertrag Süd) ----
+// ---- Neigungsinterpolation ----
 function interpolateNeigung(neigung) {
   const keys = Object.keys(YIELD_SOUTH).map(Number).sort((a,b)=>a-b);
   const n = Math.max(1, Math.min(75, neigung));
@@ -476,34 +673,43 @@ function interpolateNeigung(neigung) {
   return YIELD_SOUTH[keys[keys.length - 1]];
 }
 
-// ---- Canvas-Visualisierung ----
+// ---- Ergebnis-Canvas: korrekte Dachform + zentrierte Module ----
 function zeichneLayout(layout, dachBreiteM, dachLaengeM, randM, abstandMM, finalAnzahl) {
   const canvas = document.getElementById('pv-canvas');
   const ctx    = canvas.getContext('2d');
-  const MAX_W  = Math.min(600, window.innerWidth - 60);
+  const MAX_W  = Math.min(600, (window.innerWidth || 800) - 60);
   const scale  = MAX_W / (dachBreiteM * 1000);
   canvas.width  = Math.round(dachBreiteM * 1000 * scale);
   canvas.height = Math.round(dachLaengeM * 1000 * scale);
+  const W = canvas.width, H = canvas.height;
 
+  ctx.clearRect(0, 0, W, H);
+
+  // 1. Dachfläche füllen
+  buildRoofPath(ctx, W, H);
   ctx.fillStyle = '#c8a87a';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fill();
 
+  // 2. Randabstand-Markierung
   const rx = randM * 1000 * scale;
   const ry = randM * 1000 * scale;
-  ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  ctx.fillRect(0, 0, canvas.width, ry);
-  ctx.fillRect(0, canvas.height - ry, canvas.width, ry);
-  ctx.fillRect(0, ry, rx, canvas.height - 2*ry);
-  ctx.fillRect(canvas.width - rx, ry, rx, canvas.height - 2*ry);
+  ctx.fillStyle = 'rgba(255,255,255,0.22)';
+  ctx.fillRect(0, 0, W, ry);
+  ctx.fillRect(0, H - ry, W, ry);
+  ctx.fillRect(0, ry, rx, H - 2*ry);
+  ctx.fillRect(W - rx, ry, rx, H - 2*ry);
 
-  const { modB, modH } = layout;
-  const nutzStartX = randM * 1000;
-  const nutzStartY = randM * 1000;
+  // 3. Auf Dachform clippen
+  ctx.save();
+  buildRoofPath(ctx, W, H);
+  ctx.clip();
 
+  // 4. Module zeichnen (zentriert)
+  const { modB, modH, offsetX, offsetY } = layout;
   for (let r = 0; r < layout.reihen; r++) {
     for (let s = 0; s < layout.spalten; s++) {
-      const worldX = nutzStartX + s * (modB + abstandMM);
-      const worldY = nutzStartY + r * (modH + abstandMM);
+      const worldX = randM * 1000 + offsetX + s * (modB + abstandMM);
+      const worldY = randM * 1000 + offsetY + r * (modH + abstandMM);
       let isBlocked = false;
       for (const h of hindernisse) {
         const hx = h.leftM*1000, hy = h.topM*1000, hb = h.breiteM*1000, hh = h.hoeheM*1000;
@@ -526,26 +732,38 @@ function zeichneLayout(layout, dachBreiteM, dachLaengeM, randM, abstandMM, final
     }
   }
 
+  // 5. Hindernisse zeichnen
   for (const h of hindernisse) {
-    const hx = h.leftM*1000*scale, hy = h.topM*1000*scale;
-    const hb = h.breiteM*1000*scale, hh = h.hoeheM*1000*scale;
+    const hx  = h.leftM   * 1000 * scale;
+    const hy  = h.topM    * 1000 * scale;
+    const hbp = h.breiteM * 1000 * scale;
+    const hhp = h.hoeheM  * 1000 * scale;
     ctx.fillStyle = 'rgba(239,83,80,0.85)';
-    ctx.fillRect(hx, hy, hb, hh);
+    ctx.fillRect(hx, hy, hbp, hhp);
     ctx.strokeStyle = '#b71c1c'; ctx.lineWidth = 2;
-    ctx.strokeRect(hx, hy, hb, hh);
+    ctx.strokeRect(hx, hy, hbp, hhp);
     ctx.fillStyle = 'white';
-    ctx.font = `bold ${Math.max(10, Math.round(hb * 0.3))}px Arial`;
+    ctx.font = `bold ${Math.max(10, Math.round(Math.min(hbp, hhp) * 0.35))}px Arial`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(h.typ === 'schornstein' ? '🏭' : '🪟', hx + hb/2, hy + hh/2);
+    ctx.fillText(h.typ === 'schornstein' ? '🏭' : '🪟', hx + hbp/2, hy + hhp/2);
   }
 
+  ctx.restore();
+
+  // 6. Dach-Umriss oben drüber
+  buildRoofPath(ctx, W, H);
+  ctx.strokeStyle = '#7a5c10';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // 7. Info-Bar
   ctx.fillStyle = 'rgba(0,0,0,0.6)';
-  ctx.fillRect(0, canvas.height - 28, canvas.width, 28);
+  ctx.fillRect(0, H - 28, W, 28);
   ctx.fillStyle = 'white'; ctx.font = 'bold 13px Arial';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(
     `${finalAnzahl} Module · ${((finalAnzahl*selModWatt)/1000).toFixed(2)} kWp · ${selAzimuth}° ${azimuthLabel(selAzimuth)}`,
-    canvas.width/2, canvas.height - 14
+    W/2, H - 14
   );
 }
 

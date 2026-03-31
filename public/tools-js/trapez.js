@@ -371,10 +371,12 @@ if (verlegerichtung === 'links') {
         }
 
         function erstellePVRechner() {
-            const _b = parseFloat(document.getElementById('untere-breite').value);
-            const _h = parseFloat(document.getElementById('hoehe').value);
+            const _b  = parseFloat(document.getElementById('untere-breite').value);
+            const _bo = parseFloat(document.getElementById('obere-breite').value);
+            const _h  = parseFloat(document.getElementById('hoehe').value);
             if (!_b || !_h) { alert('Bitte führen Sie zuerst eine Berechnung durch.'); return; }
-            const params = new URLSearchParams({ breite: _b, hoehe: _h });
+            const params = new URLSearchParams({ breite: _b, hoehe: _h, typ: 'trapez' });
+            if (_bo > 0 && _bo < _b) params.set('breite-oben', _bo);
             window.location.href = `/tools/pv-rechner/?${params.toString()}`;
         }
 
