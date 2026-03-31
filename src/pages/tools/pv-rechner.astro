@@ -184,48 +184,44 @@ import InfoBox from '../../components/InfoBox.astro';
   <!-- Hindernisse -->
   <div class="section">
     <h2>🏗️ Hindernisse auf der Dachfläche</h2>
-    <p style="color:#555; margin-bottom:15px;">Schornsteine, Dachfenster oder andere Hindernisse, die Platz belegen.</p>
-    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:15px;">
-      <button class="add-hindernis-btn" onclick="addHindernis('schornstein')">🏭 Schornstein</button>
-      <button class="add-hindernis-btn" onclick="addHindernis('fenster')">🪟 Dachfenster</button>
+
+    <!-- Typ + Größe -->
+    <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px;">
+      <div>
+        <label style="display:block; font-weight:600; color:#2c3e50; margin-bottom:8px;">Typ wählen:</label>
+        <div style="display:flex; gap:8px;">
+          <button class="htyp-btn active" data-typ="schornstein" onclick="setHindernisTyp(this)">🏭 Schornstein</button>
+          <button class="htyp-btn" data-typ="fenster" onclick="setHindernisTyp(this)">🪟 Dachfenster</button>
+        </div>
+      </div>
+      <div class="input-group" style="min-width:110px; max-width:145px;">
+        <label for="h-breite">Breite (m)</label>
+        <input type="number" id="h-breite" step="0.1" min="0.1" value="0.8" oninput="drawHCanvas()">
+      </div>
+      <div class="input-group" style="min-width:110px; max-width:145px;">
+        <label for="h-hoehe">Tiefe (m)</label>
+        <input type="number" id="h-hoehe" step="0.1" min="0.1" value="0.6" oninput="drawHCanvas()">
+      </div>
       <button class="add-hindernis-btn add-clear-btn" onclick="clearHindernisse()">🗑️ Alle löschen</button>
     </div>
-    <div id="hindernis-liste" style="display:none; margin-bottom:15px;">
+
+    <!-- Interaktiver Canvas -->
+    <div style="background:#e8f0fe; border-radius:12px; padding:12px 12px 8px; border:1px solid #c5d8fb;">
+      <p style="font-size:13px; color:#1e3c72; font-weight:600; margin:0 0 10px;">
+        Klick auf die Dachfläche = Hindernis platzieren &nbsp;|&nbsp; Rechtsklick = Hindernis entfernen
+      </p>
+      <div style="text-align:center;">
+        <canvas id="hindernis-canvas" style="cursor:crosshair; max-width:100%; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.12);"></canvas>
+      </div>
+      <div id="hindernis-pos-info" style="text-align:center; margin-top:8px; font-size:12px; color:#555; min-height:16px; font-family:monospace;"></div>
+    </div>
+
+    <!-- Hindernisliste -->
+    <div id="hindernis-liste" style="display:none; margin-top:15px;">
       <table class="material-table" id="hindernis-table">
-        <thead><tr><th>Typ</th><th>Breite (m)</th><th>Höhe (m)</th><th>Links (m)</th><th>Oben (m)</th><th></th></tr></thead>
+        <thead><tr><th>Typ</th><th>Breite (m)</th><th>Tiefe (m)</th><th>Von links (m)</th><th>Von oben (m)</th><th></th></tr></thead>
         <tbody id="hindernis-body"></tbody>
       </table>
-    </div>
-  </div>
-
-  <!-- Hindernis-Modal -->
-  <div id="hindernis-modal" class="modal-overlay" style="display:none;">
-    <div class="modal-box">
-      <h3 id="hindernis-modal-titel">Hindernis hinzufügen</h3>
-      <div class="input-row">
-        <div class="input-group">
-          <label>Breite (m)</label>
-          <input type="number" id="h-breite" step="0.1" min="0.1" value="0.5">
-        </div>
-        <div class="input-group">
-          <label>Höhe (m)</label>
-          <input type="number" id="h-hoehe" step="0.1" min="0.1" value="0.5">
-        </div>
-      </div>
-      <div class="input-row">
-        <div class="input-group">
-          <label>Abstand vom linken Rand (m)</label>
-          <input type="number" id="h-left" step="0.1" min="0" value="1.0">
-        </div>
-        <div class="input-group">
-          <label>Abstand vom oberen Rand (m)</label>
-          <input type="number" id="h-top" step="0.1" min="0" value="1.0">
-        </div>
-      </div>
-      <div style="display:flex; gap:12px; justify-content:center; margin-top:15px;">
-        <button class="calculate-btn" style="margin:0; min-width:120px;" onclick="confirmHindernis()">✅ Hinzufügen</button>
-        <button class="calculate-btn" style="margin:0; min-width:120px; background:linear-gradient(135deg,#666,#444);" onclick="closeHindernisModal()">Abbrechen</button>
-      </div>
     </div>
   </div>
 
@@ -328,6 +324,9 @@ import InfoBox from '../../components/InfoBox.astro';
   /* Hindernisse */
   .add-hindernis-btn { padding: 10px 18px; border: none; border-radius: 10px; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; font-weight: 600; cursor: pointer; font-size: 14px; }
   .add-clear-btn { background: linear-gradient(135deg, #666, #444) !important; }
+  .htyp-btn { padding: 10px 16px; border: 2px solid #1e3c72; border-radius: 10px; background: white; color: #1e3c72; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.15s; }
+  .htyp-btn:hover { background: #e3f2fd; }
+  .htyp-btn.active { background: #1e3c72; color: white; }
 
   /* Berechnen-Button */
   .calculate-btn { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #1a1a1a; border: none; padding: 15px 40px; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; margin: 20px auto; display: block; box-shadow: 0 4px 15px rgba(247, 151, 30, 0.4); transition: all 0.3s ease; min-width: 250px; }
@@ -344,10 +343,6 @@ import InfoBox from '../../components/InfoBox.astro';
   .material-table th { background: rgba(255,255,255,0.1); color: #ffd700; font-weight: 600; }
   .material-table td { color: #e8eaf6; }
 
-  /* Modal */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-  .modal-box { background: white; border-radius: 15px; padding: 30px; max-width: 480px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
-  .modal-box h3 { color: #1e3c72; margin-bottom: 20px; }
 </style>
 
 <script src="/tools-js/pv-rechner.js" is:inline defer></script>
