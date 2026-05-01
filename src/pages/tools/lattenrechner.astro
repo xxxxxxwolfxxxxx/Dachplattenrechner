@@ -1,77 +1,154 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import InfoBox from '../../components/InfoBox.astro';
 import AdUnit from '../../components/AdUnit.astro';
-import Footer from '../../components/Footer.astro';
 ---
 
-<BaseLayout
+<ToolLayout
   title="Lattenrechner – Dachlatten und Konterlatten berechnen"
   description="Berechne Dachlatten und Konterlatten für deine Dachkonstruktion. Mit Materialbedarf und Verschnitt-Optimierung."
   keywords="Lattenrechner, Dachlatten berechnen, Konterlatten, Dachkonstruktion, Lattung"
+  navTitle="Lattenrechner"
+  backHref="/tools/dachformen/"
+  backLabel="← Dachformen"
+  background="url('/images/lattung.png')"
 >
-  <div style="background: var(--gradient-primary); padding: var(--spacing-xl); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);">
-    <h1 style="color: white; margin-bottom: var(--spacing-lg);">Lattenrechner – Dachlatten & Konterlatten</h1>
+  <InfoBox title="Was sind Dachlatten und Konterlatten?" icon="🔨">
+    <p>Die Lattung ist ein kritischer Teil der Dachkonstruktion. Sie trägt die Dacheindeckung (Trapezbleche, Ziegel, Wellblech) und sorgt zusammen mit der Hinterlüftung für Langlebigkeit.</p>
+    <ul style="margin-top: 10px;">
+      <li><strong>Konterlatten:</strong> Laufen parallel zu den Sparren (meist 30×50mm oder 40×60mm), schaffen Hinterlüftungsraum</li>
+      <li><strong>Dachlatten:</strong> Laufen senkrecht zu den Sparren (meist 30×40mm), halten die Blech- oder Ziegelplatten</li>
+    </ul>
+  </InfoBox>
+
+  <div class="section">
+    <h2>1. Dachflächenabmessungen</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="breite">Breite (m)</label>
+        <input type="number" id="breite" step="0.01" min="0" placeholder="z.B. 10.00">
+      </div>
+      <div class="input-group">
+        <label for="hoehe">Höhe / Länge (m)</label>
+        <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 8.00">
+      </div>
+    </div>
   </div>
 
-  <AdUnit position="top" adSlot="9678418506" />
+  <AdUnit position="middle" />
 
-  <main class="container main-content">
-    <article style="line-height: 1.8; color: var(--text-primary);">
-      <p>
-        Nach der Dachflächenberechnung brauchst du Konterlatten und Dachlatten für deine Unterkonstruktion.
-        Der Lattenrechner hilft dir, den genauen Materialbedarf zu ermitteln und vermeidert teure
-        Rechenfehlern bei der Materialbestellung. Eine falsch berechnete Lattung kann zu Schäden am Dach
-        und zu hohen Kosten führen.
-      </p>
+  <div class="section">
+    <h2>2. Lattentyp & Abstände</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="lattenabstand">Lattenabstand (mm)</label>
+        <input type="number" id="lattenabstand" step="10" min="100" value="600" placeholder="z.B. 600">
+      </div>
+      <div class="input-group">
+        <label for="lattenstärke">Lattenstärke (mm)</label>
+        <input type="number" id="lattenstärke" step="5" min="20" value="40" placeholder="z.B. 40">
+      </div>
+    </div>
+  </div>
 
-      <h2>Was sind Dachlatten und Konterlatten?</h2>
-      <p>
-        Die Lattung ist ein kritischer Teil der Dachkonstruktion. Sie trägt die Dacheindeckung (Trapezbleche,
-        Ziegel, Wellblech) und sorgt zusammen mit der Hinterlüftung für Langlebigkeit. Ohne korrekte
-        Lattung und Abstandshaltung kann Feuchtigkeit eindringen und zu Holzfäule führen.
-      </p>
-      <ul style="margin: 1rem 0 1rem 2rem;">
-        <li><strong>Konterlatten:</strong> Laufen parallel zu den Sparren (meist 30×50mm oder 40×60mm), schaffen Hinterlüftungsraum</li>
-        <li><strong>Dachlatten:</strong> Laufen senkrecht zu den Sparren (meist 30×40mm), halten die Blech- oder Ziegelplatten</li>
-        <li><strong>Latteneinteilung:</strong> Der Abstand zwischen Latten hängt vom Profil und von Wind- und Schneelasten ab</li>
-      </ul>
+  <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
 
-      <h2>Warum den Lattenrechner nutzen?</h2>
-      <p>
-        Mit dem Lattenrechner vermeidest du Fehler bei der Kalkulation und sparest Geld durch optimierte
-        Verschnittplanung. Du erhältst exakte Laufmeter und eine Stückliste, die du direkt bestellen kannst.
-        Der Rechner berücksichtigt auch Überlasten und gibt dir Empfehlungen für Abstände.
-      </p>
+  <div id="results" class="results" style="display: none;">
+    <div class="result-item">
+      <span>Dachfläche:</span>
+      <span id="flaeche-result">-</span>
+    </div>
+    <div class="result-item">
+      <span>Anzahl Latten:</span>
+      <span id="anzahl-latten">-</span>
+    </div>
+    <div class="result-item">
+      <span>Gesamtlänge (Laufmeter):</span>
+      <span id="gesamt-laenge">-</span>
+    </div>
+    <div class="result-item">
+      <span>Holzvolumen (m³):</span>
+      <span id="holz-volumen">-</span>
+    </div>
+  </div>
 
-      <h2>Wie nutze ich den Lattenrechner?</h2>
-      <ol style="margin: 1rem 0 1rem 2rem;">
-        <li>Gib deine Dachfläche ein (automatisch aus der Dachflächenberechnung, oder manuell)</li>
-        <li>Wähle die Lattenstärke (z.B. 30×40mm oder 40×60mm) und den Abstand</li>
-        <li>Wähle die Holzart und Güteklasse (z.B. Fichte, KVH)</li>
-        <li>Der Rechner berechnet den Materialbedarf in Laufmetern und Kosten</li>
-      </ol>
+  <InfoBox title="💡 Tipp: Lattenabstand" variant="tip">
+    <p><strong>Trapezbleche:</strong> 600-900mm je nach Profiltiefe<br/>
+    <strong>Ziegel:</strong> 350-600mm je nach Ziegeltyp<br/>
+    <strong>Wellblech:</strong> 500-750mm je nach Wellenprofil</p>
+  </InfoBox>
 
-      <h2>FAQ – Dachlatten & Lattung</h2>
-      <p><strong>Welcher Lattenabstand ist optimal?</strong> Für Trapezbleche meist 600-900mm (abhängig von Profiltiefe und Tragfähigkeit), für Ziegel 350-600mm (je nach Ziegeltyp). Der Rechner gibt dir Empfehlungen basierend auf deinen Eingaben.</p>
-      <p style="margin-top: 1rem;"><strong>Brauche ich Konterlatten?</strong> Ja, Konterlatten sind für Hinterlüftung essentiell. Sie sorgen dafür, dass Feuchte abziehen kann und verlängern die Lebensdauer der ganzen Konstruktion um Jahre.</p>
-      <p style="margin-top: 1rem;"><strong>Welches Holz ist besser – Fichte oder Lärche?</strong> Fichte ist günstiger und ausreichend für die meisten Dächer. Lärche ist resistenter gegen Feuchtigkeit, aber teurer. KVH (Konstruktionsvollholz) ist behandelt und zuverlässig.</p>
+</ToolLayout>
 
-      <section style="margin-top: 3rem; background: var(--gradient-secondary); padding: 2rem; border-radius: var(--radius-lg);">
-        <a href="/tools/lattenrechner" style="
-          display: inline-block;
-          background: linear-gradient(135deg, #3b82f6, #60a5fa);
-          color: white;
-          padding: 1rem 2rem;
-          border-radius: 0.5rem;
-          text-decoration: none;
-          font-weight: 600;
-        ">
-          Zum Lattenrechner →
-        </a>
-      </section>
-    </article>
-  </main>
+<style>
+  .section { background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); }
+  .section h2 { color: #1e3c72; margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
+  .input-row { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 250px; }
+  .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; }
+  .input-group input { width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px; transition: all 0.3s ease; }
+  .input-group input:focus { outline: none; border-color: #1e3c72; box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1); }
+  .calculate-btn { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 20px auto; display: block; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: all 0.3s ease; min-width: 200px; }
+  .calculate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4); background: linear-gradient(135deg, #0056b3 0%, #004085 100%); }
+  .results { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 15px; padding: 25px; margin-top: 25px; color: white; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
+  .result-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+  .result-item:last-child { border-bottom: none; }
+  .result-item span:last-child { font-weight: bold; font-size: 1.1em; color: #ffd700; }
+  @media (max-width: 768px) {
+    .input-row { flex-direction: column; gap: 12px; }
+    .input-group { min-width: auto; }
+  }
+</style>
 
-  <AdUnit position="bottom" adSlot="9678418507" />
-  <Footer />
-</BaseLayout>
+<script>
+  // Lade Parameter aus der URL
+  function ladParameterAusURL() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('breite')) {
+      document.getElementById('breite').value = parseFloat(params.get('breite')).toFixed(2);
+    }
+    if (params.has('hoehe')) {
+      document.getElementById('hoehe').value = parseFloat(params.get('hoehe')).toFixed(2);
+    }
+    // Auto-calculate, falls Parameter vorhanden
+    if (params.has('breite') && params.has('hoehe')) {
+      setTimeout(berechnen, 100);
+    }
+  }
+
+  function berechnen() {
+    const breite = parseFloat(document.getElementById('breite').value);
+    const hoehe = parseFloat(document.getElementById('hoehe').value);
+    const lattenabstand = parseFloat(document.getElementById('lattenabstand').value);
+    const lattenstärke = parseFloat(document.getElementById('lattenstärke').value);
+
+    if (!breite || !hoehe || !lattenabstand || !lattenstärke) {
+      alert('Bitte füllen Sie alle Felder aus!');
+      return;
+    }
+
+    // Berechnung
+    const flaeche = (breite * hoehe).toFixed(2);
+    const anzahlLatten = Math.ceil(breite / (lattenabstand / 1000)) + 1;
+    const gesamtLaenge = (anzahlLatten * hoehe).toFixed(2);
+    const holzVolumen = ((lattenstärke / 1000 * 0.05) * parseFloat(gesamtLaenge)).toFixed(3);
+
+    // Anzeige
+    document.getElementById('flaeche-result').textContent = flaeche + ' m²';
+    document.getElementById('anzahl-latten').textContent = anzahlLatten + ' Stück';
+    document.getElementById('gesamt-laenge').textContent = gesamtLaenge + ' m';
+    document.getElementById('holz-volumen').textContent = holzVolumen + ' m³';
+    document.getElementById('results').style.display = 'block';
+
+    // Google Analytics
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'calculation', {
+        'event_category': 'lattenrechner',
+        'event_label': 'form_submitted'
+      });
+    }
+  }
+
+  // Lade Parameter beim Laden der Seite
+  window.addEventListener('load', ladParameterAusURL);
+</script>
