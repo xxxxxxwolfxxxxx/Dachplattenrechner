@@ -23,9 +23,9 @@ const tools = [
 ---
 
 <BaseLayout
-  title="Dachplattenrechner.de"
-  description="Trapezblech Rechner kostenlos: Dachfläche berechnen, Schnittliste erstellen, Anrissplan drucken. Für Dachdecker, Architekten & Heimwerker – ohne Registrierung, direkt im Browser."
-  keywords="Trapezblech Rechner kostenlos, Trapezbleche berechnen, Lichtplatte Dach berechnen, Dachblech Schnittliste, Profilblech Rechner, Trapezprofil, Wellblech Dach, Sandwichpaneel, Dachdecker Werkzeug, Dachplatten kaufen, Blechdach Rechner, Anrissplan Dach, Lattenrechner Dach, U-Wert Dach, Schneelastzone"
+  title="Dachplattenrechner.de – Professionelle Dachplatten-Berechnung"
+  description="Trapezblech Rechner kostenlos: Dachfläche berechnen, Schneelastzone nachschlagen, U-Wert berechnen. Für Dachdecker, Architekten & Heimwerker – ohne Registrierung, direkt im Browser."
+  keywords="Trapezblech Rechner, Dachplattenrechner, Dachfläche berechnen, Schneelastzone, U-Wert, Trapezbleche, Wellblech, Lichtplatte, Dachdeckerwerkzeug, Anrissplan, Lattenrechner, Verschnitt"
 >
   <!-- Hintergrundbild -->
   <div class="hero-bg"></div>
@@ -50,6 +50,74 @@ const tools = [
   </div>
 
   <main class="container main-content">
+
+    <!-- SEO-Content: Intro -->
+    <section class="content-intro" style="margin-bottom: 3rem;">
+      <div class="intro-text">
+        <p>
+          Der Dachplattenrechner ist dein digitales Werkzeug für präzise Dachflächenberechnungen.
+          Egal ob du als Dachdecker, Architekt oder Heimwerker tätig bist: Mit wenigen Klicks
+          ermittelst du den exakten Materialbedarf für dein Dachprojekt — Trapezbleche,
+          Sandwichpaneele, Lichtplatten oder Wellblech.
+        </p>
+        <p>
+          Starte mit der Dachflächenberechnung, gib deine Dachform ein (Rechteck, Dreieck, Trapez,
+          Kombinationen), und der Rechner erstellt automatisch eine druckbare Schnittliste und
+          einen maßstäblichen Anrissplan. Danach brauchst du dich nicht mehr manuell durch
+          Formeln zu rechnen — der Lattenrechner, die Verschnitt-Optimierung und der PV-Rechner
+          unterstützen dich bei der weiteren Planung.
+        </p>
+        <p>
+          Alle Tools sind kostenlos, browserbasiert, ohne Registrierung. Nutze sie vom Smartphone,
+          Tablet oder PC aus. Deine Eingaben werden nicht gespeichert.
+        </p>
+      </div>
+    </section>
+
+    <!-- FAQ-Sektion -->
+    <section class="faq-section-intro" style="margin-bottom: 3rem; background: var(--gradient-secondary); padding: 2rem; border-radius: var(--radius-lg);">
+      <h2 style="text-align: center; margin-bottom: 2rem;">Häufig gestellte Fragen</h2>
+
+      <details style="margin-bottom: 1.5rem;">
+        <summary style="cursor: pointer; font-weight: 600;">Brauche ich einen Dachplattenrechner?</summary>
+        <p style="margin-top: 1rem;">Ja, wenn du ein Dachprojekt mit Trapezblechen, Wellblech oder Sandwichpaneelen planst. Er spart dir Zeit bei der Materialkalkulation und reduziert Fehlerquellen. Profis sparen damit Abfallkosten, Heimwerker erhalten Sicherheit bei der Planung.</p>
+      </details>
+
+      <details style="margin-bottom: 1.5rem;">
+        <summary style="cursor: pointer; font-weight: 600;">Welche Dachform habe ich?</summary>
+        <p style="margin-top: 1rem;">Das wichtigste ist zunächst: Ist dein Dach ein Rechteck (Sattel-, Pultdach), ein Dreieck oder eine Mischform (Trapez)? Der Dachflächenrechner unterscheidet diese Formen visuell. Miss dann die Grundkanten (Breite, Länge) und die Höhe (First zum Trauf) oder den Neigungswinkel.</p>
+      </details>
+
+      <details style="margin-bottom: 1.5rem;">
+        <summary style="cursor: pointer; font-weight: 600;">Wie genau sind die Berechnungen?</summary>
+        <p style="margin-top: 1rem;">Der Rechner nutzt klassische geometrische Formeln. Für Rechteck z.B. Breite × Länge, für Dreiecke (Breite × Höhe) / 2. Die Genauigkeit hängt von deinen Eingaben ab — je genauer du misst, desto genauer das Ergebnis.</p>
+      </details>
+
+      <details style="margin-bottom: 1.5rem;">
+        <summary style="cursor: pointer; font-weight: 600;">Was ist Schneelastzone und warum ist sie wichtig?</summary>
+        <p style="margin-top: 1rem;">Die Schneelastzone bestimmt die Tragfähigkeit deiner Dachkonstruktion. Deutschland ist in Zonen 1–3 eingeteilt (DIN EN 1991-1-3). Je höher die Zone, desto mehr Schnee kann dein Dach tragen. Bergregionen haben höhere Zonen als flaches Land. Mit dem Schneelastzone-Tool findest du deine Zone per Postleitzahl oder Bundesland.</p>
+      </details>
+
+      <details style="margin-bottom: 1.5rem;">
+        <summary style="cursor: pointer; font-weight: 600;">Kostet das etwas?</summary>
+        <p style="margin-top: 1rem;">Nein, alle Tools sind kostenlos. Die Seite finanziert sich durch dezente Werbung (Google AdSense).</p>
+      </details>
+
+      <details style="margin-bottom: 1.5rem;">
+        <summary style="cursor: pointer; font-weight: 600;">Kann ich die Ergebnisse drucken?</summary>
+        <p style="margin-top: 1rem;">Ja. Der Dachflächenrechner erstellt einen druckbaren Anrissplan mit Maßstab. Andere Tools wie der Lattenrechner und U-Wert-Rechner haben ebenfalls Druck-Funktionen.</p>
+      </details>
+
+      <details style="margin-bottom: 1.5rem;">
+        <summary style="cursor: pointer; font-weight: 600;">Was ist ein Anrissplan?</summary>
+        <p style="margin-top: 1rem;">Ein maßstäblicher Plan, auf dem die Dachflächen mit ihren Abmessungen eingezeichnet sind. Er hilft dir (und Handwerkern) zu visualisieren, wie die Bleche angeordnet werden.</p>
+      </details>
+
+      <details style="margin-bottom: 1.5rem;">
+        <summary style="cursor: pointer; font-weight: 600;">Brauche ich meine Dachmaße für alle Tools?</summary>
+        <p style="margin-top: 1rem;">Nein. Einige Tools wie der Schneelastzone-Rechner, U-Wert-Rechner und Farbkatalog benötigen keine Dachmaße. Andere wie Lattenrechner und PV-Rechner setzen auf deine Eingaben aus der Dachflächenberechnung auf — aber du kannst sie auch nutzen, wenn du die Werte manuell eingibst.</p>
+      </details>
+    </section>
 
     <!-- Kachel-Grid -->
     <section aria-label="Alle Rechner">
@@ -582,5 +650,53 @@ const tools = [
   @media (max-width: 480px) {
     .faq-grid { grid-template-columns: 1fr; }
     .tools-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Intro Section ── */
+  .content-intro {
+    background: linear-gradient(135deg, rgba(30, 45, 74, 0.5), rgba(15, 23, 42, 0.6));
+    border: 1px solid rgba(14, 165, 233, 0.2);
+    border-radius: 14px;
+    padding: 2rem;
+  }
+  .intro-text p {
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+  .intro-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ── FAQ Intro Section ── */
+  .faq-section-intro details {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(6, 15, 35, 0.7));
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .faq-section-intro details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #f8fafc;
+    padding: 1.2rem;
+    background: rgba(30, 45, 74, 0.4);
+    transition: background 0.2s;
+  }
+  .faq-section-intro details summary:hover {
+    background: rgba(30, 45, 74, 0.6);
+  }
+  .faq-section-intro details > p {
+    padding: 0 1.2rem 1.2rem;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .faq-section-intro h2 {
+    color: #f8fafc;
+    font-size: 1.8rem;
+    font-weight: 700;
   }
 </style>
