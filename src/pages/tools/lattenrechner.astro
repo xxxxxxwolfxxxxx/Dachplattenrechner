@@ -315,6 +315,15 @@ import * as lattenrechner from '../../utils/lattenrechner';
     button.addEventListener('click', berechnen);
   }
 
-  // Laden bei Seiten-Load
+  // Laden bei Seiten-Load (oder sofort, falls schon geladen)
   window.addEventListener('load', ladParameterAusURL);
+
+  // Fallback: Sofort versuchen zu laden (für Fast Navigation)
+  console.log('🚀 Script initialisiert. DOMContentLoaded state:', document.readyState);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ladParameterAusURL);
+  } else {
+    // DOM ist bereits geladen, starte sofort
+    ladParameterAusURL();
+  }
 </script>
