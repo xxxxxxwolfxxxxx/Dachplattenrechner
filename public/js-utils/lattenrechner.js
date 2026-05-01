@@ -1116,27 +1116,31 @@ window.lattenrechner = {
       const anzahlLattenReihen = Math.ceil((dachHoehe * 100) / params.rowSpacing) + 1;
       const roofResult = berechneDachlattenIntelligent(sparrenPositionen, params.rowSpacing, params.availableRafters, anzahlLattenReihen);
 
-      // Zähle Material
-      const counterCount = counterResult.reduce((sum, m) => sum + (m.count || 1), 0);
-      const roofCount = roofResult.materials.reduce((sum, m) => sum + (m.count || 1), 0);
-      const counterTotal = counterResult.reduce((sum, m) => sum + m.length, 0);
-      const roofTotal = roofResult.materials.reduce((sum, m) => sum + (m.length * (m.count || 1)), 0);
+      // counterResult hat { kombination: [...{ laenge, anzahl }], gesamtLaenge, verschnitt }
+      const counterCount = counterResult.kombination.reduce((sum, m) => sum + (m.anzahl || 1), 0);
+      const counterTotal = counterResult.gesamtLaenge || 0;
+
+      // roofResult hat auch { kombination: [...{ laenge, anzahl }], gesamtLaenge, verschnitt }
+      const roofCount = roofResult.kombination.reduce((sum, m) => sum + (m.anzahl || 1), 0);
+      const roofTotal = roofResult.gesamtLaenge || 0;
 
       console.log('✅ Berechnung erfolgreich abgeschlossen');
+      console.log('Konterlatten:', counterTotal, 'm,', counterCount, 'Stück');
+      console.log('Dachlatten:', roofTotal, 'm,', roofCount, 'Stück');
 
       return {
         counterRafters: {
           totalLength: counterTotal,
           count: counterCount,
-          waste: 0,
-          materials: counterResult.map(m => ({ length: m.length, count: m.count || 1 }))
+          waste: counterResult.verschnitt || 0,
+          materials: counterResult.kombination.map(m => ({ length: m.laenge, count: m.anzahl || 1 }))
         },
         roofRafters: {
           totalLength: roofTotal,
           count: roofCount,
-          waste: 0,
-          materials: roofResult.materials,
-          plan: roofResult.plan || {}
+          waste: roofResult.verschnitt || 0,
+          materials: roofResult.kombination.map(m => ({ length: m.laenge, count: m.anzahl || 1 })),
+          plan: roofResult.lattenPlan || {}
         },
         roofArea: dachBreite * dachHoehe,
         rowCount: anzahlLattenReihen
