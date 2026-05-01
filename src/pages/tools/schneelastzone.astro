@@ -1,0 +1,192 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdUnit from '../../components/AdUnit.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Schneelastzone Deutschland – Berechnung & Anwendung nach DIN EN 1991-1-3"
+  description="Finde deine Schneelastzone für Deutschland nach DIN EN 1991-1-3. Berechne automatisch, verstehe die Norm, wende sie richtig an. Tool mit Karte für alle Bundesländer."
+  keywords="Schneelastzone, Schneelastzone Deutschland, Schneelastzone berechnen, DIN 1991-1-3, Schneelasten Dach"
+>
+  <div style="background: var(--gradient-primary); padding: var(--spacing-xl); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);">
+    <h1 style="color: white; margin-bottom: var(--spacing-lg);">Schneelastzone Deutschland – Berechnung & Anwendung</h1>
+    <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem;">
+      Bestimme die Schneelastzone für dein Dachprojekt nach DIN EN 1991-1-3. Mit Karte, Erklärungen und praktischen Beispielen.
+    </p>
+  </div>
+
+  <AdUnit position="top" adSlot="9678418506" />
+
+  <main class="container main-content">
+    <article style="line-height: 1.8; color: var(--text-primary);">
+
+      <section style="margin-bottom: 3rem;">
+        <h2>Was ist Schneelastzone?</h2>
+        <p>
+          Die Schneelastzone bestimmt, wie viel Schneelast deine Dachkonstruktion aushalten muss.
+          Sie ist ein wichtiger Faktor für die statische Bemessung von Dächern und wird nach der
+          deutschen Norm <strong>DIN EN 1991-1-3</strong> (Eurocode 3) festgelegt.
+        </p>
+        <p>
+          Deutschland ist in drei Schneelostzonen eingeteilt:
+        </p>
+        <ul style="margin: 1rem 0 1rem 2rem;">
+          <li><strong>Zone 1:</strong> Niedrige Schneelasten (Flachland, Tieflagen)</li>
+          <li><strong>Zone 2:</strong> Mittlere Schneelasten (Mittelgebirge)</li>
+          <li><strong>Zone 3:</strong> Hohe Schneelasten (Alpen, Hochgebirge)</li>
+        </ul>
+        <p>
+          Je höher die Zone, desto stabiler muss deine Dachkonstruktion sein. Das beeinflußt die
+          Wahl von Profilen, Abstände von Trägern und die Gesamtkosten.
+        </p>
+      </section>
+
+      <section style="margin-bottom: 3rem;">
+        <h2>Wie finde ich meine Schneelastzone?</h2>
+        <p>
+          Es gibt zwei Wege: Manuell über Tabellen oder schnell mit unserem Tool.
+        </p>
+        <h3 style="margin-top: 1.5rem;">Manuell (Bundesland-Tabelle)</h3>
+        <p>Suche dein Bundesland und deinen Landkreis in der DIN EN 1991-1-3 Tabelle:</p>
+        <ul style="margin: 1rem 0 1rem 2rem;">
+          <li><strong>Zone 1:</strong> Baden-Württemberg (Flachland), Bayern (Tieflagen), Hessen, Niedersachsen, Nordrhein-Westfalen (außer Bergland), Schleswig-Holstein, u.a.</li>
+          <li><strong>Zone 2:</strong> Bayern (Bergregionen ab 400m), Baden-Württemberg (Schwarzwald), Hessen (Bergland), Nordrhein-Westfalen (Bergland), Thüringen, Sachsen-Anhalt</li>
+          <li><strong>Zone 3:</strong> Bayern (Alpen, über 800m), Baden-Württemberg (Alpen)</li>
+        </ul>
+        <p>
+          Wenn du dir unsicher bist oder eine genaue Nachschau brauchst: Nutze unser
+          <strong>Schneelastzone-Tool</strong> weiter unten.
+        </p>
+
+        <h3 style="margin-top: 1.5rem;">Mit Karte & Tool (schneller)</h3>
+        <p>
+          Gib deine Postleitzahl oder deinen Landkreis ein. Die Karte zeigt dir sofort deine
+          Zone — farbig eingefärbt nach Zone 1 (hellblau) bis Zone 3 (dunkelblau).
+        </p>
+      </section>
+
+      <section style="margin-bottom: 3rem;">
+        <h2>Praktisches Beispiel</h2>
+        <p><strong>Szenario:</strong> Du bist Dachdecker in München und willst ein Trapezbleich-Dach decken.</p>
+        <ol style="margin: 1rem 0 1rem 2rem;">
+          <li>Gib "München" oder "Postleitzahl 80001" ins Tool ein</li>
+          <li>Ergebnis: Zone 3 (München liegt in der Alpenregion, über 500m Höhe)</li>
+          <li>Du wählst ein Trapezprofil mit höherer Tragfähigkeit (z.B. Tr 45/900) statt Tr 40</li>
+          <li>Deine Tragfähigkeitsberechnung muss Zone 3 mit 4,2 kN/m² berücksichtigen (nicht Zone 1 mit 1,25 kN/m²)</li>
+          <li>Resultat: Sichere Konstruktion, keine Überraschungen im Winter</li>
+        </ol>
+      </section>
+
+      <section style="margin-bottom: 3rem;">
+        <h2>Die DIN EN 1991-1-3 verstehen</h2>
+        <p>
+          Die Norm berechnet Schneelasten basierend auf:
+        </p>
+        <ul style="margin: 1rem 0 1rem 2rem;">
+          <li><strong>Charakteristische Schneelast s_k</strong> (abhängig von Zone)</li>
+          <li><strong>Neigungswinkel des Daches</strong> (steiler = weniger Schnee bleibt liegen)</li>
+          <li><strong>Form des Daches</strong> (Satteldach, Pultdach, etc.)</li>
+          <li><strong>Höhenlage</strong> (über 1500m spezielle Regeln)</li>
+        </ul>
+        <p>
+          Für die meisten Projekte reicht es, die Zone zu kennen und die Baustofftabellen zu nutzen.
+        </p>
+      </section>
+
+      <section style="margin-bottom: 3rem;">
+        <h2>FAQ — Schneelastzone</h2>
+
+        <details style="margin-bottom: 1.5rem;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Ändert sich meine Zone mit der Höhenlage?</summary>
+          <p style="margin-top: 1rem;">
+            Ja. Die Norm unterscheidet zwischen Tieflagen (&lt; 400m), Bergland (400-800m) und
+            Hochgebirge (&gt; 800m). Höhere Lagen = höhere Zonen.
+          </p>
+        </details>
+
+        <details style="margin-bottom: 1.5rem;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Was ist der Unterschied zwischen DIN 1991-1-3 und DIN 1991-1-4?</summary>
+          <p style="margin-top: 1rem;">
+            DIN 1991-1-3 behandelt <strong>Schneelasten</strong>, DIN 1991-1-4 behandelt <strong>Windlasten</strong>.
+            Beide musst du für die vollständige Tragfähigkeitsberechnung berücksichtigen.
+          </p>
+        </details>
+
+        <details style="margin-bottom: 1.5rem;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Brauche ich exakte Schneelastzonen oder reicht eine Schätzung?</summary>
+          <p style="margin-top: 1rem;">
+            Für professionelle Projekte: exakt. Für grobe Vorkalkulationen reicht die Zone.
+            Nutze unser Tool — es dauert 10 Sekunden.
+          </p>
+        </details>
+
+        <details style="margin-bottom: 1.5rem;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Gilt eine Zone für alle Dachformen?</summary>
+          <p style="margin-top: 1rem;">
+            Ja, die Zone ist regional. Aber wie viel Schnee tatsächlich auf deinem Dach liegt,
+            hängt vom Neigungswinkel ab: Steilere Dächer halten weniger Schnee.
+          </p>
+        </details>
+      </section>
+
+      <section style="margin-bottom: 3rem; background: var(--gradient-secondary); padding: 2rem; border-radius: var(--radius-lg);">
+        <h2>Schneelastzone bestimmen</h2>
+        <p>
+          Gib deine Postleitzahl oder deinen Landkreis ein und finde deine Zone sofort heraus:
+        </p>
+        <a href="/tools/karte" style="
+          display: inline-block;
+          background: linear-gradient(135deg, #3b82f6, #60a5fa);
+          color: white;
+          padding: 1rem 2rem;
+          border-radius: var(--radius-md);
+          text-decoration: none;
+          font-weight: 600;
+          margin-top: 1rem;
+        ">
+          Zur Schneelastzone-Karte →
+        </a>
+      </section>
+
+    </article>
+  </main>
+
+  <AdUnit position="bottom" adSlot="9678418507" />
+  <Footer />
+</BaseLayout>
+
+<style>
+  details > summary {
+    padding: 1rem;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 0.5rem;
+    border-left: 4px solid #3b82f6;
+  }
+
+  details > p {
+    padding: 0 1rem;
+  }
+
+  h2 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+
+  ul, ol {
+    margin: 1rem 0;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
+  }
+</style>
