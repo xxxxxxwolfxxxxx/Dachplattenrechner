@@ -1,422 +1,63 @@
 ---
-import ToolLayout from '../../layouts/ToolLayout.astro';
-import InfoBox from '../../components/InfoBox.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdUnit from '../../components/AdUnit.astro';
+import Footer from '../../components/Footer.astro';
 ---
 
-<ToolLayout
-  title="PV-Rechner – Solarmodule aufs Dach planen"
-  description="Berechnen Sie kostenlos wie viele Solarmodule auf Ihr Dach passen, wie viel kWp Sie installieren können und welchen Jahresertrag Sie erwarten dürfen."
-  keywords="PV Rechner, Solaranlage planen, Photovoltaik Dach, Solarmodule berechnen, kWp berechnen, Jahresertrag Photovoltaik, Solarmodule Dachfläche, PV Anlage Planung"
-  navTitle="☀️ PV-Rechner"
-  backHref="/tools/dachformen/"
-  backLabel="← Dachformen"
-  background="linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"
-  adSlot2="2863789525"
-  adSlot3="4156689892"
+<BaseLayout
+  title="PV-Rechner – Solaranlage für dein Dach berechnen"
+  description="Berechne die optimale Größe deiner Solaranlage für dein Dach. Mit Ertrag, Kostenersparnis und Amortisation."
+  keywords="PV-Rechner, Solaranlage berechnen, Photovoltaik Dach, Solarertrag, Solaranlage Kosten"
 >
-
-  <!-- Dachabmessungen -->
-  <div class="section">
-    <h2>📐 Dachabmessungen</h2>
-    <div class="input-row">
-      <div class="input-group">
-        <label for="dach-breite">Dachbreite (m)</label>
-        <input type="number" id="dach-breite" step="0.1" min="1" placeholder="z. B. 10.0">
-      </div>
-      <div class="input-group">
-        <label for="dach-laenge">Dachlänge / Schräge (m)</label>
-        <input type="number" id="dach-laenge" step="0.1" min="1" placeholder="z. B. 6.5">
-      </div>
-      <div class="input-group">
-        <label for="rand-abstand">Randabstand (m)</label>
-        <input type="number" id="rand-abstand" step="0.05" min="0" value="0.20">
-      </div>
-    </div>
+  <div style="background: var(--gradient-primary); padding: var(--spacing-xl); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);">
+    <h1 style="color: white; margin-bottom: var(--spacing-lg);">PV-Rechner – Solaranlage planen</h1>
   </div>
 
-  <!-- Ausrichtung & Neigung -->
-  <div class="section">
-    <h2>🧭 Ausrichtung &amp; Neigung</h2>
-    <div class="input-row">
-      <!-- Himmelsrichtung: Gradgenaue Eingabe + visueller Kompass -->
-      <div class="input-group">
-        <label>Himmelsrichtung (Dachfläche zeigt nach…)</label>
-        <div class="compass-wrap">
-          <!-- Visueller Kompasskreis -->
-          <div class="compass-dial-wrap">
-            <canvas id="compass-canvas" width="160" height="160"></canvas>
-          </div>
-          <!-- Grad-Eingabe + Schnellwahl -->
-          <div class="compass-inputs">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-              <input type="number" id="azimuth-input" min="0" max="359" value="180"
-                style="width:80px; padding:8px; border:2px solid #1e3c72; border-radius:8px; font-size:18px; font-weight:700; text-align:center;">
-              <span style="font-size:18px; font-weight:700; color:#1e3c72;">°</span>
-              <span id="azimuth-label" style="font-size:14px; color:#555; min-width:60px;">Süd</span>
-            </div>
-            <div class="compass-shortcuts">
-              <button class="cs-btn" data-az="0">N</button>
-              <button class="cs-btn" data-az="45">NO</button>
-              <button class="cs-btn" data-az="90">O</button>
-              <button class="cs-btn" data-az="135">SO</button>
-              <button class="cs-btn cs-active" data-az="180">S</button>
-              <button class="cs-btn" data-az="225">SW</button>
-              <button class="cs-btn" data-az="270">W</button>
-              <button class="cs-btn" data-az="315">NW</button>
-            </div>
-            <div style="margin-top:8px; font-size:12px; color:#666;">
-              <a href="https://maps.google.com" target="_blank" rel="noopener" style="color:#1e3c72;">📍 Google Maps</a>
-            </div>
-          </div>
-        </div>
-      </div>
+  <AdUnit position="top" adSlot="9678418506" />
 
-      <!-- Neigung -->
-      <div class="input-group">
-        <label for="neigung">Dachneigung: <span id="neigung-wert">30</span>°</label>
-        <input type="range" id="neigung" min="1" max="75" value="30" step="1" class="slider">
-        <div style="display:flex; justify-content:space-between; font-size:12px; color:#888; margin-top:4px;">
-          <span>1°</span><span>30°</span><span>75°</span>
-        </div>
-
-        <!-- Handy-Sensor -->
-        <div id="sensor-box" style="margin-top:14px; padding:12px; background:#e8f0fe; border-radius:10px; border:1px solid #c5d8fb;">
-          <div style="font-weight:600; color:#1e3c72; margin-bottom:8px; font-size:14px;">📱 Handy-Sensor</div>
-          <p style="font-size:13px; color:#444; margin-bottom:10px;">
-            Handy flach aufs Dach legen → Neigung &amp; Himmelsrichtung automatisch erfassen.
-          </p>
-          <button id="sensor-btn" onclick="startSensor()" style="background:linear-gradient(135deg,#1e3c72,#2a5298); color:white; border:none; padding:10px 18px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">
-            📡 Sensor starten
-          </button>
-          <div id="sensor-live" style="display:none; margin-top:12px;">
-            <div style="display:flex; gap:16px; flex-wrap:wrap;">
-              <div style="text-align:center;">
-                <div id="sensor-neigung" style="font-size:24px; font-weight:700; color:#1e3c72;">–°</div>
-                <div style="font-size:12px; color:#666;">Neigung</div>
-              </div>
-              <div style="text-align:center;">
-                <div id="sensor-richtung" style="font-size:24px; font-weight:700; color:#1e3c72;">–°</div>
-                <div style="font-size:12px; color:#666;">Richtung</div>
-              </div>
-              <div style="text-align:center;">
-                <div id="sensor-himmels" style="font-size:18px; font-weight:700; color:#2a5298;">–</div>
-                <div style="font-size:12px; color:#666;">Himmelsrichtung</div>
-              </div>
-            </div>
-            <button onclick="sensorUebernehmen()" style="margin-top:10px; background:linear-gradient(135deg,#28a745,#20c997); color:white; border:none; padding:10px 20px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">
-              ✅ Werte übernehmen
-            </button>
-            <button onclick="stopSensor()" style="margin-top:10px; margin-left:8px; background:#666; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:13px; cursor:pointer;">
-              ⏹ Stopp
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="input-group">
-        <label for="region">Region (für Ertragsfaktor)</label>
-        <select id="region">
-          <option value="sued">Süddeutschland (Bayern, BW) +10%</option>
-          <option value="mitte" selected>Mitteldeutschland (Standard)</option>
-          <option value="ost">Ostdeutschland −5%</option>
-          <option value="west">Westdeutschland (NRW, Rheinland) −3%</option>
-          <option value="nord">Norddeutschland −10%</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modul-Auswahl -->
-  <div class="section">
-    <h2>🔲 Solarmodul auswählen</h2>
-    <div class="module-grid" id="module-grid">
-      <button class="module-btn" data-w="1134" data-h="1722" data-watt="410">
-        <strong>Halbzellen M10</strong><span>1134 × 1722 mm</span><span class="watt-badge">410 W</span>
-      </button>
-      <button class="module-btn active" data-w="1038" data-h="2094" data-watt="550">
-        <strong>Groß-Modul 72Z</strong><span>1038 × 2094 mm</span><span class="watt-badge">550 W</span>
-      </button>
-      <button class="module-btn" data-w="1134" data-h="2172" data-watt="600">
-        <strong>TOPCon / HJT</strong><span>1134 × 2172 mm</span><span class="watt-badge">600 W</span>
-      </button>
-      <button class="module-btn" data-w="992" data-h="1956" data-watt="390">
-        <strong>Standard 72Z</strong><span>992 × 1956 mm</span><span class="watt-badge">390 W</span>
-      </button>
-      <button class="module-btn" data-w="992" data-h="1650" data-watt="310">
-        <strong>Standard 60Z</strong><span>992 × 1650 mm</span><span class="watt-badge">310 W</span>
-      </button>
-      <button class="module-btn" data-w="1002" data-h="2008" data-watt="420">
-        <strong>Glas-Glas / Rahmenlos</strong><span>1002 × 2008 mm</span><span class="watt-badge">420 W</span>
-      </button>
-    </div>
-
-    <div class="custom-module-box">
-      <strong>Eigenes Modul:</strong>
-      <div class="input-row" style="margin-bottom:0; margin-top:12px;">
-        <div class="input-group" style="min-width:120px;">
-          <label>Breite (mm)</label>
-          <input type="number" id="mod-breite" step="1" min="500" max="2000" placeholder="1134">
-        </div>
-        <div class="input-group" style="min-width:120px;">
-          <label>Höhe (mm)</label>
-          <input type="number" id="mod-hoehe" step="1" min="500" max="2500" placeholder="1722">
-        </div>
-        <div class="input-group" style="min-width:100px;">
-          <label>Leistung (W)</label>
-          <input type="number" id="mod-watt" step="5" min="100" max="1000" placeholder="410">
-        </div>
-        <div class="input-group" style="min-width:120px;">
-          <label>Modul-Abstand (mm)</label>
-          <input type="number" id="mod-abstand" step="5" min="0" value="20">
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-top:15px;">
-      <label style="font-weight:600;">Modulausrichtung:</label>
-      <div class="orient-btns">
-        <button class="orient-btn active" data-orient="auto">🔄 Auto (beste Anzahl)</button>
-        <button class="orient-btn" data-orient="hoch">📱 Hochformat</button>
-        <button class="orient-btn" data-orient="quer">📺 Querformat</button>
-      </div>
-    </div>
-
-    <!-- Format-Optimierer -->
-    <div style="margin-top:20px; padding-top:18px; border-top:1px solid #e8e8e8;">
-      <button class="optimize-btn" onclick="findeOptimalesFormat()">
-        🔍 Bestes Modulformat für dieses Dach finden
-      </button>
-      <div id="format-results" style="display:none; margin-top:16px;"></div>
-    </div>
-  </div>
-
-  <!-- Wirtschaftlichkeit -->
-  <div class="section">
-    <h2>💰 Wirtschaftlichkeit</h2>
-    <div class="input-row">
-      <div class="input-group">
-        <label for="strompreis">Strompreis (€/kWh)</label>
-        <input type="number" id="strompreis" step="0.01" min="0.05" max="1.00" value="0.32">
-        <div class="input-hint">Aktueller lokaler Tarif</div>
-      </div>
-      <div class="input-group">
-        <label for="einspeisung-preis">Einspeisevergütung (€/kWh)</label>
-        <input type="number" id="einspeisung-preis" step="0.001" min="0.001" max="0.50" value="0.082">
-        <div class="input-hint">EEG 2024, individuell anpassbar</div>
-      </div>
-      <div class="input-group">
-        <label for="eigenverbrauch-rate">Eigenverbrauchsquote (%)</label>
-        <input type="number" id="eigenverbrauch-rate" step="1" min="5" max="95" value="30">
-        <div class="input-hint">Typisch 25–35 % ohne Speicher</div>
-      </div>
-    </div>
-
-    <!-- Batteriespeicher -->
-    <div style="margin-top: 8px;">
-      <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600; color:#2c3e50;">
-        <input type="checkbox" id="batterie-aktiv" onchange="toggleBatterie()"
-          style="width:18px; height:18px; cursor:pointer; accent-color:#1e3c72;">
-        🔋 Batteriespeicher hinzufügen
-      </label>
-      <div id="batterie-box" style="display:none; margin-top:14px; padding:18px; background:#e8f5e9; border-radius:12px; border:1px solid #a5d6a7;">
-        <div class="input-row" style="margin-bottom:12px; align-items:flex-end;">
-          <div class="input-group" style="min-width:150px; max-width:200px;">
-            <label for="batterie-kwh">Kapazität (kWh)</label>
-            <input type="number" id="batterie-kwh" step="1" min="1" max="100" value="10" oninput="updateBatterieInfo()">
-          </div>
-          <div class="input-group" style="min-width:150px; max-width:220px;">
-            <label for="batterie-preis-kwh">Preis (€/kWh Speicher)</label>
-            <input type="number" id="batterie-preis-kwh" step="10" min="100" max="2000" value="650" oninput="updateBatterieInfo()">
-            <div class="input-hint">Herstellerpreis inkl. Einbau</div>
-          </div>
-          <div class="input-group" style="min-width:150px; max-width:220px;">
-            <label for="batterie-preis-gesamt">Oder Gesamtpreis (€)</label>
-            <input type="number" id="batterie-preis-gesamt" step="100" min="500" max="50000" placeholder="auto"
-              oninput="batteriePriceMode='gesamt'; updateBatterieInfo()">
-            <div class="input-hint">Überschreibt €/kWh-Feld</div>
-          </div>
-        </div>
-        <div id="batterie-info" style="font-size:13px; color:#2e7d32; line-height:1.7;"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Hindernisse -->
-  <div class="section">
-    <h2>🏗️ Hindernisse auf der Dachfläche</h2>
-
-    <!-- Typ + Größe -->
-    <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px;">
-      <div>
-        <label style="display:block; font-weight:600; color:#2c3e50; margin-bottom:8px;">Typ wählen:</label>
-        <div style="display:flex; gap:8px;">
-          <button class="htyp-btn active" data-typ="schornstein" onclick="setHindernisTyp(this)">🏭 Schornstein</button>
-          <button class="htyp-btn" data-typ="fenster" onclick="setHindernisTyp(this)">🪟 Dachfenster</button>
-        </div>
-      </div>
-      <div class="input-group" style="min-width:110px; max-width:145px;">
-        <label for="h-breite">Breite (m)</label>
-        <input type="number" id="h-breite" step="0.1" min="0.1" value="0.8" oninput="drawHCanvas()">
-      </div>
-      <div class="input-group" style="min-width:110px; max-width:145px;">
-        <label for="h-hoehe">Tiefe (m)</label>
-        <input type="number" id="h-hoehe" step="0.1" min="0.1" value="0.6" oninput="drawHCanvas()">
-      </div>
-      <button class="add-hindernis-btn add-clear-btn" onclick="clearHindernisse()">🗑️ Alle löschen</button>
-    </div>
-
-    <!-- Interaktiver Canvas -->
-    <div style="background:#e8f0fe; border-radius:12px; padding:12px 12px 8px; border:1px solid #c5d8fb;">
-      <p style="font-size:13px; color:#1e3c72; font-weight:600; margin:0 0 10px;">
-        Klick auf die Dachfläche = Hindernis platzieren &nbsp;|&nbsp; Rechtsklick = Hindernis entfernen
+  <main class="container main-content">
+    <article style="line-height: 1.8; color: var(--text-primary);">
+      <p>
+        Mit dem PV-Rechner planst du eine Solaranlage auf deinem Dach. Berechne die Größe, den
+        erwarteten Ertrag und die Wirtschaftlichkeit.
       </p>
-      <div style="text-align:center;">
-        <canvas id="hindernis-canvas" style="cursor:crosshair; max-width:100%; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.12);"></canvas>
-      </div>
-      <div id="hindernis-pos-info" style="text-align:center; margin-top:8px; font-size:12px; color:#555; min-height:16px; font-family:monospace;"></div>
-    </div>
 
-    <!-- Hindernisliste -->
-    <div id="hindernis-liste" style="display:none; margin-top:15px;">
-      <table class="material-table" id="hindernis-table">
-        <thead><tr><th>Typ</th><th>Breite (m)</th><th>Tiefe (m)</th><th>Von links (m)</th><th>Von oben (m)</th><th></th></tr></thead>
-        <tbody id="hindernis-body"></tbody>
-      </table>
-    </div>
-  </div>
+      <h2>Warum eine Solaranlage?</h2>
+      <ul style="margin: 1rem 0 1rem 2rem;">
+        <li><strong>Kostenersparnis:</strong> Kostenlos Strom produzieren, Stromrechnung senken</li>
+        <li><strong>Fördergeld:</strong> KfW und BAFA unterstützen Solaranlagen</li>
+        <li><strong>Unabhängigkeit:</strong> Weniger abhängig von Strompreisen</li>
+        <li><strong>Wertsteigerung:</strong> Erhöht den Wert deines Hauses</li>
+      </ul>
 
-  <!-- Berechnen-Button -->
-  <button class="calculate-btn" onclick="berechne()">☀️ PV-Anlage berechnen</button>
+      <h2>Wie funktioniert der PV-Rechner?</h2>
+      <ol style="margin: 1rem 0 1rem 2rem;">
+        <li>Gib deine Dachfläche ein (aus der Dachflächenberechnung)</li>
+        <li>Wähle die Ausrichtung (Süd, Ost-West, etc.)</li>
+        <li>Der Rechner berechnet die Anlagengröße und den Ertrag</li>
+        <li>Ergebnis: Wie viel Strom, wie lange Amortisation?</li>
+      </ol>
 
-  <!-- Ergebnisse -->
-  <div id="results" class="results" style="display:none;">
-    <h3 style="text-align:center; margin-bottom:25px; color:#ffd700; font-size:1.4em;">Ergebnis – PV-Planung</h3>
+      <h2>FAQ</h2>
+      <p><strong>Wieviel Platz braucht eine Solaranlage?</strong> Etwa 6-8 m² pro kWp Leistung.</p>
+      <p style="margin-top: 1rem;"><strong>Wird mein Dach beim Einbau beschädigt?</strong> Nein, moderne Systeme sind ohne Löcher auf dem Dach.</p>
 
-    <!-- Kacheln -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-wert" id="res-anzahl">–</div>
-        <div class="kpi-label">Solarmodule</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-wert" id="res-kwp">–</div>
-        <div class="kpi-label">kWp installiert</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-wert" id="res-ertrag">–</div>
-        <div class="kpi-label">kWh / Jahr</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-wert" id="res-wert">–</div>
-        <div class="kpi-label">€ Wert / Jahr</div>
-      </div>
-    </div>
+      <section style="margin-top: 3rem; background: var(--gradient-secondary); padding: 2rem; border-radius: var(--radius-lg);">
+        <a href="/tools/pv-rechner" style="
+          display: inline-block;
+          background: linear-gradient(135deg, #3b82f6, #60a5fa);
+          color: white;
+          padding: 1rem 2rem;
+          border-radius: 0.5rem;
+          text-decoration: none;
+          font-weight: 600;
+        ">
+          Zum PV-Rechner →
+        </a>
+      </section>
+    </article>
+  </main>
 
-    <!-- Detail-Tabelle -->
-    <div style="margin-top:25px;">
-      <table class="material-table">
-        <tbody id="res-details"></tbody>
-      </table>
-    </div>
-
-    <!-- Canvas-Visualisierung -->
-    <div style="margin-top:25px;">
-      <h4 style="color:#ffd700; margin-bottom:12px; text-align:center;">Modul-Layout Dachfläche</h4>
-      <div style="text-align:center;">
-        <canvas id="pv-canvas" style="border-radius:8px; max-width:100%; box-shadow:0 4px 15px rgba(0,0,0,0.3);"></canvas>
-      </div>
-      <div style="margin-top:10px; display:flex; gap:20px; justify-content:center; flex-wrap:wrap; font-size:13px; color:#cbd5e1;">
-        <span><span style="display:inline-block;width:16px;height:16px;background:#2196f3;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Solarmodul</span>
-        <span><span style="display:inline-block;width:16px;height:16px;background:#ef5350;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Hindernis</span>
-        <span><span style="display:inline-block;width:16px;height:16px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Randabstand</span>
-      </div>
-    </div>
-
-    <!-- Navigation zu anderen Tools -->
-    <div style="margin-top:30px; text-align:center;">
-      <p style="color:#cbd5e1; margin-bottom:12px;">Weiter mit anderen Planungswerkzeugen:</p>
-      <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">
-        <button onclick="zuLattenrechner()" style="background:linear-gradient(135deg,#ff6b35,#f7931e); color:white; border:none; padding:13px 22px; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; box-shadow:0 4px 15px rgba(255,107,53,0.3);">🔨 Lattenrechner</button>
-        <button onclick="zuVerschnitt()" style="background:linear-gradient(135deg,#28a745,#20c997); color:white; border:none; padding:13px 22px; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; box-shadow:0 4px 15px rgba(40,167,69,0.3);">✂️ Verschnitt-Optimierung</button>
-      </div>
-    </div>
-  </div>
-
-  <InfoBox title="ℹ️ Hinweise zum PV-Rechner" variant="info">
-    <p>Erträge basieren auf Durchschnittswerten (PVGis/BDEW). Tatsächliche Erträge variieren je nach Verschattung, Modulqualität und Wechselrichter-Wirkungsgrad. Die Berechnung ersetzt keine professionelle Planung.</p>
-    <p style="margin-top:8px;"><strong>Eigenverbrauchsquote:</strong> Ohne Speicher typisch 25–35 %. Mit Batterie je nach Kapazität und Verbrauch 45–85 %. Die Batterieberechnung nutzt ein vereinfachtes Modell.</p>
-    <p style="margin-top:8px;"><strong>Einspeisevergütung:</strong> EEG 2024 für Anlagen &lt; 10 kWp: 0,082 €/kWh. Für 10–100 kWp: 0,071 €/kWh. Bitte aktuellen Wert beim Netzbetreiber erfragen.</p>
-  </InfoBox>
-
-</ToolLayout>
-
-<style>
-  .section { background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); }
-  .section h2 { color: #1e3c72; margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
-  .input-row { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-  .input-group { flex: 1; min-width: 180px; }
-  .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; }
-  .input-group input, .input-group select { width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px; transition: all 0.3s ease; background: white; color: #333; box-sizing: border-box; }
-  .input-group input:focus, .input-group select:focus { outline: none; border-color: #1e3c72; box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1); }
-  .slider { -webkit-appearance: none; appearance: none; height: 8px; border-radius: 4px; background: #dde1e7; outline: none; cursor: pointer; }
-  .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #1e3c72; cursor: pointer; }
-
-  /* Kompass neu */
-  .compass-wrap { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; margin-top: 8px; }
-  .compass-dial-wrap { flex-shrink: 0; }
-  .compass-inputs { flex: 1; min-width: 200px; }
-  .compass-shortcuts { display: flex; flex-wrap: wrap; gap: 6px; }
-  .cs-btn { padding: 6px 10px; border: 2px solid #1e3c72; border-radius: 7px; background: white; color: #1e3c72; font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.15s; }
-  .cs-btn:hover { background: #e3f2fd; }
-  .cs-btn.cs-active { background: #1e3c72; color: white; }
-
-  /* Modul-Karten */
-  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .module-btn { padding: 14px 10px; border: 2px solid #dde1e7; border-radius: 12px; background: white; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 4px; text-align: center; }
-  .module-btn span { font-size: 12px; color: #666; }
-  .module-btn:hover { border-color: #1e3c72; }
-  .module-btn.active { border-color: #1e3c72; background: #e8f0fe; box-shadow: 0 2px 10px rgba(30,60,114,0.2); }
-  .watt-badge { background: #ffd700; color: #1a1a1a; border-radius: 20px; padding: 2px 8px; font-weight: 700; font-size: 13px !important; }
-  .custom-module-box { background: #f8f9fa; border-radius: 10px; padding: 15px; border: 1px dashed #aaa; }
-  .orient-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-  .orient-btn { padding: 10px 18px; border: 2px solid #dde1e7; border-radius: 10px; background: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; }
-  .orient-btn.active { border-color: #1e3c72; background: #e8f0fe; color: #1e3c72; }
-
-  /* Wirtschaftlichkeit */
-  .input-hint { font-size: 12px; color: #888; margin-top: 4px; }
-
-  /* Format-Optimierer */
-  .optimize-btn { padding: 12px 22px; border: none; border-radius: 10px; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 3px 10px rgba(124,58,237,0.3); }
-  .optimize-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 16px rgba(124,58,237,0.45); }
-  .optim-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .optim-table th { background: #1e3c72; color: #ffd700; padding: 9px 12px; text-align: left; white-space: nowrap; }
-  .optim-table td { padding: 9px 12px; border-bottom: 1px solid #e8e8e8; vertical-align: top; }
-  .optim-table tbody tr:hover { background: #f0f4ff; cursor: pointer; }
-  .optim-table .optim-best { background: #fff8e1; }
-  .optim-table .optim-best td:first-child { font-size: 18px; }
-  .optim-waehlen { padding: 5px 12px; border: none; border-radius: 6px; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-
-  /* Hindernisse */
-  .add-hindernis-btn { padding: 10px 18px; border: none; border-radius: 10px; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; font-weight: 600; cursor: pointer; font-size: 14px; }
-  .add-clear-btn { background: linear-gradient(135deg, #666, #444) !important; }
-  .htyp-btn { padding: 10px 16px; border: 2px solid #1e3c72; border-radius: 10px; background: white; color: #1e3c72; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.15s; }
-  .htyp-btn:hover { background: #e3f2fd; }
-  .htyp-btn.active { background: #1e3c72; color: white; }
-
-  /* Berechnen-Button */
-  .calculate-btn { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #1a1a1a; border: none; padding: 15px 40px; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; margin: 20px auto; display: block; box-shadow: 0 4px 15px rgba(247, 151, 30, 0.4); transition: all 0.3s ease; min-width: 250px; }
-  .calculate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(247, 151, 30, 0.5); }
-
-  /* Ergebnis */
-  .results { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 15px; padding: 25px; margin-top: 25px; color: white; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-  .kpi-card { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 18px 10px; text-align: center; }
-  .kpi-wert { font-size: 1.8em; font-weight: 700; color: #ffd700; }
-  .kpi-label { font-size: 13px; color: #cbd5e1; margin-top: 4px; }
-  .material-table { width: 100%; border-collapse: collapse; }
-  .material-table th, .material-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.15); }
-  .material-table th { background: rgba(255,255,255,0.1); color: #ffd700; font-weight: 600; }
-  .material-table td { color: #e8eaf6; }
-
-</style>
-
-<script src="/tools-js/pv-rechner.js" is:inline defer></script>
+  <AdUnit position="bottom" adSlot="9678418507" />
+  <Footer />
+</BaseLayout>
