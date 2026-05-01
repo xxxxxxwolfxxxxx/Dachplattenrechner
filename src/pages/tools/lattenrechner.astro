@@ -204,6 +204,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const obereBreite = urlParams.has('obereBreite') ? parseFloat(urlParams.get('obereBreite')) : breite * 0.8;
     const trapezHoehe = urlParams.has('trapezHoehe') ? parseFloat(urlParams.get('trapezHoehe')) : hoehe * 0.4;
     const rechteckHoehe = urlParams.has('rechteckHoehe') ? parseFloat(urlParams.get('rechteckHoehe')) : hoehe * 0.3;
+    const spitzenPosition = urlParams.has('spitzenPosition') ? parseFloat(urlParams.get('spitzenPosition')) : breite * 0.5;
 
     if (!breite || !hoehe || !lattenabstand || !lattenstärke) {
       alert('Bitte füllen Sie alle erforderlichen Felder aus!');
@@ -228,7 +229,8 @@ import * as lattenrechner from '../../utils/lattenrechner';
         type: typ,
         upperWidth: typ === 'trapez' ? obereBreite : undefined,
         trapezHeight: typ === 'trapez-auf-rechteck' ? trapezHoehe : undefined,
-        rectHeight: typ === 'trapez-auf-rechteck' ? rechteckHoehe : undefined
+        rectHeight: typ === 'trapez-auf-rechteck' ? rechteckHoehe : undefined,
+        spitzenPosition: typ === 'ungleichschenkliges-dreieck' ? spitzenPosition : undefined
       };
 
       const calcParams = {
