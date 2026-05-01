@@ -151,18 +151,36 @@ import * as lattenrechner from '../../utils/lattenrechner';
   // Dach-Parameter aus URL laden
   function ladParameterAusURL() {
     const params = new URLSearchParams(window.location.search);
+    console.log('📍 ladParameterAusURL called. URL:', window.location.href);
+    console.log('📍 URL Params:', Array.from(params.entries()));
 
     if (params.has('breite')) {
       const breiteEl = document.getElementById('breite');
-      if (breiteEl) breiteEl.value = parseFloat(params.get('breite')).toFixed(2);
+      if (breiteEl) {
+        breiteEl.value = parseFloat(params.get('breite')).toFixed(2);
+        console.log('✅ Breite gefüllt:', breiteEl.value);
+      } else {
+        console.log('❌ Breite Element nicht gefunden');
+      }
+    } else {
+      console.log('⚠️ Breite Parameter nicht in URL');
     }
+
     if (params.has('hoehe')) {
       const hoeheEl = document.getElementById('hoehe');
-      if (hoeheEl) hoeheEl.value = parseFloat(params.get('hoehe')).toFixed(2);
+      if (hoeheEl) {
+        hoeheEl.value = parseFloat(params.get('hoehe')).toFixed(2);
+        console.log('✅ Hoehe gefüllt:', hoeheEl.value);
+      } else {
+        console.log('❌ Hoehe Element nicht gefunden');
+      }
+    } else {
+      console.log('⚠️ Hoehe Parameter nicht in URL');
     }
 
     // Auto-calculate wenn Parameter vorhanden
     if (params.has('breite') && params.has('hoehe')) {
+      console.log('🔄 Auto-berechnen wird aufgerufen...');
       setTimeout(berechnen, 100);
     }
   }
