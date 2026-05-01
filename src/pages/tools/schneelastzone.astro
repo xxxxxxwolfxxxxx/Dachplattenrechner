@@ -26,71 +26,107 @@ import Footer from '../../components/Footer.astro';
         <p>
           Die Schneelastzone bestimmt, wie viel Schneelast deine Dachkonstruktion aushalten muss.
           Sie ist ein wichtiger Faktor für die statische Bemessung von Dächern und wird nach der
-          deutschen Norm <strong>DIN EN 1991-1-3</strong> (Eurocode 3) festgelegt.
+          deutschen Norm <strong>DIN EN 1991-1-3</strong> (Eurocode 3) festgelegt. Diese europäische Norm
+          regelt die Berechnung von Schneelasten für alle Arten von Dachkonstruktionen und ist verbindlich
+          für alle statischen Nachweise in Deutschland.
         </p>
         <p>
-          Deutschland ist in drei Schneelostzonen eingeteilt:
+          Deutschland ist in drei Schneelastzonen eingeteilt, die sich hauptsächlich nach der geografischen Höhenlage
+          und dem regionalen Schneevorkommen orientieren:
         </p>
         <ul style="margin: 1rem 0 1rem 2rem;">
-          <li><strong>Zone 1:</strong> Niedrige Schneelasten (Flachland, Tieflagen)</li>
-          <li><strong>Zone 2:</strong> Mittlere Schneelasten (Mittelgebirge)</li>
-          <li><strong>Zone 3:</strong> Hohe Schneelasten (Alpen, Hochgebirge)</li>
+          <li><strong>Zone 1:</strong> Niedrige Schneelasten (Flachland, Tieflagen unter 400m) — charakteristische Schneelast: 1,25 kN/m². Umfasst große Teile Nord- und Norddeutschlands sowie Flachlandregionen in Baden-Württemberg und Bayern.</li>
+          <li><strong>Zone 2:</strong> Mittlere Schneelasten (Mittelgebirge, 400–800m) — charakteristische Schneelast: 1,25–1,5 kN/m². Typisch für Bergregionen wie den Schwarzwald, Harz, Erzgebirge und Mittelgebirgslandschaften.</li>
+          <li><strong>Zone 3:</strong> Hohe Schneelasten (Alpen, Hochgebirge über 800m) — charakteristische Schneelast: 1,5–1,75 kN/m² oder höher. Betrifft alpine Regionen in Bayern und Baden-Württemberg sowie Hochlagen.</li>
         </ul>
         <p>
-          Je höher die Zone, desto stabiler muss deine Dachkonstruktion sein. Das beeinflußt die
-          Wahl von Profilen, Abstände von Trägern und die Gesamtkosten.
+          Je höher die Zone, desto stabiler muss deine Dachkonstruktion sein. Das beeinflusst die
+          Wahl von Trapezblechprofilen, Abstände von Trägern, Unterkonstruktion und letztendlich die Gesamtkosten.
+          Eine Unterschätzung der Schneelastzone kann zu Schäden, Dachverbiegungen oder im schlimmsten Fall zu Einsturz führen.
+          Deshalb ist eine genaue Bestimmung essentiell.
         </p>
       </section>
 
       <section style="margin-bottom: 3rem;">
         <h2>Wie finde ich meine Schneelastzone?</h2>
         <p>
-          Es gibt zwei Wege: Manuell über Tabellen oder schnell mit unserem Tool.
+          Es gibt zwei bewährte Wege zur Bestimmung deiner Schneelastzone: Die manuelle Methode über offizielle
+          Tabellen und Karten (zuverlässig, aber zeitaufwendig) oder schnell mit unserem interaktiven Tool
+          (sekunden schnell, geopositioniert).
         </p>
         <h3 style="margin-top: 1.5rem;">Manuell (Bundesland-Tabelle)</h3>
-        <p>Suche dein Bundesland und deinen Landkreis in der DIN EN 1991-1-3 Tabelle:</p>
+        <p>
+          Du kannst deine Zone auch manuell aus der DIN EN 1991-1-3 Tabelle oder der offiziellen Bauregelliste
+          deines Bundeslandes bestimmen. Suche einfach dein Bundesland und deinen Landkreis:
+        </p>
         <ul style="margin: 1rem 0 1rem 2rem;">
-          <li><strong>Zone 1:</strong> Baden-Württemberg (Flachland), Bayern (Tieflagen), Hessen, Niedersachsen, Nordrhein-Westfalen (außer Bergland), Schleswig-Holstein, u.a.</li>
-          <li><strong>Zone 2:</strong> Bayern (Bergregionen ab 400m), Baden-Württemberg (Schwarzwald), Hessen (Bergland), Nordrhein-Westfalen (Bergland), Thüringen, Sachsen-Anhalt</li>
-          <li><strong>Zone 3:</strong> Bayern (Alpen, über 800m), Baden-Württemberg (Alpen)</li>
+          <li><strong>Zone 1 (Niedrige Last):</strong> Baden-Württemberg (Flachland bis 400m), Bayern (Tieflagen), Hessen, Niedersachsen, Nordrhein-Westfalen (außer Bergland), Schleswig-Holstein, Bremen, Hamburg, Berlin, Brandenburg, Mecklenburg-Vorpommern</li>
+          <li><strong>Zone 2 (Mittlere Last):</strong> Bayern (Bergregionen 400–800m), Baden-Württemberg (Schwarzwald, Schwäbische Alb), Hessen (Bergland), Nordrhein-Westfalen (Bergland, Sauerland), Thüringen, Sachsen-Anhalt, Sachsen (östliche Bergregionen), Rheinland-Pfalz</li>
+          <li><strong>Zone 3 (Hohe Last):</strong> Bayern (Alpen, über 800m), Baden-Württemberg (Alpen), Teile Graubündens bei Grenzregionen</li>
         </ul>
         <p>
-          Wenn du dir unsicher bist oder eine genaue Nachschau brauchst: Nutze unser
-          <strong>Schneelastzone-Tool</strong> weiter unten.
+          <strong>Hinweis:</strong> Die Zone kann innerhalb eines Bundeslandes unterschiedlich sein. Beispiel Bayern:
+          München und die Alpen sind unterschiedliche Zonen. Die Höhenlage ist oft der ausschlaggebende Faktor.
+          Wenn du dir unsicher bist oder eine exakte Nachschau brauchst: Nutze unser
+          <strong>Schneelastzone-Tool</strong> weiter unten — es ist genauer und dauert nur 10 Sekunden.
         </p>
 
-        <h3 style="margin-top: 1.5rem;">Mit Karte & Tool (schneller)</h3>
+        <h3 style="margin-top: 1.5rem;">Mit Karte & Tool (schneller & genauer)</h3>
         <p>
-          Gib deine Postleitzahl oder deinen Landkreis ein. Die Karte zeigt dir sofort deine
-          Zone — farbig eingefärbt nach Zone 1 (hellblau) bis Zone 3 (dunkelblau).
+          Die moderne und empfohlene Methode: Gib deine Postleitzahl, deinen Ort oder deinen Landkreis ein.
+          Unser interaktives Tool zeigt dir sofort deine Zone — farbig eingefärbt nach Zone 1 (hellblau),
+          Zone 2 (mittelblau) bis Zone 3 (dunkelblau). Die Karte ist auf aktuellen Höhendaten und DIN EN 1991-1-3
+          Einteilungen basiert und zeigt auch Grenzbereiche an. Keine Installationen, keine Tabellenwälzerei —
+          einfach eingeben und fertig.
         </p>
       </section>
 
       <section style="margin-bottom: 3rem;">
         <h2>Praktisches Beispiel</h2>
-        <p><strong>Szenario:</strong> Du bist Dachdecker in München und willst ein Trapezbleich-Dach decken.</p>
+        <p>
+          <strong>Szenario:</strong> Du bist Dachdecker in München und willst ein Trapezblech-Dach mit trapezförmigen
+          Blechtafeln decken. Dein Kunde möchte maximale Sicherheit und langen Bestand.
+        </p>
         <ol style="margin: 1rem 0 1rem 2rem;">
-          <li>Gib "München" oder "Postleitzahl 80001" ins Tool ein</li>
-          <li>Ergebnis: Zone 3 (München liegt in der Alpenregion, über 500m Höhe)</li>
-          <li>Du wählst ein Trapezprofil mit höherer Tragfähigkeit (z.B. Tr 45/900) statt Tr 40</li>
-          <li>Deine Tragfähigkeitsberechnung muss Zone 3 mit 4,2 kN/m² berücksichtigen (nicht Zone 1 mit 1,25 kN/m²)</li>
-          <li>Resultat: Sichere Konstruktion, keine Überraschungen im Winter</li>
+          <li><strong>Schritt 1 – Zone bestimmen:</strong> Gib "München" oder "Postleitzahl 80001" ins Tool ein</li>
+          <li><strong>Schritt 2 – Ergebnis lesen:</strong> Das Tool zeigt: <strong>Zone 3</strong> (München liegt auf ca. 530m Höhe, Alpenregion, München ist 70 km nördlich der Alpen — vollständig in Zone 3)</li>
+          <li><strong>Schritt 3 – Profil wählen:</strong> Du wählst ein Trapezblech-Profil mit höherer Tragfähigkeit (z.B. Tr 45/900 oder Tr 50/900) statt des schwächeren Tr 40/900. Die höhere Profilnummer bedeutet bessere Widerstandsfähigkeit gegen Schneelasten.</li>
+          <li><strong>Schritt 4 – Berechnung anpassen:</strong> Deine Tragfähigkeitsberechnung muss Zone 3 mit ca. 1,5–1,75 kN/m² Schneelast berücksichtigen — nicht Zone 1 mit nur 1,25 kN/m². Das ist ein großer Unterschied für die Konstruktion.</li>
+          <li><strong>Schritt 5 – Trägerlayout überprüfen:</strong> Auch die Abstände der Unterkonstruktions-Träger müssen angepasst werden. In Zone 3 brauchst du möglicherweise kleinere Abstände (z.B. 1,5m statt 2m).</li>
+          <li><strong>Resultat:</strong> Sichere, normkonforme Konstruktion, keine Überraschungen im Winter, volle Garantie des Dachdeckers</li>
         </ol>
+        <p>
+          <strong>Vergleich Zone 1 vs. Zone 3:</strong> Ein flaches Dach in Hamburg (Zone 1) mit Tr 40 ist ausreichend stabil.
+          Das gleiche Profil in München würde unter Schneelast verformen. Darum ist die Zone so wichtig für deine Materialwahl.
+        </p>
       </section>
 
       <section style="margin-bottom: 3rem;">
         <h2>Die DIN EN 1991-1-3 verstehen</h2>
         <p>
-          Die Norm berechnet Schneelasten basierend auf:
+          Die Norm <strong>DIN EN 1991-1-3</strong> (offiziell: „Einwirkungen auf Tragwerke — Teil 1-3: Allgemeine Einwirkungen — Schneelasten")
+          ist ein europäischer Standard, der in Deutschland als nationale Norm gültig ist. Sie regelt, wie Schneelastlasten
+          für alle Arten von Gebäuden und Dächern zu berechnen sind. Die Norm basiert auf statistischen Daten von Schneefall-Ereignissen
+          über 50 Jahre und gibt sichere Lastannahmen an.
+        </p>
+        <p>
+          Die Norm berechnet Schneelasten basierend auf mehreren Faktoren:
         </p>
         <ul style="margin: 1rem 0 1rem 2rem;">
-          <li><strong>Charakteristische Schneelast s_k</strong> (abhängig von Zone)</li>
-          <li><strong>Neigungswinkel des Daches</strong> (steiler = weniger Schnee bleibt liegen)</li>
-          <li><strong>Form des Daches</strong> (Satteldach, Pultdach, etc.)</li>
-          <li><strong>Höhenlage</strong> (über 1500m spezielle Regeln)</li>
+          <li><strong>Charakteristische Schneelast s_k</strong> (abhängig von Zone und Höhenlage) — Zone 1: 1,25 kN/m², Zone 2: 1,5 kN/m², Zone 3: 1,75+ kN/m²</li>
+          <li><strong>Neigungswinkel des Daches</strong> (steiler = weniger Schnee bleibt liegen) — Ein Dach mit 30° Neigung hält weniger Schnee als ein Flachdach</li>
+          <li><strong>Form des Daches</strong> (Satteldach, Pultdach, Flachdach, etc.) — Jede Dachform hat unterschiedliche Schneeverteilung und Lastkoeffizienten</li>
+          <li><strong>Höhenlage</strong> (über 1500m spezielle Regeln) — Die Norm unterscheidet zwischen Tieflagen und Hochlagen mit besonderen Zuschlägen</li>
+          <li><strong>Wärmedurchgang</strong> — Ist das Dach gut isoliert oder schlecht? Das beeinflusst Schneeschmelze und Laständerung</li>
         </ul>
         <p>
-          Für die meisten Projekte reicht es, die Zone zu kennen und die Baustofftabellen zu nutzen.
+          <strong>Praktisches Beispiel zur Berechnung:</strong> Ein Flachdach in München (Zone 3, Höhe 530m) mit charakteristischer Last von 1,75 kN/m²
+          und einem Neigungswinkel von 0° multipliziert mit dem Koeffizienten für Flachdächer (=1,0) ergibt eine Designlast von etwa 1,75 kN/m².
+          Ein steiles Satteldach mit 45° würde aber nur 0,8 × 1,75 = 1,4 kN/m² benötigen.
+        </p>
+        <p>
+          <strong>Für die meisten Projekte</strong> reicht es, die Zone zu kennen und die bekannten Baustofftabellen (Trapezblechhersteller, Stahlbau-Tabellen) zu nutzen.
+          Diese Tabellen haben die komplexe Norm bereits für dich umgesetzt. Du brauchst also nicht selbst zu rechnen — du brauchst nur die richtige Zone.
         </p>
       </section>
 
@@ -100,32 +136,54 @@ import Footer from '../../components/Footer.astro';
         <details style="margin-bottom: 1.5rem;">
           <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Ändert sich meine Zone mit der Höhenlage?</summary>
           <p style="margin-top: 1rem;">
-            Ja. Die Norm unterscheidet zwischen Tieflagen (&lt; 400m), Bergland (400-800m) und
-            Hochgebirge (&gt; 800m). Höhere Lagen = höhere Zonen.
+            Ja, definitiv. Die Norm unterscheidet zwischen Tieflagen (&lt; 400m Höhe), Bergland (400–800m) und
+            Hochgebirge (&gt; 800m). Je höher du bist, desto höher ist die Zone und damit die Schneelast.
+            Beispiel: Ein Ort auf 200m kann Zone 1 sein, der gleiche Ort auf 600m Höhe ist Zone 2.
+            Die Höhe ist oft ausschlaggebender als die geografische Region. Deshalb ist unser Tool
+            so wichtig — es berücksichtigt automatisch deine genaue Höhenlage.
           </p>
         </details>
 
         <details style="margin-bottom: 1.5rem;">
           <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Was ist der Unterschied zwischen DIN 1991-1-3 und DIN 1991-1-4?</summary>
           <p style="margin-top: 1rem;">
-            DIN 1991-1-3 behandelt <strong>Schneelasten</strong>, DIN 1991-1-4 behandelt <strong>Windlasten</strong>.
-            Beide musst du für die vollständige Tragfähigkeitsberechnung berücksichtigen.
+            DIN 1991-1-3 behandelt <strong>Schneelasten</strong> (Gewicht von Schnee auf dem Dach),
+            DIN 1991-1-4 behandelt <strong>Windlasten</strong> (Winddruck und Windauftrieb).
+            Beide musst du für die vollständige Tragfähigkeitsberechnung berücksichtigen — die Norm sieht vor,
+            dass Schnee und Wind nicht gleichzeitig mit maximalen Werten angesetzt werden (Kombinationen).
+            Eine ordnungsgemäße statische Berechnung muss beide Einwirkungsarten korrekt einbeziehen.
           </p>
         </details>
 
         <details style="margin-bottom: 1.5rem;">
           <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Brauche ich exakte Schneelastzonen oder reicht eine Schätzung?</summary>
           <p style="margin-top: 1rem;">
-            Für professionelle Projekte: exakt. Für grobe Vorkalkulationen reicht die Zone.
-            Nutze unser Tool — es dauert 10 Sekunden.
+            <strong>Für professionelle Projekte: exakt.</strong> Wenn du ein Dach für einen Kunden baust oder
+            ein Gebäude sanierst, brauchst du die genaue Zone — alles andere ist fahrlässig und verstößt gegen
+            geltende Bauordnungen. <strong>Für grobe Vorkalkulationen oder Eigenheime</strong> kann eine ungefähre
+            Zone reichen, aber wir empfehlen trotzdem die exakte Bestimmung.
+            Nutze unser Tool — es dauert 10 Sekunden und gibt dir 100% Sicherheit.
           </p>
         </details>
 
         <details style="margin-bottom: 1.5rem;">
           <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Gilt eine Zone für alle Dachformen?</summary>
           <p style="margin-top: 1rem;">
-            Ja, die Zone ist regional. Aber wie viel Schnee tatsächlich auf deinem Dach liegt,
-            hängt vom Neigungswinkel ab: Steilere Dächer halten weniger Schnee.
+            Ja, die Zone ist eine <strong>regionale Eigenschaft</strong> — sie hängt von deinem Standort ab, nicht von deinem Dach.
+            Aber wie viel Schnee tatsächlich auf deinem Dach liegen bleibt, hängt stark vom Neigungswinkel ab:
+            Ein Flachdach (0°) hält maximale Last, ein steiles Satteldach (45°) wirft einen Großteil des Schnees ab.
+            Das ist der Grund, warum Flachdächer stabiler konstruiert sein müssen als Satteldächer.
+            Die Zone ist also der erste Faktor, die Dachform ist der zweite Faktor für die endgültige Last.
+          </p>
+        </details>
+
+        <details style="margin-bottom: 1.5rem;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Kann sich die Schneelastzone ändern?</summary>
+          <p style="margin-top: 1rem;">
+            In der Praxis: Nein. Die Zonen sind in der DIN EN 1991-1-3 bundesweit festgelegt und ändern sich nicht.
+            <strong>Aber:</strong> Die Norm wird regelmäßig aktualisiert (zuletzt 2010), und theoretisch könnten Anpassungen
+            nötig sein, wenn sich die Klimabedingungen deutlich verschieben. Bisher ist das aber nicht vorgekommen.
+            Für alle aktuellen und zukünftigen Projekte nutze die aktuelle DIN EN 1991-1-3:2010-12.
           </p>
         </details>
       </section>
