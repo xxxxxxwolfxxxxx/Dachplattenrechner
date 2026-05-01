@@ -134,11 +134,9 @@ import * as lattenrechner from '../../utils/lattenrechner';
   }
 </style>
 
-<script type="module">
-  // Import der Utility
-  import * as lattenrechner from '/src/utils/lattenrechner.ts';
-
-  window.lattenrechner = lattenrechner;
+<script>
+  // Placeholder für Utility - wird dynamisch geladen
+  window.lattenrechner = null;
 
   // Dach-Parameter aus URL laden mit Retry-Mechanismus
   function ladParameterAusURL(retry = 0) {
@@ -185,7 +183,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
     }
   }
 
-  function berechnen() {
+  async function berechnen() {
     const breiteEl = document.getElementById('breite');
     const hoeheEl = document.getElementById('hoehe');
     const sparrenAnzahlEl = document.getElementById('sparren-anzahl');
@@ -259,7 +257,20 @@ import * as lattenrechner from '../../utils/lattenrechner';
         availableRafters: dachlatteLaengen
       };
 
-      const result = lattenrechner.berechne(calcParams);
+      // Lade Utility von Server (wird ca 400-600ms dauern beim ersten Load)
+      if (!window.lattenrechner) {
+        console.log('⏳ Lade Utility von Server...');
+        const response = await fetch('/js-utils/lattenrechner.js');
+        if (!response.ok) throw new Error('Utility konnte nicht geladen werden');
+        const jsCode = await response.text();
+        eval(jsCode);
+      }
+
+      if (!window.lattenrechner) {
+        throw new Error('Utility konnte nicht initialisiert werden');
+      }
+
+      const result = window.lattenrechner.berechne(calcParams);
 
       // Zeige Ergebnisse
       const flaeche = (breite * hoehe).toFixed(2);
@@ -273,7 +284,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
       if (gesamt_laenge) gesamt_laenge.textContent = result.roofRafters.totalLength.toFixed(2) + ' m';
 
       // Generiere SVG Verlegungsplan
-      const svg = lattenrechner.generiereVorschau(result, roofDims, calcParams.rafterCount);
+      const svg = window.lattenrechner.generiereVorschau(result, roofDims, calcParams.rafterCount);
 
       const svgContainer = document.getElementById('vorschau-svg');
       if (svgContainer) {
