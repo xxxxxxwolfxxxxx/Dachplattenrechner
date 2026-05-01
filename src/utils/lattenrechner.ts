@@ -216,48 +216,99 @@ export function optimiereKonterlatten(
   requiredLength: number,
   availableLengths: number[]
 ): { materials: MaterialItem[]; totalLength: number; waste: number } {
+  if (!availableLengths || availableLengths.length === 0) {
+    return { materials: [], totalLength: 0, waste: 0 };
+  }
+
   const sorted = [...availableLengths].sort((a, b) => b - a);
+
+  // Dynamische Programmierung: Finde minimalen Verschnitt
+  // dp[i] = { waste, combination } für Länge i
+  const dp: { waste: number; combo: number[] }[] = Array(Math.ceil(requiredLength) + 1).fill(null).map(() => ({
+    waste: Infinity,
+    combo: []
+  }));
+
+  dp[0] = { waste: 0, combo: [] };
+
+  for (let i = 0; i <= Math.ceil(requiredLength); i++) {
+    if (dp[i].waste === Infinity) continue;
+
+    for (const length of sorted) {
+      const nextIdx = Math.min(i + length, Math.ceil(requiredLength));
+      const newWaste = dp[i].waste + (nextIdx === i + length ? 0 : length - (requiredLength - i));
+
+      if (nextIdx <= requiredLength) {
+        if (newWaste < dp[nextIdx].waste) {
+          dp[nextIdx] = {
+            waste: newWaste,
+            combo: [...dp[i].combo, length]
+          };
+        }
+      } else if (i + length > requiredLength && dp[i].waste + (i + length - requiredLength) < dp[nextIdx].waste) {
+        dp[nextIdx] = {
+          waste: dp[i].waste + (i + length - requiredLength),
+          combo: [...dp[i].combo, length]
+        };
+      }
+    }
+  }
+
+  // Finde beste Lösung
+  let bestIdx = 0;
+  let bestWaste = Infinity;
+  for (let i = Math.ceil(requiredLength); i <= Math.ceil(requiredLength) * 1.5 && i < dp.length; i++) {
+    if (dp[i] && dp[i].waste < bestWaste && i >= requiredLength) {
+      bestWaste = dp[i].waste;
+      bestIdx = i;
+    }
+  }
+
+  // Vereinfache: Greedy mit besserer Strategie (First-Fit-Decreasing)
   const materials: MaterialItem[] = [];
   let remaining = requiredLength;
   let totalUsed = 0;
 
-  while (remaining > 0.01) {
+  const pieces = [...sorted];
+  while (remaining > 0.01 && pieces.length > 0) {
     let found = false;
 
-    for (const length of sorted) {
-      if (length <= remaining + 0.01) {
-        const existing = materials.find(m => m.length === length);
+    for (let i = 0; i < pieces.length; i++) {
+      if (pieces[i] <= remaining + 0.01) {
+        const existing = materials.find(m => Math.abs(m.length - pieces[i]) < 0.001);
         if (existing) {
           existing.count++;
         } else {
-          materials.push({ length, count: 1 });
+          materials.push({ length: pieces[i], count: 1 });
         }
 
-        remaining -= length;
-        totalUsed += length;
+        remaining -= pieces[i];
+        totalUsed += pieces[i];
         found = true;
         break;
       }
     }
 
     if (!found) {
-      const smallest = Math.min(...sorted);
-      const existing = materials.find(m => m.length === smallest);
+      // Nimm das beste verfügbare Stück, auch wenn es zu lang ist
+      const best = pieces[0];
+      const existing = materials.find(m => Math.abs(m.length - best) < 0.001);
       if (existing) {
         existing.count++;
       } else {
-        materials.push({ length: smallest, count: 1 });
+        materials.push({ length: best, count: 1 });
       }
 
-      remaining -= smallest;
-      totalUsed += smallest;
+      remaining -= best;
+      totalUsed += best;
+      break;
     }
   }
 
   return {
     materials,
     totalLength: totalUsed,
-    waste: totalUsed - requiredLength
+    waste: Math.max(0, totalUsed - requiredLength)
   };
 }
 

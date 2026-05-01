@@ -57,7 +57,21 @@ import * as lattenrechner from '../../utils/lattenrechner';
   <AdUnit position="middle" />
 
   <div class="section">
-    <h2>3. Lattentyp & Abstände</h2>
+    <h2>3. Verfügbare Längenlisten</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="konterlatten-laengen">Konterlatten-Längen (m, komma-getrennt)</label>
+        <input type="text" id="konterlatten-laengen" value="3, 4, 5, 6" placeholder="z.B. 3, 4, 5, 6">
+      </div>
+      <div class="input-group">
+        <label for="dachlatten-laengen">Dachlatten-Längen (m, komma-getrennt)</label>
+        <input type="text" id="dachlatten-laengen" value="3, 4, 5, 6" placeholder="z.B. 3, 4, 5, 6">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>4. Lattentyp & Abstände</h2>
     <div class="input-row">
       <div class="input-group">
         <label for="lattenabstand">Lattenabstand (mm)</label>
@@ -159,11 +173,14 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const sparrenAnzahlEl = document.getElementById('sparren-anzahl');
     const sparrenAbstandEl = document.getElementById('sparren-abstand');
     const dachueberstandEl = document.getElementById('dachueberstand');
+    const konterlattenLaengenEl = document.getElementById('konterlatten-laengen');
+    const dachlatteLaengenEl = document.getElementById('dachlatten-laengen');
     const lattenabstandEl = document.getElementById('lattenabstand');
     const lattenstärkeEl = document.getElementById('lattenstärke');
 
     if (!breiteEl || !hoeheEl || !sparrenAnzahlEl || !sparrenAbstandEl ||
-        !dachueberstandEl || !lattenabstandEl || !lattenstärkeEl) {
+        !dachueberstandEl || !konterlattenLaengenEl || !dachlatteLaengenEl ||
+        !lattenabstandEl || !lattenstärkeEl) {
       console.error('Form elements not found');
       return;
     }
@@ -176,6 +193,11 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const lattenabstand = parseFloat(lattenabstandEl.value);
     const lattenstärke = parseFloat(lattenstärkeEl.value);
 
+    // Parse verfügbare Längenlisten (komma-getrennt, als Meter)
+    const parseLength = (str) => str.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0);
+    const konterlattenLaengen = parseLength(konterlattenLaengenEl.value);
+    const dachlatteLaengen = parseLength(dachlatteLaengenEl.value);
+
     // URL-Parameter lesen (für Dachform)
     const urlParams = new URLSearchParams(window.location.search);
     const typ = urlParams.get('typ') || 'rechteck';
@@ -185,6 +207,16 @@ import * as lattenrechner from '../../utils/lattenrechner';
 
     if (!breite || !hoehe || !lattenabstand || !lattenstärke) {
       alert('Bitte füllen Sie alle erforderlichen Felder aus!');
+      return;
+    }
+
+    if (konterlattenLaengen.length === 0) {
+      alert('Bitte geben Sie verfügbare Konterlatten-Längen an (komma-getrennt)!');
+      return;
+    }
+
+    if (dachlatteLaengen.length === 0) {
+      alert('Bitte geben Sie verfügbare Dachlatten-Längen an (komma-getrennt)!');
       return;
     }
 
@@ -204,9 +236,9 @@ import * as lattenrechner from '../../utils/lattenrechner';
         rafterCount: sparrenAnzahl,
         rafterSpacing: sparrenAbstand, // cm
         overhang: dachueberstand, // cm
-        rowSpacing: lattenabstand, // cm
-        availableCounters: [3, 4, 5, 6],
-        availableRafters: [3, 4, 5, 6]
+        rowSpacing: lattenabstand, // mm
+        availableCounters: konterlattenLaengen,
+        availableRafters: dachlatteLaengen
       };
 
       const result = lattenrechner.berechne(calcParams);
