@@ -1,0 +1,40 @@
+---
+interface Props {
+  type: 'LocalBusiness' | 'WebApplication' | 'FAQPage';
+  title?: string;
+  description?: string;
+  url?: string;
+}
+
+const { type, title, description, url } = Astro.props;
+
+let schema: any = {};
+
+if (type === 'LocalBusiness') {
+  schema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Dachplattenrechner.de",
+    "description": "Kostenloser Dachplattenrechner für Dachdecker, Architekten und Heimwerker",
+    "url": "https://dachplattenrechner.de",
+    "image": "https://dachplattenrechner.de/images/logo.png"
+  };
+} else if (type === 'WebApplication') {
+  schema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": title || "Dachplatte Rechner",
+    "description": description || "Berechne Dachflächen und andere Werte",
+    "url": url || "https://dachplattenrechner.de",
+    "applicationCategory": "UtilityApplication"
+  };
+} else if (type === 'FAQPage') {
+  schema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [] // Wird in den Seiten befüllt
+  };
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)}></script>

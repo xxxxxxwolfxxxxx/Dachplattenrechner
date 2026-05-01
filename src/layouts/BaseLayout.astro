@@ -1,5 +1,6 @@
 ---
 import CookieBanner from '../components/CookieBanner.astro';
+import SchemaMarkup from '../components/SchemaMarkup.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -7,12 +8,14 @@ interface Props {
   description?: string;
   keywords?: string;
   ogImage?: string;
+  schemaType?: 'LocalBusiness' | 'WebApplication' | 'FAQPage';
 }
 const {
   title,
   description = 'Kostenlose Berechnungstools für Trapezbleche, Dachplatten und Wärmeschutz.',
   keywords = 'Trapezblech, Trapezbleche, Dachplatten, Lichtplatten, Trapezblech Rechner, Dachblech berechnen, Schnittliste, Anrissplan, Lattung berechnen, Dachdeckung, Trapezprofil, Stahlblech Dach, Wellblech, Sandwichpaneel, Dachrechner, Baurechner',
   ogImage,
+  schemaType = 'WebApplication',
 } = Astro.props;
 
 const GA_ID = 'G-6NSYG8B1T9';
@@ -49,6 +52,8 @@ const fullTitle = title.includes('Dachplattenrechner') ? title : `${title} | Dac
     gtag('js', new Date());
     // gtag('config', GA_ID) wird erst nach Cookie-Consent aus cookie-consent.ts aufgerufen
   </script>
+  <!-- Schema.org Markup -->
+  <SchemaMarkup type={schemaType} title={title} description={description} url={Astro.url.href} />
 </head>
 <body>
   <slot />
