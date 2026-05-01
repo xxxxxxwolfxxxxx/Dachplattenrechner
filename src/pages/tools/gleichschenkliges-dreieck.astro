@@ -445,3 +445,24 @@ import AdUnit from '../../components/AdUnit.astro';
 </style>
 
 <script src="/tools-js/gleichschenkliges-dreieck.js" defer></script>
+
+<script>
+  // Lade Parameter aus der URL
+  function ladParameterAusURL() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('breite')) {
+      const basisInput = document.getElementById('basis-breite');
+      if (basisInput) basisInput.value = parseFloat(params.get('breite')).toFixed(2);
+    }
+    if (params.has('hoehe')) {
+      const hoeheInput = document.getElementById('hoehe');
+      if (hoeheInput) hoeheInput.value = parseFloat(params.get('hoehe')).toFixed(2);
+    }
+    // Auto-calculate, falls Parameter vorhanden
+    if (params.has('breite') && params.has('hoehe')) {
+      setTimeout(berechnen, 100);
+    }
+  }
+
+  window.addEventListener('load', ladParameterAusURL);
+</script>
