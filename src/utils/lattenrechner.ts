@@ -220,95 +220,74 @@ export function optimiereKonterlatten(
     return { materials: [], totalLength: 0, waste: 0 };
   }
 
-  const sorted = [...availableLengths].sort((a, b) => b - a);
+  // Normalisiere auf Zentimeter zur Vermeidung von Floating-Point-Problemen
+  const reqLengthCm = Math.round(requiredLength * 100);
+  const availableCm = availableLengths.map(l => Math.round(l * 100));
+  const maxLength = Math.ceil(reqLengthCm * 1.5);
 
-  // Dynamische Programmierung: Finde minimalen Verschnitt
-  // dp[i] = { waste, combination } für Länge i
-  const dp: { waste: number; combo: number[] }[] = Array(Math.ceil(requiredLength) + 1).fill(null).map(() => ({
-    waste: Infinity,
-    combo: []
-  }));
+  // Dynamische Programmierung: Coin Change Problem
+  // dp[i] = minimale Anzahl Stücke für Länge i
+  const dp = new Array(maxLength + 1).fill(Infinity);
+  const parent = new Array(maxLength + 1).fill(-1);
 
-  dp[0] = { waste: 0, combo: [] };
+  dp[0] = 0;
 
-  for (let i = 0; i <= Math.ceil(requiredLength); i++) {
-    if (dp[i].waste === Infinity) continue;
+  for (let i = 0; i <= maxLength; i++) {
+    if (dp[i] === Infinity) continue;
 
-    for (const length of sorted) {
-      const nextIdx = Math.min(i + length, Math.ceil(requiredLength));
-      const newWaste = dp[i].waste + (nextIdx === i + length ? 0 : length - (requiredLength - i));
-
-      if (nextIdx <= requiredLength) {
-        if (newWaste < dp[nextIdx].waste) {
-          dp[nextIdx] = {
-            waste: newWaste,
-            combo: [...dp[i].combo, length]
-          };
-        }
-      } else if (i + length > requiredLength && dp[i].waste + (i + length - requiredLength) < dp[nextIdx].waste) {
-        dp[nextIdx] = {
-          waste: dp[i].waste + (i + length - requiredLength),
-          combo: [...dp[i].combo, length]
-        };
+    for (const length of availableCm) {
+      const nextIdx = i + length;
+      if (nextIdx <= maxLength && dp[i] + 1 < dp[nextIdx]) {
+        dp[nextIdx] = dp[i] + 1;
+        parent[nextIdx] = length;
       }
     }
   }
 
-  // Finde beste Lösung
-  let bestIdx = 0;
-  let bestWaste = Infinity;
-  for (let i = Math.ceil(requiredLength); i <= Math.ceil(requiredLength) * 1.5 && i < dp.length; i++) {
-    if (dp[i] && dp[i].waste < bestWaste && i >= requiredLength) {
-      bestWaste = dp[i].waste;
-      bestIdx = i;
+  // Finde beste Lösung >= requiredLength mit minimalem Verschnitt
+  let bestIdx = reqLengthCm;
+  let bestWaste = availableCm[0]; // Worst case: eine Länge
+  let bestCount = Infinity;
+
+  for (let i = reqLengthCm; i <= maxLength && i <= reqLengthCm + Math.max(...availableCm); i++) {
+    if (dp[i] !== Infinity) {
+      const waste = i - reqLengthCm;
+      // Bevorzuge weniger Verschnitt, sekundär weniger Stücke
+      if (waste < bestWaste || (waste === bestWaste && dp[i] < bestCount)) {
+        bestWaste = waste;
+        bestIdx = i;
+        bestCount = dp[i];
+      }
     }
   }
 
-  // Vereinfache: Greedy mit besserer Strategie (First-Fit-Decreasing)
+  // Rekonstruiere die Lösung aus dem parent-Array
+  const combination: number[] = [];
+  let idx = bestIdx;
+  while (idx > 0 && parent[idx] !== -1) {
+    combination.push(parent[idx]);
+    idx -= parent[idx];
+  }
+
+  // Zähle die Stücke
   const materials: MaterialItem[] = [];
-  let remaining = requiredLength;
-  let totalUsed = 0;
-
-  const pieces = [...sorted];
-  while (remaining > 0.01 && pieces.length > 0) {
-    let found = false;
-
-    for (let i = 0; i < pieces.length; i++) {
-      if (pieces[i] <= remaining + 0.01) {
-        const existing = materials.find(m => Math.abs(m.length - pieces[i]) < 0.001);
-        if (existing) {
-          existing.count++;
-        } else {
-          materials.push({ length: pieces[i], count: 1 });
-        }
-
-        remaining -= pieces[i];
-        totalUsed += pieces[i];
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      // Nimm das beste verfügbare Stück, auch wenn es zu lang ist
-      const best = pieces[0];
-      const existing = materials.find(m => Math.abs(m.length - best) < 0.001);
-      if (existing) {
-        existing.count++;
-      } else {
-        materials.push({ length: best, count: 1 });
-      }
-
-      remaining -= best;
-      totalUsed += best;
-      break;
+  for (const length of combination) {
+    const lengthM = length / 100;
+    const existing = materials.find(m => Math.abs(m.length - lengthM) < 0.001);
+    if (existing) {
+      existing.count++;
+    } else {
+      materials.push({ length: lengthM, count: 1 });
     }
   }
+
+  // Sortiere für bessere Lesbarkeit
+  materials.sort((a, b) => b.length - a.length);
 
   return {
     materials,
-    totalLength: totalUsed,
-    waste: Math.max(0, totalUsed - requiredLength)
+    totalLength: bestIdx / 100,
+    waste: Math.max(0, (bestIdx - reqLengthCm) / 100)
   };
 }
 
