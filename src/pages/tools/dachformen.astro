@@ -1,0 +1,231 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdUnit from '../../components/AdUnit.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Dachfläche berechnen – Anleitung für alle Dachformen"
+  description="Berechne Dachfläche für Rechteck, Dreieck, Trapez und Kombinationen. Mit Schnittliste, Anrissplan und Materialkalkulation – kostenlos im Browser."
+  keywords="Dachfläche berechnen, Dachplatten berechnen, Dachflächenberechnung, Trapezbleche, Anrissplan, Schnittliste"
+>
+  <div style="background: var(--gradient-primary); padding: var(--spacing-xl); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);">
+    <h1 style="color: white; margin-bottom: var(--spacing-lg);">Dachfläche berechnen – Schritt-für-Schritt Anleitung</h1>
+    <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem;">
+      Berechne deine Dachfläche präzise für Trapezbleche, Wellblech oder Sandwichpaneele — mit Schnittliste und druckbarem Anrissplan.
+    </p>
+  </div>
+
+  <AdUnit position="top" adSlot="9678418506" />
+
+  <main class="container main-content">
+    <article style="line-height: 1.8; color: var(--text-primary);">
+
+      <section style="margin-bottom: 3rem;">
+        <h2>Warum Dachflächenberechnung?</h2>
+        <p>
+          Die Dachfläche ist die Grundlage für dein gesamtes Dachprojekt. Mit ihr bestimmst du:
+        </p>
+        <ul style="margin: 1rem 0 1rem 2rem;">
+          <li><strong>Materialbedarf</strong>: Wie viele m² Trapezbleche brauchst du?</li>
+          <li><strong>Schnittliste</strong>: Welche Zuschnitte brauchst du vom Lieferrohling?</li>
+          <li><strong>Kosten</strong>: Wie viel kostet das Material?</li>
+          <li><strong>Lattenplan</strong>: Wie abstände zwischen Lattungen für Wind- und Schneelast?</li>
+          <li><strong>Solarplanung</strong>: Wie viele PV-Module passen aufs Dach?</li>
+        </ul>
+        <p>
+          Ein Fehler in der Flächenberechnung wirkt sich auf alles aus. Deshalb: lieber 5 Minuten
+          genau messen als später zu wenig Material haben.
+        </p>
+      </section>
+
+      <section style="margin-bottom: 3rem;">
+        <h2>Deine Dachform erkennen</h2>
+        <p>
+          Der erste Schritt: Welche Form hat dein Dach?
+        </p>
+        <h3>Rechteck (Sattel-, Pult- oder Flachdach)</h3>
+        <p>
+          Längskanten und Querkanten sind parallel, alle Winkel sind 90°.
+          <br/><strong>Formel:</strong> Fläche = Breite × Länge
+        </p>
+
+        <h3>Dreieck (Giebeldach, halbseitig)</h3>
+        <p>
+          Drei Kanten, eine Spitze (First).
+          <br/><strong>Formel:</strong> Fläche = (Grundlinie × Höhe) / 2
+        </p>
+        <p style="margin-top: 0.5rem;">
+          Es gibt zwei Arten:
+        </p>
+        <ul style="margin: 0.5rem 0 1rem 2rem;">
+          <li><strong>Gleichschenkliges Dreieck:</strong> Symmetrisch, First ist in der Mitte</li>
+          <li><strong>Ungleichschenkliges Dreieck:</strong> Asymmetrisch, First ist versetzt</li>
+        </ul>
+
+        <h3>Trapez (L-Form, Satteldach mit Anbauten)</h3>
+        <p>
+          Vier Kanten, zwei davon parallel.
+          <br/><strong>Formel:</strong> Fläche = ((Parallele1 + Parallele2) / 2) × Höhe
+        </p>
+
+        <h3>Trapez auf Rechteck (Kombiniert)</h3>
+        <p>
+          Eine Seite ist rechteckig, die andere Seite ist trapezförmig — typisch für Anbauten.
+          <br/><strong>Berechnung:</strong> Teile in Rechteck + Trapez auf und summiere.
+        </p>
+      </section>
+
+      <section style="margin-bottom: 3rem;">
+        <h2>Maße messen — So geht's</h2>
+        <h3>Was brauchst du?</h3>
+        <ul style="margin: 1rem 0 1rem 2rem;">
+          <li>Zollstock oder Messlatte (mind. 5m)</li>
+          <li>Winkel oder Neigungsmesser (für genaue Winkel)</li>
+          <li>Evtl. Leiter oder Gerüst (für Dach-Messungen)</li>
+          <li>Notizblock zum Aufschreiben</li>
+        </ul>
+
+        <h3>Schritt 1: Grundrisse messen</h3>
+        <p>
+          Messe vom Trauf zum Trauf (oder zur Dachkante) — so groß ist deine horizontale Grundfläche.
+          Messe die Länge und Breite der Dachfläche auf dem Boden ab.
+        </p>
+
+        <h3>Schritt 2: Höhen und Winkel</h3>
+        <p>
+          Für Dreiecke und Trapeze: Messe die Höhe (von der Grundlinie zum First).
+          Alternativ: Messe den Neigungswinkel und eine Seitenkante — unser Rechner berechnet die Höhe.
+        </p>
+
+        <h3>Schritt 3: Eingeben</h3>
+        <p>
+          Alle Maße ins Rechner-Formular eingeben. Der Rechner nutzt die Formeln und gibt dir
+          sofort das Ergebnis.
+        </p>
+      </section>
+
+      <section style="margin-bottom: 3rem;">
+        <h2>Schritt-für-Schritt im Tool</h2>
+        <ol style="margin: 1rem 0 1rem 2rem;">
+          <li><strong>Dachform wählen</strong>: Welche Form hat dein Dach? (Rechteck, Dreieck, Trapez, etc.)</li>
+          <li><strong>Maße eingeben</strong>: Breite, Länge, Höhe oder Winkel — je nachdem was du gemessen hast</li>
+          <li><strong>Berechnen klicken</strong>: Der Rechner zeigt sofort deine Dachfläche in m²</li>
+          <li><strong>Schnittliste generieren</strong> (optional): Wähle dein Profil (z.B. Tr 40/900) und deine Lieferrohlinge</li>
+          <li><strong>Anrissplan drucken</strong>: Ein maßstäblicher Plan zum Ausdrucken oder Weitergeben</li>
+        </ol>
+      </section>
+
+      <section style="margin-bottom: 3rem;">
+        <h2>Was kommt danach?</h2>
+        <p>
+          Nach der Dachflächenberechnung kannst du mit diesen Tools weitermachen:
+        </p>
+        <ul style="margin: 1rem 0 1rem 2rem;">
+          <li><strong><a href="/tools/lattenrechner" style="color: #3b82f6;">Lattenrechner</a></strong>: Latteneinteilung und Schnittliste für Konterlattung</li>
+          <li><strong><a href="/tools/verschnitt-optimierung" style="color: #3b82f6;">Verschnitt-Optimierung</a></strong>: Wie schneidest du die Bleche optimal zu?</li>
+          <li><strong><a href="/tools/schneelastzone" style="color: #3b82f6;">Schneelastzone</a></strong>: Welche Schneelast muss dein Dach aushalten?</li>
+          <li><strong><a href="/tools/pv-rechner" style="color: #3b82f6;">PV-Rechner</a></strong>: Passt eine Solaranlage auf dein Dach?</li>
+        </ul>
+      </section>
+
+      <section style="margin-bottom: 3rem;">
+        <h2>FAQ — Dachflächenberechnung</h2>
+
+        <details style="margin-bottom: 1.5rem;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Brauche ich den Neigungswinkel oder die Höhe?</summary>
+          <p style="margin-top: 1rem;">
+            Beides funktioniert. Wenn du den Winkel kennst (z.B. von Plänen), gib ihn ein.
+            Wenn du die Höhe gemessen hast, nutze die. Der Rechner konvertiert automatisch.
+          </p>
+        </details>
+
+        <details style="margin-bottom: 1.5rem;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Unterscheidet der Rechner zwischen horizontaler und geneigter Fläche?</summary>
+          <p style="margin-top: 1rem;">
+            Ja. Die Dachfläche ist größer als die horizontale Grundfläche (weil das Dach geneigt ist).
+            Der Rechner berechnet die echte Dachfläche (geneigte Fläche), nicht die Grundfläche.
+          </p>
+        </details>
+
+        <details style="margin-bottom: 1.5rem;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Was ist der Unterschied zwischen Anrissplan und Schnittliste?</summary>
+          <p style="margin-top: 1rem;">
+            <strong>Anrissplan:</strong> Ein visueller Plan auf Papier (maßstäblich), zeigt die genaue
+            Lage und Größe jeder Dachfläche.
+            <br/><strong>Schnittliste:</strong> Eine Textliste mit den genauen Zuschnitten deiner Bleche.
+          </p>
+        </details>
+
+        <details style="margin-bottom: 1.5rem;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Kann ich mehrere Dachflächen kombinieren?</summary>
+          <p style="margin-top: 1rem;">
+            Ja. Berechne jede Fläche einzeln und summiere sie. Der Rechner hat auch ein Trapez-auf-Rechteck-Modell für komplexere Formen.
+          </p>
+        </details>
+      </section>
+
+      <section style="margin-bottom: 3rem; background: var(--gradient-secondary); padding: 2rem; border-radius: var(--radius-lg);">
+        <h2>Dachfläche jetzt berechnen</h2>
+        <p>
+          Starten Sie mit der Dachflächenberechnung und geben Sie Ihre Dachform ein:
+        </p>
+        <a href="/tools/dachformen" style="
+          display: inline-block;
+          background: linear-gradient(135deg, #3b82f6, #60a5fa);
+          color: white;
+          padding: 1rem 2rem;
+          border-radius: var(--radius-md);
+          text-decoration: none;
+          font-weight: 600;
+          margin-top: 1rem;
+        ">
+          Zum Dachflächenrechner →
+        </a>
+      </section>
+
+    </article>
+  </main>
+
+  <AdUnit position="bottom" adSlot="9678418507" />
+  <Footer />
+</BaseLayout>
+
+<style>
+  details > summary {
+    padding: 1rem;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 0.5rem;
+    border-left: 4px solid #3b82f6;
+  }
+
+  details > p {
+    padding: 0 1rem;
+  }
+
+  h2 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+
+  ul, ol {
+    margin: 1rem 0;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
+  }
+
+  a {
+    color: #3b82f6;
+  }
+</style>
