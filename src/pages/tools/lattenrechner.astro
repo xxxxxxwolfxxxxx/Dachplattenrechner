@@ -71,15 +71,11 @@ import * as lattenrechner from '../../utils/lattenrechner';
   </div>
 
   <div class="section">
-    <h2>4. Lattentyp & Abstände</h2>
+    <h2>4. Lattenabstand</h2>
     <div class="input-row">
       <div class="input-group">
-        <label for="lattenabstand">Lattenabstand (mm)</label>
+        <label for="lattenabstand">Lattenabstand (mm, Mitte zu Mitte)</label>
         <input type="number" id="lattenabstand" step="10" min="100" value="600" placeholder="z.B. 600">
-      </div>
-      <div class="input-group">
-        <label for="lattenstärke">Lattenstärke (mm)</label>
-        <input type="number" id="lattenstärke" step="5" min="20" value="40" placeholder="z.B. 40">
       </div>
     </div>
   </div>
@@ -104,10 +100,6 @@ import * as lattenrechner from '../../utils/lattenrechner';
     <div class="result-item">
       <span>Gesamtlänge (Laufmeter):</span>
       <span id="gesamt-laenge">-</span>
-    </div>
-    <div class="result-item">
-      <span>Holzvolumen (m³):</span>
-      <span id="holz-volumen">-</span>
     </div>
   </div>
 
@@ -194,11 +186,10 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const konterlattenLaengenEl = document.getElementById('konterlatten-laengen');
     const dachlatteLaengenEl = document.getElementById('dachlatten-laengen');
     const lattenabstandEl = document.getElementById('lattenabstand');
-    const lattenstärkeEl = document.getElementById('lattenstärke');
 
     if (!breiteEl || !hoeheEl || !sparrenAnzahlEl || !sparrenAbstandEl ||
         !dachueberstandEl || !konterlattenLaengenEl || !dachlatteLaengenEl ||
-        !lattenabstandEl || !lattenstärkeEl) {
+        !lattenabstandEl) {
       console.error('Form elements not found');
       return;
     }
@@ -209,7 +200,6 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const sparrenAbstand = parseFloat(sparrenAbstandEl.value);
     const dachueberstand = parseFloat(dachueberstandEl.value);
     const lattenabstand = parseFloat(lattenabstandEl.value);
-    const lattenstärke = parseFloat(lattenstärkeEl.value);
 
     // Parse verfügbare Längenlisten (komma-getrennt, als Meter)
     const parseLength = (str) => str.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0);
@@ -224,7 +214,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const rechteckHoehe = urlParams.has('rechteckHoehe') ? parseFloat(urlParams.get('rechteckHoehe')) : hoehe * 0.3;
     const spitzenPosition = urlParams.has('spitzenPosition') ? parseFloat(urlParams.get('spitzenPosition')) : breite * 0.5;
 
-    if (!breite || !hoehe || !lattenabstand || !lattenstärke) {
+    if (!breite || !hoehe || !lattenabstand) {
       alert('Bitte füllen Sie alle erforderlichen Felder aus!');
       return;
     }
@@ -273,12 +263,6 @@ import * as lattenrechner from '../../utils/lattenrechner';
 
       const gesamt_laenge = document.getElementById('gesamt-laenge');
       if (gesamt_laenge) gesamt_laenge.textContent = result.roofRafters.totalLength.toFixed(2) + ' m';
-
-      const holz_volumen = document.getElementById('holz-volumen');
-      if (holz_volumen) {
-        const vol = ((lattenstärke / 1000 * 0.05) * result.roofRafters.totalLength).toFixed(3);
-        holz_volumen.textContent = vol + ' m³';
-      }
 
       // Generiere SVG Verlegungsplan
       const svg = lattenrechner.generiereVorschau(result, roofDims, calcParams.rafterCount);
