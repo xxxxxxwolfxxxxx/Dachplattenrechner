@@ -1,184 +1,66 @@
 ---
-import ToolLayout from '../../layouts/ToolLayout.astro';
-import InfoBox from '../../components/InfoBox.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import AdUnit from '../../components/AdUnit.astro';
+import Footer from '../../components/Footer.astro';
 ---
 
-<ToolLayout
-  title="RAL & Prelaq Farben für Trapezblech – Farbauswahl"
-  description="Über 300 RAL- und Prelaq-Farben für Trapezbleche und Kantteile. Finden Sie die perfekte Farbe für Ihr Dach oder Ihre Fassade."
-  keywords="Trapezblech Farben RAL, Dachblech Farbe wählen, Prelaq Farben, RAL Farbtöne Dach, Fassadenblech Farbe, Profilblech Farbe, Dachblech anthrazit, Dachblech rot braun, Stahlblech Farben"
-  navTitle="RAL & Prelaq Farben"
+<BaseLayout
+  title="Farbkatalog – RAL-Farbtöne für Trapezbleche & Sandwichpaneele"
+  description="Wähle aus RAL-Farbtönen für deine Trapezbleche. Mit visueller Vorschau und Bestellangaben."
+  keywords="RAL-Farben, Trapezbleche Farbe, Dachbleche Farbe, Farbkatalog Dach"
 >
-  <InfoBox title="Wann verwende ich diesen Farbwähler?" icon="🎨">
-    <p>Mit dem <strong>Farbwähler</strong> finden Sie die passende Farbe für Ihre Trapezbleche und Kantteile:</p>
-    <ul>
-      <li><strong>RAL-Farben:</strong> Über 200 Standard-RAL-Farbtöne für Trapezbleche</li>
-      <li><strong>Prelaq-Farben:</strong> Spezielle Beschichtungsfarben für Trapezblech-Profile</li>
-    </ul>
-    <p>Wählen Sie eine Farbe aus und übernehmen Sie den Farbcode in Ihre Bestellung.</p>
-  </InfoBox>
-
-  <div class="header">
-    <h1>RAL &amp; Prelaq Farben für Trapezblech</h1>
-    <p id="headerDescription">Wählen Sie die perfekte Farbe für Ihr Trapezblech oder Kantteil – über 300 RAL- und Prelaq-Farben verfügbar</p>
+  <div style="background: var(--gradient-primary); padding: var(--spacing-xl); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);">
+    <h1 style="color: white; margin-bottom: var(--spacing-lg);">Farbkatalog – RAL-Farbtöne für Trapezbleche</h1>
   </div>
 
-  <div class="search-box">
-    <input type="text" class="search-input" id="searchInput" placeholder="Farbe suchen (Code oder Name)...">
-  </div>
+  <AdUnit position="top" adSlot="9678418506" />
 
-  <h2 class="section-heading">RAL Farben</h2>
-  <div class="color-grid" id="ralGrid"></div>
+  <main class="container main-content">
+    <article style="line-height: 1.8; color: var(--text-primary);">
+      <p>
+        Wähle die richtige Farbe für deine Trapezbleche oder Sandwichpaneele.
+        Unser Farbkatalog zeigt dir alle verfügbaren RAL-Farbtöne mit visueller Vorschau.
+      </p>
 
-  <AdUnit position="middle" />
+      <h2>Wie nutze ich den Farbkatalog?</h2>
+      <ol style="margin: 1rem 0 1rem 2rem;">
+        <li>Durchsuche die RAL-Farbtöne</li>
+        <li>Sieh dir eine Vorschau an (mit und ohne Struktur)</li>
+        <li>Wähle deine Lieblingsfarbe und notiere die RAL-Nummer</li>
+        <li>Gib die RAL-Nummer bei deinem Lieferant ein</li>
+      </ol>
 
-  <h2 class="section-heading">Prelaq Farben</h2>
-  <div class="color-grid" id="prelaqGrid"></div>
+      <h2>Beliebte Farben</h2>
+      <ul style="margin: 1rem 0 1rem 2rem;">
+        <li><strong>RAL 7016 (Anthrazitgrau)</strong> – modern, neutral, weit verbreitet</li>
+        <li><strong>RAL 9007 (Graualu)</strong> – zeitlos, klassisch</li>
+        <li><strong>RAL 5010 (Enzianblau)</strong> – auffällig, modernes Design</li>
+        <li><strong>RAL 3004 (Purpurrot)</strong> – rustikal, landwirtschaftlich</li>
+      </ul>
 
-  <div class="selection-info" id="selectionInfo">
-    <h3>Ausgewählte Farbe</h3>
-    <div id="selectedColorInfo"></div>
-    <button class="confirm-btn" onclick="confirmSelection()">Farbe übernehmen</button>
-    <button class="cancel-btn" onclick="window.close()">Abbrechen</button>
-  </div>
+      <h2>FAQ</h2>
+      <p><strong>Unterscheidet sich die Farbe je nach Material?</strong> Ja, leicht. Ein RAL-Ton auf Stahl sieht anders aus als auf Aluminium. Frag deinen Lieferanten um Muster.</p>
+      <p style="margin-top: 1rem;"><strong>Kann ich eine Musterplatte bekommen?</strong> Ja, viele Lieferanten schicken RAL-Muster gratis zum Vergleich.</p>
 
-</ToolLayout>
+      <section style="margin-top: 3rem; background: var(--gradient-secondary); padding: 2rem; border-radius: var(--radius-lg);">
+        <h2>Jetzt Farbe wählen</h2>
+        <p>Starte mit dem interaktiven Farbkatalog:</p>
+        <a href="/tools/farben" style="
+          display: inline-block;
+          background: linear-gradient(135deg, #3b82f6, #60a5fa);
+          color: white;
+          padding: 1rem 2rem;
+          border-radius: 0.5rem;
+          text-decoration: none;
+          font-weight: 600;
+          margin-top: 1rem;
+        ">
+          Farbkatalog öffnen →
+        </a>
+      </section>
+    </article>
+  </main>
 
-<style>
-  .header {
-    text-align: center;
-    margin: 30px 20px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  }
-  .header h1 { color: #1e3c72; margin-bottom: 10px; font-size: 1.8em; }
-  .header p { color: #475569; font-size: 1.1em; }
-
-  .section-heading {
-    color: #f8fafc;
-    font-size: 1.6rem;
-    font-weight: 700;
-    margin: 32px 0 16px;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, rgba(30,60,114,0.85), rgba(42,82,152,0.85));
-    border-radius: 10px;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-  }
-
-  .color-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  .color-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: 3px solid transparent;
-  }
-  .color-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    border-color: #1e3c72;
-  }
-  .color-card.selected {
-    border-color: #27ae60;
-    box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3);
-  }
-  .color-sample {
-    height: 120px;
-    width: 100%;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-    font-size: 12px;
-  }
-  .color-info { padding: 12px; text-align: center; }
-  .color-code { font-weight: bold; color: #1e3c72; font-size: 14px; margin-bottom: 5px; }
-  .color-name { font-size: 12px; color: #475569; line-height: 1.3; }
-
-  .search-box {
-    max-width: 400px;
-    margin: 0 auto 20px;
-    position: relative;
-    padding: 0 20px;
-  }
-  .search-input {
-    width: 100%;
-    padding: 12px 20px;
-    border: 2px solid #e0e0e0;
-    border-radius: 25px;
-    font-size: 16px;
-    background: rgba(255, 255, 255, 0.9);
-    transition: all 0.3s ease;
-  }
-  .search-input:focus {
-    outline: none;
-    border-color: #1e3c72;
-    box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
-  }
-
-  .selection-info {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    backdrop-filter: blur(10px);
-    border: 2px solid #27ae60;
-    min-width: 200px;
-    display: none;
-    z-index: 100;
-  }
-  .selection-info h3 { color: #27ae60; margin-bottom: 10px; }
-  .confirm-btn {
-    background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 10px;
-    transition: all 0.3s ease;
-  }
-  .confirm-btn:hover { background: linear-gradient(135deg, #219a52 0%, #1e8449 100%); transform: translateY(-2px); }
-  .cancel-btn {
-    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 5px;
-    transition: all 0.3s ease;
-  }
-  .cancel-btn:hover { background: linear-gradient(135deg, #c0392b 0%, #a93226 100%); }
-
-  @media (max-width: 768px) {
-    .color-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
-    .color-sample { height: 90px; font-size: 10px; }
-    .color-info { padding: 8px; }
-    .selection-info { bottom: 10px; right: 10px; left: 10px; }
-  }
-</style>
-
-<script src="/tools-js/farben.js" defer></script>
+  <AdUnit position="bottom" adSlot="9678418507" />
+  <Footer />
+</BaseLayout>
