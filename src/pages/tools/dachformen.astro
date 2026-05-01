@@ -27,52 +27,53 @@ import Footer from '../../components/Footer.astro';
           Die Dachfläche ist die Grundlage für dein gesamtes Dachprojekt. Mit ihr bestimmst du:
         </p>
         <ul style="margin: 1rem 0 1rem 2rem;">
-          <li><strong>Materialbedarf</strong>: Wie viele m² Trapezbleche brauchst du?</li>
-          <li><strong>Schnittliste</strong>: Welche Zuschnitte brauchst du vom Lieferrohling?</li>
-          <li><strong>Kosten</strong>: Wie viel kostet das Material?</li>
-          <li><strong>Lattenplan</strong>: Wie abstände zwischen Lattungen für Wind- und Schneelast?</li>
-          <li><strong>Solarplanung</strong>: Wie viele PV-Module passen aufs Dach?</li>
+          <li><strong>Materialbedarf</strong>: Wie viele m² Trapezbleche brauchst du? Eine genaue Berechnung hilft dir, Lagerbestände richtig zu kalkulieren und Verschnitt zu minimieren.</li>
+          <li><strong>Schnittliste</strong>: Welche Zuschnitte brauchst du vom Lieferrohling? Diese Information ist essentiell für deine Bestellung bei Profilherstellern oder beim Einkauf von Standardrohlingen.</li>
+          <li><strong>Kosten</strong>: Wie viel kostet das Material? Eine präzise Kostenkalkulationen schützt dich vor Budget-Überraschungen und ermöglicht genaue Projektangebote für Kunden.</li>
+          <li><strong>Lattenplan</strong>: Wie Abstände zwischen Lattungen für Wind- und Schneelast? Die richtige Einteilung ist wichtig für die statische Sicherheit deiner Dachkonstruktion.</li>
+          <li><strong>Solarplanung</strong>: Wie viele PV-Module passen aufs Dach? Mit der genauen Fläche planst du Solaranlagen optimal und nutzt verfügbaren Platz maximal.</li>
         </ul>
         <p>
-          Ein Fehler in der Flächenberechnung wirkt sich auf alles aus. Deshalb: lieber 5 Minuten
-          genau messen als später zu wenig Material haben.
+          Ein Fehler in der Flächenberechnung wirkt sich auf alles aus. Deshalb: lieber 5 Minuten genau messen als später zu wenig Material haben. Für Dachdecker, Installateure und Heimwerker ist die exakte Dachflächenberechnung der erste Schritt zu einem erfolgreichen Projekt. Ob Neubau, Sanierung oder Reparatur — eine genaue Grundlage spart Zeit, Geld und Fehler.
         </p>
       </section>
 
       <section style="margin-bottom: 3rem;">
         <h2>Deine Dachform erkennen</h2>
         <p>
-          Der erste Schritt: Welche Form hat dein Dach?
+          Der erste Schritt: Welche Form hat dein Dach? In der Praxis sind die meisten Dächer eine der folgenden geometrischen Formen oder Kombinationen davon. Die richtige Identifikation deiner Dachform ist entscheidend für eine genaue Kostenberechnung und Materialplanung.
         </p>
         <h3>Rechteck (Sattel-, Pult- oder Flachdach)</h3>
         <p>
-          Längskanten und Querkanten sind parallel, alle Winkel sind 90°.
+          Längskanten und Querkanten sind parallel, alle Winkel sind 90°. Diese Form ist die einfachste zu berechnen und kommt häufig bei modernen Flach- und Pultdächern vor. Bei Satteldächern ist jede Dachseite selbst rechteckig, wenn man von der geneigten Fläche ausgeht.
           <br/><strong>Formel:</strong> Fläche = Breite × Länge
+          <br/><strong>Tipp:</strong> Bei geneigten Rechtecken muss die tatsächliche Dachfläche (nicht die horizontale Projektion) berechnet werden. Je steiler das Dach, desto größer der Unterschied.
         </p>
 
         <h3>Dreieck (Giebeldach, halbseitig)</h3>
         <p>
-          Drei Kanten, eine Spitze (First).
+          Drei Kanten, eine Spitze (First). Dreiecke entstehen bei Satteldächern oder bei Giebeldächern. Wenn du ein Satteldach halbierst, bekommst du zwei Dreiecke — eines auf jeder Seite des Firsts. Asymmetrische Dreiecke treten auf, wenn der First nicht in der Mitte sitzt.
           <br/><strong>Formel:</strong> Fläche = (Grundlinie × Höhe) / 2
         </p>
         <p style="margin-top: 0.5rem;">
           Es gibt zwei Arten:
         </p>
         <ul style="margin: 0.5rem 0 1rem 2rem;">
-          <li><strong>Gleichschenkliges Dreieck:</strong> Symmetrisch, First ist in der Mitte</li>
-          <li><strong>Ungleichschenkliges Dreieck:</strong> Asymmetrisch, First ist versetzt</li>
+          <li><strong>Gleichschenkliges Dreieck:</strong> Symmetrisch, First ist in der Mitte. Beide Seiten haben dieselbe Länge und denselben Neigungswinkel. Diese Form ist am einfachsten zu messen.</li>
+          <li><strong>Ungleichschenkliges Dreieck:</strong> Asymmetrisch, First ist versetzt. Die beiden Dachflächen haben unterschiedliche Längen und möglicherweise unterschiedliche Neigungswinkel. Häufig bei Anbauten oder ungünstigen Grundstücksgrenzen.</li>
         </ul>
 
         <h3>Trapez (L-Form, Satteldach mit Anbauten)</h3>
         <p>
-          Vier Kanten, zwei davon parallel.
+          Vier Kanten, zwei davon parallel. Trapeze entstehen typischerweise bei L-förmigen Dächern oder wenn ein Satteldach mit einer zusätzlichen, anders geneigten Fläche verbunden ist. Auch bei Mansardendächern treten Trapeze auf.
           <br/><strong>Formel:</strong> Fläche = ((Parallele1 + Parallele2) / 2) × Höhe
+          <br/><strong>Wichtig:</strong> Die beiden parallelen Seiten müssen wirklich parallel sein — nicht parallel bedeutet, dass es sich um ein unregelmäßiges Viereck handelt, das anders berechnet wird.
         </p>
 
         <h3>Trapez auf Rechteck (Kombiniert)</h3>
         <p>
-          Eine Seite ist rechteckig, die andere Seite ist trapezförmig — typisch für Anbauten.
-          <br/><strong>Berechnung:</strong> Teile in Rechteck + Trapez auf und summiere.
+          Eine Seite ist rechteckig, die andere Seite ist trapezförmig — typisch für Anbauten an bestehende Dachflächen oder für Gebäude mit gestufter Höhe. Solche Formen kommen häufig bei Renovationen vor, wenn Gebäudeteile unterschiedliche Dachlinien haben.
+          <br/><strong>Berechnung:</strong> Teile die Gesamtfläche in ein Rechteck und ein Trapez auf und summiere beide. Diese Methode funktioniert für beliebig komplexe Formen, solange du sie in einfache Grundformen zerlegen kannst.
         </p>
       </section>
 
@@ -80,52 +81,49 @@ import Footer from '../../components/Footer.astro';
         <h2>Maße messen — So geht's</h2>
         <h3>Was brauchst du?</h3>
         <ul style="margin: 1rem 0 1rem 2rem;">
-          <li>Zollstock oder Messlatte (mind. 5m)</li>
-          <li>Winkel oder Neigungsmesser (für genaue Winkel)</li>
-          <li>Evtl. Leiter oder Gerüst (für Dach-Messungen)</li>
-          <li>Notizblock zum Aufschreiben</li>
+          <li><strong>Zollstock oder Messlatte (mind. 5m)</strong> — Stahlmaßstäbe sind genauer als Kunststoff und verbiegen nicht. Bei sehr großen Flächen ist ein Messtaab oder eine Messleine hilfreich.</li>
+          <li><strong>Winkel oder Neigungsmesser (für genaue Winkel)</strong> — Digitale Neigungsmesser sind präziser und einfacher zu bedienen. Ein analoger Dachneigungsmesser ist aber auch völlig ausreichend.</li>
+          <li><strong>Evtl. Leiter oder Gerüst (für Dach-Messungen)</strong> — Sicherheit geht vor! Nutze immer eine stabile Leiter und achte auf die richtige Ausrüstung (Sicherheitsgurt bei Steildächern).</li>
+          <li><strong>Notizblock und Stift</strong> — Schreib alle Maße direkt auf, um Verwechslungen zu vermeiden. Ein Foto des Notizblocks hilft auch später noch.</li>
         </ul>
 
         <h3>Schritt 1: Grundrisse messen</h3>
         <p>
-          Messe vom Trauf zum Trauf (oder zur Dachkante) — so groß ist deine horizontale Grundfläche.
-          Messe die Länge und Breite der Dachfläche auf dem Boden ab.
+          Messe vom Trauf zum Trauf (oder zur Dachkante) — so groß ist deine horizontale Grundfläche. Dies ist die Breite deiner Dachfläche. Messe die Länge und Breite der Dachfläche auf dem Boden ab oder an der Fassade. Bei L-förmigen Dächern oder Anbauten messe jeden Bereich separat. Achte darauf, dass du die geneigte Dachfläche berechnest, nicht die horizontale Projektion darunter.
         </p>
 
         <h3>Schritt 2: Höhen und Winkel</h3>
         <p>
-          Für Dreiecke und Trapeze: Messe die Höhe (von der Grundlinie zum First).
-          Alternativ: Messe den Neigungswinkel und eine Seitenkante — unser Rechner berechnet die Höhe.
+          Für Dreiecke und Trapeze brauchst du zusätzlich die Höhe (von der Grundlinie zum First oder zur First-Linie) oder den Neigungswinkel. Wenn du auf dem Dach bist, messe den Höhenunterschied vom Trauf zum First mit einem Stahlmaßstab. Alternativ kannst du den Neigungswinkel mit einem Neigungsmesser messen und eine Seitenkante (von Trauf bis First) — unser Rechner berechnet die Höhe automatisch daraus.
         </p>
 
-        <h3>Schritt 3: Eingeben</h3>
+        <h3>Schritt 3: Eingeben und berechnen</h3>
         <p>
-          Alle Maße ins Rechner-Formular eingeben. Der Rechner nutzt die Formeln und gibt dir
-          sofort das Ergebnis.
+          Alle Maße ins Rechner-Formular eingeben. Der Rechner nutzt die mathematischen Formeln und gibt dir sofort die genaue Dachfläche in m². Du erhältst auch sofort eine Vorschau, ob die eingegebenen Werte plausibel sind.
         </p>
       </section>
 
       <section style="margin-bottom: 3rem;">
         <h2>Schritt-für-Schritt im Tool</h2>
         <ol style="margin: 1rem 0 1rem 2rem;">
-          <li><strong>Dachform wählen</strong>: Welche Form hat dein Dach? (Rechteck, Dreieck, Trapez, etc.)</li>
-          <li><strong>Maße eingeben</strong>: Breite, Länge, Höhe oder Winkel — je nachdem was du gemessen hast</li>
-          <li><strong>Berechnen klicken</strong>: Der Rechner zeigt sofort deine Dachfläche in m²</li>
-          <li><strong>Schnittliste generieren</strong> (optional): Wähle dein Profil (z.B. Tr 40/900) und deine Lieferrohlinge</li>
-          <li><strong>Anrissplan drucken</strong>: Ein maßstäblicher Plan zum Ausdrucken oder Weitergeben</li>
+          <li><strong>Dachform wählen</strong>: Welche Form hat dein Dach? (Rechteck, Dreieck, Trapez, oder Kombination). Das Tool hat Grafiken zur Unterstützung, damit du die richtige Form erkennst. Bei komplexen Dächern zerlege sie in einfache Teile und berechne diese nacheinander.</li>
+          <li><strong>Maße eingeben</strong>: Gib Breite, Länge, Höhe oder Winkel ein — je nachdem was du gemessen hast. Das Tool akzeptiert sowohl metrische als auch andere Einheiten und konvertiert sie automatisch. Überprüfe deine Eingaben, bevor du weitergehst.</li>
+          <li><strong>Berechnen klicken</strong>: Der Rechner zeigt sofort deine Dachfläche in m² an. Du siehst auch eine Visualisierung deiner Dachform und alle berechneten Werte wie Höhe, Neigungswinkel und geneigte Fläche übersichtlich dargestellt.</li>
+          <li><strong>Schnittliste generieren</strong> (optional): Wenn du weißt, welches Profil du brauchst (z.B. Trapezblech Tr 40/900), kannst du dein Profil und deine Lieferrohling-Größen eingeben. Das Tool zeigt dir dann alle nötigen Zuschnitte mit exakten Längen und Breiten.</li>
+          <li><strong>Anrissplan drucken</strong>: Der Rechner erstellt einen maßstäblichen Plan, den du ausdrucken, an Handwerker weitergeben oder in dein Archiv legen kannst. Der Plan ist sowohl für dein Verständnis als auch für die Kommunikation mit Fachleuten hilfreich.</li>
         </ol>
       </section>
 
       <section style="margin-bottom: 3rem;">
         <h2>Was kommt danach?</h2>
         <p>
-          Nach der Dachflächenberechnung kannst du mit diesen Tools weitermachen:
+          Nach der Dachflächenberechnung hast du eine solide Grundlage für dein Projekt. Jetzt kannst du mit diesen speziellen Tools die Details planen:
         </p>
         <ul style="margin: 1rem 0 1rem 2rem;">
-          <li><strong><a href="/tools/lattenrechner" style="color: #3b82f6;">Lattenrechner</a></strong>: Latteneinteilung und Schnittliste für Konterlattung</li>
-          <li><strong><a href="/tools/verschnitt-optimierung" style="color: #3b82f6;">Verschnitt-Optimierung</a></strong>: Wie schneidest du die Bleche optimal zu?</li>
-          <li><strong><a href="/tools/schneelastzone" style="color: #3b82f6;">Schneelastzone</a></strong>: Welche Schneelast muss dein Dach aushalten?</li>
-          <li><strong><a href="/tools/pv-rechner" style="color: #3b82f6;">PV-Rechner</a></strong>: Passt eine Solaranlage auf dein Dach?</li>
+          <li><strong><a href="/tools/lattenrechner" style="color: #3b82f6;">Lattenrechner</a></strong>: Mit deiner Dachfläche kannst du nun die exakte Latteneinteilung und Schnittliste für die Konterlattung berechnen. Diese ist entscheidend für die Sicherheit und Haltbarkeit deiner Dachkonstruktion.</li>
+          <li><strong><a href="/tools/verschnitt-optimierung" style="color: #3b82f6;">Verschnitt-Optimierung</a></strong>: Wie schneidest du deine Bleche optimal zu, um Verschnitt zu minimieren und Material zu sparen? Mit der Optimierung senken wir deine Kosten pro Projekt erheblich.</li>
+          <li><strong><a href="/tools/schneelastzone" style="color: #3b82f6;">Schneelastzone</a></strong>: Welche Schneelast muss dein Dach in deiner Region aushalten? Dieses Tool bestimmt die statischen Anforderungen basierend auf deinem Standort und Neigungswinkel.</li>
+          <li><strong><a href="/tools/pv-rechner" style="color: #3b82f6;">PV-Rechner</a></strong>: Passt eine Solaranlage auf dein Dach? Mit deiner Dachfläche und Form bestimmst du sofort, wie viele PV-Module du installieren kannst und welche Stromproduktion zu erwarten ist.</li>
         </ul>
       </section>
 
@@ -135,32 +133,30 @@ import Footer from '../../components/Footer.astro';
         <details style="margin-bottom: 1.5rem;">
           <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Brauche ich den Neigungswinkel oder die Höhe?</summary>
           <p style="margin-top: 1rem;">
-            Beides funktioniert. Wenn du den Winkel kennst (z.B. von Plänen), gib ihn ein.
-            Wenn du die Höhe gemessen hast, nutze die. Der Rechner konvertiert automatisch.
+            Beides funktioniert perfekt. Wenn du den Winkel kennst (z.B. von Bauplänen oder dem Neigungsmesser), gib ihn direkt ein. Wenn du die Höhe vom Trauf zum First gemessen hast, nutze diese stattdessen. Der Rechner konvertiert automatisch zwischen beiden Werten und zeigt dir am Ende beide an. Die Wahl hängt davon ab, welches Werkzeug du zur Hand hast oder welche Messung für dein Dach einfacher ist.
           </p>
         </details>
 
         <details style="margin-bottom: 1.5rem;">
           <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Unterscheidet der Rechner zwischen horizontaler und geneigter Fläche?</summary>
           <p style="margin-top: 1rem;">
-            Ja. Die Dachfläche ist größer als die horizontale Grundfläche (weil das Dach geneigt ist).
-            Der Rechner berechnet die echte Dachfläche (geneigte Fläche), nicht die Grundfläche.
+            Ja, absolut. Das ist ein wichtiger Unterschied. Die Dachfläche ist immer größer als die horizontale Grundfläche darunter, weil das Dach geneigt ist. Der Rechner berechnet die echte geneigte Dachfläche (die Fläche, auf der die Bleche oder Paneele liegen), nicht die horizontale Projektion. Bei flachen Dächern ist der Unterschied minimal, bei steilen Dächern kann er 20-30% ausmachen. Das ist wichtig für die korrekte Materialkalkulation — du brauchst Material für die geneigte Fläche, nicht für die horizontale Grundfläche.
           </p>
         </details>
 
         <details style="margin-bottom: 1.5rem;">
           <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Was ist der Unterschied zwischen Anrissplan und Schnittliste?</summary>
           <p style="margin-top: 1rem;">
-            <strong>Anrissplan:</strong> Ein visueller Plan auf Papier (maßstäblich), zeigt die genaue
-            Lage und Größe jeder Dachfläche.
-            <br/><strong>Schnittliste:</strong> Eine Textliste mit den genauen Zuschnitten deiner Bleche.
+            Das sind zwei unterschiedliche Ausgaben mit verschiedenen Zwecken:
+            <br/><strong>Anrissplan:</strong> Ein visueller, maßstäblicher Plan auf Papier. Er zeigt die genaue Lage, Form und Größe jeder Dachfläche. Du kannst ihn ausdrucken, zu Baustelle mitnehmen und mit Handwerkern besprechen. Er ist eine Visualisierung deines Projekts.
+            <br/><strong>Schnittliste:</strong> Eine detaillierte Textliste mit den genauen Zuschnitten deiner Trapezbleche oder Paneele. Sie enthält Längen, Breiten und die Menge jedes Zuschnitts — perfekt für die Bestellung bei Profilherstellern oder zur Vorbereitung an der Säge.
           </p>
         </details>
 
         <details style="margin-bottom: 1.5rem;">
           <summary style="cursor: pointer; font-weight: 600; font-size: 1.05rem;">Kann ich mehrere Dachflächen kombinieren?</summary>
           <p style="margin-top: 1rem;">
-            Ja. Berechne jede Fläche einzeln und summiere sie. Der Rechner hat auch ein Trapez-auf-Rechteck-Modell für komplexere Formen.
+            Ja, völlig problemlos. Bei komplexeren Dachformen mit mehreren Ebenen, Anbauten oder L-förmigen Grundrissen berechne einfach jede Fläche einzeln und summiere die Ergebnisse. Der Rechner unterstützt das Trapez-auf-Rechteck-Modell für komplexere, kombinierte Formen. Wenn dein Dach aus 4 verschiedenen Flächen besteht, berechne jede einzeln und addiere am Ende. So behältst du den Überblick und vermeidest Rechenfehler.
           </p>
         </details>
       </section>
