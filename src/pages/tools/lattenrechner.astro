@@ -2,6 +2,7 @@
 import ToolLayout from '../../layouts/ToolLayout.astro';
 import InfoBox from '../../components/InfoBox.astro';
 import AdUnit from '../../components/AdUnit.astro';
+import * as lattenrechner from '../../utils/lattenrechner';
 ---
 
 <ToolLayout
@@ -35,10 +36,28 @@ import AdUnit from '../../components/AdUnit.astro';
     </div>
   </div>
 
+  <div class="section">
+    <h2>2. Sparren & Konterlatten</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="sparren-anzahl">Anzahl Sparren</label>
+        <input type="number" id="sparren-anzahl" step="1" min="2" value="8" placeholder="z.B. 8">
+      </div>
+      <div class="input-group">
+        <label for="sparren-abstand">Sparren-Abstand (cm)</label>
+        <input type="number" id="sparren-abstand" step="10" min="50" value="80" placeholder="z.B. 80">
+      </div>
+      <div class="input-group">
+        <label for="dachueberstand">Dachüberstand (cm)</label>
+        <input type="number" id="dachueberstand" step="5" min="0" value="30" placeholder="z.B. 30">
+      </div>
+    </div>
+  </div>
+
   <AdUnit position="middle" />
 
   <div class="section">
-    <h2>2. Lattentyp & Abstände</h2>
+    <h2>3. Lattentyp & Abstände</h2>
     <div class="input-row">
       <div class="input-group">
         <label for="lattenabstand">Lattenabstand (mm)</label>
@@ -51,9 +70,15 @@ import AdUnit from '../../components/AdUnit.astro';
     </div>
   </div>
 
-  <button class="calculate-btn" onclick="berechnen()">Berechnen</button>
+  <button class="calculate-btn" id="lattenrechner-button">Berechnen</button>
 
   <div id="results" class="results" style="display: none;">
+    <h3 style="text-align: center; margin-bottom: 20px; color: #ffd700;">Verlegungsplan & Materialberechnung</h3>
+
+    <!-- SVG Visualization -->
+    <div id="vorschau-svg" style="margin-bottom: 30px; text-align: center;"></div>
+
+    <!-- Material-Ergebnisse -->
     <div class="result-item">
       <span>Dachfläche:</span>
       <span id="flaeche-result">-</span>
@@ -94,61 +119,150 @@ import AdUnit from '../../components/AdUnit.astro';
   .result-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
   .result-item:last-child { border-bottom: none; }
   .result-item span:last-child { font-weight: bold; font-size: 1.1em; color: #ffd700; }
+  #vorschau-svg { background: white; border-radius: 8px; padding: 15px; margin: 20px 0; }
+  #vorschau-svg svg { max-width: 100%; height: auto; }
   @media (max-width: 768px) {
     .input-row { flex-direction: column; gap: 12px; }
     .input-group { min-width: auto; }
+    #vorschau-svg { padding: 10px; }
   }
 </style>
 
-<script>
-  // Lade Parameter aus der URL
+<script type="module">
+  // Import der Utility
+  import * as lattenrechner from '../../utils/lattenrechner.ts';
+
+  window.lattenrechner = lattenrechner;
+
+  // Dach-Parameter aus URL laden
   function ladParameterAusURL() {
     const params = new URLSearchParams(window.location.search);
+
     if (params.has('breite')) {
-      document.getElementById('breite').value = parseFloat(params.get('breite')).toFixed(2);
+      const breiteEl = document.getElementById('breite');
+      if (breiteEl) breiteEl.value = parseFloat(params.get('breite')).toFixed(2);
     }
     if (params.has('hoehe')) {
-      document.getElementById('hoehe').value = parseFloat(params.get('hoehe')).toFixed(2);
+      const hoeheEl = document.getElementById('hoehe');
+      if (hoeheEl) hoeheEl.value = parseFloat(params.get('hoehe')).toFixed(2);
     }
-    // Auto-calculate, falls Parameter vorhanden
+
+    // Auto-calculate wenn Parameter vorhanden
     if (params.has('breite') && params.has('hoehe')) {
       setTimeout(berechnen, 100);
     }
   }
 
   function berechnen() {
-    const breite = parseFloat(document.getElementById('breite').value);
-    const hoehe = parseFloat(document.getElementById('hoehe').value);
-    const lattenabstand = parseFloat(document.getElementById('lattenabstand').value);
-    const lattenstärke = parseFloat(document.getElementById('lattenstärke').value);
+    const breiteEl = document.getElementById('breite');
+    const hoeheEl = document.getElementById('hoehe');
+    const sparrenAnzahlEl = document.getElementById('sparren-anzahl');
+    const sparrenAbstandEl = document.getElementById('sparren-abstand');
+    const dachueberstandEl = document.getElementById('dachueberstand');
+    const lattenabstandEl = document.getElementById('lattenabstand');
+    const lattenstärkeEl = document.getElementById('lattenstärke');
 
-    if (!breite || !hoehe || !lattenabstand || !lattenstärke) {
-      alert('Bitte füllen Sie alle Felder aus!');
+    if (!breiteEl || !hoeheEl || !sparrenAnzahlEl || !sparrenAbstandEl ||
+        !dachueberstandEl || !lattenabstandEl || !lattenstärkeEl) {
+      console.error('Form elements not found');
       return;
     }
 
-    // Berechnung
-    const flaeche = (breite * hoehe).toFixed(2);
-    const anzahlLatten = Math.ceil(breite / (lattenabstand / 1000)) + 1;
-    const gesamtLaenge = (anzahlLatten * hoehe).toFixed(2);
-    const holzVolumen = ((lattenstärke / 1000 * 0.05) * parseFloat(gesamtLaenge)).toFixed(3);
+    const breite = parseFloat(breiteEl.value);
+    const hoehe = parseFloat(hoeheEl.value);
+    const sparrenAnzahl = parseInt(sparrenAnzahlEl.value);
+    const sparrenAbstand = parseFloat(sparrenAbstandEl.value);
+    const dachueberstand = parseFloat(dachueberstandEl.value);
+    const lattenabstand = parseFloat(lattenabstandEl.value);
+    const lattenstärke = parseFloat(lattenstärkeEl.value);
 
-    // Anzeige
-    document.getElementById('flaeche-result').textContent = flaeche + ' m²';
-    document.getElementById('anzahl-latten').textContent = anzahlLatten + ' Stück';
-    document.getElementById('gesamt-laenge').textContent = gesamtLaenge + ' m';
-    document.getElementById('holz-volumen').textContent = holzVolumen + ' m³';
-    document.getElementById('results').style.display = 'block';
+    // URL-Parameter lesen (für Dachform)
+    const urlParams = new URLSearchParams(window.location.search);
+    const typ = urlParams.get('typ') || 'rechteck';
+    const obereBreite = urlParams.has('obereBreite') ? parseFloat(urlParams.get('obereBreite')) : breite * 0.8;
+    const trapezHoehe = urlParams.has('trapezHoehe') ? parseFloat(urlParams.get('trapezHoehe')) : hoehe * 0.4;
+    const rechteckHoehe = urlParams.has('rechteckHoehe') ? parseFloat(urlParams.get('rechteckHoehe')) : hoehe * 0.3;
 
-    // Google Analytics
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'calculation', {
-        'event_category': 'lattenrechner',
-        'event_label': 'form_submitted'
-      });
+    if (!breite || !hoehe || !lattenabstand || !lattenstärke) {
+      alert('Bitte füllen Sie alle erforderlichen Felder aus!');
+      return;
+    }
+
+    try {
+      // Berechne mit neuem Algorithmus
+      const roofDims = {
+        width: breite,
+        height: hoehe,
+        type: typ,
+        upperWidth: typ === 'trapez' ? obereBreite : undefined,
+        trapezHeight: typ === 'trapez-auf-rechteck' ? trapezHoehe : undefined,
+        rectHeight: typ === 'trapez-auf-rechteck' ? rechteckHoehe : undefined
+      };
+
+      const calcParams = {
+        roofDims,
+        rafterCount: sparrenAnzahl,
+        rafterSpacing: sparrenAbstand, // cm
+        overhang: dachueberstand, // cm
+        rowSpacing: lattenabstand, // cm
+        availableCounters: [3, 4, 5, 6],
+        availableRafters: [3, 4, 5, 6]
+      };
+
+      const result = lattenrechner.berechne(calcParams);
+
+      // Zeige Ergebnisse
+      const flaeche = (breite * hoehe).toFixed(2);
+      const flaeche_result = document.getElementById('flaeche-result');
+      if (flaeche_result) flaeche_result.textContent = flaeche + ' m²';
+
+      const anzahl_latten = document.getElementById('anzahl-latten');
+      if (anzahl_latten) anzahl_latten.textContent = result.roofRafters.count + ' Stück';
+
+      const gesamt_laenge = document.getElementById('gesamt-laenge');
+      if (gesamt_laenge) gesamt_laenge.textContent = result.roofRafters.totalLength.toFixed(2) + ' m';
+
+      const holz_volumen = document.getElementById('holz-volumen');
+      if (holz_volumen) {
+        const vol = ((lattenstärke / 1000 * 0.05) * result.roofRafters.totalLength).toFixed(3);
+        holz_volumen.textContent = vol + ' m³';
+      }
+
+      // Generiere SVG Verlegungsplan
+      const svg = lattenrechner.generiereVorschau(result, roofDims, calcParams.rafterCount);
+
+      const svgContainer = document.getElementById('vorschau-svg');
+      if (svgContainer) {
+        svgContainer.innerHTML = svg;
+      }
+
+      // Zeige Ergebnisse
+      const resultsDiv = document.getElementById('results');
+      if (resultsDiv) resultsDiv.style.display = 'block';
+
+      // Google Analytics
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'calculation', {
+          'event_category': 'lattenrechner',
+          'event_label': 'form_submitted'
+        });
+      }
+    } catch (error) {
+      console.error('Berechnung fehlgeschlagen:', error);
+      alert('Ein Fehler bei der Berechnung ist aufgetreten: ' + error.message);
     }
   }
 
-  // Lade Parameter beim Laden der Seite
+  // Expose berechnen to window for button onclick
+  window.berechnen = berechnen;
+  window.ladParameterAusURL = ladParameterAusURL;
+
+  // Verknüpfe Button
+  const button = document.getElementById('lattenrechner-button');
+  if (button) {
+    button.addEventListener('click', berechnen);
+  }
+
+  // Laden bei Seiten-Load
   window.addEventListener('load', ladParameterAusURL);
 </script>
