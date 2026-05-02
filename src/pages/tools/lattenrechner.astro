@@ -284,11 +284,18 @@ import * as lattenrechner from '../../utils/lattenrechner';
       if (gesamt_laenge) gesamt_laenge.textContent = result.roofRafters.totalLength.toFixed(2) + ' m';
 
       // Generiere SVG Verlegungsplan
-      const svg = window.lattenrechner.generiereVorschau(result, roofDims, calcParams.rafterCount);
+      const svg = window.lattenrechner.generiereVorschau(result, roofDims, calcParams.rafterCount, calcParams.rowSpacing);
 
       const svgContainer = document.getElementById('vorschau-svg');
       if (svgContainer) {
-        svgContainer.innerHTML = svg;
+        if (svg) {
+          svgContainer.innerHTML = svg;
+          console.log('✅ SVG wurde ins DOM eingefügt');
+        } else {
+          console.warn('⚠️ SVG-String war leer oder undefined');
+        }
+      } else {
+        console.error('❌ SVG-Container nicht gefunden!');
       }
 
       // Zeige Ergebnisse
