@@ -975,8 +975,13 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     svg += `<line x1="${margin + dachBreite * scaleX}" y1="${breiteY - 3}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
     svg += `<text x="${margin + dachBreite * scaleX/2}" y="${breiteY + 15}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
     svg += `</svg>`;
-    
-    document.getElementById('vorschau-svg').innerHTML = svg;
+
+    // Schreibe ins DOM (falls Element existiert) UND returne den String
+    const vorschauDiv = document.getElementById('vorschau-svg');
+    if (vorschauDiv) {
+        vorschauDiv.innerHTML = svg;
+    }
+    return svg;
 }
 
 function druckeLattenplan() {
@@ -1151,16 +1156,18 @@ window.lattenrechner = {
     }
   },
 
-  generiereVorschau: function(result, roofDims, rafterCount) {
+  generiereVorschau: function(result, roofDims, rafterCount, rowSpacing) {
     try {
       // Setze globale Werte für die Rendering-Funktion
       dachBreite = roofDims.width;
       dachHoehe = roofDims.height;
       dachTyp = roofDims.type;
       obereBreite = roofDims.upperWidth || 0;
+      trapezHoehe = roofDims.trapezHeight || 0;
+      rechteckHoehe = roofDims.rectHeight || 0;
 
       console.log(`🎨 Generiere SVG für ${dachTyp} (${rafterCount} Sparren)`);
-      return generiereVorschau(rafterCount, result.rowCount, 600);
+      return generiereVorschau(rafterCount, result.rowCount, rowSpacing || 600);
     } catch (e) {
       console.error('❌ Fehler in generiereVorschau():', e.message, e.stack);
       throw e;
