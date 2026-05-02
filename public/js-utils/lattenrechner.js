@@ -1166,6 +1166,9 @@ window.lattenrechner = {
       trapezHoehe = roofDims.trapezHeight || 0;
       rechteckHoehe = roofDims.rectHeight || 0;
 
+      // Berechne Sparren-Längen für den Dachtyp (notwendig für korrektes SVG-Rendering!)
+      berechneSpitzdachSparren(rafterCount);
+
       console.log(`🎨 Generiere SVG für ${dachTyp} (${rafterCount} Sparren)`);
       return generiereVorschau(rafterCount, result.rowCount, rowSpacing || 600);
     } catch (e) {
