@@ -803,18 +803,41 @@ function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabs
 }
 
 function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
-    const svgWidth = 500;
-    const svgHeight = 400;
-    const margin = 60;
-    
-    const scaleX = (svgWidth - 2 * margin) / dachBreite;
-    const scaleY = (svgHeight - 2 * margin - 80) / dachHoehe;
-    
+    const svgWidth = 900;
+    const svgHeight = 700;
+    const margin = 70;
+    const legendX = margin + 20;
+    const legendY = svgHeight - 150;
+
+    const scaleX = (svgWidth - 2 * margin - 180) / dachBreite;
+    const scaleY = (svgHeight - 2 * margin - 120 - 150) / dachHoehe;
+
     let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
-    svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#f8f9fa"/>`;
-    svg += `<text x="${svgWidth/2}" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3c72">Dachplattenrechner.de</text>`;
-    
-    const dachStartY = margin + 40;
+    svg += `<defs><style>
+        .title { font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; fill: #1e3c72; }
+        .roofLabel { font-family: Arial, sans-serif; font-size: 14px; fill: #333; }
+        .legendLabel { font-family: Arial, sans-serif; font-size: 12px; fill: #333; }
+        .dimension { font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; fill: #333; }
+    </style></defs>`;
+    svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#ffffff" stroke="#ddd" stroke-width="1"/>`;
+    svg += `<text x="${svgWidth/2}" y="35" text-anchor="middle" class="title">Dachverlegungsplan Visualisierung</text>`;
+
+    // Dachinfo-Box
+    const dachTypDisplay = {
+        'rechteck': 'Rechteck',
+        'trapez': 'Trapez',
+        'dreieck': 'Dreieck (Gleichschenklig)',
+        'gleichschenkliges-dreieck': 'Dreieck (Gleichschenklig)',
+        'ungleichschenkliges-dreieck': 'Dreieck (Ungleichschenklig)',
+        'trapez-auf-rechteck': 'Trapez auf Rechteck'
+    };
+
+    svg += `<rect x="${margin}" y="45" width="250" height="60" fill="#f0f4f8" stroke="#1976d2" stroke-width="1.5" rx="4"/>`;
+    svg += `<text x="${margin + 10}" y="65" class="roofLabel">Dachtyp: ${dachTypDisplay[dachTyp] || dachTyp}</text>`;
+    svg += `<text x="${margin + 10}" y="85" class="roofLabel">Sparren: ${anzahlSparren} Stück | Reihen: ${anzahlLattenReihen}</text>`;
+    svg += `<text x="${margin + 10}" y="100" class="roofLabel">Größe: ${dachBreite.toFixed(1)}m × ${dachHoehe.toFixed(1)}m</text>`;
+
+    const dachStartY = margin + 120;
     
     if (dachTyp === 'trapez') {
         const seitenAbstand = (dachBreite - obereBreite) / 2;
@@ -970,10 +993,39 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     }
     
     const breiteY = dachStartY + dachHoehe * scaleY + 40;
-    svg += `<line x1="${margin}" y1="${breiteY}" x2="${margin + dachBreite * scaleX}" y2="${breiteY}" stroke="#333" stroke-width="1.5"/>`;
-    svg += `<line x1="${margin}" y1="${breiteY - 3}" x2="${margin}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
-    svg += `<line x1="${margin + dachBreite * scaleX}" y1="${breiteY - 3}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 3}" stroke="#333" stroke-width="1.5"/>`;
-    svg += `<text x="${margin + dachBreite * scaleX/2}" y="${breiteY + 15}" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">Breite: ${dachBreite}m</text>`;
+    svg += `<line x1="${margin}" y1="${breiteY}" x2="${margin + dachBreite * scaleX}" y2="${breiteY}" stroke="#333" stroke-width="2"/>`;
+    svg += `<line x1="${margin}" y1="${breiteY - 5}" x2="${margin}" y2="${breiteY + 5}" stroke="#333" stroke-width="2"/>`;
+    svg += `<line x1="${margin + dachBreite * scaleX}" y1="${breiteY - 5}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 5}" stroke="#333" stroke-width="2"/>`;
+    svg += `<text x="${margin + dachBreite * scaleX/2}" y="${breiteY + 20}" text-anchor="middle" class="dimension">Breite: ${dachBreite.toFixed(1)}m</text>`;
+
+    // Legend für Latten-Längen
+    svg += `<rect x="${legendX}" y="${legendY}" width="300" height="130" fill="#f9f9f9" stroke="#1976d2" stroke-width="1.5" rx="4"/>`;
+    svg += `<text x="${legendX + 10}" y="${legendY + 25}" class="roofLabel" font-weight="bold">Latten-Längen (Farben):</text>`;
+
+    // Farben-Legend
+    const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
+    const restFarbe = '#e74c3c';
+
+    let legendY_current = legendY + 50;
+    [6, 5, 4, 3].forEach(laenge => {
+        if (lattenFarben[laenge]) {
+            svg += `<rect x="${legendX + 15}" y="${legendY_current - 8}" width="12" height="12" fill="${lattenFarben[laenge]}" stroke="#333" stroke-width="0.5"/>`;
+            svg += `<text x="${legendX + 35}" y="${legendY_current}" class="legendLabel">${laenge}m Latten</text>`;
+            legendY_current += 18;
+        }
+    });
+
+    svg += `<rect x="${legendX + 15}" y="${legendY_current - 8}" width="12" height="12" fill="${restFarbe}" stroke="#333" stroke-width="0.5"/>`;
+    svg += `<text x="${legendX + 35}" y="${legendY_current}" class="legendLabel">Rest/Verschnitt</text>`;
+
+    // Sparren-Legende
+    svg += `<rect x="${legendX + 170}" y="${legendY}" width="120" height="130" fill="#f9f9f9" stroke="#ff6b35" stroke-width="1.5" rx="4"/>`;
+    svg += `<text x="${legendX + 180}" y="${legendY + 25}" class="roofLabel" font-weight="bold">Elemente:</text>`;
+    svg += `<rect x="${legendX + 185}" y="${legendY + 40}" width="4" height="20" fill="#ff6b35" opacity="0.9"/>`;
+    svg += `<text x="${legendX + 200}" y="${legendY + 55}" class="legendLabel">Sparren</text>`;
+    svg += `<line x1="${legendX + 185}" y1="${legendY + 75}" x2="${legendX + 195}" y2="${legendY + 75}" stroke="#1976d2" stroke-width="3"/>`;
+    svg += `<text x="${legendX + 200}" y="${legendY + 80}" class="legendLabel">Stoß</text>`;
+
     svg += `</svg>`;
 
     // Schreibe ins DOM (falls Element existiert) UND returne den String
