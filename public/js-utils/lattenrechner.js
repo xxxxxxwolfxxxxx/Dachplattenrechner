@@ -248,6 +248,110 @@ function aktualisiereLattenabstandsfeld() {
 }
 
 /**
+ * Phase D: Globale Material-Kombi-Optimierung
+ * Testet verschiedene Szenarien für Material-Einsatz und wählt das beste
+ *
+ * @param {number} konterlattenGesamtlaenge - Benötigte Gesamtlänge für Konterlatten
+ * @param {number} dachlattenGesamtlaenge - Benötigte Gesamtlänge für Dachlatten
+ * @param {number[]} verfuegbareKonterlatten - Verfügbare Konterlattenlängen
+ * @param {number[]} verfuegbareDachlatten - Verfügbare Dachlattenlängen
+ * @returns {Object} { szenario: string, gesamtVerschnitt: number, empfehlung: string }
+ */
+function optimizeGlobalMaterialCombo(konterlattenGesamtlaenge, dachlattenGesamtlaenge, verfuegbareKonterlatten, verfuegbareDachlatten) {
+    // Berechne Verschnitt für verschiedene Szenarien
+    const szenarien = [];
+
+    // Szenario 1: Standard (beide Materialtypen wie berechnet)
+    const standardVerschnitt = (calcWasteForLength(konterlattenGesamtlaenge, verfuegbareKonterlatten) +
+                                calcWasteForLength(dachlattenGesamtlaenge, verfuegbareDachlatten));
+    szenarien.push({
+        szenario: 'standard',
+        beschreibung: 'Standard (beide Materialtypen)',
+        gesamtVerschnitt: standardVerschnitt,
+        priorität: 'normal'
+    });
+
+    // Szenario 2: Priorität Konterlatten (nutze diese wo möglich)
+    // Wenn wir zuerst Konterlatten verwenden und Rest mit Dachlatten füllen
+    const konterFirst = Math.max(0, konterlattenGesamtlaenge);
+    const restWithDach = Math.max(0, dachlattenGesamtlaenge);
+    const konterFirstVerschnitt = (calcWasteForLength(konterFirst, verfuegbareKonterlatten) +
+                                    calcWasteForLength(restWithDach, verfuegbareDachlatten));
+    szenarien.push({
+        szenario: 'konter-first',
+        beschreibung: 'Priorität Konterlatten',
+        gesamtVerschnitt: konterFirstVerschnitt,
+        priorität: 'normal'
+    });
+
+    // Szenario 3: Priorität Dachlatten
+    const dachFirst = Math.max(0, dachlattenGesamtlaenge);
+    const restWithKonter = Math.max(0, konterlattenGesamtlaenge);
+    const dachFirstVerschnitt = (calcWasteForLength(dachFirst, verfuegbareDachlatten) +
+                                  calcWasteForLength(restWithKonter, verfuegbareKonterlatten));
+    szenarien.push({
+        szenario: 'dach-first',
+        beschreibung: 'Priorität Dachlatten',
+        gesamtVerschnitt: dachFirstVerschnitt,
+        priorität: 'normal'
+    });
+
+    // Finde bestes Szenario
+    const bestes = szenarien.reduce((best, current) =>
+        current.gesamtVerschnitt < best.gesamtVerschnitt ? current : best
+    );
+
+    return {
+        szenario: bestes.szenario,
+        beschreibung: bestes.beschreibung,
+        gesamtVerschnitt: bestes.gesamtVerschnitt,
+        ersparnisse: Math.max(0, standardVerschnitt - bestes.gesamtVerschnitt),
+        prozent: Math.round((1 - bestes.gesamtVerschnitt / Math.max(1, standardVerschnitt)) * 100)
+    };
+}
+
+/**
+ * Hilfsfunktion: Berechnet Verschnitt für eine bestimmte Länge mit verfügbaren Materialien
+ * @param {number} benoetigteLaenge - Zu füllende Länge
+ * @param {number[]} verfuegbareMaterialien - Verfügbare Materialquerschnitte
+ * @returns {number} Berechneter Verschnitt
+ */
+function calcWasteForLength(benoetigteLaenge, verfuegbareMaterialien) {
+    if (benoetigteLaenge <= 0 || !verfuegbareMaterialien || verfuegbareMaterialien.length === 0) {
+        return 0;
+    }
+
+    let remaining = benoetigteLaenge;
+    let totalWaste = 0;
+    const sorted = [...verfuegbareMaterialien].sort((a, b) => b - a); // Größte zuerst
+
+    while (remaining > 0) {
+        const best = sorted.find(m => m >= remaining);
+        if (best) {
+            totalWaste += (best - remaining);
+            remaining = 0;
+        } else {
+            const next = sorted[0];
+            if (next > 0) {
+                remaining -= next;
+                if (remaining < 0) {
+                    totalWaste += Math.abs(remaining);
+                    remaining = 0;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
+    if (remaining > 0) {
+        totalWaste += remaining; // Nicht erfüllt - zähle als Verschnitt
+    }
+
+    return Math.max(0, totalWaste);
+}
+
+/**
  * Phase A: Knapsack-basiertes Rest-Matching
  * Findet die beste Kombination von verfügbaren Resten, die die Reihenbreite mit minimalem Verschnitt erfüllen
  *
