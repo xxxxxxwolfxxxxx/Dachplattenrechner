@@ -278,7 +278,9 @@ function zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, 
     // Umriss Rechteck + Dreieck (im Hintergrund)
     const rectBottomY = margin + dachHeight;
     const dreieckPeakX = margin + spitzePosX * scaleX;
-    const dreieckPeakY = margin + dachHeight - dreieckHoehe * scaleY;
+    // Spitze ist oben: margin + (dachHeight - (rechteckHoehe + dreieckHoehe) * scaleY)
+    const dreieckBaseY = margin + dachHeight - rechteckHoehe * scaleY; // Übergang Rechteck→Dreieck
+    const dreieckPeakY = dreieckBaseY - dreieckHoehe * scaleY; // Spitze des Dreiecks
 
     // Rechteck-Umriss und Dreieck-Umriss werden NACH den Platten gezeichnet (z-order fix)
     // Speichere sie zur späteren Verwendung
