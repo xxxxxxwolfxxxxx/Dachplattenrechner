@@ -818,35 +818,48 @@ function berechneReihenBreite(fortschritt) {
 }
 
 function optimiereKonterlatten(benoetigteLaenge, verfuegbareLaengen) {
-    verfuegbareLaengen.sort((a, b) => b - a);
-    
+    // Optimierung für Konterlatten: First-Fit-Decreasing (FFD) Bin Packing
+    // Da Konterlatten beliebig kurz sein können (keine Auflagepunkt-Anforderung),
+    // können wir jeden Rest verwenden - einfach hintereinander reihen
+
+    const sortiert = [...verfuegbareLaengen].sort((a, b) => b - a); // Längste zuerst
+
     const kombination = [];
     let verbleibendelaenge = benoetigteLaenge;
-    
+    let gesamtVerschnitt = 0;
+
     if (dachTyp === 'trapez') {
         const seitenAbstand = (dachBreite - obereBreite) / 2;
         const schraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + seitenAbstand * seitenAbstand);
         verbleibendelaenge += 2 * schraegeLaenge;
     }
-    
-    while (verbleibendelaenge > 0) {
-        let gefunden = false;
-        for (let laenge of verfuegbareLaengen) {
+
+    // FFD Algorithm: Nehme IMMER die längste verfügbare Latte die passt
+    while (verbleibendelaenge > 0.01) {
+        let besteMatch = null;
+        let besteIndex = -1;
+
+        // Finde BESTE (längste) Latte die passt
+        for (let i = 0; i < sortiert.length; i++) {
+            const laenge = sortiert[i];
             if (laenge <= verbleibendelaenge + 0.01) {
-                const existierend = kombination.find(k => k.laenge === laenge);
-                if (existierend) {
-                    existierend.anzahl++;
-                } else {
-                    kombination.push({ laenge: laenge, anzahl: 1 });
-                }
-                verbleibendelaenge -= laenge;
-                gefunden = true;
-                break;
+                besteMatch = laenge;
+                besteIndex = i;
+                break; // Erste in sortierter Liste ist längste
             }
         }
-        
-        if (!gefunden) {
-            const kleinste = Math.min(...verfuegbareLaengen);
+
+        if (besteMatch !== null) {
+            const existierend = kombination.find(k => k.laenge === besteMatch);
+            if (existierend) {
+                existierend.anzahl++;
+            } else {
+                kombination.push({ laenge: besteMatch, anzahl: 1 });
+            }
+            verbleibendelaenge -= besteMatch;
+        } else {
+            // Nichts passt mehr - verwende kleinste verfügbare
+            const kleinste = sortiert[sortiert.length - 1];
             const existierend = kombination.find(k => k.laenge === kleinste);
             if (existierend) {
                 existierend.anzahl++;
@@ -856,10 +869,11 @@ function optimiereKonterlatten(benoetigteLaenge, verfuegbareLaengen) {
             verbleibendelaenge -= kleinste;
         }
     }
-    
+
+    // Berechne tatsächlichen Verschnitt
     const gesamtLaenge = kombination.reduce((sum, k) => sum + (k.laenge * k.anzahl), 0);
-    const verschnitt = gesamtLaenge - benoetigteLaenge;
-    
+    const verschnitt = Math.max(0, gesamtLaenge - benoetigteLaenge);
+
     return {
         kombination: kombination,
         gesamtLaenge: gesamtLaenge,
