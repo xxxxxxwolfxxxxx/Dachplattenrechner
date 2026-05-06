@@ -265,7 +265,7 @@ function findBestRestCombinationKnapsack(verfuegbareReste, zielBreite, tolerance
     let minWaste = Infinity;
     let bestetotalLength = 0;
 
-    // Rekursive Funktion zur Suche aller Kombinationen
+    // Phase 1: Suche nach Kombinationen die >= zielBreite sind
     function searchCombinations(index, currentKombination, currentSum) {
         // Wenn wir die Mindestbreite erreicht haben, überprüfe ob diese Kombination besser ist
         if (currentSum >= zielBreite - tolerance) {
@@ -275,34 +275,36 @@ function findBestRestCombinationKnapsack(verfuegbareReste, zielBreite, tolerance
                 besteKombination = [...currentKombination];
                 bestetotalLength = currentSum;
             }
-            return; // Weitere Erweiterung dieser Kombination würde nur Verschnitt erhöhen
+            return; // Weitere Erweiterung würde nur Verschnitt erhöhen
         }
 
-        // Pruning: Wenn wir bereits zu viel Verschnitt haben, nicht weitermachen
-        if (currentSum + Math.min(...verfuegbareReste.slice(index)) > zielBreite + minWaste) {
+        // Pruning: Wenn wir bereits zu viel haben, nicht weitermachen
+        if (currentSum > zielBreite + minWaste) {
             return;
         }
 
-        // Versuche, alle verbleibenden Resten hinzuzufügen
-        for (let i = index; i < verfuegbareReste.length; i++) {
-            const rest = verfuegbareReste[i];
-            // Wenn dieser Rest allein zu viel Verschnitt erzeugen würde, überspringen
-            if (currentSum + rest - zielBreite >= minWaste) {
-                continue;
+        // Versuche alle verbleibenden Resten hinzuzufügen
+        if (index < verfuegbareReste.length) {
+            const minRest = Math.min(...verfuegbareReste.slice(index));
+            if (currentSum + minRest <= zielBreite + minWaste) {
+                for (let i = index; i < verfuegbareReste.length; i++) {
+                    const rest = verfuegbareReste[i];
+                    currentKombination.push(rest);
+                    searchCombinations(i + 1, currentKombination, currentSum + rest);
+                    currentKombination.pop();
+                }
             }
-
-            currentKombination.push(rest);
-            searchCombinations(i + 1, currentKombination, currentSum + rest);
-            currentKombination.pop();
         }
     }
 
-    // Starte Suche von Index 0
+    // Starte Suche
     searchCombinations(0, [], 0);
 
-    // Fallback: Wenn keine Kombination gefunden, gib die beste einzelne Latte zurück
-    if (besteKombination === null) {
-        for (let rest of verfuegbareReste) {
+    // Phase 2: Fallback - Wenn keine Kombination >= zielBreite gefunden, nimm beste einzelne
+    if (besteKombination === null || minWaste === Infinity) {
+        minWaste = Infinity;
+        for (let i = 0; i < verfuegbareReste.length; i++) {
+            const rest = verfuegbareReste[i];
             if (rest >= zielBreite - tolerance) {
                 const waste = rest - zielBreite;
                 if (waste < minWaste) {
@@ -314,10 +316,18 @@ function findBestRestCombinationKnapsack(verfuegbareReste, zielBreite, tolerance
         }
     }
 
+    // Phase 3: Letzer Fallback - Nimm einfach die längste verfügbare Latte
+    if (besteKombination === null) {
+        const longest = Math.max(...verfuegbareReste);
+        besteKombination = [longest];
+        bestetotalLength = longest;
+        minWaste = longest - zielBreite;
+    }
+
     return {
-        kombination: besteKombination || [],
+        kombination: besteKombination,
         totalLength: bestetotalLength,
-        waste: minWaste === Infinity ? Infinity : minWaste
+        waste: Math.max(0, minWaste === Infinity ? minWaste : minWaste)
     };
 }
 
