@@ -7,11 +7,11 @@ import AdUnit from '../../components/AdUnit.astro';
 <ToolLayout
   title="Dreieck auf Rechteck – Dreieckplatten berechnen"
   description="Berechnen Sie Dreieckbleche für kombinierte Dreieck-auf-Rechteck-Flächen. Ideal für Satteldächer mit Walm, Mansardendächer und Spitzdächer mit rechteckiger Basis."
-  keywords="Dreieckdach Blech berechnen, Spitzdach auf Rechteck, Satteldach Blech, Walmdach Dreieck, Dachblech Dreieck, Trapezbrofil Dreieck, Dreieckfläche berechnen"
+  keywords="Dreieckdach Blech berechnen, Spitzdach auf Rechteck, Satteldach Blech, Walmdach Dreieck, Dachblech Dreieck, Dreieckprofil Dreieck, Dreieckfläche berechnen"
   navTitle="Dreieck auf Rechteck"
   backHref="/tools/dachformen/"
   backLabel="← Dachformen"
-  background="url('/images/dreieck-rechteck.png')"
+  background="linear-gradient(135deg, rgba(30, 60, 114, 0.85) 0%, rgba(42, 82, 152, 0.85) 100%), url('/images/dreieck-rechteck.png')"
 >
   <InfoBox title="Wann verwende ich diesen Rechner?" icon="📐">
     <p>Dieser Rechner eignet sich für Flächen, die aus einem <strong>Dreieck oben und einem Rechteck unten</strong> bestehen:</p>
@@ -25,38 +25,8 @@ import AdUnit from '../../components/AdUnit.astro';
   </InfoBox>
 
   <div style="text-align: center; margin-bottom: 30px;">
-    <div style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-      <svg width="280" height="200" viewBox="0 0 280 200" style="margin-bottom: 15px;">
-        <!-- Rechteck (unten) -->
-        <rect x="40" y="120" width="200" height="60" fill="#e8f4fd" stroke="#1976d2" stroke-width="2"/>
-        <!-- Dreieck (oben) -->
-        <polygon points="140,20 40,120 240,120" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-        <!-- Sparren -->
-        <line x1="60" y1="180" x2="60" y2="90" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-        <line x1="80" y1="180" x2="80" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-        <line x1="100" y1="180" x2="100" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-        <line x1="120" y1="180" x2="120" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-        <line x1="140" y1="180" x2="140" y2="20" stroke="#dc3545" stroke-width="2" opacity="0.9"/>
-        <line x1="160" y1="180" x2="160" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-        <line x1="180" y1="180" x2="180" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-        <line x1="200" y1="180" x2="200" y2="20" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-        <line x1="220" y1="180" x2="220" y2="90" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-        <!-- Spitze-Markierung -->
-        <circle cx="140" cy="20" r="3" fill="#28a745"/>
-        <line x1="140" y1="18" x2="140" y2="5" stroke="#28a745" stroke-width="2"/>
-        <text x="140" y="0" text-anchor="middle" font-size="9" fill="#28a745" font-weight="bold">Spitze</text>
-        <!-- Basis-Linie -->
-        <line x1="40" y1="180" x2="240" y2="180" stroke="#dc3545" stroke-width="3"/>
-        <text x="140" y="195" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">Breite</text>
-        <!-- Übergangs-Linie -->
-        <line x1="40" y1="120" x2="240" y2="120" stroke="#ffc107" stroke-width="2" stroke-dasharray="5,5"/>
-        <text x="250" y="124" font-size="9" fill="#ffc107" font-weight="bold">Übergang</text>
-        <!-- Höhen-Markierungen -->
-        <line x1="25" y1="20" x2="25" y2="120" stroke="#ff6b35" stroke-width="3"/>
-        <text x="15" y="70" font-size="9" fill="#ff6b35" font-weight="bold" transform="rotate(-90 15 70)">Dreieck</text>
-        <line x1="25" y1="120" x2="25" y2="180" stroke="#6f42c1" stroke-width="3"/>
-        <text x="15" y="155" font-size="9" fill="#6f42c1" font-weight="bold" transform="rotate(-90 15 155)">Rechteck</text>
-      </svg>
+    <div style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; max-width: 400px;">
+      <img src="/images/dreieck-rechteck.png" alt="Dreieck auf Rechteck Visualisierung" style="width: 100%; height: auto; display: block;">
     </div>
   </div>
 
