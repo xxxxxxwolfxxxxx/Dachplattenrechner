@@ -218,8 +218,8 @@ function berechnen() {
 
     aktuelleSchnittliste = berechnung.schnittliste;
 
-    // Zeichne SVG-Vorschau
-    zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, dreieckTyp, spitzenPosition);
+    // Zeichne SVG-Vorschau mit Schnittliste
+    zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, dreieckTyp, spitzenPosition, berechnung.schnittliste);
 
     // Anzeige von Schnittliste und Vorschau
     document.getElementById('results').style.display = 'block';
@@ -229,15 +229,19 @@ function berechnen() {
     showAds();
 }
 
-function zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, dreieckTyp, spitzenPosition) {
+function zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, dreieckTyp, spitzenPosition, schnittliste) {
     const container = document.getElementById('vorschau-svg');
     if (!container) return;
 
-    const scale = 40;
-    const svgWidth = 700;
-    const svgHeight = 350;
-    const centerX = svgWidth / 2;
-    const centerY = 200;
+    const svgWidth = 500;
+    const svgHeight = 320;
+    const margin = 40;
+    const dachWidth = svgWidth - 2 * margin;
+    const dachHeight = svgHeight - 2 * margin - 40;
+
+    const gesamtHoehe = dreieckHoehe + rechteckHoehe;
+    const scaleX = dachWidth / breite;
+    const scaleY = dachHeight / gesamtHoehe;
 
     let spitzePosX;
     if (dreieckTyp === 'gleichschenkliges') {
@@ -246,64 +250,102 @@ function zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, 
         spitzePosX = spitzenPosition;
     }
 
-    const rectX = centerX - (breite * scale) / 2;
-    const rectY = centerY;
-    const rectW = breite * scale;
-    const rectH = rechteckHoehe * scale;
-    const triangleY = centerY - dreieckHoehe * scale;
-    const peakX = rectX + spitzePosX * scale;
+    // Hilfsfunktion: Höhe an Position berechnen
+    function hoeheAnPosition(pos) {
+        if (dreieckTyp === 'gleichschenkliges') {
+            const abstand = Math.abs(pos - breite / 2);
+            const prozent = abstand / (breite / 2);
+            const dreieckHoeheAnPos = dreieckHoehe * (1 - prozent);
+            return rechteckHoehe + dreieckHoeheAnPos;
+        } else {
+            if (pos <= spitzePosX) {
+                const prozent = pos / spitzePosX;
+                const dreieckHoeheAnPos = dreieckHoehe * prozent;
+                return rechteckHoehe + dreieckHoeheAnPos;
+            } else {
+                const abstand = breite - pos;
+                const prozent = abstand / (breite - spitzePosX);
+                const dreieckHoeheAnPos = dreieckHoehe * prozent;
+                return rechteckHoehe + dreieckHoeheAnPos;
+            }
+        }
+    }
 
-    const svg = `
-        <svg viewBox="0 0 ${svgWidth} ${svgHeight}" style="width:100%; height:auto; max-width:500px; margin:0 auto;">
-            <!-- Rechteck -->
-            <rect x="${rectX}" y="${rectY}" width="${rectW}" height="${rectH}"
-                  fill="rgba(74, 144, 226, 0.15)" stroke="#0ea5e9" stroke-width="2.5" rx="4"/>
+    let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" style="border: 1px solid #ddd; border-radius: 8px;">`;
 
-            <!-- Dreieck -->
-            <polygon points="${rectX},${rectY} ${peakX},${triangleY} ${rectX + rectW},${rectY}"
-                     fill="rgba(16, 185, 129, 0.12)" stroke="#10b981" stroke-width="2.5"/>
+    svg += `<rect width="${svgWidth}" height="${svgHeight}" fill="#fdfdfd"/>`;
 
-            <!-- Bemaßung: Breite -->
-            <line x1="${rectX}" y1="${rectY + rectH + 20}" x2="${rectX + rectW}" y2="${rectY + rectH + 20}"
-                  stroke="#cbd5e1" stroke-width="1"/>
-            <line x1="${rectX}" y1="${rectY + rectH + 15}" x2="${rectX}" y2="${rectY + rectH + 25}"
-                  stroke="#cbd5e1" stroke-width="1"/>
-            <line x1="${rectX + rectW}" y1="${rectY + rectH + 15}" x2="${rectX + rectW}" y2="${rectY + rectH + 25}"
-                  stroke="#cbd5e1" stroke-width="1"/>
-            <text x="${centerX}" y="${rectY + rectH + 45}" text-anchor="middle" font-size="14" font-weight="500" fill="#cbd5e1">
-                Breite: ${breite.toFixed(2)}m
-            </text>
+    // Umriss Rechteck + Dreieck (im Hintergrund)
+    const rectBottomY = margin + dachHeight;
+    const dreieckPeakX = margin + spitzePosX * scaleX;
+    const dreieckPeakY = margin + dachHeight - dreieckHoehe * scaleY;
 
-            <!-- Bemaßung: Rechteck-Höhe -->
-            <line x1="${rectX - 30}" y1="${rectY}" x2="${rectX - 30}" y2="${rectY + rectH}"
-                  stroke="#cbd5e1" stroke-width="1"/>
-            <line x1="${rectX - 35}" y1="${rectY}" x2="${rectX - 25}" y2="${rectY}"
-                  stroke="#cbd5e1" stroke-width="1"/>
-            <line x1="${rectX - 35}" y1="${rectY + rectH}" x2="${rectX - 25}" y2="${rectY + rectH}"
-                  stroke="#cbd5e1" stroke-width="1"/>
-            <text x="${rectX - 50}" y="${centerY + 5}" text-anchor="end" font-size="12" fill="#0ea5e9">
-                ${rechteckHoehe.toFixed(2)}m
-            </text>
+    // Rechteck-Umriss
+    svg += `<rect x="${margin}" y="${margin + dachHeight - rechteckHoehe * scaleY}" width="${dachWidth}" height="${rechteckHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2" opacity="0.5"/>`;
 
-            <!-- Bemaßung: Dreieck-Höhe -->
-            <line x1="${rectX + rectW + 30}" y1="${triangleY}" x2="${rectX + rectW + 30}" y2="${rectY}"
-                  stroke="#cbd5e1" stroke-width="1"/>
-            <line x1="${rectX + rectW + 25}" y1="${triangleY}" x2="${rectX + rectW + 35}" y2="${triangleY}"
-                  stroke="#cbd5e1" stroke-width="1"/>
-            <line x1="${rectX + rectW + 25}" y1="${rectY}" x2="${rectX + rectW + 35}" y2="${rectY}"
-                  stroke="#cbd5e1" stroke-width="1"/>
-            <text x="${rectX + rectW + 50}" y="${(triangleY + rectY) / 2 + 5}" text-anchor="start" font-size="12" fill="#10b981">
-                △ ${dreieckHoehe.toFixed(2)}m
-            </text>
+    // Dreieck-Umriss
+    svg += `<polygon points="${margin},${margin + dachHeight - rechteckHoehe * scaleY} ${dreieckPeakX},${dreieckPeakY} ${margin + dachWidth},${margin + dachHeight - rechteckHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2" opacity="0.5"/>`;
 
-            <!-- Spitze markieren -->
-            <circle cx="${peakX}" cy="${triangleY}" r="5" fill="#ffc107" stroke="#fff" stroke-width="1.5"/>
-            ${dreieckTyp === 'ungleichschenkliges' ?
-                `<text x="${peakX}" y="${triangleY - 15}" text-anchor="middle" font-size="11" fill="#ffc107" font-weight="600">
-                    Spitze: ${spitzenPosition.toFixed(2)}m
-                </text>` : ''}
-        </svg>
-    `;
+    // PFEIL FÜR VERLEGERICHTUNG
+    const pfeilY = margin - 20;
+    if (verlegerichtung === 'links') {
+        svg += `<line x1="${margin + 5}" y1="${pfeilY}" x2="${margin + dachWidth - 5}" y2="${pfeilY}" stroke="#ff6b35" stroke-width="2.5" marker-end="url(#arrow-right)"/>`;
+        svg += `<text x="${margin + dachWidth/2}" y="${pfeilY - 6}" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b35">Verlegerichtung →</text>`;
+    } else {
+        svg += `<line x1="${margin + dachWidth - 5}" y1="${pfeilY}" x2="${margin + 5}" y2="${pfeilY}" stroke="#ff6b35" stroke-width="2.5" marker-end="url(#arrow-left)"/>`;
+        svg += `<text x="${margin + dachWidth/2}" y="${pfeilY - 6}" text-anchor="middle" font-size="12" font-weight="bold" fill="#ff6b35">← Verlegerichtung</text>`;
+    }
+
+    // MARKER DEFINITIONEN
+    svg += `<defs>
+        <marker id="arrow-right" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="0">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff6b35"/>
+        </marker>
+        <marker id="arrow-left" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="8" markerHeight="8" orient="180">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff6b35"/>
+        </marker>
+    </defs>`;
+
+    // BLECHPLATTEN ZEICHNEN
+    schnittliste.forEach((platte, index) => {
+        const plattenStart = parseFloat(platte.positionVonLinks);
+        const plattenEnde = parseFloat(platte.positionBis);
+        const plattenBreite = parseFloat(platte.plattenbreite);
+        const benoetigteLaenge = parseFloat(platte.benoetigteLaenge);
+
+        const hoeheStart = hoeheAnPosition(plattenStart);
+        const hoeheEnde = hoeheAnPosition(plattenEnde);
+
+        const plattenX = margin + plattenStart * scaleX;
+        const plattenWidth = (plattenEnde - plattenStart) * scaleX;
+
+        const startY = margin + dachHeight - (hoeheStart * scaleY);
+        const endY = margin + dachHeight - (hoeheEnde * scaleY);
+        const plattenHoehe = benoetigteLaenge * scaleY;
+        const plattenY = margin + dachHeight - plattenHoehe;
+
+        // Platte mit Dreieck-Oberkante
+        const oberkante = Math.min(startY, endY);
+        svg += `<rect x="${plattenX}" y="${oberkante}" width="${plattenWidth}" height="${plattenHoehe - (oberkante - plattenY)}" fill="#1e3c72" opacity="0.4"/>`;
+
+        // Platte Nummer
+        svg += `<text x="${plattenX + plattenWidth/2}" y="${margin + dachHeight + 18}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">${platte.plattenNr}</text>`;
+
+        // Trennlinie zwischen Platten
+        if (index > 0) {
+            svg += `<line x1="${plattenX}" y1="${margin}" x2="${plattenX}" y2="${margin + dachHeight}" stroke="#666" stroke-width="1" opacity="0.5"/>`;
+        }
+    });
+
+    // BEMASSUNG: Breite
+    svg += `<line x1="${margin}" y1="${margin + dachHeight + 30}" x2="${margin + dachWidth}" y2="${margin + dachHeight + 30}" stroke="#666" stroke-width="1"/>`;
+    svg += `<text x="${margin + dachWidth/2}" y="${margin + dachHeight + 42}" text-anchor="middle" font-size="11" font-weight="bold" fill="#666">Breite: ${breite}m</text>`;
+
+    // BEMASSUNG: Gesamthöhe
+    svg += `<line x1="${margin - 15}" y1="${dreieckPeakY}" x2="${margin - 15}" y2="${margin + dachHeight}" stroke="#666" stroke-width="1"/>`;
+    svg += `<text x="${margin - 25}" y="${(dreieckPeakY + margin + dachHeight)/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#666" transform="rotate(-90 ${margin - 25} ${(dreieckPeakY + margin + dachHeight)/2})">H: ${gesamtHoehe}m</text>`;
+
+    svg += `</svg>`;
 
     container.innerHTML = svg;
 }
