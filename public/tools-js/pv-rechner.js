@@ -360,6 +360,33 @@ function dachBreiteAnY(yGlobal, dachBMM, dachHMM) {
     return boMM + (yGlobal / dachHMM) * (dachBMM - boMM);
   } else if (dachTyp === 'dreieck') {
     return (yGlobal / dachHMM) * dachBMM;
+  } else if (dachTyp === 'dreieck-auf-rechteck' && rechteckHoehe !== null && dreieckHoehe !== null) {
+    // Dreieck-auf-Rechteck: Oben (Dreieck) tapert zur Spitze, Unten (Rechteck) volle Breite
+    const dreieckHMM = dreieckHoehe * 1000;
+
+    if (yGlobal >= dreieckHMM) {
+      // Im Rechteck-Bereich: volle Breite
+      return dachBMM;
+    } else {
+      // Im Dreieck-Bereich (oben)
+      if (dachDreieckTyp === 'ungleichschenkliges' && spitzePosX !== null) {
+        // Asymmetrisches Dreieck mit spitzePosX
+        const spitzePosXMM = spitzePosX * 1000;
+        const linkeBreite = spitzePosXMM;
+        const rechteBreite = dachBMM - spitzePosXMM;
+
+        // Anteil: wie weit sind wir vom Peak (0) zur Basis (dreieckHMM)?
+        const prozent = yGlobal / dreieckHMM;
+
+        // Breite wächst linear von 0 zur Basis
+        const leftWidth = linkeBreite * prozent;
+        const rightWidth = rechteBreite * prozent;
+        return leftWidth + rightWidth;
+      } else {
+        // Symmetrisches (gleichschenkliges) Dreieck
+        return (yGlobal / dreieckHMM) * dachBMM;
+      }
+    }
   } else {
     return dachBMM;
   }
@@ -379,7 +406,8 @@ function berechneLayoutFuerForm(dachBMM, dachHMM, randMM, modB, modH, gapMM) {
   if (reihen === 0) return { reihen: 0, anzahl: 0, rows: [], modB, modH };
 
   const isShapeAware = (dachTyp === 'trapez' && dachBreiteOben !== null && dachBreiteOben > 0 && dachBreiteOben * 1000 < dachBMM)
-                     || dachTyp === 'dreieck';
+                     || dachTyp === 'dreieck'
+                     || (dachTyp === 'dreieck-auf-rechteck' && rechteckHoehe !== null && dreieckHoehe !== null);
 
   const rows = [];
   let totalAnzahl = 0;
