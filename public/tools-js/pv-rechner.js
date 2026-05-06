@@ -12,8 +12,12 @@ let hindernisse  = [];
 let currentHindernisTyp = 'schornstein';
 
 // Dachform
-let dachTyp        = 'rechteck';
-let dachBreiteOben = null; // Trapez: obere Breite in Metern
+let dachTyp         = 'rechteck';
+let dachBreiteOben  = null;      // Trapez: obere Breite in Metern
+let dachDreieckTyp  = null;      // Dreieck: 'gleichschenkliges' oder 'ungleichschenkliges'
+let spitzePosX      = null;      // Ungleichschenkliges Dreieck: Spitzenposition von links (m)
+let rechteckHoehe   = null;      // Dreieck auf Rechteck: Rechteck-Teil Höhe (m)
+let dreieckHoehe    = null;      // Dreieck auf Rechteck: Dreieck-Teil Höhe (m)
 
 // Sensor
 let sensorActive = false;
@@ -40,6 +44,49 @@ const YIELD_SOUTH = {
 const REGION_FACTOR = {
   sued: 1.10, mitte: 1.00, ost: 0.95, west: 0.97, nord: 0.90
 };
+
+// ---- Effektive Dachfläche berechnen (form-specific) ----
+function berechneEffektiveFläche(dachTyp, breiteM, hoeheM) {
+  switch(dachTyp) {
+    case 'rechteck':
+      // Rechteck: volle Fläche
+      return breiteM * hoeheM;
+
+    case 'gleichschenkliges-dreieck':
+    case 'ungleichschenkliges-dreieck':
+      // Dreieck: Hälfte der Rechteck-Fläche (Breite × Höhe / 2)
+      return (breiteM * hoeheM) / 2;
+
+    case 'trapez':
+      // Trapez: ((obere Breite + untere Breite) × Höhe) / 2
+      if (dachBreiteOben === null) return breiteM * hoeheM; // Fallback
+      return ((dachBreiteOben + breiteM) * hoeheM) / 2;
+
+    case 'dreieck-auf-rechteck':
+      // Dreieck auf Rechteck: (Breite × Rechteck-Höhe) + (Breite × Dreieck-Höhe / 2)
+      // Hier: rechteckHoehe und dreieckHoehe sind separate Parameter (nicht in hoeheM enthalten)
+      if (rechteckHoehe === null || dreieckHoehe === null) {
+        // Fallback: wenn Parameter nicht gesetzt, nimm an dass hoeheM = gesamtHöhe
+        // und schätze die Anteile (Annahme: 50/50)
+        return (breiteM * hoeheM * 0.75); // Reduktion für Dreieck-Form
+      }
+      const rectArea = breiteM * rechteckHoehe;
+      const triArea = (breiteM * dreieckHoehe) / 2;
+      return rectArea + triArea;
+
+    case 'trapez-auf-rechteck':
+      // Trapez auf Rechteck: Kombination aus Rechteck-Trapez und Dreieck
+      if (dachBreiteOben === null || rechteckHoehe === null || dreieckHoehe === null) return breiteM * hoeheM;
+      // Rechteck-Teil als Trapez
+      const rectAreaTR = ((dachBreiteOben + breiteM) * rechteckHoehe) / 2;
+      // Dreieck-Teil
+      const triAreaTR = (breiteM * dreieckHoehe) / 2;
+      return rectAreaTR + triAreaTR;
+
+    default:
+      return breiteM * hoeheM;
+  }
+}
 
 // ---- Azimut → Himmelsrichtungsname ----
 function azimuthLabel(deg) {
@@ -84,6 +131,10 @@ function ladeDachParameter() {
   if (p.has('hoehe'))       document.getElementById('dach-laenge').value = parseFloat(p.get('hoehe'));
   if (p.has('typ'))         dachTyp = p.get('typ');
   if (p.has('breite-oben')) dachBreiteOben = parseFloat(p.get('breite-oben'));
+  if (p.has('dreieckTyp'))  dachDreieckTyp = p.get('dreieckTyp');
+  if (p.has('spitzenPosition')) spitzePosX = parseFloat(p.get('spitzenPosition'));
+  if (p.has('rechteckHoehe')) rechteckHoehe = parseFloat(p.get('rechteckHoehe'));
+  if (p.has('dreieckHoehe'))  dreieckHoehe = parseFloat(p.get('dreieckHoehe'));
   if (p.has('neigung')) {
     const n = parseInt(p.get('neigung'));
     document.getElementById('neigung').value = n;
@@ -811,6 +862,13 @@ function berechne() {
   const finalAnzahl = Math.max(0, layout.anzahl - blocked);
   const kwp         = (finalAnzahl * selModWatt) / 1000;
 
+  // Berechne effektive Dachfläche basierend auf Dachform (ohne Randabzug)
+  const effektiveFläche = berechneEffektiveFläche(dachTyp, dachBreiteM, dachLaengeM);
+
+  // Randabzug: vereinfacht als prozentuale Reduktion (Rand von allen Seiten)
+  const randabzugFaktor = (1 - 2 * randM / Math.max(dachBreiteM, dachLaengeM));
+  const nutzbareFlächeM2 = effektiveFläche * randabzugFaktor * randabzugFaktor;
+
   const baseSuedYield = interpolateNeigung(neigung);
   const oriF          = orientFactor(selAzimuth);
   const regionFak     = REGION_FACTOR[region] || 1.0;
@@ -850,9 +908,10 @@ function berechne() {
     : `${maxSpalten}`;
 
   const details = [
+    ['Dachform', `${dachTyp}`],
     ['Dachbreite', `${dachBreiteM.toFixed(2)} m`],
     ['Dachlänge', `${dachLaengeM.toFixed(2)} m`],
-    ['Nutzbare Fläche', `${((dachBMM - 2*randMM)/1000 * (dachHMM - 2*randMM)/1000).toFixed(1)} m²`],
+    ['Nutzbare Fläche', `${nutzbareFlächeM2.toFixed(1)} m²`],
     ['Modulformat', `${layout.modB} × ${layout.modH} mm (${selModWatt} W)`],
     ['Ausrichtung', layout.orientierung],
     ['Reihen', `${layout.reihen}`],
