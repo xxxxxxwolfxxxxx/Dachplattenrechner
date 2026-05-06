@@ -241,11 +241,11 @@ function berechneSpitzdachSparren(anzahlSparren) {
             const seitenAbstandTA = (dachBreite - obereBreite) / 2;
             const linkeObereEckeTA = seitenAbstandTA;
             const rechteObereEckeTA = dachBreite - seitenAbstandTA;
-            
+
             for (let i = 0; i < anzahlSparren; i++) {
                 const xPosition = sparrenPositionen[i];
                 let sparrenLaenge = rechteckHoehe;
-                
+
                 if (xPosition <= linkeObereEckeTA) {
                     sparrenLaenge += (xPosition / linkeObereEckeTA) * trapezHoehe;
                 } else if (xPosition >= rechteObereEckeTA) {
@@ -253,11 +253,42 @@ function berechneSpitzdachSparren(anzahlSparren) {
                 } else {
                     sparrenLaenge += trapezHoehe;
                 }
-                
+
                 sparrenLaengen.push(Math.max(0, sparrenLaenge));
             }
             break;
-            
+
+        case 'dreieck-auf-rechteck':
+            const halbBreiteDR = dachBreite / 2;
+
+            for (let i = 0; i < anzahlSparren; i++) {
+                const xPosition = sparrenPositionen[i];
+                let sparrenLaenge = rechteckHoehe;
+
+                // Dreieck-Teil: variable Höhe je nach Position von Peak (Mitte) zu Basis (Rand)
+                let dreieckHoeheAnPosition;
+                if (dachDreieckTyp === 'ungleichschenkliges' && spitzePosX !== null) {
+                    // Asymmetrisches Dreieck mit beliebiger Peak-Position
+                    const spitzePos = spitzePosX;
+                    if (xPosition <= spitzePos) {
+                        dreieckHoeheAnPosition = (xPosition / spitzePos) * dreieckHoehe;
+                    } else {
+                        dreieckHoeheAnPosition = ((dachBreite - xPosition) / (dachBreite - spitzePos)) * dreieckHoehe;
+                    }
+                } else {
+                    // Symmetrisches (gleichschenkliges) Dreieck mit Peak in der Mitte
+                    if (xPosition <= halbBreiteDR) {
+                        dreieckHoeheAnPosition = (xPosition / halbBreiteDR) * dreieckHoehe;
+                    } else {
+                        dreieckHoeheAnPosition = ((dachBreite - xPosition) / halbBreiteDR) * dreieckHoehe;
+                    }
+                }
+
+                sparrenLaenge += dreieckHoeheAnPosition;
+                sparrenLaengen.push(Math.max(0, sparrenLaenge));
+            }
+            break;
+
         default:
             for (let i = 0; i < anzahlSparren; i++) {
                 sparrenLaengen.push(dachHoehe);
