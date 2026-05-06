@@ -1173,7 +1173,7 @@ window.lattenrechner = {
       const counterResult = optimiereKonterlatten(konterlattenGesamtlaenge, params.availableCounters);
 
       // Berechne Dachlatten
-      const anzahlLattenReihen = Math.ceil((dachHoehe * 100) / params.rowSpacing) + 1;
+      const anzahlLattenReihen = Math.ceil((dachHoehe * 1000) / params.rowSpacing) + 1;
       const roofResult = berechneDachlattenIntelligent(sparrenPositionen, params.rowSpacing, params.availableRafters, anzahlLattenReihen);
 
       // counterResult hat { kombination: [...{ laenge, anzahl }], gesamtLaenge, verschnitt }
