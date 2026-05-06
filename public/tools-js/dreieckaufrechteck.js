@@ -388,9 +388,16 @@ function erstellePVRechner() {
     const breite = parseFloat(document.getElementById('breite').value);
     const dreieckHoehe = parseFloat(document.getElementById('dreieck-hoehe').value);
     const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
+    const dreieckTyp = document.getElementById('dreieck-typ').value;
     const gesamtHoehe = dreieckHoehe + rechteckHoehe;
 
-    const url = `/tools/pv-rechner/?breite=${breite.toFixed(2)}&hoehe=${gesamtHoehe.toFixed(2)}`;
+    // Spitzenposition: wenn nicht eingegeben, auf Mitte setzen
+    let spitzenPosition = parseFloat(document.getElementById('spitzen-position').value);
+    if (!spitzenPosition || isNaN(spitzenPosition)) {
+        spitzenPosition = breite / 2;
+    }
+
+    const url = `/tools/pv-rechner/?typ=dreieck-auf-rechteck&breite=${breite.toFixed(2)}&hoehe=${gesamtHoehe.toFixed(2)}&dreieckHoehe=${dreieckHoehe.toFixed(2)}&rechteckHoehe=${rechteckHoehe.toFixed(2)}&dreieckTyp=${dreieckTyp}&spitzenPosition=${spitzenPosition.toFixed(2)}`;
     window.location.href = url;
 }
 
