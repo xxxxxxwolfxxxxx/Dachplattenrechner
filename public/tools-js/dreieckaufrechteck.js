@@ -47,8 +47,8 @@ function berechneDreieckAufRechteck(breite, dreieckHoehe, rechteckHoehe, dreieck
     if (dreieckTyp === 'gleichschenkliges') {
         spitzePosX = breite / 2; // Spitze zentriert
     } else {
-        // Ungleichschenkliges Dreieck: Spitzenpunkt basierend auf Prozentsatz
-        spitzePosX = (spitzenPosition / 100) * breite;
+        // Ungleichschenkliges Dreieck: Spitzenpunkt in Metern von links
+        spitzePosX = spitzenPosition;
     }
 
     let anzahlPlatten = Math.ceil((breite - lieferbreite + deckbreite) / deckbreite);
@@ -138,7 +138,7 @@ function berechneSeitenlaengen(breite, dreieckHoehe, rechteckHoehe, dreieckTyp, 
         rechteSeite = linkeGesamtSeite; // Gleich bei symmetrischem Dreieck
     } else {
         // Asymmetrisches Dreieck
-        const spitzePosX = (spitzenPosition / 100) * breite;
+        const spitzePosX = spitzenPosition;
         const linkeBreite = spitzePosX;
         const rechteBreite = breite - spitzePosX;
 
@@ -157,13 +157,18 @@ function berechnen() {
     const dreieckHoehe = parseFloat(document.getElementById('dreieck-hoehe').value);
     const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
     const dreieckTyp = document.getElementById('dreieck-typ').value;
-    const spitzenPosition = parseFloat(document.getElementById('spitzen-position').value) || 50;
     const deckbreite = parseFloat(document.getElementById('deckbreite').value);
     const lieferbreite = parseFloat(document.getElementById('lieferbreite').value);
 
     if (!breite || !dreieckHoehe || !rechteckHoehe || !deckbreite || !lieferbreite) {
         alert('Bitte füllen Sie alle erforderlichen Felder aus!');
         return;
+    }
+
+    // Spitzenposition: wenn nicht eingegeben, auf Mitte setzen (für symmetrisches Dreieck)
+    let spitzenPosition = parseFloat(document.getElementById('spitzen-position').value);
+    if (!spitzenPosition || isNaN(spitzenPosition)) {
+        spitzenPosition = breite / 2; // Default: Mitte
     }
 
     if (typeof gtag !== 'undefined') {
@@ -231,13 +236,18 @@ function erstelleLattenrechner() {
     const dreieckHoehe = parseFloat(document.getElementById('dreieck-hoehe').value);
     const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
     const dreieckTyp = document.getElementById('dreieck-typ').value;
-    const spitzenPosition = parseFloat(document.getElementById('spitzen-position').value) || 50;
+    let spitzenPosition = parseFloat(document.getElementById('spitzen-position').value);
+
+    // Spitzenposition: wenn nicht eingegeben, auf Mitte setzen
+    if (!spitzenPosition || isNaN(spitzenPosition)) {
+        spitzenPosition = breite / 2; // Default: Mitte
+    }
 
     // Gesamthöhe = Dreieck + Rechteck
     const gesamtHoehe = dreieckHoehe + rechteckHoehe;
 
-    // URL für Lattenrechner mit neuer Dachform
-    const url = `/tools/lattenrechner/?typ=dreieck-auf-rechteck&breite=${breite.toFixed(2)}&hoehe=${gesamtHoehe.toFixed(2)}&dreieckHoehe=${dreieckHoehe.toFixed(2)}&rechteckHoehe=${rechteckHoehe.toFixed(2)}&dreieckTyp=${dreieckTyp}&spitzenPosition=${spitzenPosition.toFixed(0)}`;
+    // URL für Lattenrechner mit neuer Dachform (spitzenPosition in Metern)
+    const url = `/tools/lattenrechner/?typ=dreieck-auf-rechteck&breite=${breite.toFixed(2)}&hoehe=${gesamtHoehe.toFixed(2)}&dreieckHoehe=${dreieckHoehe.toFixed(2)}&rechteckHoehe=${rechteckHoehe.toFixed(2)}&dreieckTyp=${dreieckTyp}&spitzenPosition=${spitzenPosition.toFixed(2)}`;
     window.location.href = url;
 }
 

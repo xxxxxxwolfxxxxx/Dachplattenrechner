@@ -75,8 +75,8 @@ import AdUnit from '../../components/AdUnit.astro';
     </div>
     <div class="input-row">
       <div class="input-group">
-        <label for="spitzen-position" id="spitzen-position-label" style="display: none;">Spitzen-Position (% von links)</label>
-        <input type="number" id="spitzen-position" step="1" min="0" max="100" value="50" placeholder="z.B. 50" style="display: none;">
+        <label for="spitzen-position" id="spitzen-position-label" style="display: none;">Spitzen-Position (m von links)</label>
+        <input type="number" id="spitzen-position" step="0.01" min="0" placeholder="z.B. 5.0 (Breite ÷ 2 = Mitte)" style="display: none;">
       </div>
     </div>
     <div class="info-box">
@@ -276,7 +276,7 @@ import AdUnit from '../../components/AdUnit.astro';
       if (dreieckTypSelect) dreieckTypSelect.value = params.get('dreieckTyp');
     }
     if (params.has('spitzenPosition')) {
-      if (spitzenPositionInput) spitzenPositionInput.value = parseFloat(params.get('spitzenPosition')).toFixed(0);
+      if (spitzenPositionInput) spitzenPositionInput.value = parseFloat(params.get('spitzenPosition')).toFixed(2);
     }
 
     // Zeige Spitzen-Position-Input nur für ungleichschenkliges Dreieck
