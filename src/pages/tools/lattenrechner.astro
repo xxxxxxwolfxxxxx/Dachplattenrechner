@@ -491,7 +491,9 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const obereBreite = urlParams.has('obereBreite') ? parseFloat(urlParams.get('obereBreite')) : breite * 0.8;
     const trapezHoehe = urlParams.has('trapezHoehe') ? parseFloat(urlParams.get('trapezHoehe')) : hoehe * 0.4;
     const rechteckHoehe = urlParams.has('rechteckHoehe') ? parseFloat(urlParams.get('rechteckHoehe')) : hoehe * 0.3;
-    const spitzenPosition = urlParams.has('spitzenPosition') ? parseFloat(urlParams.get('spitzenPosition')) : breite * 0.5;
+    const dreieckHoehe = urlParams.has('dreieckHoehe') ? parseFloat(urlParams.get('dreieckHoehe')) : hoehe * 0.4;
+    const spitzenPosition = urlParams.has('spitzenPosition') ? parseFloat(urlParams.get('spitzenPosition')) : 50;
+    const dreieckTyp = urlParams.has('dreieckTyp') ? urlParams.get('dreieckTyp') : 'gleichschenkliges';
 
     if (!breite || !hoehe || !lattenabstand) {
       alert('Bitte füllen Sie alle erforderlichen Felder aus!');
@@ -517,7 +519,10 @@ import * as lattenrechner from '../../utils/lattenrechner';
         upperWidth: typ === 'trapez' ? obereBreite : undefined,
         trapezHeight: typ === 'trapez-auf-rechteck' ? trapezHoehe : undefined,
         rectHeight: typ === 'trapez-auf-rechteck' ? rechteckHoehe : undefined,
-        spitzenPosition: typ === 'ungleichschenkliges-dreieck' ? spitzenPosition : undefined
+        dreieckHeight: typ === 'dreieck-auf-rechteck' ? dreieckHoehe : undefined,
+        dreieckRectHeight: typ === 'dreieck-auf-rechteck' ? rechteckHoehe : undefined,
+        spitzenPosition: (typ === 'ungleichschenkliges-dreieck' || typ === 'dreieck-auf-rechteck') ? spitzenPosition : undefined,
+        dreieckType: typ === 'dreieck-auf-rechteck' ? dreieckTyp : undefined
       };
 
       const calcParams = {
@@ -542,6 +547,32 @@ import * as lattenrechner from '../../utils/lattenrechner';
       if (!window.lattenrechner) {
         throw new Error('Utility konnte nicht initialisiert werden');
       }
+
+      // KRITISCH: Setze globale Variablen BEVOR generiereVorschau aufgerufen wird!
+      // Diese Variablen werden von generiereVorschau() verwendet
+      window.dachBreite = breite;
+      window.dachHoehe = hoehe;
+      window.dachTyp = typ;
+      window.obereBreite = typ === 'trapez' || typ === 'trapez-auf-rechteck' ? obereBreite : breite;
+      window.trapezHoehe = typ === 'trapez-auf-rechteck' ? trapezHoehe : (typ === 'trapez' ? hoehe : 0);
+      window.rechteckHoehe = typ === 'trapez-auf-rechteck' || typ === 'dreieck-auf-rechteck' ? rechteckHoehe : 0;
+      window.dreieckHoehe = typ === 'dreieck-auf-rechteck' ? dreieckHoehe : 0;
+      window.spitzenPosition = typ === 'dreieck-auf-rechteck' ? (spitzenPosition / 100) : 0.5;
+      window.dreieckTyp = typ === 'dreieck-auf-rechteck' ? dreieckTyp : 'gleichschenkliges';
+      window.sparrenPositionen = [];
+      window.sparrenLaengen = [];
+
+      console.log('✅ Globale Variablen gesetzt:', {
+        dachBreite: window.dachBreite,
+        dachHoehe: window.dachHoehe,
+        dachTyp: window.dachTyp,
+        obereBreite: window.obereBreite,
+        trapezHoehe: window.trapezHoehe,
+        rechteckHoehe: window.rechteckHoehe,
+        dreieckHoehe: window.dreieckHoehe,
+        spitzenPosition: window.spitzenPosition,
+        dreieckTyp: window.dreieckTyp
+      });
 
       const result = window.lattenrechner.berechne(calcParams);
 
