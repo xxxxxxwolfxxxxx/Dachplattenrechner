@@ -808,9 +808,10 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     const margin = 70;
     const legendX = margin + 20;
     const legendY = svgHeight - 150;
+    const dachStartY = margin + 120;
 
     const scaleX = (svgWidth - 2 * margin - 180) / dachBreite;
-    const scaleY = (svgHeight - 2 * margin - 120 - 150) / dachHoehe;
+    const scaleY = (legendY - dachStartY) / dachHoehe;
 
     let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
     svg += `<defs><style>
@@ -836,8 +837,6 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     svg += `<text x="${margin + 10}" y="65" class="roofLabel">Dachtyp: ${dachTypDisplay[dachTyp] || dachTyp}</text>`;
     svg += `<text x="${margin + 10}" y="85" class="roofLabel">Sparren: ${anzahlSparren} Stück | Reihen: ${anzahlLattenReihen}</text>`;
     svg += `<text x="${margin + 10}" y="100" class="roofLabel">Größe: ${dachBreite.toFixed(1)}m × ${dachHoehe.toFixed(1)}m</text>`;
-
-    const dachStartY = margin + 120;
     
     if (dachTyp === 'trapez') {
         const seitenAbstand = (dachBreite - obereBreite) / 2;
