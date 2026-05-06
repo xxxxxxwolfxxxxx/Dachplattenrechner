@@ -1221,14 +1221,12 @@ window.lattenrechner = {
       trapezHoehe = roofDims.trapezHeight || 0;
       rechteckHoehe = roofDims.rectHeight || 0;
 
-      // WICHTIG: Setze window.lattenPlan mit den Daten vom result
-      window.lattenPlan = result.roofRafters.plan || {};
-      console.log('📋 window.lattenPlan gesetzt mit', Object.keys(window.lattenPlan).length, 'Reihen');
-
       // Berechne Sparren-Längen für den Dachtyp (notwendig für korrektes SVG-Rendering!)
       berechneSpitzdachSparren(rafterCount);
 
+      // window.lattenPlan wird bereits von berechneDachlattenIntelligent() gesetzt
       console.log(`🎨 Generiere SVG für ${dachTyp} (${rafterCount} Sparren)`);
+      console.log('📋 window.lattenPlan hat', Array.isArray(window.lattenPlan) ? window.lattenPlan.length : Object.keys(window.lattenPlan || {}).length, 'Reihen');
       return generiereVorschau(rafterCount, result.rowCount, rowSpacing || 600);
     } catch (e) {
       console.error('❌ Fehler in generiereVorschau():', e.message, e.stack);
