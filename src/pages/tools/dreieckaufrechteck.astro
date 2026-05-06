@@ -236,9 +236,15 @@ import AdUnit from '../../components/AdUnit.astro';
   .result-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
   .result-item:last-child { border-bottom: none; }
   .result-item span:last-child { font-weight: bold; font-size: 1.1em; color: #ffd700; }
-  .schnitt-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; overflow: hidden; }
-  .schnitt-table th, .schnitt-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
-  .schnitt-table th { background: rgba(255, 255, 255, 0.2); font-weight: 600; }
+  .schnitt-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; overflow: hidden; table-layout: fixed; }
+  .schnitt-table th { background: rgba(255, 255, 255, 0.2); font-weight: 600; padding: 12px; text-align: left; border-bottom: 2px solid rgba(255, 255, 255, 0.3); }
+  .schnitt-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+  .schnitt-table th:nth-child(1) { width: 12%; }
+  .schnitt-table th:nth-child(2) { width: 28%; }
+  .schnitt-table th:nth-child(3) { width: 28%; }
+  .schnitt-table th:nth-child(4) { width: 32%; }
+  .schnitt-table td:nth-child(1) { text-align: center; }
+  .schnitt-table td:nth-child(2), .schnitt-table td:nth-child(3), .schnitt-table td:nth-child(4) { text-align: right; }
   .anriss-btn { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 20px auto; display: block; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); transition: all 0.3s ease; min-width: 200px; }
   .anriss-btn:hover { transform: translateY(-2px); }
   input[type="radio"]:checked { accent-color: #1e3c72; }
