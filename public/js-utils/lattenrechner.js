@@ -815,7 +815,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
     svg += `<defs><style>
         .title { font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; fill: #1e3c72; }
-        .roofLabel { font-family: Arial, sans-serif; font-size: 14px; fill: #333; }
+        .roofLabel { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #333; }
         .legendLabel { font-family: Arial, sans-serif; font-size: 12px; fill: #333; }
         .dimension { font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; fill: #333; }
     </style></defs>`;
@@ -1000,11 +1000,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
 
     // Legend für Latten-Längen
     svg += `<rect x="${legendX}" y="${legendY}" width="300" height="130" fill="#f9f9f9" stroke="#1976d2" stroke-width="1.5" rx="4"/>`;
-    svg += `<text x="${legendX + 10}" y="${legendY + 25}" class="roofLabel" font-weight="bold">Latten-Längen (Farben):</text>`;
-
-    // Farben-Legend
-    const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
-    const restFarbe = '#e74c3c';
+    svg += `<text x="${legendX + 10}" y="${legendY + 25}" class="roofLabel">Latten-Längen (Farben):</text>`;
 
     let legendY_current = legendY + 50;
     [6, 5, 4, 3].forEach(laenge => {
@@ -1020,7 +1016,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
 
     // Sparren-Legende
     svg += `<rect x="${legendX + 170}" y="${legendY}" width="120" height="130" fill="#f9f9f9" stroke="#ff6b35" stroke-width="1.5" rx="4"/>`;
-    svg += `<text x="${legendX + 180}" y="${legendY + 25}" class="roofLabel" font-weight="bold">Elemente:</text>`;
+    svg += `<text x="${legendX + 180}" y="${legendY + 25}" class="roofLabel">Elemente:</text>`;
     svg += `<rect x="${legendX + 185}" y="${legendY + 40}" width="4" height="20" fill="#ff6b35" opacity="0.9"/>`;
     svg += `<text x="${legendX + 200}" y="${legendY + 55}" class="legendLabel">Sparren</text>`;
     svg += `<line x1="${legendX + 185}" y1="${legendY + 75}" x2="${legendX + 195}" y2="${legendY + 75}" stroke="#1976d2" stroke-width="3"/>`;
