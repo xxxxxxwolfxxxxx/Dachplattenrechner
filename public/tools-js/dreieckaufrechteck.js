@@ -280,11 +280,10 @@ function zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, 
     const dreieckPeakX = margin + spitzePosX * scaleX;
     const dreieckPeakY = margin + dachHeight - dreieckHoehe * scaleY;
 
-    // Rechteck-Umriss
-    svg += `<rect x="${margin}" y="${margin + dachHeight - rechteckHoehe * scaleY}" width="${dachWidth}" height="${rechteckHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2" opacity="0.5"/>`;
-
-    // Dreieck-Umriss
-    svg += `<polygon points="${margin},${margin + dachHeight - rechteckHoehe * scaleY} ${dreieckPeakX},${dreieckPeakY} ${margin + dachWidth},${margin + dachHeight - rechteckHoehe * scaleY}" fill="none" stroke="#1976d2" stroke-width="2" opacity="0.5"/>`;
+    // Rechteck-Umriss und Dreieck-Umriss werden NACH den Platten gezeichnet (z-order fix)
+    // Speichere sie zur späteren Verwendung
+    const rechteckUmriss = `<rect x="${margin}" y="${margin + dachHeight - rechteckHoehe * scaleY}" width="${dachWidth}" height="${rechteckHoehe * scaleY}" fill="none" stroke="#ff6b35" stroke-width="3"/>`;
+    const dreieckUmriss = `<polygon points="${margin},${margin + dachHeight - rechteckHoehe * scaleY} ${dreieckPeakX},${dreieckPeakY} ${margin + dachWidth},${margin + dachHeight - rechteckHoehe * scaleY}" fill="none" stroke="#ff6b35" stroke-width="3"/>`;
 
     // PFEIL FÜR VERLEGERICHTUNG
     const pfeilY = margin - 20;
@@ -336,6 +335,10 @@ function zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, 
             svg += `<line x1="${plattenX}" y1="${margin}" x2="${plattenX}" y2="${margin + dachHeight}" stroke="#666" stroke-width="1" opacity="0.5"/>`;
         }
     });
+
+    // Umrisse NACH Platten zeichnen (z-order: oben!)
+    svg += rechteckUmriss;
+    svg += dreieckUmriss;
 
     // BEMASSUNG: Breite
     svg += `<line x1="${margin}" y1="${margin + dachHeight + 30}" x2="${margin + dachWidth}" y2="${margin + dachHeight + 30}" stroke="#666" stroke-width="1"/>`;
