@@ -233,9 +233,11 @@ function zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, 
     const container = document.getElementById('vorschau-svg');
     if (!container) return;
 
-    const scale = 30; // Pixel pro Meter
-    const svgWidth = Math.min(breite * scale + 40, 800);
-    const svgHeight = (dreieckHoehe + rechteckHoehe) * scale + 40;
+    const scale = 40;
+    const svgWidth = 700;
+    const svgHeight = 350;
+    const centerX = svgWidth / 2;
+    const centerY = 200;
 
     let spitzePosX;
     if (dreieckTyp === 'gleichschenkliges') {
@@ -244,47 +246,61 @@ function zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, 
         spitzePosX = spitzenPosition;
     }
 
-    const startX = 20;
-    const startY = dreieckHoehe * scale + 20;
+    const rectX = centerX - (breite * scale) / 2;
+    const rectY = centerY;
+    const rectW = breite * scale;
+    const rectH = rechteckHoehe * scale;
+    const triangleY = centerY - dreieckHoehe * scale;
+    const peakX = rectX + spitzePosX * scale;
 
     const svg = `
-        <svg width="${svgWidth}" height="${svgHeight}" style="border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;">
-            <!-- Hintergrund -->
-            <rect width="${svgWidth}" height="${svgHeight}" fill="rgba(15, 23, 42, 0.3)"/>
+        <svg viewBox="0 0 ${svgWidth} ${svgHeight}" style="width:100%; height:auto; max-width:500px; margin:0 auto;">
+            <!-- Rechteck -->
+            <rect x="${rectX}" y="${rectY}" width="${rectW}" height="${rectH}"
+                  fill="rgba(74, 144, 226, 0.15)" stroke="#0ea5e9" stroke-width="2.5" rx="4"/>
 
-            <!-- Rechteck-Bereich -->
-            <rect x="${startX}" y="${startY}" width="${breite * scale}" height="${rechteckHoehe * scale}"
-                  fill="rgba(30, 45, 74, 0.5)" stroke="#0ea5e9" stroke-width="2"/>
+            <!-- Dreieck -->
+            <polygon points="${rectX},${rectY} ${peakX},${triangleY} ${rectX + rectW},${rectY}"
+                     fill="rgba(16, 185, 129, 0.12)" stroke="#10b981" stroke-width="2.5"/>
 
-            <!-- Dreieck-Bereich -->
-            <polygon points="${startX},${startY} ${startX + spitzePosX * scale},${startY - dreieckHoehe * scale} ${startX + breite * scale},${startY}"
-                     fill="rgba(42, 82, 152, 0.4)" stroke="#0ea5e9" stroke-width="2"/>
-
-            <!-- Sparren/Lattung (vertikale Linien) -->
-            <g stroke="#cbd5e1" stroke-width="1" opacity="0.3">
-                <line x1="${startX}" y1="${startY}" x2="${startX}" y2="${startY - dreieckHoehe * scale}"/>
-                ${Array.from({length: Math.floor(breite) + 1}, (_, i) =>
-                    `<line x1="${startX + i * scale}" y1="${startY}" x2="${startX + i * scale}" y2="${startY + rechteckHoehe * scale}"/>`
-                ).join('')}
-                <line x1="${startX + breite * scale}" y1="${startY}" x2="${startX + breite * scale}" y2="${startY - dreieckHoehe * scale}"/>
-            </g>
-
-            <!-- Spitze markieren -->
-            <circle cx="${startX + spitzePosX * scale}" cy="${startY - dreieckHoehe * scale}" r="4" fill="#ffc107" stroke="#fff" stroke-width="1"/>
-
-            <!-- Dimensionen -->
-            <text x="${startX + breite * scale / 2}" y="${startY + rechteckHoehe * scale + 15}" text-anchor="middle" font-size="12" fill="#cbd5e1">
+            <!-- Bemaßung: Breite -->
+            <line x1="${rectX}" y1="${rectY + rectH + 20}" x2="${rectX + rectW}" y2="${rectY + rectH + 20}"
+                  stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="${rectX}" y1="${rectY + rectH + 15}" x2="${rectX}" y2="${rectY + rectH + 25}"
+                  stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="${rectX + rectW}" y1="${rectY + rectH + 15}" x2="${rectX + rectW}" y2="${rectY + rectH + 25}"
+                  stroke="#cbd5e1" stroke-width="1"/>
+            <text x="${centerX}" y="${rectY + rectH + 45}" text-anchor="middle" font-size="14" font-weight="500" fill="#cbd5e1">
                 Breite: ${breite.toFixed(2)}m
             </text>
-            <text x="${startX - 15}" y="${startY - dreieckHoehe * scale / 2}" text-anchor="end" font-size="11" fill="#cbd5e1">
+
+            <!-- Bemaßung: Rechteck-Höhe -->
+            <line x1="${rectX - 30}" y1="${rectY}" x2="${rectX - 30}" y2="${rectY + rectH}"
+                  stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="${rectX - 35}" y1="${rectY}" x2="${rectX - 25}" y2="${rectY}"
+                  stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="${rectX - 35}" y1="${rectY + rectH}" x2="${rectX - 25}" y2="${rectY + rectH}"
+                  stroke="#cbd5e1" stroke-width="1"/>
+            <text x="${rectX - 50}" y="${centerY + 5}" text-anchor="end" font-size="12" fill="#0ea5e9">
+                ${rechteckHoehe.toFixed(2)}m
+            </text>
+
+            <!-- Bemaßung: Dreieck-Höhe -->
+            <line x1="${rectX + rectW + 30}" y1="${triangleY}" x2="${rectX + rectW + 30}" y2="${rectY}"
+                  stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="${rectX + rectW + 25}" y1="${triangleY}" x2="${rectX + rectW + 35}" y2="${triangleY}"
+                  stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="${rectX + rectW + 25}" y1="${rectY}" x2="${rectX + rectW + 35}" y2="${rectY}"
+                  stroke="#cbd5e1" stroke-width="1"/>
+            <text x="${rectX + rectW + 50}" y="${(triangleY + rectY) / 2 + 5}" text-anchor="start" font-size="12" fill="#10b981">
                 △ ${dreieckHoehe.toFixed(2)}m
             </text>
-            <text x="${startX - 15}" y="${startY + rechteckHoehe * scale / 2}" text-anchor="end" font-size="11" fill="#cbd5e1">
-                ▭ ${rechteckHoehe.toFixed(2)}m
-            </text>
+
+            <!-- Spitze markieren -->
+            <circle cx="${peakX}" cy="${triangleY}" r="5" fill="#ffc107" stroke="#fff" stroke-width="1.5"/>
             ${dreieckTyp === 'ungleichschenkliges' ?
-                `<text x="${startX + spitzePosX * scale}" y="${startY - dreieckHoehe * scale - 8}" text-anchor="middle" font-size="10" fill="#ffc107">
-                    ${spitzenPosition.toFixed(2)}m
+                `<text x="${peakX}" y="${triangleY - 15}" text-anchor="middle" font-size="11" fill="#ffc107" font-weight="600">
+                    Spitze: ${spitzenPosition.toFixed(2)}m
                 </text>` : ''}
         </svg>
     `;
@@ -293,8 +309,20 @@ function zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, 
 }
 
 function erstelleAnrissplan() {
-    console.log('Anrissplan-Funktion wird aufgerufen (noch nicht implementiert)');
-    alert('Anrissplan wird noch nicht unterstützt. Bitte verwenden Sie die Anrissplan-Seite.');
+    const breite = parseFloat(document.getElementById('breite').value);
+    const dreieckHoehe = parseFloat(document.getElementById('dreieck-hoehe').value);
+    const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
+    const dreieckTyp = document.getElementById('dreieck-typ').value;
+    let spitzenPosition = parseFloat(document.getElementById('spitzen-position').value);
+
+    // Spitzenposition: wenn nicht eingegeben, auf Mitte setzen
+    if (!spitzenPosition || isNaN(spitzenPosition)) {
+        spitzenPosition = breite / 2;
+    }
+
+    const gesamtHoehe = dreieckHoehe + rechteckHoehe;
+    const url = `/tools/dachformen/?typ=dreieck-auf-rechteck&breite=${breite.toFixed(2)}&hoehe=${gesamtHoehe.toFixed(2)}&dreieckHoehe=${dreieckHoehe.toFixed(2)}&rechteckHoehe=${rechteckHoehe.toFixed(2)}&dreieckTyp=${dreieckTyp}&spitzenPosition=${spitzenPosition.toFixed(2)}`;
+    window.location.href = url;
 }
 
 function erstelleLattenrechner() {
@@ -306,20 +334,22 @@ function erstelleLattenrechner() {
 
     // Spitzenposition: wenn nicht eingegeben, auf Mitte setzen
     if (!spitzenPosition || isNaN(spitzenPosition)) {
-        spitzenPosition = breite / 2; // Default: Mitte
+        spitzenPosition = breite / 2;
     }
 
-    // Gesamthöhe = Dreieck + Rechteck
     const gesamtHoehe = dreieckHoehe + rechteckHoehe;
-
-    // URL für Lattenrechner mit neuer Dachform (spitzenPosition in Metern)
     const url = `/tools/lattenrechner/?typ=dreieck-auf-rechteck&breite=${breite.toFixed(2)}&hoehe=${gesamtHoehe.toFixed(2)}&dreieckHoehe=${dreieckHoehe.toFixed(2)}&rechteckHoehe=${rechteckHoehe.toFixed(2)}&dreieckTyp=${dreieckTyp}&spitzenPosition=${spitzenPosition.toFixed(2)}`;
     window.location.href = url;
 }
 
 function erstellePVRechner() {
-    console.log('PV-Rechner-Funktion wird aufgerufen (noch nicht implementiert)');
-    alert('PV-Rechner wird noch nicht unterstützt. Bitte verwenden Sie die PV-Rechner-Seite.');
+    const breite = parseFloat(document.getElementById('breite').value);
+    const dreieckHoehe = parseFloat(document.getElementById('dreieck-hoehe').value);
+    const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
+    const gesamtHoehe = dreieckHoehe + rechteckHoehe;
+
+    const url = `/tools/pv-rechner/?breite=${breite.toFixed(2)}&hoehe=${gesamtHoehe.toFixed(2)}`;
+    window.location.href = url;
 }
 
 // Auto-Load aus URL-Parametern wenn verfügbar
