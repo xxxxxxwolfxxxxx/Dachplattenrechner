@@ -181,13 +181,13 @@ import AdUnit from '../../components/AdUnit.astro';
 
     <div id="schnittliste" style="display: none;">
       <h4 style="margin-top: 25px; color: #ffffff; font-size: 1.3em;">Schnittliste (pro Dreieck-auf-Rechteck-Fläche):</h4>
-      <table class="schnitt-table">
+      <table style="width: 100%; border-collapse: collapse; margin-top: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; overflow: hidden; table-layout: fixed;">
         <thead>
           <tr>
-            <th>Platte Nr.</th>
-            <th>Position von links (m)</th>
-            <th>Plattenbreite (m)</th>
-            <th>Benötigte Länge (m)</th>
+            <th style="width: 12%; background: rgba(255, 255, 255, 0.2); font-weight: 600; padding: 12px; text-align: center; border-bottom: 2px solid rgba(255, 255, 255, 0.3);">Platte Nr.</th>
+            <th style="width: 28%; background: rgba(255, 255, 255, 0.2); font-weight: 600; padding: 12px; text-align: right; border-bottom: 2px solid rgba(255, 255, 255, 0.3);">Position von links (m)</th>
+            <th style="width: 28%; background: rgba(255, 255, 255, 0.2); font-weight: 600; padding: 12px; text-align: right; border-bottom: 2px solid rgba(255, 255, 255, 0.3);">Plattenbreite (m)</th>
+            <th style="width: 32%; background: rgba(255, 255, 255, 0.2); font-weight: 600; padding: 12px; text-align: right; border-bottom: 2px solid rgba(255, 255, 255, 0.3);">Benötigte Länge (m)</th>
           </tr>
         </thead>
         <tbody id="schnitt-details"></tbody>
