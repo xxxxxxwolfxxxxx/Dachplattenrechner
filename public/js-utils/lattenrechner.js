@@ -241,10 +241,84 @@ function berechneSpitzdachSparren(anzahlSparren) {
 function aktualisiereLattenabstandsfeld() {
     const select = document.getElementById('lattenabstand');
     const customGroup = document.getElementById('custom-lattenabstand-group');
-    
+
     select.addEventListener('change', function() {
         customGroup.style.display = this.value === 'custom' ? 'block' : 'none';
     });
+}
+
+/**
+ * Phase A: Knapsack-basiertes Rest-Matching
+ * Findet die beste Kombination von verfügbaren Resten, die die Reihenbreite mit minimalem Verschnitt erfüllen
+ *
+ * @param {number[]} verfuegbareReste - Array von verfügbaren Rest-Längen
+ * @param {number} zielBreite - Breite der zu füllenden Reihe
+ * @param {number} tolerance - Toleranz für Vergleiche (Default: 0.01m)
+ * @returns {Object} { kombination: number[], totalLength: number, waste: number }
+ */
+function findBestRestCombinationKnapsack(verfuegbareReste, zielBreite, tolerance = 0.01) {
+    if (!verfuegbareReste || verfuegbareReste.length === 0) {
+        return { kombination: [], totalLength: 0, waste: Infinity };
+    }
+
+    let besteKombination = null;
+    let minWaste = Infinity;
+    let bestetotalLength = 0;
+
+    // Rekursive Funktion zur Suche aller Kombinationen
+    function searchCombinations(index, currentKombination, currentSum) {
+        // Wenn wir die Mindestbreite erreicht haben, überprüfe ob diese Kombination besser ist
+        if (currentSum >= zielBreite - tolerance) {
+            const waste = currentSum - zielBreite;
+            if (waste < minWaste) {
+                minWaste = waste;
+                besteKombination = [...currentKombination];
+                bestetotalLength = currentSum;
+            }
+            return; // Weitere Erweiterung dieser Kombination würde nur Verschnitt erhöhen
+        }
+
+        // Pruning: Wenn wir bereits zu viel Verschnitt haben, nicht weitermachen
+        if (currentSum + Math.min(...verfuegbareReste.slice(index)) > zielBreite + minWaste) {
+            return;
+        }
+
+        // Versuche, alle verbleibenden Resten hinzuzufügen
+        for (let i = index; i < verfuegbareReste.length; i++) {
+            const rest = verfuegbareReste[i];
+            // Wenn dieser Rest allein zu viel Verschnitt erzeugen würde, überspringen
+            if (currentSum + rest - zielBreite >= minWaste) {
+                continue;
+            }
+
+            currentKombination.push(rest);
+            searchCombinations(i + 1, currentKombination, currentSum + rest);
+            currentKombination.pop();
+        }
+    }
+
+    // Starte Suche von Index 0
+    searchCombinations(0, [], 0);
+
+    // Fallback: Wenn keine Kombination gefunden, gib die beste einzelne Latte zurück
+    if (besteKombination === null) {
+        for (let rest of verfuegbareReste) {
+            if (rest >= zielBreite - tolerance) {
+                const waste = rest - zielBreite;
+                if (waste < minWaste) {
+                    minWaste = waste;
+                    besteKombination = [rest];
+                    bestetotalLength = rest;
+                }
+            }
+        }
+    }
+
+    return {
+        kombination: besteKombination || [],
+        totalLength: bestetotalLength,
+        waste: minWaste === Infinity ? Infinity : minWaste
+    };
 }
 
 function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareLaengen, anzahlReihen) {
@@ -270,47 +344,9 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             const reihenBreite = dachBreite;
             gesamtBenoetigteLaenge += reihenBreite;
             
-            // Finde beste Kombination
-            let besteKombination = null;
-            let minVerschnitt = Infinity;
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                if (tatsaechlichVerfuegbar[i] >= reihenBreite - 0.01) {
-                    const verschnitt = tatsaechlichVerfuegbar[i] - reihenBreite;
-                    if (verschnitt < minVerschnitt) {
-                        minVerschnitt = verschnitt;
-                        besteKombination = [tatsaechlichVerfuegbar[i]];
-                    }
-                }
-            }
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
-                    const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j];
-                    if (summe >= reihenBreite - 0.01) {
-                        const verschnitt = summe - reihenBreite;
-                        if (verschnitt < minVerschnitt) {
-                            minVerschnitt = verschnitt;
-                            besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j]];
-                        }
-                    }
-                }
-            }
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
-                    for (let k = j; k < tatsaechlichVerfuegbar.length; k++) {
-                        const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j] + tatsaechlichVerfuegbar[k];
-                        if (summe >= reihenBreite - 0.01) {
-                            const verschnitt = summe - reihenBreite;
-                            if (verschnitt < minVerschnitt) {
-                                minVerschnitt = verschnitt;
-                                besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j], tatsaechlichVerfuegbar[k]];
-                            }
-                        }
-                    }
-                }
-            }
+            // Phase A: Knapsack-basierte Optimierung statt Greedy Matching
+            const knapsackResult = findBestRestCombinationKnapsack(tatsaechlichVerfuegbar, reihenBreite);
+            const besteKombination = knapsackResult.kombination.length > 0 ? knapsackResult.kombination : null;
             
             if (besteKombination) {
                 let segmente = [];
@@ -497,47 +533,9 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                 relevanteSparren.push(reihenBreite);
             }
             
-            let besteKombination = null;
-            let minVerschnitt = Infinity;
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                const summe = tatsaechlichVerfuegbar[i];
-                if (summe >= reihenBreite - 0.01) {
-                    const verschnitt = summe - reihenBreite;
-                    if (verschnitt < minVerschnitt) {
-                        minVerschnitt = verschnitt;
-                        besteKombination = [tatsaechlichVerfuegbar[i]];
-                    }
-                }
-            }
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
-                    const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j];
-                    if (summe >= reihenBreite - 0.01) {
-                        const verschnitt = summe - reihenBreite;
-                        if (verschnitt < minVerschnitt) {
-                            minVerschnitt = verschnitt;
-                            besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j]];
-                        }
-                    }
-                }
-            }
-            
-            for (let i = 0; i < tatsaechlichVerfuegbar.length; i++) {
-                for (let j = i; j < tatsaechlichVerfuegbar.length; j++) {
-                    for (let k = j; k < tatsaechlichVerfuegbar.length; k++) {
-                        const summe = tatsaechlichVerfuegbar[i] + tatsaechlichVerfuegbar[j] + tatsaechlichVerfuegbar[k];
-                        if (summe >= reihenBreite - 0.01) {
-                            const verschnitt = summe - reihenBreite;
-                            if (verschnitt < minVerschnitt) {
-                                minVerschnitt = verschnitt;
-                                besteKombination = [tatsaechlichVerfuegbar[i], tatsaechlichVerfuegbar[j], tatsaechlichVerfuegbar[k]];
-                            }
-                        }
-                    }
-                }
-            }
+            // Phase A: Knapsack-basierte Optimierung statt Greedy Matching
+            const knapsackResult = findBestRestCombinationKnapsack(tatsaechlichVerfuegbar, reihenBreite);
+            const besteKombination = knapsackResult.kombination.length > 0 ? knapsackResult.kombination : null;
             
             const reihenSegmente = [];
             let aktuellePosition = 0;
