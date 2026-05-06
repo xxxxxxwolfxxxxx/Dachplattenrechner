@@ -292,28 +292,22 @@ import * as lattenrechner from '../../utils/lattenrechner';
     }
 
     // Konterlatten-Zusammenfassung
-    const konterlattenAnzahl = result.counterRafters.kombination.reduce(
-      (sum, k) => sum + k.anzahl, 0
-    );
     const konterlattenGesamtLaenge = document.getElementById('konterlatte-gesamtlaenge');
     const konterlattenAnzahlEl = document.getElementById('konterlatte-anzahl');
     const konterlattenVerschnitt = document.getElementById('konterlatte-verschnitt');
 
-    if (konterlattenGesamtLaenge) konterlattenGesamtLaenge.textContent = result.counterRafters.gesamtLaenge.toFixed(1) + ' m';
-    if (konterlattenAnzahlEl) konterlattenAnzahlEl.textContent = konterlattenAnzahl + ' Stück';
-    if (konterlattenVerschnitt) konterlattenVerschnitt.textContent = (result.counterRafters.verschnitt || 0).toFixed(1) + ' m';
+    if (konterlattenGesamtLaenge) konterlattenGesamtLaenge.textContent = result.counterRafters.totalLength.toFixed(1) + ' m';
+    if (konterlattenAnzahlEl) konterlattenAnzahlEl.textContent = result.counterRafters.count + ' Stück';
+    if (konterlattenVerschnitt) konterlattenVerschnitt.textContent = (result.counterRafters.waste || 0).toFixed(1) + ' m';
 
     // Dachlatten-Zusammenfassung
-    const dachlattenAnzahl = result.roofRafters.kombination.reduce(
-      (sum, k) => sum + k.anzahl, 0
-    );
     const dachlattenGesamtLaenge = document.getElementById('dachlatte-gesamtlaenge');
     const dachlattenAnzahlEl = document.getElementById('dachlatte-anzahl');
     const dachlattenVerschnitt = document.getElementById('dachlatte-verschnitt');
 
-    if (dachlattenGesamtLaenge) dachlattenGesamtLaenge.textContent = result.roofRafters.gesamtLaenge.toFixed(1) + ' m';
-    if (dachlattenAnzahlEl) dachlattenAnzahlEl.textContent = dachlattenAnzahl + ' Stück';
-    if (dachlattenVerschnitt) dachlattenVerschnitt.textContent = (result.roofRafters.verschnitt || 0).toFixed(1) + ' m';
+    if (dachlattenGesamtLaenge) dachlattenGesamtLaenge.textContent = result.roofRafters.totalLength.toFixed(1) + ' m';
+    if (dachlattenAnzahlEl) dachlattenAnzahlEl.textContent = result.roofRafters.count + ' Stück';
+    if (dachlattenVerschnitt) dachlattenVerschnitt.textContent = (result.roofRafters.waste || 0).toFixed(1) + ' m';
 
     // Material-Details Tabelle befüllen
     const tbody = document.getElementById('material-details');
@@ -325,30 +319,30 @@ import * as lattenrechner from '../../utils/lattenrechner';
     tbody.innerHTML = '';
 
     // Konterlatten-Zeilen
-    if (result.counterRafters.kombination && Array.isArray(result.counterRafters.kombination)) {
-      result.counterRafters.kombination.forEach(k => {
+    if (result.counterRafters.materials && Array.isArray(result.counterRafters.materials)) {
+      result.counterRafters.materials.forEach(m => {
         const row = document.createElement('tr');
         row.style.borderBottom = '1px solid #ddd';
         row.innerHTML = `
           <td style="padding: 10px; font-weight: bold;">Konterlatten</td>
-          <td style="padding: 10px;">${k.laenge.toFixed(1)} m</td>
-          <td style="padding: 10px; text-align: center; color: #333; font-weight: bold;">${k.anzahl}</td>
-          <td style="padding: 10px; text-align: right; color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
+          <td style="padding: 10px;">${m.length.toFixed(1)} m</td>
+          <td style="padding: 10px; text-align: center; color: #333; font-weight: bold;">${m.count}</td>
+          <td style="padding: 10px; text-align: right; color: #333; font-weight: bold;">${(m.count * m.length).toFixed(1)} m</td>
         `;
         tbody.appendChild(row);
       });
     }
 
     // Dachlatten-Zeilen
-    if (result.roofRafters.kombination && Array.isArray(result.roofRafters.kombination)) {
-      result.roofRafters.kombination.forEach(k => {
+    if (result.roofRafters.materials && Array.isArray(result.roofRafters.materials)) {
+      result.roofRafters.materials.forEach(m => {
         const row = document.createElement('tr');
         row.style.borderBottom = '1px solid #ddd';
         row.innerHTML = `
           <td style="padding: 10px; font-weight: bold;">Dachlatten</td>
-          <td style="padding: 10px;">${k.laenge.toFixed(1)} m</td>
-          <td style="padding: 10px; text-align: center; color: #333; font-weight: bold;">${k.anzahl}</td>
-          <td style="padding: 10px; text-align: right; color: #333; font-weight: bold;">${(k.anzahl * k.laenge).toFixed(1)} m</td>
+          <td style="padding: 10px;">${m.length.toFixed(1)} m</td>
+          <td style="padding: 10px; text-align: center; color: #333; font-weight: bold;">${m.count}</td>
+          <td style="padding: 10px; text-align: right; color: #333; font-weight: bold;">${(m.count * m.length).toFixed(1)} m</td>
         `;
         tbody.appendChild(row);
       });
