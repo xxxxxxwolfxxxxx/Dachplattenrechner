@@ -81,6 +81,13 @@ function generiereSimpleDachSVG() {
                 <text x="100" y="75" text-anchor="middle" font-size="11" fill="#333">Trapez+Rechteck</text>
             </svg>`;
             break;
+        case 'dreieck-auf-rechteck':
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <rect x="20" y="65" width="160" height="25" fill="#e3f2fd" stroke="#ff6b35" stroke-width="2"/>
+                <polygon points="100,25 180,65 20,65" fill="#e3f2fd" stroke="#ff6b35" stroke-width="2"/>
+                <text x="100" y="80" text-anchor="middle" font-size="11" fill="#333">Dreieck+Rechteck</text>
+            </svg>`;
+            break;
         default:
             svg = `<svg width="200" height="120" viewBox="0 0 200 120">
                 <rect x="20" y="60" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
