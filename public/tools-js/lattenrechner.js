@@ -13,7 +13,7 @@ function showAds() {
 
 function ladeDachParameter() {
     const urlParams = new URLSearchParams(window.location.search);
-    
+
     if (urlParams.has('breite')) dachBreite = parseFloat(urlParams.get('breite'));
     if (urlParams.has('hoehe')) dachHoehe = parseFloat(urlParams.get('hoehe'));
     if (urlParams.has('typ')) dachTyp = urlParams.get('typ');
@@ -21,14 +21,25 @@ function ladeDachParameter() {
     if (urlParams.has('trapezHoehe')) trapezHoehe = parseFloat(urlParams.get('trapezHoehe'));
     if (urlParams.has('rechteckHoehe')) rechteckHoehe = parseFloat(urlParams.get('rechteckHoehe'));
 
+    // Zusätzliche Parameter für dreieck-auf-rechteck und andere komplexe Formen
+    if (urlParams.has('dreieckHoehe')) {
+        window.dreieckHoehe = parseFloat(urlParams.get('dreieckHoehe'));
+    }
+    if (urlParams.has('dreieckTyp')) {
+        window.dreieckTyp = urlParams.get('dreieckTyp');
+    }
+    if (urlParams.has('spitzenPosition')) {
+        window.spitzenPosition = parseFloat(urlParams.get('spitzenPosition'));
+    }
+
     aktualisiereAnzeige();
 }
 
 function aktualisiereAnzeige() {
     let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
-    
+
     const urlParams = new URLSearchParams(window.location.search);
-    
+
     switch(dachTyp) {
         case 'trapez':
             if (obereBreite) massText += `, Obere Breite: ${obereBreite.toFixed(1)}m`;
@@ -44,8 +55,17 @@ function aktualisiereAnzeige() {
                 massText += `, Obere Breite: ${parseFloat(obereBreiteTA).toFixed(1)}m`;
             }
             break;
+        case 'dreieck-auf-rechteck':
+            const dreieckHoeheDAR = urlParams.get('dreieckHoehe');
+            const rechteckHoeheDAR = urlParams.get('rechteckHoehe');
+            const dreieckTypDAR = urlParams.get('dreieckTyp');
+            if (dreieckHoeheDAR && rechteckHoeheDAR) {
+                massText += `, Rechteck: ${parseFloat(rechteckHoeheDAR).toFixed(1)}m, Dreieck: ${parseFloat(dreieckHoeheDAR).toFixed(1)}m`;
+                if (dreieckTypDAR) massText += ` (${dreieckTypDAR})`;
+            }
+            break;
     }
-    
+
     document.getElementById('dach-masse').textContent = massText;
     document.getElementById('dach-darstellung').innerHTML = generiereSimpleDachSVG();
 }
