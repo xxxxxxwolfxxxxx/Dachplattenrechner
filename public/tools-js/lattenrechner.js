@@ -1007,6 +1007,71 @@ function druckeLattenplan() {
     }, 500);
 }
 
+// ---- Sparren-basierte Latten-Berechnungen ----
+
+// Berechnet die Höhe an einer bestimmten X-Position je nach Dachform
+function berechneHoeheAnPosition(xPos, breite, hoehe, dachTyp, params = {}) {
+    switch(dachTyp) {
+        case 'rechteck':
+            return hoehe;
+
+        case 'gleichschenkliges-dreieck':
+        case 'ungleichschenkliges-dreieck':
+            // Dreieck: Höhe linear von den Rändern zur Spitze
+            const spitzPos = dachTyp === 'gleichschenkliges-dreieck' ? breite / 2 : params.spitzenPosition || breite / 2;
+            const abstand = Math.abs(xPos - spitzPos);
+            const maxAbstand = Math.max(spitzPos, breite - spitzPos);
+            return hoehe * Math.max(0, 1 - abstand / maxAbstand);
+
+        case 'dreieck-auf-rechteck':
+            // Rechteck-Teil + variabel Dreieck-Teil
+            const rectH = params.rechteckHoehe || hoehe * 0.5;
+            const triH = params.dreieckHoehe || hoehe * 0.5;
+            const spitzPos2 = params.spitzenPosition || breite / 2;
+            const abstand2 = Math.abs(xPos - spitzPos2);
+            const maxAbstand2 = Math.max(spitzPos2, breite - spitzPos2);
+            const dreieckAnPos = triH * Math.max(0, 1 - abstand2 / maxAbstand2);
+            return rectH + dreieckAnPos;
+
+        case 'trapez':
+            // Trapez: Höhe von oben zu unten
+            const oberBreite = params.oberBreite || breite * 0.8;
+            // Bei Trapez ist "Höhe" die vertikale Höhe, hier machen wir horizontal gleich
+            return hoehe; // Vereinfacht: gleiche Höhe überall
+
+        default:
+            return hoehe;
+    }
+}
+
+// Berechnet die maximale Dachlatten-Länge für die gesamte Breite
+function berechneDachlattenlängen(breite, hoehe, dachTyp, sparrenAbstand, params = {}) {
+    const sparrenAbstandM = sparrenAbstand / 100; // In Meter umrechnen
+    const lättenlängen = [];
+    let maxLänge = 0;
+
+    // Berechne Höhe an verschiedenen Positionen (bei jedem Sparren)
+    for (let x = 0; x <= breite; x += sparrenAbstandM) {
+        const h = berechneHoeheAnPosition(x, breite, hoehe, dachTyp, params);
+        if (h > maxLänge) maxLänge = h;
+        if (lättenlängen.length === 0 || Math.abs(h - lättenlängen[lättenlängen.length - 1]) > 0.01) {
+            lättenlängen.push(h);
+        }
+    }
+
+    return {
+        maxLänge: maxLänge,
+        längen: lättenlängen,
+        durchschnitt: lättenlängen.reduce((a, b) => a + b, 0) / lättenlängen.length
+    };
+}
+
+// Berechnet Konterlatten-Anzahl basierend auf Sparren
+function berechneKonterlattenAnzahl(sparrenAnzahl) {
+    // Eine Konterlatte pro Sparren (entlang der Breite)
+    return sparrenAnzahl;
+}
+
 function berechnen() {
     const anzahlSparren = parseInt(document.getElementById('anzahl-sparren').value);
     const sparrenAbstand = parseFloat(document.getElementById('sparren-abstand').value);
@@ -1071,8 +1136,20 @@ function berechnen() {
 
     const konterlattenGesamtlaenge = sparrenLaengen.reduce((sum, laenge) => sum + laenge, 0);
     const konterlattenKombination = optimiereKonterlatten(konterlattenGesamtlaenge, verfuegbareKonterlatten);
-    
-    const anzahlLattenReihen = Math.ceil((dachHoehe * 100) / lattenabstand) + 1;
+
+    // Berechne maximale Dachlatten-Länge je nach Dachform
+    const params = {
+        oberBreite: obereBreite,
+        trapezHoehe: trapezHoehe,
+        rechteckHoehe: rechteckHoehe,
+        dreieckHoehe: dachHoehe - rechteckHoehe,
+        spitzenPosition: obereBreite || dachBreite / 2
+    };
+    const dachlattenInfos = berechneDachlattenlängen(dachBreite, dachHoehe, dachTyp, sparrenAbstand, params);
+    const maxDachlattenLänge = dachlattenInfos.maxLänge;
+
+    // Anzahl Reihen basierend auf maximaler Höhe
+    const anzahlLattenReihen = Math.ceil((maxDachlattenLänge * 100) / lattenabstand) + 1;
     const dachlattenKombination = berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareDachlatten, anzahlLattenReihen);
 
     zeigeErgebnisse(konterlattenKombination, dachlattenKombination, anzahlLattenReihen, lattenabstand, anzahlSparren);
