@@ -806,12 +806,15 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     const svgWidth = 900;
     const svgHeight = 700;
     const margin = 70;
-    const legendX = margin + 20;
-    const legendY = svgHeight - 150;
     const dachStartY = margin + 120;
+    // Legend rechts neben der Skizze (nicht unten, um nicht zu überdecken)
+    const legendX = svgWidth - 220;
+    const legendY = dachStartY;
 
-    const scaleX = (svgWidth - 2 * margin - 180) / dachBreite;
-    const scaleY = (legendY - dachStartY) / dachHoehe;
+    // scaleX: Platz für Sketch (bis vor die Legend auf der rechten Seite)
+    const scaleX = (legendX - margin - 30) / dachBreite;
+    // scaleY: Von dachStartY bis zum unteren Ende des SVG minus etwas Abstand
+    const scaleY = (svgHeight - margin - 50 - dachStartY) / dachHoehe;
 
     let svg = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">`;
     svg += `<defs><style>
@@ -997,29 +1000,34 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     svg += `<line x1="${margin + dachBreite * scaleX}" y1="${breiteY - 5}" x2="${margin + dachBreite * scaleX}" y2="${breiteY + 5}" stroke="#333" stroke-width="2"/>`;
     svg += `<text x="${margin + dachBreite * scaleX/2}" y="${breiteY + 20}" text-anchor="middle" class="dimension">Breite: ${dachBreite.toFixed(1)}m</text>`;
 
-    // Legend für Latten-Längen
-    svg += `<rect x="${legendX}" y="${legendY}" width="300" height="130" fill="#f9f9f9" stroke="#1976d2" stroke-width="1.5" rx="4"/>`;
-    svg += `<text x="${legendX + 10}" y="${legendY + 25}" class="roofLabel">Latten-Längen (Farben):</text>`;
+    // Legend für Latten-Längen und Elemente - rechts neben der Skizze
+    const legendWidth = 200;
+    const legendHeight = 130;
 
-    let legendY_current = legendY + 50;
+    // Latten-Farben-Box
+    svg += `<rect x="${legendX}" y="${legendY}" width="${legendWidth}" height="${legendHeight}" fill="#f9f9f9" stroke="#1976d2" stroke-width="1.5" rx="4"/>`;
+    svg += `<text x="${legendX + 10}" y="${legendY + 20}" class="legendLabel" style="font-weight: bold; font-size: 11px;">Latten-Längen:</text>`;
+
+    let legendY_current = legendY + 38;
     [6, 5, 4, 3].forEach(laenge => {
         if (lattenFarben[laenge]) {
-            svg += `<rect x="${legendX + 15}" y="${legendY_current - 8}" width="12" height="12" fill="${lattenFarben[laenge]}" stroke="#333" stroke-width="0.5"/>`;
-            svg += `<text x="${legendX + 35}" y="${legendY_current}" class="legendLabel">${laenge}m Latten</text>`;
-            legendY_current += 18;
+            svg += `<rect x="${legendX + 10}" y="${legendY_current - 8}" width="10" height="10" fill="${lattenFarben[laenge]}" stroke="#333" stroke-width="0.5"/>`;
+            svg += `<text x="${legendX + 25}" y="${legendY_current}" class="legendLabel" style="font-size: 10px;">${laenge}m</text>`;
+            legendY_current += 14;
         }
     });
 
-    svg += `<rect x="${legendX + 15}" y="${legendY_current - 8}" width="12" height="12" fill="${restFarbe}" stroke="#333" stroke-width="0.5"/>`;
-    svg += `<text x="${legendX + 35}" y="${legendY_current}" class="legendLabel">Rest/Verschnitt</text>`;
+    svg += `<rect x="${legendX + 10}" y="${legendY_current - 8}" width="10" height="10" fill="${restFarbe}" stroke="#333" stroke-width="0.5"/>`;
+    svg += `<text x="${legendX + 25}" y="${legendY_current}" class="legendLabel" style="font-size: 10px;">Rest</text>`;
 
-    // Sparren-Legende
-    svg += `<rect x="${legendX + 170}" y="${legendY}" width="120" height="130" fill="#f9f9f9" stroke="#ff6b35" stroke-width="1.5" rx="4"/>`;
-    svg += `<text x="${legendX + 180}" y="${legendY + 25}" class="roofLabel">Elemente:</text>`;
-    svg += `<rect x="${legendX + 185}" y="${legendY + 40}" width="4" height="20" fill="#ff6b35" opacity="0.9"/>`;
-    svg += `<text x="${legendX + 200}" y="${legendY + 55}" class="legendLabel">Sparren</text>`;
-    svg += `<line x1="${legendX + 185}" y1="${legendY + 75}" x2="${legendX + 195}" y2="${legendY + 75}" stroke="#1976d2" stroke-width="3"/>`;
-    svg += `<text x="${legendX + 200}" y="${legendY + 80}" class="legendLabel">Stoß</text>`;
+    // Elemente-Box darunter
+    const elementsBoxY = legendY + legendHeight + 15;
+    svg += `<rect x="${legendX}" y="${elementsBoxY}" width="${legendWidth}" height="100" fill="#f9f9f9" stroke="#ff6b35" stroke-width="1.5" rx="4"/>`;
+    svg += `<text x="${legendX + 10}" y="${elementsBoxY + 20}" class="legendLabel" style="font-weight: bold; font-size: 11px;">Elemente:</text>`;
+    svg += `<rect x="${legendX + 10}" y="${elementsBoxY + 28}" width="3" height="16" fill="#ff6b35" opacity="0.9"/>`;
+    svg += `<text x="${legendX + 20}" y="${elementsBoxY + 42}" class="legendLabel" style="font-size: 10px;">Sparren</text>`;
+    svg += `<line x1="${legendX + 10}" y1="${elementsBoxY + 60}" x2="${legendX + 20}" y2="${elementsBoxY + 60}" stroke="#1976d2" stroke-width="2"/>`;
+    svg += `<text x="${legendX + 25}" y="${elementsBoxY + 65}" class="legendLabel" style="font-size: 10px;">Stoß</text>`;
 
     svg += `</svg>`;
 
@@ -1212,6 +1220,10 @@ window.lattenrechner = {
       obereBreite = roofDims.upperWidth || 0;
       trapezHoehe = roofDims.trapezHeight || 0;
       rechteckHoehe = roofDims.rectHeight || 0;
+
+      // WICHTIG: Setze window.lattenPlan mit den Daten vom result
+      window.lattenPlan = result.roofRafters.plan || {};
+      console.log('📋 window.lattenPlan gesetzt mit', Object.keys(window.lattenPlan).length, 'Reihen');
 
       // Berechne Sparren-Längen für den Dachtyp (notwendig für korrektes SVG-Rendering!)
       berechneSpitzdachSparren(rafterCount);
