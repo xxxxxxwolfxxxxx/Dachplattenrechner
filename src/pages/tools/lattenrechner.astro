@@ -88,6 +88,12 @@ import * as lattenrechner from '../../utils/lattenrechner';
     <!-- SVG Visualization -->
     <div id="vorschau-svg" style="margin-bottom: 30px; text-align: center;"></div>
 
+    <!-- Optimierungs-Breakdown -->
+    <div id="optimization-breakdown" style="background: rgba(255, 255, 255, 0.1); border-left: 4px solid #ffd700; padding: 15px; margin: 20px 0; border-radius: 4px; display: none;">
+      <h4 style="color: #ffd700; margin-top: 0; margin-bottom: 15px; font-size: 1.1em;">🚀 Optimierungs-Zusammenfassung</h4>
+      <div id="optimization-details" style="font-size: 0.95em; line-height: 1.6;"></div>
+    </div>
+
     <!-- Materialtabelle -->
     <div style="margin-bottom: 30px;">
       <h4 style="color: #1e3c72; margin-bottom: 15px;">Materialbedarf pro Länge</h4>
@@ -289,6 +295,38 @@ import * as lattenrechner from '../../utils/lattenrechner';
     if (!result.counterRafters || !result.roofRafters) {
       console.warn('⚠️ Keine Material-Daten vorhanden');
       return;
+    }
+
+    // Zeige Optimierungs-Breakdown
+    const optimizationBreakdown = document.getElementById('optimization-breakdown');
+    const optimizationDetails = document.getElementById('optimization-details');
+
+    if (optimizationBreakdown && optimizationDetails) {
+      const gesamtVerschnitt = (result.counterRafters.waste || 0) + (result.roofRafters.waste || 0);
+      const gesamtLaenge = result.counterRafters.totalLength + result.roofRafters.totalLength;
+      const verschnittProzent = gesamtLaenge > 0 ? ((gesamtVerschnitt / gesamtLaenge) * 100).toFixed(1) : 0;
+
+      optimizationDetails.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div style="background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 4px;">
+            <div style="color: #aaa; font-size: 0.85em; margin-bottom: 5px;">Phase A: Knapsack-Matching</div>
+            <div style="color: #ffd700; font-weight: bold; font-size: 1.1em;">✅ Aktiviert</div>
+            <div style="color: #ccc; font-size: 0.85em; margin-top: 5px;">Unbegrenzte Kombinationen</div>
+          </div>
+          <div style="background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 4px;">
+            <div style="color: #aaa; font-size: 0.85em; margin-bottom: 5px;">Gesamter Verschnitt</div>
+            <div style="color: #ffd700; font-weight: bold; font-size: 1.1em;">${gesamtVerschnitt.toFixed(1)} m</div>
+            <div style="color: #ccc; font-size: 0.85em; margin-top: 5px;">${verschnittProzent}% der Gesamtlänge</div>
+          </div>
+        </div>
+        <div style="padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+          <div style="color: #ccc; font-size: 0.9em;">
+            💡 <strong>Tipp:</strong> Der Knapsack-Algorithmus testet alle möglichen Kombinationen von Restlatten für jede Reihe,
+            um Verschnitt zu minimieren. Dies ist deutlich besser als die vorherige Greedy-Methode!
+          </div>
+        </div>
+      `;
+      optimizationBreakdown.style.display = 'block';
     }
 
     // Konterlatten-Zusammenfassung
