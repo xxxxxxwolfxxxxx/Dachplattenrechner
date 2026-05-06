@@ -1131,8 +1131,8 @@ function berechnen() {
 
     const konterlattenGesamtlaenge = sparrenLaengen.reduce((sum, laenge) => sum + laenge, 0);
     const konterlattenKombination = optimiereKonterlatten(konterlattenGesamtlaenge, verfuegbareKonterlatten);
-    
-    const anzahlLattenReihen = Math.ceil((dachHoehe * 100) / lattenabstand) + 1;
+
+    const anzahlLattenReihen = Math.ceil((dachHoehe * 1000) / lattenabstand) + 1;
     const dachlattenKombination = berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareDachlatten, anzahlLattenReihen);
 
     zeigeErgebnisse(konterlattenKombination, dachlattenKombination, anzahlLattenReihen, lattenabstand, anzahlSparren);
