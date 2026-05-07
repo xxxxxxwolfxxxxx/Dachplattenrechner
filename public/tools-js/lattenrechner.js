@@ -35,10 +35,14 @@ function ladeDachParameter() {
         spitzePosX = parseFloat(urlParams.get('spitzenPosition'));
     }
 
+    console.log('🔵 ladeDachParameter() called. dachTyp:', dachTyp, 'URL search:', window.location.search);
+
     aktualisiereAnzeige();
 }
 
 function aktualisiereAnzeige() {
+    console.log('🟣 aktualisiereAnzeige() called. dachTyp is:', dachTyp);
+
     let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -74,16 +78,19 @@ function aktualisiereAnzeige() {
 }
 
 function generiereSimpleDachSVG() {
+    console.log('🟢 generiereSimpleDachSVG() called. dachTyp is:', dachTyp);
     let svg = '';
-    
+
     switch(dachTyp) {
         case 'rechteck':
+            console.log('  → matched case: rechteck');
             svg = `<svg width="200" height="120" viewBox="0 0 200 120">
                 <rect x="20" y="30" width="160" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
                 <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Rechteck</text>
             </svg>`;
             break;
         case 'trapez':
+            console.log('  → matched case: trapez');
             svg = `<svg width="200" height="120" viewBox="0 0 200 120">
                 <polygon points="60,30 140,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
                 <text x="100" y="65" text-anchor="middle" font-size="12" fill="#333">Trapez</text>
@@ -92,12 +99,14 @@ function generiereSimpleDachSVG() {
         case 'dreieck':
         case 'gleichschenkliges-dreieck':
         case 'ungleichschenkliges-dreieck':
+            console.log('  → matched case: dreieck family');
             svg = `<svg width="200" height="120" viewBox="0 0 200 120">
                 <polygon points="100,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
                 <text x="100" y="75" text-anchor="middle" font-size="12" fill="#333">Dreieck</text>
             </svg>`;
             break;
         case 'trapez-auf-rechteck':
+            console.log('  → matched case: trapez-auf-rechteck');
             svg = `<svg width="200" height="120" viewBox="0 0 200 120">
                 <rect x="20" y="60" width="160" height="30" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
                 <polygon points="60,30 140,30 180,60 20,60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
@@ -105,6 +114,7 @@ function generiereSimpleDachSVG() {
             </svg>`;
             break;
         case 'dreieck-auf-rechteck':
+            console.log('  → matched case: dreieck-auf-rechteck');
             svg = `<svg width="200" height="120" viewBox="0 0 200 120">
                 <rect x="20" y="65" width="160" height="25" fill="#e3f2fd" stroke="#ff6b35" stroke-width="2"/>
                 <polygon points="100,25 180,65 20,65" fill="#e3f2fd" stroke="#ff6b35" stroke-width="2"/>
@@ -112,6 +122,7 @@ function generiereSimpleDachSVG() {
             </svg>`;
             break;
         default:
+            console.log('  → matched case: DEFAULT (dachTyp was not recognized)');
             svg = `<svg width="200" height="120" viewBox="0 0 200 120">
                 <rect x="20" y="60" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
             </svg>`;
