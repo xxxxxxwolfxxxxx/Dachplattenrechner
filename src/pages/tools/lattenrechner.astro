@@ -22,7 +22,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
     </ul>
   </InfoBox>
 
-  <div class="section">
+  <div class="section" id="dachform-input-section">
     <h2>1. Dachflächenabmessungen & Dachform</h2>
     <div class="input-row">
       <div class="input-group">
@@ -366,6 +366,18 @@ import * as lattenrechner from '../../utils/lattenrechner';
       console.log(`⏳ Elemente nicht gefunden, versuche in ${100 + retry * 50}ms erneut...`);
       setTimeout(() => ladParameterAusURL(retry + 1), 100 + retry * 50);
       return;
+    }
+
+    // Überprüfe ob Dachform-Parameter aus URL vorhanden sind
+    const hatDachformParameter = params.has('breite') && params.has('hoehe') && params.has('typ');
+    const dachformSection = document.getElementById('dachform-input-section');
+    if (hatDachformParameter && dachformSection) {
+      // Verstecke Dachform-Eingabemaske wenn Parameter aus URL vorhanden sind
+      dachformSection.style.display = 'none';
+      console.log('ℹ️ Dachform-Parameter von URL gefunden, verstecke Eingabemaske');
+    } else if (dachformSection) {
+      dachformSection.style.display = 'block';
+      console.log('ℹ️ Keine Dachform-Parameter in URL, zeige Eingabemaske');
     }
 
     // Lade Basis-Parameter
