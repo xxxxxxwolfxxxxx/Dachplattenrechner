@@ -1009,7 +1009,7 @@ function berechne() {
   ];
 
   document.getElementById('res-details').innerHTML = details
-    .map(([k,v]) => `<tr><td style="color:#ffd700;font-weight:600;">${k}</td><td>${v}</td></tr>`)
+    .map(([k,v]) => `<tr><td style="color:#1e3c72;font-weight:600;">${k}</td><td style="color:#1e3c72;">${v}</td></tr>`)
     .join('');
 
   document.getElementById('results').style.display = 'block';
