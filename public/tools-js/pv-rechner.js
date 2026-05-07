@@ -1124,7 +1124,22 @@ function zuLattenrechner() {
   const b = parseFloat(document.getElementById('dach-breite').value);
   const h = parseFloat(document.getElementById('dach-laenge').value);
   if (!b || !h) { alert('Bitte zuerst Dachmaße eingeben.'); return; }
-  window.location.href = `/tools/lattenrechner/?${new URLSearchParams({breite:b, hoehe:h, typ:'rechteck'})}`;
+
+  const params = new URLSearchParams({
+    breite: b,
+    hoehe: h,
+    typ: dachTyp
+  });
+
+  // Alle Dachform-spezifischen Parameter mitschicken
+  if (dachBreiteOben > 0) params.append('breiteOben', dachBreiteOben);
+  if (trapezHoehe > 0) params.append('trapezHoehe', trapezHoehe);
+  if (rechteckHoehe > 0) params.append('rechteckHoehe', rechteckHoehe);
+  if (dreieckHoehe > 0) params.append('dreieckHoehe', dreieckHoehe);
+  if (dachDreieckTyp) params.append('dreieckTyp', dachDreieckTyp);
+  if (spitzePosX !== null && spitzePosX > 0) params.append('spitzenPosition', spitzePosX);
+
+  window.location.href = `/tools/lattenrechner/?${params.toString()}`;
 }
 
 function zuVerschnitt() {
