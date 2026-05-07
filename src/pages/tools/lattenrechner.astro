@@ -520,8 +520,21 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const trapezHoehe = urlParams.has('trapezHoehe') ? parseFloat(urlParams.get('trapezHoehe')) : hoehe * 0.4;
     const rechteckHoehe = urlParams.has('rechteckHoehe') ? parseFloat(urlParams.get('rechteckHoehe')) : hoehe * 0.3;
     const dreieckHoehe = urlParams.has('dreieckHoehe') ? parseFloat(urlParams.get('dreieckHoehe')) : hoehe * 0.4;
-    const spitzenPosition = urlParams.has('spitzenPosition') ? parseFloat(urlParams.get('spitzenPosition')) : 50;
-    const dreieckTyp = urlParams.has('dreieckTyp') ? urlParams.get('dreieckTyp') : 'gleichschenkliges';
+    // Accept both parameter name variations (from different tools)
+    let spitzenPosition = 50;
+    if (urlParams.has('spitzenPosition')) {
+      spitzenPosition = parseFloat(urlParams.get('spitzenPosition'));
+    } else if (urlParams.has('spitzePosX')) {
+      // Convert absolute position (meters) to percentage (0-100)
+      spitzenPosition = (parseFloat(urlParams.get('spitzePosX')) / breite) * 100;
+    }
+
+    let dreieckTyp = 'gleichschenkliges';
+    if (urlParams.has('dreieckTyp')) {
+      dreieckTyp = urlParams.get('dreieckTyp');
+    } else if (urlParams.has('dachDreieckTyp')) {
+      dreieckTyp = urlParams.get('dachDreieckTyp');
+    }
 
     if (!breite || !hoehe || !lattenabstand) {
       alert('Bitte füllen Sie alle erforderlichen Felder aus!');
