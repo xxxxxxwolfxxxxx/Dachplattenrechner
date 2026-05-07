@@ -41,9 +41,10 @@ function ladeDachParameter() {
 }
 
 function aktualisiereAnzeige() {
-    console.log('🟣 aktualisiereAnzeige() called. dachTyp is:', dachTyp);
+    console.log('🟣 aktualisiereAnzeige() called. dachTyp is:', dachTyp, 'dachDreieckTyp is:', dachDreieckTyp, 'spitzePosX is:', spitzePosX);
 
     let massText = `Breite: ${dachBreite}m, Höhe: ${dachHoehe}m, Typ: ${dachTyp}`;
+    if (dachDreieckTyp) massText += ` (${dachDreieckTyp})`;
 
     const urlParams = new URLSearchParams(window.location.search);
 
