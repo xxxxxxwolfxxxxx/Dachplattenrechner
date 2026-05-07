@@ -299,12 +299,14 @@ function setupCustomModulInputs() {
 
 // ---- Dreieck-Typ Setup ----
 function setupDreieckTyp() {
-  // Show/hide dreieck-typ-group based on region selection (as placeholder for dachTyp)
-  // For now, we'll make it always visible if it's in the UI
   const dreieckTypGroup = document.getElementById('dreieck-typ-group');
   const spitzePosGroup = document.getElementById('spitze-pos-group');
 
   if (!dreieckTypGroup) return; // Elements don't exist, skip
+
+  // Show dreieck-typ-group only if dachTyp is 'dreieck'
+  const shouldShow = dachTyp === 'dreieck';
+  dreieckTypGroup.style.display = shouldShow ? 'block' : 'none';
 
   // Listen to dreieck-typ radio changes
   document.querySelectorAll('input[name="dreieck-typ"]').forEach(radio => {
@@ -326,10 +328,10 @@ function setupDreieckTyp() {
     });
   }
 
-  // Initialize visibility
-  const selectedDreieck = document.querySelector('input[name="dreieck-typ"]:checked');
-  if (selectedDreieck) {
-    dachDreieckTyp = selectedDreieck.value;
+  // Initialize visibility based on loaded dachDreieckTyp
+  if (shouldShow && dachDreieckTyp) {
+    const radio = document.querySelector(`input[name="dreieck-typ"][value="${dachDreieckTyp}"]`);
+    if (radio) radio.checked = true;
     if (spitzePosGroup) {
       spitzePosGroup.style.display = dachDreieckTyp === 'ungleichschenkliges' ? 'block' : 'none';
     }
