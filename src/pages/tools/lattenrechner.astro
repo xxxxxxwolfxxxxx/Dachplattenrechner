@@ -521,12 +521,17 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const rechteckHoehe = urlParams.has('rechteckHoehe') ? parseFloat(urlParams.get('rechteckHoehe')) : hoehe * 0.3;
     const dreieckHoehe = urlParams.has('dreieckHoehe') ? parseFloat(urlParams.get('dreieckHoehe')) : hoehe * 0.4;
     // Accept both parameter name variations (from different tools)
-    let spitzenPosition = 50;
+    let spitzenPosition = 50; // Default: 50% (center)
     if (urlParams.has('spitzenPosition')) {
       spitzenPosition = parseFloat(urlParams.get('spitzenPosition'));
     } else if (urlParams.has('spitzePosX')) {
       // Convert absolute position (meters) to percentage (0-100)
+      // spitzePosX is in meters, convert to percentage
       spitzenPosition = (parseFloat(urlParams.get('spitzePosX')) / breite) * 100;
+    }
+    // Convert percentage (0-100) to decimal (0-1) for js-utils
+    if (spitzenPosition > 1) {
+      spitzenPosition = spitzenPosition / 100;
     }
 
     let dreieckTyp = 'gleichschenkliges';
