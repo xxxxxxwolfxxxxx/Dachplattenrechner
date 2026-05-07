@@ -585,8 +585,8 @@ import * as lattenrechner from '../../utils/lattenrechner';
       window.trapezHoehe = typ === 'trapez-auf-rechteck' ? trapezHoehe : (typ === 'trapez' ? hoehe : 0);
       window.rechteckHoehe = typ === 'trapez-auf-rechteck' || typ === 'dreieck-auf-rechteck' ? rechteckHoehe : 0;
       window.dreieckHoehe = typ === 'dreieck-auf-rechteck' ? dreieckHoehe : 0;
-      window.spitzenPosition = typ === 'dreieck-auf-rechteck' ? (spitzenPosition / 100) : 0.5;
-      window.dreieckTyp = typ === 'dreieck-auf-rechteck' ? dreieckTyp : 'gleichschenkliges';
+      window.spitzenPosition = (typ === 'dreieck' || typ === 'dreieck-auf-rechteck') ? (spitzenPosition / 100) : 0.5;
+      window.dreieckTyp = (typ === 'dreieck' || typ === 'dreieck-auf-rechteck') ? dreieckTyp : 'gleichschenkliges';
       window.sparrenPositionen = [];
       window.sparrenLaengen = [];
 
