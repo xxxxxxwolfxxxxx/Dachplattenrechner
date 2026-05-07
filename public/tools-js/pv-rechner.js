@@ -1137,7 +1137,7 @@ function zuLattenrechner() {
   if (rechteckHoehe > 0) params.append('rechteckHoehe', rechteckHoehe);
   if (dreieckHoehe > 0) params.append('dreieckHoehe', dreieckHoehe);
   if (dachDreieckTyp) params.append('dreieckTyp', dachDreieckTyp);
-  if (spitzePosX !== null && spitzePosX > 0) params.append('spitzenPosition', spitzePosX);
+  if (spitzePosX !== null) params.append('spitzenPosition', spitzePosX);
 
   window.location.href = `/tools/lattenrechner/?${params.toString()}`;
 }
