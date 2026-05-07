@@ -112,6 +112,7 @@ function azimuthLabel(deg) {
 
 // ---- Init ----
 document.addEventListener('DOMContentLoaded', () => {
+  const hasURLParams = window.location.search.length > 0;
   ladeDachParameter();
   setupAzimuthInput();
   setupShortcutButtons();
@@ -124,6 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dach-breite').addEventListener('input', updateHindernisCanvas);
   document.getElementById('dach-laenge').addEventListener('input', updateHindernisCanvas);
   document.getElementById('berechne-btn').addEventListener('click', berechne);
+
+  // Auto-calculate if URL parameters were passed
+  if (hasURLParams) {
+    setTimeout(() => berechne(), 100);
+  }
 });
 
 function ladeDachParameter() {
@@ -347,6 +353,38 @@ function buildRoofPath(ctx, W, H) {
     ctx.moveTo(0, H);
     ctx.lineTo(W, H);
     ctx.lineTo(W / 2, 0);
+    ctx.closePath();
+  } else if (dachTyp === 'dreieck-auf-rechteck' && rechteckHoehe !== null && dreieckHoehe !== null) {
+    // Rectangle (bottom) + triangle (top)
+    const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 1;
+    const rectHeightPx = H * (rechteckHoehe / dachLaengeM);
+    const triHeightPx = H - rectHeightPx;
+
+    // Rectangle part (bottom)
+    ctx.moveTo(0, H);
+    ctx.lineTo(W, H);
+    ctx.lineTo(W, rectHeightPx);
+
+    // Triangle part (top) - tapering to center peak
+    ctx.lineTo(W / 2, 0);
+    ctx.lineTo(0, rectHeightPx);
+    ctx.closePath();
+  } else if (dachTyp === 'trapez-auf-rechteck' && dachBreiteOben !== null && rechteckHoehe !== null && dreieckHoehe !== null) {
+    // Rectangle (bottom) + trapez (top)
+    const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 1;
+    const rectHeightPx = H * (rechteckHoehe / dachLaengeM);
+
+    const offsetPx = W * (1 - dachBreiteOben / dachBreiteM) / 2;
+
+    // Rectangle part (bottom)
+    ctx.moveTo(0, H);
+    ctx.lineTo(W, H);
+    ctx.lineTo(W, rectHeightPx);
+
+    // Trapez part (top)
+    ctx.lineTo(W - offsetPx, 0);
+    ctx.lineTo(offsetPx, 0);
+    ctx.lineTo(0, rectHeightPx);
     ctx.closePath();
   } else {
     ctx.rect(0, 0, W, H);
