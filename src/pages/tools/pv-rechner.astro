@@ -67,6 +67,23 @@ import AdUnit from '../../components/AdUnit.astro';
           <option value="suedost">Südost (Bayern)</option>
         </select>
       </div>
+      <div class="input-group" id="dreieck-typ-group" style="display: none;">
+        <label style="font-size: 14px; color: #333; margin-bottom: 8px; font-weight: 600;">Dreieck-Typ</label>
+        <div style="display: flex; gap: 10px;">
+          <label style="flex: 1;">
+            <input type="radio" name="dreieck-typ" value="gleichschenkliges" checked>
+            <span>Gleichschenkliges (symmetrisch)</span>
+          </label>
+          <label style="flex: 1;">
+            <input type="radio" name="dreieck-typ" value="ungleichschenkliges">
+            <span>Ungleichschenkliges (asymmetrisch)</span>
+          </label>
+        </div>
+      </div>
+      <div class="input-group" id="spitze-pos-group" style="display: none;">
+        <label for="spitze-pos">Spitzenposition von links (m)</label>
+        <input type="number" id="spitze-pos" step="0.1" min="0" placeholder="z.B. 3.00">
+      </div>
     </div>
   </div>
 
