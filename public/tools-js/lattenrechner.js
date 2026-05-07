@@ -928,11 +928,18 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<line x1="${margin - 23}" y1="${trapezUntenY}" x2="${margin - 17}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<text x="${margin - 30}" y="${(dachStartY + trapezUntenY)/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${(dachStartY + trapezUntenY)/2})">${dachHoehe.toFixed(1)}m</text>`;
     } else if (dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
-        const dreieckSpitzeX = margin + (dachBreite / 2) * scaleX;
+        // FIX für ungleichschenkliges Dreieck: Spitze-Position basierend auf spitzePosX
+        let dreieckSpitzeX;
+        if (dachDreieckTyp === 'ungleichschenkliges' && spitzePosX !== null) {
+            dreieckSpitzeX = margin + (spitzePosX / dachBreite) * (dachBreite * scaleX);
+        } else {
+            dreieckSpitzeX = margin + (dachBreite / 2) * scaleX;
+        }
         const dreieckLinksX = margin;
         const dreieckRechtsX = margin + dachBreite * scaleX;
         const dreieckUntenY = dachStartY + dachHoehe * scaleY;
-        
+
+        console.log('🟢 generiereVorschau dreieck: dachDreieckTyp=', dachDreieckTyp, 'spitzePosX=', spitzePosX, 'dreieckSpitzeX=', dreieckSpitzeX);
         svg += `<polygon points="${dreieckSpitzeX},${dachStartY} ${dreieckRechtsX},${dreieckUntenY} ${dreieckLinksX},${dreieckUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
         
         const linkeSchraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + (dachBreite/2) * (dachBreite/2));
@@ -1002,9 +1009,15 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<line x1="${linkeObenX}" y1="${dachStartY}" x2="${margin}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
         svg += `<line x1="${rechteObenX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     } else if (dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
-        const spitzeX = margin + (dachBreite / 2) * scaleX;
+        // FIX für ungleichschenkliges Dreieck: Spitze-Position basierend auf spitzePosX
+        let spitzeX;
+        if (dachDreieckTyp === 'ungleichschenkliges' && spitzePosX !== null) {
+            spitzeX = margin + (spitzePosX / dachBreite) * (dachBreite * scaleX);
+        } else {
+            spitzeX = margin + (dachBreite / 2) * scaleX;
+        }
         const untenY = dachStartY + dachHoehe * scaleY;
-        
+
         svg += `<line x1="${spitzeX}" y1="${dachStartY}" x2="${margin}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
         svg += `<line x1="${spitzeX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     } else if (dachTyp === 'trapez-auf-rechteck') {
