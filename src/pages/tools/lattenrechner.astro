@@ -23,7 +23,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
   </InfoBox>
 
   <div class="section">
-    <h2>1. Dachflächenabmessungen</h2>
+    <h2>1. Dachflächenabmessungen & Dachform</h2>
     <div class="input-row">
       <div class="input-group">
         <label for="breite">Breite (m)</label>
@@ -32,6 +32,108 @@ import * as lattenrechner from '../../utils/lattenrechner';
       <div class="input-group">
         <label for="hoehe">Höhe / Länge (m)</label>
         <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 8.00">
+      </div>
+      <div class="input-group" id="typ-select-group">
+        <label for="typ-select">Dachform</label>
+        <select id="typ-select" style="width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px; cursor: pointer;">
+          <option value="rechteck">Rechteck (Flachdach)</option>
+          <option value="trapez">Trapez</option>
+          <option value="dreieck">Dreieck (Spitzdach)</option>
+          <option value="dreieck-auf-rechteck">Dreieck auf Rechteck</option>
+          <option value="trapez-auf-rechteck">Trapez auf Rechteck</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trapez: Obere Breite -->
+  <div id="trapez-fields" style="display: none;" class="section">
+    <h3>Trapez-Parameter</h3>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="obere-breite">Obere Breite (m)</label>
+        <input type="number" id="obere-breite" step="0.01" min="0" placeholder="z.B. 6.00" value="8">
+      </div>
+    </div>
+  </div>
+
+  <!-- Dreieck: Dreieck-Typ und Spitzenposition -->
+  <div id="dreieck-fields" style="display: none;" class="section">
+    <h3>Dreieck-Parameter</h3>
+    <div class="input-row">
+      <div class="input-group">
+        <label style="font-size: 14px; color: #333; margin-bottom: 8px; font-weight: 600;">Dreieck-Typ</label>
+        <div style="display: flex; gap: 10px;">
+          <label style="flex: 1;">
+            <input type="radio" name="dreieck-typ-select" value="gleichschenkliges" checked>
+            <span>Gleichschenklig (symmetrisch)</span>
+          </label>
+          <label style="flex: 1;">
+            <input type="radio" name="dreieck-typ-select" value="ungleichschenkliges">
+            <span>Ungleichschenklig (asymmetrisch)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="input-row" id="spitzen-pos-row" style="display: none;">
+      <div class="input-group">
+        <label for="spitzen-pos">Spitzenposition von links (m)</label>
+        <input type="number" id="spitzen-pos" step="0.1" min="0" placeholder="z.B. 3.00">
+      </div>
+    </div>
+  </div>
+
+  <!-- Dreieck-auf-Rechteck: Höhen -->
+  <div id="dreieck-auf-rechteck-fields" style="display: none;" class="section">
+    <h3>Dreieck auf Rechteck - Parameter</h3>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="rechteck-hoehe">Rechteck-Höhe (m)</label>
+        <input type="number" id="rechteck-hoehe" step="0.01" min="0" placeholder="z.B. 3.00" value="3">
+      </div>
+      <div class="input-group">
+        <label for="dreieck-hoehe">Dreieck-Höhe (m)</label>
+        <input type="number" id="dreieck-hoehe" step="0.01" min="0" placeholder="z.B. 2.00" value="2">
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label style="font-size: 14px; color: #333; margin-bottom: 8px; font-weight: 600;">Dreieck-Typ</label>
+        <div style="display: flex; gap: 10px;">
+          <label style="flex: 1;">
+            <input type="radio" name="dreieck-auf-rechteck-typ" value="gleichschenkliges" checked>
+            <span>Gleichschenklig</span>
+          </label>
+          <label style="flex: 1;">
+            <input type="radio" name="dreieck-auf-rechteck-typ" value="ungleichschenkliges">
+            <span>Ungleichschenklig</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="input-row" id="spitzen-pos-dar-row" style="display: none;">
+      <div class="input-group">
+        <label for="spitzen-pos-dar">Spitzenposition von links (m)</label>
+        <input type="number" id="spitzen-pos-dar" step="0.1" min="0" placeholder="z.B. 3.00">
+      </div>
+    </div>
+  </div>
+
+  <!-- Trapez-auf-Rechteck: Höhen -->
+  <div id="trapez-auf-rechteck-fields" style="display: none;" class="section">
+    <h3>Trapez auf Rechteck - Parameter</h3>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="obere-breite-tar">Obere Breite (m)</label>
+        <input type="number" id="obere-breite-tar" step="0.01" min="0" placeholder="z.B. 6.00" value="8">
+      </div>
+      <div class="input-group">
+        <label for="rechteck-hoehe-tar">Rechteck-Höhe (m)</label>
+        <input type="number" id="rechteck-hoehe-tar" step="0.01" min="0" placeholder="z.B. 3.00" value="3">
+      </div>
+      <div class="input-group">
+        <label for="trapez-hoehe-tar">Trapez-Höhe (m)</label>
+        <input type="number" id="trapez-hoehe-tar" step="0.01" min="0" placeholder="z.B. 2.00" value="2">
       </div>
     </div>
   </div>
@@ -200,6 +302,55 @@ import * as lattenrechner from '../../utils/lattenrechner';
   // Placeholder für Utility - wird dynamisch geladen
   window.lattenrechner = null;
 
+  // ========== Dynamische Dachform-Felder ==========
+  function updateDachformFelder() {
+    const typ = document.getElementById('typ-select').value;
+
+    // Verstecke alle Felder zunächst
+    document.getElementById('trapez-fields').style.display = 'none';
+    document.getElementById('dreieck-fields').style.display = 'none';
+    document.getElementById('dreieck-auf-rechteck-fields').style.display = 'none';
+    document.getElementById('trapez-auf-rechteck-fields').style.display = 'none';
+
+    // Zeige nur die relevanten Felder
+    switch(typ) {
+      case 'trapez':
+        document.getElementById('trapez-fields').style.display = 'block';
+        break;
+      case 'dreieck':
+        document.getElementById('dreieck-fields').style.display = 'block';
+        break;
+      case 'dreieck-auf-rechteck':
+        document.getElementById('dreieck-auf-rechteck-fields').style.display = 'block';
+        break;
+      case 'trapez-auf-rechteck':
+        document.getElementById('trapez-auf-rechteck-fields').style.display = 'block';
+        break;
+    }
+  }
+
+  // Zeige/verstecke Spitzenposition basierend auf Dreieck-Typ
+  function updateDreieckSpitzeFelder() {
+    const dreieckTyp = document.querySelector('input[name="dreieck-typ-select"]:checked').value;
+    const spitzenPosRow = document.getElementById('spitzen-pos-row');
+    spitzenPosRow.style.display = dreieckTyp === 'ungleichschenkliges' ? 'grid' : 'none';
+  }
+
+  function updateDreieckAufRechteckSpitzeFelder() {
+    const dreieckTyp = document.querySelector('input[name="dreieck-auf-rechteck-typ"]:checked').value;
+    const spitzenPosRow = document.getElementById('spitzen-pos-dar-row');
+    spitzenPosRow.style.display = dreieckTyp === 'ungleichschenkliges' ? 'grid' : 'none';
+  }
+
+  // Event-Listener für Dachform-Änderung
+  document.getElementById('typ-select').addEventListener('change', updateDachformFelder);
+  document.querySelectorAll('input[name="dreieck-typ-select"]').forEach(radio => {
+    radio.addEventListener('change', updateDreieckSpitzeFelder);
+  });
+  document.querySelectorAll('input[name="dreieck-auf-rechteck-typ"]').forEach(radio => {
+    radio.addEventListener('change', updateDreieckAufRechteckSpitzeFelder);
+  });
+
   // Dach-Parameter aus URL laden mit Retry-Mechanismus
   function ladParameterAusURL(retry = 0) {
     const params = new URLSearchParams(window.location.search);
@@ -208,34 +359,112 @@ import * as lattenrechner from '../../utils/lattenrechner';
 
     const breiteEl = document.getElementById('breite');
     const hoeheEl = document.getElementById('hoehe');
+    const typEl = document.getElementById('typ-select');
 
     // Wenn Elemente nicht gefunden UND noch weniger als 5 Versuche: Retry
-    if ((!breiteEl || !hoeheEl) && retry < 5) {
+    if ((!breiteEl || !hoeheEl || !typEl) && retry < 5) {
       console.log(`⏳ Elemente nicht gefunden, versuche in ${100 + retry * 50}ms erneut...`);
       setTimeout(() => ladParameterAusURL(retry + 1), 100 + retry * 50);
       return;
     }
 
+    // Lade Basis-Parameter
     if (params.has('breite')) {
       if (breiteEl) {
         breiteEl.value = parseFloat(params.get('breite')).toFixed(2);
         console.log('✅ Breite gefüllt:', breiteEl.value);
-      } else {
-        console.log('❌ Breite Element nicht gefunden (nach Retries)');
       }
-    } else {
-      console.log('⚠️ Breite Parameter nicht in URL');
     }
 
     if (params.has('hoehe')) {
       if (hoeheEl) {
         hoeheEl.value = parseFloat(params.get('hoehe')).toFixed(2);
         console.log('✅ Hoehe gefüllt:', hoeheEl.value);
-      } else {
-        console.log('❌ Hoehe Element nicht gefunden (nach Retries)');
       }
-    } else {
-      console.log('⚠️ Hoehe Parameter nicht in URL');
+    }
+
+    // Lade Dachform-Typ
+    let typ = 'rechteck';
+    if (params.has('typ')) {
+      typ = params.get('typ');
+      if (typEl) {
+        typEl.value = typ;
+        console.log('✅ Typ gefüllt:', typ);
+        updateDachformFelder(); // Zeige/verstecke relevante Felder
+      }
+    }
+
+    // Lade Trapez-Parameter
+    if (params.has('obereBreite')) {
+      const obereBreiteEl = document.getElementById('obere-breite');
+      if (obereBreiteEl) {
+        obereBreiteEl.value = parseFloat(params.get('obereBreite')).toFixed(2);
+        console.log('✅ Obere Breite gefüllt:', obereBreiteEl.value);
+      }
+    }
+
+    if (params.has('trapezHoehe')) {
+      const trapezHoeheEl = document.getElementById('trapez-hoehe-tar');
+      if (trapezHoeheEl) {
+        trapezHoeheEl.value = parseFloat(params.get('trapezHoehe')).toFixed(2);
+        console.log('✅ Trapez-Höhe gefüllt:', trapezHoeheEl.value);
+      }
+    }
+
+    // Lade Rechteck-Höhe (bei dreieck-auf-rechteck, trapez-auf-rechteck)
+    if (params.has('rechteckHoehe')) {
+      const rechteckHoeheEl = document.getElementById('rechteck-hoehe');
+      const rechteckHoeheTarEl = document.getElementById('rechteck-hoehe-tar');
+      if (rechteckHoeheEl) {
+        rechteckHoeheEl.value = parseFloat(params.get('rechteckHoehe')).toFixed(2);
+      }
+      if (rechteckHoeheTarEl) {
+        rechteckHoeheTarEl.value = parseFloat(params.get('rechteckHoehe')).toFixed(2);
+      }
+      console.log('✅ Rechteck-Höhe gefüllt');
+    }
+
+    // Lade Dreieck-Höhe
+    if (params.has('dreieckHoehe')) {
+      const dreieckHoeheEl = document.getElementById('dreieck-hoehe');
+      if (dreieckHoeheEl) {
+        dreieckHoeheEl.value = parseFloat(params.get('dreieckHoehe')).toFixed(2);
+        console.log('✅ Dreieck-Höhe gefüllt:', dreieckHoeheEl.value);
+      }
+    }
+
+    // Lade Dreieck-Typ (akzeptiere beide Namen)
+    let dreieckTyp = 'gleichschenkliges';
+    if (params.has('dreieckTyp')) {
+      dreieckTyp = params.get('dreieckTyp');
+    } else if (params.has('dachDreieckTyp')) {
+      dreieckTyp = params.get('dachDreieckTyp');
+    }
+    if (dreieckTyp !== 'gleichschenkliges') {
+      document.querySelectorAll('input[name="dreieck-typ-select"]').forEach(radio => {
+        if (radio.value === dreieckTyp) radio.checked = true;
+      });
+      document.querySelectorAll('input[name="dreieck-auf-rechteck-typ"]').forEach(radio => {
+        if (radio.value === dreieckTyp) radio.checked = true;
+      });
+      console.log('✅ Dreieck-Typ gefüllt:', dreieckTyp);
+      updateDreieckSpitzeFelder();
+      updateDreieckAufRechteckSpitzeFelder();
+    }
+
+    // Lade Spitzenposition
+    if (params.has('spitzePosX')) {
+      const spitzePosEl = document.getElementById('spitzen-pos');
+      const spitzenPosDarEl = document.getElementById('spitzen-pos-dar');
+      const breite = parseFloat(params.get('breite')) || parseFloat(breiteEl.value);
+      const spitzePosX = parseFloat(params.get('spitzePosX'));
+      if (spitzePosEl) {
+        spitzePosEl.value = spitzePosX.toFixed(2);
+      }
+      if (spitzenPosDarEl) {
+        spitzenPosDarEl.value = spitzePosX.toFixed(2);
+      }
+      console.log('✅ Spitzenposition gefüllt:', spitzePosX);
     }
 
     // Aktualisiere Dachform-Vorschau vom externen JavaScript
@@ -513,32 +742,44 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const konterlattenLaengen = parseLength(konterlattenLaengenEl.value);
     const dachlatteLaengen = parseLength(dachlatteLaengenEl.value);
 
-    // URL-Parameter lesen (für Dachform)
-    const urlParams = new URLSearchParams(window.location.search);
-    const typ = urlParams.get('typ') || 'rechteck';
-    const obereBreite = urlParams.has('obereBreite') ? parseFloat(urlParams.get('obereBreite')) : breite * 0.8;
-    const trapezHoehe = urlParams.has('trapezHoehe') ? parseFloat(urlParams.get('trapezHoehe')) : hoehe * 0.4;
-    const rechteckHoehe = urlParams.has('rechteckHoehe') ? parseFloat(urlParams.get('rechteckHoehe')) : hoehe * 0.3;
-    const dreieckHoehe = urlParams.has('dreieckHoehe') ? parseFloat(urlParams.get('dreieckHoehe')) : hoehe * 0.4;
-    // Accept both parameter name variations (from different tools)
-    let spitzenPosition = 50; // Default: 50% (center)
-    if (urlParams.has('spitzenPosition')) {
-      spitzenPosition = parseFloat(urlParams.get('spitzenPosition'));
-    } else if (urlParams.has('spitzePosX')) {
-      // Convert absolute position (meters) to percentage (0-100)
-      // spitzePosX is in meters, convert to percentage
-      spitzenPosition = (parseFloat(urlParams.get('spitzePosX')) / breite) * 100;
-    }
-    // Convert percentage (0-100) to decimal (0-1) for js-utils
-    if (spitzenPosition > 1) {
-      spitzenPosition = spitzenPosition / 100;
+    // Parameter aus Input-Feldern lesen (von URL oder manuell eingegeben)
+    const typEl = document.getElementById('typ-select');
+    const typ = typEl ? typEl.value : 'rechteck';
+
+    const obereBreiteEl = document.getElementById('obere-breite');
+    const obereBreite = obereBreiteEl && obereBreiteEl.value ? parseFloat(obereBreiteEl.value) : breite * 0.8;
+
+    const trapezHoeheEl = document.getElementById('trapez-hoehe-tar');
+    const trapezHoehe = trapezHoeheEl && trapezHoeheEl.value ? parseFloat(trapezHoeheEl.value) : hoehe * 0.4;
+
+    const rechteckHoeheEl = document.getElementById('rechteck-hoehe');
+    const rechteckHoehe = rechteckHoeheEl && rechteckHoeheEl.value ? parseFloat(rechteckHoeheEl.value) : hoehe * 0.3;
+
+    const dreieckHoeheEl = document.getElementById('dreieck-hoehe');
+    const dreieckHoehe = dreieckHoeheEl && dreieckHoeheEl.value ? parseFloat(dreieckHoeheEl.value) : hoehe * 0.4;
+
+    // Lese Spitzenposition von Input-Feldern
+    let spitzenPosition = 0.5; // Default: 50% (center) als Dezimal
+    const spitzenPosEl = document.getElementById('spitzen-pos');
+    const spitzenPosDarEl = document.getElementById('spitzen-pos-dar');
+    if ((typ === 'dreieck' || typ === 'dreieck-auf-rechteck') && (spitzenPosEl || spitzenPosDarEl)) {
+      const spitzenPosValue = spitzenPosEl && spitzenPosEl.value ? parseFloat(spitzenPosEl.value) :
+                              (spitzenPosDarEl && spitzenPosDarEl.value ? parseFloat(spitzenPosDarEl.value) : breite / 2);
+      spitzenPosition = spitzenPosValue / breite; // Convert to decimal (0-1)
     }
 
+    // Lese Dreieck-Typ von Radio-Buttons
     let dreieckTyp = 'gleichschenkliges';
-    if (urlParams.has('dreieckTyp')) {
-      dreieckTyp = urlParams.get('dreieckTyp');
-    } else if (urlParams.has('dachDreieckTyp')) {
-      dreieckTyp = urlParams.get('dachDreieckTyp');
+    if (typ === 'dreieck') {
+      const selectedDreieck = document.querySelector('input[name="dreieck-typ-select"]:checked');
+      if (selectedDreieck) {
+        dreieckTyp = selectedDreieck.value;
+      }
+    } else if (typ === 'dreieck-auf-rechteck') {
+      const selectedDreieck = document.querySelector('input[name="dreieck-auf-rechteck-typ"]:checked');
+      if (selectedDreieck) {
+        dreieckTyp = selectedDreieck.value;
+      }
     }
 
     if (!breite || !hoehe || !lattenabstand) {
@@ -562,13 +803,13 @@ import * as lattenrechner from '../../utils/lattenrechner';
         width: breite,
         height: hoehe,
         type: typ,
-        upperWidth: typ === 'trapez' ? obereBreite : undefined,
+        upperWidth: typ === 'trapez' || typ === 'trapez-auf-rechteck' ? obereBreite : undefined,
         trapezHeight: typ === 'trapez-auf-rechteck' ? trapezHoehe : undefined,
         rectHeight: typ === 'trapez-auf-rechteck' ? rechteckHoehe : undefined,
         dreieckHeight: typ === 'dreieck-auf-rechteck' ? dreieckHoehe : undefined,
         dreieckRectHeight: typ === 'dreieck-auf-rechteck' ? rechteckHoehe : undefined,
-        spitzenPosition: (typ === 'ungleichschenkliges-dreieck' || typ === 'dreieck-auf-rechteck') ? spitzenPosition : undefined,
-        dreieckType: typ === 'dreieck-auf-rechteck' ? dreieckTyp : undefined
+        spitzenPosition: (typ === 'dreieck' || typ === 'dreieck-auf-rechteck') ? spitzenPosition : undefined,
+        dreieckType: (typ === 'dreieck' || typ === 'dreieck-auf-rechteck') ? dreieckTyp : undefined
       };
 
       const calcParams = {
@@ -595,7 +836,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
       }
 
       // KRITISCH: Setze globale Variablen BEVOR generiereVorschau aufgerufen wird!
-      // Diese Variablen werden von generiereVorschau() verwendet
+      // Diese Variablen werden von generiereVorschau() und berechneSpitzdachSparren() verwendet
       window.dachBreite = breite;
       window.dachHoehe = hoehe;
       window.dachTyp = typ;
@@ -603,6 +844,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
       window.trapezHoehe = typ === 'trapez-auf-rechteck' ? trapezHoehe : (typ === 'trapez' ? hoehe : 0);
       window.rechteckHoehe = typ === 'trapez-auf-rechteck' || typ === 'dreieck-auf-rechteck' ? rechteckHoehe : 0;
       window.dreieckHoehe = typ === 'dreieck-auf-rechteck' ? dreieckHoehe : 0;
+      // Setze spitzenPosition und dreieckTyp auch für einfache dreieck (nicht nur dreieck-auf-rechteck)
       window.spitzenPosition = (typ === 'dreieck' || typ === 'dreieck-auf-rechteck') ? spitzenPosition : 0.5;
       window.dreieckTyp = (typ === 'dreieck' || typ === 'dreieck-auf-rechteck') ? dreieckTyp : 'gleichschenkliges';
       window.sparrenPositionen = [];
@@ -726,13 +968,36 @@ import * as lattenrechner from '../../utils/lattenrechner';
   // DOMContentLoaded
   document.addEventListener('DOMContentLoaded', () => {
     console.log('📌 DOMContentLoaded event fired');
+    // Initialisiere Dachform-Felder
+    updateDachformFelder();
+    updateDreieckSpitzeFelder();
+    updateDreieckAufRechteckSpitzeFelder();
+    // Lade Parameter aus URL
     ladParameterAusURL();
   });
+
+  // Falls DOM bereits geladen ist (bei schnellen Seiten-Übergängen)
+  if (document.readyState === 'loading') {
+    console.log('📌 DOM wird noch geladen...');
+  } else {
+    console.log('📌 DOM bereits geladen (readyState:', document.readyState + ')');
+    // Verhindere doppelten Aufruf: nur initialisieren wenn das Event nicht existiert
+    setTimeout(() => {
+      if (typeof updateDachformFelder === 'function') {
+        updateDachformFelder();
+        updateDreieckSpitzeFelder();
+        updateDreieckAufRechteckSpitzeFelder();
+      }
+    }, 100);
+  }
 
   // Visibility Change (für Astro View Transitions)
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
       console.log('📌 Seite wurde sichtbar (visibilitychange)');
+      updateDachformFelder();
+      updateDreieckSpitzeFelder();
+      updateDreieckAufRechteckSpitzeFelder();
       ladParameterAusURL();
     }
   });
