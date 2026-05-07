@@ -4,6 +4,9 @@ let dachTyp = 'rechteck';
 let obereBreite = 0;
 let trapezHoehe = 0;
 let rechteckHoehe = 0;
+let dreieckHoehe = 0;
+let dachDreieckTyp = 'gleichschenkliges';
+let spitzePosX = null;
 let sparrenLaengen = [];
 let sparrenPositionen = [];
 
@@ -23,13 +26,13 @@ function ladeDachParameter() {
 
     // Zusätzliche Parameter für dreieck-auf-rechteck und andere komplexe Formen
     if (urlParams.has('dreieckHoehe')) {
-        window.dreieckHoehe = parseFloat(urlParams.get('dreieckHoehe'));
+        dreieckHoehe = parseFloat(urlParams.get('dreieckHoehe'));
     }
     if (urlParams.has('dreieckTyp')) {
-        window.dreieckTyp = urlParams.get('dreieckTyp');
+        dachDreieckTyp = urlParams.get('dreieckTyp');
     }
     if (urlParams.has('spitzenPosition')) {
-        window.spitzenPosition = parseFloat(urlParams.get('spitzenPosition'));
+        spitzePosX = parseFloat(urlParams.get('spitzenPosition'));
     }
 
     aktualisiereAnzeige();
