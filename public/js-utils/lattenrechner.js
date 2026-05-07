@@ -24,8 +24,13 @@ function ladeDachParameter() {
     if (urlParams.has('trapezHoehe')) trapezHoehe = parseFloat(urlParams.get('trapezHoehe'));
     if (urlParams.has('rechteckHoehe')) rechteckHoehe = parseFloat(urlParams.get('rechteckHoehe'));
     if (urlParams.has('dreieckHoehe')) dreieckHoehe = parseFloat(urlParams.get('dreieckHoehe'));
+
+    // Parameter name variations (tools send different names)
     if (urlParams.has('spitzenPosition')) spitzenPosition = parseFloat(urlParams.get('spitzenPosition')) / 100;
+    if (urlParams.has('spitzePosX')) spitzenPosition = parseFloat(urlParams.get('spitzePosX')) / dachBreite; // Convert absolute to relative
+
     if (urlParams.has('dreieckTyp')) dreieckTyp = urlParams.get('dreieckTyp');
+    if (urlParams.has('dachDreieckTyp')) dreieckTyp = urlParams.get('dachDreieckTyp');
 
     aktualisiereAnzeige();
 }
@@ -1012,7 +1017,7 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
     const dachTypDisplay = {
         'rechteck': 'Rechteck',
         'trapez': 'Trapez',
-        'dreieck': 'Dreieck (Gleichschenklig)',
+        'dreieck': dreieckTyp === 'ungleichschenkliges' ? 'Dreieck (Ungleichschenklig)' : 'Dreieck (Gleichschenklig)',
         'gleichschenkliges-dreieck': 'Dreieck (Gleichschenklig)',
         'ungleichschenkliges-dreieck': 'Dreieck (Ungleichschenklig)',
         'trapez-auf-rechteck': 'Trapez auf Rechteck',
@@ -1053,23 +1058,35 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<line x1="${margin - 23}" y1="${trapezUntenY}" x2="${margin - 17}" y2="${trapezUntenY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<text x="${margin - 30}" y="${(dachStartY + trapezUntenY)/2}" text-anchor="middle" font-size="11" font-weight="bold" fill="#333" transform="rotate(-90, ${margin - 30}, ${(dachStartY + trapezUntenY)/2})">${dachHoehe.toFixed(1)}m</text>`;
     } else if (dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
-        const dreieckSpitzeX = margin + (dachBreite / 2) * scaleX;
+        // Berechne Spitzenposition basierend auf dreieckTyp
+        let spitzePosX;
+        if (dreieckTyp === 'ungleichschenkliges') {
+            spitzePosX = spitzenPosition * dachBreite;
+        } else {
+            spitzePosX = dachBreite / 2;
+        }
+
+        const dreieckSpitzeX = margin + spitzePosX * scaleX;
         const dreieckLinksX = margin;
         const dreieckRechtsX = margin + dachBreite * scaleX;
         const dreieckUntenY = dachStartY + dachHoehe * scaleY;
-        
+
         svg += `<polygon points="${dreieckSpitzeX},${dachStartY} ${dreieckRechtsX},${dreieckUntenY} ${dreieckLinksX},${dreieckUntenY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
-        
-        const linkeSchraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + (dachBreite/2) * (dachBreite/2));
+
+        const linkeAbstand = spitzePosX;
+        const rechteAbstand = dachBreite - spitzePosX;
+
+        const linkeSchraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + linkeAbstand * linkeAbstand);
         const linkeMitteX = (dreieckSpitzeX + dreieckLinksX) / 2 - 25;
         const linkeMitteY = (dachStartY + dreieckUntenY) / 2;
-        const linkerWinkel = -Math.atan2(dachHoehe, dachBreite/2) * 180 / Math.PI;
+        const linkerWinkel = -Math.atan2(dachHoehe, linkeAbstand) * 180 / Math.PI;
         svg += `<text x="${linkeMitteX}" y="${linkeMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${linkerWinkel}, ${linkeMitteX}, ${linkeMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
-        
+
+        const rechteSchraegeLaenge = Math.sqrt(dachHoehe * dachHoehe + rechteAbstand * rechteAbstand);
         const rechteMitteX = (dreieckSpitzeX + dreieckRechtsX) / 2 + 25;
         const rechteMitteY = (dachStartY + dreieckUntenY) / 2;
-        const rechterWinkel = Math.atan2(dachHoehe, dachBreite/2) * 180 / Math.PI;
-        svg += `<text x="${rechteMitteX}" y="${rechteMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${rechterWinkel}, ${rechteMitteX}, ${rechteMitteY})">${linkeSchraegeLaenge.toFixed(2)}m</text>`;
+        const rechterWinkel = Math.atan2(dachHoehe, rechteAbstand) * 180 / Math.PI;
+        svg += `<text x="${rechteMitteX}" y="${rechteMitteY}" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc3545" transform="rotate(${rechterWinkel}, ${rechteMitteX}, ${rechteMitteY})">${rechteSchraegeLaenge.toFixed(2)}m</text>`;
         svg += `<line x1="${margin - 20}" y1="${dachStartY}" x2="${margin - 20}" y2="${dreieckUntenY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${margin - 23}" y1="${dachStartY}" x2="${margin - 17}" y2="${dachStartY}" stroke="#333" stroke-width="1.5"/>`;
         svg += `<line x1="${margin - 23}" y1="${dreieckUntenY}" x2="${margin - 17}" y2="${dreieckUntenY}" stroke="#333" stroke-width="1.5"/>`;
