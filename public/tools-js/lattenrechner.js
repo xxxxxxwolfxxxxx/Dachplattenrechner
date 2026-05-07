@@ -97,21 +97,23 @@ function generiereSimpleDachSVG() {
             </svg>`;
             break;
         case 'dreieck':
-        case 'gleichschenkliges-dreieck':
-            console.log('  → matched case: gleichschenkliges-dreieck');
-            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
-                <polygon points="100,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                <text x="100" y="75" text-anchor="middle" font-size="12" fill="#333">Dreieck</text>
-            </svg>`;
-            break;
-        case 'ungleichschenkliges-dreieck':
-            console.log('  → matched case: ungleichschenkliges-dreieck');
-            // Spitze verschoben basierend auf spitzePosX (0-10m Dachbreite)
-            const spitzeX = spitzePosX !== null ? 20 + (spitzePosX / dachBreite) * 160 : 100;
-            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
-                <polygon points="${spitzeX},30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
-                <text x="100" y="75" text-anchor="middle" font-size="12" fill="#333">Dreieck</text>
-            </svg>`;
+            console.log('  → matched case: dreieck, dachDreieckTyp:', dachDreieckTyp);
+            if (dachDreieckTyp === 'ungleichschenkliges') {
+                // Ungleichschenkliges Dreieck: Spitze verschoben
+                const spitzeX = spitzePosX !== null ? 20 + (spitzePosX / dachBreite) * 160 : 100;
+                console.log('    → ungleichschenkliges: spitzePosX=', spitzePosX, 'dachBreite=', dachBreite, 'spitzeX=', spitzeX);
+                svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                    <polygon points="${spitzeX},30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                    <text x="100" y="75" text-anchor="middle" font-size="12" fill="#333">Dreieck</text>
+                </svg>`;
+            } else {
+                // Gleichschenkliges Dreieck: Spitze in der Mitte
+                console.log('    → gleichschenkliges: Spitze in Mitte');
+                svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                    <polygon points="100,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                    <text x="100" y="75" text-anchor="middle" font-size="12" fill="#333">Dreieck</text>
+                </svg>`;
+            }
             break;
         case 'trapez-auf-rechteck':
             console.log('  → matched case: trapez-auf-rechteck');
