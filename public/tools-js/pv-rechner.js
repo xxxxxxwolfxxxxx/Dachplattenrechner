@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupOrientButtons();
   setupNeigungSlider();
   setupCustomModulInputs();
+  setupDreieckTyp();
   drawCompassDial(selAzimuth);
   initHindernisCanvas();
   document.getElementById('dach-breite').addEventListener('input', updateHindernisCanvas);
@@ -140,8 +141,16 @@ function ladeDachParameter() {
   // Support both 'breite-oben' and 'breiteOben' for backward compatibility
   if (p.has('breiteOben'))  dachBreiteOben = parseFloat(p.get('breiteOben'));
   else if (p.has('breite-oben')) dachBreiteOben = parseFloat(p.get('breite-oben'));
-  if (p.has('dreieckTyp'))  dachDreieckTyp = p.get('dreieckTyp');
-  if (p.has('spitzenPosition')) spitzePosX = parseFloat(p.get('spitzenPosition'));
+  if (p.has('dreieckTyp'))  {
+    dachDreieckTyp = p.get('dreieckTyp');
+    const radio = document.querySelector(`input[name="dreieck-typ"][value="${dachDreieckTyp}"]`);
+    if (radio) radio.checked = true;
+  }
+  if (p.has('spitzenPosition')) {
+    spitzePosX = parseFloat(p.get('spitzenPosition'));
+    const input = document.getElementById('spitze-pos');
+    if (input) input.value = spitzePosX;
+  }
   if (p.has('rechteckHoehe')) rechteckHoehe = parseFloat(p.get('rechteckHoehe'));
   if (p.has('dreieckHoehe'))  dreieckHoehe = parseFloat(p.get('dreieckHoehe'));
   if (p.has('neigung')) {
@@ -286,6 +295,45 @@ function setupCustomModulInputs() {
       if (w > 0) { selModWatt = w; }
     });
   });
+}
+
+// ---- Dreieck-Typ Setup ----
+function setupDreieckTyp() {
+  // Show/hide dreieck-typ-group based on region selection (as placeholder for dachTyp)
+  // For now, we'll make it always visible if it's in the UI
+  const dreieckTypGroup = document.getElementById('dreieck-typ-group');
+  const spitzePosGroup = document.getElementById('spitze-pos-group');
+
+  if (!dreieckTypGroup) return; // Elements don't exist, skip
+
+  // Listen to dreieck-typ radio changes
+  document.querySelectorAll('input[name="dreieck-typ"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      dachDreieckTyp = radio.value;
+      // Show spitze-pos-group only if ungleichschenkliges is selected
+      if (spitzePosGroup) {
+        spitzePosGroup.style.display = dachDreieckTyp === 'ungleichschenkliges' ? 'block' : 'none';
+      }
+    });
+  });
+
+  // Listen to spitze-pos input changes
+  const spitzePosInput = document.getElementById('spitze-pos');
+  if (spitzePosInput) {
+    spitzePosInput.addEventListener('input', () => {
+      const val = parseFloat(spitzePosInput.value);
+      spitzePosX = isNaN(val) ? null : val;
+    });
+  }
+
+  // Initialize visibility
+  const selectedDreieck = document.querySelector('input[name="dreieck-typ"]:checked');
+  if (selectedDreieck) {
+    dachDreieckTyp = selectedDreieck.value;
+    if (spitzePosGroup) {
+      spitzePosGroup.style.display = dachDreieckTyp === 'ungleichschenkliges' ? 'block' : 'none';
+    }
+  }
 }
 
 // ---- Handy-Sensor ----
