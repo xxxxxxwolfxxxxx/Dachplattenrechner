@@ -137,7 +137,9 @@ function ladeDachParameter() {
   if (p.has('breite'))      document.getElementById('dach-breite').value = parseFloat(p.get('breite'));
   if (p.has('hoehe'))       document.getElementById('dach-laenge').value = parseFloat(p.get('hoehe'));
   if (p.has('typ'))         dachTyp = p.get('typ');
-  if (p.has('breite-oben')) dachBreiteOben = parseFloat(p.get('breite-oben'));
+  // Support both 'breite-oben' and 'breiteOben' for backward compatibility
+  if (p.has('breiteOben'))  dachBreiteOben = parseFloat(p.get('breiteOben'));
+  else if (p.has('breite-oben')) dachBreiteOben = parseFloat(p.get('breite-oben'));
   if (p.has('dreieckTyp'))  dachDreieckTyp = p.get('dreieckTyp');
   if (p.has('spitzenPosition')) spitzePosX = parseFloat(p.get('spitzenPosition'));
   if (p.has('rechteckHoehe')) rechteckHoehe = parseFloat(p.get('rechteckHoehe'));
@@ -152,7 +154,7 @@ function ladeDachParameter() {
 
 // ---- Azimut-Eingabe ----
 function setupAzimuthInput() {
-  const inp = document.getElementById('azimuth-input');
+  const inp = document.getElementById('azimuth');
   inp.addEventListener('input', () => {
     let v = parseInt(inp.value);
     if (isNaN(v)) return;
