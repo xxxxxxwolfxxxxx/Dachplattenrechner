@@ -1175,6 +1175,11 @@ function zuLattenrechner() {
   const h = parseFloat(document.getElementById('dach-laenge').value);
   if (!b || !h) { alert('Bitte zuerst Dachmaße eingeben.'); return; }
 
+  // Read current values from UI
+  const currentDreieckTyp = document.querySelector('input[name="dreieck-typ"]:checked')?.value || dachDreieckTyp;
+  const spitzePosInput = document.getElementById('spitze-pos');
+  const currentSpitzePosX = spitzePosInput && spitzePosInput.value ? parseFloat(spitzePosInput.value) : spitzePosX;
+
   const params = new URLSearchParams({
     breite: b,
     hoehe: h,
@@ -1186,8 +1191,8 @@ function zuLattenrechner() {
   if (trapezHoehe > 0) params.append('trapezHoehe', trapezHoehe);
   if (rechteckHoehe > 0) params.append('rechteckHoehe', rechteckHoehe);
   if (dreieckHoehe > 0) params.append('dreieckHoehe', dreieckHoehe);
-  if (dachDreieckTyp) params.append('dreieckTyp', dachDreieckTyp);
-  if (spitzePosX !== null) params.append('spitzenPosition', spitzePosX);
+  if (currentDreieckTyp) params.append('dreieckTyp', currentDreieckTyp);
+  if (currentSpitzePosX !== null && currentSpitzePosX > 0) params.append('spitzenPosition', currentSpitzePosX);
 
   window.location.href = `/tools/lattenrechner/?${params.toString()}`;
 }
