@@ -28,11 +28,11 @@ function ladeDachParameter() {
     if (urlParams.has('dreieckHoehe')) {
         dreieckHoehe = parseFloat(urlParams.get('dreieckHoehe'));
     }
-    if (urlParams.has('dreieckTyp')) {
-        dachDreieckTyp = urlParams.get('dreieckTyp');
+    if (urlParams.has('dachDreieckTyp')) {
+        dachDreieckTyp = urlParams.get('dachDreieckTyp');
     }
-    if (urlParams.has('spitzenPosition')) {
-        spitzePosX = parseFloat(urlParams.get('spitzenPosition'));
+    if (urlParams.has('spitzePosX')) {
+        spitzePosX = parseFloat(urlParams.get('spitzePosX'));
     }
 
     console.log('🔵 ladeDachParameter() called. dachTyp:', dachTyp, 'URL search:', window.location.search);
