@@ -1192,7 +1192,7 @@ function zuLattenrechner() {
   if (rechteckHoehe > 0) params.append('rechteckHoehe', rechteckHoehe);
   if (dreieckHoehe > 0) params.append('dreieckHoehe', dreieckHoehe);
   if (currentDreieckTyp) params.append('dreieckTyp', currentDreieckTyp);
-  if (currentSpitzePosX !== null && currentSpitzePosX > 0) params.append('spitzenPosition', currentSpitzePosX);
+  if (currentSpitzePosX !== null && !isNaN(currentSpitzePosX)) params.append('spitzenPosition', currentSpitzePosX);
 
   window.location.href = `/tools/lattenrechner/?${params.toString()}`;
 }
