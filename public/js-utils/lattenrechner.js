@@ -212,18 +212,40 @@ function berechneSpitzdachSparren(anzahlSparren) {
         case 'dreieck':
         case 'gleichschenkliges-dreieck':
         case 'ungleichschenkliges-dreieck':
-            const halbBreite = dachBreite / 2;
-            
+            // Berechne Spitzenposition basierend auf dreieckTyp
+            let spitzePosX_dreieck;
+            if (dreieckTyp === 'ungleichschenkliges') {
+                // Asymmetrisches Dreieck: Spitze ist bei spitzenPosition * dachBreite
+                spitzePosX_dreieck = spitzenPosition * dachBreite;
+            } else {
+                // Symmetrisches Dreieck: Spitze ist in der Mitte
+                spitzePosX_dreieck = dachBreite / 2;
+            }
+
             for (let i = 0; i < anzahlSparren; i++) {
                 const xPosition = sparrenPositionen[i];
                 let sparrenLaenge;
-                
-                if (xPosition <= halbBreite) {
-                    sparrenLaenge = (xPosition / halbBreite) * dachHoehe;
+
+                if (dreieckTyp === 'ungleichschenkliges') {
+                    // Asymmetrisches Dreieck
+                    if (xPosition <= spitzePosX_dreieck) {
+                        const prozent = xPosition / spitzePosX_dreieck;
+                        sparrenLaenge = prozent * dachHoehe;
+                    } else {
+                        const abstandVonRechts = dachBreite - xPosition;
+                        const rechteHalbBreite = dachBreite - spitzePosX_dreieck;
+                        const prozent = abstandVonRechts / rechteHalbBreite;
+                        sparrenLaenge = prozent * dachHoehe;
+                    }
                 } else {
-                    sparrenLaenge = ((dachBreite - xPosition) / halbBreite) * dachHoehe;
+                    // Symmetrisches Dreieck
+                    if (xPosition <= spitzePosX_dreieck) {
+                        sparrenLaenge = (xPosition / spitzePosX_dreieck) * dachHoehe;
+                    } else {
+                        sparrenLaenge = ((dachBreite - xPosition) / spitzePosX_dreieck) * dachHoehe;
+                    }
                 }
-                
+
                 sparrenLaengen.push(Math.max(0, sparrenLaenge));
             }
             break;
@@ -980,6 +1002,17 @@ function zeigeErgebnisse(konterlatten, dachlatten, anzahlLattenReihen, lattenabs
 }
 
 function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
+    // ⚠️ KRITISCH: Importiere window-Variablen die von astro.astro gesetzt wurden
+    if (window.dachBreite !== undefined) dachBreite = window.dachBreite;
+    if (window.dachHoehe !== undefined) dachHoehe = window.dachHoehe;
+    if (window.dachTyp !== undefined) dachTyp = window.dachTyp;
+    if (window.obereBreite !== undefined) obereBreite = window.obereBreite;
+    if (window.trapezHoehe !== undefined) trapezHoehe = window.trapezHoehe;
+    if (window.rechteckHoehe !== undefined) rechteckHoehe = window.rechteckHoehe;
+    if (window.dreieckHoehe !== undefined) dreieckHoehe = window.dreieckHoehe;
+    if (window.spitzenPosition !== undefined) spitzenPosition = window.spitzenPosition;
+    if (window.dreieckTyp !== undefined) dreieckTyp = window.dreieckTyp;
+
     const svgWidth = 900;
     const svgHeight = 700;
     const margin = 70;
@@ -995,7 +1028,9 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         dachTyp,
         obereBreite,
         trapezHoehe,
-        rechteckHoehe
+        rechteckHoehe,
+        spitzenPosition,
+        dreieckTyp
     });
 
     // scaleX: Platz für Sketch (bis vor die Legend auf der rechten Seite)
@@ -1303,6 +1338,22 @@ function druckeLattenplan() {
 }
 
 function berechnen() {
+    // ⚠️ KRITISCH: Importiere window-Variablen die von astro.astro gesetzt wurden
+    // astro setzt diese als window.*, aber berechne() benutzt lokale Variablen
+    if (window.dachBreite !== undefined) dachBreite = window.dachBreite;
+    if (window.dachHoehe !== undefined) dachHoehe = window.dachHoehe;
+    if (window.dachTyp !== undefined) dachTyp = window.dachTyp;
+    if (window.obereBreite !== undefined) obereBreite = window.obereBreite;
+    if (window.trapezHoehe !== undefined) trapezHoehe = window.trapezHoehe;
+    if (window.rechteckHoehe !== undefined) rechteckHoehe = window.rechteckHoehe;
+    if (window.dreieckHoehe !== undefined) dreieckHoehe = window.dreieckHoehe;
+    if (window.spitzenPosition !== undefined) spitzenPosition = window.spitzenPosition;
+    if (window.dreieckTyp !== undefined) dreieckTyp = window.dreieckTyp;
+
+    console.log('📥 berechnen() - Importierte window-Variablen:', {
+        dachBreite, dachHoehe, dachTyp, dreieckTyp, spitzenPosition
+    });
+
     const anzahlSparren = parseInt(document.getElementById('anzahl-sparren').value);
     const sparrenAbstand = parseFloat(document.getElementById('sparren-abstand').value);
     const dachueberstand = parseFloat(document.getElementById('dachueberstand').value) || 0;
