@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHindernisCanvas();
   document.getElementById('dach-breite').addEventListener('input', updateHindernisCanvas);
   document.getElementById('dach-laenge').addEventListener('input', updateHindernisCanvas);
+  document.getElementById('berechne-btn').addEventListener('click', berechne);
 });
 
 function ladeDachParameter() {
