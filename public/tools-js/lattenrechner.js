@@ -98,10 +98,18 @@ function generiereSimpleDachSVG() {
             break;
         case 'dreieck':
         case 'gleichschenkliges-dreieck':
-        case 'ungleichschenkliges-dreieck':
-            console.log('  → matched case: dreieck family');
+            console.log('  → matched case: gleichschenkliges-dreieck');
             svg = `<svg width="200" height="120" viewBox="0 0 200 120">
                 <polygon points="100,30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+                <text x="100" y="75" text-anchor="middle" font-size="12" fill="#333">Dreieck</text>
+            </svg>`;
+            break;
+        case 'ungleichschenkliges-dreieck':
+            console.log('  → matched case: ungleichschenkliges-dreieck');
+            // Spitze verschoben basierend auf spitzePosX (0-10m Dachbreite)
+            const spitzeX = spitzePosX !== null ? 20 + (spitzePosX / dachBreite) * 160 : 100;
+            svg = `<svg width="200" height="120" viewBox="0 0 200 120">
+                <polygon points="${spitzeX},30 180,90 20,90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
                 <text x="100" y="75" text-anchor="middle" font-size="12" fill="#333">Dreieck</text>
             </svg>`;
             break;
