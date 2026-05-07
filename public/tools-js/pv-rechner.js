@@ -275,7 +275,9 @@ function setupOrientButtons() {
 
 function setupCustomModulInputs() {
   ['mod-breite', 'mod-hoehe', 'mod-watt'].forEach(id => {
-    document.getElementById(id).addEventListener('input', () => {
+    const el = document.getElementById(id);
+    if (!el) return;  // Element doesn't exist, skip
+    el.addEventListener('input', () => {
       const b = parseFloat(document.getElementById('mod-breite').value);
       const h = parseFloat(document.getElementById('mod-hoehe').value);
       const w = parseFloat(document.getElementById('mod-watt').value);
