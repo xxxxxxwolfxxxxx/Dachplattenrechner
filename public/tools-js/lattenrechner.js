@@ -1224,7 +1224,17 @@ function zuPVRechner() {
     const params = new URLSearchParams({
         breite: dachBreite,
         hoehe: dachHoehe,
+        typ: dachTyp,
     });
+
+    // Add complex form parameters if applicable
+    if (obereBreite > 0) params.append('breite-oben', obereBreite);
+    if (trapezHoehe > 0) params.append('trapezHoehe', trapezHoehe);
+    if (rechteckHoehe > 0) params.append('rechteckHoehe', rechteckHoehe);
+    if (dreieckHoehe > 0) params.append('dreieckHoehe', dreieckHoehe);
+    if (dachDreieckTyp) params.append('dreieckTyp', dachDreieckTyp);
+    if (spitzePosX !== null && spitzePosX > 0) params.append('spitzenPosition', spitzePosX);
+
     window.location.href = `/tools/pv-rechner/?${params.toString()}`;
 }
 
