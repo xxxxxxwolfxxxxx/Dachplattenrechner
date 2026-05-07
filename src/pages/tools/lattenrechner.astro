@@ -236,6 +236,21 @@ import * as lattenrechner from '../../utils/lattenrechner';
       console.log('⚠️ Hoehe Parameter nicht in URL');
     }
 
+    // Aktualisiere Dachform-Vorschau vom externen JavaScript
+    console.log('🔄 Versuche, externe JS-Funktionen aufzurufen für Dachform-Visualisierung...');
+    if (typeof ladeDachParameter === 'function') {
+      console.log('✅ ladeDachParameter() gefunden und wird aufgerufen');
+      ladeDachParameter();
+    } else {
+      console.log('⚠️ ladeDachParameter() noch nicht verfügbar, versuche später erneut');
+      setTimeout(() => {
+        if (typeof ladeDachParameter === 'function') {
+          console.log('✅ ladeDachParameter() jetzt verfügbar, rufe auf');
+          ladeDachParameter();
+        }
+      }, 300);
+    }
+
     // Auto-calculate wenn Parameter vorhanden
     if (params.has('breite') && params.has('hoehe')) {
       console.log('🔄 Auto-berechnen wird aufgerufen...');
