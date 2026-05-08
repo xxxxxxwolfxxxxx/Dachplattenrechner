@@ -843,29 +843,35 @@ import * as lattenrechner from '../../utils/lattenrechner';
       dreieckTyp = 'ungleichschenkliges';
     }
 
-    // Lese Spitzenposition von Input-Feldern (für ungleichschenklige Dreiecke)
+    // Lese Spitzenposition von Input-Feldern oder URL (für ungleichschenklige Dreiecke)
     let spitzenPosition = 0.5; // Default: 50% (center) als Dezimal
     const spitzenPosEl = document.getElementById('spitzen-pos');
     const spitzenPosDarEl = document.getElementById('spitzen-pos-dar');
+
     if ((typ === 'dreieck' || typ === 'dreieck-auf-rechteck' || typ === 'ungleichschenkliges-dreieck') &&
         dreieckTyp === 'ungleichschenkliges') {
-      let spitzenPosValue = breite / 2;
+      let spitzenPosValue = breite / 2; // Default: Mitte
+      let source = 'default (center)';
 
-      // Zuerst: Versuche von Form-Elementen zu lesen
-      if (spitzenPosEl && spitzenPosEl.value) {
+      // Versuche zuerst von Form-Elementen zu lesen
+      if (spitzenPosEl?.value) {
         spitzenPosValue = parseFloat(spitzenPosEl.value);
-      } else if (spitzenPosDarEl && spitzenPosDarEl.value) {
+        source = 'form element spitzen-pos';
+      } else if (spitzenPosDarEl?.value) {
         spitzenPosValue = parseFloat(spitzenPosDarEl.value);
+        source = 'form element spitzen-pos-dar';
       } else {
         // Fallback: Versuche von URL-Parametern zu lesen
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('spitzenPosition')) {
           spitzenPosValue = parseFloat(urlParams.get('spitzenPosition'));
+          source = 'URL parameter spitzenPosition';
+          console.log(`✅ spitzenPosition read from URL: ${spitzenPosValue}`);
         }
       }
 
       spitzenPosition = spitzenPosValue / breite; // Convert to decimal (0-1)
-      console.log(`🔍 Spitzenposition: ${spitzenPosValue} (${(spitzenPosition * 100).toFixed(1)}% von ${breite}m)`);
+      console.log(`🔍 Spitzenposition (${source}): ${spitzenPosValue}m (${(spitzenPosition * 100).toFixed(1)}% von ${breite}m)`);
     }
 
     console.log('🔍 Validation checks:', {
