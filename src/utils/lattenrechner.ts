@@ -528,8 +528,12 @@ export function generiereVorschau(
   ) {
     // Für ungleichschenklige Dreiecke: verwende spitzenPosition, sonst Mitte
     let peakPos = roofDims.width / 2;
+    console.log(`🔍 SVG Triangle: type=${roofDims.type}, spitzenPosition=${roofDims.spitzenPosition}, width=${roofDims.width}`);
     if (roofDims.type === 'ungleichschenkliges-dreieck' && roofDims.spitzenPosition !== undefined) {
       peakPos = roofDims.spitzenPosition;
+      console.log(`✅ Using asymmetric peak position: ${(peakPos * 100).toFixed(1)}% of width`);
+    } else {
+      console.log(`ℹ️ Using symmetric peak position (center): 50% of width`);
     }
 
     const peakX = margin + peakPos * scaleX;
