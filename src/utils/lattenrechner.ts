@@ -176,8 +176,18 @@ function berechneReihenBreite(progress: number, dims: RoofDimensions): number {
 
     case 'dreieck':
     case 'gleichschenkliges-dreieck':
-    case 'ungleichschenkliges-dreieck':
+      // Symmetrisches Dreieck: Peak in der Mitte
       return dims.width * (1 - progress);
+
+    case 'ungleichschenkliges-dreieck':
+      // Asymmetrisches Dreieck: Peak bei spitzenPosition
+      if (dims.spitzenPosition === undefined) {
+        return dims.width * (1 - progress); // Fallback zu symmetrisch
+      }
+      const peakPos = dims.spitzenPosition * dims.width;
+      const leftEdge = progress * peakPos;
+      const rightEdge = peakPos + progress * (dims.width - peakPos);
+      return rightEdge - leftEdge;
 
     case 'trapez-auf-rechteck':
       if (!dims.upperWidth || !dims.trapezHeight) return dims.width;
@@ -627,7 +637,16 @@ export function generiereVorschau(
     const progress = (rowCount - 1 - rowIdx) / Math.max(1, rowCount - 1);
     const rowWidth = berechneReihenBreite(progress, roofDims);
     const lattenY = dachStartY + (1 - progress) * roofDims.height * scaleY;
-    const rowStartAbsolute = margin + ((roofDims.width - rowWidth) / 2) * scaleX;
+
+    let rowStartAbsolute = margin + ((roofDims.width - rowWidth) / 2) * scaleX;
+
+    // Für ungleichschenklige Dreiecke: berechne die korrekte Position der Reihe basierend auf Peak-Position
+    if (roofDims.type === 'ungleichschenkliges-dreieck' && roofDims.spitzenPosition !== undefined) {
+      // Bei asymmetrischen Dreiecken: linke Kante = progress * spitzenPosition, rechte Kante = spitzenPosition + progress * (width - spitzenPosition)
+      const peakPos = roofDims.spitzenPosition * roofDims.width;
+      const leftEdgeOffset = progress * peakPos;
+      rowStartAbsolute = margin + leftEdgeOffset * scaleX;
+    }
 
     if (lattenPlan[rowIdx]) {
       const segments = lattenPlan[rowIdx];
