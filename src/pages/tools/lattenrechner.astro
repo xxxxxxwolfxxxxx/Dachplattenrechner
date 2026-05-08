@@ -544,10 +544,15 @@ import * as lattenrechner from '../../utils/lattenrechner';
       }, 300);
     }
 
-    // Auto-calculate wenn Parameter vorhanden
+    // Auto-calculate wenn Parameter vorhanden (NUR EINMAL pro Seite-Load)
     if (params.has('breite') && params.has('hoehe')) {
-      console.log('🔄 Auto-berechnen wird aufgerufen...');
-      setTimeout(berechnen, 300);
+      if (!autoCalculationScheduled) {
+        console.log('🔄 Auto-berechnen wird aufgerufen (erste und EINZIGE Berechnung)...');
+        autoCalculationScheduled = true;
+        setTimeout(berechnen, 300);
+      } else {
+        console.log('⏭️ Auto-berechnen SKIPPED (wurde bereits aufgerufen)');
+      }
     }
   }
 
@@ -1042,6 +1047,9 @@ import * as lattenrechner from '../../utils/lattenrechner';
       alert('Ein Fehler bei der Berechnung ist aufgetreten: ' + error.message);
     }
   }
+
+  // Flag to prevent multiple auto-calculations
+  let autoCalculationScheduled = false;
 
   // Expose berechnen to window for button onclick
   window.berechnen = berechnen;
