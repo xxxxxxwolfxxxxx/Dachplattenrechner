@@ -551,10 +551,49 @@ export function generiereVorschau(
     const bottomY = dachStartY + roofDims.height * scaleY;
 
     svg += `<polygon points="${peakX},${dachStartY} ${rightX},${bottomY} ${leftX},${bottomY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
+
+    // Berechne und zeichne Kantenlängen-Messungen (nur für Dreiecke)
+    if (roofDims.type === 'dreieck' || roofDims.type === 'gleichschenkliges-dreieck' || roofDims.type === 'ungleichschenkliges-dreieck') {
+      // Linke Kante: von peakPos zu 0 (linke Basis)
+      const leftEdgeLength = Math.sqrt((peakPos) ** 2 + (roofDims.height) ** 2);
+      // Rechte Kante: von peakPos zu width (rechte Basis)
+      const rightEdgeLength = Math.sqrt((roofDims.width - peakPos) ** 2 + (roofDims.height) ** 2);
+
+      // Linke Kantenlänge-Beschriftung
+      const leftLabelX = leftX + (peakX - leftX) / 2 - 20;
+      const leftLabelY = dachStartY + (bottomY - dachStartY) / 2;
+      svg += `<text x="${leftLabelX}" y="${leftLabelY}" text-anchor="middle" font-size="13" fill="#d32f2f" font-weight="bold">${leftEdgeLength.toFixed(2)} m</text>`;
+
+      // Rechte Kantenlänge-Beschriftung
+      const rightLabelX = rightX - (rightX - peakX) / 2 + 20;
+      const rightLabelY = dachStartY + (bottomY - dachStartY) / 2;
+      svg += `<text x="${rightLabelX}" y="${rightLabelY}" text-anchor="middle" font-size="13" fill="#d32f2f" font-weight="bold">${rightEdgeLength.toFixed(2)} m</text>`;
+
+      console.log(`📏 Triangle edge lengths: left=${leftEdgeLength.toFixed(2)}m, right=${rightEdgeLength.toFixed(2)}m`);
+    }
   } else {
     const bottomY = dachStartY + roofDims.height * scaleY;
     svg += `<rect x="${margin}" y="${dachStartY}" width="${roofDims.width * scaleX}" height="${roofDims.height * scaleY}" fill="none" stroke="#1976d2" stroke-width="2"/>`;
   }
+
+  // Zeichne Dimensions-Linien und Beschriftungen (Breite und Höhe)
+  const bottomY = dachStartY + roofDims.height * scaleY;
+  const leftX = margin;
+  const rightX = margin + roofDims.width * scaleX;
+  const topY = dachStartY;
+
+  // Breiten-Dimension (unten)
+  const dimensionLineOffset = 25;
+  svg += `<line x1="${leftX}" y1="${bottomY + dimensionLineOffset}" x2="${rightX}" y2="${bottomY + dimensionLineOffset}" stroke="#333" stroke-width="1"/>`;
+  svg += `<line x1="${leftX}" y1="${bottomY + dimensionLineOffset - 5}" x2="${leftX}" y2="${bottomY + dimensionLineOffset + 5}" stroke="#333" stroke-width="1"/>`;
+  svg += `<line x1="${rightX}" y1="${bottomY + dimensionLineOffset - 5}" x2="${rightX}" y2="${bottomY + dimensionLineOffset + 5}" stroke="#333" stroke-width="1"/>`;
+  svg += `<text x="${(leftX + rightX) / 2}" y="${bottomY + dimensionLineOffset + 15}" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">Breite: ${roofDims.width.toFixed(1)}m</text>`;
+
+  // Höhen-Dimension (links)
+  svg += `<line x1="${leftX - dimensionLineOffset}" y1="${topY}" x2="${leftX - dimensionLineOffset}" y2="${bottomY}" stroke="#333" stroke-width="1"/>`;
+  svg += `<line x1="${leftX - dimensionLineOffset - 5}" y1="${topY}" x2="${leftX - dimensionLineOffset + 5}" y2="${topY}" stroke="#333" stroke-width="1"/>`;
+  svg += `<line x1="${leftX - dimensionLineOffset - 5}" y1="${bottomY}" x2="${leftX - dimensionLineOffset + 5}" y2="${bottomY}" stroke="#333" stroke-width="1"/>`;
+  svg += `<text x="${leftX - dimensionLineOffset - 15}" y="${(topY + bottomY) / 2}" text-anchor="middle" font-size="12" fill="#333" font-weight="bold" transform="rotate(-90 ${leftX - dimensionLineOffset - 15} ${(topY + bottomY) / 2})">${roofDims.height.toFixed(1)}m</text>`;
 
   // Zeichne Sparren
   for (let i = 0; i < rafterCount && i < sparrenPositionen.length; i++) {
