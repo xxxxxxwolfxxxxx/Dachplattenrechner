@@ -361,8 +361,9 @@ import * as lattenrechner from '../../utils/lattenrechner';
     if (dreieckTypSelection) dreieckTypSelection.style.display = 'none';
     if (dreieckAufRechteckTypSelection) dreieckAufRechteckTypSelection.style.display = 'none';
 
-    // Lade Basis-Parameter
+    // Lade Basis-Parameter (falls Element vorhanden - diese können optional sein)
     if (params.has('breite')) {
+      const breiteEl = document.getElementById('breite');
       if (breiteEl) {
         breiteEl.value = parseFloat(params.get('breite')).toFixed(2);
         console.log('✅ Breite gefüllt:', breiteEl.value);
@@ -370,20 +371,22 @@ import * as lattenrechner from '../../utils/lattenrechner';
     }
 
     if (params.has('hoehe')) {
+      const hoeheEl = document.getElementById('hoehe');
       if (hoeheEl) {
         hoeheEl.value = parseFloat(params.get('hoehe')).toFixed(2);
         console.log('✅ Hoehe gefüllt:', hoeheEl.value);
       }
     }
 
-    // Lade Dachform-Typ
+    // Lade Dachform-Typ (falls Element vorhanden)
     let typ = 'rechteck';
     if (params.has('typ')) {
       typ = params.get('typ');
+      const typEl = document.getElementById('typ-select');
       if (typEl) {
         typEl.value = typ;
         console.log('✅ Typ gefüllt:', typ);
-        updateDachformFelder(); // Zeige/verstecke relevante Felder
+        updateDachformFelder(typ); // Zeige/verstecke relevante Felder
       }
     }
 
