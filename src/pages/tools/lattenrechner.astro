@@ -859,8 +859,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const spitzenPosEl = document.getElementById('spitzen-pos');
     const spitzenPosDarEl = document.getElementById('spitzen-pos-dar');
 
-    if ((typ === 'dreieck' || typ === 'dreieck-auf-rechteck' || typ === 'ungleichschenkliges-dreieck') &&
-        dreieckTyp === 'ungleichschenkliges') {
+    if (typ === 'ungleichschenkliges-dreieck' || ((typ === 'dreieck' || typ === 'dreieck-auf-rechteck') && dreieckTyp === 'ungleichschenkliges')) {
       let spitzenPosValue = breite / 2; // Default: Mitte
       let source = 'default (center)';
 
