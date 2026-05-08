@@ -7,6 +7,7 @@ let rechteckHoehe = 0;
 let dreieckHoehe = 0;
 let dachDreieckTyp = 'gleichschenkliges';
 let spitzePosX = null;
+let spitzenPosition = 0.5; // Dezimal 0-1
 let sparrenLaengen = [];
 let sparrenPositionen = [];
 
