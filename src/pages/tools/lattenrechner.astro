@@ -529,6 +529,10 @@ import * as lattenrechner from '../../utils/lattenrechner';
       console.log('✅ Spitzenposition gefüllt:', spitzePosX);
     }
 
+    // 🔥 FIX: Setze dreieckTyp als globale Variable für externe Dachform-Visualisierung
+    window.dachDreieckTyp = dreieckTyp;
+    console.log(`🔥 window.dachDreieckTyp gesetzt zu: "${dreieckTyp}"`);
+
     // Aktualisiere Dachform-Vorschau vom externen JavaScript
     console.log('🔄 Versuche, externe JS-Funktionen aufzurufen für Dachform-Visualisierung...');
     if (typeof ladeDachParameter === 'function') {

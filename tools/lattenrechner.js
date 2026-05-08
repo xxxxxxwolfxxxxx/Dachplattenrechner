@@ -35,10 +35,21 @@ function showAds() {
 
 function ladeDachParameter() {
     const urlParams = new URLSearchParams(window.location.search);
-    
+
     if (urlParams.has('breite')) dachBreite = parseFloat(urlParams.get('breite'));
     if (urlParams.has('hoehe')) dachHoehe = parseFloat(urlParams.get('hoehe'));
     if (urlParams.has('typ')) dachTyp = urlParams.get('typ');
+
+    // 🔥 FIX: Lese dreieckTyp aus URL-Parametern (für ungleichschenkliges-dreieck)
+    if (urlParams.has('dreieckTyp')) {
+        const dreieckTyp = urlParams.get('dreieckTyp');
+        console.log(`✅ dreieckTyp aus URL gelesen: ${dreieckTyp}`);
+        // Setze global dreieckTyp wenn verfügbar
+        if (typeof window.dreieckTyp !== 'undefined') {
+            window.dreieckTyp = dreieckTyp;
+        }
+    }
+
     if (urlParams.has('obereBreite')) obereBreite = parseFloat(urlParams.get('obereBreite'));
     if (urlParams.has('trapezHoehe')) trapezHoehe = parseFloat(urlParams.get('trapezHoehe'));
     if (urlParams.has('rechteckHoehe')) rechteckHoehe = parseFloat(urlParams.get('rechteckHoehe'));
