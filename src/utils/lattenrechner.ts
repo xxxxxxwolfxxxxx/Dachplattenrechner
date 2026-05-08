@@ -117,7 +117,8 @@ function berechneSpitzdachSparren(count: number, dims: RoofDimensions): void {
       let peakPos = dims.width / 2; // Default: Mitte
 
       if (dims.type === 'ungleichschenkliges-dreieck' && dims.spitzenPosition !== undefined) {
-        peakPos = dims.spitzenPosition;
+        // spitzenPosition ist ein Dezimalwert (0-1), daher mit width multiplizieren
+        peakPos = dims.spitzenPosition * dims.width;
         console.log(`🔍 Sparren-Berechnung: Asymmetric peak at ${peakPos}m (${(peakPos / dims.width * 100).toFixed(1)}% of ${dims.width}m width)`);
       }
 
