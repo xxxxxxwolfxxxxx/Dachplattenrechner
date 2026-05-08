@@ -288,6 +288,7 @@
             const params = new URLSearchParams({
                 breite: breite,
                 hoehe: hoehe,
+                typ: 'rechteck'
             });
 
             window.location.href = `/tools/pv-rechner/?${params.toString()}`;

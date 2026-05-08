@@ -405,10 +405,18 @@
 
         function erstellePVRechner() {
             const _b = parseFloat(document.getElementById('untere-breite').value);
+            const _bo = parseFloat(document.getElementById('obere-breite').value);
             const _t = parseFloat(document.getElementById('trapez-hoehe').value);
             const _r = parseFloat(document.getElementById('rechteck-hoehe').value);
             if (!_b || !_t || !_r) { alert('Bitte führen Sie zuerst eine Berechnung durch.'); return; }
-            const params = new URLSearchParams({ breite: _b, hoehe: _t + _r });
+            const params = new URLSearchParams({
+                breite: _b,
+                hoehe: _t + _r,
+                typ: 'trapez-auf-rechteck',
+                'breite-oben': _bo,
+                'trapez-hoehe': _t,
+                'rechteck-hoehe': _r
+            });
             window.location.href = `/tools/pv-rechner/?${params.toString()}`;
         }
 
