@@ -492,12 +492,19 @@ import * as lattenrechner from '../../utils/lattenrechner';
       updateDreieckAufRechteckSpitzeFelder();
     }
 
-    // Lade Spitzenposition
-    if (params.has('spitzePosX')) {
+    // Lade Spitzenposition (akzeptiere beide Namen: spitzenPosition und spitzePosX)
+    if (params.has('spitzenPosition') || params.has('spitzePosX')) {
       const spitzePosEl = document.getElementById('spitzen-pos');
       const spitzenPosDarEl = document.getElementById('spitzen-pos-dar');
       const breite = parseFloat(params.get('breite')) || parseFloat(breiteEl.value);
-      const spitzePosX = parseFloat(params.get('spitzePosX'));
+
+      let spitzePosX = 0;
+      if (params.has('spitzenPosition')) {
+        spitzePosX = parseFloat(params.get('spitzenPosition'));
+      } else {
+        spitzePosX = parseFloat(params.get('spitzePosX'));
+      }
+
       if (spitzePosEl) {
         spitzePosEl.value = spitzePosX.toFixed(2);
       }
@@ -840,10 +847,24 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const spitzenPosEl = document.getElementById('spitzen-pos');
     const spitzenPosDarEl = document.getElementById('spitzen-pos-dar');
     if ((typ === 'dreieck' || typ === 'dreieck-auf-rechteck' || typ === 'ungleichschenkliges-dreieck') &&
-        dreieckTyp === 'ungleichschenkliges' && (spitzenPosEl || spitzenPosDarEl)) {
-      const spitzenPosValue = spitzenPosEl && spitzenPosEl.value ? parseFloat(spitzenPosEl.value) :
-                              (spitzenPosDarEl && spitzenPosDarEl.value ? parseFloat(spitzenPosDarEl.value) : breite / 2);
+        dreieckTyp === 'ungleichschenkliges') {
+      let spitzenPosValue = breite / 2;
+
+      // Zuerst: Versuche von Form-Elementen zu lesen
+      if (spitzenPosEl && spitzenPosEl.value) {
+        spitzenPosValue = parseFloat(spitzenPosEl.value);
+      } else if (spitzenPosDarEl && spitzenPosDarEl.value) {
+        spitzenPosValue = parseFloat(spitzenPosDarEl.value);
+      } else {
+        // Fallback: Versuche von URL-Parametern zu lesen
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('spitzenPosition')) {
+          spitzenPosValue = parseFloat(urlParams.get('spitzenPosition'));
+        }
+      }
+
       spitzenPosition = spitzenPosValue / breite; // Convert to decimal (0-1)
+      console.log(`🔍 Spitzenposition: ${spitzenPosValue} (${(spitzenPosition * 100).toFixed(1)}% von ${breite}m)`);
     }
 
     console.log('🔍 Validation checks:', {
