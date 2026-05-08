@@ -333,9 +333,12 @@ import * as lattenrechner from '../../utils/lattenrechner';
 
   // Zeige/verstecke Spitzenposition basierend auf Dreieck-Typ
   function updateDreieckSpitzeFelder() {
-    const dreieckTyp = document.querySelector('input[name="dreieck-typ-select"]:checked').value;
+    const typ = document.getElementById('typ-select').value;
+    const dreieckTypRadio = document.querySelector('input[name="dreieck-typ-select"]:checked');
+    const dreieckTyp = dreieckTypRadio ? dreieckTypRadio.value : null;
     const spitzenPosRow = document.getElementById('spitzen-pos-row');
-    spitzenPosRow.style.display = dreieckTyp === 'ungleichschenkliges' ? 'grid' : 'none';
+    // Zeige spitzen-pos wenn: typ='ungleichschenkliges-dreieck' ODER wenn dreieckTyp='ungleichschenkliges'
+    spitzenPosRow.style.display = (typ === 'ungleichschenkliges-dreieck' || dreieckTyp === 'ungleichschenkliges') ? 'grid' : 'none';
   }
 
   function updateDreieckAufRechteckSpitzeFelder() {
@@ -350,6 +353,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
     typSelect.addEventListener('change', (e) => {
       console.log('🔄 Dachform-Typ geändert:', e.target.value);
       updateDachformFelder(e.target.value);
+      updateDreieckSpitzeFelder(); // Aktualisiere auch die Spitzenposition-Anzeige
     });
   }
 
