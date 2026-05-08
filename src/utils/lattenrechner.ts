@@ -43,6 +43,7 @@ export interface RoofDimensions {
   trapezHeight?: number;
   rectHeight?: number;
   peakPosition?: number;
+  spitzenPosition?: number;
 }
 
 export interface RafterCalcParams {
