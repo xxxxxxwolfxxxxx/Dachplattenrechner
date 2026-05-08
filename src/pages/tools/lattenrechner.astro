@@ -400,12 +400,6 @@ import * as lattenrechner from '../../utils/lattenrechner';
       console.log('✅ Dachform-Sektion angezeigt');
     }
 
-    // Verstecke auch die Dreieck-Typ-Radio-Button-Sektionen wenn URL-Parameter vorhanden
-    const dreieckTypSelection = document.getElementById('dreieck-typ-selection');
-    const dreieckAufRechteckTypSelection = document.getElementById('dreieck-auf-rechteck-typ-selection');
-    if (dreieckTypSelection) dreieckTypSelection.style.display = 'none';
-    if (dreieckAufRechteckTypSelection) dreieckAufRechteckTypSelection.style.display = 'none';
-
     // Lade Basis-Parameter (falls Element vorhanden - diese können optional sein)
     if (params.has('breite')) {
       const breiteEl = document.getElementById('breite');
@@ -433,6 +427,16 @@ import * as lattenrechner from '../../utils/lattenrechner';
         console.log('✅ Typ gefüllt:', typ);
         updateDachformFelder(typ); // Zeige/verstecke relevante Felder
       }
+    }
+
+    // Verstecke auch die Dreieck-Typ-Radio-Button-Sektionen wenn URL-Parameter vorhanden
+    // ABER: Nicht verstecken wenn typ='ungleichschenkliges-dreieck' oder 'dreieck-auf-rechteck'
+    // (diese brauchen die Radio-Buttons um zu funktionieren)
+    if (typ !== 'ungleichschenkliges-dreieck' && typ !== 'dreieck-auf-rechteck') {
+      const dreieckTypSelection = document.getElementById('dreieck-typ-selection');
+      const dreieckAufRechteckTypSelection = document.getElementById('dreieck-auf-rechteck-typ-selection');
+      if (dreieckTypSelection) dreieckTypSelection.style.display = 'none';
+      if (dreieckAufRechteckTypSelection) dreieckAufRechteckTypSelection.style.display = 'none';
     }
 
     // Lade Trapez-Parameter
