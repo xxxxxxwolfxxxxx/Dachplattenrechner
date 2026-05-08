@@ -343,20 +343,20 @@
                 });
             }
             
-            const basisBreite = parameterModus === 'basis-hoehe' ? 
-                parseFloat(document.getElementById('basis-breite').value) : 
+            const basisBreite = parameterModus === 'basis-hoehe' ?
+                parseFloat(document.getElementById('basis-breite').value) :
                 parseFloat(document.getElementById('basis-breite-kante').value);
             const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
-            
+
             const planData = {
                 basisBreite: basisBreite,
                 hoehe: hoehe,
                 schnittliste: aktuelleSchnittliste,
                 verlegerichtung: verlegerichtung
             };
-            
+
             const encodedData = encodeURIComponent(JSON.stringify(planData));
-            window.location.href = `/tools/anrissplan.html?type=gleichschenkliges-dreieck&data=${encodedData}`;
+            window.location.href = `/tools/anrissplan.html?type=gleichschenkliges-dreieck&breite=${basisBreite}&hoehe=${hoehe}&data=${encodedData}`;
         }
 
         function erstelleLattenrechner() {

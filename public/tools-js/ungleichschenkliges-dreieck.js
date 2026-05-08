@@ -371,7 +371,7 @@
             
             const basisBreite = parseFloat(document.getElementById('basis-breite').value);
             const hoehe = parseFloat(document.getElementById('hoehe-result').textContent.replace(' m', ''));
-            
+
             const planData = {
                 basisBreite: basisBreite,
                 hoehe: hoehe,
@@ -379,9 +379,9 @@
                 schnittliste: aktuelleSchnittliste,
                 verlegerichtung: verlegerichtung
             };
-            
+
             const encodedData = encodeURIComponent(JSON.stringify(planData));
-            window.location.href = `/tools/anrissplan.html?type=ungleichschenkliges-dreieck&data=${encodedData}`;
+            window.location.href = `/tools/anrissplan.html?type=ungleichschenkliges-dreieck&breite=${basisBreite}&hoehe=${hoehe}&spitzenPosition=${spitzenPosition}&data=${encodedData}`;
         }
 
         function erstelleLattenrechner() {

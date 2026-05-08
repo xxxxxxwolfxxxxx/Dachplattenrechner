@@ -70,7 +70,71 @@ import AdUnit from '../../components/AdUnit.astro';
   </div>
 
   <div class="section">
-    <h2>2. Stromverbrauch & Wirtschaftlichkeit</h2>
+    <h2>2. Modultyp & Ausrichtung</h2>
+
+    <div style="margin-bottom: 20px;">
+      <label style="display: block; font-weight: 600; color: #333; margin-bottom: 12px; font-size: 14px;">Modul-Vorsets:</label>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
+        <button class="module-btn" data-w="1134" data-h="1722" data-watt="410" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+          Halbzellen M10<br><span style="font-size: 12px; font-weight: normal; color: #666;">410 W</span>
+        </button>
+        <button class="module-btn" data-w="1038" data-h="2094" data-watt="550" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+          Groß-Modul 72Z<br><span style="font-size: 12px; font-weight: normal; color: #666;">550 W</span>
+        </button>
+        <button class="module-btn" data-w="1134" data-h="2172" data-watt="600" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+          TOPCon / HJT<br><span style="font-size: 12px; font-weight: normal; color: #666;">600 W</span>
+        </button>
+        <button class="module-btn" data-w="992" data-h="1956" data-watt="390" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+          Standard 72Z<br><span style="font-size: 12px; font-weight: normal; color: #666;">390 W</span>
+        </button>
+        <button class="module-btn" data-w="992" data-h="1650" data-watt="310" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+          Standard 60Z<br><span style="font-size: 12px; font-weight: normal; color: #666;">310 W</span>
+        </button>
+        <button class="module-btn" data-w="1002" data-h="2008" data-watt="420" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+          Glas-Glas / Rahmenlos<br><span style="font-size: 12px; font-weight: normal; color: #666;">420 W</span>
+        </button>
+      </div>
+      <button onclick="findeOptimalesFormat()" style="padding: 10px 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 15px;">
+        🔍 Optimales Format finden
+      </button>
+    </div>
+
+    <div style="background: #f0f4f8; border-left: 4px solid #2196F3; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+      <label style="display: block; font-weight: 600; color: #333; margin-bottom: 12px; font-size: 14px;">Ausrichtung:</label>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="orient-btn" data-orient="hoch" style="flex: 1; min-width: 100px; padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+          📱 Hochformat
+        </button>
+        <button class="orient-btn" data-orient="quer" style="flex: 1; min-width: 100px; padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+          📺 Querformat
+        </button>
+        <button class="orient-btn active" data-orient="auto" style="flex: 1; min-width: 100px; padding: 10px; border: 2px solid #3b82f6; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #3b82f6; transition: all 0.3s ease;">
+          ⚙️ Auto
+        </button>
+      </div>
+    </div>
+
+    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 8px;">
+      <label style="display: block; font-weight: 600; color: #92400e; margin-bottom: 12px; font-size: 14px;">Benutzerdefiniertes Modul:</label>
+      <div class="input-row">
+        <div class="input-group">
+          <label for="mod-breite">Breite (mm)</label>
+          <input type="number" id="mod-breite" step="1" min="0" placeholder="z.B. 1000">
+        </div>
+        <div class="input-group">
+          <label for="mod-hoehe">Höhe (mm)</label>
+          <input type="number" id="mod-hoehe" step="1" min="0" placeholder="z.B. 2000">
+        </div>
+        <div class="input-group">
+          <label for="mod-watt">Leistung (W)</label>
+          <input type="number" id="mod-watt" step="1" min="0" placeholder="z.B. 550">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>3. Stromverbrauch & Wirtschaftlichkeit</h2>
     <div class="input-row">
       <div class="input-group">
         <label for="eigenverbrauch-rate">Eigenverbrauchsquote (%)</label>
@@ -88,8 +152,12 @@ import AdUnit from '../../components/AdUnit.astro';
   </div>
 
   <div class="section">
-    <h2>3. Speicher & Module</h2>
+    <h2>4. Speicher & Weitere Einstellungen</h2>
     <div class="input-row">
+      <div class="input-group">
+        <label for="rand-abstand">Rand-Abstand (m)</label>
+        <input type="number" id="rand-abstand" step="0.05" min="0" value="0.2">
+      </div>
       <div class="input-group">
         <label for="mod-abstand">Modul-Abstand (mm)</label>
         <input type="number" id="mod-abstand" step="1" min="0" value="20">
@@ -191,6 +259,16 @@ import AdUnit from '../../components/AdUnit.astro';
       <h4 style="margin-bottom: 15px; color: #1e3c72;">🏠 Modul-Layout auf deinem Dach</h4>
       <canvas id="pv-canvas" width="800" height="600" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;"></canvas>
     </div>
+
+    <!-- Navigation zu anderen Rechnern -->
+    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px; flex-wrap: wrap;">
+      <a id="to-anrissplan" href="#" style="display: none; padding: 12px 24px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: all 0.3s ease;">
+        📋 Zum Anrissplan
+      </a>
+      <a id="to-lattenrechner" href="#" style="display: none; padding: 12px 24px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: all 0.3s ease;">
+        📏 Zum Lattenrechner
+      </a>
+    </div>
   </div>
 
   <InfoBox title="❓ Wie funktioniert der Rechner?" variant="info">
@@ -286,6 +364,27 @@ import AdUnit from '../../components/AdUnit.astro';
   .anriss-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  }
+
+  .module-btn.active {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+    color: #1e3c72;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+
+  .module-btn:hover {
+    border-color: #3b82f6;
+  }
+
+  .orient-btn.active {
+    border-color: #3b82f6;
+    background: #e3f2fd;
+    color: #1e3c72;
+  }
+
+  .orient-btn:hover {
+    border-color: #3b82f6;
   }
 
   @media (max-width: 768px) {

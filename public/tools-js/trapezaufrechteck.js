@@ -358,7 +358,8 @@
             const untereBreite = parseFloat(document.getElementById('untere-breite').value);
             const trapezHoehe = parseFloat(document.getElementById('trapez-hoehe').value);
             const rechteckHoehe = parseFloat(document.getElementById('rechteck-hoehe').value);
-            
+            const gesamtHoehe = trapezHoehe + rechteckHoehe;
+
             const planData = {
                 obereBreite: obereBreite,
                 untereBreite: untereBreite,
@@ -367,9 +368,9 @@
                 schnittliste: aktuelleSchnittliste,
                 verlegerichtung: verlegerichtung
             };
-            
+
             const encodedData = encodeURIComponent(JSON.stringify(planData));
-            window.location.href = `/tools/anrissplan.html?type=trapez-auf-rechteck&data=${encodedData}`;
+            window.location.href = `/tools/anrissplan.html?type=trapez-auf-rechteck&breite=${untereBreite}&hoehe=${gesamtHoehe}&breite-oben=${obereBreite}&trapez-hoehe=${trapezHoehe}&rechteck-hoehe=${rechteckHoehe}&data=${encodedData}`;
         }
 
         function erstelleLattenrechner() {

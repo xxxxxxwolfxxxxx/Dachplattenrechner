@@ -9,7 +9,13 @@ function getUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     return {
         type: urlParams.get('type'),
-        data: urlParams.get('data')
+        data: urlParams.get('data'),
+        breite: urlParams.get('breite'),
+        hoehe: urlParams.get('hoehe'),
+        spitzenPosition: urlParams.get('spitzenPosition'),
+        'breite-oben': urlParams.get('breite-oben'),
+        'trapez-hoehe': urlParams.get('trapez-hoehe'),
+        'rechteck-hoehe': urlParams.get('rechteck-hoehe')
     };
 }
 
@@ -954,10 +960,53 @@ function init() {
         generateAllPlates(planType, planData);
         
         console.log('Anrissplan erfolgreich geladen');
-        
+
+        // Navigation-Links aktualisieren
+        updateNavigationLinks(params);
+
     } catch (error) {
         console.error('Fehler in init():', error);
         document.getElementById('plan-title').textContent = 'JavaScript-Fehler aufgetreten';
         document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">Fehler:</strong> ' + error.message;
+    }
+}
+
+// Navigation-Links zu anderen Rechnern
+function updateNavigationLinks(params) {
+    if (!params.breite || !params.hoehe) return;
+
+    const breite = parseFloat(params.breite);
+    const hoehe = parseFloat(params.hoehe);
+    const typ = params.type;
+    const spitzenPosition = params.spitzenPosition;
+    const breiteOben = params['breite-oben'];
+    const trapezHoehe = params['trapez-hoehe'];
+    const rechteckHoehe = params['rechteck-hoehe'];
+
+    // Lattenrechner Link
+    let lattenUrl = `/tools/lattenrechner/?breite=${breite}&hoehe=${hoehe}&typ=${typ}`;
+    if (spitzenPosition) lattenUrl += `&spitzenPosition=${spitzenPosition}`;
+    if (breiteOben) lattenUrl += `&breite-oben=${breiteOben}`;
+    if (trapezHoehe) lattenUrl += `&trapez-hoehe=${trapezHoehe}`;
+    if (rechteckHoehe) lattenUrl += `&rechteck-hoehe=${rechteckHoehe}`;
+
+    // PV-Rechner Link
+    let pvUrl = `/tools/pv-rechner/?breite=${breite}&hoehe=${hoehe}&typ=${typ}`;
+    if (spitzenPosition) pvUrl += `&spitzenPosition=${spitzenPosition}`;
+    if (breiteOben) pvUrl += `&breite-oben=${breiteOben}`;
+    if (trapezHoehe) pvUrl += `&trapez-hoehe=${trapezHoehe}`;
+    if (rechteckHoehe) pvUrl += `&rechteck-hoehe=${rechteckHoehe}`;
+
+    // Links anzeigen
+    const lattenLink = document.getElementById('to-lattenrechner');
+    const pvLink = document.getElementById('to-pv-rechner');
+
+    if (lattenLink) {
+        lattenLink.href = lattenUrl;
+        lattenLink.style.display = 'inline-flex';
+    }
+    if (pvLink) {
+        pvLink.href = pvUrl;
+        pvLink.style.display = 'inline-flex';
     }
 }

@@ -127,6 +127,22 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dach-laenge').addEventListener('input', updateHindernisCanvas);
   document.getElementById('berechne-btn').addEventListener('click', berechne);
 
+  // Batterie-Checkbox
+  const batterieCheckbox = document.getElementById('batterie-aktiv');
+  if (batterieCheckbox) {
+    batterieCheckbox.addEventListener('change', toggleBatterie);
+  }
+
+  // Batterie-Preis-Mode Radio Buttons
+  document.querySelectorAll('input[name="batterie-price-mode"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const mode = document.querySelector('input[name="batterie-price-mode"]:checked').value;
+      document.getElementById('batterie-preis-kwh-group').style.display = mode === 'kwh' ? 'block' : 'none';
+      document.getElementById('batterie-preis-gesamt-group').style.display = mode === 'gesamt' ? 'block' : 'none';
+      updateBatterieInfo();
+    });
+  });
+
   // Auto-calculate if URL parameters were passed
   if (hasURLParams) {
     setTimeout(() => berechne(), 100);
@@ -1065,6 +1081,7 @@ function berechne() {
   document.getElementById('results').style.display = 'block';
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
   zeichneLayout(layout, dachBreiteM, dachLaengeM, abstandMM, finalAnzahl);
+  updateNavigationLinksPVRechner();
 }
 
 // ---- Neigungsinterpolation ----
@@ -1167,6 +1184,55 @@ function zeichneLayout(layout, dachBreiteM, dachLaengeM, gapMM, finalAnzahl) {
     `${finalAnzahl} Module · ${((finalAnzahl*selModWatt)/1000).toFixed(2)} kWp · ${selAzimuth}° ${azimuthLabel(selAzimuth)}`,
     W/2, H - 14
   );
+}
+
+// ---- Navigation zu anderen Rechnern ----
+function updateNavigationLinksPVRechner() {
+  const dachBreiteM = parseFloat(document.getElementById('dach-breite').value);
+  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value);
+
+  if (!dachBreiteM || !dachLaengeM) return;
+
+  // Lese Dachform-Parameter aus URL oder globalen Variablen
+  const params = new URLSearchParams({
+    breite: dachBreiteM,
+    hoehe: dachLaengeM,
+    typ: dachTyp
+  });
+
+  // Alle Dachform-spezifischen Parameter mitschicken
+  if (dachBreiteOben && dachBreiteOben > 0) params.append('breiteOben', dachBreiteOben);
+  if (rechteckHoehe && rechteckHoehe > 0) params.append('rechteckHoehe', rechteckHoehe);
+  if (dreieckHoehe && dreieckHoehe > 0) params.append('dreieckHoehe', dreieckHoehe);
+  if (spitzePosX !== null && !isNaN(spitzePosX)) params.append('spitzenPosition', spitzePosX);
+
+  // Lese aktuelle Dreieck-Typ aus UI falls vorhanden
+  const dreieckTypInput = document.querySelector('input[name="dreieck-typ"]:checked');
+  if (dreieckTypInput) {
+    params.append('dreieckTyp', dreieckTypInput.value);
+  }
+
+  // Konstruiere URLs
+  const anrissplanUrl = `/tools/anrissplan/?type=${dachTyp}&breite=${dachBreiteM}&hoehe=${dachLaengeM}`;
+  const lattenrechnerUrl = `/tools/lattenrechner/?${params.toString()}`;
+
+  // Zeige und setze Links
+  const anrissLink = document.getElementById('to-anrissplan');
+  const lattenLink = document.getElementById('to-lattenrechner');
+
+  if (anrissLink) {
+    anrissLink.href = anrissplanUrl;
+    anrissLink.style.display = 'inline-flex';
+    anrissLink.style.alignItems = 'center';
+    anrissLink.style.gap = '8px';
+  }
+
+  if (lattenLink) {
+    lattenLink.href = lattenrechnerUrl;
+    lattenLink.style.display = 'inline-flex';
+    lattenLink.style.alignItems = 'center';
+    lattenLink.style.gap = '8px';
+  }
 }
 
 // ---- Cross-Navigation ----
