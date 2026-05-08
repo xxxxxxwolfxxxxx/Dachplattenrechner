@@ -925,7 +925,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
         rectHeight: typ === 'trapez-auf-rechteck' ? rechteckHoehe : undefined,
         dreieckHeight: typ === 'dreieck-auf-rechteck' ? dreieckHoehe : undefined,
         dreieckRectHeight: typ === 'dreieck-auf-rechteck' ? rechteckHoehe : undefined,
-        spitzenPosition: typ === 'ungleichschenkliges-dreieck' || ((typ === 'dreieck' || typ === 'dreieck-auf-rechteck') && dreieckTyp === 'ungleichschenkliges') ? (spitzenPosition / breite) : undefined,
+        spitzenPosition: typ === 'ungleichschenkliges-dreieck' || ((typ === 'dreieck' || typ === 'dreieck-auf-rechteck') && dreieckTyp === 'ungleichschenkliges') ? spitzenPosition : undefined,
         dreieckType: (typ === 'dreieck' || typ === 'dreieck-auf-rechteck' || typ === 'ungleichschenkliges-dreieck') ? dreieckTyp : undefined
       };
 
