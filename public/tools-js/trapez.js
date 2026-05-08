@@ -330,7 +330,7 @@ if (verlegerichtung === 'links') {
             const obereBreite = parseFloat(document.getElementById('obere-breite').value);
             const untereBreite = parseFloat(document.getElementById('untere-breite').value);
             const hoehe = parseFloat(document.getElementById('hoehe').value);
-            
+
             const planData = {
                 obereBreite: obereBreite,
                 untereBreite: untereBreite,
@@ -338,9 +338,9 @@ if (verlegerichtung === 'links') {
                 schnittliste: aktuelleSchnittliste,
                 verlegerichtung: verlegerichtung
             };
-            
+
             const encodedData = encodeURIComponent(JSON.stringify(planData));
-            window.location.href = `/tools/anrissplan.html?type=trapez&data=${encodedData}`;
+            window.location.href = `/tools/anrissplan.html?type=trapez&breite=${untereBreite}&hoehe=${hoehe}&breite-oben=${obereBreite}&data=${encodedData}`;
         }
 
         function erstelleLattenrechner() {

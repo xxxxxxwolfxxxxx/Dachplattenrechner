@@ -1160,6 +1160,9 @@ function berechnen() {
     const dachlattenKombination = berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfuegbareDachlatten, anzahlLattenReihen);
 
     zeigeErgebnisse(konterlattenKombination, dachlattenKombination, anzahlLattenReihen, lattenabstand, anzahlSparren);
+
+    // Update navigation links
+    updateNavigationLinksLattenrechner();
 }
 
 function zuVerschnitt() {
@@ -1182,6 +1185,54 @@ function zuPVRechner() {
     if (spitzePosX !== null && spitzePosX > 0) params.append('spitzenPosition', spitzePosX);
 
     window.location.href = `/tools/pv-rechner/?${params.toString()}`;
+}
+
+// Navigation-Links zu anderen Rechnern
+function updateNavigationLinksLattenrechner() {
+    const params = new URLSearchParams(window.location.search);
+    const breite = params.get('breite');
+    const hoehe = params.get('hoehe');
+    const typ = params.get('typ');
+
+    if (!breite || !hoehe || !typ) return;
+
+    let anrissUrl = `anrissplan - cannot reconstruct without schnittliste`;
+    let pvUrl = `/tools/pv-rechner/?breite=${breite}&hoehe=${hoehe}&typ=${typ}`;
+
+    // Build full URLs with shape-specific params
+    if (typ === 'trapez' || typ === 'dreieck' || typ === 'ungleichschenkliges-dreieck') {
+        const brOben = params.get('breite-oben');
+        const spitzenPos = params.get('spitzenPosition');
+        if (brOben) {
+            pvUrl += `&breite-oben=${brOben}`;
+        }
+        if (spitzenPos) {
+            pvUrl += `&spitzenPosition=${spitzenPos}`;
+        }
+    } else if (typ === 'dreieck-auf-rechteck') {
+        const dreieckH = params.get('dreieckHoehe');
+        const rechteckH = params.get('rechteckHoehe');
+        const dreieckTyp = params.get('dreieckTyp');
+        const spitzenPos = params.get('spitzenPosition');
+        if (dreieckH) pvUrl += `&dreieckHoehe=${dreieckH}`;
+        if (rechteckH) pvUrl += `&rechteckHoehe=${rechteckH}`;
+        if (dreieckTyp) pvUrl += `&dreieckTyp=${dreieckTyp}`;
+        if (spitzenPos) pvUrl += `&spitzenPosition=${spitzenPos}`;
+    } else if (typ === 'trapez-auf-rechteck') {
+        const brOben = params.get('breite-oben');
+        const trapezH = params.get('trapez-hoehe');
+        const rechteckH = params.get('rechteck-hoehe');
+        if (brOben) pvUrl += `&breite-oben=${brOben}`;
+        if (trapezH) pvUrl += `&trapez-hoehe=${trapezH}`;
+        if (rechteckH) pvUrl += `&rechteck-hoehe=${rechteckH}`;
+    }
+
+    // Show PV-Rechner link (Anrissplan not available without schnittliste)
+    const pvLink = document.getElementById('to-pv-rechner');
+    if (pvLink) {
+        pvLink.href = pvUrl;
+        pvLink.style.display = 'inline-block';
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {

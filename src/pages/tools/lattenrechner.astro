@@ -223,11 +223,17 @@ import * as lattenrechner from '../../utils/lattenrechner';
       </div>
     </div>
 
-    <!-- Print Button -->
-    <div style="margin-top: 30px; text-align: center;">
+    <!-- Print und Navigation Buttons -->
+    <div style="margin-top: 30px; text-align: center; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
       <button id="print-button" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(40, 167, 69, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
         🖨️ Drucken
       </button>
+      <a id="to-anrissplan" href="#" style="display: none; color: white; text-decoration: none; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border: none; padding: 12px 30px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0, 123, 255, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+        📋 Zum Anrissplan
+      </a>
+      <a id="to-pv-rechner" href="#" style="display: none; color: white; text-decoration: none; background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); border: none; padding: 12px 30px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 152, 0, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+        ⚡ Zum PV-Rechner
+      </a>
     </div>
   </div>
 
