@@ -112,16 +112,23 @@ function berechneSpitzdachSparren(count: number, dims: RoofDimensions): void {
     case 'dreieck':
     case 'gleichschenkliges-dreieck':
     case 'ungleichschenkliges-dreieck':
-      const halfWidth = dims.width / 2;
+      // Für ungleichschenklige Dreiecke: spitzenPosition als Peak verwenden
+      // Für gleichschenklige: Mitte (halfWidth) verwenden
+      let peakPos = dims.width / 2; // Default: Mitte
+
+      if (dims.type === 'ungleichschenkliges-dreieck' && dims.spitzenPosition !== undefined) {
+        peakPos = dims.spitzenPosition;
+        console.log(`🔍 Sparren-Berechnung: Asymmetric peak at ${peakPos}m (${(peakPos / dims.width * 100).toFixed(1)}% of ${dims.width}m width)`);
+      }
 
       for (let i = 0; i < count; i++) {
         const xPos = sparrenPositionen[i];
         let len: number;
 
-        if (xPos <= halfWidth) {
-          len = (xPos / halfWidth) * dims.height;
+        if (xPos <= peakPos) {
+          len = (xPos / peakPos) * dims.height;
         } else {
-          len = ((dims.width - xPos) / halfWidth) * dims.height;
+          len = ((dims.width - xPos) / (dims.width - peakPos)) * dims.height;
         }
         sparrenLaengen.push(Math.max(0, len));
       }
