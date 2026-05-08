@@ -979,6 +979,14 @@ import * as lattenrechner from '../../utils/lattenrechner';
         dreieckTyp: window.dreieckTyp
       });
 
+      console.log('📋 roofDims Detail für SVG-Rendering:', {
+        type: roofDims.type,
+        width: roofDims.width,
+        height: roofDims.height,
+        spitzenPosition: roofDims.spitzenPosition,
+        spitzenPositionCalculated: roofDims.type === 'ungleichschenkliges-dreieck' ? `${roofDims.spitzenPosition} (sollte ${spitzenPosition / breite} sein)` : 'N/A'
+      });
+
       const result = window.lattenrechner.berechne(calcParams);
 
       // Zeige Ergebnisse
