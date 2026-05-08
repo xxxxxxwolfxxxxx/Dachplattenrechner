@@ -1214,9 +1214,15 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         svg += `<line x1="${linkeObenX}" y1="${dachStartY}" x2="${margin}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
         svg += `<line x1="${rechteObenX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     } else if (dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') {
-        const spitzeX = margin + (dachBreite / 2) * scaleX;
+        let spitzePosXEdge;
+        if (dreieckTyp === 'ungleichschenkliges') {
+            spitzePosXEdge = spitzenPosition * dachBreite;
+        } else {
+            spitzePosXEdge = dachBreite / 2;
+        }
+        const spitzeX = margin + spitzePosXEdge * scaleX;
         const untenY = dachStartY + dachHoehe * scaleY;
-        
+
         svg += `<line x1="${spitzeX}" y1="${dachStartY}" x2="${margin}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
         svg += `<line x1="${spitzeX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${untenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     } else if (dachTyp === 'trapez-auf-rechteck') {
@@ -1237,8 +1243,12 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         const fortschritt = (anzahlLattenReihen - 1 - i) / Math.max(1, anzahlLattenReihen - 1);
         const reihenBreite = berechneReihenBreite(fortschritt);
         const lattenY = dachStartY + (1 - fortschritt) * dachHoehe * scaleY;
-        
-        const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+
+        let reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+        if ((dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') && dreieckTyp === 'ungleichschenkliges') {
+            const peakPos = spitzenPosition * dachBreite;
+            reihenStartAbsolut = fortschritt * peakPos;
+        }
         const reihenStartX = margin + reihenStartAbsolut * scaleX;
         
         if (window.lattenPlan && window.lattenPlan[i]) {
