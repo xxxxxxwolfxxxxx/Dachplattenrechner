@@ -474,13 +474,19 @@ import * as lattenrechner from '../../utils/lattenrechner';
       }
     }
 
-    // Lade Dreieck-Typ (akzeptiere beide Namen)
+    // Lade Dreieck-Typ (akzeptiere beide Namen + extrahiere aus typ-Parameter)
     let dreieckTyp = 'gleichschenkliges';
-    if (params.has('dreieckTyp')) {
+
+    // WICHTIG: Wenn typ='ungleichschenkliges-dreieck', extrahiere dreieckTyp daraus
+    if (typ === 'ungleichschenkliges-dreieck') {
+      dreieckTyp = 'ungleichschenkliges';
+      console.log('🔍 Extrahiere dreieckTyp aus typ-Parameter: ungleichschenkliges');
+    } else if (params.has('dreieckTyp')) {
       dreieckTyp = params.get('dreieckTyp');
     } else if (params.has('dachDreieckTyp')) {
       dreieckTyp = params.get('dachDreieckTyp');
     }
+
     if (dreieckTyp !== 'gleichschenkliges') {
       document.querySelectorAll('input[name="dreieck-typ-select"]').forEach(radio => {
         if (radio.value === dreieckTyp) radio.checked = true;
