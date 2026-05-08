@@ -275,9 +275,9 @@ import * as lattenrechner from '../../utils/lattenrechner';
   window.lattenrechner = null;
 
   // ========== Dynamische Dachform-Felder ==========
-  function updateDachformFelder() {
-    const typ = document.getElementById('typ-select').value;
-
+  // Diese Funktion wird NICHT mehr verwendet, da wir URL-Parameter verwenden
+  // Dachform-Felder werden über displayDachformFelderFuerTyp() angezeigt (in lattenrechner.js)
+  function updateDachformFelder(typ) {
     // Verstecke alle Felder zunächst
     document.getElementById('trapez-fields').style.display = 'none';
     document.getElementById('dreieck-fields').style.display = 'none';
@@ -290,6 +290,8 @@ import * as lattenrechner from '../../utils/lattenrechner';
         document.getElementById('trapez-fields').style.display = 'block';
         break;
       case 'dreieck':
+      case 'gleichschenkliges-dreieck':
+      case 'ungleichschenkliges-dreieck':
         document.getElementById('dreieck-fields').style.display = 'block';
         break;
       case 'dreieck-auf-rechteck':
@@ -314,14 +316,20 @@ import * as lattenrechner from '../../utils/lattenrechner';
     spitzenPosRow.style.display = dreieckTyp === 'ungleichschenkliges' ? 'grid' : 'none';
   }
 
-  // Event-Listener für Dachform-Änderung
-  document.getElementById('typ-select').addEventListener('change', updateDachformFelder);
-  document.querySelectorAll('input[name="dreieck-typ-select"]').forEach(radio => {
-    radio.addEventListener('change', updateDreieckSpitzeFelder);
-  });
-  document.querySelectorAll('input[name="dreieck-auf-rechteck-typ"]').forEach(radio => {
-    radio.addEventListener('change', updateDreieckAufRechteckSpitzeFelder);
-  });
+  // Event-Listener für Dreieck-Typ-Änderung (nur wenn diese Radios existieren)
+  const dreieckTypRadios = document.querySelectorAll('input[name="dreieck-typ-select"]');
+  if (dreieckTypRadios.length > 0) {
+    dreieckTypRadios.forEach(radio => {
+      radio.addEventListener('change', updateDreieckSpitzeFelder);
+    });
+  }
+
+  const dreieckAufRechteckRadios = document.querySelectorAll('input[name="dreieck-auf-rechteck-typ"]');
+  if (dreieckAufRechteckRadios.length > 0) {
+    dreieckAufRechteckRadios.forEach(radio => {
+      radio.addEventListener('change', updateDreieckAufRechteckSpitzeFelder);
+    });
+  }
 
   // Dach-Parameter aus URL laden (FOLGERECHNER - benötigt URL-Parameter!)
   function ladParameterAusURL() {
