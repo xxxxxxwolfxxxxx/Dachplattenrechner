@@ -526,7 +526,13 @@ export function generiereVorschau(
     roofDims.type === 'gleichschenkliges-dreieck' ||
     roofDims.type === 'ungleichschenkliges-dreieck'
   ) {
-    const peakX = margin + (roofDims.width / 2) * scaleX;
+    // Für ungleichschenklige Dreiecke: verwende spitzenPosition, sonst Mitte
+    let peakPos = roofDims.width / 2;
+    if (roofDims.type === 'ungleichschenkliges-dreieck' && roofDims.spitzenPosition !== undefined) {
+      peakPos = roofDims.spitzenPosition;
+    }
+
+    const peakX = margin + peakPos * scaleX;
     const leftX = margin;
     const rightX = margin + roofDims.width * scaleX;
     const bottomY = dachStartY + roofDims.height * scaleY;

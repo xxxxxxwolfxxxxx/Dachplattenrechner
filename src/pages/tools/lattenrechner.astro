@@ -819,17 +819,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const dreieckHoeheEl = document.getElementById('dreieck-hoehe');
     const dreieckHoehe = dreieckHoeheEl && dreieckHoeheEl.value ? parseFloat(dreieckHoeheEl.value) : hoehe * 0.4;
 
-    // Lese Spitzenposition von Input-Feldern
-    let spitzenPosition = 0.5; // Default: 50% (center) als Dezimal
-    const spitzenPosEl = document.getElementById('spitzen-pos');
-    const spitzenPosDarEl = document.getElementById('spitzen-pos-dar');
-    if ((typ === 'dreieck' || typ === 'dreieck-auf-rechteck') && (spitzenPosEl || spitzenPosDarEl)) {
-      const spitzenPosValue = spitzenPosEl && spitzenPosEl.value ? parseFloat(spitzenPosEl.value) :
-                              (spitzenPosDarEl && spitzenPosDarEl.value ? parseFloat(spitzenPosDarEl.value) : breite / 2);
-      spitzenPosition = spitzenPosValue / breite; // Convert to decimal (0-1)
-    }
-
-    // Lese Dreieck-Typ von Radio-Buttons
+    // Lese Dreieck-Typ von Radio-Buttons ZUERST
     let dreieckTyp = 'gleichschenkliges';
     if (typ === 'dreieck') {
       const selectedDreieck = document.querySelector('input[name="dreieck-typ-select"]:checked');
@@ -841,6 +831,19 @@ import * as lattenrechner from '../../utils/lattenrechner';
       if (selectedDreieck) {
         dreieckTyp = selectedDreieck.value;
       }
+    } else if (typ === 'ungleichschenkliges-dreieck') {
+      dreieckTyp = 'ungleichschenkliges';
+    }
+
+    // Lese Spitzenposition von Input-Feldern (für ungleichschenklige Dreiecke)
+    let spitzenPosition = 0.5; // Default: 50% (center) als Dezimal
+    const spitzenPosEl = document.getElementById('spitzen-pos');
+    const spitzenPosDarEl = document.getElementById('spitzen-pos-dar');
+    if ((typ === 'dreieck' || typ === 'dreieck-auf-rechteck' || typ === 'ungleichschenkliges-dreieck') &&
+        dreieckTyp === 'ungleichschenkliges' && (spitzenPosEl || spitzenPosDarEl)) {
+      const spitzenPosValue = spitzenPosEl && spitzenPosEl.value ? parseFloat(spitzenPosEl.value) :
+                              (spitzenPosDarEl && spitzenPosDarEl.value ? parseFloat(spitzenPosDarEl.value) : breite / 2);
+      spitzenPosition = spitzenPosValue / breite; // Convert to decimal (0-1)
     }
 
     console.log('🔍 Validation checks:', {
@@ -880,8 +883,8 @@ import * as lattenrechner from '../../utils/lattenrechner';
         rectHeight: typ === 'trapez-auf-rechteck' ? rechteckHoehe : undefined,
         dreieckHeight: typ === 'dreieck-auf-rechteck' ? dreieckHoehe : undefined,
         dreieckRectHeight: typ === 'dreieck-auf-rechteck' ? rechteckHoehe : undefined,
-        spitzenPosition: (typ === 'dreieck' || typ === 'dreieck-auf-rechteck') ? spitzenPosition : undefined,
-        dreieckType: (typ === 'dreieck' || typ === 'dreieck-auf-rechteck') ? dreieckTyp : undefined
+        spitzenPosition: (typ === 'dreieck' || typ === 'dreieck-auf-rechteck' || typ === 'ungleichschenkliges-dreieck') && dreieckTyp === 'ungleichschenkliges' ? spitzenPosition : undefined,
+        dreieckType: (typ === 'dreieck' || typ === 'dreieck-auf-rechteck' || typ === 'ungleichschenkliges-dreieck') ? dreieckTyp : undefined
       };
 
       const calcParams = {
