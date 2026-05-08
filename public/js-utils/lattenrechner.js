@@ -708,8 +708,11 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             
             gesamtBenoetigteLaenge += reihenBreite;
             
-            const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
-            const relevanteSparren = sparrenPositionen.filter(pos => 
+            let reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+            if ((dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') && dreieckTyp === 'ungleichschenkliges') {
+                reihenStartAbsolut = fortschritt * (spitzenPosition * dachBreite);
+            }
+            const relevanteSparren = sparrenPositionen.filter(pos =>
                 pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
             ).map(pos => pos - reihenStartAbsolut).sort((a, b) => a - b);
             
@@ -1459,6 +1462,8 @@ window.lattenrechner = {
       obereBreite = roofDims.upperWidth || 0;
       trapezHoehe = roofDims.trapezHeight || 0;
       rechteckHoehe = roofDims.rectHeight || 0;
+      if (roofDims.spitzenPosition !== undefined) spitzenPosition = roofDims.spitzenPosition;
+      if (roofDims.dreieckType) dreieckTyp = roofDims.dreieckType;
 
       // Berechne Sparren
       berechneSparrenPositionen(params.rafterCount, params.rafterSpacing, params.overhang);
@@ -1516,6 +1521,8 @@ window.lattenrechner = {
       obereBreite = roofDims.upperWidth || 0;
       trapezHoehe = roofDims.trapezHeight || 0;
       rechteckHoehe = roofDims.rectHeight || 0;
+      if (roofDims.spitzenPosition !== undefined) spitzenPosition = roofDims.spitzenPosition;
+      if (roofDims.dreieckType) dreieckTyp = roofDims.dreieckType;
 
       // Berechne Sparren-Längen für den Dachtyp (notwendig für korrektes SVG-Rendering!)
       berechneSpitzdachSparren(rafterCount);
