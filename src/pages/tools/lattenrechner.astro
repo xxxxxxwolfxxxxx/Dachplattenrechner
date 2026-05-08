@@ -920,6 +920,8 @@ import * as lattenrechner from '../../utils/lattenrechner';
     console.log('✅ All validations passed, proceeding with calculation...');
 
     try {
+      console.log('🔥 DEBUG: berechnen() aufgerufen - Phantom-Dreieck-Fix v2 ist AKTIV!');
+
       // Berechne mit neuem Algorithmus
       const roofDims = {
         width: breite,
@@ -1011,8 +1013,10 @@ import * as lattenrechner from '../../utils/lattenrechner';
       const svgContainer = document.getElementById('vorschau-svg');
       if (svgContainer) {
         if (svg) {
+          // WICHTIG: Container KOMPLETT leeren, um alte SVGs zu entfernen
+          svgContainer.innerHTML = '';
           svgContainer.innerHTML = svg;
-          console.log('✅ SVG wurde ins DOM eingefügt');
+          console.log('✅ SVG wurde ins DOM eingefügt (Container wurde gelöscht und neu gefüllt)');
         } else {
           console.warn('⚠️ SVG-String war leer oder undefined');
         }
