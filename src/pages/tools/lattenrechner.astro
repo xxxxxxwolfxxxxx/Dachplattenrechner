@@ -22,30 +22,6 @@ import * as lattenrechner from '../../utils/lattenrechner';
     </ul>
   </InfoBox>
 
-  <div class="section" id="dachform-input-section">
-    <h2>1. Dachflächenabmessungen & Dachform</h2>
-    <div class="input-row">
-      <div class="input-group">
-        <label for="breite">Breite (m)</label>
-        <input type="number" id="breite" step="0.01" min="0" placeholder="z.B. 10.00">
-      </div>
-      <div class="input-group">
-        <label for="hoehe">Höhe / Länge (m)</label>
-        <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 8.00">
-      </div>
-      <div class="input-group" id="typ-select-group">
-        <label for="typ-select">Dachform</label>
-        <select id="typ-select" style="width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px; cursor: pointer;">
-          <option value="rechteck">Rechteck (Flachdach)</option>
-          <option value="trapez">Trapez</option>
-          <option value="dreieck">Dreieck (Spitzdach)</option>
-          <option value="dreieck-auf-rechteck">Dreieck auf Rechteck</option>
-          <option value="trapez-auf-rechteck">Trapez auf Rechteck</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
   <!-- Trapez: Obere Breite -->
   <div id="trapez-fields" style="display: none;" class="section">
     <h3>Trapez-Parameter</h3>
@@ -140,7 +116,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
   </div>
 
   <div class="section">
-    <h2>2. Sparren & Konterlatten</h2>
+    <h2>1. Sparren & Konterlatten</h2>
     <div class="input-row">
       <div class="input-group">
         <label for="sparren-anzahl">Anzahl Sparren</label>
@@ -160,7 +136,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
   <AdUnit position="middle" />
 
   <div class="section">
-    <h2>3. Verfügbare Längenlisten</h2>
+    <h2>2. Verfügbare Längenlisten</h2>
     <div class="input-row">
       <div class="input-group">
         <label for="konterlatten-laengen">Konterlatten-Längen (m, komma-getrennt)</label>
@@ -174,7 +150,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
   </div>
 
   <div class="section">
-    <h2>4. Lattenabstand</h2>
+    <h2>3. Lattenabstand</h2>
     <div class="input-row">
       <div class="input-group">
         <label for="lattenabstand">Lattenabstand (mm, Mitte zu Mitte)</label>
@@ -352,41 +328,35 @@ import * as lattenrechner from '../../utils/lattenrechner';
     radio.addEventListener('change', updateDreieckAufRechteckSpitzeFelder);
   });
 
-  // Dach-Parameter aus URL laden mit Retry-Mechanismus
-  function ladParameterAusURL(retry = 0) {
+  // Dach-Parameter aus URL laden (FOLGERECHNER - benötigt URL-Parameter!)
+  function ladParameterAusURL() {
     const params = new URLSearchParams(window.location.search);
-    console.log(`📍 ladParameterAusURL called (attempt ${retry + 1}). URL:`, window.location.href);
-    console.log('📍 URL Params:', Array.from(params.entries()));
-
-    const breiteEl = document.getElementById('breite');
-    const hoeheEl = document.getElementById('hoehe');
-    const typEl = document.getElementById('typ-select');
-
-    // Wenn Elemente nicht gefunden UND noch weniger als 5 Versuche: Retry
-    if ((!breiteEl || !hoeheEl || !typEl) && retry < 5) {
-      console.log(`⏳ Elemente nicht gefunden, versuche in ${100 + retry * 50}ms erneut...`);
-      setTimeout(() => ladParameterAusURL(retry + 1), 100 + retry * 50);
-      return;
-    }
+    console.log(`📍 Lattenrechner - URL Params:`, Array.from(params.entries()));
 
     // Überprüfe ob Dachform-Parameter aus URL vorhanden sind
     const hatDachformParameter = params.has('breite') && params.has('hoehe') && params.has('typ');
-    const dachformSection = document.getElementById('dachform-input-section');
-    if (hatDachformParameter && dachformSection) {
-      // Verstecke Dachform-Eingabemaske wenn Parameter aus URL vorhanden sind
-      dachformSection.style.display = 'none';
-      console.log('ℹ️ Dachform-Parameter von URL gefunden, verstecke Eingabemaske');
 
-      // Verstecke auch die Dreieck-Typ-Radio-Button-Sektionen wenn URL-Parameter vorhanden
-      const dreieckTypSelection = document.getElementById('dreieck-typ-selection');
-      const dreieckAufRechteckTypSelection = document.getElementById('dreieck-auf-rechteck-typ-selection');
-      if (dreieckTypSelection) dreieckTypSelection.style.display = 'none';
-      if (dreieckAufRechteckTypSelection) dreieckAufRechteckTypSelection.style.display = 'none';
-      console.log('ℹ️ Dreieck-Typ-Radio-Buttons versteckt (Parameter von URL)');
-    } else if (dachformSection) {
-      dachformSection.style.display = 'block';
-      console.log('ℹ️ Keine Dachform-Parameter in URL, zeige Eingabemaske');
+    if (!hatDachformParameter) {
+      // FOLGERECHNER: Ohne Parameter muss zurück zur Dachflächenberechnung
+      console.warn('❌ FEHLER: Lattenrechner benötigt URL-Parameter (breite, hoehe, typ) von der Dachflächenberechnung!');
+      const infoMsg = document.createElement('div');
+      infoMsg.style.cssText = 'background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;';
+      infoMsg.innerHTML = `
+        <h3 style="color: #856404; margin-top: 0;">⚠️ Folgerechner</h3>
+        <p style="color: #856404; margin: 10px 0;">Der Lattenrechner ist ein Folgerechner der Dachflächenberechnung.</p>
+        <p style="color: #856404; margin: 10px 0;">Bitte führe zuerst die Dachflächenberechnung durch.</p>
+        <a href="/tools/dachflaechenberechnung/" style="background: #ffc107; color: #333; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 10px;">→ Zur Dachflächenberechnung</a>
+      `;
+      document.body.insertBefore(infoMsg, document.body.firstChild);
+      return;
     }
+
+    console.log('✅ Dachform-Parameter von URL vorhanden, starte Berechnung');
+    // Verstecke auch die Dreieck-Typ-Radio-Button-Sektionen wenn URL-Parameter vorhanden
+    const dreieckTypSelection = document.getElementById('dreieck-typ-selection');
+    const dreieckAufRechteckTypSelection = document.getElementById('dreieck-auf-rechteck-typ-selection');
+    if (dreieckTypSelection) dreieckTypSelection.style.display = 'none';
+    if (dreieckAufRechteckTypSelection) dreieckAufRechteckTypSelection.style.display = 'none';
 
     // Lade Basis-Parameter
     if (params.has('breite')) {
