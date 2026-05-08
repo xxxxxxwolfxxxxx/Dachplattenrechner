@@ -115,12 +115,37 @@ import * as lattenrechner from '../../utils/lattenrechner';
     </div>
   </div>
 
+  <!-- Dachform-Eingaben (normalerweise von Folgerechner übergeben) -->
+  <div class="section" id="dachform-section" style="display: none;">
+    <h2>0. Dachform (von Folgerechner übernommen)</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="breite">Dachbreite (m)</label>
+        <input type="number" id="breite" step="0.01" min="0" placeholder="z.B. 10.00">
+      </div>
+      <div class="input-group">
+        <label for="hoehe">Dachhöhe (m)</label>
+        <input type="number" id="hoehe" step="0.01" min="0" placeholder="z.B. 8.00">
+      </div>
+      <div class="input-group">
+        <label for="typ-select">Dachform</label>
+        <select id="typ-select" style="width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px;">
+          <option value="rechteck">Rechteck</option>
+          <option value="trapez">Trapez</option>
+          <option value="dreieck">Dreieck</option>
+          <option value="dreieck-auf-rechteck">Dreieck auf Rechteck</option>
+          <option value="trapez-auf-rechteck">Trapez auf Rechteck</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
   <div class="section">
     <h2>1. Sparren & Konterlatten</h2>
     <div class="input-row">
       <div class="input-group">
         <label for="sparren-anzahl">Anzahl Sparren</label>
-        <input type="number" id="anzahl-sparren" step="1" min="2" value="8" placeholder="z.B. 8">
+        <input type="number" id="sparren-anzahl" step="1" min="2" value="8" placeholder="z.B. 8">
       </div>
       <div class="input-group">
         <label for="sparren-abstand">Sparren-Abstand (cm)</label>
@@ -318,6 +343,15 @@ import * as lattenrechner from '../../utils/lattenrechner';
     spitzenPosRow.style.display = dreieckTyp === 'ungleichschenkliges' ? 'grid' : 'none';
   }
 
+  // Event-Listener für Dachform-Typ-Änderung
+  const typSelect = document.getElementById('typ-select');
+  if (typSelect) {
+    typSelect.addEventListener('change', (e) => {
+      console.log('🔄 Dachform-Typ geändert:', e.target.value);
+      updateDachformFelder(e.target.value);
+    });
+  }
+
   // Event-Listener für Dreieck-Typ-Änderung (nur wenn diese Radios existieren)
   const dreieckTypRadios = document.querySelectorAll('input[name="dreieck-typ-select"]');
   if (dreieckTypRadios.length > 0) {
@@ -356,7 +390,15 @@ import * as lattenrechner from '../../utils/lattenrechner';
       return;
     }
 
-    console.log('✅ Dachform-Parameter von URL vorhanden, starte Berechnung');
+    console.log('✅ Dachform-Parameter von URL vorhanden, zeige Dachform-Sektion und starte Auto-Berechnung');
+
+    // Zeige die Dachform-Sektion (normalerweise versteckt)
+    const dachformSection = document.getElementById('dachform-section');
+    if (dachformSection) {
+      dachformSection.style.display = 'block';
+      console.log('✅ Dachform-Sektion angezeigt');
+    }
+
     // Verstecke auch die Dreieck-Typ-Radio-Button-Sektionen wenn URL-Parameter vorhanden
     const dreieckTypSelection = document.getElementById('dreieck-typ-selection');
     const dreieckAufRechteckTypSelection = document.getElementById('dreieck-auf-rechteck-typ-selection');
@@ -712,6 +754,8 @@ import * as lattenrechner from '../../utils/lattenrechner';
   }
 
   async function berechnen() {
+    console.log('📍 berechnen() aufgerufen');
+
     const breiteEl = document.getElementById('breite');
     const hoeheEl = document.getElementById('hoehe');
     const sparrenAnzahlEl = document.getElementById('sparren-anzahl');
@@ -721,10 +765,21 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const dachlatteLaengenEl = document.getElementById('dachlatten-laengen');
     const lattenabstandEl = document.getElementById('lattenabstand');
 
+    console.log('✅ Alle Elemente gefunden:', {
+      breite: !!breiteEl,
+      hoehe: !!hoeheEl,
+      sparrenAnzahl: !!sparrenAnzahlEl,
+      sparrenAbstand: !!sparrenAbstandEl,
+      dachueberstand: !!dachueberstandEl,
+      konterlattenLaengen: !!konterlattenLaengenEl,
+      dachlatteLaengen: !!dachlatteLaengenEl,
+      lattenabstand: !!lattenabstandEl
+    });
+
     if (!breiteEl || !hoeheEl || !sparrenAnzahlEl || !sparrenAbstandEl ||
         !dachueberstandEl || !konterlattenLaengenEl || !dachlatteLaengenEl ||
         !lattenabstandEl) {
-      console.error('Form elements not found');
+      console.error('❌ Form elements not found');
       return;
     }
 
@@ -735,10 +790,18 @@ import * as lattenrechner from '../../utils/lattenrechner';
     const dachueberstand = parseFloat(dachueberstandEl.value);
     const lattenabstand = parseFloat(lattenabstandEl.value);
 
+    console.log('📐 Parsed values:', {
+      breite, hoehe, sparrenAnzahl, sparrenAbstand, dachueberstand, lattenabstand
+    });
+
     // Parse verfügbare Längenlisten (komma-getrennt, als Meter)
     const parseLength = (str) => str.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0);
     const konterlattenLaengen = parseLength(konterlattenLaengenEl.value);
     const dachlatteLaengen = parseLength(dachlatteLaengenEl.value);
+
+    console.log('📋 Längenlisten:', {
+      konterlattenLaengen, dachlatteLaengen
+    });
 
     // Parameter aus Input-Feldern lesen (von URL oder manuell eingegeben)
     const typEl = document.getElementById('typ-select');
@@ -780,20 +843,31 @@ import * as lattenrechner from '../../utils/lattenrechner';
       }
     }
 
+    console.log('🔍 Validation checks:', {
+      breiteValid: !!breite,
+      hoeheValid: !!hoehe,
+      lattenabstandValid: !!lattenabstand
+    });
+
     if (!breite || !hoehe || !lattenabstand) {
+      console.error('❌ VALIDATION FAILED: Missing required fields');
       alert('Bitte füllen Sie alle erforderlichen Felder aus!');
       return;
     }
 
     if (konterlattenLaengen.length === 0) {
+      console.error('❌ VALIDATION FAILED: No Konterlatten lengths');
       alert('Bitte geben Sie verfügbare Konterlatten-Längen an (komma-getrennt)!');
       return;
     }
 
     if (dachlatteLaengen.length === 0) {
+      console.error('❌ VALIDATION FAILED: No Dachlatte lengths');
       alert('Bitte geben Sie verfügbare Dachlatten-Längen an (komma-getrennt)!');
       return;
     }
+
+    console.log('✅ All validations passed, proceeding with calculation...');
 
     try {
       // Berechne mit neuem Algorithmus
