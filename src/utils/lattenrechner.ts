@@ -530,10 +530,11 @@ export function generiereVorschau(
     let peakPos = roofDims.width / 2;
     console.log(`🔍 SVG Triangle: type=${roofDims.type}, spitzenPosition=${roofDims.spitzenPosition}, width=${roofDims.width}`);
     if (roofDims.type === 'ungleichschenkliges-dreieck' && roofDims.spitzenPosition !== undefined) {
-      peakPos = roofDims.spitzenPosition;
-      console.log(`✅ Using asymmetric peak position: ${(peakPos * 100).toFixed(1)}% of width`);
+      // spitzenPosition ist ein Dezimalwert (0-1), daher mit width multiplizieren um die Position in Metern zu erhalten
+      peakPos = roofDims.spitzenPosition * roofDims.width;
+      console.log(`✅ Using asymmetric peak position: ${peakPos.toFixed(2)}m (${(roofDims.spitzenPosition * 100).toFixed(1)}% of ${roofDims.width}m width)`);
     } else {
-      console.log(`ℹ️ Using symmetric peak position (center): 50% of width`);
+      console.log(`ℹ️ Using symmetric peak position (center): ${peakPos.toFixed(2)}m (50% of ${roofDims.width}m width)`);
     }
 
     const peakX = margin + peakPos * scaleX;
