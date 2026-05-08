@@ -8,14 +8,292 @@ let planType = null;
 function getUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     return {
+        // Altes Format (Backward-Kompatibilität)
         type: urlParams.get('type'),
         data: urlParams.get('data'),
-        breite: urlParams.get('breite'),
-        hoehe: urlParams.get('hoehe'),
-        spitzenPosition: urlParams.get('spitzenPosition'),
+
+        // Neues Format (einfache Parameter)
+        breite: parseFloat(urlParams.get('breite') || '0'),
+        hoehe: parseFloat(urlParams.get('hoehe') || '0'),
+        typ: urlParams.get('typ') || urlParams.get('type'),
+
+        // Form-spezifische Parameter
+        breiteOben: parseFloat(urlParams.get('breiteOben') || urlParams.get('breite-oben') || '0'),
+        spitzenPosition: parseFloat(urlParams.get('spitzenPosition') || '0'),
+        rechteckHoehe: parseFloat(urlParams.get('rechteckHoehe') || urlParams.get('rechteck-hoehe') || '0'),
+        dreieckHoehe: parseFloat(urlParams.get('dreieckHoehe') || urlParams.get('trapez-hoehe') || '0'),
+        dreieckTyp: urlParams.get('dreieckTyp') || 'symmetrisch',
+
+        // Optional: Plattenabmessungen (defaults: 1.05m lieferbreite, 1.00m deckbreite)
+        lieferbreite: parseFloat(urlParams.get('lieferbreite') || '1.05'),
+        deckbreite: parseFloat(urlParams.get('deckbreite') || '1.00'),
+
+        // Für Kompatibilität mit altem Parameter-Schema
         'breite-oben': urlParams.get('breite-oben'),
         'trapez-hoehe': urlParams.get('trapez-hoehe'),
         'rechteck-hoehe': urlParams.get('rechteck-hoehe')
+    };
+}
+
+// ============================================================================
+// Schnittliste-Generierung (Neue Funktionen für einfache Parameter)
+// ============================================================================
+
+// Schnittliste für Rechteck generieren
+function generateSchnittlisteRectangle(breite, hoehe, lieferbreite, deckbreite) {
+    const schnittliste = [];
+    let anzahlPlatten = Math.ceil((breite - lieferbreite + deckbreite) / deckbreite);
+
+    for (let i = 0; i < anzahlPlatten; i++) {
+        let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+        let positionVonLinksEnde = positionVonLinks + lieferbreite;
+        positionVonLinksEnde = Math.min(positionVonLinksEnde, breite);
+
+        if (positionVonLinks < breite) {
+            schnittliste.push({
+                plattenNr: i + 1,
+                positionVonLinks: positionVonLinks.toFixed(2),
+                positionBis: positionVonLinksEnde.toFixed(2),
+                benoetigteLaenge: hoehe.toFixed(2),
+                plattenbreite: lieferbreite.toFixed(2)
+            });
+        }
+    }
+
+    return schnittliste;
+}
+
+// Schnittliste für Gleichschenkliges Dreieck generieren
+function generateSchnittlisteEqualTriangle(breite, hoehe, lieferbreite, deckbreite) {
+    const schnittliste = [];
+    const linkeEcke = breite / 2;
+    let anzahlPlatten = Math.ceil((breite - lieferbreite + deckbreite) / deckbreite);
+
+    for (let i = 0; i < anzahlPlatten; i++) {
+        let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+        let positionVonLinksEnde = positionVonLinks + lieferbreite;
+        positionVonLinksEnde = Math.min(positionVonLinksEnde, breite);
+
+        // Höhe an beiden Positionen berechnen (Dreieck)
+        function hoeheAnPosition(pos) {
+            const abstandVonMitte = Math.abs(pos - breite / 2);
+            return hoehe * (1 - abstandVonMitte / (breite / 2));
+        }
+
+        const hoeheStart = hoeheAnPosition(positionVonLinks);
+        const hoeheEnde = hoeheAnPosition(positionVonLinksEnde);
+        const benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
+
+        if (benoetigteLaenge > 0 && positionVonLinks < breite) {
+            schnittliste.push({
+                plattenNr: i + 1,
+                positionVonLinks: positionVonLinks.toFixed(2),
+                positionBis: positionVonLinksEnde.toFixed(2),
+                benoetigteLaenge: benoetigteLaenge.toFixed(2),
+                plattenbreite: lieferbreite.toFixed(2)
+            });
+        }
+    }
+
+    return schnittliste;
+}
+
+// Schnittliste für Ungleichschenkliges Dreieck generieren
+function generateSchnittlisteUnequalTriangle(breite, hoehe, spitzenPosition, lieferbreite, deckbreite) {
+    const schnittliste = [];
+    let anzahlPlatten = Math.ceil((breite - lieferbreite + deckbreite) / deckbreite);
+
+    for (let i = 0; i < anzahlPlatten; i++) {
+        let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+        let positionVonLinksEnde = positionVonLinks + lieferbreite;
+        positionVonLinksEnde = Math.min(positionVonLinksEnde, breite);
+
+        // Höhe an Position berechnen
+        function hoeheAnPosition(pos) {
+            if (pos <= spitzenPosition) {
+                return hoehe * (pos / spitzenPosition);
+            } else {
+                return hoehe * (breite - pos) / (breite - spitzenPosition);
+            }
+        }
+
+        const hoeheStart = hoeheAnPosition(positionVonLinks);
+        const hoeheEnde = hoeheAnPosition(positionVonLinksEnde);
+        const benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
+
+        if (benoetigteLaenge > 0 && positionVonLinks < breite) {
+            schnittliste.push({
+                plattenNr: i + 1,
+                positionVonLinks: positionVonLinks.toFixed(2),
+                positionBis: positionVonLinksEnde.toFixed(2),
+                benoetigteLaenge: benoetigteLaenge.toFixed(2),
+                plattenbreite: lieferbreite.toFixed(2)
+            });
+        }
+    }
+
+    return schnittliste;
+}
+
+// Schnittliste für Trapez generieren
+function generateSchnittlisteTrapez(untereBreite, obereBreite, hoehe, lieferbreite, deckbreite) {
+    const schnittliste = [];
+    const breitenDifferenz = untereBreite - obereBreite;
+    const seitenAbstand = breitenDifferenz / 2;
+    const linkeObereEcke = seitenAbstand;
+    const rechteObereEcke = untereBreite - seitenAbstand;
+
+    let anzahlPlatten = Math.ceil((untereBreite - lieferbreite + deckbreite) / deckbreite);
+
+    for (let i = 0; i < anzahlPlatten; i++) {
+        let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+        let positionVonLinksEnde = positionVonLinks + lieferbreite;
+        positionVonLinksEnde = Math.min(positionVonLinksEnde, untereBreite);
+
+        // Höhe an Position berechnen
+        function hoeheAnPosition(pos) {
+            if (pos <= linkeObereEcke) {
+                return hoehe * (pos / linkeObereEcke);
+            } else if (pos >= rechteObereEcke) {
+                const abstandVonRechts = untereBreite - pos;
+                return hoehe * (abstandVonRechts / seitenAbstand);
+            } else {
+                return hoehe;
+            }
+        }
+
+        const hoeheStart = hoeheAnPosition(positionVonLinks);
+        const hoeheEnde = hoeheAnPosition(positionVonLinksEnde);
+        const benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
+
+        if (benoetigteLaenge > 0 && positionVonLinks < untereBreite) {
+            schnittliste.push({
+                plattenNr: i + 1,
+                positionVonLinks: positionVonLinks.toFixed(2),
+                positionBis: positionVonLinksEnde.toFixed(2),
+                benoetigteLaenge: benoetigteLaenge.toFixed(2),
+                plattenbreite: lieferbreite.toFixed(2)
+            });
+        }
+    }
+
+    return schnittliste;
+}
+
+// Schnittliste für Trapez auf Rechteck generieren
+function generateSchnittlisteTrapezRectangle(untereBreite, obereBreite, rechteckHoehe, dreieckHoehe, lieferbreite, deckbreite) {
+    const schnittliste = [];
+    const breitenDifferenz = untereBreite - obereBreite;
+    const seitenAbstand = breitenDifferenz / 2;
+    const linkeObereEcke = seitenAbstand;
+    const rechteObereEcke = untereBreite - seitenAbstand;
+    const totalHoehe = rechteckHoehe + dreieckHoehe;
+
+    let anzahlPlatten = Math.ceil((untereBreite - lieferbreite + deckbreite) / deckbreite);
+
+    for (let i = 0; i < anzahlPlatten; i++) {
+        let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+        let positionVonLinksEnde = positionVonLinks + lieferbreite;
+        positionVonLinksEnde = Math.min(positionVonLinksEnde, untereBreite);
+
+        // Höhe an Position berechnen
+        function hoeheAnPosition(pos) {
+            // Rechteck-Teil
+            let hoeheRectangle = rechteckHoehe;
+
+            // Trapez-Teil (oben)
+            let hoeheTrapez = 0;
+            if (pos <= linkeObereEcke) {
+                hoeheTrapez = dreieckHoehe * (pos / linkeObereEcke);
+            } else if (pos >= rechteObereEcke) {
+                const abstandVonRechts = untereBreite - pos;
+                hoeheTrapez = dreieckHoehe * (abstandVonRechts / seitenAbstand);
+            } else {
+                hoeheTrapez = dreieckHoehe;
+            }
+
+            return hoeheRectangle + hoeheTrapez;
+        }
+
+        const hoeheStart = hoeheAnPosition(positionVonLinks);
+        const hoeheEnde = hoeheAnPosition(positionVonLinksEnde);
+        const benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
+
+        if (benoetigteLaenge > 0 && positionVonLinks < untereBreite) {
+            schnittliste.push({
+                plattenNr: i + 1,
+                positionVonLinks: positionVonLinks.toFixed(2),
+                positionBis: positionVonLinksEnde.toFixed(2),
+                benoetigteLaenge: benoetigteLaenge.toFixed(2),
+                plattenbreite: lieferbreite.toFixed(2)
+            });
+        }
+    }
+
+    return schnittliste;
+}
+
+// Hauptfunktion: schnittliste aus einfachen Parametern generieren
+function generateSchnittlisteFromParams(breite, hoehe, typ, additionalParams = {}) {
+    const lieferbreite = additionalParams.lieferbreite || 1.05;
+    const deckbreite = additionalParams.deckbreite || 1.00;
+
+    let schnittliste = [];
+    let obereBreite = breite;
+
+    switch(typ) {
+        case 'rechteck':
+            schnittliste = generateSchnittlisteRectangle(breite, hoehe, lieferbreite, deckbreite);
+            obereBreite = breite;
+            break;
+
+        case 'gleichschenkliges-dreieck':
+            schnittliste = generateSchnittlisteEqualTriangle(breite, hoehe, lieferbreite, deckbreite);
+            obereBreite = 0;
+            break;
+
+        case 'ungleichschenkliges-dreieck':
+            const spitzenPosition = additionalParams.spitzenPosition || breite / 2;
+            schnittliste = generateSchnittlisteUnequalTriangle(breite, hoehe, spitzenPosition, lieferbreite, deckbreite);
+            obereBreite = 0;
+            break;
+
+        case 'trapez':
+            obereBreite = additionalParams.breiteOben || breite * 0.8;
+            schnittliste = generateSchnittlisteTrapez(breite, obereBreite, hoehe, lieferbreite, deckbreite);
+            break;
+
+        case 'dreieck-auf-rechteck':
+            // Noch nicht implementiert - fallback zu rechteck
+            obereBreite = breite;
+            schnittliste = generateSchnittlisteRectangle(breite, hoehe, lieferbreite, deckbreite);
+            break;
+
+        case 'trapez-auf-rechteck':
+            obereBreite = additionalParams.breiteOben || breite * 0.8;
+            const rechteckHoehe = additionalParams.rechteckHoehe || hoehe * 0.5;
+            const dreieckHoehe = additionalParams.dreieckHoehe || hoehe * 0.5;
+            schnittliste = generateSchnittlisteTrapezRectangle(breite, obereBreite, rechteckHoehe, dreieckHoehe, lieferbreite, deckbreite);
+            break;
+
+        default:
+            // Fallback zu rechteck
+            schnittliste = generateSchnittlisteRectangle(breite, hoehe, lieferbreite, deckbreite);
+            obereBreite = breite;
+    }
+
+    return {
+        obereBreite: obereBreite,
+        untereBreite: breite,
+        basisBreite: breite,
+        hoehe: hoehe,
+        spitzenPosition: additionalParams.spitzenPosition || breite / 2,
+        rechteckHoehe: additionalParams.rechteckHoehe || 0,
+        trapezHoehe: additionalParams.dreieckHoehe || 0,
+        dreieckHoehe: additionalParams.dreieckHoehe || 0,
+        lieferbreite: lieferbreite,
+        deckbreite: deckbreite,
+        schnittliste: schnittliste
     };
 }
 
@@ -927,38 +1205,68 @@ function generateAllPlates(type, data) {
 // Hauptinitialisierung
 function init() {
     console.log('Anrissplan init gestartet');
-    
+
     try {
         const params = getUrlParams();
         console.log('URL Parameters:', params);
-        
-        if (!params.type || !params.data) {
+
+        // NEUES FORMAT: Einfache Parameter (breite, hoehe, typ, ...)
+        if (params.breite > 0 && params.hoehe > 0 && params.typ) {
+            console.log('Neues Parameter-Format erkannt');
+
+            const dachtyp = params.typ;
+            planType = dachtyp;
+
+            // schnittliste aus einfachen Parametern generieren
+            planData = generateSchnittlisteFromParams(
+                params.breite,
+                params.hoehe,
+                dachtyp,
+                {
+                    breiteOben: params.breiteOben,
+                    spitzenPosition: params.spitzenPosition,
+                    rechteckHoehe: params.rechteckHoehe,
+                    dreieckHoehe: params.dreieckHoehe,
+                    dreieckTyp: params.dreieckTyp,
+                    lieferbreite: params.lieferbreite,
+                    deckbreite: params.deckbreite
+                }
+            );
+
+            console.log('Schnittliste generiert:', planData);
+        }
+        // ALTES FORMAT: Backward-Kompatibilität (type, data)
+        else if (params.type && params.data) {
+            console.log('Altes Parameter-Format erkannt (Backward-Kompatibilität)');
+
+            planType = params.type;
+            planData = decodeData(params.data);
+            console.log('Dekodierte Daten:', planData);
+
+            if (!planData) {
+                console.log('Daten konnten nicht dekodiert werden');
+                document.getElementById('plan-title').textContent = 'Fehler: Daten beschädigt';
+                document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">Fehler:</strong> Die übertragenen Daten sind beschädigt. Bitte kehren Sie zum Rechner zurück.';
+                return;
+            }
+        }
+        // FEHLER: Keine Parameter gefunden
+        else {
             console.log('Keine Parameter gefunden');
             document.getElementById('plan-title').textContent = 'Fehler: Keine Daten übertragen';
             document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">Fehler:</strong> Keine gültigen Daten gefunden. Bitte kehren Sie zum Rechner zurück.';
             return;
         }
-        
-        planType = params.type;
-        planData = decodeData(params.data);
-        console.log('Dekodierte Daten:', planData);
-        
-        if (!planData) {
-            console.log('Daten konnten nicht dekodiert werden');
-            document.getElementById('plan-title').textContent = 'Fehler: Daten beschädigt';
-            document.getElementById('plan-info').innerHTML = '<strong style="color: #dc3545;">Fehler:</strong> Die übertragenen Daten sind beschädigt. Bitte kehren Sie zum Rechner zurück.';
-            return;
-        }
-        
+
         console.log('Starte Header-Update');
         updateHeader(planType, planData);
-        
+
         console.log('Starte Übersicht-Generierung');
         generateOverview(planType, planData);
-        
+
         console.log('Starte Platten-Generierung');
         generateAllPlates(planType, planData);
-        
+
         console.log('Anrissplan erfolgreich geladen');
 
         // Navigation-Links aktualisieren
@@ -977,25 +1285,33 @@ function updateNavigationLinks(params) {
 
     const breite = parseFloat(params.breite);
     const hoehe = parseFloat(params.hoehe);
-    const typ = params.type;
-    const spitzenPosition = params.spitzenPosition;
-    const breiteOben = params['breite-oben'];
-    const trapezHoehe = params['trapez-hoehe'];
-    const rechteckHoehe = params['rechteck-hoehe'];
 
-    // Lattenrechner Link
+    // Typ: neue oder alte Parameter verwenden
+    let typ = params.typ || params.type;
+
+    // Zusätzliche Parameter (neue und alte Namen unterstützen)
+    const spitzenPosition = params.spitzenPosition;
+    const breiteOben = params.breiteOben || params['breite-oben'];
+    const rechteckHoehe = params.rechteckHoehe || params['rechteck-hoehe'];
+    const dreieckHoehe = params.dreieckHoehe || params['trapez-hoehe'];
+
+    // Lattenrechner Link (mit allen Parametern)
     let lattenUrl = `/tools/lattenrechner/?breite=${breite}&hoehe=${hoehe}&typ=${typ}`;
     if (spitzenPosition) lattenUrl += `&spitzenPosition=${spitzenPosition}`;
-    if (breiteOben) lattenUrl += `&breite-oben=${breiteOben}`;
-    if (trapezHoehe) lattenUrl += `&trapez-hoehe=${trapezHoehe}`;
-    if (rechteckHoehe) lattenUrl += `&rechteck-hoehe=${rechteckHoehe}`;
+    if (breiteOben) lattenUrl += `&breiteOben=${breiteOben}`;
+    if (rechteckHoehe) lattenUrl += `&rechteckHoehe=${rechteckHoehe}`;
+    if (dreieckHoehe) lattenUrl += `&dreieckHoehe=${dreieckHoehe}`;
+    if (params.lieferbreite) lattenUrl += `&lieferbreite=${params.lieferbreite}`;
+    if (params.deckbreite) lattenUrl += `&deckbreite=${params.deckbreite}`;
 
-    // PV-Rechner Link
+    // PV-Rechner Link (mit allen Parametern)
     let pvUrl = `/tools/pv-rechner/?breite=${breite}&hoehe=${hoehe}&typ=${typ}`;
     if (spitzenPosition) pvUrl += `&spitzenPosition=${spitzenPosition}`;
-    if (breiteOben) pvUrl += `&breite-oben=${breiteOben}`;
-    if (trapezHoehe) pvUrl += `&trapez-hoehe=${trapezHoehe}`;
-    if (rechteckHoehe) pvUrl += `&rechteck-hoehe=${rechteckHoehe}`;
+    if (breiteOben) pvUrl += `&breiteOben=${breiteOben}`;
+    if (rechteckHoehe) pvUrl += `&rechteckHoehe=${rechteckHoehe}`;
+    if (dreieckHoehe) pvUrl += `&dreieckHoehe=${dreieckHoehe}`;
+    if (params.lieferbreite) pvUrl += `&lieferbreite=${params.lieferbreite}`;
+    if (params.deckbreite) pvUrl += `&deckbreite=${params.deckbreite}`;
 
     // Links anzeigen
     const lattenLink = document.getElementById('to-lattenrechner');

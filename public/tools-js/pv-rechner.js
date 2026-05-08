@@ -1213,7 +1213,8 @@ function updateNavigationLinksPVRechner() {
   }
 
   // Konstruiere URLs
-  const anrissplanUrl = `/tools/anrissplan/?type=${dachTyp}&breite=${dachBreiteM}&hoehe=${dachLaengeM}`;
+  // Anrissplan: Neue einfache Parameter-Format
+  const anrissplanUrl = `/tools/anrissplan/?${params.toString()}`;
   const lattenrechnerUrl = `/tools/lattenrechner/?${params.toString()}`;
 
   // Zeige und setze Links

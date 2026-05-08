@@ -1196,17 +1196,20 @@ function updateNavigationLinksLattenrechner() {
 
     if (!breite || !hoehe || !typ) return;
 
-    let anrissUrl = `anrissplan - cannot reconstruct without schnittliste`;
+    // Build base URLs with simple parameters
+    let anrissUrl = `/tools/anrissplan/?breite=${breite}&hoehe=${hoehe}&typ=${typ}`;
     let pvUrl = `/tools/pv-rechner/?breite=${breite}&hoehe=${hoehe}&typ=${typ}`;
 
     // Build full URLs with shape-specific params
     if (typ === 'trapez' || typ === 'dreieck' || typ === 'ungleichschenkliges-dreieck') {
-        const brOben = params.get('breite-oben');
+        const brOben = params.get('breite-oben') || params.get('breiteOben');
         const spitzenPos = params.get('spitzenPosition');
         if (brOben) {
-            pvUrl += `&breite-oben=${brOben}`;
+            anrissUrl += `&breiteOben=${brOben}`;
+            pvUrl += `&breiteOben=${brOben}`;
         }
         if (spitzenPos) {
+            anrissUrl += `&spitzenPosition=${spitzenPos}`;
             pvUrl += `&spitzenPosition=${spitzenPos}`;
         }
     } else if (typ === 'dreieck-auf-rechteck') {
@@ -1214,20 +1217,48 @@ function updateNavigationLinksLattenrechner() {
         const rechteckH = params.get('rechteckHoehe');
         const dreieckTyp = params.get('dreieckTyp');
         const spitzenPos = params.get('spitzenPosition');
-        if (dreieckH) pvUrl += `&dreieckHoehe=${dreieckH}`;
-        if (rechteckH) pvUrl += `&rechteckHoehe=${rechteckH}`;
-        if (dreieckTyp) pvUrl += `&dreieckTyp=${dreieckTyp}`;
-        if (spitzenPos) pvUrl += `&spitzenPosition=${spitzenPos}`;
+        if (dreieckH) {
+            anrissUrl += `&dreieckHoehe=${dreieckH}`;
+            pvUrl += `&dreieckHoehe=${dreieckH}`;
+        }
+        if (rechteckH) {
+            anrissUrl += `&rechteckHoehe=${rechteckH}`;
+            pvUrl += `&rechteckHoehe=${rechteckH}`;
+        }
+        if (dreieckTyp) {
+            anrissUrl += `&dreieckTyp=${dreieckTyp}`;
+            pvUrl += `&dreieckTyp=${dreieckTyp}`;
+        }
+        if (spitzenPos) {
+            anrissUrl += `&spitzenPosition=${spitzenPos}`;
+            pvUrl += `&spitzenPosition=${spitzenPos}`;
+        }
     } else if (typ === 'trapez-auf-rechteck') {
-        const brOben = params.get('breite-oben');
-        const trapezH = params.get('trapez-hoehe');
-        const rechteckH = params.get('rechteck-hoehe');
-        if (brOben) pvUrl += `&breite-oben=${brOben}`;
-        if (trapezH) pvUrl += `&trapez-hoehe=${trapezH}`;
-        if (rechteckH) pvUrl += `&rechteck-hoehe=${rechteckH}`;
+        const brOben = params.get('breite-oben') || params.get('breiteOben');
+        const dreieckH = params.get('dreieckHoehe') || params.get('trapez-hoehe');
+        const rechteckH = params.get('rechteckHoehe') || params.get('rechteck-hoehe');
+        if (brOben) {
+            anrissUrl += `&breiteOben=${brOben}`;
+            pvUrl += `&breiteOben=${brOben}`;
+        }
+        if (dreieckH) {
+            anrissUrl += `&dreieckHoehe=${dreieckH}`;
+            pvUrl += `&dreieckHoehe=${dreieckH}`;
+        }
+        if (rechteckH) {
+            anrissUrl += `&rechteckHoehe=${rechteckH}`;
+            pvUrl += `&rechteckHoehe=${rechteckH}`;
+        }
     }
 
-    // Show PV-Rechner link (Anrissplan not available without schnittliste)
+    // Show Anrissplan link (now available with new simple parameter format)
+    const anrissLink = document.getElementById('to-anrissplan');
+    if (anrissLink) {
+        anrissLink.href = anrissUrl;
+        anrissLink.style.display = 'inline-block';
+    }
+
+    // Show PV-Rechner link
     const pvLink = document.getElementById('to-pv-rechner');
     if (pvLink) {
         pvLink.href = pvUrl;
