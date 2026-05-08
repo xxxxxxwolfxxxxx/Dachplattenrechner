@@ -283,16 +283,27 @@ function generateSchnittlisteFromParams(breite, hoehe, typ, additionalParams = {
     }
 
     return {
-        obereBreite: obereBreite,
-        untereBreite: breite,
-        basisBreite: breite,
+        // Haupt-Dimensionen (für alle Übersicht-Funktionen notwendig)
+        breite: breite,              // Für Rechteck-Übersicht
+        basisBreite: breite,         // Für Dreieck-Übersicht
+        untereBreite: breite,        // Für Trapez-Übersicht
+        obereBreite: obereBreite,    // Für Trapez-Übersicht
         hoehe: hoehe,
+
+        // Form-spezifische Parameter
         spitzenPosition: additionalParams.spitzenPosition || breite / 2,
         rechteckHoehe: additionalParams.rechteckHoehe || 0,
-        trapezHoehe: additionalParams.dreieckHoehe || 0,
         dreieckHoehe: additionalParams.dreieckHoehe || 0,
+        trapezHoehe: additionalParams.dreieckHoehe || 0,
+
+        // Dreieck-Typ
+        dreieckTyp: additionalParams.dreieckTyp || 'symmetrisch',
+
+        // Plattendimensionen
         lieferbreite: lieferbreite,
         deckbreite: deckbreite,
+
+        // Schnittliste (wichtigste Eigenschaft)
         schnittliste: schnittliste
     };
 }
