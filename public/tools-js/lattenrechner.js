@@ -949,10 +949,14 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         const fortschritt = (anzahlLattenReihen - 1 - i) / Math.max(1, anzahlLattenReihen - 1);
         const reihenBreite = berechneReihenBreite(fortschritt);
         const lattenY = dachStartY + (1 - fortschritt) * dachHoehe * scaleY;
-        
-        const reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+
+        let reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
+        if ((dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') && dachDreieckTyp === 'ungleichschenkliges' && spitzePosX !== null) {
+            const peakPos = spitzePosX;
+            reihenStartAbsolut = fortschritt * peakPos;
+        }
         const reihenStartX = margin + reihenStartAbsolut * scaleX;
-        
+
         if (window.lattenPlan && window.lattenPlan[i]) {
             const segmente = window.lattenPlan[i];
             
