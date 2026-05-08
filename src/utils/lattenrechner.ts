@@ -185,8 +185,10 @@ function berechneReihenBreite(progress: number, dims: RoofDimensions): number {
         return dims.width * (1 - progress); // Fallback zu symmetrisch
       }
       const peakPos = dims.spitzenPosition * dims.width;
+      // Bei progress=0 (unten): leftEdge=0, rightEdge=width
+      // Bei progress=1 (oben/peak): leftEdge=peakPos, rightEdge=peakPos
       const leftEdge = progress * peakPos;
-      const rightEdge = peakPos + progress * (dims.width - peakPos);
+      const rightEdge = dims.width - progress * (dims.width - peakPos);
       return rightEdge - leftEdge;
 
     case 'trapez-auf-rechteck':
