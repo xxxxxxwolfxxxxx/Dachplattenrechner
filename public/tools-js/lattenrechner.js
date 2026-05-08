@@ -17,6 +17,19 @@ function showAds() {
 function ladeDachParameter() {
     const urlParams = new URLSearchParams(window.location.search);
 
+    // ⚠️ KRITISCH: Importiere window-Variablen ZUERST (von astro.astro gesetzt)
+    // Diese haben Priorität vor URL-Parametern
+    if (window.dachBreite !== undefined) dachBreite = window.dachBreite;
+    if (window.dachHoehe !== undefined) dachHoehe = window.dachHoehe;
+    if (window.dachTyp !== undefined) dachTyp = window.dachTyp;
+    if (window.obereBreite !== undefined) obereBreite = window.obereBreite;
+    if (window.trapezHoehe !== undefined) trapezHoehe = window.trapezHoehe;
+    if (window.rechteckHoehe !== undefined) rechteckHoehe = window.rechteckHoehe;
+    if (window.dreieckHoehe !== undefined) dreieckHoehe = window.dreieckHoehe;
+    if (window.spitzenPosition !== undefined) spitzenPosition = window.spitzenPosition;
+    if (window.dreieckTyp !== undefined) dachDreieckTyp = window.dreieckTyp;
+
+    // Fallback: Lade von URL-Parametern wenn window-Variablen nicht gesetzt
     if (urlParams.has('breite')) dachBreite = parseFloat(urlParams.get('breite'));
     if (urlParams.has('hoehe')) dachHoehe = parseFloat(urlParams.get('hoehe'));
     if (urlParams.has('typ')) dachTyp = urlParams.get('typ');
@@ -35,7 +48,7 @@ function ladeDachParameter() {
         spitzePosX = parseFloat(urlParams.get('spitzePosX'));
     }
 
-    console.log('🔵 ladeDachParameter() called. dachTyp:', dachTyp, 'URL search:', window.location.search);
+    console.log('🔵 ladeDachParameter() called. dachTyp:', dachTyp, 'dachDreieckTyp:', dachDreieckTyp, 'spitzenPosition:', spitzenPosition);
 
     aktualisiereAnzeige();
 }
