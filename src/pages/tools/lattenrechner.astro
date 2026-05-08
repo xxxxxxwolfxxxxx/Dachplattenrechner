@@ -824,6 +824,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
     // Parameter aus Input-Feldern lesen (von URL oder manuell eingegeben)
     const typEl = document.getElementById('typ-select');
     const typ = typEl ? typEl.value : 'rechteck';
+    console.log(`📐 DachformTyp gelesen: typ="${typ}" (from element value)`);
 
     const obereBreiteEl = document.getElementById('obere-breite');
     const obereBreite = obereBreiteEl && obereBreiteEl.value ? parseFloat(obereBreiteEl.value) : breite * 0.8;
@@ -957,9 +958,9 @@ import * as lattenrechner from '../../utils/lattenrechner';
       window.trapezHoehe = typ === 'trapez-auf-rechteck' ? trapezHoehe : (typ === 'trapez' ? hoehe : 0);
       window.rechteckHoehe = typ === 'trapez-auf-rechteck' || typ === 'dreieck-auf-rechteck' ? rechteckHoehe : 0;
       window.dreieckHoehe = typ === 'dreieck-auf-rechteck' ? dreieckHoehe : 0;
-      // Setze spitzenPosition und dreieckTyp auch für einfache dreieck (nicht nur dreieck-auf-rechteck)
-      window.spitzenPosition = (typ === 'dreieck' || typ === 'dreieck-auf-rechteck') ? spitzenPosition : 0.5;
-      window.dreieckTyp = (typ === 'dreieck' || typ === 'dreieck-auf-rechteck') ? dreieckTyp : 'gleichschenkliges';
+      // Setze spitzenPosition und dreieckTyp für ALLE Dreieck-Formen (dreieck, dreieck-auf-rechteck, ungleichschenkliges-dreieck)
+      window.spitzenPosition = (typ === 'dreieck' || typ === 'dreieck-auf-rechteck' || typ === 'ungleichschenkliges-dreieck') ? spitzenPosition : 0.5;
+      window.dreieckTyp = (typ === 'dreieck' || typ === 'dreieck-auf-rechteck' || typ === 'ungleichschenkliges-dreieck') ? dreieckTyp : 'gleichschenkliges';
       window.sparrenPositionen = [];
       window.sparrenLaengen = [];
 
