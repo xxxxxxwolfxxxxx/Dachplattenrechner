@@ -60,7 +60,8 @@ import * as lattenrechner from '../../utils/lattenrechner';
   <!-- Dreieck: Dreieck-Typ und Spitzenposition -->
   <div id="dreieck-fields" style="display: none;" class="section">
     <h3>Dreieck-Parameter</h3>
-    <div class="input-row">
+    <!-- Dreieck-Typ Auswahl - wird versteckt wenn URL-Parameter vorhanden -->
+    <div id="dreieck-typ-selection" class="input-row">
       <div class="input-group">
         <label style="font-size: 14px; color: #333; margin-bottom: 8px; font-weight: 600;">Dreieck-Typ</label>
         <div style="display: flex; gap: 10px;">
@@ -96,7 +97,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
         <input type="number" id="dreieck-hoehe" step="0.01" min="0" placeholder="z.B. 2.00" value="2">
       </div>
     </div>
-    <div class="input-row">
+    <div id="dreieck-auf-rechteck-typ-selection" class="input-row">
       <div class="input-group">
         <label style="font-size: 14px; color: #333; margin-bottom: 8px; font-weight: 600;">Dreieck-Typ</label>
         <div style="display: flex; gap: 10px;">
@@ -375,6 +376,13 @@ import * as lattenrechner from '../../utils/lattenrechner';
       // Verstecke Dachform-Eingabemaske wenn Parameter aus URL vorhanden sind
       dachformSection.style.display = 'none';
       console.log('ℹ️ Dachform-Parameter von URL gefunden, verstecke Eingabemaske');
+
+      // Verstecke auch die Dreieck-Typ-Radio-Button-Sektionen wenn URL-Parameter vorhanden
+      const dreieckTypSelection = document.getElementById('dreieck-typ-selection');
+      const dreieckAufRechteckTypSelection = document.getElementById('dreieck-auf-rechteck-typ-selection');
+      if (dreieckTypSelection) dreieckTypSelection.style.display = 'none';
+      if (dreieckAufRechteckTypSelection) dreieckAufRechteckTypSelection.style.display = 'none';
+      console.log('ℹ️ Dreieck-Typ-Radio-Buttons versteckt (Parameter von URL)');
     } else if (dachformSection) {
       dachformSection.style.display = 'block';
       console.log('ℹ️ Keine Dachform-Parameter in URL, zeige Eingabemaske');
