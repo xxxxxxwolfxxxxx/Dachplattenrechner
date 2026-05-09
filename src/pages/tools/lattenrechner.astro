@@ -953,7 +953,7 @@ import * as lattenrechner from '../../utils/lattenrechner';
       // Lade Utility von Server (wird ca 400-600ms dauern beim ersten Load)
       if (!window.lattenrechner) {
         console.log('⏳ Lade Utility von Server...');
-        const response = await fetch('/js-utils/lattenrechner.js?v=3');
+        const response = await fetch('/js-utils/lattenrechner.js?v=4');
         if (!response.ok) throw new Error('Utility konnte nicht geladen werden');
         const jsCode = await response.text();
         eval(jsCode);
