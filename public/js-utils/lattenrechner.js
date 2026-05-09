@@ -762,10 +762,7 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                         }
                         
                         const restStueck = lattenLaenge - (zielSparren - aktuellePosition);
-                        if (restStueck > 0.5) {
-                            restPool.push(restStueck);
-                            restPool.sort((a, b) => b - a);
-                        } else if (restStueck > 0.01) {
+                        if (restStueck > 0.01) {
                             gesamtVerschnitt += restStueck;
                         }
 
