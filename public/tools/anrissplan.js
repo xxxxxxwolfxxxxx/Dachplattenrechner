@@ -233,6 +233,46 @@ function generateSchnittlisteTrapezRectangle(untereBreite, obereBreite, rechteck
     return schnittliste;
 }
 
+// Schnittliste für Dreieck auf Rechteck generieren
+function generateSchnittlisteTriangleRectangle(breite, rechteckHoehe, dreieckHoehe, spitzenPosition, lieferbreite, deckbreite) {
+    const schnittliste = [];
+    const totalHoehe = rechteckHoehe + dreieckHoehe;
+    let anzahlPlatten = Math.ceil((breite - lieferbreite + deckbreite) / deckbreite);
+
+    for (let i = 0; i < anzahlPlatten; i++) {
+        let positionVonLinks = (i === 0) ? 0 : i * deckbreite;
+        let positionVonLinksEnde = positionVonLinks + lieferbreite;
+        positionVonLinksEnde = Math.min(positionVonLinksEnde, breite);
+
+        function hoeheAnPosition(pos) {
+            if (pos <= 0 || pos >= breite) return rechteckHoehe;
+            let dreieckAnteil;
+            if (pos <= spitzenPosition) {
+                dreieckAnteil = dreieckHoehe * (pos / spitzenPosition);
+            } else {
+                dreieckAnteil = dreieckHoehe * (breite - pos) / (breite - spitzenPosition);
+            }
+            return rechteckHoehe + dreieckAnteil;
+        }
+
+        const hoeheStart = hoeheAnPosition(positionVonLinks);
+        const hoeheEnde = hoeheAnPosition(positionVonLinksEnde);
+        const benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
+
+        if (benoetigteLaenge > 0 && positionVonLinks < breite) {
+            schnittliste.push({
+                plattenNr: i + 1,
+                positionVonLinks: positionVonLinks.toFixed(2),
+                positionBis: positionVonLinksEnde.toFixed(2),
+                benoetigteLaenge: benoetigteLaenge.toFixed(2),
+                plattenbreite: lieferbreite.toFixed(2)
+            });
+        }
+    }
+
+    return schnittliste;
+}
+
 // Hauptfunktion: schnittliste aus einfachen Parametern generieren
 function generateSchnittlisteFromParams(breite, hoehe, typ, additionalParams = {}) {
     const lieferbreite = additionalParams.lieferbreite || 1.05;
@@ -264,9 +304,11 @@ function generateSchnittlisteFromParams(breite, hoehe, typ, additionalParams = {
             break;
 
         case 'dreieck-auf-rechteck':
-            // Noch nicht implementiert - fallback zu rechteck
-            obereBreite = breite;
-            schnittliste = generateSchnittlisteRectangle(breite, hoehe, lieferbreite, deckbreite);
+            const drRechteckH = additionalParams.rechteckHoehe || hoehe * 0.5;
+            const drDreieckH = additionalParams.dreieckHoehe || hoehe * 0.5;
+            const drSpitze = additionalParams.spitzenPosition || breite / 2;
+            obereBreite = 0;
+            schnittliste = generateSchnittlisteTriangleRectangle(breite, drRechteckH, drDreieckH, drSpitze, lieferbreite, deckbreite);
             break;
 
         case 'trapez-auf-rechteck':
@@ -343,6 +385,10 @@ function updateHeader(type, data) {
             title = 'Anrissplan - Trapez auf Rechteck';
             info = 'Oben: ' + data.obereBreite + 'm | Unten: ' + data.untereBreite + 'm | Trapez: ' + data.trapezHoehe + 'm | Rechteck: ' + data.rechteckHoehe + 'm | Platten: ' + data.schnittliste.length + ' Stück';
             break;
+        case 'dreieck-auf-rechteck':
+            title = 'Anrissplan - Dreieck auf Rechteck';
+            info = 'Breite: ' + data.basisBreite + 'm | Dreieck: ' + data.dreieckHoehe + 'm | Rechteck: ' + data.rechteckHoehe + 'm | Platten: ' + data.schnittliste.length + ' Stück';
+            break;
         case 'rechteck':
             title = 'Anrissplan - Rechteck/Quadrat';
             info = 'Breite: ' + data.breite + 'm | Höhe: ' + data.hoehe + 'm | Platten: ' + data.schnittliste.length + ' Stück';
@@ -374,6 +420,9 @@ function generateOverview(type, data) {
             break;
         case 'trapez-auf-rechteck':
             svg = generateTrapezRechteckOverview(data);
+            break;
+        case 'dreieck-auf-rechteck':
+            svg = generateDreieckRechteckOverview(data);
             break;
         case 'rechteck':
             svg = generateRechteckOverview(data);
@@ -634,6 +683,88 @@ function generateTrapezRechteckOverview(data) {
 }
 
 // Rechteck Übersicht
+function generateDreieckRechteckOverview(data) {
+    const width = 800;
+    const height = 350;
+    const margin = 40;
+    const diagramWidth = 460;
+
+    const basisBreite = parseFloat(data.basisBreite);
+    const dreieckHoehe = parseFloat(data.dreieckHoehe);
+    const rechteckHoehe = parseFloat(data.rechteckHoehe);
+    const gesamtHoehe = dreieckHoehe + rechteckHoehe;
+    const spitzenPosition = parseFloat(data.spitzenPosition) || basisBreite / 2;
+
+    const scaleX = (diagramWidth - 2 * margin) / basisBreite;
+    const scaleY = (height - 2 * margin - 40) / gesamtHoehe;
+
+    const dreieckUntenY = margin + dreieckHoehe * scaleY;
+
+    let svg = '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">';
+    svg += '<rect width="' + width + '" height="' + height + '" fill="#fdfdfd"/>';
+
+    // Rechteck (unten)
+    svg += '<rect x="' + margin + '" y="' + dreieckUntenY + '" width="' + (basisBreite * scaleX) + '" height="' + (rechteckHoehe * scaleY) + '" fill="#e8f4fd" stroke="#1976d2" stroke-width="2"/>';
+
+    // Dreieck (oben)
+    const spitzeX = margin + spitzenPosition * scaleX;
+    const linksX = margin;
+    const rechtsX = margin + basisBreite * scaleX;
+
+    svg += '<polygon points="' + spitzeX + ',' + margin + ' ' + linksX + ',' + dreieckUntenY + ' ' + rechtsX + ',' + dreieckUntenY + '" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>';
+
+    // Platten als senkrechte Linien
+    for (let i = 0; i < data.schnittliste.length; i++) {
+        const platte = data.schnittliste[i];
+        const plattenStart = parseFloat(platte.positionVonLinks);
+        const plattenBreite = parseFloat(platte.plattenbreite);
+        const plattenMitte = plattenStart + (plattenBreite / 2);
+        const plattenX = margin + plattenStart * scaleX;
+        const plattenMitteX = margin + plattenMitte * scaleX;
+
+        // Oberkante im Dreieck berechnen
+        let plattenObenY;
+        if (plattenStart <= spitzenPosition) {
+            const verhaeltnis = plattenStart / spitzenPosition;
+            plattenObenY = dreieckUntenY - verhaeltnis * (dreieckUntenY - margin);
+        } else {
+            const abstandVonRechts = basisBreite - plattenStart;
+            const rechteSeite = basisBreite - spitzenPosition;
+            const verhaeltnis = abstandVonRechts / rechteSeite;
+            plattenObenY = dreieckUntenY - verhaeltnis * (dreieckUntenY - margin);
+        }
+
+        svg += '<line x1="' + plattenX + '" y1="' + (margin + gesamtHoehe * scaleY) + '" x2="' + plattenX + '" y2="' + plattenObenY + '" stroke="#666" stroke-width="1.5" opacity="0.8"/>';
+        svg += '<text x="' + plattenMitteX + '" y="' + (margin + gesamtHoehe * scaleY + 20) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">' + platte.plattenNr + '</text>';
+    }
+
+    // Spitze markieren
+    svg += '<circle cx="' + spitzeX + '" cy="' + margin + '" r="4" fill="#28a745"/>';
+    svg += '<text x="' + spitzeX + '" y="' + (margin - 15) + '" text-anchor="middle" font-size="11" fill="#28a745" font-weight="bold">SPITZE</text>';
+
+    // Untere Kante
+    svg += '<text x="' + (margin + (basisBreite * scaleX)/2) + '" y="' + (height - 10) + '" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">Breite: ' + basisBreite + 'm</text>';
+
+    // Längenliste rechts
+    const listenStart = diagramWidth + 20;
+    svg += '<text x="' + listenStart + '" y="25" font-size="14" fill="#333" font-weight="bold">Plattenlängen:</text>';
+
+    const spaltenAnzahl = data.schnittliste.length > 14 ? 2 : 1;
+    const spaltenBreite = spaltenAnzahl === 2 ? 140 : 280;
+
+    for (let i = 0; i < data.schnittliste.length; i++) {
+        const platte = data.schnittliste[i];
+        const spalte = spaltenAnzahl === 2 ? Math.floor(i / Math.ceil(data.schnittliste.length / 2)) : 0;
+        const zeile = spaltenAnzahl === 2 ? i % Math.ceil(data.schnittliste.length / 2) : i;
+        const x = listenStart + spalte * spaltenBreite;
+        const y = 50 + zeile * 18;
+        svg += '<text x="' + x + '" y="' + y + '" font-size="11" fill="#666">Platte ' + platte.plattenNr + ': ' + platte.benoetigteLaenge + 'm</text>';
+    }
+
+    svg += '</svg>';
+    return svg;
+}
+
 function generateRechteckOverview(data) {
     const width = 800;
     const height = 300;
@@ -762,6 +893,19 @@ function calculateAnreissMasse(plattenStart, plattenEnde, type, data) {
             anreissRechts = Math.round(hoeheEndeCombo * 100);
             break;
 
+        case 'dreieck-auf-rechteck':
+            const drBasisBreite = parseFloat(data.basisBreite);
+            const drDreieckHoehe = parseFloat(data.dreieckHoehe);
+            const drRechteckHoehe = parseFloat(data.rechteckHoehe);
+            const drSpitzenPos = parseFloat(data.spitzenPosition) || drBasisBreite / 2;
+
+            const hoeheStartDR = berechneHoeheAnPositionDreieckRechteck(plattenStart, drBasisBreite, drDreieckHoehe, drRechteckHoehe, drSpitzenPos);
+            const hoeheEndeDR = berechneHoeheAnPositionDreieckRechteck(plattenEnde, drBasisBreite, drDreieckHoehe, drRechteckHoehe, drSpitzenPos);
+
+            anreissLinks = Math.round(hoeheStartDR * 100);
+            anreissRechts = Math.round(hoeheEndeDR * 100);
+            break;
+
         case 'rechteck':
             // Bei Rechtecken gibt es keine Anreissmaße - alle Platten haben die volle Höhe
             const rechteckHoehe = parseFloat(data.hoehe);
@@ -824,6 +968,17 @@ function berechneHoeheAnPositionCombo(position, seitenAbstand, untereBreite, tra
     }
 }
 
+function berechneHoeheAnPositionDreieckRechteck(position, basisBreite, dreieckHoehe, rechteckHoehe, spitzenPosition) {
+    if (position <= 0 || position >= basisBreite) return rechteckHoehe;
+    let dreieckAnteil;
+    if (position <= spitzenPosition) {
+        dreieckAnteil = dreieckHoehe * (position / spitzenPosition);
+    } else {
+        dreieckAnteil = dreieckHoehe * (basisBreite - position) / (basisBreite - spitzenPosition);
+    }
+    return rechteckHoehe + dreieckAnteil;
+}
+
 // Plattendiagramm generieren
 function generatePlateDiagram(item, anreissMasse, type, data) {
     const plattenStart = parseFloat(item.positionVonLinks);
@@ -865,11 +1020,17 @@ function generatePlateDiagram(item, anreissMasse, type, data) {
             const seitenAbstandCombo = (basisBreite - obereBreiteCombo) / 2;
             linkeEcke = seitenAbstandCombo;
             rechteEcke = basisBreite - seitenAbstandCombo;
-            
+
             const plattenEndeCombo = plattenStart + plattenBreite;
-            istTrapezEckenPlatte = (plattenStart < linkeEcke && plattenEndeCombo > linkeEcke) || 
+            istTrapezEckenPlatte = (plattenStart < linkeEcke && plattenEndeCombo > linkeEcke) ||
                                  (plattenStart < rechteEcke && plattenEndeCombo > rechteEcke);
             istSpitzenPlatte = false;
+            break;
+        case 'dreieck-auf-rechteck':
+            basisBreite = parseFloat(data.basisBreite);
+            spitzenPosition = parseFloat(data.spitzenPosition) || basisBreite / 2;
+            istSpitzenPlatte = plattenStart < spitzenPosition && (plattenStart + plattenBreite) > spitzenPosition;
+            istTrapezEckenPlatte = false;
             break;
         case 'rechteck':
             basisBreite = parseFloat(data.breite);
@@ -1128,6 +1289,7 @@ function generateInstructions(item, anreissMasse, type, data) {
     switch(type) {
         case 'gleichschenkliges-dreieck':
         case 'ungleichschenkliges-dreieck':
+        case 'dreieck-auf-rechteck':
             basisBreite = parseFloat(data.basisBreite);
             break;
         case 'trapez':
