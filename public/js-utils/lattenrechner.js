@@ -712,6 +712,15 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
             let reihenStartAbsolut = (dachBreite - reihenBreite) / 2;
             if ((dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') && dreieckTyp === 'ungleichschenkliges') {
                 reihenStartAbsolut = fortschritt * (spitzenPosition * dachBreite);
+            } else if (dachTyp === 'dreieck-auf-rechteck' && dreieckTyp === 'ungleichschenkliges') {
+                const dHoehe = dreieckHoehe > 0 ? dreieckHoehe : dachHoehe - rechteckHoehe;
+                const dreieckAnteil = dHoehe / dachHoehe;
+                if (fortschritt >= (1 - dreieckAnteil)) {
+                    const dreieckFortschritt = (fortschritt - (1 - dreieckAnteil)) / dreieckAnteil;
+                    reihenStartAbsolut = dreieckFortschritt * (spitzenPosition * dachBreite);
+                } else {
+                    reihenStartAbsolut = 0;
+                }
             }
             const relevanteSparren = sparrenPositionen.filter(pos =>
                 pos >= reihenStartAbsolut - 0.05 && pos <= reihenStartAbsolut + reihenBreite + 0.05
@@ -891,7 +900,18 @@ function berechneReihenBreite(fortschritt) {
                 return dachBreite;
             }
         }
-            
+
+        case 'dreieck-auf-rechteck': {
+            const dHoehe = dreieckHoehe > 0 ? dreieckHoehe : dachHoehe - rechteckHoehe;
+            const dreieckAnteil = dHoehe / dachHoehe;
+            if (fortschritt >= (1 - dreieckAnteil)) {
+                const dreieckFortschritt = (fortschritt - (1 - dreieckAnteil)) / dreieckAnteil;
+                return dachBreite * (1 - dreieckFortschritt);
+            } else {
+                return dachBreite;
+            }
+        }
+
         default:
             return dachBreite;
     }
@@ -1241,8 +1261,16 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         
         svg += `<line x1="${linkeObenX}" y1="${trapezObenY}" x2="${margin}" y2="${trapezUntenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
         svg += `<line x1="${rechteObenX}" y1="${trapezObenY}" x2="${margin + dachBreite * scaleX}" y2="${trapezUntenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+    } else if (dachTyp === 'dreieck-auf-rechteck') {
+        const dHoehe = dreieckHoehe > 0 ? dreieckHoehe : dachHoehe - rechteckHoehe;
+        let spitzePosXEdge = dreieckTyp === 'ungleichschenkliges' ? spitzenPosition * dachBreite : dachBreite / 2;
+        const spitzeX = margin + spitzePosXEdge * scaleX;
+        const dreieckUntenY = dachStartY + dHoehe * scaleY;
+
+        svg += `<line x1="${spitzeX}" y1="${dachStartY}" x2="${margin}" y2="${dreieckUntenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
+        svg += `<line x1="${spitzeX}" y1="${dachStartY}" x2="${margin + dachBreite * scaleX}" y2="${dreieckUntenY}" stroke="#ff6b35" stroke-width="2" opacity="0.9"/>`;
     }
-    
+
     const lattenFarben = { 6: '#9b59b6', 5: '#3498db', 4: '#f39c12', 3: '#27ae60' };
     const restFarbe = '#e74c3c';
     
@@ -1255,6 +1283,15 @@ function generiereVorschau(anzahlSparren, anzahlLattenReihen, lattenabstand) {
         if ((dachTyp === 'dreieck' || dachTyp === 'gleichschenkliges-dreieck' || dachTyp === 'ungleichschenkliges-dreieck') && dreieckTyp === 'ungleichschenkliges') {
             const peakPos = spitzenPosition * dachBreite;
             reihenStartAbsolut = fortschritt * peakPos;
+        } else if (dachTyp === 'dreieck-auf-rechteck' && dreieckTyp === 'ungleichschenkliges') {
+            const dHoehe = dreieckHoehe > 0 ? dreieckHoehe : dachHoehe - rechteckHoehe;
+            const dreieckAnteil = dHoehe / dachHoehe;
+            if (fortschritt >= (1 - dreieckAnteil)) {
+                const dreieckFortschritt = (fortschritt - (1 - dreieckAnteil)) / dreieckAnteil;
+                reihenStartAbsolut = dreieckFortschritt * (spitzenPosition * dachBreite);
+            } else {
+                reihenStartAbsolut = 0;
+            }
         }
         const reihenStartX = margin + reihenStartAbsolut * scaleX;
         
@@ -1465,7 +1502,8 @@ window.lattenrechner = {
       dachTyp = roofDims.type;
       obereBreite = roofDims.upperWidth || 0;
       trapezHoehe = roofDims.trapezHeight || 0;
-      rechteckHoehe = roofDims.rectHeight || 0;
+      rechteckHoehe = roofDims.rectHeight || roofDims.dreieckRectHeight || 0;
+      dreieckHoehe = roofDims.dreieckHeight || 0;
       if (roofDims.spitzenPosition !== undefined) spitzenPosition = roofDims.spitzenPosition;
       if (roofDims.dreieckType) dreieckTyp = roofDims.dreieckType;
 
@@ -1524,7 +1562,8 @@ window.lattenrechner = {
       dachTyp = roofDims.type;
       obereBreite = roofDims.upperWidth || 0;
       trapezHoehe = roofDims.trapezHeight || 0;
-      rechteckHoehe = roofDims.rectHeight || 0;
+      rechteckHoehe = roofDims.rectHeight || roofDims.dreieckRectHeight || 0;
+      dreieckHoehe = roofDims.dreieckHeight || 0;
       if (roofDims.spitzenPosition !== undefined) spitzenPosition = roofDims.spitzenPosition;
       if (roofDims.dreieckType) dreieckTyp = roofDims.dreieckType;
 
