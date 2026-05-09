@@ -701,7 +701,8 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
         
     } else {
         const luecken = [];
-        
+        let restPool = [];
+
         for (let reihe = anzahlReihen - 1; reihe >= 0; reihe--) {
             const fortschritt = (anzahlReihen - 1 - reihe) / Math.max(1, anzahlReihen - 1);
             let reihenBreite = berechneReihenBreite(fortschritt);
@@ -760,11 +761,19 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
                             materialListe.push({ laenge: lattenLaenge, anzahl: 1 });
                         }
                         
+                        const restStueck = lattenLaenge - (zielSparren - aktuellePosition);
+                        if (restStueck > 0.5) {
+                            restPool.push(restStueck);
+                            restPool.sort((a, b) => b - a);
+                        } else if (restStueck > 0.01) {
+                            gesamtVerschnitt += restStueck;
+                        }
+
                         aktuellePosition = zielSparren;
                     }
                 }
             }
-            
+
             if (aktuellePosition < reihenBreite - 0.1) {
                 luecken.push({
                     reihe: reihe,
@@ -779,8 +788,6 @@ function berechneDachlattenIntelligent(sparrenPositionen, lattenabstand, verfueg
         }
         
         if (luecken.length > 0) {
-            let restPool = [];
-            
             for (let luecke of luecken) {
                 let gefuellt = false;
                 
