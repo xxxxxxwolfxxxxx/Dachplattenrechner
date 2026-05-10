@@ -123,8 +123,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDreieckTyp();
   drawCompassDial(selAzimuth);
   initHindernisCanvas();
-  document.getElementById('dach-breite').addEventListener('input', updateHindernisCanvas);
-  document.getElementById('dach-laenge').addEventListener('input', updateHindernisCanvas);
+  const dachBreiteInput = document.getElementById('dach-breite');
+  const dachHoeheInput = document.getElementById('dach-hoehe');
+  if (dachBreiteInput) dachBreiteInput.addEventListener('input', updateHindernisCanvas);
+  if (dachHoeheInput) dachHoeheInput.addEventListener('input', updateHindernisCanvas);
   document.getElementById('berechne-btn').addEventListener('click', berechne);
 
   // Batterie-Checkbox
@@ -151,12 +153,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function ladeDachParameter() {
   const p = new URLSearchParams(window.location.search);
-  if (p.has('breite'))      document.getElementById('dach-breite').value = parseFloat(p.get('breite'));
-  if (p.has('hoehe'))       document.getElementById('dach-laenge').value = parseFloat(p.get('hoehe'));
-  if (p.has('typ'))         dachTyp = p.get('typ');
+  const dachBreiteInput = document.getElementById('dach-breite');
+  const dachHoeheInput = document.getElementById('dach-hoehe');
+  const dachFormSelect = document.getElementById('dach-form');
+  const dachBreiteObenInput = document.getElementById('dach-breite-oben');
+
+  if (dachBreiteInput && p.has('breite')) dachBreiteInput.value = parseFloat(p.get('breite')).toFixed(2);
+  if (dachHoeheInput && p.has('hoehe')) dachHoeheInput.value = parseFloat(p.get('hoehe')).toFixed(2);
+  if (p.has('typ')) {
+    dachTyp = p.get('typ');
+    if (dachFormSelect) dachFormSelect.value = dachTyp;
+  }
   // Support both 'breite-oben' and 'breiteOben' for backward compatibility
   if (p.has('breiteOben'))  dachBreiteOben = parseFloat(p.get('breiteOben'));
   else if (p.has('breite-oben')) dachBreiteOben = parseFloat(p.get('breite-oben'));
+  if (dachBreiteObenInput && dachBreiteOben) dachBreiteObenInput.value = dachBreiteOben.toFixed(2);
   if (p.has('dreieckTyp'))  {
     dachDreieckTyp = p.get('dreieckTyp');
     const radio = document.querySelector(`input[name="dreieck-typ"][value="${dachDreieckTyp}"]`);
@@ -961,14 +972,25 @@ function waehleFormat(origW, origH, watt, orientKey, modBeff, modHeff) {
 // ---- Hauptberechnung ----
 function berechne() {
   const dachBreiteM = parseFloat(document.getElementById('dach-breite').value);
-  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value);
+  const dachLaengeM = parseFloat(document.getElementById('dach-hoehe').value);
+  const dachFormSelect = document.getElementById('dach-form');
+  const dachFormVal = dachFormSelect ? dachFormSelect.value : 'rechteck';
   const randM       = parseFloat(document.getElementById('rand-abstand').value) || 0.2;
   const neigung     = parseInt(document.getElementById('neigung').value);
   const region      = document.getElementById('region').value;
   const abstandMM   = parseFloat(document.getElementById('mod-abstand').value) || 20;
 
+  // Setze dachTyp aus dach-form
+  dachTyp = dachFormVal;
+
+  // Lese dachBreiteOben falls vorhanden
+  const dachBreiteObenInput = document.getElementById('dach-breite-oben');
+  if (dachBreiteObenInput && dachBreiteObenInput.value) {
+    dachBreiteOben = parseFloat(dachBreiteObenInput.value);
+  }
+
   if (!dachBreiteM || !dachLaengeM || dachBreiteM <= 0 || dachLaengeM <= 0) {
-    alert('Bitte Dachbreite und Dachlänge eingeben!');
+    alert('Bitte Dachbreite und Dachhöhe eingeben!');
     return;
   }
 

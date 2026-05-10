@@ -28,7 +28,36 @@ import AdUnit from '../../components/AdUnit.astro';
   <AdUnit position="top" adSlot="9678418506" />
 
   <div class="section">
-    <h2>1. Dachneigung & Ausrichtung</h2>
+    <h2>1. Dachform & Geometrie</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="dach-form">Dachform</label>
+        <select id="dach-form" style="width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px; cursor: pointer;">
+          <option value="rechteck">Rechteck</option>
+          <option value="gleichschenkliges-dreieck">Gleichschenkliges Dreieck</option>
+          <option value="ungleichschenkliges-dreieck">Ungleichschenkliges Dreieck</option>
+          <option value="trapez">Trapez</option>
+          <option value="dreieck-auf-rechteck">Dreieck auf Rechteck</option>
+          <option value="trapez-auf-rechteck">Trapez auf Rechteck</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="dach-breite">Dachbreite (m)</label>
+        <input type="number" id="dach-breite" step="0.01" min="0" placeholder="z.B. 10.00" value="">
+      </div>
+      <div class="input-group">
+        <label for="dach-hoehe">Dachhöhe/Länge (m)</label>
+        <input type="number" id="dach-hoehe" step="0.01" min="0" placeholder="z.B. 8.00" value="">
+      </div>
+      <div class="input-group" id="dach-breite-oben-group" style="display: none;">
+        <label for="dach-breite-oben">Breite oben (m) - für Trapez</label>
+        <input type="number" id="dach-breite-oben" step="0.01" min="0" placeholder="z.B. 8.00" value="">
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>2. Dachneigung & Ausrichtung</h2>
     <div class="input-row">
       <div class="input-group">
         <label for="neigung">Dachneigung (°)</label>
@@ -70,7 +99,7 @@ import AdUnit from '../../components/AdUnit.astro';
   </div>
 
   <div class="section">
-    <h2>2. Modultyp & Ausrichtung</h2>
+    <h2>3. Modultyp & Ausrichtung</h2>
 
     <div style="margin-bottom: 20px;">
       <label style="display: block; font-weight: 600; color: #333; margin-bottom: 12px; font-size: 14px;">Modul-Vorsets:</label>
@@ -134,7 +163,7 @@ import AdUnit from '../../components/AdUnit.astro';
   </div>
 
   <div class="section">
-    <h2>3. Stromverbrauch & Wirtschaftlichkeit</h2>
+    <h2>4. Stromverbrauch & Wirtschaftlichkeit</h2>
     <div class="input-row">
       <div class="input-group">
         <label for="eigenverbrauch-rate">Eigenverbrauchsquote (%)</label>
@@ -152,7 +181,7 @@ import AdUnit from '../../components/AdUnit.astro';
   </div>
 
   <div class="section">
-    <h2>4. Speicher & Weitere Einstellungen</h2>
+    <h2>5. Speicher & Weitere Einstellungen</h2>
     <div class="input-row">
       <div class="input-group">
         <label for="rand-abstand">Rand-Abstand (m)</label>
@@ -393,5 +422,54 @@ import AdUnit from '../../components/AdUnit.astro';
     }
   }
 </style>
+
+<script>
+  // Dachform-Logik: Zeige "dach-breite-oben" nur für Trapez-Formen
+  document.addEventListener('DOMContentLoaded', function() {
+    const dachFormSelect = document.getElementById('dach-form');
+    const dachBreiteObenGroup = document.getElementById('dach-breite-oben-group');
+
+    function updateDachFormFields() {
+      const form = dachFormSelect.value;
+      if (form.includes('trapez')) {
+        dachBreiteObenGroup.style.display = 'block';
+      } else {
+        dachBreiteObenGroup.style.display = 'none';
+      }
+    }
+
+    dachFormSelect.addEventListener('change', updateDachFormFields);
+    updateDachFormFields();
+
+    // Lade Parameter aus URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('typ')) {
+      const typMap = {
+        'rechteck': 'rechteck',
+        'gleichschenkliges-dreieck': 'gleichschenkliges-dreieck',
+        'ungleichschenkliges-dreieck': 'ungleichschenkliges-dreieck',
+        'trapez': 'trapez',
+        'dreieck-auf-rechteck': 'dreieck-auf-rechteck',
+        'trapez-auf-rechteck': 'trapez-auf-rechteck',
+      };
+      const typ = params.get('typ');
+      if (typMap[typ]) {
+        dachFormSelect.value = typMap[typ];
+        updateDachFormFields();
+      }
+    }
+
+    if (params.has('breite')) {
+      document.getElementById('dach-breite').value = parseFloat(params.get('breite')).toFixed(2);
+    }
+    if (params.has('hoehe')) {
+      document.getElementById('dach-hoehe').value = parseFloat(params.get('hoehe')).toFixed(2);
+    }
+    if (params.has('breiteOben') || params.has('breite-oben')) {
+      const breiteOben = params.get('breiteOben') || params.get('breite-oben');
+      document.getElementById('dach-breite-oben').value = parseFloat(breiteOben).toFixed(2);
+    }
+  });
+</script>
 
 <script src="/tools-js/pv-rechner.js" defer></script>
