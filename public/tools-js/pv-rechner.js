@@ -1211,7 +1211,7 @@ function zeichneLayout(layout, dachBreiteM, dachLaengeM, gapMM, finalAnzahl) {
 // ---- Navigation zu anderen Rechnern ----
 function updateNavigationLinksPVRechner() {
   const dachBreiteM = parseFloat(document.getElementById('dach-breite').value);
-  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value);
+  const dachLaengeM = parseFloat(document.getElementById('dach-hoehe').value);
 
   if (!dachBreiteM || !dachLaengeM) return;
 
@@ -1261,7 +1261,7 @@ function updateNavigationLinksPVRechner() {
 // ---- Cross-Navigation ----
 function zuLattenrechner() {
   const b = parseFloat(document.getElementById('dach-breite').value);
-  const h = parseFloat(document.getElementById('dach-laenge').value);
+  const h = parseFloat(document.getElementById('dach-hoehe').value);
   if (!b || !h) { alert('Bitte zuerst Dachmaße eingeben.'); return; }
 
   // Read current values from UI

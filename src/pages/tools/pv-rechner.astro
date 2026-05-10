@@ -13,20 +13,6 @@ import AdUnit from '../../components/AdUnit.astro';
   backLabel="← Dachformen"
   background="linear-gradient(135deg, rgba(30, 60, 114, 0.85) 0%, rgba(42, 82, 152, 0.85) 100%), url('/images/rechteck.png')"
 >
-  <InfoBox title="💡 Warum eine Solaranlage aufs Dach?" icon="☀️">
-    <p>Mit einer Solaranlage produzierst du kostenlos deinen eigenen Strom — eine der besten Investitionen für Hausbesitzer:</p>
-    <ul>
-      <li><strong>Kostenersparnis:</strong> 300-500 Euro/Jahr sparen (je nach Anlagengröße)</li>
-      <li><strong>Fördergeld:</strong> KfW 270/271 und BAFA unterstützen mit bis zu 9.600 Euro</li>
-      <li><strong>Unabhängigkeit:</strong> Weniger abhängig von Strompreisen und Versorgung</li>
-      <li><strong>Wertsteigerung:</strong> Erhöht den Wert deines Hauses um 3-5%</li>
-      <li><strong>Klimaschutz:</strong> 100% regenerative Energie ohne CO2-Emissionen</li>
-    </ul>
-    <p>Moderne PV-Anlagen arbeiten 25+ Jahre wartungsfrei und senken deine Stromkosten um 50-80%.</p>
-  </InfoBox>
-
-  <AdUnit position="top" adSlot="9678418506" />
-
   <div class="section">
     <h2>1. Dachform & Geometrie</h2>
     <div class="input-row">
@@ -236,8 +222,6 @@ import AdUnit from '../../components/AdUnit.astro';
     </div>
   </div>
 
-  <AdUnit position="middle" />
-
   <div style="text-align: center; margin: 30px 0;">
     <button id="berechne-btn" class="anriss-btn" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); min-width: 250px; padding: 18px 40px; font-size: 18px;">
       ⚡ Jetzt berechnen
@@ -299,6 +283,20 @@ import AdUnit from '../../components/AdUnit.astro';
       </a>
     </div>
   </div>
+
+  <InfoBox title="💡 Warum eine Solaranlage aufs Dach?" icon="☀️">
+    <p>Mit einer Solaranlage produzierst du kostenlos deinen eigenen Strom — eine der besten Investitionen für Hausbesitzer:</p>
+    <ul>
+      <li><strong>Kostenersparnis:</strong> 300-500 Euro/Jahr sparen (je nach Anlagengröße)</li>
+      <li><strong>Fördergeld:</strong> KfW 270/271 und BAFA unterstützen mit bis zu 9.600 Euro</li>
+      <li><strong>Unabhängigkeit:</strong> Weniger abhängig von Strompreisen und Versorgung</li>
+      <li><strong>Wertsteigerung:</strong> Erhöht den Wert deines Hauses um 3-5%</li>
+      <li><strong>Klimaschutz:</strong> 100% regenerative Energie ohne CO2-Emissionen</li>
+    </ul>
+    <p>Moderne PV-Anlagen arbeiten 25+ Jahre wartungsfrei und senken deine Stromkosten um 50-80%.</p>
+  </InfoBox>
+
+  <AdUnit position="middle" />
 
   <InfoBox title="❓ Wie funktioniert der Rechner?" variant="info">
     <ol style="margin: 1rem 0 1rem 2rem;">
