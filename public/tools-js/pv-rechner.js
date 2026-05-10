@@ -292,9 +292,9 @@ function setupModuleButtons() {
       selModBreite = parseInt(btn.dataset.w);
       selModHoehe  = parseInt(btn.dataset.h);
       selModWatt   = parseInt(btn.dataset.watt);
-      document.getElementById('mod-breite').value = '';
-      document.getElementById('mod-hoehe').value  = '';
-      document.getElementById('mod-watt').value   = '';
+      document.getElementById('mod-breite').value = btn.dataset.w;
+      document.getElementById('mod-hoehe').value  = btn.dataset.h;
+      document.getElementById('mod-watt').value   = btn.dataset.watt;
     });
   });
 }
