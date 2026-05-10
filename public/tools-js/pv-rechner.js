@@ -136,14 +136,34 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Batterie-Preis-Mode Radio Buttons
+  const updateBatteriePriceMode = () => {
+    const mode = document.querySelector('input[name="batterie-price-mode"]:checked').value;
+    document.getElementById('batterie-preis-kwh-group').style.display = mode === 'kwh' ? 'block' : 'none';
+    document.getElementById('batterie-preis-gesamt-group').style.display = mode === 'gesamt' ? 'block' : 'none';
+    updateBatterieInfo();
+  };
+
   document.querySelectorAll('input[name="batterie-price-mode"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      const mode = document.querySelector('input[name="batterie-price-mode"]:checked').value;
-      document.getElementById('batterie-preis-kwh-group').style.display = mode === 'kwh' ? 'block' : 'none';
-      document.getElementById('batterie-preis-gesamt-group').style.display = mode === 'gesamt' ? 'block' : 'none';
-      updateBatterieInfo();
-    });
+    radio.addEventListener('change', updateBatteriePriceMode);
   });
+
+  // Initialisierung beim Load
+  updateBatteriePriceMode();
+
+  // PV-Kosten-Mode Radio Buttons
+  const updatePVCostsMode = () => {
+    const mode = document.querySelector('input[name="pv-kosten-mode"]:checked').value;
+    document.getElementById('pv-kosten-gesamt-group').style.display = mode === 'gesamt' ? 'block' : 'none';
+    document.getElementById('pv-kosten-pro-kwp-group').style.display = mode === 'pro-kwp' ? 'block' : 'none';
+    updatePVCostsInfo();
+  };
+
+  document.querySelectorAll('input[name="pv-kosten-mode"]').forEach(radio => {
+    radio.addEventListener('change', updatePVCostsMode);
+  });
+
+  // Initialisierung beim Load
+  updatePVCostsMode();
 
   // Auto-calculate if URL parameters were passed
   if (hasURLParams) {
@@ -843,6 +863,16 @@ function getBatterieKosten() {
   return batterieKwh * preisProKwh;
 }
 
+function getPVKosten(kWp) {
+  const mode = document.querySelector('input[name="pv-kosten-mode"]:checked').value;
+  if (mode === 'gesamt') {
+    return parseFloat(document.getElementById('pv-kosten-gesamt').value) || 0;
+  } else {
+    const proKwp = parseFloat(document.getElementById('pv-kosten-pro-kwp').value) || 0;
+    return (kWp || 0) * proKwp;
+  }
+}
+
 function updateBatterieInfo() {
   const infoEl = document.getElementById('batterie-info');
   if (!infoEl) return;
@@ -858,9 +888,26 @@ function updateBatterieInfo() {
     `💶 Batteriekosten: <strong>${kosten.toLocaleString('de-DE')} €</strong>`;
 }
 
+function updatePVCostsInfo() {
+  const infoEl = document.getElementById('pv-kosten-info');
+  if (!infoEl) return;
+
+  const mode = document.querySelector('input[name="pv-kosten-mode"]:checked').value;
+  const gesamtCost = parseFloat(document.getElementById('pv-kosten-gesamt').value) || 0;
+  const proKwpCost = parseFloat(document.getElementById('pv-kosten-pro-kwp').value) || 0;
+
+  if (mode === 'gesamt') {
+    infoEl.innerHTML = `💰 Gesamtkosten der PV-Anlage: <strong>${gesamtCost.toLocaleString('de-DE')} €</strong>`;
+  } else {
+    infoEl.innerHTML = `💰 Kosten pro kWp: <strong>${proKwpCost.toLocaleString('de-DE')} €/kWp</strong><br><span style="font-size: 12px; color: #666;">Wird mit der Anlagengröße multipliziert</span>`;
+  }
+}
+
 // ---- Format-Optimierer ----
 const MODULE_PRESETS = [
   { name: 'Halbzellen M10',       w: 1134, h: 1722, watt: 410 },
+  { name: 'Standard XL 450W',     w: 1134, h: 1762, watt: 450 },
+  { name: 'Großmodul 500W',       w: 1134, h: 2100, watt: 500 },
   { name: 'Groß-Modul 72Z',       w: 1038, h: 2094, watt: 550 },
   { name: 'TOPCon / HJT',         w: 1134, h: 2172, watt: 600 },
   { name: 'Standard 72Z',         w:  992, h: 1956, watt: 390 },
@@ -1050,10 +1097,10 @@ function berechne() {
   const gesamtWert     = eigenverbrauch + einspeisung;
   const co2Kg          = (ertragKwh * 434) / 1000;
 
+  const pvKosten       = getPVKosten(kwp);
   const batterieKosten = batterieAktiv ? getBatterieKosten() : 0;
-  const investMin      = kwp * 1500 + batterieKosten * 0.85;
-  const investMax      = kwp * 1900 + batterieKosten * 1.15;
-  const amort          = gesamtWert > 0 ? ((investMin + investMax) / 2 / gesamtWert).toFixed(1) : '–';
+  const gesamtInvest   = pvKosten + batterieKosten;
+  const amort          = (gesamtInvest > 0 && gesamtWert > 0) ? (gesamtInvest / gesamtWert).toFixed(1) : '–';
 
   document.getElementById('res-anzahl').textContent = finalAnzahl;
   document.getElementById('res-kwp').textContent    = kwp.toFixed(2);
@@ -1091,9 +1138,10 @@ function berechne() {
     ['Einspeisung', `${Math.round(einspeisung).toLocaleString('de-DE')} €/Jahr`],
     ['Gesamtwert', `${Math.round(gesamtWert).toLocaleString('de-DE')} €/Jahr`],
     ['CO₂-Einsparung', `${Math.round(co2Kg).toLocaleString('de-DE')} kg/Jahr`],
-    ...(batterieAktiv ? [['Batteriekosten (ca.)', `${Math.round(batterieKosten).toLocaleString('de-DE')} €`]] : []),
-    ['Investitionsschätzung', `${Math.round(investMin).toLocaleString('de-DE')} – ${Math.round(investMax).toLocaleString('de-DE')} €`],
-    ['Amortisation (ca.)', `${amort} Jahre`],
+    ...(pvKosten > 0 ? [['PV-Systemkosten', `${Math.round(pvKosten).toLocaleString('de-DE')} €`]] : []),
+    ...(batterieAktiv ? [['Batteriekosten', `${Math.round(batterieKosten).toLocaleString('de-DE')} €`]] : []),
+    ...(gesamtInvest > 0 ? [['Gesamtinvestition', `${Math.round(gesamtInvest).toLocaleString('de-DE')} €`]] : []),
+    ['Amortisationszeit', `${amort} Jahre`],
   ];
 
   document.getElementById('res-details').innerHTML = details

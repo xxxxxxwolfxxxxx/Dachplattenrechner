@@ -93,6 +93,12 @@ import AdUnit from '../../components/AdUnit.astro';
         <button class="module-btn" data-w="1134" data-h="1722" data-watt="410" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
           Halbzellen M10<br><span style="font-size: 12px; font-weight: normal; color: #666;">410 W</span>
         </button>
+        <button class="module-btn" data-w="1134" data-h="1762" data-watt="450" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+          Standard XL 450W<br><span style="font-size: 12px; font-weight: normal; color: #666;">450 W</span>
+        </button>
+        <button class="module-btn" data-w="1134" data-h="2100" data-watt="500" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+          Großmodul 500W<br><span style="font-size: 12px; font-weight: normal; color: #666;">500 W</span>
+        </button>
         <button class="module-btn" data-w="1038" data-h="2094" data-watt="550" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
           Groß-Modul 72Z<br><span style="font-size: 12px; font-weight: normal; color: #666;">550 W</span>
         </button>
@@ -164,6 +170,31 @@ import AdUnit from '../../components/AdUnit.astro';
         <input type="number" id="einspeisung-preis" step="0.01" min="0" value="0.082">
       </div>
     </div>
+
+    <div style="background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 15px; border-radius: 8px; margin-top: 20px;">
+      <label style="display: block; font-weight: 600; color: #4a148c; margin-bottom: 12px;">💰 Anlagen-Kosten (für Amortisationszeit):</label>
+      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <label style="flex: 1;">
+          <input type="radio" name="pv-kosten-mode" value="gesamt" checked>
+          <span style="font-weight: 500;">Gesamtpreis</span>
+        </label>
+        <label style="flex: 1;">
+          <input type="radio" name="pv-kosten-mode" value="pro-kwp">
+          <span style="font-weight: 500;">€/kWp</span>
+        </label>
+      </div>
+      <div class="input-row">
+        <div class="input-group" id="pv-kosten-gesamt-group">
+          <label for="pv-kosten-gesamt">Gesamtkosten PV-Anlage (€)</label>
+          <input type="number" id="pv-kosten-gesamt" step="100" min="0" value="8000">
+        </div>
+        <div class="input-group" id="pv-kosten-pro-kwp-group" style="display: none;">
+          <label for="pv-kosten-pro-kwp">Kosten pro kWp (€)</label>
+          <input type="number" id="pv-kosten-pro-kwp" step="10" min="0" value="1200">
+        </div>
+      </div>
+      <div id="pv-kosten-info" style="background: #e8f5e9; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 13px; color: #2e7d32;"></div>
+    </div>
   </div>
 
   <div class="section">
@@ -195,11 +226,11 @@ import AdUnit from '../../components/AdUnit.astro';
             <label style="font-size: 13px; color: #666;">Kosten-Option:</label>
             <div style="display: flex; gap: 10px;">
               <label style="flex: 1;">
-                <input type="radio" name="batterie-price-mode" value="kwh" checked>
+                <input type="radio" name="batterie-price-mode" value="kwh">
                 <span>€/kWh</span>
               </label>
               <label style="flex: 1;">
-                <input type="radio" name="batterie-price-mode" value="gesamt">
+                <input type="radio" name="batterie-price-mode" value="gesamt" checked>
                 <span>Gesamtpreis</span>
               </label>
             </div>
