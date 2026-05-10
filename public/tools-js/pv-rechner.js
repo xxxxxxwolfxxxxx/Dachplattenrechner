@@ -437,7 +437,7 @@ function buildRoofPath(ctx, W, H) {
     ctx.closePath();
   } else if (dachTyp === 'dreieck-auf-rechteck' && rechteckHoehe !== null && dreieckHoehe !== null) {
     // Rectangle (bottom) + triangle (top)
-    const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 1;
+    const dachLaengeM = parseFloat(document.getElementById('dach-hoehe').value) || 1;
     const rectHeightPx = H * (rechteckHoehe / dachLaengeM);
     const triHeightPx = H - rectHeightPx;
 
@@ -452,7 +452,7 @@ function buildRoofPath(ctx, W, H) {
     ctx.closePath();
   } else if (dachTyp === 'trapez-auf-rechteck' && dachBreiteOben !== null && rechteckHoehe !== null && dreieckHoehe !== null) {
     // Rectangle (bottom) + trapez (top)
-    const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 1;
+    const dachLaengeM = parseFloat(document.getElementById('dach-hoehe').value) || 1;
     const rectHeightPx = H * (rechteckHoehe / dachLaengeM);
 
     const offsetPx = W * (1 - dachBreiteOben / dachBreiteM) / 2;
@@ -608,7 +608,7 @@ function initHindernisCanvas() {
 function updateHindernisCanvas() {
   if (!hCanvas) return;
   const dachBreiteM = parseFloat(document.getElementById('dach-breite').value) || 0;
-  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 0;
+  const dachLaengeM = parseFloat(document.getElementById('dach-hoehe').value) || 0;
   const infoEl = document.getElementById('hindernis-pos-info');
 
   if (!dachBreiteM || !dachLaengeM || dachBreiteM <= 0 || dachLaengeM <= 0) {
@@ -641,7 +641,7 @@ function drawHCanvas() {
   const W   = hCanvas.width, H = hCanvas.height;
   const sc  = hCanvas._scale;
   const dachBreiteM = parseFloat(document.getElementById('dach-breite').value) || 0;
-  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 0;
+  const dachLaengeM = parseFloat(document.getElementById('dach-hoehe').value) || 0;
   if (!dachBreiteM || !dachLaengeM) return;
 
   ctx.clearRect(0, 0, W, H);
@@ -726,7 +726,7 @@ function updateHPosInfo() {
   const infoEl = document.getElementById('hindernis-pos-info');
   if (!infoEl) return;
   const dachBreiteM = parseFloat(document.getElementById('dach-breite').value) || 0;
-  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 0;
+  const dachLaengeM = parseFloat(document.getElementById('dach-hoehe').value) || 0;
   if (!dachBreiteM || !dachLaengeM || hMouseXm < 0) { infoEl.textContent = ''; return; }
   const vL = Math.max(0, hMouseXm).toFixed(2);
   const vR = Math.max(0, dachBreiteM - hMouseXm).toFixed(2);
@@ -737,7 +737,7 @@ function updateHPosInfo() {
 
 function platzierHindernis(clickXm, clickYm) {
   const dachBreiteM = parseFloat(document.getElementById('dach-breite').value) || 0;
-  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value) || 0;
+  const dachLaengeM = parseFloat(document.getElementById('dach-hoehe').value) || 0;
   if (!dachBreiteM || !dachLaengeM) return;
   const hbM  = parseFloat(document.getElementById('h-breite').value) || 0.5;
   const hhM  = parseFloat(document.getElementById('h-hoehe').value)  || 0.5;
@@ -870,7 +870,7 @@ const MODULE_PRESETS = [
 
 function findeOptimalesFormat() {
   const dachBreiteM = parseFloat(document.getElementById('dach-breite').value);
-  const dachLaengeM = parseFloat(document.getElementById('dach-laenge').value);
+  const dachLaengeM = parseFloat(document.getElementById('dach-hoehe').value);
   const randM       = parseFloat(document.getElementById('rand-abstand').value) || 0.2;
   const abstandMM   = parseFloat(document.getElementById('mod-abstand').value) || 20;
 
