@@ -322,6 +322,13 @@ function zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, 
 
         const hoeheStart = hoeheAnPosition(plattenStart);
         const hoeheEnde = hoeheAnPosition(plattenEnde);
+        let maxHoehe = Math.max(hoeheStart, hoeheEnde);
+
+        // Wenn die Spitze innerhalb der Platte liegt, berücksichtige die Höhe dort
+        if (spitzePosX >= plattenStart && spitzePosX <= plattenEnde) {
+            const hoeheBeiSpitze = hoeheAnPosition(spitzePosX);
+            maxHoehe = Math.max(maxHoehe, hoeheBeiSpitze);
+        }
 
         const plattenX = margin + plattenStart * scaleX;
         const plattenWidth = (plattenEnde - plattenStart) * scaleX;
@@ -332,7 +339,7 @@ function zeichneDreieckAufRechteckVorschau(breite, dreieckHoehe, rechteckHoehe, 
         const plattenY = margin + dachHeight - plattenHoehe;
 
         // Platte mit Dreieck-Oberkante
-        const oberkante = Math.min(startY, endY);
+        const oberkante = margin + dachHeight - (maxHoehe * scaleY);
         svg += `<rect x="${plattenX}" y="${oberkante}" width="${plattenWidth}" height="${plattenHoehe - (oberkante - plattenY)}" fill="#1e3c72" opacity="0.4"/>`;
 
         // Platte Nummer
