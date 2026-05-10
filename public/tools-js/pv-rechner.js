@@ -1337,3 +1337,190 @@ function zuLattenrechner() {
 function zuVerschnitt() {
   window.location.href = '/tools/verschnitt-optimierung/';
 }
+
+// ---- PDF-Export ----
+async function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const html2canvas = window.html2canvas;
+
+  if (!jsPDF || !html2canvas) {
+    alert('PDF-Bibliotheken nicht verfügbar. Bitte laden Sie die Seite neu.');
+    return;
+  }
+
+  try {
+    // 1. Hole alle Daten
+    const canvas = document.getElementById('pv-canvas');
+    const detailsTable = document.getElementById('res-details');
+    const modulCount = document.getElementById('res-anzahl').textContent;
+    const kwp = document.getElementById('res-kwp').textContent;
+    const ertrag = document.getElementById('res-ertrag').textContent;
+    const wert = document.getElementById('res-wert').textContent;
+
+    const dachBreite = parseFloat(document.getElementById('dach-breite').value);
+    const dachHoehe = parseFloat(document.getElementById('dach-hoehe').value);
+    const neigung = document.getElementById('neigung').value;
+    const azimuth = document.getElementById('azimuth').value;
+    const region = document.getElementById('region').value;
+
+    // 2. Erstelle PDF
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    let yPos = 10;
+
+    // 3. Titel
+    pdf.setFontSize(24);
+    pdf.setTextColor(30, 60, 114);
+    pdf.text('PV-Anlagen Berechnung', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 12;
+
+    // 4. Datum
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    const today = new Date().toLocaleDateString('de-DE');
+    pdf.text(`Erstellt: ${today}`, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 10;
+
+    // 5. Trennlinie
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(10, yPos, pageWidth - 10, yPos);
+    yPos += 5;
+
+    // 6. Input-Zusammenfassung
+    pdf.setFontSize(12);
+    pdf.setTextColor(30, 60, 114);
+    pdf.text('Eingabeparameter:', 10, yPos);
+    yPos += 7;
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(50, 50, 50);
+    const inputData = [
+      `Dachbreite: ${dachBreite} m`,
+      `Dachhöhe: ${dachHoehe} m`,
+      `Dachneigung: ${neigung}°`,
+      `Ausrichtung: ${azimuth}° (${azimuthLabel(parseInt(azimuth))})`,
+      `Region: ${document.getElementById('region').options[document.getElementById('region').selectedIndex].text}`
+    ];
+
+    inputData.forEach(text => {
+      pdf.text(text, 15, yPos);
+      yPos += 5;
+    });
+
+    yPos += 3;
+
+    // 7. Ergebnisse (Zusammenfassung)
+    pdf.setFontSize(12);
+    pdf.setTextColor(30, 60, 114);
+    pdf.text('Ergebnisse:', 10, yPos);
+    yPos += 7;
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(50, 50, 50);
+    const resultData = [
+      `Module: ${modulCount} Stück`,
+      `Leistung: ${kwp} kWp`,
+      `Jahresertrag: ${ertrag} kWh`,
+      `Jahreswert: ${wert} €`
+    ];
+
+    resultData.forEach(text => {
+      pdf.text(text, 15, yPos);
+      yPos += 5;
+    });
+
+    yPos += 5;
+
+    // 8. Canvas-Bild einfügen (wenn genug Platz)
+    if (yPos < pageHeight - 100 && canvas) {
+      const canvasImage = canvas.toDataURL('image/png');
+      const imgWidth = pageWidth - 20;
+      const imgHeight = (canvas.height / canvas.width) * imgWidth;
+
+      if (yPos + imgHeight < pageHeight - 10) {
+        pdf.addImage(canvasImage, 'PNG', 10, yPos, imgWidth, imgHeight);
+        yPos += imgHeight + 5;
+      } else {
+        // Neue Seite für Bild
+        pdf.addPage();
+        yPos = 10;
+        const canvasImage = canvas.toDataURL('image/png');
+        const imgWidth = pageWidth - 20;
+        const imgHeight = (canvas.height / canvas.width) * imgWidth;
+        pdf.addImage(canvasImage, 'PNG', 10, yPos, imgWidth, imgHeight);
+        yPos = pageHeight - 10;
+      }
+    }
+
+    // 9. Detaillierte Tabelle auf neuer Seite
+    pdf.addPage();
+    yPos = 10;
+
+    pdf.setFontSize(14);
+    pdf.setTextColor(30, 60, 114);
+    pdf.text('Detaillierte Ergebnisse:', 10, yPos);
+    yPos += 10;
+
+    pdf.setFontSize(9);
+    pdf.setTextColor(50, 50, 50);
+
+    // Tabelle aus HTML auslesen
+    if (detailsTable) {
+      const rows = detailsTable.querySelectorAll('tr');
+      const tableData = [];
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 2) {
+          tableData.push([cells[0].textContent.trim(), cells[1].textContent.trim()]);
+        }
+      });
+
+      // Zwei-spaltige Tabelle
+      let col1 = [];
+      let col2 = [];
+      tableData.forEach((row, i) => {
+        if (i < Math.ceil(tableData.length / 2)) {
+          col1.push(row);
+        } else {
+          col2.push(row);
+        }
+      });
+
+      const renderColumn = (data, xStart) => {
+        let y = yPos;
+        data.forEach(([label, value]) => {
+          pdf.setFont(undefined, 'bold');
+          pdf.text(label + ':', xStart, y);
+          pdf.setFont(undefined, 'normal');
+          pdf.text(value, xStart + 55, y);
+          y += 5;
+          if (y > pageHeight - 20) {
+            pdf.addPage();
+            y = 10;
+          }
+        });
+        return y;
+      };
+
+      const y1 = renderColumn(col1, 10);
+      renderColumn(col2, pageWidth / 2);
+    }
+
+    // 10. Footer
+    const pages = pdf.internal.pages.length - 1;
+    for (let i = 1; i <= pages; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(8);
+      pdf.setTextColor(150, 150, 150);
+      pdf.text(`Seite ${i} von ${pages}`, pageWidth / 2, pageHeight - 5, { align: 'center' });
+    }
+
+    // 11. Download
+    pdf.save('PV-Berechnung.pdf');
+  } catch (error) {
+    console.error('PDF-Export-Fehler:', error);
+    alert('Fehler beim PDF-Export: ' + error.message);
+  }
+}
