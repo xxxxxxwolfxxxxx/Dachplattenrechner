@@ -1341,25 +1341,21 @@ function zuVerschnitt() {
 // ---- PDF-Export ----
 async function exportPDF() {
   const { jsPDF } = window.jspdf;
+  const html2canvas = window.html2canvas;
 
-  if (!jsPDF) {
-    alert('PDF-Bibliothek nicht verfügbar. Bitte laden Sie die Seite neu.');
+  if (!jsPDF || !html2canvas) {
+    alert('PDF-Bibliotheken nicht verfügbar. Bitte laden Sie die Seite neu.');
     return;
   }
 
   try {
     // 1. Hole alle Daten
+    const canvas = document.getElementById('pv-canvas');
     const detailsTable = document.getElementById('res-details');
     const modulCount = document.getElementById('res-anzahl').textContent;
     const kwp = document.getElementById('res-kwp').textContent;
     const ertrag = document.getElementById('res-ertrag').textContent;
     const wert = document.getElementById('res-wert').textContent;
-
-    const dachBreite = parseFloat(document.getElementById('dach-breite').value);
-    const dachHoehe = parseFloat(document.getElementById('dach-hoehe').value);
-    const neigung = document.getElementById('neigung').value;
-    const azimuth = document.getElementById('azimuth').value;
-    const region = document.getElementById('region').value;
 
     // 2. Erstelle PDF (A4, Hochformat)
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -1368,54 +1364,51 @@ async function exportPDF() {
     let yPos = 8;
 
     // 3. Header mit Branding
-    pdf.setFontSize(18);
+    pdf.setFontSize(16);
     pdf.setTextColor(30, 60, 114);
     pdf.text('PV-Anlagen Berechnung', pageWidth / 2, yPos, { align: 'center' });
-    yPos += 6;
+    yPos += 5;
 
     pdf.setFontSize(9);
     pdf.setTextColor(100, 100, 100);
     const today = new Date().toLocaleDateString('de-DE');
     pdf.text(`www.dachplattenrechner.de | ${today}`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 5;
+    yPos += 4;
 
     // 4. Dünne Trennlinie
     pdf.setDrawColor(180, 180, 180);
     pdf.line(10, yPos, pageWidth - 10, yPos);
-    yPos += 4;
+    yPos += 3;
 
-    // 5. Zwei-spaltige Tabelle mit allen Daten
-    pdf.setFontSize(8);
+    // 5. Obere Hälfte: Zwei-spaltige Tabelle mit wichtigen Daten
+    pdf.setFontSize(7.5);
     pdf.setTextColor(50, 50, 50);
 
-    // Sammle alle wichtigen Daten aus der Details-Tabelle
+    // Sammle wichtige Daten
     const tableData = [];
     if (detailsTable) {
       const rows = detailsTable.querySelectorAll('tr');
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
+      // Nur erste 12 Zeilen für PDF (wichtigste Infos)
+      for (let i = 0; i < Math.min(12, rows.length); i++) {
+        const cells = rows[i].querySelectorAll('td');
         if (cells.length >= 2) {
           const label = cells[0].textContent.trim();
           const value = cells[1].textContent.trim();
           tableData.push([label, value]);
         }
-      });
+      }
     }
 
-    // Zeichne zwei-spaltige Tabelle kompakt
+    // Zwei-spaltige Tabelle
     const colWidth = (pageWidth - 20) / 2 - 2;
-    const lineHeight = 3.5;
+    const lineHeight = 3.2;
     const col1X = 10;
     const col2X = pageWidth / 2 + 1;
     const maxRows = Math.ceil(tableData.length / 2);
+    const tableStartY = yPos;
 
-    // Header für Spalten
-    pdf.setFont(undefined, 'bold');
-    pdf.setTextColor(30, 60, 114);
-
-    // Schleife für alle Zeilen
     for (let i = 0; i < maxRows; i++) {
-      if (yPos > pageHeight - 20) break; // Nicht auf eine zweite Seite gehen
+      if (yPos > pageHeight - 75) break; // Platz für Canvas
 
       // Linke Spalte
       if (i < tableData.length) {
@@ -1426,7 +1419,7 @@ async function exportPDF() {
 
         pdf.setFont(undefined, 'normal');
         pdf.setTextColor(50, 50, 50);
-        pdf.text(value, col1X + 3, yPos + 2.5, { maxWidth: colWidth - 3 });
+        pdf.text(value, col1X + 3, yPos + 2.2, { maxWidth: colWidth - 3 });
       }
 
       // Rechte Spalte
@@ -1438,21 +1431,42 @@ async function exportPDF() {
 
         pdf.setFont(undefined, 'normal');
         pdf.setTextColor(50, 50, 50);
-        pdf.text(value, col2X + 3, yPos + 2.5, { maxWidth: colWidth - 3 });
+        pdf.text(value, col2X + 3, yPos + 2.2, { maxWidth: colWidth - 3 });
       }
 
       yPos += lineHeight;
     }
 
-    yPos += 3;
+    yPos += 2;
 
-    // 6. Footer mit Branding
+    // 6. Modulskizze (Canvas als Bild)
+    if (canvas && yPos < pageHeight - 40) {
+      try {
+        const canvasImage = canvas.toDataURL('image/png');
+        const imgWidth = pageWidth - 20;
+        const imgHeight = (canvas.height / canvas.width) * imgWidth * 0.5; // Hälfte der Größe
+
+        // Höhe limitieren
+        const maxImgHeight = pageHeight - yPos - 15;
+        const finalHeight = Math.min(imgHeight, maxImgHeight);
+        const finalWidth = imgWidth;
+
+        if (finalHeight > 10) {
+          pdf.addImage(canvasImage, 'PNG', 10, yPos, finalWidth, finalHeight);
+          yPos += finalHeight + 2;
+        }
+      } catch (e) {
+        console.error('Canvas-Fehler:', e);
+      }
+    }
+
+    // 7. Footer mit Branding
     pdf.setFontSize(7);
     pdf.setTextColor(150, 150, 150);
-    pdf.line(10, pageHeight - 10, pageWidth - 10, pageHeight - 10);
-    pdf.text('Berechnung erstellt mit dachplattenrechner.de - Kostenlose PV-Anlagen Planung', pageWidth / 2, pageHeight - 6, { align: 'center' });
+    pdf.line(10, pageHeight - 8, pageWidth - 10, pageHeight - 8);
+    pdf.text('Erstellt mit dachplattenrechner.de - Kostenlose PV-Anlagen Planung', pageWidth / 2, pageHeight - 4, { align: 'center' });
 
-    // 7. Download
+    // 8. Download
     pdf.save('PV-Berechnung.pdf');
   } catch (error) {
     console.error('PDF-Export-Fehler:', error);
