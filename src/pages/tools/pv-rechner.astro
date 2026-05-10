@@ -306,6 +306,9 @@ import AdUnit from '../../components/AdUnit.astro';
 
     <!-- Navigation zu anderen Rechnern -->
     <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px; flex-wrap: wrap;">
+      <button id="export-pdf-btn" onclick="exportPDF()" style="padding: 12px 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); transition: all 0.3s ease; cursor: pointer;">
+        📄 Als PDF herunterladen
+      </button>
       <a id="to-anrissplan" href="#" style="display: none; padding: 12px 24px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: all 0.3s ease;">
         📋 Zum Anrissplan
       </a>
@@ -502,3 +505,5 @@ import AdUnit from '../../components/AdUnit.astro';
 </script>
 
 <script src="/tools-js/pv-rechner.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
