@@ -107,7 +107,13 @@ function berechneDreieckAufRechteck(breite, dreieckHoehe, rechteckHoehe, dreieck
 
         const hoeheStart = hoeheAnPosition(positionVonLinks);
         const hoeheEnde = hoeheAnPosition(positionVonLinksEnde);
-        const benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
+        let benoetigteLaenge = Math.max(hoeheStart, hoeheEnde);
+
+        // Wenn die Spitze innerhalb der Platte liegt, berücksichtige die volle Höhe dort
+        if (spitzePosX >= positionVonLinks && spitzePosX <= positionVonLinksEnde) {
+            const hoeheBeiSpitze = hoeheAnPosition(spitzePosX);
+            benoetigteLaenge = Math.max(benoetigteLaenge, hoeheBeiSpitze);
+        }
 
         if (benoetigteLaenge > 0 && positionVonLinks < breite && positionVonLinks >= 0) {
             schnittliste.push({
