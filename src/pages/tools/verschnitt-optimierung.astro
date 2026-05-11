@@ -1,80 +1,284 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import InfoBox from '../../components/InfoBox.astro';
 import AdUnit from '../../components/AdUnit.astro';
-import Footer from '../../components/Footer.astro';
 ---
 
-<BaseLayout
+<ToolLayout
   title="Verschnitt-Optimierung – Zuschnitte für Trapezbleche optimieren"
   description="Optimiere deine Blechzuschnitte für minimalen Verschnitt. Mit Abfallreduktion und Kostenersparnis."
   keywords="Verschnitt, Blechzuschnitt, Trapezbleche zuschneiden, Materialoptimierung, Abfallreduktion"
+  navTitle="Verschnitt-Optimierung"
+  backHref="/tools/dachformen/"
+  backLabel="&larr; Dachformen"
+  background="linear-gradient(135deg, rgba(30, 60, 114, 0.85) 0%, rgba(42, 82, 152, 0.85) 100%)"
 >
-  <div style="background: var(--gradient-primary); padding: var(--spacing-xl); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);">
-    <h1 style="color: white; margin-bottom: var(--spacing-lg);">Verschnitt-Optimierung – Zuschnitte optimieren</h1>
+
+  <div class="section">
+    <h2>1. Benötigte Längen eingeben</h2>
+    <div class="info-box">
+      <strong>Eingabe-Hilfe:</strong><br>
+      &bull; <strong>Verschiedene Längenangaben:</strong> 1.5m, 150cm, 1500mm, 1,5, 2.3<br>
+      &bull; <strong>Wiederholungen:</strong> 100x1.5m, 50x2,3m, 25x150cm<br>
+      &bull; <strong>Einheiten:</strong> m, cm, mm (wird automatisch erkannt)<br>
+      &bull; <strong>Dezimalzeichen:</strong> Punkt (1.5) oder Komma (1,5) – beides funktioniert!
+    </div>
+
+    <div class="input-group">
+      <label for="benoetigte-masze">Benötigte Längen (eine pro Zeile)</label>
+      <textarea id="benoetigte-masze" rows="8" placeholder="Beispiele für verschiedene Eingaben:
+100x1.5m
+20x2,3
+5x180cm
+1x2500mm
+3.5
+4,2m">100x1.5</textarea>
+    </div>
   </div>
 
   <AdUnit position="top" adSlot="9678418506" />
 
-  <main class="container main-content">
-    <article style="line-height: 1.8; color: var(--text-primary);">
-      <p>
-        Jedes Dachblechprojekt produziert Abfallschrott. Mit der richtigen Zuschnitt-Planung kannst du
-        diesen Verschnitt minimieren und damit Geld sparen. Die meisten Dachdecker und Handwerker
-        planen Zuschnitte nach Schätzung — das führt zu hohem Verschnitt. Mit unserer Optimierungs-Software
-        findest du die beste Lösung in Sekunden.
-      </p>
+  <div class="section">
+    <h2>2. Verfügbare Lagerlängen auswählen</h2>
+    <div class="info-box">
+      <strong>Lagerbestand:</strong> Wählen Sie alle verfügbaren Lagerlängen aus.
+      Lassen Sie die Anzahl leer für unbegrenzt verfügbar, oder geben Sie eine konkrete Anzahl ein.
+    </div>
 
-      <h2>Warum Verschnitt optimieren?</h2>
-      <p>
-        Jedes Dachblechprojekt erzeugt Abfallschrott. Eine schlecht geplante Zuschnittliste kann zu
-        30-40% Verschnitt führen, bei optimierter Planung sinkt dies auf 5-10%. Bei größeren Projekten
-        bedeutet das Einsparungen von hunderten Euro und auch weniger Umweltbelastung.
-      </p>
-      <ul style="margin: 1rem 0 1rem 2rem;">
-        <li><strong>Kostenersparnis:</strong> 20-30% weniger Material = deutlich niedrigere Gesamtkosten</li>
-        <li><strong>Ökologie:</strong> Weniger Stahlschrott, Verschwendung und CO2-Fußabdruck</li>
-        <li><strong>Planung:</strong> Exakte Zuschnittlisten für den Hersteller, keine Überraschungen</li>
-        <li><strong>Effizienz:</strong> Der Hersteller kann schneller und kostengünstiger produzieren</li>
-      </ul>
+    <div class="lager-grid">
+      <div class="lager-item">
+        <input type="checkbox" id="lager-2.0" value="2.0">
+        <label for="lager-2.0">2,0m</label>
+        <input type="number" id="anzahl-2.0" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-2.5" value="2.5">
+        <label for="lager-2.5">2,5m</label>
+        <input type="number" id="anzahl-2.5" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-3.0" value="3.0" checked>
+        <label for="lager-3.0">3,0m</label>
+        <input type="number" id="anzahl-3.0" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-3.1" value="3.1">
+        <label for="lager-3.1">3,1m</label>
+        <input type="number" id="anzahl-3.1" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-3.5" value="3.5">
+        <label for="lager-3.5">3,5m</label>
+        <input type="number" id="anzahl-3.5" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-4.0" value="4.0" checked>
+        <label for="lager-4.0">4,0m</label>
+        <input type="number" id="anzahl-4.0" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-4.5" value="4.5" checked>
+        <label for="lager-4.5">4,5m</label>
+        <input type="number" id="anzahl-4.5" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-5.0" value="5.0" checked>
+        <label for="lager-5.0">5,0m</label>
+        <input type="number" id="anzahl-5.0" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-5.5" value="5.5">
+        <label for="lager-5.5">5,5m</label>
+        <input type="number" id="anzahl-5.5" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-6.0" value="6.0" checked>
+        <label for="lager-6.0">6,0m</label>
+        <input type="number" id="anzahl-6.0" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-6.5" value="6.5">
+        <label for="lager-6.5">6,5m</label>
+        <input type="number" id="anzahl-6.5" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-7.0" value="7.0">
+        <label for="lager-7.0">7,0m</label>
+        <input type="number" id="anzahl-7.0" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-7.5" value="7.5">
+        <label for="lager-7.5">7,5m</label>
+        <input type="number" id="anzahl-7.5" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-8.0" value="8.0">
+        <label for="lager-8.0">8,0m</label>
+        <input type="number" id="anzahl-8.0" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-8.5" value="8.5">
+        <label for="lager-8.5">8,5m</label>
+        <input type="number" id="anzahl-8.5" placeholder="&infin;" min="0">
+      </div>
+      <div class="lager-item">
+        <input type="checkbox" id="lager-9.0" value="9.0">
+        <label for="lager-9.0">9,0m</label>
+        <input type="number" id="anzahl-9.0" placeholder="&infin;" min="0">
+      </div>
+    </div>
+  </div>
 
-      <h2>Wie funktioniert die Optimierung?</h2>
-      <ol style="margin: 1rem 0 1rem 2rem;">
-        <li>Gib deine Blechlängen (z.B. 6m, 8m) und Breiten (z.B. 1200mm) ein</li>
-        <li>Bestimme die Standardrohlinge, die dein Hersteller anbietet (z.B. 10m x 1250mm)</li>
-        <li>Der Algorithmus testet alle möglichen Anordnungen und findet die beste</li>
-        <li>Ergebnis: Minimaler Verschnitt in Prozent und in Euro, plus genaue Zuschnittliste</li>
-      </ol>
+  <div class="section">
+    <h2>3. Optimierungseinstellungen</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="optimierung-modus">Optimierungsmodus</label>
+        <select id="optimierung-modus">
+          <option value="verschnitt">Minimaler Verschnitt (Materialeinsparung)</option>
+          <option value="schnitte" selected>Wenigste Schnitte (Zeiteinsparung)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="schnittblatt-breite">Schnittblattbreite (mm)</label>
+        <input type="number" id="schnittblatt-breite" value="3.0" step="0.1" min="0">
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="toleranz">Toleranz pro Platte (mm)</label>
+        <input type="number" id="toleranz" value="5.0" step="0.1" min="0">
+      </div>
+      <div class="input-group"></div>
+    </div>
+  </div>
 
-      <h2>Beispiel – Was ist möglich?</h2>
-      <p>
-        Ein Beispiel-Dachprojekt (10m x 12m Rechteck) mit Tr40-Profilen könnte so aussehen:
-        Ohne Optimierung: 40% Verschnitt, kostet dich 800 Euro Extra.
-        Mit Optimierung durch unseren Rechner: 8% Verschnitt, sparst dir die 800 Euro.
-        Bei Projekten unter 100 m² Fläche ist eine gute Optimierung oft nicht nötig, aber bei
-        größeren Projekten oder komplexen Dachformen wird die Optimierung schnell rentabel.
-      </p>
+  <button class="calculate-btn" onclick="berechneOptimierung()">Optimierung berechnen</button>
 
-      <h2>FAQ – Verschnitt & Materialoptimierung</h2>
-      <p><strong>Wie viel Verschnitt ist normal?</strong> 5-15% ist gut, 15-25% ist akzeptabel. Alles darüber deutet auf mangelhafte Planung hin. Mit unserem Tool kannst du unter 10% erreichen.</p>
-      <p style="margin-top: 1rem;"><strong>Kann ich Reste verwenden?</strong> Ja, Reste eignen sich für Kantteile, Anschlüsse, kleinere Bleche und Reparaturen. Gute Hersteller haben oft Reste-Programme.</p>
-      <p style="margin-top: 1rem;"><strong>Muss ich den Hersteller mit der Zuschnittliste beliefern?</strong> Sehr empfohlen. Das spart oft Kosten und verhindert, dass der Hersteller seine eigenen (meist schlechteren) Schnittmuster verwendet.</p>
+  <div id="results" class="results" style="display: none;">
+    <h3>Optimierungsergebnisse</h3>
 
-      <section style="margin-top: 3rem; background: var(--gradient-secondary); padding: 2rem; border-radius: var(--radius-lg);">
-        <a href="/tools/verschnitt-optimierung" style="
-          display: inline-block;
-          background: linear-gradient(135deg, #3b82f6, #60a5fa);
-          color: white;
-          padding: 1rem 2rem;
-          border-radius: 0.5rem;
-          text-decoration: none;
-          font-weight: 600;
-        ">
-          Zur Verschnitt-Optimierung →
-        </a>
-      </section>
-    </article>
-  </main>
+    <div class="result-item">
+      <span>Benötigte Lagerplatten:</span>
+      <span id="lager-anzahl">-</span>
+    </div>
+    <div class="result-item">
+      <span>Gesamtmaterial eingekauft:</span>
+      <span id="gesamt-material">-</span>
+    </div>
+    <div class="result-item">
+      <span>Tatsächlich benötigtes Material:</span>
+      <span id="nutzen-material">-</span>
+    </div>
+    <div class="result-item">
+      <span>Gesamtverschnitt:</span>
+      <span id="gesamt-verschnitt">-</span>
+    </div>
+    <div class="result-item">
+      <span>Gesamtanzahl Schnitte:</span>
+      <span id="gesamt-schnitte">-</span>
+    </div>
+    <div class="result-item">
+      <span>Materialeffizienz:</span>
+      <span id="effizienz">-</span>
+    </div>
+
+    <div id="saegeplan">
+      <div class="saegeplan-header">
+        <h4>Detaillierter Sägeplan</h4>
+        <button onclick="druckeSaegeplan()" class="print-button">
+          Sägeplan drucken
+        </button>
+      </div>
+
+      <div id="druckbarer-saegeplan">
+        <div class="table-container">
+          <table class="schnitt-table">
+            <thead>
+              <tr>
+                <th>Platte Nr.</th>
+                <th>Lagerlänge</th>
+                <th>Zu sägende Längen</th>
+                <th>Verschnitt</th>
+                <th>Anzahl Schnitte</th>
+              </tr>
+            </thead>
+            <tbody id="saegeplan-details">
+            </tbody>
+          </table>
+        </div>
+
+        <div id="verschnitt-optimierung" class="optimization-tip" style="display: none;">
+          <h4>Verschnitt-Optimierungstipp</h4>
+          <div id="optimierung-text"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <AdUnit position="bottom" adSlot="9678418507" />
-  <Footer />
-</BaseLayout>
+
+  <InfoBox title="Warum Verschnitt optimieren?" variant="tip">
+    <p>Jedes Dachblechprojekt erzeugt Abfallschrott. Eine schlecht geplante Zuschnittliste kann zu
+    30-40% Verschnitt führen, bei optimierter Planung sinkt dies auf 5-10%. Bei größeren Projekten
+    bedeutet das Einsparungen von hunderten Euro.</p>
+  </InfoBox>
+
+  <InfoBox title="Hinweis zur Genauigkeit" variant="warning">
+    <p>Alle Ergebnisse dienen als Planungshilfe. Vor der Ausführung bitte von Fachkraft prüfen lassen.</p>
+  </InfoBox>
+
+</ToolLayout>
+
+<style>
+  .section { background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px); }
+  .section h2 { color: #1e3c72; margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
+  .input-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px; }
+  .input-group { display: flex; flex-direction: column; }
+  .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; }
+  .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px; transition: all 0.3s ease; background: white; color: #333; }
+  .input-group input:focus, .input-group select:focus, .input-group textarea:focus { outline: none; border-color: #1e3c72; box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1); }
+  #benoetigte-masze { font-family: 'Courier New', monospace; resize: vertical; min-height: 200px; }
+  #benoetigte-masze::placeholder { color: #999; font-style: italic; }
+  .info-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #333; }
+  .info-box strong { color: #1e3c72; font-weight: 700; }
+  .lager-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+  .lager-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 8px; background: white; border: 2px solid #e1e8ed; transition: all 0.3s ease; }
+  .lager-item:hover { background: #f5f9ff; border-color: #1e3c72; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+  .lager-item input[type="checkbox"] { transform: scale(1.3); accent-color: #1e3c72; cursor: pointer; }
+  .lager-item label { flex: 1; font-weight: 600; color: #2c3e50; cursor: pointer; font-size: 1.05em; }
+  .lager-item input[type="number"] { width: 70px; padding: 8px; border: 2px solid #e1e8ed; border-radius: 6px; background: white; color: #333; text-align: center; font-weight: 600; }
+  .lager-item input[type="number"]:focus { outline: none; border-color: #1e3c72; box-shadow: 0 0 0 2px rgba(30, 60, 114, 0.1); }
+  .calculate-btn { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 20px auto; display: block; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: all 0.3s ease; min-width: 200px; }
+  .calculate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4); background: linear-gradient(135deg, #0056b3 0%, #004085 100%); }
+  .results { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 15px; padding: 25px; margin-top: 25px; color: white; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
+  .results h3 { color: white; margin-bottom: 20px; text-align: center; font-size: 1.8em; font-weight: 700; }
+  .result-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+  .result-item:last-child { border-bottom: none; }
+  .result-item span:first-child { font-weight: 500; color: rgba(255, 255, 255, 0.9); }
+  .result-item span:last-child { font-weight: bold; font-size: 1.1em; color: #ffd700; }
+  .saegeplan-header { display: flex; justify-content: space-between; align-items: center; margin: 25px 0 15px 0; flex-wrap: wrap; gap: 15px; }
+  .saegeplan-header h4 { color: white; margin: 0; font-size: 1.3em; font-weight: 700; }
+  .print-button { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); }
+  .print-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4); }
+  .table-container { overflow-x: auto; border-radius: 10px; background: rgba(255, 255, 255, 0.1); margin: 15px 0; }
+  .schnitt-table { width: 100%; border-collapse: collapse; }
+  .schnitt-table th { background: rgba(255, 255, 255, 0.2); color: white; padding: 12px; text-align: center; font-weight: 700; border-bottom: 2px solid rgba(255, 255, 255, 0.3); }
+  .schnitt-table td { padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2); color: white; }
+  .schnitt-table tbody tr:hover { background: rgba(255, 255, 255, 0.1); }
+  .optimization-tip { background: #fffbf0; border: 2px solid #ffc107; padding: 20px; border-radius: 12px; margin-top: 20px; color: #333; }
+  .optimization-tip h4 { color: #856404; margin-bottom: 15px; font-size: 1.2em; font-weight: 700; }
+  .optimization-tip strong { color: #1e3c72; font-weight: 700; }
+  .optimization-tip em { color: #666; font-style: italic; }
+  @media (max-width: 768px) {
+    .input-row { grid-template-columns: 1fr; gap: 12px; }
+    .lager-grid { grid-template-columns: 1fr; gap: 10px; }
+    #benoetigte-masze { min-height: 150px; }
+    .result-item { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .saegeplan-header { flex-direction: column; align-items: stretch; }
+    .print-button { width: 100%; }
+    .schnitt-table th, .schnitt-table td { padding: 8px 6px; font-size: 12px; }
+  }
+</style>
+
+<script src="/tools-js/verschnitt-optimierung.js" defer></script>
