@@ -199,7 +199,9 @@ function ladeDachParameter() {
     if (input) input.value = spitzePosX;
   }
   if (p.has('rechteckHoehe')) rechteckHoehe = parseFloat(p.get('rechteckHoehe'));
+  else if (p.has('rechteck-hoehe')) rechteckHoehe = parseFloat(p.get('rechteck-hoehe'));
   if (p.has('dreieckHoehe'))  dreieckHoehe = parseFloat(p.get('dreieckHoehe'));
+  else if (p.has('trapez-hoehe')) dreieckHoehe = parseFloat(p.get('trapez-hoehe'));
   if (p.has('neigung')) {
     const n = parseInt(p.get('neigung'));
     document.getElementById('neigung').value = n;
@@ -527,6 +529,15 @@ function dachBreiteAnY(yGlobal, dachBMM, dachHMM) {
         return (yGlobal / dreieckHMM) * dachBMM;
       }
     }
+  } else if (dachTyp === 'trapez-auf-rechteck' && dachBreiteOben !== null && rechteckHoehe !== null && dreieckHoehe !== null) {
+    const trapezHMM = dreieckHoehe * 1000;
+    const boMM = dachBreiteOben * 1000;
+
+    if (yGlobal >= trapezHMM) {
+      return dachBMM;
+    } else {
+      return boMM + (yGlobal / trapezHMM) * (dachBMM - boMM);
+    }
   } else {
     return dachBMM;
   }
@@ -547,7 +558,8 @@ function berechneLayoutFuerForm(dachBMM, dachHMM, randMM, modB, modH, gapMM) {
 
   const isShapeAware = (dachTyp === 'trapez' && dachBreiteOben !== null && dachBreiteOben > 0 && dachBreiteOben * 1000 < dachBMM)
                      || dachTyp === 'dreieck'
-                     || (dachTyp === 'dreieck-auf-rechteck' && rechteckHoehe !== null && dreieckHoehe !== null);
+                     || (dachTyp === 'dreieck-auf-rechteck' && rechteckHoehe !== null && dreieckHoehe !== null)
+                     || (dachTyp === 'trapez-auf-rechteck' && dachBreiteOben !== null && rechteckHoehe !== null && dreieckHoehe !== null);
 
   const rows = [];
   let totalAnzahl = 0;
