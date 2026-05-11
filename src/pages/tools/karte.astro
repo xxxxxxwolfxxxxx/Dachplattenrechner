@@ -181,8 +181,9 @@ import AdUnit from '../../components/AdUnit.astro';
 
   /* Karte */
   .map-box {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 14px;
+    background: var(--gradient-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
     padding: 24px;
     margin: 32px 0;
   }
@@ -190,7 +191,7 @@ import AdUnit from '../../components/AdUnit.astro';
   .map-box h3 {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #1e3c72;
+    color: var(--accent-blue);
     margin-bottom: 16px;
     text-align: center;
   }
@@ -204,9 +205,9 @@ import AdUnit from '../../components/AdUnit.astro';
 
   .map-toggle button {
     padding: 8px 20px;
-    border: 2px solid #1e3c72;
-    background: white;
-    color: #1e3c72;
+    border: 1px solid var(--border-color);
+    background: rgba(15, 23, 42, 0.6);
+    color: var(--text-secondary);
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
@@ -214,8 +215,8 @@ import AdUnit from '../../components/AdUnit.astro';
     font-size: 0.9rem;
   }
 
-  .map-toggle button.active { background: #1e3c72; color: white; }
-  .map-toggle button:hover:not(.active) { background: #e8f0fe; }
+  .map-toggle button.active { background: var(--gradient-primary); color: white; border-color: var(--accent-blue); }
+  .map-toggle button:hover:not(.active) { border-color: var(--accent-blue); background: rgba(14, 165, 233, 0.08); }
 
   .map-image {
     width: 100%;
@@ -231,15 +232,15 @@ import AdUnit from '../../components/AdUnit.astro';
   .map-legend {
     margin-top: 20px;
     padding: 16px;
-    background: #f8fafc;
+    background: rgba(15, 23, 42, 0.4);
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
   }
 
   :global(.map-legend h4) {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #1e3c72;
+    color: var(--accent-blue);
     margin-bottom: 12px;
   }
 
@@ -254,7 +255,7 @@ import AdUnit from '../../components/AdUnit.astro';
     align-items: center;
     gap: 8px;
     font-size: 0.85rem;
-    color: #374151;
+    color: var(--text-secondary);
   }
 
   :global(.legend-color) {

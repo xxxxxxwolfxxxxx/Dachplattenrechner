@@ -96,16 +96,16 @@ import InfoBox from '../../../components/InfoBox.astro';
 </ToolLayout>
 
 <style>
-  .preview-screenshot { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 14px; padding: 16px; margin-bottom: 28px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); }
-  .preview-label { color: #cbd5e1; font-size: 13px; margin-bottom: 12px; font-weight: 500; }
+  .preview-screenshot { background: var(--gradient-surface); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 28px; box-shadow: var(--shadow-md); border: 1px solid var(--border-color); }
+  .preview-label { color: var(--text-secondary); font-size: 13px; margin-bottom: 12px; font-weight: 500; }
   .u-wert-intro { margin-bottom: 0; }
 
   .iframe-wrapper {
     width: 100%;
-    border-radius: 14px;
+    border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(148, 163, 184, 0.15);
+    border: 1px solid var(--border-color);
     margin: 20px 0;
     background: rgba(255, 255, 255, 0.95);
   }
@@ -125,8 +125,9 @@ import InfoBox from '../../../components/InfoBox.astro';
   }
 
   .faq-section {
-    background: linear-gradient(135deg, rgba(30, 60, 114, 0.08) 0%, rgba(42, 82, 152, 0.08) 100%);
-    border-radius: 12px;
+    background: rgba(14, 165, 233, 0.06);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
     padding: 24px;
     margin: 28px 0;
   }
@@ -134,7 +135,7 @@ import InfoBox from '../../../components/InfoBox.astro';
   .faq-section h2 {
     font-size: 1.6rem;
     margin-bottom: 18px;
-    color: #1e3c72;
+    color: var(--accent-blue);
   }
 
   .faq-item {
@@ -143,12 +144,12 @@ import InfoBox from '../../../components/InfoBox.astro';
 
   .faq-item h3 {
     font-size: 1.1rem;
-    color: #1e3c72;
+    color: var(--text-primary);
     margin-bottom: 8px;
   }
 
   .faq-item p {
-    color: #475569;
+    color: var(--text-secondary);
     line-height: 1.6;
   }
 
@@ -159,7 +160,7 @@ import InfoBox from '../../../components/InfoBox.astro';
   .info-section h2 {
     font-size: 1.6rem;
     margin-bottom: 16px;
-    color: #1e3c72;
+    color: var(--accent-blue);
   }
 
   .info-section ul {
@@ -169,7 +170,7 @@ import InfoBox from '../../../components/InfoBox.astro';
   }
 
   .info-section li {
-    color: #475569;
+    color: var(--text-secondary);
     margin-bottom: 10px;
   }
 </style>

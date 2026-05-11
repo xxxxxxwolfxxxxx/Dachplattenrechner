@@ -18,7 +18,7 @@ import AdUnit from '../../components/AdUnit.astro';
     <div class="input-row">
       <div class="input-group">
         <label for="dach-form">Dachform</label>
-        <select id="dach-form" style="width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px; cursor: pointer;">
+        <select id="dach-form" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 0.95rem; cursor: pointer; background: rgba(15, 23, 42, 0.6); color: var(--text-primary);">
           <option value="rechteck">Rechteck</option>
           <option value="gleichschenkliges-dreieck">Gleichschenkliges Dreieck</option>
           <option value="ungleichschenkliges-dreieck">Ungleichschenkliges Dreieck</option>
@@ -55,7 +55,7 @@ import AdUnit from '../../components/AdUnit.astro';
       </div>
       <div class="input-group">
         <label for="region">Deine Region</label>
-        <select id="region" style="width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px; cursor: pointer;">
+        <select id="region" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 0.95rem; cursor: pointer; background: rgba(15, 23, 42, 0.6); color: var(--text-primary);">
           <option value="nord">Nord (Bremen, Schleswig-Holstein)</option>
           <option value="nordost">Nordost (Mecklenburg, Berlin)</option>
           <option value="ost">Ost (Sachsen)</option>
@@ -65,7 +65,7 @@ import AdUnit from '../../components/AdUnit.astro';
         </select>
       </div>
       <div id="dreieck-typ-group" class="input-group" style="display: none;">
-        <label style="font-size: 14px; color: #333; margin-bottom: 8px; font-weight: 600;">Dreieck-Typ</label>
+        <label style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Dreieck-Typ</label>
         <div style="display: flex; gap: 10px;">
           <label style="flex: 1;">
             <input type="radio" name="dreieck-typ" value="gleichschenkliges" checked>
@@ -88,31 +88,31 @@ import AdUnit from '../../components/AdUnit.astro';
     <h2>3. Modultyp & Ausrichtung</h2>
 
     <div style="margin-bottom: 20px;">
-      <label style="display: block; font-weight: 600; color: #333; margin-bottom: 12px; font-size: 14px;">Modul-Vorsets:</label>
+      <label style="display: block; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; font-size: 14px;">Modul-Vorsets:</label>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
-        <button class="module-btn" data-w="1134" data-h="1722" data-watt="410" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
-          Halbzellen M10<br><span style="font-size: 12px; font-weight: normal; color: #666;">410 W</span>
+        <button class="module-btn" data-w="1134" data-h="1722" data-watt="410" style="padding: 10px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-primary); transition: all 0.3s ease;">
+          Halbzellen M10<br><span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">410 W</span>
         </button>
-        <button class="module-btn" data-w="1134" data-h="1762" data-watt="450" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
-          Standard XL 450W<br><span style="font-size: 12px; font-weight: normal; color: #666;">450 W</span>
+        <button class="module-btn" data-w="1134" data-h="1762" data-watt="450" style="padding: 10px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-primary); transition: all 0.3s ease;">
+          Standard XL 450W<br><span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">450 W</span>
         </button>
-        <button class="module-btn" data-w="1134" data-h="2100" data-watt="500" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
-          Großmodul 500W<br><span style="font-size: 12px; font-weight: normal; color: #666;">500 W</span>
+        <button class="module-btn" data-w="1134" data-h="2100" data-watt="500" style="padding: 10px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-primary); transition: all 0.3s ease;">
+          Großmodul 500W<br><span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">500 W</span>
         </button>
-        <button class="module-btn" data-w="1038" data-h="2094" data-watt="550" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
-          Groß-Modul 72Z<br><span style="font-size: 12px; font-weight: normal; color: #666;">550 W</span>
+        <button class="module-btn" data-w="1038" data-h="2094" data-watt="550" style="padding: 10px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-primary); transition: all 0.3s ease;">
+          Groß-Modul 72Z<br><span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">550 W</span>
         </button>
-        <button class="module-btn" data-w="1134" data-h="2172" data-watt="600" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
-          TOPCon / HJT<br><span style="font-size: 12px; font-weight: normal; color: #666;">600 W</span>
+        <button class="module-btn" data-w="1134" data-h="2172" data-watt="600" style="padding: 10px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-primary); transition: all 0.3s ease;">
+          TOPCon / HJT<br><span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">600 W</span>
         </button>
-        <button class="module-btn" data-w="992" data-h="1956" data-watt="390" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
-          Standard 72Z<br><span style="font-size: 12px; font-weight: normal; color: #666;">390 W</span>
+        <button class="module-btn" data-w="992" data-h="1956" data-watt="390" style="padding: 10px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-primary); transition: all 0.3s ease;">
+          Standard 72Z<br><span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">390 W</span>
         </button>
-        <button class="module-btn" data-w="992" data-h="1650" data-watt="310" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
-          Standard 60Z<br><span style="font-size: 12px; font-weight: normal; color: #666;">310 W</span>
+        <button class="module-btn" data-w="992" data-h="1650" data-watt="310" style="padding: 10px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-primary); transition: all 0.3s ease;">
+          Standard 60Z<br><span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">310 W</span>
         </button>
-        <button class="module-btn" data-w="1002" data-h="2008" data-watt="420" style="padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
-          Glas-Glas / Rahmenlos<br><span style="font-size: 12px; font-weight: normal; color: #666;">420 W</span>
+        <button class="module-btn" data-w="1002" data-h="2008" data-watt="420" style="padding: 10px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-primary); transition: all 0.3s ease;">
+          Glas-Glas / Rahmenlos<br><span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">420 W</span>
         </button>
       </div>
       <button type="button" onclick="findeOptimalesFormat()" style="padding: 10px 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 15px;">
@@ -120,23 +120,23 @@ import AdUnit from '../../components/AdUnit.astro';
       </button>
     </div>
 
-    <div style="background: #f0f4f8; border-left: 4px solid #2196F3; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-      <label style="display: block; font-weight: 600; color: #333; margin-bottom: 12px; font-size: 14px;">Ausrichtung:</label>
+    <div style="background: rgba(14, 165, 233, 0.08); border-left: 4px solid var(--accent-blue); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+      <label style="display: block; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; font-size: 14px;">Ausrichtung:</label>
       <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <button class="orient-btn" data-orient="hoch" style="flex: 1; min-width: 100px; padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+        <button class="orient-btn" data-orient="hoch" style="flex: 1; min-width: 100px; padding: 10px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-secondary); transition: all 0.3s ease;">
           📱 Hochformat
         </button>
-        <button class="orient-btn" data-orient="quer" style="flex: 1; min-width: 100px; padding: 10px; border: 2px solid #e1e8ed; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.3s ease;">
+        <button class="orient-btn" data-orient="quer" style="flex: 1; min-width: 100px; padding: 10px; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.6); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-secondary); transition: all 0.3s ease;">
           📺 Querformat
         </button>
-        <button class="orient-btn active" data-orient="auto" style="flex: 1; min-width: 100px; padding: 10px; border: 2px solid #3b82f6; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #3b82f6; transition: all 0.3s ease;">
+        <button class="orient-btn active" data-orient="auto" style="flex: 1; min-width: 100px; padding: 10px; border: 1px solid var(--accent-blue); background: rgba(15, 23, 42, 0.6); border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--accent-blue); transition: all 0.3s ease;">
           ⚙️ Auto
         </button>
       </div>
     </div>
 
-    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 8px;">
-      <label style="display: block; font-weight: 600; color: #92400e; margin-bottom: 12px; font-size: 14px;">Benutzerdefiniertes Modul:</label>
+    <div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--accent-orange); padding: 15px; border-radius: 8px;">
+      <label style="display: block; font-weight: 600; color: var(--accent-orange); margin-bottom: 12px; font-size: 14px;">Benutzerdefiniertes Modul:</label>
       <div class="input-row">
         <div class="input-group">
           <label for="mod-breite">Breite (mm)</label>
@@ -171,8 +171,8 @@ import AdUnit from '../../components/AdUnit.astro';
       </div>
     </div>
 
-    <div style="background: #f3e5f5; border-left: 4px solid #9c27b0; padding: 15px; border-radius: 8px; margin-top: 20px;">
-      <label style="display: block; font-weight: 600; color: #4a148c; margin-bottom: 12px;">💰 Anlagen-Kosten (für Amortisationszeit):</label>
+    <div style="background: rgba(139, 92, 246, 0.1); border-left: 4px solid #8b5cf6; padding: 15px; border-radius: 8px; margin-top: 20px;">
+      <label style="display: block; font-weight: 600; color: #c4b5fd; margin-bottom: 12px;">💰 Anlagen-Kosten (für Amortisationszeit):</label>
       <div style="display: flex; gap: 10px; margin-bottom: 15px;">
         <label style="flex: 1;">
           <input type="radio" name="pv-kosten-mode" value="gesamt" checked>
@@ -193,7 +193,7 @@ import AdUnit from '../../components/AdUnit.astro';
           <input type="number" id="pv-kosten-pro-kwp" step="10" min="0" value="1200">
         </div>
       </div>
-      <div id="pv-kosten-info" style="background: #e8f5e9; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 13px; color: #2e7d32;"></div>
+      <div id="pv-kosten-info" style="background: rgba(16, 185, 129, 0.1); padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 13px; color: var(--accent-green);"></div>
     </div>
   </div>
 
@@ -210,20 +210,20 @@ import AdUnit from '../../components/AdUnit.astro';
       </div>
     </div>
 
-    <div style="background: #f0f4f8; border-left: 4px solid #2196F3; padding: 15px; border-radius: 8px; margin: 20px 0;">
+    <div style="background: rgba(14, 165, 233, 0.08); border-left: 4px solid var(--accent-blue); padding: 15px; border-radius: 8px; margin: 20px 0;">
       <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 10px;">
         <input type="checkbox" id="batterie-aktiv" style="width: 20px; height: 20px; cursor: pointer;">
-        <span style="font-weight: 600; color: #1e3c72;">Speicherbatterie hinzufügen?</span>
+        <span style="font-weight: 600; color: var(--accent-blue);">Speicherbatterie hinzufügen?</span>
       </label>
 
-      <div id="batterie-box" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ccc;">
+      <div id="batterie-box" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
         <div class="input-row">
           <div class="input-group">
             <label for="batterie-kwh">Speicher-Größe (kWh)</label>
             <input type="number" id="batterie-kwh" step="0.5" min="0" value="10">
           </div>
           <div class="input-group">
-            <label style="font-size: 13px; color: #666;">Kosten-Option:</label>
+            <label style="font-size: 13px; color: var(--text-muted);">Kosten-Option:</label>
             <div style="display: flex; gap: 10px;">
               <label style="flex: 1;">
                 <input type="radio" name="batterie-price-mode" value="kwh">
@@ -248,13 +248,13 @@ import AdUnit from '../../components/AdUnit.astro';
           </div>
         </div>
 
-        <div id="batterie-info" style="background: #e8f5e9; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 14px; color: #2e7d32;"></div>
+        <div id="batterie-info" style="background: rgba(16, 185, 129, 0.1); padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 14px; color: var(--accent-green);"></div>
       </div>
     </div>
   </div>
 
   <div style="text-align: center; margin: 30px 0;">
-    <button id="berechne-btn" class="anriss-btn" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); min-width: 250px; padding: 18px 40px; font-size: 18px;">
+    <button id="berechne-btn" class="anriss-btn" style="background: var(--gradient-primary); min-width: 250px; padding: 18px 40px; font-size: 18px;">
       ⚡ Jetzt berechnen
     </button>
   </div>
@@ -263,34 +263,34 @@ import AdUnit from '../../components/AdUnit.astro';
     <!-- Ergebnisse werden hier eingefügt -->
   </div>
 
-  <div id="results" style="display: none; margin-top: 30px; background: white; border: 2px solid #e1e8ed; border-radius: 12px; padding: 20px;">
-    <h3 style="color: #1e3c72; margin-bottom: 20px;">📊 Deine PV-Ergebnisse</h3>
+  <div id="results" style="display: none; margin-top: 30px; background: var(--gradient-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;">
+    <h3 style="color: var(--accent-blue); margin-bottom: 20px;">📊 Deine PV-Ergebnisse</h3>
 
     <!-- Zusammenfassung mit Key-Metriken -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-      <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Module</div>
-        <div style="font-size: 28px; font-weight: bold; color: #1e3c72;" id="res-anzahl">–</div>
+      <div style="background: rgba(14, 165, 233, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-blue);">
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">Module</div>
+        <div style="font-size: 28px; font-weight: bold; color: var(--text-primary);" id="res-anzahl">–</div>
       </div>
-      <div style="background: #f3e5f5; padding: 15px; border-radius: 8px; border-left: 4px solid #8b5cf6;">
-        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Leistung</div>
-        <div style="font-size: 28px; font-weight: bold; color: #1e3c72;" id="res-kwp">–</div>
-        <div style="font-size: 12px; color: #666;">kWp</div>
+      <div style="background: rgba(139, 92, 246, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #8b5cf6;">
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">Leistung</div>
+        <div style="font-size: 28px; font-weight: bold; color: var(--text-primary);" id="res-kwp">–</div>
+        <div style="font-size: 12px; color: var(--text-muted);">kWp</div>
       </div>
-      <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
-        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Jahresertrag</div>
-        <div style="font-size: 24px; font-weight: bold; color: #1e3c72;" id="res-ertrag">–</div>
-        <div style="font-size: 12px; color: #666;">kWh</div>
+      <div style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-green);">
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">Jahresertrag</div>
+        <div style="font-size: 24px; font-weight: bold; color: var(--text-primary);" id="res-ertrag">–</div>
+        <div style="font-size: 12px; color: var(--text-muted);">kWh</div>
       </div>
-      <div style="background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-        <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Jahreswert</div>
-        <div style="font-size: 24px; font-weight: bold; color: #1e3c72;" id="res-wert">–</div>
-        <div style="font-size: 12px; color: #666;">€/Jahr</div>
+      <div style="background: rgba(245, 158, 11, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent-orange);">
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">Jahreswert</div>
+        <div style="font-size: 24px; font-weight: bold; color: var(--text-primary);" id="res-wert">–</div>
+        <div style="font-size: 12px; color: var(--text-muted);">€/Jahr</div>
       </div>
     </div>
 
     <!-- Detaillierte Ergebnisse -->
-    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; overflow-x: auto;">
+    <div style="background: rgba(15, 23, 42, 0.4); padding: 15px; border-radius: 8px; margin: 20px 0; overflow-x: auto;">
       <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
         <tbody id="res-details">
           <!-- Details werden hier eingefügt -->
@@ -300,19 +300,19 @@ import AdUnit from '../../components/AdUnit.astro';
 
     <!-- Canvas für Modul-Layout -->
     <div style="margin: 20px 0; text-align: center;">
-      <h4 style="margin-bottom: 15px; color: #1e3c72;">🏠 Modul-Layout auf deinem Dach</h4>
-      <canvas id="pv-canvas" width="800" height="600" style="max-width: 100%; border: 1px solid #ccc; border-radius: 8px;"></canvas>
+      <h4 style="margin-bottom: 15px; color: var(--accent-blue);">🏠 Modul-Layout auf deinem Dach</h4>
+      <canvas id="pv-canvas" width="800" height="600" style="max-width: 100%; border: 1px solid var(--border-color); border-radius: 8px;"></canvas>
     </div>
 
     <!-- Navigation zu anderen Rechnern -->
     <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px; flex-wrap: wrap;">
-      <button id="export-pdf-btn" onclick="exportPDF()" style="padding: 12px 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); transition: all 0.3s ease; cursor: pointer;">
+      <button id="export-pdf-btn" onclick="exportPDF()" style="padding: 12px 24px; background: linear-gradient(135deg, var(--accent-green), #059669); color: white; border: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); transition: all 0.3s ease; cursor: pointer;">
         📄 Als PDF herunterladen
       </button>
-      <a id="to-anrissplan" href="#" style="display: none; padding: 12px 24px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: all 0.3s ease;">
+      <a id="to-anrissplan" href="#" style="display: none; padding: 12px 24px; background: var(--gradient-primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3); transition: all 0.3s ease;">
         📋 Zum Anrissplan
       </a>
-      <a id="to-lattenrechner" href="#" style="display: none; padding: 12px 24px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: all 0.3s ease;">
+      <a id="to-lattenrechner" href="#" style="display: none; padding: 12px 24px; background: var(--gradient-primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3); transition: all 0.3s ease;">
         📏 Zum Lattenrechner
       </a>
     </div>
@@ -349,103 +349,36 @@ import AdUnit from '../../components/AdUnit.astro';
 </ToolLayout>
 
 <style>
-  .section {
-    margin: 30px 0;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 12px;
-  }
-
-  .section h2 {
-    color: #1e3c72;
-    margin-bottom: 15px;
-    font-size: 1.3rem;
-  }
-
-  .input-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 15px;
-  }
-
-  .input-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .input-group label {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 8px;
-    font-size: 14px;
-  }
-
-  .input-group input,
-  .input-group select {
-    padding: 12px 15px;
-    border: 2px solid #e1e8ed;
-    border-radius: 8px;
-    font-size: 16px;
-    font-family: inherit;
-    transition: border-color 0.3s ease;
-  }
-
-  .input-group input:focus,
-  .input-group select:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
   .info-box {
-    background: #fff3cd;
-    border-left: 4px solid #ffc107;
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid var(--accent-orange);
     padding: 15px;
     border-radius: 8px;
     margin-top: 15px;
     font-size: 14px;
     line-height: 1.6;
-  }
-
-  .anriss-btn {
-    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-    transition: all 0.3s ease;
-    min-width: 200px;
-  }
-
-  .anriss-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    color: var(--text-secondary);
   }
 
   .module-btn.active {
-    border-color: #3b82f6;
-    background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
-    color: #1e3c72;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    border-color: var(--accent-blue) !important;
+    background: rgba(14, 165, 233, 0.15) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
   }
 
   .module-btn:hover {
-    border-color: #3b82f6;
+    border-color: var(--accent-blue) !important;
   }
 
   .orient-btn.active {
-    border-color: #3b82f6;
-    background: #e3f2fd;
-    color: #1e3c72;
+    border-color: var(--accent-blue) !important;
+    background: rgba(14, 165, 233, 0.15) !important;
+    color: var(--accent-blue) !important;
   }
 
   .orient-btn:hover {
-    border-color: #3b82f6;
+    border-color: var(--accent-blue) !important;
   }
 
   @media (max-width: 768px) {

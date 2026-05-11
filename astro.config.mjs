@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-
 import sitemap from '@astrojs/sitemap';
+import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,5 +12,8 @@ export default defineConfig({
     format: 'directory'   // /tools/trapez/ statt /tools/trapez.html
   },
 
-  integrations: [sitemap()]
+  integrations: [
+    sitemap(),
+    react(),
+  ]
 });

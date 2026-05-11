@@ -11,16 +11,21 @@ const year = new Date().getFullYear();
       <div>
         <h3>Rechner</h3>
         <ul>
-          <li><a href="/tools/gleichschenkliges-dreieck">Gleichschenkliges Dreieck</a></li>
-          <li><a href="/tools/ungleichschenkliges-dreieck">Ungleichschenkliges Dreieck</a></li>
-          <li><a href="/tools/trapez">Trapez</a></li>
-          <li><a href="/tools/trapezaufrechteck">Trapez auf Rechteck</a></li>
+          <li><a href="/tools/dachformen">Dachflächenberechnung</a></li>
           <li><a href="/tools/lattenrechner">Lattenrechner</a></li>
+          <li><a href="/tools/verschnitt-optimierung">Verschnitt-Optimierung</a></li>
+          <li><a href="/tools/pv-rechner">PV-Rechner</a></li>
           <li><a href="/tools/u-wert">U-Wert Rechner</a></li>
         </ul>
       </div>
       <div>
-        <h3>Info &amp; Recht</h3>
+        <h3>Tools & Info</h3>
+        <ul>
+          <li><a href="/tools/farben">Farbkatalog</a></li>
+          <li><a href="/tools/karte">Schnee- & Windlastzonen</a></li>
+          <li><a href="/tools/kantteil">Kantteil-Zeichner</a></li>
+        </ul>
+        <h3 style="margin-top: 20px;">Recht</h3>
         <ul>
           <li><a href="/impressum">Impressum</a></li>
           <li><a href="/datenschutz">Datenschutz</a></li>
@@ -34,8 +39,8 @@ const year = new Date().getFullYear();
 
 <style>
   .site-footer {
-    background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 100%);
-    border-top: 1px solid rgba(148, 163, 184, 0.1);
+    background: linear-gradient(135deg, #060b18 0%, #0f172a 100%);
+    border-top: 1px solid var(--border-color);
     padding: 48px 0 24px;
     margin-top: 60px;
   }
@@ -46,14 +51,14 @@ const year = new Date().getFullYear();
     margin-bottom: 36px;
   }
   .footer-about p {
-    color: #475569;
+    color: var(--text-muted);
     font-size: 0.85rem;
     line-height: 1.7;
     margin-top: 8px;
     max-width: 320px;
   }
   .site-footer h3 {
-    color: #f8fafc;
+    color: var(--text-primary);
     font-size: 0.78rem;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -66,19 +71,19 @@ const year = new Date().getFullYear();
     margin-bottom: 8px;
   }
   .site-footer a {
-    color: #475569;
+    color: var(--text-muted);
     text-decoration: none;
     font-size: 0.85rem;
-    transition: color 0.2s;
+    transition: color var(--transition-fast);
   }
   .site-footer a:hover {
-    color: #0ea5e9;
+    color: var(--accent-blue);
   }
   .footer-copy {
     color: #374151;
     font-size: 0.78rem;
     text-align: center;
-    border-top: 1px solid rgba(148, 163, 184, 0.08);
+    border-top: 1px solid var(--border-color);
     padding-top: 20px;
   }
   @media (max-width: 768px) {

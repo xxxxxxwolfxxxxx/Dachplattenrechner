@@ -25,9 +25,9 @@ import AdUnit from '../../components/AdUnit.astro';
   </InfoBox>
 
   <div style="text-align: center; margin-bottom: 30px;">
-    <div style="display: inline-block; background: white; border: 2px solid #1976d2; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <div style="display: inline-block; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 12px; padding: 20px;">
       <svg width="250" height="160" viewBox="0 0 250 160" style="margin-bottom: 15px;">
-        <rect x="40" y="30" width="170" height="100" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+        <rect x="40" y="30" width="170" height="100" fill="rgba(14, 165, 233, 0.15)" stroke="#0ea5e9" stroke-width="2"/>
         <line x1="60" y1="30" x2="60" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
         <line x1="80" y1="30" x2="80" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
         <line x1="100" y1="30" x2="100" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
@@ -35,14 +35,14 @@ import AdUnit from '../../components/AdUnit.astro';
         <line x1="150" y1="30" x2="150" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
         <line x1="170" y1="30" x2="170" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
         <line x1="190" y1="30" x2="190" y2="130" stroke="#666" stroke-width="1.5" opacity="0.8"/>
-        <line x1="40" y1="145" x2="210" y2="145" stroke="#333" stroke-width="1"/>
-        <line x1="40" y1="142" x2="40" y2="148" stroke="#333" stroke-width="1"/>
-        <line x1="210" y1="142" x2="210" y2="148" stroke="#333" stroke-width="1"/>
-        <text x="125" y="160" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Breite</text>
-        <line x1="25" y1="30" x2="25" y2="130" stroke="#333" stroke-width="1"/>
-        <line x1="22" y1="30" x2="28" y2="30" stroke="#333" stroke-width="1"/>
-        <line x1="22" y1="130" x2="28" y2="130" stroke="#333" stroke-width="1"/>
-        <text x="18" y="85" font-size="11" fill="#333" font-weight="bold" transform="rotate(-90 18 85)">Höhe</text>
+        <line x1="40" y1="145" x2="210" y2="145" stroke="#cbd5e1" stroke-width="1"/>
+        <line x1="40" y1="142" x2="40" y2="148" stroke="#cbd5e1" stroke-width="1"/>
+        <line x1="210" y1="142" x2="210" y2="148" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="125" y="160" text-anchor="middle" font-size="11" fill="#cbd5e1" font-weight="bold">Breite</text>
+        <line x1="25" y1="30" x2="25" y2="130" stroke="#cbd5e1" stroke-width="1"/>
+        <line x1="22" y1="30" x2="28" y2="30" stroke="#cbd5e1" stroke-width="1"/>
+        <line x1="22" y1="130" x2="28" y2="130" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="18" y="85" font-size="11" fill="#cbd5e1" font-weight="bold" transform="rotate(-90 18 85)">Höhe</text>
       </svg>
     </div>
   </div>
@@ -102,19 +102,19 @@ import AdUnit from '../../components/AdUnit.astro';
   <div class="section">
     <h2>3. Verlegerichtung</h2>
     <div style="margin-bottom: 20px;">
-      <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #2c3e50;">Verlegung von:</label>
-      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px 20px; border: 2px solid #e1e8ed; border-radius: 8px; transition: all 0.3s ease;" onclick="setVerlegerichtung('links')">
+      <label style="display: block; margin-bottom: 12px; font-weight: 600; color: var(--text-secondary);">Verlegung von:</label>
+      <div class="radio-group">
+        <label class="radio-option" onclick="setVerlegerichtung('links')">
           <input type="radio" name="verlegerichtung" value="links" checked style="cursor: pointer;">
           <span style="font-weight: 500;">Links nach Rechts →</span>
         </label>
-        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px 20px; border: 2px solid #e1e8ed; border-radius: 8px; transition: all 0.3s ease;" onclick="setVerlegerichtung('rechts')">
+        <label class="radio-option" onclick="setVerlegerichtung('rechts')">
           <input type="radio" name="verlegerichtung" value="rechts" style="cursor: pointer;">
           <span style="font-weight: 500;">← Rechts nach Links</span>
         </label>
       </div>
     </div>
-    <div class="info-box" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+    <div class="info-box">
       <strong>💡 Wichtig - Wetterseite beachten!</strong><br>
       Die Verlegung sollte so erfolgen, dass die Hauptwindrichtung (meist West) ÜBER die Überlappungen weht.<br><br>
       <strong>⚠️ Ausnahmen:</strong> Bei Pfannenblechen oder Antikondensvlies-beschichteten Platten ist die Verlegerichtung vorgegeben!
@@ -198,37 +198,17 @@ import AdUnit from '../../components/AdUnit.astro';
 </ToolLayout>
 
 <style>
-  .preview-screenshot { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 14px; padding: 16px; margin-bottom: 28px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); }
-  .preview-label { color: #cbd5e1; font-size: 13px; margin-bottom: 12px; font-weight: 500; }
-  .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .preview-col { display: flex; flex-direction: column; gap: 6px; }
-  .preview-col-label { color: #94a3b8; font-size: 11px; text-align: center; font-weight: 500; }
-  .preview-img { width: 100%; border-radius: 8px; display: block; }
+  .info-box {
+    background: rgba(14, 165, 233, 0.1);
+    border-left: 4px solid var(--accent-blue);
+    padding: 15px;
+    border-radius: var(--radius-sm);
+    margin-top: 15px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
   @media (max-width: 600px) { .preview-grid { grid-template-columns: 1fr; } }
-  .section { background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px); }
-  .section h2 { color: #1e3c72; margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
-  .input-row { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-  .input-group { flex: 1; min-width: 250px; }
-  .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; }
-  .input-group input { width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px; transition: all 0.3s ease; }
-  .input-group input:focus { outline: none; border-color: #1e3c72; box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1); }
-  .info-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
-  .calculate-btn { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 20px auto; display: block; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: all 0.3s ease; min-width: 200px; }
-  .calculate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4); background: linear-gradient(135deg, #0056b3 0%, #004085 100%); }
-  .results { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 15px; padding: 25px; margin-top: 25px; color: white; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
-  .result-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
-  .result-item:last-child { border-bottom: none; }
-  .result-item span:last-child { font-weight: bold; font-size: 1.1em; color: #ffd700; }
-  .schnitt-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; overflow: hidden; }
-  .schnitt-table th, .schnitt-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
-  .schnitt-table th { background: rgba(255, 255, 255, 0.2); font-weight: 600; }
-  .anriss-btn { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 20px auto; display: block; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); transition: all 0.3s ease; min-width: 200px; }
-  .anriss-btn:hover { transform: translateY(-2px); }
-  input[type="radio"]:checked { accent-color: #1e3c72; }
-  label:has(input[type="radio"]:checked) { border-color: #1e3c72 !important; background: #e3f2fd; }
   @media (max-width: 768px) {
-    .input-row { flex-direction: column; gap: 12px; }
-    .input-group { min-width: auto; }
     .result-item { flex-direction: column; text-align: left; gap: 2px; }
   }
 </style>

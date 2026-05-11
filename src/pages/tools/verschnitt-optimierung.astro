@@ -231,45 +231,29 @@ import AdUnit from '../../components/AdUnit.astro';
 </ToolLayout>
 
 <style>
-  .section { background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px); }
-  .section h2 { color: #1e3c72; margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
-  .input-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px; }
-  .input-group { display: flex; flex-direction: column; }
-  .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; }
-  .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 16px; transition: all 0.3s ease; background: white; color: #333; }
-  .input-group input:focus, .input-group select:focus, .input-group textarea:focus { outline: none; border-color: #1e3c72; box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1); }
-  #benoetigte-masze { font-family: 'Courier New', monospace; resize: vertical; min-height: 200px; }
-  #benoetigte-masze::placeholder { color: #999; font-style: italic; }
-  .info-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #333; }
-  .info-box strong { color: #1e3c72; font-weight: 700; }
+  #benoetigte-masze { font-family: 'Courier New', monospace; resize: vertical; min-height: 200px; background: rgba(15, 23, 42, 0.6); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.95rem; width: 100%; }
+  #benoetigte-masze::placeholder { color: var(--text-muted); font-style: italic; }
+  #benoetigte-masze:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
+  .info-box { background: rgba(14, 165, 233, 0.08); border-left: 4px solid var(--accent-blue); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: var(--text-secondary); }
+  .info-box strong { color: var(--accent-blue); font-weight: 700; }
   .lager-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-  .lager-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 8px; background: white; border: 2px solid #e1e8ed; transition: all 0.3s ease; }
-  .lager-item:hover { background: #f5f9ff; border-color: #1e3c72; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-  .lager-item input[type="checkbox"] { transform: scale(1.3); accent-color: #1e3c72; cursor: pointer; }
-  .lager-item label { flex: 1; font-weight: 600; color: #2c3e50; cursor: pointer; font-size: 1.05em; }
-  .lager-item input[type="number"] { width: 70px; padding: 8px; border: 2px solid #e1e8ed; border-radius: 6px; background: white; color: #333; text-align: center; font-weight: 600; }
-  .lager-item input[type="number"]:focus { outline: none; border-color: #1e3c72; box-shadow: 0 0 0 2px rgba(30, 60, 114, 0.1); }
-  .calculate-btn { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 20px auto; display: block; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: all 0.3s ease; min-width: 200px; }
-  .calculate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4); background: linear-gradient(135deg, #0056b3 0%, #004085 100%); }
-  .results { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 15px; padding: 25px; margin-top: 25px; color: white; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
-  .results h3 { color: white; margin-bottom: 20px; text-align: center; font-size: 1.8em; font-weight: 700; }
-  .result-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
-  .result-item:last-child { border-bottom: none; }
-  .result-item span:first-child { font-weight: 500; color: rgba(255, 255, 255, 0.9); }
-  .result-item span:last-child { font-weight: bold; font-size: 1.1em; color: #ffd700; }
+  .lager-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 8px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); transition: all 0.3s ease; }
+  .lager-item:hover { background: rgba(14, 165, 233, 0.08); border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+  .lager-item input[type="checkbox"] { transform: scale(1.3); accent-color: var(--accent-blue); cursor: pointer; }
+  .lager-item label { flex: 1; font-weight: 600; color: var(--text-secondary); cursor: pointer; font-size: 1.05em; }
+  .lager-item input[type="number"] { width: 70px; padding: 8px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(15, 23, 42, 0.6); color: var(--text-primary); text-align: center; font-weight: 600; }
+  .lager-item input[type="number"]:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.15); }
+  .result-item span:first-child { font-weight: 500; }
+  .result-item span:last-child { font-weight: bold; font-size: 1.1em; color: var(--accent-blue); }
   .saegeplan-header { display: flex; justify-content: space-between; align-items: center; margin: 25px 0 15px 0; flex-wrap: wrap; gap: 15px; }
-  .saegeplan-header h4 { color: white; margin: 0; font-size: 1.3em; font-weight: 700; }
-  .print-button { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); }
-  .print-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4); }
-  .table-container { overflow-x: auto; border-radius: 10px; background: rgba(255, 255, 255, 0.1); margin: 15px 0; }
-  .schnitt-table { width: 100%; border-collapse: collapse; }
-  .schnitt-table th { background: rgba(255, 255, 255, 0.2); color: white; padding: 12px; text-align: center; font-weight: 700; border-bottom: 2px solid rgba(255, 255, 255, 0.3); }
-  .schnitt-table td { padding: 12px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.2); color: white; }
-  .schnitt-table tbody tr:hover { background: rgba(255, 255, 255, 0.1); }
-  .optimization-tip { background: #fffbf0; border: 2px solid #ffc107; padding: 20px; border-radius: 12px; margin-top: 20px; color: #333; }
-  .optimization-tip h4 { color: #856404; margin-bottom: 15px; font-size: 1.2em; font-weight: 700; }
-  .optimization-tip strong { color: #1e3c72; font-weight: 700; }
-  .optimization-tip em { color: #666; font-style: italic; }
+  .saegeplan-header h4 { color: var(--text-primary); margin: 0; font-size: 1.3em; font-weight: 700; }
+  .print-button { background: linear-gradient(135deg, var(--accent-green), #20c997); color: white; border: none; padding: 12px 24px; border-radius: var(--radius-md); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+  .print-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+  .table-container { overflow-x: auto; border-radius: var(--radius-md); background: rgba(14, 165, 233, 0.05); margin: 15px 0; }
+  .optimization-tip { background: rgba(245, 158, 11, 0.1); border: 1px solid var(--accent-orange); padding: 20px; border-radius: 12px; margin-top: 20px; color: var(--text-secondary); }
+  .optimization-tip h4 { color: var(--accent-orange); margin-bottom: 15px; font-size: 1.2em; font-weight: 700; }
+  .optimization-tip strong { color: var(--accent-blue); font-weight: 700; }
+  .optimization-tip em { color: var(--text-muted); font-style: italic; }
   @media (max-width: 768px) {
     .input-row { grid-template-columns: 1fr; gap: 12px; }
     .lager-grid { grid-template-columns: 1fr; gap: 10px; }
@@ -277,7 +261,6 @@ import AdUnit from '../../components/AdUnit.astro';
     .result-item { flex-direction: column; align-items: flex-start; gap: 4px; }
     .saegeplan-header { flex-direction: column; align-items: stretch; }
     .print-button { width: 100%; }
-    .schnitt-table th, .schnitt-table td { padding: 8px 6px; font-size: 12px; }
   }
 </style>
 
