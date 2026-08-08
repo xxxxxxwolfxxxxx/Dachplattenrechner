@@ -1,0 +1,177 @@
+---
+/**
+ * Zeigt den Einbettungs-Code fuer einen Rechner zum Kopieren an.
+ *
+ * Der Link auf dachplattenrechner.de steht bewusst AUSSERHALB des iframes im
+ * Snippet: Ein Link innerhalb des iframes liegt auf unserer eigenen Domain und
+ * waere damit ein Selbstlink ohne Wert. Der Ankertext bleibt bewusst schlicht
+ * und markenbasiert - keyword-optimierte Ankertexte in massenhaft verteilten
+ * Widgets wertet Google als Linkschema.
+ */
+interface Props {
+  /** Slug unter /embed/, z. B. "rechteck" */
+  slug: string;
+  /** Pfad der echten Tool-Seite, z. B. "/tools/rechteck/" */
+  toolPath: string;
+  /** Klartextname, erscheint im title-Attribut und im Ankertext */
+  toolName: string;
+  /** Starthoehe des iframes in Pixeln */
+  height?: number;
+}
+const { slug, toolPath, toolName, height = 900 } = Astro.props;
+
+const SITE = 'https://dachplattenrechner.de';
+const embedUrl = `${SITE}/embed/${slug}/`;
+const toolUrl = `${SITE}${toolPath}`;
+
+const basic = `<iframe src="${embedUrl}" width="100%" height="${height}" style="border:0;max-width:100%"
+        loading="lazy" title="${toolName}"></iframe>
+<p style="font-size:14px">${toolName} von <a href="${toolUrl}">Dachplattenrechner.de</a></p>`;
+
+const autoHeight = `${basic}
+<script>
+window.addEventListener('message', function (e) {
+  if (e.origin !== '${SITE}') return;
+  if (!e.data || e.data.type !== 'dachplattenrechner:height') return;
+  var f = document.querySelector('iframe[src^="${embedUrl}"]');
+  if (f) f.style.height = e.data.height + 'px';
+});
+<\/script>`;
+---
+
+<section class="embed-offer">
+  <h2>Diesen Rechner auf der eigenen Website einbinden</h2>
+  <p class="embed-intro">
+    Kostenlos und ohne Anmeldung. Kopiere den Code in deine Seite – der Rechner
+    läuft dann direkt bei dir, funktioniert genauso wie hier und wird von uns
+    aktuell gehalten.
+  </p>
+
+  <div class="embed-tabs" role="group" aria-label="Variante wählen">
+    <button type="button" class="embed-tab is-active" data-variant="basic">Standard</button>
+    <button type="button" class="embed-tab" data-variant="auto">Mit automatischer Höhe</button>
+  </div>
+
+  <p class="embed-hint" data-hint="basic">
+    Funktioniert überall, auch in CMS, die keine Skripte erlauben. Feste Höhe,
+    bei Bedarf scrollt der Rechner intern.
+  </p>
+  <p class="embed-hint is-hidden" data-hint="auto">
+    Der Rahmen passt seine Höhe automatisch an den Inhalt an. Braucht ein
+    erlaubtes <code>&lt;script&gt;</code>-Tag auf deiner Seite.
+  </p>
+
+  <label class="embed-label" for={`embed-code-${slug}`}>Einbettungs-Code</label>
+  <textarea id={`embed-code-${slug}`} class="embed-code" readonly rows="5"
+    data-basic={basic} data-auto={autoHeight}>{basic}</textarea>
+
+  <button type="button" class="embed-copy">Code kopieren</button>
+  <span class="embed-status" role="status" aria-live="polite"></span>
+
+  <p class="embed-legal">
+    Die Einbindung ist kostenfrei, solange der Hinweis auf Dachplattenrechner.de
+    sichtbar bleibt.
+  </p>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.embed-offer').forEach((box) => {
+    const code = box.querySelector<HTMLTextAreaElement>('.embed-code');
+    const status = box.querySelector<HTMLElement>('.embed-status');
+    if (!code) return;
+
+    box.querySelectorAll<HTMLButtonElement>('.embed-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const variant = tab.dataset.variant ?? 'basic';
+        box.querySelectorAll('.embed-tab').forEach((t) => t.classList.toggle('is-active', t === tab));
+        box.querySelectorAll<HTMLElement>('.embed-hint').forEach((h) => {
+          h.classList.toggle('is-hidden', h.dataset.hint !== variant);
+        });
+        code.value = (variant === 'auto' ? code.dataset.auto : code.dataset.basic) ?? '';
+      });
+    });
+
+    box.querySelector<HTMLButtonElement>('.embed-copy')?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code.value);
+        if (status) status.textContent = 'Kopiert.';
+      } catch {
+        // Clipboard-API braucht HTTPS und eine Nutzergeste - wenn sie fehlt,
+        // markieren wir den Text, damit Strg+C trotzdem funktioniert.
+        code.select();
+        if (status) status.textContent = 'Bitte mit Strg+C kopieren.';
+      }
+      window.setTimeout(() => { if (status) status.textContent = ''; }, 4000);
+    });
+  });
+</script>
+
+<style>
+  .embed-offer {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+  .embed-offer h2 {
+    color: #1e3c72;
+    margin-bottom: 12px;
+    font-size: 1.5em;
+    border-bottom: 2px solid #e3f2fd;
+    padding-bottom: 10px;
+  }
+  .embed-intro { color: #475569; line-height: 1.6; margin-bottom: 18px; }
+  .embed-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .embed-tab {
+    background: #fff;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .embed-tab:hover { border-color: #1e3c72; }
+  .embed-tab.is-active { border-color: #1e3c72; background: #e3f2fd; color: #1e3c72; }
+  .embed-hint { font-size: 14px; color: #475569; margin-bottom: 14px; line-height: 1.5; }
+  .embed-hint.is-hidden { display: none; }
+  .embed-hint code { background: #eef2f7; padding: 1px 5px; border-radius: 4px; }
+  .embed-label {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .embed-code {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #2c3e50;
+    background: #f8fafc;
+    resize: vertical;
+  }
+  .embed-code:focus { outline: none; border-color: #1e3c72; box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1); }
+  .embed-copy {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: all 0.2s ease;
+  }
+  .embed-copy:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 123, 255, 0.35); }
+  .embed-status { margin-left: 12px; font-size: 14px; color: #1e7e34; font-weight: 600; }
+  .embed-legal { margin-top: 16px; font-size: 13px; color: #64748b; }
+</style>

@@ -1,0 +1,146 @@
+---
+/**
+ * Layout fuer einbettbare Rechner (/embed/*).
+ *
+ * Bewusst ohne Nav, Footer, AdSense, Analytics und Cookie-Banner: Die Seite
+ * laeuft im iframe auf fremden Domains. Werbung dort auszuliefern verstiesse
+ * gegen die AdSense-Richtlinien, und ein Cookie-Banner im iframe waere fuer
+ * den Betreiber der Gastseite ein Problem.
+ *
+ * noindex, weil der Inhalt identisch mit der echten Tool-Seite ist - sonst
+ * konkurrieren beide URLs um dieselbe Suchanfrage.
+ */
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  /** Pfad der echten Tool-Seite, z. B. "/tools/rechteck/" */
+  canonicalPath: string;
+  /** Beschriftung im Attributions-Balken */
+  toolName: string;
+}
+const { title, canonicalPath, toolName } = Astro.props;
+
+const SITE = 'https://dachplattenrechner.de';
+const canonical = `${SITE}${canonicalPath}`;
+---
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href={canonical} />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <script is:inline>
+    // Die Rechner-Skripte unter /tools-js/ rufen im DOMContentLoaded-Handler
+    // loadAdSense(), loadAnalytics() und showAds() auf. Diese Funktionen
+    // stammen aus der Zeit vor Astro und existieren nirgends mehr - auf den
+    // normalen Tool-Seiten laeuft der Aufruf deshalb in einen (folgenlosen)
+    // ReferenceError. Im iframe landet dieser Fehler in der Konsole der
+    // fremden Seite, was Betreiber zu Recht misstrauisch macht. Die Stubs
+    // schlucken ihn. Werbung und Analytics gehoeren hier ohnehin nicht hin.
+    //
+    // showAds() laesst sich so nicht abfangen: Die Rechner-Skripte deklarieren
+    // die Funktion selbst und ueberschreiben den Stub. Sie greift auf drei
+    // Ad-Container per ID zu - die stehen weiter unten als leere, unsichtbare
+    // Platzhalter im Markup, damit der Zugriff nicht auf null laeuft.
+    window.loadAdSense = function () {};
+    window.loadAnalytics = function () {};
+  </script>
+</head>
+<body class="embed-body">
+  {/* Platzhalter fuer showAds() aus den Rechner-Skripten - siehe Kommentar im head.
+      Bleiben leer: im Embed wird keine Werbung ausgeliefert. */}
+  <div id="top-ad-container" hidden></div>
+  <div id="middle-ad-container" hidden></div>
+  <div id="bottom-ad-container" hidden></div>
+
+  <div id="embed-root">
+    <main class="embed-main">
+      <slot />
+    </main>
+
+    <footer class="embed-credit">
+      <a href={canonical} target="_blank" rel="noopener">
+        {toolName} von <strong>Dachplattenrechner.de</strong>
+      </a>
+    </footer>
+  </div>
+
+  <script>
+    // Meldet die Inhaltshoehe an die einbettende Seite. Wer das Resize-Snippet
+    // nicht einbaut, bekommt einfach eine feste Hoehe mit Scrollbalken - die
+    // Nachrichten laufen dann ins Leere und stoeren nicht.
+    //
+    // Gemessen wird bewusst #embed-root und nicht documentElement: html fuellt
+    // immer mindestens den Viewport, und der Viewport ist im iframe genau die
+    // Hoehe, die wir gerade gemeldet haben. Das ergibt eine Rueckkopplung, die
+    // beim ersten Ueberschuss einfriert - im Test 2911px statt rund 1000px.
+    // ResizeObserver allein reicht nicht: Browser drosseln Callbacks in
+    // Hintergrund-Tabs und in noch nicht sichtbaren iframes. Genau dort wird
+    // die erste Hoehe aber oft bei Breite 0 gemessen und bliebe dann falsch
+    // stehen. Deshalb zusaetzlich resize, ein paar verzoegerte Messungen nach
+    // dem Laden (Schriften, spaetes Layout) und Klicks - der Rechner blendet
+    // sein Ergebnis per Klick ein und wird dabei deutlich hoeher.
+    const root = document.getElementById('embed-root');
+    let last = 0;
+    const post = () => {
+      if (!root) return;
+      const rect = root.getBoundingClientRect();
+      if (rect.width === 0) return; // noch nicht sichtbar - spaeter erneut messen
+      const height = Math.ceil(rect.height);
+      if (height === last) return;
+      last = height;
+      parent.postMessage({ type: 'dachplattenrechner:height', height }, '*');
+    };
+    // Bewusst setTimeout statt requestAnimationFrame: rAF laeuft in gedrosselten
+    // oder unsichtbaren Frames gar nicht, Timer schon (nur langsamer). Mehrere
+    // Zeitpunkte, weil das Layout nach einem Klick nicht sofort steht.
+    const postSoon = () => [0, 60, 250, 800].forEach((ms) => setTimeout(post, ms));
+
+    if (root && 'ResizeObserver' in window) new ResizeObserver(post).observe(root);
+    window.addEventListener('load', post);
+    window.addEventListener('resize', postSoon);
+    document.addEventListener('click', postSoon, true);
+    [100, 500, 1500, 3000].forEach((ms) => setTimeout(post, ms));
+  </script>
+</body>
+</html>
+
+<style is:global>
+  /* Der Hintergrund der Hauptseite passt nicht in fremde Layouts - hier neutral. */
+  .embed-body {
+    background: #f4f6f9;
+    margin: 0;
+    padding: 0;
+  }
+  .embed-main {
+    padding: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  /* showAds() setzt display:block per Inline-Style und wuerde das hidden-Attribut
+     aushebeln - !important haelt die leeren Platzhalter zuverlaessig unsichtbar. */
+  #top-ad-container,
+  #middle-ad-container,
+  #bottom-ad-container {
+    display: none !important;
+  }
+  .embed-credit {
+    padding: 10px 16px 16px;
+    text-align: center;
+    font-size: 13px;
+  }
+  .embed-credit a {
+    color: #1e3c72;
+    text-decoration: none;
+  }
+  .embed-credit a:hover {
+    text-decoration: underline;
+  }
+  @media (max-width: 600px) {
+    .embed-main { padding: 12px; }
+  }
+</style>
