@@ -20,12 +20,70 @@ const tools = [
     features: ['DIN EN ISO 6946', 'Glaser-Verfahren', '100+ Baustoffe', 'Druckbarer Nachweis'],
   },
 ];
+
+// Einzige Quelle für die FAQ: wird sichtbar gerendert und als FAQPage-Schema ausgegeben.
+// Inline-Markup ist erlaubt, das Schema entfernt es automatisch.
+const faq = [
+  {
+    question: 'Brauche ich einen Dachplattenrechner?',
+    answer: 'Ja, besonders wenn du ein Dachprojekt mit Trapezblechen, Wellblech oder Sandwichpaneelen planst. Ein manuelles Durchrechnen von Dachflächen, Schnittlisten und Verschnittoptimierungen ist extrem zeitaufwendig und fehleranfällig — besonders bei komplexen Dachformen mit mehreren unterschiedlich geneigten Flächen oder Walmdächern. Der Dachplattenrechner erspart dir diese aufwendige Handarbeit und liefert präzise, nachvollziehbare Ergebnisse, die du jederzeit überprüfen kannst. Profis sparen damit durchschnittlich 1–2 Stunden pro Projekt ein und minimieren Abfallkosten durch optimale Blechaufteilung. Heimwerker vermeiden teure Materialverschwendung durch Planungsfehler. Die druckbaren Anrisspläne eignen sich zudem als professioneller Nachweis gegenüber Kunden, Architekten und Behörden.',
+  },
+  {
+    question: 'Welche Dachform habe ich?',
+    answer: 'Die meisten Dächer lassen sich auf einfache geometrische Grundformen zurückführen: <strong>Rechteck</strong> (Sattel- oder Pultdächer — die häufigsten Formen), <strong>Dreieck</strong> (symmetrisch für Satteldächer oder asymmetrisch für schiefe Pultdächer) oder <strong>Trapez</strong> (typisch bei angebauten Dachteilen, Carports oder Anbauten). Komplexere Dächer wie Walmdächer oder Mansarden sind oft Kombinationen dieser Grundformen. Der Dachflächenrechner bietet eine visuelle Auswahl mit Skizzen — wähle einfach die Form, die deinem Dach am nächsten kommt. Danach brauchst du nur noch drei bis vier Maße: Breite und Länge (Grundkanten in Metern) sowie Höhe oder Neigungswinkel. Beispiel: Ein Satteldach 8 m × 12 m mit 2,5 m Firsthöhe = 2 × Dreiecke à (8 × 2,5)/2 = 20 m².',
+  },
+  {
+    question: 'Wie genau sind die Berechnungen?',
+    answer: 'Die Genauigkeit ist sehr hoch, da der Rechner auf bewährten geometrischen Formeln basiert: für Rechtecke Breite × Länge, für Dreiecke (Breite × Höhe) / 2, für Trapeze die exakte Trapezformel. <strong>Die Genauigkeit deines Ergebnisses hängt direkt von der Präzision deiner Eingaben ab.</strong> Wenn du deine Dachmaße mit Messstab, Stahllineal oder Dachneigungsmesser sorgfältig aufgemessen hast, sind die Ergebnisse zuverlässig. Für größere und gewerbliche Projekte empfehlen wir trotzdem, alle Berechnungen vor der Ausführung durch eine Fachkraft prüfen und kritische Maße auf der Baustelle nachmessen zu lassen — das ist Standardpraxis im Handwerk.',
+  },
+  {
+    question: 'Was ist die Schneelastzone und warum ist sie wichtig?',
+    answer: 'Die Schneelastzone ist entscheidend für die statische Auslegung deiner Dachkonstruktion. Deutschland ist nach DIN EN 1991-1-3 in die Zonen 1 bis 3 eingeteilt. <strong>Zone 1</strong> (Norddeutsche Tiefebene, Küste) hat geringere Schneelasten, <strong>Zone 3</strong> (Mittelgebirge, Alpenregionen) deutlich höhere. Die Zone beeinflusst die Dimensionierung deiner Unterkonstruktion (Sparren, Pfetten, Anker) und die Auswahl der Trapezbleche — eine zu schwache Konstruktion ist ein echtes Einbruchrisiko, eine überdimensionierte kostet unnötig Geld. Mit dem Schneelastzone-Tool findest du deine Zone per Postleitzahl oder Bundesland. Wichtig: Dachneigung mindert die Schneelast erheblich, was der Rechner automatisch berücksichtigt.',
+  },
+  {
+    question: 'Kostet das etwas?',
+    answer: 'Nein, alle Tools sind zu 100 % kostenlos. Kein Abo, keine versteckten Gebühren, keine Registrierungspflicht, keine E-Mail-Adresse erforderlich. Du kannst alle Rechner unbegrenzt nutzen — von der Dachflächenberechnung über Lattenrechner und Verschnitt-Optimierung bis zum U-Wert-Rechner, Farbkatalog und PV-Rechner. Die Seite finanziert sich ausschließlich über dezente Google-AdSense-Werbung, die Entwicklung, Wartung und Hosting trägt.',
+  },
+  {
+    question: 'Kann ich die Ergebnisse drucken?',
+    answer: 'Ja. Alle Tools unterstützen den Druck direkt aus dem Browser — ohne Extra-Software oder Umwege. Der <strong>Dachflächenrechner</strong> erzeugt einen maßstäblichen Anrissplan (DIN A4 oder A3) mit allen Abmessungen, Überlappungslinien und Schnittpositionen. Der <strong>Lattenrechner</strong> liefert einen Verlegeplan mit vollständiger Schnittliste. Der <strong>U-Wert-Rechner</strong> druckt einen Nachweis nach DIN EN ISO 6946 mit Glaser-Taupunktanalyse. Einfach Strg+P (Windows/Linux) oder Cmd+P (Mac) drücken — die Seiten werden automatisch richtig formatiert.',
+  },
+  {
+    question: 'Was ist ein Anrissplan?',
+    answer: 'Ein Anrissplan ist eine maßstäbliche technische Zeichnung deiner Dachflächen mit allen kritischen Abmessungen, Überlappungslinien und Schnittmarken — im Handwerk auch „Aufmaß" genannt. Der Plan zeigt, wie die einzelnen Trapezbleche auf dem Dach angeordnet werden, wo Überlappungen liegen, wo Schnitte anfallen und wie die Bleche mit Firstblechen und Ortgangblechen abschließen. Für Dachdecker ist er ein tägliches Arbeitspapier zur cm-genauen Positionierung der Bleche und ersetzt handschriftliche Markierungen. Gleichzeitig dient er als Materialnachweis für Kunden und Behörden. Der Dachflächenrechner erstellt ihn vollautomatisch mit korrektem Maßstab.',
+  },
+  {
+    question: 'Brauche ich meine Dachmaße für alle Tools?',
+    answer: 'Nein. <strong>Ohne Dachmaße nutzbar:</strong> Der Schneelastzone-Rechner arbeitet nur mit Postleitzahl und Bundesland, der U-Wert-Rechner nur mit Baustoffen und Schichtdicken, der Farbkatalog ist reine Referenz, und der Kantteil-Zeichner zeichnet Firstbleche und Ortgangbleche unabhängig von deiner Dachform. <strong>Dachmaße nötig:</strong> Dachflächenrechner (Länge, Breite, Höhe oder Neigungswinkel), Lattenrechner, PV-Rechner (Fläche und Ausrichtung) sowie Verschnitt-Optimierung. Praktisch: Hast du die Dachflächenberechnung abgeschlossen, übernehmen die nachfolgenden Tools deine Werte automatisch.',
+  },
+  {
+    question: 'Was ist der Unterschied zwischen Deckbreite und Lieferbreite?',
+    answer: 'Die <strong>Deckbreite</strong> ist die nutzbare Breite des Trapezbleches nach dem Verlegen (meist 1,00 m). Die <strong>Lieferbreite</strong> ist die tatsächliche Gesamtbreite des Bleches (meist 1,06 m). Die Differenz ergibt die Überlappung. Im Rechner immer die Deckbreite eingeben – die Überlappung wird automatisch berücksichtigt.',
+  },
+  {
+    question: 'Sind die Berechnungen für gewerbliche Nutzung erlaubt?',
+    answer: 'Ja. Dachdecker, Architekten und Handwerker dürfen die Ergebnisse und Anrisspläne kostenfrei an Kunden weitergeben, solange Wasserzeichen und Quellenangaben erhalten bleiben.',
+  },
+  {
+    question: 'Funktioniert der Rechner auf dem Smartphone?',
+    answer: 'Ja, alle Rechner sind vollständig responsiv und für mobile Geräte optimiert. Die Anrisspläne sind für DIN A4 optimiert und lassen sich direkt aus dem Browser drucken.',
+  },
+  {
+    question: 'Werden meine Daten gespeichert?',
+    answer: 'Nein. Alle Berechnungen laufen lokal im Browser. Es werden keine Projektdaten an einen Server gesendet. Nur anonyme Nutzungsstatistiken werden erfasst, sofern Sie dem zugestimmt haben.',
+  },
+  {
+    question: 'Was ist der U-Wert Rechner?',
+    answer: 'Der U-Wert Rechner berechnet den Wärmedurchgangskoeffizienten nach DIN EN ISO 6946 und analysiert Taupunkt und Kondensatrisiko nach dem Glaser-Verfahren (DIN 4108-3). Er eignet sich für Wände, Dächer und Böden.',
+  },
+];
 ---
 
 <BaseLayout
   title="Dachplattenrechner.de – Professionelle Dachplatten-Berechnung"
   description="Trapezblech Rechner kostenlos: Dachfläche berechnen, Schneelastzone nachschlagen, U-Wert berechnen. Für Dachdecker, Architekten & Heimwerker – ohne Registrierung, direkt im Browser."
   keywords="Trapezblech Rechner, Dachplattenrechner, Dachfläche berechnen, Schneelastzone, U-Wert, Trapezbleche, Wellblech, Lichtplatte, Dachdeckerwerkzeug, Anrissplan, Lattenrechner, Verschnitt"
+  faq={faq}
 >
   <!-- Hero -->
   <section class="hero no-print">
@@ -66,6 +124,7 @@ const tools = [
       <AdUnit position="top" adSlot="9678418506" />
     </div>
 
+
     <!-- Intro -->
     <section>
       <div class="container" style="max-width: 800px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(15, 23, 42, 0.6)); border: 1px solid rgba(14, 165, 233, 0.2); border-radius: 16px; padding: 40px; margin-top: -40px;">
@@ -74,11 +133,29 @@ const tools = [
             Der Dachplattenrechner ist dein digitales Werkzeug für präzise Dachflächenberechnungen.
             Egal ob Dachdecker, Architekt, Handwerker oder Heimwerker: Mit wenigen Klicks ermittelst du
             den exakten Materialbedarf für dein Dachprojekt — Trapezbleche, Sandwichpaneele, Lichtplatten oder Wellblech.
-          </p>
-          <p style="margin-bottom: 16px;">
             Profis sparen damit durchschnittlich 1–2 Stunden Rechenzeit pro Projekt, vermeiden Kalkulationsfehler
             und können Kunden präzise Materialbudgets vorrechnen. Heimwerker profitieren von sicheren, fehlerfreien
             Kalkulationen, die teure Materialverschwendung durch Planungsfehler verhindern.
+          </p>
+          <p style="margin-bottom: 16px;">
+            Starte mit der <a href="/tools/dachformen">Dachflächenberechnung</a> und wähle deine Dachform: Rechteck (Sattel- oder
+            Pultdächer), Dreieck (symmetrisch oder asymmetrisch), Trapez oder komplexe Kombinationen.
+            Der Rechner verarbeitet jede geometrische Form automatisch, berechnet die exakte Fläche
+            und leitet daraus den präzisen Blechbedarf ab. Du erhältst automatisch eine druckbare
+            Schnittliste mit allen Blechlängen und Stückzahlen sowie einen maßstäblichen Anrissplan —
+            fertig für die Baustelle oder als professioneller Kundennachweis. Danach berechnet der
+            <a href="/tools/lattenrechner">Lattenrechner</a> deine Latten- und Konterlattung, die
+            <a href="/tools/verschnitt-optimierung">Verschnitt-Optimierung</a> minimiert Abfallkosten durch
+            intelligente Aufteilung der Lieferrohlinge, und der <a href="/tools/pv-rechner">PV-Rechner</a>
+            unterstützt dich bei Solarplanungen mit Batteriespeicher-Option.
+          </p>
+          <p>
+            Alle Tools sind vollständig kostenlos, browserbasiert und ohne Registrierung nutzbar.
+            Arbeite flexibel vom Smartphone, Tablet oder PC aus — ob auf der Baustelle oder im Büro.
+            Deine Eingaben werden lokal in deinem Browser verarbeitet und verlassen nie unsere Server.
+            Nur anonyme Nutzungsstatistiken (keine Projektdaten) werden optional erfasst.
+            Die Plattform wurde für alle Geräte optimiert: Mobil-freundliche Eingabefelder,
+            druckbare A4/A3-Pläne und intuitive Bedienung machen selbst komplexe Dachformen einfach.
           </p>
         </div>
       </div>
@@ -214,31 +291,44 @@ const tools = [
       <AdUnit position="middle" adSlot="8291579285" adSlot2="5573713344" adSlot3="4283946313" />
     </div>
 
-    <!-- FAQ -->
+    <!-- Ratgeber -->
+    <section>
+      <div class="container">
+        <h2><span class="accent">Ratgeber</span></h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+          <a href="/projekt-dach/" class="card" style="text-decoration: none;">
+            <img src="/images/plan-2.jpg" alt="Projekt Dach" style="width: 100%; height: 160px; object-fit: cover; margin: -32px -24px 16px; border-radius: 0;" />
+            <h3 style="font-size: 1.2rem;">Projekt Dach</h3>
+            <p>An alles gedacht? Statik, Materialwahl, Unterkonstruktion, Blechverlegung und Winkelprofile – der komplette Guide in 5 Kapiteln.</p>
+            <div class="card-cta">Guide lesen →</div>
+          </a>
+          <a href="/tools/dachflaeche-berechnen/" class="card" style="text-decoration: none;">
+            <img src="/images/messen-1.jpg" alt="Dachfläche messen und berechnen" style="width: 100%; height: 160px; object-fit: cover; margin: -32px -24px 16px; border-radius: 0;" />
+            <h3 style="font-size: 1.2rem;">Dachfläche berechnen</h3>
+            <p>Welche Dachform hast du, welche Maße brauchst du und wie rechnest du sie um? Anleitung mit allen Formeln und Messtipps.</p>
+            <div class="card-cta">Anleitung lesen →</div>
+          </a>
+          <a href="/tools/schneelastzone/" class="card" style="text-decoration: none;">
+            <img src="/images/Schneelast.png" alt="Schneelastzone ermitteln" style="width: 100%; height: 160px; object-fit: cover; margin: -32px -24px 16px; border-radius: 0;" />
+            <h3 style="font-size: 1.2rem;">Schneelastzone</h3>
+            <p>Schneelastzone nach DIN EN 1991-1-3 per Postleitzahl bestimmen – Grundlage für die Statik deiner Unterkonstruktion.</p>
+            <div class="card-cta">Zone ermitteln →</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ: einzige Quelle ist das faq-Array oben, daraus entsteht auch das FAQPage-Schema -->
     <section>
       <div class="container" style="max-width: 800px;">
         <h2><span class="accent">Häufig</span> gestellte Fragen</h2>
         <div class="faq-grid">
-          <details>
-            <summary>Was ist der Unterschied zwischen Deckbreite und Lieferbreite?</summary>
-            <p>Die Deckbreite ist die nutzbare Breite des Trapezbleches nach dem Verlegen (meist 1,00 m). Die Lieferbreite ist die tatsächliche Gesamtbreite (meist 1,06 m). Im Rechner immer die Deckbreite eingeben.</p>
-          </details>
-          <details>
-            <summary>Sind die Berechnungen für gewerbliche Nutzung erlaubt?</summary>
-            <p>Ja. Dachdecker, Architekten und Handwerker dürfen die Ergebnisse und Anrisspläne kostenfrei an Kunden weitergeben, solange Wasserzeichen und Quellenangaben erhalten bleiben.</p>
-          </details>
-          <details>
-            <summary>Wie genau sind die Berechnungen?</summary>
-            <p>Die Berechnungen basieren auf geometrisch-mathematischen Grundlagen und sind sehr präzise. Dennoch sollten alle Ergebnisse vor der Ausführung von einer Fachkraft geprüft werden.</p>
-          </details>
-          <details>
-            <summary>Funktioniert der Rechner auf dem Smartphone?</summary>
-            <p>Ja, alle Rechner sind vollständig responsiv und für mobile Geräte optimiert. Die Anrisspläne sind für DIN A4 optimiert und lassen sich direkt aus dem Browser drucken.</p>
-          </details>
-          <details>
-            <summary>Werden meine Daten gespeichert?</summary>
-            <p>Nein. Alle Berechnungen laufen lokal in Ihrem Browser. Es werden keine Projektdaten an einen Server gesendet. Nur anonyme Nutzungsstatistiken werden erfasst.</p>
-          </details>
+          {faq.map(item => (
+            <details>
+              <summary>{item.question}</summary>
+              <div><p set:html={item.answer} /></div>
+            </details>
+          ))}
         </div>
       </div>
     </section>

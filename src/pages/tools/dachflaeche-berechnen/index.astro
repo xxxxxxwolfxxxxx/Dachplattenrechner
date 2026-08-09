@@ -1,14 +1,21 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import AdUnit from '../../components/AdUnit.astro';
-import Footer from '../../components/Footer.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import AdUnit from '../../../components/AdUnit.astro';
+import Footer from '../../../components/Footer.astro';
+import Nav from '../../../components/Nav.astro';
 ---
 
 <BaseLayout
   title="Dachfläche berechnen – Anleitung für alle Dachformen"
   description="Berechne Dachfläche für Rechteck, Dreieck, Trapez und Kombinationen. Mit Schnittliste, Anrissplan und Materialkalkulation – kostenlos im Browser."
   keywords="Dachfläche berechnen, Dachplatten berechnen, Dachflächenberechnung, Trapezbleche, Anrissplan, Schnittliste"
+  breadcrumbs={[
+    { name: 'Startseite', url: '/' },
+    { name: 'Rechner', url: '/tools/dachformen/' },
+    { name: 'Dachfläche berechnen', url: '/tools/dachflaeche-berechnen/' },
+  ]}
 >
+  <Nav title="Dachfläche berechnen" backHref="/tools/dachformen/" backLabel="← Zum Rechner" />
   <div style="background: var(--gradient-primary); padding: var(--spacing-xl); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);">
     <h1 style="color: white; margin-bottom: var(--spacing-lg);">Dachfläche berechnen – Schritt-für-Schritt Anleitung</h1>
     <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem;">
@@ -120,10 +127,10 @@ import Footer from '../../components/Footer.astro';
           Nach der Dachflächenberechnung hast du eine solide Grundlage für dein Projekt. Jetzt kannst du mit diesen speziellen Tools die Details planen:
         </p>
         <ul style="margin: 1rem 0 1rem 2rem;">
-          <li><strong><a href="/tools/lattenrechner" style="color: #3b82f6;">Lattenrechner</a></strong>: Mit deiner Dachfläche kannst du nun die exakte Latteneinteilung und Schnittliste für die Konterlattung berechnen. Diese ist entscheidend für die Sicherheit und Haltbarkeit deiner Dachkonstruktion.</li>
-          <li><strong><a href="/tools/verschnitt-optimierung" style="color: #3b82f6;">Verschnitt-Optimierung</a></strong>: Wie schneidest du deine Bleche optimal zu, um Verschnitt zu minimieren und Material zu sparen? Mit der Optimierung senken wir deine Kosten pro Projekt erheblich.</li>
-          <li><strong><a href="/tools/schneelastzone" style="color: #3b82f6;">Schneelastzone</a></strong>: Welche Schneelast muss dein Dach in deiner Region aushalten? Dieses Tool bestimmt die statischen Anforderungen basierend auf deinem Standort und Neigungswinkel.</li>
-          <li><strong><a href="/tools/pv-rechner" style="color: #3b82f6;">PV-Rechner</a></strong>: Passt eine Solaranlage auf dein Dach? Mit deiner Dachfläche und Form bestimmst du sofort, wie viele PV-Module du installieren kannst und welche Stromproduktion zu erwarten ist.</li>
+          <li><strong><a href="/tools/lattenrechner/" style="color: #3b82f6;">Lattenrechner</a></strong>: Mit deiner Dachfläche kannst du nun die exakte Latteneinteilung und Schnittliste für die Konterlattung berechnen. Diese ist entscheidend für die Sicherheit und Haltbarkeit deiner Dachkonstruktion.</li>
+          <li><strong><a href="/tools/verschnitt-optimierung/" style="color: #3b82f6;">Verschnitt-Optimierung</a></strong>: Wie schneidest du deine Bleche optimal zu, um Verschnitt zu minimieren und Material zu sparen? Mit der Optimierung senken wir deine Kosten pro Projekt erheblich.</li>
+          <li><strong><a href="/tools/schneelastzone/" style="color: #3b82f6;">Schneelastzone</a></strong>: Welche Schneelast muss dein Dach in deiner Region aushalten? Dieses Tool bestimmt die statischen Anforderungen basierend auf deinem Standort und Neigungswinkel.</li>
+          <li><strong><a href="/tools/pv-rechner/" style="color: #3b82f6;">PV-Rechner</a></strong>: Passt eine Solaranlage auf dein Dach? Mit deiner Dachfläche und Form bestimmst du sofort, wie viele PV-Module du installieren kannst und welche Stromproduktion zu erwarten ist.</li>
         </ul>
       </section>
 
@@ -166,7 +173,7 @@ import Footer from '../../components/Footer.astro';
         <p>
           Starten Sie mit der Dachflächenberechnung und geben Sie Ihre Dachform ein:
         </p>
-        <a href="/tools/dachformen" style="
+        <a href="/tools/dachformen/" style="
           display: inline-block;
           background: linear-gradient(135deg, #3b82f6, #60a5fa);
           color: white;

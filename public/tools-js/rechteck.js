@@ -123,7 +123,7 @@
                     <td>${item.plattenNr}</td>
                     <td>${positionText}</td>
                     <td style="font-weight: bold; color: #28a745;">${item.plattenbreite}</td>
-                    <td style="font-weight: bold; color: #28a745; background-color: #f8fff9; padding: 8px;">${item.benoetigteLaenge}</td>
+                    <td style="font-weight: bold; color: #28a745; background-color: rgba(40, 167, 69, 0.08); padding: 8px;">${item.benoetigteLaenge}</td>
                 `;
                 tbody.appendChild(row);
             });

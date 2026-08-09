@@ -12,8 +12,11 @@ export default defineConfig({
     format: 'directory'   // /tools/trapez/ statt /tools/trapez.html
   },
 
+  // /embed/* sind noindex-Kopien der Tool-Seiten für fremde iframes –
+  // sie gehören nicht in die Sitemap und würden sonst mit den echten
+  // Tool-Seiten um dieselben Suchanfragen konkurrieren.
   integrations: [
-    sitemap(),
+    sitemap({ filter: (page) => !page.includes('/embed/') }),
     react(),
   ]
 });
