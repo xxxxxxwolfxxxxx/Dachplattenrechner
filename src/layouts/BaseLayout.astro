@@ -1,6 +1,7 @@
 ---
 import CookieBanner from '../components/CookieBanner.astro';
 import SchemaMarkup from '../components/SchemaMarkup.astro';
+import type { Breadcrumb, FaqEntry } from '../components/SchemaMarkup.astro';
 import '../styles/main.css';
 
 interface Props {
@@ -9,6 +10,8 @@ interface Props {
   keywords?: string;
   ogImage?: string;
   schemaType?: 'LocalBusiness' | 'WebApplication' | 'FAQPage';
+  breadcrumbs?: Breadcrumb[];
+  faq?: FaqEntry[];
 }
 const {
   title,
@@ -16,6 +19,8 @@ const {
   keywords = 'Trapezblech, Trapezbleche, Dachplatten, Lichtplatten, Trapezblech Rechner, Dachblech berechnen, Schnittliste, Anrissplan, Lattung berechnen, Dachdeckung, Trapezprofil, Stahlblech Dach, Wellblech, Sandwichpaneel, Dachrechner, Baurechner',
   ogImage,
   schemaType = 'WebApplication',
+  breadcrumbs,
+  faq,
 } = Astro.props;
 
 const GA_ID = 'G-6NSYG8B1T9';
@@ -53,7 +58,7 @@ const fullTitle = title.includes('Dachplattenrechner') ? title : `${title} | Dac
     // gtag('config', GA_ID) wird erst nach Cookie-Consent aus cookie-consent.ts aufgerufen
   </script>
   <!-- Schema.org Markup -->
-  <SchemaMarkup type={schemaType} title={title} description={description} url={Astro.url.href} />
+  <SchemaMarkup type={schemaType} title={title} description={description} url={Astro.url.href} breadcrumbs={breadcrumbs} faq={faq} />
 </head>
 <body>
   <slot />
