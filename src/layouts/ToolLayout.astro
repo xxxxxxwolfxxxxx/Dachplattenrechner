@@ -4,6 +4,8 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import AdUnit from '../components/AdUnit.astro';
 
+import type { Breadcrumb, FaqEntry } from '../components/SchemaMarkup.astro';
+
 interface Props {
   title: string;
   description?: string;
@@ -12,10 +14,19 @@ interface Props {
   background?: string;   // CSS background-image, z.B. "url('/images/lattung.png')"
   backHref?: string;
   backLabel?: string;
+  breadcrumbs?: Breadcrumb[];
+  faq?: FaqEntry[];
 }
-const { title, description, keywords, navTitle, background, backHref, backLabel } = Astro.props;
+const { title, description, keywords, navTitle, background, backHref, backLabel, breadcrumbs, faq } = Astro.props;
+
+// Ohne explizite Angabe: Startseite › Rechner › aktuelle Seite
+const trail: Breadcrumb[] = breadcrumbs ?? [
+  { name: 'Startseite', url: '/' },
+  { name: 'Rechner', url: '/tools/dachformen/' },
+  { name: navTitle ?? title, url: Astro.url.pathname },
+];
 ---
-<BaseLayout title={title} description={description} keywords={keywords}>
+<BaseLayout title={title} description={description} keywords={keywords} breadcrumbs={trail} faq={faq}>
   <Nav title={navTitle ?? title} backHref={backHref} backLabel={backLabel} />
 
   {background && (

@@ -1,0 +1,166 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import AdUnit from '../../../components/AdUnit.astro';
+import { RAL_FARBEN } from '../../../data/farben';
+import { DACHFARBEN, dachfarbeMitFarbton } from '../../../data/dachfarben';
+
+// Eigene Seite nur fuer die kuratierten Dachfarben - 200 RAL-Einzelseiten
+// waeren duenner Inhalt und wuerden untereinander kannibalisieren.
+export function getStaticPaths() {
+  return DACHFARBEN.map((eintrag) => {
+    const farbe = dachfarbeMitFarbton(eintrag);
+    const aehnlich = farbe.aehnlich
+      .map((code) => {
+        const farbton = RAL_FARBEN.find((eintrag) => eintrag.code === code);
+        const detail = DACHFARBEN.find((eintrag) => eintrag.code === code);
+        return farbton ? { ...farbton, slug: detail?.slug } : null;
+      })
+      .filter((eintrag) => eintrag !== null);
+
+    return { params: { slug: farbe.slug }, props: { farbe, aehnlich } };
+  });
+}
+
+const { farbe, aehnlich } = Astro.props;
+
+const bezeichnung = `RAL ${farbe.code} ${farbe.name}`;
+
+const breadcrumbs = [
+  { name: 'Startseite', url: '/' },
+  { name: 'Rechner', url: '/tools/dachformen/' },
+  { name: 'Farbkatalog', url: '/tools/farben/' },
+  { name: bezeichnung, url: `/tools/farben/${farbe.slug}/` },
+];
+
+const faq = [
+  {
+    question: `Wofür wird ${bezeichnung} verwendet?`,
+    answer: farbe.einsatz,
+  },
+  {
+    question: `Welcher Farbton ähnelt RAL ${farbe.code}?`,
+    answer: `Ähnliche Töne sind ${aehnlich.map((eintrag) => `RAL ${eintrag.code} ${eintrag.name}`).join(', ')}. Für eine verbindliche Entscheidung sollte immer ein Musterblech verglichen werden, da Bildschirmdarstellungen nur Näherungswerte sind.`,
+  },
+  {
+    question: `Ist RAL ${farbe.code} bei Trapezblech Lagerfarbe?`,
+    answer: `${bezeichnung} gehört zu den gängigen Dachfarben und wird von vielen Profilherstellern ab Lager geführt. Lagerfarben sind günstiger und schneller lieferbar als Sonderbeschichtungen, die Verfügbarkeit unterscheidet sich aber je nach Hersteller und Profil.`,
+  },
+];
+---
+
+<ToolLayout
+  title={`${bezeichnung} – Trapezblech & Dachbleche in RAL ${farbe.code}`}
+  description={`${bezeichnung} für Trapezblech, Wellblech und Kantteile: ${farbe.usage} Mit Verwendungshinweis, passenden Kombinationen und ähnlichen Farbtönen.`}
+  keywords={`RAL ${farbe.code}, RAL ${farbe.code} Trapezblech, ${farbe.name} Dachblech, RAL ${farbe.code} ${farbe.name}`}
+  navTitle={`RAL ${farbe.code}`}
+  backHref="/tools/farben/"
+  backLabel="&larr; Farbkatalog"
+  breadcrumbs={breadcrumbs}
+  faq={faq}
+  background="linear-gradient(135deg, rgba(30, 60, 114, 0.85) 0%, rgba(42, 82, 152, 0.85) 100%)"
+>
+
+  <article class="farbton">
+    <header class="farbton-head">
+      <div class="farbton-sample" style={`background-color: ${farbe.hex};`} aria-hidden="true"></div>
+      <div class="farbton-meta">
+        <h1>{bezeichnung}</h1>
+        <p class="lead">{farbe.usage}</p>
+        <dl class="fakten">
+          <div><dt>RAL-Nummer</dt><dd>{farbe.code}</dd></div>
+          <div><dt>Farbname</dt><dd>{farbe.name}</dd></div>
+          <div><dt>Farbwert (ca.)</dt><dd>{farbe.hex.toUpperCase()}</dd></div>
+        </dl>
+      </div>
+    </header>
+
+    <AdUnit position="top" adSlot="9678418506" />
+
+    <section aria-labelledby="einsatz-heading">
+      <h2 id="einsatz-heading">Wo {bezeichnung} verbaut wird</h2>
+      <p>{farbe.einsatz}</p>
+    </section>
+
+    <section aria-labelledby="wirkung-heading">
+      <h2 id="wirkung-heading">Optik, Verschmutzung und Aufheizung</h2>
+      <p>{farbe.wirkung}</p>
+    </section>
+
+    <section aria-labelledby="kombination-heading">
+      <h2 id="kombination-heading">Passende Kantteile und Nachbarfarben</h2>
+      <p>{farbe.kombination}</p>
+    </section>
+
+    <section aria-labelledby="aehnlich-heading">
+      <h2 id="aehnlich-heading">Ähnliche Farbtöne</h2>
+      <ul class="aehnlich-list">
+        {aehnlich.map((eintrag) => (
+          <li>
+            <span class="swatch" style={`background-color: ${eintrag.hex};`} aria-hidden="true"></span>
+            {eintrag.slug ? (
+              <a href={`/tools/farben/${eintrag.slug}/`}>RAL {eintrag.code} {eintrag.name}</a>
+            ) : (
+              <span>RAL {eintrag.code} {eintrag.name}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+      <p class="hinweis">
+        Die Farbfelder sind Näherungswerte für die Bildschirmdarstellung. Vor der Bestellung ein
+        Musterblech oder den RAL-Farbfächer heranziehen.
+      </p>
+    </section>
+
+    <section aria-labelledby="menge-heading">
+      <h2 id="menge-heading">Menge in RAL {farbe.code} berechnen</h2>
+      <p>
+        Steht der Farbton fest, fehlt noch die Materialmenge. Diese Rechner liefern
+        Blechbedarf, Zuschnittlängen und Kantteile:
+      </p>
+      <ul class="weiter-list">
+        <li><a href="/tools/trapez/">Trapezblech-Rechner</a> – Bedarf für Trapez- und Wellblechdächer</li>
+        <li><a href="/tools/rechteck/">Rechteckdach-Rechner</a> – Fläche und Blechanzahl beim Pultdach</li>
+        <li><a href="/tools/kantteil/">Kantteil-Rechner</a> – Ortgang, First und Traufe in RAL {farbe.code}</li>
+        <li><a href="/tools/verschnitt-optimierung/">Verschnitt-Optimierung</a> – Zuschnitte ohne unnötigen Abfall</li>
+        <li><a href="/tools/farben/">Zurück zum Farbkatalog</a> – alle 200 RAL-Töne im Überblick</li>
+      </ul>
+    </section>
+  </article>
+
+  <AdUnit position="bottom" adSlot="9678418507" />
+
+</ToolLayout>
+
+<style>
+  .farbton { max-width: 900px; margin: 0 auto; }
+  .farbton section, .farbton-head { background: var(--gradient-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: 24px; margin-bottom: 20px; }
+
+  .farbton-head { display: grid; grid-template-columns: 180px 1fr; gap: 24px; align-items: start; }
+  .farbton-sample { min-height: 180px; border-radius: var(--radius-md); border: 1px solid rgba(0,0,0,0.15); }
+  .farbton-meta h1 { color: var(--accent-blue); font-size: clamp(1.4rem, 1.1rem + 1.4vw, 2rem); margin: 0 0 10px; }
+  .lead { color: var(--text-secondary); font-size: 1.05em; line-height: 1.6; margin: 0 0 16px; }
+
+  .fakten { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 0; }
+  .fakten dt { font-size: 0.78em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0; }
+  .fakten dd { margin: 2px 0 0; font-weight: 700; color: var(--accent-blue); font-variant-numeric: tabular-nums; }
+
+  .farbton h2 { color: var(--accent-blue); font-size: 1.22em; margin: 0 0 10px; }
+  .farbton p { color: var(--text-secondary); line-height: 1.7; margin: 0 0 10px; max-width: 72ch; }
+  .farbton p:last-child { margin-bottom: 0; }
+
+  .aehnlich-list { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; padding: 0; }
+  .aehnlich-list li { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px 7px 8px; border-radius: 20px; background: rgba(14, 165, 233, 0.08); border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.92em; }
+  .aehnlich-list a { color: var(--accent-blue); font-weight: 600; }
+  .swatch { width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2); flex-shrink: 0; }
+
+  .hinweis { font-size: 0.9em; color: var(--text-muted) !important; }
+
+  .weiter-list { margin: 0; padding-left: 20px; color: var(--text-secondary); line-height: 1.9; }
+  .weiter-list a, .farbton p a { color: var(--accent-blue); font-weight: 600; }
+
+  @media (max-width: 700px) {
+    .farbton-head { grid-template-columns: 1fr; gap: 16px; }
+    .farbton-sample { min-height: 120px; }
+    .farbton section, .farbton-head { padding: 18px 16px; }
+  }
+</style>

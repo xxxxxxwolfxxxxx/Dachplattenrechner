@@ -1,0 +1,211 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import AdUnit from '../../../components/AdUnit.astro';
+import ColorCard from '../../../components/ColorCard.astro';
+import { RAL_GRUPPEN, PRELAQ_FARBEN, farbenDerGruppe } from '../../../data/farben';
+import { DACHFARBEN, dachfarbeMitFarbton } from '../../../data/dachfarben';
+
+// Farbtoene werden hier im Frontmatter aufgeloest und landen als echter Text
+// im HTML. Das Client-Skript filtert nur noch vorhandene Karten.
+const dachfarbenNachCode = new Map(DACHFARBEN.map((farbe) => [farbe.code, farbe]));
+
+const beliebteFarben = DACHFARBEN.map(dachfarbeMitFarbton);
+
+const breadcrumbs = [
+  { name: 'Startseite', url: '/' },
+  { name: 'Rechner', url: '/tools/dachformen/' },
+  { name: 'Farbkatalog', url: '/tools/farben/' },
+];
+
+const faq = [
+  {
+    question: 'Welche RAL-Farbe wird bei Trapezblech am häufigsten bestellt?',
+    answer:
+      'RAL 8011 Nussbraun und RAL 7016 Anthrazitgrau sind die beiden meistverbauten Töne. 8011 dominiert bei landwirtschaftlichen Gebäuden und Nebengebäuden, 7016 im Neubau von Wohnhäusern, Garagen und Carports.',
+  },
+  {
+    question: 'Was ist der Unterschied zwischen RAL und Prelaq?',
+    answer:
+      'RAL ist ein herstellerübergreifendes Farbnormsystem. Prelaq ist ein Beschichtungssystem von SSAB mit eigener Farbnummerierung. Prelaq-Töne lassen sich RAL-Nummern nur annähernd zuordnen – bei Nachbestellungen sollte immer dasselbe System verwendet werden.',
+  },
+  {
+    question: 'Weichen nachbestellte Bleche im Farbton ab?',
+    answer:
+      'Möglich. Coils werden chargenweise beschichtet, zwischen zwei Beschichtungsläufen sind geringe Abweichungen normal und nicht reklamierbar. Kantteile, Ortgang- und Firstbleche deshalb möglichst zusammen mit der Dachfläche bestellen.',
+  },
+  {
+    question: 'Heizen sich dunkle Dachbleche stärker auf?',
+    answer:
+      'Ja. Dunkle Töne wie RAL 9005, 7016 oder 8017 erreichen an sonnigen Sommertagen deutlich höhere Oberflächentemperaturen als helle Töne wie RAL 9002 oder 7035. Bei ausgebauten Dachräumen sollte die Dämmung entsprechend ausgelegt werden.',
+  },
+];
+---
+
+<ToolLayout
+  title="RAL-Farben für Trapezblech – Farbkatalog mit 200 Farbtönen"
+  description="Alle RAL-Farbtöne für Trapezblech, Wellblech und Kantteile mit Farbnummer, Name und Verwendungshinweis. Dazu die 19 meistbestellten Dachfarben im Detail."
+  keywords="RAL Farben Trapezblech, RAL 8011 Trapezblech, RAL 7016 Dachblech, Prelaq Farben, Farbkatalog Dachbleche"
+  navTitle="Farbkatalog"
+  backHref="/"
+  backLabel="&larr; Übersicht"
+  breadcrumbs={breadcrumbs}
+  faq={faq}
+  background="linear-gradient(135deg, rgba(30, 60, 114, 0.85) 0%, rgba(42, 82, 152, 0.85) 100%)"
+>
+
+  <div class="header-box">
+    <h1>RAL-Farben für Trapezblech und Dachbleche</h1>
+    <p>
+      200 RAL-Classic-Farbtöne und 46 Prelaq-Töne für Trapezblech, Wellblech, Sandwichpaneele und
+      Kantteile. Zu den 19 meistbestellten Dachfarben findest du eine eigene Seite mit
+      Verwendungshinweisen, passenden Kombinationen und ähnlichen Farbtönen.
+    </p>
+  </div>
+
+  <section class="popular" aria-labelledby="beliebte-heading">
+    <h2 id="beliebte-heading">Die meistbestellten Dachfarben</h2>
+    <p class="section-intro">
+      Diese Farbtöne führen die meisten Profilhersteller als Lagerware – kurze Lieferzeit,
+      niedrigerer Quadratmeterpreis, kein Sonderbeschichtungslauf.
+    </p>
+    <ul class="popular-list">
+      {beliebteFarben.map((farbe) => (
+        <li>
+          <a href={`/tools/farben/${farbe.slug}/`}>
+            <span class="swatch" style={`background-color: ${farbe.hex};`} aria-hidden="true"></span>
+            RAL {farbe.code} {farbe.name}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <div class="color-tabs" role="tablist">
+    <button class="tab-btn active" type="button" data-tab="ral" role="tab" aria-selected="true" aria-controls="ral-tab">RAL Farben</button>
+    <button class="tab-btn" type="button" data-tab="prelaq" role="tab" aria-selected="false" aria-controls="prelaq-tab">Prelaq Farben</button>
+  </div>
+
+  <div class="search-box">
+    <label class="visually-hidden" for="searchInput">Farbton suchen</label>
+    <input type="search" class="search-input" id="searchInput" placeholder="Farbe suchen (z. B. 8011 oder Nussbraun)...">
+    <p class="search-status" id="searchStatus" role="status" aria-live="polite"></p>
+  </div>
+
+  <AdUnit position="top" adSlot="9678418506" />
+
+  <div id="ral-tab" class="tab-content active" role="tabpanel">
+    {RAL_GRUPPEN.map((gruppe) => (
+      <section class="color-group" data-group={gruppe.id} aria-labelledby={`gruppe-${gruppe.id}`}>
+        <h2 id={`gruppe-${gruppe.id}`}>{gruppe.title}</h2>
+        <p class="section-intro">{gruppe.intro}</p>
+        <div class="color-grid">
+          {farbenDerGruppe(gruppe.id).map((farbe) => (
+            <ColorCard farbton={farbe} praefix="RAL" dachfarbe={dachfarbenNachCode.get(farbe.code)} />
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+
+  <div id="prelaq-tab" class="tab-content" role="tabpanel">
+    <section class="color-group" aria-labelledby="gruppe-prelaq">
+      <h2 id="gruppe-prelaq">Prelaq-Farbtöne (SSAB)</h2>
+      <p class="section-intro">
+        Prelaq ist das Beschichtungssystem von SSAB mit eigener Nummerierung. Die Töne lassen sich
+        RAL nur näherungsweise zuordnen – bei Nachbestellungen immer beim selben System bleiben.
+      </p>
+      <div class="color-grid">
+        {PRELAQ_FARBEN.map((farbe) => (
+          <ColorCard farbton={farbe} praefix="Prelaq" />
+        ))}
+      </div>
+    </section>
+  </div>
+
+  <section class="hinweise" aria-labelledby="hinweise-heading">
+    <h2 id="hinweise-heading">Worauf du bei der Farbwahl achten solltest</h2>
+    <dl>
+      <dt>Chargenabweichung</dt>
+      <dd>
+        Coils werden chargenweise beschichtet. Zwischen zwei Läufen sind geringe Abweichungen normal
+        und in der Regel nicht reklamierbar. Dachfläche und Kantteile deshalb gemeinsam bestellen.
+      </dd>
+      <dt>Aufheizung</dt>
+      <dd>
+        Dunkle Töne (RAL 9005, 7016, 8017) erreichen im Sommer deutlich höhere
+        Oberflächentemperaturen als helle (RAL 9002, 7035). Bei ausgebautem Dachraum in die
+        Dämmplanung einbeziehen – siehe <a href="/tools/u-wert/">U-Wert-Rechner</a>.
+      </dd>
+      <dt>Bildschirmdarstellung</dt>
+      <dd>
+        Die Farbfelder auf dieser Seite sind Näherungswerte. Für eine verbindliche Entscheidung
+        immer ein Musterblech oder den RAL-Farbfächer heranziehen.
+      </dd>
+      <dt>Metallic-Töne</dt>
+      <dd>
+        RAL 9006 und 9007 wirken je nach Lichteinfall unterschiedlich hell. Alle Bleche einer Fläche
+        gleich orientiert montieren, sonst entstehen sichtbare Helligkeitsunterschiede.
+      </dd>
+    </dl>
+  </section>
+
+  <section class="weiter" aria-labelledby="weiter-heading">
+    <h2 id="weiter-heading">Passend dazu</h2>
+    <ul>
+      <li><a href="/tools/trapez/">Trapezblech-Rechner</a> – Materialbedarf für die Dachfläche</li>
+      <li><a href="/tools/kantteil/">Kantteil-Rechner</a> – Ortgang, First und Traufe im gleichen Farbton</li>
+      <li><a href="/tools/verschnitt-optimierung/">Verschnitt-Optimierung</a> – Zuschnittlängen sinnvoll aufteilen</li>
+    </ul>
+  </section>
+
+  <AdUnit position="bottom" adSlot="9678418507" />
+
+</ToolLayout>
+
+<style>
+  .header-box { text-align: center; margin-bottom: 25px; padding: 24px 20px; background: var(--gradient-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+  .header-box h1 { color: var(--accent-blue); font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem); margin: 0 0 12px; }
+  .header-box p { color: var(--text-secondary); font-size: 1.05em; margin: 0 auto; max-width: 62ch; line-height: 1.6; }
+
+  .popular, .hinweise, .weiter { max-width: 1200px; margin: 0 auto 28px; padding: 22px 24px; background: var(--gradient-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+  .popular h2, .hinweise h2, .weiter h2, .color-group h2 { color: var(--accent-blue); font-size: 1.25em; margin: 0 0 8px; }
+  .section-intro { color: var(--text-secondary); margin: 0 0 16px; max-width: 70ch; line-height: 1.6; }
+
+  .popular-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; }
+  .popular-list a { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px 7px 8px; border-radius: 20px; background: rgba(14, 165, 233, 0.08); color: var(--accent-blue); font-weight: 600; text-decoration: none; border: 1px solid var(--border-color); transition: background 0.2s ease, transform 0.2s ease; }
+  .popular-list a:hover, .popular-list a:focus-visible { background: var(--accent-blue); color: #fff; transform: translateY(-2px); }
+  .swatch { width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2); flex-shrink: 0; }
+
+  .color-tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 10px; padding: 0 20px; flex-wrap: wrap; }
+  .tab-btn { padding: 12px 24px; border: none; border-radius: 25px; background: rgba(15, 23, 42, 0.6); color: var(--accent-blue); font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 16px; }
+  .tab-btn.active { background: var(--gradient-primary); color: white; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3); }
+  .tab-btn:hover:not(.active) { background: rgba(14, 165, 233, 0.08); transform: translateY(-2px); }
+
+  .search-box { max-width: 460px; margin: 0 auto 25px; padding: 0 20px; }
+  .search-input { width: 100%; padding: 12px 20px; border: 1px solid var(--border-color); border-radius: 25px; font-size: 16px; background: rgba(15, 23, 42, 0.6); transition: all 0.3s ease; }
+  .search-input:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
+  .search-status { text-align: center; color: #fff; font-size: 0.9em; margin: 8px 0 0; text-shadow: 0 1px 3px rgba(0,0,0,0.4); min-height: 1.2em; }
+
+  .color-group { max-width: 1200px; margin: 0 auto 28px; padding: 22px 24px; background: var(--gradient-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+  .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .hinweise dl { margin: 0; }
+  .hinweise dt { font-weight: 700; color: var(--accent-blue); margin-top: 14px; }
+  .hinweise dt:first-child { margin-top: 0; }
+  .hinweise dd { margin: 4px 0 0; color: var(--text-secondary); line-height: 1.6; max-width: 75ch; }
+
+  .weiter ul { margin: 0; padding-left: 20px; color: var(--text-secondary); line-height: 1.9; }
+  .weiter a, .hinweise a { color: var(--accent-blue); font-weight: 600; }
+
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (max-width: 768px) {
+    .color-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+    .popular, .hinweise, .weiter, .color-group { padding: 18px 16px; }
+  }
+</style>
+
+<script src="/tools-js/farben.js" defer></script>
