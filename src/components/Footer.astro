@@ -33,6 +33,25 @@ const year = new Date().getFullYear();
         </ul>
       </div>
     </div>
+
+    <div class="footer-projects">
+      <h3>Weitere Projekte</h3>
+      <ul>
+        <li>
+          <a href="https://dreieck-berechnen.de/" title="Dreieck berechnen – Fläche, Umfang und Winkel online">Dreieck-Berechnen.de</a>
+          <span>Geometrie-Rechner für Fläche, Umfang, Winkel und Höhen</span>
+        </li>
+        <li>
+          <a href="https://deutschland-rechnet.de/" title="Kostenlose Online-Rechner für Deutschland">Deutschland-Rechnet.de</a>
+          <span>105+ Rechner für Steuern, Kredit, Energie und Familie</span>
+        </li>
+        <li>
+          <a href="https://sportbootnavi.de/" title="Kostenlose Navigation und Törnplaner für Sportboote">SportbootNavi.de</a>
+          <span>Törnplaner und Navigation für Binnenwasserstraßen</span>
+        </li>
+      </ul>
+    </div>
+
     <p class="footer-copy">&copy; {year} Dachplattenrechner.de &ndash; Matthias Dührkop &bull; Boizenburg/Elbe</p>
   </div>
 </footer>
@@ -86,6 +105,35 @@ const year = new Date().getFullYear();
     border-top: 1px solid var(--border-color);
     padding-top: 20px;
   }
+  /* ── Weitere Projekte ── */
+  .footer-projects {
+    border-top: 1px solid var(--border-color);
+    padding-top: 24px;
+    margin-bottom: 28px;
+  }
+  .footer-projects ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px 32px;
+  }
+  .footer-projects li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 0;
+  }
+  .footer-projects a {
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .footer-projects span {
+    color: var(--text-muted);
+    opacity: 0.7;
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
   @media (max-width: 768px) {
     .footer-grid { grid-template-columns: 1fr 1fr; }
     .footer-about { grid-column: 1 / -1; }
