@@ -64,7 +64,8 @@ if (faq.length > 0) {
     "mainEntity": faq.map(entry => ({
       "@type": "Question",
       "name": entry.question,
-      "acceptedAnswer": { "@type": "Answer", "text": entry.answer },
+      // Inline-Markup aus dem sichtbaren Text entfernen – Schema erwartet reinen Text
+      "acceptedAnswer": { "@type": "Answer", "text": entry.answer.replace(/<[^>]*>/g, '') },
     })),
   });
 }
