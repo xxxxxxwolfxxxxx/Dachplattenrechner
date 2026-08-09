@@ -20,12 +20,37 @@ const tools = [
     features: ['DIN EN ISO 6946', 'Glaser-Verfahren', '100+ Baustoffe', 'Druckbarer Nachweis'],
   },
 ];
+
+// Wird sowohl sichtbar ausgegeben als auch als FAQPage-Schema an Google gemeldet
+const faq = [
+  {
+    question: 'Was ist der Unterschied zwischen Deckbreite und Lieferbreite?',
+    answer: 'Die Deckbreite ist die nutzbare Breite des Trapezbleches nach dem Verlegen (meist 1,00 m). Die Lieferbreite ist die tatsächliche Gesamtbreite des Bleches (meist 1,06 m). Die Differenz ergibt die Überlappung. Im Rechner immer die Deckbreite eingeben – die Überlappung wird automatisch berücksichtigt.',
+  },
+  {
+    question: 'Sind die Berechnungen für gewerbliche Nutzung erlaubt?',
+    answer: 'Ja. Dachdecker, Architekten und Handwerker dürfen die Ergebnisse und Anrisspläne kostenfrei an Kunden weitergeben, solange Wasserzeichen und Quellenangaben erhalten bleiben.',
+  },
+  {
+    question: 'Funktioniert der Rechner auf dem Smartphone?',
+    answer: 'Ja, alle Rechner sind vollständig responsiv und für mobile Geräte optimiert. Die Anrisspläne sind für DIN A4 optimiert und lassen sich direkt aus dem Browser drucken.',
+  },
+  {
+    question: 'Werden meine Daten gespeichert?',
+    answer: 'Nein. Alle Berechnungen laufen lokal im Browser. Es werden keine Projektdaten an einen Server gesendet. Nur anonyme Nutzungsstatistiken werden erfasst, sofern Sie dem zugestimmt haben.',
+  },
+  {
+    question: 'Was ist der U-Wert Rechner?',
+    answer: 'Der U-Wert Rechner berechnet den Wärmedurchgangskoeffizienten nach DIN EN ISO 6946 und analysiert Taupunkt und Kondensatrisiko nach dem Glaser-Verfahren (DIN 4108-3). Er eignet sich für Wände, Dächer und Böden.',
+  },
+];
 ---
 
 <BaseLayout
   title="Dachplattenrechner.de – Professionelle Dachplatten-Berechnung"
   description="Trapezblech Rechner kostenlos: Dachfläche berechnen, Schneelastzone nachschlagen, U-Wert berechnen. Für Dachdecker, Architekten & Heimwerker – ohne Registrierung, direkt im Browser."
   keywords="Trapezblech Rechner, Dachplattenrechner, Dachfläche berechnen, Schneelastzone, U-Wert, Trapezbleche, Wellblech, Lichtplatte, Dachdeckerwerkzeug, Anrissplan, Lattenrechner, Verschnitt"
+  faq={faq}
 >
   <!-- Hintergrundbild -->
   <div class="hero-bg"></div>
@@ -68,12 +93,12 @@ const tools = [
           Pultdächer), Dreieck (symmetrisch oder asymmetrisch), Trapez oder komplexe Kombinationen.
           Der Rechner verarbeitet jede geometrische Form automatisch, berechnet die exakte Fläche
           und leitet daraus den präzisen Blechbedarf ab. Du erhältst automatisch eine druckbare
-          Schnittliste mit allen Blecblänggen und Stückzahlen sowie einen maßstäblichen Anrissplan —
+          Schnittliste mit allen Blechlängen und Stückzahlen sowie einen maßstäblichen Anrissplan —
           fertig für die Baustelle oder als professioneller Kundennachweis. Die Schnittliste zeigt
           genau, welche Längen du benötigst, wie viel Verschnitt anfällt und wie die einzelnen Bleche
           angeordnet werden. Nach der Dachflächenberechnung brauchst du nicht mehr manuell durch
           Formeln zu rechnen: Der Lattenrechner berechnet automatisch deine Latten- und Konterlattung,
-          die Verschnitt-Optimierung minimiert Abfallkosten durch intelligente Aufteilung der Lieferrohrlinge,
+          die Verschnitt-Optimierung minimiert Abfallkosten durch intelligente Aufteilung der Lieferrohlinge,
           und der PV-Rechner unterstützt dich bei Solarplanungen mit Batteriespeicher-Option.
         </p>
         <p>
@@ -94,7 +119,7 @@ const tools = [
 
       <details style="margin-bottom: 1.5rem;">
         <summary style="cursor: pointer; font-weight: 600;">Brauche ich einen Dachplattenrechner?</summary>
-        <p style="margin-top: 1rem;">Ja, besonders wenn du ein Dachprojekt mit Trapezblechen, Wellblech oder Sandwichpaneelen planst. Ein manuelles Durchrechnen von Dachflächen, Schnittlisten und Verschnittoptimierungen ist extrem zeitaufwendig und fehleranfällig — besonders bei komplexen Dachformen mit mehreren unterschiedlich geneigten Flächen oder Walmdächern. Der Dachplattenrechner erspart dir diese aufwendige Handarbeit und liefert präzise, nachvollziehbare Ergebnisse, die du jederzeit überprüfen kannst. Profis sparen damit durchschnittlich 1–2 Stunden pro Projekt ein und minimieren Abfallkosten und Materialver­schwendung durch optimale Blechaufteilung. Für größere Projekte (Industrie­dächer, Carports mit mehreren Feldern, Anbauten) lohnt sich der Rechner besonders: Die zeitersparnis amortisiert sich oft schon beim ersten Projekt. Heimwerker profitieren von hoher Rechtsicherheit und vermeiden teure Materialverschwendung durch Planungsfehler. Die druckbaren Anrisspläne eignen sich zudem als professioneller Nachweis gegenüber Kunden, Architekten und Behörden — ein echter Mehrwert für deine Glaubwürdigkeit.</p>
+        <p style="margin-top: 1rem;">Ja, besonders wenn du ein Dachprojekt mit Trapezblechen, Wellblech oder Sandwichpaneelen planst. Ein manuelles Durchrechnen von Dachflächen, Schnittlisten und Verschnittoptimierungen ist extrem zeitaufwendig und fehleranfällig — besonders bei komplexen Dachformen mit mehreren unterschiedlich geneigten Flächen oder Walmdächern. Der Dachplattenrechner erspart dir diese aufwendige Handarbeit und liefert präzise, nachvollziehbare Ergebnisse, die du jederzeit überprüfen kannst. Profis sparen damit durchschnittlich 1–2 Stunden pro Projekt ein und minimieren Abfallkosten und Materialverschwendung durch optimale Blechaufteilung. Für größere Projekte (Industrie­dächer, Carports mit mehreren Feldern, Anbauten) lohnt sich der Rechner besonders: Die Zeitersparnis amortisiert sich oft schon beim ersten Projekt. Heimwerker profitieren von hoher Rechensicherheit und vermeiden teure Materialverschwendung durch Planungsfehler. Die druckbaren Anrisspläne eignen sich zudem als professioneller Nachweis gegenüber Kunden, Architekten und Behörden — ein echter Mehrwert für deine Glaubwürdigkeit.</p>
       </details>
 
       <details style="margin-bottom: 1.5rem;">
@@ -124,7 +149,7 @@ const tools = [
 
       <details style="margin-bottom: 1.5rem;">
         <summary style="cursor: pointer; font-weight: 600;">Was ist ein Anrissplan?</summary>
-        <p style="margin-top: 1rem;">Ein Anrissplan ist eine exakt maßstäbliche, technische Zeichnung deiner Dachflächen mit allen kritischen Abmessungen, Überlappungslinien und Schnittmarken — im Handwerk auch „Aufmaß" genannt. Der Plan zeigt präzise, wie die einzelnen Trapezbleche auf dem Dach angeordnet werden, wo Überlappungen liegen, wo Schnitte anfallen und wie die Bleche mit Firstblechen und Ortgangblechen abschlossen. Für professionelle Dachdecker ist der Anrissplan ein unverzichtbares, täglich genutztes Arbeitspapier — er dient zur genauen Positionierung und Ausrichtung der Bleche auf der Baustelle (cm-genau) und ersetzt zeitraubende handschriftliche Markierungen. Gleichzeitig ist der Plan ein Materialnachweis und Kalkulationsbeleg für Kunden und Behörden. Der Anrissplan wird direkt ausgedruckt (DIN A3 ideal) und auf die Baustelle mitgenommen — Dachdecker befestigen ihn am Dach und arbeiten danach ab. Vor Arbeitsbeginn wird der Plan mit der Bauleitung oder dem Architekten abgestimmt. Unser Dachflächenrechner erstellt den Plan vollautomatisch mit korrektem Maßstab und allen Details — du brauchst nicht manuell zu zeichnen oder zu vermessen. Das spart Stunden.</p>
+        <p style="margin-top: 1rem;">Ein Anrissplan ist eine exakt maßstäbliche, technische Zeichnung deiner Dachflächen mit allen kritischen Abmessungen, Überlappungslinien und Schnittmarken — im Handwerk auch „Aufmaß" genannt. Der Plan zeigt präzise, wie die einzelnen Trapezbleche auf dem Dach angeordnet werden, wo Überlappungen liegen, wo Schnitte anfallen und wie die Bleche mit Firstblechen und Ortgangblechen abschließen. Für professionelle Dachdecker ist der Anrissplan ein unverzichtbares, täglich genutztes Arbeitspapier — er dient zur genauen Positionierung und Ausrichtung der Bleche auf der Baustelle (cm-genau) und ersetzt zeitraubende handschriftliche Markierungen. Gleichzeitig ist der Plan ein Materialnachweis und Kalkulationsbeleg für Kunden und Behörden. Der Anrissplan wird direkt ausgedruckt (DIN A3 ideal) und auf die Baustelle mitgenommen — Dachdecker befestigen ihn am Dach und arbeiten danach ab. Vor Arbeitsbeginn wird der Plan mit der Bauleitung oder dem Architekten abgestimmt. Unser Dachflächenrechner erstellt den Plan vollautomatisch mit korrektem Maßstab und allen Details — du brauchst nicht manuell zu zeichnen oder zu vermessen. Das spart Stunden.</p>
       </details>
 
       <details style="margin-bottom: 1.5rem;">
@@ -140,7 +165,7 @@ const tools = [
       </h2>
 
       <!-- Hero: Dachflächenberechnung -->
-      <a href="/tools/dachformen" class="dach-hero">
+      <a href="/tools/dachformen/" class="dach-hero">
         <div class="dach-hero-left">
           <div class="dach-hero-tag">Einstieg</div>
           <img src="/images/gleichschenkliges-dreieck.png" alt="Dachflächenberechnung" class="dach-hero-img" loading="eager" />
@@ -246,20 +271,36 @@ const tools = [
       <h2 class="section-title" style="text-align:center; margin-bottom:2rem">
         <span>Ratgeber</span>
       </h2>
-      <a href="/projekt-dach/" class="guide-card">
-        <img src="/images/plan-2.jpg" alt="Projekt Dach" class="guide-img" />
-        <div class="guide-body">
-          <h3>Projekt Dach</h3>
-          <p>An alles gedacht? Statik, Materialwahl, Unterkonstruktion, Blechverlegung und Winkelprofile – der komplette Guide in 5 Kapiteln.</p>
-          <ul>
-            <li>Statik &amp; Schneelast</li>
-            <li>Materialwahl &amp; Unterbau</li>
-            <li>Blechverlegung</li>
-            <li>Winkelprofile &amp; Abschlüsse</li>
-          </ul>
-          <span class="guide-cta">Guide lesen →</span>
-        </div>
-      </a>
+      <div class="extra-tools-grid">
+        <a href="/projekt-dach/" class="guide-card">
+          <img src="/images/plan-2.jpg" alt="Projekt Dach" class="guide-img" />
+          <div class="guide-body">
+            <h3>Projekt Dach</h3>
+            <p>An alles gedacht? Statik, Materialwahl, Unterkonstruktion, Blechverlegung und Winkelprofile – der komplette Guide in 5 Kapiteln.</p>
+            <ul>
+              <li>Statik &amp; Schneelast</li>
+              <li>Materialwahl &amp; Unterbau</li>
+              <li>Blechverlegung</li>
+              <li>Winkelprofile &amp; Abschlüsse</li>
+            </ul>
+            <span class="guide-cta">Guide lesen →</span>
+          </div>
+        </a>
+        <a href="/tools/dachflaeche-berechnen/" class="guide-card">
+          <img src="/images/messen-1.jpg" alt="Dachfläche messen und berechnen" class="guide-img" />
+          <div class="guide-body">
+            <h3>Dachfläche berechnen</h3>
+            <p>Welche Dachform hast du, welche Maße brauchst du und wie rechnest du sie um? Die Anleitung mit allen Formeln und Messtipps.</p>
+            <ul>
+              <li>Alle Dachformen erklärt</li>
+              <li>Formeln &amp; Rechenbeispiele</li>
+              <li>Maße richtig aufnehmen</li>
+              <li>Häufige Fragen</li>
+            </ul>
+            <span class="guide-cta">Anleitung lesen →</span>
+          </div>
+        </a>
+      </div>
     </section>
 
     <AdUnit position="middle" adSlot="8291579285" adSlot2="5573713344" adSlot3="4283946313" />
@@ -295,43 +336,14 @@ const tools = [
     <section class="faq-section" aria-label="Häufige Fragen">
       <h2 class="section-title"><span>Häufige</span> Fragen</h2>
       <div class="faq-grid">
-        <details class="faq-item">
-          <summary>Was ist der Unterschied zwischen Deckbreite und Lieferbreite?</summary>
-          <div class="faq-body">
-            <p>Die <strong>Deckbreite</strong> ist die nutzbare Breite des Trapezbleches nach dem Verlegen (meist 1,00&thinsp;m). Die <strong>Lieferbreite</strong> ist die tatsächliche Gesamtbreite des Bleches (meist 1,06&thinsp;m). Die Differenz ergibt die Überlappung.</p>
-            <p>Im Rechner immer die <strong>Deckbreite</strong> eingeben – die Überlappung wird automatisch berücksichtigt.</p>
-          </div>
-        </details>
-        <details class="faq-item">
-          <summary>Sind die Berechnungen für gewerbliche Nutzung erlaubt?</summary>
-          <div class="faq-body">
-            <p>Ja. Dachdecker, Architekten und Handwerker dürfen die Ergebnisse und Anrisspläne kostenfrei an Kunden weitergeben, solange Wasserzeichen und Quellenangaben erhalten bleiben.</p>
-          </div>
-        </details>
-        <details class="faq-item">
-          <summary>Wie genau sind die Berechnungen?</summary>
-          <div class="faq-body">
-            <p>Die Berechnungen basieren auf geometrisch-mathematischen Grundlagen und sind sehr präzise. Dennoch sollten alle Ergebnisse vor der Ausführung von einer Fachkraft geprüft und auf der Baustelle nachgemessen werden.</p>
-          </div>
-        </details>
-        <details class="faq-item">
-          <summary>Funktioniert der Rechner auf dem Smartphone?</summary>
-          <div class="faq-body">
-            <p>Ja, alle Rechner sind vollständig responsiv und für mobile Geräte optimiert. Die Anrisspläne sind für DIN A4 optimiert und lassen sich direkt aus dem Browser drucken.</p>
-          </div>
-        </details>
-        <details class="faq-item">
-          <summary>Werden meine Daten gespeichert?</summary>
-          <div class="faq-body">
-            <p>Nein. Alle Berechnungen laufen lokal in Ihrem Browser. Es werden keine Projektdaten an einen Server gesendet. Nur anonyme Nutzungsstatistiken werden erfasst, sofern Sie dem zugestimmt haben.</p>
-          </div>
-        </details>
-        <details class="faq-item">
-          <summary>Was ist der U-Wert Rechner?</summary>
-          <div class="faq-body">
-            <p>Der U-Wert Rechner berechnet den Wärmedurchgangskoeffizienten nach DIN EN ISO 6946 und analysiert Taupunkt und Kondensatrisiko nach dem Glaser-Verfahren (DIN 4108-3). Er eignet sich für Wände, Dächer und Böden.</p>
-          </div>
-        </details>
+        {faq.map(item => (
+          <details class="faq-item">
+            <summary>{item.question}</summary>
+            <div class="faq-body">
+              <p>{item.answer}</p>
+            </div>
+          </details>
+        ))}
       </div>
     </section>
 

@@ -9,25 +9,59 @@ const year = new Date().getFullYear();
         <p>Kostenlose Berechnungstools für Dachdecker, Architekten und Heimwerker. Alle Berechnungen laufen direkt im Browser – keine Registrierung nötig.</p>
       </div>
       <div>
-        <h3>Rechner</h3>
+        <h3>Dachfläche berechnen</h3>
         <ul>
-          <li><a href="/tools/gleichschenkliges-dreieck">Gleichschenkliges Dreieck</a></li>
-          <li><a href="/tools/ungleichschenkliges-dreieck">Ungleichschenkliges Dreieck</a></li>
-          <li><a href="/tools/trapez">Trapez</a></li>
-          <li><a href="/tools/trapezaufrechteck">Trapez auf Rechteck</a></li>
-          <li><a href="/tools/lattenrechner">Lattenrechner</a></li>
-          <li><a href="/tools/u-wert">U-Wert Rechner</a></li>
+          <li><a href="/tools/rechteck/">Rechteck / Quadrat</a></li>
+          <li><a href="/tools/gleichschenkliges-dreieck/">Gleichschenkliges Dreieck</a></li>
+          <li><a href="/tools/ungleichschenkliges-dreieck/">Ungleichschenkliges Dreieck</a></li>
+          <li><a href="/tools/dreieckaufrechteck/">Dreieck auf Rechteck</a></li>
+          <li><a href="/tools/trapez/">Trapez</a></li>
+          <li><a href="/tools/trapezaufrechteck/">Trapez auf Rechteck</a></li>
+          <li><a href="/tools/dachformen/">Alle Dachformen</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Weitere Rechner</h3>
+        <ul>
+          <li><a href="/tools/lattenrechner/">Lattenrechner</a></li>
+          <li><a href="/tools/verschnitt-optimierung/">Verschnitt-Optimierung</a></li>
+          <li><a href="/tools/u-wert/">U-Wert Rechner</a></li>
+          <li><a href="/tools/pv-rechner/">PV-Rechner</a></li>
+          <li><a href="/tools/schneelastzone/">Schneelastzone</a></li>
+          <li><a href="/tools/karte/">Schnee- &amp; Windlastzonen</a></li>
+          <li><a href="/tools/kantteil/">Kantteil-Zeichner</a></li>
+          <li><a href="/tools/farben/">Farbkatalog</a></li>
         </ul>
       </div>
       <div>
         <h3>Info &amp; Recht</h3>
         <ul>
-          <li><a href="/impressum">Impressum</a></li>
-          <li><a href="/datenschutz">Datenschutz</a></li>
-          <li><a href="/agb">AGB</a></li>
+          <li><a href="/projekt-dach/">Ratgeber Projekt Dach</a></li>
+          <li><a href="/impressum/">Impressum</a></li>
+          <li><a href="/datenschutz/">Datenschutz</a></li>
+          <li><a href="/agb/">AGB</a></li>
         </ul>
       </div>
     </div>
+
+    <div class="footer-projects">
+      <h3>Weitere Projekte</h3>
+      <ul>
+        <li>
+          <a href="https://dreieck-berechnen.de/" title="Dreieck berechnen – Fläche, Umfang und Winkel online">Dreieck-Berechnen.de</a>
+          <span>Geometrie-Rechner für Fläche, Umfang, Winkel und Höhen</span>
+        </li>
+        <li>
+          <a href="https://deutschland-rechnet.de/" title="Kostenlose Online-Rechner für Deutschland">Deutschland-Rechnet.de</a>
+          <span>105+ Rechner für Steuern, Kredit, Energie und Familie</span>
+        </li>
+        <li>
+          <a href="https://sportbootnavi.de/" title="Kostenlose Navigation und Törnplaner für Sportboote">SportbootNavi.de</a>
+          <span>Törnplaner und Navigation für Binnenwasserstraßen</span>
+        </li>
+      </ul>
+    </div>
+
     <p class="footer-copy">&copy; {year} Dachplattenrechner.de &ndash; Matthias Dührkop &bull; Boizenburg/Elbe</p>
   </div>
 </footer>
@@ -41,7 +75,7 @@ const year = new Date().getFullYear();
   }
   .footer-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 1.4fr 1fr 1fr 0.8fr;
     gap: 40px;
     margin-bottom: 36px;
   }
@@ -74,6 +108,34 @@ const year = new Date().getFullYear();
   .site-footer a:hover {
     color: #0ea5e9;
   }
+  /* ── Weitere Projekte ── */
+  .footer-projects {
+    border-top: 1px solid rgba(148, 163, 184, 0.08);
+    padding-top: 24px;
+    margin-bottom: 28px;
+  }
+  .footer-projects ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px 32px;
+  }
+  .footer-projects li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 0;
+  }
+  .footer-projects a {
+    color: #64748b;
+    font-weight: 600;
+  }
+  .footer-projects span {
+    color: #374151;
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
   .footer-copy {
     color: #374151;
     font-size: 0.78rem;
@@ -81,7 +143,7 @@ const year = new Date().getFullYear();
     border-top: 1px solid rgba(148, 163, 184, 0.08);
     padding-top: 20px;
   }
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
     .footer-grid { grid-template-columns: 1fr 1fr; }
     .footer-about { grid-column: 1 / -1; }
   }

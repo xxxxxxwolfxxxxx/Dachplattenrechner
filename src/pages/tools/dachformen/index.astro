@@ -69,6 +69,15 @@ const shapes = [
   <div class="shapes-grid">
     {shapes.map(s => <CalculatorCard {...s} />)}
   </div>
+
+  <InfoBox title="Unsicher, welche Dachform du hast?" icon="📖">
+    <p>
+      Die ausführliche Anleitung erklärt alle Dachformen mit Formeln, zeigt Schritt für Schritt,
+      wie du deine Dachmaße richtig aufnimmst, und beantwortet die häufigsten Fragen zur
+      Dachflächenberechnung.
+    </p>
+    <p><a href="/tools/dachflaeche-berechnen/">Zur Anleitung: Dachfläche berechnen →</a></p>
+  </InfoBox>
 </ToolLayout>
 
 <style>

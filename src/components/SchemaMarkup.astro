@@ -1,40 +1,75 @@
 ---
+export interface Breadcrumb {
+  name: string;
+  url: string;
+}
+export interface FaqEntry {
+  question: string;
+  answer: string;
+}
+
 interface Props {
   type: 'LocalBusiness' | 'WebApplication' | 'FAQPage';
   title?: string;
   description?: string;
   url?: string;
+  breadcrumbs?: Breadcrumb[];
+  faq?: FaqEntry[];
 }
 
-const { type, title, description, url } = Astro.props;
+const SITE = 'https://dachplattenrechner.de';
+const { type, title, description, url, breadcrumbs = [], faq = [] } = Astro.props;
 
-let schema: any = {};
+const graph: Record<string, unknown>[] = [];
 
 if (type === 'LocalBusiness') {
-  schema = {
-    "@context": "https://schema.org",
+  graph.push({
     "@type": "LocalBusiness",
     "name": "Dachplattenrechner.de",
     "description": "Kostenloser Dachplattenrechner für Dachdecker, Architekten und Heimwerker",
-    "url": "https://dachplattenrechner.de",
-    "image": "https://dachplattenrechner.de/images/logo.png"
-  };
-} else if (type === 'WebApplication') {
-  schema = {
-    "@context": "https://schema.org",
+    "url": SITE,
+    "image": `${SITE}/images/logo.png`,
+  });
+} else {
+  graph.push({
     "@type": "WebApplication",
-    "name": title || "Dachplatte Rechner",
+    "name": title || "Dachplattenrechner",
     "description": description || "Berechne Dachflächen und andere Werte",
-    "url": url || "https://dachplattenrechner.de",
-    "applicationCategory": "UtilityApplication"
-  };
-} else if (type === 'FAQPage') {
-  schema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [] // Wird in den Seiten befüllt
-  };
+    "url": url || SITE,
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Web",
+    "inLanguage": "de-DE",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+  });
 }
+
+// Breadcrumbs erscheinen in den Suchergebnissen anstelle der nackten URL
+if (breadcrumbs.length > 0) {
+  graph.push({
+    "@type": "BreadcrumbList",
+    "itemListElement": breadcrumbs.map((crumb, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "name": crumb.name,
+      "item": crumb.url.startsWith('http') ? crumb.url : `${SITE}${crumb.url}`,
+    })),
+  });
+}
+
+// Nur ausgeben, wenn tatsächlich Fragen vorliegen – ein leeres FAQPage-Schema ist ein Strukturdatenfehler
+if (faq.length > 0) {
+  graph.push({
+    "@type": "FAQPage",
+    "mainEntity": faq.map(entry => ({
+      "@type": "Question",
+      "name": entry.question,
+      "acceptedAnswer": { "@type": "Answer", "text": entry.answer },
+    })),
+  });
+}
+
+const schema = { "@context": "https://schema.org", "@graph": graph };
 ---
 
 <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
