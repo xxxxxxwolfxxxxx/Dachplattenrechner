@@ -215,7 +215,7 @@ export function windzone(wind: Datensatz, treffer: Treffer): WindErgebnis | null
     const name = normalisiere(treffer.name);
     const eigene = kreisZeilen.find((z) => z[2] !== null && normalisiere(z[2]) === name);
     const zeile = eigene ?? standard;
-    if (zeile) return { zone: zeile[3], zonen: [zeile[3]], hinweis: standard?.[4] ?? zeile[4] };
+    if (zeile) return { zone: zeile[3], zonen: [zeile[3]], hinweis: eigene?.[4] ?? standard?.[4] ?? zeile[4] };
   } else if (standard || kreisZeilen.length > 0) {
     const zonen = sortiereZonen(kreisZeilen.map((z) => z[3]));
     return { zone: standard?.[3] ?? null, zonen, hinweis: standard?.[4] ?? null };
