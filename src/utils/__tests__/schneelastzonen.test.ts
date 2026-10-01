@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { sucheOrt, normalisiere, gruppiereNachZone, windzone, kartenZone, kartenTreffer, gemeindeKartenTreffer, istPlz, sucheNachPlz, type Datensatz, type PlzDatensatz, type Treffer } from '../schneelastzonen';
+import { sucheOrt, normalisiere, gruppiereNachZone, windzone, kartenZone, kartenTreffer, gemeindeKartenTreffer, istPlz, sucheNachPlz, findeHoehe, type Datensatz, type HoehenDatensatz, type PlzDatensatz, type Treffer } from '../schneelastzonen';
 
 const datei = fileURLToPath(new URL('../../../public/data/schneelastzonen.json', import.meta.url));
 const daten: Datensatz = JSON.parse(readFileSync(datei, 'utf-8'));
@@ -326,5 +326,33 @@ describe('Postleitzahl', () => {
   it('lässt weniger als 1 % der PLZ ohne Schneelastzone', () => {
     const ohne = Object.keys(plz.plz).filter((p) => suche(p).treffer.length === 0);
     expect(ohne.length / Object.keys(plz.plz).length).toBeLessThan(0.01);
+  });
+});
+
+describe('Geländehöhe', () => {
+  const hoehenDatei = fileURLToPath(new URL('../../../public/data/hoehen.json', import.meta.url));
+  const hoehen: HoehenDatensatz = JSON.parse(readFileSync(hoehenDatei, 'utf-8'));
+
+  it('liefert plausible Ortshöhen', () => {
+    expect(findeHoehe(hoehen, 'BY', 'Garmisch-Partenkirchen', 'Garmisch-Partenkirchen')).toBeGreaterThan(650);
+    expect(findeHoehe(hoehen, 'BY', 'Garmisch-Partenkirchen', 'Garmisch-Partenkirchen')).toBeLessThan(760);
+    expect(findeHoehe(hoehen, 'RP', 'Koblenz', 'Koblenz')).toBeLessThan(120);
+  });
+
+  it('findet Gemeinden auch bei abweichender Schreibung (Zusätze in Klammern oder nach dem Komma)', () => {
+    const h: HoehenDatensatz = { stand: '', quelle: '', h: { 'XX|K': { 'Neukirch/Lausitz': 400, Beispiel: 100 } } };
+    expect(findeHoehe(h, 'XX', 'K', 'Beispiel (Vogtland), Stadt')).toBe(100);
+    expect(findeHoehe(h, 'XX', 'K', 'Unbekannt')).toBeNull();
+  });
+
+  it('deckt den Großteil der Gemeinden der DIBt-Tabelle ab (Bayern und Rheinland-Pfalz fast vollständig)', () => {
+    const gemeinden = daten.zeilen.filter((z) => z[2] !== null && z[2] !== z[1]);
+    const mit = (land?: string) => {
+      const liste = gemeinden.filter((z) => !land || z[0] === land);
+      return liste.filter((z) => findeHoehe(hoehen, z[0], z[1], z[2] as string) !== null).length / liste.length;
+    };
+    expect(mit()).toBeGreaterThan(0.85);
+    expect(mit('BY')).toBeGreaterThan(0.95);
+    expect(mit('RP')).toBeGreaterThan(0.99);
   });
 });
