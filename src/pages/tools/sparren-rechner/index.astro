@@ -1,0 +1,574 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import InfoBox from '../../../components/InfoBox.astro';
+import AdUnit from '../../../components/AdUnit.astro';
+import { EINDECKUNGEN } from '../../../data/eindeckungen';
+import {
+  FESTIGKEITSKLASSEN,
+  STANDARD_QUERSCHNITTE,
+  maxStuetzweite,
+  schneelastSk,
+  type SparrenEingabe,
+} from '../../../utils/sparren';
+
+// Annahmen der festen Tabellen – stehen sichtbar über jeder Tabelle
+const TABELLE_ABSTAENDE = [0.625, 0.7, 0.8, 0.9];
+const TABELLE_ZONE = '2' as const;
+const TABELLE_HOEHE = 400;
+const TABELLE_NEIGUNG = 35;
+const TABELLE_ZIEL = 0.8; // grüner Bereich der Ampel
+const sk = schneelastSk(TABELLE_ZONE, TABELLE_HOEHE);
+
+const gewichtVon = (id: string) => EINDECKUNGEN.find((e) => e.id === id)!.gewicht;
+const tabellenBasis = (eindeckung: number): SparrenEingabe => ({
+  stuetzweite: 4,
+  abstand: 0.8,
+  neigung: TABELLE_NEIGUNG,
+  breite: 80,
+  hoehe: 200,
+  eindeckung,
+  sk,
+  festigkeitsklasse: 'C24',
+  nutzungsklasse: 1,
+  hoeheNN: TABELLE_HOEHE,
+});
+
+// Auf 10 cm abrunden: Tabellenwerte dürfen nie über dem Rechenwert liegen
+const abrunden = (m: number) => Math.floor(m * 10) / 10;
+
+function spannweitenTabelle(eindeckung: number) {
+  const basis = tabellenBasis(eindeckung);
+  return STANDARD_QUERSCHNITTE.map((q) => ({
+    label: `${q.breite / 10} × ${q.hoehe / 10} cm`,
+    werte: TABELLE_ABSTAENDE.map((abstand) =>
+      abrunden(maxStuetzweite({ ...basis, breite: q.breite, hoehe: q.hoehe, abstand }, TABELLE_ZIEL)),
+    ),
+  }));
+}
+
+const tabelleZiegel = spannweitenTabelle(gewichtVon('dachziegel'));
+const tabelleBlech = spannweitenTabelle(gewichtVon('trapezblech'));
+
+// Kleinster Standardquerschnitt, der bei Abstand 80 cm (Index 2) die Stützweite im grünen Bereich schafft
+function kleinsterQuerschnitt(tabelle: typeof tabelleZiegel, stuetzweite: number): string {
+  const treffer = tabelle.find((z) => z.werte[2] >= stuetzweite);
+  return treffer ? treffer.label : 'ein größerer Querschnitt oder Brettschichtholz';
+}
+const ziegel4 = kleinsterQuerschnitt(tabelleZiegel, 4);
+const ziegel5 = kleinsterQuerschnitt(tabelleZiegel, 5);
+const blech5 = kleinsterQuerschnitt(tabelleBlech, 5);
+
+const annahmenText = `C24, Nutzungsklasse 1, Schneelastzone 2 auf ${TABELLE_HOEHE} m Höhe mit s_k = ${sk.toFixed(2).replace('.', ',')} kN/m², Dachneigung ${TABELLE_NEIGUNG}°`;
+
+const faq = [
+  {
+    question: 'Wie berechne ich den Sparrenquerschnitt?',
+    answer:
+      'Du brauchst Stützweite, Sparrenabstand, Dachneigung, das Gewicht der Eindeckung und die Schneelast deines Standorts. Daraus entstehen die Lasten auf den Sparren. Danach wird nachgewiesen, dass Biegung, Schub und Durchbiegung innerhalb der zulässigen Werte bleiben (DIN EN 1995-1-1). Der Rechner erledigt genau diese Schritte und zeigt dir die Ausnutzung als Ampel.',
+  },
+  {
+    question: 'Welchen Sparren brauche ich bei 4 m Spannweite?',
+    answer: `Bei Tondachziegeln und 80 cm Sparrenabstand reicht unter den Annahmen unserer Tabelle ein Sparren ab ${ziegel4} (${annahmenText}). Bei anderen Bedingungen kann das deutlich abweichen, nutze dann den Rechner oben.`,
+  },
+  {
+    question: 'Welchen Sparren brauche ich bei 5 m Spannweite?',
+    answer: `Mit Tondachziegeln und 80 cm Abstand ist es unter den Tabellenannahmen ein Sparren ab ${ziegel5}, mit leichtem Trapezblech ab ${blech5}. Die schwerere Eindeckung kostet also oft eine ganze Querschnittsstufe.`,
+  },
+  {
+    question: 'Was ist die Stützweite des Sparrens?',
+    answer:
+      'Die Stützweite ist der Abstand der beiden Auflager entlang des Sparrens, zum Beispiel von der Fußpfette zur Firstpfette. Sie wird in Sparrenrichtung gemessen, nicht waagerecht im Grundriss. Der überstehende Teil über der Traufe zählt nicht zur Stützweite.',
+  },
+  {
+    question: 'Welche Schneelast muss ich ansetzen?',
+    answer:
+      'Das hängt von der Schneelastzone und der Geländehöhe über NN ab. Der Rechner übernimmt beides und bestimmt die Schneelast nach DIN EN 1991-1-3 mit dem Nationalen Anhang. Deine Zone findest du mit unserem Schneelastzonen-Tool über die Postleitzahl.',
+  },
+  {
+    question: 'Ist Wind in der Berechnung berücksichtigt?',
+    answer:
+      'Nein. Der Rechner berücksichtigt Eigengewicht und Schnee, aber weder Wind noch Schneeverwehungen oder Einzellasten durch Dachdecker. Deshalb weist die Tabelle nur Werte im grünen Bereich aus (höchstens 80 % Ausnutzung). In windexponierten Lagen, bei Dachüberständen und bei Anbauten brauchst du in jedem Fall eine eigene Prüfung.',
+  },
+  {
+    question: 'Was ist der Unterschied zwischen Vollholz C24 und Brettschichtholz?',
+    answer:
+      'C24 ist die übliche Festigkeitsklasse für Konstruktionsvollholz (KVH) im Dachbau. Brettschichtholz GL24h hat gleiche Biegefestigkeit, ist aber formstabiler und in größeren Querschnitten und Längen erhältlich. Für Sparren bis etwa 5 bis 6 m reicht meist KVH.',
+  },
+  {
+    question: 'Ersetzt der Rechner den Statiker?',
+    answer:
+      'Nein. Das Ergebnis ist eine Vorbemessung zur Planung und Materialabschätzung. Für Bauanträge, Dächer mit Solaranlage oder Gründach, große Spannweiten, Altbausanierung und alle Fälle mit Zweifeln ist ein Standsicherheitsnachweis durch einen Tragwerksplaner nötig.',
+  },
+];
+---
+
+<ToolLayout
+  title="Sparren-Rechner – Sparrenquerschnitt und Tragfähigkeit berechnen"
+  description="Sparrenquerschnitt berechnen: Stützweite, Abstand, Eindeckung und Schneelast eingeben, Ampel für Biegung, Schub und Durchbiegung nach Eurocode 5. Mit Spannweitentabelle."
+  keywords="Sparrenquerschnitt berechnen, Sparren Rechner, Sparren Tragfähigkeit, Sparrentabelle, Sparrenstärke, Sparren Spannweite, Dachsparren berechnen"
+  navTitle="Sparren-Rechner"
+  backHref="/tools/dachformen/"
+  backLabel="← Dachformen"
+  faq={faq}
+>
+  <div class="sparren-seite">
+  <div class="sparren-intro">
+    <h1>Sparren-Rechner: Querschnitt und Tragfähigkeit prüfen</h1>
+    <p class="lead">
+      Prüfe, ob dein Sparren reicht, oder finde den passenden Querschnitt. Die Last entsteht aus
+      Eindeckung, Neigung und Schneelast deines Standorts – du musst keine Flächenlast schätzen.
+      Nachgewiesen werden Biegung, Schub und Durchbiegung nach DIN EN 1995-1-1.
+    </p>
+  </div>
+
+  <div class="section" id="eingaben">
+    <h2>1. Dach und Last</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="stuetzweite">Stützweite in Sparrenrichtung (m)</label>
+        <input type="number" id="stuetzweite" step="0.1" min="0.5" max="12" value="4" />
+      </div>
+      <div class="input-group">
+        <label for="abstand">Sparrenabstand (m, Mitte zu Mitte)</label>
+        <input type="number" id="abstand" step="0.025" min="0.3" max="1.5" value="0.8" />
+      </div>
+      <div class="input-group">
+        <label for="neigung">Dachneigung (°)</label>
+        <input type="number" id="neigung" step="1" min="0" max="90" value="35" />
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="eindeckung">Eindeckung</label>
+        <select id="eindeckung">
+          {EINDECKUNGEN.map((e) => (
+            <option value={String(e.gewicht)} selected={e.id === 'dachziegel'}>
+              {e.label} – {e.gewicht.toFixed(2).replace('.', ',')} kN/m²
+            </option>
+          ))}
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="zone">Schneelastzone</label>
+        <select id="zone">
+          <option value="1">Zone 1</option>
+          <option value="1a">Zone 1a</option>
+          <option value="2" selected>Zone 2</option>
+          <option value="2a">Zone 2a</option>
+          <option value="3">Zone 3</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="hoehe-nn">Höhe über NN (m)</label>
+        <input type="number" id="hoehe-nn" step="10" min="0" max="1500" value="300" />
+      </div>
+    </div>
+    <p class="hint">
+      Schneelastzone unbekannt? <a href="/tools/schneelastzone/">Hier per Postleitzahl ermitteln</a>.
+      Eindeckungsgewichte stehen in der <a href="/tools/dacheindeckung-gewicht/">Gewichtstabelle</a>.
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>2. Holz</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="klasse">Festigkeitsklasse</label>
+        <select id="klasse">
+          {FESTIGKEITSKLASSEN.map((k) => (
+            <option value={k.id} selected={k.id === 'C24'}>{k.label}</option>
+          ))}
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="nkl">Einbausituation</label>
+        <select id="nkl">
+          <option value="1">Trocken, ausgebaut / beheizt (Nutzungsklasse 1)</option>
+          <option value="2">Belüftet, Kaltdach, überdacht (Nutzungsklasse 2)</option>
+        </select>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="breite">Eigener Querschnitt: Breite (mm)</label>
+        <input type="number" id="breite" step="10" min="20" max="300" value="80" />
+      </div>
+      <div class="input-group">
+        <label for="hoehe">Eigener Querschnitt: Höhe (mm)</label>
+        <input type="number" id="hoehe" step="10" min="40" max="500" value="200" />
+      </div>
+    </div>
+  </div>
+
+  <div id="fehler" class="fehler" role="alert" hidden></div>
+
+  <div id="ergebnis" class="results" aria-live="polite">
+    <h2>Ergebnis für deinen Querschnitt</h2>
+    <div id="eigen" class="eigen"></div>
+
+    <h3>Alle Standardquerschnitte im Vergleich</h3>
+    <p class="hint">Mit deinen Eingaben von oben. Grün = geeignet, gelb = knapp, rot = zu schwach.</p>
+    <div class="tabelle-wrap">
+      <table class="vergleich" id="vergleich">
+        <thead>
+          <tr><th scope="col">Querschnitt</th><th scope="col">Bewertung</th><th scope="col">Ausnutzung</th><th scope="col">Maßgebend</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <details class="rechenweg">
+      <summary>Rechenweg anzeigen</summary>
+      <ul id="rechenweg"></ul>
+    </details>
+  </div>
+
+  <AdUnit position="middle" />
+
+  <section class="info-section">
+    <h2>Zulässige Spannweiten: Tabelle für Sparren</h2>
+    <p>
+      Die Tabellen zeigen die größte Stützweite im grünen Bereich (höchstens 80 % Ausnutzung), jeweils auf
+      10 cm abgerundet. Annahmen: {annahmenText}.
+    </p>
+
+    <h3>Tondachziegel ({gewichtVon('dachziegel').toFixed(2).replace('.', ',')} kN/m²)</h3>
+    <div class="tabelle-wrap">
+      <table class="spann">
+        <caption class="sr-only">Maximale Stützweite in Metern für Sparren mit Tondachziegeln</caption>
+        <thead>
+          <tr>
+            <th scope="col">Querschnitt</th>
+            {TABELLE_ABSTAENDE.map((a) => <th scope="col">a = {a.toString().replace('.', ',')} m</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {tabelleZiegel.map((z) => (
+            <tr>
+              <th scope="row">{z.label}</th>
+              {z.werte.map((w) => <td>{w.toFixed(1).replace('.', ',')} m</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Trapezblech ({gewichtVon('trapezblech').toFixed(2).replace('.', ',')} kN/m²)</h3>
+    <div class="tabelle-wrap">
+      <table class="spann">
+        <caption class="sr-only">Maximale Stützweite in Metern für Sparren mit Trapezblech</caption>
+        <thead>
+          <tr>
+            <th scope="col">Querschnitt</th>
+            {TABELLE_ABSTAENDE.map((a) => <th scope="col">a = {a.toString().replace('.', ',')} m</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {tabelleBlech.map((z) => (
+            <tr>
+              <th scope="row">{z.label}</th>
+              {z.werte.map((w) => <td>{w.toFixed(1).replace('.', ',')} m</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Faustformel zur Plausibilitätsprüfung</h3>
+    <p>
+      Unter den obigen Annahmen gilt grob: <strong>Sparrenhöhe in cm ≈ 4 × Stützweite in m</strong>. Ein Sparren mit
+      5 m Stützweite braucht danach etwa 20 cm Höhe. Die Formel ersetzt keine Berechnung, hilft aber, grobe
+      Eingabefehler zu erkennen.
+    </p>
+  </section>
+
+  <InfoBox title="Das ist eine Vorbemessung" variant="warning" icon="⚠️">
+    <p>
+      Berücksichtigt sind Eigengewicht und Schnee. <strong>Nicht berücksichtigt</strong> sind Wind,
+      Schneeverwehungen und -säcke, Einzellasten, Auflager, Verbindungsmittel und Mehrfeldsysteme. Das Ergebnis
+      ersetzt keinen Standsicherheitsnachweis. Für Bauantrag, Solaranlage, Gründach, Sanierung im Bestand und
+      große Spannweiten brauchst du einen Tragwerksplaner.
+    </p>
+  </InfoBox>
+
+  <section class="info-section">
+    <h2>So rechnet der Sparren-Rechner</h2>
+    <ul>
+      <li><strong>Schneelast:</strong> s_k nach DIN EN 1991-1-3/NA aus Zone und Höhe, Formbeiwert μ₁ nach Dachneigung (0,8 bis 30°, danach linear fallend bis 0 bei 60°).</li>
+      <li><strong>Lasten:</strong> Eindeckung und Eigengewicht des Sparrens mit 1,35, Schnee mit 1,5. Beide Lastfälle werden geprüft, der ungünstigere zählt.</li>
+      <li><strong>Biegung und Schub:</strong> Bemessungswerte der Festigkeit mit k_mod, γ_M, Höhenfaktor k_h und Rissbeiwert k_cr nach DIN EN 1995-1-1.</li>
+      <li><strong>Durchbiegung:</strong> Anfangsdurchbiegung höchstens L/300, Enddurchbiegung inklusive Kriechen höchstens L/200.</li>
+    </ul>
+    <p>
+      Weitere Rechner für deine Dachplanung: <a href="/tools/lattenrechner/">Lattenrechner</a>,
+      <a href="/tools/schneelastzone/">Schneelastzone</a>, <a href="/tools/dachflaeche-berechnen/">Dachfläche berechnen</a>
+      und <a href="/tools/u-wert/">U-Wert-Rechner</a>.
+    </p>
+  </section>
+
+  <section class="faq-section" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">Häufige Fragen zu Sparren</h2>
+    {faq.map((eintrag) => (
+      <div class="faq-item">
+        <h3>{eintrag.question}</h3>
+        <p>{eintrag.answer}</p>
+      </div>
+    ))}
+  </section>
+  </div>
+</ToolLayout>
+
+<script>
+  import {
+    berechneSparren,
+    pruefeQuerschnitte,
+    schneelastSk,
+    schneeFormbeiwert,
+    type Ampel,
+    type Festigkeitsklasse,
+    type Nutzungsklasse,
+    type SchneelastZone,
+    type SparrenEingabe,
+  } from '../../../utils/sparren';
+
+  const ZEICHEN: Record<Ampel, { symbol: string; text: string }> = {
+    gruen: { symbol: '✓', text: 'geeignet' },
+    gelb: { symbol: '!', text: 'knapp' },
+    rot: { symbol: '✕', text: 'zu schwach' },
+  };
+  const NAME_MASSGEBEND: Record<string, string> = {
+    biegung: 'Biegung',
+    schub: 'Schub',
+    durchbiegung: 'Durchbiegung',
+  };
+
+  const feld = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
+  const zahl = (id: string): number => parseFloat(feld<HTMLInputElement>(id).value.replace(',', '.'));
+  const prozent = (x: number): string => `${Math.round(x * 100)} %`;
+  const dezimal = (x: number, stellen = 2): string => x.toFixed(stellen).replace('.', ',');
+
+  function liesEingabe(): SparrenEingabe {
+    const zone = feld<HTMLSelectElement>('zone').value as SchneelastZone;
+    const hoeheNN = zahl('hoehe-nn');
+    return {
+      stuetzweite: zahl('stuetzweite'),
+      abstand: zahl('abstand'),
+      neigung: zahl('neigung'),
+      breite: zahl('breite'),
+      hoehe: zahl('hoehe'),
+      eindeckung: parseFloat(feld<HTMLSelectElement>('eindeckung').value),
+      sk: schneelastSk(zone, hoeheNN),
+      festigkeitsklasse: feld<HTMLSelectElement>('klasse').value as Festigkeitsklasse,
+      nutzungsklasse: Number(feld<HTMLSelectElement>('nkl').value) as Nutzungsklasse,
+      hoeheNN,
+    };
+  }
+
+  function element(tag: string, className?: string, text?: string): HTMLElement {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+
+  function badge(ampel: Ampel): HTMLElement {
+    const z = ZEICHEN[ampel];
+    return element('span', `badge badge--${ampel}`, `${z.symbol} ${z.text}`);
+  }
+
+  function balken(titel: string, wert: number): HTMLElement {
+    const zeile = element('div', 'balken');
+    zeile.appendChild(element('span', 'balken-titel', titel));
+    const spur = element('span', 'balken-spur');
+    const fuell = element('span', `balken-fuell balken-fuell--${wert > 1 ? 'rot' : wert > 0.8 ? 'gelb' : 'gruen'}`);
+    fuell.style.width = `${Math.min(wert, 1) * 100}%`;
+    spur.appendChild(fuell);
+    zeile.appendChild(spur);
+    zeile.appendChild(element('span', 'balken-wert', prozent(wert)));
+    return zeile;
+  }
+
+  function massgebend(a: { biegung: number; schub: number; durchbiegung: number }): string {
+    const [name] = Object.entries(a).reduce((m, e) => (e[1] > m[1] ? e : m));
+    return NAME_MASSGEBEND[name];
+  }
+
+  function zeigeFehler(text: string | null): void {
+    const box = feld('fehler');
+    box.hidden = text === null;
+    box.textContent = text ?? '';
+    feld('ergebnis').hidden = text !== null;
+  }
+
+  function rechenweg(e: SparrenEingabe, ergebnis: ReturnType<typeof berechneSparren>): string[] {
+    const mu = schneeFormbeiwert(e.neigung);
+    return [
+      `Schneelast am Boden: s_k = ${dezimal(e.sk)} kN/m² (Zone ${feld<HTMLSelectElement>('zone').value}, ${e.hoeheNN} m ü. NN)`,
+      `Formbeiwert: μ₁ = ${dezimal(mu)} bei ${e.neigung}° Dachneigung`,
+      `Schnee senkrecht zur Dachfläche: s = μ₁ · s_k · cos²α = ${dezimal(ergebnis.schneelastDach, 3)} kN/m²`,
+      `Eindeckung: ${dezimal(e.eindeckung)} kN/m² Dachfläche, zusätzlich Eigengewicht des Sparrens`,
+      `Bemessungsmoment: M_Ed = ${dezimal(ergebnis.bemessungsmoment)} kNm, Querkraft V_Ed = ${dezimal(ergebnis.bemessungsquerkraft)} kN`,
+      `Durchbiegung: w_inst = ${dezimal(ergebnis.durchbiegungInst, 1)} mm, w_fin = ${dezimal(ergebnis.durchbiegungFin, 1)} mm (Grenzen L/300 und L/200)`,
+      `Ausnutzung: Biegung ${prozent(ergebnis.ausnutzung.biegung)}, Schub ${prozent(ergebnis.ausnutzung.schub)}, Durchbiegung ${prozent(ergebnis.ausnutzung.durchbiegung)}`,
+    ];
+  }
+
+  function rechne() {
+    try {
+      const eingabe = liesEingabe();
+      return { eingabe, ergebnis: berechneSparren(eingabe), vergleich: pruefeQuerschnitte(eingabe) };
+    } catch (fehler) {
+      zeigeFehler(fehler instanceof Error ? fehler.message : 'Bitte prüfe deine Eingaben.');
+      return null;
+    }
+  }
+
+  function aktualisiere(): void {
+    const berechnet = rechne();
+    if (!berechnet) return;
+    const { eingabe, ergebnis, vergleich } = berechnet;
+    zeigeFehler(null);
+
+    const eigen = feld('eigen');
+    eigen.replaceChildren();
+    const kopf = element('div', 'eigen-kopf');
+    kopf.appendChild(element('strong', undefined, `${eingabe.breite / 10} × ${eingabe.hoehe / 10} cm`));
+    kopf.appendChild(badge(ergebnis.ampel));
+    eigen.appendChild(kopf);
+    eigen.appendChild(balken('Biegung', ergebnis.ausnutzung.biegung));
+    eigen.appendChild(balken('Schub', ergebnis.ausnutzung.schub));
+    eigen.appendChild(balken('Durchbiegung', ergebnis.ausnutzung.durchbiegung));
+
+    const tbody = feld('vergleich').querySelector('tbody')!;
+    tbody.replaceChildren();
+    for (const z of vergleich) {
+      const tr = document.createElement('tr');
+      tr.appendChild(element('th', undefined, `${z.breite / 10} × ${z.hoehe / 10} cm`)).setAttribute('scope', 'row');
+      const zelleBadge = document.createElement('td');
+      zelleBadge.appendChild(badge(z.ampel));
+      tr.appendChild(zelleBadge);
+      tr.appendChild(element('td', undefined, prozent(z.maxAusnutzung)));
+      tr.appendChild(element('td', undefined, massgebend(z.ausnutzung)));
+      tbody.appendChild(tr);
+    }
+
+    const liste = feld('rechenweg');
+    liste.replaceChildren(...rechenweg(eingabe, ergebnis).map((z) => element('li', undefined, z)));
+  }
+
+  for (const el of document.querySelectorAll('.section input, .section select')) {
+    el.addEventListener('input', aktualisiere);
+  }
+  aktualisiere();
+</script>
+
+<style is:global>
+  .sparren-seite .sparren-intro h1 {
+    color: var(--accent-blue);
+    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem);
+    margin: 0 0 12px;
+  }
+  .sparren-seite .lead {
+    color: var(--text-secondary);
+    font-size: 1.05em;
+    line-height: 1.6;
+    max-width: 66ch;
+    margin: 0 0 24px;
+  }
+  .sparren-seite .input-group { min-width: 0; }
+  .sparren-seite .input-group select,
+  .sparren-seite .input-group input { width: 100%; max-width: 100%; box-sizing: border-box; text-overflow: ellipsis; }
+  .sparren-seite .hint {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 8px 0 0;
+  }
+  .sparren-seite .hint a,
+  .sparren-seite .info-section a {
+    color: var(--accent-blue);
+  }
+  .sparren-seite .fehler {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    margin: 16px 0;
+  }
+  .sparren-seite .eigen {
+    background: var(--gradient-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .sparren-seite .eigen-kopf {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    font-size: 1.2rem;
+  }
+  .sparren-seite .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .sparren-seite .badge--gruen { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.5); }
+  .sparren-seite .badge--gelb { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.5); }
+  .sparren-seite .badge--rot { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); }
+  .sparren-seite .balken {
+    display: grid;
+    grid-template-columns: 110px 1fr 56px;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+    font-size: 0.92rem;
+  }
+  .sparren-seite .balken-spur {
+    display: block;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.18);
+    overflow: hidden;
+  }
+  .sparren-seite .balken-fuell { display: block; height: 100%; border-radius: 999px; }
+  .sparren-seite .balken-fuell--gruen { background: var(--accent-green); }
+  .sparren-seite .balken-fuell--gelb { background: var(--accent-orange); }
+  .sparren-seite .balken-fuell--rot { background: #ef4444; }
+  .sparren-seite .balken-wert { text-align: right; font-variant-numeric: tabular-nums; }
+  .sparren-seite .tabelle-wrap { overflow-x: auto; margin: 12px 0 20px; }
+  .sparren-seite table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  .sparren-seite th, .sparren-seite td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+  .sparren-seite thead th { color: var(--accent-blue); font-weight: 600; }
+  .sparren-seite .spann td, .sparren-seite .spann thead th:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+  .sparren-seite tbody th { font-weight: 600; white-space: nowrap; }
+  .sparren-seite .rechenweg { margin: 16px 0 0; }
+  .sparren-seite .rechenweg summary { cursor: pointer; color: var(--accent-blue); font-weight: 600; }
+  .sparren-seite .rechenweg ul { margin: 10px 0 0; padding-left: 20px; line-height: 1.7; color: var(--text-secondary); }
+  .sparren-seite .info-section { margin: 32px 0; line-height: 1.7; }
+  .sparren-seite .info-section h2 { color: var(--accent-blue); margin-bottom: 12px; }
+  .sparren-seite .info-section ul { padding-left: 20px; }
+  .sparren-seite .info-section li { margin-bottom: 8px; }
+  .sparren-seite .faq-section {
+    background: rgba(14, 165, 233, 0.06);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin: 28px 0;
+  }
+  .sparren-seite .faq-section h2 { font-size: 1.6rem; margin-bottom: 18px; color: var(--accent-blue); }
+  .sparren-seite .faq-item { margin-bottom: 16px; }
+  .sparren-seite .faq-item h3 { font-size: 1.1rem; margin-bottom: 8px; }
+  .sparren-seite .faq-item p { color: var(--text-secondary); line-height: 1.6; }
+  .sparren-seite .sr-only {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  @media (max-width: 560px) {
+    .sparren-seite .balken { grid-template-columns: 90px 1fr 48px; gap: 8px; }
+  }
+</style>

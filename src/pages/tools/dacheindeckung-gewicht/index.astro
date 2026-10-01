@@ -1,0 +1,127 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import InfoBox from '../../../components/InfoBox.astro';
+import { EINDECKUNGEN } from '../../../data/eindeckungen';
+
+const kg = (kn: number) => Math.round(kn * 100);
+const kn = (x: number) => x.toFixed(2).replace('.', ',');
+
+const faq = [
+  {
+    question: 'Wie schwer ist ein Dachziegel pro m²?',
+    answer:
+      'Ein Tondachziegeldach wiegt inklusive Dachlatten und Konterlattung etwa 40 bis 55 kg/m² Dachfläche, das entspricht 0,40 bis 0,55 kN/m². Betondachsteine liegen mit 50 bis 60 kg/m² etwas darüber. Maßgebend ist immer die Herstellerangabe für das gewählte Modell.',
+  },
+  {
+    question: 'Wie rechne ich kg/m² in kN/m² um?',
+    answer: 'Als Faustwert gilt 100 kg/m² ≈ 1 kN/m². Genauer sind es 9,81 N je kg, für die Vorbemessung genügt der Faktor 100.',
+  },
+  {
+    question: 'Gilt das Gewicht je m² Dachfläche oder Grundfläche?',
+    answer:
+      'Die Werte hier beziehen sich auf die geneigte Dachfläche, so wie die Eindeckung verlegt wird. Schnee dagegen wird auf die Grundfläche bezogen. Der Sparren-Rechner rechnet beides korrekt um.',
+  },
+  {
+    question: 'Welche Dacheindeckung ist am leichtesten?',
+    answer:
+      'Trapezblech und Sandwichpaneele sind mit etwa 10 bis 20 kg/m² am leichtesten. Das erlaubt bei gleicher Spannweite meist schlankere Sparren und größere Abstände als bei Ziegeln.',
+  },
+  {
+    question: 'Was ist mit der Dämmung und dem Dachaufbau?',
+    answer:
+      'Dämmung, Sparrenzwischenraum, Innenverkleidung und Dachschalung kommen zur Eindeckung hinzu. Bei schweren Aufbauten solltest du die Zusatzlast ergänzen oder die Berechnung prüfen lassen.',
+  },
+];
+---
+
+<ToolLayout
+  title="Dacheindeckung Gewicht pro m² – Tabelle mit Richtwerten"
+  description="Gewicht von Dacheindeckungen pro m²: Tondachziegel, Betondachstein, Schiefer, Trapezblech, Sandwichpaneel und Gründach in kg/m² und kN/m². Mit Rechenwerten für die Statik."
+  keywords="Dacheindeckung Gewicht pro m², Dachziegel Gewicht, Dachlast kg/m², Gewicht Trapezblech, Dachgewicht Tabelle, Eigenlast Dach"
+  navTitle="Gewicht Dacheindeckung"
+  backHref="/tools/sparren-rechner/"
+  backLabel="← Sparren-Rechner"
+  faq={faq}
+>
+  <div class="intro">
+    <h1>Gewicht der Dacheindeckung pro m²</h1>
+    <p class="lead">
+      Richtwerte für die Eigenlast gängiger Eindeckungen inklusive Lattung bzw. Schalung, in kg/m² und kN/m²
+      Dachfläche. Die Werte sind die Grundlage für die Statik deiner Unterkonstruktion und fließen direkt in den
+      <a href="/tools/sparren-rechner/">Sparren-Rechner</a> ein.
+    </p>
+  </div>
+
+  <div class="tabelle-wrap">
+    <table>
+      <caption class="sr-only">Eigengewicht von Dacheindeckungen in kg/m² und kN/m²</caption>
+      <thead>
+        <tr>
+          <th scope="col">Eindeckung</th>
+          <th scope="col">Typische Spanne</th>
+          <th scope="col">Rechenwert</th>
+          <th scope="col">Enthalten</th>
+        </tr>
+      </thead>
+      <tbody>
+        {EINDECKUNGEN.map((e) => (
+          <tr>
+            <th scope="row">{e.label}</th>
+            <td>{kg(e.von)}–{kg(e.bis)} kg/m²</td>
+            <td><strong>{kn(e.gewicht)} kN/m²</strong> ({kg(e.gewicht)} kg/m²)</td>
+            <td>{e.aufbau}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <InfoBox title="Wichtig zu den Werten" variant="warning" icon="⚠️">
+    <p>
+      Es sind Richtwerte für die Vorbemessung. Maßgebend ist das Datenblatt des gewählten Produkts. Dämmung,
+      Innenverkleidung, Aufdachdämmung und Photovoltaik kommen zusätzlich dazu. Der Rechenwert liegt bewusst
+      im oberen Bereich der typischen Spanne.
+    </p>
+  </InfoBox>
+
+  <section class="info-section">
+    <h2>So nutzt du die Tabelle</h2>
+    <ol>
+      <li>Eindeckung wählen und den Rechenwert in kN/m² ablesen.</li>
+      <li>Im <a href="/tools/sparren-rechner/">Sparren-Rechner</a> die Eindeckung auswählen, die Werte sind dort schon hinterlegt.</li>
+      <li>Für die Schneelast deine Zone mit dem <a href="/tools/schneelastzone/">Schneelastzonen-Tool</a> ermitteln.</li>
+      <li>Passende Lattung mit dem <a href="/tools/lattenrechner/">Lattenrechner</a> planen.</li>
+    </ol>
+  </section>
+
+  <section class="faq-section" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">Häufige Fragen zum Dachgewicht</h2>
+    {faq.map((eintrag) => (
+      <div class="faq-item">
+        <h3>{eintrag.question}</h3>
+        <p>{eintrag.answer}</p>
+      </div>
+    ))}
+  </section>
+</ToolLayout>
+
+<style>
+  .intro h1 { color: var(--accent-blue); font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem); margin: 0 0 12px; }
+  .lead { color: var(--text-secondary); font-size: 1.05em; line-height: 1.6; max-width: 66ch; margin: 0 0 24px; }
+  .lead a, .info-section a { color: var(--accent-blue); }
+  .tabelle-wrap { overflow-x: auto; margin: 12px 0 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+  thead th { color: var(--accent-blue); font-weight: 600; }
+  tbody th { font-weight: 600; }
+  .info-section { margin: 32px 0; line-height: 1.7; }
+  .info-section h2 { color: var(--accent-blue); margin-bottom: 12px; }
+  .info-section ol { padding-left: 20px; }
+  .info-section li { margin-bottom: 8px; }
+  .faq-section { background: rgba(14, 165, 233, 0.06); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; margin: 28px 0; }
+  .faq-section h2 { font-size: 1.6rem; margin-bottom: 18px; color: var(--accent-blue); }
+  .faq-item { margin-bottom: 16px; }
+  .faq-item h3 { font-size: 1.1rem; margin-bottom: 8px; }
+  .faq-item p { color: var(--text-secondary); line-height: 1.6; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
