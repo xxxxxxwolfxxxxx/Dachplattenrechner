@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AdUnit from '../../components/AdUnit.astro';
 import Footer from '../../components/Footer.astro';
+import SchneelastSuche from '../../components/SchneelastSuche.astro';
 ---
 
 <BaseLayout
@@ -19,6 +20,8 @@ import Footer from '../../components/Footer.astro';
   <AdUnit position="top" adSlot="9678418506" />
 
   <main class="container main-content">
+    <SchneelastSuche />
+
     <article style="line-height: 1.8; color: var(--text-primary);">
 
       <section style="margin-bottom: 3rem;">
@@ -80,8 +83,8 @@ import Footer from '../../components/Footer.astro';
         <h2>Wie finde ich meine Schneelastzone?</h2>
         <p>
           Es gibt zwei bewährte Wege zur Bestimmung deiner Schneelastzone: Die manuelle Methode über offizielle
-          Tabellen und Karten (zuverlässig, aber zeitaufwendig) oder schnell mit unserem interaktiven Tool
-          (sekunden schnell, geopositioniert).
+          Tabellen und Karten (zuverlässig, aber zeitaufwendig) oder schnell mit unserer Suche oben
+          (Ort oder Landkreis eingeben, Zone und Windzone erscheinen sofort).
         </p>
         <h3 style="margin-top: 1.5rem;">Manuell (Bundesland-Tabelle)</h3>
         <p>
@@ -98,12 +101,12 @@ import Footer from '../../components/Footer.astro';
           <strong>Hinweis:</strong> Die Zone kann innerhalb eines Bundeslandes unterschiedlich sein. Beispiel Bayern:
           München liegt in Zone 1a, Garmisch-Partenkirchen in Zone 2a und Berchtesgaden in Zone 3. Zusätzlich beeinflusst die Höhenlage die Last innerhalb jeder Zone.
           Wenn du dir unsicher bist oder eine exakte Nachschau brauchst: Nutze unser
-          <strong>Schneelastzone-Tool</strong> weiter unten — es zeigt dir die Zonen auf der Karte.
+          <strong>Schneelastzone-Suche</strong> oben auf dieser Seite — sie nutzt die amtliche DIBt-Zuordnung je Gemeinde.
         </p>
 
         <h3 style="margin-top: 1.5rem;">Mit Karte & Tool (schneller & genauer)</h3>
         <p>
-          Die moderne und empfohlene Methode: Schau dir deinen Landkreis auf der Karte an.
+          Die moderne und empfohlene Methode: Gib deinen Ort oder Landkreis in die Suche oben ein oder schau auf der Karte nach.
           Unsere <a href="/tools/karte/">Zonenkarte</a> zeigt dir die Schneelastzonen nach DIN EN 1991-1-3/NA
           auf einen Blick. Aus der Zone und deiner Geländehöhe ermittelst du mit den Formeln oben die
           charakteristische Schneelast. Die genaue Zuordnung für Grenzfälle klärst du im Zweifel mit der
@@ -222,9 +225,9 @@ import Footer from '../../components/Footer.astro';
       </section>
 
       <section style="margin-bottom: 3rem; background: var(--gradient-secondary); padding: 2rem; border-radius: var(--radius-lg);">
-        <h2>Schneelastzone bestimmen</h2>
+        <h2>Karte und Windzonen</h2>
         <p>
-          Schau auf der Karte nach, in welcher Zone dein Landkreis liegt:
+          Die interaktive Karte zeigt Schnee- und Windzonen nach Landkreisen und Gemeinden:
         </p>
         <a href="/tools/karte/" style="
           display: inline-block;

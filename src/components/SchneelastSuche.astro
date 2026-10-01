@@ -1,0 +1,241 @@
+---
+// Suche nach Schneelastzone per Ort oder Landkreis (Daten: DIBt, geladen beim ersten Fokus).
+---
+
+<section class="slz" aria-labelledby="slz-titel">
+  <h2 id="slz-titel" class="slz-titel">Schneelastzone für deinen Ort finden</h2>
+  <label for="slz-eingabe" class="slz-label">Ort oder Landkreis</label>
+  <input
+    id="slz-eingabe"
+    class="slz-eingabe"
+    type="search"
+    autocomplete="off"
+    spellcheck="false"
+    placeholder="z. B. Garmisch-Partenkirchen, Ostalbkreis, Hamburg"
+    aria-describedby="slz-status"
+  />
+  <p id="slz-status" class="slz-status" role="status" aria-live="polite"></p>
+  <ul id="slz-treffer" class="slz-treffer"></ul>
+  <div id="slz-detail" class="slz-detail" hidden></div>
+  <p class="slz-quelle">
+    Datengrundlage: Zuordnung der Schneelastzonen nach Verwaltungsgrenzen des DIBt (Stand
+    <span id="slz-stand">07.02.2023</span>), je Gemeinde bzw. Landkreis. Verbindlich sind die amtlichen
+    Bekanntmachungen der Länder.
+  </p>
+</section>
+
+<script>
+  import {
+    sucheOrt,
+    gruppiereNachZone,
+    istBerechenbar,
+    BUNDESLAENDER,
+    type Datensatz,
+    type Treffer,
+  } from '../utils/schneelastzonen';
+  import { schneelastSk } from '../utils/sparren';
+
+  const DATEN_URL = '/data/schneelastzonen.json';
+  const eingabe = document.getElementById('slz-eingabe') as HTMLInputElement;
+  const status = document.getElementById('slz-status') as HTMLElement;
+  const liste = document.getElementById('slz-treffer') as HTMLUListElement;
+  const detail = document.getElementById('slz-detail') as HTMLElement;
+  const standFeld = document.getElementById('slz-stand') as HTMLElement;
+
+  let daten: Datensatz | null = null;
+  let laden: Promise<Datensatz | null> | null = null;
+
+  function ladeDaten(): Promise<Datensatz | null> {
+    laden ??= fetch(DATEN_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json() as Promise<Datensatz>;
+      })
+      .then((d) => {
+        daten = d;
+        standFeld.textContent = d.stand.split('-').reverse().join('.');
+        return d;
+      })
+      .catch((fehler) => {
+        console.error('Schneelastzonen konnten nicht geladen werden', fehler);
+        status.textContent = 'Die Zonendaten konnten nicht geladen werden. Bitte Seite neu laden.';
+        laden = null;
+        return null;
+      });
+    return laden;
+  }
+
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, klasse?: string, text?: string): HTMLElementTagNameMap[K] {
+    const e = document.createElement(tag);
+    if (klasse) e.className = klasse;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  const zahl = (n: number) => n.toFixed(2).replace('.', ',');
+  const zoneText = (z: string) => `Zone ${z}`;
+
+  function skText(zone: string, hoehe: number | null): string {
+    if (zone === '>3' || zone === '>3a') return 'Sonderfall oberhalb Zone 3: s_k individuell beim Bauamt oder Statiker erfragen.';
+    if (!istBerechenbar(zone)) return 'Sonderzone aus dem Bayerischen Forschungsprojekt: s_k beim Bauamt oder Statiker erfragen.';
+    const sk = schneelastSk(zone, hoehe ?? 0);
+    return hoehe === null
+      ? `Mindestwert s_k = ${zahl(sk)} kN/m² (ca. ${Math.round(sk * 100)} kg/m²) – steigt mit der Geländehöhe.`
+      : `Auf ${hoehe} m ü. NN: s_k = ${zahl(sk)} kN/m² (ca. ${Math.round(sk * 100)} kg/m²).`;
+  }
+
+  function zeigeDetail(t: Treffer): void {
+    detail.replaceChildren();
+    detail.hidden = false;
+
+    const kopf = el('div', 'slz-kopf');
+    kopf.append(el('h3', 'slz-name', t.name));
+    const ort = t.art === 'gemeinde' && t.kreis !== t.name ? `${t.kreis}, ` : '';
+    kopf.append(el('p', 'slz-ort', `${ort}${BUNDESLAENDER[t.land]}`));
+    detail.append(kopf);
+
+    const zonenBlock = el('div', 'slz-zonen');
+    const hauptZone = t.zone;
+    if (hauptZone) {
+      const feld = el('div', 'slz-zone');
+      feld.append(el('span', 'slz-zone-label', t.art === 'kreis' ? 'Standardzone' : 'Schneelastzone'));
+      feld.append(el('span', 'slz-zone-num', hauptZone));
+      zonenBlock.append(feld);
+    } else {
+      const feld = el('div', 'slz-zone');
+      feld.append(el('span', 'slz-zone-label', 'Je nach Gemeinde'));
+      feld.append(el('span', 'slz-zone-num', t.zonen.join(' / ')));
+      zonenBlock.append(feld);
+    }
+    detail.append(zonenBlock);
+
+    const skZeile = el('p', 'slz-sk');
+    detail.append(skZeile);
+    const hoehenFeld = el('div', 'slz-hoehe');
+    const hoehenLabel = el('label', undefined, 'Geländehöhe in m ü. NN (optional)');
+    hoehenLabel.htmlFor = 'slz-hoehe';
+    const hoehenEingabe = el('input');
+    hoehenEingabe.id = 'slz-hoehe';
+    hoehenEingabe.type = 'number';
+    hoehenEingabe.min = '0';
+    hoehenEingabe.max = '3000';
+    hoehenEingabe.step = '10';
+    hoehenEingabe.inputMode = 'numeric';
+    hoehenEingabe.placeholder = 'z. B. 450';
+    hoehenFeld.append(hoehenLabel, hoehenEingabe);
+
+    const aktualisiere = () => {
+      const roh = hoehenEingabe.value.trim();
+      const h = roh === '' ? null : Math.min(3000, Math.max(0, Number(roh)));
+      skZeile.replaceChildren();
+      if (hauptZone) {
+        skZeile.append(el('strong', undefined, 'Schneelast am Boden: '), document.createTextNode(skText(hauptZone, Number.isFinite(h) ? h : null)));
+        return;
+      }
+      skZeile.append(document.createTextNode('Die Schneelast hängt von der Zone der Gemeinde ab. Wähle unten deine Gemeinde.'));
+    };
+    hoehenEingabe.addEventListener('input', aktualisiere);
+    if (hauptZone) detail.append(hoehenFeld);
+    aktualisiere();
+
+    if (t.gemeinden.length > 0) {
+      const gruppen = gruppiereNachZone(t.gemeinden);
+      const box = el('details', 'slz-gemeinden');
+      if (!hauptZone) box.open = true;
+      box.append(el('summary', undefined, hauptZone ? 'Gemeinden mit abweichender Zone' : 'Gemeinden dieses Landkreises nach Zone'));
+      for (const g of gruppen) {
+        const p = el('p');
+        p.append(el('strong', undefined, `${zoneText(g.zone)}: `), document.createTextNode(g.namen.join(', ')));
+        box.append(p);
+      }
+      detail.append(box);
+    }
+
+    if (t.hinweise.length > 0) {
+      const ul = el('ul', 'slz-hinweise');
+      for (const h of t.hinweise) ul.append(el('li', undefined, h));
+      detail.append(ul);
+    }
+
+    const weiter = el('p', 'slz-weiter');
+    const link = el('a', undefined, 'Mit dieser Zone Sparren vorbemessen →');
+    link.href = '/tools/sparren-rechner/';
+    weiter.append(link);
+    detail.append(weiter);
+    detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  function zeigeTreffer(treffer: Treffer[], suche: string): void {
+    liste.replaceChildren();
+    detail.hidden = true;
+    if (suche.trim().length < 2) {
+      status.textContent = '';
+      return;
+    }
+    if (treffer.length === 0) {
+      status.textContent = `Kein Ort „${suche.trim()}“ gefunden. Probiere den Landkreis oder eine nahegelegene größere Gemeinde.`;
+      return;
+    }
+    status.textContent = `${treffer.length} Treffer${treffer.length === 20 ? ' (bitte Suche eingrenzen)' : ''}`;
+    for (const t of treffer) {
+      const li = el('li');
+      const knopf = el('button', 'slz-knopf');
+      knopf.type = 'button';
+      const zonen = t.art === 'kreis' && t.zonen.length > 1 ? t.zonen.join('/') : (t.zone ?? t.zonen.join('/'));
+      knopf.append(
+        el('span', 'slz-knopf-name', t.art === 'kreis' ? `${t.name} (Landkreis)` : t.name),
+        el('span', 'slz-knopf-ort', t.art === 'kreis' ? BUNDESLAENDER[t.land] : `${t.kreis !== t.name ? t.kreis + ', ' : ''}${BUNDESLAENDER[t.land]}`),
+        el('span', 'slz-knopf-zone', `Zone ${zonen}`),
+      );
+      knopf.addEventListener('click', () => zeigeDetail(t));
+      li.append(knopf);
+      liste.append(li);
+    }
+    if (treffer.length === 1) zeigeDetail(treffer[0]);
+  }
+
+  let timer: number | undefined;
+  eingabe.addEventListener('focus', () => void ladeDaten(), { once: true });
+  eingabe.addEventListener('input', () => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(async () => {
+      const d = daten ?? (await ladeDaten());
+      if (!d) return;
+      const suche = eingabe.value;
+      zeigeTreffer(sucheOrt(d, suche), suche);
+    }, 120);
+  });
+</script>
+
+<style is:global>
+  .slz { background: rgba(30, 45, 74, 0.7); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; padding: 24px; margin: 24px 0; }
+  .slz-titel { margin: 0 0 12px; font-size: 1.3rem; }
+  .slz-label { display: block; font-size: 0.85rem; font-weight: 600; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .slz-eingabe { width: 100%; box-sizing: border-box; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 8px; color: #f8fafc; padding: 12px 14px; font-size: 1rem; }
+  .slz-eingabe:focus-visible, .slz-hoehe input:focus-visible, .slz-knopf:focus-visible { outline: 2px solid #0ea5e9; outline-offset: 2px; }
+  .slz-status { min-height: 1.4em; margin: 8px 0; color: #cbd5e1; font-size: 0.9rem; }
+  .slz-treffer { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .slz-knopf { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; text-align: left; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: #f8fafc; padding: 10px 14px; cursor: pointer; font: inherit; transition: border-color 0.15s, transform 0.15s; }
+  .slz-knopf:hover { border-color: #0ea5e9; transform: translateY(-1px); }
+  .slz-knopf-name { font-weight: 600; }
+  .slz-knopf-zone { grid-row: 1 / span 2; grid-column: 2; align-self: center; background: linear-gradient(135deg, #0ea5e9, #06b6d4); color: #fff; border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+  .slz-knopf-ort { color: #cbd5e1; font-size: 0.85rem; }
+  .slz-detail { margin-top: 16px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(14, 165, 233, 0.4); border-radius: 12px; padding: 20px; }
+  .slz-name { margin: 0; font-size: 1.25rem; }
+  .slz-ort { margin: 2px 0 12px; color: #cbd5e1; }
+  .slz-zone { display: flex; align-items: baseline; gap: 12px; }
+  .slz-zone-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: #93c5fd; font-weight: 600; }
+  .slz-zone-num { font-size: 2.4rem; font-weight: 800; line-height: 1; color: #38bdf8; }
+  .slz-sk { margin: 12px 0; }
+  .slz-hoehe { display: grid; gap: 6px; max-width: 280px; margin-bottom: 12px; }
+  .slz-hoehe label { font-size: 0.85rem; color: #cbd5e1; }
+  .slz-hoehe input { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 8px; color: #f8fafc; padding: 8px 12px; font-size: 1rem; }
+  .slz-gemeinden { margin: 12px 0; }
+  .slz-gemeinden summary { cursor: pointer; font-weight: 600; color: #93c5fd; }
+  .slz-gemeinden p { margin: 8px 0 0; color: #cbd5e1; font-size: 0.92rem; }
+  .slz-hinweise { margin: 12px 0 0; padding-left: 20px; color: #fcd34d; font-size: 0.92rem; }
+  .slz-weiter { margin: 16px 0 0; }
+  .slz-weiter a { color: #38bdf8; font-weight: 600; }
+  .slz-quelle { margin: 16px 0 0; font-size: 0.8rem; color: #94a3b8; }
+  @media (prefers-reduced-motion: reduce) { .slz-knopf { transition: none; } .slz-knopf:hover { transform: none; } }
+</style>

@@ -2,11 +2,12 @@
 import ToolLayout from '../../layouts/ToolLayout.astro';
 import InfoBox from '../../components/InfoBox.astro';
 import AdUnit from '../../components/AdUnit.astro';
+import SchneelastSuche from '../../components/SchneelastSuche.astro';
 ---
 
 <ToolLayout
   title="Schnee- & Windlastzonen Deutschland"
-  description="Schneelastzone und Windzone für Ihren Landkreis nachschlagen – nach DIN EN 1991-1-3 und DIN EN 1991-1-4. Mit Zonenkarte Deutschland."
+  description="Schneelastzone für deinen Ort per DIBt-Daten finden und Windzone für deinen Landkreis nachschlagen – nach DIN EN 1991-1-3 und DIN EN 1991-1-4. Mit Zonenkarte Deutschland."
   keywords="Schneelastzone Deutschland, Windlastzone Deutschland, Schneelast berechnen Dach, DIN 1991 Schneelast, Windzone Karte, Dach Statik Schneelast, Carport Schneelast, Blech Dach Windlast"
   navTitle="Schnee- & Windlastzonen"
   background="url('/images/Schneelast.png')"
@@ -14,15 +15,18 @@ import AdUnit from '../../components/AdUnit.astro';
 
   <InfoBox title="Zonenwerte nach DIN-Norm">
     <ul>
-      <li><strong>Schneelastzonen 1–3</strong> nach DIN EN 1991-1-3 (Eurocode 1)</li>
+      <li><strong>Schneelastzonen 1, 1a, 2, 2a, 3</strong> nach DIN EN 1991-1-3 (Eurocode 1), je Gemeinde bzw. Landkreis nach DIBt-Tabelle</li>
       <li><strong>Windzonen 1–4</strong> nach DIN EN 1991-1-4 (Eurocode 1)</li>
-      <li>Bundesland und Landkreis wählen – Werte werden sofort angezeigt</li>
+      <li>Schnee: Ort oder Landkreis eingeben – Windzone: Bundesland und Landkreis wählen</li>
       <li>Bei Höhenlagen oder Sonderfällen können abweichende Werte gelten</li>
     </ul>
   </InfoBox>
 
-  <!-- Auswahl -->
+  <SchneelastSuche />
+
+  <!-- Auswahl Windzone -->
   <div class="select-box">
+    <h2 class="select-title">Windzone nachschlagen</h2>
     <div class="select-row">
       <div class="select-group">
         <label for="bundesland">Bundesland:</label>
@@ -36,7 +40,7 @@ import AdUnit from '../../components/AdUnit.astro';
           <option value="">-- Erst Bundesland wählen --</option>
         </select>
       </div>
-      <button class="btn-zone" id="showBtn" onclick="showResult()" disabled>Zonen anzeigen</button>
+      <button class="btn-zone" id="showBtn" onclick="showResult()" disabled>Windzone anzeigen</button>
     </div>
   </div>
 
@@ -59,7 +63,7 @@ import AdUnit from '../../components/AdUnit.astro';
   <InfoBox title="Hinweise" variant="warning">
     <ul>
       <li>Die Daten basieren auf den offiziellen Verwaltungsgrenzen nach DIN EN 1991-1-3 und DIN EN 1991-1-4</li>
-      <li>Schneelastzonen: 1 (niedrig) bis 3 (hoch) – Zone 1a/2a/3a sind erhöhte Sonderzonen</li>
+      <li>Schneelastzonen: 1 (niedrig) bis 3 (hoch) – Zone 1a/2a sind um 25 % erhöhte Zonen, in Bayern gibt es zusätzlich Zone 3a</li>
       <li>Windzonen: 1 (niedrig) bis 4 (sehr hoch, Küste/Nordseeinseln)</li>
       <li>Bei Sonderfällen, Höhenlagen über 400 m oder Hanglagen sind Rücksprachen mit dem Statiker erforderlich</li>
     </ul>
@@ -77,6 +81,8 @@ import AdUnit from '../../components/AdUnit.astro';
     padding: 24px;
     margin: 24px 0;
   }
+
+  .select-title { margin: 0 0 16px; font-size: 1.3rem; }
 
   .select-row {
     display: flex;
