@@ -8,7 +8,7 @@ Betroffen ist Mecklenburg-Vorpommern. Die DIBt-Tabellen nennen dort z. B. "alle 
 (Aufruf-URLs siehe build-gemeindekarte.py; für vwg zusätzlich &propertyName=gen,bez,ags,ars)
 Der ARS einer Gemeinde beginnt mit dem 9-stelligen ARS ihres Amtes bzw. der amtsfreien Gemeinde.
 
-Reihenfolge der Skripte: build-schneelastzonen -> build-windzonen -> ergaenze-amtsgebiete -> build-kreiskarte -> build-gemeindekarte
+Reihenfolge der Skripte: build-schneelastzonen -> build-windzonen -> ergaenze-amtsgebiete -> ergaenze-flussgemeinden -> build-kreiskarte -> build-gemeindekarte
 Aufruf: python3 scripts/ergaenze-amtsgebiete.py <13.json> <vwg13.json>   (idempotent)
 """
 import json

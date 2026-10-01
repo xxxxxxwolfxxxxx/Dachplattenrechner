@@ -130,6 +130,15 @@ describe('windzone', () => {
     expect(zoneVon('Frankfurt am Main')?.zone).toBe('1');
   });
 
+  it('ordnet Moselgemeinden nach der Lage zum Fluss (Windzone 1 rechts, 2 links)', () => {
+    const gemeinde = (kreis: string, name: string) =>
+      windzone(wind, { art: 'gemeinde', land: 'RP', kreis, name, zone: null, zonen: [], hinweise: [], gemeinden: [] } as Treffer);
+    expect(gemeinde('Bernkastel-Wittlich', 'Traben-Trarbach')?.zone).toBe('1'); // überwiegend rechts der Mosel
+    expect(gemeinde('Cochem-Zell', 'Cochem')?.zone).toBe('2'); // überwiegend links der Mosel
+    expect(gemeinde('Cochem-Zell', 'Cochem')?.hinweis).toContain('rechts davon');
+    expect(gemeinde('Cochem-Zell', 'Ulmen')?.zone).toBe('2'); // Eifel, weit links der Mosel
+  });
+
   it('kennt die Windzone 4 an der Küste (Emden)', () => {
     expect(zoneVon('Emden')?.zone).toBe('4');
   });
