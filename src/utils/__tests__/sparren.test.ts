@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   schneelastSk,
   schneeFormbeiwert,
+  dachSchneelast,
+  lastVergleich,
   berechneSparren,
   maxStuetzweite,
   pruefeQuerschnitte,
@@ -150,5 +152,38 @@ describe('pruefeQuerschnitte', () => {
     for (let i = 1; i < liste.length; i++) {
       expect(liste[i].maxAusnutzung).toBeLessThanOrEqual(liste[i - 1].maxAusnutzung + 1e-9);
     }
+  });
+});
+
+describe('dachSchneelast', () => {
+  it('nimmt ohne Neigung den Höchstwert 0,8 · s_k', () => {
+    expect(dachSchneelast(2)).toBeCloseTo(1.6, 6);
+    expect(dachSchneelast(2, null)).toBeCloseTo(1.6, 6);
+  });
+  it('bleibt bis 30° bei 0,8 · s_k', () => {
+    expect(dachSchneelast(2, 30)).toBeCloseTo(1.6, 6);
+  });
+  it('sinkt zwischen 30° und 60° linear', () => {
+    expect(dachSchneelast(2, 45)).toBeCloseTo(0.8, 6);
+  });
+  it('ist ab 60° null (Schnee rutscht ab)', () => {
+    expect(dachSchneelast(2, 60)).toBe(0);
+    expect(dachSchneelast(2, 75)).toBe(0);
+  });
+});
+
+describe('lastVergleich', () => {
+  it('rechnet 2,6 kN/m² in Schneehöhen und Zementsäcke um', () => {
+    const v = lastVergleich(2.6);
+    expect(v.neuschneeCm).toBe(260);
+    expect(v.nassschneeCm).toBe(65);
+    expect(v.zementSaecke).toBe(10);
+  });
+  it('gibt kleine Lasten mit einer Nachkommastelle an', () => {
+    expect(lastVergleich(0.5).zementSaecke).toBe(2);
+    expect(lastVergleich(0.2).zementSaecke).toBe(0.8);
+  });
+  it('liefert bei Last 0 nur Nullen', () => {
+    expect(lastVergleich(0)).toEqual({ neuschneeCm: 0, nassschneeCm: 0, zementSaecke: 0 });
   });
 });
