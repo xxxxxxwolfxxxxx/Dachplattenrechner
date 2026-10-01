@@ -1,16 +1,67 @@
 ---
 import ToolLayout from '../../../layouts/ToolLayout.astro';
 import InfoBox from '../../../components/InfoBox.astro';
+
+// Sichtbare FAQ und FAQPage-Markup aus einer Quelle – sonst laufen beide auseinander
+const faq = [
+  {
+    question: 'Welcher U-Wert ist beim Dach vorgeschrieben?',
+    answer:
+      'Bei der Sanierung gelten feste Grenzwerte nach Anlage 7 GEG: 0,24 W/(m²K) für Steildächer und Dachschrägen, 0,20 W/(m²K) für Flachdächer. Beim Neubau gibt es keinen einzelnen Grenzwert pro Bauteil, dort wird gegen ein Referenzgebäude gerechnet – dessen Dach ist mit 0,20 W/(m²K) angesetzt, was in der Praxis die Zielmarke vorgibt. Alle Werte gelten für die fertige Konstruktion inklusive aller Schichten, nicht für die Dämmung allein.',
+  },
+  {
+    question: 'Welche Dämmstärke brauche ich für einen U-Wert von 0,24?',
+    answer:
+      'Mit Mineralwolle der Wärmeleitstufe 035 sind rund 150 mm nötig, mit PUR/PIR (WLS 024) reichen etwa 100 mm. Entscheidend ist der gesamte Aufbau: Sparren aus Holz wirken als Wärmebrücke und verschlechtern den Wert gegenüber der reinen Dämmschicht spürbar.',
+  },
+  {
+    question: 'Welchen U-Wert hat ein Sandwichpaneel?',
+    answer:
+      'Ein PUR-Dachpaneel mit 40 mm Kern liegt bei etwa 0,53 W/(m²K), mit 80 mm bei etwa 0,28 und mit 120 mm bei etwa 0,19 W/(m²K). Für beheizte Gebäude nach GEG sind damit mindestens 100 bis 120 mm Kerndicke nötig. Herstellerangaben können je nach Profil und Fugenausbildung abweichen.',
+  },
+  {
+    question: 'Zählt das Trapezblech beim U-Wert mit?',
+    answer:
+      'Praktisch nicht. Stahlblech hat eine sehr hohe Wärmeleitfähigkeit, eine 0,75 mm starke Deckung steuert einen Wärmedurchlasswiderstand von etwa 0,001 m²K/W bei. Den U-Wert bestimmt fast vollständig die Dämmschicht. Wichtig ist das Blech trotzdem: Es ist dampfdicht und verschiebt damit den Taupunkt im Aufbau.',
+  },
+  {
+    question: 'Was ist das Glaser-Verfahren?',
+    answer:
+      'Das Glaser-Verfahren ist eine Methode zur Taupunktanalyse von Bauteilen nach DIN 4108-3. Es zeigt, ob und an welcher Stelle im Schichtaufbau Feuchte kondensiert. Das ist für die Dauerhaftigkeit entscheidend, denn bei Kondensat drohen Schäden an Holz und Dämmung. Der Rechner führt diese Analyse automatisch mit durch.',
+  },
+  {
+    question: 'Warum ist bei Blechdächern die Dampfbremse so wichtig?',
+    answer:
+      'Metalldeckungen sind dampfdicht, Feuchte kann nach außen nicht entweichen. Ohne raumseitige Dampfbremse mit ausreichendem sd-Wert sammelt sich Tauwasser unter dem Blech. Die Taupunktanalyse zeigt, ob der geplante sd-Wert für den Aufbau ausreicht.',
+  },
+  {
+    question: 'Wie berechne ich den U-Wert von Hand?',
+    answer:
+      'Die Formel lautet U = 1 / R_ges. Jede Schicht liefert R = d / λ, wobei d die Dicke in Metern und λ die Wärmeleitfähigkeit in W/(mK) ist. Dazu kommen die Wärmeübergangswiderstände innen (0,10 m²K/W) und außen (0,04 m²K/W). Bei Aufbauten mit mehreren Schichten ist der Rechner deutlich schneller und erfasst zusätzlich den Taupunkt.',
+  },
+  {
+    question: 'Gilt die Berechnung auch für Wände und Decken?',
+    answer:
+      'Ja. Das Rechenverfahren nach DIN EN ISO 6946 ist für alle flächigen Bauteile gleich, nur die Grenzwerte und die Wärmeübergangswiderstände unterscheiden sich. Für Außenwände fordert das GEG bei Sanierung 0,24 W/(m²K), für Kellerdecken 0,30 W/(m²K).',
+  },
+];
 ---
 
 <ToolLayout
-  title="U-Wert Rechner"
-  keywords="U-Wert berechnen Dach, Wärmeschutznachweis, Dämmung Dach berechnen, Taupunkt Dach, Wärmedurchgang Trapezblech, Sandwichpaneel U-Wert, Dachdämmung Rechner, Wärmedämmung Blech, EnEV Dach"
-  description="U-Wert-Berechnung nach DIN EN ISO 6946. Taupunktanalyse nach Glaser-Verfahren. Wärmeschutz-Nachweis mit 100+ Baustoffen – kostenlos im Browser."
+  title="U-Wert Rechner Dach – Dämmung und Taupunkt berechnen"
+  keywords="U-Wert Rechner Dach, U-Wert berechnen Dach, Dämmstärke Dach berechnen, Taupunkt Dach, Sandwichpaneel U-Wert, Trapezblech Dämmung, GEG Dach U-Wert, Glaser-Verfahren"
+  description="U-Wert für Dachaufbauten berechnen: Dämmstärke, GEG-Grenzwerte und Taupunkt nach Glaser-Verfahren. Mit über 100 Baustoffen, Sandwichpaneelen und druckbarem Nachweis."
   navTitle="U-Wert Rechner"
+  faq={faq}
   background="url('/images/index.png')"
 >
   <div class="u-wert-intro">
+    <h1>U-Wert Rechner für Dachaufbauten</h1>
+    <p class="lead">
+      Berechne den Wärmedurchgangskoeffizienten deines Dachaufbaus nach DIN EN ISO 6946 – vom
+      gedämmten Sparrendach über Trapezblech mit Mineralwolle bis zum Sandwichpaneel. Der Rechner
+      prüft zugleich per Glaser-Verfahren, ob im Aufbau Tauwasser anfällt.
+    </p>
     <InfoBox title="Wärmeschutz-Nachweis nach DIN-Norm">
       <ul>
         <li><strong>U-Wert</strong>: Wärmedurchgangskoeffizient in W/(m²K) nach <strong>DIN EN ISO 6946</strong></li>
@@ -31,7 +82,7 @@ import InfoBox from '../../../components/InfoBox.astro';
       <text x="20" y="75" fill="#cbd5e1" font-size="12" font-family="sans-serif">Gesamter U-Wert:</text>
       <text x="250" y="80" fill="#10b981" font-size="28" font-weight="bold" font-family="sans-serif">0,24</text>
       <text x="330" y="80" fill="#cbd5e1" font-size="14" font-family="sans-serif">W/(m²·K)</text>
-      <text x="20" y="108" fill="#10b981" font-size="11" font-family="sans-serif">✓ Erfüllt EnEV/GEG-Anforderung (≤ 0,24 W/m²K)</text>
+      <text x="20" y="108" fill="#10b981" font-size="11" font-family="sans-serif">✓ Erfüllt GEG-Grenzwert Steildach (≤ 0,24 W/m²K)</text>
       <line x1="20" y1="118" x2="480" y2="118" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
       <text x="20" y="138" fill="#cbd5e1" font-size="11" font-family="sans-serif">Schicht 1: Trapezblech 0,75mm</text><text x="380" y="138" fill="white" font-size="11" font-family="sans-serif" text-anchor="end">R = 0,001</text>
       <text x="20" y="158" fill="#cbd5e1" font-size="11" font-family="sans-serif">Schicht 2: Mineralwolle 120mm</text><text x="380" y="158" fill="white" font-size="11" font-family="sans-serif" text-anchor="end">R = 3,158</text>
@@ -55,7 +106,7 @@ import InfoBox from '../../../components/InfoBox.astro';
       <li><strong>λ (Lambda)</strong>: Wärmeleitfähigkeit des Baustoffs in W/(mK) – je kleiner, desto besser isolierend</li>
       <li><strong>μ (Mu)</strong>: Dampfdiffusionswiderstandszahl – je höher, desto dampfdichter (∞ = dampfdicht, z.B. Metalldeckung)</li>
       <li><strong>Schichtaufbau</strong>: Immer von <em>innen nach außen</em> eingeben</li>
-      <li><strong>U-Wert-Ziel</strong>: Für moderne Dächer unter 0,24 W/(m²K), für Außenwände unter 0,28 W/(m²K)</li>
+      <li><strong>U-Wert-Ziel</strong>: Steildach 0,24 W/(m²K), Flachdach 0,20 W/(m²K), Außenwand 0,24 W/(m²K) – Sanierungsgrenzwerte nach Anlage 7 GEG</li>
     </ul>
   </InfoBox>
 
@@ -63,30 +114,15 @@ import InfoBox from '../../../components/InfoBox.astro';
     <p>Die Berechnungen basieren auf normierten Verfahren und dienen als Planungshilfe. Für einen rechtsverbindlichen Energieausweis oder Bauantrag ist die Prüfung durch einen qualifizierten Energieberater erforderlich.</p>
   </InfoBox>
 
-  <section class="faq-section">
-    <h2>Häufig gestellte Fragen zum U-Wert</h2>
+  <section class="faq-section" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">Häufige Fragen zum U-Wert am Dach</h2>
 
-    <div class="faq-item">
-      <h3>Warum ist der U-Wert wichtig?</h3>
-      <p>Der U-Wert bestimmt den Wärmeverlust durch Dach, Wände und Fenster. Ein niedrigerer U-Wert bedeutet bessere Wärmedämmung, weniger Heizkosten und höheren Wohnkomfort. Die Einhaltung von Mindestanforderungen ist für Neubau- und Sanierungsprojekte gesetzlich vorgeschrieben (GEG – Gebäudeenergiegesetz).</p>
-    </div>
-
-    <div class="faq-item">
-      <h3>Was ist das Glaser-Verfahren?</h3>
-      <p>Das Glaser-Verfahren ist eine Methode zur Taupunktanalyse von Baugefügen nach DIN 4108-3. Es zeigt, ob und wo Feuchte in der Schichtstruktur (z.B. im Dachaufbau) kondensiert. Dies ist entscheidend für die Dauerhaftigkeit – bei Kondensation drohen Schäden an Holzteilen und Dämmung. Der U-Wert Rechner führt diese Analyse automatisch durch.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3>Welche U-Wert-Anforderungen gelten nach GEG?</h3>
-      <p>Für Neubau: ≤ 0,24 W/(m²K) bei Dächern, ≤ 0,28 W/(m²K) bei Außenwänden. Bei Sanierungen gelten höhere Grenzwerte. Unser Rechner berücksichtigt aktuelle Normen.</p>
-    </div>
-
-    <div class="faq-item">
-      <h3>Wie berechne ich den U-Wert manuell?</h3>
-      <p>Formel: U = 1 / R_total. Jede Schicht trägt R = d / λ bei (d = Dicke in m, λ = Wärmeleitfähigkeit). Hinzu kommen Oberflächenwiderstände. Für Mehrschicht-Aufbauten ist unser kostenloses Tool deutlich schneller.</p>
-    </div>
-
-
+    {faq.map((eintrag) => (
+      <div class="faq-item">
+        <h3>{eintrag.question}</h3>
+        <p>{eintrag.answer}</p>
+      </div>
+    ))}
   </section>
 
   <section class="info-section">
@@ -99,6 +135,18 @@ import InfoBox from '../../../components/InfoBox.astro';
   .preview-screenshot { background: var(--gradient-surface); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 28px; box-shadow: var(--shadow-md); border: 1px solid var(--border-color); }
   .preview-label { color: var(--text-secondary); font-size: 13px; margin-bottom: 12px; font-weight: 500; }
   .u-wert-intro { margin-bottom: 0; }
+  .u-wert-intro h1 {
+    color: var(--accent-blue);
+    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem);
+    margin: 0 0 12px;
+  }
+  .u-wert-intro .lead {
+    color: var(--text-secondary);
+    font-size: 1.05em;
+    line-height: 1.6;
+    max-width: 62ch;
+    margin: 0;
+  }
 
   .iframe-wrapper {
     width: 100%;
