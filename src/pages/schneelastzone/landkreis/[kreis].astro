@@ -1,0 +1,81 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import { ladeOrtsdaten } from '../../../utils/ortsseiten';
+import { BUNDESLAENDER } from '../../../utils/schneelastzonen';
+import '../../../styles/ortsseiten.css';
+
+export function getStaticPaths() {
+  return ladeOrtsdaten().kreise.filter((k) => k.hatSeite).map((kreis) => ({ params: { kreis: kreis.slug }, props: { kreis } }));
+}
+
+const { kreis } = Astro.props;
+const land = BUNDESLAENDER[kreis.land];
+const REIHENFOLGE = ['1', '1a', '2', '2a', '3', '3a', '>3', '>3a'];
+const zonen = [...new Set(kreis.orte.map((o) => o.schnee).filter((z): z is string => z !== null))].sort((a, b) => REIHENFOLGE.indexOf(a) - REIHENFOLGE.indexOf(b));
+const windzonen = [...new Set(kreis.orte.map((o) => o.wind).filter((z): z is string => z !== null))].sort();
+const hoehen = kreis.orte.map((o) => o.hoehe).filter((h): h is number => h !== null);
+const spanne = (zahlen: number[]) => (zahlen.length > 0 ? [Math.min(...zahlen), Math.max(...zahlen)] : null);
+const hoehenSpanne = spanne(hoehen);
+const zonenText = (liste: string[]) => (liste.length === 1 ? `Zone ${liste[0]}` : `Zonen ${liste.join(', ')}`);
+
+const windText = windzonen.length === 0 ? '' : ` und ${windzonen.length === 1 ? 'die Windzone' : 'die Windzonen'} ${windzonen.join(', ')} für den Wind`;
+const hoehenText = hoehenSpanne
+  ? ` Die Ortsmitten liegen zwischen etwa ${hoehenSpanne[0]} und ${hoehenSpanne[1]} m ü. NN; die tatsächliche Schneelast hängt zusätzlich von der Geländehöhe ab.`
+  : '';
+const leadText = `Im Landkreis ${kreis.name} (${land}) gelten für die ${kreis.orte.length} Gemeinden die ${zonenText(zonen)} für die Schneelast${windText}.${hoehenText}`;
+
+const title = `Schneelastzone Landkreis ${kreis.name}: ${zonenText(zonen)}, alle ${kreis.orte.length} Gemeinden`;
+const description =
+  `Schneelastzone und Windzone aller ${kreis.orte.length} Gemeinden im Landkreis ${kreis.name} (${land}): ${zonenText(zonen)}` +
+  `${windzonen.length > 0 ? `, Windzone ${windzonen.join('/')}` : ''}. Mit Geländehöhe und Links zu den Orten.`;
+const breadcrumbs = [
+  { name: 'Startseite', url: '/' },
+  { name: 'Schneelastzonen', url: '/schneelastzone/' },
+  { name: kreis.name, url: Astro.url.pathname },
+];
+---
+
+<ToolLayout
+  title={title}
+  description={description}
+  keywords={`Schneelastzone ${kreis.name}, Landkreis ${kreis.name} Schneelast, Windzone ${kreis.name}`}
+  navTitle={`Landkreis ${kreis.name}`}
+  backHref="/schneelastzone/"
+  backLabel="← Alle Landkreise"
+  breadcrumbs={breadcrumbs}
+>
+  <div class="os">
+    <h1>Schneelastzone im Landkreis {kreis.name}</h1>
+    <p class="lead">{leadText}</p>
+
+    <h2>Alle Gemeinden mit Zone und Höhe</h2>
+    <div class="os-scroll">
+      <table class="os-tabelle">
+        <thead><tr><th scope="col">Gemeinde</th><th scope="col">Schneelastzone</th><th scope="col">Windzone</th><th scope="col">Höhe Ortsmitte</th></tr></thead>
+        <tbody>
+          {kreis.orte.map((o) => (
+            <tr>
+              <th scope="row">{o.hatSeite ? <a href={`/schneelastzone/${o.slug}/`}>{o.name}</a> : o.name}</th>
+              <td>{o.schnee ?? 'keine Angabe'}</td>
+              <td>{o.wind ?? 'keine Angabe'}</td>
+              <td class="os-zahl">{o.hoehe !== null ? `${o.hoehe} m` : '–'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="os-klein">Ein Link führt zur eigenen Seite des Ortes mit der Schneelast je Dachneigung. Die Höhe ist ein Richtwert für die Ortsmitte.</p>
+
+    <div class="os-links">
+      <a href="/tools/schneelastzone/">Postleitzahl oder Ort suchen →</a>
+      <a href="/tools/karte/">Zonenkarte Deutschland →</a>
+      <a href="/tools/sparren-rechner/">Sparren-Rechner →</a>
+    </div>
+
+    <p class="os-quelle">
+      Datengrundlage: Zuordnung der Schneelastzonen (Stand 07.02.2023) und der Windzonen (Stand 02.06.2022) nach Verwaltungsgrenzen des DIBt.
+      Postleitzahlen: <a href="https://www.geonames.org/" rel="noopener">GeoNames</a> (CC BY 4.0), Gemeindegrenzen © GeoBasis-DE / BKG (dl-de/by-2-0).
+      Höhenrichtwerte: Copernicus GLO-90 über <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> (CC BY 4.0). Die Werte sind eine Vorbemessung und ersetzen keine Statik; verbindlich sind die amtlichen Bekanntmachungen der Länder.
+    </p>
+  </div>
+</ToolLayout>

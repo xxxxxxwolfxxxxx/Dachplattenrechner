@@ -1,0 +1,27 @@
+/* Gemeinsame Gestaltung der Seiten unter /schneelastzone/ (Orte, Landkreise, Übersicht) */
+.os { color: var(--text-primary); line-height: 1.7; }
+.os h1 { color: var(--accent-blue); font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.2rem); margin: 0 0 12px; }
+.os h2 { font-size: 1.35rem; margin: 2rem 0 0.8rem; }
+.os .lead { color: var(--text-secondary); font-size: 1.05em; margin: 0 0 20px; }
+.os-fakten { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 20px 0; }
+.os-fakt { background: rgba(30, 45, 74, 0.7); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; padding: 14px 16px; }
+.os-fakt-label { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: #93c5fd; font-weight: 600; }
+.os-fakt-wert { display: block; font-size: 1.9rem; font-weight: 800; line-height: 1.15; color: #38bdf8; }
+.os-fakt-wind .os-fakt-wert { color: #fbbf24; }
+.os-fakt-klein .os-fakt-wert { font-size: 1.2rem; padding-top: 6px; color: var(--text-primary); }
+.os-fazit { margin: 16px 0; padding: 14px 18px; border-radius: 10px; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.45); }
+.os-fazit p { margin: 6px 0; }
+.os-klein { font-size: 0.85rem; color: var(--text-muted); }
+.os-tabelle { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.95rem; }
+.os-tabelle th, .os-tabelle td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(148, 163, 184, 0.2); }
+.os-tabelle th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.os-tabelle td.os-zahl { font-variant-numeric: tabular-nums; }
+.os-hinweise { color: #fcd34d; padding-left: 20px; }
+.os-links { display: flex; flex-wrap: wrap; gap: 10px 24px; margin: 20px 0; }
+.os-links a, .os-liste a { color: #38bdf8; font-weight: 600; }
+.os-liste { list-style: none; padding: 0; margin: 12px 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 20px; }
+.os-liste li { margin: 0; }
+.os-liste .os-zone { color: var(--text-muted); font-size: 0.85em; font-weight: 400; margin-left: 4px; }
+.os-quelle { margin-top: 32px; font-size: 0.8rem; color: var(--text-muted); }
+.os-quelle a { color: #7dd3fc; }
+.os-scroll { overflow-x: auto; }
