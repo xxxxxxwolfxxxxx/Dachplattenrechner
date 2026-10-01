@@ -71,7 +71,7 @@
   };
   const HINWEISE: Record<Ebene, string> = {
     kreis: 'Klicke auf einen Landkreis, um Zone und Werte oben anzuzeigen. Die Färbung zeigt die Standardzone des Landkreises; schraffierte Landkreise haben Gemeinden mit abweichender Zone – wechsle dafür zu „Gemeinden“.',
-    gemeinde: 'Gemeinden sind dort einzeln dargestellt, wo die Zone im Landkreis wechselt; alle anderen Landkreise erscheinen als Fläche. Zonen neu gebildeter Gemeinden sind aus den Vorgängergemeinden abgeleitet; wenige Gemeinden (graue Flächen, v. a. in Thüringen) fehlen in der DIBt-Tabelle.',
+    gemeinde: 'Gemeinden sind dort einzeln dargestellt, wo die Zone im Landkreis wechselt; alle anderen Landkreise erscheinen als Fläche. Zoome mit + und −, Strg + Mausrad oder per Pinch, um einzelne Gemeinden zu erkennen. Zonen neu gebildeter Gemeinden sind aus den Vorgängergemeinden abgeleitet; wenige Gemeinden (graue Flächen, v. a. in Thüringen) fehlen in der DIBt-Tabelle.',
   };
 
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -364,7 +364,6 @@
     ebene = neu;
     aktualisiereKnoepfe();
     faerbe();
-    if (neu === 'gemeinde' && ansicht.w >= gesamt.w - 0.5) zoome(2.2, 0.5, 0.6); // Gemeinden sind erst vergrößert lesbar
   }
 
   function setzeModus(neu: Modus): void {
