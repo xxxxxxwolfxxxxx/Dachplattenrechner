@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { sucheOrt, normalisiere, gruppiereNachZone, windzone, kartenZone, kartenTreffer, gemeindeKartenTreffer, type Datensatz, type Treffer } from '../schneelastzonen';
+import { sucheOrt, normalisiere, gruppiereNachZone, windzone, kartenZone, kartenTreffer, gemeindeKartenTreffer, istPlz, sucheNachPlz, type Datensatz, type PlzDatensatz, type Treffer } from '../schneelastzonen';
 
 const datei = fileURLToPath(new URL('../../../public/data/schneelastzonen.json', import.meta.url));
 const daten: Datensatz = JSON.parse(readFileSync(datei, 'utf-8'));
@@ -285,5 +285,46 @@ describe('Namensabgleich Sachsen/Thüringen', () => {
     const z = daten.zeilen.find((r) => r[0] === 'TH' && r[2] === 'Am Ohmberg');
     expect(z?.[3]).toBeTruthy();
     expect(z?.[4]).toContain('Vorgängergemeinden');
+  });
+});
+
+describe('Postleitzahl', () => {
+  const plzDatei = fileURLToPath(new URL('../../../public/data/plz.json', import.meta.url));
+  const plz: PlzDatensatz = JSON.parse(readFileSync(plzDatei, 'utf-8'));
+  const suche = (eingabe: string) => sucheNachPlz(plz, daten, eingabe);
+
+  it('erkennt nur fünfstellige Zahlen als PLZ', () => {
+    expect(istPlz('82467')).toBe(true);
+    expect(istPlz(' 01067 ')).toBe(true);
+    expect(istPlz('8246')).toBe(false);
+    expect(istPlz('München')).toBe(false);
+  });
+
+  it('liefert Gemeinde, Schneezone und Windzone (Garmisch-Partenkirchen)', () => {
+    const { treffer } = suche('82467');
+    expect(treffer).toHaveLength(1);
+    expect(treffer[0].treffer.name).toBe('Garmisch-Partenkirchen');
+    expect(treffer[0].treffer.zone).toBe('2a');
+    expect(treffer[0].windzone).toBe('1');
+  });
+
+  it('kennt die Insel Hiddensee mit Windzone 4 (Amtsgebiet)', () => {
+    expect(suche('18565').treffer[0].windzone).toBe('4');
+  });
+
+  it('liefert für eine unbekannte PLZ nichts', () => {
+    expect(suche('00000')).toEqual({ treffer: [], ohneZone: 0 });
+  });
+
+  it('deckt fast alle PLZ ab und verweist auf bekannte Landkreise', () => {
+    expect(Object.keys(plz.plz).length).toBeGreaterThan(10500);
+    const kreise = new Set(daten.zeilen.map((z) => `${z[0]}|${z[1]}`));
+    const unbekannt = plz.kreise.filter(([land, kreis]) => !kreise.has(`${land}|${kreis}`));
+    expect(unbekannt).toEqual([]);
+  });
+
+  it('lässt weniger als 1 % der PLZ ohne Schneelastzone', () => {
+    const ohne = Object.keys(plz.plz).filter((p) => suche(p).treffer.length === 0);
+    expect(ohne.length / Object.keys(plz.plz).length).toBeLessThan(0.01);
   });
 });

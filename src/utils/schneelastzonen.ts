@@ -237,3 +237,46 @@ export function gemeindeKartenTreffer(daten: Datensatz, land: string, kreis: str
     hinweise: eindeutig([zeile?.[4] ?? null, tiefland]), gemeinden: [],
   };
 }
+
+/** Postleitzahl-Zuordnung (public/data/plz.json, erzeugt von scripts/build-plz.py). */
+export interface PlzDatensatz {
+  stand: string;
+  quelle: string;
+  /** [Bundesland, Landkreis] je Index */
+  kreise: [land: string, kreis: string][];
+  /** Gemeindeschlüssel -> [Name, Index in kreise, Schneelastzone, Windzone] */
+  gemeinden: Record<string, [name: string, kreis: number, schnee: string | null, wind: string | null]>;
+  /** PLZ -> Gemeindeschlüssel, häufigste Gemeinde zuerst */
+  plz: Record<string, string[]>;
+}
+
+export interface PlzTreffer {
+  treffer: Treffer;
+  /** Windzone der Gemeinde laut Karte; null, wenn unbekannt */
+  windzone: string | null;
+}
+
+/** Fünfstellige Eingabe ohne weitere Zeichen (Leerzeichen am Rand erlaubt). */
+export function istPlz(eingabe: string): boolean {
+  return /^\d{5}$/.test(eingabe.trim());
+}
+
+/**
+ * Gemeinden einer Postleitzahl mit Schnee- und Windzone. Gemeinden ohne Schneelastzone in der DIBt-Tabelle
+ * (z. B. neu gebildete) werden weggelassen; `ohneZone` zählt sie.
+ */
+export function sucheNachPlz(plz: PlzDatensatz, daten: Datensatz, eingabe: string): { treffer: PlzTreffer[]; ohneZone: number } {
+  const schluessel = plz.plz[eingabe.trim()] ?? [];
+  const treffer: PlzTreffer[] = [];
+  let ohneZone = 0;
+  for (const ags of schluessel) {
+    const eintrag = plz.gemeinden[ags];
+    if (!eintrag) continue;
+    const [name, kreisIndex, schnee, wind] = eintrag;
+    const [land, kreis] = plz.kreise[kreisIndex];
+    const t = gemeindeKartenTreffer(daten, land, kreis, name, schnee);
+    if (t) treffer.push({ treffer: t, windzone: wind });
+    else ohneZone++;
+  }
+  return { treffer, ohneZone };
+}
