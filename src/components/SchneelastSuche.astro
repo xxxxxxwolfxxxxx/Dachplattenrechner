@@ -1,17 +1,17 @@
 ---
-// Suche nach Schneelastzone per Ort oder Landkreis (Daten: DIBt, geladen beim ersten Fokus).
+// Suche nach Schneelastzone per Postleitzahl, Ort oder Landkreis (Daten: DIBt, geladen beim ersten Fokus).
 ---
 
 <section class="slz" aria-labelledby="slz-titel">
   <h2 id="slz-titel" class="slz-titel">Schneelastzone und Windzone für deinen Ort finden</h2>
-  <label for="slz-eingabe" class="slz-label">Ort oder Landkreis</label>
+  <label for="slz-eingabe" class="slz-label">Postleitzahl, Ort oder Landkreis</label>
   <input
     id="slz-eingabe"
     class="slz-eingabe"
     type="search"
     autocomplete="off"
     spellcheck="false"
-    placeholder="z. B. Garmisch-Partenkirchen, Ostalbkreis, Hamburg"
+    placeholder="z. B. 82467, Ostalbkreis, Hamburg"
     aria-describedby="slz-status"
   />
   <p id="slz-status" class="slz-status" role="status" aria-live="polite"></p>
@@ -20,7 +20,9 @@
   <p class="slz-quelle">
     Datengrundlage: Zuordnung der Schneelastzonen (Stand <span id="slz-stand">07.02.2023</span>) und der
     Windzonen (Stand <span id="slz-wind-stand">02.06.2022</span>) nach Verwaltungsgrenzen des DIBt, je Gemeinde
-    bzw. Landkreis. Verbindlich sind die amtlichen Bekanntmachungen der Länder.
+    bzw. Landkreis. Die Zuordnung von Postleitzahlen zu Gemeinden beruht auf Koordinaten von
+    <a href="https://www.geonames.org/" rel="noopener">GeoNames</a> (CC BY 4.0) und BKG-Gemeindegrenzen; bei Postleitzahlen, die
+    mehrere Gemeinden umfassen, wählst du deine Gemeinde. Verbindlich sind die amtlichen Bekanntmachungen der Länder.
   </p>
 </section>
 
@@ -32,15 +34,19 @@
     windzone,
     kartenTreffer,
     gemeindeKartenTreffer,
+    istPlz,
+    sucheNachPlz,
     BUNDESLAENDER,
     WINDWERTE,
     type Datensatz,
+    type PlzDatensatz,
     type Treffer,
   } from '../utils/schneelastzonen';
   import { schneelastSk } from '../utils/sparren';
 
   const SCHNEE_URL = '/data/schneelastzonen.json';
   const WIND_URL = '/data/windzonen.json';
+  const PLZ_URL = '/data/plz.json';
   const eingabe = document.getElementById('slz-eingabe') as HTMLInputElement;
   const status = document.getElementById('slz-status') as HTMLElement;
   const liste = document.getElementById('slz-treffer') as HTMLUListElement;
@@ -51,6 +57,9 @@
   let daten: Datensatz | null = null;
   let wind: Datensatz | null = null;
   let laden: Promise<Datensatz | null> | null = null;
+  let plzDaten: Promise<PlzDatensatz | null> | null = null;
+  /** Windzone laut Postleitzahl-Daten je Treffer (Gemeinden außerhalb der Gemeindetabelle der Wind-Daten) */
+  const windVorgaben = new WeakMap<Treffer, string | null>();
 
   const ladeJson = (url: string): Promise<Datensatz> =>
     fetch(url).then((res) => {
@@ -76,6 +85,21 @@
         return null;
       });
     return laden;
+  }
+
+  function ladePlz(): Promise<PlzDatensatz | null> {
+    plzDaten ??= fetch(PLZ_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`${PLZ_URL}: HTTP ${res.status}`);
+        return res.json() as Promise<PlzDatensatz>;
+      })
+      .catch((fehler) => {
+        console.error('Postleitzahlen konnten nicht geladen werden', fehler);
+        status.textContent = 'Die Postleitzahl-Daten konnten nicht geladen werden. Bitte Seite neu laden oder den Ort eingeben.';
+        plzDaten = null;
+        return null;
+      });
+    return plzDaten;
   }
 
   function el<K extends keyof HTMLElementTagNameMap>(tag: K, klasse?: string, text?: string): HTMLElementTagNameMap[K] {
@@ -198,7 +222,7 @@
     detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
-  function zeigeTreffer(treffer: Treffer[], suche: string): void {
+  function zeigeTreffer(treffer: Treffer[], suche: string, hinweis = ''): void {
     liste.replaceChildren();
     detail.hidden = true;
     if (suche.trim().length < 2) {
@@ -206,10 +230,14 @@
       return;
     }
     if (treffer.length === 0) {
-      status.textContent = `Kein Ort „${suche.trim()}“ gefunden. Probiere den Landkreis oder eine nahegelegene größere Gemeinde.`;
+      status.textContent = istPlz(suche)
+        ? `Für die Postleitzahl ${suche.trim()} liegt keine Zuordnung vor${hinweis}. Probiere den Ort oder den Landkreis.`
+        : `Kein Ort „${suche.trim()}“ gefunden. Probiere den Landkreis oder eine nahegelegene größere Gemeinde.`;
       return;
     }
-    status.textContent = `${treffer.length} Treffer${treffer.length === 20 ? ' (bitte Suche eingrenzen)' : ''}`;
+    status.textContent = istPlz(suche)
+      ? `Postleitzahl ${suche.trim()}: ${treffer.length === 1 ? 'eine Gemeinde' : `${treffer.length} Gemeinden – bitte deine auswählen`}${hinweis}`
+      : `${treffer.length} Treffer${treffer.length === 20 ? ' (bitte Suche eingrenzen)' : ''}`;
     for (const t of treffer) {
       const li = el('li');
       const knopf = el('button', 'slz-knopf');
@@ -220,11 +248,11 @@
         el('span', 'slz-knopf-ort', t.art === 'kreis' ? BUNDESLAENDER[t.land] : `${t.kreis !== t.name ? t.kreis + ', ' : ''}${BUNDESLAENDER[t.land]}`),
         el('span', 'slz-knopf-zone', `Zone ${zonen}`),
       );
-      knopf.addEventListener('click', () => zeigeDetail(t));
+      knopf.addEventListener('click', () => zeigeDetail(t, windVorgaben.get(t) ?? null));
       li.append(knopf);
       liste.append(li);
     }
-    if (treffer.length === 1) zeigeDetail(treffer[0]);
+    if (treffer.length === 1) zeigeDetail(treffer[0], windVorgaben.get(treffer[0]) ?? null);
   }
 
   // Klick auf die Landkreis-Karte (KreisKarte.astro) zeigt dieselbe Detailansicht wie ein Suchtreffer
@@ -256,6 +284,15 @@
       const d = daten ?? (await ladeDaten());
       if (!d) return;
       const suche = eingabe.value;
+      if (istPlz(suche)) {
+        const p = await ladePlz();
+        if (!p || eingabe.value !== suche) return;
+        const { treffer, ohneZone } = sucheNachPlz(p, d, suche);
+        for (const t of treffer) windVorgaben.set(t.treffer, t.windzone);
+        const zusatz = ohneZone > 0 ? ` (${ohneZone} weitere ohne Zone in der DIBt-Tabelle)` : '';
+        zeigeTreffer(treffer.map((t) => t.treffer), suche, zusatz);
+        return;
+      }
       zeigeTreffer(sucheOrt(d, suche), suche);
     }, 120);
   });
