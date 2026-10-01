@@ -90,24 +90,26 @@ def fluss_linie(elemente, name, ende):
     return LineString(weg[::-1])
 
 
-def anteil_rechts(poly, linie):
-    """Anteil der Fläche rechts der Linie (in Fließrichtung), geschätzt über ein Punktraster."""
+def anteil_rechts(poly, linien):
+    """Anteil der Fläche, die rechts mindestens einer der Linien liegt (in Fließrichtung), geschätzt über ein Punktraster."""
     minx, miny, maxx, maxy = poly.bounds
     xs, ys = np.meshgrid(np.linspace(minx, maxx, RASTER), np.linspace(miny, maxy, RASTER))
     punkte = shapely.points(xs.ravel(), ys.ravel())
     punkte = punkte[shapely.contains(poly, punkte)]
     if len(punkte) == 0:
         punkte = np.array([poly.representative_point()])
-    pos = shapely.line_locate_point(linie, punkte)
-    eps = 1e-4
-    vor = shapely.line_interpolate_point(linie, np.minimum(pos + eps, linie.length))
-    zurueck = shapely.line_interpolate_point(linie, np.maximum(pos - eps, 0))
-    nah = shapely.line_interpolate_point(linie, pos)
-    dx = shapely.get_x(vor) - shapely.get_x(zurueck)
-    dy = shapely.get_y(vor) - shapely.get_y(zurueck)
-    px = shapely.get_x(punkte) - shapely.get_x(nah)
-    py = shapely.get_y(punkte) - shapely.get_y(nah)
-    rechts = (dx * py - dy * px) < 0  # Kreuzprodukt < 0: Punkt liegt rechts der Fließrichtung
+    rechts = np.zeros(len(punkte), dtype=bool)
+    for linie in linien:
+        pos = shapely.line_locate_point(linie, punkte)
+        eps = 1e-4
+        vor = shapely.line_interpolate_point(linie, np.minimum(pos + eps, linie.length))
+        zurueck = shapely.line_interpolate_point(linie, np.maximum(pos - eps, 0))
+        nah = shapely.line_interpolate_point(linie, pos)
+        dx = shapely.get_x(vor) - shapely.get_x(zurueck)
+        dy = shapely.get_y(vor) - shapely.get_y(zurueck)
+        px = shapely.get_x(punkte) - shapely.get_x(nah)
+        py = shapely.get_y(punkte) - shapely.get_y(nah)
+        rechts |= (dx * py - dy * px) < 0  # Kreuzprodukt < 0: Punkt liegt rechts der Fließrichtung
     return float(rechts.mean())
 
 
@@ -117,6 +119,8 @@ def main():
     linien = {'Mosel': fluss_linie(elemente, 'Mosel', lambda k: k[0] + k[1]), 'Rhein': fluss_linie(elemente, 'Rhein', lambda k: k[1])}
     daten_pfad = ROOT / 'public/data/windzonen.json'
     daten = json.loads(daten_pfad.read_text(encoding='utf-8'))
+    eigene = (HINWEIS_REST, 'Gemeinde liegt überwiegend ')
+    daten['zeilen'] = [z for z in daten['zeilen'] if not (z[0] == LAND and z[2] and z[4] and z[4].startswith(eigene))]
     zeilen = daten['zeilen']
     vorhanden = {(z[0], z[1], z[2]) for z in zeilen}
 
@@ -127,15 +131,11 @@ def main():
             if p['ags'][:5] != ags:
                 continue
             poly = shape(f['geometry'])
-            # Zone 1 verlangt die Lage rechts aller genannten Flüsse (Mosel UND Rhein bei Koblenz/Mayen-Koblenz);
-            # östlich des Rheins gilt die Mosel-Bedingung als erfüllt, da die Mosel dort bereits in den Rhein mündet.
-            anteile = {fl: anteil_rechts(poly, linien[fl]) for fl in fluesse}
-            if len(fluesse) == 2:
-                anteil = anteile['Rhein']
-                fluss = 'Rhein'
-            else:
-                anteil = anteile['Mosel']
-                fluss = 'Mosel'
+            # Bei Mayen-Koblenz/Koblenz gilt "rechts der Mosel und rechts des Rheins" als "rechts der Mosel bzw. rechts des Rheins":
+            # Die Zone 1 setzt sich so entlang beider Täler bis zu den Zone-1-Nachbarkreisen (Hunsrück, Westerwald) fort.
+            # Streng als Schnittmenge gelesen bliebe fast keine Fläche übrig und Gemeinden an der Kreisgrenze sprängen von Zone 1 auf 2.
+            anteil = anteil_rechts(poly, [linien[fl] for fl in fluesse])
+            fluss = ' bzw. '.join(f'der {fl}' for fl in fluesse).replace('der ', '', 1)
             if anteil >= 1 - MIN_ANTEIL:
                 zone, hinweis = '1', HINWEIS_REST
             elif anteil <= MIN_ANTEIL:
