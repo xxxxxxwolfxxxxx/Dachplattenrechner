@@ -236,12 +236,45 @@ describe('Gemeinde-Karte', () => {
 
   it('lässt nur wenige Gemeinden ohne Schneezone (neu gebildete Gemeinden)', () => {
     const ohne = gem.gemeinden.filter((g: unknown[]) => g[3] === null).length;
-    expect(ohne / gem.gemeinden.length).toBeLessThan(0.03);
+    expect(ohne / gem.gemeinden.length).toBeLessThan(0.005);
   });
 
   it('liefert für einen Gemeinde-Klick den Treffer mit Kartenzone', () => {
     const t = gemeindeKartenTreffer(daten, 'BY', 'Ostallgäu', 'Füssen', '3');
     expect(t?.zone).toBe('3');
     expect(gemeindeKartenTreffer(daten, 'SN', 'Vogtlandkreis', 'Klingenthal', null)).toBeNull();
+  });
+});
+
+describe('Amtsgebiete in Mecklenburg-Vorpommern', () => {
+  const wind: Datensatz = JSON.parse(readFileSync(fileURLToPath(new URL('../../../public/data/windzonen.json', import.meta.url)), 'utf-8'));
+
+  it('ordnet Gemeinden im Amtsgebiet Lubmin und auf Usedom Zone 3 zu', () => {
+    const zeilen = daten.zeilen.filter((z) => z[0] === 'MV' && z[1] === 'Vorpommern-Greifswald');
+    for (const name of ['Lubmin', 'Zinnowitz', 'Koserow', 'Heringsdorf']) {
+      expect(zeilen.find((z) => z[2] === name)?.[3], name).toBe('3');
+    }
+    expect(zeilen.find((z) => z[2] === null)?.[3]).toBe('2');
+  });
+
+  it('ordnet Gemeinden auf Rügen der Windzone 4 zu, außer Garz/Rügen', () => {
+    const zeilen = wind.zeilen.filter((z) => z[0] === 'MV' && z[1] === 'Vorpommern-Rügen');
+    expect(zeilen.find((z) => z[2] === 'Insel Hiddensee')?.[3]).toBe('4');
+    expect(zeilen.find((z) => z[2] === 'Garz/Rügen')).toBeUndefined();
+    expect(zeilen.find((z) => z[2] === null)?.[3]).toBe('3');
+  });
+});
+
+describe('Namensabgleich Sachsen/Thüringen', () => {
+  it('findet sächsische Gemeinden mit sorbischem Doppelnamen unter dem deutschen Namen', () => {
+    const t = sucheOrt(daten, 'Großdubrau').find((x) => x.art === 'gemeinde');
+    expect(t?.land).toBe('SN');
+    expect(['2', '3']).toContain(t?.zone);
+  });
+
+  it('leitet Zonen zusammengelegter Gemeinden aus den Vorgängern ab und kennzeichnet sie', () => {
+    const z = daten.zeilen.find((r) => r[0] === 'TH' && r[2] === 'Am Ohmberg');
+    expect(z?.[3]).toBeTruthy();
+    expect(z?.[4]).toContain('Vorgängergemeinden');
   });
 });

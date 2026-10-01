@@ -71,7 +71,7 @@
   };
   const HINWEISE: Record<Ebene, string> = {
     kreis: 'Klicke auf einen Landkreis, um Zone und Werte oben anzuzeigen. Die Färbung zeigt die Standardzone des Landkreises; schraffierte Landkreise haben Gemeinden mit abweichender Zone – wechsle dafür zu „Gemeinden“.',
-    gemeinde: 'Gemeinden sind dort einzeln dargestellt, wo die Zone im Landkreis wechselt; alle anderen Landkreise erscheinen als Fläche. Graue Gemeinden (v. a. in Sachsen und Thüringen) sind seit der DIBt-Tabelle neu gebildet und dort nicht enthalten.',
+    gemeinde: 'Gemeinden sind dort einzeln dargestellt, wo die Zone im Landkreis wechselt; alle anderen Landkreise erscheinen als Fläche. Zonen neu gebildeter Gemeinden sind aus den Vorgängergemeinden abgeleitet; wenige Gemeinden (graue Flächen, v. a. in Thüringen) fehlen in der DIBt-Tabelle.',
   };
 
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -93,7 +93,6 @@
   let schraffuren: SVGPathElement[] = [];
   let gemeindePfade: SVGPathElement[] = [];
   let gemeindeGruppe: SVGGElement | null = null;
-  let ersetzteKreise = new Set<number>();
   let gewaehlt: SVGPathElement | null = null;
   let ansicht = { x: 0, y: 0, w: 1, h: 1 };
   let gesamt = { w: 1, h: 1 };
@@ -243,8 +242,6 @@
 
   function zeichneGemeinden(daten: GemeindeDaten): void {
     if (!karte || !gemeindeGruppe) return;
-    const index = new Map(karte.kreise.map((k, i) => [k.ags, i]));
-    ersetzteKreise = new Set(daten.kreise.map((ags) => index.get(ags)).filter((i): i is number => i !== undefined));
     const fragment = document.createDocumentFragment();
     daten.gemeinden.forEach((g, i) => {
       const pfad = erzeugePfad(g[5], 'kk-gem');
@@ -260,10 +257,9 @@
     if (!karte || !zonen) return;
     kreisPfade.forEach((pfad, i) => {
       const z = zonen![modus][i];
-      const ersetzt = ebene === 'gemeinde' && ersetzteKreise.has(i);
+      // Ersetzte Landkreise bleiben als Unterlage sichtbar: Lücken zwischen vereinfachten Gemeindegrenzen zeigen so die Landkreisfarbe
       pfad.setAttribute('class', `kk-kreis kk-${modus}-${z.haupt ?? 'keine'}${pfad === gewaehlt ? ' kk-gewaehlt' : ''}`);
-      pfad.style.display = ersetzt ? 'none' : '';
-      schraffuren[i].style.display = z.gemischt && !ersetzt && ebene === 'kreis' ? '' : 'none';
+      schraffuren[i].style.display = z.gemischt && ebene === 'kreis' ? '' : 'none';
     });
     if (gemeindeDaten && gemeindeGruppe) {
       gemeindeGruppe.setAttribute('display', ebene === 'gemeinde' ? '' : 'none');
