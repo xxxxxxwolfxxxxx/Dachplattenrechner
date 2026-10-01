@@ -1201,7 +1201,7 @@ function updateNavigationLinksLattenrechner() {
     if (!breite || !hoehe || !typ) return;
 
     // Build base URLs with simple parameters
-    let anrissUrl = `/tools/anrissplan/?breite=${breite}&hoehe=${hoehe}&typ=${typ}`;
+    let anrissUrl = `/tools/anrissplan.html?breite=${breite}&hoehe=${hoehe}&typ=${typ}`;
     let pvUrl = `/tools/pv-rechner/?breite=${breite}&hoehe=${hoehe}&typ=${typ}`;
 
     // Build full URLs with shape-specific params

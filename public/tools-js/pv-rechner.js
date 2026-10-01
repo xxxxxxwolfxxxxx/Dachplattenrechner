@@ -1296,7 +1296,7 @@ function updateNavigationLinksPVRechner() {
 
   // Konstruiere URLs
   // Anrissplan: Neue einfache Parameter-Format
-  const anrissplanUrl = `/tools/anrissplan/?${params.toString()}`;
+  const anrissplanUrl = `/tools/anrissplan.html?${params.toString()}`;
   const lattenrechnerUrl = `/tools/lattenrechner/?${params.toString()}`;
 
   // Zeige und setze Links
