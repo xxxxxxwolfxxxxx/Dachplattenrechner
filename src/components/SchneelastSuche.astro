@@ -42,7 +42,7 @@
     type PlzDatensatz,
     type Treffer,
   } from '../utils/schneelastzonen';
-  import { schneelastSk } from '../utils/sparren';
+  import { schneelastSk, schneeFormbeiwert } from '../utils/sparren';
 
   const SCHNEE_URL = '/data/schneelastzonen.json';
   const WIND_URL = '/data/windzonen.json';
@@ -121,6 +121,43 @@
       : `Auf ${hoehe} m ü. NN: s_k = ${zahl(sk)} kN/m² (ca. ${Math.round(sk * 100)} kg/m²).`;
   }
 
+  /** Fazit: Last pro m², die das Dach am Ort aushalten muss (Schnee aus Zone und Höhe, Wind als Basiswert). */
+  function aktualisiereFazit(box: HTMLElement, ort: string, zone: string | null, hoehe: number | null, windZone: string | null): void {
+    box.replaceChildren();
+    const teile: HTMLElement[] = [];
+    if (zone && istBerechenbar(zone)) {
+      const sk = schneelastSk(zone, hoehe ?? 0);
+      const dach = sk * schneeFormbeiwert(0);
+      const hoehenText = hoehe === null ? ' (Mindestwert; gib oben die Geländehöhe an, dann wird er genauer)' : ` (auf ${hoehe} m ü. NN)`;
+      const p = el('p');
+      p.append(
+        el('strong', undefined, 'Schnee: '),
+        document.createTextNode(
+          `Das Dach muss in ${ort} mindestens ca. ${Math.round(dach * 100)} kg/m² (${zahl(dach)} kN/m²) Schneelast tragen${hoehenText}. ` +
+          `Grundlage ist der Bodenwert s_k = ${zahl(sk)} kN/m² mit dem Formbeiwert 0,8 für Dächer bis 30° Neigung; bei steileren Dächern sinkt der Wert.`,
+        ),
+      );
+      teile.push(p);
+    } else if (zone) {
+      teile.push(el('p', undefined, 'Schnee: Für diese Sonderzone muss die Schneelast beim Bauamt oder Statiker erfragt werden.'));
+    }
+    const werte = windZone ? WINDWERTE[windZone] : undefined;
+    if (werte) {
+      const p = el('p');
+      p.append(
+        el('strong', undefined, 'Wind: '),
+        document.createTextNode(
+          `Basis-Staudruck ca. ${Math.round(werte.q * 100)} kg/m² (${zahl(werte.q)} kN/m²). Am Dach wirken je nach Höhe, Dachform und Lage ` +
+          'zusätzlich Druck- und vor allem Sogkräfte, die an Rand, Traufe und Ecken deutlich größer sind – Befestigung und Unterkonstruktion sind dafür auszulegen.',
+        ),
+      );
+      teile.push(p);
+    }
+    if (teile.length === 0) return;
+    box.append(el('h4', 'slz-fazit-titel', 'Fazit: Das muss dein Dach aushalten'), ...teile);
+    box.append(el('p', 'slz-fazit-hinweis', 'Richtwerte zusätzlich zum Eigengewicht der Dachdeckung. Die verbindliche Bemessung (Lastkombinationen, Dachform, Geländekategorie) macht der Statiker.'));
+  }
+
   function zeigeDetail(t: Treffer, windVorgabe: string | null = null): void {
     detail.replaceChildren();
     detail.hidden = false;
@@ -161,9 +198,12 @@
     hoehenEingabe.placeholder = 'z. B. 450';
     hoehenFeld.append(hoehenLabel, hoehenEingabe);
 
+    const fazit = el('div', 'slz-fazit');
+    let windZoneFazit: string | null = null;
     const aktualisiere = () => {
       const roh = hoehenEingabe.value.trim();
       const h = roh === '' ? null : Math.min(3000, Math.max(0, Number(roh)));
+      aktualisiereFazit(fazit, t.name, hauptZone, Number.isFinite(h) ? h : null, windZoneFazit);
       skZeile.replaceChildren();
       if (hauptZone) {
         skZeile.append(el('strong', undefined, 'Schneelast am Boden: '), document.createTextNode(skText(hauptZone, Number.isFinite(h) ? h : null)));
@@ -207,6 +247,10 @@
       if (w.hinweis) block.append(el('p', 'slz-hinweise-text', w.hinweis));
       detail.append(block);
     }
+
+    windZoneFazit = w?.zone ?? null;
+    detail.append(fazit);
+    aktualisiere();
 
     if (t.hinweise.length > 0) {
       const ul = el('ul', 'slz-hinweise');
@@ -330,6 +374,11 @@
   .slz-hinweise-text { margin: 8px 0 0; color: #fcd34d; font-size: 0.92rem; }
   .slz-weiter { margin: 16px 0 0; }
   .slz-weiter a { color: #38bdf8; font-weight: 600; }
+  .slz-fazit { margin: 16px 0; padding: 14px 16px; border-radius: 10px; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.45); }
+  .slz-fazit:empty { display: none; }
+  .slz-fazit-titel { margin: 0 0 8px; font-size: 1.05rem; color: #f8fafc; }
+  .slz-fazit p { margin: 6px 0; line-height: 1.5; }
+  .slz-fazit-hinweis { font-size: 0.8rem; color: #94a3b8; }
   .slz-quelle { margin: 16px 0 0; font-size: 0.8rem; color: #94a3b8; }
   @media (prefers-reduced-motion: reduce) { .slz-knopf { transition: none; } .slz-knopf:hover { transform: none; } }
 </style>
