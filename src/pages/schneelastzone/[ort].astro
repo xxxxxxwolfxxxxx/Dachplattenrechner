@@ -1,0 +1,150 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { ladeOrtsdaten, lastTabelle } from '../../utils/ortsseiten';
+import { BUNDESLAENDER, WINDWERTE, istBerechenbar } from '../../utils/schneelastzonen';
+import '../../styles/ortsseiten.css';
+
+export function getStaticPaths() {
+  const { orte, kreise } = ladeOrtsdaten();
+  return orte
+    .filter((o) => o.hatSeite)
+    .map((ort) => {
+      const kreis = kreise.find((k) => k.land === ort.land && k.name === ort.kreis);
+      return { params: { ort: ort.slug }, props: { ort, kreis } };
+    });
+}
+
+const { ort, kreis } = Astro.props;
+const zahl = (n: number, stellen = 2) => n.toFixed(stellen).replace('.', ',');
+const land = BUNDESLAENDER[ort.land];
+// Kreisfreie Städte bilden einen Landkreis ohne weitere Gemeinden
+const kreisfrei = (kreis?.orte.length ?? 0) <= 1;
+const berechenbar = ort.schnee !== null && istBerechenbar(ort.schnee);
+const last = lastTabelle(ort.schnee, ort.hoehe);
+const wind = ort.wind ? WINDWERTE[ort.wind] : undefined;
+const titelOrt = ort.mehrdeutig && ort.kreis !== ort.name ? `${ort.name} (${ort.kreis})` : ort.name;
+const kreisSeite = kreis?.hatSeite ? `/schneelastzone/landkreis/${kreis.slug}/` : null;
+const nachbarn = (kreis?.orte ?? []).filter((o) => o.hatSeite && o.slug !== ort.slug).slice(0, 12);
+const abweichend = (kreis?.orte ?? []).filter((o) => o.schnee !== null && o.schnee !== ort.schnee).length;
+
+const title = `Schneelastzone ${titelOrt}: Zone ${ort.schnee}${ort.wind ? `, Windzone ${ort.wind}` : ''}`;
+const description =
+  `Schneelastzone ${ort.schnee} und ${ort.wind ? `Windzone ${ort.wind}` : 'Windzone'} für ${ort.name} (${ort.kreis}, ${land})` +
+  `${ort.hoehe !== null ? `, Geländehöhe ca. ${ort.hoehe} m` : ''}. Schneelast pro m² je Dachneigung und Hinweise zur Dachlast.`;
+const breadcrumbs = [
+  { name: 'Startseite', url: '/' },
+  { name: 'Schneelastzonen', url: '/schneelastzone/' },
+  ...(kreisSeite ? [{ name: ort.kreis, url: kreisSeite }] : []),
+  { name: ort.name, url: Astro.url.pathname },
+];
+const sparrenLink = `/tools/sparren-rechner/?${new URLSearchParams({
+  ...(ort.schnee && berechenbar ? { zone: ort.schnee } : {}),
+  ...(ort.hoehe !== null ? { hoehe: String(ort.hoehe) } : {}),
+  ort: ort.name,
+}).toString()}`;
+---
+
+<ToolLayout
+  title={title}
+  description={description}
+  keywords={`Schneelastzone ${ort.name}, Schneelast ${ort.name}, Windzone ${ort.name}, Dachlast ${ort.name}`}
+  navTitle={`Schneelastzone ${ort.name}`}
+  backHref={kreisSeite ?? '/schneelastzone/'}
+  backLabel={kreisSeite ? `← ${ort.kreis}` : '← Alle Orte'}
+  breadcrumbs={breadcrumbs}
+>
+  <div class="os">
+    <h1>Schneelastzone und Windzone in {titelOrt}</h1>
+    <p class="lead">
+      {ort.name} {kreisfrei ? `ist eine kreisfreie Stadt in ${land}` : `liegt im Landkreis ${ort.kreis} in ${land}`}
+      und gehört zur <strong>Schneelastzone {ort.schnee}</strong>{ort.wind && <> und zur <strong>Windzone {ort.wind}</strong></>}.
+      {ort.hoehe !== null && <> Die Ortsmitte liegt auf etwa {ort.hoehe} m ü. NN.</>}
+    </p>
+
+    <div class="os-fakten">
+      <div class="os-fakt"><span class="os-fakt-label">Schneelastzone</span><span class="os-fakt-wert">{ort.schnee}</span></div>
+      {ort.wind && <div class="os-fakt os-fakt-wind"><span class="os-fakt-label">Windzone</span><span class="os-fakt-wert">{ort.wind}</span></div>}
+      {ort.hoehe !== null && <div class="os-fakt os-fakt-klein"><span class="os-fakt-label">Höhe Ortsmitte</span><span class="os-fakt-wert">ca. {ort.hoehe} m ü. NN</span></div>}
+      <div class="os-fakt os-fakt-klein"><span class="os-fakt-label">Postleitzahlen</span><span class="os-fakt-wert">{ort.plz.length > 4 ? `${ort.plz[0]} bis ${ort.plz[ort.plz.length - 1]}` : ort.plz.join(', ')}</span></div>
+    </div>
+
+    <h2>Das muss ein Dach in {ort.name} aushalten</h2>
+    {last ? (
+      <div class="os-fazit">
+        <p>
+          <strong>Schnee:</strong> Am Boden gilt in {ort.name} eine Schneelast von s<sub>k</sub> = {zahl(last.sk)} kN/m²
+          (ca. {Math.round(last.sk * 100)} kg/m²){ort.hoehe !== null ? <> bei {ort.hoehe} m ü. NN</> : <> als Mindestwert der Zone {ort.schnee}</>}.
+          Auf einem Dach bis 30° Neigung musst du mit <strong>ca. {last.zeilen[0].kg} kg/m²</strong> ({zahl(last.zeilen[0].kn)} kN/m²) rechnen,
+          bei steileren Dächern wird es weniger.
+        </p>
+        <p class="os-klein">
+          Zum Vorstellen: Das entspricht etwa {last.vergleich.neuschneeCm} cm Neuschnee, {last.vergleich.nassschneeCm} cm nassem, schwerem Schnee
+          oder {String(last.vergleich.zementSaecke).replace('.', ',')} Säcken Zement (je 25 kg) auf jedem Quadratmeter. Grobe Schätzung mit Schneewichten von 1 bzw. 4 kN/m³.
+        </p>
+      </div>
+      <div class="os-scroll">
+        <table class="os-tabelle">
+          <caption class="os-klein" style="text-align:left; caption-side: bottom; padding-top: 6px;">
+            Schneelast auf dem Dach in {ort.name}, bezogen auf die Grundfläche, ohne Schneefanggitter (s = μ₁ · s<sub>k</sub>)
+          </caption>
+          <thead><tr><th scope="col">Dachneigung</th><th scope="col">Formbeiwert μ₁</th><th scope="col">kN/m²</th><th scope="col">ca. kg/m²</th></tr></thead>
+          <tbody>
+            {last.zeilen.map((z) => (
+              <tr><th scope="row">{z.neigung}</th><td class="os-zahl">{zahl(z.formbeiwert)}</td><td class="os-zahl">{zahl(z.kn)}</td><td class="os-zahl">{z.kg}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="os-fazit">
+        <p>
+          <strong>Schnee:</strong> Für {ort.name} gilt die Sonderzone {ort.schnee}. Der Wert für die Schneelast ist dort nicht aus Zone und Höhe berechenbar
+          und muss beim Bauamt oder Statiker erfragt werden.
+        </p>
+      </div>
+    )}
+    {wind && (
+      <div class="os-fazit">
+        <p>
+          <strong>Wind:</strong> Windzone {ort.wind} bedeutet eine Basisgeschwindigkeit von v<sub>b,0</sub> = {String(wind.v).replace('.', ',')} m/s und einen
+          Basis-Staudruck von ca. {Math.round(wind.q * 100)} kg/m² ({zahl(wind.q)} kN/m²). Am Dach wirken je nach Gebäudehöhe, Dachform und Lage
+          zusätzlich Druck- und vor allem Sogkräfte, die an Rand, Traufe und Ecken deutlich größer sind. Befestigung und Unterkonstruktion sind dafür auszulegen.
+        </p>
+      </div>
+    )}
+    {ort.hinweise.length > 0 && (
+      <ul class="os-hinweise">{ort.hinweise.map((h) => <li>Hinweis der DIBt: {h}</li>)}</ul>
+    )}
+    <p class="os-klein">
+      Die Höhe ist ein Richtwert für die Ortsmitte (Höhenmodell). Liegt dein Grundstück höher oder tiefer, ändert sich die Schneelast.
+      Die Werte sind eine Vorbemessung und ersetzen keine Statik. Für Bauanträge, Solaranlagen, Gründächer und Altbauten ist ein Standsicherheitsnachweis durch einen Tragwerksplaner nötig.
+    </p>
+
+    <div class="os-links">
+      <a href={sparrenLink}>Mit diesen Werten Sparren vorbemessen →</a>
+      <a href="/tools/schneelastzone/">Andere Höhe, Dachneigung oder Ort prüfen →</a>
+      <a href="/tools/karte/">Zonenkarte Deutschland →</a>
+    </div>
+
+    {nachbarn.length > 0 && (
+      <>
+        <h2>Weitere Orte im Landkreis {ort.kreis}</h2>
+        <ul class="os-liste">
+          {nachbarn.map((n) => <li><a href={`/schneelastzone/${n.slug}/`}>{n.name}</a><span class="os-zone">Zone {n.schnee}</span></li>)}
+        </ul>
+      </>
+    )}
+    {kreisSeite && (
+      <p>
+        <a href={kreisSeite}>Alle {kreis?.orte.length} Gemeinden im Landkreis {ort.kreis} mit Schneelast- und Windzone ansehen</a>
+        {abweichend > 0 && ` – in ${abweichend} davon gilt eine andere Schneelastzone.`}
+      </p>
+    )}
+
+    <p class="os-quelle">
+      Datengrundlage: Zuordnung der Schneelastzonen (Stand 07.02.2023) und der Windzonen (Stand 02.06.2022) nach Verwaltungsgrenzen des DIBt.
+      Postleitzahlen: <a href="https://www.geonames.org/" rel="noopener">GeoNames</a> (CC BY 4.0), Gemeindegrenzen © GeoBasis-DE / BKG (dl-de/by-2-0).
+      Höhenrichtwerte: Copernicus GLO-90 über <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> (CC BY 4.0). Verbindlich sind die amtlichen Bekanntmachungen der Länder.
+    </p>
+  </div>
+</ToolLayout>

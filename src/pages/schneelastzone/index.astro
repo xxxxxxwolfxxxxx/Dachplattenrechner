@@ -1,0 +1,40 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { ladeOrtsdaten } from '../../utils/ortsseiten';
+import { BUNDESLAENDER } from '../../utils/schneelastzonen';
+import '../../styles/ortsseiten.css';
+
+const { kreise, orte } = ladeOrtsdaten();
+const laender = Object.entries(BUNDESLAENDER)
+  .map(([kuerzel, name]) => ({ kuerzel, name, kreise: kreise.filter((k) => k.land === kuerzel && k.hatSeite).sort((a, b) => a.name.localeCompare(b.name, 'de')) }))
+  .filter((l) => l.kreise.length > 0)
+  .sort((a, b) => a.name.localeCompare(b.name, 'de'));
+const anzahlOrte = orte.filter((o) => o.hatSeite).length;
+---
+
+<ToolLayout
+  title="Schneelastzone nach Landkreis und Ort"
+  description={`Schneelastzone und Windzone für ${laender.reduce((s, l) => s + l.kreise.length, 0)} Landkreise und über ${Math.floor(anzahlOrte / 100) * 100} Orte in Deutschland, mit Schneelast pro m² je Dachneigung.`}
+  keywords="Schneelastzone Landkreis, Schneelastzone Ort, Schneelastzone nach Postleitzahl, Windzone Landkreis"
+  navTitle="Schneelastzonen nach Ort"
+  backHref="/tools/schneelastzone/"
+  backLabel="← Zonensuche"
+  breadcrumbs={[{ name: 'Startseite', url: '/' }, { name: 'Schneelastzonen', url: '/schneelastzone/' }]}
+>
+  <div class="os">
+    <h1>Schneelastzone nach Landkreis und Ort</h1>
+    <p class="lead">
+      Wähle deinen Landkreis, um die Schneelastzone und die Windzone aller Gemeinden zu sehen. Für größere Orte gibt es eigene Seiten mit der
+      Schneelast pro m² je Dachneigung. Deinen Ort oder deine Postleitzahl findest du auch direkt in der <a href="/tools/schneelastzone/">Zonensuche</a>.
+    </p>
+    {laender.map((l) => (
+      <>
+        <h2>{l.name}</h2>
+        <ul class="os-liste">
+          {l.kreise.map((k) => <li><a href={`/schneelastzone/landkreis/${k.slug}/`}>{k.name}</a></li>)}
+        </ul>
+      </>
+    ))}
+    <p class="os-quelle">Datengrundlage: DIBt, Stand Schneelastzonen 07.02.2023 und Windzonen 02.06.2022. Die Werte sind eine Vorbemessung und ersetzen keine Statik.</p>
+  </div>
+</ToolLayout>
