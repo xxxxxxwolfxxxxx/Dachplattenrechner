@@ -24,3 +24,7 @@ pnpm-debug.log*
 .idea/
 .worktrees/
 .claude/worktrees/
+
+# Rohdaten und Python-Umgebung der Datenskripte
+scripts/rohdaten/
+scripts/.venv/

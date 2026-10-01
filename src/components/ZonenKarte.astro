@@ -31,6 +31,12 @@
     <div class="kk-legende" id="kk-legende" aria-live="polite"></div>
   </div>
 
+  <p class="kk-tasten" id="kk-tastenhinweis">
+    Tastatur: Karte mit Tab fokussieren, dann wählen die Pfeiltasten die Nachbarfläche, Enter oder Leertaste zeigt
+    die Werte, + und − zoomen, 0 zeigt die ganze Karte.
+  </p>
+  <p class="kk-sr" id="kk-ansage" role="status" aria-live="polite"></p>
+
   <p class="kk-hinweis" id="kk-hinweis"></p>
   <p class="kk-quelle">
     Zonen: DIBt, Stand Schnee 07.02.2023, Wind 02.06.2022. Grenzen: © GeoBasis-DE / BKG
@@ -80,6 +86,7 @@
   const tooltip = el('kk-tooltip');
   const legende = el('kk-legende');
   const hinweisFeld = el('kk-hinweis');
+  const ansage = el('kk-ansage');
   const modusKnoepfe: Record<Modus, HTMLButtonElement> = { schnee: el('kk-schnee'), wind: el('kk-wind') };
   const ebenenKnoepfe: Record<Ebene, HTMLButtonElement> = { kreis: el('kk-ebene-kreis'), gemeinde: el('kk-ebene-gemeinde') };
 
@@ -97,6 +104,10 @@
   let ansicht = { x: 0, y: 0, w: 1, h: 1 };
   let gesamt = { w: 1, h: 1 };
   let gezogen = false;
+  let aktiv: SVGPathElement | null = null;
+  let fokusRing: SVGPathElement | null = null;
+  let tastaturAktiv = false;
+  const mitten = new Map<SVGPathElement, [number, number]>();
 
   const ladeJson = <T,>(url: string): Promise<T> =>
     fetch(url).then((res) => {
@@ -204,14 +215,21 @@
     gesamt = { w: daten.viewBox[0], h: daten.viewBox[1] };
     svg = document.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('class', 'kk-svg');
-    svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', 'Karte der Landkreise und Gemeinden in Deutschland, eingefärbt nach Zone. Bedienung per Tastatur über die Suche.');
+    svg.setAttribute('aria-hidden', 'true');
+    container.tabIndex = 0;
+    container.setAttribute('role', 'application');
+    container.setAttribute('aria-roledescription', 'interaktive Karte');
+    container.setAttribute('aria-label', 'Zonenkarte der Landkreise und Gemeinden in Deutschland');
+    container.setAttribute('aria-describedby', 'kk-tastenhinweis');
 
     const defs = document.createElementNS(SVG_NS, 'defs');
     defs.innerHTML =
       '<pattern id="kk-schraffur" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
       '<line x1="0" y1="0" x2="0" y2="5" stroke="rgba(15,23,42,0.6)" stroke-width="1.6"/></pattern>';
     svg.append(defs);
+    fokusRing = erzeugePfad('', 'kk-fokus');
+    fokusRing.setAttribute('pointer-events', 'none');
+    fokusRing.setAttribute('display', 'none');
 
     const kreisGruppe = document.createElementNS(SVG_NS, 'g');
     const schraffurGruppe = document.createElementNS(SVG_NS, 'g');
@@ -229,11 +247,13 @@
     });
     gemeindeGruppe = document.createElementNS(SVG_NS, 'g');
     gemeindeGruppe.setAttribute('display', 'none');
-    svg.append(kreisGruppe, gemeindeGruppe, schraffurGruppe);
+    svg.append(kreisGruppe, gemeindeGruppe, schraffurGruppe, fokusRing);
 
     svg.addEventListener('pointermove', zeigeTooltip);
     svg.addEventListener('pointerleave', () => { tooltip.hidden = true; });
     svg.addEventListener('click', waehle);
+    svg.addEventListener('pointerdown', () => { tastaturAktiv = false; zeigeFokus(); });
+    richteTastaturEin();
     laden.remove();
     container.prepend(svg);
     setzeAnsicht(0, 0, gesamt.w);
@@ -316,12 +336,17 @@
   }
 
   function waehle(e: MouseEvent): void {
-    if (gezogen || !karte) return;
+    if (gezogen) return;
     const ziel = (e.target as Element).closest('.kk-kreis, .kk-gem') as SVGPathElement | null;
-    if (!ziel) return;
+    if (ziel) waehleZiel(ziel);
+  }
+
+  function waehleZiel(ziel: SVGPathElement): void {
+    if (!karte) return;
     gewaehlt?.classList.remove('kk-gewaehlt');
     ziel.classList.add('kk-gewaehlt');
     gewaehlt = ziel;
+    aktiv = ziel;
     ziel.parentNode?.append(ziel); // nach vorn, damit der Rand nicht verdeckt wird
     const i = Number(ziel.dataset.index);
     if (ziel.dataset.art === 'gemeinde' && gemeindeDaten) {
@@ -335,6 +360,126 @@
     }
     const kreis = karte.kreise[i];
     window.dispatchEvent(new CustomEvent('slz-karte', { detail: { land: kreis.land, kreis: kreis.k ?? kreis.name, stadt: kreis.stadt } }));
+  }
+
+  // ---- Tastaturbedienung ------------------------------------------------------------------------
+
+  type Richtung = 'links' | 'rechts' | 'oben' | 'unten';
+  const PFEILE: Record<string, Richtung> = { ArrowLeft: 'links', ArrowRight: 'rechts', ArrowUp: 'oben', ArrowDown: 'unten' };
+
+  /** Flächen, die auf der aktuellen Ebene sichtbar und wählbar sind (Landkreise, ersetzte Landkreise ausgenommen). */
+  function kandidaten(): SVGPathElement[] {
+    if (ebene === 'kreis' || !gemeindeDaten || !karte) return kreisPfade;
+    const ersetzt = new Set(gemeindeDaten.kreise);
+    return [...gemeindePfade, ...kreisPfade.filter((_, i) => !ersetzt.has(karte!.kreise[i].ags))];
+  }
+
+  function mitteVon(pfad: SVGPathElement): [number, number] {
+    let m = mitten.get(pfad);
+    if (!m) {
+      const b = pfad.getBBox();
+      m = [b.x + b.width / 2, b.y + b.height / 2];
+      mitten.set(pfad, m);
+    }
+    return m;
+  }
+
+  function naechsteFlaeche(von: SVGPathElement, richtung: Richtung): SVGPathElement | null {
+    const [cx, cy] = mitteVon(von);
+    let beste: SVGPathElement | null = null;
+    let besterWert = Infinity;
+    for (const pfad of kandidaten()) {
+      if (pfad === von) continue;
+      const [x, y] = mitteVon(pfad);
+      const dx = x - cx;
+      const dy = y - cy;
+      const entlang = richtung === 'rechts' ? dx : richtung === 'links' ? -dx : richtung === 'unten' ? dy : -dy;
+      if (entlang <= 0.01) continue;
+      const quer = richtung === 'links' || richtung === 'rechts' ? Math.abs(dy) : Math.abs(dx);
+      const wert = entlang + 2 * quer; // Fläche in Blickrichtung, die möglichst wenig seitlich versetzt liegt
+      if (wert < besterWert) {
+        besterWert = wert;
+        beste = pfad;
+      }
+    }
+    return beste;
+  }
+
+  function ersteFlaeche(): SVGPathElement | null {
+    if (gewaehlt && kandidaten().includes(gewaehlt)) return gewaehlt;
+    const mx = ansicht.x + ansicht.w / 2;
+    const my = ansicht.y + ansicht.h / 2;
+    let beste: SVGPathElement | null = null;
+    let besterAbstand = Infinity;
+    for (const pfad of kandidaten()) {
+      const [x, y] = mitteVon(pfad);
+      const abstand = Math.hypot(x - mx, y - my);
+      if (abstand < besterAbstand) {
+        besterAbstand = abstand;
+        beste = pfad;
+      }
+    }
+    return beste;
+  }
+
+  function zeigeFokus(): void {
+    if (!fokusRing) return;
+    const sichtbar = tastaturAktiv && aktiv !== null && document.activeElement === container;
+    fokusRing.setAttribute('display', sichtbar ? '' : 'none');
+    if (sichtbar && aktiv) fokusRing.setAttribute('d', aktiv.getAttribute('d') ?? '');
+  }
+
+  const MODUS_NAME: Record<Modus, string> = { schnee: 'Schneelastzone', wind: 'Windzone' };
+
+  function setzeAktiv(pfad: SVGPathElement): void {
+    aktiv = pfad;
+    zeigeFokus();
+    const [x, y] = mitteVon(pfad);
+    const randX = ansicht.w * 0.1;
+    const randY = ansicht.h * 0.1;
+    if (x < ansicht.x + randX || x > ansicht.x + ansicht.w - randX || y < ansicht.y + randY || y > ansicht.y + ansicht.h - randY) {
+      setzeAnsicht(x - ansicht.w / 2, y - ansicht.h / 2, ansicht.w);
+      zeigeFokus();
+    }
+    const daten = trefferDaten(pfad);
+    if (daten) ansage.textContent = `${daten.name}: ${daten.text.replace(/^Zone/, MODUS_NAME[modus])}`;
+  }
+
+  function richteTastaturEin(): void {
+    container.addEventListener('focus', zeigeFokus);
+    container.addEventListener('blur', zeigeFokus);
+    container.addEventListener('keydown', (e) => {
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      tastaturAktiv = true;
+      const richtung = PFEILE[e.key];
+      if (richtung) {
+        e.preventDefault();
+        const start = aktiv && kandidaten().includes(aktiv) ? aktiv : null;
+        const ziel = start ? naechsteFlaeche(start, richtung) : ersteFlaeche();
+        if (ziel) setzeAktiv(ziel);
+        return;
+      }
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const ziel = aktiv && kandidaten().includes(aktiv) ? aktiv : ersteFlaeche();
+        if (!ziel) return;
+        setzeAktiv(ziel);
+        waehleZiel(ziel);
+        const daten = trefferDaten(ziel);
+        if (daten) ansage.textContent = `${daten.name} gewählt, ${daten.text.replace(/^Zone/, MODUS_NAME[modus])}. Die Werte stehen in der Suche.`;
+        return;
+      }
+      if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        zoome(SCHRITT);
+      } else if (e.key === '-') {
+        e.preventDefault();
+        zoome(1 / SCHRITT);
+      } else if (e.key === '0' || e.key === 'Home') {
+        e.preventDefault();
+        setzeAnsicht(0, 0, gesamt.w);
+      }
+    });
   }
 
   // ---- Umschalten und Laden -------------------------------------------------------------------
@@ -362,6 +507,8 @@
       }
     }
     ebene = neu;
+    aktiv = null;
+    zeigeFokus();
     aktualisiereKnoepfe();
     faerbe();
   }
@@ -439,6 +586,10 @@
   .kk-gem { stroke-width: 0.4px; }
   .kk-kreis:hover, .kk-gem:hover { filter: brightness(1.18); stroke: #f8fafc; stroke-width: 1px; }
   .kk-gewaehlt { stroke: #f8fafc; stroke-width: 1.8px; }
+  .kk-fokus { fill: none; stroke: #fde047; stroke-width: 3px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+  .kk-karte:focus-visible { outline: 2px solid #fde047; outline-offset: 3px; }
+  .kk-tasten { margin: 12px 0 0; font-size: 0.85rem; color: #94a3b8; }
+  .kk-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .kk-schraffur { vector-effect: non-scaling-stroke; }
   .kk-schnee-1 { fill: #bfdbfe; } .kk-schnee-1a { fill: #93c5fd; } .kk-schnee-2 { fill: #60a5fa; }
   .kk-schnee-2a { fill: #3b82f6; } .kk-schnee-3 { fill: #1d4ed8; } .kk-schnee-3a { fill: #1e3a8a; }
