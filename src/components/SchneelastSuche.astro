@@ -21,8 +21,8 @@
     Datengrundlage: Zuordnung der Schneelastzonen (Stand <span id="slz-stand">07.02.2023</span>) und der
     Windzonen (Stand <span id="slz-wind-stand">02.06.2022</span>) nach Verwaltungsgrenzen des DIBt, je Gemeinde
     bzw. Landkreis. Die Zuordnung von Postleitzahlen zu Gemeinden beruht auf Koordinaten von
-    <a href="https://www.geonames.org/" rel="noopener">GeoNames</a> (CC BY 4.0) und BKG-Gemeindegrenzen; bei Postleitzahlen, die
-    mehrere Gemeinden umfassen, wählst du deine Gemeinde. Verbindlich sind die amtlichen Bekanntmachungen der Länder.
+    <a href="https://www.geonames.org/" rel="noopener">GeoNames</a> (CC BY 4.0) und BKG-Gemeindegrenzen. Höhenrichtwerte stammen aus dem Höhenmodell Copernicus GLO-90 (über
+    <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a>, CC BY 4.0). Bei Postleitzahlen, die mehrere Gemeinden umfassen, wählst du deine Gemeinde. Verbindlich sind die amtlichen Bekanntmachungen der Länder.
   </p>
 </section>
 
@@ -36,10 +36,12 @@
     gemeindeKartenTreffer,
     istPlz,
     sucheNachPlz,
+    findeHoehe,
     BUNDESLAENDER,
     WINDWERTE,
     type Datensatz,
     type PlzDatensatz,
+    type HoehenDatensatz,
     type Treffer,
   } from '../utils/schneelastzonen';
   import { schneelastSk, schneeFormbeiwert } from '../utils/sparren';
@@ -47,6 +49,7 @@
   const SCHNEE_URL = '/data/schneelastzonen.json';
   const WIND_URL = '/data/windzonen.json';
   const PLZ_URL = '/data/plz.json';
+  const HOEHEN_URL = '/data/hoehen.json';
   const eingabe = document.getElementById('slz-eingabe') as HTMLInputElement;
   const status = document.getElementById('slz-status') as HTMLElement;
   const liste = document.getElementById('slz-treffer') as HTMLUListElement;
@@ -58,6 +61,7 @@
   let wind: Datensatz | null = null;
   let laden: Promise<Datensatz | null> | null = null;
   let plzDaten: Promise<PlzDatensatz | null> | null = null;
+  let hoehenDaten: Promise<HoehenDatensatz | null> | null = null;
   /** Windzone laut Postleitzahl-Daten je Treffer (Gemeinden außerhalb der Gemeindetabelle der Wind-Daten) */
   const windVorgaben = new WeakMap<Treffer, string | null>();
 
@@ -85,6 +89,14 @@
         return null;
       });
     return laden;
+  }
+
+  /** Höhenrichtwerte je Gemeinde; fehlen sie, bleibt das Höhenfeld einfach leer. */
+  function ladeHoehen(): Promise<HoehenDatensatz | null> {
+    hoehenDaten ??= fetch(HOEHEN_URL)
+      .then((res) => (res.ok ? (res.json() as Promise<HoehenDatensatz>) : null))
+      .catch(() => null);
+    return hoehenDaten;
   }
 
   function ladePlz(): Promise<PlzDatensatz | null> {
@@ -122,13 +134,13 @@
   }
 
   /** Fazit: Last pro m², die das Dach am Ort aushalten muss (Schnee aus Zone und Höhe, Wind als Basiswert). */
-  function aktualisiereFazit(box: HTMLElement, ort: string, zone: string | null, hoehe: number | null, windZone: string | null): void {
+  function aktualisiereFazit(box: HTMLElement, ort: string, zone: string | null, hoehe: number | null, windZone: string | null, geschaetzt: boolean): void {
     box.replaceChildren();
     const teile: HTMLElement[] = [];
     if (zone && istBerechenbar(zone)) {
       const sk = schneelastSk(zone, hoehe ?? 0);
       const dach = sk * schneeFormbeiwert(0);
-      const hoehenText = hoehe === null ? ' (Mindestwert; gib oben die Geländehöhe an, dann wird er genauer)' : ` (auf ${hoehe} m ü. NN)`;
+      const hoehenText = hoehe === null ? ' (Mindestwert; gib oben die Geländehöhe an, dann wird er genauer)' : geschaetzt ? ` (bei ca. ${hoehe} m ü. NN, Ortsmitte; passe die Höhe oben an dein Grundstück an)` : ` (auf ${hoehe} m ü. NN)`;
       const p = el('p');
       p.append(
         el('strong', undefined, 'Schnee: '),
@@ -199,11 +211,12 @@
     hoehenFeld.append(hoehenLabel, hoehenEingabe);
 
     const fazit = el('div', 'slz-fazit');
+    let hoeheGeschaetzt = false;
     let windZoneFazit: string | null = null;
     const aktualisiere = () => {
       const roh = hoehenEingabe.value.trim();
       const h = roh === '' ? null : Math.min(3000, Math.max(0, Number(roh)));
-      aktualisiereFazit(fazit, t.name, hauptZone, Number.isFinite(h) ? h : null, windZoneFazit);
+      aktualisiereFazit(fazit, t.name, hauptZone, Number.isFinite(h) ? h : null, windZoneFazit, hoeheGeschaetzt);
       skZeile.replaceChildren();
       if (hauptZone) {
         skZeile.append(el('strong', undefined, 'Schneelast am Boden: '), document.createTextNode(skText(hauptZone, Number.isFinite(h) ? h : null)));
@@ -211,8 +224,25 @@
       }
       skZeile.append(document.createTextNode('Die Schneelast hängt von der Zone der Gemeinde ab. Wähle unten deine Gemeinde.'));
     };
-    hoehenEingabe.addEventListener('input', aktualisiere);
-    if (hauptZone) detail.append(hoehenFeld);
+    const hoehenHinweis = el('p', 'slz-hoehe-hinweis');
+    hoehenHinweis.hidden = true;
+    hoehenEingabe.addEventListener('input', () => {
+      hoeheGeschaetzt = false;
+      hoehenHinweis.hidden = true;
+      aktualisiere();
+    });
+    if (hauptZone) detail.append(hoehenFeld, hoehenHinweis);
+    if (hauptZone && t.art === 'gemeinde') {
+      void ladeHoehen().then((hoehen) => {
+        const m = hoehen ? findeHoehe(hoehen, t.land, t.kreis, t.name) : null;
+        if (m === null || hoehenEingabe.value !== '' || !detail.contains(hoehenEingabe)) return;
+        hoehenEingabe.value = String(m);
+        hoeheGeschaetzt = true;
+        hoehenHinweis.textContent = `Vorbelegt mit der Höhe der Ortsmitte (ca. ${m} m ü. NN, Höhenmodell). Liegt dein Grundstück höher oder tiefer, trage die Höhe ein.`;
+        hoehenHinweis.hidden = false;
+        aktualisiere();
+      });
+    }
     aktualisiere();
 
     if (t.gemeinden.length > 0) {
@@ -379,6 +409,7 @@
   .slz-fazit-titel { margin: 0 0 8px; font-size: 1.05rem; color: #f8fafc; }
   .slz-fazit p { margin: 6px 0; line-height: 1.5; }
   .slz-fazit-hinweis { font-size: 0.8rem; color: #94a3b8; }
+  .slz-hoehe-hinweis { margin: 6px 0 0; font-size: 0.8rem; color: #94a3b8; }
   .slz-quelle { margin: 16px 0 0; font-size: 0.8rem; color: #94a3b8; }
   @media (prefers-reduced-motion: reduce) { .slz-knopf { transition: none; } .slz-knopf:hover { transform: none; } }
 </style>

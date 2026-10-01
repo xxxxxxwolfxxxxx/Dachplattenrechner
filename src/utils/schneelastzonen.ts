@@ -280,3 +280,28 @@ export function sucheNachPlz(plz: PlzDatensatz, daten: Datensatz, eingabe: strin
   }
   return { treffer, ohneZone };
 }
+
+/** Geländehöhe je Gemeinde (public/data/hoehen.json, erzeugt von scripts/build-hoehen.py). */
+export interface HoehenDatensatz {
+  stand: string;
+  quelle: string;
+  /** "<Land>|<Landkreis>" -> Gemeinde -> Höhe in m ü. NN */
+  h: Record<string, Record<string, number>>;
+}
+
+/** Name ohne Klammerzusatz und ohne Zusatz nach dem Komma, normalisiert ("Neukirch (Vogtland), Stadt" -> "neukirch"). */
+const kernName = (name: string): string => normalisiere(name.replace(/\s*\(.*?\)/g, '').replace(/,.*$/, ''));
+
+/** Richtwert der Geländehöhe (Ortsmitte) einer Gemeinde in m ü. NN; null, wenn nicht eindeutig auffindbar. */
+export function findeHoehe(hoehen: HoehenDatensatz, land: string, kreis: string, name: string): number | null {
+  const gemeinden = hoehen.h[`${land}|${kreis}`];
+  if (!gemeinden) return null;
+  if (name in gemeinden) return gemeinden[name];
+  const gesucht = normalisiere(name);
+  const kern = kernName(name);
+  const eintraege = Object.entries(gemeinden);
+  const exakt = eintraege.filter(([n]) => normalisiere(n) === gesucht);
+  if (exakt.length === 1) return exakt[0][1];
+  const gleichKern = eintraege.filter(([n]) => kernName(n) === kern);
+  return gleichKern.length === 1 ? gleichKern[0][1] : null;
+}
