@@ -79,6 +79,22 @@ def split_names(text):
     return names
 
 
+ALLE = re.compile(r'^alle(\s|,|;|$)', re.I)
+AUSSER = re.compile(r'(?:außer|bis auf)\s*:?\s*(.*?)\s*=?\s*SLZ\s*=?\s*([0-9]a?)', re.I)
+
+
+def kreisweit(land, kreis, text, z, note=''):
+    """Zeile "alle Gemeinden" (evtl. "alle außer A, B = SLZ 2a"): Standardzone des Landkreises plus Ausnahmegemeinden."""
+    add(land, kreis, None, z, note)
+    m = AUSSER.search(text.replace('\n', ' '))
+    if not m:
+        return
+    namen = split_names(m.group(1).strip(' :;'))
+    add_hinweis(land, kreis, f'Abweichend Zone {m.group(2)}: {", ".join(namen)}.')
+    for n in namen:
+        add(land, kreis, n, m.group(2), '')
+
+
 def with_key_table(ws, land, zone_col=4, note_col=5, first=1):
     """Format: Land | Landkreis | Gemeindeschlüssel | Gemeinde | Zone | Fußnote."""
     staedte = {clean(r[1]) for r in ws.iter_rows(min_row=first + 1, values_only=True)
@@ -123,6 +139,9 @@ def parse_by(wb):
         if z is None:
             continue
         kreis = clean(r[1]) or 'Bodensee'
+        if ALLE.match(clean(r[3])):
+            kreisweit('BY', kreis, clean(r[3]), z)
+            continue
         add('BY', kreis, clean(r[3]), z, 'Sonderzone aus dem Bayerischen Forschungsprojekt.' if z in ('3a', '>3a') else '')
 
 
@@ -138,6 +157,9 @@ def parse_rp(wb):
         note = ''
         if 'Exklave' in foot:
             note = 'Exklaven dieser Gemeinde liegen in Zone 2.'
+        if ALLE.match(clean(r[3])):
+            kreisweit('RP', clean(r[1]), clean(r[3]), z)
+            continue
         add('RP', clean(r[1]), clean(r[3]), z, note)
 
 
@@ -146,6 +168,9 @@ def parse_nw(wb):
     for r in ws.iter_rows(min_row=4, values_only=True):
         z = zone(r[3])
         if z is None or not r[2]:
+            continue
+        if ALLE.match(clean(r[2])):
+            kreisweit('NW', clean(r[0]), clean(r[2]), z)
             continue
         add('NW', clean(r[0]), clean(r[2]), z, '')
 
@@ -249,8 +274,11 @@ def parse_mv(wb):
                 continue
             k = raw if raw.startswith('LK ') is False else f'Landkreis {raw[3:]}'
             if bem.startswith('folgende Gemeinden'):
-                for n in split_names(bem):
+                gebiete = [n for n in split_names(bem) if n.lower().startswith('alle gemeinden')]
+                for n in [n for n in split_names(bem) if n not in gebiete]:
                     add('MV', k, n, z, '')
+                if gebiete:
+                    add_hinweis('MV', k, f'Abweichend Zone {z}: ' + ' und '.join(gebiete) + '.')
             elif 'alle Gemeinden, soweit nicht' in bem:
                 other = '3' if z == '2' else '2'
                 add('MV', k, None, z, f'Gilt für alle übrigen Gemeinden; einzelne Gemeinden liegen in Zone {other}.')

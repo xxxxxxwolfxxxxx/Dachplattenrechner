@@ -1,0 +1,467 @@
+---
+// Interaktive Zonenkarte (Schnee/Wind) mit Landkreis- und Gemeindeebene, Zoom und Verschieben.
+// Geometrie: © GeoBasis-DE / BKG (VG250), dl-de/by-2-0 (siehe scripts/build-kreiskarte.py, build-gemeindekarte.py).
+---
+
+<section class="kk" aria-labelledby="kk-titel">
+  <h2 id="kk-titel" class="kk-titel">Zonenkarte</h2>
+  <div class="kk-steuerung">
+    <div class="kk-umschalter" role="group" aria-label="Zonenart wählen">
+      <button type="button" class="kk-modus" id="kk-schnee" aria-pressed="true">Schneelastzonen</button>
+      <button type="button" class="kk-modus" id="kk-wind" aria-pressed="false">Windzonen</button>
+    </div>
+    <div class="kk-umschalter" role="group" aria-label="Detailgrad wählen">
+      <button type="button" class="kk-modus" id="kk-ebene-kreis" aria-pressed="true">Landkreise</button>
+      <button type="button" class="kk-modus" id="kk-ebene-gemeinde" aria-pressed="false">Gemeinden</button>
+    </div>
+  </div>
+
+  <div class="kk-flaeche">
+    <div class="kk-rahmen">
+      <div class="kk-karte" id="kk-karte">
+        <p class="kk-laden" id="kk-laden">Karte wird geladen …</p>
+        <div class="kk-tooltip" id="kk-tooltip" role="tooltip" hidden></div>
+      </div>
+      <div class="kk-zoom" role="group" aria-label="Kartenausschnitt">
+        <button type="button" id="kk-plus" aria-label="Hineinzoomen">+</button>
+        <button type="button" id="kk-minus" aria-label="Herauszoomen">−</button>
+        <button type="button" id="kk-reset" aria-label="Ganze Karte anzeigen">⌂</button>
+      </div>
+    </div>
+    <div class="kk-legende" id="kk-legende" aria-live="polite"></div>
+  </div>
+
+  <p class="kk-hinweis" id="kk-hinweis"></p>
+  <p class="kk-quelle">
+    Zonen: DIBt, Stand Schnee 07.02.2023, Wind 02.06.2022. Grenzen: © GeoBasis-DE / BKG
+    (<a href="https://gdz.bkg.bund.de/index.php/default/verwaltungsgebiete-1-250-000-stand-01-01-vg250-01-01.html" rel="noopener">VG250</a>,
+    Stand <span id="kk-stand">12/2022</span>), Datenlizenz Deutschland – Namensnennung 2.0, vereinfacht dargestellt.
+  </p>
+</section>
+
+<script>
+  import { kartenZone, type Datensatz, type KartenZone } from '../utils/schneelastzonen';
+
+  interface KarteKreis { ags: string; name: string; land: string; k: string | null; stadt: boolean; d: string }
+  interface KartenDaten { viewBox: [number, number]; stand: string; kreise: KarteKreis[] }
+  /** [AGS, Name, Kreis-AGS, Schneezone, Windzone, Pfad] */
+  type GemeindeEintrag = [string, string, string, string | null, string | null, string];
+  interface GemeindeDaten { kreise: string[]; gemeinden: GemeindeEintrag[] }
+  type Modus = 'schnee' | 'wind';
+  type Ebene = 'kreis' | 'gemeinde';
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const MAX_ZOOM = 14;
+  const SCHRITT = 1.6;
+  const LEGENDEN: Record<Modus, { zone: string; text: string }[]> = {
+    schnee: [
+      { zone: '1', text: 'Zone 1 – mind. 0,65 kN/m²' },
+      { zone: '1a', text: 'Zone 1a – mind. 0,81 kN/m²' },
+      { zone: '2', text: 'Zone 2 – mind. 0,85 kN/m²' },
+      { zone: '2a', text: 'Zone 2a – mind. 1,06 kN/m²' },
+      { zone: '3', text: 'Zone 3 – mind. 1,10 kN/m²' },
+      { zone: '3a', text: 'Zone 3a – Sonderzone Bayern' },
+    ],
+    wind: [
+      { zone: '1', text: 'Zone 1 – 22,5 m/s' },
+      { zone: '2', text: 'Zone 2 – 25 m/s' },
+      { zone: '3', text: 'Zone 3 – 27,5 m/s' },
+      { zone: '4', text: 'Zone 4 – 30 m/s' },
+    ],
+  };
+  const HINWEISE: Record<Ebene, string> = {
+    kreis: 'Klicke auf einen Landkreis, um Zone und Werte oben anzuzeigen. Die Färbung zeigt die Standardzone des Landkreises; schraffierte Landkreise haben Gemeinden mit abweichender Zone – wechsle dafür zu „Gemeinden“.',
+    gemeinde: 'Gemeinden sind dort einzeln dargestellt, wo die Zone im Landkreis wechselt; alle anderen Landkreise erscheinen als Fläche. Graue Gemeinden (v. a. in Sachsen und Thüringen) sind seit der DIBt-Tabelle neu gebildet und dort nicht enthalten.',
+  };
+
+  const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const container = el('kk-karte');
+  const laden = el('kk-laden');
+  const tooltip = el('kk-tooltip');
+  const legende = el('kk-legende');
+  const hinweisFeld = el('kk-hinweis');
+  const modusKnoepfe: Record<Modus, HTMLButtonElement> = { schnee: el('kk-schnee'), wind: el('kk-wind') };
+  const ebenenKnoepfe: Record<Ebene, HTMLButtonElement> = { kreis: el('kk-ebene-kreis'), gemeinde: el('kk-ebene-gemeinde') };
+
+  let modus: Modus = 'schnee';
+  let ebene: Ebene = 'kreis';
+  let karte: KartenDaten | null = null;
+  let gemeindeDaten: GemeindeDaten | null = null;
+  let zonen: Record<Modus, KartenZone[]> | null = null;
+  let svg: SVGSVGElement | null = null;
+  let kreisPfade: SVGPathElement[] = [];
+  let schraffuren: SVGPathElement[] = [];
+  let gemeindePfade: SVGPathElement[] = [];
+  let gemeindeGruppe: SVGGElement | null = null;
+  let ersetzteKreise = new Set<number>();
+  let gewaehlt: SVGPathElement | null = null;
+  let ansicht = { x: 0, y: 0, w: 1, h: 1 };
+  let gesamt = { w: 1, h: 1 };
+  let gezogen = false;
+
+  const ladeJson = <T,>(url: string): Promise<T> =>
+    fetch(url).then((res) => {
+      if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
+      return res.json() as Promise<T>;
+    });
+
+  const kurz = (z: KartenZone) => (z.haupt ? `Zone ${z.haupt}${z.gemischt ? ' (einzelne Gemeinden abweichend)' : ''}` : 'keine Angabe');
+  const zahlText = (n: number) => n.toFixed(1);
+
+  // ---- Ansicht (Zoom/Verschieben) --------------------------------------------------------------
+
+  function setzeAnsicht(x: number, y: number, w: number): void {
+    const breite = Math.min(gesamt.w, Math.max(gesamt.w / MAX_ZOOM, w));
+    const hoehe = breite * (gesamt.h / gesamt.w);
+    ansicht = {
+      x: Math.min(gesamt.w - breite, Math.max(0, x)),
+      y: Math.min(gesamt.h - hoehe, Math.max(0, y)),
+      w: breite,
+      h: hoehe,
+    };
+    svg?.setAttribute('viewBox', `${zahlText(ansicht.x)} ${zahlText(ansicht.y)} ${zahlText(ansicht.w)} ${zahlText(ansicht.h)}`);
+    container.style.touchAction = ansicht.w < gesamt.w - 0.5 ? 'none' : 'pan-y';
+  }
+
+  /** Zoomt um einen Punkt (in Container-Anteilen 0..1), Faktor > 1 vergrößert. */
+  function zoome(faktor: number, ax = 0.5, ay = 0.5): void {
+    const neueBreite = ansicht.w / faktor;
+    const neueHoehe = neueBreite * (gesamt.h / gesamt.w);
+    setzeAnsicht(ansicht.x + (ansicht.w - neueBreite) * ax, ansicht.y + (ansicht.h - neueHoehe) * ay, neueBreite);
+  }
+
+  function ankerAus(e: { clientX: number; clientY: number }): [number, number] {
+    const r = svg!.getBoundingClientRect();
+    return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height];
+  }
+
+  function richteSteuerungEin(): void {
+    const zeiger = new Map<number, { x: number; y: number }>();
+    let start: { x: number; y: number; ansicht: typeof ansicht } | null = null;
+    let pinchAbstand = 0;
+
+    container.addEventListener('wheel', (e) => {
+      if (!(e.ctrlKey || e.metaKey)) return; // normales Scrollen der Seite nicht kapern
+      e.preventDefault();
+      const [ax, ay] = ankerAus(e);
+      zoome(e.deltaY < 0 ? 1.25 : 1 / 1.25, ax, ay);
+    }, { passive: false });
+
+    container.addEventListener('pointerdown', (e) => {
+      zeiger.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      gezogen = false;
+      if (zeiger.size === 1) start = { x: e.clientX, y: e.clientY, ansicht: { ...ansicht } };
+      if (zeiger.size === 2) {
+        const [a, b] = [...zeiger.values()];
+        pinchAbstand = Math.hypot(a.x - b.x, a.y - b.y);
+      }
+    });
+
+    container.addEventListener('pointermove', (e) => {
+      if (!zeiger.has(e.pointerId)) return;
+      zeiger.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (zeiger.size === 2) {
+        const [a, b] = [...zeiger.values()];
+        const abstand = Math.hypot(a.x - b.x, a.y - b.y);
+        if (pinchAbstand > 0) zoome(abstand / pinchAbstand, ...ankerAus({ clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 }));
+        pinchAbstand = abstand;
+        gezogen = true;
+        return;
+      }
+      if (!start || ansicht.w >= gesamt.w - 0.5) return;
+      const dx = e.clientX - start.x;
+      const dy = e.clientY - start.y;
+      if (!gezogen && Math.hypot(dx, dy) < 5) return;
+      if (!gezogen) container.setPointerCapture(e.pointerId);
+      gezogen = true;
+      const r = svg!.getBoundingClientRect();
+      setzeAnsicht(start.ansicht.x - (dx / r.width) * start.ansicht.w, start.ansicht.y - (dy / r.height) * start.ansicht.h, start.ansicht.w);
+      tooltip.hidden = true;
+    });
+
+    const ende = (e: PointerEvent) => {
+      zeiger.delete(e.pointerId);
+      if (zeiger.size < 2) pinchAbstand = 0;
+      if (zeiger.size === 0) start = null;
+    };
+    container.addEventListener('pointerup', ende);
+    container.addEventListener('pointercancel', ende);
+
+    el('kk-plus').addEventListener('click', () => zoome(SCHRITT));
+    el('kk-minus').addEventListener('click', () => zoome(1 / SCHRITT));
+    el('kk-reset').addEventListener('click', () => setzeAnsicht(0, 0, gesamt.w));
+  }
+
+  // ---- Zeichnen ---------------------------------------------------------------------------------
+
+  function erzeugePfad(d: string, klasse: string): SVGPathElement {
+    const pfad = document.createElementNS(SVG_NS, 'path');
+    pfad.setAttribute('d', d);
+    pfad.setAttribute('class', klasse);
+    return pfad;
+  }
+
+  function zeichneKreise(daten: KartenDaten): void {
+    gesamt = { w: daten.viewBox[0], h: daten.viewBox[1] };
+    svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('class', 'kk-svg');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Karte der Landkreise und Gemeinden in Deutschland, eingefärbt nach Zone. Bedienung per Tastatur über die Suche.');
+
+    const defs = document.createElementNS(SVG_NS, 'defs');
+    defs.innerHTML =
+      '<pattern id="kk-schraffur" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
+      '<line x1="0" y1="0" x2="0" y2="5" stroke="rgba(15,23,42,0.6)" stroke-width="1.6"/></pattern>';
+    svg.append(defs);
+
+    const kreisGruppe = document.createElementNS(SVG_NS, 'g');
+    const schraffurGruppe = document.createElementNS(SVG_NS, 'g');
+    schraffurGruppe.setAttribute('pointer-events', 'none');
+    daten.kreise.forEach((kreis, i) => {
+      const pfad = erzeugePfad(kreis.d, 'kk-kreis');
+      pfad.dataset.art = 'kreis';
+      pfad.dataset.index = String(i);
+      kreisGruppe.append(pfad);
+      kreisPfade.push(pfad);
+      const schraffur = erzeugePfad(kreis.d, 'kk-schraffur');
+      schraffur.setAttribute('fill', 'url(#kk-schraffur)');
+      schraffurGruppe.append(schraffur);
+      schraffuren.push(schraffur);
+    });
+    gemeindeGruppe = document.createElementNS(SVG_NS, 'g');
+    gemeindeGruppe.setAttribute('display', 'none');
+    svg.append(kreisGruppe, gemeindeGruppe, schraffurGruppe);
+
+    svg.addEventListener('pointermove', zeigeTooltip);
+    svg.addEventListener('pointerleave', () => { tooltip.hidden = true; });
+    svg.addEventListener('click', waehle);
+    laden.remove();
+    container.prepend(svg);
+    setzeAnsicht(0, 0, gesamt.w);
+    richteSteuerungEin();
+  }
+
+  function zeichneGemeinden(daten: GemeindeDaten): void {
+    if (!karte || !gemeindeGruppe) return;
+    const index = new Map(karte.kreise.map((k, i) => [k.ags, i]));
+    ersetzteKreise = new Set(daten.kreise.map((ags) => index.get(ags)).filter((i): i is number => i !== undefined));
+    const fragment = document.createDocumentFragment();
+    daten.gemeinden.forEach((g, i) => {
+      const pfad = erzeugePfad(g[5], 'kk-gem');
+      pfad.dataset.art = 'gemeinde';
+      pfad.dataset.index = String(i);
+      fragment.append(pfad);
+      gemeindePfade.push(pfad);
+    });
+    gemeindeGruppe.append(fragment);
+  }
+
+  function faerbe(): void {
+    if (!karte || !zonen) return;
+    kreisPfade.forEach((pfad, i) => {
+      const z = zonen![modus][i];
+      const ersetzt = ebene === 'gemeinde' && ersetzteKreise.has(i);
+      pfad.setAttribute('class', `kk-kreis kk-${modus}-${z.haupt ?? 'keine'}${pfad === gewaehlt ? ' kk-gewaehlt' : ''}`);
+      pfad.style.display = ersetzt ? 'none' : '';
+      schraffuren[i].style.display = z.gemischt && !ersetzt && ebene === 'kreis' ? '' : 'none';
+    });
+    if (gemeindeDaten && gemeindeGruppe) {
+      gemeindeGruppe.setAttribute('display', ebene === 'gemeinde' ? '' : 'none');
+      gemeindePfade.forEach((pfad, i) => {
+        const g = gemeindeDaten!.gemeinden[i];
+        const zone = modus === 'schnee' ? g[3] : g[4];
+        pfad.setAttribute('class', `kk-gem kk-${modus}-${zone ?? 'keine'}${pfad === gewaehlt ? ' kk-gewaehlt' : ''}`);
+      });
+    }
+    zeichneLegende();
+  }
+
+  function zeichneLegende(): void {
+    legende.replaceChildren();
+    const zeile = (farbeKlasse: string, text: string) => {
+      const z = document.createElement('div');
+      z.className = 'kk-legende-zeile';
+      const farbe = document.createElement('span');
+      farbe.className = `kk-farbe ${farbeKlasse}`;
+      z.append(farbe, document.createTextNode(text));
+      legende.append(z);
+    };
+    for (const eintrag of LEGENDEN[modus]) zeile(`kk-${modus}-${eintrag.zone}`, eintrag.text);
+    if (ebene === 'kreis') zeile('kk-muster', 'mehrere Zonen im Landkreis');
+    else zeile('kk-keine', 'Zone nicht in der DIBt-Tabelle');
+  }
+
+  // ---- Interaktion ------------------------------------------------------------------------------
+
+  function trefferDaten(ziel: SVGPathElement): { name: string; text: string } | null {
+    if (!karte || !zonen) return null;
+    const i = Number(ziel.dataset.index);
+    if (ziel.dataset.art === 'gemeinde' && gemeindeDaten) {
+      const g = gemeindeDaten.gemeinden[i];
+      const zone = modus === 'schnee' ? g[3] : g[4];
+      const kreis = karte.kreise.find((k) => k.ags === g[2]);
+      return { name: `${g[1]}${kreis ? ` (${kreis.k ?? kreis.name})` : ''}`, text: zone ? `Zone ${zone}` : 'keine Angabe in der DIBt-Tabelle' };
+    }
+    return { name: karte.kreise[i].name, text: kurz(zonen[modus][i]) };
+  }
+
+  function zeigeTooltip(e: PointerEvent): void {
+    const ziel = (e.target as Element).closest('.kk-kreis, .kk-gem') as SVGPathElement | null;
+    const daten = ziel && !gezogen ? trefferDaten(ziel) : null;
+    if (!daten) {
+      tooltip.hidden = true;
+      return;
+    }
+    const rect = container.getBoundingClientRect();
+    tooltip.textContent = `${daten.name}: ${daten.text}`;
+    tooltip.style.left = `${Math.max(0, Math.min(e.clientX - rect.left + 12, rect.width - 200))}px`;
+    tooltip.style.top = `${e.clientY - rect.top + 14}px`;
+    tooltip.hidden = false;
+  }
+
+  function waehle(e: MouseEvent): void {
+    if (gezogen || !karte) return;
+    const ziel = (e.target as Element).closest('.kk-kreis, .kk-gem') as SVGPathElement | null;
+    if (!ziel) return;
+    gewaehlt?.classList.remove('kk-gewaehlt');
+    ziel.classList.add('kk-gewaehlt');
+    gewaehlt = ziel;
+    ziel.parentNode?.append(ziel); // nach vorn, damit der Rand nicht verdeckt wird
+    const i = Number(ziel.dataset.index);
+    if (ziel.dataset.art === 'gemeinde' && gemeindeDaten) {
+      const g = gemeindeDaten.gemeinden[i];
+      const kreis = karte.kreise.find((k) => k.ags === g[2]);
+      if (!kreis) return;
+      window.dispatchEvent(new CustomEvent('slz-karte', {
+        detail: { land: kreis.land, kreis: kreis.k ?? kreis.name, stadt: false, gemeinde: g[1], zs: g[3], zw: g[4] },
+      }));
+      return;
+    }
+    const kreis = karte.kreise[i];
+    window.dispatchEvent(new CustomEvent('slz-karte', { detail: { land: kreis.land, kreis: kreis.k ?? kreis.name, stadt: kreis.stadt } }));
+  }
+
+  // ---- Umschalten und Laden -------------------------------------------------------------------
+
+  function aktualisiereKnoepfe(): void {
+    (Object.keys(modusKnoepfe) as Modus[]).forEach((m) => modusKnoepfe[m].setAttribute('aria-pressed', String(m === modus)));
+    (Object.keys(ebenenKnoepfe) as Ebene[]).forEach((x) => ebenenKnoepfe[x].setAttribute('aria-pressed', String(x === ebene)));
+    hinweisFeld.textContent = HINWEISE[ebene];
+  }
+
+  async function setzeEbene(neu: Ebene): Promise<void> {
+    if (neu === 'gemeinde' && !gemeindeDaten) {
+      ebenenKnoepfe.gemeinde.disabled = true;
+      ebenenKnoepfe.gemeinde.textContent = 'Lädt …';
+      try {
+        gemeindeDaten = await ladeJson<GemeindeDaten>('/data/gemeindekarte.json');
+        zeichneGemeinden(gemeindeDaten);
+      } catch (fehler) {
+        console.error('Gemeindekarte konnte nicht geladen werden', fehler);
+        hinweisFeld.textContent = 'Die Gemeindekarte konnte nicht geladen werden. Bitte später erneut versuchen.';
+        return;
+      } finally {
+        ebenenKnoepfe.gemeinde.disabled = false;
+        ebenenKnoepfe.gemeinde.textContent = 'Gemeinden';
+      }
+    }
+    ebene = neu;
+    aktualisiereKnoepfe();
+    faerbe();
+    if (neu === 'gemeinde' && ansicht.w >= gesamt.w - 0.5) zoome(2.2, 0.5, 0.6); // Gemeinden sind erst vergrößert lesbar
+  }
+
+  function setzeModus(neu: Modus): void {
+    modus = neu;
+    aktualisiereKnoepfe();
+    faerbe();
+  }
+
+  let gestartet = false;
+  async function starte(): Promise<void> {
+    if (gestartet) return;
+    gestartet = true;
+    try {
+      const [kartenDaten, schnee, wind] = await Promise.all([
+        ladeJson<KartenDaten>('/data/kreiskarte.json'),
+        ladeJson<Datensatz>('/data/schneelastzonen.json'),
+        ladeJson<Datensatz>('/data/windzonen.json'),
+      ]);
+      karte = kartenDaten;
+      zonen = {
+        schnee: kartenDaten.kreise.map((k) => (k.k ? kartenZone(schnee, k.land, k.k, k.stadt) : { haupt: null, alle: [], gemischt: false })),
+        wind: kartenDaten.kreise.map((k) => kartenZone(wind, k.land, k.k ?? k.name, k.stadt)),
+      };
+      el('kk-stand').textContent = kartenDaten.stand.slice(0, 7).split('-').reverse().join('/');
+      zeichneKreise(kartenDaten);
+      aktualisiereKnoepfe();
+      faerbe();
+    } catch (fehler) {
+      console.error('Karte konnte nicht geladen werden', fehler);
+      laden.textContent = 'Die Karte konnte nicht geladen werden. Bitte Seite neu laden oder die Suche oben nutzen.';
+      gestartet = false;
+    }
+  }
+
+  modusKnoepfe.schnee.addEventListener('click', () => setzeModus('schnee'));
+  modusKnoepfe.wind.addEventListener('click', () => setzeModus('wind'));
+  ebenenKnoepfe.kreis.addEventListener('click', () => void setzeEbene('kreis'));
+  ebenenKnoepfe.gemeinde.addEventListener('click', async () => {
+    await starte(); // falls der Beobachter noch nicht ausgelöst hat
+    if (karte) await setzeEbene('gemeinde');
+  });
+  hinweisFeld.textContent = HINWEISE.kreis;
+
+  if ('IntersectionObserver' in window) {
+    const beobachter = new IntersectionObserver((eintraege) => {
+      if (eintraege.some((e) => e.isIntersecting)) {
+        beobachter.disconnect();
+        void starte();
+      }
+    }, { rootMargin: '300px' });
+    beobachter.observe(container);
+  } else {
+    void starte();
+  }
+</script>
+
+<style is:global>
+  .kk { background: rgba(30, 45, 74, 0.7); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; padding: 24px; margin: 24px 0; }
+  .kk-titel { margin: 0 0 12px; font-size: 1.3rem; }
+  .kk-steuerung { display: flex; flex-wrap: wrap; gap: 12px 20px; margin-bottom: 16px; }
+  .kk-umschalter { display: inline-flex; gap: 4px; padding: 4px; background: rgba(15, 23, 42, 0.7); border-radius: 999px; }
+  .kk-modus { border: 0; background: transparent; color: #cbd5e1; padding: 8px 18px; border-radius: 999px; font: inherit; font-weight: 600; cursor: pointer; transition: background 0.15s, color 0.15s; }
+  .kk-modus[aria-pressed='true'] { background: linear-gradient(135deg, #0ea5e9, #06b6d4); color: #fff; }
+  .kk-modus:disabled { opacity: 0.6; cursor: progress; }
+  .kk-modus:focus-visible, .kk-zoom button:focus-visible { outline: 2px solid #0ea5e9; outline-offset: 2px; }
+  .kk-flaeche { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 24px; align-items: start; }
+  .kk-rahmen { position: relative; max-width: 620px; width: 100%; margin: 0 auto; }
+  .kk-karte { position: relative; width: 100%; min-height: 200px; overflow: hidden; border-radius: 8px; background: rgba(15, 23, 42, 0.45); touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+  .kk-karte:active { cursor: grabbing; }
+  .kk-laden { color: #cbd5e1; text-align: center; padding: 48px 0; }
+  .kk-svg { display: block; width: 100%; height: auto; }
+  .kk-kreis, .kk-gem { stroke: rgba(15, 23, 42, 0.55); stroke-width: 0.5px; vector-effect: non-scaling-stroke; stroke-linejoin: round; cursor: pointer; fill: #475569; }
+  .kk-gem { stroke-width: 0.4px; }
+  .kk-kreis:hover, .kk-gem:hover { filter: brightness(1.18); stroke: #f8fafc; stroke-width: 1px; }
+  .kk-gewaehlt { stroke: #f8fafc; stroke-width: 1.8px; }
+  .kk-schraffur { vector-effect: non-scaling-stroke; }
+  .kk-schnee-1 { fill: #bfdbfe; } .kk-schnee-1a { fill: #93c5fd; } .kk-schnee-2 { fill: #60a5fa; }
+  .kk-schnee-2a { fill: #3b82f6; } .kk-schnee-3 { fill: #1d4ed8; } .kk-schnee-3a { fill: #1e3a8a; }
+  .kk-wind-1 { fill: #fde68a; } .kk-wind-2 { fill: #fbbf24; } .kk-wind-3 { fill: #f97316; } .kk-wind-4 { fill: #c2410c; }
+  .kk-zoom { position: absolute; top: 10px; right: 10px; display: grid; gap: 4px; }
+  .kk-zoom button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(148, 163, 184, 0.4); background: rgba(15, 23, 42, 0.85); color: #f8fafc; font-size: 1.15rem; line-height: 1; cursor: pointer; }
+  .kk-zoom button:hover { border-color: #0ea5e9; }
+  .kk-tooltip { position: absolute; z-index: 2; pointer-events: none; background: #0f172a; color: #f8fafc; border: 1px solid rgba(148, 163, 184, 0.4); border-radius: 8px; padding: 6px 10px; font-size: 0.85rem; max-width: 220px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
+  .kk-legende { display: grid; gap: 8px; }
+  .kk-legende-zeile { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #e2e8f0; }
+  .kk-farbe { flex: none; width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(15, 23, 42, 0.4); background: #475569; }
+  .kk-farbe.kk-schnee-1 { background: #bfdbfe; } .kk-farbe.kk-schnee-1a { background: #93c5fd; } .kk-farbe.kk-schnee-2 { background: #60a5fa; }
+  .kk-farbe.kk-schnee-2a { background: #3b82f6; } .kk-farbe.kk-schnee-3 { background: #1d4ed8; } .kk-farbe.kk-schnee-3a { background: #1e3a8a; }
+  .kk-farbe.kk-wind-1 { background: #fde68a; } .kk-farbe.kk-wind-2 { background: #fbbf24; } .kk-farbe.kk-wind-3 { background: #f97316; } .kk-farbe.kk-wind-4 { background: #c2410c; }
+  .kk-muster { background: repeating-linear-gradient(45deg, #94a3b8 0 3px, #475569 3px 6px); }
+  .kk-hinweis { margin: 16px 0 0; color: #cbd5e1; font-size: 0.9rem; }
+  .kk-quelle { margin: 8px 0 0; font-size: 0.8rem; color: #94a3b8; }
+  .kk-quelle a { color: #7dd3fc; }
+  @media (max-width: 720px) { .kk-flaeche { grid-template-columns: 1fr; } .kk { padding: 16px; } }
+  @media (prefers-reduced-motion: reduce) { .kk-modus { transition: none; } }
+</style>
