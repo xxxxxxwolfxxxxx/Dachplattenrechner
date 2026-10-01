@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { sucheOrt, normalisiere, gruppiereNachZone, type Datensatz } from '../schneelastzonen';
+import { sucheOrt, normalisiere, gruppiereNachZone, windzone, type Datensatz, type Treffer } from '../schneelastzonen';
 
 const datei = fileURLToPath(new URL('../../../public/data/schneelastzonen.json', import.meta.url));
 const daten: Datensatz = JSON.parse(readFileSync(datei, 'utf-8'));
@@ -104,5 +104,56 @@ describe('gruppiereNachZone', () => {
       { zone: '1', namen: ['A'] },
       { zone: '2a', namen: ['B', 'C'] },
     ]);
+  });
+});
+
+describe('windzone', () => {
+  const winddatei = fileURLToPath(new URL('../../../public/data/windzonen.json', import.meta.url));
+  const wind: Datensatz = JSON.parse(readFileSync(winddatei, 'utf-8'));
+  const zoneVon = (eingabe: string, art: 'gemeinde' | 'kreis' = 'gemeinde') => {
+    const t = sucheOrt(daten, eingabe).find((x) => x.art === art);
+    return t ? windzone(wind, t) : null;
+  };
+
+  it('liefert für jeden Landkreis der Schneedaten eine Windzone', () => {
+    const kreise = new Set(daten.zeilen.map((z) => `${z[0]}|${z[1]}`));
+    const ohne: string[] = [];
+    for (const key of kreise) {
+      const [land, kreis] = key.split('|');
+      const t = { art: 'kreis', land, kreis, name: kreis, zone: null, zonen: [], hinweise: [], gemeinden: [] } as Treffer;
+      if (!windzone(wind, t)) ohne.push(key);
+    }
+    expect(ohne).toEqual([]);
+  });
+
+  it('nutzt die Standardzone des Bundeslandes (Hessen)', () => {
+    expect(zoneVon('Frankfurt am Main')?.zone).toBe('1');
+  });
+
+  it('kennt die Windzone 4 an der Küste (Emden)', () => {
+    expect(zoneVon('Emden')?.zone).toBe('4');
+  });
+
+  it('bevorzugt eine Gemeinde-Ausnahme vor der Landkreisregel (Füssen im Ostallgäu)', () => {
+    expect(zoneVon('Füssen')?.zone).toBe('1');
+  });
+
+  it('wendet die Landkreisregel auf übrige Gemeinden an (Kaufbeuren-Land, Ostallgäu)', () => {
+    expect(zoneVon('Marktoberdorf')?.zone).toBe('2');
+  });
+
+  it('liest Nordrhein-Westfalen je Gemeinde (Köln 1, Bonn 2)', () => {
+    expect(zoneVon('Köln')?.zone).toBe('1');
+    expect(zoneVon('Bonn')?.zone).toBe('2');
+  });
+
+  it('weist Landkreise ohne Standardzone mit mehreren Zonen aus (Rhein-Sieg-Kreis)', () => {
+    const w = zoneVon('Rhein-Sieg-Kreis', 'kreis');
+    expect(w?.zone).toBeNull();
+    expect(w?.zonen).toEqual(['1', '2']);
+  });
+
+  it('übernimmt Hinweise der Quelle (Mayen-Koblenz: rechts von Mosel und Rhein)', () => {
+    expect(zoneVon('Mayen-Koblenz', 'kreis')?.hinweis).toContain('Mosel');
   });
 });

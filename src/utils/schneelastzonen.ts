@@ -135,3 +135,39 @@ export function gruppiereNachZone(gemeinden: { name: string; zone: string }[]): 
 export function istBerechenbar(zone: string): zone is '1' | '1a' | '2' | '2a' | '3' {
   return ['1', '1a', '2', '2a', '3'].includes(zone);
 }
+
+/** Basisgeschwindigkeit v_b,0 in m/s und Basisgeschwindigkeitsdruck q_b,0 in kN/m² je Windzone (DIN EN 1991-1-4/NA). */
+export const WINDWERTE: Record<string, { v: number; q: number }> = {
+  '1': { v: 22.5, q: 0.32 },
+  '2': { v: 25, q: 0.39 },
+  '3': { v: 27.5, q: 0.47 },
+  '4': { v: 30, q: 0.56 },
+};
+
+export interface WindErgebnis {
+  /** Windzone des Ortes bzw. Standardzone des Landkreises; null, wenn sie je nach Gemeinde wechselt */
+  zone: string | null;
+  zonen: string[];
+  hinweis: string | null;
+}
+
+/**
+ * Windzone zu einem Suchtreffer: Gemeinde-Eintrag, sonst Standardzone des Landkreises,
+ * sonst Standardzone des Bundeslandes (Landkreis = null in den Daten).
+ */
+export function windzone(wind: Datensatz, treffer: Treffer): WindErgebnis | null {
+  const { land, kreis } = treffer;
+  const kreisZeilen = wind.zeilen.filter((z) => z[0] === land && z[1] === kreis);
+  const standard = kreisZeilen.find((z) => z[2] === null);
+  if (treffer.art === 'gemeinde') {
+    const name = normalisiere(treffer.name);
+    const eigene = kreisZeilen.find((z) => z[2] !== null && normalisiere(z[2]) === name);
+    const zeile = eigene ?? standard;
+    if (zeile) return { zone: zeile[3], zonen: [zeile[3]], hinweis: standard?.[4] ?? zeile[4] };
+  } else if (standard || kreisZeilen.length > 0) {
+    const zonen = sortiereZonen(kreisZeilen.map((z) => z[3]));
+    return { zone: standard?.[3] ?? null, zonen, hinweis: standard?.[4] ?? null };
+  }
+  const land_ = wind.zeilen.find((z) => z[0] === land && z[1] === null);
+  return land_ ? { zone: land_[3], zonen: [land_[3]], hinweis: land_[4] } : null;
+}

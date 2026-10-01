@@ -3,7 +3,7 @@
 ---
 
 <section class="slz" aria-labelledby="slz-titel">
-  <h2 id="slz-titel" class="slz-titel">Schneelastzone für deinen Ort finden</h2>
+  <h2 id="slz-titel" class="slz-titel">Schneelastzone und Windzone für deinen Ort finden</h2>
   <label for="slz-eingabe" class="slz-label">Ort oder Landkreis</label>
   <input
     id="slz-eingabe"
@@ -18,9 +18,9 @@
   <ul id="slz-treffer" class="slz-treffer"></ul>
   <div id="slz-detail" class="slz-detail" hidden></div>
   <p class="slz-quelle">
-    Datengrundlage: Zuordnung der Schneelastzonen nach Verwaltungsgrenzen des DIBt (Stand
-    <span id="slz-stand">07.02.2023</span>), je Gemeinde bzw. Landkreis. Verbindlich sind die amtlichen
-    Bekanntmachungen der Länder.
+    Datengrundlage: Zuordnung der Schneelastzonen (Stand <span id="slz-stand">07.02.2023</span>) und der
+    Windzonen (Stand <span id="slz-wind-stand">02.06.2022</span>) nach Verwaltungsgrenzen des DIBt, je Gemeinde
+    bzw. Landkreis. Verbindlich sind die amtlichen Bekanntmachungen der Länder.
   </p>
 </section>
 
@@ -29,32 +29,43 @@
     sucheOrt,
     gruppiereNachZone,
     istBerechenbar,
+    windzone,
     BUNDESLAENDER,
+    WINDWERTE,
     type Datensatz,
     type Treffer,
   } from '../utils/schneelastzonen';
   import { schneelastSk } from '../utils/sparren';
 
-  const DATEN_URL = '/data/schneelastzonen.json';
+  const SCHNEE_URL = '/data/schneelastzonen.json';
+  const WIND_URL = '/data/windzonen.json';
   const eingabe = document.getElementById('slz-eingabe') as HTMLInputElement;
   const status = document.getElementById('slz-status') as HTMLElement;
   const liste = document.getElementById('slz-treffer') as HTMLUListElement;
   const detail = document.getElementById('slz-detail') as HTMLElement;
   const standFeld = document.getElementById('slz-stand') as HTMLElement;
+  const windStandFeld = document.getElementById('slz-wind-stand') as HTMLElement;
 
   let daten: Datensatz | null = null;
+  let wind: Datensatz | null = null;
   let laden: Promise<Datensatz | null> | null = null;
 
+  const ladeJson = (url: string): Promise<Datensatz> =>
+    fetch(url).then((res) => {
+      if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
+      return res.json() as Promise<Datensatz>;
+    });
+
+  const datum = (iso: string) => iso.split('-').reverse().join('.');
+
   function ladeDaten(): Promise<Datensatz | null> {
-    laden ??= fetch(DATEN_URL)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json() as Promise<Datensatz>;
-      })
-      .then((d) => {
-        daten = d;
-        standFeld.textContent = d.stand.split('-').reverse().join('.');
-        return d;
+    laden ??= Promise.all([ladeJson(SCHNEE_URL), ladeJson(WIND_URL)])
+      .then(([schnee, windDaten]) => {
+        daten = schnee;
+        wind = windDaten;
+        standFeld.textContent = datum(schnee.stand);
+        windStandFeld.textContent = datum(windDaten.stand);
+        return schnee;
       })
       .catch((fehler) => {
         console.error('Schneelastzonen konnten nicht geladen werden', fehler);
@@ -151,6 +162,25 @@
       detail.append(box);
     }
 
+    const w = wind ? windzone(wind, t) : null;
+    if (w) {
+      const block = el('div', 'slz-wind');
+      const kopfZeile = el('div', 'slz-zone');
+      kopfZeile.append(
+        el('span', 'slz-zone-label', w.zone ? 'Windzone' : 'Windzone je nach Gemeinde'),
+        el('span', 'slz-zone-num slz-zone-wind', w.zone ?? w.zonen.join(' / ')),
+      );
+      block.append(kopfZeile);
+      const werte = w.zone ? WINDWERTE[w.zone] : undefined;
+      if (werte) {
+        block.append(
+          el('p', 'slz-sk', `Basiswerte: v_b,0 = ${werte.v.toString().replace('.', ',')} m/s, q_b,0 = ${zahl(werte.q)} kN/m² (ca. ${Math.round(werte.q * 100)} kg/m²). Der Winddruck am Bauwerk hängt zusätzlich von Gebäudehöhe und Geländekategorie ab.`),
+        );
+      }
+      if (w.hinweis) block.append(el('p', 'slz-hinweise-text', w.hinweis));
+      detail.append(block);
+    }
+
     if (t.hinweise.length > 0) {
       const ul = el('ul', 'slz-hinweise');
       for (const h of t.hinweise) ul.append(el('li', undefined, h));
@@ -234,6 +264,9 @@
   .slz-gemeinden summary { cursor: pointer; font-weight: 600; color: #93c5fd; }
   .slz-gemeinden p { margin: 8px 0 0; color: #cbd5e1; font-size: 0.92rem; }
   .slz-hinweise { margin: 12px 0 0; padding-left: 20px; color: #fcd34d; font-size: 0.92rem; }
+  .slz-wind { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(148, 163, 184, 0.2); }
+  .slz-zone-wind { color: #fbbf24; }
+  .slz-hinweise-text { margin: 8px 0 0; color: #fcd34d; font-size: 0.92rem; }
   .slz-weiter { margin: 16px 0 0; }
   .slz-weiter a { color: #38bdf8; font-weight: 600; }
   .slz-quelle { margin: 16px 0 0; font-size: 0.8rem; color: #94a3b8; }

@@ -7,7 +7,7 @@ import SchneelastSuche from '../../components/SchneelastSuche.astro';
 
 <ToolLayout
   title="Schnee- & Windlastzonen Deutschland"
-  description="Schneelastzone für deinen Ort per DIBt-Daten finden und Windzone für deinen Landkreis nachschlagen – nach DIN EN 1991-1-3 und DIN EN 1991-1-4. Mit Zonenkarte Deutschland."
+  description="Schneelastzone und Windzone für deinen Ort oder Landkreis nachschlagen – nach DIN EN 1991-1-3 und DIN EN 1991-1-4. Mit Zonenkarte Deutschland."
   keywords="Schneelastzone Deutschland, Windlastzone Deutschland, Schneelast berechnen Dach, DIN 1991 Schneelast, Windzone Karte, Dach Statik Schneelast, Carport Schneelast, Blech Dach Windlast"
   navTitle="Schnee- & Windlastzonen"
   background="url('/images/Schneelast.png')"
@@ -16,35 +16,13 @@ import SchneelastSuche from '../../components/SchneelastSuche.astro';
   <InfoBox title="Zonenwerte nach DIN-Norm">
     <ul>
       <li><strong>Schneelastzonen 1, 1a, 2, 2a, 3</strong> nach DIN EN 1991-1-3 (Eurocode 1), je Gemeinde bzw. Landkreis nach DIBt-Tabelle</li>
-      <li><strong>Windzonen 1–4</strong> nach DIN EN 1991-1-4 (Eurocode 1)</li>
-      <li>Schnee: Ort oder Landkreis eingeben – Windzone: Bundesland und Landkreis wählen</li>
+      <li><strong>Windzonen 1–4</strong> nach DIN EN 1991-1-4 (Eurocode 1), ebenfalls nach DIBt-Tabelle</li>
+      <li>Ort oder Landkreis eingeben – Schnee- und Windzone werden gemeinsam angezeigt</li>
       <li>Bei Höhenlagen oder Sonderfällen können abweichende Werte gelten</li>
     </ul>
   </InfoBox>
 
   <SchneelastSuche />
-
-  <!-- Auswahl Windzone -->
-  <div class="select-box">
-    <h2 class="select-title">Windzone nachschlagen</h2>
-    <div class="select-row">
-      <div class="select-group">
-        <label for="bundesland">Bundesland:</label>
-        <select id="bundesland" onchange="updateKreise()">
-          <option value="">-- Bitte wählen --</option>
-        </select>
-      </div>
-      <div class="select-group">
-        <label for="kreis">Landkreis / Stadt:</label>
-        <select id="kreis" disabled onchange="checkButton()">
-          <option value="">-- Erst Bundesland wählen --</option>
-        </select>
-      </div>
-      <button class="btn-zone" id="showBtn" onclick="showResult()" disabled>Windzone anzeigen</button>
-    </div>
-  </div>
-
-  <div id="result"></div>
 
   <AdUnit position="middle" adSlot="1581807497" />
 
@@ -74,117 +52,6 @@ import SchneelastSuche from '../../components/SchneelastSuche.astro';
 </ToolLayout>
 
 <style>
-  .select-box {
-    background: rgba(30, 45, 74, 0.7);
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    border-radius: 12px;
-    padding: 24px;
-    margin: 24px 0;
-  }
-
-  .select-title { margin: 0 0 16px; font-size: 1.3rem; }
-
-  .select-row {
-    display: flex;
-    gap: 16px;
-    align-items: flex-end;
-    flex-wrap: wrap;
-  }
-
-  .select-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .select-group label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #93c5fd;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .select-group select {
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(148, 163, 184, 0.3);
-    border-radius: 8px;
-    color: #f8fafc;
-    padding: 10px 14px;
-    font-size: 0.95rem;
-    cursor: pointer;
-    appearance: auto;
-  }
-
-  .select-group select:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .btn-zone {
-    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.2s;
-    white-space: nowrap;
-    height: 42px;
-  }
-
-  .btn-zone:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-zone:not(:disabled):hover { transform: translateY(-2px); }
-
-  /* Ergebnis-Karten */
-  :global(.karte-grid) {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin: 24px 0;
-  }
-
-  :global(.karte-card) {
-    background: rgba(30, 45, 74, 0.8);
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    border-radius: 12px;
-    padding: 20px;
-  }
-
-  :global(.karte-card-header) {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  :global(.karte-card-header h3) {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #f8fafc;
-  }
-
-  :global(.karte-blue svg) { stroke: #0ea5e9; }
-  :global(.karte-orange svg) { stroke: #f59e0b; }
-
-  :global(.karte-zone-num) {
-    font-size: 3rem;
-    font-weight: 900;
-    color: #0ea5e9;
-    line-height: 1;
-    margin-bottom: 12px;
-  }
-
-  :global(.karte-card p) {
-    color: #cbd5e1;
-    font-size: 0.88rem;
-    margin-bottom: 6px;
-    line-height: 1.5;
-  }
-
-  :global(.karte-card strong) { color: #e2e8f0; }
-
   /* Karte */
   .map-box {
     background: var(--gradient-surface);
@@ -272,8 +139,4 @@ import SchneelastSuche from '../../components/SchneelastSuche.astro';
     flex-shrink: 0;
   }
 
-  @media (max-width: 600px) {
-    .select-row { flex-direction: column; }
-    .btn-zone { width: 100%; }
-  }
 </style>
