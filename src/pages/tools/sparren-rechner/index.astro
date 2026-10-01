@@ -163,6 +163,7 @@ const faq = [
         <input type="number" id="hoehe-nn" step="10" min="0" max="1500" value="300" />
       </div>
     </div>
+    <p class="hint" id="vorbelegt" hidden></p>
     <p class="hint">
       Schneelastzone unbekannt? <a href="/tools/schneelastzone/">Hier über Postleitzahl, Ort oder Landkreis ermitteln</a>.
       Eindeckungsgewichte stehen in der <a href="/tools/dacheindeckung-gewicht/">Gewichtstabelle</a>.
@@ -455,6 +456,29 @@ const faq = [
     const liste = feld('rechenweg');
     liste.replaceChildren(...rechenweg(eingabe, ergebnis).map((z) => element('li', undefined, z)));
   }
+
+  // Vorbelegung aus der Zonensuche: ?zone=2&hoehe=450&ort=Mayen
+  function uebernehmeUrlWerte(): void {
+    const q = new URLSearchParams(location.search);
+    const zone = q.get('zone');
+    const zoneFeld = feld<HTMLSelectElement>('zone');
+    if (zone && [...zoneFeld.options].some((o) => o.value === zone)) zoneFeld.value = zone;
+    const hoehe = Number(q.get('hoehe'));
+    if (q.get('hoehe') !== null && Number.isFinite(hoehe) && hoehe >= 0 && hoehe <= 1500) {
+      feld<HTMLInputElement>('hoehe-nn').value = String(Math.round(hoehe));
+    }
+    const neigung = Number(q.get('neigung'));
+    if (q.get('neigung') !== null && Number.isFinite(neigung) && neigung >= 0 && neigung <= 90) {
+      feld<HTMLInputElement>('neigung').value = String(Math.round(neigung));
+    }
+    const ort = q.get('ort')?.trim().slice(0, 80);
+    if (ort && zone) {
+      const hinweis = feld('vorbelegt');
+      hinweis.textContent = `Zone ${zoneFeld.value}${q.get('hoehe') ? `, Höhe ${feld<HTMLInputElement>('hoehe-nn').value} m` : ''}${q.get('neigung') ? `, Neigung ${feld<HTMLInputElement>('neigung').value}°` : ''} für ${ort} aus der Zonensuche übernommen. Du kannst alle Werte ändern.`;
+      hinweis.hidden = false;
+    }
+  }
+  uebernehmeUrlWerte();
 
   for (const el of document.querySelectorAll('.section input, .section select')) {
     el.addEventListener('input', aktualisiere);

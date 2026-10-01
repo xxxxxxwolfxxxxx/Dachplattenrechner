@@ -126,6 +126,43 @@ export function schneeFormbeiwert(neigungGrad: number): number {
   return (0.8 * (60 - neigungGrad)) / 30;
 }
 
+/**
+ * Schneelast auf dem Dach in kN/m² Grundfläche: s = μ1 · s_k.
+ * Ohne Neigungsangabe gilt der Höchstwert μ1 = 0,8 (Dächer bis 30°).
+ */
+export function dachSchneelast(sk: number, neigungGrad: number | null = null): number {
+  return sk * schneeFormbeiwert(neigungGrad ?? 0);
+}
+
+/** Umrechnung 1 kN/m² ≈ 100 kg/m² (g ≈ 9,81 m/s², grob gerundet). */
+export const KG_JE_KN = 100;
+/** Wichte von Neuschnee 1,0 kN/m³ (DIN EN 1991-1-3, Tabelle der Schneewichten): 1 cm ≙ 1 kg/m². */
+export const WICHTE_NEUSCHNEE = 1.0;
+/** Wichte von nassem, schwerem Schnee 4,0 kN/m³ (DIN EN 1991-1-3): 1 cm ≙ 4 kg/m². */
+export const WICHTE_NASSSCHNEE = 4.0;
+/** Handelsüblicher Zementsack. */
+export const ZEMENTSACK_KG = 25;
+
+export interface LastVergleich {
+  /** Höhe einer Neuschneeschicht in cm, die diese Last erzeugt */
+  neuschneeCm: number;
+  /** Höhe einer Schicht nassen, schweren Schnees in cm */
+  nassschneeCm: number;
+  /** Anzahl 25-kg-Zementsäcke je m² */
+  zementSaecke: number;
+}
+
+/** Grobe Veranschaulichung einer Flächenlast (kN/m²), keine Bemessungsgröße. */
+export function lastVergleich(lastKnProM2: number): LastVergleich {
+  const kg = lastKnProM2 * KG_JE_KN;
+  const saecke = kg / ZEMENTSACK_KG;
+  return {
+    neuschneeCm: Math.round(kg / WICHTE_NEUSCHNEE),
+    nassschneeCm: Math.round(kg / WICHTE_NASSSCHNEE),
+    zementSaecke: saecke < 5 ? Math.round(saecke * 10) / 10 : Math.round(saecke),
+  };
+}
+
 function pruefeEingabe(e: SparrenEingabe): void {
   const positiv = [e.stuetzweite, e.abstand, e.breite, e.hoehe];
   if (positiv.some((w) => !Number.isFinite(w) || w <= 0)) {
