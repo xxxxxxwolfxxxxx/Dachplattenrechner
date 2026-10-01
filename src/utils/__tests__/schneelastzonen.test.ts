@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { sucheOrt, normalisiere, gruppiereNachZone, windzone, type Datensatz, type Treffer } from '../schneelastzonen';
+import { sucheOrt, normalisiere, gruppiereNachZone, windzone, kartenZone, kartenTreffer, type Datensatz, type Treffer } from '../schneelastzonen';
 
 const datei = fileURLToPath(new URL('../../../public/data/schneelastzonen.json', import.meta.url));
 const daten: Datensatz = JSON.parse(readFileSync(datei, 'utf-8'));
@@ -155,5 +155,41 @@ describe('windzone', () => {
 
   it('übernimmt Hinweise der Quelle (Mayen-Koblenz: rechts von Mosel und Rhein)', () => {
     expect(zoneVon('Mayen-Koblenz', 'kreis')?.hinweis).toContain('Mosel');
+  });
+});
+
+describe('Landkreis-Karte', () => {
+  const wind: Datensatz = JSON.parse(readFileSync(fileURLToPath(new URL('../../../public/data/windzonen.json', import.meta.url)), 'utf-8'));
+  const karte = JSON.parse(readFileSync(fileURLToPath(new URL('../../../public/data/kreiskarte.json', import.meta.url)), 'utf-8'));
+
+  it('färbt Landkreis mit Standardzone und Ausnahmen als gemischt (Ostalbkreis)', () => {
+    expect(kartenZone(daten, 'BW', 'Ostalbkreis', false)).toEqual({ haupt: '2', alle: ['2', '2a'], gemischt: true });
+  });
+
+  it('trennt kreisfreie Stadt und Landkreis gleichen Namens (München)', () => {
+    expect(kartenZone(daten, 'BY', 'München', true)).toEqual({ haupt: '1a', alle: ['1a'], gemischt: false });
+    expect(kartenZone(daten, 'BY', 'München', false).alle).toEqual(['1a', '2']);
+  });
+
+  it('nimmt die häufigste Gemeindezone, wenn keine Standardzone existiert (Bergstraße)', () => {
+    const z = kartenZone(daten, 'HE', 'Bergstraße', false);
+    expect(z.gemischt).toBe(true);
+    expect(['1', '2']).toContain(z.haupt);
+  });
+
+  it('greift bei Windzonen auf den Landesstandard zurück (Hessen) und kennt die Küste (Aurich)', () => {
+    expect(kartenZone(wind, 'HE', 'Kassel', false).haupt).toBe('1');
+    expect(kartenZone(wind, 'NI', 'Aurich', false).haupt).toBe('4');
+  });
+
+  it('liefert Treffer für Klicks auf Stadt und Landkreis', () => {
+    expect(kartenTreffer(daten, 'BY', 'München', true)?.art).toBe('gemeinde');
+    expect(kartenTreffer(daten, 'BY', 'München', false)?.art).toBe('kreis');
+  });
+
+  it('verknüpft jede Kartenfläche außer Ulm mit einem Landkreis der Schneedaten', () => {
+    const schluessel = new Set(daten.zeilen.map((z) => `${z[0]}|${z[1]}`));
+    const lose = karte.kreise.filter((k: { land: string; k: string | null }) => !k.k || !schluessel.has(`${k.land}|${k.k}`));
+    expect(lose.map((k: { name: string }) => k.name)).toEqual(['Ulm']);
   });
 });

@@ -30,6 +30,7 @@
     gruppiereNachZone,
     istBerechenbar,
     windzone,
+    kartenTreffer,
     BUNDESLAENDER,
     WINDWERTE,
     type Datensatz,
@@ -223,6 +224,21 @@
     }
     if (treffer.length === 1) zeigeDetail(treffer[0]);
   }
+
+  // Klick auf die Landkreis-Karte (KreisKarte.astro) zeigt dieselbe Detailansicht wie ein Suchtreffer
+  window.addEventListener('slz-karte', async (e) => {
+    const { land, kreis, stadt } = (e as CustomEvent<{ land: string; kreis: string; stadt: boolean }>).detail;
+    const d = daten ?? (await ladeDaten());
+    if (!d) return;
+    const treffer = kartenTreffer(d, land, kreis, stadt);
+    if (!treffer) {
+      status.textContent = `Für ${kreis} enthält die DIBt-Tabelle keine Schneelastzone.`;
+      return;
+    }
+    liste.replaceChildren();
+    status.textContent = '';
+    zeigeDetail(treffer);
+  });
 
   let timer: number | undefined;
   eingabe.addEventListener('focus', () => void ladeDaten(), { once: true });

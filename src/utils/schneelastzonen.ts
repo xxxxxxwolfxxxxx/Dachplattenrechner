@@ -68,6 +68,70 @@ function eindeutig(werte: (string | null)[]): string[] {
   return [...new Set(werte.filter((w): w is string => !!w))];
 }
 
+/** Landkreis-Treffer aus allen Zeilen eines Landkreises; null bei kreisfreien Städten ohne Besonderheiten. */
+function baueKreisTreffer(zeilen: Zeile[], land: string, kreis: string): Treffer | null {
+  const standard = zeilen.find((z) => z[2] === null);
+  // Kreisfreie Stadt: Kreis und Gemeinde sind identisch, der Gemeinde-Treffer reicht.
+  if (!standard && zeilen.length === 1 && zeilen[0][2] === kreis) return null;
+  const gemeinden = zeilen.filter((z) => z[2] !== null && z[2] !== kreis).map((z) => ({ name: z[2] as string, zone: z[3] }));
+  if (!standard && gemeinden.length === 0) return null;
+  return {
+    art: 'kreis', land, kreis, name: kreis, zone: standard?.[3] ?? null,
+    zonen: sortiereZonen(zeilen.map((z) => z[3])),
+    hinweise: eindeutig([standard?.[4] ?? null]),
+    gemeinden: gemeinden.sort((a, b) => a.name.localeCompare(b.name, 'de')),
+  };
+}
+
+/** Treffer für einen Klick auf die Karte: Landkreis oder kreisfreie Stadt. */
+export function kartenTreffer(daten: Datensatz, land: string, kreis: string, stadt: boolean): Treffer | null {
+  const zeilen = daten.zeilen.filter((z) => z[0] === land && z[1] === kreis);
+  if (stadt) {
+    const eigene = zeilen.find((z) => z[2] === kreis);
+    if (eigene) {
+      return {
+        art: 'gemeinde', land, kreis, name: kreis, zone: eigene[3], zonen: [eigene[3]],
+        hinweise: eindeutig([eigene[4]]), gemeinden: [],
+      };
+    }
+  }
+  return baueKreisTreffer(stadt ? zeilen : zeilen.filter((z) => z[2] !== kreis), land, kreis);
+}
+
+export interface KartenZone {
+  /** Zone, nach der die Fläche eingefärbt wird (Standardzone bzw. häufigste Gemeindezone); null ohne Daten */
+  haupt: string | null;
+  alle: string[];
+  /** true, wenn im Landkreis mehrere Zonen vorkommen */
+  gemischt: boolean;
+}
+
+/**
+ * Zone eines Landkreises bzw. einer kreisfreien Stadt für die Kartenfärbung. Gilt für Schnee- und Windzonen;
+ * ohne eigene Zeilen greift der Standard des Bundeslandes (Landkreis = null, nur Windzonen).
+ */
+export function kartenZone(daten: Datensatz, land: string, kreis: string | null, stadt: boolean): KartenZone {
+  const alleZeilen = daten.zeilen.filter((z) => z[0] === land && z[1] === kreis);
+  const zeilen = stadt ? alleZeilen : alleZeilen.filter((z) => z[2] !== kreis);
+  const eigene = stadt ? alleZeilen.find((z) => z[2] === kreis) : undefined;
+  if (eigene) return { haupt: eigene[3], alle: [eigene[3]], gemischt: false };
+  if (zeilen.length === 0) {
+    const landStandard = daten.zeilen.find((z) => z[0] === land && z[1] === null);
+    return landStandard
+      ? { haupt: landStandard[3], alle: [landStandard[3]], gemischt: false }
+      : { haupt: null, alle: [], gemischt: false };
+  }
+  const standard = zeilen.find((z) => z[2] === null);
+  const alle = sortiereZonen(zeilen.map((z) => z[3]));
+  let haupt = standard?.[3] ?? null;
+  if (haupt === null) {
+    const anzahl = new Map<string, number>();
+    for (const z of zeilen) anzahl.set(z[3], (anzahl.get(z[3]) ?? 0) + 1);
+    haupt = [...anzahl.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  }
+  return { haupt, alle, gemischt: alle.length > 1 };
+}
+
 export function sucheOrt(daten: Datensatz, eingabe: string): Treffer[] {
   const suche = normalisiere(eingabe);
   if (suche.length < 2) return [];
@@ -101,20 +165,8 @@ export function sucheOrt(daten: Datensatz, eingabe: string): Treffer[] {
     const [land, kreis] = schluessel.split('|');
     const r = rang(normalisiere(kreis), suche);
     if (r < 0) continue;
-    const standard = zeilen.find((z) => z[2] === null);
-    // Kreisfreie Stadt: Kreis und Gemeinde sind identisch, der Gemeinde-Treffer reicht.
-    if (!standard && zeilen.length === 1 && zeilen[0][2] === kreis) continue;
-    const gemeinden = zeilen.filter((z) => z[2] !== null && z[2] !== kreis).map((z) => ({ name: z[2] as string, zone: z[3] }));
-    if (!standard && gemeinden.length === 0) continue;
-    gefunden.push({
-      rang: r + 0.5,
-      treffer: {
-        art: 'kreis', land, kreis, name: kreis, zone: standard?.[3] ?? null,
-        zonen: sortiereZonen(zeilen.map((z) => z[3])),
-        hinweise: eindeutig([standard?.[4] ?? null]),
-        gemeinden: gemeinden.sort((a, b) => a.name.localeCompare(b.name, 'de')),
-      },
-    });
+    const treffer = baueKreisTreffer(zeilen, land, kreis);
+    if (treffer) gefunden.push({ rang: r + 0.5, treffer });
   }
 
   return gefunden

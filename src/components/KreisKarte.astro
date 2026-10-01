@@ -1,0 +1,246 @@
+---
+// Interaktive Landkreis-Karte: Schnee- und Windzonen, eingefärbt nach DIBt-Daten.
+// Geometrie: © GeoBasis-DE / BKG (VG250), dl-de/by-2-0 (siehe scripts/build-kreiskarte.py).
+---
+
+<section class="kk" aria-labelledby="kk-titel">
+  <h2 id="kk-titel" class="kk-titel">Zonenkarte nach Landkreisen</h2>
+  <div class="kk-umschalter" role="group" aria-label="Zonenart wählen">
+    <button type="button" class="kk-modus" id="kk-schnee" aria-pressed="true">Schneelastzonen</button>
+    <button type="button" class="kk-modus" id="kk-wind" aria-pressed="false">Windzonen</button>
+  </div>
+
+  <div class="kk-flaeche">
+    <div class="kk-karte" id="kk-karte">
+      <p class="kk-laden" id="kk-laden">Karte wird geladen …</p>
+      <div class="kk-tooltip" id="kk-tooltip" role="tooltip" hidden></div>
+    </div>
+    <div class="kk-legende" id="kk-legende" aria-live="polite"></div>
+  </div>
+
+  <p class="kk-hinweis">
+    Klicke auf einen Landkreis, um Zone und Werte oben anzuzeigen. Per Tastatur nutzt du die Suche. Die Färbung zeigt die
+    Standardzone des Landkreises; schraffierte Landkreise haben Gemeinden mit abweichender Zone.
+  </p>
+  <p class="kk-quelle">
+    Zonen: DIBt, Stand Schnee 07.02.2023, Wind 02.06.2022. Grenzen: © GeoBasis-DE / BKG
+    (<a href="https://gdz.bkg.bund.de/index.php/default/verwaltungsgebiete-1-250-000-stand-01-01-vg250-01-01.html" rel="noopener">VG250</a>,
+    Stand <span id="kk-stand">12/2022</span>), Datenlizenz Deutschland – Namensnennung 2.0, vereinfacht dargestellt.
+  </p>
+</section>
+
+<script>
+  import { kartenZone, type Datensatz, type KartenZone } from '../utils/schneelastzonen';
+
+  interface KarteKreis { ags: string; name: string; land: string; k: string | null; stadt: boolean; d: string }
+  interface KartenDaten { viewBox: [number, number]; stand: string; kreise: KarteKreis[] }
+  type Modus = 'schnee' | 'wind';
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const LEGENDEN: Record<Modus, { zone: string; text: string }[]> = {
+    schnee: [
+      { zone: '1', text: 'Zone 1 – mind. 0,65 kN/m²' },
+      { zone: '1a', text: 'Zone 1a – mind. 0,81 kN/m²' },
+      { zone: '2', text: 'Zone 2 – mind. 0,85 kN/m²' },
+      { zone: '2a', text: 'Zone 2a – mind. 1,06 kN/m²' },
+      { zone: '3', text: 'Zone 3 – mind. 1,10 kN/m²' },
+      { zone: '3a', text: 'Zone 3a – Sonderzone Bayern' },
+    ],
+    wind: [
+      { zone: '1', text: 'Zone 1 – 22,5 m/s' },
+      { zone: '2', text: 'Zone 2 – 25 m/s' },
+      { zone: '3', text: 'Zone 3 – 27,5 m/s' },
+      { zone: '4', text: 'Zone 4 – 30 m/s' },
+    ],
+  };
+
+  const container = document.getElementById('kk-karte') as HTMLElement;
+  const laden = document.getElementById('kk-laden') as HTMLElement;
+  const tooltip = document.getElementById('kk-tooltip') as HTMLElement;
+  const legende = document.getElementById('kk-legende') as HTMLElement;
+  const knoepfe: Record<Modus, HTMLButtonElement> = {
+    schnee: document.getElementById('kk-schnee') as HTMLButtonElement,
+    wind: document.getElementById('kk-wind') as HTMLButtonElement,
+  };
+
+  let modus: Modus = 'schnee';
+  let karte: KartenDaten | null = null;
+  let zonen: Record<Modus, KartenZone[]> | null = null;
+  let flaechen: SVGPathElement[] = [];
+  let schraffuren: SVGPathElement[] = [];
+  let gewaehlt: SVGPathElement | null = null;
+
+  const ladeJson = <T,>(url: string): Promise<T> =>
+    fetch(url).then((res) => {
+      if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
+      return res.json() as Promise<T>;
+    });
+
+  const kurz = (z: KartenZone) => (z.haupt ? `Zone ${z.haupt}${z.gemischt ? ' (einzelne Gemeinden abweichend)' : ''}` : 'keine Angabe');
+
+  function zeichne(daten: KartenDaten): void {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${daten.viewBox[0]} ${daten.viewBox[1]}`);
+    svg.setAttribute('class', 'kk-svg');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Karte der Landkreise in Deutschland, eingefärbt nach Zone. Bedienung per Tastatur über die Suche.');
+
+    const defs = document.createElementNS(SVG_NS, 'defs');
+    defs.innerHTML =
+      '<pattern id="kk-schraffur" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
+      '<line x1="0" y1="0" x2="0" y2="5" stroke="rgba(15,23,42,0.6)" stroke-width="1.6"/></pattern>';
+    svg.append(defs);
+
+    const flaechenGruppe = document.createElementNS(SVG_NS, 'g');
+    const schraffurGruppe = document.createElementNS(SVG_NS, 'g');
+    schraffurGruppe.setAttribute('pointer-events', 'none');
+    daten.kreise.forEach((kreis, i) => {
+      const pfad = document.createElementNS(SVG_NS, 'path');
+      pfad.setAttribute('d', kreis.d);
+      pfad.setAttribute('class', 'kk-kreis');
+      pfad.dataset.index = String(i);
+      flaechenGruppe.append(pfad);
+      flaechen.push(pfad);
+
+      const schraffur = document.createElementNS(SVG_NS, 'path');
+      schraffur.setAttribute('d', kreis.d);
+      schraffur.setAttribute('fill', 'url(#kk-schraffur)');
+      schraffur.setAttribute('class', 'kk-schraffur');
+      schraffurGruppe.append(schraffur);
+      schraffuren.push(schraffur);
+    });
+    svg.append(flaechenGruppe, schraffurGruppe);
+
+    svg.addEventListener('pointermove', (e) => {
+      const ziel = (e.target as Element).closest('.kk-kreis') as SVGPathElement | null;
+      if (!ziel || !zonen || !karte) {
+        tooltip.hidden = true;
+        return;
+      }
+      const kreis = karte.kreise[Number(ziel.dataset.index)];
+      const rect = container.getBoundingClientRect();
+      tooltip.textContent = `${kreis.name}: ${kurz(zonen[modus][Number(ziel.dataset.index)])}`;
+      tooltip.style.left = `${Math.min(e.clientX - rect.left + 12, rect.width - 200)}px`;
+      tooltip.style.top = `${e.clientY - rect.top + 14}px`;
+      tooltip.hidden = false;
+    });
+    svg.addEventListener('pointerleave', () => { tooltip.hidden = true; });
+    svg.addEventListener('click', (e) => {
+      const ziel = (e.target as Element).closest('.kk-kreis') as SVGPathElement | null;
+      if (!ziel || !karte) return;
+      const kreis = karte.kreise[Number(ziel.dataset.index)];
+      gewaehlt?.classList.remove('kk-gewaehlt');
+      ziel.classList.add('kk-gewaehlt');
+      gewaehlt = ziel;
+      ziel.parentNode?.append(ziel); // nach vorn, damit der Rand nicht verdeckt wird
+      window.dispatchEvent(new CustomEvent('slz-karte', { detail: { land: kreis.land, kreis: kreis.k ?? kreis.name, stadt: kreis.stadt } }));
+    });
+
+    laden.remove();
+    container.prepend(svg);
+  }
+
+  function faerbe(): void {
+    if (!karte || !zonen) return;
+    flaechen.forEach((pfad, i) => {
+      const z = zonen![modus][i];
+      pfad.setAttribute('class', `kk-kreis kk-${modus}-${z.haupt ?? 'keine'}${pfad === gewaehlt ? ' kk-gewaehlt' : ''}`);
+      schraffuren[i].style.display = z.gemischt ? '' : 'none';
+    });
+    legende.replaceChildren();
+    for (const eintrag of LEGENDEN[modus]) {
+      const zeile = document.createElement('div');
+      zeile.className = 'kk-legende-zeile';
+      const farbe = document.createElement('span');
+      farbe.className = `kk-farbe kk-${modus}-${eintrag.zone}`;
+      zeile.append(farbe, document.createTextNode(eintrag.text));
+      legende.append(zeile);
+    }
+    const hinweis = document.createElement('div');
+    hinweis.className = 'kk-legende-zeile';
+    const muster = document.createElement('span');
+    muster.className = 'kk-farbe kk-muster';
+    hinweis.append(muster, document.createTextNode('mehrere Zonen im Landkreis'));
+    legende.append(hinweis);
+  }
+
+  function setzeModus(neu: Modus): void {
+    modus = neu;
+    (Object.keys(knoepfe) as Modus[]).forEach((m) => knoepfe[m].setAttribute('aria-pressed', String(m === neu)));
+    faerbe();
+  }
+
+  let gestartet = false;
+  async function starte(): Promise<void> {
+    if (gestartet) return;
+    gestartet = true;
+    try {
+      const [kartenDaten, schnee, wind] = await Promise.all([
+        ladeJson<KartenDaten>('/data/kreiskarte.json'),
+        ladeJson<Datensatz>('/data/schneelastzonen.json'),
+        ladeJson<Datensatz>('/data/windzonen.json'),
+      ]);
+      karte = kartenDaten;
+      zonen = {
+        schnee: kartenDaten.kreise.map((k) => (k.k ? kartenZone(schnee, k.land, k.k, k.stadt) : { haupt: null, alle: [], gemischt: false })),
+        wind: kartenDaten.kreise.map((k) => kartenZone(wind, k.land, k.k ?? k.name, k.stadt)),
+      };
+      (document.getElementById('kk-stand') as HTMLElement).textContent = kartenDaten.stand.slice(0, 7).split('-').reverse().join('/');
+      zeichne(kartenDaten);
+      faerbe();
+    } catch (fehler) {
+      console.error('Karte konnte nicht geladen werden', fehler);
+      laden.textContent = 'Die Karte konnte nicht geladen werden. Bitte Seite neu laden oder die Suche oben nutzen.';
+      gestartet = false;
+    }
+  }
+
+  knoepfe.schnee.addEventListener('click', () => setzeModus('schnee'));
+  knoepfe.wind.addEventListener('click', () => setzeModus('wind'));
+
+  if ('IntersectionObserver' in window) {
+    const beobachter = new IntersectionObserver((eintraege) => {
+      if (eintraege.some((e) => e.isIntersecting)) {
+        beobachter.disconnect();
+        void starte();
+      }
+    }, { rootMargin: '300px' });
+    beobachter.observe(container);
+  } else {
+    void starte();
+  }
+</script>
+
+<style is:global>
+  .kk { background: rgba(30, 45, 74, 0.7); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; padding: 24px; margin: 24px 0; }
+  .kk-titel { margin: 0 0 12px; font-size: 1.3rem; }
+  .kk-umschalter { display: inline-flex; gap: 4px; padding: 4px; background: rgba(15, 23, 42, 0.7); border-radius: 999px; margin-bottom: 16px; }
+  .kk-modus { border: 0; background: transparent; color: #cbd5e1; padding: 8px 18px; border-radius: 999px; font: inherit; font-weight: 600; cursor: pointer; transition: background 0.15s, color 0.15s; }
+  .kk-modus[aria-pressed='true'] { background: linear-gradient(135deg, #0ea5e9, #06b6d4); color: #fff; }
+  .kk-modus:focus-visible { outline: 2px solid #0ea5e9; outline-offset: 2px; }
+  .kk-flaeche { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 24px; align-items: start; }
+  .kk-karte { position: relative; max-width: 560px; width: 100%; margin: 0 auto; min-height: 200px; }
+  .kk-laden { color: #cbd5e1; text-align: center; padding: 48px 0; }
+  .kk-svg { display: block; width: 100%; height: auto; }
+  .kk-kreis { stroke: rgba(15, 23, 42, 0.55); stroke-width: 0.5; stroke-linejoin: round; cursor: pointer; fill: #475569; transition: filter 0.12s; }
+  .kk-kreis:hover { filter: brightness(1.18); stroke: #f8fafc; stroke-width: 1; }
+  .kk-gewaehlt { stroke: #f8fafc; stroke-width: 1.6; }
+  .kk-schnee-1 { fill: #bfdbfe; } .kk-schnee-1a { fill: #93c5fd; } .kk-schnee-2 { fill: #60a5fa; }
+  .kk-schnee-2a { fill: #3b82f6; } .kk-schnee-3 { fill: #1d4ed8; } .kk-schnee-3a { fill: #1e3a8a; }
+  .kk-wind-1 { fill: #fde68a; } .kk-wind-2 { fill: #fbbf24; } .kk-wind-3 { fill: #f97316; } .kk-wind-4 { fill: #c2410c; }
+  .kk-tooltip { position: absolute; z-index: 2; pointer-events: none; background: #0f172a; color: #f8fafc; border: 1px solid rgba(148, 163, 184, 0.4); border-radius: 8px; padding: 6px 10px; font-size: 0.85rem; max-width: 220px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
+  .kk-legende { display: grid; gap: 8px; }
+  .kk-legende-zeile { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #e2e8f0; }
+  .kk-farbe { flex: none; width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(15, 23, 42, 0.4); }
+  .kk-farbe.kk-schnee-1, .kk-farbe.kk-schnee-1a, .kk-farbe.kk-schnee-2, .kk-farbe.kk-schnee-2a, .kk-farbe.kk-schnee-3, .kk-farbe.kk-schnee-3a,
+  .kk-farbe.kk-wind-1, .kk-farbe.kk-wind-2, .kk-farbe.kk-wind-3, .kk-farbe.kk-wind-4 { stroke: none; }
+  .kk-farbe.kk-schnee-1 { background: #bfdbfe; } .kk-farbe.kk-schnee-1a { background: #93c5fd; } .kk-farbe.kk-schnee-2 { background: #60a5fa; }
+  .kk-farbe.kk-schnee-2a { background: #3b82f6; } .kk-farbe.kk-schnee-3 { background: #1d4ed8; } .kk-farbe.kk-schnee-3a { background: #1e3a8a; }
+  .kk-farbe.kk-wind-1 { background: #fde68a; } .kk-farbe.kk-wind-2 { background: #fbbf24; } .kk-farbe.kk-wind-3 { background: #f97316; } .kk-farbe.kk-wind-4 { background: #c2410c; }
+  .kk-muster { background: repeating-linear-gradient(45deg, #94a3b8 0 3px, #475569 3px 6px); }
+  .kk-hinweis { margin: 16px 0 0; color: #cbd5e1; font-size: 0.9rem; }
+  .kk-quelle { margin: 8px 0 0; font-size: 0.8rem; color: #94a3b8; }
+  .kk-quelle a { color: #7dd3fc; }
+  @media (max-width: 720px) { .kk-flaeche { grid-template-columns: 1fr; } .kk { padding: 16px; } }
+  @media (prefers-reduced-motion: reduce) { .kk-kreis, .kk-modus { transition: none; } }
+</style>
