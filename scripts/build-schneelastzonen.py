@@ -307,7 +307,7 @@ def parse_sn(wb):
             if k:
                 add('SN', kreis, kreis if k.startswith('Kreisfreie') else None, z, '')
             continue
-        name = re.sub(r',\s*Stadt$', '', gem)
+        name = re.sub(r',\s*Stadt(/.*)?$', '', gem)
         eigener_teil = not teil or teil == gem
         teile.setdefault((kreis, name), []).append((z, '' if eigener_teil else teil))
     for (kreis, name), liste in teile.items():

@@ -25,6 +25,9 @@ import shapely
 from shapely.geometry import shape
 from shapely.geometry.polygon import orient
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from gemeindenamen import Namensindex  # noqa: E402
+
 warnings.filterwarnings('ignore')
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -123,11 +126,17 @@ def main():
             gemischt[ags] = k
 
     # 2. Gemeinden dieser Landkreise einlesen und Zonen auflösen
-    schnee_namen, wind_namen, schnee_standard, wind_standard = {}, {}, {}, {}
+    schnee_namen, wind_namen, schnee_standard, wind_standard = Namensindex(), Namensindex(), {}, {}
     for z in schnee:
-        (schnee_standard.__setitem__((z[0], z[1]), z[3]) if z[2] is None else schnee_namen.__setitem__((z[0], z[1], norm(z[2])), z[3]))
+        if z[2] is None:
+            schnee_standard[(z[0], z[1])] = z[3]
+        else:
+            schnee_namen.add(z[0], z[1], z[2], z[3])
     for z in wind:
-        (wind_standard.__setitem__((z[0], z[1]), z[3]) if z[2] is None else wind_namen.__setitem__((z[0], z[1], norm(z[2])), z[3]))
+        if z[2] is None:
+            wind_standard[(z[0], z[1])] = z[3]
+        else:
+            wind_namen.add(z[0], z[1], z[2], z[3])
     wind_land = {z[0]: z[3] for z in wind if z[1] is None}
 
     gemeinden, ungeloest = [], Counter()
@@ -140,8 +149,8 @@ def main():
             land, schl = kreis['land'], kreis['k']
             name = p['gen']
             n = norm(name)
-            zs = ags_zone.get(p['ags']) or schnee_namen.get((land, schl, n)) or schnee_standard.get((land, schl))
-            zw = wind_namen.get((land, schl, n)) or wind_standard.get((land, schl)) or wind_land.get(land)
+            zs = ags_zone.get(p['ags']) or schnee_namen.finde(land, schl, name) or schnee_standard.get((land, schl))
+            zw = wind_namen.finde(land, schl, name) or wind_standard.get((land, schl)) or wind_land.get(land)
             if zs is None:
                 ungeloest[land] += 1
             gemeinden.append((p['ags'], name, zs, zw, shape(f['geometry'])))
