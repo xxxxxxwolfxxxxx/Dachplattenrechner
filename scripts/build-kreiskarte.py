@@ -15,6 +15,7 @@ import re
 import sys
 from pathlib import Path
 
+import shapely
 from shapely.geometry import shape
 from shapely.geometry.polygon import orient
 
@@ -22,7 +23,7 @@ ROOT = Path(__file__).resolve().parent.parent
 LAENDER = {'01': 'SH', '02': 'HH', '03': 'NI', '04': 'HB', '05': 'NW', '06': 'HE', '07': 'RP', '08': 'BW',
            '09': 'BY', '10': 'SL', '11': 'BE', '12': 'BB', '13': 'MV', '14': 'SN', '15': 'ST', '16': 'TH'}
 BREITE = 600           # Breite der SVG-Zeichenfläche
-TOLERANZ = 0.006       # Vereinfachung in Grad (ca. 500 m)
+TOLERANZ = 0.01        # Vereinfachung in Grad (ca. 800 m), Coverage-Vereinfachung
 MIN_FLAECHE = 0.0004   # kleinere Inseln/Teilflächen entfallen (Quadratgrad)
 KREISFREI = ('Kreisfreie Stadt', 'Stadtkreis')
 
@@ -75,6 +76,8 @@ def main():
         geom = shape(f['geometry'])
         # einfache flächentreue Näherung: Längengrad mit cos(51,2°) stauchen
         gebiete.append((f['properties'], geom))
+    vereinfacht = shapely.coverage_simplify([g for _, g in gebiete], TOLERANZ)
+    gebiete = [(p, g) for (p, _), g in zip(gebiete, vereinfacht)]
     minx = min(g.bounds[0] for _, g in gebiete)
     maxx = max(g.bounds[2] for _, g in gebiete)
     miny = min(g.bounds[1] for _, g in gebiete)
@@ -94,7 +97,7 @@ def main():
         for poly in flaechen:
             if poly.area < MIN_FLAECHE and len(flaechen) > 1:
                 continue
-            poly = orient(poly.simplify(TOLERANZ, preserve_topology=True))
+            poly = orient(poly)
             for ring in [poly.exterior, *poly.interiors]:
                 koord = [pt(x, y) for x, y in ring.coords[:-1]]
                 if len(koord) >= 3:
@@ -109,6 +112,7 @@ def main():
 
     ausgabe = {
         'viewBox': [BREITE, hoehe],
+        'projektion': {'minx': minx, 'maxy': maxy, 'kx': kx, 'skala': skala},
         'stand': (features[0]['properties']['beginn'] or '')[:10],
         'quelle': '© GeoBasis-DE / BKG (VG250), Datenlizenz Deutschland – Namensnennung 2.0',
         'kreise': kreise,

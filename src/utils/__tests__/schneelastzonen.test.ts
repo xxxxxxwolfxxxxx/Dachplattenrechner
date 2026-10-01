@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { sucheOrt, normalisiere, gruppiereNachZone, windzone, kartenZone, kartenTreffer, type Datensatz, type Treffer } from '../schneelastzonen';
+import { sucheOrt, normalisiere, gruppiereNachZone, windzone, kartenZone, kartenTreffer, gemeindeKartenTreffer, type Datensatz, type Treffer } from '../schneelastzonen';
 
 const datei = fileURLToPath(new URL('../../../public/data/schneelastzonen.json', import.meta.url));
 const daten: Datensatz = JSON.parse(readFileSync(datei, 'utf-8'));
@@ -191,5 +191,57 @@ describe('Landkreis-Karte', () => {
     const schluessel = new Set(daten.zeilen.map((z) => `${z[0]}|${z[1]}`));
     const lose = karte.kreise.filter((k: { land: string; k: string | null }) => !k.k || !schluessel.has(`${k.land}|${k.k}`));
     expect(lose.map((k: { name: string }) => k.name)).toEqual(['Ulm']);
+  });
+});
+
+describe('Kreisweite Zeilen ("alle außer …")', () => {
+  it('speichert "alle" nicht als Gemeindename', () => {
+    expect(daten.zeilen.filter((z) => z[2] && /^alle(\s|,|;|$)/i.test(z[2]))).toEqual([]);
+  });
+
+  it('übernimmt Standardzone und Ausnahmen (Straubing-Bogen: 2, Geiselhöring 1a)', () => {
+    const kreis = daten.zeilen.filter((z) => z[0] === 'BY' && z[1] === 'Straubing-Bogen');
+    expect(kreis.find((z) => z[2] === null)?.[3]).toBe('2');
+    expect(kreis.find((z) => z[2] === 'Geiselhöring')?.[3]).toBe('1a');
+  });
+
+  it('übernimmt "bis auf" in Nordrhein-Westfalen (Siegen-Wittgenstein: 2a, Bad Berleburg 3)', () => {
+    const kreis = daten.zeilen.filter((z) => z[0] === 'NW' && z[1] === 'Siegen-Wittgenstein');
+    expect(kreis.find((z) => z[2] === null)?.[3]).toBe('2a');
+    expect(kreis.find((z) => z[2] === 'Bad Berleburg')?.[3]).toBe('3');
+  });
+});
+
+describe('Gemeinde-Karte', () => {
+  const gem = JSON.parse(readFileSync(fileURLToPath(new URL('../../../public/data/gemeindekarte.json', import.meta.url)), 'utf-8'));
+  const karte = JSON.parse(readFileSync(fileURLToPath(new URL('../../../public/data/kreiskarte.json', import.meta.url)), 'utf-8'));
+  const kreisAgs = new Set(karte.kreise.map((k: { ags: string }) => k.ags));
+  const gueltig = new Set(['1', '1a', '2', '2a', '3', '3a', '>3', '>3a', '4']);
+
+  it('ordnet jede Gemeinde einem Landkreis der Kreiskarte zu, der als ersetzt markiert ist', () => {
+    const ersetzt = new Set(gem.kreise);
+    for (const g of gem.gemeinden) {
+      expect(kreisAgs.has(g[2]), g[1]).toBe(true);
+      expect(ersetzt.has(g[2]), g[1]).toBe(true);
+    }
+  });
+
+  it('enthält nur gültige Zonen und Pfade', () => {
+    for (const [ags, name, , zs, zw, d] of gem.gemeinden) {
+      expect(zs === null || gueltig.has(zs), `${name} ${ags}`).toBe(true);
+      expect(zw === null || gueltig.has(zw), `${name} ${ags}`).toBe(true);
+      expect(d.startsWith('M'), name).toBe(true);
+    }
+  });
+
+  it('lässt nur wenige Gemeinden ohne Schneezone (neu gebildete Gemeinden)', () => {
+    const ohne = gem.gemeinden.filter((g: unknown[]) => g[3] === null).length;
+    expect(ohne / gem.gemeinden.length).toBeLessThan(0.03);
+  });
+
+  it('liefert für einen Gemeinde-Klick den Treffer mit Kartenzone', () => {
+    const t = gemeindeKartenTreffer(daten, 'BY', 'Ostallgäu', 'Füssen', '3');
+    expect(t?.zone).toBe('3');
+    expect(gemeindeKartenTreffer(daten, 'SN', 'Vogtlandkreis', 'Klingenthal', null)).toBeNull();
   });
 });

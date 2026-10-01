@@ -223,3 +223,17 @@ export function windzone(wind: Datensatz, treffer: Treffer): WindErgebnis | null
   const land_ = wind.zeilen.find((z) => z[0] === land && z[1] === null);
   return land_ ? { zone: land_[3], zonen: [land_[3]], hinweis: land_[4] } : null;
 }
+
+/** Treffer für eine Gemeinde, die auf der Karte angeklickt wurde; `zone` aus der Karte hat Vorrang vor dem Namens-Lookup. */
+export function gemeindeKartenTreffer(daten: Datensatz, land: string, kreis: string, name: string, zone: string | null): Treffer | null {
+  const gesucht = normalisiere(name);
+  const zeile = daten.zeilen.find((z) => z[0] === land && z[1] === kreis && z[2] !== null && normalisiere(z[2]) === gesucht);
+  const standard = daten.zeilen.find((z) => z[0] === land && z[1] === kreis && z[2] === null);
+  const z = zone ?? zeile?.[3] ?? null;
+  if (z === null) return null;
+  const tiefland = standard?.[4]?.startsWith('Norddeutsches Tiefland') ? standard[4].split('. ')[0] + '.' : null;
+  return {
+    art: 'gemeinde', land, kreis, name, zone: z, zonen: [z],
+    hinweise: eindeutig([zeile?.[4] ?? null, tiefland]), gemeinden: [],
+  };
+}

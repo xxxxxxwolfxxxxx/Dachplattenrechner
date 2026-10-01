@@ -31,6 +31,7 @@
     istBerechenbar,
     windzone,
     kartenTreffer,
+    gemeindeKartenTreffer,
     BUNDESLAENDER,
     WINDWERTE,
     type Datensatz,
@@ -96,7 +97,7 @@
       : `Auf ${hoehe} m ü. NN: s_k = ${zahl(sk)} kN/m² (ca. ${Math.round(sk * 100)} kg/m²).`;
   }
 
-  function zeigeDetail(t: Treffer): void {
+  function zeigeDetail(t: Treffer, windVorgabe: string | null = null): void {
     detail.replaceChildren();
     detail.hidden = false;
 
@@ -163,7 +164,8 @@
       detail.append(box);
     }
 
-    const w = wind ? windzone(wind, t) : null;
+    const gefunden = wind ? windzone(wind, t) : null;
+    const w = windVorgabe && gefunden ? { ...gefunden, zone: windVorgabe, zonen: [windVorgabe] } : gefunden;
     if (w) {
       const block = el('div', 'slz-wind');
       const kopfZeile = el('div', 'slz-zone');
@@ -227,17 +229,23 @@
 
   // Klick auf die Landkreis-Karte (KreisKarte.astro) zeigt dieselbe Detailansicht wie ein Suchtreffer
   window.addEventListener('slz-karte', async (e) => {
-    const { land, kreis, stadt } = (e as CustomEvent<{ land: string; kreis: string; stadt: boolean }>).detail;
+    const { land, kreis, stadt, gemeinde, zs, zw } = (e as CustomEvent<{
+      land: string; kreis: string; stadt: boolean; gemeinde?: string; zs?: string | null; zw?: string | null;
+    }>).detail;
     const d = daten ?? (await ladeDaten());
     if (!d) return;
-    const treffer = kartenTreffer(d, land, kreis, stadt);
+    const treffer = gemeinde ? gemeindeKartenTreffer(d, land, kreis, gemeinde, zs ?? null) : kartenTreffer(d, land, kreis, stadt);
     if (!treffer) {
-      status.textContent = `Für ${kreis} enthält die DIBt-Tabelle keine Schneelastzone.`;
+      detail.hidden = true;
+      liste.replaceChildren();
+      status.textContent = gemeinde
+        ? `Für ${gemeinde} enthält die DIBt-Tabelle keine Schneelastzone (Gemeinde vermutlich neu gebildet). Bitte beim Bauamt erfragen.`
+        : `Für ${kreis} enthält die DIBt-Tabelle keine Schneelastzone.`;
       return;
     }
     liste.replaceChildren();
     status.textContent = '';
-    zeigeDetail(treffer);
+    zeigeDetail(treffer, zw ?? null);
   });
 
   let timer: number | undefined;
