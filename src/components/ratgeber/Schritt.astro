@@ -1,0 +1,27 @@
+---
+interface Props { nr: number; titel: string; text: string; bild?: string; alt?: string }
+const { nr, titel, text, bild, alt } = Astro.props;
+// Laufzeitprüfung zusätzlich zum Schema: ein Bild ohne alt-Text bricht den Build.
+if (bild && !alt) throw new Error(`Schritt ${nr} (${titel}): Bild ohne alt-Text`);
+// Tatsächliche Pixelmaße der Fotos (public/ratgeber/fotos), auf 800 px Breite skaliert.
+// Das CSS (.r-foto) beschneidet sie per aspect-ratio/object-fit, die Attribute liefern nur echte Maße.
+const FOTO_MASSE: Record<string, { width: number; height: number }> = {
+  'dachrinne-schneefang-zinkdach.webp': { width: 800, height: 1066 },
+  'durchdringungen-schornstein.webp': { width: 800, height: 533 },
+};
+const istFoto = !!bild && bild.startsWith('/ratgeber/fotos/');
+const fotoMasse = istFoto ? FOTO_MASSE[bild!.split('/').pop() ?? ''] : undefined;
+const absaetze = text.split(/\n{2,}/);
+---
+<section class="r-schritt" id={`schritt-${nr}`} aria-labelledby={`schritt-titel-${nr}`}>
+  <div class="r-schritt-nr" aria-hidden="true">{nr}</div>
+  <h3 id={`schritt-titel-${nr}`}>{titel}</h3>
+  <div>{absaetze.map((a) => <p>{a}</p>)}</div>
+  {bild && (
+    <figure>
+      {istFoto
+        ? <img class="r-foto" src={bild} alt={alt} width={fotoMasse?.width} height={fotoMasse?.height} loading={nr === 1 ? 'eager' : 'lazy'} decoding="async" />
+        : <img src={bild} alt={alt} width="800" height="450" loading={nr === 1 ? 'eager' : 'lazy'} decoding="async" />}
+    </figure>
+  )}
+</section>

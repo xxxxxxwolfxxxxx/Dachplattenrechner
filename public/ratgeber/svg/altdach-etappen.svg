@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Altdach in Etappen abdecken</title>
+  <desc id="d">Seitenansicht eines geneigten Dachs über einer Wand. Links und rechts liegt das Altdach noch. In der Mitte ist eine Etappe abgedeckt, die Sparren sind sichtbar und eine Unterspannbahn dient als Notdach, bis die Fläche am selben Tag wieder dicht ist.</desc>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#94a3b8; --holz:#c08a52; --akzent:#0ea5e9; --wand:#e2e8f0; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#64748b; --holz:#a16f3d; --wand:#1e293b; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .kb{fill:var(--fg);font:600 16px system-ui,sans-serif}
+    .wand{fill:var(--wand);stroke:var(--fg);stroke-width:2}
+    .alt{fill:none;stroke:var(--blech);stroke-width:8;stroke-linecap:butt}
+    .sp{fill:none;stroke:var(--holz);stroke-width:6}
+    .bahn{fill:none;stroke:var(--akzent);stroke-width:4;stroke-dasharray:10 5}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .boden{stroke:var(--fg);stroke-width:3}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Nur so viel öffnen, wie am selben Tag wieder dicht wird</text>
+  <line class="boden" x1="30" y1="400" x2="770" y2="400"/>
+  <polygon class="wand" points="100,400 100,330 700,170 700,400"/>
+  <!-- Sparren komplett -->
+  <line class="sp" x1="100" y1="336" x2="700" y2="176"/>
+  <!-- Altdach links und rechts, y = 330 - (x-100)*0.2667 -->
+  <line class="alt" x1="100" y1="322" x2="300" y2="268.7"/>
+  <line class="alt" x1="500" y1="215.3" x2="700" y2="162"/>
+  <!-- Notdach -->
+  <line class="bahn" x1="300" y1="262" x2="500" y2="208.7"/>
+  <line class="lin" x1="300" y1="262" x2="300" y2="372"/>
+  <line class="lin" x1="500" y1="208.7" x2="500" y2="372"/>
+  <text class="kb" x="400" y="392" text-anchor="middle">Etappe</text>
+  <text class="k" x="200" y="244" text-anchor="middle">Altdach liegt noch</text>
+  <text class="k" x="600" y="144" text-anchor="middle">Altdach liegt noch</text>
+  <text class="k" x="400" y="170" text-anchor="middle">Unterspannbahn als Notdach</text>
+  <text class="k" x="400" y="342" text-anchor="middle">Sparren liegen frei</text>
+  <line class="lin" x1="400" y1="328" x2="400" y2="262"/>
+  <text class="k" x="400" y="434" text-anchor="middle">Wetterbericht vor jeder Etappe prüfen</text>
+</svg>

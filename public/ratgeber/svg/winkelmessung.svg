@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Dachneigung mit dem Winkelmesser messen</title>
+  <desc id="d">Schematischer Schnitt: Ein geneigter Sparren oder eine Latte bildet mit der Waagerechten den Neigungswinkel alpha. Ein digitaler Winkelmesser liegt auf dem Sparren und zeigt den Winkel an.</desc>
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--akzent)"/></marker>
+  </defs>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#64748b; --blech2:#0369a1; --holz:#c08a52; --akzent:#0369a1; --band:#b45309; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#94a3b8; --blech2:#7dd3fc; --holz:#a16f3d; --akzent:#38bdf8; --band:#fbbf24; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .m{fill:var(--akzent);font:600 15px system-ui,sans-serif}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .ext{stroke:var(--akzent);stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+    .mas{stroke:var(--akzent);stroke-width:2.5;fill:none}
+    .bl{fill:none;stroke:var(--blech);stroke-width:6;stroke-linejoin:round}
+    .bl2{fill:none;stroke:var(--blech2);stroke-width:6;stroke-linejoin:round}
+    .holz{fill:var(--holz);stroke:var(--fg);stroke-width:2}
+    .band{fill:var(--band);stroke:var(--fg);stroke-width:1.5}
+    .schr{stroke:var(--fg);stroke-width:2.5;fill:none} .kopf{fill:var(--fg)}
+    .dot{fill:var(--fg)}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+
+  <text class="t" x="400" y="30" text-anchor="middle">Dachneigung α messen</text>
+  <line class="lin" x1="100" y1="340" x2="640" y2="340" stroke-dasharray="8 5"/>
+  <line class="ext" x1="640" y1="124" x2="640" y2="338"/>
+  <line class="bl" x1="100" y1="340" x2="640" y2="120" style="stroke-width:8"/>
+  <g transform="translate(370,230) rotate(-22.2)"><rect x="-70" y="-36" width="140" height="36" rx="6" fill="var(--bg)" stroke="var(--akzent)" stroke-width="3"/><text class="m" x="0" y="-12" text-anchor="middle">Winkelmesser</text></g>
+  <path class="mas" d="M200 340 A100 100 0 0 0 192.6 302.2"/>
+  <text class="m" x="250" y="318">Dachneigung α</text>
+  <line class="lin" x1="246" y1="313" x2="200" y2="324"/>
+  <text class="k" x="400" y="372" text-anchor="middle">waagerecht</text>
+  <line class="lin" x1="400" y1="358" x2="400" y2="343"/>
+  <text class="k" x="110" y="215">Sparren oder Latte</text>
+  <line class="lin" x1="205" y1="222" x2="225" y2="289"/>
+  <text class="k" x="400" y="105">Digitaler Winkelmesser</text>
+  <line class="lin" x1="440" y1="112" x2="360" y2="195"/>
+  <text class="k" x="400" y="420" text-anchor="middle">Messwert in Grad ablesen, an mehreren Stellen messen</text>
+</svg>

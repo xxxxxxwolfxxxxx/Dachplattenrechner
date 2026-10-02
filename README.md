@@ -41,3 +41,28 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+## Ratgeber-Wiki
+
+Anleitungen liegen als Markdown unter `src/content/ratgeber/<gewerk>/<schritt>.md` und werden unter `/ratgeber/<gewerk>/<schritt>/` ausgeliefert (inkl. Suche, abhakbarer Material-Liste und Strukturdaten `HowTo` und `BreadcrumbList`).
+
+### Neuen Schritt anlegen
+
+1. Datei `src/content/ratgeber/<gewerk>/<schritt>.md` mit dem Frontmatter aus `src/utils/ratgeber-schema.ts` erstellen.
+2. Bilder als SVG nach `public/ratgeber/svg/` legen und im Schritt über `bild` einbinden.
+3. `npx vitest run` ausführen. Die Tests prüfen Schema, Bilder und Links.
+
+### Inhaltsregeln
+
+- Quellen: Zahlen und Maße nur mit Quelle oder Herstellerhinweis, keine erfundenen Werte. Wo Herstellerangaben gelten, steht das im Text.
+- Humor: sparsam, nie bei Sicherheitshinweisen, und nie auf Kosten der Genauigkeit.
+- SVG-Pflicht: Jeder Schritt mit räumlichem Inhalt bekommt eine eigene SVG-Zeichnung mit aussagekräftigem `alt`-Text.
+- Linkregeln: Interne Links immer mit abschließendem Slash (`/ratgeber/blechdach/first/`). Statische Seiten aus `public/` verlinkt man mit `.html` (z. B. `/tools/anrissplan.html`), ohne Slash.
+- `beschreibung` im Frontmatter: 120 bis 160 Zeichen (Meta-Description).
+- Sicherheitshinweis (`sicherheit`) ist Pflicht und steht vor den Schritten.
+
+### Neues Gewerk anlegen
+
+1. Gewerk in `GEWERKE` in `src/utils/ratgeber-schema.ts` ergänzen.
+2. Anzeigetitel in `GEWERK_TITEL` in `src/utils/ratgeber.ts` eintragen.
+3. Ordner `src/content/ratgeber/<gewerk>/` mit den Schritt-Dateien anlegen.

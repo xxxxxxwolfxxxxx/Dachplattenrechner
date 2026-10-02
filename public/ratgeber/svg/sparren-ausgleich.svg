@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Unebene Sparren mit der Konterlattung ausgleichen</title>
+  <desc id="d">Querschnitt durch drei Sparren, deren Oberkanten unterschiedlich hoch liegen. Über den Sparren liegt ein Richtscheit zur Kontrolle. Auf jedem Sparren sitzt eine Konterlatte, bei den niedrigeren Sparren mit einer Unterlage, sodass alle Oberkanten auf einer Höhe liegen.</desc>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --holz:#c08a52; --konter:#e0b783; --akzent:#0ea5e9; --warn:#dc2626; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --holz:#a16f3d; --konter:#7c5a30; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .kb{fill:var(--fg);font:600 16px system-ui,sans-serif}
+    .sp{fill:var(--holz);stroke:var(--fg);stroke-width:2}
+    .ko{fill:var(--konter);stroke:var(--fg);stroke-width:2}
+    .un{fill:var(--warn);stroke:var(--fg);stroke-width:1.5}
+    .rs{fill:var(--akzent);stroke:var(--fg);stroke-width:1.5}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .gl{stroke:var(--akzent);stroke-width:2;stroke-dasharray:7 5;fill:none}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Konterlattung gleicht die Unebenheit aus</text>
+  <!-- Sparren: Oberkanten 250 / 238 / 262 -->
+  <rect class="sp" x="170" y="250" width="80" height="140"/>
+  <rect class="sp" x="360" y="238" width="80" height="152"/>
+  <rect class="sp" x="550" y="262" width="80" height="128"/>
+  <!-- Unterlagen -->
+  <rect class="un" x="170" y="238" width="80" height="12"/>
+  <rect class="un" x="550" y="238" width="80" height="24"/>
+  <!-- Konterlatten, Oberkante 218 -->
+  <rect class="ko" x="170" y="218" width="80" height="20"/>
+  <rect class="ko" x="360" y="218" width="80" height="20"/>
+  <rect class="ko" x="550" y="218" width="80" height="20"/>
+  <!-- Richtscheit -->
+  <rect class="rs" x="130" y="204" width="540" height="14"/>
+  <text class="kb" x="400" y="190" text-anchor="middle">Richtscheit prüft die Ebenheit</text>
+  <text class="k" x="210" y="418" text-anchor="middle">Sparren</text>
+  <text class="k" x="400" y="418" text-anchor="middle">Sparren, höher</text>
+  <text class="k" x="590" y="418" text-anchor="middle">Sparren, tiefer</text>
+  <text class="k" x="150" y="332" text-anchor="end">Unterlage</text>
+  <text class="k" x="650" y="334">Unterlage</text>
+  <text class="k" x="400" y="130" text-anchor="middle">Konterlatten liegen in einer Ebene, rot = Ausgleich</text>
+  <line class="lin" x1="156" y1="318" x2="172" y2="246"/>
+  <line class="lin" x1="656" y1="320" x2="632" y2="252"/>
+  <text class="k" x="400" y="444" text-anchor="middle">Auflager: Nadelholz, mindestens Sortierklasse S10 nach DIN 4074-1</text>
+</svg>

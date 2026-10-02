@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Ortgang: Blech, Lattenende und Ortgangblech</title>
+  <desc id="d">Schnitt parallel zur Traufe, schematisch. Das Trapezblech ragt höchstens 70 mm über das bündig abgeschnittene Lattenende hinaus. Das Ortgangblech liegt oben auf dem Blech und reicht mit einem Schenkel seitlich nach unten. Eine Formteilschraube verbindet Ortgangblech und Blech in der Hochsicke.</desc>
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--akzent)"/></marker>
+  </defs>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#64748b; --blech2:#0369a1; --holz:#c08a52; --akzent:#0369a1; --band:#b45309; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#94a3b8; --blech2:#7dd3fc; --holz:#a16f3d; --akzent:#38bdf8; --band:#fbbf24; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .m{fill:var(--akzent);font:600 15px system-ui,sans-serif}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .ext{stroke:var(--akzent);stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+    .mas{stroke:var(--akzent);stroke-width:2.5;fill:none}
+    .bl{fill:none;stroke:var(--blech);stroke-width:6;stroke-linejoin:round}
+    .bl2{fill:none;stroke:var(--blech2);stroke-width:6;stroke-linejoin:round}
+    .holz{fill:var(--holz);stroke:var(--fg);stroke-width:2}
+    .band{fill:var(--band);stroke:var(--fg);stroke-width:1.5}
+    .schr{stroke:var(--fg);stroke-width:2.5;fill:none} .kopf{fill:var(--fg)}
+    .dot{fill:var(--fg)}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+
+  <text class="t" x="400" y="30" text-anchor="middle">Ortgang im Schnitt: Überstand und Ortgangblech</text>
+  <rect class="holz" x="80" y="292" width="480" height="48"/>
+  <path class="bl" d="M80 290 L120 290 L150 230 L210 230 L240 290 L320 290 L350 230 L410 230 L440 290 L500 290 L530 230 L630 230"/>
+  <path class="bl2" d="M520 223 L650 223 L650 330"/>
+  <line class="schr" x1="590" y1="222" x2="590" y2="240"/><ellipse class="kopf" cx="590" cy="218" rx="11" ry="4"/>
+  <line class="ext" x1="560" y1="344" x2="560" y2="388"/>
+  <line class="ext" x1="630" y1="237" x2="630" y2="388"/>
+  <line class="mas" x1="562" y1="380" x2="628" y2="380" marker-start="url(#pa)" marker-end="url(#pa)"/>
+  <text class="m" x="595" y="408" text-anchor="middle">freier Überstand max. 70 mm</text>
+  <text class="k" x="110" y="190">Trapezblech</text>
+  <line class="lin" x1="150" y1="196" x2="170" y2="226"/>
+  <text class="k" x="380" y="150">Formteilschraube</text>
+  <line class="lin" x1="490" y1="156" x2="583" y2="215"/>
+  <text class="k" x="640" y="150">Ortgangblech</text>
+  <line class="lin" x1="660" y1="156" x2="640" y2="220"/>
+  <text class="k" x="60" y="372">Traglatte, Ende bündig abgeschnitten</text>
+  <line class="lin" x1="200" y1="356" x2="200" y2="342"/>
+  <text class="k" x="400" y="436" text-anchor="middle">z. B. MAAS-Stahlprofile, Herstellerangabe gilt</text>
+</svg>

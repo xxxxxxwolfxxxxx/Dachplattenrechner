@@ -4,3 +4,40 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/projekt-dach/"
+  to = "/ratgeber/blechdach/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/projekt-dach/messen/"
+  to = "/ratgeber/blechdach/aufmass/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/projekt-dach/uk/"
+  to = "/ratgeber/blechdach/konterlattung/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/projekt-dach/blech/"
+  to = "/ratgeber/blechdach/verlegen-verschrauben/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/projekt-dach/winkel/"
+  to = "/ratgeber/blechdach/ortgang/"
+  status = 301
+  force = true
+
+# Sammelregel für alle übrigen Altpfade (nach den exakten Regeln)
+[[redirects]]
+  from = "/projekt-dach/*"
+  to = "/ratgeber/blechdach/"
+  status = 301
+  force = true

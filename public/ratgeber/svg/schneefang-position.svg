@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Schneefang und Dachrinne an der Traufe</title>
+  <desc id="d">Schematischer Schnitt durch die Traufe eines geneigten Dachs. Das Traufblech ragt etwa ein Drittel in die Dachrinne. Oberhalb der Traufe sitzt ein Schneefangrohr auf einem Halter. Ein Maßpfeil zeigt den Abstand zur Traufe, der sich nach der Herstellerangabe richtet. Unter der Traufe liegt der Zugang oder Gehweg.</desc>
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--akzent)"/></marker>
+  </defs>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#64748b; --blech2:#0369a1; --holz:#c08a52; --akzent:#0369a1; --band:#b45309; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#94a3b8; --blech2:#7dd3fc; --holz:#a16f3d; --akzent:#38bdf8; --band:#fbbf24; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .m{fill:var(--akzent);font:600 15px system-ui,sans-serif}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .ext{stroke:var(--akzent);stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+    .mas{stroke:var(--akzent);stroke-width:2.5;fill:none}
+    .bl{fill:none;stroke:var(--blech);stroke-width:6;stroke-linejoin:round}
+    .bl2{fill:none;stroke:var(--blech2);stroke-width:6;stroke-linejoin:round}
+    .holz{fill:var(--holz);stroke:var(--fg);stroke-width:2}
+    .band{fill:var(--band);stroke:var(--fg);stroke-width:1.5}
+    .schr{stroke:var(--fg);stroke-width:2.5;fill:none} .kopf{fill:var(--fg)}
+    .dot{fill:var(--fg)}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+
+  <text class="t" x="400" y="30" text-anchor="middle">Schneefang über der Traufe, Rinne darunter</text>
+  <path class="bl" d="M60 130 L440 221.2"/>
+  <path class="bl2" d="M440 221.2 L607 261.3"/>
+  <path class="rinne" d="M560 252 L560 330 L700 330 L700 252" style="fill:none;stroke:var(--fg);stroke-width:4;stroke-linejoin:round"/>
+  <line class="lin" x1="500" y1="240" x2="500" y2="410" style="stroke-width:3"/>
+  <line class="lin" x1="470" y1="410" x2="780" y2="410" style="stroke-width:3"/>
+  <line class="schr" x1="330" y1="193" x2="330" y2="172"/>
+  <circle cx="330" cy="164" r="8" fill="none" stroke="var(--fg)" stroke-width="4"/>
+  <line class="ext" x1="330" y1="120" x2="330" y2="154"/>
+  <line class="ext" x1="560" y1="120" x2="560" y2="248"/>
+  <line class="mas" x1="332" y1="126" x2="558" y2="126" marker-start="url(#pa)" marker-end="url(#pa)"/>
+  <text class="m" x="445" y="106" text-anchor="middle">Abstand zur Traufe: Herstellerangabe</text>
+  <text class="k" x="40" y="75">Schneefangrohr mit Halter</text>
+  <line class="lin" x1="200" y1="82" x2="323" y2="159"/>
+  <text class="k" x="400" y="178">Traufblech</text>
+  <line class="lin" x1="470" y1="184" x2="490" y2="232"/>
+  <line class="mas" x1="562" y1="300" x2="605" y2="300" marker-start="url(#pa)" marker-end="url(#pa)"/>
+  <text class="m" x="618" y="305">ca. ⅓</text>
+  <text class="k" x="595" y="356">Dachrinne</text>
+  <line class="lin" x1="630" y1="341" x2="630" y2="332"/>
+  <text class="k" x="775" y="386" text-anchor="end">Zugang oder Verkehr unter dem Dach</text>
+  <line class="lin" x1="700" y1="392" x2="700" y2="408"/>
+  <text class="k" x="200" y="436" text-anchor="middle">Schematisch, nicht maßstäblich</text>
+</svg>

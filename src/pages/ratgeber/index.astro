@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import RatgeberSuche from '../../components/ratgeber/RatgeberSuche.astro';
+import PhasenNav from '../../components/ratgeber/PhasenNav.astro';
+import '../../styles/ratgeber.css';
+import { nachGewerk, GEWERK_TITEL } from '../../utils/ratgeber';
+
+const eintraege = nachGewerk(await getCollection('ratgeber'), 'blechdach');
+---
+<ToolLayout
+  title="Dach-Ratgeber: Anleitungen für jeden Arbeitsschritt"
+  description="Schritt-für-Schritt-Anleitungen mit Bildern für dein Dachprojekt: vom Aufmaß über den Unterbau bis zur Eindeckung, mit Werkzeug- und Materiallisten."
+  navTitle="Ratgeber"
+  breadcrumbs={[{ name: 'Startseite', url: '/' }, { name: 'Ratgeber', url: '/ratgeber/' }]}
+>
+  <div class="ratgeber">
+    <h1>Dach-Ratgeber</h1>
+    <p>Für jeden Arbeitsschritt eine Anleitung: mit Werkzeugliste, Materialliste, Bildern, typischen Fehlern und Sicherheitshinweisen.</p>
+    <RatgeberSuche />
+    <h2>{GEWERK_TITEL.blechdach} selbst decken</h2>
+    <p><a href="/ratgeber/blechdach/">Alle {eintraege.length} Schritte im Überblick →</a></p>
+    <PhasenNav schritte={eintraege} />
+    <p class="r-hinweis">Richtwerte aus Herstellerangaben – Herstellerangaben und Statik gehen vor.</p>
+  </div>
+</ToolLayout>

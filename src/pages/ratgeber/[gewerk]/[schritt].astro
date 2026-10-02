@@ -1,0 +1,88 @@
+---
+import { getCollection, render } from 'astro:content';
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import SchrittKopf from '../../../components/ratgeber/SchrittKopf.astro';
+import Schritt from '../../../components/ratgeber/Schritt.astro';
+import HinweisBox from '../../../components/ratgeber/HinweisBox.astro';
+import MaterialListe from '../../../components/ratgeber/MaterialListe.astro';
+import '../../../styles/ratgeber.css';
+import { gewerkVon, slugVon, schrittUrl, nachbarn, howToSchema, PHASEN_TITEL, GEWERK_TITEL } from '../../../utils/ratgeber';
+
+export async function getStaticPaths() {
+  const alle = await getCollection('ratgeber');
+  return alle.map((e) => ({
+    params: { gewerk: gewerkVon(e.id), schritt: slugVon(e.id) },
+    props: { eintrag: e, alle },
+  }));
+}
+
+const { eintrag, alle } = Astro.props;
+const d = eintrag.data;
+const { Content } = await render(eintrag);
+const { zurueck, weiter } = nachbarn(alle, eintrag.id);
+const verwandt = alle.filter((x) => gewerkVon(x.id) === gewerkVon(eintrag.id) && d.verwandt.includes(slugVon(x.id)));
+const SITE = 'https://dachplattenrechner.de';
+---
+<ToolLayout
+  title={d.titel}
+  description={d.beschreibung}
+  navTitle="Ratgeber"
+  extraSchema={[howToSchema(eintrag, SITE)]}
+  breadcrumbs={[
+    { name: 'Startseite', url: '/' },
+    { name: 'Ratgeber', url: '/ratgeber/' },
+    { name: GEWERK_TITEL[d.gewerk], url: `/ratgeber/${gewerkVon(eintrag.id)}/` },
+    { name: d.titel, url: schrittUrl(eintrag.id) },
+  ]}
+>
+  <article class="ratgeber">
+    <p class="r-phase-label">{PHASEN_TITEL[d.phase]}</p>
+    <h1>{d.titel}</h1>
+    <SchrittKopf dauer={d.dauer} schwierigkeit={d.schwierigkeit as 1 | 2 | 3} personen={d.personen} wetter={d.wetter} />
+
+    <HinweisBox variant="sicherheit" titel="Sicherheit zuerst" heading="h2"><p>{d.sicherheit}</p></HinweisBox>
+
+    <div class="r-text"><Content /></div>
+
+    {(d.werkzeug.length > 0 || d.material.length > 0) && (
+      <>
+        <h2>Das brauchst du</h2>
+        <MaterialListe werkzeug={d.werkzeug} material={d.material} storageKey={eintrag.id} />
+      </>
+    )}
+
+    <h2>Schritt für Schritt</h2>
+    {d.schritte.map((s, i) => <Schritt nr={i + 1} titel={s.titel} text={s.text} bild={s.bild} alt={s.alt} />)}
+
+    <HinweisBox variant="fehler" titel="Typische Fehler" heading="h2">
+      <ul>{d.typischeFehler.map((f) => <li>{f}</li>)}</ul>
+    </HinweisBox>
+
+    {d.rechner.length > 0 && (
+      <HinweisBox variant="tipp" titel="Passende Rechner" heading="h2">
+        <ul>{d.rechner.map((r) => <li><a href={r.href}>{r.titel}</a></li>)}</ul>
+      </HinweisBox>
+    )}
+
+    {verwandt.length > 0 && (
+      <>
+        <h2>Verwandte Schritte</h2>
+        <ul>{verwandt.map((v) => <li><a href={schrittUrl(v.id)}>{v.data.titel}</a></li>)}</ul>
+      </>
+    )}
+
+    {d.quellen.length > 0 && (
+      <>
+        <h2>Quellen</h2>
+        <ul>{d.quellen.map((q) => <li><a href={q.href} rel="noopener">{q.titel}</a></li>)}</ul>
+      </>
+    )}
+
+    <p class="r-hinweis">Richtwerte aus Herstellerangaben – Herstellerangaben und Statik gehen vor.</p>
+
+    <nav class="r-seitennav" aria-label="Weiter im Ratgeber">
+      {zurueck ? <a href={schrittUrl(zurueck.id)}>← {zurueck.data.titel}</a> : <span></span>}
+      {weiter ? <a href={schrittUrl(weiter.id)}>{weiter.data.titel} →</a> : <a href={`/ratgeber/${gewerkVon(eintrag.id)}/`}>Alle Schritte →</a>}
+    </nav>
+  </article>
+</ToolLayout>

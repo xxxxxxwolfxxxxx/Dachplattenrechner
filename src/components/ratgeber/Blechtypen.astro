@@ -1,0 +1,11 @@
+---
+import { BLECHTYPEN } from '../../data/blechtypen';
+---
+<table class="r-tabelle">
+  <thead><tr><th>Blechtyp</th><th>Schrauben</th><th>Mindestneigung</th><th>Schneiden</th></tr></thead>
+  <tbody>
+    {BLECHTYPEN.map((t) => (
+      <tr><td><strong>{t.name}</strong></td><td>{t.schrauben}</td><td>{t.mindestneigung}</td><td>{t.schneiden}</td></tr>
+    ))}
+  </tbody>
+</table>

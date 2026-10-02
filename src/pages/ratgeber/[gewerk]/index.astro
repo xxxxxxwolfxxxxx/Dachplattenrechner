@@ -1,0 +1,32 @@
+---
+import { getCollection } from 'astro:content';
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import PhasenNav from '../../../components/ratgeber/PhasenNav.astro';
+import Blechtypen from '../../../components/ratgeber/Blechtypen.astro';
+import '../../../styles/ratgeber.css';
+import { GEWERKE, type Gewerk } from '../../../utils/ratgeber-schema';
+import { nachGewerk, GEWERK_TITEL } from '../../../utils/ratgeber';
+
+export function getStaticPaths() {
+  return GEWERKE.map((gewerk) => ({ params: { gewerk } }));
+}
+const { gewerk } = Astro.params;
+const schritte = nachGewerk(await getCollection('ratgeber'), gewerk);
+const gewerkTitel = GEWERK_TITEL[gewerk as Gewerk];
+---
+<ToolLayout
+  title={`${gewerkTitel} selbst decken – alle Arbeitsschritte`}
+  description={`${gewerkTitel} selbst decken in ${schritte.length} Schritten: Planung, Unterbau, Eindeckung und Details mit Bildern, Listen und Sicherheitshinweisen.`}
+  navTitle="Ratgeber"
+  breadcrumbs={[{ name: 'Startseite', url: '/' }, { name: 'Ratgeber', url: '/ratgeber/' }, { name: gewerkTitel, url: `/ratgeber/${gewerk}/` }]}
+>
+  <div class="ratgeber">
+    <h1>{gewerkTitel} selbst decken</h1>
+    <p>{schritte.length} Arbeitsschritte in der Reihenfolge, in der du sie auf der Baustelle brauchst.</p>
+    <PhasenNav schritte={schritte} />
+    <h2>Welches Blech braucht was?</h2>
+    <p>Schrauben, Mindestneigung und Schneiden hängen vom Blechtyp ab. Es gilt immer die Anleitung des gekauften Profils.</p>
+    <Blechtypen />
+    <p class="r-hinweis">Richtwerte aus Herstellerangaben – Herstellerangaben und Statik gehen vor.</p>
+  </div>
+</ToolLayout>

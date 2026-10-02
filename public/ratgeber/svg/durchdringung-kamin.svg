@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Kaminanschluss im Schnitt (schematisch)</title>
+  <desc id="d">Schematischer Schnitt durch ein geneigtes Blechdach mit Schornstein. Ein Anschlussblech schließt an die Wand an, ein Dichtband sitzt an der Wand. Ein Pfeil zeigt den Wasserlauf zur Traufe. Die Ausführung richtet sich nach dem Herstellerdetail.</desc>
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--akzent)"/></marker>
+  </defs>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#64748b; --blech2:#0369a1; --holz:#c08a52; --akzent:#0369a1; --band:#b45309; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#94a3b8; --blech2:#7dd3fc; --holz:#a16f3d; --akzent:#38bdf8; --band:#fbbf24; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .m{fill:var(--akzent);font:600 15px system-ui,sans-serif}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .ext{stroke:var(--akzent);stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+    .mas{stroke:var(--akzent);stroke-width:2.5;fill:none}
+    .bl{fill:none;stroke:var(--blech);stroke-width:6;stroke-linejoin:round}
+    .bl2{fill:none;stroke:var(--blech2);stroke-width:6;stroke-linejoin:round}
+    .holz{fill:var(--holz);stroke:var(--fg);stroke-width:2}
+    .band{fill:var(--band);stroke:var(--fg);stroke-width:1.5}
+    .schr{stroke:var(--fg);stroke-width:2.5;fill:none} .kopf{fill:var(--fg)}
+    .dot{fill:var(--fg)}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+
+  <text class="t" x="400" y="30" text-anchor="middle">Kaminanschluss: Anschlussblech und Dichtband</text>
+  <rect x="400" y="130" width="140" height="200" fill="#c0603a" opacity="0.55" stroke="var(--fg)" stroke-width="2"/>
+  <path class="bl2" d="M536 170 L536 195 L620 172"/>
+  <path class="bl" d="M60 330 L400 230 M540 189 L740 130"/>
+  <path class="bl2" d="M404 190 L404 224 L300 254"/>
+  <rect class="band" x="400" y="186" width="8" height="12"/>
+  <text class="k" x="470" y="95" text-anchor="middle">Schornstein: Anschluss durch Fachbetrieb</text>
+  <line class="lin" x1="470" y1="102" x2="470" y2="130"/>
+  <text class="k" x="60" y="160">Anschlussblech nach Herstellerdetail</text>
+  <line class="lin" x1="240" y1="168" x2="404" y2="212"/>
+  <text class="k" x="250" y="108">Dichtband</text>
+  <line class="lin" x1="300" y1="114" x2="400" y2="190"/>
+  <line class="mas" x1="250" y1="248" x2="130" y2="283" marker-end="url(#pa)"/>
+  <text class="m" x="60" y="230">Wasserlauf</text>
+  <line class="lin" x1="110" y1="236" x2="190" y2="266"/>
+  <text class="k" x="400" y="410" text-anchor="middle">Schematisch, nicht maßstäblich. Keine Schrauben im Wasserlauf.</text>
+</svg>

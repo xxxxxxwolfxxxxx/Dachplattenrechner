@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Blechpaket leicht schräg auf Hölzern lagern</title>
+  <desc id="d">Seitenansicht: Ein Paket Blechtafeln liegt auf zwei Hölzern, deren linkes höher ist als das rechte, sodass das Paket leicht schräg liegt. Die Schutzfolie ist an beiden Paketenden offen. Ein Spanngurt sichert das Paket gegen Sturm.</desc>
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--akzent)"/></marker>
+  </defs>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#94a3b8; --holz:#c08a52; --akzent:#0ea5e9; --warn:#dc2626; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#64748b; --holz:#a16f3d; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .kb{fill:var(--fg);font:600 16px system-ui,sans-serif}
+    .paket{fill:var(--blech);stroke:var(--fg);stroke-width:2}
+    .holz{fill:var(--holz);stroke:var(--fg);stroke-width:2}
+    .boden{stroke:var(--fg);stroke-width:3}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .folie{fill:none;stroke:var(--akzent);stroke-width:3;stroke-dasharray:8 5}
+    .gurt{fill:var(--warn);stroke:var(--fg);stroke-width:1.5}
+    .pf{stroke:var(--akzent);stroke-width:3;fill:none}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Trocken, leicht schräg, Folie offen</text>
+  <line class="boden" x1="30" y1="400" x2="770" y2="400"/>
+  <rect class="holz" x="250" y="330" width="40" height="70"/>
+  <rect class="holz" x="560" y="355" width="40" height="45"/>
+  <polygon class="paket" points="170,272 680,313 680,363 170,322"/>
+  <line class="lin" x1="170" y1="283" x2="680" y2="324"/>
+  <line class="lin" x1="170" y1="294" x2="680" y2="335"/>
+  <line class="lin" x1="170" y1="305" x2="680" y2="346"/>
+  <path class="folie" d="M230 269 L620 300 M300 342 L545 362"/>
+  <polygon class="gurt" points="424,287 436,288 436,349 424,348"/>
+  <path class="pf" d="M300 214 L178 286" marker-end="url(#pa)"/>
+  <path class="pf" d="M500 214 L675 321" marker-end="url(#pa)"/>
+  <text class="kb" x="400" y="204" text-anchor="middle">Folie an beiden Paketenden offen</text>
+  <text class="k" x="400" y="248" text-anchor="middle">Spanngurt gegen Sturm</text>
+  <line class="lin" x1="430" y1="254" x2="430" y2="284"/>
+  <text class="k" x="270" y="420" text-anchor="middle">Holz hoch</text>
+  <text class="k" x="580" y="420" text-anchor="middle">Holz niedriger</text>
+  <text class="k" x="400" y="442" text-anchor="middle">Kein Regen zwischen die Tafeln, unbeschichtetes Material nicht im Freien</text>
+</svg>

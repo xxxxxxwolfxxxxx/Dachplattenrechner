@@ -1,0 +1,33 @@
+---
+interface Props { werkzeug: string[]; material: { name: string; menge?: string }[]; storageKey: string }
+const { werkzeug, material, storageKey } = Astro.props;
+---
+<div class="r-liste" data-key={storageKey}>
+  <div>
+    <h3>Werkzeug</h3>
+    <ul>
+      {werkzeug.map((w, i) => <li><label><input type="checkbox" data-i={`w${i}`} /><span>{w}</span></label></li>)}
+    </ul>
+  </div>
+  <div>
+    <h3>Material</h3>
+    <ul>
+      {material.map((m, i) => <li><label><input type="checkbox" data-i={`m${i}`} /><span>{m.name}{m.menge ? ` – ${m.menge}` : ''}</span></label></li>)}
+    </ul>
+  </div>
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>('.r-liste').forEach((box) => {
+    const key = `ratgeber-check-${box.dataset.key}`;
+    let gespeichert: string[] = [];
+    try { const roh = JSON.parse(localStorage.getItem(key) ?? '[]'); if (Array.isArray(roh)) gespeichert = roh.filter((x): x is string => typeof x === 'string'); } catch { /* ohne Speicher weiter */ }
+    const boxen = box.querySelectorAll<HTMLInputElement>('input[type=checkbox]');
+    boxen.forEach((cb) => {
+      cb.checked = gespeichert.includes(cb.dataset.i ?? '');
+      cb.addEventListener('change', () => {
+        const an = [...boxen].filter((x) => x.checked).map((x) => x.dataset.i);
+        try { localStorage.setItem(key, JSON.stringify(an)); } catch { /* ignorieren */ }
+      });
+    });
+  });
+</script>

@@ -1,0 +1,20 @@
+---
+import { gruppiereNachPhase, schrittUrl, type Eintrag } from '../../utils/ratgeber';
+interface Props { schritte: Eintrag[]; aktivId?: string }
+const { schritte, aktivId } = Astro.props;
+const gruppen = gruppiereNachPhase(schritte);
+let nr = 0;
+---
+<nav class="r-phasen" aria-label="Alle Arbeitsschritte">
+  {gruppen.map((g) => (
+    <div class="r-phase">
+      <h3>{g.titel}</h3>
+      <ol>
+        {g.schritte.map((s) => {
+          nr += 1;
+          return <li><a href={schrittUrl(s.id)} aria-current={s.id === aktivId ? 'page' : undefined}>{nr}. {s.data.titel}</a></li>;
+        })}
+      </ol>
+    </div>
+  ))}
+</nav>

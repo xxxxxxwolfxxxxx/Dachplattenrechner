@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Dachfläche aus Sparrenlänge und Länge berechnen</title>
+  <desc id="d">Querschnitt durch eine Dachhälfte eines Satteldachs als rechtwinkliges Dreieck. Die waagerechte Seite ist die halbe Gebäudebreite, die Schräge ist die Sparrenlänge, am linken unteren Eck liegt der Neigungswinkel alpha. Rechts stehen die Formeln.</desc>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#94a3b8; --holz:#c08a52; --akzent:#0ea5e9; --flaeche:#e0f2fe; --warn:#dc2626; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#64748b; --holz:#a16f3d; --flaeche:#1e3a5f; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .kb{fill:var(--fg);font:600 16px system-ui,sans-serif}
+    .fl{fill:var(--flaeche);stroke:var(--fg);stroke-width:2;stroke-linejoin:round}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .dia{stroke:var(--akzent);stroke-width:2.5;stroke-dasharray:8 5;fill:none}
+    .pt{fill:var(--akzent);stroke:var(--bg);stroke-width:2}
+    .akz{stroke:var(--akzent);stroke-width:3;fill:none}
+    .b1{fill:var(--blech)} .b2{fill:var(--akzent)} .b3{fill:var(--holz)}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Von der Grundfläche zur Dachfläche</text>
+  <!-- Dreieck: Traufe links unten (60,340), Fußpunkt unter First (400,340), First (400,130) -->
+  <polygon class="fl" points="60,340 400,340 400,130"/>
+  <path class="akz" d="M120 340 A60 60 0 0 0 112 306"/>
+  <text class="kb" x="136" y="330">α</text>
+  <rect x="384" y="324" width="16" height="16" fill="none" stroke="var(--fg)" stroke-width="1.5"/>
+  <circle class="pt" cx="60" cy="340" r="6"/><circle class="pt" cx="400" cy="130" r="6"/>
+  <text class="k" x="60" y="368" text-anchor="middle">Traufe</text>
+  <text class="k" x="400" y="112" text-anchor="middle">First</text>
+  <text class="kb" x="230" y="392" text-anchor="middle">halbe Gebäudebreite = Grundmaß</text>
+  <text class="kb" x="206" y="216" transform="rotate(-31 206 216)" text-anchor="middle">Sparrenlänge s</text>
+  <text class="k" x="414" y="240">Höhe</text>
+  <!-- Formeln -->
+  <text class="kb" x="470" y="130">Sparrenlänge</text>
+  <text class="t" x="470" y="160">s = (b ÷ 2) ÷ cos(α)</text>
+  <text class="kb" x="470" y="214">Fläche einer Dachhälfte</text>
+  <text class="t" x="470" y="244">A = Länge × s</text>
+  <text class="kb" x="470" y="298">Allgemein</text>
+  <text class="t" x="470" y="328">A = Grundfläche ÷ cos(α)</text>
+  <text class="k" x="470" y="372">b = Gebäudebreite</text>
+</svg>

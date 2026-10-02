@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">First: Überdeckung der Formteile</title>
+  <desc id="d">Seitenansicht des Firsts, schematisch. Zwei Firstbleche überdecken sich um 100 bis 150 mm. Im Überdeckungsbereich liegen mittig zwei Butyl-Kittschnüre zwischen den Blechen. Die Formteilschrauben sitzen nur außerhalb der Überdeckung und halten die Firstbleche am Dachblech.</desc>
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--akzent)"/></marker>
+  </defs>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#64748b; --blech2:#0369a1; --holz:#c08a52; --akzent:#0369a1; --band:#b45309; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#94a3b8; --blech2:#7dd3fc; --holz:#a16f3d; --akzent:#38bdf8; --band:#fbbf24; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .m{fill:var(--akzent);font:600 15px system-ui,sans-serif}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .ext{stroke:var(--akzent);stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+    .mas{stroke:var(--akzent);stroke-width:2.5;fill:none}
+    .bl{fill:none;stroke:var(--blech);stroke-width:6;stroke-linejoin:round}
+    .bl2{fill:none;stroke:var(--blech2);stroke-width:6;stroke-linejoin:round}
+    .holz{fill:var(--holz);stroke:var(--fg);stroke-width:2}
+    .band{fill:var(--band);stroke:var(--fg);stroke-width:1.5}
+    .schr{stroke:var(--fg);stroke-width:2.5;fill:none} .kopf{fill:var(--fg)}
+    .dot{fill:var(--fg)}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+
+  <text class="t" x="400" y="30" text-anchor="middle">First im Schnitt: Überdeckung der Formteile</text>
+  <path class="bl" d="M60 235 L740 235"/>
+  <path class="bl2" d="M70 228 L420 228"/>
+  <path class="bl2" d="M330 204 L420 204 L440 228 L735 228"/>
+  <circle class="band" cx="360" cy="216" r="8"/>
+  <circle class="band" cx="390" cy="216" r="8"/>
+  <line class="schr" x1="150" y1="222" x2="150" y2="241"/><ellipse class="kopf" cx="150" cy="219" rx="11" ry="4"/>
+  <line class="schr" x1="250" y1="222" x2="250" y2="241"/><ellipse class="kopf" cx="250" cy="219" rx="11" ry="4"/>
+  <line class="schr" x1="560" y1="222" x2="560" y2="241"/><ellipse class="kopf" cx="560" cy="219" rx="11" ry="4"/>
+  <line class="schr" x1="650" y1="222" x2="650" y2="241"/><ellipse class="kopf" cx="650" cy="219" rx="11" ry="4"/>
+  <line class="ext" x1="330" y1="165" x2="330" y2="200"/>
+  <line class="ext" x1="420" y1="165" x2="420" y2="224"/>
+  <line class="mas" x1="332" y1="170" x2="418" y2="170" marker-start="url(#pa)" marker-end="url(#pa)"/>
+  <text class="m" x="375" y="148" text-anchor="middle">Überdeckung 100–150 mm</text>
+  <text class="k" x="60" y="100">Formteilschrauben nur außerhalb der Überdeckung</text>
+  <line class="lin" x1="150" y1="108" x2="150" y2="214"/>
+  <text class="k" x="590" y="100">zwei Butyl-Kittschnüre mittig</text>
+  <line class="lin" x1="590" y1="107" x2="392" y2="214"/><circle class="dot" cx="392" cy="214" r="3"/>
+  <text class="k" x="690" y="320" text-anchor="middle">Dachblech</text>
+  <line class="lin" x1="690" y1="305" x2="690" y2="240"/>
+  <text class="k" x="400" y="410" text-anchor="middle">Seitenansicht, schematisch, nicht maßstäblich. z. B. MAAS, Herstellerangabe gilt.</text>
+</svg>

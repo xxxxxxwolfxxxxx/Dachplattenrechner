@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Schichten des Dachaufbaus im Querschnitt</title>
+  <desc id="d">Querschnitt quer zu den Sparren, üblicher Aufbau bei Unterspann- oder Unterdeckbahn; Lage der Bahn hängt vom Bahntyp und vom Hersteller ab, maßgeblich ist die Verlegeanleitung der gewählten Bahn. Von unten nach oben: drei Sparren, darüber die Unterspannbahn, auf jedem Sparren eine Konterlatte, darüber eine durchgehende Traglatte und das Trapezblech. Zwischen den Konterlatten liegt der Lüftungsraum.</desc>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#64748b; --holz:#c08a52; --konter:#e0b783; --traglatte:#d9a566; --akzent:#0ea5e9; --bahn:#0f172a; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#94a3b8; --holz:#a16f3d; --konter:#7c5a30; --traglatte:#8f6636; --bahn:#e2e8f0; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif}
+    .sp{fill:var(--holz);stroke:var(--fg);stroke-width:2}
+    .ko{fill:var(--konter);stroke:var(--fg);stroke-width:2}
+    .tr{fill:var(--traglatte);stroke:var(--fg);stroke-width:2}
+    .bl{fill:none;stroke:var(--blech);stroke-width:6;stroke-linejoin:round}
+    .ba{stroke:var(--bahn);stroke-width:4;fill:none}
+    .lu{fill:var(--akzent);fill-opacity:.25;stroke:var(--akzent);stroke-width:2;stroke-dasharray:6 4}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Dachaufbau von unten nach oben</text>
+  <!-- Lüftungsraum zwischen den Konterlatten -->
+  <rect class="lu" x="240" y="268" width="160" height="30"/>
+  <rect class="lu" x="470" y="268" width="160" height="30"/>
+  <text class="k" x="320" y="288" text-anchor="middle">Lüftungsraum</text>
+  <text class="k" x="550" y="288" text-anchor="middle">Lüftungsraum</text>
+  <!-- Sparren -->
+  <rect class="sp" x="170" y="298" width="70" height="100"/>
+  <rect class="sp" x="400" y="298" width="70" height="100"/>
+  <rect class="sp" x="630" y="298" width="70" height="100"/>
+  <!-- Konterlatten -->
+  <rect class="ko" x="170" y="268" width="70" height="30"/>
+  <rect class="ko" x="400" y="268" width="70" height="30"/>
+  <rect class="ko" x="630" y="268" width="70" height="30"/>
+  <!-- Unterspannbahn -->
+  <line class="ba" x1="170" y1="298" x2="700" y2="298"/>
+  <!-- Traglatte -->
+  <rect class="tr" x="170" y="238" width="530" height="30"/>
+  <!-- Blech -->
+  <path class="bl" d="M170 238 L190 238 L205 208 L235 208 L250 238 L290 238 L305 208 L335 208 L350 238 L390 238 L405 208 L435 208 L450 238 L490 238 L505 208 L535 208 L550 238 L590 238 L605 208 L635 208 L650 238 L700 238"/>
+  <!-- Beschriftungen links mit Führungslinien -->
+  <text class="k" x="140" y="196" text-anchor="end">Trapezblech</text>
+  <line class="lin" x1="146" y1="192" x2="203" y2="210"/>
+  <text class="k" x="140" y="258" text-anchor="end">Traglatte</text>
+  <line class="lin" x1="146" y1="254" x2="168" y2="254"/>
+  <text class="k" x="140" y="288" text-anchor="end">Konterlatte</text>
+  <line class="lin" x1="146" y1="284" x2="168" y2="284"/>
+  <text class="k" x="140" y="352" text-anchor="end">Sparren</text>
+  <line class="lin" x1="146" y1="348" x2="168" y2="348"/>
+  <!-- Unterspannbahn: Beschriftung im freien Raum unter der Bahn -->
+  <text class="k" x="320" y="340" text-anchor="middle">Unterspannbahn</text>
+  <line class="lin" x1="320" y1="326" x2="320" y2="301"/>
+  <text class="k" x="400" y="418" text-anchor="middle">Üblicher Aufbau; Lage der Bahn je nach Bahntyp und Hersteller,</text>
+  <text class="k" x="400" y="438" text-anchor="middle">maßgeblich ist die Verlegeanleitung der gewählten Bahn</text>
+</svg>
