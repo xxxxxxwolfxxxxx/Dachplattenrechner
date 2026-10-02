@@ -16,8 +16,9 @@ interface Props {
   backLabel?: string;
   breadcrumbs?: Breadcrumb[];
   faq?: FaqEntry[];
+  extraSchema?: Record<string, unknown>[];
 }
-const { title, description, keywords, navTitle, background, backHref, backLabel, breadcrumbs, faq } = Astro.props;
+const { title, description, keywords, navTitle, background, backHref, backLabel, breadcrumbs, faq, extraSchema } = Astro.props;
 
 // Ohne explizite Angabe: Startseite › Rechner › aktuelle Seite
 const trail: Breadcrumb[] = breadcrumbs ?? [
@@ -26,7 +27,7 @@ const trail: Breadcrumb[] = breadcrumbs ?? [
   { name: navTitle ?? title, url: Astro.url.pathname },
 ];
 ---
-<BaseLayout title={title} description={description} keywords={keywords} breadcrumbs={trail} faq={faq}>
+<BaseLayout title={title} description={description} keywords={keywords} breadcrumbs={trail} faq={faq} extraSchema={extraSchema}>
   <Nav title={navTitle ?? title} backHref={backHref} backLabel={backLabel} />
 
   {background && (

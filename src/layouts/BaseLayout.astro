@@ -12,6 +12,7 @@ interface Props {
   schemaType?: 'LocalBusiness' | 'WebApplication' | 'FAQPage';
   breadcrumbs?: Breadcrumb[];
   faq?: FaqEntry[];
+  extraSchema?: Record<string, unknown>[];
 }
 const {
   title,
@@ -21,6 +22,7 @@ const {
   schemaType = 'WebApplication',
   breadcrumbs,
   faq,
+  extraSchema,
 } = Astro.props;
 
 const GA_ID = 'G-6NSYG8B1T9';
@@ -58,7 +60,7 @@ const fullTitle = title.includes('Dachplattenrechner') ? title : `${title} | Dac
     // gtag('config', GA_ID) wird erst nach Cookie-Consent aus cookie-consent.ts aufgerufen
   </script>
   <!-- Schema.org Markup -->
-  <SchemaMarkup type={schemaType} title={title} description={description} url={Astro.url.href} breadcrumbs={breadcrumbs} faq={faq} />
+  <SchemaMarkup type={schemaType} title={title} description={description} url={Astro.url.href} breadcrumbs={breadcrumbs} faq={faq} extra={extraSchema} />
 </head>
 <body>
   <slot />

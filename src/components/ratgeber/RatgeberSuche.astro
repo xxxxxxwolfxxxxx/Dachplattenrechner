@@ -1,0 +1,63 @@
+---
+---
+<div class="r-suche" role="search">
+  <label for="r-suche-feld">Anleitung suchen</label>
+  <input id="r-suche-feld" type="search" placeholder="z. B. First, Schrauben, Traufblech" autocomplete="off" />
+  <ul id="r-suche-ergebnis" aria-live="polite"></ul>
+</div>
+<style>
+  .r-suche { margin: 20px 0 32px; }
+  .r-suche label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+  .r-suche input { width: 100%; padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--gradient-surface); color: var(--text-primary); }
+  .r-suche ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+  .r-suche li a { display: block; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); text-decoration: none; }
+  .r-suche li small { display: block; color: var(--text-muted); }
+</style>
+<script>
+  import { suche, type SuchEintrag } from '../../utils/ratgeber-suche';
+  const feld = document.querySelector<HTMLInputElement>('#r-suche-feld');
+  const liste = document.querySelector<HTMLUListElement>('#r-suche-ergebnis');
+  let indexPromise: Promise<SuchEintrag[]> | null = null;
+  function lade() {
+    indexPromise ??= fetch('/ratgeber/suche.json')
+      .then((res) => {
+        if (!res.ok) throw new Error(`Suchindex nicht ladbar: ${res.status}`);
+        return res.json() as Promise<SuchEintrag[]>;
+      })
+      .catch((e) => {
+        indexPromise = null; // nächster Versuch darf erneut laden
+        throw e;
+      });
+    return indexPromise;
+  }
+  function meldung(text: string) {
+    const li = document.createElement('li');
+    li.textContent = text;
+    liste?.replaceChildren(li);
+  }
+  feld?.addEventListener('input', async () => {
+    if (!liste) return;
+    const anfrage = feld.value;
+    try {
+      const treffer = suche(await lade(), anfrage);
+      if (feld.value !== anfrage) return; // veraltete Antwort
+      if (anfrage.trim() && treffer.length === 0) return meldung('Keine Anleitung gefunden.');
+      liste.replaceChildren(
+        ...treffer.map((t) => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = t.url;
+          a.textContent = t.titel;
+          const klein = document.createElement('small');
+          klein.textContent = t.phase;
+          a.append(klein);
+          li.append(a);
+          return li;
+        }),
+      );
+    } catch (e) {
+      if (feld.value === anfrage) meldung('Die Suche ist gerade nicht verfügbar.');
+      console.error(e);
+    }
+  });
+</script>

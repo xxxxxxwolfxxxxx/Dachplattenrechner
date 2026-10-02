@@ -1,0 +1,9 @@
+---
+interface Props { variant?: 'sicherheit' | 'fehler' | 'tipp' | 'witz'; titel?: string; heading?: 'h2' | 'h3' | 'h4' }
+const { variant = 'tipp', titel, heading: Heading = 'h3' } = Astro.props;
+const ICON = { sicherheit: '⚠️', fehler: '🚫', tipp: '💡', witz: '😏' } as const;
+---
+<aside class={`r-box r-box--${variant}`} role={variant === 'sicherheit' ? 'note' : undefined}>
+  {titel && <Heading class="r-box-titel"><span aria-hidden="true">{ICON[variant]}</span> {titel}</Heading>}
+  <slot />
+</aside>

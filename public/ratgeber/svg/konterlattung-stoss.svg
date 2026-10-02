@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Konterlatten nur über den Sparren, Stoß auf dem Holz</title>
+  <desc id="d">Draufsicht auf drei Sparren, von der Traufe zum First laufen. Auf jedem Sparren liegt eine Konterlatte. Auf dem linken Sparren sind zwei Konterlatten gestückelt, der Stoß liegt auf dem Sparren und beide Enden liegen auf. Zwischen den Sparren liegt eine falsch platzierte Konterlatte, rot durchgestrichen.</desc>
+  <defs>
+    <marker id="pf" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--fg)"/></marker>
+  </defs>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --holz:#c08a52; --konter:#e0b783; --akzent:#0ea5e9; --warn:#dc2626; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --holz:#a16f3d; --konter:#7c5a30; --warn:#f87171; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .w{fill:var(--warn);font:600 15px system-ui,sans-serif}
+    .sp{fill:var(--holz);stroke:var(--fg);stroke-width:2}
+    .ko{fill:var(--konter);stroke:var(--fg);stroke-width:2}
+    .fa{fill:none;stroke:var(--warn);stroke-width:2.5;stroke-dasharray:7 5}
+    .x{stroke:var(--warn);stroke-width:4;fill:none}
+    .sc{fill:var(--fg)} .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .pf{stroke:var(--fg);stroke-width:3;fill:none}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Konterlatten nur über den Sparren, Stoß auf dem Holz</text>
+  <!-- Sparren -->
+  <rect class="sp" x="150" y="70" width="80" height="310"/>
+  <rect class="sp" x="360" y="70" width="80" height="310"/>
+  <rect class="sp" x="570" y="70" width="80" height="310"/>
+  <!-- Konterlatten: links gestückelt, Stoß bei y=230 -->
+  <rect class="ko" x="170" y="70" width="40" height="158"/>
+  <rect class="ko" x="170" y="232" width="40" height="148"/>
+  <rect class="ko" x="380" y="70" width="40" height="310"/>
+  <rect class="ko" x="590" y="70" width="40" height="310"/>
+  <!-- Schrauben entlang der Latte -->
+  <circle class="sc" cx="190" cy="90" r="4"/><circle class="sc" cx="190" cy="130" r="4"/><circle class="sc" cx="190" cy="170" r="4"/><circle class="sc" cx="190" cy="210" r="4"/>
+  <circle class="sc" cx="190" cy="250" r="4"/><circle class="sc" cx="190" cy="290" r="4"/><circle class="sc" cx="190" cy="330" r="4"/><circle class="sc" cx="190" cy="370" r="4"/>
+  <!-- falsch platzierte Latte zwischen den Sparren -->
+  <rect class="fa" x="275" y="140" width="40" height="150"/>
+  <line class="x" x1="262" y1="190" x2="328" y2="240"/><line class="x" x1="328" y1="190" x2="262" y2="240"/>
+  <text class="w" x="295" y="322" text-anchor="middle">nicht zwischen</text>
+  <text class="w" x="295" y="342" text-anchor="middle">den Sparren</text>
+  <line class="lin" x1="295" y1="294" x2="295" y2="308"/>
+  <!-- Beschriftungen links -->
+  <text class="k" x="140" y="236" text-anchor="end">Stoß</text>
+  <line class="lin" x1="146" y1="231" x2="168" y2="231"/>
+  <text class="k" x="140" y="114" text-anchor="end">Schraube</text>
+  <line class="lin" x1="146" y1="110" x2="184" y2="128"/>
+  <!-- Beschriftungen rechts -->
+  <text class="k" x="676" y="160">Konterlatte</text>
+  <line class="lin" x1="672" y1="155" x2="632" y2="155"/>
+  <text class="k" x="676" y="300">Sparren</text>
+  <line class="lin" x1="672" y1="295" x2="652" y2="295"/>
+  <!-- Richtungspfeil -->
+  <line class="pf" x1="36" y1="380" x2="36" y2="96" marker-end="url(#pf)"/>
+  <text class="k" x="36" y="76" text-anchor="middle">First</text>
+  <text class="k" x="36" y="404" text-anchor="middle">Traufe</text>
+  <text class="k" x="400" y="436" text-anchor="middle">Draufsicht: Stöße sind erlaubt, wenn beide Enden durchgängig aufliegen</text>
+</svg>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Luftweg der Hinterlüftung von der Traufe zum First</title>
+  <desc id="d">Geneigter Schnitt durch das Dach. Unter dem Blech, gegebenenfalls mit Anti-Kondens-Vlies, liegt ein durchgehender Lüftungsraum über Unterspannbahn und Sparren. Ein Pfeil zeigt die Luft vom Einlass an der Traufe unten links zum Auslass am First oben rechts.</desc>
+  <defs>
+    <marker id="la" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--akzent)"/></marker>
+  </defs>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#64748b; --holz:#c08a52; --akzent:#0369a1; --bahn:#0f172a; --vlies:#e2e8f0; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#94a3b8; --holz:#a16f3d; --akzent:#38bdf8; --bahn:#e2e8f0; --vlies:#334155; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .m{fill:var(--fg);font:600 15px system-ui,sans-serif}
+    .sp{fill:var(--holz);stroke:var(--fg);stroke-width:2}
+    .lu{fill:var(--akzent);fill-opacity:.2;stroke:none}
+    .vl{fill:var(--vlies);stroke:var(--fg);stroke-width:1}
+    .bl{stroke:var(--blech);stroke-width:6;fill:none}
+    .ba{stroke:var(--bahn);stroke-width:3;fill:none}
+    .luft{stroke:var(--akzent);stroke-width:3;fill:none}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Luft strömt durchgehend von der Traufe zum First</text>
+  <!-- Dachschnitt, um 18 Grad geneigt (links Traufe, rechts First) -->
+  <g transform="rotate(-18 400 206)">
+    <rect class="sp" x="120" y="235" width="560" height="50"/>
+    <rect class="lu" x="120" y="181" width="560" height="50"/>
+    <line class="ba" x1="120" y1="233" x2="680" y2="233"/>
+    <rect class="vl" x="120" y="181" width="560" height="6"/>
+    <line class="bl" x1="120" y1="178" x2="680" y2="178"/>
+    <line class="luft" x1="40" y1="196" x2="758" y2="196" marker-end="url(#la)"/>
+    <text class="m" x="400" y="224" text-anchor="middle">Lüftungsraum: mind. 30 mm hoch, durchgehend</text>
+  </g>
+  <!-- Beschriftungen -->
+  <text class="k" x="20" y="352">Einlass</text>
+  <text class="k" x="20" y="372">an der Traufe</text>
+  <line class="lin" x1="58" y1="338" x2="58" y2="314"/>
+  <text class="k" x="780" y="68" text-anchor="end">Auslass am First</text>
+  <line class="lin" x1="704" y1="76" x2="704" y2="92"/>
+  <text class="k" x="60" y="170">Blech, ggf. mit Anti-Kondens-Vlies</text>
+  <line class="lin" x1="200" y1="178" x2="276" y2="213"/>
+  <text class="k" x="540" y="350">Sparren mit Unterspannbahn</text>
+  <line class="lin" x1="560" y1="336" x2="522" y2="254"/>
+  <text class="k" x="400" y="430" text-anchor="middle">Höhe nicht maßstäblich · üblicher Aufbau, Bahnlage nach Hersteller</text>
+</svg>

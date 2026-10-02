@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Dachformen mit Messpunkten</title>
+  <desc id="d">Draufsicht auf drei Dachformen. Pultdach: ein Rechteck mit Traufe unten, First oben und beiden Diagonalen. Satteldach: zwei Rechtecke, die sich am First treffen, mit beiden Diagonalen in jeder Hälfte. Walmdach: zwei Trapeze und zwei Dreiecke mit Gratlinien.</desc>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#94a3b8; --holz:#c08a52; --akzent:#0ea5e9; --flaeche:#e0f2fe; --warn:#dc2626; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#64748b; --holz:#a16f3d; --flaeche:#1e3a5f; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .kb{fill:var(--fg);font:600 16px system-ui,sans-serif}
+    .fl{fill:var(--flaeche);stroke:var(--fg);stroke-width:2;stroke-linejoin:round}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .dia{stroke:var(--akzent);stroke-width:2.5;stroke-dasharray:8 5;fill:none}
+    .pt{fill:var(--akzent);stroke:var(--bg);stroke-width:2}
+    .akz{stroke:var(--akzent);stroke-width:3;fill:none}
+    .b1{fill:var(--blech)} .b2{fill:var(--akzent)} .b3{fill:var(--holz)}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Dachformen in Teilflächen zerlegen und messen</text>
+  <!-- Pultdach -->
+  <rect class="fl" x="30" y="100" width="220" height="180"/>
+  <line class="dia" x1="30" y1="100" x2="250" y2="280"/>
+  <line class="dia" x1="250" y1="100" x2="30" y2="280"/>
+  <circle class="pt" cx="30" cy="100" r="6"/><circle class="pt" cx="250" cy="100" r="6"/>
+  <circle class="pt" cx="30" cy="280" r="6"/><circle class="pt" cx="250" cy="280" r="6"/>
+  <text class="kb" x="140" y="84" text-anchor="middle">First</text>
+  <text class="kb" x="140" y="308" text-anchor="middle">Traufe</text>
+  <text class="kb" x="140" y="352" text-anchor="middle">Pultdach</text>
+  <text class="k" x="140" y="374" text-anchor="middle">ein Rechteck</text>
+  <!-- Satteldach -->
+  <rect class="fl" x="290" y="100" width="220" height="180"/>
+  <line class="lin" x1="290" y1="190" x2="510" y2="190"/>
+  <line class="dia" x1="290" y1="100" x2="510" y2="190"/>
+  <line class="dia" x1="510" y1="100" x2="290" y2="190"/>
+  <line class="dia" x1="290" y1="190" x2="510" y2="280"/>
+  <line class="dia" x1="510" y1="190" x2="290" y2="280"/>
+  <circle class="pt" cx="290" cy="190" r="6"/><circle class="pt" cx="510" cy="190" r="6"/>
+  <circle class="pt" cx="290" cy="100" r="6"/><circle class="pt" cx="510" cy="100" r="6"/>
+  <circle class="pt" cx="290" cy="280" r="6"/><circle class="pt" cx="510" cy="280" r="6"/>
+  <text class="kb" x="400" y="84" text-anchor="middle">Traufe</text>
+  <text class="kb" x="400" y="180" text-anchor="middle">First</text>
+  <text class="kb" x="400" y="308" text-anchor="middle">Traufe</text>
+  <text class="kb" x="400" y="352" text-anchor="middle">Satteldach</text>
+  <text class="k" x="400" y="374" text-anchor="middle">2 Rechtecke, je Hälfte 2 Diagonalen</text>
+  <!-- Walmdach -->
+  <rect class="fl" x="550" y="100" width="220" height="180"/>
+  <line class="lin" x1="550" y1="100" x2="610" y2="190"/><line class="lin" x1="770" y1="100" x2="710" y2="190"/>
+  <line class="lin" x1="550" y1="280" x2="610" y2="190"/><line class="lin" x1="770" y1="280" x2="710" y2="190"/>
+  <line class="lin" x1="610" y1="190" x2="710" y2="190"/>
+  <circle class="pt" cx="610" cy="190" r="6"/><circle class="pt" cx="710" cy="190" r="6"/>
+  <circle class="pt" cx="550" cy="100" r="6"/><circle class="pt" cx="770" cy="100" r="6"/>
+  <circle class="pt" cx="550" cy="280" r="6"/><circle class="pt" cx="770" cy="280" r="6"/>
+  <text class="kb" x="660" y="84" text-anchor="middle">Traufe</text>
+  <text class="kb" x="660" y="180" text-anchor="middle">First</text>
+  <text class="kb" x="660" y="308" text-anchor="middle">Traufe</text>
+  <text class="k" x="594" y="262">Grat</text>
+  <text class="kb" x="660" y="352" text-anchor="middle">Walmdach</text>
+  <text class="k" x="660" y="374" text-anchor="middle">2 Trapeze, 2 Dreiecke</text>
+  <!-- Legende -->
+  <line class="dia" x1="170" y1="418" x2="215" y2="418"/>
+  <text class="k" x="225" y="423">Beide Diagonalen messen und vergleichen</text>
+  <circle class="pt" cx="560" cy="418" r="6"/>
+  <text class="k" x="574" y="423">Messpunkt</text>
+</svg>

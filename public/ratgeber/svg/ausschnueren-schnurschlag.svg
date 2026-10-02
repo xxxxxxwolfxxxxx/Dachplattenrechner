@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Dach von oben mit Schnurschlägen</title>
+  <desc id="d">Draufsicht auf eine Dachfläche. Oben liegt die Firstlinie, unten die dazu parallele Trauflinie. Zwei senkrechte Schnurschläge laufen rechtwinklig dazu. Der erste liegt mit einem Versatz zum linken Ortgang, der zweite im Abstand der Baubreite des Profils. Ein Pfeil zeigt die Profilrichtung rechtwinklig zur Trauflinie.</desc>
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--akzent)"/></marker>
+    <marker id="pk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--akzent)"/></marker>
+  </defs>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --flaeche:#cbd5e1; --akzent:#0369a1; --schnur:#b45309; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --flaeche:#334155; --akzent:#38bdf8; --schnur:#fbbf24; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .m{fill:var(--akzent);font:600 15px system-ui,sans-serif}
+    .fl{fill:var(--flaeche)} .tafel{fill:var(--flaeche);stroke:var(--fg);stroke-width:1.5;stroke-dasharray:6 4}
+    .kante{stroke:var(--fg);stroke-width:4;fill:none}
+    .og{stroke:var(--fg);stroke-width:2;fill:none}
+    .schnur{stroke:var(--schnur);stroke-width:3;fill:none}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .ext{stroke:var(--akzent);stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+    .mas{stroke:var(--akzent);stroke-width:2.5;fill:none}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="30" text-anchor="middle">Ausschnüren: Schnurschläge rechtwinklig zur Trauflinie</text>
+  <!-- Dachfläche -->
+  <rect class="fl" x="60" y="110" width="500" height="220"/>
+  <rect class="tafel" x="110" y="110" width="190" height="220"/>
+  <line class="kante" x1="50" y1="110" x2="570" y2="110"/>
+  <line class="kante" x1="50" y1="330" x2="570" y2="330"/>
+  <line class="og" x1="60" y1="110" x2="60" y2="330"/>
+  <line class="og" x1="560" y1="110" x2="560" y2="330"/>
+  <!-- Schnurschläge -->
+  <line class="schnur" x1="110" y1="100" x2="110" y2="360"/>
+  <line class="schnur" x1="300" y1="100" x2="300" y2="360"/>
+  <!-- Profilrichtung -->
+  <line class="mas" x1="140" y1="300" x2="140" y2="142" marker-end="url(#pa)"/>
+  <text class="m" x="154" y="196">Profilrichtung</text>
+  <text class="m" x="154" y="214">rechtwinklig</text>
+  <text class="m" x="154" y="232">zur Trauflinie</text>
+  <line class="lin" x1="152" y1="190" x2="143" y2="190"/>
+  <!-- Baubreite -->
+  <line class="mas" x1="112" y1="348" x2="298" y2="348" marker-start="url(#pa)" marker-end="url(#pa)"/>
+  <text class="m" x="205" y="395" text-anchor="middle">Baubreite des Profils</text>
+  <line class="lin" x1="205" y1="381" x2="205" y2="352"/>
+  <!-- Versatz Ortgang links bis erster Schnurschlag -->
+  <line class="ext" x1="60" y1="334" x2="60" y2="356"/>
+  <line class="mas" x1="62" y1="348" x2="108" y2="348" marker-start="url(#pk)" marker-end="url(#pk)"/>
+  <text class="m" x="85" y="395" text-anchor="middle">Versatz</text>
+  <line class="lin" x1="85" y1="381" x2="85" y2="352"/>
+  <!-- Beschriftungen oben -->
+  <text class="k" x="110" y="76" text-anchor="middle">1. Schnurschlag</text>
+  <line class="lin" x1="110" y1="82" x2="110" y2="97"/>
+  <text class="k" x="300" y="76" text-anchor="middle">2. Schnurschlag</text>
+  <line class="lin" x1="300" y1="82" x2="300" y2="97"/>
+  <!-- Beschriftungen rechts -->
+  <text class="k" x="592" y="115">Firstlinie</text>
+  <line class="lin" x1="572" y1="110" x2="588" y2="110"/>
+  <text class="k" x="592" y="335">Trauflinie</text>
+  <text class="k" x="592" y="353">(parallel zur Firstlinie)</text>
+  <line class="lin" x1="572" y1="330" x2="588" y2="330"/>
+  <text class="k" x="592" y="225">Ortgang, beidseitig</text>
+  <line class="lin" x1="563" y1="220" x2="588" y2="220"/>
+  <text class="k" x="400" y="430" text-anchor="middle">Zeichnung nicht maßstäblich · Baubreite laut Herstellerangabe deines Profils</text>
+</svg>

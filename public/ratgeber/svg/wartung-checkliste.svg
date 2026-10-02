@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Prüfpunkte für die jährliche Dachkontrolle</title>
+  <desc id="d">Schematische Ansicht einer Blechdachfläche mit First, Ortgang, Schornstein und Dachrinne. Fünf nummerierte Markierungen zeigen die Prüfpunkte: Schrauben und Dichtscheiben, Schnittkanten auf Rost, First und Ortgang, Durchdringungen und Anschlüsse, Dachrinne mit Laub. Rechts erklärt eine Legende die Nummern.</desc>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#cbd5e1; --akzent:#0369a1; --kam:#c0603a; --onakz:#ffffff; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#334155; --akzent:#38bdf8; --kam:#9a4a2c; --onakz:#0f172a; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .dach{fill:var(--blech);stroke:var(--fg);stroke-width:2}
+    .rand{fill:var(--akzent);opacity:.55}
+    .rinne{fill:none;stroke:var(--fg);stroke-width:4;stroke-linejoin:round}
+    .tafel{stroke:var(--fg);stroke-width:1;opacity:.5}
+    .dot{fill:var(--fg)}
+    .mk{fill:var(--akzent);stroke:var(--bg);stroke-width:2} .mt{fill:var(--onakz);font:700 15px system-ui,sans-serif}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="30" text-anchor="middle">Empfehlung: einmal im Jahr, fünf Prüfpunkte</text>
+  <rect class="dach" x="80" y="120" width="380" height="170"/>
+  <rect class="rand" x="80" y="120" width="380" height="14"/>
+  <rect class="rand" x="80" y="134" width="14" height="156"/>
+  <rect class="rand" x="446" y="134" width="14" height="156"/>
+  <line class="tafel" x1="175" y1="134" x2="175" y2="290"/><line class="tafel" x1="270" y1="134" x2="270" y2="290"/><line class="tafel" x1="365" y1="134" x2="365" y2="290"/>
+  <circle class="dot" cx="125" cy="150" r="3"/><circle class="dot" cx="220" cy="150" r="3"/><circle class="dot" cx="315" cy="150" r="3"/><circle class="dot" cx="410" cy="150" r="3"/><circle class="dot" cx="125" cy="260" r="3"/><circle class="dot" cx="220" cy="260" r="3"/><circle class="dot" cx="315" cy="260" r="3"/><circle class="dot" cx="410" cy="260" r="3"/>
+  <rect x="290" y="180" width="50" height="45" fill="var(--kam)" stroke="var(--fg)" stroke-width="2"/>
+  <path class="rinne" d="M70 298 L70 314 L470 314 L470 298"/>
+  <line class="lin" x1="160" y1="215" x2="220" y2="260"/>
+  <circle class="mk" cx="160" cy="215" r="14"/><text class="mt" x="160" y="220" text-anchor="middle">1</text>
+  <line class="lin" x1="400" y1="225" x2="365" y2="290"/>
+  <circle class="mk" cx="400" cy="225" r="14"/><text class="mt" x="400" y="230" text-anchor="middle">2</text>
+  <line class="lin" x1="200" y1="80" x2="230" y2="127"/>
+  <circle class="mk" cx="200" cy="80" r="14"/><text class="mt" x="200" y="85" text-anchor="middle">3</text>
+  <line class="lin" x1="45" y1="200" x2="87" y2="200"/>
+  <circle class="mk" cx="45" cy="200" r="14"/><text class="mt" x="45" y="205" text-anchor="middle">3</text>
+  <line class="lin" x1="395" y1="190" x2="315" y2="203"/>
+  <circle class="mk" cx="395" cy="190" r="14"/><text class="mt" x="395" y="195" text-anchor="middle">4</text>
+  <line class="lin" x1="270" y1="360" x2="270" y2="314"/>
+  <circle class="mk" cx="270" cy="360" r="14"/><text class="mt" x="270" y="365" text-anchor="middle">5</text>
+  <circle class="mk" cx="520" cy="130" r="14"/><text class="mt" x="520" y="135" text-anchor="middle">1</text><text class="k" x="545" y="135">Schrauben und Dichtscheiben</text>
+  <circle class="mk" cx="520" cy="175" r="14"/><text class="mt" x="520" y="180" text-anchor="middle">2</text><text class="k" x="545" y="180">Schnittkanten auf Rost</text>
+  <circle class="mk" cx="520" cy="220" r="14"/><text class="mt" x="520" y="225" text-anchor="middle">3</text><text class="k" x="545" y="225">First und Ortgang, Formteile</text>
+  <circle class="mk" cx="520" cy="265" r="14"/><text class="mt" x="520" y="270" text-anchor="middle">4</text><text class="k" x="545" y="270">Durchdringungen, Anschlüsse</text>
+  <circle class="mk" cx="520" cy="310" r="14"/><text class="mt" x="520" y="315" text-anchor="middle">5</text><text class="k" x="545" y="315">Dachrinne, Laub, Abläufe</text>
+  <text class="k" x="400" y="415" text-anchor="middle">Zusätzlich nach Sturm oder Hagel kontrollieren</text>
+</svg>

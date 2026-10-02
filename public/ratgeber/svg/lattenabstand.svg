@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Lattenabstand der Traglattung unter dem Trapezblech</title>
+  <desc id="d">Schnitt entlang der Dachneigung. Auf der Konterlatte liegen drei hochkant eingebaute Traglatten im gleichen Abstand. Darauf liegt das Trapezblech. Ein Maßpfeil zeigt den Lattenabstand von Mitte zu Mitte, der sich nach dem Profil richtet.</desc>
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--akzent)"/></marker>
+  </defs>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#64748b; --konter:#e0b783; --traglatte:#c08a52; --akzent:#0369a1; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#94a3b8; --konter:#7c5a30; --traglatte:#a16f3d; --akzent:#38bdf8; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .m{fill:var(--akzent);font:600 16px system-ui,sans-serif}
+    .ko{fill:var(--konter);stroke:var(--fg);stroke-width:2}
+    .tr{fill:var(--traglatte);stroke:var(--fg);stroke-width:2}
+    .bl{fill:none;stroke:var(--blech);stroke-width:6;stroke-linejoin:round}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .ext{stroke:var(--akzent);stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+    .mas{stroke:var(--akzent);stroke-width:2.5;fill:none}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Lattenabstand richtet sich nach dem Profil</text>
+  <!-- Konterlatte (längs geschnitten) -->
+  <rect class="ko" x="30" y="300" width="640" height="30"/>
+  <!-- Traglatten hochkant (Seitenverhältnis 40:60, nicht maßstäblich) -->
+  <rect class="tr" x="134" y="252" width="32" height="48"/>
+  <rect class="tr" x="334" y="252" width="32" height="48"/>
+  <rect class="tr" x="534" y="252" width="32" height="48"/>
+  <!-- Blech -->
+  <path class="bl" d="M30 252 L70 252 L85 222 L115 222 L130 252 L170 252 L185 222 L215 222 L230 252 L270 252 L285 222 L315 222 L330 252 L370 252 L385 222 L415 222 L430 252 L470 252 L485 222 L515 222 L530 252 L570 252 L585 222 L615 222 L630 252 L670 252"/>
+  <!-- Maßpfeil Lattenabstand -->
+  <line class="ext" x1="350" y1="190" x2="350" y2="249"/>
+  <line class="ext" x1="550" y1="190" x2="550" y2="249"/>
+  <line class="mas" x1="352" y1="196" x2="548" y2="196" marker-start="url(#pa)" marker-end="url(#pa)"/>
+  <text class="m" x="450" y="170" text-anchor="middle">Lattenabstand nach Profil</text>
+  <text class="m" x="450" y="188" text-anchor="middle" font-size="14">(Mitte zu Mitte)</text>
+  <!-- Beschriftungen -->
+  <text class="k" x="30" y="188">Trapezblech</text>
+  <line class="lin" x1="70" y1="194" x2="98" y2="220"/>
+  <text class="k" x="196" y="276">Traglatte hochkant</text>
+  <line class="lin" x1="192" y1="272" x2="168" y2="272"/>
+  <text class="k" x="450" y="372" text-anchor="middle">Konterlatte</text>
+  <line class="lin" x1="450" y1="358" x2="450" y2="332"/>
+  <text class="k" x="400" y="418" text-anchor="middle">Traglatte mind. 40/60 mm, besser 60/60 mm · Maße nicht maßstäblich</text>
+  <text class="k" x="400" y="438" text-anchor="middle">Enger gesetzte Lattung trägt mehr</text>
+</svg>

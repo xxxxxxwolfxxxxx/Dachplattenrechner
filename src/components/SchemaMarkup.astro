@@ -15,10 +15,11 @@ interface Props {
   url?: string;
   breadcrumbs?: Breadcrumb[];
   faq?: FaqEntry[];
+  extra?: Record<string, unknown>[];
 }
 
 const SITE = 'https://dachplattenrechner.de';
-const { type, title, description, url, breadcrumbs = [], faq = [] } = Astro.props;
+const { type, title, description, url, breadcrumbs = [], faq = [], extra = [] } = Astro.props;
 
 const graph: Record<string, unknown>[] = [];
 
@@ -69,6 +70,8 @@ if (faq.length > 0) {
     })),
   });
 }
+
+graph.push(...extra);
 
 const schema = { "@context": "https://schema.org", "@graph": graph };
 ---

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Prinzip der Absturzsicherung am geneigten Dach</title>
+  <desc id="d">Querschnitt durch ein Satteldach mit etwa 30 Grad Neigung. Unter der Traufe steht ein Dachfanggerüst, dessen Belag höchstens 1,50 Meter unter der Traufe liegt. Als Ausnahme ist rechts ein Auffanggurt mit Anschlagpunkt am First dargestellt.</desc>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#94a3b8; --holz:#c08a52; --akzent:#0ea5e9; --warn:#dc2626; --wand:#e2e8f0; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#64748b; --holz:#a16f3d; --wand:#1e293b; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .kb{fill:var(--fg);font:600 16px system-ui,sans-serif}
+    .wand{fill:var(--wand);stroke:var(--fg);stroke-width:2}
+    .dach{fill:none;stroke:var(--blech);stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
+    .ger{fill:var(--holz);stroke:var(--fg);stroke-width:1.5}
+    .pfosten{stroke:var(--fg);stroke-width:4}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .akz{stroke:var(--akzent);stroke-width:3;fill:none}
+    .pers{stroke:var(--fg);stroke-width:4;fill:none;stroke-linecap:round}
+    .warn{fill:none;stroke:var(--warn);stroke-width:3;stroke-dasharray:7 5}
+    .boden{stroke:var(--fg);stroke-width:3}
+    .punkt{fill:var(--akzent)}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Erst Gerüst an der Traufe, dann aufs Dach</text>
+  <line class="boden" x1="30" y1="400" x2="770" y2="400"/>
+  <!-- Wand unter dem ganzen Dach -->
+  <rect class="wand" x="150" y="230" width="360" height="170"/>
+  <!-- Dach ca. 30 Grad: Traufen (150,230) und (510,230), First (330,126) -->
+  <path class="dach" d="M140 236 L330 126 L520 236"/>
+  <text class="k" x="330" y="104" text-anchor="middle">First</text>
+  <text class="k" x="530" y="226">Traufe</text>
+  <circle class="punkt" cx="330" cy="126" r="7"/>
+  <!-- Person auf der rechten Dachfläche -->
+  <g transform="translate(430,152)">
+    <circle cx="0" cy="-34" r="9" fill="none" stroke="var(--fg)" stroke-width="3"/>
+    <line class="pers" x1="0" y1="-24" x2="0" y2="10"/>
+    <line class="pers" x1="0" y1="-14" x2="-16" y2="0"/>
+    <line class="pers" x1="0" y1="-14" x2="14" y2="-4"/>
+    <line class="pers" x1="0" y1="10" x2="-14" y2="30"/>
+    <line class="pers" x1="0" y1="10" x2="16" y2="30"/>
+  </g>
+  <path class="akz" d="M430 138 Q380 108 334 124"/>
+  <text class="kb" x="170" y="290">Ausnahme: Auffanggurt (PSA)</text>
+  <text class="k" x="170" y="312">nur wenn kein Gerüst möglich,</text>
+  <text class="k" x="170" y="332">Anschlagpunkt am First</text>
+  <text class="k" x="170" y="368">Neigung hier etwa 30°</text>
+  <!-- Dachfanggerüst -->
+  <rect class="ger" x="510" y="320" width="150" height="10"/>
+  <line class="pfosten" x1="530" y1="330" x2="530" y2="400"/>
+  <line class="pfosten" x1="640" y1="330" x2="640" y2="400"/>
+  <line class="pfosten" x1="640" y1="290" x2="640" y2="320"/>
+  <line class="lin" x1="530" y1="320" x2="640" y2="290"/>
+  <text class="k" x="668" y="318">Dachfanggerüst</text>
+  <line class="lin" x1="520" y1="236" x2="566" y2="236"/>
+  <line class="warn" x1="556" y1="238" x2="556" y2="320"/>
+  <text class="k" x="572" y="262">Belag höchstens</text>
+  <text class="k" x="572" y="282">1,50 m unter Traufe</text>
+  <text class="k" x="400" y="428" text-anchor="middle">Dachfanggerüst: 22,5° bis 60° Neigung, mehr als 2 m Absturzhöhe ab Traufe</text>
+</svg>

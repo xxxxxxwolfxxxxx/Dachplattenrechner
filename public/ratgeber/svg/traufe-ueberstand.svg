@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Traufe im Schnitt: Traufblech, Überstand, Rinne</title>
+  <desc id="d">Schnitt durch die Traufe eines Blechdachs. Das Blech liegt auf der letzten Traglatte und ragt als freier Überstand von höchstens 200 mm darüber hinaus. Es endet mit einer Tropfkante über der Rinne. Das Traufblech liegt unter dem Blech und ragt ungefähr ein Drittel der Rinnenbreite in die Rinne. Die Rinne hängt an einem Rinneneisen am Sparren.</desc>
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--akzent)"/></marker>
+  </defs>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#64748b; --blech2:#0369a1; --holz:#c08a52; --akzent:#0369a1; --band:#b45309; --wasser:#38bdf8; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#94a3b8; --blech2:#7dd3fc; --holz:#a16f3d; --akzent:#38bdf8; --band:#fbbf24; --wasser:#38bdf8; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .m{fill:var(--akzent);font:600 15px system-ui,sans-serif}
+    .holz{fill:var(--holz);stroke:var(--fg);stroke-width:2}
+    .bl{fill:none;stroke:var(--blech);stroke-width:5;stroke-linejoin:round}
+    .bl2{fill:none;stroke:var(--blech2);stroke-width:5;stroke-linejoin:round}
+    .rinne{fill:none;stroke:var(--fg);stroke-width:4;stroke-linejoin:round}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .ext{stroke:var(--akzent);stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+    .mas{stroke:var(--akzent);stroke-width:2.5;fill:none}
+    .band{fill:var(--band);stroke:var(--fg);stroke-width:1.5}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+
+  <text class="t" x="400" y="30" text-anchor="middle">Traufe: Überstand und Traufblech im Schnitt</text>
+  <polygon class="holz" points="65.2,140.1 544.5,242.0 534.1,290.9 54.8,189.0"/>
+  <polygon class="holz" points="110.6,111.4 145.8,118.9 139.6,155.9 104.4,148.4"/>
+  <polygon class="holz" points="404.1,179.9 439.3,187.4 433.0,218.3 397.8,210.8"/>
+  <path class="bl2" d="M346.2 165.1 L575.0 213.7 L635.0 226.5 L635.0 290.0"/>
+  <path class="bl" d="M73.6 101.0 L670.2 227.8 L673.2 243.8"/>
+  <path class="rinne" d="M575 240 L575 335 L755 335 L755 240"/>
+  <path class="rinne" d="M536.2 281.1 L575 281.1"/>
+  <line class="ext" x1="441.9" y1="174.5" x2="450.5" y2="134.0"/>
+  <line class="ext" x1="671.9" y1="220.0" x2="680.2" y2="180.9"/>
+  <line class="mas" x1="449.7" y1="140.0" x2="678.5" y2="188.7" marker-start="url(#pa)" marker-end="url(#pa)"/>
+  <text class="m" x="555" y="100" text-anchor="middle">freier Überstand max. 200 mm</text>
+  <line class="lin" x1="555" y1="108" x2="555" y2="158"/>
+  <line class="mas" x1="578" y1="309" x2="633" y2="309" marker-start="url(#pa)" marker-end="url(#pa)"/>
+  <text class="m" x="651" y="314">ca. ⅓</text><line class="lin" x1="648" y1="309" x2="637" y2="309"/>
+  <text class="k" x="647" y="272">Traufblech</text><line class="lin" x1="645" y1="267" x2="638" y2="267"/>
+  <text class="k" x="712" y="205">Tropfkante</text><line class="lin" x1="710" y1="210" x2="678" y2="236"/>
+  <text class="k" x="690" y="372" text-anchor="middle">Rinne</text><line class="lin" x1="690" y1="358" x2="690" y2="339"/>
+  <text class="k" x="110" y="86">Trapezblech</text><line class="lin" x1="170" y1="94" x2="206" y2="126"/>
+  <text class="k" x="120" y="285">Sparren</text><line class="lin" x1="150" y1="271" x2="184" y2="221"/>
+  <text class="k" x="400" y="345">Rinneneisen</text><line class="lin" x1="492" y1="336" x2="552" y2="283.5"/>
+  <text class="k" x="400" y="420" text-anchor="middle">Überstand gemessen ab Außenkante der letzten Traglatte · nicht maßstäblich</text>
+</svg>

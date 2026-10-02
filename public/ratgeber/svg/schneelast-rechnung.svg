@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Dachlasten im Vergleich in kg pro Quadratmeter</title>
+  <desc id="d">Balkendiagramm. Eigengewicht von Dach und Unterbau ca. 25 kg/m², Schneelast Beispiel Zone 2 im Tiefland ca. 85 kg/m², in höheren Lagen deutlich mehr, Gesamtlast ca. 110 kg/m² als zusammengesetzter Balken. Dazu Zusatzlast durch Photovoltaik ca. 12 bis 14 kg/m² und Solarthermie ca. 20 bis 30 kg/m².</desc>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#94a3b8; --holz:#c08a52; --akzent:#0ea5e9; --flaeche:#e0f2fe; --warn:#dc2626; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#64748b; --holz:#a16f3d; --flaeche:#1e3a5f; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif} .kb{fill:var(--fg);font:600 16px system-ui,sans-serif}
+    .fl{fill:var(--flaeche);stroke:var(--fg);stroke-width:2;stroke-linejoin:round}
+    .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .dia{stroke:var(--akzent);stroke-width:2.5;stroke-dasharray:8 5;fill:none}
+    .pt{fill:var(--akzent);stroke:var(--bg);stroke-width:2}
+    .akz{stroke:var(--akzent);stroke-width:3;fill:none}
+    .b1{fill:var(--blech)} .b2{fill:var(--akzent)} .b3{fill:var(--holz)}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Was dein Dach tragen muss (Richtwerte)</text>
+  <!-- Maßstab 3.4 px je kg/m², Start x=260 -->
+  <text class="k" x="240" y="94" text-anchor="end">Eigengewicht</text>
+  <text class="k" x="240" y="114" text-anchor="end">Dach + Unterbau</text>
+  <rect class="b3" x="260" y="76" width="85" height="44"/>
+  <text class="kb" x="358" y="104">ca. 25 kg/m²</text>
+  <text class="k" x="240" y="164" text-anchor="end">Schneelast, Beispiel</text>
+  <text class="k" x="240" y="184" text-anchor="end">Zone 2 im Tiefland</text>
+  <rect class="b2" x="260" y="150" width="289" height="44"/>
+  <text class="kb" x="562" y="178">ca. 85 kg/m²</text>
+  <text class="k" x="240" y="244" text-anchor="end">Gesamtlast</text>
+  <rect class="b3" x="260" y="224" width="85" height="44"/>
+  <rect class="b2" x="345" y="224" width="289" height="44"/>
+  <text class="kb" x="648" y="252">ca. 110 kg/m²</text>
+  <line class="lin" x1="40" y1="296" x2="760" y2="296" stroke-dasharray="4 6"/>
+  <text class="k" x="240" y="334" text-anchor="end">Zusatz Photovoltaik</text>
+  <rect class="b1" x="260" y="316" width="48" height="36"/>
+  <text class="kb" x="322" y="340">ca. 12–14 kg/m²</text>
+  <text class="k" x="240" y="392" text-anchor="end">Zusatz Solarthermie</text>
+  <rect class="b1" x="260" y="374" width="102" height="36"/>
+  <text class="kb" x="376" y="398">ca. 20–30 kg/m²</text>
+  <text class="k" x="400" y="436" text-anchor="middle">Beispielwerte, keine Statik · in höheren Lagen deutlich mehr Schnee</text>
+</svg>

@@ -106,3 +106,15 @@ Beim ersten Lauf deshalb `git diff --stat public/data` prüfen: Die Dateien soll
 - Open-Meteo Elevation API (Copernicus GLO-90), CC BY 4.0.
 - OpenStreetMap-Mitwirkende, ODbL (Flussverlauf).
 - Statistisches Bundesamt: Gebietsänderungen.
+
+## Ratgeber-Fotos
+
+`scripts/ratgeber-fotos.mjs` verkleinert ausgewählte Baustellenfotos aus `public/images/` als WebP (max. 1600 px breit) nach
+`public/ratgeber/fotos/`. Welche Fotos zu welchem Wiki-Schritt passen (und welche verworfen wurden), steht als Kommentar im
+Skriptkopf. Neue Fotos in `AUSWAHL` eintragen und neu ausführen:
+
+```bash
+node scripts/ratgeber-fotos.mjs
+```
+
+Die erzeugten Dateien sind eingecheckt, `sharp` kommt über die Astro-Abhängigkeiten.

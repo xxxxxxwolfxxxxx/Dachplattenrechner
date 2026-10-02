@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-labelledby="t d">
+  <title id="t">Schraube mit Kalotte in der Hochsicke</title>
+  <desc id="d">Querschnitt durch ein Trapezblech auf einer Dachlatte. Die Schraube sitzt mit Kalotte oben auf der Hochsicke und geht durch das Blech in die Latte.</desc>
+  <style>
+    :root { --bg:#ffffff; --fg:#0f172a; --blech:#94a3b8; --holz:#c08a52; --akzent:#0ea5e9; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#0f172a; --fg:#e2e8f0; --blech:#64748b; --holz:#a16f3d; } }
+    .bg{fill:var(--bg)} .t{fill:var(--fg);font:600 18px system-ui,sans-serif}
+    .k{fill:var(--fg);font:500 15px system-ui,sans-serif}
+    .blech{fill:none;stroke:var(--blech);stroke-width:6;stroke-linejoin:round}
+    .holz{fill:var(--holz)} .lin{stroke:var(--fg);stroke-width:1.5;fill:none}
+    .akz{stroke:var(--akzent);stroke-width:3;fill:none} .kal{fill:var(--akzent)}
+  </style>
+  <rect class="bg" width="800" height="450"/>
+  <text class="t" x="400" y="34" text-anchor="middle">Standardprofil mit Kalotte: Schraube in der Hochsicke</text>
+  <!-- Latte -->
+  <rect class="holz" x="250" y="330" width="300" height="70"/>
+  <text class="k" x="400" y="372" text-anchor="middle" fill="#fff">Traglatte</text>
+  <!-- Profil: Hochsicke in der Mitte, Täler links/rechts -->
+  <path class="blech" d="M60 300 L190 300 L240 230 L310 230 L360 300 L440 300 L490 230 L560 230 L610 300 L740 300"/>
+  <!-- Schraube mit Kalotte in rechter Hochsicke (x=525) -->
+  <ellipse class="kal" cx="525" cy="222" rx="26" ry="8"/>
+  <line class="akz" x1="525" y1="226" x2="525" y2="352"/>
+  <!-- Maßlinie und Beschriftung -->
+  <line class="lin" x1="240" y1="200" x2="310" y2="200"/><text class="k" x="275" y="192" text-anchor="middle">Hochsicke</text>
+  <line class="lin" x1="360" y1="318" x2="440" y2="318"/><text class="k" x="400" y="310" text-anchor="middle">Tal = Wasserlauf</text>
+  <text class="k" x="600" y="205">Kalotte + Dichtscheibe</text>
+  <line class="lin" x1="552" y1="222" x2="598" y2="208"/>
+  <text class="k" x="400" y="430" text-anchor="middle">Standard: 6 Schrauben pro m² · Randbereich dichter</text>
+</svg>

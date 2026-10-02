@@ -1,0 +1,11 @@
+---
+interface Props { dauer: string; schwierigkeit: 1 | 2 | 3; personen: number; wetter: string }
+const { dauer, schwierigkeit, personen, wetter } = Astro.props;
+const STUFE = { 1: 'leicht', 2: 'mittel', 3: 'anspruchsvoll' } as const;
+---
+<dl class="r-kopf">
+  <div><dt>Dauer (Richtwert)</dt><dd>{dauer}</dd></div>
+  <div><dt>Schwierigkeit</dt><dd>{STUFE[schwierigkeit]}</dd></div>
+  <div><dt>Personen</dt><dd>{personen}</dd></div>
+  <div><dt>Wetter</dt><dd>{wetter}</dd></div>
+</dl>
