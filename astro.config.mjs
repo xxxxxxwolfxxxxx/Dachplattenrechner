@@ -16,7 +16,7 @@ export default defineConfig({
   // sie gehören nicht in die Sitemap und würden sonst mit den echten
   // Tool-Seiten um dieselben Suchanfragen konkurrieren.
   integrations: [
-    sitemap({ filter: (page) => !page.includes('/embed/') }),
+    sitemap({ filter: (page) => !page.includes('/embed/') && !page.includes('/kontakt/danke/') }),
     react(),
   ]
 });
