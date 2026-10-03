@@ -1,0 +1,81 @@
+---
+import LegalLayout from '../../layouts/LegalLayout.astro';
+---
+<LegalLayout
+  title="Kontakt"
+  description="Kontakt zu Dachplattenrechner.de: Fragen, Fehler in einem Rechner oder Anregungen per Kontaktformular."
+>
+  <p>
+    Fehler in einem Rechner gefunden oder eine Frage? Schreiben Sie uns. Statische oder bautechnische Beratung für ein konkretes Dach können wir nicht leisten, dafür wenden Sie sich bitte an eine Fachkraft.
+  </p>
+
+  <form
+    class="kontakt-form"
+    name="kontakt"
+    method="POST"
+    action="/kontakt/danke/"
+    data-netlify="true"
+    netlify-honeypot="bot-field"
+  >
+    <input type="hidden" name="form-name" value="kontakt" />
+    <p class="hp" aria-hidden="true">
+      <label>Nicht ausfüllen: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+    </p>
+
+    <div class="field">
+      <label for="kontakt-name">Name (optional)</label>
+      <input id="kontakt-name" name="name" type="text" autocomplete="name" maxlength="120" />
+    </div>
+    <div class="field">
+      <label for="kontakt-email">E-Mail-Adresse</label>
+      <input id="kontakt-email" name="email" type="email" autocomplete="email" required maxlength="200" />
+    </div>
+    <div class="field">
+      <label for="kontakt-nachricht">Nachricht</label>
+      <textarea id="kontakt-nachricht" name="nachricht" rows="7" required maxlength="4000"></textarea>
+    </div>
+    <div class="field consent">
+      <input id="kontakt-datenschutz" name="datenschutz" type="checkbox" required />
+      <label for="kontakt-datenschutz">
+        Ich habe die <a href="/datenschutz/">Datenschutzerklärung</a> gelesen und bin damit einverstanden, dass meine Angaben zur Bearbeitung meiner Anfrage verarbeitet werden.
+      </label>
+    </div>
+
+    <button type="submit">Nachricht senden</button>
+  </form>
+</LegalLayout>
+
+<style>
+  .kontakt-form { max-width: 640px; margin-top: 24px; }
+  .hp { position: absolute; left: -9999px; height: 0; overflow: hidden; }
+  .field { display: grid; gap: 6px; margin-bottom: 18px; }
+  .field label { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); }
+  .field input[type="text"],
+  .field input[type="email"],
+  .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font: inherit;
+  }
+  .field input:focus-visible,
+  .field textarea:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 1px; }
+  .consent { grid-template-columns: auto 1fr; align-items: start; gap: 10px; }
+  .consent label { font-weight: 400; line-height: 1.5; color: var(--text-secondary); }
+  button[type="submit"] {
+    padding: 11px 22px;
+    background: var(--gradient-primary);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    border: 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: transform 150ms, box-shadow 150ms;
+  }
+  button[type="submit"]:hover,
+  button[type="submit"]:focus-visible { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+</style>
