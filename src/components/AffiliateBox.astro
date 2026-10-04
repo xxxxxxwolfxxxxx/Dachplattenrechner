@@ -1,19 +1,44 @@
 ---
-import { angebot } from '../data/affiliate';
+import { angebot, werkzeugLinks } from '../data/affiliate';
 
 interface Props {
   angebot: string;
+  /** Werkzeugliste des Ratgeber-Schritts, damit passende Kategorien verlinkt werden. */
+  werkzeug?: string[];
 }
 const treffer = angebot(Astro.props.angebot);
+const kategorien = treffer && Astro.props.werkzeug ? werkzeugLinks(Astro.props.werkzeug) : [];
 ---
 
 {treffer && (
   <aside class="affiliate-box no-print" aria-label="Anzeige">
     <p class="affiliate-label">Anzeige</p>
-    <p class="affiliate-text">{treffer.text}</p>
-    <a class="affiliate-btn" href={treffer.url} rel="sponsored nofollow noopener" target="_blank">
-      {treffer.button}
-    </a>
+    {kategorien.length > 0 ? (
+      <>
+        <p class="affiliate-text">Passend zu dieser Werkzeugliste findest du bei {treffer.name}:</p>
+        <ul class="affiliate-liste">
+          {kategorien.map((k) => (
+            <li class="affiliate-item">
+              {k.produkt ? (
+                <>
+                  <a class="affiliate-btn" href={k.produkt.url} rel="sponsored nofollow noopener" target="_blank">{k.produkt.name}</a>
+                  <a class="affiliate-mehr" href={k.url} rel="sponsored nofollow noopener" target="_blank">Alle {k.label}</a>
+                </>
+              ) : (
+                <a class="affiliate-btn" href={k.url} rel="sponsored nofollow noopener" target="_blank">{k.label}</a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </>
+    ) : (
+      <>
+        <p class="affiliate-text">{treffer.text}</p>
+        <a class="affiliate-btn" href={treffer.url} rel="sponsored nofollow noopener" target="_blank">
+          {treffer.button}
+        </a>
+      </>
+    )}
     <p class="affiliate-hint">
       Für Vermittlungen über diesen Link erhalten wir ggf. eine Provision. Für dich entstehen keine Mehrkosten.
     </p>
@@ -40,6 +65,24 @@ const treffer = angebot(Astro.props.angebot);
     margin: 0 0 14px;
     line-height: 1.55;
     color: var(--text-secondary);
+  }
+  .affiliate-liste {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .affiliate-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .affiliate-mehr {
+    font-size: 0.8rem;
+    color: var(--accent-blue);
   }
   .affiliate-btn {
     display: inline-block;

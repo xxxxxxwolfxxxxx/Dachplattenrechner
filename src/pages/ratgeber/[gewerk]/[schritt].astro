@@ -49,7 +49,7 @@ const SITE = 'https://dachplattenrechner.de';
       <>
         <h2>Das brauchst du</h2>
         <MaterialListe werkzeug={d.werkzeug} material={d.material} storageKey={eintrag.id} />
-        {d.werkzeug.length > 0 && <AffiliateBox angebot="werkzeug" />}
+        {d.werkzeug.length > 0 && <AffiliateBox angebot="werkzeug" werkzeug={d.werkzeug} />}
       </>
     )}
 
