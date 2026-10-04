@@ -1,0 +1,65 @@
+---
+import { angebot } from '../data/affiliate';
+
+interface Props {
+  angebot: string;
+}
+const treffer = angebot(Astro.props.angebot);
+---
+
+{treffer && (
+  <aside class="affiliate-box no-print" aria-label="Anzeige">
+    <p class="affiliate-label">Anzeige</p>
+    <p class="affiliate-text">{treffer.text}</p>
+    <a class="affiliate-btn" href={treffer.url} rel="sponsored nofollow noopener" target="_blank">
+      {treffer.button}
+    </a>
+    <p class="affiliate-hint">
+      Für Vermittlungen über diesen Link erhalten wir ggf. eine Provision. Für dich entstehen keine Mehrkosten.
+    </p>
+  </aside>
+)}
+
+<style>
+  .affiliate-box {
+    margin: 24px 0;
+    padding: 16px 20px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--accent-blue);
+    border-radius: var(--radius-md);
+  }
+  .affiliate-label {
+    margin: 0 0 6px;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .affiliate-text {
+    margin: 0 0 14px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+  .affiliate-btn {
+    display: inline-block;
+    padding: 10px 18px;
+    background: var(--gradient-primary);
+    color: #fff;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: transform 150ms, box-shadow 150ms;
+  }
+  .affiliate-btn:hover,
+  .affiliate-btn:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  .affiliate-hint {
+    margin: 12px 0 0;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+</style>

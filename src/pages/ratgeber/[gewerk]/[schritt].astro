@@ -5,6 +5,7 @@ import SchrittKopf from '../../../components/ratgeber/SchrittKopf.astro';
 import Schritt from '../../../components/ratgeber/Schritt.astro';
 import HinweisBox from '../../../components/ratgeber/HinweisBox.astro';
 import MaterialListe from '../../../components/ratgeber/MaterialListe.astro';
+import AffiliateBox from '../../../components/AffiliateBox.astro';
 import '../../../styles/ratgeber.css';
 import { gewerkVon, slugVon, schrittUrl, nachbarn, howToSchema, PHASEN_TITEL, GEWERK_TITEL } from '../../../utils/ratgeber';
 
@@ -48,6 +49,7 @@ const SITE = 'https://dachplattenrechner.de';
       <>
         <h2>Das brauchst du</h2>
         <MaterialListe werkzeug={d.werkzeug} material={d.material} storageKey={eintrag.id} />
+        {d.werkzeug.length > 0 && <AffiliateBox angebot="werkzeug" />}
       </>
     )}
 
