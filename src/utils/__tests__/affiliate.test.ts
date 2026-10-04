@@ -76,6 +76,10 @@ describe('kategorienFuerWerkzeug', () => {
     expect(kategorienFuerWerkzeug(['Winkelschleifer mit dünner 1-mm-Trennscheibe (nur als Ausnahme)'])).toEqual([]);
   });
 
+  it('verlinkt Akkuschrauber bewusst nirgends (Kategorie zu dünn für Blechverschraubung)', () => {
+    expect(kategorienFuerWerkzeug(['Akkuschrauber', 'Akkuschrauber mit Tiefenanschlag'])).toEqual([]);
+  });
+
   it('verlinkt Absturzsicherung bewusst nirgends', () => {
     expect(kategorienFuerWerkzeug(['Absturzsicherung'])).toEqual([]);
   });

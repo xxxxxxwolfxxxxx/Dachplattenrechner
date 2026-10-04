@@ -83,7 +83,9 @@ export function angebot(
 //
 // Pfade am 04.10.2026 auf toolchest.de geprüft (jeweils eine Kategorieseite).
 // Bewusst nicht verlinkt: Absturzsicherung (keine passende Kategorie, und bei
-// Sicherheitsthemen soll kein Ersatzprodukt nahegelegt werden) sowie Werkzeug,
+// Sicherheitsthemen soll kein Ersatzprodukt nahegelegt werden), Akkuschrauber
+// (die Kategorie führt am 04.10.2026 nur zwei 3,6-V-Schraubendreher und einen
+// Schlagschrauber, zu wenig für das Verschrauben von Blechen) sowie Werkzeug,
 // zu dem es nur einzelne Produktseiten gibt.
 
 export interface Kategorie {
@@ -97,7 +99,6 @@ export const KATEGORIEN: Kategorie[] = [
   { muster: /zollstock/i, pfad: 'Zollstoecke', label: 'Zollstöcke' },
   { muster: /wasserwaage/i, pfad: 'Wasserwaagen', label: 'Wasserwaagen' },
   { muster: /winkel(?!schleifer)/i, pfad: 'Winkel', label: 'Winkel' },
-  { muster: /akkuschrauber/i, pfad: 'Akkuschrauber', label: 'Akkuschrauber' },
   { muster: /blechschere|knabber/i, pfad: 'Scheren', label: 'Scheren' },
   { muster: /cutter/i, pfad: 'Cuttermesser', label: 'Cuttermesser' },
   { muster: /schlagschnur/i, pfad: 'Schlagschnuere', label: 'Schlagschnüre' },
