@@ -48,3 +48,61 @@ describe('angebot', () => {
     expect(PARTNER.ankersolix.url === '' ? angebot('pv') : null).toBeNull();
   });
 });
+
+import { kategorienFuerWerkzeug, kategorieLink, KATEGORIEN } from '../../data/affiliate';
+
+describe('kategorienFuerWerkzeug', () => {
+  it('ordnet typisches Ratgeber-Werkzeug passenden Kategorien zu', () => {
+    const k = kategorienFuerWerkzeug(['Maßband', 'Wasserwaage', 'Digitaler Winkelmesser']);
+    expect(k.map((x) => x.pfad)).toEqual(['Massbaender', 'Wasserwaagen', 'Winkel']);
+  });
+
+  it('begrenzt auf drei Kategorien in der Reihenfolge der Liste', () => {
+    const k = kategorienFuerWerkzeug(['Maßband', 'Wasserwaage', 'Cuttermesser', 'Akkuschrauber', 'Helm']);
+    expect(k.map((x) => x.pfad)).toEqual(['Massbaender', 'Wasserwaagen', 'Cuttermesser']);
+  });
+
+  it('fasst Handschuhe und Arbeitshandschuhe zu einer Kategorie zusammen', () => {
+    const k = kategorienFuerWerkzeug(['Handschuhe', 'Arbeitshandschuhe']);
+    expect(k.map((x) => x.pfad)).toEqual(['Handschuhe']);
+  });
+
+  it('verlinkt Blechscheren auf Scheren, nicht auf Schieferscheren', () => {
+    const k = kategorienFuerWerkzeug(['Knabber oder Blechschere']);
+    expect(k.map((x) => x.pfad)).toEqual(['Scheren']);
+  });
+
+  it('verwechselt einen Winkelschleifer nicht mit einem Winkelmesser', () => {
+    expect(kategorienFuerWerkzeug(['Winkelschleifer mit dünner 1-mm-Trennscheibe (nur als Ausnahme)'])).toEqual([]);
+  });
+
+  it('verlinkt Absturzsicherung bewusst nirgends', () => {
+    expect(kategorienFuerWerkzeug(['Absturzsicherung'])).toEqual([]);
+  });
+
+  it('ignoriert Werkzeug ohne passende Kategorie', () => {
+    expect(kategorienFuerWerkzeug(['Notizblock oder Skizze zum Ausdrucken', 'Fernglas'])).toEqual([]);
+  });
+
+  it('nutzt nur Pfade aus erlaubten Zeichen', () => {
+    for (const k of KATEGORIEN) expect(k.pfad).toMatch(/^[A-Za-z0-9_-]+$/);
+  });
+});
+
+describe('kategorieLink', () => {
+  const partner = {
+    t: { name: 'T', url: '', deeplink: { basis: 'https://www.awin1.com/cread.php?awinmid=1&awinaffid=2', ziel: 'https://www.shop.de' } },
+  };
+
+  it('baut einen Awin-Deeplink mit kodiertem Ziel', () => {
+    expect(kategorieLink('t', 'Wasserwaagen', partner)).toBe(
+      'https://www.awin1.com/cread.php?awinmid=1&awinaffid=2&ued=https%3A%2F%2Fwww.shop.de%2FWasserwaagen',
+    );
+  });
+
+  it('liefert null ohne Deeplink-Basis oder ohne https', () => {
+    expect(kategorieLink('x', 'Winkel', partner)).toBeNull();
+    expect(kategorieLink('t', 'Winkel', { t: { name: 'T', url: '', deeplink: { basis: 'http://a', ziel: 'https://s' } } })).toBeNull();
+    expect(kategorieLink('t', 'Winkel', { t: { name: 'T', url: '' } })).toBeNull();
+  });
+});
