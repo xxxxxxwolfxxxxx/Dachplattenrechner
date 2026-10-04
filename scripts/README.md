@@ -118,3 +118,16 @@ node scripts/ratgeber-fotos.mjs
 ```
 
 Die erzeugten Dateien sind eingecheckt, `sharp` kommt über die Astro-Abhängigkeiten.
+
+## Affiliate-Link-Check
+
+`npm run check:links` ruft jede Toolchest-Seite auf, auf die die Affiliate-Boxen verlinken (alle Kategorien und Hauptprodukte aus
+`src/data/affiliate.ts`), und meldet tote oder auffällige Seiten. Ausstieg mit Code 1, sobald etwas auffällt.
+
+- **Kategorie:** muss erreichbar sein und mindestens eine Produktkachel enthalten.
+- **Produkt:** muss erreichbar sein, die Marke in der Überschrift nennen, einen Preis haben und laut Shop (schema.org) verfügbar sein.
+- Der Awin-Link wird **nie** aufgerufen, nur die Shop-Seiten dahinter. Sonst würde jeder Check als Klick gezählt.
+- Das Skript braucht Node mit TypeScript-Unterstützung. Das Flag steckt im npm-Skript, unter Node 22.12 wird es gebraucht.
+- Mit `PAUSE_MS` im Skript lässt sich die Pause zwischen den Aufrufen anpassen (derzeit 400 ms).
+
+Hinweis: Der Check läuft nur auf Abruf, nicht automatisch. Neue Mapping-Einträge werden von ihm sofort mitgeprüft.
