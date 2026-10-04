@@ -18,8 +18,15 @@ const kategorien = treffer && Astro.props.werkzeug ? werkzeugLinks(Astro.props.w
         <p class="affiliate-text">Passend zu dieser Werkzeugliste findest du bei {treffer.name}:</p>
         <ul class="affiliate-liste">
           {kategorien.map((k) => (
-            <li>
-              <a class="affiliate-btn" href={k.url} rel="sponsored nofollow noopener" target="_blank">{k.label}</a>
+            <li class="affiliate-item">
+              {k.produkt ? (
+                <>
+                  <a class="affiliate-btn" href={k.produkt.url} rel="sponsored nofollow noopener" target="_blank">{k.produkt.name}</a>
+                  <a class="affiliate-mehr" href={k.url} rel="sponsored nofollow noopener" target="_blank">Alle {k.label}</a>
+                </>
+              ) : (
+                <a class="affiliate-btn" href={k.url} rel="sponsored nofollow noopener" target="_blank">{k.label}</a>
+              )}
             </li>
           ))}
         </ul>
@@ -66,6 +73,16 @@ const kategorien = treffer && Astro.props.werkzeug ? werkzeugLinks(Astro.props.w
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+  .affiliate-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .affiliate-mehr {
+    font-size: 0.8rem;
+    color: var(--accent-blue);
   }
   .affiliate-btn {
     display: inline-block;

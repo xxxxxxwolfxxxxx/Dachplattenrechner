@@ -81,27 +81,63 @@ export function angebot(
 
 // --- Toolchest-Kategorien für die Werkzeuglisten im Ratgeber -----------------
 //
-// Pfade am 04.10.2026 auf toolchest.de geprüft (jeweils eine Kategorieseite).
+// Pfade am 04.10.2026 auf toolchest.de geprüft (Kategorie- und Produktseiten).
+// Hauptprodukte nur dort, wo Marke (STABILA, PICARD) und Verwendung eindeutig
+// passen. Schutzausrüstung (Helm, Handschuhe, Schutzbrille, Gehörschutz),
+// Winkelmesser (nur ein 215-€-Digitalmesser) und Blechscheren (Eignung für das
+// jeweilige Blech nicht geprüft) verlinken bewusst nur die Kategorie.
 // Bewusst nicht verlinkt: Absturzsicherung (keine passende Kategorie, und bei
 // Sicherheitsthemen soll kein Ersatzprodukt nahegelegt werden), Akkuschrauber
 // (die Kategorie führt am 04.10.2026 nur zwei 3,6-V-Schraubendreher und einen
 // Schlagschrauber, zu wenig für das Verschrauben von Blechen) sowie Werkzeug,
 // zu dem es nur einzelne Produktseiten gibt.
 
+export interface Produkt {
+  pfad: string;
+  name: string;
+}
+
 export interface Kategorie {
   muster: RegExp;
   pfad: string;
   label: string;
+  /** Hauptprodukt der Kategorie. Fehlt es, wird nur die Kategorie verlinkt. */
+  produkt?: Produkt;
 }
 
 export const KATEGORIEN: Kategorie[] = [
-  { muster: /ma(ß|ss)band|bandma(ß|ss)/i, pfad: 'Massbaender', label: 'Maßbänder' },
-  { muster: /zollstock/i, pfad: 'Zollstoecke', label: 'Zollstöcke' },
-  { muster: /wasserwaage/i, pfad: 'Wasserwaagen', label: 'Wasserwaagen' },
+  {
+    muster: /ma(ß|ss)band|bandma(ß|ss)/i,
+    pfad: 'Massbaender',
+    label: 'Maßbänder',
+    produkt: { pfad: 'STABILA-Taschenbandmass-5-m-metrische-Skala-BM-100', name: 'STABILA Taschenbandmaß 5 m' },
+  },
+  {
+    muster: /zollstock/i,
+    pfad: 'Zollstoecke',
+    label: 'Zollstöcke',
+    produkt: { pfad: 'STABILA-Gliedermassstab-2-m-Holz-Type-407-Gelb', name: 'STABILA Gliedermaßstab 2 m' },
+  },
+  {
+    muster: /wasserwaage/i,
+    pfad: 'Wasserwaagen',
+    label: 'Wasserwaagen',
+    produkt: { pfad: 'STABILA-Wasserwaage-100-cm-Type-70', name: 'STABILA Wasserwaage 100 cm Type 70' },
+  },
   { muster: /winkel(?!schleifer)/i, pfad: 'Winkel', label: 'Winkel' },
   { muster: /blechschere|knabber/i, pfad: 'Scheren', label: 'Scheren' },
-  { muster: /cutter/i, pfad: 'Cuttermesser', label: 'Cuttermesser' },
-  { muster: /schlagschnur/i, pfad: 'Schlagschnuere', label: 'Schlagschnüre' },
+  {
+    muster: /cutter/i,
+    pfad: 'Cuttermesser',
+    label: 'Cuttermesser',
+    produkt: { pfad: 'PICARD-Automatikmesser-mit-Metallschieber-Nr-70113', name: 'PICARD Automatikmesser' },
+  },
+  {
+    muster: /schlagschnur/i,
+    pfad: 'Schlagschnuere',
+    label: 'Schlagschnüre',
+    produkt: { pfad: 'PICARD-Schnurschlaggeraet-30-Meter-Nr-71572', name: 'PICARD Schnurschlaggerät 30 m' },
+  },
   { muster: /handschuh/i, pfad: 'Handschuhe', label: 'Handschuhe' },
   { muster: /helm/i, pfad: 'Schutzhelme', label: 'Schutzhelme' },
   { muster: /schutzbrille/i, pfad: 'Schutzbrillen', label: 'Schutzbrillen' },
@@ -121,7 +157,7 @@ export function kategorienFuerWerkzeug(werkzeug: string[]): Kategorie[] {
   return treffer;
 }
 
-/** Awin-Deeplink auf eine Kategorieseite des Partners oder null (kein Deeplink, kein https). */
+/** Awin-Deeplink auf eine Seite (Kategorie oder Produkt) des Partners oder null (kein Deeplink, kein https). */
 export function kategorieLink(
   partnerId: string,
   pfad: string,
@@ -135,6 +171,7 @@ export function kategorieLink(
 export interface KategorieLink {
   label: string;
   url: string;
+  produkt?: { name: string; url: string };
 }
 
 /** Kategorie-Links für eine Werkzeugliste. Leer, solange Toolchest keinen Link hat. */
@@ -142,6 +179,8 @@ export function werkzeugLinks(werkzeug: string[], partner: Record<string, Partne
   if (!partner.toolchest?.url.startsWith('https://')) return [];
   return kategorienFuerWerkzeug(werkzeug).flatMap((k) => {
     const url = kategorieLink('toolchest', k.pfad, partner);
-    return url ? [{ label: k.label, url }] : [];
+    if (!url) return [];
+    const produktUrl = k.produkt ? kategorieLink('toolchest', k.produkt.pfad, partner) : null;
+    return [{ label: k.label, url, ...(k.produkt && produktUrl ? { produkt: { name: k.produkt.name, url: produktUrl } } : {}) }];
   });
 }

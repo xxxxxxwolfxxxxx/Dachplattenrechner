@@ -49,7 +49,7 @@ describe('angebot', () => {
   });
 });
 
-import { kategorienFuerWerkzeug, kategorieLink, KATEGORIEN } from '../../data/affiliate';
+import { kategorienFuerWerkzeug, kategorieLink, werkzeugLinks, KATEGORIEN } from '../../data/affiliate';
 
 describe('kategorienFuerWerkzeug', () => {
   it('ordnet typisches Ratgeber-Werkzeug passenden Kategorien zu', () => {
@@ -108,5 +108,41 @@ describe('kategorieLink', () => {
     expect(kategorieLink('x', 'Winkel', partner)).toBeNull();
     expect(kategorieLink('t', 'Winkel', { t: { name: 'T', url: '', deeplink: { basis: 'http://a', ziel: 'https://s' } } })).toBeNull();
     expect(kategorieLink('t', 'Winkel', { t: { name: 'T', url: '' } })).toBeNull();
+  });
+});
+
+describe('Produkte je Kategorie', () => {
+  it('liefert für Maßband das STABILA-Produkt samt Kategorie-Rückfall', () => {
+    const [mass] = werkzeugLinks(['Maßband']);
+    expect(mass.label).toBe('Maßbänder');
+    expect(mass.produkt?.name).toContain('STABILA');
+    expect(decodeURIComponent(mass.produkt?.url ?? '')).toContain('www.toolchest.de/STABILA-Taschenbandmass-5-m');
+    expect(decodeURIComponent(mass.url)).toContain('www.toolchest.de/Massbaender');
+  });
+
+  it('liefert für Schlagschnur das PICARD-Produkt', () => {
+    const [schnur] = werkzeugLinks(['Schlagschnur']);
+    expect(schnur.produkt?.name).toContain('PICARD');
+  });
+
+  it('verlinkt bei Schutzausrüstung bewusst nur die Kategorie, kein Einzelprodukt', () => {
+    for (const w of ['Helm', 'Arbeitshandschuhe', 'Schutzbrille', 'Gehörschutz']) {
+      const [k] = werkzeugLinks([w]);
+      expect(k, w).toBeDefined();
+      expect(k.produkt, w).toBeUndefined();
+    }
+  });
+
+  it('verlinkt bei Winkelmesser und Blechschere nur die Kategorie', () => {
+    for (const w of ['Digitaler Winkelmesser', 'Knabber oder Blechschere']) {
+      const [k] = werkzeugLinks([w]);
+      expect(k.produkt, w).toBeUndefined();
+    }
+  });
+
+  it('nutzt für Produktpfade nur erlaubte Zeichen', () => {
+    for (const k of KATEGORIEN) {
+      if (k.produkt) expect(k.produkt.pfad, k.label).toMatch(/^[A-Za-z0-9_-]+$/);
+    }
   });
 });
