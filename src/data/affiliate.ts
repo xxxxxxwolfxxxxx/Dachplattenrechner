@@ -26,7 +26,7 @@ export interface Treffer {
 }
 
 export const PARTNER: Record<string, Partner> = {
-  toolchest: { name: 'Toolchest.de', url: '' },
+  toolchest: { name: 'Toolchest.de', url: 'https://www.awin1.com/cread.php?awinmid=117285&awinaffid=3113454&ued=https%3A%2F%2Fwww.toolchest.de%2F' },
   werkzeugstore24: { name: 'Werkzeugstore24', url: '' },
   ankersolix: { name: 'Anker Solix', url: '' },
 };
