@@ -32,7 +32,19 @@ describe('angebot', () => {
     }
   });
 
-  it('liefert mit den ausgelieferten Daten nichts, solange keine Links eingetragen sind', () => {
-    for (const key of Object.keys(ANGEBOTE)) expect(angebot(key)).toBeNull();
+  it('trägt nur leere oder https-Links ein', () => {
+    for (const [id, p] of Object.entries(PARTNER)) {
+      expect(p.url === '' || p.url.startsWith('https://'), id).toBe(true);
+    }
+  });
+
+  it('liefert für Werkzeug den Toolchest-Link, solange er eingetragen ist', () => {
+    const treffer = angebot('werkzeug');
+    expect(treffer?.name).toBe('Toolchest.de');
+    expect(treffer?.url).toContain('awinmid=117285');
+  });
+
+  it('zeigt für PV nichts, solange Anker Solix keinen Link hat', () => {
+    expect(PARTNER.ankersolix.url === '' ? angebot('pv') : null).toBeNull();
   });
 });
