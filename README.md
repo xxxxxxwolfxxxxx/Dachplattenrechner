@@ -1,68 +1,49 @@
-# Astro Starter Kit: Minimal
+# Dachplattenrechner
 
-```sh
-npm create astro@latest -- --template minimal
+Fachrechner für Dacheindeckungen mit Profilblechen: Materialbedarf, Plattenaufteilung, Zuschnitt, Verschnitt-Optimierung und PDF-Ausgabe.
+Dazu Ratgeber-Artikel und eine Schneelast-/Windzonen-Suche nach Ort.
+
+**Live:** <https://dachplattenrechner.de>
+
+Entstanden aus meiner Arbeit in Beratung und Fertigung von Dachblechen.
+
+## Was drin ist
+
+- **Rechner** für Rechteck, Trapez, Dreiecksformen, Dachflächen, Lattenabstände, Sparren, Dacheindeckungs-Gewicht, U-Wert, PV-Fläche (`src/pages/tools/`)
+- **Verschnitt-Optimierung** und **Kantteil-Editor** als eigenständige Werkzeuge (`tools/`)
+- **Schneelast- und Windzonen** je Gemeinde, nachgeschlagen über Ort oder Postleitzahl
+- **Ratgeber** als Content-Collection (`src/content/`)
+- PDF-Export über `jspdf` und `html2canvas`
+
+## Tech-Stack
+
+Astro 6 (statische Ausgabe) · React 19 · TypeScript · Vitest · Netlify (Node 22) · Python-Skripte für die Datenaufbereitung
+
+## Lokal starten
+
+```bash
+npm install
+npm run dev        # Entwicklungsserver
+npm run build      # statischer Build nach dist/
+npm run preview    # Build ansehen
+npm test           # Vitest
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Node 22 wird empfohlen (so läuft auch der Netlify-Build).
 
-## 🚀 Project Structure
+## Fachdaten und Quellen
 
-Inside of your Astro project, you'll see the following folders and files:
+Die Dateien unter `public/data/` (Schneelast- und Windzonen, Gemeindezuordnung) sind **generiert** und werden nicht von Hand geändert.
+Die Pipeline und alle Rohdatenquellen sind in [`scripts/README.md`](scripts/README.md) beschrieben. Genutzt werden:
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+- DIBt: Schneelast- und Windzonen nach Verwaltungsgrenzen
+- BKG: Verwaltungsgebiete (VG250)
+- Statistisches Bundesamt: Gebietsänderungen von Gemeinden
+- GeoNames: Postleitzahlen
+- OpenStreetMap (Overpass): Flussverläufe für die Zonenzuordnung an Mosel und Rhein
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Die Rechner liefern Orientierungswerte. Für Planung und Statik gelten die jeweiligen Normen und die Angaben des Herstellers.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Lizenz
 
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Ratgeber-Wiki
-
-Anleitungen liegen als Markdown unter `src/content/ratgeber/<gewerk>/<schritt>.md` und werden unter `/ratgeber/<gewerk>/<schritt>/` ausgeliefert (inkl. Suche, abhakbarer Material-Liste und Strukturdaten `HowTo` und `BreadcrumbList`).
-
-### Neuen Schritt anlegen
-
-1. Datei `src/content/ratgeber/<gewerk>/<schritt>.md` mit dem Frontmatter aus `src/utils/ratgeber-schema.ts` erstellen.
-2. Bilder als SVG nach `public/ratgeber/svg/` legen und im Schritt über `bild` einbinden.
-3. `npx vitest run` ausführen. Die Tests prüfen Schema, Bilder und Links.
-
-### Inhaltsregeln
-
-- Quellen: Zahlen und Maße nur mit Quelle oder Herstellerhinweis, keine erfundenen Werte. Wo Herstellerangaben gelten, steht das im Text.
-- Humor: sparsam, nie bei Sicherheitshinweisen, und nie auf Kosten der Genauigkeit.
-- SVG-Pflicht: Jeder Schritt mit räumlichem Inhalt bekommt eine eigene SVG-Zeichnung mit aussagekräftigem `alt`-Text.
-- Linkregeln: Interne Links immer mit abschließendem Slash (`/ratgeber/blechdach/first/`). Statische Seiten aus `public/` verlinkt man mit `.html` (z. B. `/tools/anrissplan.html`), ohne Slash.
-- `beschreibung` im Frontmatter: 120 bis 160 Zeichen (Meta-Description).
-- Sicherheitshinweis (`sicherheit`) ist Pflicht und steht vor den Schritten.
-
-### Neues Gewerk anlegen
-
-1. Gewerk in `GEWERKE` in `src/utils/ratgeber-schema.ts` ergänzen.
-2. Anzeigetitel in `GEWERK_TITEL` in `src/utils/ratgeber.ts` eintragen.
-3. Ordner `src/content/ratgeber/<gewerk>/` mit den Schritt-Dateien anlegen.
+Es ist keine Lizenz hinterlegt. Der Quellcode steht zur Ansicht; ohne ausdrückliche Lizenz sind Nutzung und Weitergabe nicht erlaubt.
