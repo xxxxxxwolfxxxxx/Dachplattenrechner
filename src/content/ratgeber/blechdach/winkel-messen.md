@@ -34,6 +34,7 @@ typischeFehler:
   - "Grad und Prozent verwechselt"
   - "Zum Messen bei Nässe auf das Dach gestiegen"
 rechner:
+  - { titel: "Dachneigung berechnen", href: "/tools/dachneigung/" }
   - { titel: "Dachfläche berechnen", href: "/tools/dachflaeche-berechnen/" }
   - { titel: "Dachformen", href: "/tools/dachformen/" }
 verwandt: [aufmass, dachflaeche-material-berechnen, ueberdeckung-querstoss-dichtband, kontrolle-wartung]

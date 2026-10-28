@@ -1,0 +1,326 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import InfoBox from '../../../components/InfoBox.astro';
+import { BLECHTYPEN } from '../../../data/blechtypen';
+import { neigungstabelle } from '../../../utils/dachneigung';
+
+const zahl = (x: number, stellen = 1) =>
+  x.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: stellen });
+
+const tabelle = neigungstabelle();
+
+const faq = [
+  {
+    question: 'Wie berechne ich die Dachneigung?',
+    answer:
+      'Die Dachneigung ergibt sich aus der Höhe und der waagerechten Breite: tan(α) = Höhe ÷ Breite. Bei einem Satteldach ist die Breite die halbe Gebäudebreite bis zum First, die Höhe der Abstand zwischen Traufe und First. Der Winkel ist dann α = arctan(Höhe ÷ Breite). Beispiel: 3 m Höhe auf 4 m Breite ergeben rund 36,9°.',
+  },
+  {
+    question: 'Wie rechne ich Grad in Prozent um?',
+    answer:
+      'Die Steigung in Prozent ist tan(α) × 100. Aus 45° werden damit 100 %, aus 30° etwa 57,7 % und aus 10° etwa 17,6 %. Umgekehrt ist der Winkel arctan(Prozent ÷ 100). Eine Steigung von 100 % bedeutet nicht 90°, sondern 45°.',
+  },
+  {
+    question: 'Welches Gefälle braucht ein Flachdach?',
+    answer:
+      'Als Flachdach gelten üblicherweise Dächer bis etwa 5° Neigung. Für Abdichtungen empfehlen die Fachregeln ein Gefälle von mindestens 2 %, das entspricht rund 1,1°, damit Wasser nicht stehen bleibt. Bei Sanierungen und mit PV-Ballast sollte das Gefälle zusätzlich zur Statik geprüft werden.',
+  },
+  {
+    question: 'Wie groß muss die Dachneigung bei Trapezblech mindestens sein?',
+    answer:
+      'Das hängt vom Profil und von der Herstellerangabe ab, eine pauschale Zahl gibt es nicht. Bei Profilen bis 35 mm Höhe nennt zum Beispiel MAAS Stahl etwa 6° bei Dachtiefen bis 10 m und etwa 10° darüber, bei höheren Profilen etwa 4° und 5°. Maßgebend ist immer das Datenblatt des Herstellers für dein Profil und deine Dachtiefe.',
+  },
+  {
+    question: 'Wie messe ich die Dachneigung?',
+    answer:
+      'Am einfachsten mit einem digitalen Neigungsmesser oder einer Smartphone-App, die du auf einen Sparren oder eine Latte legst. Ohne Messgerät legst du eine Wasserwaage waagerecht an, misst 1 m ab und dann den senkrechten Abstand zur Dachfläche. Dieser Wert in Zentimetern ist die Steigung in Prozent.',
+  },
+  {
+    question: 'Wie berechne ich die Sparrenlänge aus der Dachneigung?',
+    answer:
+      'Sparrenlänge = waagerechte Breite ÷ cos(α). Bei 4 m Breite und 35° Neigung sind das rund 4,88 m, dazu kommt der Überstand an der Traufe. Die Tragfähigkeit des Sparrens prüfst du mit dem Sparren-Rechner.',
+  },
+  {
+    question: 'Wie viel größer ist die Dachfläche als die Grundfläche?',
+    answer:
+      'Die geneigte Dachfläche ist die Grundfläche geteilt durch cos(α). Bei 30° ist der Faktor 1,15, bei 45° sind es 1,41. Eine Grundfläche von 100 m² ergibt bei 30° also rund 115 m² Dachfläche.',
+  },
+];
+---
+
+<ToolLayout
+  title="Dachneigung berechnen – Grad, Prozent und Gefälle"
+  description="Dachneigung berechnen und umrechnen: Grad in Prozent, Gefälle für Flachdach, Sparrenlänge aus Höhe und Breite. Mit Umrechnungstabelle und Mindestneigung für Trapezblech."
+  keywords="Dachneigung berechnen, Dachneigung Grad Prozent, Dachneigung Rechner, Gefälle Flachdach berechnen, Dachneigung ermitteln, Trapezblech Dachneigung, Dachneigung messen, Sparrenlänge berechnen"
+  navTitle="Dachneigung"
+  backHref="/tools/dachformen/"
+  backLabel="← Dachformen"
+  faq={faq}
+>
+  <div class="neigung-seite">
+    <div class="intro">
+      <h1>Dachneigung berechnen: Grad, Prozent und Gefälle</h1>
+      <p class="lead">
+        Rechne die Dachneigung zwischen Grad, Prozent und Verhältnis um oder berechne sie aus Höhe und
+        Breite deines Dachs. Du erfährst zugleich den Flächenfaktor und die Länge des Sparrens.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Was weißt du über dein Dach?</h2>
+      <div class="input-row">
+        <div class="input-group">
+          <label for="art">Ausgangswert</label>
+          <select id="art">
+            <option value="grad" selected>Neigung in Grad</option>
+            <option value="prozent">Steigung in Prozent</option>
+            <option value="massen">Höhe und Breite</option>
+          </select>
+        </div>
+        <div class="input-group" data-feld="grad">
+          <label for="grad">Dachneigung (°)</label>
+          <input type="number" id="grad" step="0.5" min="0.1" max="89" value="35" inputmode="decimal" />
+        </div>
+        <div class="input-group" data-feld="prozent" hidden>
+          <label for="prozent">Steigung (%)</label>
+          <input type="number" id="prozent" step="1" min="0.1" value="70" inputmode="decimal" />
+        </div>
+        <div class="input-group" data-feld="massen" hidden>
+          <label for="hoehe">Höhe Traufe bis First (m)</label>
+          <input type="number" id="hoehe" step="0.05" min="0.01" value="2.8" inputmode="decimal" />
+        </div>
+        <div class="input-group" data-feld="massen" hidden>
+          <label for="breite">Waagerechte Breite (m)</label>
+          <input type="number" id="breite" step="0.05" min="0.01" value="4" inputmode="decimal" />
+        </div>
+        <div class="input-group" data-feld="grad prozent">
+          <label for="breite-optional">Breite für die Sparrenlänge (m, optional)</label>
+          <input type="number" id="breite-optional" step="0.05" min="0" placeholder="z. B. 4" inputmode="decimal" />
+        </div>
+      </div>
+      <p class="hint">
+        Bei einem Satteldach ist die Breite die halbe Gebäudebreite bis zum First. So misst du den Winkel:
+        <a href="/ratgeber/blechdach/winkel-messen/">Winkel messen im Ratgeber</a>.
+      </p>
+    </div>
+
+    <div id="fehler" class="fehler" role="alert" hidden></div>
+
+    <div id="ergebnis" class="results" aria-live="polite">
+      <h2>Ergebnis</h2>
+      <p id="einordnung" class="einordnung"></p>
+      <dl class="werte">
+        <div><dt>Neigung</dt><dd id="r-grad"></dd></div>
+        <div><dt>Steigung</dt><dd id="r-prozent"></dd></div>
+        <div><dt>Verhältnis</dt><dd id="r-verhaeltnis"></dd></div>
+        <div><dt>Gefälle</dt><dd id="r-gefaelle"></dd></div>
+        <div><dt>Flächenfaktor</dt><dd id="r-faktor"></dd></div>
+        <div id="zeile-sparren" hidden><dt>Sparrenlänge</dt><dd id="r-sparren"></dd></div>
+      </dl>
+      <p class="hint">
+        Dachfläche = Grundfläche × Flächenfaktor. Die Sparrenlänge gilt ohne Überstand an der Traufe.
+        Weiter mit dem <a href="/tools/sparren-rechner/">Sparren-Rechner</a> und der
+        <a href="/tools/dachflaeche-berechnen/">Dachflächenberechnung</a>.
+      </p>
+    </div>
+
+    <section class="info-section" aria-labelledby="tabelle-heading">
+      <h2 id="tabelle-heading">Umrechnungstabelle: Grad, Prozent und Verhältnis</h2>
+      <div class="tabelle-wrap">
+        <table>
+          <caption class="sr-only">Dachneigung in Grad, Prozent und als Verhältnis 1 : x</caption>
+          <thead>
+            <tr>
+              <th scope="col">Grad</th>
+              <th scope="col">Prozent</th>
+              <th scope="col">Verhältnis 1 : x</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tabelle.map((z) => (
+              <tr>
+                <th scope="row">{z.grad}°</th>
+                <td>{zahl(z.prozent)} %</td>
+                <td>1 : {zahl(z.verhaeltnis)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="hint">
+        Ein Flachdach hat bis etwa 5° Neigung, ein flach geneigtes Dach 5 bis 22°, ein geneigtes Dach
+        22 bis 45° und ein Steildach mehr als 45°.
+      </p>
+    </section>
+
+    <section class="info-section" aria-labelledby="blech-heading">
+      <h2 id="blech-heading">Mindestneigung bei Blechdächern</h2>
+      <p>
+        Die kleinste zulässige Neigung hängt vom Profil und von der Dachtiefe ab. Nimm immer die
+        Angabe des Herstellers für dein Produkt.
+      </p>
+      <div class="tabelle-wrap">
+        <table>
+          <caption class="sr-only">Mindestneigung nach Blechtyp</caption>
+          <thead>
+            <tr>
+              <th scope="col">Blechtyp</th>
+              <th scope="col">Mindestneigung</th>
+            </tr>
+          </thead>
+          <tbody>
+            {BLECHTYPEN.map((t) => (
+              <tr>
+                <th scope="row">{t.name}</th>
+                <td>{t.mindestneigung}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <InfoBox title="Wichtig" variant="warning" icon="⚠️">
+      <p>
+        Die Berechnung ist eine Planungshilfe. Mindestneigung, Dichtbänder und Überdeckung hängen vom
+        Produkt ab. Bei Flachdächern und Abdichtungen gelten zusätzlich die Fachregeln des Dachdeckerhandwerks.
+      </p>
+    </InfoBox>
+
+    <section class="faq-section" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">Häufige Fragen zur Dachneigung</h2>
+      {faq.map((eintrag) => (
+        <div class="faq-item">
+          <h3>{eintrag.question}</h3>
+          <p>{eintrag.answer}</p>
+        </div>
+      ))}
+    </section>
+
+    <section class="info-section" aria-labelledby="weiter-heading">
+      <h2 id="weiter-heading">Passend dazu</h2>
+      <ul>
+        <li><a href="/tools/sparren-rechner/">Sparren-Rechner</a>: Querschnitt prüfen, mit deiner Dachneigung</li>
+        <li><a href="/tools/lattenrechner/">Lattenrechner</a>: Dachlatten und Lattenabstand</li>
+        <li><a href="/tools/schneelastzone/">Schneelastzone</a>: Schneelast je Standort, abhängig von der Neigung</li>
+        <li><a href="/ratgeber/">Dach-Ratgeber</a>: Anleitungen für das Blechdach</li>
+      </ul>
+    </section>
+  </div>
+</ToolLayout>
+
+<script>
+  import { berechneNeigung, einordnung, type NeigungEingabe } from '../../../utils/dachneigung';
+
+  const zahlFormat = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 });
+  const zahl2Format = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 2 });
+
+  const el = <T extends HTMLElement>(id: string): T => {
+    const gefunden = document.getElementById(id);
+    if (!gefunden) throw new Error(`Element #${id} fehlt`);
+    return gefunden as T;
+  };
+
+  const art = el<HTMLSelectElement>('art');
+  const fehler = el('fehler');
+  const ergebnis = el('ergebnis');
+  const felder = document.querySelectorAll<HTMLElement>('[data-feld]');
+
+  const wert = (id: string): number => {
+    const roh = el<HTMLInputElement>(id).value.replace(',', '.');
+    return roh === '' ? NaN : Number(roh);
+  };
+
+  function zeigeFelder(): void {
+    felder.forEach((feld) => {
+      const arten = (feld.dataset.feld ?? '').split(' ');
+      feld.hidden = !arten.includes(art.value);
+    });
+  }
+
+  function eingabeLesen(): NeigungEingabe {
+    if (art.value === 'prozent') return { art: 'prozent', wert: wert('prozent') };
+    if (art.value === 'massen') return { art: 'massen', hoehe: wert('hoehe'), breite: wert('breite') };
+    return { art: 'grad', wert: wert('grad') };
+  }
+
+  function fehlerText(): string {
+    if (art.value === 'massen') return 'Bitte Höhe und Breite größer als 0 eingeben.';
+    if (art.value === 'grad') return 'Bitte eine Neigung zwischen 0 und 90 Grad eingeben.';
+    return 'Bitte eine Steigung größer als 0 Prozent eingeben.';
+  }
+
+  function berechnen(): void {
+    const eingabe = eingabeLesen();
+    const e = berechneNeigung(eingabe);
+    if (!e) {
+      fehler.textContent = fehlerText();
+      fehler.hidden = false;
+      ergebnis.hidden = true;
+      return;
+    }
+    fehler.hidden = true;
+    ergebnis.hidden = false;
+
+    // Bei Grad und Prozent kann die Breite optional für die Sparrenlänge angegeben werden
+    let sparren = e.sparrenlaenge;
+    if (sparren === undefined) {
+      const breite = wert('breite-optional');
+      if (Number.isFinite(breite) && breite > 0) sparren = breite * e.flaechenfaktor;
+    }
+
+    el('einordnung').textContent = einordnung(e.grad).label;
+    el('r-grad').textContent = `${zahlFormat.format(e.grad)}°`;
+    el('r-prozent').textContent = `${zahlFormat.format(e.prozent)} %`;
+    el('r-verhaeltnis').textContent = `1 : ${zahlFormat.format(e.verhaeltnis)}`;
+    el('r-gefaelle').textContent = `${zahlFormat.format(e.gefaelleCmProM)} cm je m`;
+    el('r-faktor').textContent = zahl2Format.format(e.flaechenfaktor);
+
+    const zeileSparren = el('zeile-sparren');
+    zeileSparren.hidden = sparren === undefined;
+    if (sparren !== undefined) el('r-sparren').textContent = `${zahl2Format.format(sparren)} m`;
+  }
+
+  art.addEventListener('change', () => {
+    zeigeFelder();
+    berechnen();
+  });
+  document.querySelectorAll<HTMLInputElement>('.neigung-seite input').forEach((feld) => {
+    feld.addEventListener('input', berechnen);
+  });
+
+  zeigeFelder();
+  berechnen();
+</script>
+
+<style>
+  .intro h1 { color: var(--accent-blue); font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem); margin: 0 0 12px; }
+  .lead { color: var(--text-secondary); font-size: 1.05em; line-height: 1.6; max-width: 66ch; margin: 0 0 24px; }
+  /* Globale Layout-Klassen setzen display und überschreiben sonst das hidden-Attribut */
+  .input-group[hidden], .werte div[hidden], .fehler[hidden], .results[hidden] { display: none; }
+  .input-group { min-width: 0; }
+  .input-group select, .input-group input { width: 100%; max-width: 100%; box-sizing: border-box; }
+  .hint { color: var(--text-secondary); font-size: 0.9rem; margin: 8px 0 0; }
+  .hint a, .info-section a { color: var(--accent-blue); }
+  .fehler { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.5); border-radius: var(--radius-md); padding: 12px 16px; margin: 16px 0; }
+  .einordnung { color: var(--accent-blue); font-weight: 700; margin: 0 0 14px; }
+  .werte { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 12px; }
+  .werte div { background: var(--gradient-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 14px; }
+  .werte dt { color: var(--text-secondary); font-size: 0.85rem; }
+  .werte dd { margin: 4px 0 0; font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tabelle-wrap { overflow-x: auto; margin: 12px 0 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+  thead th { color: var(--accent-blue); font-weight: 600; }
+  tbody th { font-weight: 600; }
+  .info-section { margin: 32px 0; line-height: 1.7; }
+  .info-section h2 { color: var(--accent-blue); margin-bottom: 12px; }
+  .info-section ul { padding-left: 20px; }
+  .info-section li { margin-bottom: 8px; }
+  .faq-section { background: rgba(14, 165, 233, 0.06); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; margin: 28px 0; }
+  .faq-section h2 { font-size: 1.6rem; margin-bottom: 18px; color: var(--accent-blue); }
+  .faq-item { margin-bottom: 16px; }
+  .faq-item h3 { font-size: 1.1rem; margin-bottom: 8px; }
+  .faq-item p { color: var(--text-secondary); line-height: 1.6; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
